@@ -52,7 +52,7 @@ toilet_rooms = [
     {"name": "Seaweed Room", "x": [0]},
     {"name": "Single Chamber", "x": [0]},
     {"name": "The Worst Room In The Game", "x": [0]},
-    {"name": "Three Musketeers' Room", "x": [0]},
+    {"name": "Three Musketeers' Room", "x": [1]},
     {"name": "Tourian Escape Room 3", "x": [0, 1, 2, 3, 4, 5]},
     {"name": "Tourian Escape Room 4", "x": [0, 1, 2]},
     {"name": "Volcano Room", "x": [2]},

@@ -655,7 +655,7 @@ impl MosaicPatchBuilder {
         src_layer_2: &[u8],
     ) {
         let dst_size = dst_level_data[0] as usize + ((dst_level_data[1] as usize) << 8);
-
+        // println!("{} {} {} : {} {} {}", dst_screen_x, dst_screen_y, dst_width, src_screen_x, src_screen_y, src_width);
         for y in 0..16 {
             for x in 0..16 {
                 let src_x = src_screen_x * 16 + x;
@@ -854,6 +854,12 @@ impl MosaicPatchBuilder {
                     // Tube screen immediately above the intersecting room:
                     Self::copy_screen(&mut level_data, 0, (y + y_min - 1) as usize, 1, &top_level_data, 0, 4, 1, &top_layer_2);
 
+                    if y + y_min - 1 > 4 {
+                        assert!(y + y_min - 1 == 5);
+                        // One more tube screen above: make it a connecting screen instead of a terminator
+                        Self::copy_screen(&mut level_data, 0, 4, 1, &bottom_level_data, 0, 2, 1, &bottom_layer_2);
+                    }
+
                     // Intersecting room
                     for sy in y_min..=y_max {
                         Self::copy_screen(
@@ -871,6 +877,12 @@ impl MosaicPatchBuilder {
 
                     // Tube screen immediately below the intersecting room:
                     Self::copy_screen(&mut level_data, 0, (y + y_max + 1) as usize, 1, &bottom_level_data, 0, 5, 1, &bottom_layer_2);
+
+                    if y + y_max + 1 < 5 {
+                        assert!(y + y_max + 1 == 4);
+                        // One more tube screen below: make it a connecting screen instead of a terminator
+                        Self::copy_screen(&mut level_data, 0, 5, 1, &bottom_level_data, 0, 7, 1, &bottom_layer_2);
+                    }
 
                     let compressed_level_data = self.get_compressed_data(&level_data)?;
                     if dry_run {

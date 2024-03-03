@@ -215,7 +215,7 @@ pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
 # old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk47', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk49', 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk50', 'rb')).load()
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -759,7 +759,7 @@ for i in range(1000000):
                 session.num_rounds,
                 new_loss,
                 new_binary_loss,
-                new_save_loss,
+                # new_save_loss,
                 new_graph_diam_loss,
                 new_mc_loss,
                 new_toilet_loss,
@@ -792,7 +792,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk49')
+            # save_session(session, pickle_name + '-bk50')
             # session.replay_buffer.resize(2 ** 21)
             # pickle.dump(session, open(pickle_name + '-small-49', 'wb'))
     if session.num_rounds % summary_freq == 0:
