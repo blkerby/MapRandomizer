@@ -146,10 +146,14 @@ impl MosaicPatchBuilder {
         return Ok(std::fs::read(output_path)?);
     }
 
-    fn get_fx_data(&self, state_xml: &smart_xml::RoomState) -> Vec<u8> {
+    fn get_fx_data(&self, state_xml: &smart_xml::RoomState, default_only: bool) -> Vec<u8> {
         let mut out: Vec<u8> = vec![];
 
         for fx in &state_xml.fx1s.fx1 {
+            if default_only && !fx.default {
+                continue;
+            }
+
             // Door pointer (for non-default FX) is map-specific and will be substituted during customization.
             if fx.default {
                 out.extend(0u16.to_le_bytes());
@@ -537,7 +541,7 @@ impl MosaicPatchBuilder {
                 let level_data = extract_uncompressed_level_data(state_xml);
                 let compressed_level_data = self.get_compressed_data(&level_data)?;
                 compressed_level_data_vec.push(compressed_level_data);
-                let fx_data = self.get_fx_data(&state_xml);
+                let fx_data = self.get_fx_data(&state_xml, false);
                 fx_data_vec.push(fx_data);
                 state_xml_vec.push(state_xml.clone());
             }
@@ -733,6 +737,12 @@ impl MosaicPatchBuilder {
             0
         };
 
+        let fx_data_addr = if !dry_run {
+            self.fx_allocator.allocate(16)?
+        } else {
+            0
+        };
+
         // Index SMART project rooms:
         let mut room_name_by_pair: HashMap<(usize, usize), String> = HashMap::new();
         for room_path in std::fs::read_dir(self.mosaic_dir.join("Projects/Base/Export/Rooms"))? {
@@ -879,38 +889,26 @@ impl MosaicPatchBuilder {
                         new_rom.write_u16(state_ptr + 8, 0x85a9)?;
                         new_rom.write_u16(state_ptr + 10, 0x80eb)?;                    
 
-                        // // Write (or clear) the BGData pointer:
-                        // if state_xml.layer2_type == Layer2Type::BGData {
-                        //     let bg_ptr = self.bgdata_map.get(&state_xml.bg_data).map(|x| *x).unwrap_or(0);
-                        //     if bg_ptr == 0 {
-                        //         error!("Unrecognized BGData in {}", project);
-                        //     }
-                        //     new_rom.write_u16(state_ptr + 22, bg_ptr)?;
-                        // } else {
-                        //     new_rom.write_u16(state_ptr + 22, 0)?;
-                        // }
-
-                        // // Write BG scroll speeds:
-                        // let mut speed_x = state_xml.layer2_xscroll;
-                        // let mut speed_y = state_xml.layer2_yscroll;
-                        // if state_xml.layer2_type == Layer2Type::BGData {
-                        //     speed_x |= 0x01;
-                        //     speed_y |= 0x01;
-                        // }
-                        // new_rom.write_u8(state_ptr + 12, speed_x as isize)?;
-                        // new_rom.write_u8(state_ptr + 13, speed_y as isize)?;
-
                         // Write the level data and the pointer to it:
                         new_rom.write_n(level_data_addr, &compressed_level_data)?;
                         new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
 
-                        // // Write FX:
-                        // if pc2snes(room_ptr) & 0xFFFF == 0xDD58 {
-                        //     // Skip for Mother Brain Room, which has special FX not in the FX list.
-                        // } else {
-                        //     new_rom.write_n(fx_data_addr, &fx_data_vec[i])?;
-                        //     new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
-                        // }
+                        // Write FX:
+                        new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
+                        let mut fx_data = self.get_fx_data(&middle_state_xml, true);
+                        assert!(fx_data.len() <= 16);
+                        if fx_data.len() == 16 {
+                            if fx_data[3] != 0xFF {
+                                // Adjust liquid level start:
+                                fx_data[3] = ((fx_data[3] as i8) + (y as i8)) as u8;
+                            }
+                            if fx_data[5] != 0xFF {
+                                // Adjust liquid level new:
+                                fx_data[5] = ((fx_data[5] as i8) + (y as i8)) as u8;
+                            }
+                            fx_data[13] &= 0x7F;  // Disable heat FX
+                        }
+                        new_rom.write_n(fx_data_addr, &fx_data)?;
 
                         // // Write setup & main ASM pointers:
                         // if pc2snes(state_ptr) & 0xFFFF == 0xDDA2 {
