@@ -759,7 +759,7 @@ for i in range(1000000):
                 session.num_rounds,
                 new_loss,
                 new_binary_loss,
-                # new_save_loss,
+                new_save_loss,
                 new_graph_diam_loss,
                 new_mc_loss,
                 new_toilet_loss,

@@ -1,18 +1,20 @@
 v110
 - Movable Toilet:
-  - construct & use graphics for Toilet room
-    - include Layer 2 background
-  - copy FX and adjust liquid level
-    - give immunity to lava/acid
-  - figure out setup ASM for rooms with glass tube tiles?
+  - make sure it works for vanilla map
+  - create transit-tube-data for the other themes, aside from Base.
   - modify the intersecting room to draw the Toilet in the background (layer 2)
     - set BG scrolls to 100%
+    - remove scrolling sky
   - draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
-  - touch up the tiling of the intersecting rooms to look good with Toilet
-  - draw tube fins on screen boundaries
+  - SMART project work:
+    - touch up the tiling of the intersecting rooms to look good with Toilet
+    - convert BGData to Layer2
+  - handle twin rooms: Pants Room and Homing Geemer
   - remove tube from Aqueduct
+  - figure out setup ASM for rooms with glass tube tiles?
   - set up constraint for toilet to have same area/subarea as intersecting room
     - doesn't work overriding it in the randomizer: area size can overflow
+    - also ensure new pool doesn't have Three Musketeers' wrong X position
 - Make sure BT has item (e.g. for Chozo objective).
 - Override f_ZebesAwake yield on Metroid Rooms.
 - reduce Desolate Power Bomb pool to 25?
