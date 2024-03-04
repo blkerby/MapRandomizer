@@ -18,9 +18,10 @@ document.getElementById("navigation-releases").classList.add("active");
 <ul>
 <li>Sand exits are restored to their vanilla layout:
     <ul>
-    <li>This affects Bug Sand Hole, Aqueduct, and Botwoon Energy Tank Room.
+    <li>This affects the bottom of Bug Sand Hole, Aqueduct, and Botwoon Energy Tank Room.
     <li>Through sand transitions, Samus' X position is clamped to fit the entrance in the room below.
     </ul>
+<li>Heated shinecharge tiles are adjusted to be less lenient in Medium, Hard, and Very Hard.
 </ul>
 
 <p><a id="release109">Version 109 (2024-02-27)</a>:
