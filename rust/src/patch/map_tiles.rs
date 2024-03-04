@@ -1802,7 +1802,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("Colosseum", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("The Precious Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Draygon's Room", LiquidType::Water, 0, 0)?;
-        self.indicate_liquid_room("Space Jump Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Space Jump Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Crab Tunnel", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Crab Hole", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Maridia Map Room", LiquidType::Water, 0, 0)?;

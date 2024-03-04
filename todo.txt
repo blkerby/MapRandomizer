@@ -12,6 +12,8 @@ v110
   - set up constraint for toilet to have same area/subarea as intersecting room
     - doesn't work overriding it in the randomizer: area size can overflow
     - also ensure new pool doesn't have Three Musketeers' wrong X position
+- Look into Everest tunnel expansion:
+  - should be only 2 air tiles wide but is 3 in Mosaic?
 - Make sure BT has item (e.g. for Chozo objective).
 - Override f_ZebesAwake yield on Metroid Rooms.
 - Fix issue with Desolate not giving all items in escape:
