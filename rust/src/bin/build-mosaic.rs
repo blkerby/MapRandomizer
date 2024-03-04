@@ -864,18 +864,20 @@ impl MosaicPatchBuilder {
                 let mut new_middle_level_data = middle_level_data.clone();
                 let mut middle_layer_2_behind = orig_middle_layer_2.clone();
                 Self::draw_tube(&mut middle_layer_2_behind, room_width, room_height, x, false);
-                for sy in y_min..=y_max {
-                    Self::copy_screen(
-                        &mut new_middle_level_data,
-                        x,
-                        sy as usize,
-                        room_width,
-                        &middle_level_data,
-                        x,
-                        sy as usize,
-                        room_width,
-                        &middle_layer_2_behind,
-                    );
+                for sy in 0..room_height {
+                    for sx in 0..room_width {
+                        Self::copy_screen(
+                            &mut new_middle_level_data,
+                            sx,
+                            sy as usize,
+                            room_width,
+                            &middle_level_data,
+                            sx,
+                            sy as usize,
+                            room_width,
+                            &middle_layer_2_behind,
+                        );    
+                    }
                 }
 
                 let compressed_middle_level_data = self.get_compressed_data(&new_middle_level_data)?;                    
@@ -967,23 +969,22 @@ impl MosaicPatchBuilder {
                         }
                         new_rom.write_n(fx_data_addr, &fx_data)?;
 
-                        // // Write setup & main ASM pointers:
-                        // if pc2snes(state_ptr) & 0xFFFF == 0xDDA2 {
-                        //     // Don't overwrite ASM for special Mother Brain Room state used by randomizer for escape sequence.
-                        // } else {
-                        //     // Main ASM:
-                        //     new_rom.write_u16(state_ptr + 18, state_xml.fx2 as isize)?;
-
-                        //     // Setup ASM:
-                        //     new_rom.write_u16(state_ptr + 24, state_xml.layer1_2 as isize)?;
-                        // }
-
-                        // Write the level data and pointers for the intersecting room:
+                        // Write level data and other modifications for the intersecting room:
                         new_rom.write_n(intersection_level_data_addr, &compressed_middle_level_data)?;
                         for (_event_ptr, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
                             new_rom.write_u24(state_ptr, pc2snes(intersection_level_data_addr) as isize)?;
-                        }
 
+                            // Set BG scroll rates to 100%
+                            new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
+                            new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
+
+                            if middle_state_xml.layer1_2 == 0x91C9 {
+                                // Disable scrolling sky, in order to be able to draw the tube in Layer2.
+                                new_rom.write_u16(state_ptr + 18, 0x0000)?;
+                                new_rom.write_u16(state_ptr + 24, 0x0000)?;
+                            }    
+                        }
+        
                         // Encode the BPS patch:
                         let modified_ranges = new_rom.get_modified_ranges();
                         let mut encoder = BPSEncoder::new(
