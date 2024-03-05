@@ -13,6 +13,8 @@ v110
     - doesn't work overriding it in the randomizer: area size can overflow
     - also ensure new pool doesn't have Three Musketeers' wrong X position
   - Update Early Supers in Base theme, vine in bottom left
+- Make Ammo doors default
+- look into instant morph (after walljump) still happening with spin lock (reported by Nito)
 - Look into Everest tunnel expansion:
   - should be only 2 air tiles wide but is 3 in Mosaic?
 - Make sure BT has item (e.g. for Chozo objective).

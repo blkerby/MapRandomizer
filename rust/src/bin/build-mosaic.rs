@@ -795,6 +795,8 @@ impl MosaicPatchBuilder {
             "OuterCrateria",
             "InnerCrateria",
             "GreenBrinstar",
+            "UpperNorfair",
+            "WreckedShip",
         ];
         for theme_name in theme_names {
             let theme_transit_data_path = transit_tube_data_path.join(format!("{}.json", theme_name));
@@ -1079,7 +1081,8 @@ fn main() -> Result<()> {
         (snes2pc(0x83F000), snes2pc(0x840000)),
     ]);
 
-    let rom = Rom::load(&args.input_rom)?;
+    let mut rom = Rom::load(&args.input_rom)?;
+    rom.data.resize(0x400000, 0xFF);
     let mut room_ptr_map: HashMap<(usize, usize), usize> = HashMap::new();
     for room_ptr in room_ptrs {
         let area = rom.read_u8(room_ptr + 1)?;
