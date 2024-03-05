@@ -794,6 +794,7 @@ impl MosaicPatchBuilder {
             "Base",
             "OuterCrateria",
             "InnerCrateria",
+            "GreenBrinstar",
         ];
         for theme_name in theme_names {
             let theme_transit_data_path = transit_tube_data_path.join(format!("{}.json", theme_name));
