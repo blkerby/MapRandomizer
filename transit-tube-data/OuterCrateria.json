@@ -1,0 +1,368 @@
+[
+    {
+        "name": "Amphitheatre", 
+        "x": [0, 1, 2, 3],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Below Spazer",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Beta Power Bomb Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Bowling Alley",
+        "x": [2, 3, 4],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Bubble Mountain",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Bat Cave",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Cathedral Entrance",
+        "x": [1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Cathedral",
+        "x": [0, 1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Construction Zone",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Crab Hole", 
+        "x": [0],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "The Moat",
+        "x": [0, 1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Crocomire Escape",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Crumble Shaft",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Double Chamber",
+        "x": [0, 1, 2, 3],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "The Precious Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Early Supers Room",
+        "x": [0, 1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "East Ocean", 
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Electric Death Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Etecoon Energy Tank Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Fast Pillars Setup Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Fish Tank",
+        "x": [1],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Grapple Beam Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Post Crocomire Jump Room",
+        "x": [0, 1, 2, 3],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Grapple Tutorial Room 2",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Ice Beam Snake Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Kraid Eye Door Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Warehouse Entrance",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Kronic Boost Room",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Landing Site",
+        "x": [3, 5],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Lava Dive Room",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Lower Norfair Spring Ball Maze Room",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Aqueduct",
+        "x": [2, 4, 5],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Metroid Room 2",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Mickey Mouse Room",
+        "x": [3],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Northwest Maridia Bug Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Pants Room",
+        "x": [0, 1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Parlor And Alcatraz",
+        "x": [3],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Pink Brinstar Hopper Room",
+        "x": [0, 1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Pink Brinstar Power Bomb Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Plasma Room",
+        "x": [0, 1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Kassiuz Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Post Crocomire Farming Room",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Pseudo Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Mt. Everest",
+        "x": [3, 5],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Red Kihunter Shaft",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Rinka Shaft",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Screw Attack Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Single Chamber",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "The Worst Room In The Game",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Three Musketeers' Room",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "x": [0, 1, 2, 3, 4, 5],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Seaweed Room",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "x": [0, 1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Mama Turtle Room",
+        "x": [1, 2],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Volcano Room",
+        "x": [2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Wasteland",
+        "x": [1],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Dry"
+    },
+    {
+        "name": "Watering Hole",
+        "x": [0],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "West Cactus Alley Room",
+        "x": [0],
+        "top": "Outer Crateria Wet",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "West Ocean",
+        "x": [0, 1, 2, 5],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "x": [1, 2],
+        "top": "Outer Crateria Dry",
+        "bottom": "Outer Crateria Wet"
+    }
+]

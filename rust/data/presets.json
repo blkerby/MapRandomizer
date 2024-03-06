@@ -27,7 +27,7 @@
   {
     "name": "Medium",
     "shinespark_tiles": 26,
-    "heated_shinespark_tiles": 33,
+    "heated_shinespark_tiles": 29,
     "shinecharge_leniency_frames": 90,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
@@ -72,7 +72,7 @@
   {
     "name": "Hard",
     "shinespark_tiles": 20,
-    "heated_shinespark_tiles": 26,
+    "heated_shinespark_tiles": 24,
     "shinecharge_leniency_frames": 60,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
@@ -162,7 +162,7 @@
   {
     "name": "Very Hard",
     "shinespark_tiles": 16,
-    "heated_shinespark_tiles": 20,
+    "heated_shinespark_tiles": 18,
     "shinecharge_leniency_frames": 30,
     "gate_glitch_leniency": 7,
     "door_stuck_leniency": 2,

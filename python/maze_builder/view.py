@@ -10,6 +10,11 @@ import pickle
 import concurrent.futures
 import random
 
+
+for i, room in enumerate(logic.rooms.all_rooms.rooms):
+    print(i, room.name)
+
+
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
                     handlers=[logging.FileHandler("train.log"),
@@ -41,13 +46,20 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-50', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-61', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-63', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-70', 'rb')).load()
-#
+# session = CPU_Unpickler(open('models/session-2023-06-08T14:55:16.779895.pkl-small-70', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-1', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-22', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-31', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-40', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-44', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-46', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-47', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-48', 'rb')).load()
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
-min_reward = torch.min(session.replay_buffer.episode_data.reward)
-print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
-      session.replay_buffer.episode_data.reward.shape[0])
+# min_reward = torch.min(session.replay_buffer.episode_data.reward)
+# print(min_reward, torch.mean((session.replay_buffer.episode_data.reward == min_reward).to(torch.float32)),
+#       session.replay_buffer.episode_data.reward.shape[0])
 
 S = session.replay_buffer.episode_data.save_distances.to(torch.float32)
 S = torch.where(S == 255, torch.full_like(S, float('nan')), S)
@@ -63,33 +75,42 @@ M = torch.nanmean(M, dim=1)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 343)
 # ind = torch.nonzero(session.replay_buffer.episode_data.reward >= 0)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
-num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
+# num_feasible = torch.nonzero((session.replay_buffer.episode_data.reward == min_reward)).shape[0]
 
 ind = torch.nonzero(
-    (session.replay_buffer.episode_data.reward == min_reward) &
-    # (S < 3.90) &
-    # (session.replay_buffer.episode_data.graph_diameter <= 45) &
-    (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
-)[:, 0]
+    (session.replay_buffer.episode_data.reward == 0) &
+    (S < 4.00) &
+    (session.replay_buffer.episode_data.graph_diameter <= 45) &
+    # (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
+    (session.replay_buffer.episode_data.mc_dist_coef == 0.0) &
+    session.replay_buffer.episode_data.toilet_good
+)
 
-print(sorted(M[ind].tolist()))
-print(sorted(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).tolist()))
-print(torch.mean(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).to(torch.float)))
+# ind = torch.nonzero(
+#     (session.replay_buffer.episode_data.reward == min_reward) #&
+#     # (S < 3.90) &
+#     # (session.replay_buffer.episode_data.graph_diameter <= 45) &
+#     # (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
+# )
+
+# print(sorted(M[ind].tolist()))
+# print(sorted(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).tolist()))
+# print(torch.mean(torch.amax(session.replay_buffer.episode_data.mc_distances[ind], dim=1).to(torch.float)))
 
 # print(sorted(M[ind].tolist()))
 # print(torch.where(session.replay_buffer.episode_data.graph_diameter[ind] == 29))
 
-print("success rate: ", ind.shape[0] / num_feasible)
+# print("success rate: ", ind.shape[0] / num_feasible)
 i = int(random.randint(0, ind.shape[0] - 1))
+# i = 26
 print(len(ind), i)
-# i = 2
 # i = 389
 num_rooms = len(session.envs[0].rooms)
-print("mean save_distance:", torch.mean(session.replay_buffer.episode_data.save_distances[ind].to(torch.float)))
-print("mean diam:", torch.mean(session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)))
-print("max diam:", torch.max(session.replay_buffer.episode_data.graph_diameter[ind]))
-print("min diam:", torch.min(session.replay_buffer.episode_data.graph_diameter[ind]))
-print("diam:", session.replay_buffer.episode_data.graph_diameter[ind[i]])
+# print("mean save_distance:", torch.mean(session.replay_buffer.episode_data.save_distances[ind].to(torch.float)))
+# print("mean diam:", torch.mean(session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)))
+# print("max diam:", torch.max(session.replay_buffer.episode_data.graph_diameter[ind]))
+# print("min diam:", torch.min(session.replay_buffer.episode_data.graph_diameter[ind]))
+# print("diam:", session.replay_buffer.episode_data.graph_diameter[ind[i]])
 
 action = session.replay_buffer.episode_data.action[ind[i], :]
 # action = session.replay_buffer.episode_data.action[ind[:16], :]
@@ -169,40 +190,18 @@ env.room_mask = room_mask
 env.render(0)
 env.map_display.image.show()
 
-# A = env.compute_part_adjacency_matrix(room_mask, room_position_x, room_position_y)
-# D = env.compute_distance_matrix(A)
-# S = env.compute_save_distances(D)
+self = env
+toilet_idx = self.toilet_idx
+toilet_x = room_position_x[:, toilet_idx].view(-1, 1)
+toilet_y = room_position_y[:, toilet_idx].view(-1, 1)
+toilet_mask = room_mask[:, toilet_idx].view(-1, 1)
 
-
-
-
-# for i in range(num_rooms + 1):
-#     step_indices = torch.tensor([i])
-#     room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, num_rooms)
-#     env.room_position_x = room_position_x
-#     env.room_position_y = room_position_y
-#     env.room_mask = room_mask
-#     env.render(0)
-#     time.sleep(0.5)
-
-
-#
-#
-# session.envs = [env]
-# num_candidates = 32
-# temperature = torch.full([num_envs], 0.005)
-# torch.manual_seed(0)
-# max_possible_reward = env.max_reward
-# start_time = time.perf_counter()
-# executor = concurrent.futures.ThreadPoolExecutor(1)
-# # for i in range(10000):
-# data = session.generate_round(
-#     episode_length=episode_length,
-#     num_candidates=num_candidates,
-#     temperature=temperature,
-#     executor=executor,
-#     render=False)
-#     # render=True)
-# end_time = time.perf_counter()
-# print(end_time - start_time)
-# print(len(env.single_tile_idxs))
+good_toilet_room_idx = self.good_toilet_positions[:, 0]
+good_toilet_x = self.good_toilet_positions[:, 1].view(1, -1)
+good_toilet_y = self.good_toilet_positions[:, 2].view(1, -1)
+good_room_x = room_position_x[:, good_toilet_room_idx]
+good_room_y = room_position_y[:, good_toilet_room_idx]
+good_room_mask = room_mask[:, good_toilet_room_idx]
+good_match = (toilet_x == good_room_x + good_toilet_x) & (
+toilet_y == good_room_y + good_toilet_y) & toilet_mask & good_room_mask
+num_good_match = torch.sum(good_match, dim=1)

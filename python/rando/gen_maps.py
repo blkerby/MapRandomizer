@@ -19,6 +19,7 @@ parser = argparse.ArgumentParser(
 parser.add_argument('session_file')
 parser.add_argument('start_index')
 parser.add_argument('end_index')
+parser.add_argument('pool')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -37,7 +38,6 @@ class CPU_Unpickler(pickle.Unpickler):
             return super().find_class(module, name)
 
 device = torch.device('cpu')
-session_name = 'session-2023-06-08T14:55:16.779895.pkl-small-71'
 
 session_name = args.session_file
 start_index = int(args.start_index)
@@ -49,19 +49,20 @@ mean_mc_dist = torch.mean(session.replay_buffer.episode_data.mc_distances.to(tor
 
 common_mask = (
     (session.replay_buffer.episode_data.reward == 0) &
-    (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.00) &
+    session.replay_buffer.episode_data.toilet_good &
+    (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.10) &
     (session.replay_buffer.episode_data.graph_diameter <= 45)
 )
 
 tame_ind = torch.nonzero(
     common_mask &
     (session.replay_buffer.episode_data.mc_dist_coef > 0.0) &
-    (max_mc_dist <= 12)
+    (max_mc_dist <= 13)
 )
 wild_ind = torch.nonzero(
     common_mask &
     (session.replay_buffer.episode_data.mc_dist_coef == 0.0) &
-    (max_mc_dist >= 18)
+    (max_mc_dist >= 17)
 )
 
 def print_summary(ind):
@@ -77,12 +78,18 @@ print_summary(tame_ind)
 print("--- Wild ---")
 print_summary(wild_ind)
 
-ind = tame_ind
+pool = args.pool
+if pool == "tame":
+    ind = tame_ind
+elif pool == "wild":
+    ind = wild_ind
+else:
+    print("Unrecognized pool " + pool)
 # ind = wild_ind
 logging.info("{} maps".format(ind.shape[0]))
 # os._exit(0)
 
-os.makedirs(f'maps/{session_name}', exist_ok=True)
+os.makedirs(f'maps/{session_name}-{pool}', exist_ok=True)
 episode_data_action = session.replay_buffer.episode_data.action[ind[start_index:end_index], :]
 del session
 
@@ -204,5 +211,5 @@ for ind_i in range(start_index, end_index):
     logging.info("Successful area assignment")
 
     map['area'] = area_arr.tolist()
-    filename = f'maps/{session_name}/{ind_i}.json'
+    filename = f'maps/{session_name}-{pool}/{ind_i}.json'
     json.dump(map, open(filename, 'w'))

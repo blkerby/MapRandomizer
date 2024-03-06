@@ -1,10 +1,33 @@
-v110:
+v110
+- Movable Toilet:
+  - draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
+  - handle twin rooms: Pants Room and Homing Geemer
+  - draw tube using different tiles in Maridia tileset
+  - make sure it works for vanilla map
+    - draw tube in Aqueduct and Botwoon Hallway
+  - figure out setup ASM for rooms with glass tube tiles?
+  - set up constraint for toilet to have same area/subarea as intersecting room
+    - doesn't work overriding it in the randomizer: area size can overflow
+    - also ensure new pool doesn't have Three Musketeers' wrong X position
+  - Update Early Supers in Base theme, vine in bottom left
+- Make Ammo doors default
+- look into instant morph (after walljump) still happening with spin lock (reported by Nito)
+- Look into Everest tunnel expansion:
+  - should be only 2 air tiles wide but is 3 in Mosaic?
+- Make sure BT has item (e.g. for Chozo objective).
+- Override f_ZebesAwake yield on Metroid Rooms.
+- Fix issue with Desolate not giving all items in escape:
+  - https://maprando.com/seed/BluDOWpAlybe60H1XYSUDg/
+- Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
+  - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
+- reduce Desolate Power Bomb pool to 25?
+- ultra-low QoL: 
+
+TODO:
+- heated elevator: mark with red platform?
 - Debug eddie desolate seed:
   - https://maprando.com/seed/tPRO8Krh2LxvnQvA0HZzaw/
   - Why placed Grapple and Wasteland ETank?
-- Make sure BT has item.
-
-TODO:
 - debug door lock logic:
   - door requiring heat frames to unlock from unheated side: http://localhost:8080/seed/UCp7ZDC5H6ZSmDlKOtYBXw/data/visualizer/index.html
 - fix randomizer failing with all starting items.

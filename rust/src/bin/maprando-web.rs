@@ -14,9 +14,9 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button, ControllerButton, ShakingSetting,
+    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, MusicSettings, PaletteTheme, ShakingSetting, TileTheme
 };
-use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
+use maprando::game_data::{self, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -916,12 +916,15 @@ async fn customize_seed(
         },
         reserve_hud_style: req.reserve_hud_style.0,
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
-        area_theming: if req.tile_theme.0 != "none" {
-            AreaTheming::Tiles(req.tile_theme.0.to_owned())
-        } else if req.room_palettes.0 == "area-themed" {
-            AreaTheming::Palettes
+        palette_theme: if req.room_palettes.0 == "area-themed" {
+            PaletteTheme::AreaThemed
         } else {
-            AreaTheming::Vanilla
+            PaletteTheme::Vanilla
+        },
+        tile_theme: if req.tile_theme.0 == "none" {
+            TileTheme::Vanilla
+        } else {
+            TileTheme::Constant(req.tile_theme.0.to_string())
         },
         music: match req.music.0.as_str() {
             "vanilla" => MusicSettings::Vanilla,
@@ -1549,7 +1552,7 @@ async fn randomize(
             panic!("Unrecognized map layout option: {}", map_layout);
         }
         let mut map = app_data.map_repositories[&map_layout]
-            .get_map(attempt_num, map_seed)
+            .get_map(attempt_num, map_seed, &app_data.game_data)
             .unwrap();
         if difficulty.area_assignment == AreaAssignment::Random {
             randomize_map_areas(&mut map, map_seed);
@@ -1876,8 +1879,9 @@ fn build_app_data() -> AppData {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    let tame_maps_path = Path::new("../maps/v93-tame");
-    let wild_maps_path = Path::new("../maps/v90-wild");
+    // let tame_maps_path = Path::new("../maps/v93-tame");
+    let tame_maps_path = Path::new("../maps/v110-tame");
+    let wild_maps_path = Path::new("../maps/v110-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");

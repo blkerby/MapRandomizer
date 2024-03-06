@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use crate::{
-    game_data::{GameData, RoomPtr, DoorPtr, RoomStateIdx},
-    patch::{snes2pc, pc2snes, Rom, get_room_state_ptrs, apply_ips_patch, bps::BPSPatch},
+    game_data::{DoorPtr, GameData, RoomPtr, RoomStateIdx},
+    patch::{self, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, pc2snes, snes2pc, Rom},
 };
 use anyhow::{Result, Context};
 use hashbrown::HashMap;
@@ -18,12 +18,34 @@ fn apply_bps_patch(rom: &mut Rom, orig_rom: &Rom, filename: &str) -> Result<()> 
     Ok(())
 }
 
+fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
+    let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
+    let toilet_rel_x_addr = snes2pc(0xB5FE72);
+    let toilet_rel_y_addr = snes2pc(0xB5FE73);
+
+    let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
+    if room_ptr == 0x7FFFF {
+        // Unspecified room means this is vanilla map, so leave the Toilet alone.
+        return Ok(());
+    }
+    let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
+    let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
+    let patch_filename = format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y);
+    println!("toilet patch: {}", patch_filename);
+    apply_bps_patch(rom, orig_rom, &patch_filename)
+        .context(format!("Applying Toilet patch: {}", patch_filename))?;
+    
+    Ok(())
+}
+
 pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme_name: &str) -> Result<()> {
     // "theme" is just a temporary argument, to hard-code a constant theme through the whole game.
     // It will be eliminated once we have all the themes are are ready to assign them based on area.
     let patch_names = vec![
         "Scrolling Sky v1.5",
         "Area FX",
+        "Area Palettes",
+        "Area Palette Glows",
         "Bowling",
     ];
     for name in &patch_names {
@@ -68,6 +90,8 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
             }
         }
     }
+
+    apply_toilet(rom, orig_rom, theme_name)?;
 
     Ok(())
 }

@@ -107,22 +107,6 @@ fn get_palette(rom: &Rom, area: usize, tileset_idx: usize) -> Result<Vec<u8>> {
     Ok(pal)
 }
 
-fn fix_phantoon_power_on(rom: &mut Rom, game_data: &GameData) -> Result<()> {
-    // Fix palette transition that happens in Phantoon's Room after defeating Phantoon.
-    let phantoon_room_ptr = 0x7CD13;
-    let phantoon_area = get_room_map_area(rom, phantoon_room_ptr)?;
-    if phantoon_area >= 6 {
-        bail!("Invalid Phantoon area: {phantoon_area}")
-    }
-    if phantoon_area != 3 {
-        let encoded_palette = get_palette(rom, phantoon_area, 4)?;
-        rom.write_n(snes2pc(0xA7CA61), &encoded_palette[0..224])?;
-        rom.write_u16(snes2pc(0xA7CA7B), 0x48FB)?; // 2bpp palette 3, color 1: pink color for E-tanks (instead of black)
-        rom.write_u16(snes2pc(0xA7CA97), 0x7FFF)?; // 2bpp palette 6, color 3: white color for HUD text/digits
-    }
-    Ok(())
-}
-
 fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
     // Reduce the darkening effect per fireflea kill (so that in many of the palettes the
     // room won't go completely black so soon).
@@ -167,11 +151,58 @@ fn fix_mother_brain(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     Ok(())
 }
 
+
+fn disable_glows(
+    rom: &mut Rom,
+    game_data: &GameData,
+) -> Result<()> {
+    for room_json in game_data.room_json_map.values() {
+        let room_ptr =
+            parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+        let vanilla_area = rom.read_u8(room_ptr + 1)? as usize;
+        let map_area = get_room_map_area(rom, room_ptr)?;
+        for (_event_ptr, state_ptr) in get_room_state_ptrs(rom, room_ptr)? {
+            // let tileset_idx = rom.read_u8(state_ptr + 3)? as usize;
+
+            if vanilla_area != map_area && map_area != 0 {
+                // Remove palette glows for non-vanilla rooms, aside from Crateria palette:
+                let mut fx_ptr_snes = rom.read_u16(state_ptr + 6)? as usize + 0x830000;
+                loop {
+                    let fx_door_select = rom.read_u16(snes2pc(fx_ptr_snes))?;
+                    if fx_door_select == 0xFFFF {
+                        break;
+                    }
+
+                    let mut pal_fx_bitflags = rom.read_u8(snes2pc(fx_ptr_snes + 13))?;
+
+                    if vanilla_area == 2 {
+                        pal_fx_bitflags &= 1;  // Norfair room: only keep the heat FX bit
+                    } else if vanilla_area != 4 {  // Keep palette FX for Maridia rooms (e.g. waterfalls)
+                        pal_fx_bitflags = 0;
+                    }
+                    rom.write_u8(snes2pc(fx_ptr_snes + 13), pal_fx_bitflags)?;    
+
+                    if fx_door_select == 0x0000 {
+                        break;
+                    }
+                    fx_ptr_snes += 16;
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
-    apply_ips_patch(rom, Path::new(&"../patches/ips/area_palettes.ips"))?;
+    // Set flag to enable behavior in "Area Palettes.asm":
+    rom.write_u16(snes2pc(0x8AC000), 0xF0F0)?;
+
+    // apply_ips_patch(rom, Path::new(&"../patches/ips/area_palettes.ips"))?;
     make_palette_blends_gray(rom)?;
-    fix_phantoon_power_on(rom, game_data)?;
+    // fix_phantoon_power_on(rom, game_data)?;
     lighten_firefleas(rom)?;
-    fix_mother_brain(rom, game_data)?;
+    // fix_mother_brain(rom, game_data)?;
+    disable_glows(rom, game_data)?;
     Ok(())
 }

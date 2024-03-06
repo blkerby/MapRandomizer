@@ -361,11 +361,6 @@ def place_phantoon_and_friends(map):
         logging.info("Failed to place Phantoon's Room")
         return None
 
-    # Filter to the candidate(s) with smallest distance from Ship.
-    ship_dist = dist[landing_site_idx, eligible_phantoon_idxs]
-    min_ship_dist = np.min(ship_dist)
-    eligible_phantoon_idxs = eligible_phantoon_idxs[ship_dist == min_ship_dist]
-
     new_phantoon_idx = np.random.choice(list(eligible_phantoon_idxs))
 
     # Randomly select a candidate for Wrecked Ship Map Room:
@@ -410,14 +405,14 @@ def balance_utilities(map):
     return map
 
 
-import json
-map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
-map = balance_utilities(map)
-from maze_builder.display import MapDisplay
-display = MapDisplay(72, 72, 20)
-# display.display_assigned_areas_with_saves(map)
-display.display_assigned_areas_with_maps(map)
-# # display.display_assigned_areas(map)
-# # display.display_assigned_areas_with_ws(map)
-# # # display.display_vanilla_areas(map)
-display.image.show()
+# import json
+# map = json.load(open('maps/session-2023-06-08T14:55:16.779895.pkl-bk24-subarea-balance-2/10006.json', 'rb'))
+# map = balance_utilities(map)
+# from maze_builder.display import MapDisplay
+# display = MapDisplay(72, 72, 20)
+# # display.display_assigned_areas_with_saves(map)
+# display.display_assigned_areas_with_maps(map)
+# # # display.display_assigned_areas(map)
+# # # display.display_assigned_areas_with_ws(map)
+# # # # display.display_vanilla_areas(map)
+# display.image.show()

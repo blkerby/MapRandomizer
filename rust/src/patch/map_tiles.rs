@@ -75,8 +75,8 @@ pub struct MapPatcher<'a> {
     transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
 }
 
-const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
-const ELEVATOR_TILE: TilemapWord = 0x12; // Index of elevator tile with TR's map patch
+pub const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
+pub const ELEVATOR_TILE: TilemapWord = 0x12; // Index of elevator tile with TR's map patch
 pub const TILE_GFX_ADDR_4BPP: usize = 0xE28000; // Where to store area-specific tile graphics (must agree with map_area.asm)
 pub const TILE_GFX_ADDR_2BPP: usize = 0xE2C000; // Where to store area-specific tile graphics (must agree with map_area.asm)
 
@@ -849,8 +849,8 @@ impl<'a> MapPatcher<'a> {
         // final length of the elevator on the map, which already has variations across rooms). We skip Lower Norfair Elevator
         // and Main Hall because these have no arrows on the vanilla map (since these don't cross regions in vanilla).
 
-        // Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
-        self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
+        // // Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
+        // self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
 
         Ok(())
     }
@@ -1802,7 +1802,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("Colosseum", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("The Precious Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Draygon's Room", LiquidType::Water, 0, 0)?;
-        self.indicate_liquid_room("Space Jump Room", LiquidType::Water, 1, 0)?;
+        self.indicate_liquid_room("Space Jump Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Crab Tunnel", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Crab Hole", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Maridia Map Room", LiquidType::Water, 0, 0)?;
@@ -1834,7 +1834,7 @@ impl<'a> MapPatcher<'a> {
 
         self.patch_room_basic(
             "Aqueduct",
-            vec![(1, 6, E, E, E, P, O), (3, 6, E, E, E, P, O)],
+            vec![(1, 2, E, E, E, P, O), (3, 2, E, E, E, P, O)],
         )?;
 
         self.patch_room_basic("West Aqueduct Quicksand Room", vec![(0, 1, W, W, E, P, O)])?;

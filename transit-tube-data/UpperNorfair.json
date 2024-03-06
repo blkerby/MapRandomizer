@@ -1,0 +1,368 @@
+[
+    {
+        "name": "Amphitheatre", 
+        "x": [0, 1, 2, 3],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Below Spazer",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Beta Power Bomb Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Bowling Alley",
+        "x": [2, 3, 4],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Bubble Mountain",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Retro Ridley"
+    },
+    {
+        "name": "Bat Cave",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Cathedral Entrance",
+        "x": [1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Cathedral",
+        "x": [0, 1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Construction Zone",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Crab Hole", 
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "The Moat",
+        "x": [0, 1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Crocomire Escape",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Crumble Shaft",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Double Chamber",
+        "x": [0, 1, 2, 3],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "The Precious Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Early Supers Room",
+        "x": [0, 1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "East Ocean", 
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Electric Death Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Etecoon Energy Tank Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Fast Pillars Setup Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Fish Tank",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Grapple Beam Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Post Crocomire Jump Room",
+        "x": [0, 1, 2, 3],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Grapple Tutorial Room 2",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Ice Beam Snake Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Kraid Eye Door Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Warehouse Entrance",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Kronic Boost Room",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Magenta Norfair"
+    },
+    {
+        "name": "Landing Site",
+        "x": [3, 5],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Lava Dive Room",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Lower Norfair Spring Ball Maze Room",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Aqueduct",
+        "x": [2, 4, 5],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Metroid Room 2",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Mickey Mouse Room",
+        "x": [3],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Northwest Maridia Bug Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Pants Room",
+        "x": [0, 1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Parlor And Alcatraz",
+        "x": [3],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Pink Brinstar Hopper Room",
+        "x": [0, 1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Pink Brinstar Power Bomb Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Plasma Room",
+        "x": [0, 1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Kassiuz Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Post Crocomire Farming Room",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Pseudo Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Mt. Everest",
+        "x": [3, 5],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Red Kihunter Shaft",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Rinka Shaft",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Screw Attack Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Single Chamber",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "The Worst Room In The Game",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Three Musketeers' Room",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "x": [0, 1, 2, 3, 4, 5],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Seaweed Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "x": [0, 1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Mama Turtle Room",
+        "x": [1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Volcano Room",
+        "x": [2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Wasteland",
+        "x": [1],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Watering Hole",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "West Cactus Alley Room",
+        "x": [0],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "West Ocean",
+        "x": [0, 1, 2, 5],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "x": [1, 2],
+        "top": "Norfair Caves",
+        "bottom": "Norfair Caves"
+    }
+]

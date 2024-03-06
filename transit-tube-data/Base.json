@@ -57,7 +57,7 @@
         "name": "Crab Hole", 
         "x": [0],
         "top": "West Maridia",
-        "bottom": "Pink Maridia"
+        "bottom": "West Maridia"
     },
     {
         "name": "The Moat",
@@ -213,7 +213,7 @@
         "name": "Pants Room",
         "x": [0, 1],
         "top": "Green Maridia",
-        "bottom": "Yellow Maridia"
+        "bottom": "Green Maridia"
     },
     {
         "name": "Parlor And Alcatraz",
@@ -301,7 +301,7 @@
     },
     {
         "name": "Three Musketeers' Room",
-        "x": [0],
+        "x": [1],
         "top": "Magenta Norfair",
         "bottom": "Magenta Norfair"
     },

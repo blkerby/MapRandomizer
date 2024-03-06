@@ -9,9 +9,7 @@ pub mod title;
 use std::path::Path;
 
 use crate::{
-    customize::vanilla_music::override_music,
-    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    randomize::{DoorType, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, AreaAssignment, WallJump, EtankRefill, StartLocationMode},
+    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, StartLocationMode, WallJump}
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -948,11 +946,6 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_map_tilemaps(&mut self) -> Result<()> {
-        // Patch Aqueduct map Y position to include the toilet, for the purposes of determining
-        // the map. We change it back later in `fix_twin_rooms`.
-        self.orig_rom
-            .write_u8(0x7D5A7 + 3, self.orig_rom.read_u8(0x7D5A7 + 3)? - 4)?;
-
         // Determine upper-left corner of each area:
         let mut area_map_min_x = [isize::MAX; NUM_AREAS];
         let mut area_map_max_x = [0; NUM_AREAS];
@@ -987,6 +980,26 @@ impl<'a> Patcher<'a> {
             }
         }
 
+        // First write map tilemap for Toilet, which may be partially overwritten later by the intersecting room(s)
+        // TODO: simplify/refactor this
+        let toilet_idx = self.game_data.toilet_room_idx;
+        for y in 0..10 {
+            let new_area = self.map.area[toilet_idx];
+            let new_base_ptr = self.game_data.area_map_ptrs[new_area];
+            let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
+            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2 - 1;
+            let new_base_x = self.map.rooms[toilet_idx].0 as isize - area_map_min_x[new_area] + new_margin_x;
+            let new_base_y = self.map.rooms[toilet_idx].1 as isize - area_map_min_y[new_area] + new_margin_y;
+            assert!(new_base_x >= 2);
+            assert!(new_base_y >= 0);
+
+            let new_x = new_base_x as isize;
+            let new_y = new_base_y + y as isize;
+            let new_offset = xy_to_map_offset(new_x, new_y);
+            let new_ptr = (new_base_ptr + new_offset) as usize;
+            self.rom.write_u16(new_ptr, (0x0C00 | VANILLA_ELEVATOR_TILE) as isize)?;
+        }
+
         // Write new map tilemap data (and room X & Y map position) by room:
         for (i, room) in self.game_data.room_geometry.iter().enumerate() {
             let orig_area = self.orig_rom.read_u8(room.rom_address + 1)? as usize;
@@ -1000,6 +1013,7 @@ impl<'a> Patcher<'a> {
             let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
             let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
             assert!(new_base_x >= 2);
+            println!("map: {} {} {} {} {} {}", new_area, area_map_min_y[new_area], area_map_max_y[new_area], self.map.rooms[i].1, new_margin_y, new_base_y);
             assert!(new_base_y >= 0);
             self.rom.write_u8(room.rom_address + 2, new_base_x)?;
             self.rom.write_u8(room.rom_address + 3, new_base_y)?;
@@ -1025,13 +1039,6 @@ impl<'a> Patcher<'a> {
     }
 
     fn fix_twin_rooms(&mut self) -> Result<()> {
-        // Fix map X & Y of Aqueduct and twin rooms:
-        let old_aqueduct_x = self.rom.read_u8(0x7D5A7 + 2)?;
-        let old_aqueduct_y = self.rom.read_u8(0x7D5A7 + 3)?;
-        self.rom.write_u8(0x7D5A7 + 3, old_aqueduct_y + 4)?;
-        // Toilet:
-        self.rom.write_u8(0x7D408 + 2, old_aqueduct_x + 2)?;
-        self.rom.write_u8(0x7D408 + 3, old_aqueduct_y)?;
         // East Pants Room:
         let pants_room_x = self.rom.read_u8(0x7D646 + 2)?;
         let pants_room_y = self.rom.read_u8(0x7D646 + 3)?;
@@ -1057,8 +1064,8 @@ impl<'a> Patcher<'a> {
         }
 
         // Handle twin rooms:
-        let aqueduct_room_idx = self.game_data.room_idx_by_name["Aqueduct"];
-        room_index_area_hashmaps[4].insert(0x18, self.map.area[aqueduct_room_idx]); // Set Toilet to same map area as Aqueduct
+        // let aqueduct_room_idx = self.game_data.room_idx_by_name["Aqueduct"];
+        // room_index_area_hashmaps[4].insert(0x18, self.map.area[aqueduct_room_idx]); // Set Toilet to same map area as Aqueduct
         let pants_room_idx = self.game_data.room_idx_by_name["Pants Room"];
         room_index_area_hashmaps[4].insert(0x25, self.map.area[pants_room_idx]); // Set East Pants Room to same area as Pants Room
         let west_ocean_room_idx = self.game_data.room_idx_by_name["West Ocean"];
@@ -1251,10 +1258,6 @@ impl<'a> Patcher<'a> {
                     // Set music for Homing Geemer Room:
                     self.rom
                         .write_u16(snes2pc(0x8F969C + 4), new_song as isize)?;
-                } else if room.name == "Aqueduct" {
-                    // Set music for Toilet:
-                    self.rom
-                        .write_u16(snes2pc(0x8FD415 + 4), new_song as isize)?;
                 }
             }
         }
@@ -1993,12 +1996,7 @@ impl<'a> Patcher<'a> {
                 ]);
         };
 
-        if room.rom_address == 0x7D5A7 {
-            // Aqueduct
-            write_asm(room.rom_address, tile_x, tile_y - 64);
-        } else {
-            write_asm(room.rom_address, tile_x, tile_y);
-        }
+        write_asm(room.rom_address, tile_x, tile_y);
         if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
             // Homing Geemer Room
             write_asm(room.twin_rom_address.unwrap(), tile_x % 16, tile_y % 16);
@@ -2084,12 +2082,7 @@ impl<'a> Patcher<'a> {
                     0x00, // PLM argument (index for door unlock state)
                 ]);
         };
-        if room.rom_address == 0x7D5A7 {
-            // Aqueduct
-            write_asm(room.rom_address, x, y - 64);
-        } else {
-            write_asm(room.rom_address, x, y);
-        }
+        write_asm(room.rom_address, x, y);
         if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
             // Homing Geemer Room
             write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16);
@@ -2211,42 +2204,65 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn apply_room_outline(&mut self) -> Result<()> {
+    fn apply_room_outline(&mut self, room_idx: usize, room_ptr: usize) -> Result<()> {
+        let room = &self.game_data.room_geometry[room_idx];
+        let room_x = self.rom.read_u8(room.rom_address + 2)?;
+        let room_y = self.rom.read_u8(room.rom_address + 3)?;
+        let area = self.map.area[room_idx];
+        let mut asm: Vec<u8> = vec![];
+        for y in 0..room.map.len() {
+            for x in 0..room.map[0].len() {
+                if room.map[y][x] == 0 && room_idx != self.game_data.toilet_room_idx {
+                    continue;
+                }
+                let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
+
+                // Mark as partially revealed (which will persist after deaths/reloads):
+                let addr = 0x2700 + (area as isize) * 0x100 + offset;
+                asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+                asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+                // println!("{:x} {} {}", room_ptr, x, y);
+            }
+        }
+        self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+        Ok(())
+    }
+
+    fn apply_all_room_outlines(&mut self) -> Result<()> {
         // Disable routine that marks tiles explored (used in vanilla game when entering boss rooms)
         // It's obsoleted by this more general "room outline" option.
         self.rom.write_u8(snes2pc(0x90A8A6), 0x60)?;  // RTS
 
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_ptr = room.rom_address;
-            let room_x = self.rom.read_u8(room_ptr + 2)?;
-            let mut room_y = self.rom.read_u8(room_ptr + 3)?;
-            if room.rom_address == 0x7D5A7 {
-                // Aqueduct
-                room_y -= 4;
-            }
-            let area = self.map.area[room_idx];
-            let mut asm: Vec<u8> = vec![];
-            for y in 0..room.map.len() {
-                for x in 0..room.map[0].len() {
-                    if room.map[y][x] == 0 {
-                        continue;
-                    }
-                    let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
-
-                    // Mark as partially revealed (which will persist after deaths/reloads):
-                    let addr = 0x2700 + (area as isize) * 0x100 + offset;
-                    asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
-                    asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-                    asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
-                    // println!("{:x} {} {}", room_ptr, x, y);
-                }
-            }
-
-            self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+            self.apply_room_outline(room_idx, room_ptr)?;
             if let Some(twin_rom_address) = room.twin_rom_address {
-                // Apply same setup ASM to twin rooms (Homing Geemer Room and East Pants Room):
-                self.extra_setup_asm.entry(twin_rom_address).or_insert(vec![]).extend(asm);
+                self.apply_room_outline(room_idx, twin_rom_address)?;
             }
+        }
+
+        // For the Toilet, apply room outlines for the intersecting room(s) and vice versa:
+        for &room_idx in &self.randomization.toilet_intersections {
+            self.apply_room_outline(room_idx, 0x7D408)?;
+            self.apply_room_outline(self.game_data.toilet_room_idx, self.game_data.room_geometry[room_idx].rom_address)?;
+        }
+        Ok(())
+    }
+
+    fn apply_toilet_data(&mut self) -> Result<()> {
+        let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
+        let toilet_rel_x_addr = snes2pc(0xB5FE72);
+        let toilet_rel_y_addr = snes2pc(0xB5FE73);
+
+        if self.randomization.toilet_intersections.len() == 1 {
+            let room_idx = self.randomization.toilet_intersections[0];
+            let room_ptr = self.game_data.room_geometry[room_idx].rom_address;
+            let room_pos = self.map.rooms[room_idx];
+            let toilet_pos = self.map.rooms[self.game_data.toilet_room_idx];
+            self.rom.write_u16(toilet_intersecting_room_ptr_addr, ((room_ptr & 0x7FFF) | 0x8000) as isize)?;
+            self.rom.write_u8(toilet_rel_x_addr, (toilet_pos.0 as isize - room_pos.0 as isize) as u8 as isize)?;
+            self.rom.write_u8(toilet_rel_y_addr, (toilet_pos.1 as isize - room_pos.1 as isize) as u8 as isize)?;
         }
         Ok(())
     }
@@ -2324,8 +2340,9 @@ pub fn make_rom(
         patcher.apply_hazard_markers()?;
     }
     if randomization.difficulty.room_outline_revealed {
-        patcher.apply_room_outline()?;
+        patcher.apply_all_room_outlines()?;
     }
+    patcher.apply_toilet_data()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

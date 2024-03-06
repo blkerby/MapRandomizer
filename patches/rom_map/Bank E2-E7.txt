@@ -1,3 +1,4 @@
 Each bank E2-E7 has the same structure, one bank per area:
 8000-A000: pause menu tile graphics (4bpp)
 A000-B000: HUD tile graphics (2bpp)
+...?
