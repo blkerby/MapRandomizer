@@ -164,6 +164,20 @@ MSU_Main:
 	beq OriginalCode
 PlayMusic:
 	tay
+    
+    ; If the non-extended track number is one of the special room songs,
+    ; like item/elevator (3), resume track when returning
+    cpy.b #03 : beq +
+    cpy.b #19 : beq +
+    cpy.b #22 : beq +
+    cpy.b #23 : beq +
+    cpy.b #24 : beq +
+        bra ++
+    +
+    lda.b #$04
+    sta.w !MSU_AUDIO_CONTROL
+    ++
+    
     jsr TryExtended
     ; If extended track does not exist
     beq +
