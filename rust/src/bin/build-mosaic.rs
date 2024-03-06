@@ -255,7 +255,7 @@ impl MosaicPatchBuilder {
         new_rom.enable_tracking();
         self.apply_cre_tileset(&mut new_rom)?;
         self.apply_sce_tilesets(&mut new_rom)?;
-        self.apply_palettes(&mut new_rom)?;
+        // self.apply_palettes(&mut new_rom)?;
 
         // let patch = flips::BpsDeltaBuilder::new()
         //     .source(&self.rom.data)
@@ -759,6 +759,14 @@ impl MosaicPatchBuilder {
             0
         };
 
+        if !dry_run {
+            info!(
+                "Transit: main alloc {:?}, FX alloc {:?}",
+                self.main_allocator.get_stats(),
+                self.fx_allocator.get_stats()
+            );    
+        }
+
         // Index SMART project rooms:
         let mut room_name_by_pair: HashMap<(usize, usize), String> = HashMap::new();
         for room_path in std::fs::read_dir(self.mosaic_dir.join("Projects/Base/Export/Rooms"))? {
@@ -1061,17 +1069,26 @@ fn main() -> Result<()> {
     let room_ptrs = load_room_ptrs(sm_json_data_path)?;
 
     let main_allocator = Allocator::new(vec![
-        // (snes2pc(0xBAC629), snes2pc(0xC2C2BB)), // Vanilla tile GFX, tilemaps, and palettes, which we overwrite
-        (snes2pc(0xBAC629), snes2pc(0xCF8000)), // Vanilla tile GFX, tilemaps, palettes, and level data, which we overwrite
+        // Vanilla tile GFX, which we overwrite:
+        (snes2pc(0xBAC629), snes2pc(0xBB8000)),
+        // Skipping bank BB, used by Mosaic "Area Palette Glows"
+        (snes2pc(0xBC8000), snes2pc(0xC08000)),
+        // Skipping banks C0 and C1, used by Mosaic "Area Palettes"
+        // Vanilla palettes and level data, which we overwrite:
+        (snes2pc(0xC2C2BB), snes2pc(0xCEB240)),
+        // Skipping rest of bank CE: used by credits data
+        (snes2pc(0xE08000), snes2pc(0xE10000)),
         (snes2pc(0xE18000), snes2pc(0xE20000)),
-        (snes2pc(0xE2B000), snes2pc(0xE30000)),
-        (snes2pc(0xE3B000), snes2pc(0xE40000)),
-        (snes2pc(0xE4B000), snes2pc(0xE50000)),
-        (snes2pc(0xE5B000), snes2pc(0xE60000)),
-        (snes2pc(0xE6B000), snes2pc(0xE70000)),
-        (snes2pc(0xE7B000), snes2pc(0xE80000)),
-        (snes2pc(0xE99000), snes2pc(0xEA0000)),
+        // Skipping lower part of banks E2-E6: used for per-area BG3 and pause menu graphics
+        (snes2pc(0xE2D000), snes2pc(0xE30000)),
+        (snes2pc(0xE3D000), snes2pc(0xE40000)),
+        (snes2pc(0xE4D000), snes2pc(0xE50000)),
+        (snes2pc(0xE5D000), snes2pc(0xE60000)),
+        (snes2pc(0xE6D000), snes2pc(0xE70000)),
+        (snes2pc(0xE7D000), snes2pc(0xE80000)),
+        // Skipping bank E9, used for hazard markers and title screen graphics
         (snes2pc(0xEA8000), snes2pc(0xF80000)),
+        // Skipping banks F8 through FF: used by SpriteSomething for Samus sprite customization
     ]);
 
     let fx_allocator = Allocator::new(vec![

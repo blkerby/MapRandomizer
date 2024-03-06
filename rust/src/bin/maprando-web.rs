@@ -14,7 +14,7 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, AreaTheming, ControllerConfig, CustomizeSettings, MusicSettings, parse_controller_button, ControllerButton, ShakingSetting,
+    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, MusicSettings, PaletteTheme, ShakingSetting, TileTheme
 };
 use maprando::game_data::{self, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
@@ -916,12 +916,15 @@ async fn customize_seed(
         },
         reserve_hud_style: req.reserve_hud_style.0,
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
-        area_theming: if req.tile_theme.0 != "none" {
-            AreaTheming::Tiles(req.tile_theme.0.to_owned())
-        } else if req.room_palettes.0 == "area-themed" {
-            AreaTheming::Palettes
+        palette_theme: if req.room_palettes.0 == "area-themed" {
+            PaletteTheme::AreaThemed
         } else {
-            AreaTheming::Vanilla
+            PaletteTheme::Vanilla
+        },
+        tile_theme: if req.tile_theme.0 == "none" {
+            TileTheme::Vanilla
+        } else {
+            TileTheme::Constant(req.tile_theme.0.to_string())
         },
         music: match req.music.0.as_str() {
             "vanilla" => MusicSettings::Vanilla,

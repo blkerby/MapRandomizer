@@ -73,11 +73,18 @@ pub enum MusicSettings {
     Disabled,
 }
 
+
 #[derive(Debug)]
-pub enum AreaTheming {
+pub enum PaletteTheme {
     Vanilla,
-    Palettes,
-    Tiles(String),
+    AreaThemed,
+}
+
+#[derive(Debug)]
+pub enum TileTheme {
+    Vanilla,
+    Random,
+    Constant(String),
 }
 
 #[derive(Default, Debug, Copy, Clone)]
@@ -125,7 +132,8 @@ pub struct CustomizeSettings {
     pub etank_color: Option<(u8, u8, u8)>,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
-    pub area_theming: AreaTheming,
+    pub palette_theme: PaletteTheme,
+    pub tile_theme: TileTheme,
     pub music: MusicSettings,
     pub disable_beeping: bool,
     pub shaking: ShakingSetting,
@@ -306,18 +314,30 @@ pub fn customize_rom(
     }
 
     remove_mother_brain_flashing(rom)?;
-    match &settings.area_theming {
-        AreaTheming::Vanilla => {
+    match &settings.tile_theme {
+        TileTheme::Vanilla => {
             apply_retiling(rom, orig_rom, game_data, "Base")?;
         }
-        AreaTheming::Palettes => {
-            apply_retiling(rom, orig_rom, game_data, "Base")?;
-            apply_area_themed_palettes(rom, game_data)?;
-        }
-        AreaTheming::Tiles(theme) => {
+        TileTheme::Constant(theme) => {
             apply_retiling(rom, orig_rom, game_data, &theme)?;
         }
+        TileTheme::Random => {
+            // TODO: Implement this
+            apply_retiling(rom, orig_rom, game_data, "Base")?;
+        }
     }
+
+    match &settings.palette_theme {
+        PaletteTheme::Vanilla => {}
+        PaletteTheme::AreaThemed => {
+            apply_area_themed_palettes(rom, game_data)?;
+        }
+    }
+
+    // Fix Phantoon power-on sequence to not overwrite the first two palettes, since those contain
+    // customized HUD colors which would get messed up.
+    rom.write_u16(snes2pc(0xA7DC6E), 0x0040)?;
+
     apply_custom_samus_sprite(rom, settings, samus_sprite_categories)?;
     if let Some((r, g, b)) = settings.etank_color {
         let color = (r as isize) | ((g as isize) << 5) | ((b as isize) << 10);

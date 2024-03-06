@@ -44,6 +44,8 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
     let patch_names = vec![
         "Scrolling Sky v1.5",
         "Area FX",
+        "Area Palettes",
+        "Area Palette Glows",
         "Bowling",
     ];
     for name in &patch_names {
@@ -76,16 +78,16 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
             let patch_filename = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
             apply_bps_patch(rom, orig_rom, &patch_filename)?;
 
-            // let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
-            // for i in 0..4 {
-            //     let door_ptr_addr = snes2pc(0x830000 + fx_ptr + i * 16);
-            //     let door_ptr = rom.read_u16(door_ptr_addr)? as DoorPtr;
-            //     if door_ptr == 0 || door_ptr == 0xffff {
-            //         break;
-            //     }
-            //     let new_door_ptr = fx_door_ptr_map[&(room_ptr, state_idx, door_ptr)];
-            //     rom.write_u16(door_ptr_addr, new_door_ptr as isize)?;
-            // }
+            let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
+            for i in 0..4 {
+                let door_ptr_addr = snes2pc(0x830000 + fx_ptr + i * 16);
+                let door_ptr = rom.read_u16(door_ptr_addr)? as DoorPtr;
+                if door_ptr == 0 || door_ptr == 0xffff {
+                    break;
+                }
+                let new_door_ptr = fx_door_ptr_map[&(room_ptr, state_idx, door_ptr)];
+                rom.write_u16(door_ptr_addr, new_door_ptr as isize)?;
+            }
         }
     }
 

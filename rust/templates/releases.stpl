@@ -14,8 +14,12 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 110 (2024-03-04)</a>:
+<p><a id="release110">Version 110 (2024-03-06)</a>:
 <ul>
+<li>New map pools:
+    <ul>
+    <li>The Toilet is decoupled from Aqueduct and can pass through any one of many possible rooms.
+    </ul>
 <li>Sand exits are restored to their vanilla layout:
     <ul>
     <li>This affects the bottom of Bug Sand Hole, Aqueduct, and Botwoon Energy Tank Room.
