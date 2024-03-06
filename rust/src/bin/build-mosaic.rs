@@ -564,6 +564,10 @@ impl MosaicPatchBuilder {
                 new_rom.enable_tracking();
                 let state_xml = &state_xml_vec[i];
 
+                if state_xml.gfx_set == 1 {
+                    println!("Gfx set = 1: {} {}", room_name, project);
+                }
+
                 // Write the tileset index
                 new_rom.write_u8(state_ptr + 3, state_xml.gfx_set as isize)?;
 

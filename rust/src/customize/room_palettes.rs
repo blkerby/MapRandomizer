@@ -176,7 +176,7 @@ fn disable_glows(
                     let mut pal_fx_bitflags = rom.read_u8(snes2pc(fx_ptr_snes + 13))?;
 
                     if vanilla_area == 2 {
-                        pal_fx_bitflags &= 1;  // Norfair room: only keep the heat FX bit
+                        pal_fx_bitflags &= 0x80;  // Norfair room: only keep the heat FX bit
                     } else if vanilla_area != 4 {  // Keep palette FX for Maridia rooms (e.g. waterfalls)
                         pal_fx_bitflags = 0;
                     }

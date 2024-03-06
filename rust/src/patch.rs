@@ -1013,7 +1013,7 @@ impl<'a> Patcher<'a> {
             let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
             let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
             assert!(new_base_x >= 2);
-            println!("map: {} {} {} {} {} {}", new_area, area_map_min_y[new_area], area_map_max_y[new_area], self.map.rooms[i].1, new_margin_y, new_base_y);
+            // println!("map: {} {} {} {} {} {}", new_area, area_map_min_y[new_area], area_map_max_y[new_area], self.map.rooms[i].1, new_margin_y, new_base_y);
             assert!(new_base_y >= 0);
             self.rom.write_u8(room.rom_address + 2, new_base_x)?;
             self.rom.write_u8(room.rom_address + 3, new_base_y)?;
