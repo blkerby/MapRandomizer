@@ -164,6 +164,7 @@ fn disable_glows(
         for (_event_ptr, state_ptr) in get_room_state_ptrs(rom, room_ptr)? {
             // let tileset_idx = rom.read_u8(state_ptr + 3)? as usize;
 
+            println!("{} {:x} vanilla={}, map={}", room_json["name"], state_ptr, vanilla_area, map_area);
             if vanilla_area != map_area && map_area != 0 {
                 // Remove palette glows for non-vanilla rooms, aside from Crateria palette:
                 let mut fx_ptr_snes = rom.read_u16(state_ptr + 6)? as usize + 0x830000;
@@ -175,11 +176,13 @@ fn disable_glows(
 
                     let mut pal_fx_bitflags = rom.read_u8(snes2pc(fx_ptr_snes + 13))?;
 
+                    println!("before: {:x}: {:x}", fx_ptr_snes, pal_fx_bitflags);
                     if vanilla_area == 2 {
                         pal_fx_bitflags &= 0x80;  // Norfair room: only keep the heat FX bit
                     } else if vanilla_area != 4 {  // Keep palette FX for Maridia rooms (e.g. waterfalls)
                         pal_fx_bitflags = 0;
                     }
+                    println!("after: {:x}: {:x}", fx_ptr_snes, pal_fx_bitflags);
                     rom.write_u8(snes2pc(fx_ptr_snes + 13), pal_fx_bitflags)?;    
 
                     if fx_door_select == 0x0000 {
@@ -203,6 +206,6 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     // fix_phantoon_power_on(rom, game_data)?;
     lighten_firefleas(rom)?;
     // fix_mother_brain(rom, game_data)?;
-    disable_glows(rom, game_data)?;
+    // disable_glows(rom, game_data)?;
     Ok(())
 }

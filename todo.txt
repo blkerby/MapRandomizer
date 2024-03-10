@@ -10,18 +10,21 @@ v110
     - doesn't work overriding it in the randomizer: area size can overflow
     - also ensure new pool doesn't have Three Musketeers' wrong X position
   - Update Early Supers in Base theme, vine in bottom left
-- Make Ammo doors default
+- investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
+  - https://dev.maprando.com/seed/2eax2o7HV_I3jPBekK2ogw/data/visualizer/index.html
 - look into instant morph (after walljump) still happening with spin lock (reported by Nito)
-- Look into Everest tunnel expansion:
-  - should be only 2 air tiles wide but is 3 in Mosaic?
+- PENDING: Look into Everest tunnel expansion: should be only 2 air tiles wide but is 3 in Mosaic?
+- buff farm bug super drops?
 - Make sure BT has item (e.g. for Chozo objective).
-- Override f_ZebesAwake yield on Metroid Rooms.
+- DONE: Override f_ZebesAwake yield on Metroid Rooms.
 - Fix issue with Desolate not giving all items in escape:
   - https://maprando.com/seed/BluDOWpAlybe60H1XYSUDg/
+  - also make "seed info" show that all items will be given
 - Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
   - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
-- reduce Desolate Power Bomb pool to 25?
+- DONE: reduce Desolate Power Bomb pool to 25
 - ultra-low QoL: 
+  - tourian map is marked as save room
 
 TODO:
 - heated elevator: mark with red platform?

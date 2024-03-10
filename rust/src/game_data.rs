@@ -2137,6 +2137,42 @@ impl GameData {
         assert!(found);
     }
 
+    fn override_metroid_room_1(&mut self, room_json: &mut JsonValue) {
+        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 1 {
+                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom1"]
+            }
+        }
+    }
+
+    fn override_metroid_room_2(&mut self, room_json: &mut JsonValue) {
+        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 2 {
+                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom2"]
+            }
+        }
+    }
+
+    fn override_metroid_room_3(&mut self, room_json: &mut JsonValue) {
+        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 2 {
+                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom3"]
+            }
+        }
+    }
+
+    fn override_metroid_room_4(&mut self, room_json: &mut JsonValue) {
+        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 1 {
+                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom4"]
+            }
+        }
+    }
+
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
 
@@ -2189,24 +2225,21 @@ impl GameData {
         ];
 
         // TODO: handle overrides in a more structured/robust way
-        if room_id == 222 {
-            self.override_shaktool_room(&mut new_room_json);
-        } else if room_id == 38 {
-            self.override_morph_ball_room(&mut new_room_json);
-        } else if room_id == 225 {
-            self.override_tourian_save_room(&mut new_room_json);
-        } else if room_id == 238 {
-            self.override_mother_brain_room(&mut new_room_json);
-        } else if room_id == 161 {
-            self.override_bowling_alley(&mut new_room_json);
-        } else if room_id == 12 {
-            self.override_pit_room(&mut new_room_json);
-        } else if room_id == 82 {
-            self.override_baby_kraid_room(&mut new_room_json);
-        } else if room_id == 139 {
-            self.override_metal_pirates_room(&mut new_room_json);
-        } else if room_id == 219 {
-            self.override_plasma_room(&mut new_room_json);
+        match room_id {
+            222 => self.override_shaktool_room(&mut new_room_json),
+            38 => self.override_morph_ball_room(&mut new_room_json),
+            225 => self.override_tourian_save_room(&mut new_room_json),
+            238 => self.override_mother_brain_room(&mut new_room_json),
+            161 => self.override_bowling_alley(&mut new_room_json),
+            12 => self.override_pit_room(&mut new_room_json),
+            82 => self.override_baby_kraid_room(&mut new_room_json),
+            139 => self.override_metal_pirates_room(&mut new_room_json),
+            219 => self.override_plasma_room(&mut new_room_json),
+            226 => self.override_metroid_room_1(&mut new_room_json),
+            227 => self.override_metroid_room_2(&mut new_room_json),
+            228 => self.override_metroid_room_3(&mut new_room_json),
+            229 => self.override_metroid_room_4(&mut new_room_json),
+            _ => {}
         }
 
         let mut obstacle_flag: Option<String> = None;

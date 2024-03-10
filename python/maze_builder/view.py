@@ -54,7 +54,8 @@ device = torch.device('cpu')
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-44', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-46', 'rb')).load()
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-47', 'rb')).load()
-session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-48', 'rb')).load()
+# session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-48', 'rb')).load()
+session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-51', 'rb')).load()
 
 print(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects.to(torch.float32), dim=0)))
 # min_reward = torch.min(session.replay_buffer.episode_data.reward)
@@ -79,8 +80,8 @@ M = torch.nanmean(M, dim=1)
 
 ind = torch.nonzero(
     (session.replay_buffer.episode_data.reward == 0) &
-    (S < 4.00) &
-    (session.replay_buffer.episode_data.graph_diameter <= 45) &
+    (S < 4.05) &
+    (session.replay_buffer.episode_data.graph_diameter <= 43) &
     # (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
     (session.replay_buffer.episode_data.mc_dist_coef == 0.0) &
     session.replay_buffer.episode_data.toilet_good

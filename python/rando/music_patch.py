@@ -9,13 +9,21 @@ import numpy as np
 import random
 import logging
 
+toilet_idx = [i for i, room in enumerate(rooms) if room.name == "Toilet"][0]
+
 def make_area_graph(map, area):
     door_room_dict = {}
     room_id_list = []
     next_vertex_id = 0
+    toilet_id = None
+    toilet_intersection_ids = []
     for i, room in enumerate(rooms):
         if map['area'][i] != area:
             continue
+        if i == toilet_idx:
+            toilet_id = next_vertex_id
+        if i in map['toilet_intersections']:
+            toilet_intersection_ids.append(next_vertex_id)
         room_id_list.append(i)
         for door in room.door_ids:
             door_pair = (door.exit_ptr, door.entrance_ptr)
@@ -27,12 +35,15 @@ def make_area_graph(map, area):
         dst_vertex_id = door_room_dict.get(tuple(conn[1]))
         if src_vertex_id is not None and dst_vertex_id is not None:
             edges_list.append((src_vertex_id, dst_vertex_id))
+    for i in toilet_intersection_ids:
+        edges_list.append((toilet_id, i))
 
     area_graph = graph_tool.Graph(directed=True)
     for (src, dst) in edges_list:
         area_graph.add_edge(src, dst)
         area_graph.add_edge(dst, src)
-    return area_graph, room_id_list, edges_list
+
+    return area_graph, room_id_list, edges_list, toilet_id, toilet_intersection_ids
 
 def check_connected(vertices, edges):
     vmap = {v: i for i, v in enumerate(vertices)}
@@ -45,7 +56,7 @@ def check_connected(vertices, edges):
 
 # Partition area into subareas, one for each song that will play in that area.
 def partition_area(map, area, num_sub_areas):
-    area_graph, room_id_list, edges_list = make_area_graph(map, area)
+    area_graph, room_id_list, edges_list, toilet_id, toilet_intersection_ids = make_area_graph(map, area)
     assert check_connected(np.arange(len(room_id_list)), edges_list)
 
     # Try to assign subareas to rooms in a way that makes subareas as clustered as possible:
@@ -61,14 +72,21 @@ def partition_area(map, area, num_sub_areas):
 
         # The algorithm above is not guaranteed to result in connected subareas (and in practice it often fails to do
         # so). So we check and retry if any of the resulting subareas is not connected.
+        invalid = False
         for j in range(num_sub_areas):
             indj = np.where(block_id == j)[0]
             if indj.shape[0] < 5:
                 # We want each subarea to contain at least 5 rooms
-                continue
-            if not check_connected(indj, edges_list):
+                invalid = True
                 break
-        else:
+            if not check_connected(indj, edges_list):
+                invalid = True
+                break
+        # Also check that the Toilet gets assigned to the same subarea as its intersecting room(s)
+        for i in toilet_intersection_ids:
+            if block_id[toilet_id] != block_id[i]:
+                invalid = True
+        if not invalid:
             return block_id, room_id_list
     raise RuntimeError("Failed to partition areas into subareas")
 

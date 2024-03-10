@@ -33,11 +33,11 @@ patches = [
     # 'new_game_extra',
     # 'disable_walljump'
     # 'holes',
-    'oob_death',
+    # 'oob_death',
     # 'spinjumprestart',
     # 'new_game_extra',
     # 'door_hurt',
-    # "everest_tube",
+    "everest_tube",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
