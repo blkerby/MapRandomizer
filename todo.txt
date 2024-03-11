@@ -9,9 +9,9 @@ v110
   - set up constraint for toilet to have same area/subarea as intersecting room
     - doesn't work overriding it in the randomizer: area size can overflow
     - also ensure new pool doesn't have Three Musketeers' wrong X position
-- investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
+- DONE: investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
   - https://dev.maprando.com/seed/2eax2o7HV_I3jPBekK2ogw/data/visualizer/index.html
-- look into instant morph (after walljump) still happening with spin lock (reported by Nito)
+- DONE: look into instant morph (after walljump) still happening with spin lock (reported by Nito)
 - DONE: Look into Everest tunnel expansion: should be only 2 air tiles wide but is 3 in Mosaic?
 - DONE: buff farm bug super drops?
 - DONE: Make sure BT has item (e.g. for Chozo objective).

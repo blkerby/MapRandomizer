@@ -16,8 +16,8 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release110">Version 110 (2024-03-11)</a>:
 <ul>
-<li>New map pools:
     <ul>
+<li>New map pools:
     <li>The Toilet is decoupled from Aqueduct and can pass through any one of many possible rooms.
     </ul>
 <li>Area-themed "Room palettes" are revamped:
@@ -37,14 +37,15 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>In "Desolate" or "Reduced Items" presets, the Power Bomb pool size is reduced to 25 Power Bombs.
 <li>Heated shinecharge tiles are adjusted to be less lenient in Medium, Hard, and Very Hard.
-<li>Space Jump Room is now indicated as a water room on the map.
 <li>With MSU-1, songs resume when returning from item/elevator rooms.
 <li>When no item is placed in Bomb Torizo Room, the fight can be activated by touching the item location.
-<li>Spin Lock now prevents morphing when pressing down out of a wall jump.
-<li>Fixes to logic bugs:
+<li>Fixes to bugs:
     <ul>
+    <li>Space Jump Room was not indicated as a water room on the map.
+    <li>With Spin Lock, pressing down out of a wall jump could still cause Samus to morph.
+    <li>With "Stop item placement early", logically assumed items could fail to be placed.
     <li>Shinecharge leniency frames were not taken into account in certain situations.
-    <li>Clearing a Metroid room was incorrectly treated as logically waking the planet (bug introduced in v109).
+    <li>Clearing a Metroid room was incorrectly treated as logically waking the planet.
     </ul>
 </ul>
 
