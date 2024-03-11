@@ -31,6 +31,10 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>This affects the bottom of Bug Sand Hole, Aqueduct, and Botwoon Energy Tank Room.
     <li>Through sand transitions, Samus' X position is clamped to fit the entrance in the room below.
     </ul>
+<li>The quality-of-life option "Enemy drops are buffed" is buffed further:
+    <ul>
+    <li>The drop rate of Supers is doubled for Zebs, Geegas, and Kagos.
+    </ul>
 <li>In "Desolate" or "Reduced Items" presets, the Power Bomb pool size is reduced to 25 Power Bombs.
 <li>Heated shinecharge tiles are adjusted to be less lenient in Medium, Hard, and Very Hard.
 <li>Space Jump Room is now indicated as a water room on the map.

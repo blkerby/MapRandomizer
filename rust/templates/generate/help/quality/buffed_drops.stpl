@@ -16,15 +16,17 @@
       <ul>
       <li>Small energy drops give 10 energy.
       <li>Power Bomb drops give 2 Power Bombs.
-      <li>Respawning enemies drop Power Bombs at double the normal rate.
+      <li>Respawning enemies drop Power Bombs at double the normal rate. This affects Gamets, Zebs, Geegas, Zebbos, Zoas, and Coverns.
+      <li>Zebs, Geegas, and Kagos drop Supers at double the normal rate.
       </ul>
       </p>
 
       <h5>Details</h5>
       <p>
-      The enemies with improved Power Bomb drop probability are Gamets, Zebs, Geegas, Zebbos, Zoas, and Coverns.
-      Drop probabilities of enemy projectiles are not affected. The increased Power Bomb drop probability comes out of the
-      Missile drop probability. The resulting drop probabilities are shown in the following table:
+      The increased Power Bomb and Super drop probabilities come out of the Nothing, Missile, and Small Energy drop probabilities. 
+      Large Energy drop rates are increased to compensate for the loss of some Small Energy drop probability.
+      The doubled Power Bomb drop probabilities combines with the increased drop value (each Power Bomb drop giving 2 Power Bombs) 
+      to result in an overall quadrupled rate of Power Bomb farming. The resulting drop probabilities are shown in the following table:
 
       <table class="table w-auto table-striped table-bordered mx-auto">
       <thead>
@@ -41,18 +43,16 @@
       </thead>
       <tbody>
           <tr><td align="center"><img src="/static/modal_img/Gamet.png"></td><td>Gamet</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
-          <tr><td align="center"><img src="/static/modal_img/Zeb.png"></td><td>Zeb</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
-          <tr><td align="center"><img src="/static/modal_img/Geega.png"></td><td>Geega</td><td>2%</td><td>24%</td><td>24%</td><td>20%</td><td>24%</td><td>8%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Zeb.png"></td><td>Zeb</td><td>0%</td><td>8%</td><td>26%</td><td>12%</td><td>48%</td><td>8%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Geega.png"></td><td>Geega</td><td>0%</td><td>8%</td><td>26%</td><td>12%</td><td>48%</td><td>8%</td></tr>
           <tr><td align="center"><img src="/static/modal_img/Zebbo.png"></td><td>Zebbo</td><td>0%</td><td>0%</td><td>56%</td><td>2%</td><td>40%</td><td>4%</td></tr>
           <tr><td align="center"><img src="/static/modal_img/Zoa.png"></td><td>Zoa</td><td>2%</td><td>0%</td><td>40%</td><td>24%</td><td>28%</td><td>8%</td></tr>
           <tr><td align="center"><img src="/static/modal_img/Covern.png"></td><td>Covern</td><td>0%</td><td>20%</td><td>38%</td><td>20%</td><td>8%</td><td>16%</td></tr>
+          <tr><td align="center"><img src="/static/modal_img/Kago.gif"></td><td>Kago</td><td>2%</td><td>14%</td><td>38%</td><td>24%</td><td>16%</td><td>8%</td></tr>
       </tbody>
       </table>
       </p>
   
-      <p>For these respawning enemies, the doubled Power Bomb drop probability combines with the increased drop value (each Power Bomb 
-      drop giving 2 Power Bombs) to result in an overall quadrupled rate of Power Bomb farming.
-      </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
