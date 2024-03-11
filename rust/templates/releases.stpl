@@ -16,15 +16,16 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release110">Version 110 (2024-03-11)</a>:
 <ul>
-    <ul>
 <li>New map pools:
+    <ul>
     <li>The Toilet is decoupled from Aqueduct and can pass through any one of many possible rooms.
     </ul>
+<li>New tile theme option "West Maridia" is available.
 <li>Area-themed "Room palettes" are revamped:
     <ul>
     <li>Colors are adjusted to improve the aesthetics and coherence of the palettes.
     <li>Area-themed glows are now included.
-    <li>Area-themed palettes can now be combined with "Tile theme" (experimental).
+    <li>Area-themed palettes can now be combined with "Tile theme".
     </ul>
 <li>Sand exits are restored to their vanilla layout:
     <ul>
@@ -43,7 +44,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>Space Jump Room was not indicated as a water room on the map.
     <li>With Spin Lock, pressing down out of a wall jump could still cause Samus to morph.
-    <li>With "Stop item placement early", logically assumed items could fail to be placed.
+    <li>With "Stop item placement early", logically assumed items could sometimes fail to be placed.
     <li>Shinecharge leniency frames were not taken into account in certain situations.
     <li>Clearing a Metroid room was incorrectly treated as logically waking the planet.
     </ul>

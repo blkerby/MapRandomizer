@@ -1,0 +1,368 @@
+[
+    {
+        "name": "Amphitheatre", 
+        "x": [0, 1, 2, 3],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Below Spazer",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Beta Power Bomb Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Bowling Alley",
+        "x": [2, 3, 4],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Bubble Mountain",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Bat Cave",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Cathedral Entrance",
+        "x": [1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Cathedral",
+        "x": [0, 1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Construction Zone",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Crab Hole", 
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "The Moat",
+        "x": [0, 1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Crocomire Escape",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Crumble Shaft",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Double Chamber",
+        "x": [0, 1, 2, 3],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "The Precious Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Early Supers Room",
+        "x": [0, 1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "East Ocean", 
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Electric Death Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Etecoon Energy Tank Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Fast Pillars Setup Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Fish Tank",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Grapple Beam Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Post Crocomire Jump Room",
+        "x": [0, 1, 2, 3],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Grapple Tutorial Room 2",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Ice Beam Snake Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Kraid Eye Door Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Warehouse Entrance",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Kronic Boost Room",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Landing Site",
+        "x": [3, 5],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Lava Dive Room",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Lower Norfair Spring Ball Maze Room",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Aqueduct",
+        "x": [2, 4, 5],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Metroid Room 2",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Mickey Mouse Room",
+        "x": [3],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Northwest Maridia Bug Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Pants Room",
+        "x": [0, 1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Parlor And Alcatraz",
+        "x": [3],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Pink Brinstar Hopper Room",
+        "x": [0, 1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Pink Brinstar Power Bomb Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Plasma Room",
+        "x": [0, 1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Kassiuz Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Plasma Spark Room",
+        "x": [1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Post Crocomire Farming Room",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Pseudo Plasma Spark Room",
+        "x": [1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Mt. Everest",
+        "x": [3, 5],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Red Kihunter Shaft",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Rinka Shaft",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Screw Attack Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Single Chamber",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "The Worst Room In The Game",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Three Musketeers' Room",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "x": [0, 1, 2, 3, 4, 5],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Seaweed Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "x": [0, 1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Mama Turtle Room",
+        "x": [1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Volcano Room",
+        "x": [2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Wasteland",
+        "x": [1],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Watering Hole",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "West Cactus Alley Room",
+        "x": [0],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "West Ocean",
+        "x": [0, 1, 2, 5],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "x": [1, 2],
+        "top": "West Maridia",
+        "bottom": "West Maridia"
+    }
+]

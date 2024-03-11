@@ -476,18 +476,7 @@ impl MosaicPatchBuilder {
         Ok(())
     }
 
-    fn make_all_room_patches(&mut self) -> Result<()> {
-        let project_names: Vec<String> = vec![
-            "Base",
-            "OuterCrateria",
-            "InnerCrateria",
-            "GreenBrinstar",
-            "UpperNorfair",
-            "WreckedShip",
-        ]
-        .into_iter()
-        .map(|x| x.to_string())
-        .collect();
+    fn make_all_room_patches(&mut self, project_names: &[String]) -> Result<()> {
         let base_rooms_dir = self.mosaic_dir.join("Projects/Base/Export/Rooms/");
         for room_path in std::fs::read_dir(base_rooms_dir)? {
             let room_filename = room_path?.file_name().to_str().unwrap().to_owned();
@@ -744,6 +733,7 @@ impl MosaicPatchBuilder {
         dry_run: bool,
         max_transit_level_data: &mut usize,
         max_intersection_level_data: &mut usize,
+        theme_names: &[String],
     ) -> Result<()> {
         let transit_level_data_addr = if !dry_run {
             self.main_allocator.allocate(*max_transit_level_data)?
@@ -801,15 +791,6 @@ impl MosaicPatchBuilder {
         }
 
         let transit_tube_data_path = Path::new("../transit-tube-data");
-        // TODO: Use a shared list of theme names here and in make_all_room_patches:
-        let theme_names: Vec<&'static str> = vec![
-            "Base",
-            "OuterCrateria",
-            "InnerCrateria",
-            "GreenBrinstar",
-            "UpperNorfair",
-            "WreckedShip",
-        ];
         for theme_name in theme_names {
             let theme_transit_data_path = transit_tube_data_path.join(format!("{}.json", theme_name));
             let theme_transit_data_str = std::fs::read_to_string(&theme_transit_data_path)
@@ -1102,6 +1083,19 @@ fn main() -> Result<()> {
         (snes2pc(0x83F000), snes2pc(0x840000)),
     ]);
 
+    let project_names: Vec<String> = vec![
+        "Base",
+        "OuterCrateria",
+        "InnerCrateria",
+        "GreenBrinstar",
+        "UpperNorfair",
+        "WreckedShip",
+        "WestMaridia",
+    ]
+    .into_iter()
+    .map(|x| x.to_string())
+    .collect();
+
     let mut rom = Rom::load(&args.input_rom)?;
     rom.data.resize(0x400000, 0xFF);
     let mut room_ptr_map: HashMap<(usize, usize), usize> = HashMap::new();
@@ -1135,13 +1129,13 @@ fn main() -> Result<()> {
     mosaic_builder.make_tileset_patch()?;
     mosaic_builder.build_bgdata_map()?;
     mosaic_builder.build_fx_door_map()?;
-    mosaic_builder.make_all_room_patches()?;
+    mosaic_builder.make_all_room_patches(&project_names)?;
 
     // For Toilet, do a dry run first to determine size to allocate for level data
     // (based on max possible size across all possible themes and intersecting rooms):
     let mut max_transit_level_data = 0;
     let mut max_intersection_level_data = 0;
-    mosaic_builder.make_toilet_patches(true, &mut max_transit_level_data, &mut max_intersection_level_data)?;
-    mosaic_builder.make_toilet_patches(false, &mut max_transit_level_data, &mut max_intersection_level_data)?;
+    mosaic_builder.make_toilet_patches(true, &mut max_transit_level_data, &mut max_intersection_level_data, &project_names)?;
+    mosaic_builder.make_toilet_patches(false, &mut max_transit_level_data, &mut max_intersection_level_data, &project_names)?;
     Ok(())
 }
