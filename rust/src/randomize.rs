@@ -824,7 +824,9 @@ impl<'a> Preprocessor<'a> {
                     None
                 }
             }
-            ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
+            ExitCondition::LeaveShinecharged { frames_remaining, .. } => {
+                Some(Requirement::ShineChargeLeniencyFrames(frames_remaining.unwrap()))
+            }
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,

@@ -9,6 +9,9 @@
 
 lorom
 
+!bank_84_free_space_start = $84F7F0
+!bank_84_free_space_end = $84F800
+
 ; Definitions
 !samus_max_reserves = $09D4
 !samus_reserves = $09D6
@@ -330,11 +333,12 @@ FUNCTION_PAUSE_REPAINT_HELPER:
 org $848986
     JSR HOOK_RESERVE_PICKUP
 
-org $84F710
+org !bank_84_free_space_start
 HOOK_RESERVE_PICKUP:
     LDA #$FFFF : STA !samus_previous_reserves
     LDA $09D4 ; Original code
     RTS
+warnpc !bank_84_free_space_end
 
 ; When enterng and leaving Kraid's room, the original tiles are drawn for a few frames, so make them empty
 org $E2C330

@@ -13,12 +13,20 @@ hook_spin_lock:
     lda $0A1F
     and #$00FF
     cmp #$0003  ; spin-jumping movement type
+    beq .disable_up_down
+    cmp #$0014  ; wall-jumping movement type
     bne .skip
 
+.disable_up_down:
     ; Override up/down inputs to be treated as not held
     lda $14
     ora #$0C00
     sta $14
+
+    ; Override up/down inputs to be treated as not newly pressed
+    lda $12
+    ora #$0C00
+    sta $12
 
 .skip:
 

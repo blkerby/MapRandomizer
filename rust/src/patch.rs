@@ -432,6 +432,7 @@ impl<'a> Patcher<'a> {
             "intro_song",
             "msu1",
             "escape_timer",
+            "nothing_item",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -555,6 +556,13 @@ impl<'a> Patcher<'a> {
             if item == Item::Nothing {
                 let idx = self.rom.read_u16(item_plm_ptr + 4).unwrap() as usize;
                 self.nothing_item_bitmask[idx>>3] |= 1 << (idx & 7);
+
+                if loc == (19, 2) {
+                    // Placing nothing item in the Bomb Torizo Room could be a problem because then there would be
+                    // no way to activate the fight (which could be required on Chozos objective mode).
+                    // So we put an invisible fake item there, using a special new PLM type.
+                    self.rom.write_u16(item_plm_ptr, 0xF700)?;
+                }
             }
         }
         Ok(())

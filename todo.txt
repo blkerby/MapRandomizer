@@ -9,14 +9,14 @@ v110
   - set up constraint for toilet to have same area/subarea as intersecting room
     - doesn't work overriding it in the randomizer: area size can overflow
     - also ensure new pool doesn't have Three Musketeers' wrong X position
-  - Update Early Supers in Base theme, vine in bottom left
 - investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
   - https://dev.maprando.com/seed/2eax2o7HV_I3jPBekK2ogw/data/visualizer/index.html
 - look into instant morph (after walljump) still happening with spin lock (reported by Nito)
-- PENDING: Look into Everest tunnel expansion: should be only 2 air tiles wide but is 3 in Mosaic?
-- buff farm bug super drops?
-- Make sure BT has item (e.g. for Chozo objective).
+- DONE: Look into Everest tunnel expansion: should be only 2 air tiles wide but is 3 in Mosaic?
+- DONE: buff farm bug super drops?
+- DONE: Make sure BT has item (e.g. for Chozo objective).
 - DONE: Override f_ZebesAwake yield on Metroid Rooms.
+- DONE: fix problem with shinecharge leniency frames not affecting leaveShinecharged into comeInWithSpark
 - Fix issue with Desolate not giving all items in escape:
   - https://maprando.com/seed/BluDOWpAlybe60H1XYSUDg/
   - also make "seed info" show that all items will be given
