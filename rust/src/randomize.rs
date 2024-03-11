@@ -3213,7 +3213,7 @@ impl<'r> Randomizer<'r> {
         loop {
             let mut new_state: RandomizationState = new_state_filler.clone();
             for &item in &selected_key_items {
-                if new_state_filler.items_remaining[item as usize] > 0 {
+                if new_state.items_remaining[item as usize] > 0 {
                     new_state.items_remaining[item as usize] -= 1;
                 }
             }
@@ -3243,6 +3243,20 @@ impl<'r> Randomizer<'r> {
                     for x in &mut selected_key_items {
                         *x = Item::Nothing;
                     }
+                    new_state = new_state_filler;
+                    for &item in &selected_key_items {
+                        if new_state.items_remaining[item as usize] > 0 {
+                            new_state.items_remaining[item as usize] -= 1;
+                        }
+                    }
+                    let _ = self.provides_progression(
+                        &state,
+                        &mut new_state,
+                        &selected_key_items,
+                        &selected_filler_items,
+                        &placed_uncollected_bireachable_items,
+                        num_unplaced_bireachable,
+                    );
                 }
                 let selection = SelectItemsOutput {
                     key_items: selected_key_items,
