@@ -706,7 +706,7 @@ fn validate_energy(
             local.energy_used = global.max_energy - 1;
         } else {
             // Assume that reserves auto-trigger, leaving reserves empty.
-            let reserves_available = global.max_reserves - local.reserves_used;
+            let reserves_available = std::cmp::min(global.max_reserves - local.reserves_used, global.max_energy);
             local.reserves_used = global.max_reserves;
             local.energy_used = std::cmp::max(0, local.energy_used - reserves_available);
             if local.energy_used >= global.max_energy {
