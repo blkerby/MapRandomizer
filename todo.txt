@@ -17,7 +17,7 @@ v110
 - DONE: Make sure BT has item (e.g. for Chozo objective).
 - DONE: Override f_ZebesAwake yield on Metroid Rooms.
 - DONE: fix problem with shinecharge leniency frames not affecting leaveShinecharged into comeInWithSpark
-- Fix issue with Desolate not giving all items in escape:
+- DONE: Fix issue with Desolate not giving all items in escape:
   - https://maprando.com/seed/BluDOWpAlybe60H1XYSUDg/
   - also make "seed info" show that all items will be given
 - Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation

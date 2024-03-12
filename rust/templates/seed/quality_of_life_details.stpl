@@ -25,7 +25,7 @@
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Hyper Beam gives all movement items:</div>
-    <div class="col-4 col-sm-3"><%= if escape_movement_items { "Yes" } else { "No" }%></div>
+    <div class="col-4 col-sm-3"><%= if escape_movement_items || difficulty.stop_item_placement_early { "Yes" } else { "No" }%></div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Refill energy for escape:</div>

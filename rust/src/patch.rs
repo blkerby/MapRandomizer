@@ -1351,7 +1351,7 @@ impl<'a> Patcher<'a> {
                     &[0x20, 0x00, 0xFD], // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
                 )?;
 
-                if self.randomization.difficulty.escape_movement_items {
+                if self.randomization.difficulty.escape_movement_items || self.randomization.difficulty.stop_item_placement_early {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }

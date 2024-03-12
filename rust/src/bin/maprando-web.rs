@@ -1524,7 +1524,7 @@ async fn randomize(
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-    let max_attempts = 10000;
+    let max_attempts = 2000;
     let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random { 10 } else { 1 };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
@@ -1880,8 +1880,8 @@ fn build_app_data() -> AppData {
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     // let tame_maps_path = Path::new("../maps/v93-tame");
-    let tame_maps_path = Path::new("../maps/v110-tame");
-    let wild_maps_path = Path::new("../maps/v110-wild");
+    let tame_maps_path = Path::new("../maps/v110b-tame");
+    let wild_maps_path = Path::new("../maps/v110b-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");
