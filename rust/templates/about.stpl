@@ -459,18 +459,20 @@
     <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>):
         <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>DIProgan</i>, <i>kyleb</i>,
         <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
-    <li>Area-themed palettes: <i>kyleb</i>
+    <li>Area-themed palettes: <i>kyleb</i>, <i>Maddo</i>, <i>AmoebaOfDoom</i>
+    <li>Area-themed glows: <i>AmoebaOfDoom</i>
     <li>Tile themes (experimental): <i>AmoebaOfDoom</i>, <i>Maddo</i>, <i>Tundain</i>, <i>chicdead26</i>
     <li>Spoiler map: <i>Selicre</i>
     <li>Tech animated GIFs and videos: <i>Osse101</i>
     <li>E-Tank refill & reserve tank patches: <i>Kewlan</i>
+    <li>Integration test: <i>aquanight</i>
     <li>ASM help:
         <ul>
         <li><i>Buggmann</i> (created the title screen animation patch)
         <li><i>somerando</i> (scrolling sky, West Ocean G4 statue bug, save/load bug, etc.)
         <li><i>NobodyNada</i> (figured out BT statue crumble bug)
         <li><i>PJBoy</i> (explained Big Boy Room enemy initialization issue)
-        <li><i>AmoebaOfDoom</i> (suggestions on map patching)
+        <li><i>AmoebaOfDoom</i> (lots of helpful advice, on top of all the work on area-themed palettes, glows, tiling, etc.)
         </ul>
     </ul>
 

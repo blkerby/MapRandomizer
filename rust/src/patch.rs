@@ -2099,6 +2099,17 @@ impl<'a> Patcher<'a> {
             // East Pants Room
             write_asm(room.twin_rom_address.unwrap(), x % 16, y % 16 + 16);
         }
+        if self.randomization.toilet_intersections.contains(&room_idx) {
+            let toilet_pos = self.randomization.map.rooms[self.game_data.toilet_room_idx];
+            let room_pos = self.randomization.map.rooms[room_idx];
+            let rel_x = room_pos.0 as isize - toilet_pos.0 as isize;
+            let rel_y = room_pos.1 as isize - toilet_pos.1 as isize;
+            let new_x = x as isize + rel_x * 16;
+            let new_y = y as isize + rel_y * 16;
+            if new_x >= 0 && new_x < 16 && new_y >= 0 && new_y < 160 {
+                write_asm(0x7D408, new_x as usize, new_y as usize);
+            }
+        }
 
         Ok(())
     }
@@ -2263,14 +2274,54 @@ impl<'a> Patcher<'a> {
         let toilet_rel_x_addr = snes2pc(0xB5FE72);
         let toilet_rel_y_addr = snes2pc(0xB5FE73);
 
+        info!("Applying toilet data");
         if self.randomization.toilet_intersections.len() == 1 {
             let room_idx = self.randomization.toilet_intersections[0];
             let room_ptr = self.game_data.room_geometry[room_idx].rom_address;
             let room_pos = self.map.rooms[room_idx];
             let toilet_pos = self.map.rooms[self.game_data.toilet_room_idx];
+            let rel_x = toilet_pos.0 as isize - room_pos.0 as isize;
+            let rel_y = toilet_pos.1 as isize - room_pos.1 as isize;
             self.rom.write_u16(toilet_intersecting_room_ptr_addr, ((room_ptr & 0x7FFF) | 0x8000) as isize)?;
-            self.rom.write_u8(toilet_rel_x_addr, (toilet_pos.0 as isize - room_pos.0 as isize) as u8 as isize)?;
-            self.rom.write_u8(toilet_rel_y_addr, (toilet_pos.1 as isize - room_pos.1 as isize) as u8 as isize)?;
+            self.rom.write_u8(toilet_rel_x_addr, rel_x as u8 as isize)?;
+            self.rom.write_u8(toilet_rel_y_addr, rel_y as u8 as isize)?;
+
+            let intersection_state_ptr = get_room_state_ptrs(self.rom, room_ptr)?[0].1 | 0x70000;
+            let mut intersection_plm_ptr = self.rom.read_u16(intersection_state_ptr + 20)? as usize | 0x70000;
+            let mut toilet_plm_data: Vec<u8> = vec![];
+            loop {
+                let plm_type = self.rom.read_u16(intersection_plm_ptr)?;
+                if plm_type == 0x0000 {
+                    break;        
+                }
+                if (plm_type >= 0xEED7 && plm_type <= 0xEFCF) || (plm_type >= 0xF600 && plm_type <= 0xF608) {
+                    // item PLM
+                    let mut plm_x = self.rom.read_u8(intersection_plm_ptr + 2)?;
+                    let mut plm_y = self.rom.read_u8(intersection_plm_ptr + 3)?;
+                    let plm_var = self.rom.read_u16(intersection_plm_ptr + 4)?;
+
+                    plm_x -= rel_x * 16;
+                    plm_y -= rel_y * 16;
+                    if plm_x >= 0 && plm_x < 16 && plm_y >= 0 && plm_y < 160 {
+                        toilet_plm_data.extend([
+                            (plm_type & 0xFF) as u8,
+                            (plm_type >> 8) as u8,
+                            plm_x as u8,
+                            plm_y as u8,
+                            (plm_var & 0xFF) as u8,
+                            (plm_var >> 8) as u8,
+                        ]);
+                    }
+                }
+                intersection_plm_ptr += 6;
+            }
+            toilet_plm_data.extend([0x00, 0x00]);
+            assert!(toilet_plm_data.len() <= 0x40);
+
+            let toilet_state_ptr = 0x7D415;
+            let toilet_plm_ptr = snes2pc(0x8FFE00);
+            self.rom.write_n(toilet_plm_ptr, &toilet_plm_data)?;
+            self.rom.write_u16(toilet_state_ptr + 20, (toilet_plm_ptr as isize & 0x7FFF) | 0x8000)?;
         }
         Ok(())
     }

@@ -2723,6 +2723,9 @@ impl<'a> MapPatcher<'a> {
             self.indicate_heat()?;
             self.indicate_map_station_tiles()?;
             self.indicate_refill_station_tiles()?;
+        } else {
+            // With Ultra-Low QoL, make Tourian Map Room show up as an item dot (like other map rooms) instead of as a save.
+            self.patch_room_basic("Tourian Map Room", vec![(0, 0, W, W, W, W, Interior::Item)])?;
         }
         self.indicate_objective_tiles()?;
         if !self.randomization.difficulty.ultra_low_qol {

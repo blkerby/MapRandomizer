@@ -1,14 +1,12 @@
 v110
 - Movable Toilet:
-  - draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
+  - DONE: draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
   - handle twin rooms: Pants Room and Homing Geemer
   - draw tube using different tiles in Maridia tileset
   - make sure it works for vanilla map
     - draw tube in Aqueduct and Botwoon Hallway
   - figure out setup ASM for rooms with glass tube tiles?
-  - set up constraint for toilet to have same area/subarea as intersecting room
-    - doesn't work overriding it in the randomizer: area size can overflow
-    - also ensure new pool doesn't have Three Musketeers' wrong X position
+  - ensure new pool doesn't have Three Musketeers' wrong X position
 - DONE: investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
   - https://dev.maprando.com/seed/2eax2o7HV_I3jPBekK2ogw/data/visualizer/index.html
 - DONE: look into instant morph (after walljump) still happening with spin lock (reported by Nito)
@@ -20,13 +18,13 @@ v110
 - DONE: Fix issue with Desolate not giving all items in escape:
   - https://maprando.com/seed/BluDOWpAlybe60H1XYSUDg/
   - also make "seed info" show that all items will be given
-- Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
-  - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
 - DONE: reduce Desolate Power Bomb pool to 25
-- ultra-low QoL: 
+- DONE: ultra-low QoL: 
   - tourian map is marked as save room
 
 TODO:
+- Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
+  - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
 - heated elevator: mark with red platform?
 - Debug eddie desolate seed:
   - https://maprando.com/seed/tPRO8Krh2LxvnQvA0HZzaw/
