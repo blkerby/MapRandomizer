@@ -683,7 +683,12 @@ impl MosaicPatchBuilder {
         Self::get_canonical_tileset(tileset_idx_1) == Self::get_canonical_tileset(tileset_idx_2)
     }
 
-    fn get_layer_2_data(state_xml: &RoomState, level_data: &[u8], room_width: usize, room_height: usize) -> Vec<u8> {
+    fn get_layer_2_data(
+        state_xml: &RoomState,
+        level_data: &[u8],
+        room_width: usize,
+        room_height: usize,
+    ) -> Vec<u8> {
         let size = level_data[0] as usize + ((level_data[1] as usize) << 8);
         if state_xml.layer2_type == Layer2Type::Layer2 {
             let mut out = level_data[(2 + size * 3 / 2)..(2 + size * 5 / 2)].to_vec();
@@ -710,7 +715,13 @@ impl MosaicPatchBuilder {
         }
     }
 
-    fn draw_tube(layer2: &mut [u8], room_width: usize, room_height: usize, screen_x: usize, priority: bool) {
+    fn draw_tube(
+        layer2: &mut [u8],
+        room_width: usize,
+        room_height: usize,
+        screen_x: usize,
+        priority: bool,
+    ) {
         for screen_y in 0..room_height {
             for y in 0..16 {
                 let i = (screen_y * 16 + y) * room_width * 16 + screen_x * 16 + 7;
@@ -724,8 +735,32 @@ impl MosaicPatchBuilder {
                 (layer2[i * 2], layer2[i * 2 + 1]) = (tile, 0x04 | vflip);
                 (layer2[i * 2 + 2], layer2[i * 2 + 3]) = (tile, 0x00 | vflip);
             }
-            
         }
+    }
+
+    fn write_toilet_intersection_room(
+        &mut self,
+        new_rom: &mut Rom,
+        state_xml: &RoomState,
+        room_ptr: usize,
+        level_data_addr: usize,
+        compressed_level_data: &[u8],
+    ) -> Result<()> {
+        new_rom.write_n(level_data_addr, compressed_level_data)?;
+        for (_event_ptr, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
+            new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
+
+            // Set BG scroll rates to 100%
+            new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
+            new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
+
+            if state_xml.layer1_2 == 0x91C9 {
+                // Disable scrolling sky, in order to be able to draw the tube in Layer2.
+                new_rom.write_u16(state_ptr + 18, 0x0000)?;
+                new_rom.write_u16(state_ptr + 24, 0x0000)?;
+            }
+        }
+        Ok(())
     }
 
     fn make_toilet_patches(
@@ -758,7 +793,7 @@ impl MosaicPatchBuilder {
                 "Transit: main alloc {:?}, FX alloc {:?}",
                 self.main_allocator.get_stats(),
                 self.fx_allocator.get_stats()
-            );    
+            );
         }
 
         // Index SMART project rooms:
@@ -792,7 +827,8 @@ impl MosaicPatchBuilder {
 
         let transit_tube_data_path = Path::new("../transit-tube-data");
         for theme_name in theme_names {
-            let theme_transit_data_path = transit_tube_data_path.join(format!("{}.json", theme_name));
+            let theme_transit_data_path =
+                transit_tube_data_path.join(format!("{}.json", theme_name));
             let theme_transit_data_str = std::fs::read_to_string(&theme_transit_data_path)
                 .with_context(|| {
                     format!(
@@ -802,10 +838,10 @@ impl MosaicPatchBuilder {
                 })?;
             let theme_transit_data_vec: Vec<TransitData> =
                 serde_json::from_str(&theme_transit_data_str)?;
-    
+
             let transit_project_path = self.mosaic_dir.join("Projects/TransitTube");
             let theme_project_path = self.mosaic_dir.join("Projects").join(theme_name);
-    
+
             for transit_data in &theme_transit_data_vec {
                 info!("{} transit room: {}", theme_name, transit_data.name);
                 let room_idx = room_idx_by_name[&transit_data.name];
@@ -816,15 +852,27 @@ impl MosaicPatchBuilder {
                 let room_width = self.rom.read_u8(room_ptr + 4)? as usize;
                 let room_height = self.rom.read_u8(room_ptr + 5)? as usize;
                 let smart_room_name = &room_name_by_pair[&(room_area, room_index)];
-    
+
                 let tube_theme_top = transit_data.top.to_ascii_uppercase();
                 let tube_theme_bottom = transit_data.bottom.to_ascii_uppercase();
-    
+
                 let top_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_top)?;
                 let bottom_state_xml =
                     Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
-                let middle_state_xml = Self::load_room_state(&theme_project_path, &smart_room_name)?;
-    
+                let middle_state_xml =
+                    Self::load_room_state(&theme_project_path, &smart_room_name)?;
+                let twin_state_xml = if room_idx == 138 {
+                    // Pants Room -> East Pants Room
+                    let east_pants_room_name = room_name_by_pair[&(4, 37)].as_str();
+                    Some(Self::load_room_state(&theme_project_path, east_pants_room_name)?)
+                } else if room_idx == 26 {
+                    // West Ocean -> Homing Geemer Room
+                    let homing_geemer_room_name = room_name_by_pair[&(0, 17)].as_str();
+                    Some(Self::load_room_state(&theme_project_path, homing_geemer_room_name)?)
+                } else {
+                    None
+                };
+
                 let tileset_idx = middle_state_xml.gfx_set;
                 assert!(Self::is_compatible_tileset(
                     top_state_xml.gfx_set,
@@ -834,22 +882,56 @@ impl MosaicPatchBuilder {
                     bottom_state_xml.gfx_set,
                     tileset_idx
                 ));
-    
+
                 let top_level_data = extract_uncompressed_level_data(&top_state_xml);
                 let bottom_level_data = extract_uncompressed_level_data(&bottom_state_xml);
                 let middle_level_data = extract_uncompressed_level_data(&middle_state_xml);
-    
+                let compressed_twin_level_data = twin_state_xml.as_ref().map(|tx| {
+                    let orig_level_data = extract_uncompressed_level_data(tx);
+                    let mut level_data = orig_level_data.clone();
+                    let height = if room_idx == 138 { 3 } else { 1 };
+                    let mut layer_2 = Self::get_layer_2_data(
+                        twin_state_xml.as_ref().unwrap(),
+                        &level_data,
+                        1,
+                        height,
+                    );
+                    Self::draw_tube(&mut layer_2, 1, height, 0, false);
+
+                    for sy in 0..height {
+                        Self::copy_screen(
+                            &mut level_data,
+                            0,
+                            sy as usize,
+                            1,
+                            &orig_level_data,
+                            0,
+                            sy as usize,
+                            1,
+                            &layer_2,
+                        );
+                    }
+
+                    self.get_compressed_data(&level_data).unwrap()
+                });
+
                 let top_layer_2 = Self::get_layer_2_data(&top_state_xml, &top_level_data, 1, 10);
-                let bottom_layer_2 = Self::get_layer_2_data(&bottom_state_xml, &bottom_level_data, 1, 10);
-                let orig_middle_layer_2 = Self::get_layer_2_data(&middle_state_xml, &middle_level_data, room_width, room_height);
-    
+                let bottom_layer_2 =
+                    Self::get_layer_2_data(&bottom_state_xml, &bottom_level_data, 1, 10);
+                let orig_middle_layer_2 = Self::get_layer_2_data(
+                    &middle_state_xml,
+                    &middle_level_data,
+                    room_width,
+                    room_height,
+                );
+
                 for &x in &transit_data.x {
                     let mut y_min = isize::MAX;
                     let mut y_max = 0 as isize;
-    
+
                     let mut middle_layer_2 = orig_middle_layer_2.clone();
                     Self::draw_tube(&mut middle_layer_2, room_width, room_height, x, true);
-    
+
                     for y in 0..(room_geometry.map.len() as isize) {
                         if room_geometry.map[y as usize][x as usize] == 1 {
                             if y < y_min {
@@ -860,12 +942,18 @@ impl MosaicPatchBuilder {
                             }
                         }
                     }
-    
+
                     // Now construct level data for the intersecting room, modified to show the tube passing through.
                     // This is independent of the vertical alignment of the tube (i.e. how many screens above it starts).
                     let mut new_middle_level_data = middle_level_data.clone();
                     let mut middle_layer_2_behind = orig_middle_layer_2.clone();
-                    Self::draw_tube(&mut middle_layer_2_behind, room_width, room_height, x, false);
+                    Self::draw_tube(
+                        &mut middle_layer_2_behind,
+                        room_width,
+                        room_height,
+                        x,
+                        false,
+                    );
                     for sy in 0..room_height {
                         for sx in 0..room_width {
                             Self::copy_screen(
@@ -878,36 +966,68 @@ impl MosaicPatchBuilder {
                                 sy as usize,
                                 room_width,
                                 &middle_layer_2_behind,
-                            );    
+                            );
                         }
                     }
-    
-                    let compressed_middle_level_data = self.get_compressed_data(&new_middle_level_data)?;
+
+                    let compressed_middle_level_data =
+                        self.get_compressed_data(&new_middle_level_data)?;
+                    let twin_level_data_len = compressed_twin_level_data.as_ref().map_or(0, |x| x.len());
                     if dry_run {
-                        if compressed_middle_level_data.len() > *max_intersection_level_data {
-                            *max_intersection_level_data = compressed_middle_level_data.len();
+                        if compressed_middle_level_data.len() + twin_level_data_len > *max_intersection_level_data {
+                            *max_intersection_level_data = compressed_middle_level_data.len() + twin_level_data_len;
                         }
                     }
-    
+
                     // Construct level data for the Toilet room, one version for each possible vertical position:
                     assert!(2 - y_min < 8 - y_max);
                     for y in (2 - y_min)..(8 - y_max) {
                         let mut transit_level_data = bottom_level_data.clone();
-    
+
                         // Top part of the tube:
                         for sy in 0..(y + y_min - 1) {
-                            Self::copy_screen(&mut transit_level_data, 0, sy as usize, 1, &top_level_data, 0, sy as usize, 1, &top_layer_2);
+                            Self::copy_screen(
+                                &mut transit_level_data,
+                                0,
+                                sy as usize,
+                                1,
+                                &top_level_data,
+                                0,
+                                sy as usize,
+                                1,
+                                &top_layer_2,
+                            );
                         }
-    
+
                         // Tube screen immediately above the intersecting room:
-                        Self::copy_screen(&mut transit_level_data, 0, (y + y_min - 1) as usize, 1, &top_level_data, 0, 4, 1, &top_layer_2);
-    
+                        Self::copy_screen(
+                            &mut transit_level_data,
+                            0,
+                            (y + y_min - 1) as usize,
+                            1,
+                            &top_level_data,
+                            0,
+                            4,
+                            1,
+                            &top_layer_2,
+                        );
+
                         if y + y_min - 1 > 4 {
                             assert!(y + y_min - 1 == 5);
                             // One more tube screen above: make it a connecting screen instead of a terminator
-                            Self::copy_screen(&mut transit_level_data, 0, 4, 1, &top_level_data, 0, 2, 1, &top_layer_2);
+                            Self::copy_screen(
+                                &mut transit_level_data,
+                                0,
+                                4,
+                                1,
+                                &top_level_data,
+                                0,
+                                2,
+                                1,
+                                &top_layer_2,
+                            );
                         }
-    
+
                         // Intersecting room
                         for sy in y_min..=y_max {
                             Self::copy_screen(
@@ -922,18 +1042,39 @@ impl MosaicPatchBuilder {
                                 &middle_layer_2,
                             );
                         }
-    
+
                         // Tube screen immediately below the intersecting room:
-                        Self::copy_screen(&mut transit_level_data, 0, (y + y_max + 1) as usize, 1, &bottom_level_data, 0, 5, 1, &bottom_layer_2);
-    
+                        Self::copy_screen(
+                            &mut transit_level_data,
+                            0,
+                            (y + y_max + 1) as usize,
+                            1,
+                            &bottom_level_data,
+                            0,
+                            5,
+                            1,
+                            &bottom_layer_2,
+                        );
+
                         if y + y_max + 1 < 5 {
                             assert!(y + y_max + 1 == 4);
                             // One more tube screen below: make it a connecting screen instead of a terminator
-                            Self::copy_screen(&mut transit_level_data, 0, 5, 1, &bottom_level_data, 0, 7, 1, &bottom_layer_2);
+                            Self::copy_screen(
+                                &mut transit_level_data,
+                                0,
+                                5,
+                                1,
+                                &bottom_level_data,
+                                0,
+                                7,
+                                1,
+                                &bottom_layer_2,
+                            );
                         }
-    
-                        let compressed_transit_level_data = self.get_compressed_data(&transit_level_data)?;                    
-    
+
+                        let compressed_transit_level_data =
+                            self.get_compressed_data(&transit_level_data)?;
+
                         if dry_run {
                             if compressed_transit_level_data.len() > *max_transit_level_data {
                                 *max_transit_level_data = compressed_transit_level_data.len();
@@ -942,23 +1083,30 @@ impl MosaicPatchBuilder {
                             let mut new_rom = self.rom.clone();
                             new_rom.enable_tracking();
                             let toilet_state_ptr = 0x7D415;
-    
+
                             // Write the tileset index
                             new_rom.write_u8(toilet_state_ptr + 3, tileset_idx as isize)?;
-    
+
                             // Set enemy list to empty:
                             new_rom.write_u16(toilet_state_ptr + 8, 0x85a9)?;
-                            new_rom.write_u16(toilet_state_ptr + 10, 0x80eb)?;                    
-    
+                            new_rom.write_u16(toilet_state_ptr + 10, 0x80eb)?;
+
                             // Write the transit level data and the pointer to it:
-                            new_rom.write_n(transit_level_data_addr, &compressed_transit_level_data)?;
-                            new_rom.write_u24(toilet_state_ptr, pc2snes(transit_level_data_addr) as isize)?;
+                            new_rom
+                                .write_n(transit_level_data_addr, &compressed_transit_level_data)?;
+                            new_rom.write_u24(
+                                toilet_state_ptr,
+                                pc2snes(transit_level_data_addr) as isize,
+                            )?;
 
                             // Set BG scroll rate to 100%
                             new_rom.write_u8(toilet_state_ptr + 13, 0x00 as isize)?;
-                            
+
                             // Write FX:
-                            new_rom.write_u16(toilet_state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
+                            new_rom.write_u16(
+                                toilet_state_ptr + 6,
+                                (pc2snes(fx_data_addr) & 0xFFFF) as isize,
+                            )?;
                             let mut fx_data = self.get_fx_data(&middle_state_xml, true);
                             assert!(fx_data.len() <= 16);
                             if fx_data.len() == 16 {
@@ -970,26 +1118,32 @@ impl MosaicPatchBuilder {
                                     // Adjust liquid level new:
                                     fx_data[5] = ((fx_data[5] as i8) + (y as i8)) as u8;
                                 }
-                                fx_data[13] &= 0x7F;  // Disable heat FX
+                                fx_data[13] &= 0x7F; // Disable heat FX
                             }
                             new_rom.write_n(fx_data_addr, &fx_data)?;
-    
+
                             // Write level data and other modifications for the intersecting room:
-                            new_rom.write_n(intersection_level_data_addr, &compressed_middle_level_data)?;
-                            for (_event_ptr, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
-                                new_rom.write_u24(state_ptr, pc2snes(intersection_level_data_addr) as isize)?;
-    
-                                // Set BG scroll rates to 100%
-                                new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
-                                new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
-    
-                                if middle_state_xml.layer1_2 == 0x91C9 {
-                                    // Disable scrolling sky, in order to be able to draw the tube in Layer2.
-                                    new_rom.write_u16(state_ptr + 18, 0x0000)?;
-                                    new_rom.write_u16(state_ptr + 24, 0x0000)?;
-                                }    
+                            self.write_toilet_intersection_room(
+                                &mut new_rom,
+                                &middle_state_xml,
+                                room_ptr,
+                                intersection_level_data_addr,
+                                &compressed_middle_level_data)?;
+                        
+                            if twin_state_xml.is_some() {
+                                let twin_room_ptr = if room_idx == 138 {  
+                                    0x7D69A
+                                } else { 
+                                    0x7968F
+                                };
+                                self.write_toilet_intersection_room(
+                                    &mut new_rom,
+                                    twin_state_xml.as_ref().unwrap(),
+                                    twin_room_ptr,
+                                    intersection_level_data_addr + compressed_middle_level_data.len(),
+                                    compressed_twin_level_data.as_ref().unwrap())?;
                             }
-            
+
                             // Encode the BPS patch:
                             let modified_ranges = new_rom.get_modified_ranges();
                             let mut encoder = BPSEncoder::new(
@@ -998,7 +1152,7 @@ impl MosaicPatchBuilder {
                                 &modified_ranges,
                             );
                             encoder.encode();
-    
+
                             // Save the BPS patch to a file:
                             let output_filename =
                                 format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, -y);
@@ -1008,7 +1162,7 @@ impl MosaicPatchBuilder {
                         }
                     }
                 }
-            }    
+            }
         }
         Ok(())
     }
@@ -1135,7 +1289,17 @@ fn main() -> Result<()> {
     // (based on max possible size across all possible themes and intersecting rooms):
     let mut max_transit_level_data = 0;
     let mut max_intersection_level_data = 0;
-    mosaic_builder.make_toilet_patches(true, &mut max_transit_level_data, &mut max_intersection_level_data, &project_names)?;
-    mosaic_builder.make_toilet_patches(false, &mut max_transit_level_data, &mut max_intersection_level_data, &project_names)?;
+    mosaic_builder.make_toilet_patches(
+        true,
+        &mut max_transit_level_data,
+        &mut max_intersection_level_data,
+        &project_names,
+    )?;
+    mosaic_builder.make_toilet_patches(
+        false,
+        &mut max_transit_level_data,
+        &mut max_intersection_level_data,
+        &project_names,
+    )?;
     Ok(())
 }
