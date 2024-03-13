@@ -907,10 +907,11 @@ credits:
     !yellow
     dw "     ADDITIONAL DEVELOPERS      " ;; 132
     !big
-    dw "             KYLEB              " ;; 133
-    dw "             kyleb              " ;; 134
-    dw "            OSSE101             " ;; 135
-    dw "            osse!}!             " ;; 136
+    dw "      KYLEB         OSSE101     " ;; 133
+    dw "      kyleb         osse!}!     " ;; 134
+    dw "          AMOEBAOFDOOM          " ;; 135
+    dw "          amoebaofdoom          " ;; 136
+
     !orange
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
     !big

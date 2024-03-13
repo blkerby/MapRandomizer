@@ -1,12 +1,12 @@
 v110
 - Movable Toilet:
-  - DONE: draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
-  - handle twin rooms: Pants Room and Homing Geemer
   - draw tube using different tiles in Maridia tileset
   - make sure it works for vanilla map
     - draw tube in Aqueduct and Botwoon Hallway
+  - DONE: draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
+  - DONE: handle twin rooms: Pants Room and Homing Geemer
   - figure out setup ASM for rooms with glass tube tiles?
-  - ensure new pool doesn't have Three Musketeers' wrong X position
+  - DONE: ensure new pool doesn't have Three Musketeers' wrong X position
 - DONE: investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
   - https://dev.maprando.com/seed/2eax2o7HV_I3jPBekK2ogw/data/visualizer/index.html
 - DONE: look into instant morph (after walljump) still happening with spin lock (reported by Nito)
@@ -25,6 +25,7 @@ v110
 TODO:
 - Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
   - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
+- Remove unneeded items from last step in Desolate.
 - heated elevator: mark with red platform?
 - Debug eddie desolate seed:
   - https://maprando.com/seed/tPRO8Krh2LxvnQvA0HZzaw/
@@ -40,7 +41,6 @@ TODO:
 - add more "carry shinecharge" strats.
 - handle `unlocksDoors`?
 - make sure cross-room notable strats actually check the setting for the notable
-- make "f_DefeatedBombTorizo" free
 - fix issue with pause map scrolling beyond bounds
 - adjust elevator heatFrames when fast elevators enabled
 - spoiler map: show pop-up when hovering over step, to show additional collectible items (with their quantities) and instructions
