@@ -3616,6 +3616,13 @@ impl GameData {
         };
         *game_data
             .helper_json_map
+            .get_mut("h_canActivateBombTorizo")
+            .unwrap() = json::object! {
+            "name": "h_canActivateBombTorizo",
+            "requires": [],
+        };
+        *game_data
+            .helper_json_map
             .get_mut("h_canActivateAcidChozo")
             .unwrap() = json::object! {
             "name": "h_canActivateAcidChozo",

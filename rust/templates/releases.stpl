@@ -48,6 +48,17 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Shinecharge leniency frames were not taken into account in certain situations.
     <li>Clearing a Metroid room was incorrectly treated as logically waking the planet.
     </ul>
+<li>Logic updates:
+    <ul>
+    <li>New notable strats:
+        <ul>
+        <li>Golden Torizo Crystal Flash (Very Hard)
+        <li>West Sand Hall Spring Fling with Momentum (Expert)
+        <li>Croc Escape Frozen Geruta Shinecharge (Extreme) 
+        <li>Gauntlet Energy Tank Room Spark Master (Extreme)
+        </ul>
+    <li>Crossing Colosseum using Ice without HiJump is moved from Very Hard to Expert.
+    </ul>
 </ul>
 
 <p><a id="release109">Version 109 (2024-02-27)</a>:
