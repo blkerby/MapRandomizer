@@ -721,19 +721,26 @@ impl MosaicPatchBuilder {
         room_height: usize,
         screen_x: usize,
         priority: bool,
+        tileset_idx: usize,
     ) {
         for screen_y in 0..room_height {
             for y in 0..16 {
                 let i = (screen_y * 16 + y) * room_width * 16 + screen_x * 16 + 7;
-                let tile = match (priority, y == 0 || y == 15) {
-                    (true, true) => 0xEE,
-                    (true, false) => 0xEF,
-                    (false, true) => 0xF1,
-                    (false, false) => 0xF2,
+                let tile: u16 = match (tileset_idx, priority, y == 0 || y == 15) {
+                    // Tube tiles specific to East Maridia (as in vanilla):
+                    (12, true, true) => 0x3B2,
+                    (12, true, false) => 0x3AB ^ 0x400,
+                    (12, false, true) => 0x33D,
+                    (12, false, false) => 0x33B ^ 0x400,
+                    // Tube tiles in other tilesets:
+                    (_, true, true) => 0xEE,
+                    (_, true, false) => 0xEF,
+                    (_, false, true) => 0xF1,
+                    (_, false, false) => 0xF2,
                 };
                 let vflip = if y == 15 { 0x08 } else { 0x00 };
-                (layer2[i * 2], layer2[i * 2 + 1]) = (tile, 0x04 | vflip);
-                (layer2[i * 2 + 2], layer2[i * 2 + 3]) = (tile, 0x00 | vflip);
+                (layer2[i * 2], layer2[i * 2 + 1]) = ((tile & 0xFF) as u8, ((tile >> 8) as u8) ^ 0x04 ^ vflip);
+                (layer2[i * 2 + 2], layer2[i * 2 + 3]) = ((tile & 0xFF) as u8, ((tile >> 8) as u8) ^ vflip);
             }
         }
     }
@@ -752,7 +759,7 @@ impl MosaicPatchBuilder {
 
             // Set BG scroll rates to 100%
             new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
-            new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
+            // new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
 
             if state_xml.layer1_2 == 0x91C9 {
                 // Disable scrolling sky, in order to be able to draw the tube in Layer2.
@@ -861,14 +868,15 @@ impl MosaicPatchBuilder {
                     Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
                 let middle_state_xml =
                     Self::load_room_state(&theme_project_path, &smart_room_name)?;
-                let twin_state_xml = if room_idx == 138 {
-                    // Pants Room -> East Pants Room
+                let twin_state_xml = if room_geometry.name == "Pants Room" {
                     let east_pants_room_name = room_name_by_pair[&(4, 37)].as_str();
                     Some(Self::load_room_state(&theme_project_path, east_pants_room_name)?)
-                } else if room_idx == 26 {
-                    // West Ocean -> Homing Geemer Room
+                } else if room_geometry.name == "West Ocean" {
                     let homing_geemer_room_name = room_name_by_pair[&(0, 17)].as_str();
                     Some(Self::load_room_state(&theme_project_path, homing_geemer_room_name)?)
+                } else if room_geometry.name == "Aqueduct" {
+                    let botwoon_hallway_name = room_name_by_pair[&(4, 35)].as_str();
+                    Some(Self::load_room_state(&theme_project_path, botwoon_hallway_name)?)
                 } else {
                     None
                 };
@@ -889,25 +897,33 @@ impl MosaicPatchBuilder {
                 let compressed_twin_level_data = twin_state_xml.as_ref().map(|tx| {
                     let orig_level_data = extract_uncompressed_level_data(tx);
                     let mut level_data = orig_level_data.clone();
-                    let height = if room_idx == 138 { 3 } else { 1 };
+                    let (width, height, x) = if room_geometry.name == "Pants Room" {
+                        (1, 3, 0)
+                    } else if room_geometry.name == "West Ocean" {
+                        (1, 1, 0)
+                    } else if room_geometry.name == "Aqueduct" {
+                        (4, 1, 2)
+                    } else {
+                        panic!("Unrecognized room with twin data: {}", room_geometry.name)
+                    };
                     let mut layer_2 = Self::get_layer_2_data(
                         twin_state_xml.as_ref().unwrap(),
                         &level_data,
-                        1,
+                        width,
                         height,
                     );
-                    Self::draw_tube(&mut layer_2, 1, height, 0, false);
+                    Self::draw_tube(&mut layer_2, width, height, x, false, tileset_idx);
 
                     for sy in 0..height {
                         Self::copy_screen(
                             &mut level_data,
-                            0,
+                            x,
                             sy as usize,
-                            1,
+                            width,
                             &orig_level_data,
-                            0,
+                            x,
                             sy as usize,
-                            1,
+                            width,
                             &layer_2,
                         );
                     }
@@ -930,7 +946,7 @@ impl MosaicPatchBuilder {
                     let mut y_max = 0 as isize;
 
                     let mut middle_layer_2 = orig_middle_layer_2.clone();
-                    Self::draw_tube(&mut middle_layer_2, room_width, room_height, x, true);
+                    Self::draw_tube(&mut middle_layer_2, room_width, room_height, x, true, tileset_idx);
 
                     for y in 0..(room_geometry.map.len() as isize) {
                         if room_geometry.map[y as usize][x as usize] == 1 {
@@ -953,6 +969,7 @@ impl MosaicPatchBuilder {
                         room_height,
                         x,
                         false,
+                        tileset_idx,
                     );
                     for sy in 0..room_height {
                         for sx in 0..room_width {
@@ -1130,7 +1147,7 @@ impl MosaicPatchBuilder {
                                 intersection_level_data_addr,
                                 &compressed_middle_level_data)?;
                         
-                            if twin_state_xml.is_some() {
+                            if twin_state_xml.is_some() && room_geometry.name != "Aqueduct" {
                                 let twin_room_ptr = if room_idx == 138 {  
                                     0x7D69A
                                 } else { 
@@ -1159,6 +1176,46 @@ impl MosaicPatchBuilder {
                             // info!("Writing {}", output_filename);
                             let output_path = self.output_patches_dir.join(output_filename);
                             std::fs::write(&output_path, &encoder.patch_bytes)?;
+
+                            if room_geometry.name == "Aqueduct" && x == 2 && y == 4 {
+                                // Make a special patch for vanilla map tube position, where it passes through
+                                // both Botwoon Hallway and Aqueduct, but where we leave the Toilet room itself untouched.
+
+                                let mut new_rom = self.rom.clone();
+                                new_rom.enable_tracking();
+
+                                // Write tube in background (Layer2) of Aqueduct
+                                self.write_toilet_intersection_room(
+                                    &mut new_rom,
+                                    &middle_state_xml,
+                                    room_ptr,
+                                    intersection_level_data_addr,
+                                    &compressed_middle_level_data)?;
+
+                                // Write tube in background (Layer2) of Botwoon Hallway
+                                self.write_toilet_intersection_room(
+                                    &mut new_rom,
+                                    twin_state_xml.as_ref().unwrap(),
+                                    0x7D617,
+                                    intersection_level_data_addr + compressed_middle_level_data.len(),
+                                    compressed_twin_level_data.as_ref().unwrap())?;
+                                        
+                                // Encode the BPS patch:
+                                let modified_ranges = new_rom.get_modified_ranges();
+                                let mut encoder = BPSEncoder::new(
+                                    &self.source_suffix_tree,
+                                    &new_rom.data,
+                                    &modified_ranges,
+                                );
+                                encoder.encode();
+
+                                // Save the BPS patch to a file:
+                                let output_filename =
+                                    format!("{}-VanillaMapTransit.bps", theme_name);
+                                info!("Writing {}", output_filename);
+                                let output_path = self.output_patches_dir.join(output_filename);
+                                std::fs::write(&output_path, &encoder.patch_bytes)?;                                
+                            }
                         }
                     }
                 }

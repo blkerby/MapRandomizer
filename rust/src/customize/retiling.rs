@@ -24,13 +24,14 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
     let toilet_rel_y_addr = snes2pc(0xB5FE73);
 
     let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
-    if room_ptr == 0x7FFFF {
+    let patch_filename = if room_ptr == 0x7FFFF {
         // Unspecified room means this is vanilla map, so leave the Toilet alone.
-        return Ok(());
-    }
-    let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
-    let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
-    let patch_filename = format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y);
+        format!("{}-VanillaMapTransit.bps", theme_name)    
+    } else {
+        let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
+        let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
+        format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y)    
+    };
     println!("toilet patch: {}", patch_filename);
     apply_bps_patch(rom, orig_rom, &patch_filename)
         .context(format!("Applying Toilet patch: {}", patch_filename))?;
