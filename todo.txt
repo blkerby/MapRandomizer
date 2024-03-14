@@ -23,6 +23,8 @@ v110
   - tourian map is marked as save room
 
 TODO:
+- handle "canPauseAbuse" in reserve logic:
+  - if enemyDamage exceeds regular energy capacity, require "canPauseAbuse" to survive it.
 - Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
   - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
 - Remove unneeded items from last step in Desolate.
