@@ -20,7 +20,10 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>The Toilet is decoupled from Aqueduct and can pass through any one of many possible rooms.
     </ul>
-<li>New tile theme option "West Maridia" is available.
+<li>New tile theme options "West Maridia" and "Scrambled" are available.
+    <ul>
+    <li>The "Scrambled" option will give each room a random theme.
+    </ul>
 <li>Area-themed "Room palettes" are revamped:
     <ul>
     <li>Colors are adjusted to improve the aesthetics and coherence of the palettes.

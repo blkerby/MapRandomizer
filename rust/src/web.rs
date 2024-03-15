@@ -61,6 +61,13 @@ pub struct SamusSpriteCategory {
     pub sprites: Vec<SamusSpriteInfo>,
 }
 
+#[derive(Deserialize, Clone)]
+pub struct MosaicTheme {
+    pub name: String,
+    pub display_name: String,
+}
+
+
 #[derive(Clone)]
 pub struct VersionInfo {
     pub version: usize,
@@ -83,6 +90,7 @@ pub struct AppData {
     pub version_info: VersionInfo,
     pub static_visualizer: bool,
     pub etank_colors: Vec<Vec<String>>,  // colors in HTML hex format, e.g "#ff0000"
+    pub mosaic_themes: Vec<MosaicTheme>,
     pub parallelism: usize,
 }
 

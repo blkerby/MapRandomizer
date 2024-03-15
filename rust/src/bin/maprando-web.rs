@@ -14,20 +14,23 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, MusicSettings, PaletteTheme, ShakingSetting, TileTheme
+    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
+    MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
 };
 use maprando::game_data::{self, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    filter_links, randomize_doors, DebugOptions, DifficultyConfig, DoorsMode, ItemDotChange,
-    ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    Randomization, Randomizer, SaveAnimals, AreaAssignment, WallJump, EtankRefill, randomize_map_areas, StartLocationMode,
+    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
+    DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle,
+    ItemPriorityGroup, MotherBrainFight, Objectives, Randomization, Randomizer, SaveAnimals,
+    StartLocationMode, WallJump,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
 use maprando::web::{
-    AppData, MapRepository, Preset, PresetData, SamusSpriteCategory, VersionInfo, HQ_VIDEO_URL_ROOT,
+    AppData, MapRepository, MosaicTheme, Preset, PresetData, SamusSpriteCategory, VersionInfo,
+    HQ_VIDEO_URL_ROOT,
 };
 use rand::{RngCore, SeedableRng};
 use sailfish::TemplateOnce;
@@ -153,21 +156,16 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
-    let item_pool_multiple: Vec<String> = [
-        "Missile",
-        "ETank",
-        "ReserveTank",
-        "Super",
-        "PowerBomb",
-    ].into_iter().map(|x| x.to_string()).collect();
+    let item_pool_multiple: Vec<String> = ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
+        .into_iter()
+        .map(|x| x.to_string())
+        .collect();
 
-    let starting_items_multiple: Vec<String> = [
-        "Missile",
-        "ETank",
-        "ReserveTank",
-        "Super",
-        "PowerBomb",
-    ].into_iter().map(|x| x.to_string()).collect();
+    let starting_items_multiple: Vec<String> =
+        ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect();
 
     let starting_items_single: Vec<String> = [
         "Charge",
@@ -186,7 +184,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         "ScrewAttack",
         "Varia",
         "Gravity",
-    ].into_iter().map(|x| x.to_string()).collect();
+    ]
+    .into_iter()
+    .map(|x| x.to_string())
+    .collect();
 
     let prioritizable_items: Vec<String> = [
         "ETank",
@@ -210,12 +211,22 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         "ScrewAttack",
         "Varia",
         "Gravity",
-    ].into_iter().map(|x| x.to_string()).collect();
+    ]
+    .into_iter()
+    .map(|x| x.to_string())
+    .collect();
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objectives: vec!["None", "Bosses", "Minibosses", "Metroids", "Chozos", "Pirates"],
+        objectives: vec![
+            "None",
+            "Bosses",
+            "Minibosses",
+            "Metroids",
+            "Chozos",
+            "Pirates",
+        ],
         item_pool_multiple,
         starting_items_multiple,
         starting_items_single,
@@ -481,6 +492,7 @@ struct CustomizeSeedTemplate {
     seed_footer: String,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     etank_colors: Vec<Vec<String>>,
+    mosaic_themes: Vec<MosaicTheme>,
 }
 
 fn render_seed(
@@ -756,6 +768,7 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
                 samus_sprite_categories: app_data.samus_sprite_categories.clone(),
                 etank_colors: app_data.etank_colors.clone(),
+                mosaic_themes: app_data.mosaic_themes.clone(),
             };
             HttpResponse::Ok().body(customize_template.render_once().unwrap())
         }
@@ -844,9 +857,9 @@ fn get_spin_lock_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
     for (setting, button) in setting_button_mapping {
         if let Some(x) = setting {
             if x.0 == "on" {
-                spin_lock_buttons.push(button);    
+                spin_lock_buttons.push(button);
             }
-        }    
+        }
     }
     spin_lock_buttons
 }
@@ -871,9 +884,9 @@ fn get_quick_reload_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
     for (setting, button) in setting_button_mapping {
         if let Some(x) = setting {
             if x.0 == "on" {
-                quick_reload_buttons.push(button);    
+                quick_reload_buttons.push(button);
             }
-        }    
+        }
     }
     quick_reload_buttons
 }
@@ -923,6 +936,8 @@ async fn customize_seed(
         },
         tile_theme: if req.tile_theme.0 == "none" {
             TileTheme::Vanilla
+        } else if req.tile_theme.0 == "scrambled" {
+            TileTheme::Scrambled
         } else {
             TileTheme::Constant(req.tile_theme.0.to_string())
         },
@@ -960,6 +975,7 @@ async fn customize_seed(
         &settings,
         &app_data.game_data,
         &app_data.samus_sprite_categories,
+        &app_data.mosaic_themes,
     ) {
         Ok(()) => {}
         Err(err) => {
@@ -1037,10 +1053,10 @@ fn get_random_seed() -> usize {
     (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
 }
 
-// A simplified measure of "equivalence" in difficulty for the purposes of Forced mode logic, to reduce 
+// A simplified measure of "equivalence" in difficulty for the purposes of Forced mode logic, to reduce
 // the amount of tiers the randomizer has to consider:
 fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> bool {
-    return a.tech == b.tech && a.notable_strats == b.notable_strats
+    return a.tech == b.tech && a.notable_strats == b.notable_strats;
 }
 
 // Computes the intersection of the selected difficulty with each preset. This
@@ -1266,7 +1282,8 @@ async fn randomize(
         }
     }
 
-    let starting_item_json: serde_json::Value = serde_json::from_str(&req.starting_item_json).unwrap();
+    let starting_item_json: serde_json::Value =
+        serde_json::from_str(&req.starting_item_json).unwrap();
     info!("starting_item_json: {:?}", starting_item_json);
     let mut starting_items: Vec<(Item, usize)> = vec![];
     for (k, cnt_json) in starting_item_json.as_object().unwrap().iter() {
@@ -1279,7 +1296,10 @@ async fn randomize(
             usize::from_str_radix(cnt_str, 10).unwrap()
         };
         if cnt > 0 {
-            starting_items.push((Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(), cnt));
+            starting_items.push((
+                Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(),
+                cnt,
+            ));
         }
     }
     info!("Starting items: {:?}", starting_items);
@@ -1290,7 +1310,10 @@ async fn randomize(
     for (k, cnt_json) in item_pool_json.as_object().unwrap().iter() {
         let cnt_str = cnt_json.as_str().unwrap();
         let cnt = usize::from_str_radix(cnt_str, 10).unwrap();
-        item_pool.push((Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(), cnt));
+        item_pool.push((
+            Item::try_from(app_data.game_data.item_isv.index_by_key[k]).unwrap(),
+            cnt,
+        ));
     }
     info!("Item pool: {:?}", item_pool);
 
@@ -1346,17 +1369,23 @@ async fn randomize(
         random_tank: match req.random_tank.0.as_str() {
             "No" => false,
             "Yes" => true,
-            _ => panic!("Unrecognized random_tank {}", req.random_tank.0.as_str())
+            _ => panic!("Unrecognized random_tank {}", req.random_tank.0.as_str()),
         },
         spazer_before_plasma: match req.spazer_before_plasma.0.as_str() {
             "No" => false,
             "Yes" => true,
-            _ => panic!("Unrecognized spazer_before_plasma {}", req.spazer_before_plasma.0.as_str())
+            _ => panic!(
+                "Unrecognized spazer_before_plasma {}",
+                req.spazer_before_plasma.0.as_str()
+            ),
         },
         stop_item_placement_early: match req.stop_item_placement_early.0.as_str() {
             "No" => false,
             "Yes" => true,
-            _ => panic!("Unrecognized stop_item_placement_early {}", req.stop_item_placement_early.0.as_str())
+            _ => panic!(
+                "Unrecognized stop_item_placement_early {}",
+                req.stop_item_placement_early.0.as_str()
+            ),
         },
         item_pool,
         starting_items,
@@ -1520,12 +1549,16 @@ async fn randomize(
         &difficulty,
     );
     let map_layout = req.map_layout.0.clone();
-                
+
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 2000;
-    let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random { 10 } else { 1 };
+    let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random {
+        10
+    } else {
+        1
+    };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     info!(
         "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_attempts={max_map_attempts}, difficulty={:?}",
@@ -1576,15 +1609,15 @@ async fn randomize(
             attempt_num += 1;
 
             info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
-            let randomization_result = randomizer.randomize(
-                attempt_num,
-                item_placement_seed,
-                display_seed,
-            );
+            let randomization_result =
+                randomizer.randomize(attempt_num, item_placement_seed, display_seed);
             let randomization = match randomization_result {
                 Ok(x) => x,
                 Err(e) => {
-                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {}", e);
+                    info!(
+                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {}",
+                        e
+                    );
                     continue;
                 }
             };
@@ -1592,7 +1625,10 @@ async fn randomize(
             let output_rom = match output_rom_result {
                 Ok(x) => x,
                 Err(e) => {
-                    info!("Attempt {attempt_num}/{max_attempts}: Failed to write ROM: {}", e);
+                    info!(
+                        "Attempt {attempt_num}/{max_attempts}: Failed to write ROM: {}",
+                        e
+                    );
                     continue;
                 }
             };
@@ -1738,10 +1774,7 @@ fn init_presets(
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
 
     // TODO: remove this
-    let visible_notable_strats: HashSet<String> = all_notable_strats
-        .iter()
-        .cloned()
-        .collect();
+    let visible_notable_strats: HashSet<String> = all_notable_strats.iter().cloned().collect();
 
     cumulative_tech.extend(implicit_tech.iter().cloned());
     for preset in presets {
@@ -1886,6 +1919,20 @@ fn build_app_data() -> AppData {
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");
     let title_screen_path = Path::new("../TitleScreen/Images");
+    let mosaic_themes = vec![
+        ("OuterCrateria", "Outer Crateria"),
+        ("InnerCrateria", "Inner Crateria"),
+        ("GreenBrinstar", "Green Brinstar"),
+        ("UpperNorfair", "Upper Norfair"),
+        ("WreckedShip", "Wrecked Ship"),
+        ("WestMaridia", "West Maridia"),
+    ]
+    .into_iter()
+    .map(|(x, y)| MosaicTheme {
+        name: x.to_string(),
+        display_name: y.to_string(),
+    })
+    .collect();
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -1956,6 +2003,7 @@ fn build_app_data() -> AppData {
         },
         static_visualizer: args.static_visualizer,
         etank_colors,
+        mosaic_themes,
         parallelism: args
             .parallelism
             .unwrap_or(thread::available_parallelism().unwrap().get()),

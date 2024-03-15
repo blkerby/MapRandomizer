@@ -7,6 +7,7 @@ use anyhow::{bail, Result};
 use std::path::Path;
 
 use crate::customize::vanilla_music::override_music;
+use crate::web::MosaicTheme;
 use crate::{
     game_data::GameData,
     patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom},
@@ -83,7 +84,7 @@ pub enum PaletteTheme {
 #[derive(Debug)]
 pub enum TileTheme {
     Vanilla,
-    Random,
+    Scrambled,
     Constant(String),
 }
 
@@ -305,6 +306,7 @@ pub fn customize_rom(
     settings: &CustomizeSettings,
     game_data: &GameData,
     samus_sprite_categories: &[SamusSpriteCategory],
+    mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
     rom.resize(0x400000);
     let patch = ips::Patch::parse(seed_patch).unwrap();
@@ -314,18 +316,7 @@ pub fn customize_rom(
     }
 
     remove_mother_brain_flashing(rom)?;
-    match &settings.tile_theme {
-        TileTheme::Vanilla => {
-            apply_retiling(rom, orig_rom, game_data, "Base")?;
-        }
-        TileTheme::Constant(theme) => {
-            apply_retiling(rom, orig_rom, game_data, &theme)?;
-        }
-        TileTheme::Random => {
-            // TODO: Implement this
-            apply_retiling(rom, orig_rom, game_data, "Base")?;
-        }
-    }
+    apply_retiling(rom, orig_rom, game_data, &settings.tile_theme, mosaic_themes)?;
 
     match &settings.palette_theme {
         PaletteTheme::Vanilla => {}

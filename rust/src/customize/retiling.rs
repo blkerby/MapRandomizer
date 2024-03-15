@@ -2,10 +2,13 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, GameData, RoomPtr, RoomStateIdx},
-    patch::{self, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, pc2snes, snes2pc, Rom},
+    patch::{self, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, pc2snes, snes2pc, Rom}, web::MosaicTheme,
 };
+use rand::{Rng, SeedableRng};
 use anyhow::{Result, Context};
 use hashbrown::HashMap;
+
+use super::TileTheme;
 
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
@@ -39,9 +42,7 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
     Ok(())
 }
 
-pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme_name: &str) -> Result<()> {
-    // "theme" is just a temporary argument, to hard-code a constant theme through the whole game.
-    // It will be eliminated once we have all the themes are are ready to assign them based on area.
+pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme: &TileTheme, mosaic_themes: &[MosaicTheme]) -> Result<()> {
     let patch_names = vec![
         "Scrolling Sky v1.5",
         "Area FX",
@@ -72,10 +73,28 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
         }
     }
 
+    let random_seed = u32::from_le_bytes(rom.read_n(snes2pc(0xdfff00), 4)?.try_into()?);
+
     apply_bps_patch(rom, orig_rom, "tilesets.bps")?;
+    let mut toilet_theme_name = "";
     for &room_ptr in game_data.raw_room_id_by_ptr.keys() {
         let state_ptrs = get_room_state_ptrs(&rom, room_ptr)?;
         for (state_idx, (_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
+            let theme_name = match theme {
+                TileTheme::Vanilla => "Base",
+                TileTheme::Constant(s) => s,
+                TileTheme::Scrambled => {
+                    let seed = random_seed ^ (room_ptr as u32);
+                    let mut rng_seed = [0u8; 32];
+                    rng_seed[..4].copy_from_slice(&seed.to_le_bytes());
+                    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+                    let theme_idx = rng.gen_range(0..mosaic_themes.len());
+                    &mosaic_themes[theme_idx].name
+                }
+            };
+            if room_ptr == 0x7D408 {
+                toilet_theme_name = theme_name;
+            }
             let patch_filename = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
             apply_bps_patch(rom, orig_rom, &patch_filename)?;
 
@@ -92,7 +111,7 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
         }
     }
 
-    apply_toilet(rom, orig_rom, theme_name)?;
+    apply_toilet(rom, orig_rom, toilet_theme_name)?;
 
     Ok(())
 }
