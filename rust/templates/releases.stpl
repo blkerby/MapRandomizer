@@ -58,6 +58,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Gauntlet Energy Tank Room Spark Master (Extreme)
         </ul>
     <li>Crossing Colosseum using Ice without HiJump is moved from Very Hard to Expert.
+    <li>"Crocomire with 5 Missiles" is moved from Insane to Extreme.
     </ul>
 </ul>
 
