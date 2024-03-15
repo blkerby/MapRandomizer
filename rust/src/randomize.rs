@@ -1153,7 +1153,10 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveWithGrappleTeleport { block_positions } => {
                 let entrance_block_positions_set: HashSet<(u16, u16)> = entrance_block_positions.iter().copied().collect();
                 if block_positions.iter().any(|x| entrance_block_positions_set.contains(x)) {
-                    Some(Requirement::Tech(self.game_data.tech_isv.index_by_key["canGrappleTeleport"]))
+                    Some(Requirement::make_and(vec![
+                        Requirement::Tech(self.game_data.tech_isv.index_by_key["canGrappleTeleport"]),
+                        Requirement::Item(self.game_data.item_isv.index_by_key["Grapple"]),
+                    ]))
                 } else {
                     None
                 }

@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 110 (2024-03-14)</a>:
+<p><a id="release110">Version 110 (2024-03-15)</a>:
 <ul>
 <li>New map pools:
     <ul>
@@ -50,6 +50,8 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>With "Stop item placement early", logically assumed items could sometimes fail to be placed.
     <li>Shinecharge leniency frames were not taken into account in certain situations.
     <li>Clearing a Metroid room was incorrectly treated as logically waking the planet.
+    <li>Grapple teleport could be logically required without Grapple.
+    <li>Certain IBJ strats could be logically required without Morph or Bombs.
     </ul>
 <li>Logic updates:
     <ul>
