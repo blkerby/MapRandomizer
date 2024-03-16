@@ -50,8 +50,8 @@ mean_mc_dist = torch.mean(session.replay_buffer.episode_data.mc_distances.to(tor
 common_mask = (
     (session.replay_buffer.episode_data.reward == 0) &
     session.replay_buffer.episode_data.toilet_good &
-    (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.05) &
-    (session.replay_buffer.episode_data.graph_diameter <= 43)
+    (torch.mean(session.replay_buffer.episode_data.save_distances.to(torch.float), dim=1) < 4.10) &
+    (session.replay_buffer.episode_data.graph_diameter <= 45)
 )
 
 tame_ind = torch.nonzero(
@@ -62,7 +62,7 @@ tame_ind = torch.nonzero(
 wild_ind = torch.nonzero(
     common_mask &
     (session.replay_buffer.episode_data.mc_dist_coef == 0.0) &
-    (max_mc_dist >= 23)
+    (max_mc_dist >= 22)
 )
 
 def print_summary(ind):

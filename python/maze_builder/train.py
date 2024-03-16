@@ -792,9 +792,9 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk51')
-            # session.replay_buffer.resize(2 ** 21)
-            # pickle.dump(session, open(pickle_name + '-small-51', 'wb'))
+            # save_session(session, pickle_name + '-bk52')
+            # session.replay_buffer.resize(2 ** 22)
+            # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:
         if num_candidates_max == 1:
             total_eval_loss = 0.0
