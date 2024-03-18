@@ -1913,8 +1913,8 @@ fn build_app_data() -> AppData {
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     // let tame_maps_path = Path::new("../maps/v93-tame");
-    let tame_maps_path = Path::new("../maps/v110b-tame");
-    let wild_maps_path = Path::new("../maps/v110b-wild");
+    let tame_maps_path = Path::new("../maps/v110c-tame");
+    let wild_maps_path = Path::new("../maps/v110c-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let mosaic_path = Path::new("../Mosaic");

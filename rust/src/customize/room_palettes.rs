@@ -202,7 +202,7 @@ pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result
     rom.write_u16(snes2pc(0x8AC000), 0xF0F0)?;
 
     // apply_ips_patch(rom, Path::new(&"../patches/ips/area_palettes.ips"))?;
-    make_palette_blends_gray(rom)?;
+    // make_palette_blends_gray(rom)?;
     // fix_phantoon_power_on(rom, game_data)?;
     lighten_firefleas(rom)?;
     // fix_mother_brain(rom, game_data)?;
