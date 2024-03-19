@@ -1016,8 +1016,13 @@ pub fn apply_requirement(
         }
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
-            new_local.energy_used += base_energy / suit_damage_factor(global);
-            validate_energy_no_auto_reserve(new_local, global, game_data)
+            let energy = base_energy / suit_damage_factor(global);
+            if energy >= global.max_energy && !global.tech[game_data.pause_abuse_tech_id] {
+                None
+            } else {
+                new_local.energy_used += energy;
+                validate_energy_no_auto_reserve(new_local, global, game_data)    
+            }
         }
         // Requirement::Energy(count) => {
         //     let mut new_local = local;
