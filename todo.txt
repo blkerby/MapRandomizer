@@ -1,26 +1,7 @@
 v110
-- Movable Toilet:
-  - draw tube using different tiles in Maridia tileset
-  - make sure it works for vanilla map
-    - draw tube in Aqueduct and Botwoon Hallway
-  - DONE: draw PLMs of intersecting room in the Toilet (e.g. door locks, items, etc.)
-  - DONE: handle twin rooms: Pants Room and Homing Geemer
-  - figure out setup ASM for rooms with glass tube tiles?
-  - DONE: ensure new pool doesn't have Three Musketeers' wrong X position
-- DONE: investigate Desolate seed where it assumed having Space Jump on last step but it wasn't placed:
-  - https://dev.maprando.com/seed/2eax2o7HV_I3jPBekK2ogw/data/visualizer/index.html
-- DONE: look into instant morph (after walljump) still happening with spin lock (reported by Nito)
-- DONE: Look into Everest tunnel expansion: should be only 2 air tiles wide but is 3 in Mosaic?
-- DONE: buff farm bug super drops?
-- DONE: Make sure BT has item (e.g. for Chozo objective).
-- DONE: Override f_ZebesAwake yield on Metroid Rooms.
-- DONE: fix problem with shinecharge leniency frames not affecting leaveShinecharged into comeInWithSpark
-- DONE: Fix issue with Desolate not giving all items in escape:
-  - https://maprando.com/seed/BluDOWpAlybe60H1XYSUDg/
-  - also make "seed info" show that all items will be given
-- DONE: reduce Desolate Power Bomb pool to 25
-- DONE: ultra-low QoL: 
-  - tourian map is marked as save room
+- DONE: fix random start in sand room (incorrect clamping of Samus position)
+- fix nothing item PLM
+
 
 TODO:
 - handle "canPauseAbuse" in reserve logic:

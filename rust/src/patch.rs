@@ -818,6 +818,8 @@ impl<'a> Patcher<'a> {
 
             // Note: we don't bother with adjusting subpixels.
             let asm = vec![
+                
+
                 // Check if Samus X position is less than min_position, and if so set it to min_position:
                 0xA9, (min_position & 0xFF) as u8, (min_position >> 8) as u8,  // LDA #min_position
                 0xCD, 0xF6, 0x0A,  // CMP $0AF6
