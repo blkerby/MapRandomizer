@@ -632,7 +632,7 @@ impl MosaicPatchBuilder {
             .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
         let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
             .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
-        let state_xml = room.states.state[0].clone();
+        let state_xml = room.states.state.last().unwrap().clone();
         Ok(state_xml)
     }
 
@@ -757,7 +757,7 @@ impl MosaicPatchBuilder {
         for (_event_ptr, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
             new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
 
-            // Set BG scroll rates to 100%
+            // Set BG X scroll rate to 100%
             new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
             // new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
 

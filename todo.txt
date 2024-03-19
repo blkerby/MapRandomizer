@@ -1,9 +1,5 @@
-v110
-- DONE: fix random start in sand room (incorrect clamping of Samus position)
-- fix nothing item PLM
-
-
 TODO:
+- fix escape door staying open when entering from left (should close in MB1->MB2 cutscene?)
 - handle "canPauseAbuse" in reserve logic:
   - if enemyDamage exceeds regular energy capacity, require "canPauseAbuse" to survive it.
 - Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
