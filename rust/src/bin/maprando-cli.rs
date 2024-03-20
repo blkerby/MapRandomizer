@@ -392,6 +392,7 @@ fn main() -> Result<()> {
                 authors: vec!["Nintendo".to_string()],
             }],
         }],
+        &vec![],
     )?;
 
     // Save the outputs:
