@@ -606,7 +606,7 @@ pub enum GModeMobility {
     Any,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum ToiletCondition {
     No,
     Yes,

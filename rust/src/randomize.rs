@@ -1003,10 +1003,24 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_condition: &ExitCondition,
         entrance_link: &Link,
-        mode: GModeMode,
+        mut mode: GModeMode,
         entrance_morphed: bool,
         mobility: GModeMobility,
+        is_toilet: bool,
     ) -> Option<Requirement> {
+        if is_toilet {
+            // Take into account that obtaining direct G-mode in the Toilet is not possible.
+            match mode {
+                GModeMode::Any => {
+                    mode = GModeMode::Indirect;
+                }
+                GModeMode::Direct => {
+                    return None;
+                }
+                GModeMode::Indirect => {}
+            }
+        }
+
         let (room_id, node_id, _) = self.game_data.vertex_isv.keys[entrance_link.from_vertex_id];
         let empty_vec = vec![];
         let regain_mobility_vec = self
@@ -1195,6 +1209,7 @@ impl<'a> Preprocessor<'a> {
         exit_link: &Link,
         entrance_link: &Link,
         entrance_condition: &EntranceCondition,
+        is_toilet: bool,
     ) -> Option<Requirement> {
         let exit_condition = exit_link.exit_condition.as_ref().unwrap();
         match &entrance_condition.main {
@@ -1301,6 +1316,7 @@ impl<'a> Preprocessor<'a> {
                 *mode,
                 *morphed,
                 *mobility,
+                is_toilet,
             ),
             MainEntranceCondition::ComeInWithStoredFallSpeed {
                 fall_speed_in_tiles,
@@ -1411,9 +1427,27 @@ impl<'a> Preprocessor<'a> {
                 {
                     unlocked_node_id = self.game_data.unlocked_node_map[&(room_id, node_id)];
                 }
-                if let Some(&(other_room_id, other_node_id)) =
+                if let Some(&(mut other_room_id, mut other_node_id)) =
                     self.door_map.get(&(room_id, unlocked_node_id))
                 {
+                    let mut is_toilet = false;
+                    if (other_room_id, other_node_id) == (321, 1) {
+                        (other_room_id, other_node_id) = *self.door_map.get(&(321, 2)).unwrap();
+                        is_toilet = true;
+                    } else if (other_room_id, other_node_id) == (321, 2) {
+                        (other_room_id, other_node_id) = *self.door_map.get(&(321, 1)).unwrap();
+                        is_toilet = true;
+                    }
+
+                    if entrance_condition.through_toilet == game_data::ToiletCondition::Yes && !is_toilet {
+                        // The strat requires passing through the Toilet, which is not the case here.
+                        return vec![];
+                    } else if entrance_condition.through_toilet == game_data::ToiletCondition::No && is_toilet {
+                        // The strat requires not passing through the Toilet, but here it does.
+                        let room_name = self.game_data.room_json_map[&room_id]["name"].as_str().unwrap();
+                        return vec![];
+                    }
+
                     if let Some(exits) = self
                         .game_data
                         .node_exits
@@ -1436,6 +1470,7 @@ impl<'a> Preprocessor<'a> {
                                     exit_link,
                                     link,
                                     entrance_condition,
+                                    is_toilet,
                                 );
                                 if let Some(cross_req) = cross_req_opt {
                                     if let Requirement::Never = cross_req {
@@ -1467,7 +1502,8 @@ impl<'a> Preprocessor<'a> {
                                     if link.exit_condition.is_some() && new_exit_condition.is_none() {
                                         continue;
                                     }
-                                    new_links.push(Link {
+            
+                                    let new_link = Link {
                                         from_vertex_id: exit_link.from_vertex_id,
                                         to_vertex_id,
                                         requirement: req,
@@ -1481,7 +1517,12 @@ impl<'a> Preprocessor<'a> {
                                         ),
                                         strat_notes: strat_notes,
                                         sublinks,
-                                    });
+                                    };
+                                    // if is_toilet {
+                                    //     let room_name = self.game_data.room_json_map[&room_id]["name"].as_str().unwrap();
+                                    //     println!("Through-toilet strat: {room_name}: {new_link:?}");
+                                    // }
+                                    new_links.push(new_link);
                                     // println!("Other room, node: {}, {}: {:?}, {:?}", other_room_id, other_node_id, exit_condition, new_links.last().unwrap());
                                 }
                             }

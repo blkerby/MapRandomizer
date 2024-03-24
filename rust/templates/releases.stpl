@@ -14,6 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release110">Version 111 (2024-03-24)</a>:
+<ul>
+<li>Cross-room strats through the Toilet are now in logic.
+</ul>
+
 <p><a id="release110">Version 110 (2024-03-19)</a>:
 <ul>
 <li>New map pools:
