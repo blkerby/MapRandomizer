@@ -2,7 +2,7 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, VertexId
+        self, get_effective_runway_length, Capacity, DoorPosition, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, VertexId
     },
     traverse::{
         apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState, LocalState, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
@@ -1197,11 +1197,11 @@ impl<'a> Preprocessor<'a> {
         entrance_condition: &EntranceCondition,
     ) -> Option<Requirement> {
         let exit_condition = exit_link.exit_condition.as_ref().unwrap();
-        match entrance_condition {
-            EntranceCondition::ComeInNormally {} => {
+        match &entrance_condition.main {
+            MainEntranceCondition::ComeInNormally {} => {
                 self.get_come_in_normally_reqs(exit_link, exit_condition)
             },
-            EntranceCondition::ComeInRunning {
+            MainEntranceCondition::ComeInRunning {
                 speed_booster,
                 min_tiles,
                 max_tiles,
@@ -1212,7 +1212,7 @@ impl<'a> Preprocessor<'a> {
                 *min_tiles,
                 *max_tiles,
             ),
-            EntranceCondition::ComeInJumping {
+            MainEntranceCondition::ComeInJumping {
                 speed_booster,
                 min_tiles,
                 max_tiles,
@@ -1223,7 +1223,7 @@ impl<'a> Preprocessor<'a> {
                 *min_tiles,
                 *max_tiles,
             ),
-            EntranceCondition::ComeInShinecharging {
+            MainEntranceCondition::ComeInShinecharging {
                 effective_length,
                 heated,
             } => self.get_come_in_shinecharging_reqs(
@@ -1232,32 +1232,32 @@ impl<'a> Preprocessor<'a> {
                 *effective_length,
                 *heated,
             ),
-            EntranceCondition::ComeInShinecharged { frames_required } => {
+            MainEntranceCondition::ComeInShinecharged { frames_required } => {
                 self.get_come_in_shinecharged_reqs(exit_link, exit_condition, *frames_required)
             }
-            EntranceCondition::ComeInShinechargedJumping { frames_required } => {
+            MainEntranceCondition::ComeInShinechargedJumping { frames_required } => {
                 self.get_come_in_shinecharged_jumping_reqs(exit_link, exit_condition, *frames_required)
             }
-            EntranceCondition::ComeInWithSpark { position } => {
+            MainEntranceCondition::ComeInWithSpark { position } => {
                 self.get_come_in_with_spark_reqs(exit_link, exit_condition, *position)
             }
-            EntranceCondition::ComeInStutterShinecharging { min_tiles } => {
+            MainEntranceCondition::ComeInStutterShinecharging { min_tiles } => {
                 self.get_come_in_stutter_shinecharging_reqs(exit_link, exit_condition, *min_tiles)
             }
-            EntranceCondition::ComeInWithBombBoost {} => {
+            MainEntranceCondition::ComeInWithBombBoost {} => {
                 self.get_come_in_with_bomb_boost_reqs(exit_link, exit_condition)
             }
-            EntranceCondition::ComeInWithDoorStuckSetup { heated } => {
+            MainEntranceCondition::ComeInWithDoorStuckSetup { heated } => {
                 self.get_come_in_with_door_stuck_setup_reqs(exit_link, exit_condition, *heated)
             }
-            EntranceCondition::ComeInSpeedballing {
+            MainEntranceCondition::ComeInSpeedballing {
                 effective_runway_length,
             } => {
                 let mut req_or: Vec<Requirement> = vec![];
                 if let Some(req) = self.get_come_in_shinecharging_reqs(
                     exit_link,
                     exit_condition,
-                    *effective_runway_length - 5.0,
+                    effective_runway_length - 5.0,
                     false,
                 ) {
                     req_or.push(Requirement::make_and(vec![
@@ -1285,13 +1285,13 @@ impl<'a> Preprocessor<'a> {
                     ]))
                 }
             }
-            EntranceCondition::ComeInWithTemporaryBlue { } => {
+            MainEntranceCondition::ComeInWithTemporaryBlue { } => {
                 self.get_come_in_with_temporary_blue_reqs(exit_link, exit_condition)
             }
-            EntranceCondition::ComeInWithRMode {} => {
+            MainEntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
             }
-            EntranceCondition::ComeInWithGMode {
+            MainEntranceCondition::ComeInWithGMode {
                 mode,
                 morphed,
                 mobility,
@@ -1302,19 +1302,19 @@ impl<'a> Preprocessor<'a> {
                 *morphed,
                 *mobility,
             ),
-            EntranceCondition::ComeInWithStoredFallSpeed {
+            MainEntranceCondition::ComeInWithStoredFallSpeed {
                 fall_speed_in_tiles,
             } => self.get_come_in_with_stored_fall_speed_reqs(exit_condition, *fall_speed_in_tiles),
-            EntranceCondition::ComeInWithWallJumpBelow { min_height } => {
+            MainEntranceCondition::ComeInWithWallJumpBelow { min_height } => {
                 self.get_come_in_with_wall_jump_below_reqs(exit_condition, *min_height)
             }
-            EntranceCondition::ComeInWithSpaceJumpBelow {} => {
+            MainEntranceCondition::ComeInWithSpaceJumpBelow {} => {
                 self.get_come_in_with_space_jump_below_reqs(exit_condition)
             },
-            EntranceCondition::ComeInWithPlatformBelow { min_height, max_height, max_left_position, min_right_position } => {
+            MainEntranceCondition::ComeInWithPlatformBelow { min_height, max_height, max_left_position, min_right_position } => {
                 self.get_come_in_with_platform_below_reqs(exit_condition, *min_height, *max_height, *max_left_position, *min_right_position)
             },
-            EntranceCondition::ComeInWithGrappleTeleport { block_positions } => {
+            MainEntranceCondition::ComeInWithGrappleTeleport { block_positions } => {
                 self.get_come_in_with_grapple_teleport_reqs(exit_condition, block_positions)
             }
         }
@@ -1332,8 +1332,8 @@ impl<'a> Preprocessor<'a> {
         match entrance_link.exit_condition.as_ref().unwrap() {
             ExitCondition::LeaveShinecharged { frames_remaining, physics } => {
                 if frames_remaining.is_none() {
-                    match entrance_condition {
-                        EntranceCondition::ComeInShinecharged { frames_required } => {
+                    match entrance_condition.main {
+                        MainEntranceCondition::ComeInShinecharged { frames_required } => {
                             match exit_link.exit_condition.as_ref().expect("Strat with leaveShinecharged 'auto' frames: expecting exit_condition in other room") {
                                 ExitCondition::LeaveShinecharged { frames_remaining, .. } => {
                                     let final_frames_remaining = frames_remaining.unwrap() - frames_required;

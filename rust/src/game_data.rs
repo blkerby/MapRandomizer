@@ -607,7 +607,20 @@ pub enum GModeMobility {
 }
 
 #[derive(Clone, Debug)]
-pub enum EntranceCondition {
+pub enum ToiletCondition {
+    No,
+    Yes,
+    Any
+}
+
+#[derive(Clone, Debug)]
+pub struct EntranceCondition {
+    pub through_toilet: ToiletCondition,
+    pub main: MainEntranceCondition,
+}
+
+#[derive(Clone, Debug)]
+pub enum MainEntranceCondition {
     ComeInNormally {},
     ComeInRunning {
         speed_booster: Option<bool>,
@@ -706,66 +719,77 @@ fn compute_runway_effective_length(geom: &RunwayGeometry) -> f32 {
 
 fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<EntranceCondition> {
     ensure!(entrance_json.is_object());
-    ensure!(entrance_json.len() == 1);
+    let through_toilet = if entrance_json.has_key("comesThroughToilet") {
+        ensure!(entrance_json.len() == 2);
+        match entrance_json["comesThroughToilet"].as_str().unwrap() {
+            "no" => ToiletCondition::No,
+            "yes" => ToiletCondition::Yes,
+            "any" => ToiletCondition::Any,
+            _ => panic!("Unexpected comesThroughToilet value: {}", entrance_json["comesThroughToilet"].as_str().unwrap())
+        }
+    } else {
+        ensure!(entrance_json.len() == 1);
+        ToiletCondition::No
+    };
     let (key, value) = entrance_json.entries().next().unwrap();
     ensure!(value.is_object());
-    match key {
-        "comeInNormally" => Ok(EntranceCondition::ComeInNormally {}),
-        "comeInRunning" => Ok(EntranceCondition::ComeInRunning {
+    let main = match key {
+        "comeInNormally" => MainEntranceCondition::ComeInNormally {},
+        "comeInRunning" => MainEntranceCondition::ComeInRunning {
             speed_booster: value["speedBooster"].as_bool(),
             min_tiles: value["minTiles"]
                 .as_f32()
                 .context("Expecting number 'minTiles'")?,
             max_tiles: value["maxTiles"].as_f32().unwrap_or(255.0),
-        }),
-        "comeInJumping" => Ok(EntranceCondition::ComeInJumping {
+        },
+        "comeInJumping" => MainEntranceCondition::ComeInJumping {
             speed_booster: value["speedBooster"].as_bool(),
             min_tiles: value["minTiles"]
                 .as_f32()
                 .context("Expecting number 'minTiles'")?,
             max_tiles: value["maxTiles"].as_f32().unwrap_or(255.0),
-        }),
+        },
         "comeInShinecharging" => {
             let runway_geometry = parse_runway_geometry(value)?;
             // Subtract 0.25 tiles since the door transition skips over approximately that much distance beyond the door shell tile,
             // Subtract another 1 tile for leniency since taps are harder to time across a door transition:
             let runway_effective_length = (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
-            Ok(EntranceCondition::ComeInShinecharging {
+            MainEntranceCondition::ComeInShinecharging {
                 effective_length: runway_effective_length,
                 heated,
-            })
+            }
         }
-        "comeInShinecharged" => Ok(EntranceCondition::ComeInShinecharged {
+        "comeInShinecharged" => MainEntranceCondition::ComeInShinecharged {
             frames_required: value["framesRequired"]
                 .as_i32()
                 .context("Expecting integer 'framesRequired'")?,
-        }),
-        "comeInShinechargedJumping" => Ok(EntranceCondition::ComeInShinechargedJumping {
+        },
+        "comeInShinechargedJumping" => MainEntranceCondition::ComeInShinechargedJumping {
             frames_required: value["framesRequired"]
                 .as_i32()
                 .context("Expecting integer 'framesRequired'")?,
-        }),
-        "comeInWithSpark" => Ok(EntranceCondition::ComeInWithSpark {
+        },
+        "comeInWithSpark" => MainEntranceCondition::ComeInWithSpark {
             position: parse_spark_position(value["position"].as_str())?,
-        }),
-        "comeInStutterShinecharging" => Ok(EntranceCondition::ComeInStutterShinecharging {
+        },
+        "comeInStutterShinecharging" => MainEntranceCondition::ComeInStutterShinecharging {
             min_tiles: value["minTiles"]
                 .as_f32()
                 .context("Expecting number 'minTiles'")?,
-        }),
-        "comeInWithBombBoost" => Ok(EntranceCondition::ComeInWithBombBoost {}),
-        "comeInWithDoorStuckSetup" => Ok(EntranceCondition::ComeInWithDoorStuckSetup { heated }),
+        },
+        "comeInWithBombBoost" => MainEntranceCondition::ComeInWithBombBoost {},
+        "comeInWithDoorStuckSetup" => MainEntranceCondition::ComeInWithDoorStuckSetup { heated },
         "comeInSpeedballing" => {
             let runway_geometry = parse_runway_geometry(&value["runway"])?;
             // Subtract 0.25 tiles since the door transition skips over approximately that much distance beyond the door shell tile,
             // Subtract another 1 tile for leniency since taps and/or speedball are harder to time across a door transition:
             let effective_runway_length = (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
-            Ok(EntranceCondition::ComeInSpeedballing {
+            MainEntranceCondition::ComeInSpeedballing {
                 effective_runway_length,
-            })
+            }
         }
-        "comeInWithTemporaryBlue" => Ok(EntranceCondition::ComeInWithTemporaryBlue {}),
-        "comeInWithRMode" => Ok(EntranceCondition::ComeInWithRMode {}),
+        "comeInWithTemporaryBlue" => MainEntranceCondition::ComeInWithTemporaryBlue {},
+        "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {},
         "comeInWithGMode" => {
             let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
                 "direct" => GModeMode::Direct,
@@ -782,36 +806,37 @@ fn parse_entrance_condition(entrance_json: &JsonValue, heated: bool) -> Result<E
                 "any" => GModeMobility::Any,
                 m => bail!("Unrecognized 'mobility': {}", m),
             };
-            Ok(EntranceCondition::ComeInWithGMode {
+            MainEntranceCondition::ComeInWithGMode {
                 mode,
                 morphed,
                 mobility,
-            })
+            }
         }
-        "comeInWithStoredFallSpeed" => Ok(EntranceCondition::ComeInWithStoredFallSpeed {
+        "comeInWithStoredFallSpeed" => MainEntranceCondition::ComeInWithStoredFallSpeed {
             fall_speed_in_tiles: value["fallSpeedInTiles"]
                 .as_i32()
                 .context("Expecting integer 'fallSpeedInTiles")?,
-        }),
-        "comeInWithWallJumpBelow" => Ok(EntranceCondition::ComeInWithWallJumpBelow {
+        },
+        "comeInWithWallJumpBelow" => MainEntranceCondition::ComeInWithWallJumpBelow {
             min_height: value["minHeight"].as_f32().context("Expecting number 'minHeight'")?,
-        }),
-        "comeInWithSpaceJumpBelow" => Ok(EntranceCondition::ComeInWithSpaceJumpBelow {}),
-        "comeInWithPlatformBelow" => Ok(EntranceCondition::ComeInWithPlatformBelow {
+        },
+        "comeInWithSpaceJumpBelow" => MainEntranceCondition::ComeInWithSpaceJumpBelow {},
+        "comeInWithPlatformBelow" => MainEntranceCondition::ComeInWithPlatformBelow {
             min_height: value["minHeight"].as_f32().unwrap_or(0.0),
             max_height: value["maxHeight"].as_f32().unwrap_or(f32::INFINITY),
             max_left_position: value["maxLeftPosition"].as_f32().unwrap_or(f32::INFINITY),
             min_right_position: value["minRightPosition"].as_f32().unwrap_or(f32::NEG_INFINITY),
-        }),
-        "comeInWithGrappleTeleport" => Ok(EntranceCondition::ComeInWithGrappleTeleport { 
+        },
+        "comeInWithGrappleTeleport" => MainEntranceCondition::ComeInWithGrappleTeleport { 
             block_positions: value["blockPositions"].members()
                 .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                 .collect(),
-        }),
+        },
         _ => {
             bail!(format!("Unrecognized entrance condition: {}", key));
         }
-    }
+    };
+    Ok(EntranceCondition { through_toilet, main })
 }
 
 #[derive(Default)]
@@ -858,6 +883,11 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark",  // does not seem to be viable with the vanilla door connection
+        // Not yet classified:
+        "Upper Norfair Farming Room Gate Glitch With Farming",
+        
+        "Lava Dive HiJumpless Nahime Morph Kago",
+        "Spiky Acid Snakes Suitless Damage Boosts"        
     ]
     .iter()
     .map(|x| x.to_string())
@@ -2532,10 +2562,13 @@ impl GameData {
                         from_vertex_id: vertex_id,
                         to_vertex_id: vertex_id,
                         requirement: Requirement::Free,
-                        entrance_condition: Some(EntranceCondition::ComeInWithGMode {
-                            mode: GModeMode::Direct,
-                            morphed,
-                            mobility: GModeMobility::Any,
+                        entrance_condition: Some(EntranceCondition {
+                            through_toilet: ToiletCondition::No,
+                            main: MainEntranceCondition::ComeInWithGMode {
+                                mode: GModeMode::Direct,
+                                morphed,
+                                mobility: GModeMobility::Any,
+                            }
                         }),
                         exit_condition: Some(exit_condition),
                         bypasses_door_shell: false,

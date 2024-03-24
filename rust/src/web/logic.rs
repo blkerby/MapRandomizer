@@ -6,7 +6,7 @@ use json::JsonValue;
 use sailfish::TemplateOnce;
 use urlencoding;
 
-use crate::game_data::{GameData, Link, NodeId, Requirement, RoomId, ExitCondition, EntranceCondition};
+use crate::game_data::{EntranceCondition, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId};
 use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill, MapsRevealed, StartLocationMode};
 use crate::traverse::{apply_requirement, GlobalState, LocalState};
 
@@ -410,25 +410,26 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
         reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSkipDoorLock"]));
     }
     if let Some(entrance_condition) = &link.entrance_condition {
-        if let EntranceCondition::ComeInWithGMode { .. } = entrance_condition {
+        let main = &entrance_condition.main;
+        if let MainEntranceCondition::ComeInWithGMode { .. } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
         }
-        if let EntranceCondition::ComeInWithRMode { .. } = entrance_condition {
+        if let MainEntranceCondition::ComeInWithRMode { .. } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"]));
         }
-        if let EntranceCondition::ComeInSpeedballing { .. } = entrance_condition {
+        if let MainEntranceCondition::ComeInSpeedballing { .. } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSpeedball"]));
         }
-        if let EntranceCondition::ComeInStutterShinecharging { .. } = entrance_condition {
+        if let MainEntranceCondition::ComeInStutterShinecharging { .. } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]));
         }
-        if let EntranceCondition::ComeInWithTemporaryBlue {  } = entrance_condition {
+        if let MainEntranceCondition::ComeInWithTemporaryBlue {  } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canTemporaryBlue"]));
         }
-        if let EntranceCondition::ComeInWithBombBoost {  } = entrance_condition {
+        if let MainEntranceCondition::ComeInWithBombBoost {  } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canBombHorizontally"]));
         }
-        if let EntranceCondition::ComeInWithGrappleTeleport { .. } = entrance_condition {
+        if let MainEntranceCondition::ComeInWithGrappleTeleport { .. } = main {
             reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
         }
     }
