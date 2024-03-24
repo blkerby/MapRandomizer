@@ -883,11 +883,6 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark",  // does not seem to be viable with the vanilla door connection
-        // Not yet classified:
-        "Upper Norfair Farming Room Gate Glitch With Farming",
-        
-        "Lava Dive HiJumpless Nahime Morph Kago",
-        "Spiky Acid Snakes Suitless Damage Boosts"        
     ]
     .iter()
     .map(|x| x.to_string())

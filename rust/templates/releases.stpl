@@ -16,7 +16,16 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release110">Version 111 (2024-03-24)</a>:
 <ul>
-<li>Cross-room strats through the Toilet are now in logic.
+<li>Logic updates:
+    <ul>
+    <li>Cross-room strats through the Toilet are now in logic.
+    <li>New notable strats:
+        <ul>
+        <li>Upper Norfair Farming Room Gate Glitch With Farming (Hard)
+        <li>Spiky Acid Snakes Suitless Damage Boosts (Expert)
+        <li>Lava Dive HiJumpless Nahime Morph Kago (Insane)
+        </ul>
+    </ul>
 </ul>
 
 <p><a id="release110">Version 110 (2024-03-19)</a>:
