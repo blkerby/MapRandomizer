@@ -2143,6 +2143,7 @@ impl GameData {
         // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 1 {
+                assert!(node_json["locks"][0]["yields"].is_array());
                 node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom1"]
             }
         }
@@ -2152,6 +2153,7 @@ impl GameData {
         // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 2 {
+                assert!(node_json["locks"][0]["yields"].is_array());
                 node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom2"]
             }
         }
@@ -2161,6 +2163,7 @@ impl GameData {
         // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 2 {
+                assert!(node_json["locks"][0]["yields"].is_array());
                 node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom3"]
             }
         }
@@ -2169,7 +2172,8 @@ impl GameData {
     fn override_metroid_room_4(&mut self, room_json: &mut JsonValue) {
         // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
         for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 1 {
+            if node_json["id"].as_i32().unwrap() == 2 {
+                assert!(node_json["locks"][0]["yields"].is_array());
                 node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom4"]
             }
         }
