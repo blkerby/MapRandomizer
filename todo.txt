@@ -1,13 +1,15 @@
 v111:
-- fix tests & CLI
+- implement partialRefill
+  - override crystal flash helpers, for complementary suits
+- implement h_ShinesparksCostEnergy
 
 TODO:
+- move canEnemyStuckMoonfall to Extreme.
+  - some notables should stay in Insane
 - fix weapon PowerBomb logic:
   - take into account that double hit is not possible with PowerBombPeriphery
   - take into account multiplier
 - fix escape door staying open when entering from left (should close in MB1->MB2 cutscene?)
-- handle "canPauseAbuse" in reserve logic:
-  - if enemyDamage exceeds regular energy capacity, require "canPauseAbuse" to survive it.
 - Ensure game is logically beatable (f_DefeatedMotherBrain) as a check at the end of seed generation
   - Big Boy Room before Mother Brain Room can cause problems on low difficulty settings
 - Remove unneeded items from last step in Desolate.
