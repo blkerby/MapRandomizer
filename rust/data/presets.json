@@ -204,7 +204,8 @@
       "canMoonfall",
       "canAutoCancelWeapon",
       "canSamusEaterStandUp",
-      "canWrapAroundShot"
+      "canWrapAroundShot",
+      "canJumpIntoRespawningBlock"
     ],
     "notable_strats": [
       "Climb Behemoth Shinespark",
@@ -504,7 +505,8 @@
       "canCrouchGateClip",
       "canWallIceClip",
       "canSuperJump",
-      "canSpeedKeep"
+      "canSpeedKeep",
+      "canGrappleBombHang"
     ],
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
@@ -513,6 +515,7 @@
       "Final Missile Bombway Shinespark",
       "Golden Four Underwater Walljumps",
       "Gauntlet Energy Tank Room Spark Master",
+      "Moat Leave With Grapple Teleport",
       "West Ocean G-mode Overload PLMs by PBing Missile Item",
       "West Ocean Grapple Clip Door Lock Skip",
       "West Ocean - G-Mode Setup Lure Zeb from Below",
@@ -529,6 +532,7 @@
       "Early Supers Leave With Spark To The Left",
       "Green Brinstar Main Shaft Bottom Ice Clip",
       "Green Hill Zone Tunnel Crawl",
+      "Green Hills Grapple Teleport Fling to Right (from Moat)",
       "Etecoon Spikeway Aim Cancel Wiggle",
       "Etecoon Spikeway Tunnel Crawl",
       "Etecoon Spikeway Xray Wiggle",
@@ -538,6 +542,8 @@
       "Mission Impossible Walljumpless",
       "Mission Impossible Shinespark",
 
+      "Below Spazer Grapple Teleport X-Ray Climb",
+      "Below Spazer Grapple Teleport Clip",
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
       "Red Tower Frozen Beetom Ice Climb",
 
@@ -554,6 +560,7 @@
  
       "Reverse Amphitheatre Thread the Needle",
       "LN Firefleas Top to Bottom Itemless Damageless",
+      "Lower Norfair Jail Grapple Teleport",
       "Mickey Mouse Viola Ice Clip",
       "Mickey Mouse Temporary Blue Crumble Jump without SpringBall",
       "Dodge the 3 Musketeers Going Up",
@@ -644,7 +651,7 @@
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",
 
       "Green Brinstar Shaft Zeela Stuck Moonfall",
-      "Green Hills Grapple Teleport into Grapple Jump",
+      "Green Hills Grapple Teleport into Grapple Jump (from Red Brinstar Firefleas)",
  
       "Dachora Room G-Mode Setup - Lure the Zeela Down Below",
       "Dachora Room Reo Zeela Stuck Moonfall",
@@ -652,6 +659,8 @@
       "Big Pink Reo Ice Clip Without Morph and X-Ray",
 
       "Red Tower Door Frame Extended Moondance",
+
+      "Croc Speedway Speed Block Moondance",
 
       "Lava Dive HiJumpless Nahime Morph Kago",
 
@@ -690,6 +699,7 @@
       "Pants Room Grapple Jump",
  
       "Bowling Alley Ceiling Bomb Jump",
+      "Bowling Alley Speed Block Moondance",
       "WS East Supers Robot Clip Run-In-Place",
       "Basement G-mode Morph Workrobot Ride",
       "Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway",
@@ -711,7 +721,10 @@
     "ridley_proficiency": 1.0,
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
-    "tech": [],
+    "tech": [
+      "canBeExtremelyPatient",
+      "canLongCeilingBombJump"
+    ],
     "notable_strats": [
       "Alcatraz Escape G-Mode Crystal Flash Then Forced Standup",
       "Climb G-Mode Morph Insane IBJ to Top",
@@ -721,6 +734,8 @@
       "Green Brinstar Main Shaft TAS Dance",
 
       "Big Pink Extended Moondance Clip",
+
+      "Red Brinstar Firefleas Ceiling Bomb Jump",
 
       "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
 

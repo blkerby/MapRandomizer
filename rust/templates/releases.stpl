@@ -14,16 +14,35 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 111 (2024-03-24)</a>:
+<p><a id="release110">Version 111 (2024-03-31)</a>:
 <ul>
+<li>Bug fix: 
+    <ul>
+    <li>Clearing Metroid Room 4 was incorrectly treated as logically waking the planet.
+    </ul>
 <li>Logic updates:
     <ul>
     <li>Cross-room strats through the Toilet are now in logic.
+    <li>New tech:
+        <ul>
+        <li>canJumpIntoRespawningBlock (Very Hard)
+        <li>canGrappleBombHang (Extreme)
+        <li>canBeExtremelyPatient (Beyond)
+        </ul>
     <li>New notable strats:
         <ul>
         <li>Upper Norfair Farming Room Gate Glitch With Farming (Hard)
         <li>Spiky Acid Snakes Suitless Damage Boosts (Expert)
+        <li>Moat Leave With Grapple Teleport (Extreme)
+        <li>Green Hills Grapple Teleport Fling to Right (Extreme)
+        <li>Below Spazer Grapple Teleport X-Ray Climb (Extreme)
+        <li>Below Spazer Grapple Teleport Clip (Extreme)
+        <li>Lower Norfair Jail Grapple Teleport (Extreme)
+        <li>Green Hills Grapple Teleport into Grapple Jump (Insane)
+        <li>Croc Speedway Speed Block Moondance (Insane)
+        <li>Bowling Alley Speed Block Moondance (Insane)
         <li>Lava Dive HiJumpless Nahime Morph Kago (Insane)
+        <li>Red Brinstar Firefleas Ceiling Bomb Jump (Beyond)
         </ul>
     </ul>
 </ul>

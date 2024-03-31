@@ -542,6 +542,9 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
     ) -> Option<Requirement> {
         match exit_condition {
+            ExitCondition::LeaveNormally {  } => {
+                Some(Requirement::Free)
+            }
             ExitCondition::LeaveWithRunway { .. } => {
                 if exit_link.from_vertex_id != exit_link.to_vertex_id {
                     return None;

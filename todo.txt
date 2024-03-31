@@ -1,9 +1,6 @@
-v111:
-- implement partialRefill
-  - override crystal flash helpers, for complementary suits
-- implement h_ShinesparksCostEnergy
 
 TODO:
+- override crystal flash helpers, for complementary suits
 - move canEnemyStuckMoonfall to Extreme.
   - some notables should stay in Insane
 - fix weapon PowerBomb logic:

@@ -149,16 +149,18 @@ pub enum Requirement {
     ReserveEnergyCapacity(i32),
     Supers(i32),
     PowerBombs(i32),
-    EnergyRefill,
-    ReserveRefill,
-    MissileRefill,
-    SuperRefill,
-    PowerBombRefill,
+    EnergyRefill(i32),
+    RegularEnergyRefill(i32),
+    ReserveRefill(i32),
+    MissileRefill(i32),
+    SuperRefill(i32),
+    PowerBombRefill(i32),
     AmmoStationRefill,
     AmmoStationRefillAll,
     LowerNorfairElevatorDownFrames,
     LowerNorfairElevatorUpFrames,
     MainHallElevatorFrames,
+    ShinesparksCostEnergy,
     SupersDoubleDamageMotherBrain,
     GateGlitchLeniency {
         green: bool,
@@ -489,6 +491,7 @@ pub enum SparkPosition {
 
 #[derive(Clone, Debug)]
 pub enum ExitCondition {
+    LeaveNormally {},
     LeaveWithRunway {
         effective_length: f32,
         heated: bool,
@@ -543,6 +546,9 @@ fn parse_exit_condition(
     let (key, value) = exit_json.entries().next().unwrap();
     ensure!(value.is_object());
     match key {
+        "leaveNormally" => {
+            Ok(ExitCondition::LeaveNormally {})
+        },
         "leaveWithRunway" => {
             let runway_geometry = parse_runway_geometry(value)?;
             let runway_effective_length = compute_runway_effective_length(&runway_geometry);
@@ -1373,6 +1379,8 @@ impl GameData {
                 return Ok(Requirement::LowerNorfairElevatorUpFrames)
             } else if value == "i_MainHallElevatorFrames" {
                 return Ok(Requirement::MainHallElevatorFrames)
+            } else if value == "i_ShinesparksCostEnergy" {
+                return Ok(Requirement::ShinesparksCostEnergy);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
@@ -1443,23 +1451,41 @@ impl GameData {
                 for resource_type_json in value.members() {
                     let resource_type = resource_type_json.as_str().unwrap();
                     if resource_type == "Missile" {
-                        req_list_and.push(Requirement::MissileRefill);
+                        req_list_and.push(Requirement::MissileRefill(9999));
                     } else if resource_type == "Super" {
-                        req_list_and.push(Requirement::SuperRefill);
+                        req_list_and.push(Requirement::SuperRefill(9999));
                     } else if resource_type == "PowerBomb" {
-                        req_list_and.push(Requirement::PowerBombRefill);
+                        req_list_and.push(Requirement::PowerBombRefill(9999));
                     } else if resource_type == "RegularEnergy" {
-                        req_list_and.push(Requirement::EnergyRefill);
+                        req_list_and.push(Requirement::RegularEnergyRefill(9999));
                     } else if resource_type == "ReserveEnergy" {
-                        req_list_and.push(Requirement::ReserveRefill);
+                        req_list_and.push(Requirement::ReserveRefill(9999));
                     } else if resource_type == "Energy" {
-                        req_list_and.push(Requirement::EnergyRefill);
-                        req_list_and.push(Requirement::ReserveRefill);
+                        req_list_and.push(Requirement::EnergyRefill(9999));
                     } else {
                         bail!("Unrecognized refill resource type: {}", resource_type);
                     }
                 }
                 return Ok(Requirement::make_and(req_list_and));
+            } else if key == "partialRefill" {
+                let resource_type = value["type"].as_str().unwrap();
+                let limit = value["limit"].as_i32().unwrap();
+                let req = if resource_type == "Missile" {
+                    Requirement::MissileRefill(limit)
+                } else if resource_type == "Super" {
+                    Requirement::SuperRefill(limit)
+                } else if resource_type == "PowerBomb" {
+                    Requirement::PowerBombRefill(limit)
+                } else if resource_type == "RegularEnergy" {
+                    Requirement::RegularEnergyRefill(limit)
+                } else if resource_type == "ReserveEnergy" {
+                    Requirement::ReserveRefill(limit)
+                } else if resource_type == "Energy" {
+                    Requirement::EnergyRefill(limit)
+                } else {
+                    bail!("Unrecognized partialRefill resource type: {}", resource_type);
+                };
+                return Ok(req);
             } else if key == "ammoDrain" {
                 // We patch out the ammo drain from the Mother Brain fight.
                 return Ok(Requirement::Free);
@@ -3377,7 +3403,13 @@ impl GameData {
                 ]}                
             ],
         };
-        
+        *game_data
+            .helper_json_map
+            .get_mut("h_ShinesparksCostEnergy")
+            .unwrap() = json::object! {
+                "name": "i_ShinesparksCostEnergy",
+                "requires": ["i_ShinesparksCostEnergy"],
+            };
 
         game_data.load_weapons()?;
         game_data.load_enemies()?;
