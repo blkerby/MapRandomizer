@@ -37,16 +37,14 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
 
         <div class="col-lg-6">
-            <% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() {
-                if tech_difficulty_name == "Beyond" {
-                    continue;
-                } %>
+            <% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() { %>
                 <div class="card my-2" id="<%= tech_difficulty_name.replace(" ", "") %>Tech">
                     <div class="card-header">
                     <%= tech_difficulty_name %> Tech
                     </div>
                     <div class="card-body px-2 py-1">
                     <% for t in tech { %>
+                        <% if t.tech_name == "canEscapeMorphLocation" { continue; } %>
                         <% if t.tech_difficulty_idx == tech_difficulty_idx { %>
                             <p class="m-1"><a href="/logic/tech/<%= t.tech_name %>"><%= t.tech_name %></a></p>
                         <% } %>

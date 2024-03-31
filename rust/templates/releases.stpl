@@ -27,6 +27,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <ul>
         <li>canJumpIntoRespawningBlock (Very Hard)
         <li>canGrappleBombHang (Extreme)
+        <li>canLongCeilingBombJump (Beyond)
         <li>canBeExtremelyPatient (Beyond)
         </ul>
     <li>New notable strats:
