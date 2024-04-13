@@ -94,6 +94,10 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
         theme_name_map.insert(room_ptr, theme_name);
     }
 
+    if *theme != TileTheme::Vanilla {
+        rom.write_u16(snes2pc(0x8AB500), 0xF0F0)?;
+    }
+
     // Make the Toilet's intersecting room use the same tile theme as the Toilet.
     // Likewise for East Pants Room and Homing Geemer Room.
     // This only matters in case of Scrambled tile theme, since otherwise this should already be true.

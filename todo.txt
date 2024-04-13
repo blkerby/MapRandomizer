@@ -1,5 +1,12 @@
+v111:
+- make quick patch for glitched grapple hang crash if needed
 
 TODO:
+- beam doors?
+- map room teleports?
+- look into faster decompression:
+  - decompressor: https://github.com/tewtal/SHVC-LZSA2/blob/main/src/asar/lzsa2.asm
+  - compressor: https://github.com/emmanuel-marty/lzsa
 - override crystal flash helpers, for complementary suits
 - move canEnemyStuckMoonfall to Extreme.
   - some notables should stay in Insane

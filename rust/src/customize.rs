@@ -81,7 +81,7 @@ pub enum PaletteTheme {
     AreaThemed,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TileTheme {
     Vanilla,
     Scrambled,

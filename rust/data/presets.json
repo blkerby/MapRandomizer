@@ -403,6 +403,7 @@
       "Cathedral Entrance Sova Morph Only Boost",
       "Cathedral Entrance Speedjump (Right to Left)",
       "Cathedral Entrance Speedjump (Left to Right)",
+      "HiJump E-Tank Sova Boost",
       "Hijumpless Double Chamber Spike Speedjump",
       "Lava Dive Shinespark",
       "Lava Dive HiJumpless Suitless Double Springball Jump",
@@ -506,7 +507,8 @@
       "canWallIceClip",
       "canSuperJump",
       "canSpeedKeep",
-      "canGrappleBombHang"
+      "canGrappleBombHang",
+      "canUnmorphGrappleHang"
     ],
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
@@ -542,10 +544,10 @@
       "Mission Impossible Walljumpless",
       "Mission Impossible Shinespark",
 
-      "Below Spazer Grapple Teleport X-Ray Climb",
       "Below Spazer Grapple Teleport Clip",
       "Red Tower R-Mode Frozen Beetom X-Ray Climb",
       "Red Tower Frozen Beetom Ice Climb",
+      "Red Tower Grapple Teleport Inside Wall",
 
       "Hellway Frozen Zeb Runway",
 
@@ -555,15 +557,18 @@
       "Cathedral Entrance 10 Power Bomb Crystal Flash",
       "Double Chamber HiJumpless Wall Jump",
       "Lava Dive Diagonal Bomb Jump",
+      "Lava Dive GT Max Suitless Right Side Climb",
       "Croc Escape Frozen Geruta Shinecharge",
       "Crocomire with 5 Missiles",
  
       "Reverse Amphitheatre Thread the Needle",
+      "Kihunter Shaft Grapple Teleport Semi-Blind Movement",
       "LN Firefleas Top to Bottom Itemless Damageless",
-      "Lower Norfair Jail Grapple Teleport",
+      "Lower Norfair Jail Grapple Teleport Inside Wall",
       "Mickey Mouse Viola Ice Clip",
       "Mickey Mouse Temporary Blue Crumble Jump without SpringBall",
       "Dodge the 3 Musketeers Going Up",
+      "Screw Attack Room Grapple Teleport Inside Wall",
       "Writg HiJump and Only Screw",
       "Writg Power Bomb Diagonal Bomb Jump",
       "Writg X-Ray Climb",
@@ -580,7 +585,9 @@
       "Aqueduct G-Mode Overload PLMs - PB the Items",
       "Cacatac Alley Springball Spike Boost",
       "Colosseum Spike Platforming with SpringBall (Left to Right)",
-      "Colosseum Grapple Clip Door Lock Skip",
+      "Colosseum Frozen Mochtroid Grapple Clip Door Lock Skip",
+      "Colosseum Grapple Bomb Hang Door Lock Skip",
+      "Colosseum Unmorph Grapple Hang Door Lock Skip",
       "Crab Shaft Sciser Ice Clip Door Lock Skip",
       "East Sand Hole Sandfall Bounce to Power Bombs",
       "East Sand Hole Underwater Walljumps",
@@ -660,6 +667,7 @@
 
       "Red Tower Door Frame Extended Moondance",
 
+      "Frog Speedway Speed Block Moondance",
       "Croc Speedway Speed Block Moondance",
 
       "Lava Dive HiJumpless Nahime Morph Kago",
@@ -686,11 +694,13 @@
       "Back-Side Botwoon Super Only Fight",
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Colosseum with no Equipment",
+      "Colosseum Stored Moonfall Grapple Door Lock Skip",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
       "East Sand Hole Insane Walljump Morph",
       "East Sand Hole Suitless HiJump Perfect Bomb Boost",
       "Halfie Climb Stored Moonfall Grapple Door Lock Skip",
       "Halfie Climb Very Deep Stuck X-Ray Climb",
+      "Halfie Climb Top Left Suitless Bombless Leave With Grapple Teleport",
 
       "Plasma Spark Room SpringFling into Top Right Door",
 

@@ -378,7 +378,7 @@ toilet_good_coef = 0.5
 graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 
-door_connect_bound = 50.0
+door_connect_bound = 10.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.02
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -792,7 +792,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk52')
+            # save_session(session, pickle_name + '-bk55')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:
