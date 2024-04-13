@@ -166,6 +166,10 @@ fn apply_custom_samus_sprite(
             // you have Space Jump even if you don't:
             rom.write_u16(snes2pc(0x9B93FE), 0)?;
         }
+
+        // Fix issue with large DMA writes that could otherwise crash the game, e.g. during glitched grapple hanging:
+        // (Eventually this should get fixed upstream in SpriteSomething, and then we can remove this.)
+        apply_ips_patch(rom, Path::new("../patches/ips/samus_dma_fix.ips"))?;
     }
 
     // Patch credits to give credit to the sprite author:

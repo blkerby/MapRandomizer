@@ -9,3 +9,4 @@ D340 - DA00: reserve_hud.asm
 DA00 - DD00: msu1.asm
 DD00 - E100: Palette pointer table for Mosaic
 E100 - E180: area_palette.asm
+E180 - E200: samus_dma_fix.asm
