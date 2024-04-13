@@ -1,6 +1,4 @@
 v111:
-- make quick patch for glitched grapple hang crash if needed
-
 
 TODO:
 - beam doors?
