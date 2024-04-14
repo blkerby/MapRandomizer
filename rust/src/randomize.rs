@@ -1680,6 +1680,8 @@ fn get_randomizable_doors(
         // Bad doors that logic would not be able to properly account for (yet):
         (0x19996, 0x1997E), // Amphitheatre left door
         (0x1AA14, 0x1AA20), // Tourian Blue Hopper Room left door
+        (0x19942, 0x19912), // Pillar Room left door
+        (0x1994E, 0x1998A), // Pillar Room right door
         // Items: (to avoid an interaction in map tiles between doors disappearing and items disappearing)
         (0x18FA6, 0x18EDA), // First Missile Room
         (0x18FFA, 0x18FEE), // Billy Mays Room
