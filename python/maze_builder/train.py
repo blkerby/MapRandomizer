@@ -365,8 +365,8 @@ num_candidates_max1 = 256.5
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.002
-save_dist_coef = 0.02
+save_loss_weight = 0.001
+save_dist_coef = 0.01
 
 mc_dist_weight = 0.0002
 mc_dist_coef_tame = 0.2
@@ -792,7 +792,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk55')
+            # save_session(session, pickle_name + '-bk56')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:

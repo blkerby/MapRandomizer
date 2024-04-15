@@ -878,14 +878,6 @@ impl LinksDataGroup {
 fn get_ignored_notable_strats() -> HashSet<String> {
     [
         "Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
-        "Metroid Room 1 PB Dodge Kill (Left to Right)",
-        "Metroid Room 1 PB Dodge Kill (Right to Left)",
-        "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
-        "Metroid Room 3 PB Dodge Kill (Left to Right)",
-        "Metroid Room 3 PB Dodge Kill (Right to Left)",
-        "Metroid Room 4 Three PB Kill (Top to Bottom)",
-        "Metroid Room 4 Six PB Dodge Kill (Bottom to Top)",
-        "Metroid Room 4 Three PB Dodge Kill (Bottom to Top)",
         "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ",  // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark",  // does not seem to be viable with the vanilla door connection

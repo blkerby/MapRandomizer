@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 111 (2024-04-13)</a>:
+<p><a id="release110">Version 111 (2024-04-15)</a>:
 <ul>
 <li>Bug fixes:
     <ul>
@@ -37,6 +37,9 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>New notable strats:
         <ul>
         <li>Upper Norfair Farming Room Gate Glitch With Farming (Hard)
+        <li>Blue Hopper Room Squeeze Under Hoppers (Very Hard)
+        <li>Blue Hopper Room Screw Attack Jumps (Very Hard)
+        <li>Metroid Room 1 Rinka Boost (Expert)
         <li>Spiky Acid Snakes Suitless Damage Boosts (Expert)
         <li>HiJump E-Tank Sova Boost (Expert)
         <li>Colosseum Bomb Jump Water Escape (Extreme)
@@ -49,6 +52,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Colosseum Grapple Bomb Hang Door Lock Skip (Extreme)
         <li>Colosseum Unmorph Grapple Hang Door Lock Skip (Extreme)
         <li>Kihunter Shaft Grapple Teleport Semi-Blind Movement (Extreme)
+        <li>Warehouse Zeela Ice Moonfall Screw Attack Clip (Insane)
         <li>Lava Dive GT Max Suitless Right Side Climb (Insane)
         <li>Lava Dive HiJumpless Nahime Morph Kago (Insane)
         <li>Green Hills Grapple Teleport into Grapple Jump (Insane)
@@ -57,6 +61,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Bowling Alley Speed Block Moondance (Insane)
         <li>Colosseum Stored Moonfall Grapple Door Lock Skip (Insane)
         <li>Halfie Climb Top Left Suitless Bombless Leave With Grapple Teleport (Insane)
+        <li>Metroid Room 1 Acid Skip CWJ (Insane)
         <li>Red Brinstar Firefleas Ceiling Bomb Jump (Beyond)
         </ul>
     </ul>

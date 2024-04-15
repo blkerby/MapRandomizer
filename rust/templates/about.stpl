@@ -44,11 +44,10 @@
     <li>Map progress is retained after dying or reloading, helping the player keep track of potential dangers.
     </ul>
 
-    <p>Except for the doors, room layouts are generally exactly the same as the vanilla game. For a few special door
-    transitions (sand or morph tunnels), minimal adaptations are made to the tiles near the transitions to make them
-    connect properly. However, no platforms are added or removed, and no changes are made to special objects such as
-    gates, bomb blocks, crumble blocks, or Power Bomb blocks, e.g. to convert some of them to shot blocks as is sometimes
-    done in other randomizers.<a href="#footnote-softlock"><sup>1</sup></a></p>
+    <p>Except for the doors, room layouts are generally exactly the same as the vanilla game. There
+    are only a handful of minor changes, described in detail <a href="#layout_changes">below</a>. No platforms are added or removed, 
+    and no changes are made to special objects such as gates, bomb blocks, crumble blocks, or Power Bomb blocks, e.g. to convert
+    some of them to shot blocks as is sometimes done in other randomizers.<a href="#footnote-softlock"><sup>1</sup></a></p>
 
     <p>Even with the quality-of-life changes, it takes practice to master the wide variety of challenging
     situations that can come up with randomized maps. For players that are newer to Super Metroid, before
@@ -291,12 +290,8 @@
 
     <h5 id="layout_changes">Layout changes</h5>
     <ul>
-    <li>Changes to normalize transitions, to ensure Samus doesn't get stuck inside a wall after a transition:
-        <ul>
-        <li>A few sand tiles are changed to solid at the bottom of Aqueduct, Botwoon Energy Tank Room, and Bug Sand Hole.
-        <li>In the morph tunnel between Main Street and Mt. Everest, a few solid tiles are changed to air to allow room to stand.
-        </ul>
-    <li>Two slope tiles at the bottom of Aqueduct are patched to prevent going out-of-bounds.
+    <li>In the morph tunnel between Main Street and Mt. Everest, a few solid tiles are changed to air to allow room to stand.
+    <li>Solid tiles are added off-camera at at the bottom of Aqueduct to prevent going out-of-bounds.
         <ul>
         <li>In the vanilla game, when running with Speedbooster it is easy to unintentionally dip out-of-bounds there
         (and possible to fall all the way through the floor).

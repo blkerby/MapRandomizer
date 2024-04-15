@@ -314,8 +314,13 @@
       "Sponge Bath Bull Boost",
       "WS East Supers Crystal Flash Clip (Right to Left)",
 
+      "Metroid Room 2 Bottom Door Metroid Avoid",
+      "Metroid Room 2 PB Dodge Kill (Bottom to Top)",
+      "Metroid Room 4 Three PB Kill (Top to Bottom)",
       "Metroid Room 4 Top Metroid Avoid",
-      "Metroid Room 2 Bottom Door Metroid Avoid"
+      "Metroid Room 4 Bottom Metroid Avoid (Six PB Dodge Kill)",
+      "Blue Hopper Room Squeeze Under Hoppers",
+      "Blue Hopper Room Screw Attack Jumps"
     ]
   },
   {
@@ -460,6 +465,8 @@
       "East Sand Hall Cross-Room Speed Jump",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
 
+      "Metroid Room 1 Rinka Boost",
+      "Metroid Room 1 PB Dodge Kill (Right to Left)",
       "Metroid Room 4 Bottom Metroid Avoid",
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
@@ -667,6 +674,8 @@
 
       "Red Tower Door Frame Extended Moondance",
 
+      "Warehouse Zeela Ice Moonfall Screw Attack Clip",
+
       "Frog Speedway Speed Block Moondance",
       "Croc Speedway Speed Block Moondance",
 
@@ -715,6 +724,7 @@
       "Basement G-mode Morph Workrobot Ride",
       "Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway",
 
+      "Metroid Room 1 Acid Skip CWJ",
       "Baby Skip With Nothing"
     ]
   },
