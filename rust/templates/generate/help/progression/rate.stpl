@@ -16,7 +16,8 @@
         
         <ul>
         <li><p><strong>Fast</strong>: Key items are placed at double that of a uniform rate, concentrating them in locations 
-        accessible earlier in the game. By the time 50% of items are obtainable, all key items should be obtainable.</p>
+        accessible earlier in the game. By the time 50% of items are obtainable, at least 75% of 
+        key items should be obtainable.</p>
         <li><p><strong>Uniform</strong>: Key items are placed at a uniform rate. By the middle of the game there will likely 
         be many possible ways to progress.</p>
         <li><p><strong>Slow</strong>: At most one key item is placed at each step. This tends to limit the player to a

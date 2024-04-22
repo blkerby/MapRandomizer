@@ -461,17 +461,6 @@ fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement 
                 .map(|x| strip_cross_room_reqs(x, game_data))
                 .collect(),
         ),
-        Requirement::AdjacentJumpway { .. } => Requirement::Free,
-        Requirement::AdjacentRunway { .. } => Requirement::Free,
-        Requirement::CanComeInCharged { .. } => {
-            Requirement::Tech(game_data.tech_isv.index_by_key["canShinespark"])
-        }
-        Requirement::ComeInWithRMode { .. } => {
-            Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"])
-        }
-        Requirement::ComeInWithGMode { .. } => {
-            Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"])
-        }
         Requirement::DoorUnlocked { .. } => Requirement::Free,
         Requirement::NotFlag(_) => Requirement::Free,
         _ => req,

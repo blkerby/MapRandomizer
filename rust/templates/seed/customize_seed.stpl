@@ -134,7 +134,7 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <select id="tileTheme" name="tile_theme" class="form-select">
                                     <option value="none" selected>None</option>
-                                    <option value="scrambled" selected>Scrambled</option>
+                                    <option value="scrambled">Scrambled</option>
                                     <% for theme in &mosaic_themes { %>
                                     <option value="<%= theme.name %>"><%= theme.display_name %></option>
                                     <% } %>

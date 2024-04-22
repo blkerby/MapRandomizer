@@ -1359,21 +1359,6 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::AdjacentRunway { .. } => {
-            panic!("AdjacentRunway should be resolved during preprocessing")
-        }
-        Requirement::AdjacentJumpway { .. } => {
-            panic!("AdjacentJumpway should be resolved during preprocessing")
-        }
-        Requirement::CanComeInCharged { .. } => {
-            panic!("CanComeInCharged should be resolved during preprocessing")
-        }
-        Requirement::ComeInWithRMode { .. } => {
-            panic!("ComeInWithRMode should be resolved during preprocessing")
-        }
-        Requirement::ComeInWithGMode { .. } => {
-            panic!("ComeInWithGMode should be resolved during preprocessing")
-        }
         Requirement::DoorUnlocked { .. } => {
             panic!("DoorUnlocked should be resolved during preprocessing")
         }

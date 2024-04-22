@@ -1,6 +1,19 @@
-v111:
+v112:
+- implement `leaveWithTemporaryBlue`
+- implement `comeInShinecharging` property `minTiles`
+- implement new exit/entrance conditions:
+  - leaveSpaceJumping, leaveWithMockball, leaveSpinning, leaveWithSpringBallBounce
+  - comeInSpaceJumping, comeInWithMockball, comeInBlueSpinning, comeInWithSpringBallBounce
+- implement `unlocksDoors`
+- implement `setsFlags`
+- implement `collectsItems`
+- instructions on gmode and artificial morph
+- fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
+- fix implicit leaveWithGMode strats to not be on upward doors
 
 TODO:
+- fix x-ray graphical glitches (seen in MemesAreHealthy seed):
+  - affecting top row of HUD, etc.
 - beam doors?
 - map room teleports?
 - look into faster decompression:
