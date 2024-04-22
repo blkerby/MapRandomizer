@@ -17,7 +17,7 @@ use maprando::customize::{
     customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
     MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
 };
-use maprando::game_data::{self, GameData, IndexedVec, Item, LinksDataGroup};
+use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -1543,11 +1543,6 @@ async fn randomize(
         app_data.game_data.vertex_isv.keys.len(),
         0,
     );
-    let filtered_seed_links = filter_links(
-        &app_data.game_data.seed_links,
-        &app_data.game_data,
-        &difficulty,
-    );
     let map_layout = req.map_layout.0.clone();
 
     let mut rng_seed = [0u8; 32];
@@ -1590,7 +1585,7 @@ async fn randomize(
         if difficulty.area_assignment == AreaAssignment::Random {
             randomize_map_areas(&mut map, map_seed);
         }
-        let locked_doors = randomize_doors(
+        let locked_door_data = randomize_doors(
             &app_data.game_data,
             &map,
             &difficulty_tiers[0],
@@ -1598,11 +1593,10 @@ async fn randomize(
         );
         let randomizer = Randomizer::new(
             &map,
-            &locked_doors,
+            &locked_door_data,
             &difficulty_tiers,
             &app_data.game_data,
             &filtered_base_links_data,
-            &filtered_seed_links,
         );
         for _ in 0..max_attempts_per_map {
             let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;

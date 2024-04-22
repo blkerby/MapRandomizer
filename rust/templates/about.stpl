@@ -451,6 +451,7 @@
     <ul>
     <li>Game design: <i>Maddo</i>, <i>kyleb</i>
     <li>Map generation, randomizer, escape timings, and web service frontend & backend: <i>Maddo</i>
+    <li>Title screens, various other art (hazard doors, walljump boots): <i>kyleb</i>
     <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>):
         <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>DIProgan</i>, <i>kyleb</i>,
         <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>

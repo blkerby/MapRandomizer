@@ -1,9 +1,8 @@
 use anyhow::{Context, Result};
 use clap::Parser;
 use crypto_hash;
-use flips::{self, BpsPatch};
 use hashbrown::hash_map::Entry;
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 use json::JsonValue;
 use log::{error, info};
 use maprando::game_data::smart_xml::RoomState;
@@ -16,7 +15,7 @@ use std::process::Command;
 
 use maprando::customize::Allocator;
 use maprando::game_data::{smart_xml, DoorPtr, RoomGeometry};
-use maprando::patch::{self, get_room_state_ptrs, pc2snes, snes2pc, Rom};
+use maprando::patch::{get_room_state_ptrs, pc2snes, snes2pc, Rom};
 use smart_xml::{Layer2Type, Screen};
 
 #[derive(Parser)]
@@ -404,75 +403,6 @@ impl MosaicPatchBuilder {
             snes2pc(0x82DF03),
             (new_tile_pointers_snes & 0xFFFF) as isize,
         )?;
-        Ok(())
-    }
-
-    fn apply_palettes(&mut self, new_rom: &mut Rom) -> Result<()> {
-        let mut pal_map: HashMap<Vec<u8>, usize> = HashMap::new();
-        let project_names: Vec<String> = vec![
-            "CrateriaPalette",
-            "BrinstarPalette",
-            "NorfairPalette",
-            "WreckedShipPalette",
-            "MaridiaPalette",
-            "TourianPalette",
-        ]
-        .into_iter()
-        .map(|x| x.to_string())
-        .collect();
-
-        let main_palette_table_addr = snes2pc(0x80DD00); // Must match address used in area_palettes.asm
-        let palette_table_end = snes2pc(0x80E100);
-        let max_tilesets = 55;
-        let mut area_palette_table_addrs = vec![];
-        for i in 0..6 {
-            let area_table_addr = main_palette_table_addr + 12 + i * max_tilesets * 3;
-            area_palette_table_addrs.push(area_table_addr);
-            new_rom.write_u16(
-                main_palette_table_addr + 2 * i,
-                (pc2snes(area_table_addr) & 0xFFFF) as isize,
-            )?;
-        }
-
-        for (area_idx, project) in project_names.iter().enumerate() {
-            let tilesets_path = self
-                .mosaic_dir
-                .join("Projects")
-                .join(project)
-                .join("Export/Tileset/SCE");
-            let tileset_it = std::fs::read_dir(&tilesets_path).with_context(|| {
-                format!("Unable to list tilesets at {}", tilesets_path.display())
-            })?;
-            for tileset_dir in tileset_it {
-                let tileset_dir = tileset_dir?;
-                let tileset_idx =
-                    usize::from_str_radix(tileset_dir.file_name().to_str().unwrap(), 16)?;
-                let tileset_path = tileset_dir.path();
-
-                let palette_path = tileset_path.join("palette.snes");
-                let palette_bytes = std::fs::read(&palette_path).with_context(|| {
-                    format!("Unable to read palette at {}", palette_path.display())
-                })?;
-                let compressed_pal = self.get_compressed_data(&palette_bytes)?;
-
-                // Write SCE palette:
-                let pal_addr = match pal_map.entry(compressed_pal.clone()) {
-                    Entry::Occupied(x) => *x.get(),
-                    Entry::Vacant(view) => {
-                        let addr = self.main_allocator.allocate(compressed_pal.len())?;
-                        view.insert(addr);
-                        addr
-                    }
-                };
-                new_rom.write_n(pal_addr, &compressed_pal)?;
-
-                assert!(tileset_idx < max_tilesets);
-                let palette_table_addr = area_palette_table_addrs[area_idx] + tileset_idx * 3;
-                assert!(palette_table_addr + 2 <= palette_table_end);
-                new_rom.write_u24(palette_table_addr, pc2snes(pal_addr) as isize)?;
-                // println!("{:x}, {:x}: {:x}", area_idx, tileset_idx, pc2snes(pal_addr));
-            }
-        }
         Ok(())
     }
 

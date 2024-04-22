@@ -1,13 +1,8 @@
-use std::path::Path;
-
 use crate::{
-    game_data::{AreaIdx, GameData, TilesetIdx},
-    patch::{apply_ips_patch, compress::compress, decompress::decompress, pc2snes, snes2pc, Rom},
+    game_data::GameData,
+    patch::{decompress::decompress, snes2pc, Rom},
 };
-use super::Allocator;
-use anyhow::{Result, bail};
-use hashbrown::HashMap;
-use hashbrown::hash_map::Entry;
+use anyhow::Result;
 
 fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
     let mut out: Vec<u8> = vec![];

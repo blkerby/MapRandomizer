@@ -6,9 +6,9 @@ use json::JsonValue;
 use sailfish::TemplateOnce;
 use urlencoding;
 
-use crate::game_data::{EntranceCondition, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId};
+use crate::game_data::{EntranceCondition, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId, VertexAction, VertexKey};
 use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill, MapsRevealed, StartLocationMode};
-use crate::traverse::{apply_requirement, GlobalState, LocalState};
+use crate::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData};
 
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 
@@ -406,42 +406,45 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
 
 fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
     let mut reqs: Vec<Requirement> = vec![];
-    if link.bypasses_door_shell {
-        reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSkipDoorLock"]));
+    let from_vertex_key = &game_data.vertex_isv.keys[link.from_vertex_id];
+    let to_vertex_key = &game_data.vertex_isv.keys[link.to_vertex_id];
+    for action in &from_vertex_key.actions {
+        if let VertexAction::Enter(entrance_condition) = action {
+            let main = &entrance_condition.main;
+            if let MainEntranceCondition::ComeInWithGMode { .. } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+            }
+            if let MainEntranceCondition::ComeInWithRMode { .. } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"]));
+            }
+            if let MainEntranceCondition::ComeInSpeedballing { .. } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSpeedball"]));
+            }
+            if let MainEntranceCondition::ComeInStutterShinecharging { .. } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]));
+            }
+            if let MainEntranceCondition::ComeInWithTemporaryBlue {  } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canTemporaryBlue"]));
+            }
+            if let MainEntranceCondition::ComeInWithBombBoost {  } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canBombHorizontally"]));
+            }
+            if let MainEntranceCondition::ComeInWithGrappleTeleport { .. } = main {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
+            }
+        }    
     }
-    if let Some(entrance_condition) = &link.entrance_condition {
-        let main = &entrance_condition.main;
-        if let MainEntranceCondition::ComeInWithGMode { .. } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
-        }
-        if let MainEntranceCondition::ComeInWithRMode { .. } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterRMode"]));
-        }
-        if let MainEntranceCondition::ComeInSpeedballing { .. } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canSpeedball"]));
-        }
-        if let MainEntranceCondition::ComeInStutterShinecharging { .. } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]));
-        }
-        if let MainEntranceCondition::ComeInWithTemporaryBlue {  } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canTemporaryBlue"]));
-        }
-        if let MainEntranceCondition::ComeInWithBombBoost {  } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canBombHorizontally"]));
-        }
-        if let MainEntranceCondition::ComeInWithGrappleTeleport { .. } = main {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
-        }
-    }
-    if let Some(exit_condition) = &link.exit_condition {
-        if let ExitCondition::LeaveWithGMode { .. } = exit_condition {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
-        }
-        if let ExitCondition::LeaveWithGModeSetup { .. } = exit_condition {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
-        }
-        if let ExitCondition::LeaveWithGrappleTeleport { .. } = exit_condition {
-            reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
+    for action in &to_vertex_key.actions {
+        if let VertexAction::Exit(exit_condition) = action {
+            if let ExitCondition::LeaveWithGMode { .. } = exit_condition {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+            }
+            if let ExitCondition::LeaveWithGModeSetup { .. } = exit_condition {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canEnterGMode"]));
+            }
+            if let ExitCondition::LeaveWithGrappleTeleport { .. } = exit_condition {
+                reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
+            }
         }
     }
     Requirement::make_and(reqs)
@@ -477,6 +480,10 @@ fn get_strat_difficulty(
     global_states: &[GlobalState],
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
 ) -> usize {
+    let locked_door_data = LockedDoorData {
+        locked_doors: vec![],
+        locked_door_node_map: HashMap::new(),
+    };
     for (i, difficulty) in difficulty_configs.iter().enumerate() {
         let global = &global_states[i];
 
@@ -486,6 +493,7 @@ fn get_strat_difficulty(
             missiles_used: 0,
             supers_used: 0,
             power_bombs_used: 0,
+            shinecharge_frames_remaining: 0,
         };
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
@@ -497,7 +505,7 @@ fn get_strat_difficulty(
             let extra_req = get_cross_room_reqs(link, game_data);
             let main_req = strip_cross_room_reqs(link.requirement.clone(), game_data);
             let combined_req = Requirement::make_and(vec![extra_req, main_req]);
-            let new_local = apply_requirement(&combined_req, &global, local, false, difficulty, game_data);
+            let new_local = apply_requirement(&combined_req, &global, local, false, difficulty, game_data, &locked_door_data);
             if new_local.is_some() {
                 return i;
             }
@@ -721,6 +729,7 @@ impl LogicData {
                 notable_strats,
                 items: items,
                 flags: vec![true; game_data.flag_isv.keys.len()],
+                doors_unlocked: vec![],
                 max_energy: 1499,
                 max_reserves: 400,
                 max_missiles: 230,
@@ -736,9 +745,9 @@ impl LogicData {
 
         let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
         for link in game_data.all_links() {
-            let (link_room_id, link_from_node_id, _) =
+            let VertexKey { room_id: link_room_id, node_id: link_from_node_id, .. } =
                 game_data.vertex_isv.keys[link.from_vertex_id];
-            let (_, link_to_node_id, _) = game_data.vertex_isv.keys[link.to_vertex_id];
+            let VertexKey { node_id: link_to_node_id, .. } = game_data.vertex_isv.keys[link.to_vertex_id];
             let link_ids = (
                 link_room_id,
                 link_from_node_id,

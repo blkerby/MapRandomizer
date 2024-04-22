@@ -6,8 +6,8 @@ use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
-    randomize_doors, AreaAssignment, DebugOptions, DoorsMode, ItemDotChange, ItemMarkers,
-    ItemPlacementStyle, ItemPriorityGroup, LockedDoor, MotherBrainFight, Objectives,
+    randomize_doors, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
     ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode,
 };
 use maprando::spoiler_map;
@@ -218,7 +218,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         //     extended_spoiler: true,
         // }),
     };
-    let mut single_map: Option<Map>;
+    let single_map: Option<Map>;
     let mut filenames: Vec<String> = Vec::new();
     if args.map.is_dir() {
         for path in std::fs::read_dir(&args.map)
@@ -285,14 +285,13 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             Some(s) => s,
             None => (rng.next_u64() & 0xFFFFFFFF) as usize,
         };
-        let locked_doors = randomize_doors(game_data, &map, &difficulty_tiers[0], door_seed);
+        let locked_door_data = randomize_doors(game_data, &map, &difficulty_tiers[0], door_seed);
         let randomizer = Randomizer::new(
             &map,
-            &locked_doors,
+            &locked_door_data,
             &difficulty_tiers,
             &game_data,
             &game_data.base_links_data,
-            &game_data.seed_links,
         );
         for _ in 0..max_attempts_per_map {
             attempt_num += 1;
@@ -343,7 +342,7 @@ fn main() -> Result<()> {
     )?;
 
     // Perform randomization (map selection & item placement):
-    let mut randomization = get_randomization(&args, &game_data)?;
+    let randomization = get_randomization(&args, &game_data)?;
 
     // Override locked doors:
     //randomization.locked_doors.push(LockedDoor {

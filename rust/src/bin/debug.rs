@@ -1,13 +1,12 @@
 use anyhow::Result;
+use hashbrown::HashMap;
 // use hashbrown::HashSet;
 use maprando::{
     game_data::{GameData, Item, Requirement},
     randomize::{
-        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
-        ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives, ProgressionRate,
-        SaveAnimals, WallJump, MapsRevealed,
+        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MapsRevealed, MotherBrainFight, Objectives, ProgressionRate, SaveAnimals, WallJump
     },
-    traverse::{apply_requirement, GlobalState, LocalState},
+    traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
 };
 use std::path::Path;
 
@@ -73,6 +72,7 @@ fn run_scenario(
         notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
         flags: vec![false; game_data.flag_isv.keys.len()],
         items: items,
+        doors_unlocked: vec![],
         max_energy: 1899,
         max_missiles: missile_cnt,
         max_reserves: 0,
@@ -88,6 +88,7 @@ fn run_scenario(
         missiles_used: 0,
         supers_used: 0,
         power_bombs_used: 0,
+        shinecharge_frames_remaining: 0,
     };
     let difficulty = DifficultyConfig {
         name: None,
@@ -160,6 +161,10 @@ fn run_scenario(
     //     "{:?}",
     //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty, &game_data)
     // );
+    let locked_door_data = LockedDoorData {
+        locked_doors: vec![],
+        locked_door_node_map: HashMap::new(),
+    };
 
     let new_local_state_opt = apply_requirement(
         &Requirement::DraygonFight {
@@ -170,6 +175,7 @@ fn run_scenario(
         false,
         &difficulty,
         game_data,
+        &locked_door_data,
     );
 
     // let new_local_state_opt = apply_requirement(

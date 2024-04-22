@@ -1638,7 +1638,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_locked_doors(&mut self) -> Result<()> {
-        for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
+        for (i, locked_door) in self.randomization.locked_door_data.locked_doors.iter().enumerate() {
             let mut ptr_pairs = vec![locked_door.src_ptr_pair];
             if locked_door.bidirectional {
                 ptr_pairs.push(locked_door.dst_ptr_pair);
@@ -1657,9 +1657,11 @@ impl<'a> MapPatcher<'a> {
                 let tile = (self.rom.read_u16(base_ptr + offset)? & 0xC3FF) as TilemapWord;
                 let basic_tile_opt = self.reverse_map.get(&tile);
                 let edge = match locked_door.door_type {
+                    DoorType::Blue => Edge::Door,
                     DoorType::Red => Edge::RedDoor,
                     DoorType::Green => Edge::GreenDoor,
                     DoorType::Yellow => Edge::YellowDoor,
+                    DoorType::Gray => Edge::GrayDoor,
                 };
                 if let Some(basic_tile) = basic_tile_opt {
                     let mut new_tile = *basic_tile;

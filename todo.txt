@@ -7,6 +7,17 @@ v112:
 - implement `unlocksDoors`
 - implement `setsFlags`
 - implement `collectsItems`
+- add free UnlockDoor VertexAction on exit vertices
+- restrict "go back with g-mode" to not apply to down doors.
+- add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
+- check zebes awake logic (pit room in particular)
+- check draygon logic:
+  - eddie seed: https://maprando.com/seed/SQeiaLXazAu4FsRBdB7azw/data/visualizer/index.html
+    - why was draygon not logically beatable earlier?
+- fix spoiler map bug:
+  - cross-room strat with bypass door lock not linking correctly:
+    - step 7 of https://maprando.com/seed/Z7LuFEcUqkp0MGnf0GDzwQ/data/visualizer/index.html
+    - broken link (wrong room): https://maprando.com/logic/room/MainStreet/1/1/CovernOrAtomicIceClipDoorLockSkip
 - instructions on gmode and artificial morph
 - fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
 - fix implicit leaveWithGMode strats to not be on upward doors

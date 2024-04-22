@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, GameData, RoomPtr, RoomStateIdx},
-    patch::{self, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, pc2snes, snes2pc, Rom}, web::MosaicTheme,
+    patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom}, web::MosaicTheme,
 };
 use rand::{Rng, SeedableRng};
 use anyhow::{Result, Context};

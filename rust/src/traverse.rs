@@ -7,10 +7,9 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     game_data::{
-        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup,
-        Requirement, WeaponMask,
+        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, WeaponMask
     },
-    randomize::{DifficultyConfig, MotherBrainFight, Objectives, WallJump},
+    randomize::{DifficultyConfig, LockedDoor, MotherBrainFight, Objectives, WallJump},
 };
 
 use log::info;
@@ -22,6 +21,7 @@ pub struct GlobalState {
     pub notable_strats: Vec<bool>,
     pub items: Vec<bool>,
     pub flags: Vec<bool>,
+    pub doors_unlocked: Vec<bool>,
     pub max_energy: Capacity,
     pub max_reserves: Capacity,
     pub max_missiles: Capacity,
@@ -49,6 +49,7 @@ pub struct LocalState {
     pub missiles_used: Capacity,
     pub supers_used: Capacity,
     pub power_bombs_used: Capacity,
+    pub shinecharge_frames_remaining: Capacity,
 }
 
 impl LocalState {
@@ -59,6 +60,7 @@ impl LocalState {
             missiles_used: 0,
             supers_used: 0,
             power_bombs_used: 0,
+            shinecharge_frames_remaining: 0,
         }
     }
 }
@@ -675,6 +677,7 @@ pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
     missiles_used: 0x3FFF,
     supers_used: 0x3FFF,
     power_bombs_used: 0x3FFF,
+    shinecharge_frames_remaining: 0x3FFF,
 };
 
 pub const NUM_COST_METRICS: usize = 2;
@@ -686,11 +689,12 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     let missiles_cost = (local.missiles_used as f32) / (global.max_missiles as f32 + eps);
     let supers_cost = (local.supers_used as f32) / (global.max_supers as f32 + eps);
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
+    let shinecharge_cost = -(local.shinecharge_frames_remaining as f32) / 180.0;
 
     let ammo_sensitive_cost_metric =
-        energy_cost + reserve_cost + 100.0 * (missiles_cost + supers_cost + power_bombs_cost);
+        energy_cost + reserve_cost + 100.0 * (missiles_cost + supers_cost + power_bombs_cost + shinecharge_cost);
     let energy_sensitive_cost_metric =
-        100.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost;
+        100.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost + shinecharge_cost;
     [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 
@@ -880,6 +884,12 @@ fn apply_heat_frames(
     }
 }
 
+#[derive(Clone)]
+pub struct LockedDoorData {
+    pub locked_doors: Vec<LockedDoor>,
+    pub locked_door_node_map: HashMap<(RoomId, NodeId), usize>,
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
@@ -887,6 +897,7 @@ pub fn apply_requirement(
     reverse: bool,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    locked_door_data: &LockedDoorData,
 ) -> Option<LocalState> {
     match req {
         Requirement::Free => Some(local),
@@ -1307,22 +1318,40 @@ pub fn apply_requirement(
             game_data,
         ),
         Requirement::ShineCharge { used_tiles, heated } => {
+            let used_tiles = used_tiles.get();
             let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
                 global.heated_shine_charge_tiles
             } else {
                 global.shine_charge_tiles
             };
-            if global.items[Item::SpeedBooster as usize] && *used_tiles >= tiles_limit {
+            if global.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
+                let mut new_local = local;
+                if reverse {
+                    new_local.shinecharge_frames_remaining = 0;
+                } else {
+                    new_local.shinecharge_frames_remaining = 180 - difficulty.shinecharge_leniency_frames;
+                }
                 Some(local)
             } else {
                 None
             }
         }
-        Requirement::ShineChargeLeniencyFrames(frames) => {
-            if difficulty.shinecharge_leniency_frames <= *frames {
-                Some(local)
+        Requirement::ShineChargeFrames(frames) => {
+            let mut new_local = local;
+            if reverse {
+                new_local.shinecharge_frames_remaining += frames;
+                if new_local.shinecharge_frames_remaining <= 180 - difficulty.shinecharge_leniency_frames {
+                    Some(new_local)
+                } else {
+                    None
+                }
             } else {
-                None
+                new_local.shinecharge_frames_remaining -= frames;
+                if new_local.shinecharge_frames_remaining >= 0 {
+                    Some(new_local)
+                } else {
+                    None
+                }
             }
         }
         Requirement::Shinespark {
@@ -1359,20 +1388,33 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::DoorUnlocked { .. } => {
-            panic!("DoorUnlocked should be resolved during preprocessing")
+        Requirement::DoorUnlocked { room_id, node_id } => {
+            let locked_door_idx = locked_door_data.locked_door_node_map[&(*room_id, *node_id)];
+            if global.doors_unlocked[locked_door_idx] {
+                Some(local)
+            } else {
+                None
+            }
+        }
+        Requirement::DoorType { room_id, node_id, door_type } => {
+            let locked_door_idx = locked_door_data.locked_door_node_map[&(*room_id, *node_id)];
+            if locked_door_data.locked_doors[locked_door_idx].door_type == *door_type {
+                Some(local)
+            } else {
+                None
+            }
         }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {
                 for req in reqs.into_iter().rev() {
                     new_local =
-                        apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
+                        apply_requirement(req, global, new_local, reverse, difficulty, game_data, locked_door_data)?;
                 }
             } else {
                 for req in reqs {
                     new_local =
-                        apply_requirement(req, global, new_local, reverse, difficulty, game_data)?;
+                        apply_requirement(req, global, new_local, reverse, difficulty, game_data, locked_door_data)?;
                 }
             }
             Some(new_local)
@@ -1382,7 +1424,7 @@ pub fn apply_requirement(
             let mut best_cost = [f32::INFINITY; NUM_COST_METRICS];
             for req in reqs {
                 if let Some(new_local) =
-                    apply_requirement(req, global, local, reverse, difficulty, game_data)
+                    apply_requirement(req, global, local, reverse, difficulty, game_data, locked_door_data)
                 {
                     let cost = compute_cost(new_local, global);
                     // TODO: Maybe do something better than just using the first cost metric.
@@ -1472,6 +1514,7 @@ pub fn traverse(
     reverse: bool,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    locked_door_data: &LockedDoorData,
 ) -> TraverseResult {
     let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
     let mut result: TraverseResult;
@@ -1549,6 +1592,7 @@ pub fn traverse(
                         reverse,
                         difficulty,
                         game_data,
+                        locked_door_data,
                     ) {
                         let dst_new_cost_arr = compute_cost(dst_new_local_state, global);
 

@@ -2128,7 +2128,7 @@ impl<'a> Patcher<'a> {
         let mut next_state_index: usize = 0;
         let mut state_idxs: Vec<usize> = vec![];
 
-        for _door in &self.randomization.locked_doors {
+        for _door in &self.randomization.locked_door_data.locked_doors {
             while reserved_state_indexes.contains(&next_state_index) {
                 next_state_index += 1;
             }
@@ -2140,7 +2140,7 @@ impl<'a> Patcher<'a> {
 
     fn apply_locked_doors(&mut self) -> Result<()> {
         self.assign_locked_door_states();
-        for (i, door) in self.randomization.locked_doors.iter().enumerate() {
+        for (i, door) in self.randomization.locked_door_data.locked_doors.iter().enumerate() {
             let mut door = *door;
             self.apply_single_locked_door(door, self.locked_door_state_indices[i] as u8)?;
             if door.bidirectional {
