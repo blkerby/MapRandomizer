@@ -166,6 +166,500 @@
             [7, b, 0, 0, 0, 0, 0, 0],
             [b, 0, 0, 0, 0, 0, 0, 0],
         ];
+    //Charge Beam Door, row 0 of the palettes
+        //frame 0:
+        let charge_tile2_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile3_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile4_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile5_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //frame 1:
+        let charge_tile2_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile3_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile4_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile5_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //frame 2:
+        let charge_tile2_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile3_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile4_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile5_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //frame 3:
+        let charge_tile2_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile3_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile4_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile5_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //opening animation frame 1:
+        let charge_tile2_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile3_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile4_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile5_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //opening animation frame 2:
+        let charge_tile2_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile3_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile4_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let charge_tile5_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+    //Ice Beam Door, row 3 of the palettes
+        //frame 0:
+        let ice_tile2_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile3_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile4_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile5_frame0: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //frame 1:
+        let ice_tile2_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile3_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile4_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile5_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //frame 2:
+        let ice_tile2_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile3_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile4_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile5_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //frame 3:
+        let ice_tile2_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile3_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile4_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile5_frame3: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //opening animation frame 1:
+        let ice_tile2_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile3_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile4_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile5_opening_frame1: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        //opening animation frame 2:
+        let ice_tile2_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile3_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile4_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
+        let ice_tile5_opening_frame2: [[u8; 8]; 8] = [
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+            [],
+        ];
     //Wave Beam Door, row 2 of the palettes
         //frame 0:
         let wave_tile2_frame0: [[u8; 8]; 8] = [
