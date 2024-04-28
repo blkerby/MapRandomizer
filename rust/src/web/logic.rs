@@ -423,7 +423,7 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
             if let MainEntranceCondition::ComeInStutterShinecharging { .. } = main {
                 reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]));
             }
-            if let MainEntranceCondition::ComeInWithTemporaryBlue {  } = main {
+            if let MainEntranceCondition::ComeInWithTemporaryBlue { .. } = main {
                 reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canTemporaryBlue"]));
             }
             if let MainEntranceCondition::ComeInWithBombBoost {  } = main {

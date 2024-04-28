@@ -14,6 +14,37 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release110">Version 112 (2024-04-28)</a>:
+<ul>
+<li>Logic updates:
+    <ul>
+    <li>New tech:
+        <ul>
+        <li>canMomentumConservingMorph (Expert)
+        <li>canPreciseSpaceJump (Expert)
+        <li>canLongChainTemporaryBlue (Extreme)
+        <li>canSandBombBoost (Extreme)
+        <li>canSandGrappleBoost (Insane)
+        <li>canFreeFallClip (Insane)
+        </ul>
+    <li>New notable strats:
+        <ul>
+        <li>Cacatac Alley Bomb Jump Water Escape (Expert)
+        <li>Brinstar Reserve Temporary Blue Spring Ball Bounce (Expert)
+        <li>Landing Site Big Jump Leave With Temporary Blue (Expert)
+        <li>Warehouse Zeela Ice Moonfall (Extreme)
+        <li>Crab Hole Ice Clip (Extreme)
+        <li>Tourian Escape Room 4 Suitless Acid Bath Shinespark (Extreme)
+        <li>Botwoon Energy Tank Room Sand Grapple Boost (Insane)
+        <li>Crocomire Escape High Speed Gate Glitch (Insane)
+        <li>PCJR G-Mode Morph Long Diagonal Bomb Jump (Insane)
+        <li>Fish Tank Very Long Underwater Walljump Climb (Insane)
+        <li>Halfie Climb Very Long Underwater Walljump Climb (Insane)
+        </ul>
+    <li>"canEnemyStuckMoonfall" is moved from Insane to Extreme.
+    </ul>
+</ul>
+
 <p><a id="release110">Version 111 (2024-04-15)</a>:
 <ul>
 <li>Bug fixes:

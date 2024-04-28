@@ -476,7 +476,14 @@ impl Float {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum TemporaryBlueDirection {
+    Left,
+    Right,
+    Any,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum BlueOption {
     Yes,
     No,
@@ -494,6 +501,9 @@ pub enum ExitCondition {
     },
     LeaveShinecharged {
         physics: Option<Physics>,
+    },
+    LeaveWithTemporaryBlue {
+        direction: TemporaryBlueDirection,
     },
     LeaveWithSpark {
         position: SparkPosition,
@@ -547,6 +557,16 @@ fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
         Some("bottom") => SparkPosition::Bottom,
         None => SparkPosition::Any,
         _ => bail!("Unrecognized spark position: {}", s.unwrap()),
+    })
+}
+
+fn parse_temporary_blue_direction(s: Option<&str>) -> Result<TemporaryBlueDirection> {
+    Ok(match s {
+        Some("left") => TemporaryBlueDirection::Left,
+        Some("right") => TemporaryBlueDirection::Right,
+        Some("any") => TemporaryBlueDirection::Any,
+        None => TemporaryBlueDirection::Any,
+        _ => bail!("Unrecognized temporary blue direction: {}", s.unwrap()),
     })
 }
 
@@ -633,7 +653,9 @@ pub enum MainEntranceCondition {
     ComeInSpeedballing {
         effective_runway_length: Float,
     },
-    ComeInWithTemporaryBlue {},
+    ComeInWithTemporaryBlue {
+        direction: TemporaryBlueDirection,
+    },
     ComeInBlueSpinning {
         min_tiles: Float,
         unusable_tiles: Float,
@@ -914,7 +936,7 @@ pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
     used_tiles + open_end * 0.5
 }
 
-#[derive(Default)]
+#[derive(Default, Clone)]
 struct RequirementContext<'a> {
     room_id: RoomId,
     _from_node_id: NodeId, // Usable for debugging
@@ -1269,6 +1291,12 @@ impl GameData {
             },
         ];
         ensure!(unlocks_doors_json.is_array());
+        
+        // Disallow using "unlocksDoors" inside its own requirements, to avoid an infinite recursion.
+        // TODO: Figure out how to more properly handle "resetRoom" requirements inside of "unlocksDoors".
+        let mut ctx1 = ctx.clone();
+        ctx1.unlocks_doors_json = None;
+
         for (door_type, unlock_methods) in &door_type_methods {
             let mut door_type_reqs = vec![];
             for (keys, implicit_req, heat_req) in unlock_methods {
@@ -1276,13 +1304,16 @@ impl GameData {
                 for &key in keys {
                     for u in unlocks_doors_json.members() {
                         if u["nodeId"].as_usize().unwrap_or(ctx.to_node_id) == node_id {
+                            if !u["types"].is_array() {
+                                println!("{}", unlocks_doors_json);
+                            }
                             ensure!(u["types"].is_array());
                             if u["types"].members().any(|t| t == key) {
                                 if req.is_some() {
                                     bail!("Overlapping unlocksDoors for '{}', room_id={}, node_id={}: {:?}", key, room_id, node_id, unlocks_doors_json);
                                 }
                                 let requires: &[JsonValue] = u["requires"].members().as_slice();
-                                let mut req_list = self.parse_requires_list(requires, ctx)?;
+                                let mut req_list = self.parse_requires_list(requires, &ctx1)?;
                                 if u["useImplicitRequires"].as_bool().unwrap_or(false) {
                                     req_list.push(implicit_req.clone());
                                 }
@@ -2156,18 +2187,21 @@ impl GameData {
                         ("door", node_sub_type) => {
                             if node_sub_type == "grey" && get_logical_gray_door_room_ids().contains(&room_id) {
                                 new_strat["unlocksDoors"] = json::array![
-                                    {"type": "grey", "requires": []}
+                                    {"types": ["grey"], "requires": []}
                                 ];
                             }
                         }
-                        ("event", "flag" | "boss") => {
+                        ("event", "flag" | "boss") | ("junction", _) => {
                             new_strat["setsFlags"] = lock["yields"].clone();
                             if yields != JsonValue::Null && obstacle_flags.contains(&yields[0].as_str().unwrap()) {
                                 new_strat["clearsObstacles"] = json::array![yields[0].as_str().unwrap()];
                             }
                         }
                         ("item", _) => {
-                            new_strat["collectsItem"] = json::array![node_id];
+                            new_strat["collectsItems"] = json::array![node_id];
+                        }
+                        ("utility", _) => {
+                            continue;
                         }
                         (node_type, node_subtype) => {
                             panic!(
@@ -2358,6 +2392,9 @@ impl GameData {
                     physics,
                 }
             },
+            "leaveWithTemporaryBlue" => ExitCondition::LeaveWithTemporaryBlue {
+                direction: parse_temporary_blue_direction(value["direction"].as_str())?,
+            },
             "leaveWithSpark" => ExitCondition::LeaveWithSpark {
                 position: parse_spark_position(value["position"].as_str())?,
             },
@@ -2534,7 +2571,9 @@ impl GameData {
                     effective_runway_length: Float::new(effective_runway_length),
                 }
             }
-            "comeInWithTemporaryBlue" => MainEntranceCondition::ComeInWithTemporaryBlue {},
+            "comeInWithTemporaryBlue" => MainEntranceCondition::ComeInWithTemporaryBlue {
+                direction: parse_temporary_blue_direction(value["direction"].as_str())?,
+            },
             "comeInBlueSpinning" => {
                 MainEntranceCondition::ComeInBlueSpinning { 
                     min_tiles: Float::new(value["minTiles"]
@@ -3139,7 +3178,7 @@ impl GameData {
                             .push((vertex_id, entrance_condition.clone()))
                     }
                     VertexAction::DoorUnlock(door_node_id, _) => {
-                        self.node_door_unlock.entry((vertex_key.room_id, vertex_key.node_id))
+                        self.node_door_unlock.entry((vertex_key.room_id, *door_node_id))
                             .or_default()
                             .push(vertex_id)
                     }
@@ -3158,7 +3197,7 @@ impl GameData {
                 }
             }
         }
-        
+
         for &(room_id, node_id) in &self.item_locations {
             let vertex_ids = &item_location_vertex_map[&(room_id, node_id)];
             self.item_vertex_ids.push(vertex_ids.clone());

@@ -9,7 +9,7 @@ use crate::{
     game_data::{
         self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, WeaponMask
     },
-    randomize::{DifficultyConfig, LockedDoor, MotherBrainFight, Objectives, WallJump},
+    randomize::{DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objectives, WallJump},
 };
 
 use log::info;
@@ -1397,8 +1397,12 @@ pub fn apply_requirement(
             }
         }
         Requirement::DoorType { room_id, node_id, door_type } => {
-            let locked_door_idx = locked_door_data.locked_door_node_map[&(*room_id, *node_id)];
-            if locked_door_data.locked_doors[locked_door_idx].door_type == *door_type {
+            let actual_door_type = if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
+                locked_door_data.locked_doors[*locked_door_idx].door_type
+            } else {
+                DoorType::Blue
+            };
+            if *door_type == actual_door_type {
                 Some(local)
             } else {
                 None

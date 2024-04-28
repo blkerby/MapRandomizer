@@ -179,6 +179,7 @@
       "canTrickyJump",
       "canPrepareForNextRoom",
       "canMomentumConservingTurnaround",
+      "canMomentumConservingMorph",
       "canSpringBallBombJump",
       "canSpeedball",
       "canShinechargeMovementComplex",
@@ -217,7 +218,6 @@
       "East Ocean Space Jump Water Escape with Ice and XRay Standup",
       "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
-      "East Ocean Floor Shinespark Left",
 
       "West Ocean Bug Boost with Ice",
       "West Ocean Bug Boost with Wave or Spazer",
@@ -367,10 +367,12 @@
       "canSandfallBounce",
       "canEnemyExtendRunway",
       "can10PowerBombCrystalFlash",
-      "canGrappleTeleport"
+      "canGrappleTeleport",
+      "canPreciseSpaceJump"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
+      "Landing Site Big Jump Leave With Temporary Blue",      
       "Landing Site Blue Space Jump (Top)",
       "Parlor Carry Shinecharge From Right to Bottom",
 
@@ -382,6 +384,7 @@
       "East Ocean Shinespark Water Escape",
 
       "Brinstar Reserve Temporary Blue",
+      "Brinstar Reserve Temporary Blue Spring Ball Bounce",      
       "Green Hill Zone X-Ray Wiggle",
       "Green Hills Grapple Gate Glitch",
       "Etecoon Shaft Moonfall Spark",
@@ -454,6 +457,7 @@
       "West Sand Hole Bootless Suitless IBJ",
       "East Cac Alley Cross Room Jump with Spring Ball, Bomb Boost",
       "East Cac Alley Cross Room Jump with IBJ",
+      "Cacatac Alley Bomb Jump Water Escape",
 
       "Maridia Bug Room Spark Out Left HiJumpless",
 
@@ -473,8 +477,7 @@
       "Blue Hopper Dodge",
       "Blue Hopper Room Roll Under Hoppers",
       "Tourian Blue Hopper Crystal Flash",
-      "Baby Skip Without Wave or Speed",
-      "Tourian Escape Room 4 Acid Bath Shinespark"
+      "Baby Skip Without Wave or Speed"
     ]
   },
   {
@@ -517,7 +520,10 @@
       "canSuperJump",
       "canSpeedKeep",
       "canGrappleBombHang",
-      "canUnmorphGrappleHang"
+      "canUnmorphGrappleHang",
+      "canLongChainTemporaryBlue",
+      "canSandBombBoost",
+      "canEnemyStuckMoonfall"
     ],
     "notable_strats": [
       "Landing Site Crystal Flash X-Ray Climb",
@@ -562,6 +568,7 @@
 
       "Warehouse Entrance Arm Pump Jump",
       "Warehouse Energy Tank Frozen Beetom Runway",
+      "Warehouse Zeela Ice Moonfall",
 
       "Cathedral Entrance 10 Power Bomb Crystal Flash",
       "Double Chamber HiJumpless Wall Jump",
@@ -588,6 +595,7 @@
       "Everest Tricky Cross Room Jump (Right to Left)",
       "Everest Tricky Cross Room Jump (Right to Top)",
       "Everest Tricky Cross Room Jump with HiJump (Right to Top)",
+      "Crab Hole Ice Clip",
       
       "Aqueduct Left-Side X-Ray Climb (Upper)",
       "Aqueduct G-Mode Overload PLMs - PB the Items",
@@ -615,7 +623,8 @@
 
       "WS East Supers R-Mode Standup Clip (Right to Left)",
 
-      "Tourian Escape Room 4 IBJ and Acid Bath"
+      "Tourian Escape Room 4 IBJ and Acid Bath",
+      "Tourian Escape Room 4 Suitless Acid Bath Shinespark"
     ]
   },
   {
@@ -638,10 +647,11 @@
       "canExtendedMoondance",
       "canCeilingBombJump",
       "canBombGrappleJump",
-      "canEnemyStuckMoonfall",
       "canDownwardGModeSetup",
       "canUnderwaterBombIntoSpringBallJump",
-      "canTrickyGrappleJump"
+      "canTrickyGrappleJump",
+      "canSandGrappleBoost",
+      "canFreeFallClip"
     ],
     "notable_strats": [
       "Climb Morph Tunnel SpeedBall",
@@ -665,7 +675,6 @@
       "Taco Tank in Blue Brinstar Energy Tank Room",
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",
 
-      "Green Brinstar Shaft Zeela Stuck Moonfall",
       "Green Hills Grapple Teleport into Grapple Jump (from Red Brinstar Firefleas)",
  
       "Dachora Room G-Mode Setup - Lure the Zeela Down Below",
@@ -675,10 +684,10 @@
 
       "Red Tower Door Frame Extended Moondance",
 
-      "Warehouse Zeela Ice Moonfall Screw Attack Clip",
-
       "Frog Speedway Speed Block Moondance",
       "Croc Speedway Speed Block Moondance",
+      "Crocomire Escape High Speed Gate Glitch",
+      "PCJR G-Mode Morph Long Diagonal Bomb Jump",
 
       "Lava Dive GT Max Suitless Right Side Climb",
       "Lava Dive HiJumpless Nahime Morph Kago",
@@ -698,12 +707,14 @@
       "Everest Crab HiJump Bomb-Grapple-Jump",
       "Red Fish Space Jump Escape",
       "Fish Tank Grapple Teleport into Grapple Jump",
+      "Fish Tank Very Long Underwater Walljump Climb",
       "Glass Tunnel Cross Room Platform Stuck Wiggle to Top Door",
       "Glass Tunnel Grapple Teleport into Grapple Jump (or Tube Intact)",
 
       "Aqueduct Snail Stuck Moonfall",
       "Back-Side Botwoon Super Only Fight",
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
+      "Botwoon Energy Tank Room Sand Grapple Boost",
       "Colosseum with no Equipment",
       "Colosseum Stored Moonfall Grapple Door Lock Skip",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
@@ -712,6 +723,7 @@
       "Halfie Climb Stored Moonfall Grapple Door Lock Skip",
       "Halfie Climb Very Deep Stuck X-Ray Climb",
       "Halfie Climb Top Left Suitless Bombless Leave With Grapple Teleport",
+      "Halfie Climb Very Long Underwater Walljump Climb",
 
       "Plasma Spark Room SpringFling into Top Right Door",
 
@@ -723,7 +735,6 @@
       "Bowling Alley Speed Block Moondance",
       "WS East Supers Robot Clip Run-In-Place",
       "Basement G-mode Morph Workrobot Ride",
-      "Wrecked Ship Main Shaft Spooky Missiles Temporary Blue with Frozen Enemy Runway",
 
       "Metroid Room 1 Acid Skip CWJ",
       "Baby Skip With Nothing"

@@ -2,11 +2,7 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity,
-        DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility,
-        GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
-        MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId,
-        SparkPosition, StartLocation, VertexAction, VertexId, VertexKey,
+        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey
     },
     traverse::{
         apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route,
@@ -598,8 +594,8 @@ impl<'a> Preprocessor<'a> {
                     ]))
                 }
             }
-            MainEntranceCondition::ComeInWithTemporaryBlue {} => {
-                self.get_come_in_with_temporary_blue_reqs(exit_condition)
+            MainEntranceCondition::ComeInWithTemporaryBlue { direction } => {
+                self.get_come_in_with_temporary_blue_reqs(exit_condition, *direction)
             }
             MainEntranceCondition::ComeInBlueSpinning {
                 min_tiles,
@@ -1226,8 +1222,17 @@ impl<'a> Preprocessor<'a> {
     fn get_come_in_with_temporary_blue_reqs(
         &self,
         exit_condition: &ExitCondition,
+        exit_direction: TemporaryBlueDirection,
     ) -> Option<Requirement> {
         match exit_condition {
+            ExitCondition::LeaveWithTemporaryBlue { direction } => {
+                if *direction != exit_direction && *direction != TemporaryBlueDirection::Any && exit_direction != TemporaryBlueDirection::Any {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key["canTemporaryBlue"]));
+                Some(Requirement::make_and(reqs))
+            },
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,
@@ -1236,6 +1241,7 @@ impl<'a> Preprocessor<'a> {
             } => {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key["canTemporaryBlue"]));
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
