@@ -2,10 +2,16 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, Capacity, DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, VertexAction, VertexId, VertexKey
+        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity,
+        DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility,
+        GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+        MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId,
+        SparkPosition, StartLocation, VertexAction, VertexId, VertexKey,
     },
     traverse::{
-        apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
+        apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route,
+        traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
+        NUM_COST_METRICS,
     },
     web::logic::strip_name,
 };
@@ -28,10 +34,9 @@ use crate::game_data::GameData;
 use self::escape_timer::SpoilerEscape;
 
 // Once there are fewer than 20 item locations remaining to be filled, key items will be
-// placed as quickly as possible. This helps prevent generation failures particularly on lower 
+// placed as quickly as possible. This helps prevent generation failures particularly on lower
 // difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
-
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ProgressionRate {
@@ -80,7 +85,7 @@ pub enum DoorsMode {
 pub enum StartLocationMode {
     Ship,
     Random,
-    Escape
+    Escape,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -288,7 +293,7 @@ pub struct Randomization {
     pub locked_door_data: LockedDoorData,
     pub item_placement: Vec<Item>,
     pub start_location: StartLocation,
-    pub starting_items: Vec<(Item, usize)>,  // (item type, count), only for non-zero counts
+    pub starting_items: Vec<(Item, usize)>, // (item type, count), only for non-zero counts
     pub spoiler_log: SpoilerLog,
     pub seed: usize,
     pub display_seed: usize,
@@ -368,10 +373,7 @@ fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (
 }
 
 impl<'a> Preprocessor<'a> {
-    pub fn new(
-        game_data: &'a GameData,
-        map: &'a Map,
-    ) -> Self {
+    pub fn new(game_data: &'a GameData, map: &'a Map) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in
             &map.doors
@@ -381,14 +383,8 @@ impl<'a> Preprocessor<'a> {
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
             // println!("({}, {}) <-> ({}, {})", src_room_id, src_node_id, dst_room_id, dst_node_id);
-            door_map.insert(
-                (src_room_id, src_node_id),
-                (dst_room_id, dst_node_id),
-            );
-            door_map.insert(
-                (dst_room_id, dst_node_id),
-                (src_room_id, src_node_id),
-            );
+            door_map.insert((src_room_id, src_node_id), (dst_room_id, dst_node_id));
+            door_map.insert((dst_room_id, dst_node_id), (src_room_id, src_node_id));
 
             if (dst_room_id, dst_node_id) == (32, 1) {
                 // West Ocean bottom left door, West Ocean Bridge left door
@@ -405,13 +401,29 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn add_door_links(&self, src_room_id: usize, src_node_id: usize, dst_room_id: usize, dst_node_id: usize, is_toilet: bool, door_links: &mut Vec<Link>) {
-        for (src_vertex_id, exit_condition) in &self.game_data.node_exit_conditions[&(src_room_id, src_node_id)] {
-            for (dst_vertex_id, entrance_condition) in &self.game_data.node_entrance_conditions[&(dst_room_id, dst_node_id)] {
-                if entrance_condition.through_toilet == game_data::ToiletCondition::Yes && !is_toilet {
+    fn add_door_links(
+        &self,
+        src_room_id: usize,
+        src_node_id: usize,
+        dst_room_id: usize,
+        dst_node_id: usize,
+        is_toilet: bool,
+        door_links: &mut Vec<Link>,
+    ) {
+        for (src_vertex_id, exit_condition) in
+            &self.game_data.node_exit_conditions[&(src_room_id, src_node_id)]
+        {
+            for (dst_vertex_id, entrance_condition) in
+                &self.game_data.node_entrance_conditions[&(dst_room_id, dst_node_id)]
+            {
+                if entrance_condition.through_toilet == game_data::ToiletCondition::Yes
+                    && !is_toilet
+                {
                     // The strat requires passing through the Toilet, which is not the case here.
                     continue;
-                } else if entrance_condition.through_toilet == game_data::ToiletCondition::No && is_toilet {
+                } else if entrance_condition.through_toilet == game_data::ToiletCondition::No
+                    && is_toilet
+                {
                     // The strat requires not passing through the Toilet, but here it does.
                     continue;
                 }
@@ -429,9 +441,9 @@ impl<'a> Preprocessor<'a> {
                         from_vertex_id: *src_vertex_id,
                         to_vertex_id: *dst_vertex_id,
                         requirement: req,
-                        notable_strat_name: None, 
+                        notable_strat_name: None,
                         strat_name: "".to_string(),
-                        strat_notes: vec![]
+                        strat_notes: vec![],
                     });
                 }
             }
@@ -440,7 +452,9 @@ impl<'a> Preprocessor<'a> {
 
     pub fn get_all_door_links(&self) -> Vec<Link> {
         let mut door_links = vec![];
-        for ((mut src_room_id, mut src_node_id), (mut dst_room_id, mut dst_node_id)) in self.door_map.iter() {
+        for ((mut src_room_id, mut src_node_id), (mut dst_room_id, mut dst_node_id)) in
+            self.door_map.iter()
+        {
             let mut is_toilet = false;
             if (src_room_id, src_node_id) == (321, 1) {
                 (src_room_id, src_node_id) = *self.door_map.get(&(321, 2)).unwrap();
@@ -449,16 +463,31 @@ impl<'a> Preprocessor<'a> {
                 (src_room_id, src_node_id) = *self.door_map.get(&(321, 1)).unwrap();
                 is_toilet = true;
             }
-            self.add_door_links(src_room_id, src_node_id, dst_room_id, dst_node_id, is_toilet, &mut door_links);
+            self.add_door_links(
+                src_room_id,
+                src_node_id,
+                dst_room_id,
+                dst_node_id,
+                is_toilet,
+                &mut door_links,
+            );
         }
         let extra_door_links: Vec<((usize, usize), (usize, usize))> = vec![
-            ((322, 2), (220, 2)),  // East Pants Room right door, Pants Room right door
-            ((32, 7), (32, 1)),  // West Ocean bottom left door, West Ocean Bridge left door
-            ((32, 8), (32, 5)),  // West Ocean bottom right door, West Ocean Bridge right door
+            ((322, 2), (220, 2)), // East Pants Room right door, Pants Room right door
+            ((32, 7), (32, 1)),   // West Ocean bottom left door, West Ocean Bridge left door
+            ((32, 8), (32, 5)),   // West Ocean bottom right door, West Ocean Bridge right door
         ];
-        for ((src_room_id, src_node_id), (dst_other_room_id, dst_other_node_id)) in extra_door_links {
+        for ((src_room_id, src_node_id), (dst_other_room_id, dst_other_node_id)) in extra_door_links
+        {
             let (dst_room_id, dst_node_id) = self.door_map[&(dst_other_room_id, dst_other_node_id)];
-            self.add_door_links(src_room_id, src_node_id, dst_room_id, dst_node_id, false, &mut door_links)
+            self.add_door_links(
+                src_room_id,
+                src_node_id,
+                dst_room_id,
+                dst_node_id,
+                false,
+                &mut door_links,
+            )
         }
         door_links
     }
@@ -476,7 +505,7 @@ impl<'a> Preprocessor<'a> {
         match &entrance_condition.main {
             MainEntranceCondition::ComeInNormally {} => {
                 self.get_come_in_normally_reqs(exit_condition)
-            },
+            }
             MainEntranceCondition::ComeInRunning {
                 speed_booster,
                 min_tiles,
@@ -497,18 +526,26 @@ impl<'a> Preprocessor<'a> {
                 min_tiles.get(),
                 max_tiles.get(),
             ),
+            MainEntranceCondition::ComeInSpaceJumping {
+                speed_booster,
+                min_tiles,
+                max_tiles,
+            } => self.get_come_in_space_jumping_reqs(
+                exit_condition,
+                *speed_booster,
+                min_tiles.get(),
+                max_tiles.get(),
+            ),
             MainEntranceCondition::ComeInShinecharging {
                 effective_length,
                 heated,
-            } => self.get_come_in_shinecharging_reqs(
-                exit_condition,
-                effective_length.get(),
-                *heated,
-            ),
-            MainEntranceCondition::ComeInShinecharged { } => {
+            } => {
+                self.get_come_in_shinecharging_reqs(exit_condition, effective_length.get(), *heated)
+            }
+            MainEntranceCondition::ComeInShinecharged {} => {
                 self.get_come_in_shinecharged_reqs(exit_condition)
             }
-            MainEntranceCondition::ComeInShinechargedJumping { } => {
+            MainEntranceCondition::ComeInShinechargedJumping {} => {
                 self.get_come_in_shinecharged_jumping_reqs(exit_condition)
             }
             MainEntranceCondition::ComeInWithSpark { position } => {
@@ -520,9 +557,14 @@ impl<'a> Preprocessor<'a> {
             MainEntranceCondition::ComeInWithBombBoost {} => {
                 self.get_come_in_with_bomb_boost_reqs(exit_condition)
             }
-            MainEntranceCondition::ComeInWithDoorStuckSetup { heated, door_orientation } => {
-                self.get_come_in_with_door_stuck_setup_reqs(exit_condition, *heated, *door_orientation)
-            }
+            MainEntranceCondition::ComeInWithDoorStuckSetup {
+                heated,
+                door_orientation,
+            } => self.get_come_in_with_door_stuck_setup_reqs(
+                exit_condition,
+                *heated,
+                *door_orientation,
+            ),
             MainEntranceCondition::ComeInSpeedballing {
                 effective_runway_length,
             } => {
@@ -556,9 +598,41 @@ impl<'a> Preprocessor<'a> {
                     ]))
                 }
             }
-            MainEntranceCondition::ComeInWithTemporaryBlue { } => {
+            MainEntranceCondition::ComeInWithTemporaryBlue {} => {
                 self.get_come_in_with_temporary_blue_reqs(exit_condition)
             }
+            MainEntranceCondition::ComeInBlueSpinning {
+                min_tiles,
+                unusable_tiles,
+            } => self.get_come_in_blue_spinning_reqs(
+                exit_condition,
+                min_tiles.get(),
+                unusable_tiles.get(),
+            ),
+            MainEntranceCondition::ComeInWithMockball {
+                adjacent_min_tiles,
+                remote_and_landing_min_tiles,
+            } => self.get_come_in_with_mockball_reqs(
+                exit_condition,
+                adjacent_min_tiles.get(),
+                remote_and_landing_min_tiles
+                    .into_iter()
+                    .map(|(a, b)| (a.get(), b.get()))
+                    .collect(),
+            ),
+            MainEntranceCondition::ComeInWithSpringBallBounce {
+                adjacent_min_tiles,
+                remote_and_landing_min_tiles,
+                movement_type,
+            } => self.get_come_in_with_spring_ball_bounce_reqs(
+                exit_condition,
+                adjacent_min_tiles.get(),
+                remote_and_landing_min_tiles
+                    .into_iter()
+                    .map(|(a, b)| (a.get(), b.get()))
+                    .collect(),
+                *movement_type,
+            ),
             MainEntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
             }
@@ -583,26 +657,30 @@ impl<'a> Preprocessor<'a> {
             }
             MainEntranceCondition::ComeInWithSpaceJumpBelow {} => {
                 self.get_come_in_with_space_jump_below_reqs(exit_condition)
-            },
-            MainEntranceCondition::ComeInWithPlatformBelow { min_height, max_height, max_left_position, min_right_position } => {
-                self.get_come_in_with_platform_below_reqs(exit_condition, min_height.get(), max_height.get(), max_left_position.get(), min_right_position.get())
-            },
+            }
+            MainEntranceCondition::ComeInWithPlatformBelow {
+                min_height,
+                max_height,
+                max_left_position,
+                min_right_position,
+            } => self.get_come_in_with_platform_below_reqs(
+                exit_condition,
+                min_height.get(),
+                max_height.get(),
+                max_left_position.get(),
+                min_right_position.get(),
+            ),
             MainEntranceCondition::ComeInWithGrappleTeleport { block_positions } => {
                 self.get_come_in_with_grapple_teleport_reqs(exit_condition, block_positions)
             }
         }
     }
 
-    fn get_come_in_normally_reqs(
-        &self,
-        exit_condition: &ExitCondition,
-    ) -> Option<Requirement> {
+    fn get_come_in_normally_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveNormally {  } => {
-                Some(Requirement::Free)
-            }
+            ExitCondition::LeaveNormally {} => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway { from_exit_node, .. } => {
-                if !from_exit_node  {
+                if !from_exit_node {
                     return None;
                 }
                 Some(Requirement::Free)
@@ -663,6 +741,40 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_space_jumping_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        speed_booster: Option<bool>,
+        min_tiles: f32,
+        _max_tiles: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveSpaceJumping {
+                remote_runway_length,
+                blue,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                if remote_runway_length < min_tiles {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![Requirement::Item(Item::SpaceJump as ItemId)];
+                if speed_booster == Some(true) {
+                    reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                }
+                if speed_booster == Some(false) {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canDisableEquipment"],
+                    ));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
     fn get_come_in_shinecharging_reqs(
         &self,
         exit_condition: &ExitCondition,
@@ -671,21 +783,25 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
-                mut effective_length,
+                effective_length,
                 heated,
                 physics,
                 from_exit_node,
             } => {
                 let mut effective_length = effective_length.get();
                 if runway_length < 0.0 {
-                    // TODO: remove this hack once we have a proper alternative to comeInSpeedballing.
+                    // TODO: remove this hack: strats with negative runway length here coming in should use comeInBlueSpinning instead.
+                    // add a test on the sm-json-data side to enforce this.
                     effective_length += runway_length;
                     runway_length = 0.0;
                 }
 
                 let mut reqs: Vec<Requirement> = vec![];
                 let combined_runway_length = effective_length + runway_length;
-                reqs.push(Requirement::make_shinecharge(combined_runway_length, runway_heated || *heated));
+                reqs.push(Requirement::make_shinecharge(
+                    combined_runway_length,
+                    runway_heated || *heated,
+                ));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -740,14 +856,212 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn get_come_in_shinecharged_reqs(
+    fn get_come_in_blue_spinning_reqs(
         &self,
         exit_condition: &ExitCondition,
+        min_tiles: f32,
+        unusable_tiles: f32,
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveShinecharged { .. } => {
-                Some(Requirement::Free)
+            ExitCondition::LeaveSpinning {
+                remote_runway_length,
+                blue,
+                heated,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                if *blue == BlueOption::No {
+                    return None;
+                }
+                if min_tiles > remote_runway_length {
+                    return None;
+                }
+                Some(Requirement::make_shinecharge(remote_runway_length, *heated))
             }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let effective_length = effective_length.get();
+                if effective_length - unusable_tiles < f32::max(11.0, min_tiles) {
+                    return None;
+                }
+
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::make_shinecharge(
+                    effective_length - unusable_tiles,
+                    *heated,
+                ));
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *from_exit_node {
+                    // Runway in the other room starts and ends at the door so we need to run both directions:
+                    if *heated {
+                        // Shortcharge difficulty is not known here, so we conservatively assume up to 33 tiles
+                        // of runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
+                        let other_runway_length = f32::min(effective_length, 33.0 + unusable_tiles);
+                        let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                        let (heat_frames_2, _) =
+                            compute_shinecharge_frames(other_runway_length, 0.0);
+                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                    }
+                } else if *heated {
+                    // Runway in the other room starts at a different node and runs toward the door. The full combined
+                    // runway is used.
+                    let (frames_1, _) = compute_shinecharge_frames(effective_length, 0.0);
+                    let mut heat_frames = frames_1 + 5;
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_mockball_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        adjacent_min_tiles: f32,
+        remote_and_landing_min_tiles: Vec<(f32, f32)>,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithMockball {
+                remote_runway_length,
+                landing_runway_length,
+                blue,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                let landing_runway_length = landing_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                if !remote_and_landing_min_tiles
+                    .iter()
+                    .any(|(r, d)| *r <= remote_runway_length && *d <= landing_runway_length)
+                {
+                    return None;
+                }
+                Some(Requirement::make_and(vec![
+                    Requirement::Tech(self.game_data.tech_isv.index_by_key["canMockball"]),
+                    Requirement::Item(Item::Morph as ItemId),
+                ]))
+            }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let effective_length = effective_length.get();
+                if effective_length < adjacent_min_tiles {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                    // TODO: in sm-json-data, add physics property to leaveWithRunway schema (for door nodes with multiple possible physics)
+                }
+                if *heated {
+                    let heat_frames = if *from_exit_node {
+                        compute_run_frames(adjacent_min_tiles) * 2 + 20
+                    } else {
+                        compute_run_frames(effective_length)
+                    };
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canMockball"],
+                ));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_spring_ball_bounce_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        adjacent_min_tiles: f32,
+        remote_and_landing_min_tiles: Vec<(f32, f32)>,
+        exit_movement_type: BounceMovementType,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithMockball {
+                remote_runway_length,
+                landing_runway_length,
+                blue,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                let landing_runway_length = landing_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                if !remote_and_landing_min_tiles
+                    .iter()
+                    .any(|(r, d)| *r <= remote_runway_length && *d <= landing_runway_length)
+                {
+                    return None;
+                }
+                if exit_movement_type == BounceMovementType::Uncontrolled {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canMockball"],
+                ));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                ));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                reqs.push(Requirement::Item(Item::SpringBall as ItemId));
+                Some(Requirement::make_and(reqs))
+            }
+            ExitCondition::LeaveWithSpringBallBounce {
+                remote_runway_length,
+                landing_runway_length,
+                blue,
+                movement_type,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                let landing_runway_length = landing_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                if !remote_and_landing_min_tiles
+                    .iter()
+                    .any(|(r, d)| *r <= remote_runway_length && *d <= landing_runway_length)
+                {
+                    return None;
+                }
+                if *movement_type != exit_movement_type
+                    && *movement_type != BounceMovementType::Any
+                    && exit_movement_type != BounceMovementType::Any
+                {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                if *movement_type == BounceMovementType::Controlled || exit_movement_type == BounceMovementType::Controlled {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canMockball"],
+                    ));
+                }
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                ));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                reqs.push(Requirement::Item(Item::SpringBall as ItemId));
+                Some(Requirement::make_and(reqs))
+            },
+            _ => None,
+        }
+    }
+
+    fn get_come_in_shinecharged_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,
@@ -933,10 +1247,14 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = i32::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15));
+                        reqs.push(Requirement::HeatFrames(
+                            heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15,
+                        ));
                     } else {
                         let heat_frames = i32::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + heat_frames_temp_blue + 5));
+                        reqs.push(Requirement::HeatFrames(
+                            heat_frames + heat_frames_temp_blue + 5,
+                        ));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -989,7 +1307,10 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
-                heated, physics, from_exit_node, ..
+                heated,
+                physics,
+                from_exit_node,
+                ..
             } => {
                 if !from_exit_node {
                     return None;
@@ -1216,17 +1537,23 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithGrappleTeleport { block_positions } => {
-                let entrance_block_positions_set: HashSet<(u16, u16)> = entrance_block_positions.iter().copied().collect();
-                if block_positions.iter().any(|x| entrance_block_positions_set.contains(x)) {
+                let entrance_block_positions_set: HashSet<(u16, u16)> =
+                    entrance_block_positions.iter().copied().collect();
+                if block_positions
+                    .iter()
+                    .any(|x| entrance_block_positions_set.contains(x))
+                {
                     Some(Requirement::make_and(vec![
-                        Requirement::Tech(self.game_data.tech_isv.index_by_key["canGrappleTeleport"]),
+                        Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key["canGrappleTeleport"],
+                        ),
                         Requirement::Item(self.game_data.item_isv.index_by_key["Grapple"]),
                     ]))
                 } else {
                     None
                 }
-            },
-            _ => None
+            }
+            _ => None,
         }
     }
 
@@ -1239,7 +1566,11 @@ impl<'a> Preprocessor<'a> {
         min_right_position: f32,
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithPlatformBelow { height, left_position, right_position } => {
+            ExitCondition::LeaveWithPlatformBelow {
+                height,
+                left_position,
+                right_position,
+            } => {
                 let height = height.get();
                 let left_position = left_position.get();
                 let right_position = right_position.get();
@@ -1465,7 +1796,7 @@ pub fn randomize_doors(
     };
     let mut used_locs: HashSet<(RoomGeometryRoomIdx, usize, usize)> = HashSet::new();
 
-    let locked_doors = match difficulty.doors_mode {
+    let mut locked_doors = match difficulty.doors_mode {
         DoorsMode::Blue => {
             vec![]
         }
@@ -1505,6 +1836,29 @@ pub fn randomize_doors(
         }
     };
 
+    let gray_door_nodes = vec![
+        (82, 1),  // Baby Kraid Room left door
+        (82, 2),  // Baby Kraid Room right door
+        (139, 1), // Metal Pirates Room left door
+        (139, 2), // Metal Pirates Room right door
+        (219, 1), // Plasma Room left door
+        (84, 1),  // Kraid Room left door
+        (84, 2),  // Kraid Room right door
+        (193, 1), // Draygon's Room left door
+        (193, 2), // Draygon's Room right door
+        (142, 1), // Ridley's Room left door
+        (142, 2), // Ridley's Room right door
+        (150, 2), // Golden Torizo Room
+    ];
+    for (room_id, node_id) in gray_door_nodes {
+        let door_ptr_pair = game_data.reverse_door_ptr_pair_map[&(room_id, node_id)];
+        locked_doors.push(LockedDoor {
+            src_ptr_pair: door_ptr_pair,
+            dst_ptr_pair: door_ptr_pair, // Not bothering to populate this correctly since it is unused
+            door_type: DoorType::Gray,
+            bidirectional: false,
+        });
+    }
 
     let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
     for (i, door) in locked_doors.iter().enumerate() {
@@ -1525,7 +1879,7 @@ pub fn randomize_doors(
         locked_door_node_map.insert((32, 8), idx);
     }
 
-    LockedDoorData { 
+    LockedDoorData {
         locked_doors,
         locked_door_node_map,
     }
@@ -1585,23 +1939,39 @@ fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<boo
         .collect()
 }
 
-fn ensure_enough_tanks(initial_items_remaining: &mut [usize], game_data: &GameData, difficulty: &DifficultyConfig) {
+fn ensure_enough_tanks(
+    initial_items_remaining: &mut [usize],
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+) {
     // Give an extra tank to two, compared to what may be needed for Ridley, for lenience:
     if difficulty.ridley_proficiency < 0.3 {
-        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 11 {
+        while initial_items_remaining[Item::ETank as usize]
+            + initial_items_remaining[Item::ReserveTank as usize]
+            < 11
+        {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     } else if difficulty.ridley_proficiency < 0.8 {
-        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 9 {
+        while initial_items_remaining[Item::ETank as usize]
+            + initial_items_remaining[Item::ReserveTank as usize]
+            < 9
+        {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     } else if difficulty.ridley_proficiency < 0.9 {
-        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 7 {
+        while initial_items_remaining[Item::ETank as usize]
+            + initial_items_remaining[Item::ReserveTank as usize]
+            < 7
+        {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     } else {
         // Give enough tanks for Mother Brain:
-        while initial_items_remaining[Item::ETank as usize] + initial_items_remaining[Item::ReserveTank as usize] < 3 {
+        while initial_items_remaining[Item::ETank as usize]
+            + initial_items_remaining[Item::ReserveTank as usize]
+            < 3
+        {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     }
@@ -1650,33 +2020,42 @@ impl<'r> Randomizer<'r> {
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
-        initial_items_remaining[Item::WallJump as usize] = if difficulty_tiers[0].wall_jump == WallJump::Collectible {
-            1
-        } else { 
-            0
-        };
+        initial_items_remaining[Item::WallJump as usize] =
+            if difficulty_tiers[0].wall_jump == WallJump::Collectible {
+                1
+            } else {
+                0
+            };
         initial_items_remaining[Item::Super as usize] = 10;
         initial_items_remaining[Item::PowerBomb as usize] = 10;
         initial_items_remaining[Item::ETank as usize] = 14;
         initial_items_remaining[Item::ReserveTank as usize] = 4;
-        initial_items_remaining[Item::Missile as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
+        initial_items_remaining[Item::Missile as usize] =
+            game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
 
         for &(item, cnt) in &difficulty_tiers[0].item_pool {
             initial_items_remaining[item as usize] = cnt;
         }
 
-        ensure_enough_tanks(&mut initial_items_remaining, game_data, &difficulty_tiers[0]);
+        ensure_enough_tanks(
+            &mut initial_items_remaining,
+            game_data,
+            &difficulty_tiers[0],
+        );
 
         if initial_items_remaining.iter().sum::<usize>() > game_data.item_locations.len() {
-            initial_items_remaining[Item::Missile as usize] -= initial_items_remaining.iter().sum::<usize>() - game_data.item_locations.len();
+            initial_items_remaining[Item::Missile as usize] -=
+                initial_items_remaining.iter().sum::<usize>() - game_data.item_locations.len();
         }
 
         for &(item, cnt) in &difficulty_tiers[0].starting_items {
-            initial_items_remaining[item as usize] -= usize::min(cnt, initial_items_remaining[item as usize]);
+            initial_items_remaining[item as usize] -=
+                usize::min(cnt, initial_items_remaining[item as usize]);
         }
 
         assert!(initial_items_remaining.iter().sum::<usize>() <= game_data.item_locations.len());
-        initial_items_remaining[Item::Nothing as usize] = game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
+        initial_items_remaining[Item::Nothing as usize] =
+            game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
 
         let toilet_intersections = Self::get_toilet_intersections(map, game_data);
 
@@ -1706,11 +2085,12 @@ impl<'r> Randomizer<'r> {
             let room_width = room_map[0].len() as isize;
             let rel_pos_x = (toilet_pos.0 as isize) - (room_pos.0 as isize);
             let rel_pos_y = (toilet_pos.1 as isize) - (room_pos.1 as isize);
-            
+
             if rel_pos_x >= 0 && rel_pos_x < room_width {
                 for y in 2..8 {
                     let y1 = rel_pos_y + y;
-                    if y1 >= 0 && y1 < room_height && room_map[y1 as usize][rel_pos_x as usize] == 1 {
+                    if y1 >= 0 && y1 < room_height && room_map[y1 as usize][rel_pos_x as usize] == 1
+                    {
                         out.push(room_idx);
                         break;
                     }
@@ -1878,7 +2258,9 @@ impl<'r> Randomizer<'r> {
         };
 
         // If we're at the end, dump as many key items as possible:
-        if !self.difficulty_tiers[0].stop_item_placement_early && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD {
+        if !self.difficulty_tiers[0].stop_item_placement_early
+            && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD
+        {
             num_key_items_to_place = num_key_items_remaining;
         }
 
@@ -1910,7 +2292,10 @@ impl<'r> Randomizer<'r> {
         let mut item_types_to_extra_delay: Vec<Item> = vec![];
 
         for &item in &state.item_precedence {
-            if item == Item::Missile || item == Item::Nothing || state.items_remaining[item as usize] == 0 {
+            if item == Item::Missile
+                || item == Item::Nothing
+                || state.items_remaining[item as usize] == 0
+            {
                 continue;
             }
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
@@ -1983,7 +2368,9 @@ impl<'r> Randomizer<'r> {
             let mut cnt_different_items_remaining = 0;
 
             for &item in &state.item_precedence {
-                if state.items_remaining[item as usize] > 0 || (self.difficulty_tiers[0].stop_item_placement_early && item == Item::Nothing) {
+                if state.items_remaining[item as usize] > 0
+                    || (self.difficulty_tiers[0].stop_item_placement_early && item == Item::Nothing)
+                {
                     remaining_items.push(item);
                     cnt_different_items_remaining += 1;
                 }
@@ -2133,7 +2520,7 @@ impl<'r> Randomizer<'r> {
 
         let num_items_remaining: usize = state.items_remaining.iter().sum();
         let num_items_to_place: usize = key_items_to_place.len() + other_items_to_place.len();
-        let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early 
+        let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early
             && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
         // println!("[attempt {attempt_num_rando}] # bireachable = {}", bireachable_locations.len());
@@ -2216,7 +2603,7 @@ impl<'r> Randomizer<'r> {
             info!(
                 "[attempt {attempt_num_rando}] Finishing without {:?}",
                 remaining_items
-            );    
+            );
             for item_loc_state in &mut state.item_location_state {
                 if item_loc_state.placed_item.is_none() || !item_loc_state.bireachable {
                     item_loc_state.placed_item = Some(Item::Nothing);
@@ -2234,7 +2621,7 @@ impl<'r> Randomizer<'r> {
                     idx += 1;
                 }
             }
-            assert!(idx == remaining_items.len());    
+            assert!(idx == remaining_items.len());
         }
     }
 
@@ -2301,7 +2688,7 @@ impl<'r> Randomizer<'r> {
             )
             .any(|(n, o)| n.bireachable && !o.bireachable)
         };
-        
+
         let is_beatable = self.is_game_beatable(&new_state);
 
         (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_beatable
@@ -2456,12 +2843,8 @@ impl<'r> Randomizer<'r> {
         if self.difficulty_tiers[0].stop_item_placement_early && self.is_game_beatable(state) {
             info!("Stopping early");
             self.update_reachability(state);
-            let spoiler_summary = self.get_spoiler_summary(
-                &orig_global_state,
-                state,
-                &state,
-                spoiler_flag_summaries,
-            );
+            let spoiler_summary =
+                self.get_spoiler_summary(&orig_global_state, state, &state, spoiler_flag_summaries);
             let spoiler_details =
                 self.get_spoiler_details(&orig_global_state, state, &state, spoiler_flag_details);
             state.previous_debug_data = state.debug_data.clone();
@@ -2570,8 +2953,12 @@ impl<'r> Randomizer<'r> {
             HashMap::new();
 
         for (step, debug_data) in debug_data_vec.iter_mut().enumerate() {
-            for (v, VertexKey { room_id, node_id, .. }) in
-                self.game_data.vertex_isv.keys.iter().enumerate()
+            for (
+                v,
+                VertexKey {
+                    room_id, node_id, ..
+                },
+            ) in self.game_data.vertex_isv.keys.iter().enumerate()
             {
                 if node_bireachable_step.contains_key(&(*room_id, *node_id)) {
                     continue;
@@ -2767,12 +3154,8 @@ impl<'r> Randomizer<'r> {
     }
 
     fn apply_spazer_plasma_priority(&self, item_precedence: &mut [Item]) {
-        let spazer_idx_opt = item_precedence
-            .iter()
-            .position(|&x| x == Item::Spazer);
-        let plasma_idx_opt = item_precedence
-            .iter()
-            .position(|&x| x == Item::Plasma);
+        let spazer_idx_opt = item_precedence.iter().position(|&x| x == Item::Spazer);
+        let plasma_idx_opt = item_precedence.iter().position(|&x| x == Item::Plasma);
         if spazer_idx_opt.is_none() || plasma_idx_opt.is_none() {
             return;
         }
@@ -2813,13 +3196,12 @@ impl<'r> Randomizer<'r> {
 
             info!("[attempt {attempt_num_rando}] start: {:?}", start_loc);
             let num_vertices = self.game_data.vertex_isv.keys.len();
-            let start_vertex_id =
-                self.game_data.vertex_isv.index_by_key[&VertexKey {
-                    room_id: start_loc.room_id,
-                    node_id: start_loc.node_id,
-                    obstacle_mask: 0,
-                    actions: vec![],
-                }];
+            let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
+                room_id: start_loc.room_id,
+                node_id: start_loc.node_id,
+                obstacle_mask: 0,
+                actions: vec![],
+            }];
             let global = self.get_initial_global_state();
             let local = apply_requirement(
                 &start_loc.requires_parsed.as_ref().unwrap(),
@@ -2881,13 +3263,12 @@ impl<'r> Randomizer<'r> {
             // (ie. there must be a logical round-trip path from the hub to the starting node and back)
             // 3) Any logical requirements on the hub must be satisfied.
             for hub in &self.game_data.hub_locations {
-                let hub_vertex_id =
-                    self.game_data.vertex_isv.index_by_key[&VertexKey {
-                        room_id: hub.room_id,
-                        node_id: hub.node_id,
-                        obstacle_mask: 0,
-                        actions: vec![],
-                    }];
+                let hub_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
+                    room_id: hub.room_id,
+                    node_id: hub.node_id,
+                    obstacle_mask: 0,
+                    actions: vec![],
+                }];
                 if forward.cost[hub_vertex_id]
                     .iter()
                     .any(|&x| f32::is_finite(x))
@@ -2942,7 +3323,7 @@ impl<'r> Randomizer<'r> {
         // with all items collected.
         let spoiler_escape =
             escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0])?;
-            let spoiler_all_rooms = self
+        let spoiler_all_rooms = self
             .map
             .rooms
             .iter()
@@ -3008,13 +3389,15 @@ impl<'r> Randomizer<'r> {
             seed,
             display_seed,
             start_location: StartLocation::default(),
-            starting_items
+            starting_items,
         })
     }
 
     fn is_game_beatable(&self, state: &RandomizationState) -> bool {
         for (i, &flag_id) in self.game_data.flag_ids.iter().enumerate() {
-            if flag_id == self.game_data.mother_brain_defeated_flag_id && state.flag_location_state[i].reachable {
+            if flag_id == self.game_data.mother_brain_defeated_flag_id
+                && state.flag_location_state[i].reachable
+            {
                 return true;
             }
         }
@@ -3072,10 +3455,7 @@ impl<'r> Randomizer<'r> {
                 initial_item_location_state;
                 self.game_data.item_locations.len()
             ],
-            flag_location_state: vec![
-                initial_flag_location_state;
-                self.game_data.flag_ids.len()
-            ],
+            flag_location_state: vec![initial_flag_location_state; self.game_data.flag_ids.len()],
             save_location_state: vec![
                 initial_save_location_state;
                 self.game_data.save_locations.len()
@@ -3307,7 +3687,9 @@ struct ResourcesUsed {
 
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
-        let VertexKey { room_id, node_id, .. } = self.game_data.vertex_isv.keys[vertex_id];
+        let VertexKey {
+            room_id, node_id, ..
+        } = self.game_data.vertex_isv.keys[vertex_id];
         self.get_vertex_info_by_id(room_id, node_id)
     }
     fn get_vertex_info_by_id(&self, room_id: RoomId, node_id: NodeId) -> VertexInfo {
@@ -3388,7 +3770,10 @@ impl<'a> Randomizer<'a> {
                 let last = i == sublinks.len() - 1;
                 let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
                 let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
-                let VertexKey { obstacle_mask: to_obstacles_mask, .. } = self.game_data.vertex_isv.keys[link.to_vertex_id];
+                let VertexKey {
+                    obstacle_mask: to_obstacles_mask,
+                    ..
+                } = self.game_data.vertex_isv.keys[link.to_vertex_id];
                 // info!("local: {:?}", local_state);
                 // info!("{:?}", link);
                 let door_coords = self
@@ -3614,7 +3999,9 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                if item == Item::Nothing { continue; }
+                if item == Item::Nothing {
+                    continue;
+                }
                 if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
@@ -3644,7 +4031,9 @@ impl<'a> Randomizer<'a> {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
             if let Some(item) = new_state.item_location_state[i].placed_item {
-                if item == Item::Nothing { continue; }
+                if item == Item::Nothing {
+                    continue;
+                }
                 if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {

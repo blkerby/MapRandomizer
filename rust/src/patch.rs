@@ -2142,6 +2142,11 @@ impl<'a> Patcher<'a> {
         self.assign_locked_door_states();
         for (i, door) in self.randomization.locked_door_data.locked_doors.iter().enumerate() {
             let mut door = *door;
+            if door.door_type == DoorType::Gray {
+                // Skipping gray doors since they are already handled elsewhere.
+                // TODO: simplify things by just handling it here?
+                continue;
+            }
             self.apply_single_locked_door(door, self.locked_door_state_indices[i] as u8)?;
             if door.bidirectional {
                 std::mem::swap(&mut door.src_ptr_pair, &mut door.dst_ptr_pair);

@@ -7,6 +7,8 @@ v112:
 - implement `unlocksDoors`
 - implement `setsFlags`
 - implement `collectsItems`
+- implement stored door lock flags
+- add gray doors to LockedDoorData
 - add free UnlockDoor VertexAction on exit vertices
 - restrict "go back with g-mode" to not apply to down doors.
 - add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
