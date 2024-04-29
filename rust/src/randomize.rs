@@ -254,7 +254,7 @@ pub enum DoorType {
     Red,
     Green,
     Yellow,
-    Gray,
+    Grey,
 }
 
 #[derive(Clone, Copy)]
@@ -371,7 +371,7 @@ fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (
 impl<'a> Preprocessor<'a> {
     pub fn new(game_data: &'a GameData, map: &'a Map) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
-        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), bidirectional) in
+        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
             &map.doors
         {
             let (src_room_id, src_node_id) =
@@ -406,11 +406,13 @@ impl<'a> Preprocessor<'a> {
         is_toilet: bool,
         door_links: &mut Vec<Link>,
     ) {
+        let empty_vec_exits = vec![];
+        let empty_vec_entrances = vec![];
         for (src_vertex_id, exit_condition) in
-            &self.game_data.node_exit_conditions[&(src_room_id, src_node_id)]
+            self.game_data.node_exit_conditions.get(&(src_room_id, src_node_id)).unwrap_or(&empty_vec_exits)
         {
             for (dst_vertex_id, entrance_condition) in
-                &self.game_data.node_entrance_conditions[&(dst_room_id, dst_node_id)]
+                self.game_data.node_entrance_conditions.get(&(dst_room_id, dst_node_id)).unwrap_or(&empty_vec_entrances)
             {
                 if entrance_condition.through_toilet == game_data::ToiletCondition::Yes
                     && !is_toilet
@@ -438,7 +440,7 @@ impl<'a> Preprocessor<'a> {
                         to_vertex_id: *dst_vertex_id,
                         requirement: req,
                         notable_strat_name: None,
-                        strat_name: "".to_string(),
+                        strat_name: "Base (Cross Room)".to_string(),
                         strat_notes: vec![],
                     });
                 }
@@ -448,28 +450,33 @@ impl<'a> Preprocessor<'a> {
 
     pub fn get_all_door_links(&self) -> Vec<Link> {
         let mut door_links = vec![];
-        for ((mut src_room_id, mut src_node_id), (mut dst_room_id, mut dst_node_id)) in
+        for (&(src_room_id, src_node_id), &(dst_room_id, dst_node_id)) in
             self.door_map.iter()
         {
-            let mut is_toilet = false;
-            if (src_room_id, src_node_id) == (321, 1) {
-                (src_room_id, src_node_id) = *self.door_map.get(&(321, 2)).unwrap();
-                is_toilet = true;
-            } else if (src_room_id, src_node_id) == (321, 2) {
-                (src_room_id, src_node_id) = *self.door_map.get(&(321, 1)).unwrap();
-                is_toilet = true;
-            }
             self.add_door_links(
                 src_room_id,
                 src_node_id,
                 dst_room_id,
                 dst_node_id,
-                is_toilet,
+                false,
                 &mut door_links,
             );
+            if src_room_id == 321 {
+                // Create links that skip over the Toilet:
+                let src_node_id = if src_node_id == 1 { 2 } else { 1 };
+                let (src_room_id, src_node_id) = *self.door_map.get(&(321, src_node_id)).unwrap();
+                self.add_door_links(
+                    src_room_id,
+                    src_node_id,
+                    dst_room_id,
+                    dst_node_id,
+                    true,
+                    &mut door_links,
+                );
+            }
         }
         let extra_door_links: Vec<((usize, usize), (usize, usize))> = vec![
-            ((322, 2), (220, 2)), // East Pants Room right door, Pants Room right door
+            ((220, 2), (322, 2)), // East Pants Room right door, Pants Room right door
             ((32, 7), (32, 1)),   // West Ocean bottom left door, West Ocean Bridge left door
             ((32, 8), (32, 5)),   // West Ocean bottom right door, West Ocean Bridge right door
         ];
@@ -675,12 +682,6 @@ impl<'a> Preprocessor<'a> {
     fn get_come_in_normally_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveNormally {} => Some(Requirement::Free),
-            ExitCondition::LeaveWithRunway { from_exit_node, .. } => {
-                if !from_exit_node {
-                    return None;
-                }
-                Some(Requirement::Free)
-            }
             _ => None,
         }
     }
@@ -1861,7 +1862,7 @@ pub fn randomize_doors(
         locked_doors.push(LockedDoor {
             src_ptr_pair: door_ptr_pair,
             dst_ptr_pair: door_ptr_pair, // Not bothering to populate this correctly since it is unused
-            door_type: DoorType::Gray,
+            door_type: DoorType::Grey,
             bidirectional: false,
         });
     }
@@ -2021,8 +2022,9 @@ impl<'r> Randomizer<'r> {
         game_data: &'r GameData,
         base_links_data: &'r LinksDataGroup,
     ) -> Randomizer<'r> {
-        let mut preprocessor = Preprocessor::new(game_data, map);
-        let mut preprocessed_seed_links: Vec<Link> = preprocessor.get_all_door_links();
+        let preprocessor = Preprocessor::new(game_data, map);
+        let preprocessed_seed_links: Vec<Link> = preprocessor.get_all_door_links();
+        info!("{} base links, {} door links", base_links_data.links.len(), preprocessed_seed_links.len());
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
@@ -3520,6 +3522,12 @@ impl<'r> Randomizer<'r> {
                 // No further progress was made on the last step. So we are done with this attempt: either we have
                 // succeeded or we have failed.
 
+                // TODO: get rid of this
+                if self.difficulty_tiers[0].debug_options.is_some() {
+                    // If debugging, accept failed seed generation.
+                    break;
+                }
+
                 // Check that at least one instance of each item can be collected.
                 for i in 0..self.initial_items_remaining.len() {
                     if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
@@ -3794,11 +3802,16 @@ impl<'a> Randomizer<'a> {
                     )
                 });
 
+                let vertex_key = &self.game_data.vertex_isv.keys[link.to_vertex_id];
+                let debug_info = format!("{:?}", vertex_key);
+        
+
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
                     short_room: strip_name(&to_vertex_info.room_name),
                     room: to_vertex_info.room_name,
-                    node: to_vertex_info.node_name,
+                    // node: to_vertex_info.node_name,
+                    node: debug_info,
                     from_node_id: from_vertex_info.node_id,
                     to_node_id: to_vertex_info.node_id,
                     obstacles_bitmask: to_obstacles_mask,

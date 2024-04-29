@@ -68,3 +68,7 @@ Notable: true<br>
 <% if strat.bypasses_door_shell { %>
     <p>Bypasses door shell: true</p>
 <% } %>
+<% if strat.unlocks_doors.is_some() { %>
+    <p class="mb-0">Unlocks doors:</p>
+    <pre><%= strat.unlocks_doors.unwrap() %></pre>
+<% } %>

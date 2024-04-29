@@ -32,6 +32,7 @@ struct RoomStrat<'a> {
     exit_condition: Option<String>,
     clears_obstacles: Vec<String>,
     resets_obstacles: Vec<String>,
+    unlocks_doors: Option<String>,
     difficulty_idx: usize,
     difficulty_name: String,
     notable_gif_listing: &'a HashSet<String>,
@@ -594,6 +595,22 @@ fn make_room_template<'a>(
         } else {
             None
         };
+
+        let unlocks_doors: Option<String> = if strat_json.has_key("unlocksDoors") {
+            let mut unlocks_strs: Vec<String> = vec![];
+            for unlock_json in strat_json["unlocksDoors"].members() {
+                let raw_str = unlock_json.dump();
+                if raw_str.len() < 120 {
+                    unlocks_strs.push(raw_str);
+                } else {
+                    unlocks_strs.push(unlock_json.pretty(2));
+                }
+            }
+            Some(unlocks_strs.join("\n"))
+        } else {
+            None
+        };
+
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
         let reusable_strat_name = strat_json["reusableRoomwideNotable"]
             .as_str()
@@ -614,6 +631,7 @@ fn make_room_template<'a>(
             note: game_data.parse_note(&strat_json["note"]).join(" "),
             entrance_condition,
             requires: make_requires(&strat_json["requires"]),
+            unlocks_doors,
             exit_condition,
             clears_obstacles,
             resets_obstacles,

@@ -1534,7 +1534,7 @@ async fn randomize(
     };
 
     let filtered_base_links = filter_links(
-        &app_data.game_data.base_links,
+        &app_data.game_data.links,
         &app_data.game_data,
         &difficulty,
     );

@@ -8,6 +8,7 @@ v112:
 - implement `setsFlags`
 - implement `collectsItems`
 - implement stored door lock flags
+- stop internal (blank name) strats from showing in logic pages, spoiler routes
 - add gray doors to LockedDoorData
 - add free UnlockDoor VertexAction on exit vertices
 - restrict "go back with g-mode" to not apply to down doors.

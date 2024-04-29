@@ -1389,11 +1389,14 @@ pub fn apply_requirement(
             }
         }
         Requirement::DoorUnlocked { room_id, node_id } => {
-            let locked_door_idx = locked_door_data.locked_door_node_map[&(*room_id, *node_id)];
-            if global.doors_unlocked[locked_door_idx] {
-                Some(local)
+            if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
+                if global.doors_unlocked[*locked_door_idx] {
+                    Some(local)
+                } else {
+                    None
+                }
             } else {
-                None
+                Some(local)
             }
         }
         Requirement::DoorType { room_id, node_id, door_type } => {

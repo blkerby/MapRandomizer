@@ -65,7 +65,7 @@ impl SeedRepository {
             self.base_path.clone() + seed_name + "/" + filename + ".zstd",
         )?;
         let compressed_data = self.object_store.get(&path).await?.bytes().await?;
-        let data = zstd::bulk::decompress(&compressed_data, 10_000_000)?;
+        let data = zstd::bulk::decompress(&compressed_data, 64_000_000)?;
         Ok(data)
     }
 

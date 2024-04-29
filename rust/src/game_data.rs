@@ -808,7 +808,7 @@ pub struct TitleScreenData {
     pub map_station: TitleScreenImage,
 }
 
-#[derive(Clone, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub enum VertexAction {
     #[default]
     Nothing,  // This should never be constructed, just here because we need a default value
@@ -823,7 +823,7 @@ pub enum VertexAction {
     FlagSet(FlagId),
 }
 
-#[derive(Clone, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
 pub struct VertexKey {
     pub room_id: RoomId,
     pub node_id: NodeId,
@@ -876,7 +876,6 @@ pub struct GameData {
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
     pub save_locations: Vec<(RoomId, NodeId)>,
     pub links: Vec<Link>,
-    pub base_links: Vec<Link>,
     pub base_links_data: LinksDataGroup,
     pub room_geometry: Vec<RoomGeometry>,
     pub room_and_door_idxs_by_door_ptr_pair:
@@ -1274,7 +1273,7 @@ impl GameData {
                     Requirement::HeatFrames(110),
                 )],
             ),
-            (DoorType::Gray, vec![(vec!["gray"], Requirement::Free, Requirement::Free)]),
+            (DoorType::Grey, vec![(vec!["grey"], Requirement::Free, Requirement::Free)]),
         ];
 
         let room_id = ctx.room_id;
@@ -1324,7 +1323,7 @@ impl GameData {
                 }
                 if let Some(req) = req {
                     door_type_reqs.push(req);
-                } else if door_type != &DoorType::Gray {
+                } else if door_type != &DoorType::Grey {
                     if ctx.node_implicit_door_unlocks.unwrap()[&node_id] {
                         if ctx.room_heated {
                             door_type_reqs.push(Requirement::make_and(vec![
@@ -1912,6 +1911,7 @@ impl GameData {
         for node_json in room_json["nodes"].members_mut() {
             if node_json["id"].as_i32().unwrap() == 2 {
                 found = true;
+                node_json["nodeSubType"] = "grey".into();
                 node_json["locks"] = json::array![
                   {
                     "name": "Metal Pirates Grey Lock (to Wasteland)",
@@ -2059,12 +2059,6 @@ impl GameData {
 
         let mut new_room_json = room_json.clone();
         ensure!(room_json["nodes"].is_array());
-        let mut next_node_id = room_json["nodes"]
-            .members()
-            .map(|x| x["id"].as_usize().unwrap())
-            .max()
-            .unwrap()
-            + 1;
         let mut extra_strats: Vec<JsonValue> = Vec::new();
         let room_id = room_json["id"].as_usize().unwrap();
 
@@ -2110,19 +2104,19 @@ impl GameData {
         for node_json in new_room_json["nodes"].members_mut() {
             let node_id = node_json["id"].as_usize().unwrap();
             let node_type = node_json["nodeType"].as_str().unwrap();
-            if ["door", "exit"].contains(&node_type) {
-                if node_json["useImplicitDoorUnlocks"].as_bool() != Some(false) {
-                    extra_strats.push(json::object!{
-                        "link": [node_id, node_id],
-                        "name": "",
-                        "requires": [],
-                        "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
-                    });    
-                }
+            if ["door", "exit"].contains(&node_type) && node_json["useImplicitDoorUnlocks"].as_bool() != Some(false) {
+                extra_strats.push(json::object!{
+                    "link": [node_id, node_id],
+                    "name": "Base (Unlock Door)",
+                    "requires": [],
+                    "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
+                });    
+            }
+            if ["door", "entrance"].contains(&node_type) {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap_or(node_id);
                 extra_strats.push(json::object!{
                     "link": [node_id, spawn_node_id],
-                    "name": "",
+                    "name": "Base (Come In Normally)",
                     "entranceCondition": {
                         "comeInNormally": {}
                     },
@@ -2146,6 +2140,11 @@ impl GameData {
                 ];
             }
 
+            // println!("yields: {:?}", node_json["locks"][0]["yields[0].as_str());
+            if node_json["name"] == "Kraid" {
+                println!("{}", node_json);
+            }
+
             if node_json.has_key("locks")
                 && (!["door", "entrance"].contains(&node_json["nodeType"].as_str().unwrap())
                     || logical_gray_door_room_ids.contains(&room_id))
@@ -2153,8 +2152,16 @@ impl GameData {
                 ensure!(node_json["locks"].len() == 1);
                 let lock = node_json["locks"][0].clone();
                 let mut unlock_strats = lock["unlockStrats"].clone();
-                let yields = lock["yields"].clone();
+                let yields = if lock["yields"] != JsonValue::Null {
+                    lock["yields"].clone()
+                } else {
+                    node_json["yields"].clone()
+                };
 
+                if node_json["name"] == "Kraid" {
+                    println!("yields: {}", yields);
+                }
+    
                 if yields != JsonValue::Null
                     && obstacle_flags.contains(&yields[0].as_str().unwrap())
                 {
@@ -2192,7 +2199,7 @@ impl GameData {
                             }
                         }
                         ("event", "flag" | "boss") | ("junction", _) => {
-                            new_strat["setsFlags"] = lock["yields"].clone();
+                            new_strat["setsFlags"] = yields.clone();
                             if yields != JsonValue::Null && obstacle_flags.contains(&yields[0].as_str().unwrap()) {
                                 new_strat["clearsObstacles"] = json::array![yields[0].as_str().unwrap()];
                             }
@@ -2246,6 +2253,19 @@ impl GameData {
                         };
                         found = true;
                     }
+                }
+                if new_strat.has_key("unlocksDoors") {
+                    ensure!(new_strat["unlocksDoors"].is_array());
+                    for unlock in new_strat["unlocksDoors"].members_mut() {
+                        for req in unlock["requires"].members_mut() {
+                            if req == &json_obstacle_flag_name {
+                                *req = json::object! {
+                                    "obstaclesCleared": [obstacle_flag_name.to_string()]
+                                };
+                                found = true;
+                            }    
+                        }
+                    }    
                 }
                 if found {
                     new_strats.push(new_strat);
@@ -2902,35 +2922,36 @@ impl GameData {
                     ));
                 }
 
-                let mut actions: Vec<VertexAction> = vec![];
+                let mut from_actions: Vec<VertexAction> = vec![];
+                let mut to_actions: Vec<VertexAction> = vec![];
+
+                if let Some(e) = &entrance_condition {
+                    from_actions.push(VertexAction::Enter(e.clone()));
+                }
 
                 if strat_json.has_key("setsFlags") {
                     for flag_json in strat_json["setsFlags"].members() {
                         let flag = flag_json.as_str().unwrap();
                         let flag_id = self.flag_isv.index_by_key[flag];
-                        actions.push(VertexAction::FlagSet(flag_id));
+                        to_actions.push(VertexAction::FlagSet(flag_id));
                     }
                 }
 
                 if strat_json.has_key("collectsItems") {
                     for item_json in strat_json["collectsItems"].members() {
                         let item_node_id = item_json.as_usize().unwrap();
-                        actions.push(VertexAction::ItemCollect(item_node_id));
+                        to_actions.push(VertexAction::ItemCollect(item_node_id));
                     }                    
-                }
-
-                if let Some(e) = &entrance_condition {
-                    actions.push(VertexAction::Enter(e.clone()));
                 }
 
                 let mut maybe_exit_req: Option<Requirement> = None;
                 if let Some(e) = &exit_condition {
-                    actions.push(VertexAction::Exit(e.clone()));
+                    to_actions.push(VertexAction::Exit(e.clone()));
                     requires_vec.push(exit_req.clone().unwrap());
                 } else if ["door", "exit"].contains(&to_node_json["nodeType"].as_str().unwrap()) && strat_json.has_key("unlocksDoors") {
                     if let Ok(req) = self.get_unlocks_doors_req(to_node_id, &ctx) {
                         maybe_exit_req = Some(req);
-                        actions.push(VertexAction::MaybeExit(ExitCondition::LeaveNormally {}, maybe_exit_req.clone().unwrap()));
+                        to_actions.push(VertexAction::MaybeExit(ExitCondition::LeaveNormally {}, maybe_exit_req.clone().unwrap()));
                     }
                 }
 
@@ -2947,13 +2968,13 @@ impl GameData {
                     room_id,
                     node_id: from_node_id,
                     obstacle_mask: from_obstacles_bitmask,
-                    actions: vec![],
+                    actions: from_actions.clone(),
                 });
                 let to_vertex_id = self.vertex_isv.add(&VertexKey {
                     room_id,
                     node_id: to_node_id,
                     obstacle_mask: if exit_condition.is_some() { 0 } else { to_obstacles_bitmask },
-                    actions
+                    actions: to_actions.clone(),
                 });
                 let link = Link {
                     from_vertex_id,
@@ -2983,20 +3004,6 @@ impl GameData {
                 }
 
                 if let Some(r) = &maybe_exit_req {
-                    let plain_to_vertex_id = self.vertex_isv.add(&VertexKey {
-                        room_id,
-                        node_id: to_node_id,
-                        obstacle_mask: to_obstacles_bitmask,
-                        actions: vec![],
-                    });
-                    self.links.push(Link {
-                        from_vertex_id: to_vertex_id,
-                        to_vertex_id: plain_to_vertex_id,
-                        requirement: Requirement::Free,
-                        notable_strat_name: None,
-                        strat_name: "".to_string(),
-                        strat_notes: vec![],
-                    });
                     let exit_to_vertex_id = self.vertex_isv.add(&VertexKey {
                         room_id,
                         node_id: to_node_id,
@@ -3008,7 +3015,24 @@ impl GameData {
                         to_vertex_id: exit_to_vertex_id,
                         requirement: r.clone(),
                         notable_strat_name: None,
-                        strat_name: "".to_string(),
+                        strat_name: "Base (Maybe Exit -> Exit)".to_string(),
+                        strat_notes: vec![],
+                    });
+                }
+
+                if exit_condition.is_none() && !to_actions.is_empty() {
+                    let plain_to_vertex_id = self.vertex_isv.add(&VertexKey {
+                        room_id,
+                        node_id: to_node_id,
+                        obstacle_mask: to_obstacles_bitmask,
+                        actions: vec![],
+                    });
+                    self.links.push(Link {
+                        from_vertex_id: to_vertex_id,
+                        to_vertex_id: plain_to_vertex_id,
+                        requirement: Requirement::Free,
+                        notable_strat_name: None,
+                        strat_name: "Base (Action -> Plain)".to_string(),
                         strat_notes: vec![],
                     });
                 }
@@ -3037,7 +3061,7 @@ impl GameData {
                                 to_vertex_id: unlock_vertex_id,
                                 requirement: unlock_req,
                                 notable_strat_name: None,
-                                strat_name: "".to_string(),
+                                strat_name: "Base (Unlock)".to_string(),
                                 strat_notes: vec![],
                             }
                         );
@@ -3047,7 +3071,7 @@ impl GameData {
                                 to_vertex_id: to_vertex_id,
                                 requirement: Requirement::Free,
                                 notable_strat_name: None,
-                                strat_name: "".to_string(),
+                                strat_name: "Base (Return from Unlock)".to_string(),
                                 strat_notes: vec![],
                             }                            
                         );
@@ -3694,6 +3718,18 @@ impl GameData {
             0x1AD000, // Tourian
         ];
         game_data.load_title_screens(title_screen_path)?;
+
+        for (vertex_id, key) in game_data.vertex_isv.keys.iter().enumerate() {
+            if (key.room_id, key.node_id) == (219, 1) {
+                println!("{}: {:?}", vertex_id, key);
+
+                let to_ids: Vec<VertexId> = game_data.base_links_data.links_by_src[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
+                println!("{} -> {:?}", vertex_id, to_ids);
+                let from_ids: Vec<VertexId> = game_data.base_links_data.links_by_dst[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
+                println!("{} <- {:?}", vertex_id, from_ids);
+
+            }
+        }
 
         Ok(game_data)
     }
