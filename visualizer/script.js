@@ -1,5 +1,5 @@
 const offsets = {
-	"Morph Ball Room: Left Item (unlocked)": [2,2],
+	"Morph Ball Room: Left Item": [2,2],
 	"Morph Ball Room: Right Item": [4,2],
 	"Cathedral: Hidden Item": [2,1],
 	"The Precious Room: Top Right Hidden Item": [1,0],
@@ -14,7 +14,7 @@ const offsets = {
 	"Gauntlet Energy Tank Room: Item": [5,0],
 	"Wrecked Ship Main Shaft: Item": [0,5],
 	"Pseudo Plasma Spark Room: Hidden Item": [2,2],
-	"Assembly Line: Item (unlocked)": [2,0],
+	"Assembly Line: Item": [2,0],
 	"Warehouse Kihunter Room: Hidden Item": [2,0],
 	"Billy Mays Room: Pedestal Item": [0.25,0],
 	"Billy Mays Room: Hidden Item": [-0.25,0],
@@ -50,12 +50,12 @@ const offsets = {
 	"Green Pirates Shaft: Right Item": [0.25,1],
 	"Spring Ball Room: Item": [1,1],
 	"Pink Brinstar Power Bomb Room: Item": [0,1],
-	"Pit Room: Item (unlocked)": [0,1],
+	"Pit Room: Item": [0,1],
 	"Mickey Mouse Room: Item": [2,1],
 	"Grapple Beam Room: Item": [0,2],
 	"Golden Torizo's Room: Hidden Right Item": [1,0],
 	"Golden Torizo's Room: Top Left Item": [0,0],
-	"Wrecked Ship East Super Room: Item (Behind the Bomb Wall) (unlocked)": [3,0],
+	"Wrecked Ship East Super Room: Item (Behind the Bomb Wall)": [3,0],
 	"Botwoon Energy Tank Room: Item": [3,0],
 	"Terminator Room: Item": [0,2],
 	"Post Crocomire Jump Room: Item": [4,0],
@@ -70,8 +70,8 @@ const offsets = {
 	"Big Pink: Top Item (Above Hopper Pit)": [2,3],
 	"Big Pink: Middle Item": [2,6],
 	"Big Pink: Bottom Chozo Item": [2,7],
-	"Bowling Alley: Bottom Chozo Item (unlocked)": [3,2],
-	"Bowling Alley: Top Right Item (unlocked)": [5,0],
+	"Bowling Alley: Bottom Chozo Item": [3,2],
+	"Bowling Alley: Top Right Item": [5,0],
 };
 let item_plm = {
 	"ETank": 0,
@@ -441,10 +441,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (j !== null) {
 			let ss = c.details[i].start_state;
 			item_info.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
+			let lastNodeStr = null;
 			for (let k of j.obtain_route) {
-				item_info.innerHTML += `${k.room}: ${k.node}<br>`;
+				nodeStr = `${k.room}: ${k.node}<br>`;
+				if (nodeStr != lastNodeStr) {
+					item_info.innerHTML += nodeStr;
+					lastNodeStr = nodeStr;
+				}
 				let out = "";
-				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
 					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
 					if (k.strat_notes) {
 						let title = "";
@@ -476,6 +481,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			item_info.innerHTML += `<div class="category">RETURN ROUTE</div>`;
+			lastNodeStr = null;
 			for (let k of j.return_route) {
 				let out = "";
 				if (k.energy_used !== undefined) {
@@ -496,9 +502,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				if (out != "") {
 					item_info.innerHTML += `<small>${out}</small>`;
 				}
-				item_info.innerHTML += `${k.room}: ${k.node}<br>`;
+				nodeStr = `${k.room}: ${k.node}<br>`;
+				if (nodeStr != lastNodeStr) {
+					item_info.innerHTML += nodeStr;
+					lastNodeStr = nodeStr;
+				}
 				out = "";
-				if (k.strat_name != "Base" && k.strat_name != "(Door transition)") {
+				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
 					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
 					if (k.strat_notes) {
 						let title = "";

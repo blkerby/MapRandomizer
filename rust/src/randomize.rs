@@ -3803,15 +3803,15 @@ impl<'a> Randomizer<'a> {
                 });
 
                 let vertex_key = &self.game_data.vertex_isv.keys[link.to_vertex_id];
-                let debug_info = format!("{:?}", vertex_key);
+                // let debug_info = format!("{:?}", vertex_key);
         
 
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
                     short_room: strip_name(&to_vertex_info.room_name),
                     room: to_vertex_info.room_name,
-                    // node: to_vertex_info.node_name,
-                    node: debug_info,
+                    node: to_vertex_info.node_name,
+                    // node: debug_info,
                     from_node_id: from_vertex_info.node_id,
                     to_node_id: to_vertex_info.node_id,
                     obstacles_bitmask: to_obstacles_mask,

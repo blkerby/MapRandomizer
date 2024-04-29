@@ -1411,6 +1411,33 @@ pub fn apply_requirement(
                 None
             }
         }
+        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow, requirement_grey } => {
+            if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
+                let door_type = locked_door_data.locked_doors[*locked_door_idx].door_type;
+                if global.doors_unlocked[*locked_door_idx] {
+                    return Some(local);
+                }
+                match door_type {
+                    DoorType::Blue => {
+                        Some(local)
+                    }
+                    DoorType::Red => {
+                        apply_requirement(requirement_red, global, local, reverse, difficulty, game_data, locked_door_data)
+                    }
+                    DoorType::Green => {
+                        apply_requirement(requirement_green, global, local, reverse, difficulty, game_data, locked_door_data)
+                    }
+                    DoorType::Yellow => {
+                        apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
+                    }
+                    DoorType::Grey => {
+                        apply_requirement(requirement_grey, global, local, reverse, difficulty, game_data, locked_door_data)
+                    }
+                }
+            } else {
+                Some(local)
+            }
+        }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {

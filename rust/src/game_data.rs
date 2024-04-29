@@ -201,6 +201,14 @@ pub enum Requirement {
         room_id: RoomId,
         node_id: NodeId,
     },
+    UnlockDoor {
+        room_id: RoomId,
+        node_id: NodeId,
+        requirement_red: Box<Requirement>,
+        requirement_green: Box<Requirement>,
+        requirement_yellow: Box<Requirement>,
+        requirement_grey: Box<Requirement>,
+    },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -870,6 +878,7 @@ pub struct GameData {
     pub reverse_door_ptr_pair_map: HashMap<(RoomId, NodeId), DoorPtrPair>,
     pub door_position: HashMap<(RoomId, NodeId), DoorOrientation>,
     pub vertex_isv: IndexedVec<VertexKey>,
+    pub grey_lock_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub item_locations: Vec<(RoomId, NodeId)>,
     pub item_vertex_ids: Vec<Vec<VertexId>>,
     pub flag_ids: Vec<FlagId>,
@@ -1245,50 +1254,38 @@ impl GameData {
         *self.helpers.get_mut(name).unwrap() = Some(req.clone());
         Ok(req)
     }
-    fn get_unlocks_doors_req(
-        &mut self,
-        node_id: NodeId,
-        ctx: &RequirementContext,
-    ) -> Result<Requirement> {
-        let door_type_methods = vec![
-            (
-                DoorType::Red,
-                vec![
-                    (vec!["missiles", "ammo"], Requirement::Missiles(5), Requirement::HeatFrames(50)),
-                    (vec!["super", "ammo"], Requirement::Supers(1), Requirement::Free),
-                ],
-            ),
-            (
-                DoorType::Green,
-                vec![(vec!["super", "ammo"], Requirement::Supers(1), Requirement::Free)],
-            ),
-            (
-                DoorType::Yellow,
-                vec![(
-                    vec!["powerbomb", "ammo"],
-                    Requirement::make_and(vec![
-                        Requirement::Item(Item::Morph as ItemId),
-                        Requirement::PowerBombs(1),
-                    ]),
-                    Requirement::HeatFrames(110),
-                )],
-            ),
-            (DoorType::Grey, vec![(vec!["grey"], Requirement::Free, Requirement::Free)]),
-        ];
 
+    fn get_unlocks_door_type_req(&mut self, door_type: DoorType, node_id: NodeId, ctx: &RequirementContext) -> Result<Requirement> {
+        let grey_unlock_req_json = self.grey_lock_map.get(&(ctx.room_id, node_id)).map(|x| x.clone()).unwrap_or("free".into());
+        let grey_unlock_req = self.parse_requirement(&grey_unlock_req_json, ctx)?;
+        if ctx.room_id == 84 && node_id == 1 {
+            println!("kraid gray req: {} -> {:?}", grey_unlock_req_json, grey_unlock_req);
+        }
+
+        let unlock_methods = match door_type {
+            DoorType::Blue => vec![],
+            DoorType::Red => vec![
+                (vec!["missiles", "ammo"], Requirement::Missiles(5), Requirement::HeatFrames(50)),
+                (vec!["super", "ammo"], Requirement::Supers(1), Requirement::Free),
+            ],
+            DoorType::Green => vec![
+                (vec!["super", "ammo"], Requirement::Supers(1), Requirement::Free)
+            ],
+            DoorType::Yellow => vec![(
+                vec!["powerbomb", "ammo"],
+                Requirement::make_and(vec![
+                    Requirement::Item(Item::Morph as ItemId),
+                    Requirement::PowerBombs(1),
+                ]),
+                Requirement::HeatFrames(110),
+            )],
+            DoorType::Grey => vec![(vec!["grey"], grey_unlock_req, Requirement::Free)],
+        };
         let room_id = ctx.room_id;
         let to_node_id = ctx.to_node_id;
         let empty_array = json::array![];
         let unlocks_doors_json = ctx.unlocks_doors_json.unwrap_or(&empty_array);
 
-        let mut door_reqs = vec![
-            Requirement::DoorUnlocked { room_id, node_id },
-            Requirement::DoorType {
-                room_id,
-                node_id,
-                door_type: DoorType::Blue,
-            },
-        ];
         ensure!(unlocks_doors_json.is_array());
         
         // Disallow using "unlocksDoors" inside its own requirements, to avoid an infinite recursion.
@@ -1296,57 +1293,58 @@ impl GameData {
         let mut ctx1 = ctx.clone();
         ctx1.unlocks_doors_json = None;
 
-        for (door_type, unlock_methods) in &door_type_methods {
-            let mut door_type_reqs = vec![];
-            for (keys, implicit_req, heat_req) in unlock_methods {
-                let mut req: Option<Requirement> = None;
-                for &key in keys {
-                    for u in unlocks_doors_json.members() {
-                        if u["nodeId"].as_usize().unwrap_or(ctx.to_node_id) == node_id {
-                            if !u["types"].is_array() {
-                                println!("{}", unlocks_doors_json);
+        let mut reqs_list = vec![];
+        for (keys, implicit_req, heat_req) in unlock_methods {
+            let mut req: Option<Requirement> = None;
+            for key in keys {
+                for u in unlocks_doors_json.members() {
+                    if u["nodeId"].as_usize().unwrap_or(ctx.to_node_id) == node_id {
+                        ensure!(u["types"].is_array());
+                        if u["types"].members().any(|t| t == key) {
+                            if req.is_some() {
+                                bail!("Overlapping unlocksDoors for '{}', room_id={}, node_id={}: {:?}", key, room_id, node_id, unlocks_doors_json);
                             }
-                            ensure!(u["types"].is_array());
-                            if u["types"].members().any(|t| t == key) {
-                                if req.is_some() {
-                                    bail!("Overlapping unlocksDoors for '{}', room_id={}, node_id={}: {:?}", key, room_id, node_id, unlocks_doors_json);
-                                }
-                                let requires: &[JsonValue] = u["requires"].members().as_slice();
-                                let mut req_list = self.parse_requires_list(requires, &ctx1)?;
-                                if u["useImplicitRequires"].as_bool().unwrap_or(false) {
-                                    req_list.push(implicit_req.clone());
-                                }
-                                req = Some(Requirement::make_and(req_list));
+                            let requires: &[JsonValue] = u["requires"].members().as_slice();
+                            let mut req_list = self.parse_requires_list(requires, &ctx1)?;
+                            if u["useImplicitRequires"].as_bool().unwrap_or(true) {
+                                req_list.push(implicit_req.clone());
                             }
-                        }
-                    }
-                }
-                if let Some(req) = req {
-                    door_type_reqs.push(req);
-                } else if door_type != &DoorType::Grey {
-                    if ctx.node_implicit_door_unlocks.unwrap()[&node_id] {
-                        if ctx.room_heated {
-                            door_type_reqs.push(Requirement::make_and(vec![
-                                implicit_req.clone(),
-                                heat_req.clone(),
-                            ]));
-                        } else {
-                            door_type_reqs.push(implicit_req.clone())
+                            req = Some(Requirement::make_and(req_list));
                         }
                     }
                 }
             }
-            let method_req = Requirement::make_and(vec![
-                Requirement::DoorType {
-                    room_id,
-                    node_id,
-                    door_type: *door_type,
-                },
-                Requirement::make_or(door_type_reqs),
-            ]);
-            door_reqs.push(method_req);
+            if let Some(req) = req {
+                reqs_list.push(req);
+            } else {
+                if ctx.node_implicit_door_unlocks.unwrap()[&node_id] {
+                    if ctx.room_heated {
+                        reqs_list.push(Requirement::make_and(vec![
+                            implicit_req.clone(),
+                            heat_req.clone(),
+                        ]));
+                    } else {
+                        reqs_list.push(implicit_req.clone())
+                    }
+                }
+            }
         }
-        Ok(Requirement::make_or(door_reqs))
+        Ok(Requirement::make_or(reqs_list))
+    }
+
+    fn get_unlocks_doors_req(
+        &mut self,
+        node_id: NodeId,
+        ctx: &RequirementContext,
+    ) -> Result<Requirement> {
+        Ok(Requirement::UnlockDoor {
+            room_id: ctx.room_id,
+            node_id: node_id,
+            requirement_red: Box::new(self.get_unlocks_door_type_req(DoorType::Red, node_id, ctx)?),
+            requirement_green: Box::new(self.get_unlocks_door_type_req(DoorType::Green, node_id, ctx)?),
+            requirement_yellow: Box::new(self.get_unlocks_door_type_req(DoorType::Yellow, node_id, ctx)?),
+            requirement_grey: Box::new(self.get_unlocks_door_type_req(DoorType::Grey, node_id, ctx)?),
+        })
     }
 
     fn parse_requires_list(
@@ -1371,6 +1369,9 @@ impl GameData {
             let value = req_json.as_str().unwrap();
             if value == "never" {
                 return Ok(Requirement::Never);
+            } else if value == "free" {
+                // Defined for internal use in the randomizer
+                return Ok(Requirement::Free);
             } else if value == "canWalljump" {
                 return Ok(Requirement::Walljump);
             } else if value == "i_ammoRefill" {
@@ -2052,6 +2053,23 @@ impl GameData {
         Ok(unlocks_door)
     }
 
+    fn replace_obstacle_flag(&mut self, req_json: &mut JsonValue, obstacle_flag: &str) {
+        if req_json.is_string() {
+            let s = req_json.as_str().unwrap();
+            if obstacle_flag == s {
+                *req_json = json::object!{"or": [s, {"obstaclesCleared": [s]}]};
+            }
+        } else if req_json.is_array() {
+            for x in req_json.members_mut() {
+                self.replace_obstacle_flag(x, obstacle_flag);
+            }
+        } else if req_json.has_key("and") {
+            self.replace_obstacle_flag(&mut req_json["and"], obstacle_flag);
+        } else if req_json.has_key("or") {
+            self.replace_obstacle_flag(&mut req_json["or"], obstacle_flag);
+        }
+    }
+
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
 
@@ -2068,7 +2086,7 @@ impl GameData {
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
         // after setting the flag on the same graph traversal step (which cannot take into account the new flag).
-        let obstacle_flags = [
+        let obstacle_flag_set: HashSet<String> = vec![
             "f_DefeatedKraid",
             "f_DefeatedDraygon",
             "f_DefeatedRidley",
@@ -2079,7 +2097,7 @@ impl GameData {
             "f_MaridiaTubeBroken",
             "f_ShaktoolDoneDigging",
             "f_UsedAcidChozoStatue",
-        ];
+        ].into_iter().map(|x| x.to_string()).collect();
 
         match room_id {
             222 => self.override_shaktool_room(&mut new_room_json),
@@ -2110,7 +2128,7 @@ impl GameData {
                     "name": "Base (Unlock Door)",
                     "requires": [],
                     "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
-                });    
+                });
             }
             if ["door", "entrance"].contains(&node_type) {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap_or(node_id);
@@ -2131,7 +2149,7 @@ impl GameData {
                       "lockType": "gameFlag",
                       "unlockStrats": [
                         {
-                          "name": "Base",
+                          "name": "Base (Collect Item)",
                           "notable": false,
                           "requires": [],
                         }
@@ -2158,13 +2176,12 @@ impl GameData {
                     node_json["yields"].clone()
                 };
 
-                if node_json["name"] == "Kraid" {
-                    println!("yields: {}", yields);
-                }
-    
                 if yields != JsonValue::Null
-                    && obstacle_flags.contains(&yields[0].as_str().unwrap())
+                    && obstacle_flag_set.contains(yields[0].as_str().unwrap())
                 {
+                    if obstacle_flag.is_some() && obstacle_flag.as_ref().unwrap() != yields[0].as_str().unwrap() {
+                        bail!("Multiple obstacle flags in same room: {}, {}", obstacle_flag.unwrap(), yields[0]);
+                    }
                     obstacle_flag = Some(yields[0].as_str().unwrap().to_owned());
                 }
                 if (room_id, node_id) == (158, 2) {
@@ -2192,29 +2209,20 @@ impl GameData {
                         node_json["nodeSubType"].as_str().unwrap(),
                     ) {
                         ("door", node_sub_type) => {
-                            if node_sub_type == "grey" && get_logical_gray_door_room_ids().contains(&room_id) {
-                                new_strat["unlocksDoors"] = json::array![
-                                    {"types": ["grey"], "requires": []}
-                                ];
+                            if node_sub_type == "grey" && get_logical_gray_door_room_ids().contains(&room_id) && lock.has_key("yields") {
+                                new_strat["setsFlags"] = lock["yields"].clone();
+                            } else {
+                                continue;
                             }
                         }
                         ("event", "flag" | "boss") | ("junction", _) => {
                             new_strat["setsFlags"] = yields.clone();
-                            if yields != JsonValue::Null && obstacle_flags.contains(&yields[0].as_str().unwrap()) {
-                                new_strat["clearsObstacles"] = json::array![yields[0].as_str().unwrap()];
-                            }
                         }
                         ("item", _) => {
                             new_strat["collectsItems"] = json::array![node_id];
                         }
-                        ("utility", _) => {
+                        _ => {
                             continue;
-                        }
-                        (node_type, node_subtype) => {
-                            panic!(
-                                "Unexpected node type/subtype for lock: {} {}",
-                                node_type, node_subtype
-                            );
                         }
                     }
                     extra_strats.push(new_strat);
@@ -2226,65 +2234,50 @@ impl GameData {
             new_room_json["strats"].push(strat).unwrap();
         }
 
-        if obstacle_flag.is_some() {
-            let obstacle_flag_name = obstacle_flag.as_ref().unwrap();
+        if let Some(obstacle_flag) = obstacle_flag {
             if !new_room_json.has_key("obstacles") {
                 new_room_json["obstacles"] = json::array![];
             }
             new_room_json["obstacles"]
                 .push(json::object! {
-                    "id": obstacle_flag_name.to_string(),
-                    "name": obstacle_flag_name.to_string(),
+                    "id": obstacle_flag.clone(),
+                    "name": obstacle_flag.clone(),
                 })
                 .unwrap();
             ensure!(new_room_json["strats"].is_array());
 
-            // For each strat requiring one of the "obstacle flags" listed above, create an alternative strat
-            // depending on the corresponding obstacle instead:
-            let mut new_strats: Vec<JsonValue> = Vec::new();
+            // For each strat requiring one of the "obstacle flags" listed above, modify the strat to include
+            // a possibility depending on the obstacle instead:
+            // e.g., "f_DefeatedKraid" becomes {"or": ["f_DefeatedKraid", {"obstaclesCleared": ["f_DefeatedKraid"]}]}
             for strat in new_room_json["strats"].members_mut() {
-                let json_obstacle_flag_name = JsonValue::String(obstacle_flag_name.clone());
-                let mut new_strat = strat.clone();
-                let mut found = false;
-                for req in new_strat["requires"].members_mut() {
-                    if req == &json_obstacle_flag_name {
-                        *req = json::object! {
-                            "obstaclesCleared": [obstacle_flag_name.to_string()]
-                        };
-                        found = true;
+                self.replace_obstacle_flag(&mut strat["requires"], &obstacle_flag);
+                if strat.has_key("unlocksDoors") {
+                    for unlock in strat["unlocksDoors"].members_mut() {
+                        self.replace_obstacle_flag(&mut unlock["requires"], &obstacle_flag);
+                    }       
+                }
+                let has_flag = strat["setsFlags"].members().any(|x| x.as_str().unwrap() == obstacle_flag);
+                if has_flag {
+                    if !strat.has_key("clearsObstacles") {
+                        strat["clearsObstacles"] = json::array![];
                     }
-                }
-                if new_strat.has_key("unlocksDoors") {
-                    ensure!(new_strat["unlocksDoors"].is_array());
-                    for unlock in new_strat["unlocksDoors"].members_mut() {
-                        for req in unlock["requires"].members_mut() {
-                            if req == &json_obstacle_flag_name {
-                                *req = json::object! {
-                                    "obstaclesCleared": [obstacle_flag_name.to_string()]
-                                };
-                                found = true;
-                            }    
-                        }
-                    }    
-                }
-                if found {
-                    new_strats.push(new_strat);
+                    strat["clearsObstacles"].push(obstacle_flag.clone())?;
                 }
             }
-            for strat in new_strats {
-                new_room_json["strats"].push(strat).unwrap();
+
+            for node_json in new_room_json["nodes"].members_mut() {
+                if node_json.has_key("locks") {
+                    for lock_json in node_json["locks"].members_mut() {
+                        for strat_json in lock_json["unlockStrats"].members_mut() {
+                            self.replace_obstacle_flag(&mut strat_json["requires"], &obstacle_flag);
+                        }
+                    }
+                }
             }
         }
 
         for strat_json in new_room_json["strats"].members_mut() {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
-            let from_node_id = strat_json["link"][0].as_usize().unwrap();
-            let to_node_id = strat_json["link"][1].as_usize().unwrap();
-
-            // TODO: fix this:
-            // if from_node_id == to_node_id && strat_json.has_key("exitCondition") && !strat_json.has_key("unlocksDoors") {
-            //     strat_json["unlocksDoors"] = self.get_default_unlocks_door(room_json, to_node_id, to_node_id)?;
-            // }
 
             if ignored_notable_strats.contains(&strat_name) {
                 if strat_json["notable"].as_bool() == Some(true) {
@@ -2736,6 +2729,20 @@ impl GameData {
                 if (room_id, node_id) != (32, 7) && (room_id, node_id) != (32, 8) {
                     self.reverse_node_ptr_map
                         .insert(node_ptr, (room_id, node_id));
+                }
+            }
+
+            if node_json["nodeType"].as_str().unwrap() == "door" && node_json["nodeSubType"].as_str().unwrap() == "grey" {
+                if node_json.has_key("locks") {
+                    ensure!(node_json["locks"].is_array());
+                    let lock = &node_json["locks"][0];
+                    let mut req_list = vec![];
+                    ensure!(lock["unlockStrats"].is_array());
+                    for unlock_strat in lock["unlockStrats"].members() {
+                        req_list.push(json::object! {"and": unlock_strat["requires"].clone()});
+                    }
+                    let req = json::object! {"or": JsonValue::Array(req_list)};
+                    self.grey_lock_map.insert((room_id, node_id), req);    
                 }
             }
         }
@@ -3720,7 +3727,7 @@ impl GameData {
         game_data.load_title_screens(title_screen_path)?;
 
         for (vertex_id, key) in game_data.vertex_isv.keys.iter().enumerate() {
-            if (key.room_id, key.node_id) == (219, 1) {
+            if (key.room_id, key.node_id) == (84, 1) {
                 println!("{}: {:?}", vertex_id, key);
 
                 let to_ids: Vec<VertexId> = game_data.base_links_data.links_by_src[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
