@@ -159,10 +159,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         item_progression_preset: Some("Normal".to_string()),
         quality_of_life_preset: Some("Default".to_string()),
 
-        debug_options: Some(DebugOptions {
-            new_game_extra: true,
-            extended_spoiler: true,
-        }),
+        debug_options: None,
     };
 
     diff
