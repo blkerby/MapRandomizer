@@ -17,7 +17,7 @@ use maprando::customize::{
     customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
     MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
 };
-use maprando::game_data::{GameData, IndexedVec, Item, LinksDataGroup};
+use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -256,10 +256,10 @@ struct RandomizeRequest {
     preset: Option<Text<String>>,
     shinespark_tiles: Text<f32>,
     heated_shinespark_tiles: Text<f32>,
-    shinecharge_leniency_frames: Text<i32>,
+    shinecharge_leniency_frames: Text<Capacity>,
     resource_multiplier: Text<f32>,
-    gate_glitch_leniency: Text<i32>,
-    door_stuck_leniency: Text<i32>,
+    gate_glitch_leniency: Text<Capacity>,
+    door_stuck_leniency: Text<Capacity>,
     phantoon_proficiency: Text<f32>,
     draygon_proficiency: Text<f32>,
     ridley_proficiency: Text<f32>,
@@ -1107,9 +1107,9 @@ fn get_difficulty_tiers(
                 difficulty.heated_shine_charge_tiles,
                 preset.heated_shinespark_tiles as f32,
             ),
-            shinecharge_leniency_frames: i32::max(
+            shinecharge_leniency_frames: Capacity::max(
                 difficulty.shinecharge_leniency_frames,
-                preset.shinecharge_leniency_frames as i32,
+                preset.shinecharge_leniency_frames as Capacity,
             ),
             progression_rate: difficulty.progression_rate,
             random_tank: difficulty.random_tank,
@@ -1126,13 +1126,13 @@ fn get_difficulty_tiers(
                 difficulty.resource_multiplier,
                 preset.resource_multiplier,
             ),
-            gate_glitch_leniency: i32::max(
+            gate_glitch_leniency: Capacity::max(
                 difficulty.gate_glitch_leniency,
-                preset.gate_glitch_leniency as i32,
+                preset.gate_glitch_leniency as Capacity,
             ),
-            door_stuck_leniency: i32::max(
+            door_stuck_leniency: Capacity::max(
                 difficulty.door_stuck_leniency,
-                preset.door_stuck_leniency as i32,
+                preset.door_stuck_leniency as Capacity,
             ),
             escape_timer_multiplier: difficulty.escape_timer_multiplier,
             start_location_mode: difficulty.start_location_mode,

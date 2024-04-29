@@ -144,7 +144,7 @@ pub struct DifficultyConfig {
     // pub notable_strats: Vec<String>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
-    pub shinecharge_leniency_frames: i32,
+    pub shinecharge_leniency_frames: Capacity,
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
@@ -157,8 +157,8 @@ pub struct DifficultyConfig {
     pub filler_items: Vec<Item>,
     pub early_filler_items: Vec<Item>,
     pub resource_multiplier: f32,
-    pub gate_glitch_leniency: i32,
-    pub door_stuck_leniency: i32,
+    pub gate_glitch_leniency: Capacity,
+    pub door_stuck_leniency: Capacity,
     pub escape_timer_multiplier: f32,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,
@@ -328,7 +328,7 @@ pub fn randomize_map_areas(map: &mut Map, seed: usize) {
     }
 }
 
-fn compute_run_frames(tiles: f32) -> i32 {
+fn compute_run_frames(tiles: f32) -> Capacity {
     assert!(tiles >= 0.0);
     let frames = if tiles <= 7.0 {
         9.0 + 4.0 * tiles
@@ -339,7 +339,7 @@ fn compute_run_frames(tiles: f32) -> i32 {
     } else {
         47.0 + 64.0 / 39.0 * tiles
     };
-    frames.ceil() as i32
+    frames.ceil() as Capacity
 }
 
 struct Preprocessor<'a> {
@@ -347,7 +347,7 @@ struct Preprocessor<'a> {
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
 }
 
-fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (i32, i32) {
+fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (Capacity, Capacity) {
     let combined_length = other_runway_length + runway_length;
     if combined_length > 31.3 {
         // Dash can be held the whole time:
@@ -364,8 +364,8 @@ fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (
         (f32::sqrt(initial_speed * initial_speed + 2.0 * acceleration * other_runway_length)
             - initial_speed)
             / acceleration;
-    let other_time = other_time.ceil() as i32;
-    (other_time, total_time as i32 - other_time)
+    let other_time = other_time.ceil() as Capacity;
+    (other_time, total_time as Capacity - other_time)
 }
 
 impl<'a> Preprocessor<'a> {
@@ -730,7 +730,7 @@ impl<'a> Preprocessor<'a> {
                             compute_run_frames(effective_length)
                         }
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -812,7 +812,7 @@ impl<'a> Preprocessor<'a> {
                             f32::max(0.0, f32::min(effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let heat_frames_2 =
-                            i32::max(85, compute_run_frames(other_runway_length + runway_length));
+                            Capacity::max(85, compute_run_frames(other_runway_length + runway_length));
                         // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
                     } else if !runway_heated && *heated {
@@ -1077,10 +1077,10 @@ impl<'a> Preprocessor<'a> {
                         let runway_length = f32::min(33.0, effective_length);
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
-                        let heat_frames_2 = i32::max(85, run_frames);
+                        let heat_frames_2 = Capacity::max(85, run_frames);
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
                     } else {
-                        let heat_frames = i32::max(85, compute_run_frames(effective_length));
+                        let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
                     }
                 }
@@ -1119,10 +1119,10 @@ impl<'a> Preprocessor<'a> {
                         let runway_length = f32::min(33.0, effective_length);
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
-                        let heat_frames_2 = i32::max(85, run_frames);
+                        let heat_frames_2 = Capacity::max(85, run_frames);
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
                     } else {
-                        let heat_frames = i32::max(85, compute_run_frames(effective_length));
+                        let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
                     }
                 }
@@ -1207,10 +1207,10 @@ impl<'a> Preprocessor<'a> {
                         let runway_length = f32::min(33.0, effective_length);
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
-                        let heat_frames_2 = i32::max(85, run_frames);
+                        let heat_frames_2 = Capacity::max(85, run_frames);
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
                     } else {
-                        let heat_frames = i32::max(85, compute_run_frames(effective_length));
+                        let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
                         reqs.push(Requirement::HeatFrames(heat_frames + 5));
                     }
                 }
@@ -1253,12 +1253,12 @@ impl<'a> Preprocessor<'a> {
                         let runway_length = f32::min(33.0, effective_length);
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
-                        let heat_frames_2 = i32::max(85, run_frames);
+                        let heat_frames_2 = Capacity::max(85, run_frames);
                         reqs.push(Requirement::HeatFrames(
                             heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15,
                         ));
                     } else {
-                        let heat_frames = i32::max(85, compute_run_frames(effective_length));
+                        let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
                         reqs.push(Requirement::HeatFrames(
                             heat_frames + heat_frames_temp_blue + 5,
                         ));

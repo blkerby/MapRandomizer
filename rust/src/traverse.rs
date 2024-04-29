@@ -92,7 +92,7 @@ fn get_charge_damage(global: &GlobalState) -> f32 {
 fn apply_enemy_kill_requirement(
     global: &GlobalState,
     mut local: LocalState,
-    count: i32,
+    count: Capacity,
     vul: &EnemyVulnerabilities,
 ) -> Option<LocalState> {
     // Prioritize using weapons that do not require ammo:
@@ -112,7 +112,7 @@ fn apply_enemy_kill_requirement(
                 (hp + vul.missile_damage - 1) / vul.missile_damage,
             ),
         );
-        hp -= missiles_to_use_per_enemy * vul.missile_damage as i32;
+        hp -= missiles_to_use_per_enemy * vul.missile_damage as Capacity;
         local.missiles_used += missiles_to_use_per_enemy * count;
     }
 
@@ -126,7 +126,7 @@ fn apply_enemy_kill_requirement(
                 (hp + vul.super_damage - 1) / vul.super_damage,
             ),
         );
-        hp -= supers_to_use_per_enemy * vul.super_damage as i32;
+        hp -= supers_to_use_per_enemy * vul.super_damage as Capacity;
         local.supers_used += supers_to_use_per_enemy * count;
     }
 
@@ -140,7 +140,7 @@ fn apply_enemy_kill_requirement(
                 (hp + vul.power_bomb_damage - 1) / vul.power_bomb_damage,
             ),
         );
-        hp -= pbs_to_use * vul.power_bomb_damage as i32;
+        hp -= pbs_to_use * vul.power_bomb_damage as Capacity;
         // Power bombs hit all enemies in the group, so we do not multiply by the count.
         local.power_bombs_used += pbs_to_use;
     }
@@ -795,7 +795,7 @@ fn apply_gate_glitch_leniency(
 ) -> Option<LocalState> {
     if heated && !global.items[Item::Varia as usize] {
         local.energy_used +=
-            (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as i32;
+            (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as Capacity;
         local = match validate_energy(local, global, game_data) {
             Some(x) => x,
             None => return None,
@@ -1063,7 +1063,7 @@ pub fn apply_requirement(
                 let mut new_local = local;
                 new_local.energy_used += (difficulty.door_stuck_leniency as f32
                     * difficulty.resource_multiplier
-                    * *heat_frames as f32) as i32;
+                    * *heat_frames as f32) as Capacity;
                 validate_energy(new_local, global, game_data)
             } else {
                 Some(local)

@@ -6,7 +6,7 @@ use json::JsonValue;
 use sailfish::TemplateOnce;
 use urlencoding;
 
-use crate::game_data::{EntranceCondition, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId, VertexAction, VertexKey};
+use crate::game_data::{Capacity, EntranceCondition, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId, VertexAction, VertexKey};
 use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill, MapsRevealed, StartLocationMode};
 use crate::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData};
 
@@ -343,7 +343,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         notable_strats: strat_vec,
         shine_charge_tiles: preset.preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
-        shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as i32,
+        shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as Capacity,
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
@@ -357,8 +357,8 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         early_filler_items: vec![],
         resource_multiplier: preset.preset.resource_multiplier,
         escape_timer_multiplier: preset.preset.escape_timer_multiplier,
-        gate_glitch_leniency: preset.preset.gate_glitch_leniency as i32,
-        door_stuck_leniency: preset.preset.door_stuck_leniency as i32,
+        gate_glitch_leniency: preset.preset.gate_glitch_leniency as Capacity,
+        door_stuck_leniency: preset.preset.door_stuck_leniency as Capacity,
         phantoon_proficiency: preset.preset.phantoon_proficiency,
         draygon_proficiency: preset.preset.draygon_proficiency,
         ridley_proficiency: preset.preset.ridley_proficiency,

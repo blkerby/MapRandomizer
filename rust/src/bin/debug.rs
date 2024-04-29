@@ -2,7 +2,7 @@ use anyhow::Result;
 use hashbrown::HashMap;
 // use hashbrown::HashSet;
 use maprando::{
-    game_data::{GameData, Item, Requirement},
+    game_data::{Capacity, GameData, Item, Requirement},
     randomize::{
         AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MapsRevealed, MotherBrainFight, Objectives, ProgressionRate, SaveAnimals, WallJump
     },
@@ -26,8 +26,8 @@ use std::path::Path;
 
 fn run_scenario(
     proficiency: f32,
-    missile_cnt: i32,
-    super_cnt: i32,
+    missile_cnt: Capacity,
+    super_cnt: Capacity,
     item_loadout: &[&'static str],
     patience: bool,
     game_data: &GameData,

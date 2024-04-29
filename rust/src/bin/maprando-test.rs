@@ -2,7 +2,7 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use log::info;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
-use maprando::game_data::Item;
+use maprando::game_data::{Capacity, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
@@ -48,11 +48,11 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         notable_strats: preset.notable_strats.clone(),
         shine_charge_tiles: preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.heated_shinespark_tiles as f32,
-        shinecharge_leniency_frames: preset.shinecharge_leniency_frames as i32,
+        shinecharge_leniency_frames: preset.shinecharge_leniency_frames as Capacity,
         resource_multiplier: preset.resource_multiplier,
         escape_timer_multiplier: preset.escape_timer_multiplier,
-        gate_glitch_leniency: preset.gate_glitch_leniency as i32,
-        door_stuck_leniency: preset.door_stuck_leniency as i32,
+        gate_glitch_leniency: preset.gate_glitch_leniency as Capacity,
+        door_stuck_leniency: preset.door_stuck_leniency as Capacity,
         phantoon_proficiency: preset.phantoon_proficiency,
         draygon_proficiency: preset.draygon_proficiency,
         ridley_proficiency: preset.ridley_proficiency,

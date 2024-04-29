@@ -45,7 +45,7 @@ pub type VertexId = usize; // Index into GameData.vertex_isv.keys: (room_id, nod
 pub type ItemLocationId = usize; // Index into GameData.item_locations: 100 nodes each containing an item
 pub type ObstacleMask = usize; // Bitmask where `i`th bit (from least significant) indicates `i`th obstacle cleared within a room
 pub type WeaponMask = usize; // Bitmask where `i`th bit indicates availability of (or vulnerability to) `i`th weapon.
-pub type Capacity = i32; // Data type used to represent quantities of energy, ammo, etc.
+pub type Capacity = i16; // Data type used to represent quantities of energy, ammo, etc.
 pub type ItemPtr = usize; // PC address of item in PLM list
 pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
@@ -129,33 +129,33 @@ pub enum Requirement {
         used_tiles: Float,
         heated: bool,
     },
-    ShineChargeFrames(i32),
+    ShineChargeFrames(Capacity),
     Shinespark {
         shinespark_tech_id: usize,
-        frames: i32,
-        excess_frames: i32,
+        frames: Capacity,
+        excess_frames: Capacity,
     },
-    HeatFrames(i32),
-    LavaFrames(i32),
-    GravitylessLavaFrames(i32),
-    AcidFrames(i32),
-    MetroidFrames(i32),
-    Damage(i32),
+    HeatFrames(Capacity),
+    LavaFrames(Capacity),
+    GravitylessLavaFrames(Capacity),
+    AcidFrames(Capacity),
+    MetroidFrames(Capacity),
+    Damage(Capacity),
     // Energy(i32),
-    Missiles(i32),
-    MissilesCapacity(i32),
-    SupersCapacity(i32),
-    PowerBombsCapacity(i32),
-    RegularEnergyCapacity(i32),
-    ReserveEnergyCapacity(i32),
-    Supers(i32),
-    PowerBombs(i32),
-    EnergyRefill(i32),
-    RegularEnergyRefill(i32),
-    ReserveRefill(i32),
-    MissileRefill(i32),
-    SuperRefill(i32),
-    PowerBombRefill(i32),
+    Missiles(Capacity),
+    MissilesCapacity(Capacity),
+    SupersCapacity(Capacity),
+    PowerBombsCapacity(Capacity),
+    RegularEnergyCapacity(Capacity),
+    ReserveEnergyCapacity(Capacity),
+    Supers(Capacity),
+    PowerBombs(Capacity),
+    EnergyRefill(Capacity),
+    RegularEnergyRefill(Capacity),
+    ReserveRefill(Capacity),
+    MissileRefill(Capacity),
+    SuperRefill(Capacity),
+    PowerBombRefill(Capacity),
     AmmoStationRefill,
     AmmoStationRefillAll,
     LowerNorfairElevatorDownFrames,
@@ -168,15 +168,15 @@ pub enum Requirement {
         heated: bool,
     },
     HeatedDoorStuckLeniency {
-        heat_frames: i32,
+        heat_frames: Capacity,
     },
     EnergyDrain,
     ReserveTrigger {
-        min_reserve_energy: i32,
-        max_reserve_energy: i32,
+        min_reserve_energy: Capacity,
+        max_reserve_energy: Capacity,
     },
     EnemyKill {
-        count: i32,
+        count: Capacity,
         vul: EnemyVulnerabilities,
     },
     PhantoonFight {},
@@ -396,11 +396,11 @@ pub struct HubLocation {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct EnemyVulnerabilities {
-    pub hp: i32,
+    pub hp: Capacity,
     pub non_ammo_vulnerabilities: WeaponMask,
-    pub missile_damage: i32,
-    pub super_damage: i32,
-    pub power_bomb_damage: i32,
+    pub missile_damage: Capacity,
+    pub super_damage: Capacity,
+    pub power_bomb_damage: Capacity,
 }
 
 #[derive(Clone, Debug)]
@@ -1167,16 +1167,16 @@ impl GameData {
         enemy_json: &JsonValue,
         weapon_name: &str,
         vul_mask: WeaponMask,
-    ) -> i32 {
+    ) -> Capacity {
         let multiplier = self.get_enemy_damage_multiplier(enemy_json, weapon_name);
         let weapon_idx = self.weapon_isv.index_by_key[weapon_name];
         if vul_mask & (1 << weapon_idx) == 0 {
             return 0;
         }
         match weapon_name {
-            "Missile" => (100.0 * multiplier) as i32,
-            "Super" => (300.0 * multiplier) as i32,
-            "PowerBomb" => (400.0 * multiplier) as i32,
+            "Missile" => (100.0 * multiplier) as Capacity,
+            "Super" => (300.0 * multiplier) as Capacity,
+            "PowerBomb" => (400.0 * multiplier) as Capacity,
             _ => panic!("Unsupported weapon: {}", weapon_name),
         }
     }
@@ -1208,7 +1208,7 @@ impl GameData {
 
         Ok(EnemyVulnerabilities {
             non_ammo_vulnerabilities: vul_mask & self.non_ammo_weapon_mask,
-            hp: enemy_json["hp"].as_i32().unwrap(),
+            hp: enemy_json["hp"].as_i32().unwrap() as Capacity,
             missile_damage: self.get_enemy_damage_weapon(enemy_json, "Missile", vul_mask),
             super_damage: self.get_enemy_damage_weapon(enemy_json, "Super", vul_mask),
             power_bomb_damage: self.get_enemy_damage_weapon(enemy_json, "PowerBomb", vul_mask),
@@ -1505,17 +1505,17 @@ impl GameData {
                 let resource_type = value["type"].as_str().unwrap();
                 let limit = value["limit"].as_i32().unwrap();
                 let req = if resource_type == "Missile" {
-                    Requirement::MissileRefill(limit)
+                    Requirement::MissileRefill(limit as Capacity)
                 } else if resource_type == "Super" {
-                    Requirement::SuperRefill(limit)
+                    Requirement::SuperRefill(limit as Capacity)
                 } else if resource_type == "PowerBomb" {
-                    Requirement::PowerBombRefill(limit)
+                    Requirement::PowerBombRefill(limit as Capacity)
                 } else if resource_type == "RegularEnergy" {
-                    Requirement::RegularEnergyRefill(limit)
+                    Requirement::RegularEnergyRefill(limit as Capacity)
                 } else if resource_type == "ReserveEnergy" {
-                    Requirement::ReserveRefill(limit)
+                    Requirement::ReserveRefill(limit as Capacity)
                 } else if resource_type == "Energy" {
-                    Requirement::EnergyRefill(limit)
+                    Requirement::EnergyRefill(limit as Capacity)
                 } else {
                     bail!(
                         "Unrecognized partialRefill resource type: {}",
@@ -1529,8 +1529,8 @@ impl GameData {
             } else if key == "shinespark" {
                 let frames = value["frames"]
                     .as_i32()
-                    .expect(&format!("missing/invalid frames in {}", req_json));
-                let excess_frames = value["excessFrames"].as_i32().unwrap_or(0);
+                    .expect(&format!("missing/invalid frames in {}", req_json)) as Capacity;
+                let excess_frames = value["excessFrames"].as_i32().unwrap_or(0) as Capacity;
                 return Ok(Requirement::Shinespark {
                     shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                     frames,
@@ -1547,60 +1547,60 @@ impl GameData {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid heatFrames in {}", req_json));
-                return Ok(Requirement::HeatFrames(frames));
+                return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "gravitylessHeatFrames" {
                 // In Map Rando, Gravity doesn't affect heat frames, so this is treated the
                 // same as "heatFrames".
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid gravitylessHeatFrames in {}", req_json));
-                return Ok(Requirement::HeatFrames(frames));
+                return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "lavaFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid lavaFrames in {}", req_json));
-                return Ok(Requirement::LavaFrames(frames));
+                return Ok(Requirement::LavaFrames(frames as Capacity));
             } else if key == "gravitylessLavaFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid gravitylessLavaFrames in {}", req_json));
-                return Ok(Requirement::GravitylessLavaFrames(frames));
+                return Ok(Requirement::GravitylessLavaFrames(frames as Capacity));
             } else if key == "acidFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid acidFrames in {}", req_json));
-                return Ok(Requirement::AcidFrames(frames));
+                return Ok(Requirement::AcidFrames(frames as Capacity));
                 // return Ok(Requirement::Damage(3 * frames / 2));
             } else if key == "metroidFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid metroidFrames in {}", req_json));
-                return Ok(Requirement::MetroidFrames(frames));
+                return Ok(Requirement::MetroidFrames(frames as Capacity));
             } else if key == "draygonElectricityFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid draygonElectricityFrames in {}", req_json));
-                return Ok(Requirement::Damage(frames));
+                return Ok(Requirement::Damage(frames as Capacity));
             } else if key == "samusEaterFrames" {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid samusEaterFrames in {}", req_json));
-                return Ok(Requirement::Damage(frames / 8));
+                return Ok(Requirement::Damage(frames as Capacity / 8));
             } else if key == "spikeHits" {
                 let hits = value
                     .as_i32()
                     .expect(&format!("invalid spikeHits in {}", req_json));
-                return Ok(Requirement::Damage(hits * 60));
+                return Ok(Requirement::Damage(hits as Capacity * 60));
             } else if key == "thornHits" {
                 let hits = value
                     .as_i32()
                     .expect(&format!("invalid thornHits in {}", req_json));
-                return Ok(Requirement::Damage(hits * 16));
+                return Ok(Requirement::Damage(hits as Capacity * 16));
             } else if key == "hibashiHits" {
                 let hits = value
                     .as_i32()
                     .expect(&format!("invalid hibashiHits in {}", req_json));
-                return Ok(Requirement::Damage(hits * 30));
+                return Ok(Requirement::Damage(hits as Capacity * 30));
             } else if key == "enemyDamage" {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
                 let attack_name = value["type"].as_str().unwrap().to_string();
@@ -1701,7 +1701,7 @@ impl GameData {
                         vul.power_bomb_damage = 0;
                     }
                     reqs.push(Requirement::EnemyKill {
-                        count: *count,
+                        count: *count as Capacity,
                         vul: vul,
                     });
                 }
@@ -1780,8 +1780,8 @@ impl GameData {
                 return Ok(Requirement::Free);
             } else if key == "autoReserveTrigger" {
                 return Ok(Requirement::ReserveTrigger {
-                    min_reserve_energy: value["minReserveEnergy"].as_i32().unwrap_or(1),
-                    max_reserve_energy: value["maxReserveEnergy"].as_i32().unwrap_or(400),
+                    min_reserve_energy: value["minReserveEnergy"].as_i32().unwrap_or(1) as Capacity,
+                    max_reserve_energy: value["maxReserveEnergy"].as_i32().unwrap_or(400) as Capacity,
                 });
             }
         }
@@ -2406,7 +2406,7 @@ impl GameData {
             }
             "leaveShinecharged" => {
                 if let Some(frames_remaining) = value["framesRemaining"].as_i32() {
-                    req = Requirement::ShineChargeFrames(180 - frames_remaining);
+                    req = Requirement::ShineChargeFrames(180 - frames_remaining as Capacity);
                 }
                 ExitCondition::LeaveShinecharged {
                     physics,
@@ -2558,13 +2558,13 @@ impl GameData {
             "comeInShinecharged" => {
                 let frames_required = value["framesRequired"].as_i32()
                     .context("Expecting integer 'framesRequired'")?;
-                req = Requirement::ShineChargeFrames(frames_required);
+                req = Requirement::ShineChargeFrames(frames_required as Capacity);
                 MainEntranceCondition::ComeInShinecharged { }
             },
             "comeInShinechargedJumping" => {
                 let frames_required = value["framesRequired"].as_i32()
                     .context("Expecting integer 'framesRequired'")?;
-                req = Requirement::ShineChargeFrames(frames_required);
+                req = Requirement::ShineChargeFrames(frames_required as Capacity);
                 MainEntranceCondition::ComeInShinechargedJumping { }
             },
             "comeInWithSpark" => MainEntranceCondition::ComeInWithSpark {
