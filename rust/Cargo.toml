@@ -5,12 +5,16 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [profile.release]
-debug = true
-opt-level = 'z'     # Optimize for size
+# debug = true
+# opt-level = 'z'     # Optimize for size
 # lto = true          # Enable link-time optimization
 codegen-units = 1   # Reduce number of codegen units to increase optimizations
 # strip = true        # Strip symbols from binary
 # panic = 'abort'     # Abort on panic!
+
+[profile.profiling]
+inherits = "release"
+debug = true
 
 [dependencies]
 json = "0.12.4"

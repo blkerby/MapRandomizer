@@ -738,10 +738,11 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
 }
 
 fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
-    let seed: u64 = app.rng_seed.unwrap_or_else(|| {
-        let mut rng = rand::rngs::StdRng::from_entropy();
-        rng.next_u64()
-    });
+    // let seed: u64 = app.rng_seed.unwrap_or_else(|| {
+    //     let mut rng = rand::rngs::StdRng::from_entropy();
+    //     rng.next_u64()
+    // });
+    let seed = cycle_count as u64;
 
     info!("Test cycle {cycle_count} Start: seed={}", seed);
 
