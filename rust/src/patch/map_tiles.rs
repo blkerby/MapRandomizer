@@ -1661,7 +1661,7 @@ impl<'a> MapPatcher<'a> {
                     DoorType::Red => Edge::RedDoor,
                     DoorType::Green => Edge::GreenDoor,
                     DoorType::Yellow => Edge::YellowDoor,
-                    DoorType::Grey => Edge::GrayDoor,
+                    DoorType::Grey => continue,
                 };
                 if let Some(basic_tile) = basic_tile_opt {
                     let mut new_tile = *basic_tile;
