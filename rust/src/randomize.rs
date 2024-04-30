@@ -5,9 +5,7 @@ use crate::{
         self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey
     },
     traverse::{
-        apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route,
-        traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
-        NUM_COST_METRICS,
+        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
     },
     web::logic::strip_name,
 };
@@ -434,11 +432,16 @@ impl<'a> Preprocessor<'a> {
                     dst_node_id,
                     is_toilet,
                 );
+                let exit_with_shinecharge = self.game_data.does_leave_shinecharged(exit_condition);
+                let enter_with_shinecharge = self.game_data.does_come_in_shinecharged(entrance_condition);
+                let carry_shinecharge = exit_with_shinecharge || enter_with_shinecharge;
                 if let Some(req) = req_opt {
                     door_links.push(Link {
                         from_vertex_id: *src_vertex_id,
                         to_vertex_id: *dst_vertex_id,
                         requirement: req,
+                        start_with_shinecharge: carry_shinecharge,
+                        end_with_shinecharge: carry_shinecharge,
                         notable_strat_name: None,
                         strat_name: "Base (Cross Room)".to_string(),
                         strat_notes: vec![],
@@ -3765,8 +3768,8 @@ impl<'a> Randomizer<'a> {
             let raw_link = self.get_link(link_idx as usize);
             let sublinks = vec![raw_link.clone()];
 
-            let new_local_state_opt = apply_requirement(
-                &link.requirement,
+            let new_local_state_opt = apply_link(
+                &link,
                 &global_state,
                 local_state,
                 reverse,
@@ -3774,6 +3777,9 @@ impl<'a> Randomizer<'a> {
                 self.game_data,
                 &self.locked_door_data,
             );
+            if new_local_state_opt.is_none() {
+                panic!("Failed applying requirement in spoiler route: reverse={}, local_state={:?}, requirement={:?}", reverse, local_state, link.requirement);
+            }
             let new_local_state = new_local_state_opt.unwrap();
             let sublinks_ordered: Vec<&Link> = if reverse {
                 sublinks.iter().rev().collect()

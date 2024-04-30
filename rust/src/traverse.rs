@@ -890,6 +890,26 @@ pub struct LockedDoorData {
     pub locked_door_node_map: HashMap<(RoomId, NodeId), usize>,
 }
 
+pub fn apply_link(
+    link: &Link,
+    global: &GlobalState,
+    local: LocalState,
+    reverse: bool,
+    difficulty: &DifficultyConfig,
+    game_data: &GameData,
+    locked_door_data: &LockedDoorData,
+) -> Option<LocalState> {
+    let mut new_local = apply_requirement(&link.requirement, global, local, reverse, difficulty, game_data, locked_door_data);
+    if let Some(mut new_local) = new_local {
+        if new_local.shinecharge_frames_remaining != 0 && !link.end_with_shinecharge {
+            new_local.shinecharge_frames_remaining = 0;
+        }
+        Some(new_local)
+    } else {
+        None
+    }
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
@@ -1360,10 +1380,10 @@ pub fn apply_requirement(
             shinespark_tech_id,
         } => {
             if global.tech[*shinespark_tech_id] {
-                if difficulty.energy_free_shinesparks {
-                    return Some(local);
-                }
                 let mut new_local = local;
+                if difficulty.energy_free_shinesparks {
+                    return Some(new_local);
+                }
                 if reverse {
                     if new_local.energy_used <= 28 {
                         new_local.energy_used = 28 + frames - excess_frames;
@@ -1619,8 +1639,8 @@ pub fn traverse(
                 for &(link_idx, ref link) in all_src_links {
                     let dst_id = link.to_vertex_id;
                     let dst_old_cost_arr = result.cost[dst_id];
-                    if let Some(dst_new_local_state) = apply_requirement(
-                        &link.requirement,
+                    if let Some(mut dst_new_local_state) = apply_link(
+                        &link,
                         global,
                         src_local_state,
                         reverse,

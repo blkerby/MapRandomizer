@@ -273,6 +273,8 @@ pub struct Link {
     pub from_vertex_id: VertexId,
     pub to_vertex_id: VertexId,
     pub requirement: Requirement,
+    pub start_with_shinecharge: bool,
+    pub end_with_shinecharge: bool,
     pub notable_strat_name: Option<String>,
     pub strat_name: String,
     pub strat_notes: Vec<String>,
@@ -764,6 +766,10 @@ impl LinksDataGroup {
             std::mem::swap(
                 &mut reversed_link.from_vertex_id,
                 &mut reversed_link.to_vertex_id,
+            );
+            std::mem::swap(
+                &mut reversed_link.start_with_shinecharge,
+                &mut reversed_link.end_with_shinecharge,
             );
             links_by_dst[reversed_link.from_vertex_id]
                 .push(((start_idx + idx) as LinkIdx, reversed_link));
@@ -2677,6 +2683,21 @@ impl GameData {
             main,
         }, req))
     }
+
+    pub fn does_come_in_shinecharged(&self, entrance_condition: &EntranceCondition) -> bool {
+        match entrance_condition.main {
+            MainEntranceCondition::ComeInShinecharged { .. } => true,
+            MainEntranceCondition::ComeInShinechargedJumping { .. } => true,
+            _ => false,
+        }
+    }
+
+    pub fn does_leave_shinecharged(&self, exit_condition: &ExitCondition) -> bool {
+        match exit_condition {
+            ExitCondition::LeaveShinecharged { .. } => true,
+            _ => false,
+        }
+    }
     
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
@@ -2778,6 +2799,8 @@ impl GameData {
                         from_vertex_id,
                         to_vertex_id,
                         requirement: Requirement::Free,
+                        start_with_shinecharge: false,
+                        end_with_shinecharge: false,
                         notable_strat_name: None,
                         strat_name: "G-Mode Go Back Through Door".to_string(),
                         strat_notes: vec![],
@@ -2983,10 +3006,14 @@ impl GameData {
                     obstacle_mask: if exit_condition.is_some() { 0 } else { to_obstacles_bitmask },
                     actions: to_actions.clone(),
                 });
+                let start_with_shinecharge = if let Some(e) = &entrance_condition { self.does_come_in_shinecharged(e) } else { false };
+                let end_with_shinecharge = if let Some(e) = &exit_condition { self.does_leave_shinecharged(e) } else { false };
                 let link = Link {
                     from_vertex_id,
                     to_vertex_id,
                     requirement: requirement.clone(),
+                    start_with_shinecharge,
+                    end_with_shinecharge,
                     notable_strat_name: if notable {
                         Some(notable_strat_name)
                     } else {
@@ -3021,6 +3048,8 @@ impl GameData {
                         from_vertex_id: to_vertex_id,
                         to_vertex_id: exit_to_vertex_id,
                         requirement: r.clone(),
+                        start_with_shinecharge: false,
+                        end_with_shinecharge: false,
                         notable_strat_name: None,
                         strat_name: "Base (Maybe Exit -> Exit)".to_string(),
                         strat_notes: vec![],
@@ -3038,6 +3067,8 @@ impl GameData {
                         from_vertex_id: to_vertex_id,
                         to_vertex_id: plain_to_vertex_id,
                         requirement: Requirement::Free,
+                        start_with_shinecharge: false,
+                        end_with_shinecharge: false,
                         notable_strat_name: None,
                         strat_name: "Base (Action -> Plain)".to_string(),
                         strat_notes: vec![],
@@ -3067,6 +3098,8 @@ impl GameData {
                                 from_vertex_id: to_vertex_id,
                                 to_vertex_id: unlock_vertex_id,
                                 requirement: unlock_req,
+                                start_with_shinecharge: end_with_shinecharge,
+                                end_with_shinecharge,
                                 notable_strat_name: None,
                                 strat_name: "Base (Unlock)".to_string(),
                                 strat_notes: vec![],
@@ -3077,6 +3110,8 @@ impl GameData {
                                 from_vertex_id: unlock_vertex_id,
                                 to_vertex_id: to_vertex_id,
                                 requirement: Requirement::Free,
+                                start_with_shinecharge: end_with_shinecharge,
+                                end_with_shinecharge,
                                 notable_strat_name: None,
                                 strat_name: "Base (Return from Unlock)".to_string(),
                                 strat_notes: vec![],
@@ -3727,13 +3762,25 @@ impl GameData {
         game_data.load_title_screens(title_screen_path)?;
 
         for (vertex_id, key) in game_data.vertex_isv.keys.iter().enumerate() {
-            if (key.room_id, key.node_id) == (84, 1) {
+            // if (key.room_id, key.node_id) == (193, 1) {
+            if key.room_id == 193 {
                 println!("{}: {:?}", vertex_id, key);
 
-                let to_ids: Vec<VertexId> = game_data.base_links_data.links_by_src[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
-                println!("{} -> {:?}", vertex_id, to_ids);
-                let from_ids: Vec<VertexId> = game_data.base_links_data.links_by_dst[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
-                println!("{} <- {:?}", vertex_id, from_ids);
+                for (_, link) in &game_data.base_links_data.links_by_src[vertex_id] {
+                    println!("{} -> {}: {:?}", vertex_id, link.to_vertex_id, link.requirement);
+                }
+
+                for (_, link) in &game_data.base_links_data.links_by_dst[vertex_id] {
+                    println!("{} <- {}: {:?}", vertex_id, link.to_vertex_id, link.requirement);
+                }
+
+                println!("")
+
+                // let to_ids: Vec<VertexId> = game_data.base_links_data.links_by_src[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
+                // println!("{} -> {:?}", vertex_id, to_ids);
+
+                // let from_ids: Vec<VertexId> = game_data.base_links_data.links_by_dst[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
+                // println!("{} <- {:?}", vertex_id, from_ids);
 
             }
         }

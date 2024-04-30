@@ -8,6 +8,9 @@ v112:
 - implement `setsFlags`
 - implement `collectsItems`
 - implement stored door lock flags
+- for exiting strats at door (especially gray ones), add version with comeInNormally that skips door unlock,
+  since the door stays open.
+- DONE: zero out shinecharge frames local state outside of chains of carrying shinecharge
 - stop internal (blank name) strats from showing in logic pages, spoiler routes
 - add gray doors to LockedDoorData
 - add free UnlockDoor VertexAction on exit vertices
@@ -26,6 +29,7 @@ v112:
 - fix implicit leaveWithGMode strats to not be on upward doors
 
 TODO:
+- fix issue with Low/Off QoL Chozo Desolate hanging the randomizer (won't place SpaceJump).
 - fix x-ray graphical glitches (seen in MemesAreHealthy seed):
   - affecting top row of HUD, etc.
 - beam doors?
