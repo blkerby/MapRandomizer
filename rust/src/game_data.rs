@@ -653,6 +653,7 @@ pub enum MainEntranceCondition {
     },
     ComeInShinecharging {
         effective_length: Float,
+        min_tiles: Float,
         heated: bool,
     },
     ComeInShinecharged {},
@@ -789,25 +790,52 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
         "Mickey Mouse Crumble Jump IBJ", // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark", // does not seem to be viable with the vanilla door connection
-        "Waterway Grapple Teleport Inside Wall",
+        "Waterway Grapple Teleport Inside Wall", // no way out after getting item
     ]
     .iter()
     .map(|x| x.to_string())
     .collect()
 }
 
-fn get_logical_gray_door_room_ids() -> Vec<RoomId> {
+fn get_logical_gray_door_node_ids() -> Vec<(RoomId, NodeId)> {
+    // Gray door nodes that will be modeled using an obstacle to track staying open from entering through them:
+    // This excludes Bomb Torizo Room and Pit Room since those gray doors are free to open (and Pit Room ones don't always exist).
     vec![
         // Pirate rooms:
-        12,  // Pit Room
-        82,  // Baby Kraid Room
-        139, // Metal Pirates Room
-        219, // Plasma Room
-        // Boss/miniboss rooms:
-        84,  // Kraid Room
-        193, // Draygon's Room
-        142, // Ridley's Room
-        150, // Golden Torizo Room
+        (82, 1),  // Baby Kraid Room left door
+        (82, 2),  // Baby Kraid Room right door
+        (139, 1), // Metal Pirates Room left door
+        (139, 2), // Metal Pirates Room right door
+        (219, 1), // Plasma Room left door
+        // Boss rooms:
+        (84, 1),  // Kraid Room left door
+        (84, 2),  // Kraid Room right door
+        (158, 1), // Phantoon's Room left door
+        (193, 1), // Draygon's Room left door
+        (193, 2), // Draygon's Room right door
+        (142, 1), // Ridley's Room left door
+        (142, 2), // Ridley's Room right door
+        // Miniboss rooms:
+        (57, 2),  // Spore Spawn Room bottom door
+        (122, 2), // Crocomire's Room top door
+        (185, 1), // Botwoon's Room left door
+        (150, 2), // Golden Torizo Room
+    ]
+}
+
+fn get_flagged_gray_door_node_ids() -> Vec<(RoomId, NodeId)> {
+    // Gray doors which have a side effect of setting flags that we want to model:
+    vec![
+        // Pirate rooms:
+        (12, 1),  // Pit Room left door
+        (82, 2),  // Baby Kraid Room right door
+        (139, 1), // Metal Pirates Room left door
+        (139, 2), // Metal Pirates Room right door
+        (219, 1), // Plasma Room
+        (226, 1), // Metroid Room 1
+        (227, 2), // Metroid Room 2
+        (228, 2), // Metroid Room 3
+        (229, 2), // Metroid Room 4
     ]
 }
 
@@ -1285,7 +1313,7 @@ impl GameData {
                 ]),
                 Requirement::HeatFrames(110),
             )],
-            DoorType::Grey => vec![(vec!["grey"], grey_unlock_req, Requirement::Free)],
+            DoorType::Gray => vec![(vec!["grey"], grey_unlock_req, Requirement::Free)],
         };
         let room_id = ctx.room_id;
         let to_node_id = ctx.to_node_id;
@@ -1349,7 +1377,7 @@ impl GameData {
             requirement_red: Box::new(self.get_unlocks_door_type_req(DoorType::Red, node_id, ctx)?),
             requirement_green: Box::new(self.get_unlocks_door_type_req(DoorType::Green, node_id, ctx)?),
             requirement_yellow: Box::new(self.get_unlocks_door_type_req(DoorType::Yellow, node_id, ctx)?),
-            requirement_grey: Box::new(self.get_unlocks_door_type_req(DoorType::Grey, node_id, ctx)?),
+            requirement_grey: Box::new(self.get_unlocks_door_type_req(DoorType::Gray, node_id, ctx)?),
         })
     }
 
@@ -2123,12 +2151,14 @@ impl GameData {
         }
 
         let mut obstacle_flag: Option<String> = None;
-        let logical_gray_door_room_ids = get_logical_gray_door_room_ids();
+        let logical_gray_door_node_ids: Vec<(RoomId, NodeId)> = get_logical_gray_door_node_ids();
+        let flagged_gray_door_node_ids: Vec<(RoomId, NodeId)> = get_flagged_gray_door_node_ids();
+        let mut extra_obstacles: Vec<String> = vec![];
 
         for node_json in new_room_json["nodes"].members_mut() {
             let node_id = node_json["id"].as_usize().unwrap();
-            let node_type = node_json["nodeType"].as_str().unwrap();
-            if ["door", "exit"].contains(&node_type) && node_json["useImplicitDoorUnlocks"].as_bool() != Some(false) {
+            let node_type = node_json["nodeType"].as_str().unwrap().to_string();
+            if (node_type == "door" || node_type == "exit") && node_json["useImplicitDoorUnlocks"].as_bool() != Some(false) {
                 extra_strats.push(json::object!{
                     "link": [node_id, node_id],
                     "name": "Base (Unlock Door)",
@@ -2136,7 +2166,7 @@ impl GameData {
                     "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
                 });
             }
-            if ["door", "entrance"].contains(&node_type) {
+            if (node_type == "door" || node_type == "entrance") {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap_or(node_id);
                 extra_strats.push(json::object!{
                     "link": [node_id, spawn_node_id],
@@ -2164,14 +2194,15 @@ impl GameData {
                 ];
             }
 
-            // println!("yields: {:?}", node_json["locks"][0]["yields[0].as_str());
-            if node_json["name"] == "Kraid" {
-                println!("{}", node_json);
+            if logical_gray_door_node_ids.contains(&(room_id, node_id)) {
+                let obstacle_name = format!("door_{}", node_id);
+                extra_obstacles.push(obstacle_name);
+                println!("extra obstacle: {} {}", room_id, node_id);
             }
 
             if node_json.has_key("locks")
                 && (!["door", "entrance"].contains(&node_json["nodeType"].as_str().unwrap())
-                    || logical_gray_door_room_ids.contains(&room_id))
+                    || flagged_gray_door_node_ids.contains(&(room_id, node_id)))
             {
                 ensure!(node_json["locks"].len() == 1);
                 let lock = node_json["locks"][0].clone();
@@ -2214,8 +2245,8 @@ impl GameData {
                         node_json["nodeType"].as_str().unwrap(),
                         node_json["nodeSubType"].as_str().unwrap(),
                     ) {
-                        ("door", node_sub_type) => {
-                            if node_sub_type == "grey" && get_logical_gray_door_room_ids().contains(&room_id) && lock.has_key("yields") {
+                        ("door", _) => {
+                            if flagged_gray_door_node_ids.contains(&(room_id, node_id)) {
                                 new_strat["setsFlags"] = lock["yields"].clone();
                             } else {
                                 continue;
@@ -2226,6 +2257,17 @@ impl GameData {
                         }
                         ("item", _) => {
                             new_strat["collectsItems"] = json::array![node_id];
+                            if (room_id, node_id) == (219, 2) {
+                                // Plasma Room: collecting the item closes the door.
+                                new_strat["resetsObstacles"] = json::array!["door_1"];
+                            } else if (room_id, node_id) == (150, 3) || (room_id, node_id) == (150, 4) {
+                                // Golden Torizo's Room: collecting either item closes the right door (if open).
+                                new_strat["resetsObstacles"] = json::array!["door_2"];
+                            } else if (room_id, node_id) == (122, 3) {
+                                // Crocomire's Room: collecting the item closes the top door (if open).
+                                // There's no strat yet where this could happen, but we handle it anyway just in case.
+                                new_strat["resetsObstacles"] = json::array!["door_2"];
+                            }
                         }
                         _ => {
                             continue;
@@ -2241,15 +2283,7 @@ impl GameData {
         }
 
         if let Some(obstacle_flag) = obstacle_flag {
-            if !new_room_json.has_key("obstacles") {
-                new_room_json["obstacles"] = json::array![];
-            }
-            new_room_json["obstacles"]
-                .push(json::object! {
-                    "id": obstacle_flag.clone(),
-                    "name": obstacle_flag.clone(),
-                })
-                .unwrap();
+            extra_obstacles.push(obstacle_flag.clone());
             ensure!(new_room_json["strats"].is_array());
 
             // For each strat requiring one of the "obstacle flags" listed above, modify the strat to include
@@ -2284,6 +2318,22 @@ impl GameData {
 
         for strat_json in new_room_json["strats"].members_mut() {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
+            let from_node_id = strat_json["link"][0].as_usize().unwrap();
+            let to_node_id = strat_json["link"][1].as_usize().unwrap();
+
+            if strat_json.has_key("entranceCondition") && logical_gray_door_node_ids.contains(&(room_id, from_node_id)) {
+                if !strat_json.has_key("clearsObstacles") {
+                    strat_json["clearsObstacles"] = json::array![];
+                }
+                strat_json["clearsObstacles"].push(format!("door_{}", from_node_id))?;
+            }
+
+            if (strat_json.has_key("exitCondition") || strat_json.has_key("unlocksDoors")) 
+                    && logical_gray_door_node_ids.contains(&(room_id, to_node_id)) {
+                strat_json["bypassDoorShellCondition"] = json::object! {
+                    "obstaclesCleared": [format!("door_{}", to_node_id)]
+                };
+            }
 
             if ignored_notable_strats.contains(&strat_name) {
                 if strat_json["notable"].as_bool() == Some(true) {
@@ -2302,6 +2352,22 @@ impl GameData {
                 }
             }
         }
+
+        if extra_obstacles.len() > 0 {
+            if !new_room_json.has_key("obstacles") {
+                new_room_json["obstacles"] = json::array![];
+            }
+            for obstacle_name in &extra_obstacles {
+                new_room_json["obstacles"]
+                    .push(json::object! {
+                        "id": obstacle_name.clone(),
+                        "name": obstacle_name.clone(),
+                    })
+                    .unwrap();    
+            }
+            println!("obstacles: {}", new_room_json["obstacles"]);
+        }
+
         Ok(new_room_json)
     }
 
@@ -2551,6 +2617,9 @@ impl GameData {
                     (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
                 MainEntranceCondition::ComeInShinecharging {
                     effective_length: Float::new(runway_effective_length),
+                    min_tiles: Float::new(value["minTiles"]
+                        .as_f32()
+                        .unwrap_or(0.0)),
                     heated,
                 }
             }
@@ -2946,6 +3015,13 @@ impl GameData {
 
                 let bypasses_door_shell =
                     strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
+                // "bypassDoorShellCondition" is a strat property that currently only exists in the randomizer, 
+                // for dealing with how gray doors stay open when you enter through them.
+                let bypass_condition_req = if strat_json.has_key("bypassDoorShellCondition") {
+                    Some(self.parse_requirement(&strat_json["bypassDoorShellCondition"], &ctx)?)
+                } else {
+                    None
+                };
                 if bypasses_door_shell {
                     requires_vec.push(Requirement::Tech(
                         self.tech_isv.index_by_key["canSkipDoorLock"],
@@ -2979,15 +3055,29 @@ impl GameData {
                     to_actions.push(VertexAction::Exit(e.clone()));
                     requires_vec.push(exit_req.clone().unwrap());
                 } else if ["door", "exit"].contains(&to_node_json["nodeType"].as_str().unwrap()) && strat_json.has_key("unlocksDoors") {
-                    if let Ok(req) = self.get_unlocks_doors_req(to_node_id, &ctx) {
-                        maybe_exit_req = Some(req);
+                    if let Ok(unlock_to_door_req) = self.get_unlocks_doors_req(to_node_id, &ctx) {
+                        let open_door_req = if let Some(bypass_req) = &bypass_condition_req {
+                            Requirement::make_or(vec![unlock_to_door_req, bypass_req.clone()])
+                        } else {
+                            unlock_to_door_req
+                        };
+    
+                        maybe_exit_req = Some(open_door_req);
                         to_actions.push(VertexAction::MaybeExit(ExitCondition::LeaveNormally {}, maybe_exit_req.clone().unwrap()));
                     }
                 }
 
                 if !bypasses_door_shell && exit_condition.is_some() {
                     let unlock_to_door_req = self.get_unlocks_doors_req(to_node_id, &ctx)?;
-                    requires_vec.push(unlock_to_door_req);
+
+                    let open_door_req = if let Some(bypass_req) = &bypass_condition_req {
+                        Requirement::make_or(vec![unlock_to_door_req, bypass_req.clone()])
+                    } else {
+                        to_actions.push(VertexAction::DoorUnlock(to_node_id, usize::MAX));
+                        unlock_to_door_req
+                    };
+    
+                    requires_vec.push(open_door_req);
                 }
 
                 let requirement = Requirement::make_and(requires_vec);
@@ -3038,11 +3128,17 @@ impl GameData {
                 }
 
                 if let Some(r) = &maybe_exit_req {
+                    let mut actions = vec![
+                        VertexAction::Exit(ExitCondition::LeaveNormally {}),
+                    ];
+                    if bypass_condition_req.is_none() {
+                        actions.push(VertexAction::DoorUnlock(to_node_id, usize::MAX));
+                    }
                     let exit_to_vertex_id = self.vertex_isv.add(&VertexKey {
                         room_id,
                         node_id: to_node_id,
                         obstacle_mask: 0,
-                        actions: vec![VertexAction::Exit(ExitCondition::LeaveNormally {})],
+                        actions,
                     });
                     self.links.push(Link {
                         from_vertex_id: to_vertex_id,
@@ -3086,6 +3182,9 @@ impl GameData {
                         }
                     }
                     for unlock_node_id in unlock_node_id_set {
+                        if unlock_node_id == to_node_id && exit_condition.is_some() {
+                            continue;
+                        }
                         let unlock_vertex_id = self.vertex_isv.add(&VertexKey {
                             room_id,
                             node_id: to_node_id,
@@ -3274,6 +3373,8 @@ impl GameData {
             let vertices = flag_location_vertex_map.get(&flag_id).unwrap_or(&empty_vec);
             self.flag_vertex_ids.push(vertices.clone())
         }
+
+
 
         Ok(())
     }
@@ -3763,25 +3864,18 @@ impl GameData {
 
         for (vertex_id, key) in game_data.vertex_isv.keys.iter().enumerate() {
             // if (key.room_id, key.node_id) == (193, 1) {
-            if key.room_id == 193 {
+            if key.room_id == 169 {
                 println!("{}: {:?}", vertex_id, key);
 
                 for (_, link) in &game_data.base_links_data.links_by_src[vertex_id] {
-                    println!("{} -> {}: {:?}", vertex_id, link.to_vertex_id, link.requirement);
+                    println!("{} -> {}: \"{}\" - {:?}", vertex_id, link.to_vertex_id, link.strat_name, link.requirement);
                 }
 
                 for (_, link) in &game_data.base_links_data.links_by_dst[vertex_id] {
-                    println!("{} <- {}: {:?}", vertex_id, link.to_vertex_id, link.requirement);
+                    println!("{} <- {}: \"{}\" - {:?}", vertex_id, link.to_vertex_id, link.strat_name, link.requirement);
                 }
 
                 println!("")
-
-                // let to_ids: Vec<VertexId> = game_data.base_links_data.links_by_src[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
-                // println!("{} -> {:?}", vertex_id, to_ids);
-
-                // let from_ids: Vec<VertexId> = game_data.base_links_data.links_by_dst[vertex_id].iter().map(|x| x.1.to_vertex_id).collect();
-                // println!("{} <- {:?}", vertex_id, from_ids);
-
             }
         }
 

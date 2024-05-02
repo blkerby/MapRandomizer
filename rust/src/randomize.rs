@@ -235,6 +235,12 @@ struct FlagLocationState {
 }
 
 #[derive(Clone)]
+struct DoorState {
+    pub bireachable: bool,
+    pub bireachable_vertex_id: Option<VertexId>,
+}
+
+#[derive(Clone)]
 struct SaveLocationState {
     pub bireachable: bool,
 }
@@ -252,7 +258,7 @@ pub enum DoorType {
     Red,
     Green,
     Yellow,
-    Grey,
+    Gray,
 }
 
 #[derive(Clone, Copy)]
@@ -273,6 +279,7 @@ struct RandomizationState {
     save_location_state: Vec<SaveLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
+    door_state: Vec<DoorState>,  // Corresponds to LockedDoorData.locked_doors
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     global_state: GlobalState,
     debug_data: Option<DebugData>,
@@ -544,9 +551,10 @@ impl<'a> Preprocessor<'a> {
             ),
             MainEntranceCondition::ComeInShinecharging {
                 effective_length,
+                min_tiles,
                 heated,
             } => {
-                self.get_come_in_shinecharging_reqs(exit_condition, effective_length.get(), *heated)
+                self.get_come_in_shinecharging_reqs(exit_condition, effective_length.get(), min_tiles.get(), *heated)
             }
             MainEntranceCondition::ComeInShinecharged {} => {
                 self.get_come_in_shinecharged_reqs(exit_condition)
@@ -578,6 +586,7 @@ impl<'a> Preprocessor<'a> {
                 if let Some(req) = self.get_come_in_shinecharging_reqs(
                     exit_condition,
                     effective_runway_length.get() - 5.0,
+                    0.0,
                     false,
                 ) {
                     req_or.push(Requirement::make_and(vec![
@@ -590,6 +599,7 @@ impl<'a> Preprocessor<'a> {
                 if let Some(req) = self.get_come_in_shinecharging_reqs(
                     exit_condition,
                     effective_runway_length.get() - 14.0,
+                    0.0,
                     false,
                 ) {
                     req_or.push(req);
@@ -779,6 +789,7 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_condition: &ExitCondition,
         mut runway_length: f32,
+        min_tiles: f32,
         runway_heated: bool,
     ) -> Option<Requirement> {
         match exit_condition {
@@ -789,6 +800,9 @@ impl<'a> Preprocessor<'a> {
                 from_exit_node,
             } => {
                 let mut effective_length = effective_length.get();
+                if effective_length < min_tiles {
+                    return None;
+                }
                 if runway_length < 0.0 {
                     // TODO: remove this hack: strats with negative runway length here coming in should use comeInBlueSpinning instead.
                     // add a test on the sm-json-data side to enforce this.
@@ -1865,7 +1879,7 @@ pub fn randomize_doors(
         locked_doors.push(LockedDoor {
             src_ptr_pair: door_ptr_pair,
             dst_ptr_pair: door_ptr_pair, // Not bothering to populate this correctly since it is unused
-            door_type: DoorType::Grey,
+            door_type: DoorType::Gray,
             bidirectional: false,
         });
     }
@@ -1889,9 +1903,17 @@ pub fn randomize_doors(
         locked_door_node_map.insert((32, 8), idx);
     }
 
+    let mut locked_door_vertex_ids = vec![vec![]; locked_doors.len()];
+    for (&(room_id, node_id), vertex_ids) in &game_data.node_door_unlock {
+        if let Some(&locked_door_idx) = locked_door_node_map.get(&(room_id, node_id)) {
+            locked_door_vertex_ids[locked_door_idx].extend(vertex_ids);
+        }
+    }
+
     LockedDoorData {
         locked_doors,
         locked_door_node_map,
+        locked_door_vertex_ids,
     }
 }
 
@@ -2211,7 +2233,25 @@ impl<'r> Randomizer<'r> {
                 }
             }
         }
+        for (i, vertex_ids) in self.locked_door_data.locked_door_vertex_ids.iter().enumerate() {
+            // Clear out any previous bireachable markers (because in rare cases a previously bireachable
+            // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for
+            // resource management.)
+            state.door_state[i].bireachable = false;
+            state.door_state[i].bireachable_vertex_id = None;
 
+            for &v in vertex_ids {
+                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                    if !state.door_state[i].bireachable
+                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                            .is_some()
+                    {
+                        state.door_state[i].bireachable = true;
+                        state.door_state[i].bireachable_vertex_id = Some(v);
+                    }
+                }
+            }
+        }
         for (i, (room_id, node_id)) in self.game_data.save_locations.iter().enumerate() {
             state.save_location_state[i].bireachable = false;
             let vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
@@ -2730,6 +2770,7 @@ impl<'r> Randomizer<'r> {
             item_location_state: state.item_location_state.clone(),
             flag_location_state: state.flag_location_state.clone(),
             save_location_state: state.save_location_state.clone(),
+            door_state: state.door_state.clone(),
             items_remaining: state.items_remaining.clone(),
             global_state: state.global_state.clone(),
             debug_data: None,
@@ -2821,14 +2862,16 @@ impl<'r> Randomizer<'r> {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
+        let mut spoiler_door_summaries: Vec<SpoilerDoorSummary> = Vec::new();
+        let mut spoiler_door_details: Vec<SpoilerDoorDetails> = Vec::new();
         loop {
-            let mut any_new_flag = false;
+            let mut any_update = false;
             for (i, &flag_id) in self.game_data.flag_ids.iter().enumerate() {
                 if state.global_state.flags[flag_id] {
                     continue;
                 }
                 if state.flag_location_state[i].bireachable {
-                    any_new_flag = true;
+                    any_update = true;
                     let flag_vertex_id =
                         state.flag_location_state[i].bireachable_vertex_id.unwrap();
                     spoiler_flag_summaries.push(self.get_spoiler_flag_summary(
@@ -2844,7 +2887,27 @@ impl<'r> Randomizer<'r> {
                     state.global_state.flags[flag_id] = true;
                 }
             }
-            if any_new_flag {
+            for i in 0..self.locked_door_data.locked_doors.len() {
+                if state.global_state.doors_unlocked[i] {
+                    continue;
+                }
+                if state.door_state[i].bireachable {
+                    any_update = true;
+                    let door_vertex_id = state.door_state[i].bireachable_vertex_id.unwrap();
+                    spoiler_door_summaries.push(self.get_spoiler_door_summary(
+                        &state,
+                        door_vertex_id,
+                        i,
+                    ));
+                    spoiler_door_details.push(self.get_spoiler_door_details(
+                        &state,
+                        door_vertex_id,
+                        i,
+                    ));
+                    state.global_state.doors_unlocked[i] = true;
+                }
+            }
+            if any_update {
                 self.update_reachability(state);
             } else {
                 break;
@@ -2855,9 +2918,9 @@ impl<'r> Randomizer<'r> {
             info!("Stopping early");
             self.update_reachability(state);
             let spoiler_summary =
-                self.get_spoiler_summary(&orig_global_state, state, &state, spoiler_flag_summaries);
+                self.get_spoiler_summary(&orig_global_state, state, &state, spoiler_flag_summaries, spoiler_door_summaries);
             let spoiler_details =
-                self.get_spoiler_details(&orig_global_state, state, &state, spoiler_flag_details);
+                self.get_spoiler_details(&orig_global_state, state, &state, spoiler_flag_details, spoiler_door_details);
             state.previous_debug_data = state.debug_data.clone();
             return (spoiler_summary, spoiler_details, true);
         }
@@ -2940,9 +3003,10 @@ impl<'r> Randomizer<'r> {
             state,
             &new_state,
             spoiler_flag_summaries,
+            spoiler_door_summaries,
         );
         let spoiler_details =
-            self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details);
+            self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details, spoiler_door_details);
         *state = new_state;
         (spoiler_summary, spoiler_details, false)
     }
@@ -3442,6 +3506,10 @@ impl<'r> Randomizer<'r> {
             bireachable_vertex_id: None,
         };
         let initial_save_location_state = SaveLocationState { bireachable: false };
+        let initial_door_state = DoorState {
+            bireachable: false,
+            bireachable_vertex_id: None,
+        };
         let num_attempts_start_location = 10;
         let (start_location, hub_location) = self.determine_start_location(
             attempt_num_rando,
@@ -3470,6 +3538,10 @@ impl<'r> Randomizer<'r> {
             save_location_state: vec![
                 initial_save_location_state;
                 self.game_data.save_locations.len()
+            ],
+            door_state: vec![
+                initial_door_state;
+                self.locked_door_data.locked_doors.len()
             ],
             items_remaining: self.initial_items_remaining.clone(),
             global_state: initial_global_state,
@@ -3643,10 +3715,19 @@ pub struct SpoilerFlagDetails {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct SpoilerDoorDetails {
+    door_type: String,
+    location: SpoilerLocation,
+    obtain_route: Vec<SpoilerRouteEntry>,
+    return_route: Vec<SpoilerRouteEntry>,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct SpoilerDetails {
     step: usize,
     start_state: SpoilerStartState,
     flags: Vec<SpoilerFlagDetails>,
+    doors: Vec<SpoilerDoorDetails>,
     items: Vec<SpoilerItemDetails>,
 }
 
@@ -3675,13 +3756,19 @@ pub struct SpoilerItemSummary {
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerFlagSummary {
     flag: String,
-    // area: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerDoorSummary {
+    door_type: String,
+    location: SpoilerLocation,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerSummary {
     pub step: usize,
     pub flags: Vec<SpoilerFlagSummary>,
+    pub doors: Vec<SpoilerDoorSummary>,
     pub items: Vec<SpoilerItemSummary>,
 }
 
@@ -4002,6 +4089,42 @@ impl<'a> Randomizer<'a> {
         }
     }
 
+    fn get_spoiler_door_details(
+        &self,
+        state: &RandomizationState,
+        unlock_vertex_id: usize,
+        locked_door_idx: usize,
+    ) -> SpoilerDoorDetails {
+        let (obtain_route, return_route) =
+            self.get_spoiler_route_birectional(state, unlock_vertex_id);
+        let locked_door = &self.locked_door_data.locked_doors[locked_door_idx];
+        let (room_id, node_id) = self.game_data.door_ptr_pair_map[&locked_door.src_ptr_pair];
+        let door_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
+            room_id,
+            node_id,
+            obstacle_mask: 0,
+            actions: vec![],
+        }];
+        let door_vertex_info = self.get_vertex_info(door_vertex_id);
+        SpoilerDoorDetails {
+            door_type: match self.locked_door_data.locked_doors[locked_door_idx].door_type {
+                DoorType::Blue => "blue",
+                DoorType::Red => "red",
+                DoorType::Green => "green",
+                DoorType::Yellow => "yellow",
+                DoorType::Gray => "gray",
+            }.to_string(),
+            location: SpoilerLocation {
+                area: door_vertex_info.area_name,
+                room: door_vertex_info.room_name,
+                node: door_vertex_info.node_name,
+                coords: door_vertex_info.room_coords,
+            },
+            obtain_route: obtain_route,
+            return_route: return_route,
+        }
+    }
+
     fn get_spoiler_flag_summary(
         &self,
         _state: &RandomizationState,
@@ -4014,12 +4137,45 @@ impl<'a> Randomizer<'a> {
         }
     }
 
+    fn get_spoiler_door_summary(
+        &self,
+        state: &RandomizationState,
+        _unlock_vertex_id: usize,
+        locked_door_idx: usize,
+    ) -> SpoilerDoorSummary {
+        let locked_door = &self.locked_door_data.locked_doors[locked_door_idx];
+        let (room_id, node_id) = self.game_data.door_ptr_pair_map[&locked_door.src_ptr_pair];
+        let door_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
+            room_id,
+            node_id,
+            obstacle_mask: 0,
+            actions: vec![],
+        }];
+        let door_vertex_info = self.get_vertex_info(door_vertex_id);
+        SpoilerDoorSummary {
+            door_type: match self.locked_door_data.locked_doors[locked_door_idx].door_type {
+                DoorType::Blue => "blue",
+                DoorType::Red => "red",
+                DoorType::Green => "green",
+                DoorType::Yellow => "yellow",
+                DoorType::Gray => "gray",
+            }.to_string(),
+            location: SpoilerLocation {
+                area: door_vertex_info.area_name,
+                room: door_vertex_info.room_name,
+                node: door_vertex_info.node_name,
+                coords: door_vertex_info.room_coords,
+            },
+        }
+    }
+
     fn get_spoiler_details(
         &self,
         orig_global_state: &GlobalState, // Global state before acquiring new flags
         state: &RandomizationState,      // State after acquiring new flags but not new items
         new_state: &RandomizationState,  // State after acquiring new flags and new items
         spoiler_flag_details: Vec<SpoilerFlagDetails>,
+        spoiler_door_details: Vec<SpoilerDoorDetails>,
     ) -> SpoilerDetails {
         let mut items: Vec<SpoilerItemDetails> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
@@ -4043,6 +4199,7 @@ impl<'a> Randomizer<'a> {
             start_state: self.get_spoiler_start_state(orig_global_state),
             items,
             flags: spoiler_flag_details,
+            doors: spoiler_door_details,
         }
     }
 
@@ -4052,6 +4209,7 @@ impl<'a> Randomizer<'a> {
         state: &RandomizationState,       // State after acquiring new flags but not new items
         new_state: &RandomizationState,   // State after acquiring new flags and new items
         spoiler_flag_summaries: Vec<SpoilerFlagSummary>,
+        spoiler_door_summaries: Vec<SpoilerDoorSummary>,
     ) -> SpoilerSummary {
         let mut items: Vec<SpoilerItemSummary> = Vec::new();
         for i in 0..self.game_data.item_locations.len() {
@@ -4072,6 +4230,7 @@ impl<'a> Randomizer<'a> {
             step: state.step_num,
             items,
             flags: spoiler_flag_summaries,
+            doors: spoiler_door_summaries,
         }
     }
 }

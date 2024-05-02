@@ -2142,7 +2142,7 @@ impl<'a> Patcher<'a> {
         self.assign_locked_door_states();
         for (i, door) in self.randomization.locked_door_data.locked_doors.iter().enumerate() {
             let mut door = *door;
-            if door.door_type == DoorType::Grey {
+            if door.door_type == DoorType::Gray {
                 // Skipping gray doors since they are already handled elsewhere.
                 // TODO: simplify things by just handling it here?
                 continue;

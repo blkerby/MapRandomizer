@@ -7,7 +7,7 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     game_data::{
-        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, WeaponMask
+        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
     },
     randomize::{DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objectives, WallJump},
 };
@@ -888,6 +888,7 @@ fn apply_heat_frames(
 pub struct LockedDoorData {
     pub locked_doors: Vec<LockedDoor>,
     pub locked_door_node_map: HashMap<(RoomId, NodeId), usize>,
+    pub locked_door_vertex_ids: Vec<Vec<VertexId>>,
 }
 
 pub fn apply_link(
@@ -1450,7 +1451,7 @@ pub fn apply_requirement(
                     DoorType::Yellow => {
                         apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
                     }
-                    DoorType::Grey => {
+                    DoorType::Gray => {
                         apply_requirement(requirement_grey, global, local, reverse, difficulty, game_data, locked_door_data)
                     }
                 }

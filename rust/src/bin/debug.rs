@@ -164,6 +164,7 @@ fn run_scenario(
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),
+        locked_door_vertex_ids: vec![],
     };
 
     let new_local_state_opt = apply_requirement(

@@ -1,34 +1,29 @@
 v112:
-- implement `leaveWithTemporaryBlue`
-- implement `comeInShinecharging` property `minTiles`
-- implement new exit/entrance conditions:
+- DONE: implement `leaveWithTemporaryBlue`
+- DONE: implement `comeInShinecharging` property `minTiles`
+- DONE: implement new exit/entrance conditions:
   - leaveSpaceJumping, leaveWithMockball, leaveSpinning, leaveWithSpringBallBounce
   - comeInSpaceJumping, comeInWithMockball, comeInBlueSpinning, comeInWithSpringBallBounce
-- implement `unlocksDoors`
-- implement `setsFlags`
-- implement `collectsItems`
-- implement stored door lock flags
-- for exiting strats at door (especially gray ones), add version with comeInNormally that skips door unlock,
-  since the door stays open.
+- DONE: implement `unlocksDoors`
+- DONE: implement `setsFlags`
+- DONE: implement `collectsItems`
+- DONE: implement stored door lock flags
+- add obstacle to remember gray door stays open
+  - reset obstacle when collecting item
 - DONE: zero out shinecharge frames local state outside of chains of carrying shinecharge
-- stop internal (blank name) strats from showing in logic pages, spoiler routes
-- add gray doors to LockedDoorData
-- add free UnlockDoor VertexAction on exit vertices
+- DONE: stop internal (blank name) strats from showing in logic pages, spoiler routes
+- DONE: add gray doors to LockedDoorData
+- DONE: add free UnlockDoor VertexAction on exit vertices
 - restrict "go back with g-mode" to not apply to down doors.
 - add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
-- check zebes awake logic (pit room in particular)
+- check zebes awake logic (pit room & metroid rooms in particular)
 - check draygon logic:
   - eddie seed: https://maprando.com/seed/SQeiaLXazAu4FsRBdB7azw/data/visualizer/index.html
     - why was draygon not logically beatable earlier?
-- fix spoiler map bug:
-  - cross-room strat with bypass door lock not linking correctly:
-    - step 7 of https://maprando.com/seed/Z7LuFEcUqkp0MGnf0GDzwQ/data/visualizer/index.html
-    - broken link (wrong room): https://maprando.com/logic/room/MainStreet/1/1/CovernOrAtomicIceClipDoorLockSkip
-- instructions on gmode and artificial morph
-- fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
-- fix implicit leaveWithGMode strats to not be on upward doors
 
 TODO:
+- instructions on gmode and artificial morph
+- fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
 - fix issue with Low/Off QoL Chozo Desolate hanging the randomizer (won't place SpaceJump).
 - fix x-ray graphical glitches (seen in MemesAreHealthy seed):
   - affecting top row of HUD, etc.
