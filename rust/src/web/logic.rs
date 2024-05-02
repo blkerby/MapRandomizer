@@ -555,10 +555,10 @@ fn make_room_template<'a>(
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
-        // if strat_name.starts_with("Base (") {
-        //     // Ignore internal strats for unlocking doors, etc.
-        //     continue;
-        // }
+        if strat_name.starts_with("Base (") {
+            // Ignore internal strats for unlocking doors, etc.
+            continue;
+        }
         let difficulty_idx = get_strat_difficulty(
             room_id,
             from_node_id,

@@ -1933,6 +1933,31 @@ impl GameData {
         }
     }
 
+    fn override_spore_spawn_room(&mut self, room_json: &mut JsonValue) {
+        // Add lock on bottom door:
+        let mut found = false;
+        for node_json in room_json["nodes"].members_mut() {
+            if node_json["id"].as_i32().unwrap() == 2 {
+                found = true;
+                node_json["nodeSubType"] = "grey".into();
+                node_json["locks"] = json::array![
+                  {
+                    "name": "Spore Spawn Gray Lock",
+                    "lockType": "bossFight",
+                    "unlockStrats": [
+                      {
+                        "name": "Base",
+                        "notable": false,
+                        "requires": ["f_DefeatedSporeSpawn"]
+                      }
+                    ]
+                  }
+                ];
+            }
+        }
+        assert!(found);
+    }
+
     fn override_pit_room(&mut self, room_json: &mut JsonValue) {
         // Add yielded flag "f_ClearedPitRoom" to gray door unlocks:
         for node_json in room_json["nodes"].members_mut() {
@@ -2204,6 +2229,7 @@ impl GameData {
             82 => self.override_baby_kraid_room(&mut new_room_json),
             139 => self.override_metal_pirates_room(&mut new_room_json),
             219 => self.override_plasma_room(&mut new_room_json),
+            57 => self.override_spore_spawn_room(&mut new_room_json),
             226 => self.override_metroid_room_1(&mut new_room_json),
             227 => self.override_metroid_room_2(&mut new_room_json),
             228 => self.override_metroid_room_3(&mut new_room_json),
