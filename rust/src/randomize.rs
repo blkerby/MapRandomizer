@@ -1860,30 +1860,6 @@ pub fn randomize_doors(
         }
     };
 
-    let gray_door_nodes = vec![
-        (82, 1),  // Baby Kraid Room left door
-        (82, 2),  // Baby Kraid Room right door
-        (139, 1), // Metal Pirates Room left door
-        (139, 2), // Metal Pirates Room right door
-        (219, 1), // Plasma Room left door
-        (84, 1),  // Kraid Room left door
-        (84, 2),  // Kraid Room right door
-        (193, 1), // Draygon's Room left door
-        (193, 2), // Draygon's Room right door
-        (142, 1), // Ridley's Room left door
-        (142, 2), // Ridley's Room right door
-        (150, 2), // Golden Torizo Room
-    ];
-    for (room_id, node_id) in gray_door_nodes {
-        let door_ptr_pair = game_data.reverse_door_ptr_pair_map[&(room_id, node_id)];
-        locked_doors.push(LockedDoor {
-            src_ptr_pair: door_ptr_pair,
-            dst_ptr_pair: door_ptr_pair, // Not bothering to populate this correctly since it is unused
-            door_type: DoorType::Gray,
-            bidirectional: false,
-        });
-    }
-
     let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
     for (i, door) in locked_doors.iter().enumerate() {
         let (src_room_id, src_node_id) = game_data.door_ptr_pair_map[&door.src_ptr_pair];
@@ -3597,11 +3573,11 @@ impl<'r> Randomizer<'r> {
                 // No further progress was made on the last step. So we are done with this attempt: either we have
                 // succeeded or we have failed.
 
-                // TODO: get rid of this
-                if self.difficulty_tiers[0].debug_options.is_some() {
-                    // If debugging, accept failed seed generation.
-                    break;
-                }
+                // // TODO: get rid of this
+                // if self.difficulty_tiers[0].debug_options.is_some() {
+                //     // If debugging, accept failed seed generation.
+                //     break;
+                // }
 
                 // Check that at least one instance of each item can be collected.
                 for i in 0..self.initial_items_remaining.len() {

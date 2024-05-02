@@ -229,9 +229,8 @@ fn apply_draygon_requirement(
     let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(&global);
 
-    // Assume an accuracy of between 40% (on lowest difficulty) to 80% (on highest).
-    // Even with high skill, it is normal to spend some Missiles on clearing goops.
-    let accuracy = 0.4 + 0.4 * proficiency;
+    // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
+    let accuracy = 0.4 + 0.6 * proficiency;
 
     // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest).
     let firing_rate = 0.6 + 0.4 * proficiency;
@@ -248,15 +247,15 @@ fn apply_draygon_requirement(
         global.items[Item::Plasma as usize],
         global.items[Item::Wave as usize],
     ) {
-        (false, _) => 6.0,    // Basic beam
-        (true, false) => 9.0, // Plasma can hit multiple goops at once.
-        (true, true) => 12.0, // Wave+Plasma can hit even more goops at once.
+        (false, _) => 7.0,    // Basic beam
+        (true, false) => 10.0, // Plasma can hit multiple goops at once.
+        (true, true) => 13.0, // Wave+Plasma can hit even more goops at once.
     };
     let goop_farms_per_cycle = if global.items[Item::Gravity as usize] {
         farm_proficiency * base_goop_farms_per_cycle
     } else {
         // Without Gravity you can't farm as many goops since you have to spend more time avoiding Draygon.
-        0.5 * farm_proficiency * base_goop_farms_per_cycle
+        0.75 * farm_proficiency * base_goop_farms_per_cycle
     };
     let energy_farm_rate =
         GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
@@ -269,6 +268,13 @@ fn apply_draygon_requirement(
         // Without Gravity, assume one Draygon hit per cycle as the maximum rate of damage to Samus:
         160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
     };
+
+    // We assume as many Supers are available can be used immediately (e.g. on the first goop cycle):
+    let supers_available = global.max_supers - local.supers_used;
+    boss_hp -= (supers_available as f32) * accuracy * 300.0;
+    if boss_hp < 0.0 {
+        return Some(local);
+    }
 
     let missiles_available = global.max_missiles - local.missiles_used;
     let missile_firing_rate = 20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
@@ -307,15 +313,18 @@ fn apply_draygon_requirement(
         if net_dps < 0.0 {
             net_dps = 0.0;
         }
-        // We don't account for Missiles used, since they can be farmed or picked up after the fight, and we don't
+        let total_damage = (net_dps * time) as Capacity;
+        // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
         // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
         let result = LocalState {
             energy_used: local.energy_used + (net_dps * time) as Capacity,
             ..local
         };
-        // TODO: if the player can get behind Draygon during goop phase, it can be possible to safely Crystal Flash. Consider using one if validate_energy fails and
-        // Crystal Flashes are in logic.
-        return validate_energy(result, global, game_data);
+        if validate_energy(result, global, game_data).is_some() {
+            return Some(local);
+        } else {
+            return None;
+        }
     } else {
         return None;
     }
@@ -1432,7 +1441,7 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow, requirement_grey } => {
+        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow } => {
             if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
                 let door_type = locked_door_data.locked_doors[*locked_door_idx].door_type;
                 if global.doors_unlocked[*locked_door_idx] {
@@ -1451,9 +1460,7 @@ pub fn apply_requirement(
                     DoorType::Yellow => {
                         apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
                     }
-                    DoorType::Gray => {
-                        apply_requirement(requirement_grey, global, local, reverse, difficulty, game_data, locked_door_data)
-                    }
+                    DoorType::Gray => panic!("Unexpected gray door while processing Requirement::UnlockDoor")
                 }
             } else {
                 Some(local)

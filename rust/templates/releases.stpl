@@ -14,14 +14,15 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 112 (2024-04-28)</a>:
+<p><a id="release110">Version 112 (2024-05-02)</a>:
 <ul>
 <li>Logic updates:
     <ul>
+    <li>Draygon logic is tightened, especially for low-ammo scenarios on high difficulty settings.
     <li>New tech:
         <ul>
-        <li>canMomentumConservingMorph (Expert)
         <li>canPreciseSpaceJump (Expert)
+        <li>canMomentumConservingMorph (Expert)
         <li>canLongChainTemporaryBlue (Extreme)
         <li>canSandBombBoost (Extreme)
         <li>canSandGrappleBoost (Insane)

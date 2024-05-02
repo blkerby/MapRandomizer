@@ -401,9 +401,7 @@
     <p>The escape timer is determined by computing the fastest path from Mother Brain Room to the Ship (including a
     detour to Bomb Torizo Room if "Save the animals" is enabled). This is based on manually constructed
     <a href="https://github.com/blkerby/MapRandomizer/blob/main/rust/data/escape_timings.json">escape timing data</a>
-    which gives a timing between every pair of doors in every room. The base timings are humanly-viable for an
-    individual room but would be quite tight for a whole escape sequence, so a minimum of an extra 10% time is added
-    for leniency, with additional extra time on top of that based on the difficulty settings.</p>
+    which gives a timing between every pair of doors in every room. Extra time is added for leniency based on the difficulty settings.</p>
 
     <p>For escape timings that rely on tech in an important way, this is taken into account by making the timings
     conditional on the tech (and where applicable, including alternative timings that do not use the tech):
@@ -420,7 +418,7 @@
     </ul></p>
 
     <p>For other more minor uses of tech (e.g. "canMockball"), the base timings assume that the tech can be used,
-    and the difficulty multiplier should be enough to account for the player's potentially inability to do
+    and the difficulty multiplier should be enough to account for the player's potential inability to do
     the tech on lower difficulty settings.</p>
 
     <p>For timings which are heavily affected by the "Enemies cleared during escape" option, two timings are included

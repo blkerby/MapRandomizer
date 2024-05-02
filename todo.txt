@@ -8,16 +8,16 @@ v112:
 - DONE: implement `setsFlags`
 - DONE: implement `collectsItems`
 - DONE: implement stored door lock flags
-- add obstacle to remember gray door stays open
-  - reset obstacle when collecting item
+- DONE: add obstacle to remember gray door stays open
+  - DONE: reset obstacle when collecting item
 - DONE: zero out shinecharge frames local state outside of chains of carrying shinecharge
 - DONE: stop internal (blank name) strats from showing in logic pages, spoiler routes
 - DONE: add gray doors to LockedDoorData
 - DONE: add free UnlockDoor VertexAction on exit vertices
-- restrict "go back with g-mode" to not apply to down doors.
+- DONE: restrict "go back with g-mode" to not apply to down doors.
 - add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
 - check zebes awake logic (pit room & metroid rooms in particular)
-- check draygon logic:
+- DONE: check draygon logic:
   - eddie seed: https://maprando.com/seed/SQeiaLXazAu4FsRBdB7azw/data/visualizer/index.html
     - why was draygon not logically beatable earlier?
 

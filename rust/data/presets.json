@@ -179,7 +179,6 @@
       "canTrickyJump",
       "canPrepareForNextRoom",
       "canMomentumConservingTurnaround",
-      "canMomentumConservingMorph",
       "canSpringBallBombJump",
       "canSpeedball",
       "canShinechargeMovementComplex",
@@ -333,7 +332,7 @@
     "resource_multiplier": 1.1,
     "escape_timer_multiplier": 1.1,
     "phantoon_proficiency": 1.0,
-    "draygon_proficiency": 1.0,
+    "draygon_proficiency": 0.9,
     "ridley_proficiency": 0.825,
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
@@ -368,7 +367,8 @@
       "canEnemyExtendRunway",
       "can10PowerBombCrystalFlash",
       "canGrappleTeleport",
-      "canPreciseSpaceJump"
+      "canPreciseSpaceJump",
+      "canMomentumConservingMorph"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -490,7 +490,7 @@
     "resource_multiplier": 1.05,
     "escape_timer_multiplier": 1.05,
     "phantoon_proficiency": 1.0,
-    "draygon_proficiency": 1.0,
+    "draygon_proficiency": 0.95,
     "ridley_proficiency": 0.9,
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
