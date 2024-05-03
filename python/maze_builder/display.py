@@ -211,15 +211,25 @@ class MapDisplay:
 
     def display_vanilla_areas(self, map):
         color_map = {
-            SubArea.CRATERIA_AND_BLUE_BRINSTAR: (0x80, 0x80, 0x80),
-            SubArea.GREEN_AND_PINK_BRINSTAR: (0x80, 0xff, 0x80),
-            SubArea.RED_BRINSTAR_AND_WAREHOUSE: (0x60, 0xc0, 0x60),
+            SubArea.WEST_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.SOUTH_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.CENTRAL_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.EAST_CRATERIA: (0x80, 0x80, 0x80),
+            SubArea.BLUE_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.GREEN_BRINSTAR: (0x80, 0xff, 0x80),
+            SubArea.PINK_BRINSTAR: (0x80, 0xff, 0x80),    
+            SubArea.RED_BRINSTAR: (0x60, 0xc0, 0x60),
+            SubArea.WAREHOUSE_BRINSTAR: (0x60, 0xc0, 0x60),
             SubArea.UPPER_NORFAIR: (0xff, 0x80, 0x80),
             SubArea.LOWER_NORFAIR: (0xc0, 0x60, 0x60),
             SubArea.OUTER_MARIDIA: (0x80, 0x80, 0xff),
-            SubArea.INNER_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.GREEN_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.PINK_MARIDIA: (0x60, 0x60, 0xc0),
+            SubArea.YELLOW_MARIDIA: (0x60, 0x60, 0xc0),
             SubArea.WRECKED_SHIP: (0xff, 0xff, 0x80),
-            SubArea.TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.UPPER_TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.LOWER_TOURIAN: (0xc0, 0xc0, 0xc0),
+            SubArea.ESCAPE_TOURIAN: (0xc0, 0xc0, 0xc0),
         }
 
         colors = [color_map[room.sub_area] for room in rooms]
