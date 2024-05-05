@@ -302,7 +302,7 @@ function itemProgressionPresetChanged() {
         <% } %>
         document.getElementById("fillerItemsSuperYes").checked = true;
         document.getElementById("fillerItemsPowerBombYes").checked = true;
-        document.getElementById("fillerItemsETankYes").checked = true;
+        document.getElementById("fillerItemsETankEarly").checked = true;
         document.getElementById("fillerItemsReserveTankYes").checked = true;
         document.getElementById("fillerItemsChargeYes").checked = true;
         document.getElementById("fillerItemsIceYes").checked = true;

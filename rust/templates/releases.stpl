@@ -14,8 +14,27 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 112 (2024-05-02)</a>:
+<p><a id="release110">Version 112 (2024-05-05)</a>:
 <ul>
+<li>New option "Item priority strength" is added:
+    <ul>
+    <li>The new setting "Moderate" improves seed variety by not enforcing key item priority as rigidly.
+    <li>The other setting "Heavy" can be used to get the old behavior.
+    </ul>
+<li>Item progression presets are updated:
+    <ul>
+    <li>ETank is now an Early filler item in "Tricky" (same as in "Normal").
+    <li>All the item progression presets now use the new "Moderate" item priority strength.
+    <li>Key item priority settings are adjusted:
+        <ul>
+        <li>Varia and Gravity continue to have "Late" priority across all presets.
+        <li>Screw Attack and Space Jump are moved from "Late" to "Default". 
+        <li>Wall Jump continues to have "Default" priority.
+        <li>In "Tricky", all other items are moved to "Early" priority.
+        <li>"Challenge" and "Desolate" priorities are the same as "Tricky", except Morph is "Default" instead of "Early".
+        <li>ETank is no longer an Early key item in "Normal" (though still an Early filler item).
+        </ul>
+    </ul>
 <li>Logic updates:
     <ul>
     <li>Draygon logic is tightened, especially for low-ammo scenarios on high difficulty settings.
@@ -44,6 +63,9 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Halfie Climb Very Long Underwater Walljump Climb (Insane)
         </ul>
     <li>"canEnemyStuckMoonfall" is moved from Insane to Extreme.
+        <ul>
+        <li>The more difficult uses are kept in Insane, through the new tech "canFreeFallClip".
+        </ul>
     </ul>
 </ul>
 
