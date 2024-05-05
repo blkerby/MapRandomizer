@@ -351,6 +351,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         item_pool: vec![],
         starting_items: vec![],
         item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
+        item_priority_strength: crate::randomize::ItemPriorityStrength::Moderate,
         item_priorities: vec![],
         filler_items: vec![],
         semi_filler_items: vec![],

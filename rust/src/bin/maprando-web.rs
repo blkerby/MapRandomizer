@@ -21,10 +21,7 @@ use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
-    DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle,
-    ItemPriorityGroup, MotherBrainFight, Objectives, Randomization, Randomizer, SaveAnimals,
-    StartLocationMode, WallJump,
+    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objectives, Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -270,6 +267,7 @@ struct RandomizeRequest {
     strat_json: Text<String>,
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
+    item_priority_strength: Text<String>,
     random_tank: Text<String>,
     spazer_before_plasma: Text<String>,
     stop_item_placement_early: Text<String>,
@@ -1116,6 +1114,7 @@ fn get_difficulty_tiers(
             spazer_before_plasma: difficulty.spazer_before_plasma,
             stop_item_placement_early: difficulty.stop_item_placement_early,
             item_placement_style: difficulty.item_placement_style,
+            item_priority_strength: difficulty.item_priority_strength,
             item_priorities: difficulty.item_priorities.clone(),
             item_pool: difficulty.item_pool.clone(),
             starting_items: difficulty.starting_items.clone(),
@@ -1365,6 +1364,14 @@ async fn randomize(
                 "Unrecognized progression rate {}",
                 req.progression_rate.0.as_str()
             ),
+        },
+        item_priority_strength: match req.item_priority_strength.0.as_str() {
+            "Moderate" => ItemPriorityStrength::Moderate,
+            "Heavy" => ItemPriorityStrength::Heavy,
+            _ => panic!(
+                "Unrecognized item priority strength {}",
+                req.item_priority_strength.0,
+            )
         },
         random_tank: match req.random_tank.0.as_str() {
             "No" => false,

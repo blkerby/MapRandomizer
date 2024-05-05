@@ -4,7 +4,7 @@ use hashbrown::HashMap;
 use maprando::{
     game_data::{Capacity, GameData, Item, Requirement},
     randomize::{
-        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MapsRevealed, MotherBrainFight, Objectives, ProgressionRate, SaveAnimals, WallJump
+        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapsRevealed, MotherBrainFight, Objectives, ProgressionRate, SaveAnimals, WallJump
     },
     traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
 };
@@ -107,6 +107,7 @@ fn run_scenario(
         filler_items: vec![Item::Missile],
         early_filler_items: vec![],
         item_placement_style: ItemPlacementStyle::Neutral,
+        item_priority_strength: ItemPriorityStrength::Moderate,
         item_priorities: vec![ItemPriorityGroup {
             name: "Default".to_string(),
             items: game_data.item_isv.keys.clone(),

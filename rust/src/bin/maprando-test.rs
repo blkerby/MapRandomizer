@@ -6,9 +6,7 @@ use maprando::game_data::{Capacity, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
-    randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DoorsMode, ItemDotChange,
-    ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, MotherBrainFight, Objectives,
-    ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode,
+    randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objectives, ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode
 };
 use maprando::spoiler_map;
 use maprando::web::{MapRepository, Preset, SamusSpriteCategory};
@@ -79,6 +77,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         semi_filler_items: vec![],
         early_filler_items: vec![Item::ETank],
         item_placement_style: ItemPlacementStyle::Neutral,
+        item_priority_strength: ItemPriorityStrength::Moderate,
         item_priorities: vec![
             ItemPriorityGroup {
                 name: "Early".to_string(),

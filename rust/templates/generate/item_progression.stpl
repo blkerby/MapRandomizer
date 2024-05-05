@@ -40,6 +40,28 @@
 
 <div class="form-group row">
     <div class="col-lg-3 m-2">
+        <% include!("help/progression/priority_strength.stpl"); %>
+        <label for="preset">Item priority strength</label>
+    </div>
+    <div class="col-lg-3 btn-group m-2" role="group">
+    <% for &name in &["Moderate", "Heavy"] {
+            let checked = if name == "Moderate" { "checked" } else { "" };
+            %>
+        <input type="radio"
+            class="btn-check" 
+            name="item_priority_strength" 
+            id="itemPriorityStrength<%- name %>"
+            value="<%- name %>"
+            onclick="itemProgressionChanged()"
+            autocomplete="off"
+            <%- checked %>>
+        <label class="btn btn-outline-primary" for="itemPriorityStrength<%- name%>"><%= name %></label>
+    <% } %>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-3 m-2">
         <% include!("help/progression/random_tank.stpl"); %>
         <label for="preset">Random tank priority</label>
     </div>

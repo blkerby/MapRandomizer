@@ -2,10 +2,16 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey
+        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity,
+        DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility,
+        GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+        MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId,
+        SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey,
     },
     traverse::{
-        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
+        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs,
+        get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult,
+        IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
     },
     web::logic::strip_name,
 };
@@ -19,6 +25,7 @@ use serde_derive::{Deserialize, Serialize};
 use std::{
     cmp::{max, min},
     convert::TryFrom,
+    hash::Hash,
     iter,
 };
 use strum::VariantNames;
@@ -43,6 +50,12 @@ pub enum ProgressionRate {
 pub enum ItemPlacementStyle {
     Neutral,
     Forced,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum ItemPriorityStrength {
+    Moderate,
+    Heavy,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -150,6 +163,7 @@ pub struct DifficultyConfig {
     pub item_pool: Vec<(Item, usize)>,
     pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
+    pub item_priority_strength: ItemPriorityStrength,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub semi_filler_items: Vec<Item>,
     pub filler_items: Vec<Item>,
@@ -279,7 +293,7 @@ struct RandomizationState {
     save_location_state: Vec<SaveLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
-    door_state: Vec<DoorState>,  // Corresponds to LockedDoorData.locked_doors
+    door_state: Vec<DoorState>,                  // Corresponds to LockedDoorData.locked_doors
     items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     global_state: GlobalState,
     debug_data: Option<DebugData>,
@@ -347,12 +361,33 @@ fn compute_run_frames(tiles: f32) -> Capacity {
     frames.ceil() as Capacity
 }
 
+fn remove_some_duplicates<T: Clone + PartialEq + Eq + Hash>(
+    x: &[T],
+    dup_set: &HashSet<T>,
+) -> Vec<T> {
+    let mut out: Vec<T> = vec![];
+    let mut seen_set: HashSet<T> = HashSet::new();
+    for e in x {
+        if seen_set.contains(e) {
+            continue;
+        }
+        if dup_set.contains(e) {
+            seen_set.insert(e.clone());
+        }
+        out.push(e.clone());
+    }
+    out
+}
+
 struct Preprocessor<'a> {
     game_data: &'a GameData,
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
 }
 
-fn compute_shinecharge_frames(other_runway_length: f32, runway_length: f32) -> (Capacity, Capacity) {
+fn compute_shinecharge_frames(
+    other_runway_length: f32,
+    runway_length: f32,
+) -> (Capacity, Capacity) {
     let combined_length = other_runway_length + runway_length;
     if combined_length > 31.3 {
         // Dash can be held the whole time:
@@ -413,11 +448,17 @@ impl<'a> Preprocessor<'a> {
     ) {
         let empty_vec_exits = vec![];
         let empty_vec_entrances = vec![];
-        for (src_vertex_id, exit_condition) in
-            self.game_data.node_exit_conditions.get(&(src_room_id, src_node_id)).unwrap_or(&empty_vec_exits)
+        for (src_vertex_id, exit_condition) in self
+            .game_data
+            .node_exit_conditions
+            .get(&(src_room_id, src_node_id))
+            .unwrap_or(&empty_vec_exits)
         {
-            for (dst_vertex_id, entrance_condition) in
-                self.game_data.node_entrance_conditions.get(&(dst_room_id, dst_node_id)).unwrap_or(&empty_vec_entrances)
+            for (dst_vertex_id, entrance_condition) in self
+                .game_data
+                .node_entrance_conditions
+                .get(&(dst_room_id, dst_node_id))
+                .unwrap_or(&empty_vec_entrances)
             {
                 if entrance_condition.through_toilet == game_data::ToiletCondition::Yes
                     && !is_toilet
@@ -440,7 +481,8 @@ impl<'a> Preprocessor<'a> {
                     is_toilet,
                 );
                 let exit_with_shinecharge = self.game_data.does_leave_shinecharged(exit_condition);
-                let enter_with_shinecharge = self.game_data.does_come_in_shinecharged(entrance_condition);
+                let enter_with_shinecharge =
+                    self.game_data.does_come_in_shinecharged(entrance_condition);
                 let carry_shinecharge = exit_with_shinecharge || enter_with_shinecharge;
                 if let Some(req) = req_opt {
                     door_links.push(Link {
@@ -460,9 +502,7 @@ impl<'a> Preprocessor<'a> {
 
     pub fn get_all_door_links(&self) -> Vec<Link> {
         let mut door_links = vec![];
-        for (&(src_room_id, src_node_id), &(dst_room_id, dst_node_id)) in
-            self.door_map.iter()
-        {
+        for (&(src_room_id, src_node_id), &(dst_room_id, dst_node_id)) in self.door_map.iter() {
             self.add_door_links(
                 src_room_id,
                 src_node_id,
@@ -553,9 +593,12 @@ impl<'a> Preprocessor<'a> {
                 effective_length,
                 min_tiles,
                 heated,
-            } => {
-                self.get_come_in_shinecharging_reqs(exit_condition, effective_length.get(), min_tiles.get(), *heated)
-            }
+            } => self.get_come_in_shinecharging_reqs(
+                exit_condition,
+                effective_length.get(),
+                min_tiles.get(),
+                *heated,
+            ),
             MainEntranceCondition::ComeInShinecharged {} => {
                 self.get_come_in_shinecharged_reqs(exit_condition)
             }
@@ -828,8 +871,10 @@ impl<'a> Preprocessor<'a> {
                         let other_runway_length =
                             f32::max(0.0, f32::min(effective_length, 33.0 - runway_length));
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
-                        let heat_frames_2 =
-                            Capacity::max(85, compute_run_frames(other_runway_length + runway_length));
+                        let heat_frames_2 = Capacity::max(
+                            85,
+                            compute_run_frames(other_runway_length + runway_length),
+                        );
                         // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
                         reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
                     } else if !runway_heated && *heated {
@@ -1057,7 +1102,9 @@ impl<'a> Preprocessor<'a> {
                     return None;
                 }
                 let mut reqs: Vec<Requirement> = vec![];
-                if *movement_type == BounceMovementType::Controlled || exit_movement_type == BounceMovementType::Controlled {
+                if *movement_type == BounceMovementType::Controlled
+                    || exit_movement_type == BounceMovementType::Controlled
+                {
                     reqs.push(Requirement::Tech(
                         self.game_data.tech_isv.index_by_key["canMockball"],
                     ));
@@ -1068,7 +1115,7 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
                 Some(Requirement::make_and(reqs))
-            },
+            }
             _ => None,
         }
     }
@@ -1244,13 +1291,18 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithTemporaryBlue { direction } => {
-                if *direction != exit_direction && *direction != TemporaryBlueDirection::Any && exit_direction != TemporaryBlueDirection::Any {
+                if *direction != exit_direction
+                    && *direction != TemporaryBlueDirection::Any
+                    && exit_direction != TemporaryBlueDirection::Any
+                {
                     return None;
                 }
                 let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key["canTemporaryBlue"]));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canTemporaryBlue"],
+                ));
                 Some(Requirement::make_and(reqs))
-            },
+            }
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,
@@ -1259,7 +1311,9 @@ impl<'a> Preprocessor<'a> {
             } => {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key["canTemporaryBlue"]));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canTemporaryBlue"],
+                ));
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
@@ -2025,7 +2079,11 @@ impl<'r> Randomizer<'r> {
     ) -> Randomizer<'r> {
         let preprocessor = Preprocessor::new(game_data, map);
         let preprocessed_seed_links: Vec<Link> = preprocessor.get_all_door_links();
-        info!("{} base links, {} door links", base_links_data.links.len(), preprocessed_seed_links.len());
+        info!(
+            "{} base links, {} door links",
+            base_links_data.links.len(),
+            preprocessed_seed_links.len()
+        );
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
@@ -2209,7 +2267,12 @@ impl<'r> Randomizer<'r> {
                 }
             }
         }
-        for (i, vertex_ids) in self.locked_door_data.locked_door_vertex_ids.iter().enumerate() {
+        for (i, vertex_ids) in self
+            .locked_door_data
+            .locked_door_vertex_ids
+            .iter()
+            .enumerate()
+        {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
             // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for
             // resource management.)
@@ -2893,10 +2956,20 @@ impl<'r> Randomizer<'r> {
         if self.difficulty_tiers[0].stop_item_placement_early && self.is_game_beatable(state) {
             info!("Stopping early");
             self.update_reachability(state);
-            let spoiler_summary =
-                self.get_spoiler_summary(&orig_global_state, state, &state, spoiler_flag_summaries, spoiler_door_summaries);
-            let spoiler_details =
-                self.get_spoiler_details(&orig_global_state, state, &state, spoiler_flag_details, spoiler_door_details);
+            let spoiler_summary = self.get_spoiler_summary(
+                &orig_global_state,
+                state,
+                &state,
+                spoiler_flag_summaries,
+                spoiler_door_summaries,
+            );
+            let spoiler_details = self.get_spoiler_details(
+                &orig_global_state,
+                state,
+                &state,
+                spoiler_flag_details,
+                spoiler_door_details,
+            );
             state.previous_debug_data = state.debug_data.clone();
             return (spoiler_summary, spoiler_details, true);
         }
@@ -2981,8 +3054,13 @@ impl<'r> Randomizer<'r> {
             spoiler_flag_summaries,
             spoiler_door_summaries,
         );
-        let spoiler_details =
-            self.get_spoiler_details(&orig_global_state, state, &new_state, spoiler_flag_details, spoiler_door_details);
+        let spoiler_details = self.get_spoiler_details(
+            &orig_global_state,
+            state,
+            &new_state,
+            spoiler_flag_details,
+            spoiler_door_details,
+        );
         *state = new_state;
         (spoiler_summary, spoiler_details, false)
     }
@@ -3163,6 +3241,7 @@ impl<'r> Randomizer<'r> {
     fn get_item_precedence<R: Rng>(
         &self,
         item_priorities: &[ItemPriorityGroup],
+        item_priority_strength: ItemPriorityStrength,
         rng: &mut R,
     ) -> Vec<Item> {
         let mut item_precedence: Vec<Item> = Vec::new();
@@ -3171,12 +3250,43 @@ impl<'r> Randomizer<'r> {
             item_precedence.push(Item::Nothing);
             item_precedence.push(Item::Missile);
         }
-        for priority_group in item_priorities {
-            let mut items = priority_group.items.clone();
-            items.shuffle(rng);
-            for item_name in &items {
-                let item_idx = self.game_data.item_isv.index_by_key[item_name];
-                item_precedence.push(Item::try_from(item_idx).unwrap());
+        match item_priority_strength {
+            ItemPriorityStrength::Moderate => {
+                assert!(item_priorities.len() == 3);
+                let mut items = vec![];
+                for (i, priority_group) in item_priorities.iter().enumerate() {
+                    for item_name in &priority_group.items {
+                        items.push(item_name.clone());
+                        if i != 1 {
+                            // Include a second copy of Early and Late items:
+                            items.push(item_name.clone());
+                        }
+                    }
+                }
+                items.shuffle(rng);
+
+                // Remove the later copy of each "Early" item
+                items = remove_some_duplicates(&items, &item_priorities[0].items.iter().cloned().collect());
+
+                // Remove the earlier copy of each "Late" item
+                items.reverse();
+                items = remove_some_duplicates(&items, &item_priorities[2].items.iter().cloned().collect());
+                items.reverse();
+                
+                for item_name in &items {
+                    let item_idx = self.game_data.item_isv.index_by_key[item_name];
+                    item_precedence.push(Item::try_from(item_idx).unwrap());
+                }
+            }
+            ItemPriorityStrength::Heavy => {
+                for priority_group in item_priorities {
+                    let mut items = priority_group.items.clone();
+                    items.shuffle(rng);
+                    for item_name in &items {
+                        let item_idx = self.game_data.item_isv.index_by_key[item_name];
+                        item_precedence.push(Item::try_from(item_idx).unwrap());
+                    }
+                }
             }
         }
         if self.difficulty_tiers[0].progression_rate != ProgressionRate::Slow {
@@ -3492,8 +3602,11 @@ impl<'r> Randomizer<'r> {
             num_attempts_start_location,
             &mut rng,
         )?;
-        let mut item_precedence: Vec<Item> =
-            self.get_item_precedence(&self.difficulty_tiers[0].item_priorities, &mut rng);
+        let mut item_precedence: Vec<Item> = self.get_item_precedence(
+            &self.difficulty_tiers[0].item_priorities,
+            self.difficulty_tiers[0].item_priority_strength,
+            &mut rng,
+        );
         if self.difficulty_tiers[0].spazer_before_plasma {
             self.apply_spazer_plasma_priority(&mut item_precedence);
         }
@@ -3515,10 +3628,7 @@ impl<'r> Randomizer<'r> {
                 initial_save_location_state;
                 self.game_data.save_locations.len()
             ],
-            door_state: vec![
-                initial_door_state;
-                self.locked_door_data.locked_doors.len()
-            ],
+            door_state: vec![initial_door_state; self.locked_door_data.locked_doors.len()],
             items_remaining: self.initial_items_remaining.clone(),
             global_state: initial_global_state,
             debug_data: None,
@@ -3873,7 +3983,6 @@ impl<'a> Randomizer<'a> {
 
                 let vertex_key = &self.game_data.vertex_isv.keys[link.to_vertex_id];
                 // let debug_info = format!("{:?}", vertex_key);
-        
 
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
@@ -4089,7 +4198,8 @@ impl<'a> Randomizer<'a> {
                 DoorType::Green => "green",
                 DoorType::Yellow => "yellow",
                 DoorType::Gray => "gray",
-            }.to_string(),
+            }
+            .to_string(),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
                 room: door_vertex_info.room_name,
@@ -4135,7 +4245,8 @@ impl<'a> Randomizer<'a> {
                 DoorType::Green => "green",
                 DoorType::Yellow => "yellow",
                 DoorType::Gray => "gray",
-            }.to_string(),
+            }
+            .to_string(),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
                 room: door_vertex_info.room_name,
