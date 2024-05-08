@@ -1,7 +1,7 @@
 v112:
 - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
 - add `comeInWithBlueSpringBallBounce`
-- add option to reroll seeds with not enough difficult required tricks
+- add Junko sprite, update protogen
 - DONE: add soft "Late" option and update item progression presets:
   - late: gravity, varia
   - middle: space jump, screw attack, morph, wall jump boots
@@ -29,6 +29,7 @@ v112:
     - why was draygon not logically beatable earlier?
 
 TODO:
+- add option to reroll seeds with not enough difficult required tricks?
 - instructions on gmode and artificial morph
 - fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
 - fix issue with Low/Off QoL Chozo Desolate hanging the randomizer (won't place SpaceJump).

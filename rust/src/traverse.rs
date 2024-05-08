@@ -1093,7 +1093,8 @@ pub fn apply_requirement(
                 let mut new_local = local;
                 new_local.energy_used += (difficulty.door_stuck_leniency as f32
                     * difficulty.resource_multiplier
-                    * *heat_frames as f32) as Capacity;
+                    * *heat_frames as f32
+                    / 4.0) as Capacity;
                 validate_energy(new_local, global, game_data)
             } else {
                 Some(local)
