@@ -21,7 +21,7 @@ use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objectives, Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump
+    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -223,6 +223,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
             "Metroids",
             "Chozos",
             "Pirates",
+            "Random",
         ],
         item_pool_multiple,
         starting_items_multiple,
@@ -1173,7 +1174,7 @@ fn get_difficulty_tiers(
             respin: difficulty.respin,
             infinite_space_jump: difficulty.infinite_space_jump,
             momentum_conservation: difficulty.momentum_conservation,
-            objectives: difficulty.objectives,
+            objectives: difficulty.objectives.clone(),
             doors_mode: difficulty.doors_mode,
             early_save: difficulty.early_save,
             area_assignment: difficulty.area_assignment,
@@ -1349,6 +1350,10 @@ async fn randomize(
     info!("Semi-filler items: {:?}", semi_filler_items);
     info!("Early filler items: {:?}", early_filler_items);
 
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
     let difficulty = DifficultyConfig {
         name: None,
         tech: tech_vec,
@@ -1469,14 +1474,18 @@ async fn randomize(
         respin: req.respin.0,
         infinite_space_jump: req.infinite_space_jump.0,
         momentum_conservation: req.momentum_conservation.0,
-        objectives: match req.objectives.0.as_str() {
-            "None" => Objectives::None,
-            "Bosses" => Objectives::Bosses,
-            "Minibosses" => Objectives::Minibosses,
-            "Metroids" => Objectives::Metroids,
-            "Chozos" => Objectives::Chozos,
-            "Pirates" => Objectives::Pirates,
-            _ => panic!("Unrecognized objectives: {}", req.objectives.0),
+        objectives: {
+            use Objective::*;
+            match req.objectives.0.as_str() {
+                "None" => vec![],
+                "Bosses" => vec![Kraid, Phantoon, Draygon, Ridley],
+                "Minibosses" => vec![SporeSpawn, Crocomire, Botwoon, GoldenTorizo],
+                "Metroids" => vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4],
+                "Chozos" => vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo],
+                "Pirates" => vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom],
+                "Random" => rand::seq::SliceRandom::choose_multiple(Objective::get_all(), &mut rng, 4).copied().collect(),
+                _ => panic!("Unrecognized objectives: {}", req.objectives.0),
+            }
         },
         doors_mode: match req.doors.0.as_str() {
             "Blue" => DoorsMode::Blue,
@@ -1551,10 +1560,6 @@ async fn randomize(
         0,
     );
     let map_layout = req.map_layout.0.clone();
-
-    let mut rng_seed = [0u8; 32];
-    rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
-    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
     let max_attempts = 2000;
     let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random {
         10
@@ -2050,7 +2055,7 @@ async fn main() {
             ))
             .service(actix_files::Files::new("/static", "static"))
     })
-    .bind("0.0.0.0:8080")
+    .bind("0.0.0.0:3000")
     .unwrap()
     .run()
     .await

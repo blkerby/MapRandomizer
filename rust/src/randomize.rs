@@ -73,14 +73,65 @@ pub enum ItemDotChange {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum Objectives {
-    None,
-    Bosses,
-    Minibosses,
-    Metroids,
-    Chozos,
-    Pirates,
+pub enum Objective {
+    Kraid,
+    Phantoon,
+    Draygon,
+    Ridley,
+    SporeSpawn,
+    Crocomire,
+    Botwoon,
+    GoldenTorizo,
+    MetroidRoom1,
+    MetroidRoom2,
+    MetroidRoom3,
+    MetroidRoom4,
+    BombTorizo,
+    BowlingStatue,
+    AcidChozoStatue,
+    PitRoom,
+    BabyKraidRoom,
+    PlasmaRoom,
+    MetalPiratesRoom,
 }
+
+impl Objective {
+    pub fn get_all() -> &'static [Objective] {
+        use Objective::*;
+        &[
+            Kraid, Phantoon, Draygon, Ridley,
+            SporeSpawn, Crocomire, Botwoon, GoldenTorizo,
+            MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4,
+            BombTorizo, BowlingStatue, AcidChozoStatue,
+            PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom,
+        ]
+    }
+    pub fn get_flag_name(&self) -> &'static str {
+        use Objective::*;
+        match self {
+            Kraid => "f_DefeatedKraid",
+            Phantoon => "f_DefeatedPhantoon",
+            Draygon => "f_DefeatedDraygon",
+            Ridley => "f_DefeatedRidley",
+            SporeSpawn => "f_DefeatedSporeSpawn",
+            Crocomire => "f_DefeatedCrocomire",
+            Botwoon => "f_DefeatedBotwoon",
+            GoldenTorizo => "f_DefeatedGoldenTorizo",
+            MetroidRoom1 => "f_KilledMetroidRoom1",
+            MetroidRoom2 => "f_KilledMetroidRoom2",
+            MetroidRoom3 => "f_KilledMetroidRoom3",
+            MetroidRoom4 => "f_KilledMetroidRoom4",
+            BombTorizo => "f_DefeatedBombTorizo",
+            BowlingStatue => "f_UsedBowlingStatue",
+            AcidChozoStatue => "f_UsedAcidChozoStatue",
+            PitRoom => "f_ClearedPitRoom",
+            BabyKraidRoom => "f_ClearedBabyKraidRoom",
+            PlasmaRoom => "f_ClearedPlasmaRoom",
+            MetalPiratesRoom => "f_ClearedMetalPiratesRoom",
+        }
+    }
+}
+
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum DoorsMode {
@@ -198,7 +249,7 @@ pub struct DifficultyConfig {
     pub infinite_space_jump: bool,
     pub momentum_conservation: bool,
     // Game variations:
-    pub objectives: Objectives,
+    pub objectives: Vec<Objective>,
     pub doors_mode: DoorsMode,
     pub start_location_mode: StartLocationMode,
     pub save_animals: SaveAnimals,
@@ -1787,45 +1838,32 @@ fn get_randomizable_doors(
     .collect();
 
     // Avoid placing an ammo door on a tile with an objective "X", as it looks bad.
-    match difficulty.objectives {
-        Objectives::None => {}
-        Objectives::Bosses => {
-            // The boss doors are all gray and were already excluded above.
+    for i in difficulty.objectives.iter() {
+        use Objective::*;
+        match i {
+            SporeSpawn =>   { non_randomizable_doors.insert((Some(0x18E4A), Some(0x18D2A))); },
+            Crocomire =>    { non_randomizable_doors.insert((Some(0x193DE), Some(0x19432))); },
+            Botwoon =>      { non_randomizable_doors.insert((Some(0x1A918), Some(0x1A84C))); },
+            GoldenTorizo => { non_randomizable_doors.insert((Some(0x19876), Some(0x1983A))); },
+            MetroidRoom1 => {
+                non_randomizable_doors.insert((Some(0x1A9B4), Some(0x1A9C0)));  // left
+                non_randomizable_doors.insert((Some(0x1A9A8), Some(0x1A984)));  // right
+            },
+            MetroidRoom2 => {
+                non_randomizable_doors.insert((Some(0x1A9C0), Some(0x1A9B4)));  // top right
+                non_randomizable_doors.insert((Some(0x1A9CC), Some(0x1A9D8)));  // bottom right
+            },
+            MetroidRoom3 => {
+                non_randomizable_doors.insert((Some(0x1A9D8), Some(0x1A9CC)));  // left
+                non_randomizable_doors.insert((Some(0x1A9E4), Some(0x1A9F0)));  // right
+            },
+            MetroidRoom4 => {
+                non_randomizable_doors.insert((Some(0x1A9F0), Some(0x1A9E4)));  // left
+                non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08)));  // bottom
+            },
+            _ => {} // All other tiles have gray doors and are excluded above.
         }
-        Objectives::Minibosses => {
-            // Spore Spawn Room right door:
-            non_randomizable_doors.insert((Some(0x18E4A), Some(0x18D2A)));
-            // Crocomire left door:
-            non_randomizable_doors.insert((Some(0x193DE), Some(0x19432)));
-            // Botwoon right door:
-            non_randomizable_doors.insert((Some(0x1A918), Some(0x1A84C)));
-            // Golden Torizo left door:
-            non_randomizable_doors.insert((Some(0x19876), Some(0x1983A)));
-        }
-        Objectives::Metroids => {
-            // Metroid Room 1 left door:
-            non_randomizable_doors.insert((Some(0x1A9B4), Some(0x1A9C0)));
-            // Metroid Room 1 right door:
-            non_randomizable_doors.insert((Some(0x1A9A8), Some(0x1A984)));
-            // Metroid Room 2 top right door:
-            non_randomizable_doors.insert((Some(0x1A9C0), Some(0x1A9B4)));
-            // Metroid Room 2 bottom right door:
-            non_randomizable_doors.insert((Some(0x1A9CC), Some(0x1A9D8)));
-            // Metroid Room 3 left door:
-            non_randomizable_doors.insert((Some(0x1A9D8), Some(0x1A9CC)));
-            // Metroid Room 3 right door:
-            non_randomizable_doors.insert((Some(0x1A9E4), Some(0x1A9F0)));
-            // Metroid Room 4 left door:
-            non_randomizable_doors.insert((Some(0x1A9F0), Some(0x1A9E4)));
-            // Metroid Room 4 bottom door:
-            non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08)));
-        }
-        Objectives::Chozos => {
-            // All the door tiles with X's have a gray door, so are covered above.
-        }
-        Objectives::Pirates => {
-            // These doors are all gray, so are covered above.
-        }
+
     }
 
     let mut out: Vec<DoorPtrPair> = vec![];

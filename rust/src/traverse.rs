@@ -9,7 +9,7 @@ use crate::{
     game_data::{
         self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
     },
-    randomize::{DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objectives, WallJump},
+    randomize::{DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
 };
 
 use log::info;
@@ -832,44 +832,14 @@ fn is_objective_complete(
     game_data: &GameData,
     obj_id: usize,
 ) -> bool {
-    let flag_names = match difficulty.objectives {
-        Objectives::None => {
-            return true;
-        }
-        Objectives::Bosses => [
-            "f_DefeatedKraid",
-            "f_DefeatedPhantoon",
-            "f_DefeatedDraygon",
-            "f_DefeatedRidley",
-        ],
-        Objectives::Minibosses => [
-            "f_DefeatedSporeSpawn",
-            "f_DefeatedCrocomire",
-            "f_DefeatedBotwoon",
-            "f_DefeatedGoldenTorizo",
-        ],
-        Objectives::Metroids => [
-            "f_KilledMetroidRoom1",
-            "f_KilledMetroidRoom2",
-            "f_KilledMetroidRoom3",
-            "f_KilledMetroidRoom4",
-        ],
-        Objectives::Chozos => [
-            "f_DefeatedBombTorizo",
-            "f_UsedBowlingStatue",
-            "f_UsedAcidChozoStatue",
-            "f_DefeatedGoldenTorizo",
-        ],
-        Objectives::Pirates => [
-            "f_ClearedPitRoom",
-            "f_ClearedBabyKraidRoom",
-            "f_ClearedPlasmaRoom",
-            "f_ClearedMetalPiratesRoom",
-        ],
-    };
-    let flag_name = flag_names[obj_id];
-    let flag_idx = game_data.flag_isv.index_by_key[flag_name];
-    global.flags[flag_idx]
+    // TODO: What to do when obj_id is out of bounds?
+    if let Some(obj) = difficulty.objectives.get(obj_id) {
+        let flag_name = obj.get_flag_name();
+        let flag_idx = game_data.flag_isv.index_by_key[flag_name];
+        global.flags[flag_idx]
+    } else {
+        true
+    }
 }
 
 fn apply_heat_frames(
