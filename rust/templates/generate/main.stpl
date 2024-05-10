@@ -144,7 +144,7 @@
                     <% include!("help/objectives.stpl"); %>
                     <label for="objective">Objectives</label>
                 </div>
-                <div class="col-lg-7 btn-group my-2" role="group">
+                <div class="col-lg-8 btn-group my-2" role="group">
                 <% for (i, name) in objectives.iter().enumerate() { 
                     let name_no_space = &name.replace(" ", "");
                     let checked = if i == 1 { "checked" } else { "" }; 

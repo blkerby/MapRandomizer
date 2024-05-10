@@ -2,6 +2,10 @@ v112:
 - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
 - add `comeInWithBlueSpringBallBounce`
 - add Junko sprite, update protogen
+- fix logic pages with shinecharge entrance conditions:
+  - e.g. https://dev.maprando.com/logic/room/FastPillarsSetupRoom/2/1/ShinesparkDeepStuckXRayClimb shouldn't be Beyond.
+  - in logic page requirement checks, start with full shinecharge frames rather than empty
+- figure out why Climb doesn't have acid in escape anymore (sometimes?)
 - DONE: add soft "Late" option and update item progression presets:
   - late: gravity, varia
   - middle: space jump, screw attack, morph, wall jump boots
@@ -22,13 +26,14 @@ v112:
 - DONE: add gray doors to LockedDoorData
 - DONE: add free UnlockDoor VertexAction on exit vertices
 - DONE: restrict "go back with g-mode" to not apply to down doors.
-- add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
+- DONE: add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
 - check zebes awake logic (pit room & metroid rooms in particular)
 - DONE: check draygon logic:
   - eddie seed: https://maprando.com/seed/SQeiaLXazAu4FsRBdB7azw/data/visualizer/index.html
     - why was draygon not logically beatable earlier?
 
 TODO:
+- possible QoL: while pause menu is fading in, press R to immediately initiate switching to equipment screen
 - add option to reroll seeds with not enough difficult required tricks?
 - instructions on gmode and artificial morph
 - fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643

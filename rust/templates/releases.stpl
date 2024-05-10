@@ -14,9 +14,10 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 112 (2024-05-05)</a>:
+<p><a id="release110">Version 112 (2024-05-10)</a>:
 <ul>
-<li>New option "Item priority strength" is added:
+<li>A new objective option "Random" is added.
+<li>A new option "Item priority strength" is added:
     <ul>
     <li>The new setting "Moderate" improves seed variety by not enforcing key item priority as rigidly.
     <li>The other setting "Heavy" can be used to get the old behavior.
