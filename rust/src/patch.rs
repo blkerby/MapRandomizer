@@ -382,19 +382,11 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
     }
 
     // Overwrite door ASM for entering Mother Brain room from right, used for clearing objective barriers:
-    // TODO: update mb_barrier_clear.asm/ips
-    // This might honestly be better to just codegen in-place
     if randomization.difficulty.objectives.len() == 0 {
         // Check for None objectives
         rom.write_u16(snes2pc(0x83AAD2), 0xECA0)?;
     } else if randomization.difficulty.objectives.len() == 4 {
-        let src_addrs = [
-            snes2pc(0x8FEB00)+17*0,
-            snes2pc(0x8FEB00)+17*1,
-            snes2pc(0x8FEB00)+17*2,
-            snes2pc(0x8FEB00)+17*3,
-        ];
-        for (obj,place) in randomization.difficulty.objectives.iter().zip(src_addrs) {
+        for (i,obj) in randomization.difficulty.objectives.iter().enumerate() {
             use Objective::*;
             let (var,mask) = match obj {
                 Kraid =>            (0xD829, 1),
@@ -417,10 +409,8 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
                 PlasmaRoom =>       (0xD823, 8),
                 MetalPiratesRoom => (0xD823, 0x10),
             };
-            // +00 | AF XX YY 7E | lda $7EYYXX
-            // +04 | 89 ZZ 00    | bit #$00ZZ
-            rom.write_u16(place+1, var);
-            rom.write_u16(place+5, mask);
+            rom.write_u16(snes2pc(0x8FEBC0)+i*2, var);
+            rom.write_u16(snes2pc(0x8FEBC8)+i*2, mask);
         }
     } else {
         panic!("Unimplemented objective count != 4")

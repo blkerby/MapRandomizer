@@ -5,56 +5,33 @@ lorom
 !bank_84_freespace_end = $84F300
 
 org $83AAD2
-    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain (using Bosses as default objective)
+    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
 
-; Free space in bank $8F 
+macro check_objective(i,plm)
+    lda.w #$007E
+    sta.b $02
+    lda.l ObjectiveAddrs+<i>
+    sta.b $00
+    lda.l ObjectiveBitmasks+<i>
+    sta.b $04
+    lda.b [$00]
+    bit.b $04
+    beq ?skip  ; skip clearing if objective not done
 
-; OBJECTIVE: Bosses (must match address in patch.rs)
+    jsl $8483D7
+    db <plm>
+    db $04
+    dw clear_barrier_plm
+?skip:
+endmacro
+
+; Free space in bank $8F
 org $8FEB00
     ; clear barriers in mother brain room based on main bosses killed:
-kraid:
-    lda $7ed829
-    bit #$0001
-    beq .skip  ; skip clearing if kraid isn't dead
-
-    jsl $8483D7
-    db $39
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-phantoon:
-    lda $7ed82b
-    and #$0001
-    beq .skip  ; skip clearing if phantoon isn't dead
-
-    jsl $8483D7
-    db $38
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-draygon:
-    lda $7ed82c
-    bit #$0001
-    beq .skip  ; skip clearing if draygon isn't dead
-
-    jsl $8483D7
-    db $37
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-ridley:
-    lda $7ed82a
-    bit #$0001
-    beq .skip  ; skip clearing if ridley isn't dead
-
-    jsl $8483D7
-    db $36
-    db $04
-    dw clear_barrier_plm
-.skip:
+    %check_objective(0,$39)
+    %check_objective(2,$38)
+    %check_objective(4,$37)
+    %check_objective(6,$36)
 
 motherbrain:
     lda $7ed82d
@@ -70,210 +47,12 @@ motherbrain:
 done:
     rts
 
-; OBJECTIVE: Minibosses (must match address in patch.rs)
-warnpc $8FEB60
-org $8FEB60
-    ; clear barriers in mother brain room based on mini-bosses killed:
-spore_spawn:
-    lda $7ed829
-    bit #$0002
-    beq .skip  ; skip clearing if spore spawn isn't dead
-
-    jsl $8483D7
-    db $39
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-crocomire:
-    lda $7ed82a
-    and #$0002
-    beq .skip  ; skip clearing if crocomire isn't dead
-
-    jsl $8483D7
-    db $38
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-botwoon:
-    lda $7ed82c
-    bit #$0002
-    beq .skip  ; skip clearing if draygon isn't dead
-
-    jsl $8483D7
-    db $37
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-golden_torizo:
-    lda $7ed82a
-    bit #$0004
-    beq .skip  ; skip clearing if GT isn't dead
-
-    jsl $8483D7
-    db $36
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-    jmp motherbrain
-
-
-; OBJECTIVE: Metroids (must match address in patch.rs)
-warnpc $8FEBB0
-org $8FEBB0
-    ; clear barriers in mother brain room based on Metroid rooms cleared:
-metroid_1:
-    lda $7ed822
-    bit #$0001
-    beq .skip
-
-    jsl $8483D7
-    db $39
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-metroid_2:
-    lda $7ed822
-    and #$0002
-    beq .skip
-
-    jsl $8483D7
-    db $38
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-metroid_3:
-    lda $7ed822
-    bit #$0004
-    beq .skip
-
-    jsl $8483D7
-    db $37
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-metroid_4:
-    lda $7ed822
-    bit #$0008
-    beq .skip
-
-    jsl $8483D7
-    db $36
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-    jmp motherbrain
-
-
-; OBJECTIVE: Chozos (must match address in patch.rs)
-warnpc $8FEC00
-org $8FEC00
-    ; clear barriers in mother brain room based on Chozos defeated/activated:
-
-bomb_torizo:
-    lda $7ed828
-    bit #$0004
-    beq .skip  ; skip clearing if Bomb Torizo isn't dead
-
-    jsl $8483D7
-    db $39
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-bowling_chozo:
-    lda $7ed823
-    and #$0001
-    beq .skip  ; skip clearing if Bowling Alley Chozo hasn't been used
-
-    jsl $8483D7
-    db $38
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-acid_chozo:
-    lda $7ed821
-    bit #$0010
-    beq .skip  ; skip clearing if Acid Chozo hasn't been used
-
-    jsl $8483D7
-    db $37
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-golden_torizo_chozo:
-    lda $7ed82a
-    bit #$0004
-    beq .skip  ; skip clearing if Golden Torizo isn't dead
-
-    jsl $8483D7
-    db $36
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-    jmp motherbrain
-
-
-; OBJECTIVE: Pirates (must match address in patch.rs)
-warnpc $8FEC50
-org $8FEC50
-    ; clear barriers in mother brain room based on enemies defeated (gray doors unlocked) in Space Pirates rooms:
-
-pit_room:
-    lda $7ed823
-    bit #$0002
-    beq .skip  ; skip clearing if enemies not defeated in Pit Room
-
-    jsl $8483D7
-    db $39
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-baby_kraid_room:
-    lda $7ed823
-    bit #$0004
-    beq .skip  ; skip clearing if enemies not defeated in Baby Kraid Room
-
-    jsl $8483D7
-    db $38
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-plasma_room:
-    lda $7ed823
-    bit #$0008
-    beq .skip  ; skip clearing if enemies not defeated in Plasma Room
-
-    jsl $8483D7
-    db $37
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-metal_pirates_room:
-    lda $7ed823
-    bit #$0010
-    beq .skip  ; skip clearing if enemies not defeated in Metal Pirates Room
-
-    jsl $8483D7
-    db $36
-    db $04
-    dw clear_barrier_plm
-.skip:
-
-    jmp motherbrain
+warnpc $8FEBC0
+org $8FEBC0
+ObjectiveAddrs:
+    dw $D829, $D82A, $D82B, $D82C
+ObjectiveBitmasks:
+    dw $0001, $0001, $0001, $0001
 
 ; OBJECTIVE: None (must match address in patch.rs)
 warnpc $8FECA0
