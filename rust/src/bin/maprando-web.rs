@@ -2055,7 +2055,7 @@ async fn main() {
             ))
             .service(actix_files::Files::new("/static", "static"))
     })
-    .bind("0.0.0.0:3000")
+    .bind("0.0.0.0:8080")
     .unwrap()
     .run()
     .await
