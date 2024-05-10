@@ -9,7 +9,7 @@ pub mod title;
 use std::path::Path;
 
 use crate::{
-    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objectives, Randomization, SaveAnimals, StartLocationMode, WallJump}
+    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization, SaveAnimals, StartLocationMode, WallJump}
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -382,23 +382,38 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
     }
 
     // Overwrite door ASM for entering Mother Brain room from right, used for clearing objective barriers:
-    match randomization.difficulty.objectives {
-        Objectives::Bosses => {}
-        Objectives::Minibosses => {
-            rom.write_u16(snes2pc(0x83AAD2), 0xEB60)?;
+    if randomization.difficulty.objectives.len() == 0 {
+        // Check for None objectives
+        rom.write_u16(snes2pc(0x83AAD2), 0xECA0)?;
+    } else if randomization.difficulty.objectives.len() == 4 {
+        for (i,obj) in randomization.difficulty.objectives.iter().enumerate() {
+            use Objective::*;
+            let (var,mask) = match obj {
+                Kraid =>            (0xD829, 1),
+                Ridley =>           (0xD82A, 1),
+                Phantoon =>         (0xD82B, 1),
+                Draygon =>          (0xD82C, 1),
+                SporeSpawn =>       (0xD829, 2),
+                Crocomire =>        (0xD82A, 2),
+                Botwoon =>          (0xD82C, 2),
+                GoldenTorizo =>     (0xD82A, 4),
+                MetroidRoom1 =>     (0xD822, 1),
+                MetroidRoom2 =>     (0xD822, 2),
+                MetroidRoom3 =>     (0xD822, 4),
+                MetroidRoom4 =>     (0xD822, 8),
+                BombTorizo =>       (0xD828, 4),
+                BowlingStatue =>    (0xD823, 1),
+                AcidChozoStatue =>  (0xD821, 0x10),
+                PitRoom =>          (0xD823, 2),
+                BabyKraidRoom =>    (0xD823, 4),
+                PlasmaRoom =>       (0xD823, 8),
+                MetalPiratesRoom => (0xD823, 0x10),
+            };
+            rom.write_u16(snes2pc(0x8FEBC0)+i*2, var);
+            rom.write_u16(snes2pc(0x8FEBC8)+i*2, mask);
         }
-        Objectives::Metroids => {
-            rom.write_u16(snes2pc(0x83AAD2), 0xEBB0)?;
-        }
-        Objectives::Chozos => {
-            rom.write_u16(snes2pc(0x83AAD2), 0xEC00)?;
-        }
-        Objectives::Pirates => {
-            rom.write_u16(snes2pc(0x83AAD2), 0xEC50)?;
-        }
-        Objectives::None => {
-            rom.write_u16(snes2pc(0x83AAD2), 0xECA0)?;
-        }
+    } else {
+        panic!("Unimplemented objective count != 4")
     }
     Ok(())
 }

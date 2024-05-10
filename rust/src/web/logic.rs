@@ -384,7 +384,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         respin: false,
         infinite_space_jump: false,
         momentum_conservation: false,
-        objectives: crate::randomize::Objectives::Bosses,
+        objectives: vec![],
         doors_mode: crate::randomize::DoorsMode::Ammo,
         save_animals: SaveAnimals::No,
         start_location_mode: StartLocationMode::Ship,
