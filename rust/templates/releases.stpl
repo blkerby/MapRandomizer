@@ -14,9 +14,10 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 112 (2024-05-10)</a>:
+<p><a id="release110">Version 112 (2024-05-11)</a>:
 <ul>
 <li>A new objective option "Random" is added.
+<li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
 <li>A new option "Item priority strength" is added:
     <ul>
     <li>The new setting "Moderate" improves seed variety by not enforcing key item priority as rigidly.
