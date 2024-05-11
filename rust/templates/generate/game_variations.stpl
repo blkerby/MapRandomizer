@@ -58,9 +58,9 @@
         <label for="preset">Area transition markers on map</label>
     </div>
     <div class="col-3 btn-group my-2" role="group">
-        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersNo" value="false" checked>
+        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersNo" value="false">
         <label class="btn btn-outline-primary" for="transitionLettersNo">Arrows</label>
-        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersYes" value="true">
+        <input type="radio" class="btn-check" name="transition_letters" id="transitionLettersYes" value="true" checked>
         <label class="btn btn-outline-primary" for="transitionLettersYes">Letters</label>
     </div>
 </div>

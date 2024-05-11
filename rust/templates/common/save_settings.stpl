@@ -28,6 +28,9 @@ function migrateValue(name, value) {
         "maps_revealed": {
             "false": "No",
             "true": "Yes"
+        },
+        "music": {
+            "vanilla": "area"
         }
     };
     if (migrationMapping[name] !== undefined) {

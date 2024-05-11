@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release110">Version 112 (2024-05-11)</a>:
+<p><a id="release112">Version 112 (2024-05-11)</a>:
 <ul>
 <li>A new objective option "Random" is added.
 <li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
@@ -71,7 +71,7 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 </ul>
 
-<p><a id="release110">Version 111 (2024-04-15)</a>:
+<p><a id="release111">Version 111 (2024-04-15)</a>:
 <ul>
 <li>Bug fixes:
     <ul>

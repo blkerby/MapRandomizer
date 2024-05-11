@@ -144,15 +144,13 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="music"><% include!("help/music.stpl"); %>Music</label>
+                                <label class="col-form-label" for="music"><% include!("help/music.stpl"); %>Music</label>
                             </div>
-                            <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
-                                <input type="radio" class="btn-check" name="music" id="musicVanilla" value="vanilla">
-                                <label class="btn btn-outline-primary" style="width:120px" for="musicVanilla">Vanilla</label>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <input type="radio" class="btn-check" name="music" id="musicArea" value="area" checked>
-                                <label class="btn btn-outline-primary" style="width:120px" for="musicArea">Area-themed</label>
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicArea">On</label>
                                 <input type="radio" class="btn-check" name="music" id="musicDisabled" value="disabled">
-                                <label class="btn btn-outline-primary" style="width:120px" for="musicDisabled">Disabled</label>
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicDisabled">Off</label>
                             </div>
                         </div>
 

@@ -3,6 +3,7 @@ v112:
 - add `comeInWithBlueSpringBallBounce`
 - implement "heatFramesWithEnergyDrops"
 - add Junko sprite, update protogen
+- remove vanilla music option
 - figure out why Climb doesn't have acid in escape anymore (sometimes?)
 - DONE: fix logic pages with shinecharge entrance conditions:
   - e.g. https://dev.maprando.com/logic/room/FastPillarsSetupRoom/2/1/ShinesparkDeepStuckXRayClimb shouldn't be Beyond.

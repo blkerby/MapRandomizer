@@ -353,11 +353,14 @@ pub fn customize_rom(
     }
     match settings.music {
         MusicSettings::Vanilla => {
+            // This option is removed from the website but still supported here in case we decide to bring it back later.
             override_music(rom)?;
         }
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {
-            override_music(rom)?;
+            // We could call `override_music` here to restore the vanilla tracks: this would restore the correct sound effects
+            // but at a cost of increasing room load times by almost 1 second per room.
+            // override_music(rom)?;
             rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
         }
     }
