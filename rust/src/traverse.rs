@@ -577,15 +577,16 @@ fn apply_mother_brain_2_requirement(
     mut local: LocalState,
     difficulty: &DifficultyConfig,
     can_be_very_patient_tech_id: usize,
+    r_mode: bool,
     game_data: &GameData,
 ) -> Option<LocalState> {
     if difficulty.mother_brain_fight == MotherBrainFight::Skip {
         return Some(local);
     }
 
-    if global.max_energy < 199 {
-        // Need at least one ETank to survive rainbow beam.
-        // TODO: Light pillar could be added to logic, which would be a separate strat instead of using this function.
+    if global.max_energy < 199 && !r_mode {
+        // Need at least one ETank to survive rainbow beam, except in R-mode (where energy requirements are handled elsewhere
+        // in the strat logic)
         return None;
     }
 
@@ -668,13 +669,15 @@ fn apply_mother_brain_2_requirement(
     let base_mb_attack_dps = 20.0;
     let hit_rate = 1.0 - proficiency;
     let damage = base_mb_attack_dps * hit_rate * time;
-    local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
+    if !r_mode {
+        local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
 
-    // Account for Rainbow beam damage:
-    if global.items[Item::Varia as usize] {
-        local.energy_used += 300;
-    } else {
-        local.energy_used += 600;
+        // Account for Rainbow beam damage:
+        if global.items[Item::Varia as usize] {
+            local.energy_used += 300;
+        } else {
+            local.energy_used += 600;
+        }
     }
 
     validate_energy(local, global, game_data)
@@ -1311,11 +1314,13 @@ pub fn apply_requirement(
         ),
         Requirement::MotherBrain2Fight {
             can_be_very_patient_tech_id,
+            r_mode,
         } => apply_mother_brain_2_requirement(
             global,
             local,
             difficulty,
             *can_be_very_patient_tech_id,
+            *r_mode,
             game_data,
         ),
         Requirement::ShineCharge { used_tiles, heated } => {

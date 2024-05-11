@@ -191,6 +191,7 @@ pub enum Requirement {
     },
     MotherBrain2Fight {
         can_be_very_patient_tech_id: usize,
+        r_mode: bool,
     },
     DoorType {
         room_id: RoomId,
@@ -981,7 +982,7 @@ pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
 #[derive(Default, Clone)]
 struct RequirementContext<'a> {
     room_id: RoomId,
-    _from_node_id: NodeId, // Usable for debugging
+    from_node_id: NodeId,
     to_node_id: NodeId,
     room_heated: bool,
     from_obstacles_bitmask: ObstacleMask,
@@ -1716,8 +1717,15 @@ impl GameData {
                 } else if enemy_set.contains("Botwoon 2") {
                     return Ok(Requirement::BotwoonFight { second_phase: true });
                 } else if enemy_set.contains("Mother Brain 2") {
+                    // Here we check the first obstacle ("A") to see if we're in R-mode.
+                    // Also we only want the R-mode logic to take effect with the 4 -> 4 links (the notable strats),
+                    // so we check the from_node_id; this is a hacky way of doing it though. 
+                    // TODO: Make logical requirements for boss fights, so that we could express the requirements 
+                    // more explicitly in the sm-json-data, e.g. like {"fightMotherBrain": {"rMode": true}}.
+                    let r_mode = (ctx.from_obstacles_bitmask & 1) == 1 && ctx.from_node_id == 4;
                     return Ok(Requirement::MotherBrain2Fight {
                         can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
+                        r_mode,
                     });
                 }
 
@@ -3098,7 +3106,7 @@ impl GameData {
                 )?;
                 let ctx = RequirementContext {
                     room_id,
-                    _from_node_id: from_node_id,
+                    from_node_id,
                     to_node_id: to_node_id,
                     room_heated: from_heated || to_heated,
                     from_obstacles_bitmask,
