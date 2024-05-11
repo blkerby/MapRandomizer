@@ -32,7 +32,9 @@ enum Interior {
     MajorItem,
     Elevator,
     Save,
-    Refill,
+    DoubleRefill,
+    EnergyRefill,
+    AmmoRefill,
     Objective,
     MapStation,
 }
@@ -394,7 +396,7 @@ impl<'a> MapPatcher<'a> {
         let data = self.render_basic_tile(tile)?;
         self.tile_gfx_map.insert(word, data);
         self.index_basic_tile_case(tile, word);
-        if tile.interior == Interior::Save || tile.interior == Interior::Elevator {
+        if [Interior::Save, Interior::Elevator, Interior::AmmoRefill].contains(&tile.interior) {
             return Ok(());
         }
         self.index_basic_tile_case(
@@ -659,7 +661,7 @@ impl<'a> MapPatcher<'a> {
                     (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
                 ]);
             },
-            Interior::Refill => {  
+            Interior::DoubleRefill => {  
                 update_tile(&mut data, 3, &vec![
                     (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
                     (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
@@ -668,6 +670,41 @@ impl<'a> MapPatcher<'a> {
                     (0, 4), (7, 4),
                     (0, 5), (1, 5), (2, 5), (5, 5), (6, 5), (7, 5),
                     (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
+                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
+                ]);
+            },
+            Interior::EnergyRefill => {  
+                // Drawn the same as a double refill (for now at least):
+                update_tile(&mut data, 3, &vec![
+                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
+                    (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
+                    (0, 2), (1, 2), (2, 2), (5, 2), (6, 2), (7, 2),
+                    (0, 3), (7, 3),
+                    (0, 4), (7, 4),
+                    (0, 5), (1, 5), (2, 5), (5, 5), (6, 5), (7, 5),
+                    (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
+                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
+                ]);
+                // update_tile(&mut data, 3, &vec![
+                //     (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
+                //     (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
+                //     (0, 2), (1, 2), (6, 2), (7, 2),
+                //     (0, 3), (7, 3),
+                //     (0, 4), (7, 4),
+                //     (0, 5), (1, 5), (6, 5), (7, 5),
+                //     (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
+                //     (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
+                // ]);
+            },
+            Interior::AmmoRefill => {
+                update_tile(&mut data, 3, &vec![
+                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
+                    (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
+                    (0, 2), (1, 2), (6, 2), (7, 2),
+                    (0, 3), (1, 3), (3, 3), (4, 3), (6, 3), (7, 3),
+                    (0, 4), (1, 4), (6, 4), (7, 4),
+                    (0, 5), (7, 5),
+                    (0, 6), (2, 6), (5, 6), (7, 6),
                     (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
                 ]);
             },
@@ -1026,13 +1063,16 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_refill_station_tiles(&mut self) -> Result<()> {
-        let refill_tile_desc = vec![(0, 0, E, E, E, E, Interior::Refill)];
-        for room in &self.game_data.room_geometry {
-            if room.name.contains("Refill") || room.name.contains("Recharge") {
-                self.patch_room_basic(&room.name, refill_tile_desc.clone())?;
-            }
-        }
-        self.patch_room_basic("Landing Site", vec![(4, 4, E, E, E, E, Interior::Refill)])?;
+        self.patch_room_basic("Landing Site", vec![(4, 4, E, E, E, E, Interior::DoubleRefill)])?;
+        self.patch_room_basic("Kraid Recharge Station", vec![(0, 0, E, E, E, E, Interior::DoubleRefill)])?;
+        self.patch_room_basic("Tourian Recharge Room", vec![(0, 0, E, E, E, E, Interior::DoubleRefill)])?;
+        self.patch_room_basic("Dachora Energy Refill", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
+        self.patch_room_basic("Sloaters Refill", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
+        self.patch_room_basic("Nutella Refill", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
+        self.patch_room_basic("Maridia Health Refill Room", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
+        self.patch_room_basic("Golden Torizo Energy Recharge", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
+        self.patch_room_basic("Green Brinstar Missile Refill", vec![(0, 0, E, E, E, E, Interior::AmmoRefill)])?;
+        self.patch_room_basic("Maridia Missile Refill Room", vec![(0, 0, E, E, E, E, Interior::AmmoRefill)])?;        
         Ok(())
     }
 
@@ -1167,7 +1207,8 @@ impl<'a> MapPatcher<'a> {
                 let basic_tile_opt = self.reverse_map.get(&word);
                 if let Some(basic_tile) = basic_tile_opt {
                     let mut new_tile = basic_tile.clone();
-                    if [Interior::Save, Interior::Refill, Interior::Objective, Interior::MapStation].contains(&basic_tile.interior) {
+                    if [Interior::Save, Interior::DoubleRefill, Interior::EnergyRefill, Interior::AmmoRefill, 
+                            Interior::Objective, Interior::MapStation].contains(&basic_tile.interior) {
                         continue;
                     }
                     for &i in idxs {
