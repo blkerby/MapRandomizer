@@ -1,11 +1,12 @@
 v112:
 - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
 - add `comeInWithBlueSpringBallBounce`
+- implement "heatFramesWithEnergyDrops"
 - add Junko sprite, update protogen
-- fix logic pages with shinecharge entrance conditions:
+- figure out why Climb doesn't have acid in escape anymore (sometimes?)
+- DONE: fix logic pages with shinecharge entrance conditions:
   - e.g. https://dev.maprando.com/logic/room/FastPillarsSetupRoom/2/1/ShinesparkDeepStuckXRayClimb shouldn't be Beyond.
   - in logic page requirement checks, start with full shinecharge frames rather than empty
-- figure out why Climb doesn't have acid in escape anymore (sometimes?)
 - DONE: add soft "Late" option and update item progression presets:
   - late: gravity, varia
   - middle: space jump, screw attack, morph, wall jump boots

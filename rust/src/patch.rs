@@ -409,8 +409,8 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
                 PlasmaRoom =>       (0xD823, 8),
                 MetalPiratesRoom => (0xD823, 0x10),
             };
-            rom.write_u16(snes2pc(0x8FEBC0)+i*2, var);
-            rom.write_u16(snes2pc(0x8FEBC8)+i*2, mask);
+            rom.write_u16(snes2pc(0x8FEBC0)+i*2, var)?;
+            rom.write_u16(snes2pc(0x8FEBC8)+i*2, mask)?;
         }
     } else {
         panic!("Unimplemented objective count != 4")

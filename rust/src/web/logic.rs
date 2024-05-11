@@ -496,7 +496,7 @@ fn get_strat_difficulty(
             missiles_used: 0,
             supers_used: 0,
             power_bombs_used: 0,
-            shinecharge_frames_remaining: 0,
+            shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
         };
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
