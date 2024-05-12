@@ -12,7 +12,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>This setting can be used to disable game music, while still playing sound effects. The same music tracks will load (though not played), in order to keep room load timings consistent.</p>
+        <p>This setting can be used to disable game music, while still playing sound effects. The same music tracks will load (though not play), in order to keep room load timings consistent.</p>
 
         <p>MSU-1 support is built into the randomizer; on applicable platforms this can be used to customize the music, still with no effect on room load timings.</p>
       </div>

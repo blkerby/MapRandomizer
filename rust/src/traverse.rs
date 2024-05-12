@@ -1022,6 +1022,16 @@ pub fn apply_requirement(
                 multiply((3 * frames + 1) / 2, difficulty) / suit_damage_factor(global);
             validate_energy(new_local, global, game_data)
         }
+        Requirement::GravitylessAcidFrames(frames) => {
+            let varia = global.items[Item::Varia as usize];
+            let mut new_local = local;
+            if varia {
+                new_local.energy_used += multiply((3 * frames + 3) / 4, difficulty);
+            } else {
+                new_local.energy_used += multiply((3 * frames + 1) / 2, difficulty);
+            }
+            validate_energy(new_local, global, game_data)
+        }
         Requirement::MetroidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
@@ -1071,6 +1081,114 @@ pub fn apply_requirement(
                 validate_energy(new_local, global, game_data)
             } else {
                 Some(local)
+            }
+        }
+        Requirement::MissilesAvailable(count) => {
+            if reverse {
+                let mut new_local = local;
+                if global.max_missiles < *count {
+                    None
+                } else {
+                    new_local.missiles_used = Capacity::max(new_local.missiles_used, *count);
+                    Some(new_local)
+                }
+            } else {
+                if global.max_missiles - local.missiles_used < *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            }
+        }
+        Requirement::SupersAvailable(count) => {
+            if reverse {
+                let mut new_local = local;
+                if global.max_supers < *count {
+                    None
+                } else {
+                    new_local.supers_used = Capacity::max(new_local.supers_used, *count);
+                    Some(new_local)
+                }
+            } else {
+                if global.max_supers - local.supers_used < *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            }
+        }
+        Requirement::PowerBombsAvailable(count) => {
+            if reverse {
+                let mut new_local = local;
+                if global.max_power_bombs < *count {
+                    None
+                } else {
+                    new_local.power_bombs_used = Capacity::max(new_local.power_bombs_used, *count);
+                    Some(new_local)
+                }
+            } else {
+                if global.max_power_bombs - local.power_bombs_used < *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            }
+        }
+        Requirement::RegularEnergyAvailable(count) => {
+            if reverse {
+                let mut new_local = local;
+                if global.max_energy < *count {
+                    None
+                } else {
+                    new_local.energy_used = Capacity::max(new_local.energy_used, *count);
+                    Some(new_local)
+                }
+            } else {
+                if global.max_energy - local.energy_used < *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            }
+        }
+        Requirement::ReserveEnergyAvailable(count) => {
+            if reverse {
+                let mut new_local = local;
+                if global.max_reserves < *count {
+                    None
+                } else {
+                    new_local.reserves_used = Capacity::max(new_local.reserves_used, *count);
+                    Some(new_local)
+                }
+            } else {
+                if global.max_reserves - local.reserves_used < *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            }
+        }
+        Requirement::EnergyAvailable(count) => {
+            if reverse {
+                let mut new_local = local;
+                if global.max_energy + global.max_reserves < *count {
+                    None
+                } else {
+                    if global.max_energy < *count {
+                        new_local.energy_used = global.max_energy;
+                        new_local.reserves_used = Capacity::max(new_local.reserves_used, *count - global.max_energy);
+                        Some(new_local)
+                    } else {
+                        new_local.energy_used = Capacity::max(new_local.energy_used, *count);
+                        Some(new_local)
+                    }
+                }
+            } else {
+                if global.max_reserves - local.reserves_used + global.max_energy - local.energy_used < *count {
+                    None
+                } else {
+                    Some(local)
+                }
             }
         }
         Requirement::MissilesCapacity(count) => {
@@ -1477,6 +1595,12 @@ pub fn apply_requirement(
     }
 }
 
+pub fn is_reachable_state(
+    local: LocalState
+) -> bool {
+    local.energy_used != IMPOSSIBLE_LOCAL_STATE.energy_used
+}
+
 pub fn is_bireachable_state(
     global: &GlobalState,
     forward: LocalState,
@@ -1520,6 +1644,22 @@ pub fn get_bireachable_idxs(
                 // A valid combination of forward & return routes has been found.
                 return Some((forward_cost_idx, reverse_cost_idx));
             }
+        }
+    }
+    None
+}
+
+// If the given vertex is reachable, returns a cost metric index (between 0 and NUM_COST_METRICS),
+// indicating a forward route. Otherwise returns None.
+pub fn get_one_way_reachable_idx(
+    global: &GlobalState,
+    vertex_id: usize,
+    forward: &TraverseResult,
+) -> Option<usize> {
+    for forward_cost_idx in 0..NUM_COST_METRICS {
+        let forward_state = forward.local_states[vertex_id][forward_cost_idx];
+        if is_reachable_state(forward_state) {
+            return Some(forward_cost_idx);
         }
     }
     None

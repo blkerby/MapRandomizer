@@ -58,9 +58,9 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                             <label class="col-form-label" for="custom_samus_sprite"><% include!("help/samus_sprite.stpl"); %>Samus sprite</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onclick="changeSamusSprite()">
-                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteNo" value=false checked>
+                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteNo" value=false>
                                 <label class="btn btn-outline-primary" style="width:120px" for="customSamusSpriteNo">Vanilla</label>
-                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteYes" value=true>
+                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteYes" value=true checked>
                                 <label class="btn btn-outline-primary" style="width:120px" for="customSamusSpriteYes">Custom</label>
                             </div>
                         </div>

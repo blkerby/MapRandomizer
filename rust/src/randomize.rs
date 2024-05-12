@@ -9,9 +9,7 @@ use crate::{
         SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey,
     },
     traverse::{
-        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs,
-        get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult,
-        IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
+        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_one_way_reachable_idx, get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
     },
     web::logic::strip_name,
 };
@@ -295,6 +293,7 @@ struct ItemLocationState {
 #[derive(Clone)]
 struct FlagLocationState {
     pub reachable: bool,
+    pub reachable_vertex_id: Option<VertexId>,
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
 }
@@ -650,6 +649,19 @@ impl<'a> Preprocessor<'a> {
                 min_tiles.get(),
                 *heated,
             ),
+            MainEntranceCondition::ComeInGettingBlueSpeed {
+                effective_length,
+                min_tiles,
+                heated,
+            } => {
+                // TODO: once flash suit logic is ready, handle this differently
+                self.get_come_in_shinecharging_reqs(
+                    exit_condition,
+                    effective_length.get(),
+                    min_tiles.get(),
+                    *heated,
+                )
+            },
             MainEntranceCondition::ComeInShinecharged {} => {
                 self.get_come_in_shinecharged_reqs(exit_condition)
             }
@@ -2289,12 +2301,17 @@ impl<'r> Randomizer<'r> {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
             // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for
             // resource management.)
+            state.flag_location_state[i].reachable = false;
+            state.flag_location_state[i].reachable_vertex_id = None;
             state.flag_location_state[i].bireachable = false;
             state.flag_location_state[i].bireachable_vertex_id = None;
 
             for &v in vertex_ids {
                 if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
-                    state.flag_location_state[i].reachable = true;
+                    if !state.flag_location_state[i].reachable {
+                        state.flag_location_state[i].reachable = true;
+                        state.flag_location_state[i].reachable_vertex_id = Some(v);
+                    }
                     if !state.flag_location_state[i].bireachable
                         && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
                             .is_some()
@@ -2947,7 +2964,23 @@ impl<'r> Randomizer<'r> {
                 if state.global_state.flags[flag_id] {
                     continue;
                 }
-                if state.flag_location_state[i].bireachable {
+                if state.flag_location_state[i].reachable && flag_id == self.game_data.mother_brain_defeated_flag_id {
+                    // f_DefeatedMotherBrain flag is special in that we only require one-way reachability for it:
+                    any_update = true;
+                    let flag_vertex_id =
+                        state.flag_location_state[i].reachable_vertex_id.unwrap();
+                    spoiler_flag_summaries.push(self.get_spoiler_flag_summary(
+                        &state,
+                        flag_vertex_id,
+                        flag_id,
+                    ));
+                    spoiler_flag_details.push(self.get_spoiler_flag_details_one_way(
+                        &state,
+                        flag_vertex_id,
+                        flag_id,
+                    ));
+                    state.global_state.flags[flag_id] = true;
+                } else if state.flag_location_state[i].bireachable {
                     any_update = true;
                     let flag_vertex_id =
                         state.flag_location_state[i].bireachable_vertex_id.unwrap();
@@ -3626,6 +3659,7 @@ impl<'r> Randomizer<'r> {
         };
         let initial_flag_location_state = FlagLocationState {
             reachable: false,
+            reachable_vertex_id: None,
             bireachable: false,
             bireachable_vertex_id: None,
         };
@@ -3727,25 +3761,31 @@ impl<'r> Randomizer<'r> {
                 //     break;
                 // }
 
-                // Check that at least one instance of each item can be collected.
-                for i in 0..self.initial_items_remaining.len() {
-                    if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
-                        bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
-                    }
+                if !self.is_game_beatable(&state) {
+                    bail!("[attempt {attempt_num_rando}] Attempt failed: Game not beatable");
                 }
 
-                // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
-                // behind Bowling Alley.
-                let phantoon_flag_id = self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
-                let mut phantoon_defeated = false;
-                for (i, flag_id) in self.game_data.flag_ids.iter().enumerate() {
-                    if *flag_id == phantoon_flag_id && state.flag_location_state[i].bireachable {
-                        phantoon_defeated = true;
+                if !self.difficulty_tiers[0].stop_item_placement_early {
+                    // Check that at least one instance of each item can be collected.
+                    for i in 0..self.initial_items_remaining.len() {
+                        if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
+                            bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
+                        }
                     }
-                }
 
-                if !phantoon_defeated {
-                    bail!("[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated");
+                    // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
+                    // behind Bowling Alley.
+                    let phantoon_flag_id = self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
+                    let mut phantoon_defeated = false;
+                    for (i, flag_id) in self.game_data.flag_ids.iter().enumerate() {
+                        if *flag_id == phantoon_flag_id && state.flag_location_state[i].bireachable {
+                            phantoon_defeated = true;
+                        }
+                    }
+
+                    if !phantoon_defeated {
+                        bail!("[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated");
+                    }                    
                 }
 
                 // Success:
@@ -4144,6 +4184,26 @@ impl<'a> Randomizer<'a> {
         (obtain_route, return_route)
     }
 
+    fn get_spoiler_route_one_way(
+        &self,
+        state: &RandomizationState,
+        vertex_id: usize,
+    ) -> Vec<SpoilerRouteEntry> {
+        let forward = &state.debug_data.as_ref().unwrap().forward;
+        let forward_cost_idx =
+            get_one_way_reachable_idx(&state.global_state, vertex_id, forward).unwrap();
+        let forward_link_idxs: Vec<LinkIdx> =
+            get_spoiler_route(forward, vertex_id, forward_cost_idx);
+        let obtain_route = self.get_spoiler_route(
+            &state.global_state,
+            LocalState::new(),
+            &forward_link_idxs,
+            &self.difficulty_tiers[0],
+            false,
+        );
+        obtain_route
+    }
+
     fn get_spoiler_item_details(
         &self,
         state: &RandomizationState,
@@ -4209,6 +4269,29 @@ impl<'a> Randomizer<'a> {
             },
             obtain_route: obtain_route,
             return_route: return_route,
+        }
+    }
+
+    fn get_spoiler_flag_details_one_way(
+        &self,
+        state: &RandomizationState,
+        flag_vertex_id: usize,
+        flag_id: FlagId,
+    ) -> SpoilerFlagDetails {
+        // This is for a one-way reachable flag, used for f_DefeatedMotherBrain:
+        let obtain_route =
+            self.get_spoiler_route_one_way(state, flag_vertex_id);
+        let flag_vertex_info = self.get_vertex_info(flag_vertex_id);
+        SpoilerFlagDetails {
+            flag: self.game_data.flag_isv.keys[flag_id].to_string(),
+            location: SpoilerLocation {
+                area: flag_vertex_info.area_name,
+                room: flag_vertex_info.room_name,
+                node: flag_vertex_info.node_name,
+                coords: flag_vertex_info.room_coords,
+            },
+            obtain_route: obtain_route,
+            return_route: vec![],
         }
     }
 

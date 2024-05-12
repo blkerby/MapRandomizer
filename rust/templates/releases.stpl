@@ -16,6 +16,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release112">Version 112 (2024-05-11)</a>:
 <ul>
+<li>Hazard markers are added on doors leading to Bug Sand Hole.
 <li>A new objective option "Random" is added.
 <li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
 <li>A new option "Item priority strength" is added:
@@ -42,6 +43,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Draygon logic is tightened, especially for low-ammo scenarios on high difficulty settings.
     <li>New tech:
         <ul>
+        <li>canMidAirMorph (Basic)
         <li>canPreciseSpaceJump (Expert)
         <li>canMomentumConservingMorph (Expert)
         <li>canLongChainTemporaryBlue (Extreme)
@@ -58,6 +60,8 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>Crab Hole Ice Clip (Extreme)
         <li>Tourian Escape Room 4 Suitless Acid Bath Shinespark (Extreme)
         <li>LN Firefleas G-Mode Morph Blind Top to Bottom (Extreme)
+        <li>Mother Brain R-Mode Reduced Tanks (Extreme)
+        <li>Mother Brain R-Mode Light Pillar (Extreme)
         <li>Botwoon Energy Tank Room Sand Grapple Boost (Insane)
         <li>Crocomire Escape High Speed Gate Glitch (Insane)
         <li>PCJR G-Mode Morph Long Diagonal Bomb Jump (Insane)

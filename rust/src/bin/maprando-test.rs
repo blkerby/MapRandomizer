@@ -6,7 +6,7 @@ use maprando::game_data::{Capacity, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
-    randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objectives, ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode
+    randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode
 };
 use maprando::spoiler_map;
 use maprando::web::{MapRepository, Preset, SamusSpriteCategory};
@@ -138,7 +138,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         buffed_drops: true,
 
         // Game options
-        objectives: Objectives::Bosses,
+        objectives: vec![Objective::Kraid, Objective::Phantoon, Objective::Draygon, Objective::Ridley],
         vanilla_map: false,
         doors_mode: DoorsMode::Blue,
         start_location_mode: StartLocationMode::Ship,

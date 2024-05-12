@@ -2045,6 +2045,8 @@ impl<'a> Patcher<'a> {
             (Some(0x1AA14), Some(0x1AA20)), // Tourian Blue Hoppers (left)
             (Some(0x18DDE), Some(0x18E6E)), // Big Pink crumble blocks (left),
             (Some(0x19312), Some(0x1934E)), // Ice Beam Gate Room crumbles (top left)
+            (Some(0x1A630), Some(0x1A5C4)), // Bug Sand Hole (left)
+            (Some(0x1A618), Some(0x1A564)), // Bug Sand Hole (right)
         ];
         if self.randomization.difficulty.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![

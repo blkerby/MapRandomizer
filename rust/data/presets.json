@@ -15,6 +15,7 @@
     "mother_brain_proficiency": 0.0,
     "tech": [
       "canHeatRun",
+      "canMidAirMorph",
       "canWalljump",
       "canShinespark",
       "canUseFrozenEnemies",
@@ -624,7 +625,9 @@
       "WS East Supers R-Mode Standup Clip (Right to Left)",
 
       "Tourian Escape Room 4 IBJ and Acid Bath",
-      "Tourian Escape Room 4 Suitless Acid Bath Shinespark"
+      "Tourian Escape Room 4 Suitless Acid Bath Shinespark",
+      "Mother Brain R-Mode Reduced Tanks",
+      "Mother Brain R-Mode Light Pillar"
     ]
   },
   {
