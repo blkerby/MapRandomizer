@@ -907,7 +907,7 @@ pub struct GameData {
     non_ammo_weapon_mask: WeaponMask,
     tech_json_map: HashMap<String, JsonValue>,
     pub helper_json_map: HashMap<String, JsonValue>,
-    tech: HashMap<String, Option<Requirement>>,
+    tech: HashMap<(String, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
@@ -1010,7 +1010,8 @@ impl GameData {
         ensure!(full_tech_json["techCategories"].is_array());
         full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Shots").unwrap()["techs"].push(json::object!{
             "name": "canHyperGateShot",
-            "requires": [],
+            "techRequires": [],
+            "otherRequires": [],
             "note": [
                 "Can shoot blue & green gates from either side using Hyper Beam during the escape.",
                 "This is easy to do; this tech just represents knowing it can be done.",
@@ -1019,7 +1020,8 @@ impl GameData {
         })?;
         full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Movement").unwrap()["techs"].push(json::object!{
             "name": "canEscapeMorphLocation",
-            "requires": [],
+            "techRequires": [],
+            "otherRequires": [],
             "devNote": "A special internal tech that is auto-enabled when using vanilla map, to ensure there is at least one bireachable item."
         })?;
         Self::override_can_awaken_zebes_tech_note(&mut full_tech_json)?;
@@ -1110,8 +1112,8 @@ impl GameData {
         }
     }
 
-    fn get_tech_requirement(&mut self, tech_name: &str) -> Result<Requirement> {
-        if let Some(req_opt) = self.tech.get(tech_name) {
+    fn get_tech_requirement(&mut self, tech_name: &str, include_other_requires: bool) -> Result<Requirement> {
+        if let Some(req_opt) = self.tech.get(&(tech_name.to_string(), include_other_requires)) {
             if let Some(req) = req_opt {
                 return Ok(req.clone());
             } else {
@@ -1123,20 +1125,33 @@ impl GameData {
         // }
 
         // Temporarily insert a None value to act as a sentinel for detecting circular dependencies:
-        self.tech.insert(tech_name.to_string(), None);
+        self.tech.insert((tech_name.to_string(), include_other_requires), None);
 
-        let tech_json = &self.tech_json_map[tech_name].clone();
-        let req = if tech_json.has_key("requires") {
-            let ctx = RequirementContext::default();
-            let mut reqs =
-                self.parse_requires_list(tech_json["requires"].members().as_slice(), &ctx)?;
-            reqs.push(Requirement::Tech(self.tech_isv.index_by_key[tech_name]));
-            Requirement::make_and(reqs)
-        } else {
+        let tech_json = &self.tech_json_map.get(tech_name)
+          .context(format!("Tech not found: '{}'", tech_name))?.clone();
+
+        let mut reqs: Vec<Requirement> = vec![
             Requirement::Tech(self.tech_isv.index_by_key[tech_name])
-        };
-        *self.tech.get_mut(tech_name).unwrap() = Some(req.clone());
-        Ok(req)
+        ];
+        let ctx = RequirementContext::default();
+        ensure!(tech_json["techRequires"].is_array());
+        for req in tech_json["techRequires"].members() {
+            if req.is_string() {
+                reqs.push(self.get_tech_requirement(req.as_str().unwrap(), include_other_requires)
+                    .context(format!("Parsing tech requirement '{}'", req))?);
+            } else if req.has_key("tech") {
+                reqs.push(self.get_tech_requirement(req["tech"].as_str().unwrap(), false)
+                    .context(format!("Parsing pure tech requirement '{}'", req))?);
+            } else {
+                bail!("Unexpected requirement type in techRequires: {}", req);
+            }
+        }
+        if include_other_requires {
+            reqs.extend(self.parse_requires_list(&tech_json["otherRequires"].members().as_slice(), &ctx)?);
+        }
+        let combined_req = Requirement::make_and(reqs);
+        *self.tech.get_mut(&(tech_name.to_string(), include_other_requires)).unwrap() = Some(combined_req.clone());
+        Ok(combined_req)
     }
 
     fn load_items_and_flags(&mut self) -> Result<()> {
@@ -1498,7 +1513,7 @@ impl GameData {
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
                 return Ok(Requirement::Flag(flag_id as FlagId));
             } else if self.tech_json_map.contains_key(value) {
-                return self.get_tech_requirement(value);
+                return self.get_tech_requirement(value, true);
             } else if self.helper_json_map.contains_key(value) {
                 return self.get_helper(value);
             }
@@ -1769,7 +1784,6 @@ impl GameData {
                     // TODO: Make logical requirements for boss fights, so that we could express the requirements 
                     // properly in the sm-json-data, e.g. like {"fightMotherBrain": {"rMode": true}}.
                     let r_mode = (ctx.from_obstacles_bitmask & 1) == 1 && ctx.strat_name.contains("R-Mode");
-                    println!("r_mode: {} {}", ctx.strat_name, r_mode);
                     return Ok(Requirement::MotherBrain2Fight {
                         can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
                         r_mode,
@@ -1910,6 +1924,8 @@ impl GameData {
                 return Ok(Requirement::Free);
             } else if key == "useFlashSuit" {
                 return Ok(Requirement::Never);
+            } else if key == "tech" {
+                return Ok(self.get_tech_requirement(value.as_str().unwrap(), false)?);
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
@@ -3788,7 +3804,7 @@ impl GameData {
     fn extract_all_tech_dependencies(&mut self) -> Result<()> {
         let tech_vec = self.tech_isv.keys.clone();
         for tech in &tech_vec {
-            let req = self.get_tech_requirement(tech)?;
+            let req = self.get_tech_requirement(tech, false)?;
             let deps: Vec<String> = self
                 .extract_tech_dependencies(&req)
                 .into_iter()
