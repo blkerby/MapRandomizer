@@ -14,11 +14,15 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release112">Version 112 (2024-05-12)</a>:
+<p><a id="release112">Version 112 (2024-05-14)</a>:
 <ul>
 <li>Hazard markers are added on doors leading to Bug Sand Hole.
 <li>A new objective option "Random" is added.
 <li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
+<li>Fixed an issue affecting Fast and Uniform item progression rate setting (e.g. Normal and Tricky presets):
+    <ul>
+    <li>Key items were often being placed more slowly than they should have been.
+    </ul>
 <li>A new option "Item priority strength" is added:
     <ul>
     <li>The new setting "Moderate" improves seed variety by not enforcing key item priority as rigidly.
