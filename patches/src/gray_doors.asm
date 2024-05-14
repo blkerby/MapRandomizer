@@ -21,8 +21,9 @@ org $8488a7
 ; Left-side Bomb-Torizo-type door
 org $84BA4C             
 bt_door_left:
-.wait_trigger
-    dw $0002, $A683
+    dw $0001, $A683
+.wait_trigger:
+    dw $86B4  ; Sleep
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A683    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
 .wait_clear
@@ -55,8 +56,9 @@ down_bt_door:
     dw $C794, $BF42, btdoor_setup_down
 
 btdoor_setup_right:
-.wait_trigger
     dw $0002, $A677
+.wait_trigger:
+    dw $86B4  ; Sleep
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A677    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
 .wait_clear
@@ -72,8 +74,9 @@ btdoor_setup_right:
 
 
 btdoor_setup_up:
-.wait_trigger
     dw $0002, $A69B
+.wait_trigger:
+    dw $86B4  ; Sleep
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A69B    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
     dw $8C19
@@ -85,8 +88,9 @@ btdoor_setup_up:
     dw $8724, $BFAB
 
 btdoor_setup_down:
-.wait_trigger
     dw $0002, $A68F
+.wait_trigger:
+    dw $86B4  ; Sleep
     dw btcheck_inst, .wait_trigger  ; Go to .wait_trigger unless the condition is triggered (item collected or boss hurt)
     dw $0026, $A68F    ; After the condition is triggered, wait a bit before closing (time reduced by 2, to make up for extra 2 in next instruction)
     dw $8C19
@@ -155,6 +159,7 @@ btcheck1:
 
 ;;; check if we the BT door condition is triggered (item collected, or boss hurt).
 ;;; If so, go to the next instruction (Y <- Y + 2), otherwise go to [Y].
+print pc
 btcheck_inst:
     jsr btcheck
     bne .not_triggered
