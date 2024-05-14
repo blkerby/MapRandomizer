@@ -2509,25 +2509,41 @@ impl<'r> Randomizer<'r> {
         attempt_num: usize,
     ) -> Option<Vec<Item>> {
         if num_key_items_to_select >= 1 {
-            let mut remaining_items: Vec<Item> = vec![];
-            let mut cnt_different_items_remaining = 0;
+            let mut unplaced_items: Vec<Item> = vec![];
+            let mut placed_items: Vec<Item> = vec![];
+            let mut additional_items: Vec<Item> = vec![];
 
             for &item in &state.item_precedence {
                 if state.items_remaining[item as usize] > 0
                     || (self.difficulty_tiers[0].stop_item_placement_early && item == Item::Nothing)
                 {
-                    remaining_items.push(item);
-                    cnt_different_items_remaining += 1;
-                }
-            }
-            for &item in &state.item_precedence {
-                if state.items_remaining[item as usize] > 0 {
-                    let cnt = state.items_remaining[item as usize] - 1;
-                    for _ in 0..cnt {
-                        remaining_items.push(item);
+                    if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
+                        // With Slow progression, items that have been placed before (e.g. an ETank) are treated like any other
+                        // item, still keeping their same position in the key item priority
+                        unplaced_items.push(item);
+                    } else {
+                        // With Uniform and Fast progression, items that have been placed before get put in last priority:
+                        if state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
+                            unplaced_items.push(item);
+                        } else {
+                            placed_items.push(item);
+                        }
+                    }
+
+                    if state.items_remaining[item as usize] >= 2 {
+                        let cnt = state.items_remaining[item as usize] - 1;
+                        for _ in 0..cnt {
+                            additional_items.push(item);
+                        }
                     }
                 }
             }
+
+            let cnt_different_items_remaining = unplaced_items.len() + placed_items.len();
+            let mut remaining_items: Vec<Item> = vec![];
+            remaining_items.extend(unplaced_items);
+            remaining_items.extend(placed_items);
+            remaining_items.extend(additional_items);
 
             if attempt_num > 0
                 && num_key_items_to_select - 1 + attempt_num >= cnt_different_items_remaining
