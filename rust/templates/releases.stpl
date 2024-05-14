@@ -19,7 +19,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Hazard markers are added on doors leading to Bug Sand Hole.
 <li>A new objective option "Random" is added.
 <li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
-<li>Fixed an issue affecting Fast and Uniform item progression rate setting (e.g. Normal and Tricky presets):
+<li>Fixed an issue affecting Fast and Uniform item progression rate (e.g. Normal and Tricky):
     <ul>
     <li>Key items were often being placed more slowly than they should have been.
     </ul>
