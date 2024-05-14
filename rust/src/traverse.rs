@@ -1233,7 +1233,7 @@ pub fn apply_requirement(
                 if local.energy_used < *limit {
                     new_local.energy_used = 0;
                 }
-                if local.reserves_used < limit_reserves {
+                if local.reserves_used <= limit_reserves {
                     new_local.reserves_used = 0;
                 }
                 Some(new_local)
@@ -1266,7 +1266,7 @@ pub fn apply_requirement(
         Requirement::ReserveRefill(limit) => {
             if reverse {
                 let mut new_local = local;
-                if local.reserves_used < *limit {
+                if local.reserves_used <= *limit {
                     new_local.reserves_used = 0;
                 }
                 Some(new_local)
@@ -1281,7 +1281,7 @@ pub fn apply_requirement(
         Requirement::MissileRefill(limit) => {
             if reverse {
                 let mut new_local = local;
-                if local.missiles_used < *limit {
+                if local.missiles_used <= *limit {
                     new_local.missiles_used = 0;
                 }
                 Some(new_local)
@@ -1296,7 +1296,7 @@ pub fn apply_requirement(
         Requirement::SuperRefill(limit) => {
             if reverse {
                 let mut new_local = local;
-                if local.supers_used < *limit {
+                if local.supers_used <= *limit {
                     new_local.supers_used = 0;
                 }
                 Some(new_local)
@@ -1311,7 +1311,7 @@ pub fn apply_requirement(
         Requirement::PowerBombRefill(limit) => {
             if reverse {
                 let mut new_local = local;
-                if local.power_bombs_used < *limit {
+                if local.power_bombs_used <= *limit {
                     new_local.power_bombs_used = 0;
                 }
                 Some(new_local)

@@ -1,6 +1,8 @@
 v112:
 - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
 - add `comeInWithBlueSpringBallBounce`
+- implement `speedBall` logical requirement
+- re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
 - implement "heatFramesWithEnergyDrops"
 - add Junko sprite, update protogen
 - remove vanilla music option

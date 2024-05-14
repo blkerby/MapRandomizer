@@ -1131,7 +1131,11 @@ impl GameData {
           .context(format!("Tech not found: '{}'", tech_name))?.clone();
 
         let mut reqs: Vec<Requirement> = vec![
-            Requirement::Tech(self.tech_isv.index_by_key[tech_name])
+            if tech_name == "canWalljump" {
+                Requirement::Walljump
+            } else {
+                Requirement::Tech(self.tech_isv.index_by_key[tech_name])
+            }
         ];
         let ctx = RequirementContext::default();
         ensure!(tech_json["techRequires"].is_array());
