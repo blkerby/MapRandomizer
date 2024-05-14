@@ -16,6 +16,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <p><a id="release112">Version 112 (2024-05-14)</a>:
 <ul>
+<li>The amount of lag is reduced and should now be more similar to the vanilla game.
 <li>Hazard markers are added on doors leading to Bug Sand Hole.
 <li>A new objective option "Random" is added.
 <li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
