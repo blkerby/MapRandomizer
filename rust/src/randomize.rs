@@ -167,7 +167,13 @@ pub enum EtankRefill {
 pub enum MapsRevealed {
     No,
     Partial,
-    Yes,
+    Full,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum MapStationReveal {
+    Partial,
+    Full,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -256,6 +262,7 @@ pub struct DifficultyConfig {
     pub wall_jump: WallJump,
     pub etank_refill: EtankRefill,
     pub maps_revealed: MapsRevealed,
+    pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub vanilla_map: bool,
     pub ultra_low_qol: bool,

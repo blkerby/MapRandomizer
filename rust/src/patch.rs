@@ -962,9 +962,11 @@ impl<'a> Patcher<'a> {
     }
 
     fn make_map_revealed(&mut self) -> Result<()> {
-        // Make the whole map revealed (after the player uses the map station) -- no more hidden tiles.
-        for i in 0x11727..0x11D27 {
-            self.rom.write_u8(i, 0xFF)?;
+        // Zero out map revealed bits. These will be filled in later to identify area-transition markers,
+        // which are tiles that need to be only fully revealed (not partial) since otherwise they would
+        // have wrong colors.
+        for i in snes2pc(0x829727)..snes2pc(0x829D27) {
+            self.rom.write_u8(i, 0x00)?;
         }
         Ok(())
     }

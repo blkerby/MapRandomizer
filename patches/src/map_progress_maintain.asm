@@ -1,8 +1,10 @@
 arch snes.cpu
 lorom
 
-!bank_90_freespace_start = $90F700
+!map_station_reveal_type = $90F700  ; 0 = Full reveal,  1 = Partial reveal
+!bank_90_freespace_start = $90F702
 !bank_90_freespace_end = $90F800
+
 
 incsrc "constants.asm"
 
@@ -33,6 +35,9 @@ org $90A923
 ; This will also check if mini-map is disabled, and if so, skip the rest of the mini-map drawing routine.
 org $90A98B
     jmp mark_progress
+
+org !map_station_reveal_type
+    dw $0000  ; default: full reveal
 
 org !bank_90_freespace_start
 mark_progress:
@@ -107,7 +112,11 @@ activate_map_station_hook:
     xba
     tax          ; X <- map area * $100
     ldy $0080    ; Y <- loop counter (number of words to fill with #$FFFF)
-.loop    
+
+    lda !map_station_reveal_type
+    bne .partial_only_loop
+
+.loop:
     lda #$FFFF
     sta $702000, x
     sta $702700, x
@@ -115,7 +124,20 @@ activate_map_station_hook:
     inx
     dey
     bne .loop
-    
+    rtl
+
+.partial_only_loop:
+    lda #$FFFF
+    sta $702700, x
+    ; fully reveal specific tiles that contain area-transition markers,
+    ; since those would not show correctly in the partially-revealed palette:
+    lda $829727, x
+    ora $702000, x
+    sta $702000, x
+    inx
+    inx
+    dey
+    bne .partial_only_loop
     rtl
 
 warnpc !bank_90_freespace_end
@@ -151,9 +173,6 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     ASL A                  ;|
     TAX                    ;|
     LDX $1F5B              ;\
-    LDA $7ED908,x          ;|
-    AND #$00FF             ;} If area map collected: go to BRANCH_MAP_COLLECTED
-    BNE .BRANCH_MAP_COLLECTED
     SEP #$20
 
     ; X := X << 8
@@ -174,7 +193,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
 
     CLC
 
-.LOOP_WITHOUT_MAP_DATA:
+.LOOP:
 ;    ROL $07F7,x               ;\
     ROL $06
     BCS .BRANCH_EXPLORED_MAP_TILE ;} If [$07F7 + [X]] & 80h >> [$12] != 0: go to BRANCH_EXPLORED_MAP_TILE
@@ -187,14 +206,14 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     LDA #$001F             ;\
     STA [$03],y            ;} [$03] + [Y] = 001Fh (blank tile)
 
-.BRANCH_NEXT_WITHOUT_MAP_DATA:
+.BRANCH_NEXT:
     SEP #$20
     INY                    ;\
     INY                    ;} Y += 2
     INC $12                ; Increment $12
     LDA $12                ;\
     CMP #$08               ;} If [$12] < 8: go to LOOP
-    BMI .LOOP_WITHOUT_MAP_DATA ;/
+    BMI .LOOP ;/
     STZ $12                ; $12 = 0
     INX                    ; Increment X
     lda $7ECD52, x         ; load next set of map tile explored bits
@@ -204,7 +223,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     lda $702700, x         ; load next set of map tile partial revealed bits (persisted across deaths/reloads)
     sta $28
     txa
-    bne .LOOP_WITHOUT_MAP_DATA     ;} If [X] % $100 != 0: go to LOOP
+    bne .LOOP     ;} If [X] % $100 != 0: go to LOOP
     PLP
     RTS                    ; Return
 
@@ -213,7 +232,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     REP #$30
     LDA [$00],y            ;\
     STA [$03],y            ;/
-    BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
+    BRA .BRANCH_NEXT     ; Go to BRANCH_NEXT
 
 .BRANCH_PARTIAL_REVEALED_MAP_TILE:
     REP #$30
@@ -221,7 +240,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     AND #$EFFF             ; Use palette 3 (instead of 6)
     ORA #$0400             ; 
     STA [$03],y            ;/
-    BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
+    BRA .BRANCH_NEXT     ; Go to BRANCH_NEXT
 
 .BRANCH_EXPLORED_MAP_TILE:
     ROL $26
@@ -230,44 +249,8 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     LDA [$00],y            ;\ Use palette 2 (instead of 6)
     AND #$EFFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~1000h
     STA [$03],y            ;/
-    BRA .BRANCH_NEXT_WITHOUT_MAP_DATA     ; Go to BRANCH_NEXT_WITHOUT_MAP_DATA
+    BRA .BRANCH_NEXT     ; Go to BRANCH_NEXT
 
-.BRANCH_MAP_COLLECTED:
-    REP #$30
-    LDA #$0000             ;\
-    STA $0B                ;|
-    LDA #$07F7             ;} $09 = $00:07F7 (map tiles explored)
-    STA $09                ;/
-    LDA [$09]              ;\
-    XBA                    ;} $28 = [[$09]] << 8 | [[$09] + 1]
-    STA $28                ;/
-    INC $09                ;\
-    INC $09                ;} $09 += 2
-    LDY #$0000             ; Y = 0 (tilemap index)
-    LDX #$0010             ; X = 10h
-
-.LOOP_WITH_MAP_DATA
-    LDA [$00],y            ; A = [[$00] + [Y]]
-    ASL $28                ;\
-    BCC .not_explored       ;} If [$28] & (1 << [X]-1) != 0:
-    AND #$EFFF             ; A &= ~1000h
-.not_explored:
-    STA [$03],y            ; [$03] + [Y] = [A]
-    DEX                    ; Decrement X
-    BNE .next                ; If [X] = 0:
-    LDX #$0010             ; X = 10h
-    LDA [$09]              ;\
-    XBA                    ;} $28 = [[$09]] << 8 | [[$09] + 1]
-    STA $28                ;/
-    INC $09                ;\
-    INC $09                ;} $09 += 2
-.next:
-    INY                    ;\
-    INY                    ;} Y += 2
-    CPY #$1000             ;\
-    BMI .LOOP_WITH_MAP_DATA    ;} If [Y] < 1000h: go to LOOP_WITH_MAP_DATA
-    PLP
-    RTS
 
 warnpc $829628
 
@@ -293,7 +276,7 @@ org $90AB18 : ORA #$3800  ; row 2, was: ORA #$2C00
 ; Patch HUD mini-map drawing to use map revealed bits instead of map data bits
 ; Vanilla logic: tile is non-blank if map station obtained AND map data bit is set
 ; New logic: tile is non-blank if map revealed bit is set
-; (We make minimal changes to the code here, leaving redundant computations, to minimize changes to timings)
+; (There's some redundant code here; it could be optimized.)
 org $90AAAC : BRA $03   ; Row 0
 org $90AAD3 : BRA $03   ; Row 1
 org $90AB10 : BRA $03   ; Row 2

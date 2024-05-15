@@ -508,8 +508,10 @@ function checkOtherOptions() {
         document.getElementById("energyFreeShinesparksYes").checked ||
         document.getElementById("areaAssignmentRandom").checked ||
         document.getElementById("itemDotChangeDisappear").checked ||
-        document.getElementById("transitionLettersYes").checked ||
-        document.getElementById("mapsRevealedYes").checked ||
+        document.getElementById("transitionLettersNo").checked ||
+        document.getElementById("mapsRevealedPartial").checked ||
+        document.getElementById("mapsRevealedFull").checked ||
+        document.getElementById("mapStationRevealPartial").checked ||
         document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {

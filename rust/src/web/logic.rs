@@ -7,7 +7,7 @@ use sailfish::TemplateOnce;
 use urlencoding;
 
 use crate::game_data::{Capacity, EntranceCondition, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId, VertexAction, VertexKey};
-use crate::randomize::{DebugOptions, DifficultyConfig, SaveAnimals, AreaAssignment, WallJump, EtankRefill, MapsRevealed, StartLocationMode};
+use crate::randomize::{AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal, MapsRevealed, SaveAnimals, StartLocationMode, WallJump};
 use crate::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData};
 
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
@@ -392,7 +392,8 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,
         etank_refill: EtankRefill::Vanilla,
-        maps_revealed: MapsRevealed::Yes,
+        maps_revealed: MapsRevealed::Full,
+        map_station_reveal: MapStationReveal::Full,
         vanilla_map: false,
         ultra_low_qol: false,
         energy_free_shinesparks: false,

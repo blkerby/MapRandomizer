@@ -14,11 +14,15 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release112">Version 112 (2024-05-14)</a>:
+<p><a id="release112">Version 112 (2024-05-15)</a>:
 <ul>
-<li>The amount of lag is reduced and should now be more similar to the vanilla game.
+<li>The amount of lag is reduced and should now be similar to the vanilla game.
 <li>Hazard markers are added on doors leading to Bug Sand Hole.
 <li>A new objective option "Random" is added.
+<li>A new setting "Map station activation reveal" is added (under "Other options"):
+    <ul>
+    <li>The "Partial" option causes map stations to only partially reveal the map, showing room outlines but not details such as item dots, door locks, heat, and water.
+    </ul>
 <li>Ammo-only refill stations are now marked with a distinct missile-shaped map tile.
 <li>Fixed an issue affecting Fast and Uniform item progression rate (e.g. Normal and Tricky):
     <ul>

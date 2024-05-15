@@ -75,8 +75,21 @@
         <label class="btn btn-outline-primary" for="mapsRevealedNo">No</label>
         <input type="radio" class="btn-check" name="maps_revealed" id="mapsRevealedPartial" value="Partial">
         <label class="btn btn-outline-primary" for="mapsRevealedPartial">Partial</label>
-        <input type="radio" class="btn-check" name="maps_revealed" id="mapsRevealedYes" value="Yes">
-        <label class="btn btn-outline-primary" for="mapsRevealedYes">Yes</label>
+        <input type="radio" class="btn-check" name="maps_revealed" id="mapsRevealedFull" value="Full">
+        <label class="btn btn-outline-primary" for="mapsRevealedFull">Full</label>
+    </div>
+</div>
+
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
+        <% include!("help/variations/map_station_reveal.stpl"); %>
+        <label for="map_station_reveal">Map station activation reveal</label>
+    </div>
+    <div class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="map_station_reveal" id="mapStationRevealPartial" value="Partial">
+        <label class="btn btn-outline-primary" for="mapStationRevealPartial">Partial</label>
+        <input type="radio" class="btn-check" name="map_station_reveal" id="mapStationRevealFull" value="Full" checked>
+        <label class="btn btn-outline-primary" for="mapStationRevealFull">Full</label>
     </div>
 </div>
 

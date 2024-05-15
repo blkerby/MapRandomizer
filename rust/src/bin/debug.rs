@@ -4,7 +4,7 @@ use hashbrown::HashMap;
 use maprando::{
     game_data::{Capacity, GameData, Item, Requirement},
     randomize::{
-        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapsRevealed, MotherBrainFight, Objective, ProgressionRate, SaveAnimals, WallJump
+        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal, MapsRevealed, MotherBrainFight, Objective, ProgressionRate, SaveAnimals, WallJump
     },
     traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
 };
@@ -148,7 +148,8 @@ fn run_scenario(
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,
         etank_refill: maprando::randomize::EtankRefill::Vanilla,
-        maps_revealed: MapsRevealed::Yes,
+        maps_revealed: MapsRevealed::Full,
+        map_station_reveal: MapStationReveal::Full,
         energy_free_shinesparks: false,
         vanilla_map: false,
         ultra_low_qol: false,

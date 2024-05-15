@@ -2,8 +2,8 @@ use hashbrown::{HashMap, HashSet};
 use log::info;
 
 use crate::{
-    game_data::{GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem, AreaIdx},
-    randomize::{DoorType, ItemDotChange, ItemMarkers, Objective, Randomization, MapsRevealed},
+    game_data::{AreaIdx, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
+    randomize::{DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -920,6 +920,25 @@ impl<'a> MapPatcher<'a> {
             self.rom
                 .write_u16(base_ptr + offset, (word | 0x0C00) as isize)?;
         }
+        Ok(())
+    }
+
+    fn make_tile_revealed(
+        &mut self,
+        room_name: &str,
+        x: isize,
+        y: isize,
+    ) -> Result<()> {
+        let room_idx = self.game_data.room_idx_by_name[room_name];
+        let room = &self.game_data.room_geometry[room_idx];
+        let area = self.map.area[room_idx];
+        let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
+        let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
+        let base_ptr = snes2pc(0x829727 + area * 0x100);
+        let (offset, bitmask) = super::xy_to_explored_bit_ptr(x0 + x, y0 + y);
+        let mut data = self.rom.read_u8(base_ptr + offset as usize)? as u8;
+        data |= bitmask;
+        self.rom.write_u16(base_ptr + offset as usize, data as isize)?;
         Ok(())
     }
 
@@ -1907,6 +1926,7 @@ impl<'a> MapPatcher<'a> {
             &self.game_data.room_geometry[room_idx].name,
             vec![(coords.0, coords.1, letter_tile)],
         )?;
+        self.make_tile_revealed(&self.game_data.room_geometry[room_idx].name, coords.0, coords.1)?;
 
         let room = &self.game_data.room_geometry[room_idx];
         let room_x = self.rom.read_u8(room.rom_address + 2)? as isize;
@@ -2147,13 +2167,13 @@ impl<'a> MapPatcher<'a> {
 
         Ok(())
     }
-
+    
     fn set_initial_map(&mut self) -> Result<()> {
         let revealed_addr = snes2pc(0xB5F000);
         let partially_revealed_addr = snes2pc(0xB5F800);
         let area_seen_addr = snes2pc(0xB5F600);
         match self.randomization.difficulty.maps_revealed {
-            MapsRevealed::Yes => {
+            MapsRevealed::Full => {
                 self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?;  // whole map revealed bits: true
                 self.rom.write_n(partially_revealed_addr, &vec![0xFF; 0x600])?;  // whole map partially revealed bits: true
                 self.rom.write_u16(area_seen_addr, 0x003F)?;  // area seen bits: true (for pause map area switching)    
@@ -2193,6 +2213,16 @@ impl<'a> MapPatcher<'a> {
                 let ptr_partial = partially_revealed_addr + area * 0x100 + offset as usize;
                 self.rom.write_u8(ptr_partial, self.rom.read_u8(ptr_partial)? | bitmask as isize)?;
             }        
+        }
+        Ok(())
+    }
+
+    fn set_map_activation_behavior(&mut self) -> Result<()> {
+        match self.randomization.difficulty.map_station_reveal {
+            MapStationReveal::Partial => {
+                self.rom.write_u16(snes2pc(0x90F700), 0xFFFF)?;
+            }
+            MapStationReveal::Full => {}
         }
         Ok(())
     }
@@ -2726,6 +2756,7 @@ impl<'a> MapPatcher<'a> {
         }
         self.add_cross_area_arrows()?;
         self.set_initial_map()?;
+        self.set_map_activation_behavior()?;
         self.indicate_major_items()?;
         self.write_map_tiles()?;
         self.write_hazard_tiles()?;

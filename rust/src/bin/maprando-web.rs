@@ -310,6 +310,7 @@ struct RandomizeRequest {
     wall_jump: Text<String>,
     etank_refill: Text<String>,
     maps_revealed: Text<String>,
+    map_station_reveal: Text<String>,
     energy_free_shinesparks: Text<bool>,
     ultra_low_qol: Text<bool>,
 }
@@ -1181,6 +1182,7 @@ fn get_difficulty_tiers(
             wall_jump: difficulty.wall_jump,
             etank_refill: difficulty.etank_refill,
             maps_revealed: difficulty.maps_revealed,
+            map_station_reveal: difficulty.map_station_reveal,
             energy_free_shinesparks: difficulty.energy_free_shinesparks,
             vanilla_map: difficulty.vanilla_map,
             ultra_low_qol: difficulty.ultra_low_qol,
@@ -1522,9 +1524,17 @@ async fn randomize(
         maps_revealed: match req.maps_revealed.0.as_str() {
             "No" => maprando::randomize::MapsRevealed::No,
             "Partial" => maprando::randomize::MapsRevealed::Partial,
-            "Yes" => maprando::randomize::MapsRevealed::Yes,
+            "Full" => maprando::randomize::MapsRevealed::Full,
             _ => panic!(
                 "Unrecognized maps_revealed setting {}",
+                req.maps_revealed.0.as_str()
+            ),
+        },
+        map_station_reveal: match req.map_station_reveal.0.as_str() {
+            "Partial" => maprando::randomize::MapStationReveal::Partial,
+            "Full" => maprando::randomize::MapStationReveal::Full,
+            _ => panic!(
+                "Unrecognized maps_station_reveal setting {}",
                 req.maps_revealed.0.as_str()
             ),
         },

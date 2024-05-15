@@ -27,7 +27,8 @@ function migrateValue(name, value) {
     var migrationMapping = {
         "maps_revealed": {
             "false": "No",
-            "true": "Yes"
+            "true": "Full",
+            "Yes": "Full"
         },
         "music": {
             "vanilla": "area"

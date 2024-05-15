@@ -88,12 +88,16 @@
             }
             _ => {}
         }
-        if maps_revealed == "Partial" {
+        if difficulty.maps_revealed == maprando::randomize::MapsRevealed::Partial {
             game_variations.push("Maps partially revealed from start");
         }
-        if maps_revealed == "Yes" {
+        if difficulty.maps_revealed == maprando::randomize::MapsRevealed::Full {
             game_variations.push("Maps revealed from start");
         }
+        if difficulty.map_station_reveal == maprando::randomize::MapStationReveal::Partial {
+            game_variations.push("Map stations give partial reveal");
+        }
+
         if difficulty.energy_free_shinesparks {
             game_variations.push("Energy-free shinesparks");
         }
