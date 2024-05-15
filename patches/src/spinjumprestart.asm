@@ -3,8 +3,8 @@
 
 LoRom
 
-!bank_90_free_space_start = $90F780
-!bank_90_free_space_end = $90F800
+!bank_90_free_space_start = $90F980
+!bank_90_free_space_end = $90FA00
 
 org !bank_90_free_space_start
 handle_spinjump:

@@ -14,6 +14,7 @@ HOOK_ENTER_EXIT_GUNSHIP:
     JSL $809F6C ; Draw Timer
     JSR $EA7F ; Original code (Low health check)
     RTS
+warnpc $90F910
 
 ; Don't write gunship smoke clouds to VRAM
 org $A2ABC7

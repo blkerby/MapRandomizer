@@ -11,3 +11,5 @@
 !stat_item_collection_times = $7efe06  ; must match address in patch.rs
 
 !spin_lock_enabled = $1F70
+!last_samus_map_x = $1F72
+!last_samus_map_y = $1F74

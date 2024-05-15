@@ -10,6 +10,8 @@ arch 65816
 !BTRoomFlag  = $7ed86c		; some free RAM for the flag
 !PickedUp    = #$bbbb
 
+incsrc "constants.asm"
+
 org $82E664 
     JSL handle_door_transition
 
@@ -228,6 +230,7 @@ handle_door_transition:
     pha
     lda #$0000
     sta !BTRoomFlag
+    sta !last_samus_map_y  ; clear Samus map Y coordinate, to force mini-map to be drawn in next room
     pla
 
     jsl $808EF4            ; run hi-jacked instruction

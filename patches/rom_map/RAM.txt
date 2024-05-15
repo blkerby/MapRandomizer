@@ -8,6 +8,8 @@ $1F64: escape refill complete
 $1F66: map switch direction in pause menu
 $1F68: temporary value in hazard_markers.asm
 $1F70: spin lock enabled flag (spin_lock.asm)
+$1F72: last samus X map position
+$1F74: last samus Y map position
 $7ED823: randomizer-specific event flags:
   $0001: bowling statue activated
   $0002: pit room door unlocked

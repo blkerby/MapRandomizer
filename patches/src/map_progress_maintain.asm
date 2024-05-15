@@ -2,7 +2,9 @@ arch snes.cpu
 lorom
 
 !bank_90_freespace_start = $90F700
-!bank_90_freespace_end = $90F780
+!bank_90_freespace_end = $90F800
+
+incsrc "constants.asm"
 
 ; In the game header, expand SRAM from 8 KB to 16 KB.
 org $80FFD8
@@ -34,7 +36,38 @@ org $90A98B
 
 org !bank_90_freespace_start
 mark_progress:
+    lda $12  ; Samus X map coordinate
+    cmp !last_samus_map_x
+    bne .moved
+    lda $16  ; Samus Y map coordinate
+    cmp !last_samus_map_y
+    bne .moved
+
+    ; Samus hasn't moved to a new map tile, so skip updating the mini-map.
+    ; Only update the flashing to mark Samus' location:
+    rep #$30 : dex  ; run hi-jacked instructions
+    lda $05B5         ;\
+    and #$0008        ;} If [8-bit frame counter] & 8 = 0:
+    bne .flash_off    ;/
+    lda $7EC680       ;\
+    and #$E3FF        ;} give Samus position in mini-map palette 0 (orange color)
+    sta $7EC680       ;/
+    bra .done
+.flash_off:
+    lda $7EC680       ;\
+    ora #$0800        ;} give Samus position in mini-map palette 2 (explored map color)
+    sta $7EC680       ;/
+.done:
+    plp
+    rtl
+
+.moved:
+    ; Samus has moved to a different map tile, so update the mini-map:
     phx
+    lda $12
+    sta !last_samus_map_x
+    lda $16
+    sta !last_samus_map_y
 
     ; convert X from within-area byte index (between $00 and $ff) to an overall byte index (between $00 and $5ff)
     ; (accumulator is 8-bit)
