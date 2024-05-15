@@ -44,8 +44,11 @@ mark_progress:
     bne .moved
 
     ; Samus hasn't moved to a new map tile, so skip updating the mini-map.
-    ; Only update the flashing to mark Samus' location:
+    ; Only update the flashing to mark Samus' location (unless minimap is disabled)
     rep #$30 : dex  ; run hi-jacked instructions
+    lda $05F7
+    bne .minimap_disabled  
+
     lda $05B5         ;\
     and #$0008        ;} If [8-bit frame counter] & 8 = 0:
     bne .flash_off    ;/

@@ -89,6 +89,8 @@ reload_map_hook:
 
 door_unlocked_hook:
     sta $7ED8B0,x ; run hi-jacked instruction (store new door unlocked bit)
+    lda #$0000
+    sta !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
     jsl update_tilemap
     rtl
 

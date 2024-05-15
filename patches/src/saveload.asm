@@ -6,6 +6,8 @@ LoRom
 !seed_value_0 = $dfff00
 !seed_value_1 = $dfff02
 
+incsrc "constants.asm"
+
 org $819A47		;Fix File Copy for the new SRAM files
 	LDA.l SRAMAddressTable,X : Skip 7 : LDA.l SRAMAddressTable,X : Skip 11 : CPY #$0A00
 org $819CAE		;Fix File Clear for the new SRAM files
@@ -86,6 +88,8 @@ LoadItems: LDA $D7C0,Y : STA $09A2,Y : DEY : DEY : BPL LoadItems		;Loads current
 	LDA $D918 : STA $079F		;Current Area
     LDA $7EFE00 : STA $1F5B     ;Current Map-area
 	LDA $7EFE04 : STA $1F5D     ;Item set before escape
+    LDA #$0000
+    STA !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
 	PLY : PLX : PLB : PLP : CLC : RTL
 SetupClearSRAM: LDX $16 : LDY #$09FE : LDA #$0000
 ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM
