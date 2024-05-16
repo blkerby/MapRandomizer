@@ -1896,6 +1896,7 @@ impl<'a> MapPatcher<'a> {
             &self.game_data.room_geometry[room_idx].name,
             vec![(coords.0, coords.1, tile_word)],
         )?;
+        self.make_tile_revealed(&self.game_data.room_geometry[room_idx].name, coords.0, coords.1)?;
 
         let room = &self.game_data.room_geometry[room_idx];
         let room_x = self.rom.read_u8(room.rom_address + 2)? as isize;
