@@ -9,7 +9,7 @@ use crate::{
     game_data::{
         self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
     },
-    randomize::{DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
+    randomize::{BeamType, DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
 };
 
 use log::info;
@@ -893,6 +893,17 @@ pub fn apply_link(
     }
 }
 
+fn has_beam(beam: BeamType, global: &GlobalState) -> bool {
+    let item = match beam {
+        BeamType::Charge => Item::Charge,
+        BeamType::Ice => Item::Ice,
+        BeamType::Wave => Item::Wave,
+        BeamType::Spazer => Item::Spazer,
+        BeamType::Plasma => Item::Plasma,
+    };
+    global.items[item as usize]
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
@@ -1554,6 +1565,7 @@ pub fn apply_requirement(
                     DoorType::Yellow => {
                         apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
                     }
+                    DoorType::Beam(beam) => if has_beam(beam, global) { Some(local) } else { None },
                     DoorType::Gray => panic!("Unexpected gray door while processing Requirement::UnlockDoor")
                 }
             } else {

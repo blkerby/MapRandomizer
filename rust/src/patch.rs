@@ -2076,6 +2076,10 @@ impl<'a> Patcher<'a> {
             "down" => (door.x * 16 + 6, door.y * 16 + 14 - door.offset.unwrap_or(0)),
             _ => panic!("Unexpected door direction: {}", door.direction),
         };
+        if let DoorType::Beam(_) = locked_door.door_type {
+            // TODO: implement beam door
+            return Ok(());
+        }
         let plm_id = match (locked_door.door_type, door.direction.as_str()) {
             (DoorType::Yellow, "right") => 0xC85A,
             (DoorType::Yellow, "left") => 0xC860,

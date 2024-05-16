@@ -135,6 +135,7 @@ impl Objective {
 pub enum DoorsMode {
     Blue,
     Ammo,
+    Beam,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -324,12 +325,23 @@ struct DebugData {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum BeamType {
+    Charge,
+    Ice,
+    Wave,
+    Spazer,
+    Plasma
+}
+
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum DoorType {
     Blue,
     Red,
     Green,
     Yellow,
     Gray,
+    Beam(BeamType)
 }
 
 #[derive(Clone, Copy)]
@@ -1810,11 +1822,6 @@ fn get_randomizable_doors(
         // Pants room interior door
         (0x1A7A4, 0x1A78C), // Left door
         (0x1A78C, 0x1A7A4), // Right door
-        // Bad doors that logic would not be able to properly account for (yet):
-        (0x19996, 0x1997E), // Amphitheatre left door
-        (0x1AA14, 0x1AA20), // Tourian Blue Hopper Room left door
-        (0x19942, 0x19912), // Pillar Room left door
-        (0x1994E, 0x1998A), // Pillar Room right door
         // Items: (to avoid an interaction in map tiles between doors disappearing and items disappearing)
         (0x18FA6, 0x18EDA), // First Missile Room
         (0x18FFA, 0x18FEE), // Billy Mays Room
@@ -1930,6 +1937,7 @@ pub fn randomize_doors(
         (room_idx, door.x, door.y)
     };
     let mut used_locs: HashSet<(RoomGeometryRoomIdx, usize, usize)> = HashSet::new();
+    let mut used_beam_rooms: HashSet<RoomGeometryRoomIdx> = HashSet::new();
 
     let mut locked_doors = match difficulty.doors_mode {
         DoorsMode::Blue => {
@@ -1944,6 +1952,56 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);
             door_types.extend(vec![DoorType::Green; green_doors_cnt]);
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
+
+            let door_conns = get_randomizable_door_connections(game_data, map, difficulty);
+            let mut out: Vec<LockedDoor> = vec![];
+            let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
+            for (i, idx) in idxs.into_iter().enumerate() {
+                let conn = &door_conns[idx];
+                let door = LockedDoor {
+                    src_ptr_pair: conn.0,
+                    dst_ptr_pair: conn.1,
+                    door_type: door_types[i],
+                    bidirectional: true,
+                };
+
+                // Make sure we don't put two ammo doors in the same tile (since that would interfere
+                // with the mechanism for making the doors disappear from the map).
+                let src_loc = get_loc(door.src_ptr_pair);
+                let dst_loc = get_loc(door.dst_ptr_pair);
+                if used_locs.contains(&src_loc) || used_locs.contains(&dst_loc) {
+                    continue;
+                }
+                if let DoorType::Beam(_) = door_types[i] {
+                    let src_room_idx = src_loc.0;
+                    let dst_room_idx = dst_loc.0;
+                    if used_beam_rooms.contains(&src_room_idx) || used_beam_rooms.contains(&dst_room_idx) {
+                        continue;
+                    }
+                    used_beam_rooms.insert(src_room_idx);
+                    used_beam_rooms.insert(dst_room_idx);
+                }
+                used_locs.insert(src_loc);
+                used_locs.insert(dst_loc);
+                out.push(door);
+            }
+            out
+        }
+        DoorsMode::Beam => {
+            let red_doors_cnt = 20;
+            let green_doors_cnt = 12;
+            let yellow_doors_cnt = 8;
+            let beam_door_each_cnt = 3;
+            let total_cnt = red_doors_cnt + green_doors_cnt + yellow_doors_cnt + 5 * beam_door_each_cnt;
+            let mut door_types = vec![];
+            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
+            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
+            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
+            door_types.extend(vec![DoorType::Beam(BeamType::Charge); beam_door_each_cnt]);
+            door_types.extend(vec![DoorType::Beam(BeamType::Ice); beam_door_each_cnt]);
+            door_types.extend(vec![DoorType::Beam(BeamType::Wave); beam_door_each_cnt]);
+            door_types.extend(vec![DoorType::Beam(BeamType::Spazer); beam_door_each_cnt]);
+            door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
 
             let door_conns = get_randomizable_door_connections(game_data, map, difficulty);
             let mut out: Vec<LockedDoor> = vec![];
@@ -4318,6 +4376,23 @@ impl<'a> Randomizer<'a> {
         }
     }
 
+    fn get_door_type_name(door_type: DoorType) -> String {
+        match door_type {
+            DoorType::Blue => "blue",
+            DoorType::Red => "red",
+            DoorType::Green => "green",
+            DoorType::Yellow => "yellow",
+            DoorType::Gray => "gray",
+            DoorType::Beam(beam) => match beam {
+                BeamType::Charge => "charge",
+                BeamType::Ice => "ice",
+                BeamType::Wave => "wave",
+                BeamType::Spazer => "spazer",
+                BeamType::Plasma => "plasma",
+            }        
+        }.to_string()    
+    }
+
     fn get_spoiler_door_details(
         &self,
         state: &RandomizationState,
@@ -4336,14 +4411,7 @@ impl<'a> Randomizer<'a> {
         }];
         let door_vertex_info = self.get_vertex_info(door_vertex_id);
         SpoilerDoorDetails {
-            door_type: match self.locked_door_data.locked_doors[locked_door_idx].door_type {
-                DoorType::Blue => "blue",
-                DoorType::Red => "red",
-                DoorType::Green => "green",
-                DoorType::Yellow => "yellow",
-                DoorType::Gray => "gray",
-            }
-            .to_string(),
+            door_type: Self::get_door_type_name(self.locked_door_data.locked_doors[locked_door_idx].door_type),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
                 room: door_vertex_info.room_name,
@@ -4383,14 +4451,7 @@ impl<'a> Randomizer<'a> {
         }];
         let door_vertex_info = self.get_vertex_info(door_vertex_id);
         SpoilerDoorSummary {
-            door_type: match self.locked_door_data.locked_doors[locked_door_idx].door_type {
-                DoorType::Blue => "blue",
-                DoorType::Red => "red",
-                DoorType::Green => "green",
-                DoorType::Yellow => "yellow",
-                DoorType::Gray => "gray",
-            }
-            .to_string(),
+            door_type: Self::get_door_type_name(self.locked_door_data.locked_doors[locked_door_idx].door_type),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
                 room: door_vertex_info.room_name,

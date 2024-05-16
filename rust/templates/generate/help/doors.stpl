@@ -16,16 +16,15 @@
         <ul>
         <li><p><strong>Blue</strong>: All doors are blue, except for gray doors.</p>
         <li><p><strong>Ammo</strong>: Red, green, and yellow doors are randomly mixed in.</p>
+        <li><p><strong>Beam</strong>: Beam doors are randomly mixed in, in addition to ammo doors.</p>
         </ul>
         <p>Gray doors are unaffected by this setting and always exist in the same set of
         rooms: boss/miniboss rooms and the four Pirates rooms (Pit Room, Baby Kraid Room, 
         Plasma Room, and Metal Pirates Room).</p>
-        <p>For ammo doors, both sides of the door will have the same color and share a
+        <p>For ammo and beam doors, both sides of the door will have the same color and share a
         lock, so that unlocking one side of the door also unlocks the other.</p>
-        <p>Ammo doors will not be placed on or immediately connect to any special tile such as a save, map, refill, 
-        objective "X", or a gray door. Currently they are also not allowed to be placed on the left door of either
-        Amphitheatre or Tourian Blue Hopper Room, as this would need additional logical requirements which are
-        not yet possible for the randomizer to handle.</p>
+        <p>Ammo and beam doors will not be placed on or immediately connect to any special tile such as a save, map, refill, 
+        objective "X", or a gray door.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

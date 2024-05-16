@@ -1,12 +1,16 @@
-v112:
+v113:
+- beam doors
 - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
 - add `comeInWithBlueSpringBallBounce`
 - implement `speedBall` logical requirement
 - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
 - implement "heatFramesWithEnergyDrops"
-- add Junko sprite, update protogen
-- remove vanilla music option
 - figure out why Climb doesn't have acid in escape anymore (sometimes?)
+
+
+v112:
+- add Junko sprite, update protogen
+- DONE: remove vanilla music option
 - DONE: fix logic pages with shinecharge entrance conditions:
   - e.g. https://dev.maprando.com/logic/room/FastPillarsSetupRoom/2/1/ShinesparkDeepStuckXRayClimb shouldn't be Beyond.
   - in logic page requirement checks, start with full shinecharge frames rather than empty
@@ -50,8 +54,6 @@ TODO:
   - decompressor: https://github.com/tewtal/SHVC-LZSA2/blob/main/src/asar/lzsa2.asm
   - compressor: https://github.com/emmanuel-marty/lzsa
 - override crystal flash helpers, for complementary suits
-- move canEnemyStuckMoonfall to Extreme.
-  - some notables should stay in Insane
 - fix weapon PowerBomb logic:
   - take into account that double hit is not possible with PowerBombPeriphery
   - take into account multiplier
@@ -410,8 +412,6 @@ TODO:
 - fix suit graphics not showing after getting suit (consequence of skipping animation)?
 - have forced mode take into account return path?
   - probably bad idea, because returning may not be required (before getting another item that makes it easier).
-- Do something about Crocomire funny map behavior (especially when entering from left door)?
-- "Random" objective?
 
 
 maybe someday?:

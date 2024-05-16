@@ -4,7 +4,7 @@ use anyhow::{bail, ensure, Context, Result};
 // use log::info;
 use crate::customize::room_palettes::decode_palette;
 use crate::patch::title::read_image;
-use crate::randomize::DoorType;
+use crate::randomize::{BeamType, DoorType};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use log::{error, info};
@@ -1355,7 +1355,7 @@ impl GameData {
                 ]),
                 Requirement::HeatFrames(110),
             )],
-            DoorType::Gray => panic!("Unexpected DoorType::Gray in get_unlocks_door_type_req"),
+            DoorType::Gray | DoorType::Beam(_) => panic!("Unexpected DoorType in get_unlocks_door_type_req: {:?}", door_type),
         };
         let room_id = ctx.room_id;
         let to_node_id = ctx.to_node_id;
