@@ -19,6 +19,12 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>The amount of lag is reduced and should now be similar to the vanilla game.
 <li>Hazard markers are added on doors leading to Bug Sand Hole.
 <li>A new objective option "Random" is added.
+<li>New Samus sprites:
+    <ul>
+    <li>"Ceroba Ketsukane" by Dewutt610.
+    <li>"Junko" by P. Yoshi.
+    <li>"Samus Maid" by Ouily644.
+    </ul>
 <li>A new setting "Map station activation reveal" is added (under "Other options"):
     <ul>
     <li>The "Partial" option causes map stations to only partially reveal the map, showing room outlines but not details such as item dots, door locks, heat, and water.
