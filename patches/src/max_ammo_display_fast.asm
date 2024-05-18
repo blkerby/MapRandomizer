@@ -123,20 +123,16 @@ org $8099E1
         nop : nop : nop
         nop : nop : nop : nop
 
-org $809ACE
-        ;; nop it:
-        ;; $80:9ACE 22 CF 99 80 JSL $8099CF            ; Add missiles to HUD tilemap
-        nop : nop : nop : nop
+org $809AC9
+    ; set previous missile, super, and power bomb counts to invalid value, to ensure they get redrawn:
+	lda #$FFFF
+	sta $0A08
+	sta $0A0A
+	sta $0A0C
+    bra skip_init  ; skip the rest of ammo HUD initialization
 
-org $809AD7
-        ;; nop it:
-        ;; $80:9AD7 22 0E 9A 80 JSL $809A0E            ; Add super missiles to HUD tilemap
-        nop : nop : nop : nop
-
-org $809AE0
-        ;; nop it:
-        ;; $80:9AE0 22 1E 9A 80 JSL $809A1E            ; Add power bombs to HUD tilemap
-        nop : nop : nop : nop
+org $809AF0
+skip_init:
 
 ;;; HIJACKS
 org $809B1A
