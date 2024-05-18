@@ -97,6 +97,7 @@
     <li>Pressing L + R + Select + Start during gameplay does a quick reload from the last save.
     Repeating this input combination cycles through previous saves; Samus just has to still be in the initial
     facing-forward pose from the last reload.
+    <li>Pressing L + R + Up + X activates a mode called "Spin Lock", temporarily preventing up/down inputs from breaking spin. Pressing shot will cancel this mode.
     </ul>
 
     <h5>Saving & loading</h5>
