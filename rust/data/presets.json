@@ -118,7 +118,6 @@
       "canCeilingClip",
       "canXRayCeilingClip",
       "canSnailClimb",
-      "canBounceBall",
       "canOffScreenSuperShot",
       "canManageReserves"
     ],
@@ -131,7 +130,7 @@
       "Early Supers Mockball",
       "Etecoon E-Tank Beetom Clip",
 
-      "Big Pink Return Through Crumble Blocks", 
+      "Big Pink Return Through Crumble Blocks",
       "Big Pink Off Screen Super Block",
 
       "Red Tower Hero Shot",
@@ -140,19 +139,13 @@
       "Upper Norfair Farming Room Gate Glitch With Farming",
 
       "Croc Speedway Reverse Spark",
-      "Crumble Shaft Top Item Precise Walljump",
       "Crumble Shaft Top Item Frozen Sova",
       "HiJump E-Tank Return Through Crumble Blocks",
-
-      "Golden Torizo Crumble Jump",
 
       "Amphitheatre Reverse Acid Dive",
 
       "Botwoon Hallway Mochtroid Ice Clip",
-      "Aqueduct Snail Clip", 
-
-      "Maridia Bug Room Frozen Menu Bridge",
-      "Plasma Spark Fish Climb",
+      "Aqueduct Snail Clip",
 
       "East Pants Room Puyo Clip",
 
@@ -206,7 +199,8 @@
       "canAutoCancelWeapon",
       "canSamusEaterStandUp",
       "canWrapAroundShot",
-      "canJumpIntoRespawningBlock"
+      "canJumpIntoRespawningBlock",
+      "canBounceBall"
     ],
     "notable_strats": [
       "Climb Behemoth Shinespark",
@@ -216,7 +210,6 @@
       
       "East Ocean Space Jump Water Escape with Ice (Left to Right)",
       "East Ocean Space Jump Water Escape with Ice and XRay Standup",
-      "East Ocean Suitless Damage Boost Water Escape",
       "East Ocean Suitless Damage Boost Underwater Pillar",
 
       "West Ocean Bug Boost with Ice",
@@ -249,6 +242,7 @@
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
       "Spiky Acid Snakes Frozen Platforms",
 
+      "Crumble Shaft Top Item Precise Walljump",
       "Croc Escape SpringBall Freeze",
       "Croc Speedway Reverse Speedball",
       "Ice Beam Gate Room Frozen Sova Platform",
@@ -260,6 +254,7 @@
       "PCJR Big Jump Shinespark",
       "Indy Jones Mella Ice Clip",
 
+      "Golden Torizo Crumble Jump",
       "Golden Torizo Safe Spot",
       "Golden Torizo Supers Double Shinespark",
       "Screw Attack Room Transition Screwjump",
@@ -304,6 +299,8 @@
       "Bug Sand Hole Sand Jumps",
       "Bug Sand Hole Speedy Jump Morph",
       "Butterfly Room Careful Jump",
+      "Maridia Bug Room Frozen Menu Bridge",
+      "Plasma Spark Fish Climb",
 
       "Oasis Cross Room Jump with Screw Attack",
       "Pants Room Gravity Jump",
@@ -373,7 +370,7 @@
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
-      "Landing Site Big Jump Leave With Temporary Blue",      
+      "Landing Site Big Jump Leave With Temporary Blue",
       "Landing Site Blue Space Jump (Top)",
       "Parlor Carry Shinecharge From Right to Bottom",
 
@@ -383,9 +380,10 @@
       "West Ocean Shinespark, Morph Tunnel Rush",
       "West Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door",
       "East Ocean Shinespark Water Escape",
+      "East Ocean Suitless Damage Boost Water Escape",
 
       "Brinstar Reserve Temporary Blue",
-      "Brinstar Reserve Temporary Blue Spring Ball Bounce",      
+      "Brinstar Reserve Temporary Blue Spring Ball Bounce",
       "Green Hill Zone X-Ray Wiggle",
       "Green Hills Grapple Gate Glitch",
       "Etecoon Shaft Moonfall Spark",
