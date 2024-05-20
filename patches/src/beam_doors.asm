@@ -13,7 +13,7 @@ lorom
 ; (0=Charge, 1=Ice, 2=Wave, 3=Spazer, 4=Plasma)
 !beam_type = $1F76
 
-!beam_tilemap_size = $20
+!beam_tilemap_size = #$0020
 !beam_tilemap_start = $7EA720
 
 ; Bank containing beam tilemaps and graphics
@@ -57,16 +57,21 @@ org $84FD18
 ; This gets called during the transition while entering a room with a beam door.
 ; Input:
 ;   A = beam type (0=Charge, 1=Ice, 2=Wave, 3=Spazer, 4=Plasma)
-;   Y = base address pointing to tilemap and graphics to load (from bank E9)
+;   X = base address pointing to tilemap and graphics to load (from bank E9)
 load_beam_tiles:
+    phb
     sta $1F76                ; store the beam type
-    sty $1F78                ; store the base address
+    stx $1F78                ; store the base address
+
+    pea $7E7E
+    plb
+    plb
 
     ; Load the tilemap (16x16) for the beam door. This remains unchanged while in the room:
-    ldx #$0000
+    ldy #$0000
 .loop:
-    lda $0000, y
-    sta !beam_tilemap_start, x
+    lda $E90000, x
+    sta.w !beam_tilemap_start, y
     inx
     inx
     iny
@@ -74,14 +79,26 @@ load_beam_tiles:
     cpy !beam_tilemap_size
     bne .loop
 
+    plb
     rtl
 
+print pc
+set_timer:
+    LDA $0000,y
+    STA $7EDE1C,x   ; PLM instruction timer = [Y]
+    INY
+    INY
+    TYA
+    STA $1D27,x     ; Set instruction pointer to the following instruction
+    PLA             ; Return from processing PLM, instead of looping to next instruction
+    RTS
 
-; input: Y = source address offset for GFX data (8 tiles = 256 bytes) in bank E9
-update_beam_gfx_8_tile:
+
+update_beam_gfx:
     ; queue transfer of 8 tiles (256 bytes) to VRAM:
+    PHX
     LDX $0330       ; get VRAM write table stack pointer
-    LDA #$0100      ; size = #$0100 bytes
+    LDA $00         ; size = [$00]
     STA $D0,x 
     INX
     INX
@@ -94,53 +111,60 @@ update_beam_gfx_8_tile:
     LDA !gfx_src_bank   ; source bank = $E9
     STA $D0,x
     INX
-    LDA #$2600      ; VRAM destination = $2600
+    LDA $02         ; VRAM destination = [$02]
     STA $D0,x
     INX
     INX
     STX $0330       ; update VRAM write table stack pointer
     INY
     INY
+    PLX
     RTS
 
 
-; input: Y = source address offset for GFX data (4 tiles = 128 bytes) in bank E9
-update_beam_gfx_4_tile:
+; input: [Y] = source address offset for GFX data (8 tiles = 256 bytes) in bank E9
+print pc
+update_beam_gfx_8_tile:
     ; queue transfer of 8 tiles (256 bytes) to VRAM:
-    LDX $0330       ; get VRAM write table stack pointer
-    LDA #$0080      ; size = #$0080 bytes
-    STA $D0,x
-    INX
-    INX
-    LDA $0000,y
-    CLC
-    ADC !gfx_src_base_addr
-    STA $D0,x       ; source address = Y
-    INX
-    INX
-    LDA !gfx_src_bank   ; source bank = $E9
-    STA $D0,x
-    INX
-    LDA #$2620      ; VRAM destination = $2620
-    STA $D0,x
-    INX
-    INX
-    STX $0330       ; update VRAM write table stack pointer
-    INY
-    INY
-    RTS
+    LDA #$0100      ; size = #$0100 bytes
+    STA $00
+    LDA #$2600      ; VRAM destination = $2600
+    STA $02
+    BRA update_beam_gfx
 
+; input: [Y] = source address offset for GFX data (4 tiles = 128 bytes) in bank E9
+print pc
+update_beam_gfx_4_tile:
+    ; queue transfer of 4 tiles (128 bytes) to VRAM:
+    LDA #$0080      ; size = #$0080 bytes
+    STA $00
+    LDA #$2620      ; VRAM destination = $2620
+    STA $02 
+    BRA update_beam_gfx
 
 animate_loop_inst:
-    dw $0006, dummy_draw
+    dw set_timer, $0008
     dw update_beam_gfx_4_tile, !gfx_idle_1
-    dw $0006, dummy_draw
+    dw set_timer, $0008
     dw update_beam_gfx_4_tile, !gfx_idle_2
-    dw $0006, dummy_draw
+    dw set_timer, $0008
     dw update_beam_gfx_4_tile, !gfx_idle_3
-    dw $0006, dummy_draw
+    dw set_timer, $0008
     dw update_beam_gfx_4_tile, !gfx_idle_0
     dw $8724, animate_loop_inst
+
+right_inst_closing:
+    dw $0002, $A677
+    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw $0002, right_draw_half_open
+    dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
+    db $08
+    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw $0002, right_draw_solid
+    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw set_timer, $0002
+    dw update_beam_gfx_8_tile, !gfx_initial
+    dw $0001, right_draw_shootable
 
 right_inst:
     dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
@@ -155,42 +179,10 @@ right_inst:
     dw update_beam_gfx_8_tile, !gfx_opening_1
     dw $0004, right_draw_solid
     dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0004, dummy_draw
+    dw set_timer, $0004
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0004, right_draw_half_open
     dw $0001, $A677
-    dw $86BC                 ; Delete
-
-right_inst_closing:
-    dw $0002, $A677
-    dw update_beam_gfx_8_tile, !gfx_opening_3
-    dw $0002, right_draw_half_open
-    dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
-    db $08
-    dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0002, right_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_1
-    dw $0002, dummy_draw
-    dw update_beam_gfx_8_tile, !gfx_initial
-    dw $0001, right_draw_shootable
-
-left_inst:
-    dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
-    dw $8A24, .open          ; Link instruction = .open
-    dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
-    dw update_beam_gfx_8_tile, !gfx_initial
-    dw $0001, left_draw_shootable
-    dw $8724, animate_loop_inst   ; Go to animate_loop_inst
-.open:
-    dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
-    db $07        
-    dw update_beam_gfx_8_tile, !gfx_opening_1
-    dw $0004, left_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0004, dummy_draw
-    dw update_beam_gfx_8_tile, !gfx_opening_3
-    dw $0004, left_draw_half_open
-    dw $0001, $A683
     dw $86BC                 ; Delete
 
 left_inst_closing:
@@ -202,9 +194,41 @@ left_inst_closing:
     dw update_beam_gfx_8_tile, !gfx_opening_2
     dw $0002, left_draw_solid
     dw update_beam_gfx_8_tile, !gfx_opening_1
-    dw $0002, dummy_draw
+    dw set_timer, $0002
     dw update_beam_gfx_8_tile, !gfx_initial
     dw $0001, left_draw_shootable
+
+left_inst:
+    dw $8A72, $C4E2          ; Go to $C4E2 if the room argument door is set
+    dw $8A24, .open          ; Link instruction = .open
+    dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
+    dw update_beam_gfx_8_tile, !gfx_initial
+    dw $0001, left_draw_shootable
+    dw $8724, animate_loop_inst   ; Go to animate_loop_inst
+.open:
+    dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
+    db $07        
+    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw $0004, left_draw_solid
+    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw set_timer, $0004
+    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw $0004, left_draw_half_open
+    dw $0001, $A683
+    dw $86BC                 ; Delete
+
+up_inst_closing:
+    dw $0002, $A7F7
+    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw $0002, up_draw_half_open
+    dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
+    db $08
+    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw $0002, up_draw_solid
+    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw set_timer, $0002
+    dw update_beam_gfx_8_tile, !gfx_initial
+    dw $0001, up_draw_shootable
 
 up_inst:
     dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
@@ -219,24 +243,24 @@ up_inst:
     dw update_beam_gfx_8_tile, !gfx_opening_1
     dw $0004, up_draw_solid
     dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0004, dummy_draw
+    dw set_timer, $0004
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0004, up_draw_half_open
     dw $0001, $A7F7
     dw $86BC                 ; Delete
 
-up_inst_closing:
+down_inst_closing:
     dw $0002, $A7F7
     dw update_beam_gfx_8_tile, !gfx_opening_3
-    dw $0002, right_draw_half_open
+    dw $0002, down_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     db $08
     dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0002, right_draw_solid
+    dw $0002, down_draw_solid
     dw update_beam_gfx_8_tile, !gfx_opening_1
-    dw $0002, dummy_draw
+    dw set_timer, $0002
     dw update_beam_gfx_8_tile, !gfx_initial
-    dw $0001, right_draw_shootable
+    dw $0001, down_draw_shootable
 
 down_inst:
     dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
@@ -251,31 +275,24 @@ down_inst:
     dw update_beam_gfx_8_tile, !gfx_opening_1
     dw $0004, down_draw_solid
     dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0004, dummy_draw
+    dw set_timer, $0004
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0004, down_draw_half_open
     dw $0001, $A7F7
     dw $86BC                 ; Delete
 
-down_inst_closing:
-    dw $0002, $A7F7
-    dw update_beam_gfx_8_tile, !gfx_opening_3
-    dw $0002, down_draw_half_open
-    dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
-    db $08
-    dw update_beam_gfx_8_tile, !gfx_opening_2
-    dw $0002, down_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_1
-    dw $0002, dummy_draw
-    dw update_beam_gfx_8_tile, !gfx_initial
-    dw $0001, down_draw_shootable
-
+print pc 
 check_shot:
+    lda $1D77,x
+    beq .done      ; Return if not shot
+
+    phx    
     lda !beam_type
     asl
     tax
     lda beam_mask,x
     sta $0E        ; $0E = mask associated with beam type
+    plx
 
     lda $1d77,x
     and $0E
@@ -287,38 +304,42 @@ check_shot:
     jsl $8090CB   ;} Queue sound 57h, sound library 2, max queued sounds allowed = 6 (shot door/gate with dud shot)
     rts
 
+print "hit: ", pc
 .hit:
     lda $7EDEBC,x          ;\
     sta $1D27,x            ;} PLM instruction list pointer = [PLM link instruction]
     lda #$0001             ;\
     sta $7EDE1C,x          ;} PLM instruction timer = 1
+    stz $1D77,x            ; clear PLM shot status
+
+.done:
     rts
 
 beam_mask:
     dw $0010, $0002, $0001, $0004, $0008   ; Charge, Ice, Wave, Spazer, Plasma
 
 right_draw_shootable:
-    dw $8004, $C0E4, $D0E5, $D0E6, $D0E7   ; shootable blocks
-    dw $0000
-
-right_draw_solid:
-    dw $8004, $80E4, $80E5, $80E6, $80E7   ; solid blocks
-    dw $0000
-
-right_draw_half_open:
-    dw $8004, $80E4, $00E5, $00E6, $80E7   ; inner blocks air, outer blocks solid
-    dw $0000
-
-left_draw_shootable:
     dw $8004, $C4E4, $D4E5, $D4E6, $D4E7
     dw $0000
 
-left_draw_solid:
+right_draw_solid:
     dw $8004, $84E4, $84E5, $84E6, $84E7
     dw $0000
 
-left_draw_half_open:
+right_draw_half_open:
     dw $8004, $84E4, $04E5, $04E6, $84E7
+    dw $0000
+
+left_draw_shootable:
+    dw $8004, $C0E4, $D0E5, $D0E6, $D0E7   ; shootable blocks
+    dw $0000
+
+left_draw_solid:
+    dw $8004, $80E4, $80E5, $80E6, $80E7   ; solid blocks
+    dw $0000
+
+left_draw_half_open:
+    dw $8004, $80E4, $00E5, $00E6, $80E7   ; inner blocks air, outer blocks solid
     dw $0000
 
 up_draw_shootable:
@@ -343,10 +364,6 @@ down_draw_solid:
 
 down_draw_half_open:
     dw $0004, $88E4, $08E5, $08E6, $88E7
-    dw $0000
-
-; Dummy draw instruction used just for sleeping
-dummy_draw:
     dw $0000
 
 print pc 
