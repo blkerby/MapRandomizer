@@ -1938,62 +1938,23 @@ pub fn randomize_doors(
     };
     let mut used_locs: HashSet<(RoomGeometryRoomIdx, usize, usize)> = HashSet::new();
     let mut used_beam_rooms: HashSet<RoomGeometryRoomIdx> = HashSet::new();
+    let mut door_types = vec![];
 
-    let mut locked_doors = match difficulty.doors_mode {
-        DoorsMode::Blue => {
-            vec![]
-        }
+    match difficulty.doors_mode {
+        DoorsMode::Blue => {}
         DoorsMode::Ammo => {
             let red_doors_cnt = 30;
             let green_doors_cnt = 15;
             let yellow_doors_cnt = 10;
-            let total_cnt = red_doors_cnt + green_doors_cnt + yellow_doors_cnt;
-            let mut door_types = vec![];
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);
             door_types.extend(vec![DoorType::Green; green_doors_cnt]);
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-
-            let door_conns = get_randomizable_door_connections(game_data, map, difficulty);
-            let mut out: Vec<LockedDoor> = vec![];
-            let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
-            for (i, idx) in idxs.into_iter().enumerate() {
-                let conn = &door_conns[idx];
-                let door = LockedDoor {
-                    src_ptr_pair: conn.0,
-                    dst_ptr_pair: conn.1,
-                    door_type: door_types[i],
-                    bidirectional: true,
-                };
-
-                // Make sure we don't put two ammo doors in the same tile (since that would interfere
-                // with the mechanism for making the doors disappear from the map).
-                let src_loc = get_loc(door.src_ptr_pair);
-                let dst_loc = get_loc(door.dst_ptr_pair);
-                if used_locs.contains(&src_loc) || used_locs.contains(&dst_loc) {
-                    continue;
-                }
-                if let DoorType::Beam(_) = door_types[i] {
-                    let src_room_idx = src_loc.0;
-                    let dst_room_idx = dst_loc.0;
-                    if used_beam_rooms.contains(&src_room_idx) || used_beam_rooms.contains(&dst_room_idx) {
-                        continue;
-                    }
-                    used_beam_rooms.insert(src_room_idx);
-                    used_beam_rooms.insert(dst_room_idx);
-                }
-                used_locs.insert(src_loc);
-                used_locs.insert(dst_loc);
-                out.push(door);
-            }
-            out
         }
         DoorsMode::Beam => {
             let red_doors_cnt = 20;
             let green_doors_cnt = 12;
             let yellow_doors_cnt = 8;
             let beam_door_each_cnt = 3;
-            let total_cnt = red_doors_cnt + green_doors_cnt + yellow_doors_cnt + 5 * beam_door_each_cnt;
-            let mut door_types = vec![];
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);
             door_types.extend(vec![DoorType::Green; green_doors_cnt]);
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
@@ -2002,32 +1963,41 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Beam(BeamType::Wave); beam_door_each_cnt]);
             door_types.extend(vec![DoorType::Beam(BeamType::Spazer); beam_door_each_cnt]);
             door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
-
-            let door_conns = get_randomizable_door_connections(game_data, map, difficulty);
-            let mut out: Vec<LockedDoor> = vec![];
-            let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
-            for (i, idx) in idxs.into_iter().enumerate() {
-                let conn = &door_conns[idx];
-                let door = LockedDoor {
-                    src_ptr_pair: conn.0,
-                    dst_ptr_pair: conn.1,
-                    door_type: door_types[i],
-                    bidirectional: true,
-                };
-
-                // Make sure we don't put two ammo doors in the same tile (since that would interfere
-                // with the mechanism for making the doors disappear from the map).
-                let src_loc = get_loc(door.src_ptr_pair);
-                let dst_loc = get_loc(door.dst_ptr_pair);
-                if !used_locs.contains(&src_loc) && !used_locs.contains(&dst_loc) {
-                    used_locs.insert(src_loc);
-                    used_locs.insert(dst_loc);
-                    out.push(door);
-                }
-            }
-            out
         }
     };
+    let door_conns = get_randomizable_door_connections(game_data, map, difficulty);
+    let mut locked_doors: Vec<LockedDoor> = vec![];
+    let total_cnt = door_types.len();
+    let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
+    for (i, idx) in idxs.into_iter().enumerate() {
+        let conn = &door_conns[idx];
+        let door = LockedDoor {
+            src_ptr_pair: conn.0,
+            dst_ptr_pair: conn.1,
+            door_type: door_types[i],
+            bidirectional: true,
+        };
+
+        // Make sure we don't put two ammo doors in the same tile (since that would interfere
+        // with the mechanism for making the doors disappear from the map).
+        let src_loc = get_loc(door.src_ptr_pair);
+        let dst_loc = get_loc(door.dst_ptr_pair);
+        if used_locs.contains(&src_loc) || used_locs.contains(&dst_loc) {
+            continue;
+        }
+        if let DoorType::Beam(_) = door_types[i] {
+            let src_room_idx = src_loc.0;
+            let dst_room_idx = dst_loc.0;
+            if used_beam_rooms.contains(&src_room_idx) || used_beam_rooms.contains(&dst_room_idx) {
+                continue;
+            }
+            used_beam_rooms.insert(src_room_idx);
+            used_beam_rooms.insert(dst_room_idx);
+        }
+        used_locs.insert(src_loc);
+        used_locs.insert(dst_loc);
+        locked_doors.push(door);
+    }
 
     let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
     for (i, door) in locked_doors.iter().enumerate() {

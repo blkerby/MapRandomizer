@@ -5,6 +5,8 @@ lorom
 ; allowing us to reserve only enough tiles in VRAM for one beam type (and orientation) at a time, 
 ; which get loaded when entering the room. The beam type is also stored in $1F76 when entering
 ; the room, used to determine the collision reaction for opening the door.
+;
+; Unpause hook to reload beam tiles is in hazard_markers.asm (to avoid needing an additional hook)
 
 !bank_84_free_space_start = $84FD00
 !bank_84_free_space_end = $858000
@@ -17,13 +19,13 @@ lorom
 !beam_tilemap_start = $7EA720
 
 ; Bank containing beam tilemaps and graphics
-!gfx_src_bank = #$00E9
-; Low RAM location containing base address in bank E9. This varies depending on the
+!gfx_src_bank = #$00EA
+; Low RAM location containing base address in bank EA. This varies depending on the
 ; type of beam door in the room.
 !gfx_src_base_addr = $1F78  
 
 ; 8-tiles GFX source offsets, the full door height including the brackets:
-; These offsets are added to the base offset in !gfx_src_base_addr, in bank E9
+; These offsets are added to the base offset in !gfx_src_base_addr, in bank EA
 !gfx_initial = $0020
 !gfx_opening_1 = $0120
 !gfx_opening_2 = $0220
@@ -57,7 +59,7 @@ org $84FD18
 ; This gets called during the transition while entering a room with a beam door.
 ; Input:
 ;   A = beam type (0=Charge, 1=Ice, 2=Wave, 3=Spazer, 4=Plasma)
-;   X = base address pointing to tilemap and graphics to load (from bank E9)
+;   X = base address pointing to tilemap and graphics to load (from bank EA)
 load_beam_tiles:
     phb
     sta $1F76                ; store the beam type
@@ -70,7 +72,7 @@ load_beam_tiles:
     ; Load the tilemap (16x16) for the beam door. This remains unchanged while in the room:
     ldy #$0000
 .loop:
-    lda $E90000, x
+    lda $EA0000, x
     sta.w !beam_tilemap_start, y
     inx
     inx
@@ -108,7 +110,7 @@ update_beam_gfx:
     STA $D0,x       ; source address = Y
     INX
     INX
-    LDA !gfx_src_bank   ; source bank = $E9
+    LDA !gfx_src_bank   ; source bank = $EA
     STA $D0,x
     INX
     LDA $02         ; VRAM destination = [$02]
@@ -122,7 +124,7 @@ update_beam_gfx:
     RTS
 
 
-; input: [Y] = source address offset for GFX data (8 tiles = 256 bytes) in bank E9
+; input: [Y] = source address offset for GFX data (8 tiles = 256 bytes) in bank EA
 print pc
 update_beam_gfx_8_tile:
     ; queue transfer of 8 tiles (256 bytes) to VRAM:
@@ -132,7 +134,7 @@ update_beam_gfx_8_tile:
     STA $02
     BRA update_beam_gfx
 
-; input: [Y] = source address offset for GFX data (4 tiles = 128 bytes) in bank E9
+; input: [Y] = source address offset for GFX data (4 tiles = 128 bytes) in bank EA
 print pc
 update_beam_gfx_4_tile:
     ; queue transfer of 4 tiles (128 bytes) to VRAM:
@@ -218,7 +220,7 @@ left_inst:
     dw $86BC                 ; Delete
 
 up_inst_closing:
-    dw $0002, $A7F7
+    dw $0002, $A69B
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0002, up_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
@@ -246,11 +248,11 @@ up_inst:
     dw set_timer, $0004
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0004, up_draw_half_open
-    dw $0001, $A7F7
+    dw $0001, $A69B
     dw $86BC                 ; Delete
 
 down_inst_closing:
-    dw $0002, $A7F7
+    dw $0002, $A68F
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0002, down_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
@@ -278,7 +280,7 @@ down_inst:
     dw set_timer, $0004
     dw update_beam_gfx_8_tile, !gfx_opening_3
     dw $0004, down_draw_half_open
-    dw $0001, $A7F7
+    dw $0001, $A68F
     dw $86BC                 ; Delete
 
 print pc 
@@ -300,8 +302,9 @@ check_shot:
     jsr $F900      ; check for hyper shot in escape (`escape_hyper_door_check` in escape.asm)
     bcs .hit
 
-    lda #$0057    ;
-    jsl $8090CB   ;} Queue sound 57h, sound library 2, max queued sounds allowed = 6 (shot door/gate with dud shot)
+    lda #$0057     ;
+    jsl $8090CB    ;} Queue sound 57h, sound library 2, max queued sounds allowed = 6 (shot door/gate with dud shot)
+    stz $1D77,x    ; clear PLM shot status
     rts
 
 print "hit: ", pc

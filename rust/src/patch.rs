@@ -2127,7 +2127,7 @@ impl<'a> Patcher<'a> {
                     (beam as usize) * 0xC40
                 } else {
                     (beam as usize) * 0xC40 + 0x620
-                } + snes2pc(0xE98400);
+                } + 0xEA8000;   
                 self.extra_setup_asm.get_mut(&room_ptr).unwrap()
                     .extend(vec![
                         // LDA #beam_type
@@ -2211,7 +2211,6 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
         let mut next_addr = snes2pc(0xB88200);
-        // let mut next_addr = snes2pc(0xE98400);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -2393,12 +2392,12 @@ impl<'a> Patcher<'a> {
             0,  // Spazer
             1,  // Plasma
         ];
-        let free_space_addr = snes2pc(0xE98400);
+        let free_space_addr = snes2pc(0xEA8000);
         let gfx_size = 0x620;  // Size of graphics + tilemaps per combination of beam type and orientation
 
         // Tilemap (16x16 tiles) indexed by orientation (0=horizontal, 1=vertical), then beam (0..5):
         // each address points to data for four 16x16 tiles, half of which is standard door frame and half of which is beam stuff
-        // These are ROM addresses in bank E9, giving the source for data which will get copied to 0x7EA720 thru 0x7EA740
+        // These are ROM addresses in bank EA, giving the source for data which will get copied to 0x7EA720 thru 0x7EA740
         for beam_idx in 0..5 {
             let door_pal = 1 << 10;
             let flip_x = 0x4000;
@@ -2430,23 +2429,23 @@ impl<'a> Patcher<'a> {
             // vertical (top-side) door:
             let tilemap_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size;
             // 16x16 tile 0 (left)
-            self.rom.write_u16(tilemap_ptr + 0x00, 0x6347 | door_pal)?;  // door frame tile 0 (horizontal flip)
-            self.rom.write_u16(tilemap_ptr + 0x02, 0x6346 | door_pal)?;  // door frame tile 1 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x00, 0x2347 | door_pal | flip_x | flip_y)?;  // door frame tile 0 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x02, 0x2346 | door_pal | flip_x | flip_y)?;  // door frame tile 1 (horizontal flip)
             self.rom.write_u16(tilemap_ptr + 0x04, 0x2000 | beam_door_gfx_idx | door_pal)?;  // beam door tile 0
             self.rom.write_u16(tilemap_ptr + 0x06, 0x2000 | (beam_door_gfx_idx + 1) | door_pal)?;  // beam door tile 1
             // 16x16 tile 1 (left middle):
-            self.rom.write_u16(tilemap_ptr + 0x08, 0x6345 | door_pal)?;  // door frame tile 2 (horizontal flip)
-            self.rom.write_u16(tilemap_ptr + 0x0A, 0x6344 | door_pal)?;  // door frame tile 3 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x08, 0x2345 | door_pal | flip_x | flip_y)?;  // door frame tile 2 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x0A, 0x2344 | door_pal | flip_x | flip_y)?;  // door frame tile 3 (horizontal flip)
             self.rom.write_u16(tilemap_ptr + 0x0C, 0x2000 | (beam_door_gfx_idx + 2) | beam_pal)?;  // beam door tile 2
             self.rom.write_u16(tilemap_ptr + 0x0E, 0x2000 | (beam_door_gfx_idx + 3) | beam_pal)?;  // beam door tile 3
             // 16x16 tile 2 (right middle):
-            self.rom.write_u16(tilemap_ptr + 0x10, 0x2344 | door_pal)?;  // door frame tile 3
-            self.rom.write_u16(tilemap_ptr + 0x12, 0x2345 | door_pal)?;  // door frame tile 2
+            self.rom.write_u16(tilemap_ptr + 0x10, 0x2344 | door_pal | flip_y)?;  // door frame tile 3
+            self.rom.write_u16(tilemap_ptr + 0x12, 0x2345 | door_pal | flip_y)?;  // door frame tile 2
             self.rom.write_u16(tilemap_ptr + 0x14, 0x2000 | (beam_door_gfx_idx + 4) | beam_pal)?;  // beam door tile 4
             self.rom.write_u16(tilemap_ptr + 0x16, 0x2000 | (beam_door_gfx_idx + 5) | beam_pal)?;  // beam door tile 5
             // 16x16 tile 3 (right):
-            self.rom.write_u16(tilemap_ptr + 0x18, 0x2346 | door_pal)?;  // door frame tile 1
-            self.rom.write_u16(tilemap_ptr + 0x1A, 0x2347 | door_pal)?;  // door frame tile 0
+            self.rom.write_u16(tilemap_ptr + 0x18, 0x2346 | door_pal | flip_y)?;  // door frame tile 1
+            self.rom.write_u16(tilemap_ptr + 0x1A, 0x2347 | door_pal | flip_y)?;  // door frame tile 0
             self.rom.write_u16(tilemap_ptr + 0x1C, 0x2000 | (beam_door_gfx_idx + 6) | door_pal)?;  // beam door tile 6
             self.rom.write_u16(tilemap_ptr + 0x1E, 0x2000 | (beam_door_gfx_idx + 7) | door_pal)?;  // beam door tile 7
         }
