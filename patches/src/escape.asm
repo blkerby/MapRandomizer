@@ -81,6 +81,19 @@ org $84cf75
 ;;; CODE in bank 84 (PLM)
 org $84f900
 
+; This function is referenced in beam_doors.asm, so it needs to be here at $84F900.
+escape_hyper_door_check:
+    %checkEscape() : bcc .nohit
+    lda $1d77,x
+    bit #$0008                  ; check for plasma (hyper = wave+plasma)
+    beq .nohit
+    sec                         ; set carry flag
+    bra .end
+.nohit:
+    clc                         ; reset carry flag
+.end:
+    rts
+
 ;;; returns zero flag set if in the escape and projectile is hyper beam
 escape_hyper_check:
     %checkEscape() : bcc .nohit
@@ -91,18 +104,6 @@ escape_hyper_check:
     bra .end
 .nohit:
     lda #$0001                  ; reset zero flag
-.end:
-    rts
-
-escape_hyper_door_check:
-    %checkEscape() : bcc .nohit
-    lda $1d77,x
-    bit #$0008                  ; check for plasma (hyper = wave+plasma)
-    beq .nohit
-    sec                         ; set carry flag
-    bra .end
-.nohit:
-    clc                         ; reset carry flag
 .end:
     rts
 

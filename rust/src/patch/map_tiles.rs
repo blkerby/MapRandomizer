@@ -6,7 +6,7 @@ use crate::{
     randomize::{BeamType, DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
 };
 
-use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
+use super::{beam_doors_tiles, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
 use anyhow::{bail, Context, Result};
 
 pub type TilemapOffset = u16;
@@ -118,6 +118,16 @@ fn update_tile(tile: &mut [[u8; 8]; 8], value: u8, coords: &[(usize, usize)]) {
     for &(x, y) in coords {
         tile[y][x] = value;
     }
+}
+
+pub fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
+    let mut out = [[0u8; 8]; 8];
+    for y in 0..8 {
+        for x in 0..8 {
+            out[y][x] = tile[x][y];
+        }
+    }
+    out
 }
 
 pub fn write_tile_4bpp(rom: &mut Rom, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
@@ -2637,16 +2647,6 @@ impl<'a> MapPatcher<'a> {
             [b, 1, 1, 1, b, b, b, 1],
             [b, b, 1, 1, 1, b, b, b],
         ];
-
-        fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
-            let mut out = [[0u8; 8]; 8];
-            for y in 0..8 {
-                for x in 0..8 {
-                    out[y][x] = tile[x][y];
-                }
-            }
-            out
-        }
 
         // Write 8x8 tiles:
         let base_addr = snes2pc(0xE98000);

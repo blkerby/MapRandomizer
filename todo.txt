@@ -1,46 +1,20 @@
 v113:
 - beam doors
+  - make sure hyper beam can open them.
+- add FX tests on Mosaic
+  - possibly related: figure out why Climb doesn't have acid in escape anymore (sometimes?)
+- fix escape timer graphics corruption/flickering
+- add item priority strength to seed page
 - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
 - add `comeInWithBlueSpringBallBounce`
 - implement `speedBall` logical requirement
 - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
 - implement "heatFramesWithEnergyDrops"
-- figure out why Climb doesn't have acid in escape anymore (sometimes?)
 
-
-v112:
-- add Junko sprite, update protogen
-- DONE: remove vanilla music option
-- DONE: fix logic pages with shinecharge entrance conditions:
-  - e.g. https://dev.maprando.com/logic/room/FastPillarsSetupRoom/2/1/ShinesparkDeepStuckXRayClimb shouldn't be Beyond.
-  - in logic page requirement checks, start with full shinecharge frames rather than empty
-- DONE: add soft "Late" option and update item progression presets:
-  - late: gravity, varia
-  - middle: space jump, screw attack, morph, wall jump boots
-  - early: everything else
-- DONE: implement `leaveWithTemporaryBlue`
-- DONE: implement `comeInShinecharging` property `minTiles`
-- DONE: implement new exit/entrance conditions:
-  - leaveSpaceJumping, leaveWithMockball, leaveSpinning, leaveWithSpringBallBounce
-  - comeInSpaceJumping, comeInWithMockball, comeInBlueSpinning, comeInWithSpringBallBounce
-- DONE: implement `unlocksDoors`
-- DONE: implement `setsFlags`
-- DONE: implement `collectsItems`
-- DONE: implement stored door lock flags
-- DONE: add obstacle to remember gray door stays open
-  - DONE: reset obstacle when collecting item
-- DONE: zero out shinecharge frames local state outside of chains of carrying shinecharge
-- DONE: stop internal (blank name) strats from showing in logic pages, spoiler routes
-- DONE: add gray doors to LockedDoorData
-- DONE: add free UnlockDoor VertexAction on exit vertices
-- DONE: restrict "go back with g-mode" to not apply to down doors.
-- DONE: add test for `useImplicitUnlockDoors` false, to make sure unlockDoors are included on every strat to a door.
-- check zebes awake logic (pit room & metroid rooms in particular)
-- DONE: check draygon logic:
-  - eddie seed: https://maprando.com/seed/SQeiaLXazAu4FsRBdB7azw/data/visualizer/index.html
-    - why was draygon not logically beatable earlier?
 
 TODO:
+- model energy usage in the escape.
+  - can be necessary to ensure beatability of seeds with reduced items and disabled escape refill.
 - possible QoL: while pause menu is fading in, press R to immediately initiate switching to equipment screen
 - add option to reroll seeds with not enough difficult required tricks?
 - instructions on gmode and artificial morph
@@ -50,6 +24,7 @@ TODO:
   - affecting top row of HUD, etc.
 - beam doors?
 - map room teleports?
+- update protogen sprite?
 - look into faster decompression:
   - decompressor: https://github.com/tewtal/SHVC-LZSA2/blob/main/src/asar/lzsa2.asm
   - compressor: https://github.com/emmanuel-marty/lzsa

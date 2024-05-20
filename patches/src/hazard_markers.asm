@@ -140,7 +140,7 @@ left_hazard_transition_inst:
     dw $0001, left_hazard_transition_draw
     dw $86BC
 
-left_hazard_transition_draw:
+left_hazafrd_transition_draw:
     dw $8004, $94E0, $94E1, $9CE1, $9CE0, $0000
 
 down_hazard_inst:

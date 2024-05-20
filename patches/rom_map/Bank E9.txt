@@ -1,4 +1,5 @@
 8000-8280: hazard tiles (hazard_markers.asm)
 8280-8300: hazard tilemap
 8300-8400: hazard_makers.asm
-9000-FFFF: title screen graphics
+8400-C140: beam doors tilemaps and graphics
+C140-FFFF: title screen graphics
