@@ -1,5 +1,6 @@
 .idea/
 maps/
+!maps/vanilla
 models/
 rust/rando/target/
 venv/
