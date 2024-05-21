@@ -91,12 +91,13 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
         2 => hot_area_color,
         3 => get_rgb(31, 31, 31), // Wall/passage (white)
         4 => get_rgb(0, 0, 0), // Opaque black (used in elevators, covers up dotted grid background)
-        6 => get_rgb(29, 15, 0), // Yellow (orange) door
-        7 => get_rgb(27, 7, 18), // Red (pink) door
+        6 => get_rgb(29, 15, 0), // Yellow (orange) door (Power Bomb, Spazer)
+        7 => get_rgb(27, 7, 18), // Red (pink) door (Missile, Wave)
+        8 => get_rgb(4, 13, 31), // Blue door (Ice)
         12 => get_rgb(0, 0, 0), // Door lock shadow covering wall (black)
         13 => get_rgb(31, 31, 31), // Item dots (white)
-        14 => get_rgb(0, 24, 0), // Green door
-        15 => get_rgb(18, 12, 14), // Gray door
+        14 => get_rgb(0, 24, 0), // Green door (Super, Plasma)
+        15 => get_rgb(18, 12, 14), // Gray door (including Charge)
         _ => panic!("Unexpected color value {}", value),
     }
 }

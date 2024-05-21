@@ -1492,6 +1492,7 @@ async fn randomize(
         doors_mode: match req.doors.0.as_str() {
             "Blue" => DoorsMode::Blue,
             "Ammo" => DoorsMode::Ammo,
+            "Beam" => DoorsMode::Beam,
             _ => panic!("Unrecognized doors mode: {}", req.doors.0),
         },
         early_save: req.early_save.0,

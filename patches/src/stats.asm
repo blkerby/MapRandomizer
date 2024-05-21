@@ -3,8 +3,8 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_84_free_space_start = $84FD00
-!bank_84_free_space_end = $84FE80
+!bank_85_free_space_start = $859980
+!bank_85_free_space_end = $859B00
 
 
 ; Increment saves count when using save station
@@ -288,7 +288,7 @@ org $84EE00  ; Morph, shot block
 org $84EE41  ; ReserveTank, shot block
     dw collect_ReserveTank
 
-org !bank_84_free_space_start
+org !bank_85_free_space_start
 
 hook_save_station:
     jsl $868097  ; run hi-jacked Instruction
@@ -469,4 +469,4 @@ collect_ReserveTank:
     jsr collect_item
     jmp $8986
 
-warnpc !bank_84_free_space_end
+warnpc !bank_85_free_space_end

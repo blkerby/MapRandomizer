@@ -1213,7 +1213,8 @@ fn main() -> Result<()> {
         (snes2pc(0xE6D000), snes2pc(0xE70000)),
         (snes2pc(0xE7D000), snes2pc(0xE80000)),
         // Skipping bank E9, used for hazard markers and title screen graphics
-        (snes2pc(0xEA8000), snes2pc(0xF80000)),
+        // Skipping bank EA, used for beam door graphics
+        (snes2pc(0xEB8000), snes2pc(0xF80000)),
         // Skipping banks F8 through FF: used by SpriteSomething for Samus sprite customization
     ]);
 

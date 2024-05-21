@@ -3,10 +3,10 @@ use log::info;
 
 use crate::{
     game_data::{AreaIdx, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
+    randomize::{BeamType, DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
 };
 
-use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
+use super::{beam_doors_tiles, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
 use anyhow::{bail, Context, Result};
 
 pub type TilemapOffset = u16;
@@ -22,6 +22,18 @@ enum Edge {
     RedDoor,
     GreenDoor,
     YellowDoor,
+    ChargeDoor,
+    IceDoor,
+    WaveDoor,
+    SpazerDoor,
+    PlasmaDoor,
+}
+
+enum TileSide {
+    Right,
+    Left,
+    Top,
+    Bottom,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -106,6 +118,16 @@ fn update_tile(tile: &mut [[u8; 8]; 8], value: u8, coords: &[(usize, usize)]) {
     for &(x, y) in coords {
         tile[y][x] = value;
     }
+}
+
+pub fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
+    let mut out = [[0u8; 8]; 8];
+    for y in 0..8 {
+        for x in 0..8 {
+            out[y][x] = tile[x][y];
+        }
+    }
+    out
 }
 
 pub fn write_tile_4bpp(rom: &mut Rom, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
@@ -418,6 +440,11 @@ impl<'a> MapPatcher<'a> {
             // but other flips do not.
             return Ok(());
         }
+        let beam_edges = [Edge::ChargeDoor, Edge::IceDoor, Edge::WaveDoor, Edge::SpazerDoor, Edge::PlasmaDoor];
+        if beam_edges.contains(&tile.left) || beam_edges.contains(&tile.right) || beam_edges.contains(&tile.up) || beam_edges.contains(&tile.down) {
+            // For beam doors, again 180 degree rotation works but not other flips.
+            return Ok(());
+        }
         self.index_basic_tile_case(
             BasicTile {
                 left: tile.right,
@@ -511,13 +538,112 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn get_door_color(&self, edge: Edge) -> u8 {
+    fn get_door_colors(&self, edge: Edge) -> (u8, u8, u8) {
+        // 12: black when revealed, grey when partially revealed (used for ammo door outline inside of wall)
+        // 4: black (used for ammo door outline in front of wall)
+        // 3: white when revealed, grey when partially revealed (used for beam door outline inside of wall)
+        // 13: white when revealed, black when partially revealed (used for beam door outline in front of wall)
         match edge {
-            Edge::GrayDoor => 15,
-            Edge::RedDoor => 7,
-            Edge::GreenDoor => 14,
-            Edge::YellowDoor => 6,
+            Edge::GrayDoor => (15, 12, 4),
+            Edge::RedDoor => (7, 12, 4),
+            Edge::GreenDoor => (14, 12, 4),
+            Edge::YellowDoor => (6, 12, 4),
+            Edge::ChargeDoor => (15, 3, 13),
+            Edge::IceDoor => (8, 3, 13),
+            Edge::WaveDoor => (7, 3, 13),
+            Edge::SpazerDoor => (6, 3, 13),
+            Edge::PlasmaDoor => (14, 3, 13),
             _ => panic!("Unexpected door edge: {:?}", edge),
+        }
+    }
+
+    fn draw_edge(tile_side: TileSide, edge: Edge, tile: &mut [[u8; 8]; 8]) {
+        let wall_coords = match tile_side {
+            TileSide::Top => [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7)],
+            TileSide::Bottom => [(7, 7), (7, 6), (7, 5), (7, 4), (7, 3), (7, 2), (7, 1), (7, 0)],
+            TileSide::Left => [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)],
+            TileSide::Right => [(7, 7), (6, 7), (5, 7), (4, 7), (3, 7), (2, 7), (1, 7), (0, 7)],
+        };
+        let air_coords = match tile_side {
+            TileSide::Top => [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7)],
+            TileSide::Bottom => [(6, 7), (6, 6), (6, 5), (6, 4), (6, 3), (6, 2), (6, 1), (6, 0)],
+            TileSide::Left => [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)],
+            TileSide::Right => [(7, 6), (6, 6), (5, 6), (4, 6), (3, 6), (2, 6), (1, 6), (0, 6)],
+        };
+
+        let set_wall_pixel = |tile: &mut [[u8; 8]; 8], i: usize, color: u8| {
+            tile[wall_coords[i].0][wall_coords[i].1] = color;
+        };
+        let set_air_pixel = |tile: &mut [[u8; 8]; 8], i: usize, color: u8| {
+            tile[air_coords[i].0][air_coords[i].1] = color;
+        };
+        match edge {
+            Edge::Empty => {},
+            Edge::Wall => {
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 3, 3);
+                set_wall_pixel(tile, 4, 3);
+                set_wall_pixel(tile, 5, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+            }
+            Edge::Door => {
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 5, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+            },
+            Edge::Passage => {
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+            },
+            Edge::GrayDoor | Edge::RedDoor | Edge::GreenDoor | Edge::YellowDoor => {
+                let color = match edge {
+                    Edge::GrayDoor => 15,
+                    Edge::RedDoor => 7,
+                    Edge::GreenDoor => 14,
+                    Edge::YellowDoor => 6,
+                    _ => panic!("Internal error"),
+                };
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 12);
+                set_wall_pixel(tile, 3, color);
+                set_wall_pixel(tile, 4, color);
+                set_wall_pixel(tile, 5, 12);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+                set_air_pixel(tile, 3, 4);
+                set_air_pixel(tile, 4, 4);
+            },
+            Edge::ChargeDoor | Edge::IceDoor | Edge::WaveDoor | Edge::SpazerDoor | Edge::PlasmaDoor => {
+                let color = match edge {
+                    Edge::ChargeDoor => 15,
+                    Edge::IceDoor => 8,
+                    Edge::WaveDoor => 7,
+                    Edge::SpazerDoor => 6,
+                    Edge::PlasmaDoor => 14,
+                    _ => panic!("Internal error"),
+                };
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 12);
+                set_wall_pixel(tile, 3, color);
+                set_wall_pixel(tile, 4, color);
+                set_wall_pixel(tile, 5, 12);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+                set_air_pixel(tile, 2, 13);
+                set_air_pixel(tile, 3, 4);
+                set_air_pixel(tile, 4, 4);
+                set_air_pixel(tile, 5, 13);
+            }
         }
     }
 
@@ -531,22 +657,6 @@ impl<'a> MapPatcher<'a> {
             (LiquidType::Lava | LiquidType::Acid, false) => 2,
             (LiquidType::Lava | LiquidType::Acid, true) => 1,
         };
-        // data[1][2] = water_color;
-        // data[1][3] = water_color;
-        // data[1][6] = water_color;
-        // data[1][7] = water_color;
-        // data[3][0] = water_color;
-        // data[3][1] = water_color;
-        // data[3][4] = water_color;
-        // data[3][5] = water_color;
-        // data[5][2] = water_color;
-        // data[5][3] = water_color;
-        // data[5][6] = water_color;
-        // data[5][7] = water_color;
-        // data[7][0] = water_color;
-        // data[7][1] = water_color;
-        // data[7][4] = water_color;
-        // data[7][5] = water_color;
         if tile.liquid_type != LiquidType::None {
             for y in tile.liquid_sublevel..8 {
                 for x in 0..8 {
@@ -555,48 +665,6 @@ impl<'a> MapPatcher<'a> {
                     }
                 }
             }
-
-            // if tile.liquid_sublevel == 0 {
-            //     data[0][1] = liquid_color;
-            //     data[0][5] = liquid_color;
-            //     data[1][3] = liquid_color;
-            //     data[1][7] = liquid_color;
-            // }
-            // if tile.liquid_sublevel <= 1 {
-            //     data[2][1] = liquid_color;
-            //     data[2][5] = liquid_color;
-            //     data[3][3] = liquid_color;
-            //     data[3][7] = liquid_color;
-            // }
-            // if tile.liquid_sublevel <= 2 {
-            //     data[4][1] = liquid_color;
-            //     data[4][5] = liquid_color;
-            //     data[5][3] = liquid_color;
-            //     data[5][7] = liquid_color;
-            // }
-            // if tile.liquid_sublevel <= 3 {
-            //     data[6][1] = liquid_color;
-            //     data[6][5] = liquid_color;
-            //     data[7][3] = liquid_color;
-            //     data[7][7] = liquid_color;
-            // }
-
-            // if tile.liquid_sublevel == 0 {
-            //     data[0][1] = liquid_color;
-            //     data[0][5] = liquid_color;
-            // }
-            // if tile.liquid_sublevel <= 1 {
-            //     data[2][3] = liquid_color;
-            //     data[2][7] = liquid_color;
-            // }
-            // if tile.liquid_sublevel <= 2 {
-            //     data[4][1] = liquid_color;
-            //     data[4][5] = liquid_color;
-            // }
-            // if tile.liquid_sublevel <= 3 {
-            //     data[6][3] = liquid_color;
-            //     data[6][7] = liquid_color;
-            // }
         }
     
         let item_color = if tile.faded {
@@ -735,86 +803,10 @@ impl<'a> MapPatcher<'a> {
 
         }
 
-        let door_edges = [
-            Edge::GrayDoor,
-            Edge::RedDoor,
-            Edge::GreenDoor,
-            Edge::YellowDoor,
-        ];
-
-        if door_edges.contains(&tile.left) {
-            let color = self.get_door_color(tile.left);
-            data[0][0] = 3;
-            data[1][0] = 3;
-            data[2][0] = 12;
-            data[3][0] = color;
-            data[4][0] = color;
-            data[5][0] = 12;    
-            data[6][0] = 3;
-            data[7][0] = 3;
-            data[3][1] = 4;
-            data[4][1] = 4;
-        } else {
-            for &i in &self.edge_pixels_map[&tile.left] {
-                data[i][0] = 3;
-            }
-        }
-
-        if door_edges.contains(&tile.right) {
-            let color = self.get_door_color(tile.right);
-            data[0][7] = 3;
-            data[1][7] = 3;
-            data[2][7] = 12;
-            data[3][7] = color;
-            data[4][7] = color;
-            data[5][7] = 12;
-            data[6][7] = 3;
-            data[7][7] = 3;
-            data[3][6] = 4;
-            data[4][6] = 4;
-
-        } else {
-            for &i in &self.edge_pixels_map[&tile.right] {
-                data[i][7] = 3;
-            }
-        }
-
-        if door_edges.contains(&tile.up) {
-            let color = self.get_door_color(tile.up);
-            data[0][0] = 3;
-            data[0][1] = 3;
-            data[0][2] = 12;
-            data[0][3] = color;
-            data[0][4] = color;
-            data[0][5] = 12;    
-            data[0][6] = 3;
-            data[0][7] = 3;
-            data[1][3] = 4;
-            data[1][4] = 4;
-        } else {
-            for &i in &self.edge_pixels_map[&tile.up] {
-                data[0][i] = 3;
-            }
-        }
-
-        if door_edges.contains(&tile.down) {
-            let color = self.get_door_color(tile.down);
-            data[7][0] = 3;
-            data[7][1] = 3;
-            data[7][2] = 12;
-            data[7][3] = color;
-            data[7][4] = color;
-            data[7][5] = 12;    
-            data[7][6] = 3;
-            data[7][7] = 3;
-            data[6][3] = 4;
-            data[6][4] = 4;
-        } else {
-            for &i in &self.edge_pixels_map[&tile.down] {
-                data[7][i] = 3;
-            }
-        }
-
+        Self::draw_edge(TileSide::Top, tile.up, &mut data);
+        Self::draw_edge(TileSide::Bottom, tile.down, &mut data);
+        Self::draw_edge(TileSide::Left, tile.left, &mut data);
+        Self::draw_edge(TileSide::Right, tile.right, &mut data);
         Ok(data)
     }
 
@@ -1670,6 +1662,13 @@ impl<'a> MapPatcher<'a> {
                     DoorType::Red => Edge::RedDoor,
                     DoorType::Green => Edge::GreenDoor,
                     DoorType::Yellow => Edge::YellowDoor,
+                    DoorType::Beam(beam) => match beam {
+                        BeamType::Charge => Edge::ChargeDoor,
+                        BeamType::Ice => Edge::IceDoor,
+                        BeamType::Wave => Edge::WaveDoor,
+                        BeamType::Spazer => Edge::SpazerDoor,
+                        BeamType::Plasma => Edge::PlasmaDoor,
+                    },
                     DoorType::Gray => continue,
                 };
                 if let Some(basic_tile) = basic_tile_opt {
@@ -2648,16 +2647,6 @@ impl<'a> MapPatcher<'a> {
             [b, 1, 1, 1, b, b, b, 1],
             [b, b, 1, 1, 1, b, b, b],
         ];
-
-        fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
-            let mut out = [[0u8; 8]; 8];
-            for y in 0..8 {
-                for x in 0..8 {
-                    out[y][x] = tile[x][y];
-                }
-            }
-            out
-        }
 
         // Write 8x8 tiles:
         let base_addr = snes2pc(0xE98000);

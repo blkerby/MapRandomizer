@@ -5,11 +5,12 @@ pub mod suffix_tree;
 pub mod bps;
 pub mod map_tiles;
 pub mod title;
+mod beam_doors_tiles;
 
 use std::path::Path;
 
 use crate::{
-    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization, SaveAnimals, StartLocationMode, WallJump}
+    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{diagonal_flip_tile, ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization, SaveAnimals, StartLocationMode, WallJump}
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -449,6 +450,7 @@ impl<'a> Patcher<'a> {
             "msu1",
             "escape_timer",
             "nothing_item",
+            "beam_doors",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
@@ -1538,7 +1540,7 @@ impl<'a> Patcher<'a> {
             title_patcher.patch_title_foreground()?;
             title_patcher.patch_title_gradient()?;
             title_patcher.patch_title_blue_light()?;
-            println!("Title screen data end: {:x}", title_patcher.next_free_space_pc);
+            println!("Title screen data end: {:x}", pc2snes(title_patcher.next_free_space_pc));
             return Ok(());
         }
     }
@@ -1587,6 +1589,8 @@ impl<'a> Patcher<'a> {
     }
 
     fn fix_crateria_scrolling_sky(&mut self) -> Result<()> {
+        // This function probably isn't needed anymore since we're using Mosaic's
+        // reimplementation of scrolling sky.
         let data = vec![
             (0x8FB76C, (0x1892E, 0x18946)), // Landing Site
             (0x8FB777, (0x18916, 0x1896A)), // Landing Site
@@ -2076,6 +2080,10 @@ impl<'a> Patcher<'a> {
             "down" => (door.x * 16 + 6, door.y * 16 + 14 - door.offset.unwrap_or(0)),
             _ => panic!("Unexpected door direction: {}", door.direction),
         };
+        // if let DoorType::Beam(_) = locked_door.door_type {
+        //     // Skip beam doors for the moment
+        //     return Ok(());
+        // }
         let plm_id = match (locked_door.door_type, door.direction.as_str()) {
             (DoorType::Yellow, "right") => 0xC85A,
             (DoorType::Yellow, "left") => 0xC860,
@@ -2089,9 +2097,13 @@ impl<'a> Patcher<'a> {
             (DoorType::Red, "left") => 0xC890,
             (DoorType::Red, "down") => 0xC896,
             (DoorType::Red, "up") => 0xC89C,
+            (DoorType::Beam(_), "right") => 0xFCC0,
+            (DoorType::Beam(_), "left") => 0xFCC6,
+            (DoorType::Beam(_), "down") => 0xFCCC,
+            (DoorType::Beam(_), "up") => 0xFCD2,
             (a, b) => panic!("Unexpected door type: {:?} {}", a, b),
         };
-        // TODO: Instead of using extra setup ASM to spawn the doors, it would probably be better to just rewrite
+        // TODO: Instead of using extra setup ASM to spawn the doors, it might be better to just rewrite
         // the room PLM list, to add the new door PLMs.
         let mut write_asm = |room_ptr: usize, x: usize, y: usize| {
             self.extra_setup_asm
@@ -2109,6 +2121,23 @@ impl<'a> Patcher<'a> {
                     state_index,
                     0x00, // PLM argument (index for door unlock state)
                 ]);
+            if let DoorType::Beam(beam) = locked_door.door_type {
+                println!("beam door {:?}", beam);
+                let gfx_base_addr = if door.direction == "right" || door.direction == "left" {
+                    (beam as usize) * 0xC40
+                } else {
+                    (beam as usize) * 0xC40 + 0x620
+                } + 0xEA8000;   
+                self.extra_setup_asm.get_mut(&room_ptr).unwrap()
+                    .extend(vec![
+                        // LDA #beam_type
+                        0xA9, beam as u8, 0x00,
+                        // LDX #gfx_base_addr
+                        0xA2, (gfx_base_addr & 0xFF) as u8, (gfx_base_addr >> 8) as u8,
+                        // JSL $84FCD8 (run `load_beam_tiles` in beam_doors.asm)
+                        0x22, 0xD8, 0xFC, 0x84
+                    ]);
+            }
         };
         write_asm(room.rom_address, x, y);
         if room.rom_address == 0x793FE && door.x == 5 && door.y == 2 {
@@ -2181,8 +2210,7 @@ impl<'a> Patcher<'a> {
         // extra setup ASM pointer.
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
-        let mut next_addr = snes2pc(0xB88100);
-        // let mut next_addr = snes2pc(0xE98400);
+        let mut next_addr = snes2pc(0xB88200);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -2350,6 +2378,129 @@ impl<'a> Patcher<'a> {
         }
         Ok(())
     }
+
+    fn write_beam_door_tiles(&mut self) -> Result<()> {
+        // Beam doors are limited to at most one per room, and their graphics (8x8 and 16x16) are loaded dynamically
+        // when entering the room. The 16x16 tilemaps stay constant while the underlying 8x8 tiles get updated for the
+        // idle animation and door opening.
+        use beam_doors_tiles::*;
+        let beam_door_gfx_idx = 0x260; // 0x260 through 0x267
+        let beam_palettes = vec![
+            0,  // Charge
+            3,  // Ice
+            2,  // Wave
+            0,  // Spazer
+            1,  // Plasma
+        ];
+        let free_space_addr = snes2pc(0xEA8000);
+        let gfx_size = 0x620;  // Size of graphics + tilemaps per combination of beam type and orientation
+
+        // Tilemap (16x16 tiles) indexed by orientation (0=horizontal, 1=vertical), then beam (0..5):
+        // each address points to data for four 16x16 tiles, half of which is standard door frame and half of which is beam stuff
+        // These are ROM addresses in bank EA, giving the source for data which will get copied to 0x7EA720 thru 0x7EA740
+        for beam_idx in 0..5 {
+            let door_pal = 1 << 10;
+            let flip_x = 0x4000;
+            let flip_y = 0x8000;
+            let beam_pal = beam_palettes[beam_idx] << 10;
+            // horizontal (left-side) door:
+            let tilemap_ptr = free_space_addr + beam_idx * 2 * gfx_size;
+            // 16x16 tile 0 (top)
+            self.rom.write_u16(tilemap_ptr + 0x00, 0x2340 | door_pal | flip_x)?;  // door frame tile 0
+            self.rom.write_u16(tilemap_ptr + 0x02, 0x2000 | beam_door_gfx_idx | door_pal)?;  // beam door tile 0
+            self.rom.write_u16(tilemap_ptr + 0x04, 0x2350 | door_pal | flip_x)?;  // door frame tile 1
+            self.rom.write_u16(tilemap_ptr + 0x06, 0x2000 | (beam_door_gfx_idx + 1) | door_pal)?;  // beam door tile 1
+            // 16x16 tile 1 (top middle):
+            self.rom.write_u16(tilemap_ptr + 0x08, 0x2360 | door_pal | flip_x)?;  // door frame tile 2
+            self.rom.write_u16(tilemap_ptr + 0x0A, 0x2000 | (beam_door_gfx_idx + 2) | beam_pal)?;  // beam door tile 2
+            self.rom.write_u16(tilemap_ptr + 0x0C, 0x2370 | door_pal | flip_x)?;  // door frame tile 3
+            self.rom.write_u16(tilemap_ptr + 0x0E, 0x2000 | (beam_door_gfx_idx + 3) | beam_pal)?;  // beam door tile 3
+            // 16x16 tile 2 (bottom middle):
+            self.rom.write_u16(tilemap_ptr + 0x10, 0x2370 | door_pal | flip_x | flip_y)?;  // door frame tile 3 (vertical flip)
+            self.rom.write_u16(tilemap_ptr + 0x12, 0x2000 | (beam_door_gfx_idx + 4) | beam_pal)?;  // beam door tile 4
+            self.rom.write_u16(tilemap_ptr + 0x14, 0x2360 | door_pal | flip_x | flip_y)?;  // door frame tile 2 (vertical flip)
+            self.rom.write_u16(tilemap_ptr + 0x16, 0x2000 | (beam_door_gfx_idx + 5) | beam_pal)?;  // beam door tile 5
+            // 16x16 tile 3 (bottom):
+            self.rom.write_u16(tilemap_ptr + 0x18, 0x2350 | door_pal | flip_x | flip_y)?;  // door frame tile 1 (vertical flip)
+            self.rom.write_u16(tilemap_ptr + 0x1A, 0x2000 | (beam_door_gfx_idx + 6) | door_pal)?;  // beam door tile 6
+            self.rom.write_u16(tilemap_ptr + 0x1C, 0x2340 | door_pal | flip_x | flip_y)?;  // door frame tile 0 (vertical flip)
+            self.rom.write_u16(tilemap_ptr + 0x1E, 0x2000 | (beam_door_gfx_idx + 7) | door_pal)?;  // beam door tile 7
+
+            // vertical (top-side) door:
+            let tilemap_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size;
+            // 16x16 tile 0 (left)
+            self.rom.write_u16(tilemap_ptr + 0x00, 0x2347 | door_pal | flip_x | flip_y)?;  // door frame tile 0 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x02, 0x2346 | door_pal | flip_x | flip_y)?;  // door frame tile 1 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x04, 0x2000 | beam_door_gfx_idx | door_pal)?;  // beam door tile 0
+            self.rom.write_u16(tilemap_ptr + 0x06, 0x2000 | (beam_door_gfx_idx + 1) | door_pal)?;  // beam door tile 1
+            // 16x16 tile 1 (left middle):
+            self.rom.write_u16(tilemap_ptr + 0x08, 0x2345 | door_pal | flip_x | flip_y)?;  // door frame tile 2 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x0A, 0x2344 | door_pal | flip_x | flip_y)?;  // door frame tile 3 (horizontal flip)
+            self.rom.write_u16(tilemap_ptr + 0x0C, 0x2000 | (beam_door_gfx_idx + 2) | beam_pal)?;  // beam door tile 2
+            self.rom.write_u16(tilemap_ptr + 0x0E, 0x2000 | (beam_door_gfx_idx + 3) | beam_pal)?;  // beam door tile 3
+            // 16x16 tile 2 (right middle):
+            self.rom.write_u16(tilemap_ptr + 0x10, 0x2344 | door_pal | flip_y)?;  // door frame tile 3
+            self.rom.write_u16(tilemap_ptr + 0x12, 0x2345 | door_pal | flip_y)?;  // door frame tile 2
+            self.rom.write_u16(tilemap_ptr + 0x14, 0x2000 | (beam_door_gfx_idx + 4) | beam_pal)?;  // beam door tile 4
+            self.rom.write_u16(tilemap_ptr + 0x16, 0x2000 | (beam_door_gfx_idx + 5) | beam_pal)?;  // beam door tile 5
+            // 16x16 tile 3 (right):
+            self.rom.write_u16(tilemap_ptr + 0x18, 0x2346 | door_pal | flip_y)?;  // door frame tile 1
+            self.rom.write_u16(tilemap_ptr + 0x1A, 0x2347 | door_pal | flip_y)?;  // door frame tile 0
+            self.rom.write_u16(tilemap_ptr + 0x1C, 0x2000 | (beam_door_gfx_idx + 6) | door_pal)?;  // beam door tile 6
+            self.rom.write_u16(tilemap_ptr + 0x1E, 0x2000 | (beam_door_gfx_idx + 7) | door_pal)?;  // beam door tile 7
+        }
+        
+        // Idle beam door animation (8x8 tiles): 4 tiles per frame, 4 frame loop:
+        // These get copied into VRAM at $2620-$2660:
+        for beam_idx in 0..5 {
+            // horizontal orientation:
+            let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x420;
+            for frame in 0..4 {
+                for tile_idx in 0..4 {
+                    let addr = gfx_ptr + frame * 0x80 + tile_idx * 0x20;
+                    let tile = idle_beam_tiles[beam_idx][tile_idx][frame];
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                }
+            }
+
+            // vertical orientation:
+            let gfx_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size + 0x420;
+            for frame in 0..4 {
+                for tile_idx in 0..4 {
+                    let addr = gfx_ptr + frame * 0x80 + tile_idx * 0x20;
+                    let tile = diagonal_flip_tile(idle_beam_tiles[beam_idx][tile_idx][frame]);
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                }
+            }
+        }
+
+        // Opening beam door animation (8x8 tiles): 8 tiles per frame, 3 frame animation:
+        // These get copied into VRAM at $2600-$2680:
+        for beam_idx in 0..5 {
+            // horizontal orientation:
+            let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x20;
+            for frame in 0..4 {
+                for tile_idx in 0..8 {
+                    let addr = gfx_ptr + frame * 0x100 + tile_idx * 0x20;
+                    let tile = opening_beam_tiles[beam_idx][tile_idx][frame];
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                }
+            }
+
+            // vertical orientation:
+            let gfx_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size + 0x20;
+            for frame in 0..4 {
+                for tile_idx in 0..8 {
+                    // horizontal orientation:
+                    let addr = gfx_ptr + frame * 0x100 + tile_idx * 0x20;
+                    let tile = diagonal_flip_tile(opening_beam_tiles[beam_idx][tile_idx][frame]);
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -2390,7 +2541,6 @@ pub fn make_rom(
         extra_setup_asm: HashMap::new(),
         locked_door_state_indices: vec![],
         nothing_item_bitmask: [0; 0x40],
-        // door_room_map: get_door_room_map(&self.game_data.)
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
@@ -2400,6 +2550,7 @@ pub fn make_rom(
     patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
+    patcher.write_beam_door_tiles()?;
     patcher.apply_locked_doors()?;
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;

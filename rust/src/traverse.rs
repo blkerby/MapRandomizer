@@ -9,7 +9,7 @@ use crate::{
     game_data::{
         self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
     },
-    randomize::{DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
+    randomize::{BeamType, DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
 };
 
 use log::info;
@@ -893,6 +893,17 @@ pub fn apply_link(
     }
 }
 
+fn has_beam(beam: BeamType, global: &GlobalState) -> bool {
+    let item = match beam {
+        BeamType::Charge => Item::Charge,
+        BeamType::Ice => Item::Ice,
+        BeamType::Wave => Item::Wave,
+        BeamType::Spazer => Item::Spazer,
+        BeamType::Plasma => Item::Plasma,
+    };
+    global.items[item as usize]
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
@@ -1535,7 +1546,7 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow } => {
+        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow, requirement_charge } => {
             if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
                 let door_type = locked_door_data.locked_doors[*locked_door_idx].door_type;
                 if global.doors_unlocked[*locked_door_idx] {
@@ -1553,6 +1564,17 @@ pub fn apply_requirement(
                     }
                     DoorType::Yellow => {
                         apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
+                    }
+                    DoorType::Beam(beam) => {
+                        if has_beam(beam, global) { 
+                            if let BeamType::Charge = beam {
+                                apply_requirement(requirement_charge, global, local, reverse, difficulty, game_data, locked_door_data)
+                            } else {
+                                Some(local) 
+                            }
+                        } else { 
+                            None 
+                        }
                     }
                     DoorType::Gray => panic!("Unexpected gray door while processing Requirement::UnlockDoor")
                 }

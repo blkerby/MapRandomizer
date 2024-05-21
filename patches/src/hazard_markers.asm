@@ -11,7 +11,7 @@ lorom
 !hazard_tilemap_start = $E98280
 !hazard_tilemap_size = #$0020
 
-
+; hook initial load and unpause
 org $82E7BB
     jsl load_hazard_tiles
 
@@ -19,6 +19,7 @@ org $82E845
     jsl load_hazard_tilemap_initial_hook
     rep 3 : nop
 
+; hook door transition
 org $82E42E
     jsl reload_hazard_tiles
     rep 3 : nop
@@ -74,13 +75,13 @@ left_hazard_transition_plm:
 load_hazard_tiles:
     jsl $80B271  ; run hi-jacked instruction (Decompress [tileset tiles pointer] to VRAM $0000)
 
+    ; Load hazard tiles
     LDA #$0080
     STA $2115  ; video port control
     lda #$1801
     STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
     lda #$00E9
     sta $4314  ; Set source bank to $E9
-
     LDA #$2780
     STA $2116  ; VRAM (destination) address = $2780
     lda #$8000 
@@ -89,6 +90,20 @@ load_hazard_tiles:
     sta $4315 ; transfer size = $100 bytes
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1
+
+    ; Load beam door tiles
+    lda #$00EA
+    sta $4314  ; Set source bank to $EA
+    lda #$2600
+    sta $2116  ; VRAM (destination) address = $2600
+    lda $1F78
+    clc
+    adc #$0020
+    sta $4312  ; source address = [$1F78] + $0020
+    lda #$0100
+    sta $4315 ; transfer size = $100 bytes
+    lda #$0002
+    sta $420B  ; perform DMA transfer on channel 1    
 
     rtl
 
