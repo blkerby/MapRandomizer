@@ -8,7 +8,7 @@ lorom
 ;
 ; Unpause hook to reload beam tiles is in hazard_markers.asm (to avoid needing an additional hook)
 
-!bank_84_free_space_start = $84FD00
+!bank_84_free_space_start = $84FCC0
 !bank_84_free_space_end = $858000
 
 ; Low RAM location containing the beam type of the beam door in the room
@@ -52,8 +52,8 @@ beam_door_down_plm:
 beam_door_up_plm:
     dw $C7B1, up_inst, up_inst_closing
 
-warnpc $84FD18
-org $84FD18
+warnpc $84FCD8
+org $84FCD8
 
 ; The address here must match what is used in patch.rs
 ; This gets called during the transition while entering a room with a beam door.
@@ -176,6 +176,10 @@ right_inst:
     dw $0001, right_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
+    dw $8A91                 ; Set room argument to remember that door is unlocked when next entering
+    db $01
+    dw .unlocked
+.unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
     dw update_beam_gfx_8_tile, !gfx_opening_1
@@ -208,6 +212,10 @@ left_inst:
     dw $0001, left_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
+    dw $8A91                 ; Set room argument to remember that door is unlocked when next entering
+    db $01
+    dw .unlocked
+.unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
     dw update_beam_gfx_8_tile, !gfx_opening_1
@@ -233,13 +241,17 @@ up_inst_closing:
     dw $0001, up_draw_shootable
 
 up_inst:
-    dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
+    dw $8A72, $C544          ; Go to $C544 if the room argument door is set
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
     dw update_beam_gfx_8_tile, !gfx_initial
     dw $0001, up_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
+    dw $8A91                 ; Set room argument to remember that door is unlocked when next entering
+    db $01
+    dw .unlocked
+.unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
     dw update_beam_gfx_8_tile, !gfx_opening_1
@@ -265,13 +277,17 @@ down_inst_closing:
     dw $0001, down_draw_shootable
 
 down_inst:
-    dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
+    dw $8A72, $C513          ; Go to $C513 if the room argument door is set
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
     dw update_beam_gfx_8_tile, !gfx_initial
     dw $0001, down_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
+    dw $8A91                 ; Set room argument to remember that door is unlocked when next entering
+    db $01
+    dw .unlocked
+.unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
     dw update_beam_gfx_8_tile, !gfx_opening_1

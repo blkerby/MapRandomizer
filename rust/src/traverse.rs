@@ -1546,7 +1546,7 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow } => {
+        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow, requirement_charge } => {
             if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
                 let door_type = locked_door_data.locked_doors[*locked_door_idx].door_type;
                 if global.doors_unlocked[*locked_door_idx] {
@@ -1565,7 +1565,17 @@ pub fn apply_requirement(
                     DoorType::Yellow => {
                         apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
                     }
-                    DoorType::Beam(beam) => if has_beam(beam, global) { Some(local) } else { None },
+                    DoorType::Beam(beam) => {
+                        if has_beam(beam, global) { 
+                            if let BeamType::Charge = beam {
+                                apply_requirement(requirement_charge, global, local, reverse, difficulty, game_data, locked_door_data)
+                            } else {
+                                Some(local) 
+                            }
+                        } else { 
+                            None 
+                        }
+                    }
                     DoorType::Gray => panic!("Unexpected gray door while processing Requirement::UnlockDoor")
                 }
             } else {

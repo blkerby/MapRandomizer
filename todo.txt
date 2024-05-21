@@ -1,18 +1,22 @@
 v113:
 - beam doors
-  - make sure hyper beam can open them.
-  - take into account extra heat frames for charge door
-  - unpause hook - maybe save/restore whole tileset instead of decompressing again
-  - keep door unlocked after opening
+  - DONE: make sure hyper beam can open them.
+  - DONE: take into account extra heat frames for charge door
+  - DONE: fix charge door animation
+  - DONE: unpause hook
+  - DONE: keep door unlocked after opening
 - add FX tests on Mosaic
   - possibly related: figure out why Climb doesn't have acid in escape anymore (sometimes?)
 - fix escape timer graphics corruption/flickering
+- add mm2 updated aroace sprite
 - add item priority strength to seed page
-- add `leaveWithRunway` case for `comeInWithSpringBallBounce`
-- add `comeInWithBlueSpringBallBounce`
-- implement `speedBall` logical requirement
-- re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
-- implement "heatFramesWithEnergyDrops"
+- implement stuff for new logic:
+  - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
+  - add `comeInWithBlueSpringBallBounce`
+  - add "short-hop mockball frames" difficulty setting
+  - implement `speedBall` logical requirement
+  - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
+  - implement "heatFramesWithEnergyDrops"
 
 
 TODO:

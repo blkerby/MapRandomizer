@@ -2097,10 +2097,10 @@ impl<'a> Patcher<'a> {
             (DoorType::Red, "left") => 0xC890,
             (DoorType::Red, "down") => 0xC896,
             (DoorType::Red, "up") => 0xC89C,
-            (DoorType::Beam(_), "right") => 0xFD00,
-            (DoorType::Beam(_), "left") => 0xFD06,
-            (DoorType::Beam(_), "down") => 0xFD0C,
-            (DoorType::Beam(_), "up") => 0xFD12,
+            (DoorType::Beam(_), "right") => 0xFCC0,
+            (DoorType::Beam(_), "left") => 0xFCC6,
+            (DoorType::Beam(_), "down") => 0xFCCC,
+            (DoorType::Beam(_), "up") => 0xFCD2,
             (a, b) => panic!("Unexpected door type: {:?} {}", a, b),
         };
         // TODO: Instead of using extra setup ASM to spawn the doors, it might be better to just rewrite
@@ -2134,8 +2134,8 @@ impl<'a> Patcher<'a> {
                         0xA9, beam as u8, 0x00,
                         // LDX #gfx_base_addr
                         0xA2, (gfx_base_addr & 0xFF) as u8, (gfx_base_addr >> 8) as u8,
-                        // JSL $84FD18 (run `load_beam_tiles` in beam_doors.asm)
-                        0x22, 0x18, 0xFD, 0x84
+                        // JSL $84FCD8 (run `load_beam_tiles` in beam_doors.asm)
+                        0x22, 0xD8, 0xFC, 0x84
                     ]);
             }
         };

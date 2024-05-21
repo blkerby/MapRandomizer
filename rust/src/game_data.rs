@@ -215,6 +215,7 @@ pub enum Requirement {
         requirement_red: Box<Requirement>,
         requirement_green: Box<Requirement>,
         requirement_yellow: Box<Requirement>,
+        requirement_charge: Box<Requirement>,
     },
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
@@ -1355,6 +1356,11 @@ impl GameData {
                 ]),
                 Requirement::HeatFrames(110),
             )],
+            DoorType::Beam(BeamType::Charge) => vec![(
+                vec!["charge"],
+                Requirement::Item(Item::Charge as ItemId),
+                Requirement::HeatFrames(60),
+            )],
             DoorType::Gray | DoorType::Beam(_) => panic!("Unexpected DoorType in get_unlocks_door_type_req: {:?}", door_type),
         };
         let room_id = ctx.room_id;
@@ -1436,6 +1442,11 @@ impl GameData {
             )?),
             requirement_yellow: Box::new(self.get_unlocks_door_type_req(
                 DoorType::Yellow,
+                node_id,
+                ctx,
+            )?),
+            requirement_charge: Box::new(self.get_unlocks_door_type_req(
+                DoorType::Beam(BeamType::Charge),
                 node_id,
                 ctx,
             )?),
