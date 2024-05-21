@@ -8,7 +8,7 @@ lorom
 arch snes.cpu
 
 !bank_84_free_space_start = $84F380
-!bank_84_free_space_end = $84F600
+!bank_84_free_space_end = $84F480
 !bank_8b_free_space_start = $8BF900
 !bank_8b_free_space_end = $8BF940
 !bank_8f_free_space_start = $8FF600
@@ -544,6 +544,7 @@ org !bank_84_free_space_start
     CLC
     RTL
 
+print pc
 warnpc !bank_84_free_space_end
 
 ; hook for when dachora hits block above it

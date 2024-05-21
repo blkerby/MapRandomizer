@@ -2122,7 +2122,6 @@ impl<'a> Patcher<'a> {
                     0x00, // PLM argument (index for door unlock state)
                 ]);
             if let DoorType::Beam(beam) = locked_door.door_type {
-                println!("beam door {:?}", beam);
                 let gfx_base_addr = if door.direction == "right" || door.direction == "left" {
                     (beam as usize) * 0xC40
                 } else {

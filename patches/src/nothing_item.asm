@@ -18,4 +18,5 @@ inst:
     dw $8899                               ; Set the room argument item
     dw $8724, $DFA9                        ; Go to $DFA9
 
+print pc
 warnpc !bank_84_free_space_end

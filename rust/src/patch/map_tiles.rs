@@ -538,25 +538,6 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn get_door_colors(&self, edge: Edge) -> (u8, u8, u8) {
-        // 12: black when revealed, grey when partially revealed (used for ammo door outline inside of wall)
-        // 4: black (used for ammo door outline in front of wall)
-        // 3: white when revealed, grey when partially revealed (used for beam door outline inside of wall)
-        // 13: white when revealed, black when partially revealed (used for beam door outline in front of wall)
-        match edge {
-            Edge::GrayDoor => (15, 12, 4),
-            Edge::RedDoor => (7, 12, 4),
-            Edge::GreenDoor => (14, 12, 4),
-            Edge::YellowDoor => (6, 12, 4),
-            Edge::ChargeDoor => (15, 3, 13),
-            Edge::IceDoor => (8, 3, 13),
-            Edge::WaveDoor => (7, 3, 13),
-            Edge::SpazerDoor => (6, 3, 13),
-            Edge::PlasmaDoor => (14, 3, 13),
-            _ => panic!("Unexpected door edge: {:?}", edge),
-        }
-    }
-
     fn draw_edge(tile_side: TileSide, edge: Edge, tile: &mut [[u8; 8]; 8]) {
         let wall_coords = match tile_side {
             TileSide::Top => [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7)],

@@ -9,8 +9,8 @@
 
 lorom
 
-!bank_84_free_space_start = $84F7F0
-!bank_84_free_space_end = $84F800
+!bank_84_free_space_start = $84F490
+!bank_84_free_space_end = $84F4A0
 
 ; Definitions
 !samus_max_reserves = $09D4

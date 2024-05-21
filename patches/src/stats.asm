@@ -3,6 +3,9 @@ lorom
 
 incsrc "constants.asm"
 
+!bank_84_free_space_start = $84F730
+!bank_84_free_space_end = $84F800
+
 !bank_85_free_space_start = $859980
 !bank_85_free_space_end = $859B00
 
@@ -362,111 +365,119 @@ collect_item:
 
 .skip:
     plx
+    rtl
+
+warnpc !bank_85_free_space_end
+
+org !bank_84_free_space_start
+
+collect_item_wrapper:
+    jsl collect_item
     rts
 
 collect_ETank:
     lda !idx_ETank
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $8968
 
 collect_Missile:
     lda !idx_Missile
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $89A9
 
 collect_Super:
     lda !idx_Super
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $89D2
 
 collect_PowerBomb:
     lda !idx_PowerBomb
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $89FB
 
 collect_Bombs:
     lda !idx_Bombs
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_Charge:
     lda !idx_Charge
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88B0
 
 collect_Ice:
     lda !idx_Ice
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88B0
 
 collect_HiJump:
     lda !idx_HiJump
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_SpeedBooster:
     lda !idx_SpeedBooster
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_Wave:
     lda !idx_Wave
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88B0
 
 collect_Spazer:
     lda !idx_Spazer
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88B0
 
 collect_SpringBall:
     lda !idx_SpringBall
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_Varia:
     lda !idx_Varia
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_Gravity:
     lda !idx_Gravity
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_XRayScope:
     lda !idx_XRayScope
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $8941
 
 collect_Plasma:
     lda !idx_Plasma
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88B0
 
 collect_Grapple:
     lda !idx_Grapple
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $891A
 
 collect_SpaceJump:
     lda !idx_SpaceJump
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_ScrewAttack:
     lda !idx_ScrewAttack
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_Morph:
     lda !idx_Morph
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $88F3
 
 collect_ReserveTank:
     lda !idx_ReserveTank
-    jsr collect_item
+    jsr collect_item_wrapper
     jmp $8986
 
-warnpc !bank_85_free_space_end
+warnpc !bank_84_free_space_end

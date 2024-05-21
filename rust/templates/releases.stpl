@@ -14,6 +14,11 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
+<p><a id="release112">Version 113 (2024-05-21)</a>:
+<ul>
+<li>A new "Beam" doors option is added.
+</ul>
+
 <p><a id="release112">Version 112 (2024-05-19)</a>:
 <ul>
 <li>The amount of lag is reduced and should now be similar to the vanilla game.
