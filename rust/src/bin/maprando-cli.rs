@@ -153,12 +153,16 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         item_priority_strength: ItemPriorityStrength::Moderate,
         item_priorities: vec![
             ItemPriorityGroup {
+                name: "Early".to_string(),
+                items: vec!["Morph".to_string()],
+            },
+            ItemPriorityGroup {
                 name: "Default".to_string(),
                 items: game_data
                     .item_isv
                     .keys
                     .iter()
-                    .filter(|x| x != &"Varia" && x != &"Gravity")
+                    .filter(|x| x != &"Morph" && x != &"Varia" && x != &"Gravity")
                     .cloned()
                     .collect(),
             },

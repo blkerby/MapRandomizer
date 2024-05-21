@@ -67,11 +67,11 @@ Install the stable Rust toolchain (e.g. using [rustup](https://rustup.rs/)).
 After cloning the GitHub repository, download and extract the randomized map pools:
 
 ```sh
-mkdir maps && cd maps
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz
-mv session-2023-06-08T14:55:16.779895.pkl-small-71-subarea-balance-2.tgz tame-maps.tar.gz && tar xfz tame-maps.tar.gz
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz
-mv session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2.tgz wild-maps.tar.gz && tar xfz wild-maps.tar.gz
+cd maps
+wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-tame.tgz
+tar xfz v110c-tame.tgz && rm v110c-tame.tgz
+wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.tgz
+tar xfz v110c-wild.tgz && rm v110c-wild.tgz
 cd ..
 ```
 
@@ -90,5 +90,5 @@ After cloning the GitHub repository and downloading/extracting the maps (as abov
 
 ```sh
 cd rust
-cargo run --bin maprando-cli -- --map ../maps/session-2023-06-08T14:55:16.779895.pkl-small-64-subarea-balance-2/10005.json --item-placement-seed 1 --input-rom YOUR-PATH-TO-VANILLA-ROM --output-rom OUTPUT-ROM-FILENAME
+cargo run --bin maprando-cli -- --map ../maps/v110c-wild/10000.json --input-rom YOUR-PATH-TO-VANILLA-ROM --output-rom OUTPUT-ROM-FILENAME
 ```
