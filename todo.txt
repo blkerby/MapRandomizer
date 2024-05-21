@@ -1,12 +1,14 @@
 v113:
-- beam doors
+- DONE: beam doors
   - DONE: make sure hyper beam can open them.
   - DONE: take into account extra heat frames for charge door
   - DONE: fix charge door animation
   - DONE: unpause hook
   - DONE: keep door unlocked after opening
-- add FX tests on Mosaic
+- DONE: add FX tests on Mosaic
   - possibly related: figure out why Climb doesn't have acid in escape anymore (sometimes?)
+- Various Mosaic fixes, pull in updates
+- include item priority order in spoiler JSON
 - fix escape timer graphics corruption/flickering
 - add mm2 updated aroace sprite
 - add item priority strength to seed page

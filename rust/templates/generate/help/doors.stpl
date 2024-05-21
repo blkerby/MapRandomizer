@@ -16,7 +16,7 @@
         <ul>
         <li><p><strong>Blue</strong>: All doors are blue, except for gray doors.</p>
         <li><p><strong>Ammo</strong>: Red, green, and yellow doors are randomly mixed in.</p>
-        <li><p><strong>Beam</strong>: Beam doors are randomly mixed in, in addition to ammo doors.</p>
+        <li><p><strong>Beam</strong>: Beam doors are randomly mixed in, replacing some of the ammo doors.</p>
         </ul>
         <p>Gray doors are unaffected by this setting and always exist in the same set of
         rooms: boss/miniboss rooms and the four Pirates rooms (Pit Room, Baby Kraid Room, 

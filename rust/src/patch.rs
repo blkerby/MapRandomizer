@@ -2385,7 +2385,7 @@ impl<'a> Patcher<'a> {
         use beam_doors_tiles::*;
         let beam_door_gfx_idx = 0x260; // 0x260 through 0x267
         let beam_palettes = vec![
-            0,  // Charge
+            1,  // Charge
             3,  // Ice
             2,  // Wave
             0,  // Spazer
