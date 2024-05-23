@@ -7,6 +7,7 @@ use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
 use actix_web::http::header::{self, ContentDisposition, DispositionParam, DispositionType};
 use actix_web::middleware::Logger;
+use actix_web::middleware::Compress;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{Context, Result};
 use base64::Engine;
@@ -2040,6 +2041,7 @@ async fn main() {
 
     HttpServer::new(move || {
         App::new()
+            .wrap(Compress::default())
             .app_data(app_data.clone())
             .app_data(
                 MultipartFormConfig::default()
