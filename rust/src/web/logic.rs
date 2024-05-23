@@ -162,6 +162,8 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
             for x in value.members() {
                 extract_tech_rec(x, tech, game_data);
             }
+        } else if key == "tech" {
+            extract_tech_rec(value, tech, game_data);
         } else if key == "shinespark" {
             tech.insert(game_data.tech_isv.index_by_key["canShinespark"]);
         } else if key == "comeInWithRMode" {

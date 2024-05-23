@@ -10,8 +10,9 @@ v113:
 - treat first copy of filler items like key items for purposes of Forced placement
 - Various Mosaic fixes, pull in updates
 - include item priority order in spoiler JSON
+- enable compression, to speed up spoiler JSON transfer: https://cseweb.ucsd.edu/classes/sp22/cse223B-a/tribbler/actix_web/middleware/struct.Compress.html
 - fix escape timer graphics corruption/flickering
-- add mm2 updated aroace sprite
+- add mm2 updated aroace sprite, check on Celeste/Madeline sprite?
 - add item priority strength to seed page
 - fix ammo HUD display in Escape start
 - implement stuff for new logic:
