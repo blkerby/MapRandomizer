@@ -9,7 +9,9 @@ use crate::{
         SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey,
     },
     traverse::{
-        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs, get_one_way_reachable_idx, get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS
+        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs,
+        get_one_way_reachable_idx, get_spoiler_route, traverse, GlobalState, LocalState,
+        LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
     },
     web::logic::strip_name,
 };
@@ -97,11 +99,25 @@ impl Objective {
     pub fn get_all() -> &'static [Objective] {
         use Objective::*;
         &[
-            Kraid, Phantoon, Draygon, Ridley,
-            SporeSpawn, Crocomire, Botwoon, GoldenTorizo,
-            MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4,
-            BombTorizo, BowlingStatue, AcidChozoStatue,
-            PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom,
+            Kraid,
+            Phantoon,
+            Draygon,
+            Ridley,
+            SporeSpawn,
+            Crocomire,
+            Botwoon,
+            GoldenTorizo,
+            MetroidRoom1,
+            MetroidRoom2,
+            MetroidRoom3,
+            MetroidRoom4,
+            BombTorizo,
+            BowlingStatue,
+            AcidChozoStatue,
+            PitRoom,
+            BabyKraidRoom,
+            PlasmaRoom,
+            MetalPiratesRoom,
         ]
     }
     pub fn get_flag_name(&self) -> &'static str {
@@ -129,7 +145,6 @@ impl Objective {
         }
     }
 }
-
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum DoorsMode {
@@ -330,9 +345,8 @@ pub enum BeamType {
     Ice,
     Wave,
     Spazer,
-    Plasma
+    Plasma,
 }
-
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum DoorType {
@@ -341,7 +355,7 @@ pub enum DoorType {
     Green,
     Yellow,
     Gray,
-    Beam(BeamType)
+    Beam(BeamType),
 }
 
 #[derive(Clone, Copy)]
@@ -680,7 +694,7 @@ impl<'a> Preprocessor<'a> {
                     min_tiles.get(),
                     *heated,
                 )
-            },
+            }
             MainEntranceCondition::ComeInShinecharged {} => {
                 self.get_come_in_shinecharged_reqs(exit_condition)
             }
@@ -1867,29 +1881,36 @@ fn get_randomizable_doors(
     for i in difficulty.objectives.iter() {
         use Objective::*;
         match i {
-            SporeSpawn =>   { non_randomizable_doors.insert((Some(0x18E4A), Some(0x18D2A))); },
-            Crocomire =>    { non_randomizable_doors.insert((Some(0x193DE), Some(0x19432))); },
-            Botwoon =>      { non_randomizable_doors.insert((Some(0x1A918), Some(0x1A84C))); },
-            GoldenTorizo => { non_randomizable_doors.insert((Some(0x19876), Some(0x1983A))); },
+            SporeSpawn => {
+                non_randomizable_doors.insert((Some(0x18E4A), Some(0x18D2A)));
+            }
+            Crocomire => {
+                non_randomizable_doors.insert((Some(0x193DE), Some(0x19432)));
+            }
+            Botwoon => {
+                non_randomizable_doors.insert((Some(0x1A918), Some(0x1A84C)));
+            }
+            GoldenTorizo => {
+                non_randomizable_doors.insert((Some(0x19876), Some(0x1983A)));
+            }
             MetroidRoom1 => {
-                non_randomizable_doors.insert((Some(0x1A9B4), Some(0x1A9C0)));  // left
-                non_randomizable_doors.insert((Some(0x1A9A8), Some(0x1A984)));  // right
-            },
+                non_randomizable_doors.insert((Some(0x1A9B4), Some(0x1A9C0))); // left
+                non_randomizable_doors.insert((Some(0x1A9A8), Some(0x1A984))); // right
+            }
             MetroidRoom2 => {
-                non_randomizable_doors.insert((Some(0x1A9C0), Some(0x1A9B4)));  // top right
-                non_randomizable_doors.insert((Some(0x1A9CC), Some(0x1A9D8)));  // bottom right
-            },
+                non_randomizable_doors.insert((Some(0x1A9C0), Some(0x1A9B4))); // top right
+                non_randomizable_doors.insert((Some(0x1A9CC), Some(0x1A9D8))); // bottom right
+            }
             MetroidRoom3 => {
-                non_randomizable_doors.insert((Some(0x1A9D8), Some(0x1A9CC)));  // left
-                non_randomizable_doors.insert((Some(0x1A9E4), Some(0x1A9F0)));  // right
-            },
+                non_randomizable_doors.insert((Some(0x1A9D8), Some(0x1A9CC))); // left
+                non_randomizable_doors.insert((Some(0x1A9E4), Some(0x1A9F0))); // right
+            }
             MetroidRoom4 => {
-                non_randomizable_doors.insert((Some(0x1A9F0), Some(0x1A9E4)));  // left
-                non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08)));  // bottom
-            },
+                non_randomizable_doors.insert((Some(0x1A9F0), Some(0x1A9E4))); // left
+                non_randomizable_doors.insert((Some(0x1A9FC), Some(0x1AA08))); // bottom
+            }
             _ => {} // All other tiles have gray doors and are excluded above.
         }
-
     }
 
     let mut out: Vec<DoorPtrPair> = vec![];
@@ -2411,30 +2432,34 @@ impl<'r> Randomizer<'r> {
         num_bireachable: usize,
         num_oneway_reachable: usize,
     ) -> (usize, usize) {
-        let num_items_to_place = match self.difficulty_tiers[0].progression_rate {
-            ProgressionRate::Slow => num_bireachable + num_oneway_reachable,
-            ProgressionRate::Uniform => num_bireachable,
-            ProgressionRate::Fast => num_bireachable,
-        };
+        let num_items_to_place = num_bireachable + num_oneway_reachable;
         let filtered_item_precedence: Vec<Item> = state
             .item_precedence
             .iter()
             .copied()
-            .filter(|&item| state.items_remaining[item as usize] > 0)
+            .filter(|&item| {
+                state.items_remaining[item as usize] == self.initial_items_remaining[item as usize]
+            })
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
         // println!("num_items_to_place={num_items_to_place}, num_items_remaining={num_items_remaining}");
         let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => 1,
-            ProgressionRate::Uniform => f32::ceil(
-                (num_key_items_remaining as f32) / (num_items_remaining as f32)
-                    * (num_items_to_place as f32),
-            ) as usize,
-            ProgressionRate::Fast => f32::ceil(
-                2.0 * (num_key_items_remaining as f32) / (num_items_remaining as f32)
-                    * (num_items_to_place as f32),
-            ) as usize,
+            ProgressionRate::Uniform => usize::max(
+                1,
+                f32::round(
+                    (num_key_items_remaining as f32) / (num_items_remaining as f32)
+                        * (num_items_to_place as f32),
+                ) as usize,
+            ),
+            ProgressionRate::Fast => usize::max(
+                1,
+                f32::round(
+                    2.0 * (num_key_items_remaining as f32) / (num_items_remaining as f32)
+                        * (num_items_to_place as f32),
+                ) as usize,
+            ),
         };
 
         // If we're at the end, dump as many key items as possible:
@@ -2534,7 +2559,22 @@ impl<'r> Randomizer<'r> {
             self.apply_spazer_plasma_priority(&mut items_to_place);
         }
         items_to_place = items_to_place[0..num_filler_items_to_select].to_vec();
-        items_to_place
+
+        // Reorder the items to prioritize putting the new filler item types (ones that haven't been placed on
+        // an earlier step) at the front, to try to make them get placed in a bireachable location (and a hard 
+        // one if using Forced mode)
+        let mut ordered_items_to_place = vec![];
+        for &item in &items_to_place {
+            if state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
+                ordered_items_to_place.push(item);
+            }
+        }
+        for &item in &items_to_place {
+            if state.items_remaining[item as usize] != self.initial_items_remaining[item as usize] {
+                ordered_items_to_place.push(item);
+            }
+        }
+        ordered_items_to_place
     }
 
     fn select_key_items(
@@ -2558,7 +2598,9 @@ impl<'r> Randomizer<'r> {
                         unplaced_items.push(item);
                     } else {
                         // With Uniform and Fast progression, items that have been placed before get put in last priority:
-                        if state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
+                        if state.items_remaining[item as usize]
+                            == self.initial_items_remaining[item as usize]
+                        {
                             unplaced_items.push(item);
                         } else {
                             placed_items.push(item);
@@ -2709,13 +2751,42 @@ impl<'r> Randomizer<'r> {
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
     ) {
+        assert!(bireachable_locations.len() + other_locations.len() == key_items_to_place.len() + other_items_to_place.len());
+        let mut forced_items_to_place = key_items_to_place.to_owned();
+        let mut anywhere_items_to_place = vec![];
+        if key_items_to_place.len() >= 2 {
+            // The last key item is the one that is cycled through to verify progression, so it is likely to be
+            // the most important one. Hence we swap it with the first one, to ensure it is prioritized
+            // for placing in a hard location in case Forced mode is used. The exception is if it is a
+            // Missile or Nothing item.
+            if [Item::Missile, Item::Nothing].contains(&key_items_to_place.last().unwrap()) {
+                anywhere_items_to_place.push(*key_items_to_place.last().unwrap());
+                forced_items_to_place.pop();
+            } else {
+                forced_items_to_place.swap(0, key_items_to_place.len() - 1);
+            }
+        }
+        for &item in &other_items_to_place[..bireachable_locations.len() - key_items_to_place.len()] {
+            // Try to force "valuable" filler items (namely, ones that have never had a copy placed on earlier steps)
+            // into a hard bireachable location:
+            if state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
+                forced_items_to_place.push(item);
+            } else {
+                anywhere_items_to_place.push(item);
+            }
+        }
+        anywhere_items_to_place.extend(&other_items_to_place[bireachable_locations.len() - key_items_to_place.len()..]);
+
+        assert!(bireachable_locations.len() + other_locations.len() == forced_items_to_place.len() + anywhere_items_to_place.len());
+
+        info!("num_bireachable_loc={}, key items: {:?}", bireachable_locations.len(), key_items_to_place);
         info!(
             "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
-            key_items_to_place, other_items_to_place
+            forced_items_to_place, anywhere_items_to_place
         );
 
         let num_items_remaining: usize = state.items_remaining.iter().sum();
-        let num_items_to_place: usize = key_items_to_place.len() + other_items_to_place.len();
+        let num_items_to_place: usize = forced_items_to_place.len() + anywhere_items_to_place.len();
         let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early
             && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
@@ -2726,11 +2797,12 @@ impl<'r> Randomizer<'r> {
                 Some(x) => Some(&x.forward),
                 None => None,
             };
-            for i in 0..key_items_to_place.len() {
-                let (hard_idx, tier) = if key_items_to_place.len() > 1 {
+            for i in 0..forced_items_to_place.len() {
+                let (hard_idx, tier) = if forced_items_to_place.len() > 1 {
                     // We're placing more than one key item in this step. Obtaining some of them could help make
                     // others easier to obtain. So we use "new_state" to try to find locations that are still hard to
                     // reach even with the new items.
+                    // TODO: refine this by creating a state assuming having collected all the new items except the target one
                     self.find_hard_location(
                         new_state,
                         &new_bireachable_locations[i..],
@@ -2743,7 +2815,7 @@ impl<'r> Randomizer<'r> {
                 };
                 info!(
                     "[attempt {attempt_num_rando}] {:?} in tier {} (of {})",
-                    key_items_to_place[i],
+                    forced_items_to_place[i],
                     tier,
                     self.difficulty_tiers.len()
                 );
@@ -2780,8 +2852,8 @@ impl<'r> Randomizer<'r> {
         all_locations.extend(new_bireachable_locations);
         all_locations.extend(other_locations);
         let mut all_items_to_place: Vec<Item> = Vec::new();
-        all_items_to_place.extend(key_items_to_place);
-        all_items_to_place.extend(other_items_to_place);
+        all_items_to_place.extend(forced_items_to_place);
+        all_items_to_place.extend(anywhere_items_to_place);
         assert!(all_locations.len() == all_items_to_place.len());
         for (&loc, &item) in iter::zip(&all_locations, &all_items_to_place) {
             new_state.item_location_state[loc].placed_item = Some(item);
@@ -2871,18 +2943,12 @@ impl<'r> Randomizer<'r> {
 
         let gives_expansion = if all_items_bireachable {
             true
-        } else if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
-            iter::zip(
-                &new_state.item_location_state,
-                &old_state.item_location_state,
-            )
-            .any(|(n, o)| n.bireachable && !o.reachable)
         } else {
             iter::zip(
                 &new_state.item_location_state,
                 &old_state.item_location_state,
             )
-            .any(|(n, o)| n.bireachable && !o.bireachable)
+            .any(|(n, o)| n.bireachable && !o.reachable)
         };
 
         let is_beatable = self.is_game_beatable(&new_state);
@@ -3015,11 +3081,12 @@ impl<'r> Randomizer<'r> {
                 if state.global_state.flags[flag_id] {
                     continue;
                 }
-                if state.flag_location_state[i].reachable && flag_id == self.game_data.mother_brain_defeated_flag_id {
+                if state.flag_location_state[i].reachable
+                    && flag_id == self.game_data.mother_brain_defeated_flag_id
+                {
                     // f_DefeatedMotherBrain flag is special in that we only require one-way reachability for it:
                     any_update = true;
-                    let flag_vertex_id =
-                        state.flag_location_state[i].reachable_vertex_id.unwrap();
+                    let flag_vertex_id = state.flag_location_state[i].reachable_vertex_id.unwrap();
                     spoiler_flag_summaries.push(self.get_spoiler_flag_summary(
                         &state,
                         flag_vertex_id,
@@ -3133,36 +3200,19 @@ impl<'r> Randomizer<'r> {
         }
 
         // Place the new items:
-        if self.difficulty_tiers[0].progression_rate == ProgressionRate::Slow {
-            // With Slow progression, place items in all newly reachable locations (bireachable as
-            // well as one-way-reachable locations). One-way-reachable locations are filled only
-            // with non-key items, to minimize the possibility of them being usable to break from the
-            // intended sequence.
-            self.place_items(
-                attempt_num_rando,
-                &state,
-                &mut new_state,
-                &unplaced_bireachable,
-                &unplaced_oneway_reachable,
-                &selection.key_items,
-                &selection.other_items,
-            );
-        } else {
-            // In Uniform and Fast progression, only place items at bireachable locations. We defer placing items at
-            // one-way-reachable locations so that they may get key items placed there later after
-            // becoming bireachable. This is to maintain a higher degree of randomness and also to reduce how
-            // much the game will punish players for diving into a rabbit hole; this way leaves more possibility open that
-            // they could find something to get themselves out.
-            self.place_items(
-                attempt_num_rando,
-                &state,
-                &mut new_state,
-                &unplaced_bireachable,
-                &[],
-                &selection.key_items,
-                &selection.other_items,
-            );
-        }
+        // We place items in all newly reachable locations (bireachable as
+        // well as one-way-reachable locations). One-way-reachable locations are filled only
+        // with filler items, to reduce the possibility of them being usable to break from the
+        // intended logical sequence.
+        self.place_items(
+            attempt_num_rando,
+            &state,
+            &mut new_state,
+            &unplaced_bireachable,
+            &unplaced_oneway_reachable,
+            &selection.key_items,
+            &selection.other_items,
+        );
 
         // Mark the newly placed bireachable items as collected:
         for &loc in &unplaced_bireachable {
@@ -3388,13 +3438,19 @@ impl<'r> Randomizer<'r> {
                 items.shuffle(rng);
 
                 // Remove the later copy of each "Early" item
-                items = remove_some_duplicates(&items, &item_priorities[0].items.iter().cloned().collect());
+                items = remove_some_duplicates(
+                    &items,
+                    &item_priorities[0].items.iter().cloned().collect(),
+                );
 
                 // Remove the earlier copy of each "Late" item
                 items.reverse();
-                items = remove_some_duplicates(&items, &item_priorities[2].items.iter().cloned().collect());
+                items = remove_some_duplicates(
+                    &items,
+                    &item_priorities[2].items.iter().cloned().collect(),
+                );
                 items.reverse();
-                
+
                 for item_name in &items {
                     let item_idx = self.game_data.item_isv.index_by_key[item_name];
                     item_precedence.push(Item::try_from(item_idx).unwrap());
@@ -3820,23 +3876,28 @@ impl<'r> Randomizer<'r> {
                     // Check that at least one instance of each item can be collected.
                     for i in 0..self.initial_items_remaining.len() {
                         if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
-                            bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible");
+                            bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible, missing {:?}",
+                                  Item::try_from(i).unwrap());
                         }
                     }
 
                     // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
                     // behind Bowling Alley.
-                    let phantoon_flag_id = self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
+                    let phantoon_flag_id =
+                        self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
                     let mut phantoon_defeated = false;
                     for (i, flag_id) in self.game_data.flag_ids.iter().enumerate() {
-                        if *flag_id == phantoon_flag_id && state.flag_location_state[i].bireachable {
+                        if *flag_id == phantoon_flag_id && state.flag_location_state[i].bireachable
+                        {
                             phantoon_defeated = true;
                         }
                     }
 
                     if !phantoon_defeated {
-                        bail!("[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated");
-                    }                    
+                        bail!(
+                            "[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated"
+                        );
+                    }
                 }
 
                 // Success:
@@ -4330,8 +4391,7 @@ impl<'a> Randomizer<'a> {
         flag_id: FlagId,
     ) -> SpoilerFlagDetails {
         // This is for a one-way reachable flag, used for f_DefeatedMotherBrain:
-        let obtain_route =
-            self.get_spoiler_route_one_way(state, flag_vertex_id);
+        let obtain_route = self.get_spoiler_route_one_way(state, flag_vertex_id);
         let flag_vertex_info = self.get_vertex_info(flag_vertex_id);
         SpoilerFlagDetails {
             flag: self.game_data.flag_isv.keys[flag_id].to_string(),
@@ -4359,8 +4419,9 @@ impl<'a> Randomizer<'a> {
                 BeamType::Wave => "wave",
                 BeamType::Spazer => "spazer",
                 BeamType::Plasma => "plasma",
-            }        
-        }.to_string()    
+            },
+        }
+        .to_string()
     }
 
     fn get_spoiler_door_details(
@@ -4381,7 +4442,9 @@ impl<'a> Randomizer<'a> {
         }];
         let door_vertex_info = self.get_vertex_info(door_vertex_id);
         SpoilerDoorDetails {
-            door_type: Self::get_door_type_name(self.locked_door_data.locked_doors[locked_door_idx].door_type),
+            door_type: Self::get_door_type_name(
+                self.locked_door_data.locked_doors[locked_door_idx].door_type,
+            ),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
                 room: door_vertex_info.room_name,
@@ -4421,7 +4484,9 @@ impl<'a> Randomizer<'a> {
         }];
         let door_vertex_info = self.get_vertex_info(door_vertex_id);
         SpoilerDoorSummary {
-            door_type: Self::get_door_type_name(self.locked_door_data.locked_doors[locked_door_idx].door_type),
+            door_type: Self::get_door_type_name(
+                self.locked_door_data.locked_doors[locked_door_idx].door_type,
+            ),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
                 room: door_vertex_info.room_name,

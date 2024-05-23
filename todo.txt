@@ -7,11 +7,13 @@ v113:
   - DONE: keep door unlocked after opening
 - DONE: add FX tests on Mosaic
   - possibly related: figure out why Climb doesn't have acid in escape anymore (sometimes?)
+- treat first copy of filler items like key items for purposes of Forced placement
 - Various Mosaic fixes, pull in updates
 - include item priority order in spoiler JSON
 - fix escape timer graphics corruption/flickering
 - add mm2 updated aroace sprite
 - add item priority strength to seed page
+- fix ammo HUD display in Escape start
 - implement stuff for new logic:
   - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
   - add `comeInWithBlueSpringBallBounce`

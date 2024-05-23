@@ -14,9 +14,18 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release112">Version 113 (2024-05-21)</a>:
+<p><a id="release112">Version 113 (2024-05-22)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
+<li>Adjustments to how item placement works:
+    <ul>
+    <li>When using Forced mode (e.g. Tricky/Challenge/Desolate), first-of-kind filler items are placed in hard locations where possible, similar to key items but with lower priority.
+    <li>The amount of key items placed per step is slightly reduced, for Fast and Uniform progression (e.g. Normal/Tricky).
+    <li>Logically one-way reachable locations always have filler items placed in them.
+        <ul>
+        <li>This now applies across all settings, whereas previously it applied only to Slow progression (e.g. Challenge/Desolate).
+        </ul>
+    </ul>
 </ul>
 
 <p><a id="release112">Version 112 (2024-05-19)</a>:
