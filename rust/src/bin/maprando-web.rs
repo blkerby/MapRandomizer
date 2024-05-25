@@ -323,7 +323,6 @@ struct UnlockRequest {
 #[derive(MultipartForm)]
 struct CustomizeRequest {
     rom: Bytes,
-    custom_samus_sprite: Text<bool>,
     samus_sprite: Text<String>,
     custom_etank_color: Text<bool>,
     etank_color: Text<String>,
@@ -914,11 +913,7 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        samus_sprite: if req.custom_samus_sprite.0 && req.samus_sprite.0 != "" {
-            Some(req.samus_sprite.0.clone())
-        } else {
-            None
-        },
+        samus_sprite: Some(req.samus_sprite.0.clone()),
         etank_color: if req.custom_etank_color.0 {
             Some((
                 u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,

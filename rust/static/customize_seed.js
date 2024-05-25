@@ -1,12 +1,4 @@
 function changeSamusSprite() {
-    var enabled = document.getElementById("customSamusSpriteYes").checked;
-    var spriteSelectDiv = document.getElementById("spriteSelectDiv");
-    if (enabled) {
-        spriteSelectDiv.classList.remove("d-none");
-    } else {
-        spriteSelectDiv.classList.add("d-none");
-    }
-
     var sprites = document.getElementsByClassName("sprite");
     var selectedSpriteName = document.getElementById("samusSprite").value;
     var selectedSprite = document.getElementById("spriteButton-" + selectedSpriteName);

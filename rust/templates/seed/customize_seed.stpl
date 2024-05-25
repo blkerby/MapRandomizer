@@ -53,20 +53,10 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                 <div class="card">
                     <div class="card-header">Customization</div>
                     <form id="customization-form" class="card-body container py-0" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
-                        <div class="form-group row my-3">
+                        <div id="spriteSelectDiv" class="form-group row my-3">
                             <div class="col-md-4">
                             <label class="col-form-label" for="custom_samus_sprite"><% include!("help/samus_sprite.stpl"); %>Samus sprite</label>
                             </div>
-                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onclick="changeSamusSprite()">
-                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteNo" value=false>
-                                <label class="btn btn-outline-primary" style="width:120px" for="customSamusSpriteNo">Vanilla</label>
-                                <input type="radio" class="btn-check" name="custom_samus_sprite" id="customSamusSpriteYes" value=true checked>
-                                <label class="btn btn-outline-primary" style="width:120px" for="customSamusSpriteYes">Custom</label>
-                            </div>
-                        </div>
-
-                        <div id="spriteSelectDiv" class="form-group row my-3 d-none">
-                            <div class="col-md-4"></div>
                             <div class="col-md-6 col-lg-4 p-0" role="group">
                                 <% include!("samus_sprite_select.stpl"); %>
                             </div>
