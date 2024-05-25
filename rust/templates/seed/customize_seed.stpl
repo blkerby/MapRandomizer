@@ -144,6 +144,18 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
+                                <label class="col-form-label" for="door_theme"><% include!("help/door_colors.stpl"); %>Door colors</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="door_theme" id="doorColorsVanilla" value="vanilla" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="doorColorsVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="door_theme" id="doorColorsAlternate" value="alternate">
+                                <label class="btn btn-outline-primary" style="width:120px" for="doorColorsAlternate">Alternate</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
                                 <label class="col-form-label" for="music"><% include!("help/music.stpl"); %>Music</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">

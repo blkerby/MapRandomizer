@@ -720,6 +720,7 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
         vanilla_screw_attack_animation: bits & 0x02 != 0,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,
+        door_theme: maprando::customize::DoorTheme::Vanilla,
         music: match (bits & 0x04 != 0, bits & 0x08 != 0) {
             (true, true) => MusicSettings::Vanilla,
             (true, false) => MusicSettings::Disabled,
@@ -761,6 +762,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         vanilla_screw_attack_animation: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,
+        door_theme: maprando::customize::DoorTheme::Vanilla,
         music: MusicSettings::AreaThemed,
         disable_beeping: false,
         shaking: maprando::customize::ShakingSetting::Vanilla,

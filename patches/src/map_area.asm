@@ -677,6 +677,7 @@ simple_scroll_setup:
 
     RTS
 
+print pc
 warnpc !bank_82_freespace_end
 
 org !bank_e8_freespace_start

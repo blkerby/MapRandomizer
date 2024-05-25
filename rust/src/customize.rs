@@ -89,6 +89,13 @@ pub enum TileTheme {
 }
 
 #[derive(Default, Debug, Copy, Clone)]
+pub enum DoorTheme {
+    #[default]
+    Vanilla,
+    Alternate,
+}
+
+#[derive(Default, Debug, Copy, Clone)]
 pub enum ControllerButton {
     #[default]
     Default,
@@ -135,6 +142,7 @@ pub struct CustomizeSettings {
     pub vanilla_screw_attack_animation: bool,
     pub palette_theme: PaletteTheme,
     pub tile_theme: TileTheme,
+    pub door_theme: DoorTheme,
     pub music: MusicSettings,
     pub disable_beeping: bool,
     pub shaking: ShakingSetting,
@@ -326,6 +334,13 @@ pub fn customize_rom(
         PaletteTheme::Vanilla => {}
         PaletteTheme::AreaThemed => {
             apply_area_themed_palettes(rom, game_data)?;
+        }
+    }
+
+    match settings.door_theme {
+        DoorTheme::Vanilla => {}
+        DoorTheme::Alternate => {
+            apply_ips_patch(rom, Path::new("../patches/ips/alternate_door_colors.ips"))?;
         }
     }
 

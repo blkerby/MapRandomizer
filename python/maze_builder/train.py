@@ -215,7 +215,7 @@ pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
 # old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk47', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk51', 'rb')).load()
+session = Unpickler(open(pickle_name + '-bk57', 'rb')).load()
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -583,8 +583,9 @@ for i in range(1000000):
     # explore_eps = torch.full_like(temperature, explore_eps_val)
     explore_eps = temperature * explore_eps_factor
 
-    wild_mask = torch.arange(num_envs) % 2 == 0
-    mc_dist_coef = torch.where(wild_mask, torch.tensor(mc_dist_coef_tame), torch.tensor(mc_dist_coef_wild)).to(device)
+    # tame_mask = torch.arange(num_envs) % 2 == 0
+    tame_mask = torch.full([num_envs], True)
+    mc_dist_coef = torch.where(tame_mask, torch.tensor(mc_dist_coef_tame), torch.tensor(mc_dist_coef_wild)).to(device)
 
     with util.DelayedKeyboardInterrupt():
         data = session.generate_round(
@@ -792,7 +793,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk56')
+            # save_session(session, pickle_name + '-bk57')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:

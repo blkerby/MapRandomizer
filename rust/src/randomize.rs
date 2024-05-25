@@ -3383,6 +3383,7 @@ impl<'r> Randomizer<'r> {
         let spoiler_escape =
             escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0])?;
         let spoiler_log = SpoilerLog {
+            item_priority: state.item_precedence.iter().map(|x| format!("{:?}", x)).collect(),
             summary: spoiler_summaries,
             escape: spoiler_escape,
             details: spoiler_details,
@@ -3712,6 +3713,7 @@ impl<'r> Randomizer<'r> {
         ];
 
         let spoiler_log = SpoilerLog {
+            item_priority: vec![],
             summary: vec![],
             escape: spoiler_escape,
             details: vec![],
@@ -4050,6 +4052,7 @@ pub struct SpoilerSummary {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLog {
+    pub item_priority: Vec<String>,
     pub summary: Vec<SpoilerSummary>,
     pub escape: SpoilerEscape,
     pub details: Vec<SpoilerDetails>,

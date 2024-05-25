@@ -14,9 +14,10 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release112">Version 113 (2024-05-22)</a>:
+<p><a id="release113">Version 113 (2024-05-24)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
+<li>Fix graphical issue that could cause the escape timer to flicker or become corrupted across door transitions.
 <li>Adjustments to how item placement works:
     <ul>
     <li>When using Forced mode (e.g. Tricky/Challenge/Desolate), first-of-kind filler items are placed in hard locations where possible, similar to key items but with lower priority.

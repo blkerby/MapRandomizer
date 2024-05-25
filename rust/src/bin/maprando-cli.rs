@@ -373,6 +373,7 @@ fn main() -> Result<()> {
         vanilla_screw_attack_animation: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Constant("OuterCrateria".to_string()),
+        door_theme: maprando::customize::DoorTheme::Vanilla,
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
         disable_beeping: false,

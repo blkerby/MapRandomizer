@@ -15,8 +15,7 @@ use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
-    MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
+    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme
 };
 use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
@@ -332,6 +331,7 @@ struct CustomizeRequest {
     vanilla_screw_attack_animation: Text<bool>,
     room_palettes: Text<String>,
     tile_theme: Text<String>,
+    door_theme: Text<String>,
     music: Text<String>,
     disable_beeping: Text<bool>,
     shaking: Text<String>,
@@ -941,6 +941,11 @@ async fn customize_seed(
             TileTheme::Scrambled
         } else {
             TileTheme::Constant(req.tile_theme.0.to_string())
+        },
+        door_theme: match req.door_theme.0.as_str() {
+            "vanilla" => DoorTheme::Vanilla,
+            "alternate" => DoorTheme::Alternate,
+            _ => panic!("Unexpected door_theme option: {}", req.door_theme.0.as_str()),
         },
         music: match req.music.0.as_str() {
             "vanilla" => MusicSettings::Vanilla,

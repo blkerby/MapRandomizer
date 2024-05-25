@@ -2,13 +2,14 @@ use std::path::Path;
 
 use crate::{
     game_data::{DoorPtr, GameData, RoomPtr, RoomStateIdx},
-    patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom}, web::MosaicTheme,
+    patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom},
+    web::MosaicTheme,
 };
-use rand::{Rng, SeedableRng};
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use hashbrown::HashMap;
+use rand::{Rng, SeedableRng};
 
-use super::TileTheme;
+use super::{DoorTheme, TileTheme};
 
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
@@ -29,20 +30,26 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
     let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
     let patch_filename = if room_ptr == 0x7FFFF {
         // Unspecified room means this is vanilla map, so leave the Toilet alone.
-        format!("{}-VanillaMapTransit.bps", theme_name)    
+        format!("{}-VanillaMapTransit.bps", theme_name)
     } else {
         let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
         let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
-        format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y)    
+        format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y)
     };
     println!("toilet patch: {}", patch_filename);
     apply_bps_patch(rom, orig_rom, &patch_filename)
         .context(format!("Applying Toilet patch: {}", patch_filename))?;
-    
+
     Ok(())
 }
 
-pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme: &TileTheme, mosaic_themes: &[MosaicTheme]) -> Result<()> {
+pub fn apply_retiling(
+    rom: &mut Rom,
+    orig_rom: &Rom,
+    game_data: &GameData,
+    theme: &TileTheme,
+    mosaic_themes: &[MosaicTheme],
+) -> Result<()> {
     let patch_names = vec![
         "Scrolling Sky v1.5",
         "Area FX",
@@ -52,7 +59,7 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
     ];
     for name in &patch_names {
         let patch_path_str = format!("../patches/ips/{}.ips", name);
-        apply_ips_patch(rom, Path::new(&patch_path_str))?;    
+        apply_ips_patch(rom, Path::new(&patch_path_str))?;
     }
 
     let mut fx_door_ptr_map: HashMap<(RoomPtr, RoomStateIdx, DoorPtr), DoorPtr> = HashMap::new();
@@ -63,7 +70,8 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
             let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
             assert_eq!(orig_fx_ptr, fx_ptr);
             for i in 0..4 {
-                let orig_door_ptr = orig_rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))? as DoorPtr;
+                let orig_door_ptr =
+                    orig_rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))? as DoorPtr;
                 let door_ptr = rom.read_u16(snes2pc(0x830000 + fx_ptr + i * 16))? as DoorPtr;
                 if orig_door_ptr == 0 || orig_door_ptr == 0xFFFF {
                     break;
@@ -103,16 +111,21 @@ pub fn apply_retiling(rom: &mut Rom, orig_rom: &Rom, game_data: &GameData, theme
     // This only matters in case of Scrambled tile theme, since otherwise this should already be true.
     let toilet_room_ptr = 0x7D408;
     let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
-    let toilet_intersection_room_ptr = (rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000) as usize;
+    let toilet_intersection_room_ptr =
+        (rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000) as usize;
     if toilet_intersection_room_ptr == 0x7FFFF {
         // Unspecified room means this is vanilla map, so the Toilet intersects Aqueduct and Botwoon Hallway.
-        theme_name_map.insert(0x7D5A7, theme_name_map[&toilet_room_ptr].clone());  // Aqueduct
-        theme_name_map.insert(0x7D617, theme_name_map[&toilet_room_ptr].clone());  // Botwoon Hallway
+        theme_name_map.insert(0x7D5A7, theme_name_map[&toilet_room_ptr].clone()); // Aqueduct
+        theme_name_map.insert(0x7D617, theme_name_map[&toilet_room_ptr].clone());
+    // Botwoon Hallway
     } else {
-        theme_name_map.insert(toilet_intersection_room_ptr, theme_name_map[&toilet_room_ptr].clone());
+        theme_name_map.insert(
+            toilet_intersection_room_ptr,
+            theme_name_map[&toilet_room_ptr].clone(),
+        );
     }
-    theme_name_map.insert(0x7D69A, theme_name_map[&0x7D646].clone());  // East Pants Room
-    theme_name_map.insert(0x7968F, theme_name_map[&0x793FE].clone());  // Homing Geemer Room
+    theme_name_map.insert(0x7D69A, theme_name_map[&0x7D646].clone()); // East Pants Room
+    theme_name_map.insert(0x7968F, theme_name_map[&0x793FE].clone()); // Homing Geemer Room
 
     for &room_ptr in game_data.raw_room_id_by_ptr.keys() {
         let theme_name = &theme_name_map[&room_ptr];

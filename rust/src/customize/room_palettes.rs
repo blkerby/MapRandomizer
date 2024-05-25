@@ -4,7 +4,7 @@ use crate::{
 };
 use anyhow::Result;
 
-fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
+pub fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
     let mut out: Vec<u8> = vec![];
     for i in 0..128 {
         let r = pal[i][0] as u16 / 8;

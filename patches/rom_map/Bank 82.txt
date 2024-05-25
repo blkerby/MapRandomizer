@@ -1,4 +1,5 @@
-F70F - FA80: map_area.asm
+F70F - FA00: map_area.asm
+FA00 - FA80: alternate_door_colors
 FA80 - FA90: fix_water_fx_bug
 FA90 - FD00: seed_hash_display
 FD00 - FD80: item_dots_disappear
@@ -6,4 +7,5 @@ FD80 - FE00: fast_doors
 FE00 - FE80: fast_reload
 FE80 - FF00: zebes_asleep_music
 FF00 - FF10: reserve_hud.asm
+FF10 - FF30: escape.asm
 FFFE - end: custom etank color
