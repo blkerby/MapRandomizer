@@ -36,7 +36,7 @@ html[data-bs-theme=light] .customize-button.collapsed {
 </head>
 <body>
 <% include!("../common/navbar.stpl"); %>
-<script src="/static/customize_seed.js"></script>
+<script src="/static/customize_seed.js?v=1" ></script>
 <script>
 window.unlockedTimestampString = "<%- unlocked_timestamp_str %>";
 window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";

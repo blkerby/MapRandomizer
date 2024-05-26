@@ -773,6 +773,8 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 etank_colors: app_data.etank_colors.clone(),
                 mosaic_themes: app_data.mosaic_themes.clone(),
             };
+            // We use a no-cache directive to prevent problems when we change the JavaScript.
+            // Probably better would be to properly version the JS and control cache that way.
             HttpResponse::Ok()
                 .insert_header(CacheControl(vec![CacheDirective::NoCache]))
                 .body(customize_template.render_once().unwrap())
