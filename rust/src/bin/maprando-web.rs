@@ -5,7 +5,7 @@ use std::time::SystemTime;
 use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
-use actix_web::http::header::{self, ContentDisposition, DispositionParam, DispositionType};
+use actix_web::http::header::{self, CacheControl, CacheDirective, ContentDisposition, DispositionParam, DispositionType};
 use actix_web::middleware::Compress;
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
@@ -773,7 +773,9 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 etank_colors: app_data.etank_colors.clone(),
                 mosaic_themes: app_data.mosaic_themes.clone(),
             };
-            HttpResponse::Ok().body(customize_template.render_once().unwrap())
+            HttpResponse::Ok()
+                .insert_header(CacheControl(vec![CacheDirective::NoCache]))
+                .body(customize_template.render_once().unwrap())
         }
         (Err(err), _) => {
             error!("{}", err.to_string());
