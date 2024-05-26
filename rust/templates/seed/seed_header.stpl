@@ -70,8 +70,8 @@
         if item_dot_change == "Disappear" {
             game_variations.push("Item dots disappear after collection");
         }
-        if transition_letters {
-            game_variations.push("Area transitions marked as letters");
+        if !transition_letters {
+            game_variations.push("Area transitions marked as arrows");
         }
         match difficulty.wall_jump {
             WallJump::Collectible => {

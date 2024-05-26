@@ -6,22 +6,27 @@ use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
 use actix_web::http::header::{self, ContentDisposition, DispositionParam, DispositionType};
-use actix_web::middleware::Logger;
 use actix_web::middleware::Compress;
+use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{Context, Result};
 use base64::Engine;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
+use json::JsonValue;
 use log::{error, info};
 use maprando::customize::{
-    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme
+    customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
+    DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
 };
 use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump
+    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
+    DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle,
+    ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, Randomization,
+    Randomizer, SaveAnimals, StartLocationMode, WallJump,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -324,10 +329,8 @@ struct UnlockRequest {
 struct CustomizeRequest {
     rom: Bytes,
     samus_sprite: Text<String>,
-    custom_etank_color: Text<bool>,
     etank_color: Text<String>,
     reserve_hud_style: Text<bool>,
-    vanilla_screw_attack_animation: Text<bool>,
     room_palettes: Text<String>,
     tile_theme: Text<String>,
     door_theme: Text<String>,
@@ -906,6 +909,17 @@ async fn customize_seed(
     let orig_rom = Rom::new(req.rom.data.to_vec());
     let mut rom = orig_rom.clone();
 
+    let seed_data_str: String = String::from_utf8(
+        app_data
+            .seed_repository
+            .get_file(seed_name, "seed_data.json")
+            .await
+            .unwrap(),
+    )
+    .unwrap();
+    let seed_data = json::parse(&seed_data_str).unwrap();
+    let ultra_low_qol = seed_data["ultra_low_qol"].as_bool().unwrap_or(false);
+
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
     info!("Rom digest: {rom_digest}");
     if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
@@ -913,18 +927,18 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        samus_sprite: Some(req.samus_sprite.0.clone()),
-        etank_color: if req.custom_etank_color.0 {
-            Some((
-                u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
-                u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
-                u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
-            ))
+        samus_sprite: if ultra_low_qol && req.samus_sprite.0 == "samus" {
+            None 
         } else {
-            None
+            Some(req.samus_sprite.0.clone())
         },
+        etank_color: Some((
+            u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
+            u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
+            u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
+        )),
         reserve_hud_style: req.reserve_hud_style.0,
-        vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
+        vanilla_screw_attack_animation: ultra_low_qol,
         palette_theme: if req.room_palettes.0 == "area-themed" {
             PaletteTheme::AreaThemed
         } else {
@@ -940,7 +954,10 @@ async fn customize_seed(
         door_theme: match req.door_theme.0.as_str() {
             "vanilla" => DoorTheme::Vanilla,
             "alternate" => DoorTheme::Alternate,
-            _ => panic!("Unexpected door_theme option: {}", req.door_theme.0.as_str()),
+            _ => panic!(
+                "Unexpected door_theme option: {}",
+                req.door_theme.0.as_str()
+            ),
         },
         music: match req.music.0.as_str() {
             "vanilla" => MusicSettings::Vanilla,
@@ -1379,7 +1396,7 @@ async fn randomize(
             _ => panic!(
                 "Unrecognized item priority strength {}",
                 req.item_priority_strength.0,
-            )
+            ),
         },
         random_tank: match req.random_tank.0.as_str() {
             "No" => false,
@@ -1486,7 +1503,11 @@ async fn randomize(
                 "Metroids" => vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4],
                 "Chozos" => vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo],
                 "Pirates" => vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom],
-                "Random" => rand::seq::SliceRandom::choose_multiple(Objective::get_all(), &mut rng, 4).copied().collect(),
+                "Random" => {
+                    rand::seq::SliceRandom::choose_multiple(Objective::get_all(), &mut rng, 4)
+                        .copied()
+                        .collect()
+                }
                 _ => panic!("Unrecognized objectives: {}", req.objectives.0),
             }
         },
@@ -1561,11 +1582,8 @@ async fn randomize(
         vec![difficulty.clone()]
     };
 
-    let filtered_base_links = filter_links(
-        &app_data.game_data.links,
-        &app_data.game_data,
-        &difficulty,
-    );
+    let filtered_base_links =
+        filter_links(&app_data.game_data.links, &app_data.game_data, &difficulty);
     let filtered_base_links_data = LinksDataGroup::new(
         filtered_base_links,
         app_data.game_data.vertex_isv.keys.len(),
@@ -1757,7 +1775,7 @@ fn init_presets(
 
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
     let ignored_tech: HashSet<String> = [
-        "canSpikeSuit",  // not ready to be used until flash suit logic is more complete.
+        "canSpikeSuit", // not ready to be used until flash suit logic is more complete.
         "canRiskPermanentLossOfAccess",
         "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]

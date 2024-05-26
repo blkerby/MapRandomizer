@@ -29,14 +29,6 @@ function selectSprite(el) {
     changeSamusSprite();
 };
 function updateEnergyTankColor() {
-    var enabled = document.getElementById("customEnergyTankYes").checked;
-    var energyTankSelectDiv = document.getElementById("energyTankSelectDiv");
-    if (enabled) {
-        energyTankSelectDiv.classList.remove("d-none");
-    } else {
-        energyTankSelectDiv.classList.add("d-none");
-    }
-
     var selectedETankSVG = document.getElementById("selectedETankSVG");
     var selectedETankColor = document.getElementById("etankColor").value;
     var svg = "";
