@@ -71,15 +71,17 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                             </div>
                         </div>
 
-                        <div class="form-group row my-3">
+                        <div id="roomTheming" class="form-group row my-3">
                             <div class="col-md-4">
-                            <label class="col-form-label" for="reserve_hud_style"><% include!("help/reserve_hud.stpl"); %>Reserve tank HUD style</label>
+                            <label class="col-form-label" for="room_theming"><% include!("help/room_theming.stpl"); %>Room theming</label>
                             </div>
-                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
-                                <input type="radio" class="btn-check" name="reserve_hud_style" id="reserveHudStyleVanilla" value=false>
-                                <label class="btn btn-outline-primary" style="width:120px" for="reserveHudStyleVanilla">Vanilla</label>
-                                <input type="radio" class="btn-check" name="reserve_hud_style" id="reserveHudStyleRevamped" value=true checked>
-                                <label class="btn btn-outline-primary" style="width:120px" for="reserveHudStyleRevamped">Revamped</label>
+                            <div class="col-md-8 col-lg-6 btn-group p-0" role="group" onchange="roomThemingChanged(this)">
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingVanilla" value="vanilla">
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomThemingVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingPalettes" value="palettes">
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomThemingPalettes">Area Palettes</label>
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingTiling" value="tiling" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomThemingTiling">Area Tiling</label>
                             </div>
                         </div>
 
@@ -92,34 +94,6 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                                 <label class="btn btn-outline-primary" style="width:120px" for="doorColorsVanilla">Vanilla</label>
                                 <input type="radio" class="btn-check" name="door_theme" id="doorColorsAlternate" value="alternate">
                                 <label class="btn btn-outline-primary" style="width:120px" for="doorColorsAlternate">Alternate</label>
-                            </div>
-                        </div>
-
-                        <div class="form-group row my-3">
-                            <div class="col-md-4">
-                            <label class="col-form-label" for="room_palettes"><% include!("help/room_palettes.stpl"); %>Room palettes</label>
-                            </div>
-                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
-                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla">
-                                <label class="btn btn-outline-primary" style="width:120px" for="roomPalettesVanilla">Vanilla</label>
-                                <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesAreaThemed" value="area-themed" checked>
-                                <label class="btn btn-outline-primary" style="width:120px" for="roomPalettesAreaThemed">Area-themed</label>
-                            </div>
-                        </div>
-
-                        <div class="form-group row my-3">
-                            <div class="col-md-4">
-                                <label class="col-form-label" for="tile_theme"><% include!("help/tile_theme.stpl"); %>Tile theme</label>
-                            </div>
-                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
-                                <select id="tileTheme" name="tile_theme" class="form-select">
-                                    <option value="none" selected>None</option>
-                                    <option value="area_themed">Area-themed</option>
-                                    <option value="scrambled">Scrambled</option>
-                                    <% for theme in &mosaic_themes { %>
-                                    <option value="<%= theme.name %>"><%= theme.display_name %></option>
-                                    <% } %>
-                                </select>
                             </div>
                         </div>
 
@@ -168,103 +142,15 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                         </div>
 
                         <div class="row my-3">
-                            <div class="accordion" id="accordionControllerConfig">
+                            <div class="accordion" id="accordionOtherCustomizationOptions">
                                 <div class="accordion-item">
                                     <h2 class="accordion-header">
-                                        <button class="accordion-button collapsed customize-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseControllerConfig">
-                                        Controller settings
+                                        <button class="accordion-button collapsed customize-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOtherCustomizationOptions">
+                                        Other customization options
                                         </button>
                                     </h2>
-                                    <div id="collapseControllerConfig" class="accordion-collapse collapse m-2 p-0">
-                                        <% let actions = vec![
-                                            ("Shot", "control_shot", "X"),
-                                            ("Jump", "control_jump", "A"),
-                                            ("Dash", "control_dash", "B"),
-                                            ("Item Select", "control_item_select", "Select"),
-                                            ("Item Cancel", "control_item_cancel", "Y"),
-                                            ("Angle Up", "control_angle_up", "R"),
-                                            ("Angle Down", "control_angle_down", "L"),
-                                        ];
-                                        let buttons = vec!["X", "Y", "A", "B", "L", "R", "Select"];
-                                        let all_buttons = vec![
-                                            ("X", "X"),
-                                            ("Y", "Y"), 
-                                            ("A", "A"),
-                                            ("B", "B"),
-                                            ("L", "L"),
-                                            ("R", "R"),
-                                            ("Select", "Select"), 
-                                            ("Start", "Start"),
-                                            ("Up", "↑"),
-                                            ("Down", "↓"),
-                                            ("Left", "←"), 
-                                            ("Right", "→"), 
-                                        ];
-                                        for (action_name, form_name, default) in actions {
-                                        %>
-                                            <div class="form-group row mx-2 my-3">
-                                                <div class="col-md-3 col-lg-2 col-form-label">
-                                                    <label for="preset"><%= action_name %></label>
-                                                </div>
-                                                <div class="col-md-9 btn-group p-0" role="group">
-                                                    <% for button in &buttons {
-                                                        let checked = if button == &default { " checked" } else { "" };
-                                                    %>
-                                                    <input type="radio" class="btn-check" id="<%- form_name%><%- button %>" name="<%- form_name %>" value="<%- button %>"<%- checked%>>
-                                                    <label class="btn btn-outline-primary" for="<%- form_name %><%- button %>" onclick="swapButtonAssignment(this)"><%= button %></label>
-                                                    <% } %>
-                                                </div>
-                                            </div>
-                                        <% } %>
-                                        <div class="form-group row mx-2 my-3">
-                                            <div class="col-md-3 col-lg-2 col-form-label">
-                                                <label for="preset">Quick reload</label>
-                                            </div>
-                                            <div class="col-md-9 btn-group p-0" style="overflow-x: auto" role="group">
-                                                <% for (button, button_display) in &all_buttons {
-                                                    let checked = if ["L", "R", "Start", "Select"].contains(&button) { " checked" } else { "" };
-                                                %>
-                                                    <input type="checkbox" class="btn-check" id="quickReload<%- button %>" name="quick_reload_<%- button.to_lowercase() %>" <%- checked%>>
-                                                    <% if button == &"X" { %>
-                                                    <label class="btn btn-outline-primary me-1" for="quickReload<%- button %>"><%= button_display %></label>
-                                                    <% } else if button == &"Right" { %>
-                                                    <label class="btn btn-outline-primary ms-1" for="quickReload<%- button %>"><%= button_display %></label>
-                                                    <% } else { %>
-                                                    <label class="btn btn-outline-primary mx-1" for="quickReload<%- button %>"><%= button_display %></label>
-                                                    <% } %>
-                                                <% } %>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row mx-2 my-3">
-                                            <div class="col-md-3 col-lg-2 col-form-label">
-                                                <label for="preset">Spin lock</label>
-                                            </div>
-                                            <div class="col-md-9 btn-group p-0" style="overflow-x: auto" role="group">
-                                                <% for (button, button_display) in &all_buttons {
-                                                    let checked = if ["L", "R", "Up", "X"].contains(&button) { " checked" } else { "" };
-                                                %>
-                                                    <input type="checkbox" class="btn-check" id="spinLock<%- button %>" name="spin_lock_<%- button.to_lowercase() %>" <%- checked%>>
-                                                    <% if button == &"X" { %>
-                                                    <label class="btn btn-outline-primary me-1" for="spinLock<%- button %>"><%= button_display %></label>
-                                                    <% } else if button == &"Right" { %>
-                                                    <label class="btn btn-outline-primary ms-1" for="spinLock<%- button %>"><%= button_display %></label>
-                                                    <% } else { %>
-                                                    <label class="btn btn-outline-primary mx-1" for="spinLock<%- button %>"><%= button_display %></label>
-                                                    <% } %>
-                                                <% } %>
-                                            </div>
-                                        </div>
-                                        <div class="form-group row mx-2 my-3">
-                                            <div class="col-md-3 col-lg-2 col-form-label">
-                                                <label for="preset">Moonwalk</label>
-                                            </div>
-                                            <div class="col-md-3 btn-group p-0" role="group">
-                                                <input type="radio" class="btn-check" id="moonwalkNo" name="moonwalk" value="false" checked>
-                                                <label class="btn btn-outline-primary" for="moonwalkNo">No</label>
-                                                <input type="radio" class="btn-check" id="moonwalkYes" name="moonwalk" value="true">
-                                                <label class="btn btn-outline-primary" for="moonwalkYes">Yes</label>
-                                            </div>
-                                        </div>
+                                    <div id="collapseOtherCustomizationOptions" class="accordion-collapse collapse m-2 p-0">
+                                        <% include!("other_customization.stpl"); %>
                                     </div>
                                 </div>
                             </div>

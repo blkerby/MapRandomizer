@@ -14,8 +14,6 @@
       <div class="modal-body">
         <p>If enabled, the rooms in the game will be retiled using the selected theme. This affects only the
         graphical appearance of the rooms.</p>
-        <p><b>Note</b>: This option is still under development and may contain bugs. If you notice any issues, please 
-        let us know on the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
