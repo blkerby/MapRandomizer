@@ -1992,6 +1992,7 @@ fn build_app_data() -> AppData {
         ("UpperNorfair", "Upper Norfair"),
         ("WreckedShip", "Wrecked Ship"),
         ("WestMaridia", "West Maridia"),
+        ("MechaTourian", "Mecha Tourian"),
     ]
     .into_iter()
     .map(|(x, y)| MosaicTheme {

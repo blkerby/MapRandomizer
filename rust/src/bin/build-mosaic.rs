@@ -1233,6 +1233,7 @@ fn main() -> Result<()> {
         "UpperNorfair",
         "WreckedShip",
         "WestMaridia",
+        "MechaTourian",
     ]
     .into_iter()
     .map(|x| x.to_string())
