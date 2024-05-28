@@ -109,11 +109,12 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
-                                <label class="col-form-label" for="tile_theme"><% include!("help/tile_theme.stpl"); %>Tile theme (experimental)</label>
+                                <label class="col-form-label" for="tile_theme"><% include!("help/tile_theme.stpl"); %>Tile theme</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
                                 <select id="tileTheme" name="tile_theme" class="form-select">
                                     <option value="none" selected>None</option>
+                                    <option value="area_themed">Area-themed</option>
                                     <option value="scrambled">Scrambled</option>
                                     <% for theme in &mosaic_themes { %>
                                     <option value="<%= theme.name %>"><%= theme.display_name %></option>

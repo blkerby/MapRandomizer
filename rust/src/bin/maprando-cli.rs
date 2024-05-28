@@ -384,6 +384,7 @@ fn main() -> Result<()> {
         &mut output_rom,
         &orig_rom,
         &ips_patch,
+        &Some(randomization.map.clone()),
         &customize_settings,
         &game_data,
         &[SamusSpriteCategory {

@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::{
-    game_data::{DoorPtr, GameData, RoomPtr, RoomStateIdx},
+    game_data::{AreaIdx, DoorPtr, GameData, Map, RoomPtr, RoomStateIdx},
     patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom},
     web::MosaicTheme,
 };
@@ -16,7 +16,7 @@ const BPS_PATCH_PATH: &str = "../patches/mosaic";
 fn apply_bps_patch(rom: &mut Rom, orig_rom: &Rom, filename: &str) -> Result<()> {
     // let patch_path = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
     let path = Path::new(BPS_PATCH_PATH).join(filename);
-    let patch_bytes = std::fs::read(path)?;
+    let patch_bytes = std::fs::read(path).with_context(|| format!("Loading {}", filename))?;
     let patch = BPSPatch::new(patch_bytes)?;
     patch.apply(&orig_rom.data, &mut rom.data);
     Ok(())
@@ -46,10 +46,26 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
 pub fn apply_retiling(
     rom: &mut Rom,
     orig_rom: &Rom,
+    map: &Option<Map>,
     game_data: &GameData,
     theme: &TileTheme,
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
+    let area_theme_map: HashMap<(AreaIdx, usize), String> = vec![
+        ((0, 0), "OuterCrateria"),
+        ((0, 1), "InnerCrateria"),
+        ((1, 0), "GreenBrinstar"),
+        ((1, 1), "GreenBrinstar"),
+        ((2, 0), "UpperNorfair"),
+        ((2, 1), "UpperNorfair"),
+        ((3, 0), "WreckedShip"),
+        ((3, 1), "WreckedShip"),
+        ((4, 0), "WestMaridia"),
+        ((4, 1), "WestMaridia"),
+        ((5, 0), "MechaTourian"),
+        ((5, 1), "MechaTourian"),
+    ].into_iter().map(|(x, y)| (x, y.to_owned())).collect();
+
     let patch_names = vec![
         "Scrolling Sky v1.5",
         "Area FX",
@@ -86,10 +102,22 @@ pub fn apply_retiling(
     apply_bps_patch(rom, orig_rom, "tilesets.bps")?;
 
     let mut theme_name_map: HashMap<RoomPtr, String> = HashMap::new();
-    for &room_ptr in game_data.raw_room_id_by_ptr.keys() {
+    for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
+        let room_ptr = room.rom_address;
         let theme_name = match theme {
             TileTheme::Vanilla => "Base".to_string(),
             TileTheme::Constant(s) => s.clone(),
+            TileTheme::AreaThemed => {
+                if let Some(map) = map {
+                    let area = map.area[room_idx];
+                    let sub_area = map.subarea[room_idx];
+                    area_theme_map[&(area, sub_area)].clone()
+                } else {
+                    // Fall back to Base theme in case map is unavailable
+                    // (since it wasn't saved off in earlier randomizer versions)
+                    "Base".to_string()
+                }
+            }
             TileTheme::Scrambled => {
                 let seed = random_seed ^ (room_ptr as u32);
                 let mut rng_seed = [0u8; 32];

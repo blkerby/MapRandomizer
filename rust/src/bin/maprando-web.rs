@@ -5,7 +5,9 @@ use std::time::SystemTime;
 use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
-use actix_web::http::header::{self, CacheControl, CacheDirective, ContentDisposition, DispositionParam, DispositionType};
+use actix_web::http::header::{
+    self, CacheControl, CacheDirective, ContentDisposition, DispositionParam, DispositionType,
+};
 use actix_web::middleware::Compress;
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
@@ -19,7 +21,7 @@ use maprando::customize::{
     customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
     DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
 };
-use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup};
+use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
@@ -643,6 +645,14 @@ async fn save_seed(
         ));
     }
 
+    // Write the map data
+    files.push(SeedFile::new(
+        "map.json",
+        serde_json::to_string(&randomization.map)?
+            .as_bytes()
+            .to_vec(),
+    ));
+
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
     files.push(SeedFile::new(
@@ -922,6 +932,18 @@ async fn customize_seed(
     )
     .unwrap();
     let seed_data = json::parse(&seed_data_str).unwrap();
+
+    let map_data_bytes = app_data
+        .seed_repository
+        .get_file(seed_name, "map.json")
+        .await
+        .unwrap_or(vec![]);
+    let map: Option<Map> = if map_data_bytes.len() == 0 {
+        None
+    } else {
+        Some(serde_json::from_slice(&map_data_bytes).unwrap())
+    };
+
     let ultra_low_qol = seed_data["ultra_low_qol"].as_bool().unwrap_or(false);
 
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
@@ -932,7 +954,7 @@ async fn customize_seed(
 
     let settings = CustomizeSettings {
         samus_sprite: if ultra_low_qol && req.samus_sprite.0 == "samus" {
-            None 
+            None
         } else {
             Some(req.samus_sprite.0.clone())
         },
@@ -952,6 +974,8 @@ async fn customize_seed(
             TileTheme::Vanilla
         } else if req.tile_theme.0 == "scrambled" {
             TileTheme::Scrambled
+        } else if req.tile_theme.0 == "area_themed" {
+            TileTheme::AreaThemed
         } else {
             TileTheme::Constant(req.tile_theme.0.to_string())
         },
@@ -994,6 +1018,7 @@ async fn customize_seed(
         &mut rom,
         &orig_rom,
         &patch_ips,
+        &map,
         &settings,
         &app_data.game_data,
         &app_data.samus_sprite_categories,

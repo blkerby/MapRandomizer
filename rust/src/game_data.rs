@@ -19,7 +19,7 @@ use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
 
-#[derive(Deserialize, Clone)]
+#[derive(Deserialize, Serialize, Clone)]
 pub struct Map {
     pub rooms: Vec<(usize, usize)>, // (x, y) of upper-left corner of room on map
     pub doors: Vec<(

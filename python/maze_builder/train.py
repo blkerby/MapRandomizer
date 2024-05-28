@@ -378,7 +378,7 @@ toilet_good_coef = 0.5
 graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 
-door_connect_bound = 10.0
+door_connect_bound = 5.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.02
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)

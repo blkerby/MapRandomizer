@@ -1,4 +1,11 @@
 v113:
+- update credits, adding selicre in additional devs
+- investigate possible logic problem:
+  - https://discord.com/channels/1053421401354285129/1053436236628496454/1244849515752849489
+    - why is top of mama turtle not accessible in step 8?: 
+    - https://dev.maprando.com/logic/room/MamaTurtleRoom/1/2/SuitlessWaterShinecharge
+- investigate reported crash x-ray climbing west ocean
+- screw attack animation option
 - DONE: beam doors
   - DONE: make sure hyper beam can open them.
   - DONE: take into account extra heat frames for charge door
@@ -9,9 +16,10 @@ v113:
   - DONE: possibly related: figure out why Climb doesn't have acid in escape anymore (sometimes?)
 - DONE: treat first copy of filler items like key items for purposes of Forced placement
 - Various Mosaic fixes, pull in updates
+  - area-theme mode if ready
 - DONE: include item priority order in spoiler JSON
 - DONE: enable compression, to speed up spoiler JSON transfer: https://cseweb.ucsd.edu/classes/sp22/cse223B-a/tribbler/actix_web/middleware/struct.Compress.html
-- alternative door color customization option
+- DONE: alternative door color customization option
 - DONE: fix escape timer graphics corruption/flickering
 - add more sprites:
    - mm2 updated aroace sprite

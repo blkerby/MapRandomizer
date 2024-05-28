@@ -7,6 +7,7 @@ use anyhow::{bail, Result};
 use std::path::Path;
 
 use crate::customize::vanilla_music::override_music;
+use crate::game_data::Map;
 use crate::web::MosaicTheme;
 use crate::{
     game_data::GameData,
@@ -84,6 +85,7 @@ pub enum PaletteTheme {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TileTheme {
     Vanilla,
+    AreaThemed,
     Scrambled,
     Constant(String),
 }
@@ -315,6 +317,7 @@ pub fn customize_rom(
     rom: &mut Rom,
     orig_rom: &Rom,
     seed_patch: &[u8],
+    map: &Option<Map>,
     settings: &CustomizeSettings,
     game_data: &GameData,
     samus_sprite_categories: &[SamusSpriteCategory],
@@ -328,7 +331,7 @@ pub fn customize_rom(
     }
 
     remove_mother_brain_flashing(rom)?;
-    apply_retiling(rom, orig_rom, game_data, &settings.tile_theme, mosaic_themes)?;
+    apply_retiling(rom, orig_rom, map, game_data, &settings.tile_theme, mosaic_themes)?;
 
     match &settings.palette_theme {
         PaletteTheme::Vanilla => {}
