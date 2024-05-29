@@ -14,20 +14,27 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release113">Version 113 (2024-05-28)</a>:
+<p><a id="release113">Version 113 (2024-05-29)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
-<li>A new tile theme "Mecha Tourian" is available.
-<li>A new "Area-themed" option for "Tile theme" is added. 
-<li>A "Room theming" customization option is added:
+<li>Tile theming updates:
     <ul>
-    <li>This is a convenient way to select common combinations of "Room palettes" and "Tile theme" settings.
-    <li>The individual settings are still available under "Other customization options".
+    <li>A new tile theme "Mecha Tourian" is available.
+    <li>A new "Area-themed" option for "Tile theme" is added. 
+    <li>A "Room theming" customization option is added:
+        <ul>
+        <li>This is a convenient way to select the main useful combinations of "Room palettes" and "Tile theme" settings.
+        <li>The individual settings are still available under "Other customization options".
+        </ul>
     </ul>
-<li>Fixed graphical issue that could cause the escape timer to flicker or become corrupted across door transitions.
 <li>A new customization setting "Door colors" is added.
     <ul>
     <li>The "Alternate" colors may be easier to distinguish for color-blind players. 
+    </ul>
+<li>Bugfixes:
+    <ul>
+    <li>Fixed flicker and possible graphical corruption of the escape timer across door transitions.
+    <li>Fixed possible "slowlock" while gaining Hyper Beam with the Mother Brain "Skip" option.
     </ul>
 <li>Adjustments to how item placement works:
     <ul>

@@ -2,7 +2,6 @@ v113:
 - investigate reported crash x-ray climbing west ocean
 - Various Mosaic fixes, pull in updates
 - investigate issue reported by selicre, of door shell not spawning or showing when entering parlor from below
-- fix slowlock with MB Skip option
   - https://github.com/theonlydude/RandomMetroidSolver/blob/8e993c5ef96293ed0a71668ad15b6c72711ca568/patches/common/src/minimizer_tourian_common.asm#L155
 - add more sprites:
    - mm2 updated aroace sprite
@@ -15,7 +14,7 @@ v113:
   - implement `speedBall` logical requirement
   - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
   - implement "heatFramesWithEnergyDrops"
-- fix slowlock that can accidentally happen when using MB Skip
+- DONE: fix slowlock with MB Skip option
 - DONE: fix escape graphics (affecting ship, spore spawn, etc.)
 - DONE: update credits, adding selicre in additional devs
 - DONE: screw attack animation option
