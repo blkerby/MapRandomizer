@@ -16,9 +16,10 @@
     </div>
     <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onchange="roomThemingSettingChanged()">
         <select id="tileTheme" name="tile_theme" class="form-select">
-            <option value="none" selected>None</option>
+            <option value="none" selected>Vanilla</option>
             <option value="area_themed">Area-themed</option>
             <option value="scrambled">Scrambled</option>
+            <hr>
             <% for theme in &mosaic_themes { %>
             <option value="<%= theme.name %>"><%= theme.display_name %></option>
             <% } %>
