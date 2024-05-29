@@ -14,9 +14,16 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release113">Version 113 (2024-05-25)</a>:
+<p><a id="release113">Version 113 (2024-05-28)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
+<li>A new tile theme "Mecha Tourian" is available.
+<li>A new "Area-themed" option for "Tile theme" is added. 
+<li>A "Room theming" customization option is added:
+    <ul>
+    <li>This is a convenient way to select common combinations of "Room palettes" and "Tile theme" settings.
+    <li>The individual settings are still available under "Other customization options".
+    </ul>
 <li>Fixed graphical issue that could cause the escape timer to flicker or become corrupted across door transitions.
 <li>A new customization setting "Door colors" is added.
     <ul>

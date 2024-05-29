@@ -584,10 +584,11 @@ enemy_gfx_load_hook:
     %checkEscape() : bcc .skip
     pla
     cmp #$1C00
-    bcc .skip
+    bcc .done
     pea $1C00  ; Clamp VRAM update size to $1C00 to prevent overwriting timer graphics
 .skip:
     pla
+.done:
     sta $05C3  ; run hi-jacked instruction (set VRAM update size)
     rts
 warnpc !bank_82_free_space_end

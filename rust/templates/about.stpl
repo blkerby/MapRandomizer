@@ -450,14 +450,14 @@
     <ul>
     <li>Game design: <i>Maddo</i>, <i>kyleb</i>
     <li>Map generation, randomizer, escape timings, and web service frontend & backend: <i>Maddo</i>
+    <li>Spoiler map and various other dev work: <i>Selicre</i>
     <li>Title screens, various other art (hazard doors, walljump boots): <i>kyleb</i>
     <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>):
         <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>DIProgan</i>, <i>kyleb</i>,
         <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
     <li>Area-themed palettes: <i>kyleb</i>, <i>Maddo</i>, <i>AmoebaOfDoom</i>
     <li>Area-themed glows: <i>AmoebaOfDoom</i>
-    <li>Tile themes (experimental): <i>AmoebaOfDoom</i>, <i>Maddo</i>, <i>Tundain</i>, <i>chicdead26</i>
-    <li>Spoiler map: <i>Selicre</i>
+    <li>Tile themes: <i>AmoebaOfDoom</i>, <i>Maddo</i>, <i>Tundain</i>, <i>chicdead26</i>
     <li>Tech animated GIFs and videos: <i>Osse101</i>
     <li>E-Tank refill & reserve tank patches: <i>Kewlan</i>
     <li>Integration test: <i>aquanight</i>

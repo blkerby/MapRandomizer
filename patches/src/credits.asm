@@ -655,12 +655,15 @@ script:
     dw !draw, !row*142
     dw !draw, !row*143
     dw !draw, !blank
-    dw !draw, !row*144  ; SPOILER MAP
+;    dw !draw, !row*144  ; SPOILER MAP
+;    dw !draw, !blank
+;    dw !draw, !row*145
+;    dw !draw, !row*146
+;    dw !draw, !blank
+    dw !draw, !row*156  ; SPECIAL THANKS TO
     dw !draw, !blank
     dw !draw, !row*145
     dw !draw, !row*146
-    dw !draw, !blank
-    dw !draw, !row*156  ; SPECIAL THANKS TO
     dw !draw, !blank
     dw !draw, !row*157
     dw !draw, !row*158
@@ -695,6 +698,8 @@ script:
     dw !draw, !blank
     dw !draw, !row*235  ; (Sprite author)
     dw !draw, !row*236
+    dw !draw, !blank
+    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -909,8 +914,8 @@ credits:
     !big
     dw "      KYLEB         OSSE101     " ;; 133
     dw "      kyleb         osse!}!     " ;; 134
-    dw "          AMOEBAOFDOOM          " ;; 135
-    dw "          amoebaofdoom          " ;; 136
+    dw "   AMOEBAOFDOOM     SELICRE     " ;; 135
+    dw "   amoebaofdoom     selicre     " ;; 136
 
     !orange
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
@@ -919,13 +924,13 @@ credits:
     dw "    rushlight        osse!}!    " ;; 139
     dw "    MATRETHEWEY      KYLEB      " ;; 140
     dw "    matrethewey      kyleb      " ;; 141
-    dw "    DIPROGAN                    " ;; 142
-    dw "    diprogan                    " ;; 143
+    dw "    DIPROGAN         MADDO      " ;; 142
+    dw "    diprogan         maddo      " ;; 143
     !cyan
-    dw "          SPOILER MAP           " ;; 144
+    dw "                                " ;; 144
     !big
-    dw "            SELICRE             " ;; 145
-    dw "            selicre             " ;; 146
+    dw "   CHICDEAD26         TUNDAIN   " ;; 145
+    dw "   chicdead@&         tundain   " ;; 146
     !purple
     dw "   SUPER METROID DISASSEMBLY    " ;; 147
     !big

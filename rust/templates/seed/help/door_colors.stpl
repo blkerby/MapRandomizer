@@ -19,7 +19,7 @@
         <li><p><strong>Alternate</strong>: Different door colors are used, which may be easier to distinguish for color-blind players. This color scheme was created by Vibrant Colors.</p>
         </ul>
 
-        <p>Note that the Alternate setting has side effects on colors in other places, such as in the HUD and some types of beam doors.</p>
+        <p>Note that the Alternate setting has side effects on colors in other places, such as in the HUD, some types of beam doors, and acid.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
