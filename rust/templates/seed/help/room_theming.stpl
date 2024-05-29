@@ -1,0 +1,34 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#roomThemingModal">
+<i class="bi bi-question-circle"></i>
+</button>
+
+<!-- Modal -->
+<div class="modal" id="roomThemingModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Room theming</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting controls the graphical appearance of rooms.</p>
+        <ul>
+        <li><p><strong>Vanilla</strong>: Rooms appear as they do in the vanilla game.</p>
+
+        <li><p><strong>Area Palettes</strong>: Rooms colors are adjusted to follow a consistent theme for each area. This provides some amount of variety and cohesiveness in room appearance, while still allowing easy recognizability of rooms.
+        </p>
+
+        <li><p><strong>Area Tiling</strong>: Rooms graphics are redrawn to follow a consistent theme for each area. This provides the highest level of variety and cohesiveness in room appearance.
+        </p>
+
+        </ul>
+
+        <p>Other variations of these options are available under "Other customization options".</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

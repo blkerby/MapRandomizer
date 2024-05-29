@@ -339,6 +339,7 @@ struct CustomizeRequest {
     music: Text<String>,
     disable_beeping: Text<bool>,
     shaking: Text<String>,
+    vanilla_screw_attack_animation: Text<bool>,
     control_shot: Text<String>,
     control_jump: Text<String>,
     control_dash: Text<String>,
@@ -953,7 +954,7 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        samus_sprite: if ultra_low_qol && req.samus_sprite.0 == "samus" {
+        samus_sprite: if ultra_low_qol && req.samus_sprite.0 == "samus" && req.vanilla_screw_attack_animation.0 {
             None
         } else {
             Some(req.samus_sprite.0.clone())
@@ -964,7 +965,7 @@ async fn customize_seed(
             u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
         )),
         reserve_hud_style: req.reserve_hud_style.0,
-        vanilla_screw_attack_animation: ultra_low_qol,
+        vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
         palette_theme: if req.room_palettes.0 == "area-themed" {
             PaletteTheme::AreaThemed
         } else {

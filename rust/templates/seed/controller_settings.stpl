@@ -1,0 +1,89 @@
+<% let actions = vec![
+    ("Shot", "control_shot", "X"),
+    ("Jump", "control_jump", "A"),
+    ("Dash", "control_dash", "B"),
+    ("Item Select", "control_item_select", "Select"),
+    ("Item Cancel", "control_item_cancel", "Y"),
+    ("Angle Up", "control_angle_up", "R"),
+    ("Angle Down", "control_angle_down", "L"),
+];
+let buttons = vec!["X", "Y", "A", "B", "L", "R", "Select"];
+let all_buttons = vec![
+    ("X", "X"),
+    ("Y", "Y"), 
+    ("A", "A"),
+    ("B", "B"),
+    ("L", "L"),
+    ("R", "R"),
+    ("Select", "Select"), 
+    ("Start", "Start"),
+    ("Up", "↑"),
+    ("Down", "↓"),
+    ("Left", "←"), 
+    ("Right", "→"), 
+];
+for (action_name, form_name, default) in actions {
+%>
+    <div class="form-group row mx-2 my-3">
+        <div class="col-md-3 col-lg-2 col-form-label">
+            <label for="preset"><%= action_name %></label>
+        </div>
+        <div class="col-md-9 btn-group p-0" role="group">
+            <% for button in &buttons {
+                let checked = if button == &default { " checked" } else { "" };
+            %>
+            <input type="radio" class="btn-check" id="<%- form_name%><%- button %>" name="<%- form_name %>" value="<%- button %>"<%- checked%>>
+            <label class="btn btn-outline-primary" for="<%- form_name %><%- button %>" onclick="swapButtonAssignment(this)"><%= button %></label>
+            <% } %>
+        </div>
+    </div>
+<% } %>
+<div class="form-group row mx-2 my-3">
+    <div class="col-md-3 col-lg-2 col-form-label">
+        <label for="preset">Quick reload</label>
+    </div>
+    <div class="col-md-9 btn-group p-0" style="overflow-x: auto" role="group">
+        <% for (button, button_display) in &all_buttons {
+            let checked = if ["L", "R", "Start", "Select"].contains(&button) { " checked" } else { "" };
+        %>
+            <input type="checkbox" class="btn-check" id="quickReload<%- button %>" name="quick_reload_<%- button.to_lowercase() %>" <%- checked%>>
+            <% if button == &"X" { %>
+            <label class="btn btn-outline-primary me-1" for="quickReload<%- button %>"><%= button_display %></label>
+            <% } else if button == &"Right" { %>
+            <label class="btn btn-outline-primary ms-1" for="quickReload<%- button %>"><%= button_display %></label>
+            <% } else { %>
+            <label class="btn btn-outline-primary mx-1" for="quickReload<%- button %>"><%= button_display %></label>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+<div class="form-group row mx-2 my-3">
+    <div class="col-md-3 col-lg-2 col-form-label">
+        <label for="preset">Spin lock</label>
+    </div>
+    <div class="col-md-9 btn-group p-0" style="overflow-x: auto" role="group">
+        <% for (button, button_display) in &all_buttons {
+            let checked = if ["L", "R", "Up", "X"].contains(&button) { " checked" } else { "" };
+        %>
+            <input type="checkbox" class="btn-check" id="spinLock<%- button %>" name="spin_lock_<%- button.to_lowercase() %>" <%- checked%>>
+            <% if button == &"X" { %>
+            <label class="btn btn-outline-primary me-1" for="spinLock<%- button %>"><%= button_display %></label>
+            <% } else if button == &"Right" { %>
+            <label class="btn btn-outline-primary ms-1" for="spinLock<%- button %>"><%= button_display %></label>
+            <% } else { %>
+            <label class="btn btn-outline-primary mx-1" for="spinLock<%- button %>"><%= button_display %></label>
+            <% } %>
+        <% } %>
+    </div>
+</div>
+<div class="form-group row mx-2 my-3">
+    <div class="col-md-3 col-lg-2 col-form-label">
+        <label for="preset">Moonwalk</label>
+    </div>
+    <div class="col-md-3 btn-group p-0" role="group">
+        <input type="radio" class="btn-check" id="moonwalkNo" name="moonwalk" value="false" checked>
+        <label class="btn btn-outline-primary" for="moonwalkNo">No</label>
+        <input type="radio" class="btn-check" id="moonwalkYes" name="moonwalk" value="true">
+        <label class="btn btn-outline-primary" for="moonwalkYes">Yes</label>
+    </div>
+</div>
