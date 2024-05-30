@@ -23,10 +23,7 @@ use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use serde_derive::{Deserialize, Serialize};
 use std::{
-    cmp::{max, min},
-    convert::TryFrom,
-    hash::Hash,
-    iter,
+    any, cmp::{max, min}, convert::TryFrom, hash::Hash, iter
 };
 use strum::VariantNames;
 
@@ -2485,10 +2482,11 @@ impl<'r> Randomizer<'r> {
         (num_key_items_to_place, num_filler_items_to_place)
     }
 
-    fn select_filler_items<R: Rng>(
+    fn select_filler_items_of_type<R: Rng>(
         &self,
         state: &RandomizationState,
         num_filler_items_to_select: usize,
+        bireachable: bool,
         rng: &mut R,
     ) -> Vec<Item> {
         let expansion_item_set: HashSet<Item> =
@@ -2507,16 +2505,15 @@ impl<'r> Randomizer<'r> {
             {
                 continue;
             }
+            let any_already_placed = state.items_remaining[item as usize]
+                < self.initial_items_remaining[item as usize];
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
-                && state.items_remaining[item as usize]
-                    == self.initial_items_remaining[item as usize]
+                && !any_already_placed && bireachable
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
-            } else if self.difficulty_tiers[0].filler_items.contains(&item)
-                || (self.difficulty_tiers[0].semi_filler_items.contains(&item)
-                    && state.items_remaining[item as usize]
-                        < self.initial_items_remaining[item as usize])
+            } else if (self.difficulty_tiers[0].filler_items.contains(&item) && (bireachable || any_already_placed))
+                || (self.difficulty_tiers[0].semi_filler_items.contains(&item) && any_already_placed)
             {
                 item_types_to_mix.push(item);
             } else if expansion_item_set.contains(&item) {
@@ -2563,22 +2560,26 @@ impl<'r> Randomizer<'r> {
             self.apply_spazer_plasma_priority(&mut items_to_place);
         }
         items_to_place = items_to_place[0..num_filler_items_to_select].to_vec();
+        items_to_place
+    }
 
-        // Reorder the items to prioritize putting the new filler item types (ones that haven't been placed on
-        // an earlier step) at the front, to try to make them get placed in a bireachable location (and a hard 
-        // one if using Forced mode)
-        let mut ordered_items_to_place = vec![];
-        for &item in &items_to_place {
-            if state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
-                ordered_items_to_place.push(item);
-            }
+    fn select_filler_items<R: Rng>(
+        &self,
+        state: &RandomizationState,
+        num_bireachable_filler_items_to_select: usize,
+        num_one_way_filler_items_to_select: usize,
+        rng: &mut R,
+    ) -> Vec<Item> {
+        let bireachable_filler_items = self.select_filler_items_of_type(state, num_bireachable_filler_items_to_select, true, rng);
+        let mut new_state = state.clone();
+        for &item in &bireachable_filler_items {
+            new_state.items_remaining[item as usize] -= 1;
         }
-        for &item in &items_to_place {
-            if state.items_remaining[item as usize] != self.initial_items_remaining[item as usize] {
-                ordered_items_to_place.push(item);
-            }
-        }
-        ordered_items_to_place
+        let one_way_filler_items = self.select_filler_items_of_type(&new_state, num_one_way_filler_items_to_select, false, rng);
+        let mut filler_items = vec![];
+        filler_items.extend(bireachable_filler_items);
+        filler_items.extend(one_way_filler_items);
+        filler_items
     }
 
     fn select_key_items(
@@ -2974,8 +2975,10 @@ impl<'r> Randomizer<'r> {
             num_unplaced_bireachable,
             num_unplaced_oneway_reachable,
         );
+        let num_bireachable_filler_items_to_select = num_unplaced_bireachable - num_key_items_to_select;
+        let num_one_way_reachable_filler_items_to_select = num_filler_items_to_select - num_bireachable_filler_items_to_select;
         let selected_filler_items =
-            self.select_filler_items(state, num_filler_items_to_select, rng);
+            self.select_filler_items(state, num_bireachable_filler_items_to_select, num_one_way_reachable_filler_items_to_select, rng);
 
         let mut new_state_filler: RandomizationState = RandomizationState {
             step_num: state.step_num,
