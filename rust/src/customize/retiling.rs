@@ -67,7 +67,7 @@ pub fn apply_retiling(
     ].into_iter().map(|(x, y)| (x, y.to_owned())).collect();
 
     let patch_names = vec![
-        "Scrolling Sky v1.5",
+        "Scrolling Sky v1.6",
         "Area FX",
         "Area Palettes",
         "Area Palette Glows",

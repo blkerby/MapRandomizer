@@ -245,7 +245,8 @@ up_inst:
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
     dw update_beam_gfx_8_tile, !gfx_initial
-    dw $0001, up_draw_shootable
+    dw $0002, up_draw_shootable
+    dw $0001, up_draw_shootable   ; Draw a second time to ensure it shows correctly in Red Brinstar Elevator Room and Forgotten Highway
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
     dw $8A91                 ; Set room argument to remember that door is unlocked when next entering
