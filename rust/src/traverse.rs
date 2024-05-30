@@ -7,7 +7,7 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     game_data::{
-        self, Capacity, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
+        self, Capacity, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
     },
     randomize::{BeamType, DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
 };
@@ -866,6 +866,86 @@ fn apply_heat_frames(
     }
 }
 
+fn get_enemy_drop_value(drop: &EnemyDrop, local: LocalState, reverse: bool, buffed_drops: bool) -> Capacity {
+    let mut p_small = drop.small_energy_weight.get();
+    let mut p_large = drop.large_energy_weight.get();
+    let mut p_missile = drop.missile_weight.get();
+    let p_tier1 = p_small + p_large + p_missile;
+    let rel_small = p_small / p_tier1;
+    let rel_large = p_large / p_tier1;
+    let rel_missile = p_missile / p_tier1;
+    let p_super = drop.super_weight.get();
+    let p_pb = drop.power_bomb_weight.get();
+    
+    if !reverse {
+        // For the forward traversal, we take into account how ammo drops roll over to energy if full.
+        // This could also be done for the reverse traversal, but it would require branching on multiple
+        // possibilities, which would need additional cost metrics in order to be effective;
+        // we pass on that for now.
+        //
+        // In theory, health bomb could also be modeled, except that the "heatFramesWithEnergyDrops" requirement
+        // does not identify exactly when the drops are collected. In cases where it significantly matters, this
+        // could be handled by having a boolean property in "heatFramesWithEnergyDrops" to indicate that the
+        // drops are obtained at the very end of the heat frames? We ignore it for now.
+        if local.power_bombs_used == 0 {
+            p_small += p_pb * rel_small;
+            p_large += p_pb * rel_large;
+            p_missile += p_pb * rel_missile;
+        }
+        if local.supers_used == 0 {
+            p_small += p_super * rel_small;
+            p_large += p_super * rel_large;
+            p_missile += p_super * rel_missile;
+        }
+        if local.missiles_used == 0 {
+            p_small += p_missile * p_small / (p_small + p_large);
+            p_large += p_missile * p_large / (p_small + p_large);
+        }
+    }
+    let expected_energy = p_small * if buffed_drops { 10.0 } else { 5.0 } + p_large * 20.0;
+    (expected_energy * drop.count as f32) as Capacity
+}
+
+fn apply_heat_frames_with_energy_drops(
+    frames: Capacity,
+    drops: &[EnemyDrop],
+    local: LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+    reverse: bool,
+) -> Option<LocalState> {
+    let varia = global.items[Item::Varia as usize];
+    let mut new_local = local;
+    if varia {
+        Some(new_local)
+    } else {
+        if !global.tech[game_data.heat_run_tech_id] {
+            None
+        } else {
+            let mut total_drop_value = 0;
+            for drop in drops {
+                total_drop_value += get_enemy_drop_value(drop, local, reverse, difficulty.buffed_drops)
+            }
+            let heat_energy = (multiply(frames, difficulty) + 3) / 4;
+            total_drop_value = Capacity::min(total_drop_value, heat_energy);
+            new_local.energy_used += heat_energy;
+            if let Some(x) = validate_energy(new_local, global, game_data) {
+                new_local = x;
+            } else {
+                return None;
+            }
+            if total_drop_value <= new_local.energy_used {
+                new_local.energy_used -= total_drop_value;
+            } else {
+                new_local.reserves_used -= total_drop_value - new_local.energy_used;
+                new_local.energy_used = 0;
+            }
+            Some(new_local)
+        }
+    }
+}
+
 #[derive(Clone)]
 pub struct LockedDoorData {
     pub locked_doors: Vec<LockedDoor>,
@@ -980,6 +1060,9 @@ pub fn apply_requirement(
         },
         Requirement::HeatFrames(frames) => {
             apply_heat_frames(*frames, local, global, game_data, difficulty)
+        }
+        Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops) => {
+            apply_heat_frames_with_energy_drops(*frames, enemy_drops, local, global, game_data, difficulty, reverse)
         }
         Requirement::MainHallElevatorFrames => {
             if difficulty.fast_elevators {

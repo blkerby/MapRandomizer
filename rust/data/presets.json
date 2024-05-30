@@ -142,6 +142,8 @@
       "Crumble Shaft Top Item Frozen Sova",
       "HiJump E-Tank Return Through Crumble Blocks",
 
+      "Lava Dive with HiJump",
+
       "Amphitheatre Reverse Acid Dive",
 
       "Botwoon Hallway Mochtroid Ice Clip",
@@ -242,10 +244,10 @@
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
       "Spiky Acid Snakes Frozen Platforms",
 
-      "Crumble Shaft Top Item Precise Walljump",
       "Croc Escape SpringBall Freeze",
       "Croc Speedway Reverse Speedball",
       "Ice Beam Gate Room Frozen Sova Platform",
+      "Ice Beam Tutorial Room Impressive Damage Boost",
 
       "Post Crocomire Farming Room Damage Boost",
       "Grapple Tutorial 3 Frozen Gamet Bridge",
@@ -262,7 +264,6 @@
 
       "Lower Norfair Pillar Room with Two Power Bombs",
       "LN Firefleas Ice Bridge",
-      "LN Fireflea Room Damage Boost Over the Fune",
       "LN Spring Ball Maze Air Speedball",
       "Reverse Spring Ball Maze Crystal Flash Clip",
       "Mickey Mouse Crumble Speedjump",
@@ -366,7 +367,8 @@
       "can10PowerBombCrystalFlash",
       "canGrappleTeleport",
       "canPreciseSpaceJump",
-      "canMomentumConservingMorph"
+      "canMomentumConservingMorph",
+      "canFarmWhileShooting"
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -445,7 +447,6 @@
       "Crab Hole Cross Room Jump Morph",
       "Crab Tunnel Stutter Shinecharge Through The Gate",
       "Fish Tank Insane Naked Jump Over Pirate (Left to Right)",
-      "Mama Turtle Wall Jump Bomb Boost",
 
       "Colosseum Mochtroid Suitless, HiJumpless Ice Climb",
       "Colosseum Spike Platforming with Move Assist (Left to Right)",

@@ -115,6 +115,16 @@ impl Item {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct EnemyDrop {
+    pub small_energy_weight: Float,
+    pub large_energy_weight: Float,
+    pub missile_weight: Float,
+    pub super_weight: Float,
+    pub power_bomb_weight: Float,
+    pub count: Capacity,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Requirement {
     Free,
     Never,
@@ -136,6 +146,7 @@ pub enum Requirement {
         excess_frames: Capacity,
     },
     HeatFrames(Capacity),
+    HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>),
     LavaFrames(Capacity),
     GravitylessLavaFrames(Capacity),
     AcidFrames(Capacity),
@@ -1941,6 +1952,36 @@ impl GameData {
                 return Ok(Requirement::Never);
             } else if key == "tech" {
                 return Ok(self.get_tech_requirement(value.as_str().unwrap(), false)?);
+            } else if key == "heatFramesWithEnergyDrops" {
+                let frames = value["frames"].as_i32().unwrap() as Capacity;
+                let mut enemy_drops = vec![];
+                assert!(value["drops"].is_array());
+                for drop in value["drops"].members() {
+                    let enemy_name = drop["enemy"].as_str().unwrap();
+                    let enemy_json = &self.enemy_json[enemy_name];
+                    let drops_json = &enemy_json["drops"];
+                    let count = drop["count"].as_i32().unwrap() as Capacity;
+                    let small_energy_weight = drops_json["smallEnergy"].as_f32()
+                        .context(format!("missing smallEnergy for {}", enemy_name)).unwrap() / 102.0;
+                    let large_energy_weight = drops_json["bigEnergy"].as_f32()
+                        .context(format!("missing bigEnergy for {}", enemy_name)).unwrap() / 102.0;
+                    let missile_weight = drops_json["missile"].as_f32()
+                        .context(format!("missing missile for {}", enemy_name)).unwrap() / 102.0;
+                    let super_weight = drops_json["super"].as_f32()
+                        .context(format!("missing super for {}", enemy_name)).unwrap() / 102.0;
+                    let power_bomb_weight = drops_json["powerBomb"].as_f32()
+                        .context(format!("missing powerBomb for {}", enemy_name)).unwrap() / 102.0;
+                    let enemy_drop = EnemyDrop {
+                        small_energy_weight: Float::new(small_energy_weight),
+                        large_energy_weight: Float::new(large_energy_weight),
+                        missile_weight: Float::new(missile_weight),
+                        super_weight: Float::new(super_weight),
+                        power_bomb_weight: Float::new(power_bomb_weight),
+                        count,
+                    };
+                    enemy_drops.push(enemy_drop);
+                }
+                return Ok(Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops));
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
