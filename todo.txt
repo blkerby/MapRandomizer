@@ -1,6 +1,7 @@
 v113:
 - Troubleshoot why shinesparking from Shaktool across West Sand Hall not in logic here:
   - http://localhost:8080/seed/iLuf_jofwAdNTZWzl1lagQ/data/visualizer/index.html
+- Investigate rare failure in constructing reverse spoiler route
 - Various Mosaic fixes, pull in updates
 - investigate issue reported by selicre, of door shell not spawning or showing when entering parlor from below
   - https://github.com/theonlydude/RandomMetroidSolver/blob/8e993c5ef96293ed0a71668ad15b6c72711ca568/patches/common/src/minimizer_tourian_common.asm#L155
