@@ -12,6 +12,15 @@
     document.getElementById("navigation-home").classList.add("active");
     </script>
     <div class="container col-xl-9 col-xxl-7">
+        <% if version_info.dev { %>
+        <div class="row my-4">
+        <p><b>Note</b>: This is the development version of the site. Check out the <a href="/releases">Releases</a> tab to see what's new.
+        New features may not yet be well-tested, so bugs are likely. If you notice any issues, please let us know in the
+        <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>. Alternatively, return to the <a href="https://maprando.com">stable version</a>
+        of the site.
+        </p>
+        </div>
+        <% } %>
         <div class="row align-items-center rounded-3 border shadow-lg mx-1 my-4 p-0">
             <div class="col-lg-8 p-4">
                 <h2 class="fw-bold">Super Metroid Map Rando</h2>
