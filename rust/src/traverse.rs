@@ -1907,6 +1907,18 @@ pub fn traverse(
                             }
                         }
                         if any_improvement {
+                            let check_value = |name: &'static str, v: Capacity| {
+                                if v < 0 {
+                                    panic!("Resource {} is negative, with value {}: old_state={:?}, new_state={:?}, link={:?}", 
+                                        name, v, src_local_state, dst_new_local_state, link);
+                                }
+                            };
+                            check_value("energy", dst_new_local_state.energy_used);
+                            check_value("reserves", dst_new_local_state.reserves_used);
+                            check_value("missiles", dst_new_local_state.missiles_used);
+                            check_value("supers", dst_new_local_state.supers_used);
+                            check_value("power_bombs", dst_new_local_state.power_bombs_used);
+                            check_value("shinecharge_frames", dst_new_local_state.shinecharge_frames_remaining);
                             new_modified_vertices.insert(dst_id, improved_arr);
                             result.step_trails.push(new_step_trail);
                         }

@@ -2570,10 +2570,15 @@ impl<'r> Randomizer<'r> {
         num_one_way_filler_items_to_select: usize,
         rng: &mut R,
     ) -> Vec<Item> {
+        println!("select_filler_items: {} {}", num_bireachable_filler_items_to_select, num_one_way_filler_items_to_select);
         let bireachable_filler_items = self.select_filler_items_of_type(state, num_bireachable_filler_items_to_select, true, rng);
         let mut new_state = state.clone();
         for &item in &bireachable_filler_items {
-            new_state.items_remaining[item as usize] -= 1;
+            if new_state.items_remaining[item as usize] > 0 {
+                new_state.items_remaining[item as usize] -= 1;
+            } else if item != Item::Nothing {
+                panic!("Unexpected items_remaining[{:?}] = 0", item);
+            }
         }
         let one_way_filler_items = self.select_filler_items_of_type(&new_state, num_one_way_filler_items_to_select, false, rng);
         let mut filler_items = vec![];
