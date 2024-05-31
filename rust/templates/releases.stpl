@@ -36,6 +36,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Fixed flicker and possible graphical corruption of the escape timer across door transitions.
     <li>Fixed possible "slowlock" while gaining Hyper Beam with the Mother Brain "Skip" option.
     <li>Fixed a crash that could occur when X-ray climbing in rooms with a scrolling sky background.
+    <li>Fixed an issue that caused "leaveShinecharged" strats to be ignored in logic (in v112).
     </ul>
 <li>Adjustments to how item placement works:
     <ul>

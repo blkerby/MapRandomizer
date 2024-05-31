@@ -962,10 +962,16 @@ pub fn apply_link(
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
 ) -> Option<LocalState> {
-    let mut new_local = apply_requirement(&link.requirement, global, local, reverse, difficulty, game_data, locked_door_data);
+    let new_local = apply_requirement(&link.requirement, global, local, reverse, difficulty, game_data, locked_door_data);
     if let Some(mut new_local) = new_local {
-        if new_local.shinecharge_frames_remaining != 0 && !link.end_with_shinecharge {
-            new_local.shinecharge_frames_remaining = 0;
+        if reverse {
+            if !link.start_with_shinecharge {
+                new_local.shinecharge_frames_remaining = 0;
+            }    
+        } else {
+            if !link.end_with_shinecharge {
+                new_local.shinecharge_frames_remaining = 0;
+            }    
         }
         Some(new_local)
     } else {
@@ -1549,7 +1555,7 @@ pub fn apply_requirement(
                 } else {
                     new_local.shinecharge_frames_remaining = 180 - difficulty.shinecharge_leniency_frames;
                 }
-                Some(local)
+                Some(new_local)
             } else {
                 None
             }

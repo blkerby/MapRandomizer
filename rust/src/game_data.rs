@@ -792,10 +792,6 @@ impl LinksDataGroup {
                 &mut reversed_link.from_vertex_id,
                 &mut reversed_link.to_vertex_id,
             );
-            std::mem::swap(
-                &mut reversed_link.start_with_shinecharge,
-                &mut reversed_link.end_with_shinecharge,
-            );
             links_by_dst[reversed_link.from_vertex_id]
                 .push(((start_idx + idx) as LinkIdx, reversed_link));
             links_by_src[link.from_vertex_id].push(((start_idx + idx) as LinkIdx, link.clone()));

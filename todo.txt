@@ -1,4 +1,5 @@
 v113:
+- fix bug where quick reloading at end of elevator ride does a loadback
 - Troubleshoot why shinesparking from Shaktool across West Sand Hall not in logic here:
   - http://localhost:8080/seed/iLuf_jofwAdNTZWzl1lagQ/data/visualizer/index.html
 - Investigate rare failure in constructing reverse spoiler route
