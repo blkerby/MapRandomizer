@@ -31,6 +31,10 @@ org $848CA6
 org $90A923
     nop : nop
 
+; Hook routine that marks the tile above Samus as explored (in Terminator and Croc Speedway)
+org $90AB6D
+    jsr hook_mark_tile_above
+
 ; Hook for normal routine to mark tiles explored (at current Samus location)
 ; This will also check if mini-map is disabled, and if so, skip the rest of the mini-map drawing routine.
 org $90A98B
@@ -139,6 +143,25 @@ activate_map_station_hook:
     dey
     bne .partial_only_loop
     rtl
+
+hook_mark_tile_above:
+    ; run hi-jacked instruction (mark explored tile)
+    sta $07F3,x
+
+    ; convert X from within-area byte index (between $00 and $ff) to an overall byte index (between $00 and $5ff)
+    ; (accumulator is 8-bit)
+    txa
+    xba
+    lda $1F5B
+    xba
+    tax
+    
+    ; mark revealed tile:
+    lda $702000-4, x
+    ora $AC04,y
+    sta $702000-4, x
+
+    rts
 
 warnpc !bank_90_freespace_end
 
