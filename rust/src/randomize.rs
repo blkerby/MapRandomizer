@@ -1969,14 +1969,10 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
         }
         DoorsMode::Beam => {
-            // let red_doors_cnt = 18;
-            // let green_doors_cnt = 10;
-            // let yellow_doors_cnt = 7;
-            // let beam_door_each_cnt = 4;
-            let red_doors_cnt = 0;
-            let green_doors_cnt = 0;
-            let yellow_doors_cnt = 0;
-            let beam_door_each_cnt = 20;
+            let red_doors_cnt = 18;
+            let green_doors_cnt = 10;
+            let yellow_doors_cnt = 7;
+            let beam_door_each_cnt = 4;
             door_types.extend(vec![DoorType::Red; red_doors_cnt]);
             door_types.extend(vec![DoorType::Green; green_doors_cnt]);
             door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
