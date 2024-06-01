@@ -80,8 +80,8 @@
     {
         "name": "Double Chamber",
         "x": [0, 1, 2, 3],
-        "top": "Norfair Caves",
-        "bottom": "Norfair Caves"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "The Precious Room",
@@ -164,8 +164,8 @@
     {
         "name": "Kronic Boost Room",
         "x": [1],
-        "top": "Norfair Caves",
-        "bottom": "Norfair Caves"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Landing Site",
@@ -176,8 +176,8 @@
     {
         "name": "Lava Dive Room",
         "x": [1],
-        "top": "Norfair Caves",
-        "bottom": "Norfair Caves"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Lower Norfair Spring Ball Maze Room",
@@ -272,8 +272,8 @@
     {
         "name": "Red Kihunter Shaft",
         "x": [0],
-        "top": "Norfair Caves",
-        "bottom": "Norfair Caves"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Rinka Shaft",
@@ -284,8 +284,8 @@
     {
         "name": "Screw Attack Room",
         "x": [0],
-        "top": "Norfair Ruins",
-        "bottom": "Norfair Ruins"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Single Chamber",
@@ -302,8 +302,8 @@
     {
         "name": "Three Musketeers' Room",
         "x": [1],
-        "top": "Magenta Norfair",
-        "bottom": "Magenta Norfair"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Tourian Escape Room 3",
@@ -332,14 +332,14 @@
     {
         "name": "Volcano Room",
         "x": [2],
-        "top": "Norfair Caves",
-        "bottom": "Norfair Caves"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Wasteland",
         "x": [1],
-        "top": "Norfair Ruins",
-        "bottom": "Norfair Ruins"
+        "top": "Tourian Pipes",
+        "bottom": "Tourian Pipes"
     },
     {
         "name": "Watering Hole",
