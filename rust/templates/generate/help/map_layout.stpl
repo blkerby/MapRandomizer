@@ -15,7 +15,8 @@
         <p>This setting affects how the rooms are arranged on the map:
         <ul>
         <li><strong>Vanilla</strong>: The rooms are arranged as they are in the vanilla game, i.e. there is no
-        map randomization.
+        map randomization. Consider checking out <a href="https://varia.run">VARIA Randomizer</a>, which has 
+        more specialized support for vanilla map.
         <li><strong>Tame</strong>: The rooms are arranged in a random but relatively friendly way: one-ways 
         tend to have short return paths that loop back around.
         <li><strong>Wild</strong>: The rooms are arranged in a more random and less friendly way: there will

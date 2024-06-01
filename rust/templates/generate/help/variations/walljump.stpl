@@ -21,6 +21,14 @@
       <p>This setting is taken into account in the logic. The "Collectible" option may significantly increase the difficulty of the game, by requiring the player to know how to perform many tricks to avoid wall jumping (using frozen enemies, Speed Booster, Bombs, etc.), depending on the Skill Assumption settings.
       <p>Regardless of this setting, it is always possible to get a wall-jump check (the pose that Samus makes when moving away
       from a nearby wall), even if pressing jump during the check will not trigger a wall jump.</p>
+
+      <p>When the "Collectible" walljump option is enabled, hazard markings are shown on doors leading to there additional locations:
+      <ul>
+      <li>Door leading left to the top of Ridley's Room.
+      <li>Door leading left to the drop-off in West Ocean (e.g. from Gravity Suit Room in vanilla).
+      <li>Door leading down to Crocomire's Room. 
+      </ul>
+      </p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

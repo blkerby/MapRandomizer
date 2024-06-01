@@ -14,10 +14,7 @@
 
     <h3 class="my-3">About Map Rando</h3>
 
-    <p>Super Metroid Map Rando places the rooms randomly while ensuring they fit together in a geometrically
-    consistent way. The in-game map accurately reflects the arrangement of the rooms, allowing players
-    to track and make sense of the randomized world as they explore. Finding and activating map stations
-    will help the player gain more information to decide where to go.</p>
+    <p>Super Metroid Map Rando randomly arranges the rooms of the classic SNES game Super Metroid while ensuring they fit together in a geometrically consistent way. The in-game map accurately reflects the arrangement of the rooms, allowing players to track and make sense of the randomized world as they explore. Finding and activating map stations will help the player gain more information to decide where to go.</p>
 
     <p>Map randomization create unique challenges and puzzles that players must solve. On the higher
     difficulty settings, there are many tricky techniques that may be required in order to beat the game. Players can
@@ -46,15 +43,13 @@
 
     <p>Except for the doors, room layouts are generally exactly the same as the vanilla game. There
     are only a handful of minor changes, described in detail <a href="#layout_changes">below</a>. No platforms are added or removed, 
-    and no changes are made to special objects such as gates, bomb blocks, crumble blocks, or Power Bomb blocks, e.g. to convert
-    some of them to shot blocks as is sometimes done in other randomizers.<a href="#footnote-softlock"><sup>1</sup></a></p>
+    and no changes are made to special objects such as gates, bomb blocks, crumble blocks, or Power Bomb blocks.<a href="#footnote-softlock"><sup>1</sup></a></p>
 
     <p>Even with the quality-of-life changes, it takes practice to master the wide variety of challenging
     situations that can come up with randomized maps. For players that are newer to Super Metroid, before
-    embarking on Map Rando it is recommended to first gain some experience with the vanilla game and then
-    probably with another randomizer such as
-    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>
-    (to play VARIA with vanilla room layouts, select "Advanced" and disable "Anti-softlock layout patches").
+    trying Map Rando it is recommended to first gain some experience with the vanilla game and possibly
+    with another randomizer such as
+    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>.
     It is also possible to play Map Rando without the map randomization, by selecting "Vanilla map" under
     "Other options" on the <a href="/generate">Generate</a> page.</p>
 
@@ -87,7 +82,7 @@
         is used to represent rooms (or screens within rooms) that are submerged in water.
     <li>The location of an area's map station is always visible (optional).
     <li>Item dots fade after collection (or disappear, depending on the settings).
-    <li>Area transitions are marked, identifying the neighboring area using colored arrows (or letters, a color-blind-friendly option).
+    <li>Area transitions are marked, identifying the neighboring area using colored letters (or arrows, an alternative option).
     </ul>
 
     <h5 id="special_inputs">Special inputs</h5>
@@ -148,6 +143,7 @@
         <li>Oasis top door
         <li>Fish Tank top left door
         <li>Fish Tank top right door
+        <li>Bug Sand Hole left and right door
         <li>Amphitheatre left door
         <li>Tourian Blue Hoppers left door
         <li>Big Pink crumble block left door
@@ -365,10 +361,7 @@
 
     <p>It took about a year to develop the initial model architecture and training process, including about two months of
     continuous training on a pair of RTX 3080 Ti GPUs. The original model suffered from some quirkiness where it almost 
-    always connected certain groups of rooms together. A newer model is still in process of training, with improvements 
-    leading to greater variety in room connections, better balancing of save stations, and better connectivity (shorter
-    paths from one end of the map to the other); though not yet finished training, a preliminary map pool based on the 
-    new model already shows great improvement and is currently used in the randomizer.</p>
+    always connected certain groups of rooms together. A newer model with a number of improvements was trained for about 4 months on a pair of RTX 4090 GPUs, leading to greater variety in room connections, better balancing of save stations, and better connectivity (e.g. shorter paths from one end of the map to the other).</p>
 
     <h5 id="item_placement">Item placement</h5>
     <p>Item placement happens by forward fill: items are first placed in locations that are bireachable
@@ -379,11 +372,7 @@
     placed in them, a subset of these locations is selected to place key items in, either randomly (if "Neutral" item
     placement is selected), or by prioritizing those that require more difficult techniques to reach (if "Forced" is
     selected). Key items are selected to ensure that progression is unlocked (i.e., at least one new item location
-    becomes bireachable). Filler items are placed in the remaining bireachable item locations for a given step.
-    On "Slow" progression (e.g. in "Challenge" mode), filler items are also placed in the one-way reachable
-    item locations; otherwise, one-way reachable locations will be left open to fill on later steps.
-    The process then repeats with the next set of key items. If on a given step there is no key item that can provide
-    progression, then the randomizer retries with a different map. For more details, see the "Item progression" section
+    becomes bireachable). Filler items are placed in the remaining item locations that are reachable on that step, including locations that are only one-way reachable. The process then repeats with the next set of key items. If on a given step there is no key item that can provide progression, then the randomizer retries with a different map. For more details, see the "Item progression" section
     of the <a href="/generate">Generate</a> page.</p>
 
     <p>The logic used to determine reachability of item locations is based on the

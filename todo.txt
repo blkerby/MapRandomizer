@@ -1,5 +1,4 @@
 v113:
-- reveal tile above sloped rooms like Terminator
 - add more sprites:
    - mm2 updated aroace sprite
    - Kiara sprite
@@ -11,6 +10,7 @@ v113:
   - implement `speedBall` logical requirement
   - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
   - DONE: implement "heatFramesWithEnergyDrops"
+- DONE: reveal tile above sloped rooms like Terminator
 - DONE: Various Mosaic fixes, pull in updates
 - DONE: fix bug where quick reloading at end of elevator ride does a loadback
 - DONE: Troubleshoot why shinesparking from Shaktool across West Sand Hall not in logic here:
