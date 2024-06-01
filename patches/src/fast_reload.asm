@@ -48,6 +48,14 @@ warnpc $82DDF1
 org $82897A
     jsl hook_main
 
+; Hook save station usage
+org $848D16
+    jsl hook_save_station
+
+; Hook Ship save usage
+org $85811E
+    jsl hook_ship_save
+
 ; $08, $14, $15, $16, $17
 
 org !bank_85_free_space_start
@@ -159,6 +167,10 @@ org $80a113
 org $91e164
     jsl setup_samus : nop : nop
 
+org $82E309
+    jsl hook_door_transition
+    nop : nop
+
 ; Free space somewhere for hooked code
 org !freespacea0
 setup_music:
@@ -171,6 +183,8 @@ setup_music:
 
 setup_game_1:
 	jsl $82be17       ; Stop sounds
+    lda #$ffff
+    sta !loadback_ready   ; Set the state that allows loading back to previous save.
     lda !QUICK_RELOAD
     bne .quick
     lda #$ffff      ; Do regular things
@@ -246,8 +260,8 @@ setup_samus:
 
 ; Determine which save slot to load from, and load it:
 load_save_slot:
-    lda $0E18       ; Check if we are on an elevator ride
-    bne .current      ; If so, just load the current save (in spite of Samus facing forward, don't go back to previous save.)
+    lda !loadback_ready   ; Check if we are still in the room where we last saved
+    beq .current      ; If not, just load the current save (in spite of Samus possibly facing forward, e.g. due to elevator ride.)
     lda $0A1C       ; Check if Samus is still facing forward (initial state after loading)
     beq .forward     
     cmp #$009B
@@ -286,4 +300,31 @@ load_save_slot:
     sta !stat_loadbacks
     rtl
 
+hook_door_transition:
+    ; Unset the state that would allow loading back to previous save if facing forward.
+    ; This is to prevent unintended loadbacks when using elevators.
+    stz !loadback_ready
+    ; run hi-jacked instructions
+    lda #$E310
+    sta $099C
+    rtl
+
+hook_save_station:
+    lda #$FFFF
+    sta !loadback_ready
+    ; run hi-jacked instructions
+    lda $079F
+    asl
+    rtl
+
+hook_ship_save:
+    pha
+    lda #$FFFF
+    sta !loadback_ready
+    pla
+    ; run hi-jacked instruction:
+    jsl $809049
+    rtl
+
 warnpc $A18000
+

@@ -33,10 +33,11 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Bugfixes:
     <ul>
-    <li>Fixed flicker and possible graphical corruption of the escape timer across door transitions.
-    <li>Fixed possible "slowlock" while gaining Hyper Beam with the Mother Brain "Skip" option.
-    <li>Fixed a crash that could occur when X-ray climbing in rooms with a scrolling sky background.
-    <li>Fixed an issue that caused "leaveShinecharged" strats to be ignored in logic (in v112).
+    <li>Escape timer had flickering and possible graphical corruption across door transitions.
+    <li>A "slowlock" could occur while gaining Hyper Beam with the Mother Brain "Skip" option.
+    <li>A crash could occur when X-ray climbing in rooms with a scrolling sky background.
+    <li>Reloading at the end of an elevator ride could load back to an earlier save.
+    <li>Strats with a "leaveShinecharged" exit condition were ignored in logic in v112.
     </ul>
 <li>Adjustments to how item placement works:
     <ul>

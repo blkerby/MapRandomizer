@@ -13,3 +13,4 @@
 !spin_lock_enabled = $1F70
 !last_samus_map_x = $1F72
 !last_samus_map_y = $1F74
+!loadback_ready = $1F7A
