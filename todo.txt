@@ -1,8 +1,6 @@
 v113:
-- look into walljump item patch?
+- reveal tile above sloped rooms like Terminator
 - Various Mosaic fixes, pull in updates
-- investigate issue reported by selicre, of door shell not spawning or showing when entering parlor (or green kihunter shaft?) from below
-  - https://github.com/theonlydude/RandomMetroidSolver/blob/8e993c5ef96293ed0a71668ad15b6c72711ca568/patches/common/src/minimizer_tourian_common.asm#L155
 - add more sprites:
    - mm2 updated aroace sprite
    - Kiara sprite

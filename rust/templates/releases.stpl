@@ -37,7 +37,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>A "slowlock" could occur while gaining Hyper Beam with the Mother Brain "Skip" option.
     <li>A crash could occur when X-ray climbing in rooms with a scrolling sky background.
     <li>Reloading at the end of an elevator ride would load back to an earlier save.
-    <li>The gray door would close when reserves triggered in Ridley's Room.
+    <li>In Ridley's Room, the gray door would close when reserves triggered.
     <li>Strats with a "leaveShinecharged" exit condition were ignored in logic in v112.
     </ul>
 <li>Adjustments to how item placement works:
