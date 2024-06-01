@@ -291,6 +291,17 @@ org $A5954D
     jsl draygon_hurt
     nop : nop
 
+; The Ridley "time frozen AI" (during reserve trigger) falls through to the hurt AI.
+; But we don't want it to trigger the gray door to close, so we make it skip over that part:
+org $A6B291
+    jsl ridley_time_frozen
+    bra ridley_odd_frame_counter
+
+warnpc $A6B297
+
+org $A6B2BA
+ridley_odd_frame_counter:
+
 org $A6B297
     jsl ridley_hurt
     nop : nop
@@ -336,6 +347,14 @@ draygon_hurt:
     ; run hi-jacked instruction
     ldy #$A277
     ldx $0E54
+    rtl
+
+ridley_time_frozen:
+    ; run hi-jacked instructions
+    lda #$0001
+    sta $0FA4
+    ; there's nothing more we need to do. 
+    ; We just needed to make space for the "BRA" instruction that comes after returning.
     rtl
 
 ridley_hurt:
