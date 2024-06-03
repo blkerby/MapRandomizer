@@ -793,7 +793,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk57')
+            # save_session(session, pickle_name + '-bk58')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:
