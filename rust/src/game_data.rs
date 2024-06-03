@@ -710,6 +710,7 @@ pub enum MainEntranceCondition {
     },
     ComeInSpeedballing {
         effective_runway_length: Float,
+        heated: bool,
     },
     ComeInWithTemporaryBlue {
         direction: TemporaryBlueDirection,
@@ -993,6 +994,7 @@ pub struct GameData {
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub speed_ball_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
     pub wall_jump_tech_id: TechId,
     pub manage_reserves_tech_id: TechId,
     pub pause_abuse_tech_id: TechId,
@@ -1068,6 +1070,7 @@ impl GameData {
             }
         }
         self.heat_run_tech_id = *self.tech_isv.index_by_key.get("canHeatRun").unwrap();
+        self.speed_ball_tech_id = *self.tech_isv.index_by_key.get("canSpeedball").unwrap();
         self.wall_jump_tech_id = *self.tech_isv.index_by_key.get("canWalljump").unwrap();
         self.manage_reserves_tech_id =
             *self.tech_isv.index_by_key.get("canManageReserves").unwrap();
@@ -2965,6 +2968,7 @@ impl GameData {
                     (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
                 MainEntranceCondition::ComeInSpeedballing {
                     effective_runway_length: Float::new(effective_runway_length),
+                    heated,
                 }
             }
             "comeInWithTemporaryBlue" => MainEntranceCondition::ComeInWithTemporaryBlue {

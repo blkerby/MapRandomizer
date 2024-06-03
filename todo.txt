@@ -6,8 +6,9 @@ v113:
 - implement stuff for new logic:
   - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
   - add `comeInWithBlueSpringBallBounce`
-  - add "short-hop mockball frames" difficulty setting
-  - implement `speedBall` logical requirement
+  - implement constraints on "minExtraRunSpeed" and "maxExtraRunSpeed"
+  - DONE: add "speedball" difficulty setting
+  - DONE: implement `speedBall` logical requirement
   - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
   - DONE: implement "heatFramesWithEnergyDrops"
 - DONE: reveal tile above sloped rooms like Terminator

@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release113">Version 113 (2024-05-31)</a>:
+<p><a id="release113">Version 113 (2024-06-03)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
 <li>Tile theming updates:
@@ -61,6 +61,7 @@ document.getElementById("navigation-releases").classList.add("active");
         <ul>
         <li>Lava Dive with HiJump (Hard)
         <li>Ice Beam Tutorial Room Impressive Damage Boost (Very Hard)
+        <li>East Sand Hall Cross-Room Blue Spring Ball Bounce (Expert)
         </ul>
     </ul>
 </ul>

@@ -1545,16 +1545,20 @@ pub fn apply_requirement(
             game_data,
         ),
         Requirement::SpeedBall { used_tiles, heated } => {
-            let used_tiles = used_tiles.get();
-            let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
-                get_heated_speedball_tiles(difficulty)
-            } else {
-                difficulty.speed_ball_tiles
-            };
-            if global.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
-                Some(local)
-            } else {
+            if !global.tech[game_data.speed_ball_tech_id] {
                 None
+            } else {
+                let used_tiles = used_tiles.get();
+                let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
+                    get_heated_speedball_tiles(difficulty)
+                } else {
+                    difficulty.speed_ball_tiles
+                };
+                if global.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
+                    Some(local)
+                } else {
+                    None
+                }    
             }
         }
         Requirement::GetBlueSpeed { used_tiles, heated } => {

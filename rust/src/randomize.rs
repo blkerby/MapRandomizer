@@ -2,11 +2,7 @@ pub mod escape_timer;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity,
-        DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, GModeMobility,
-        GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
-        MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId,
-        SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey,
+        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey
     },
     traverse::{
         apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs,
@@ -718,38 +714,14 @@ impl<'a> Preprocessor<'a> {
             ),
             MainEntranceCondition::ComeInSpeedballing {
                 effective_runway_length,
+                heated,
             } => {
-                let mut req_or: Vec<Requirement> = vec![];
-                if let Some(req) = self.get_come_in_shinecharging_reqs(
+                // TODO: once flash suit logic is ready, handle this differently
+                self.get_come_in_speedballing_reqs(
                     exit_condition,
-                    effective_runway_length.get() - 5.0,
-                    0.0,
-                    false,
-                ) {
-                    req_or.push(Requirement::make_and(vec![
-                        Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key["canSlowShortCharge"],
-                        ),
-                        req,
-                    ]));
-                }
-                if let Some(req) = self.get_come_in_shinecharging_reqs(
-                    exit_condition,
-                    effective_runway_length.get() - 14.0,
-                    0.0,
-                    false,
-                ) {
-                    req_or.push(req);
-                }
-                if req_or.is_empty() {
-                    None
-                } else {
-                    Some(Requirement::make_and(vec![
-                        Requirement::Tech(self.game_data.tech_isv.index_by_key["canSpeedball"]),
-                        Requirement::Item(self.game_data.item_isv.index_by_key["Morph"]),
-                        Requirement::make_or(req_or),
-                    ]))
-                }
+                    effective_runway_length.get(),
+                    *heated,
+                )
             }
             MainEntranceCondition::ComeInWithTemporaryBlue { direction } => {
                 self.get_come_in_with_temporary_blue_reqs(exit_condition, *direction)
@@ -965,51 +937,106 @@ impl<'a> Preprocessor<'a> {
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
-                if *from_exit_node {
-                    // Runway in the other room starts and ends at the door so we need to run both directions:
-                    if runway_heated && *heated {
-                        // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room.
-                        // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles
-                        // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
-                        let other_runway_length =
-                            f32::max(0.0, f32::min(effective_length, 33.0 - runway_length));
-                        let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
-                        let heat_frames_2 = Capacity::max(
-                            85,
-                            compute_run_frames(other_runway_length + runway_length),
-                        );
-                        // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
-                    } else if !runway_heated && *heated {
-                        // Only the destination room is heated. Heat frames are optimized by using the full runway in
-                        // the source room.
-                        let (_, heat_frames) =
-                            compute_shinecharge_frames(effective_length, runway_length);
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
-                    } else if runway_heated && !*heated {
-                        // Only the source room is heated. As in the first case above, heat frames are optimized by
-                        // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
-                        let other_runway_length =
-                            f32::max(0.0, f32::min(effective_length, 33.0 - runway_length));
-                        let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
-                        let (heat_frames_2, _) =
-                            compute_shinecharge_frames(other_runway_length, runway_length);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
-                    }
-                } else if runway_heated || *heated {
-                    // Runway in the other room starts at a different node and runs toward the door. The full combined
-                    // runway is used.
-                    let (frames_1, frames_2) =
-                        compute_shinecharge_frames(effective_length, runway_length);
-                    let mut heat_frames = 5;
-                    if *heated {
-                        // Heat frames for source room
-                        heat_frames += frames_1;
-                    }
-                    if runway_heated {
-                        // Heat frames for destination room
-                        heat_frames += frames_2;
-                    }
+                if *heated || runway_heated {
+                    let heat_frames = self.get_cross_room_shortcharge_heat_frames(
+                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_cross_room_shortcharge_heat_frames(&self, from_exit_node: bool, entrance_length: f32, exit_length: f32, entrance_heated: bool, exit_heated: bool) -> Capacity {
+        let mut total_heat_frames = 0;
+        if from_exit_node {
+            // Runway in the exiting room starts and ends at the door so we need to run both directions:
+            if entrance_heated && exit_heated {
+                // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room.
+                // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles
+                // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
+                let other_runway_length =
+                    f32::max(0.0, f32::min(exit_length, 33.0 - entrance_length));
+                let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                let heat_frames_2 = Capacity::max(
+                    85,
+                    compute_run_frames(other_runway_length + entrance_length),
+                );
+                // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
+                total_heat_frames += heat_frames_1 + heat_frames_2 + 5;
+            } else if !entrance_heated && exit_heated {
+                // Only the destination room is heated. Heat frames are optimized by using the full runway in
+                // the source room.
+                let (_, heat_frames) =
+                    compute_shinecharge_frames(exit_length, entrance_length);
+                total_heat_frames += heat_frames + 5;
+            } else if entrance_heated && !exit_heated {
+                // Only the source room is heated. As in the first case above, heat frames are optimized by
+                // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
+                let other_runway_length =
+                    f32::max(0.0, f32::min(exit_length, 33.0 - entrance_length));
+                let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                let (heat_frames_2, _) =
+                    compute_shinecharge_frames(other_runway_length, entrance_length);
+                total_heat_frames += heat_frames_1 + heat_frames_2 + 5;
+            }
+        } else if entrance_heated || exit_heated {
+            // Runway in the other room starts at a different node and runs toward the door. The full combined
+            // runway is used.
+            let (frames_1, frames_2) =
+                compute_shinecharge_frames(exit_length, entrance_length);
+            total_heat_frames += 5;
+            if exit_heated {
+                // Heat frames for source room
+                total_heat_frames += frames_1;
+            }
+            if entrance_heated {
+                // Heat frames for destination room
+                total_heat_frames += frames_2;
+            }
+        }
+        total_heat_frames
+    }
+
+    fn get_come_in_speedballing_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        mut runway_length: f32,
+        runway_heated: bool,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let mut effective_length = effective_length.get();
+                if runway_length < 0.0 {
+                    // TODO: remove this hack: strats with negative runway length here coming in should use comeInBlueSpinning instead.
+                    // add a test on the sm-json-data side to enforce this.
+                    effective_length += runway_length;
+                    runway_length = 0.0;
+                }
+
+                let mut reqs: Vec<Requirement> = vec![
+                    Requirement::Tech(self.game_data.tech_isv.index_by_key["canSpeedball"])
+                ];
+                let combined_runway_length = effective_length + runway_length;
+                reqs.push(Requirement::SpeedBall {
+                    used_tiles: Float::new(combined_runway_length),
+                    heated: *heated || runway_heated 
+                });
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated || runway_heated {
+                    // Speedball would technically have slightly different heat frames (compared to a shortcharge) since you no longer
+                    // gaining run speed while in the air, but this is a small enough difference to neglect for now. There should be
+                    // enough lenience in the heat frame calculation already to account for it.
+                    let heat_frames = self.get_cross_room_shortcharge_heat_frames(
+                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
