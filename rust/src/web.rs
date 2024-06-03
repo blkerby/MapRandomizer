@@ -20,6 +20,7 @@ pub struct Preset {
     pub name: String,
     pub shinespark_tiles: f32,
     pub heated_shinespark_tiles: f32,
+    pub speed_ball_tiles: f32,
     pub shinecharge_leniency_frames: usize,
     pub resource_multiplier: f32,
     pub escape_timer_multiplier: f32,

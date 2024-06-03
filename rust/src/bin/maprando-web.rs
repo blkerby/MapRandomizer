@@ -261,6 +261,7 @@ struct RandomizeRequest {
     preset: Option<Text<String>>,
     shinespark_tiles: Text<f32>,
     heated_shinespark_tiles: Text<f32>,
+    speed_ball_tiles: Text<f32>,
     shinecharge_leniency_frames: Text<Capacity>,
     resource_multiplier: Text<f32>,
     gate_glitch_leniency: Text<Capacity>,
@@ -1155,6 +1156,10 @@ fn get_difficulty_tiers(
                 difficulty.heated_shine_charge_tiles,
                 preset.heated_shinespark_tiles as f32,
             ),
+            speed_ball_tiles: f32::max(
+                difficulty.speed_ball_tiles,
+                preset.speed_ball_tiles as f32,
+            ),
             shinecharge_leniency_frames: Capacity::max(
                 difficulty.shinecharge_leniency_frames,
                 preset.shinecharge_leniency_frames as Capacity,
@@ -1410,6 +1415,7 @@ async fn randomize(
         notable_strats: strat_vec,
         shine_charge_tiles: req.shinespark_tiles.0,
         heated_shine_charge_tiles: req.heated_shinespark_tiles.0,
+        speed_ball_tiles: req.speed_ball_tiles.0,
         shinecharge_leniency_frames: req.shinecharge_leniency_frames.0,
         progression_rate: match req.progression_rate.0.as_str() {
             "Slow" => maprando::randomize::ProgressionRate::Slow,

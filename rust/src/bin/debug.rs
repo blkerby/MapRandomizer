@@ -78,8 +78,6 @@ fn run_scenario(
         max_reserves: 0,
         max_supers: super_cnt,
         max_power_bombs: 0,
-        shine_charge_tiles: 16.0,
-        heated_shine_charge_tiles: 16.0,
         weapon_mask,
     };
     let local_state = LocalState {
@@ -96,6 +94,7 @@ fn run_scenario(
         notable_strats: vec![],
         shine_charge_tiles: 16.0,
         heated_shine_charge_tiles: 16.0,
+        speed_ball_tiles: 24.0,
         shinecharge_leniency_frames: 15,
         progression_rate: ProgressionRate::Uniform,
         random_tank: true,

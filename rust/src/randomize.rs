@@ -224,6 +224,7 @@ pub struct DifficultyConfig {
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
     pub shinecharge_leniency_frames: Capacity,
+    pub speed_ball_tiles: f32,
     pub progression_rate: ProgressionRate,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
@@ -2710,7 +2711,6 @@ impl<'r> Randomizer<'r> {
             let mut tmp_global = state.global_state.clone();
             tmp_global.tech = get_tech_vec(&self.game_data, difficulty);
             tmp_global.notable_strats = get_strat_vec(&self.game_data, difficulty);
-            tmp_global.shine_charge_tiles = difficulty.shine_charge_tiles;
             // print!("tier:{} tech:", tier);
             // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() {
             //     if tmp_global.tech[i] {
@@ -3655,8 +3655,6 @@ impl<'r> Randomizer<'r> {
             max_supers: 0,
             max_power_bombs: 0,
             weapon_mask: weapon_mask,
-            shine_charge_tiles: self.difficulty_tiers[0].shine_charge_tiles,
-            heated_shine_charge_tiles: self.difficulty_tiers[0].heated_shine_charge_tiles,
         };
         for &(item, cnt) in &self.difficulty_tiers[0].starting_items {
             for _ in 0..cnt {

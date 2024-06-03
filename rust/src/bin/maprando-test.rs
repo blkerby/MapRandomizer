@@ -46,6 +46,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         notable_strats: preset.notable_strats.clone(),
         shine_charge_tiles: preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.heated_shinespark_tiles as f32,
+        speed_ball_tiles: preset.speed_ball_tiles as f32,
         shinecharge_leniency_frames: preset.shinecharge_leniency_frames as Capacity,
         resource_multiplier: preset.resource_multiplier,
         escape_timer_multiplier: preset.escape_timer_multiplier,

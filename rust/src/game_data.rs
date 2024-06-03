@@ -139,6 +139,14 @@ pub enum Requirement {
         used_tiles: Float,
         heated: bool,
     },
+    SpeedBall {
+        used_tiles: Float,
+        heated: bool,
+    },
+    GetBlueSpeed {
+        used_tiles: Float,
+        heated: bool,
+    },
     ShineChargeFrames(Capacity),
     Shinespark {
         shinespark_tech_id: usize,
@@ -280,6 +288,21 @@ impl Requirement {
             Requirement::Never
         } else {
             Requirement::ShineCharge {
+                used_tiles: Float::new(tiles),
+                heated,
+            }
+        }
+    }
+
+    pub fn make_blue_speed(tiles: f32, heated: bool) -> Requirement {
+        if tiles < 11.0 {
+            // An effective runway length of 11 is the minimum possible length of shortcharge supported in the logic.
+            // Strats requiring shorter runways than this are discarded to save processing time during generation.
+            // Technically it is humanly viable to go as low as about 10.5, but below 11 the precision needed is so much
+            // that it would not be reasonable to require on any settings.
+            Requirement::Never
+        } else {
+            Requirement::GetBlueSpeed {
                 used_tiles: Float::new(tiles),
                 heated,
             }
@@ -1678,6 +1701,20 @@ impl GameData {
                     shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
                     frames,
                     excess_frames,
+                });
+            } else if key == "getBlueSpeed" {
+                let runway_geometry = parse_runway_geometry_shinecharge(value)?;
+                let effective_length = compute_runway_effective_length(&runway_geometry);
+                return Ok(Requirement::make_blue_speed(
+                    effective_length,
+                    ctx.room_heated,
+                ));
+            } else if key == "speedBall" {
+                let runway_geometry = parse_runway_geometry(value)?;
+                let effective_length = compute_runway_effective_length(&runway_geometry);
+                return Ok(Requirement::SpeedBall {
+                    used_tiles: Float::new(effective_length),
+                    heated: ctx.room_heated
                 });
             } else if key == "canShineCharge" {
                 let runway_geometry = parse_runway_geometry_shinecharge(value)?;

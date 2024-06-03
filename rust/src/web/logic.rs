@@ -345,6 +345,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         notable_strats: strat_vec,
         shine_charge_tiles: preset.preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
+        speed_ball_tiles: preset.preset.speed_ball_tiles as f32,
         shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as Capacity,
         progression_rate: crate::randomize::ProgressionRate::Fast,
         random_tank: true,
@@ -763,8 +764,6 @@ impl LogicData {
                 max_supers: 50,
                 max_power_bombs: 50,
                 weapon_mask: weapon_mask,
-                shine_charge_tiles: difficulty.shine_charge_tiles,
-                heated_shine_charge_tiles: difficulty.heated_shine_charge_tiles,
             };
 
             global_states.push(global);

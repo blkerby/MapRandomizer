@@ -25,6 +25,15 @@
             </div>
 
             <div class="form-group row m-2">
+                <label for="speedBallTiles" class="col-sm-6 col-form-label">Speedball tiles<br>
+                <small>(Smaller values assume ability to speedball over shorter distances)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="speed_ball_tiles" id="speedBallTiles" value="99" onchange="techChanged()">
+                </div>
+            </div>
+
+            <div class="form-group row m-2">
                 <label for="shinechargeLeniencyFrames" class="col-sm-6 col-form-label">Shinecharge leniency frames<br>
                 <small>(Extra time assumed needed to position to activate a shinespark)</small>
                 </label>
