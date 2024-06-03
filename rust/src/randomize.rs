@@ -1,4 +1,5 @@
 pub mod escape_timer;
+mod run_speed;
 
 use crate::{
     game_data::{
@@ -14,6 +15,7 @@ use crate::{
 use anyhow::{bail, Context, Result};
 use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
+use json::short;
 use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
@@ -461,6 +463,7 @@ struct Preprocessor<'a> {
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
 }
 
+
 fn compute_shinecharge_frames(
     other_runway_length: f32,
     runway_length: f32,
@@ -680,13 +683,16 @@ impl<'a> Preprocessor<'a> {
                 effective_length,
                 min_tiles,
                 heated,
+                min_extra_run_speed,
+                max_extra_run_speed,
             } => {
-                // TODO: once flash suit logic is ready, handle this differently
-                self.get_come_in_shinecharging_reqs(
+                self.get_come_in_getting_blue_speed_reqs(
                     exit_condition,
                     effective_length.get(),
                     min_tiles.get(),
                     *heated,
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
                 )
             }
             MainEntranceCondition::ComeInShinecharged {} => {
@@ -727,12 +733,14 @@ impl<'a> Preprocessor<'a> {
                 self.get_come_in_with_temporary_blue_reqs(exit_condition, *direction)
             }
             MainEntranceCondition::ComeInBlueSpinning {
-                min_tiles,
                 unusable_tiles,
+                min_extra_run_speed,
+                max_extra_run_speed,
             } => self.get_come_in_blue_spinning_reqs(
                 exit_condition,
-                min_tiles.get(),
                 unusable_tiles.get(),
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
             ),
             MainEntranceCondition::ComeInWithMockball {
                 adjacent_min_tiles,
@@ -880,6 +888,8 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveSpaceJumping {
                 remote_runway_length,
                 blue,
+                min_extra_run_speed,
+                max_extra_run_speed,
             } => {
                 let remote_runway_length = remote_runway_length.get();
                 if *blue == BlueOption::Yes {
@@ -896,51 +906,6 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(Requirement::Tech(
                         self.game_data.tech_isv.index_by_key["canDisableEquipment"],
                     ));
-                }
-                Some(Requirement::make_and(reqs))
-            }
-            _ => None,
-        }
-    }
-
-    fn get_come_in_shinecharging_reqs(
-        &self,
-        exit_condition: &ExitCondition,
-        mut runway_length: f32,
-        min_tiles: f32,
-        runway_heated: bool,
-    ) -> Option<Requirement> {
-        match exit_condition {
-            ExitCondition::LeaveWithRunway {
-                effective_length,
-                heated,
-                physics,
-                from_exit_node,
-            } => {
-                let mut effective_length = effective_length.get();
-                if effective_length < min_tiles {
-                    return None;
-                }
-                if runway_length < 0.0 {
-                    // TODO: remove this hack: strats with negative runway length here coming in should use comeInBlueSpinning instead.
-                    // add a test on the sm-json-data side to enforce this.
-                    effective_length += runway_length;
-                    runway_length = 0.0;
-                }
-
-                let mut reqs: Vec<Requirement> = vec![];
-                let combined_runway_length = effective_length + runway_length;
-                reqs.push(Requirement::make_shinecharge(
-                    combined_runway_length,
-                    runway_heated || *heated,
-                ));
-                if *physics != Some(Physics::Air) {
-                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
-                }
-                if *heated || runway_heated {
-                    let heat_frames = self.get_cross_room_shortcharge_heat_frames(
-                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
-                    reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -999,6 +964,98 @@ impl<'a> Preprocessor<'a> {
         total_heat_frames
     }
 
+    fn get_come_in_getting_blue_speed_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        mut runway_length: f32,
+        min_tiles: f32,
+        runway_heated: bool,
+        min_extra_run_speed: f32,
+        max_extra_run_speed: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let mut effective_length = effective_length.get();
+                if effective_length < min_tiles {
+                    return None;
+                }
+                if runway_length < 0.0 {
+                    // TODO: remove this hack: strats with negative runway length here coming in should use comeInBlueSpinning instead.
+                    // add a test on the sm-json-data side to enforce this.
+                    effective_length += runway_length;
+                    runway_length = 0.0;
+                }
+
+                let mut reqs: Vec<Requirement> = vec![];
+                let combined_runway_length = effective_length + runway_length;
+                reqs.push(Requirement::make_shinecharge(
+                    combined_runway_length,
+                    runway_heated || *heated,
+                ));
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated || runway_heated {
+                    let heat_frames = self.get_cross_room_shortcharge_heat_frames(
+                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_shinecharging_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        mut runway_length: f32,
+        min_tiles: f32,
+        runway_heated: bool,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let mut effective_length = effective_length.get();
+                if effective_length < min_tiles {
+                    return None;
+                }
+                if runway_length < 0.0 {
+                    // TODO: remove this hack: strats with negative runway length here coming in should use comeInBlueSpinning instead.
+                    // add a test on the sm-json-data side to enforce this.
+                    effective_length += runway_length;
+                    runway_length = 0.0;
+                }
+
+                let mut reqs: Vec<Requirement> = vec![];
+                let combined_runway_length = effective_length + runway_length;
+                reqs.push(Requirement::make_shinecharge(
+                    combined_runway_length,
+                    runway_heated || *heated,
+                ));
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated || runway_heated {
+                    let heat_frames = self.get_cross_room_shortcharge_heat_frames(
+                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
     fn get_come_in_speedballing_reqs(
         &self,
         exit_condition: &ExitCondition,
@@ -1048,14 +1105,17 @@ impl<'a> Preprocessor<'a> {
     fn get_come_in_blue_spinning_reqs(
         &self,
         exit_condition: &ExitCondition,
-        min_tiles: f32,
         unusable_tiles: f32,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveSpinning {
                 remote_runway_length,
                 blue,
                 heated,
+                min_extra_run_speed,
+                max_extra_run_speed,
             } => {
                 let remote_runway_length = remote_runway_length.get();
                 if *blue == BlueOption::No {
@@ -1120,6 +1180,8 @@ impl<'a> Preprocessor<'a> {
                 remote_runway_length,
                 landing_runway_length,
                 blue,
+                min_extra_run_speed,
+                max_extra_run_speed,
             } => {
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();
@@ -1182,6 +1244,8 @@ impl<'a> Preprocessor<'a> {
                 remote_runway_length,
                 landing_runway_length,
                 blue,
+                min_extra_run_speed,
+                max_extra_run_speed,        
             } => {
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();

@@ -9,7 +9,7 @@ v113:
   - implement constraints on "minExtraRunSpeed" and "maxExtraRunSpeed"
   - DONE: add "speedball" difficulty setting
   - DONE: implement `speedBall` logical requirement
-  - re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
+  - DONE: re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
   - DONE: implement "heatFramesWithEnergyDrops"
 - DONE: reveal tile above sloped rooms like Terminator
 - DONE: Various Mosaic fixes, pull in updates

@@ -564,21 +564,29 @@ pub enum ExitCondition {
         remote_runway_length: Float,
         blue: BlueOption,
         heated: bool,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
     },
     LeaveWithMockball {
         remote_runway_length: Float,
         landing_runway_length: Float,
         blue: BlueOption,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
     },
     LeaveWithSpringBallBounce {
         remote_runway_length: Float,
         landing_runway_length: Float,
         blue: BlueOption,
         movement_type: BounceMovementType,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
     },
     LeaveSpaceJumping {
         remote_runway_length: Float,
         blue: BlueOption,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
     },
     LeaveWithGModeSetup {
         knockback: bool,
@@ -702,6 +710,8 @@ pub enum MainEntranceCondition {
         effective_length: Float,
         min_tiles: Float,
         heated: bool,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
     },
     ComeInShinecharged {},
     ComeInShinechargedJumping {},
@@ -716,8 +726,9 @@ pub enum MainEntranceCondition {
         direction: TemporaryBlueDirection,
     },
     ComeInBlueSpinning {
-        min_tiles: Float,
         unusable_tiles: Float,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
     },
     ComeInWithMockball {
         adjacent_min_tiles: Float,
@@ -2756,6 +2767,8 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
+                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
             }
             "leaveWithMockball" => {
@@ -2769,6 +2782,8 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     landing_runway_length: Float::new(landing_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
+                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
             }
             "leaveWithSpringBallBounce" => {
@@ -2785,6 +2800,8 @@ impl GameData {
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),
                     )?,
+                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
             }
             "leaveSpaceJumping" => {
@@ -2794,6 +2811,8 @@ impl GameData {
                 ExitCondition::LeaveSpaceJumping {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
+                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
             }
             "leaveWithGModeSetup" => ExitCondition::LeaveWithGModeSetup {
@@ -2924,6 +2943,8 @@ impl GameData {
                     effective_length: Float::new(runway_effective_length),
                     min_tiles: Float::new(value["minTiles"].as_f32().unwrap_or(0.0)),
                     heated,
+                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
             }
             "comeInShinecharged" => {
@@ -2975,8 +2996,9 @@ impl GameData {
                 direction: parse_temporary_blue_direction(value["direction"].as_str())?,
             },
             "comeInBlueSpinning" => MainEntranceCondition::ComeInBlueSpinning {
-                min_tiles: Float::new(value["minTiles"].as_f32().unwrap_or(0.0)),
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
+                min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
