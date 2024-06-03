@@ -786,6 +786,15 @@ impl<'a> Preprocessor<'a> {
                     .collect(),
                 *movement_type,
             ),
+            MainEntranceCondition::ComeInWithBlueSpringBallBounce {
+                min_extra_run_speed,
+                max_extra_run_speed,
+                min_landing_tiles,
+                movement_type
+            } => {
+                // TODO: implement this
+                None
+            },
             MainEntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
             }

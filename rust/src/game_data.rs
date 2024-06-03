@@ -727,7 +727,12 @@ pub enum MainEntranceCondition {
         remote_and_landing_min_tiles: Vec<(Float, Float)>,
         movement_type: BounceMovementType,
     },
-
+    ComeInWithBlueSpringBallBounce {
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
+        min_landing_tiles: Float,
+        movement_type: BounceMovementType,
+    },
     ComeInStutterShinecharging {
         min_tiles: Float,
     },
@@ -2992,6 +2997,12 @@ impl GameData {
                         )
                     })
                     .collect(),
+                movement_type: parse_bounce_movement_type(value["movementType"].as_str().unwrap())?,
+            },
+            "comeInWithBlueSpringBallBounce" => MainEntranceCondition::ComeInWithBlueSpringBallBounce {
+                min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                min_landing_tiles: Float::new(value["minLandingTiles"].as_f32().unwrap_or(0.0)),
                 movement_type: parse_bounce_movement_type(value["movementType"].as_str().unwrap())?,
             },
             "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {},
