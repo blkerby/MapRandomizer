@@ -32,6 +32,9 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The "Alternate" colors may be easier to distinguish for color-blind players. 
     </ul>
 <li>The Tame map pool is enlarged from 9658 to 18051 maps.
+<li>New Samus sprites:
+    <li>"Aroace Samus (New)" by mm2nescartridge.
+    <li>"Kiara" by ShinobuFujiko.
 <li>Bugfixes:
     <ul>
     <li>Escape timer had flickering and sometimes graphical corruption across door transitions.
