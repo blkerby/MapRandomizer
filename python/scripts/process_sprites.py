@@ -9,11 +9,15 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("base_rom", help="path to base ROM")
+parser.add_argument("sprites", default="", help="sprite names to process (comma-separated list)")
 args = parser.parse_args()
 
 sprite_path = "MapRandoSprites/samus_sprites"
 manifest = json.load(open(f"{sprite_path}/manifest.json", "r"))
 manifest = [sprite for category in manifest for sprite in category['sprites']]
+if args.sprites != "":
+    sprite_set = set(args.sprites.split(","))
+    manifest = [[sprite for sprite in category if sprite["name"] in sprite_set] for category in manifest]
 
 def create_static_thumbnails():
     logging.info("Creating static thumbnails")
