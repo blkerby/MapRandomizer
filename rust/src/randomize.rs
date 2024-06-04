@@ -19,6 +19,7 @@ use json::short;
 use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
+use run_speed::{get_shortcharge_max_extra_run_speed, get_shortcharge_min_extra_run_speed};
 use serde_derive::{Deserialize, Serialize};
 use std::{
     any, cmp::{max, min}, convert::TryFrom, hash::Hash, iter
@@ -461,6 +462,7 @@ fn remove_some_duplicates<T: Clone + PartialEq + Eq + Hash>(
 struct Preprocessor<'a> {
     game_data: &'a GameData,
     door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
+    difficulty: &'a DifficultyConfig,
 }
 
 
@@ -489,7 +491,7 @@ fn compute_shinecharge_frames(
 }
 
 impl<'a> Preprocessor<'a> {
-    pub fn new(game_data: &'a GameData, map: &'a Map) -> Self {
+    pub fn new(game_data: &'a GameData, map: &'a Map, difficulty: &'a DifficultyConfig) -> Self {
         let mut door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
             &map.doors
@@ -514,6 +516,7 @@ impl<'a> Preprocessor<'a> {
         Preprocessor {
             game_data,
             door_map,
+            difficulty,
         }
     }
 
@@ -772,8 +775,13 @@ impl<'a> Preprocessor<'a> {
                 min_landing_tiles,
                 movement_type
             } => {
-                // TODO: implement this
-                None
+                self.get_come_in_with_blue_spring_ball_bounce_reqs(
+                    exit_condition,
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    min_landing_tiles.get(),
+                    *movement_type
+                )
             },
             MainEntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
@@ -888,6 +896,7 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveSpaceJumping {
                 remote_runway_length,
                 blue,
+                heated,
                 min_extra_run_speed,
                 max_extra_run_speed,
             } => {
@@ -964,6 +973,48 @@ impl<'a> Preprocessor<'a> {
         total_heat_frames
     }
 
+    fn add_run_speed_reqs(
+        &self,
+        exit_runway_length: f32,
+        exit_min_extra_run_speed: f32,
+        exit_max_extra_run_speed: f32,
+        exit_heated: bool,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
+        mut reqs: &mut Vec<Requirement>,
+    ) -> bool {
+        let exit_min_speed = f32::max(
+            entrance_min_extra_run_speed,
+            get_shortcharge_min_extra_run_speed(self.difficulty.shine_charge_tiles),
+        );
+        let exit_max_speed = f32::min(
+            entrance_max_extra_run_speed,
+            get_shortcharge_max_extra_run_speed(self.difficulty.shine_charge_tiles, exit_runway_length).unwrap_or(-1.0),
+        );
+        let overall_min_speed = f32::max(exit_min_speed, exit_min_extra_run_speed);
+        let overall_max_speed = f32::min(exit_max_speed, exit_max_extra_run_speed);
+        if overall_min_speed > overall_max_speed {
+            return false;
+        }
+
+        if exit_heated {
+            let exit_min_speed = f32::max(
+                entrance_min_extra_run_speed,
+                get_shortcharge_min_extra_run_speed(self.difficulty.heated_shine_charge_tiles),
+            );
+            let exit_max_speed = f32::min(
+                entrance_max_extra_run_speed,
+                get_shortcharge_max_extra_run_speed(self.difficulty.heated_shine_charge_tiles, exit_runway_length).unwrap_or(-1.0),
+            );
+            let overall_min_speed = f32::max(exit_min_speed, exit_min_extra_run_speed);
+            let overall_max_speed = f32::min(exit_max_speed, exit_max_extra_run_speed);
+            if overall_min_speed > overall_max_speed {
+                reqs.push(Requirement::Item(Item::Varia as usize));
+            }    
+        }
+        true
+    }
+
     fn get_come_in_getting_blue_speed_reqs(
         &self,
         exit_condition: &ExitCondition,
@@ -993,7 +1044,20 @@ impl<'a> Preprocessor<'a> {
 
                 let mut reqs: Vec<Requirement> = vec![];
                 let combined_runway_length = effective_length + runway_length;
-                reqs.push(Requirement::make_shinecharge(
+
+                if !self.add_run_speed_reqs(
+                    combined_runway_length,
+                    0.0,
+                    255.0,
+                    *heated || runway_heated,
+                    min_extra_run_speed,
+                    max_extra_run_speed,
+                    &mut reqs
+                ) {
+                    return None;
+                }
+                
+                reqs.push(Requirement::make_blue_speed(
                     combined_runway_length,
                     runway_heated || *heated,
                 ));
@@ -1018,6 +1082,7 @@ impl<'a> Preprocessor<'a> {
         min_tiles: f32,
         runway_heated: bool,
     ) -> Option<Requirement> {
+        // TODO: Remove min_tiles here, after strats have been correctly split off using "comeInGettingBlueSpeed".
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -1117,14 +1182,23 @@ impl<'a> Preprocessor<'a> {
                 min_extra_run_speed,
                 max_extra_run_speed,
             } => {
-                let remote_runway_length = remote_runway_length.get();
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    remote_runway_length.get(),
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs
+                ) {
+                    return None;
+                }
                 if *blue == BlueOption::No {
                     return None;
                 }
-                if min_tiles > remote_runway_length {
-                    return None;
-                }
-                Some(Requirement::make_shinecharge(remote_runway_length, *heated))
+                Some(Requirement::make_shinecharge(remote_runway_length.get(), *heated))
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -1133,11 +1207,20 @@ impl<'a> Preprocessor<'a> {
                 from_exit_node,
             } => {
                 let effective_length = effective_length.get();
-                if effective_length - unusable_tiles < f32::max(11.0, min_tiles) {
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    effective_length,
+                    0.0,
+                    255.0,
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs
+                ) {
                     return None;
                 }
 
-                let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(
                     effective_length - unusable_tiles,
                     *heated,
@@ -1180,11 +1263,15 @@ impl<'a> Preprocessor<'a> {
                 remote_runway_length,
                 landing_runway_length,
                 blue,
-                min_extra_run_speed,
-                max_extra_run_speed,
+                ..
             } => {
+                // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
+                // Currently there might not be any scenarios where this matters, but that could change?
+                // It is awkward because for a non-blue entrance strat like this, the constraints are measured in tiles rather
+                // than run speed, though we could convert between the two. 
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();
+
                 if *blue == BlueOption::Yes {
                     return None;
                 }
@@ -1244,9 +1331,12 @@ impl<'a> Preprocessor<'a> {
                 remote_runway_length,
                 landing_runway_length,
                 blue,
-                min_extra_run_speed,
-                max_extra_run_speed,        
+                ..
             } => {
+                // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
+                // Currently there might not be any scenarios where this matters, but that could change?
+                // It is awkward because for a non-blue entrance strat like this, the constraints are measured in tiles rather
+                // than run speed, though we could convert between the two. 
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();
                 if *blue == BlueOption::Yes {
@@ -1277,7 +1367,9 @@ impl<'a> Preprocessor<'a> {
                 landing_runway_length,
                 blue,
                 movement_type,
+                ..
             } => {
+                // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();
                 if *blue == BlueOption::Yes {
@@ -1306,6 +1398,195 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
                 ));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                reqs.push(Requirement::Item(Item::SpringBall as ItemId));
+                Some(Requirement::make_and(reqs))
+            }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let effective_length = effective_length.get();
+                if effective_length < adjacent_min_tiles {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated {
+                    let heat_frames = if *from_exit_node {
+                        compute_run_frames(adjacent_min_tiles) * 2 + 20
+                    } else {
+                        compute_run_frames(effective_length)
+                    };
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                if exit_movement_type == BounceMovementType::Controlled {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canMockball"],
+                    ));
+                }
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                ));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                reqs.push(Requirement::Item(Item::SpringBall as ItemId));
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_blue_spring_ball_bounce_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
+        min_landing_tiles: f32,
+        entrance_movement_type: BounceMovementType,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithMockball {
+                remote_runway_length,
+                landing_runway_length,
+                blue,
+                heated,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                let landing_runway_length = landing_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                if entrance_movement_type == BounceMovementType::Uncontrolled {
+                    return None;
+                }
+                if landing_runway_length < min_landing_tiles {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    remote_runway_length,
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs
+                ) {
+                    return None;
+                }
+
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canMockball"],
+                ));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                ));
+                reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                reqs.push(Requirement::Item(Item::SpringBall as ItemId));
+                Some(Requirement::make_and(reqs))
+            }
+            ExitCondition::LeaveWithSpringBallBounce {
+                remote_runway_length,
+                landing_runway_length,
+                blue,
+                heated,
+                movement_type,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                let landing_runway_length = landing_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                if landing_runway_length < min_landing_tiles {
+                    return None;
+                }
+                if *movement_type != entrance_movement_type
+                    && *movement_type != BounceMovementType::Any
+                    && entrance_movement_type != BounceMovementType::Any
+                {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    remote_runway_length,
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs
+                ) {
+                    return None;
+                }
+
+                if *movement_type == BounceMovementType::Controlled
+                    || entrance_movement_type == BounceMovementType::Controlled
+                {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canMockball"],
+                    ));
+                }
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                ));
+                reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                reqs.push(Requirement::Item(Item::SpringBall as ItemId));
+                Some(Requirement::make_and(reqs))
+            }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let effective_length = effective_length.get();
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    effective_length,
+                    0.0,
+                    255.0,
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs
+                ) {
+                    return None;
+                }
+
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+                if *heated {
+                    let heat_frames = if *from_exit_node {
+                        // For now, be conservative by assuming we use the whole runway. This could be refined later:
+                        compute_run_frames(effective_length) * 2 + 20
+                    } else {
+                        compute_run_frames(effective_length)
+                    };
+                    reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                if entrance_movement_type == BounceMovementType::Controlled {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key["canMockball"],
+                    ));
+                }
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                ));
+                reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
                 Some(Requirement::make_and(reqs))
@@ -2281,7 +2562,7 @@ impl<'r> Randomizer<'r> {
         game_data: &'r GameData,
         base_links_data: &'r LinksDataGroup,
     ) -> Randomizer<'r> {
-        let preprocessor = Preprocessor::new(game_data, map);
+        let preprocessor = Preprocessor::new(game_data, map, &difficulty_tiers[0]);
         let preprocessed_seed_links: Vec<Link> = preprocessor.get_all_door_links();
         info!(
             "{} base links, {} door links",
@@ -2667,7 +2948,7 @@ impl<'r> Randomizer<'r> {
         num_one_way_filler_items_to_select: usize,
         rng: &mut R,
     ) -> Vec<Item> {
-        println!("select_filler_items: {} {}", num_bireachable_filler_items_to_select, num_one_way_filler_items_to_select);
+        // println!("select_filler_items: {} {}", num_bireachable_filler_items_to_select, num_one_way_filler_items_to_select);
         let bireachable_filler_items = self.select_filler_items_of_type(state, num_bireachable_filler_items_to_select, true, rng);
         let mut new_state = state.clone();
         for &item in &bireachable_filler_items {

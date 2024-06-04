@@ -116,9 +116,15 @@ const RUN_SPEED_TABLE: [i32; 112] = [
 ];
 
 fn linear_interpolate(x: f32, table: &[(i32, i32)]) -> f32 {
+    if x <= table[0].0 as f32 {
+        return table[0].1 as f32;
+    }
+    if x >= table.last().unwrap().0 as f32 {
+        return table.last().unwrap().1 as f32;
+    }
     let i = match table.binary_search_by_key(&(x as i32), |(x, y)| *x) {
         Ok(i) => i,
-        Err(i) => usize::min(i, table.len() - 1),
+        Err(i) => i - 1,
     };
     let x0 = table[i].0 as f32;
     let x1 = table[i + 1].0 as f32;
@@ -129,7 +135,7 @@ fn linear_interpolate(x: f32, table: &[(i32, i32)]) -> f32 {
 
 // Maximum extra run speed (in pixels per frame) obtainable by running on a given length of runway
 // and jumping before the end of it, with SpeedBooster equipped.
-fn get_max_extra_run_speed(runway_length: f32) -> f32 {
+pub fn get_max_extra_run_speed(runway_length: f32) -> f32 {
     let runway_subpixels = (runway_length * 16.0) as i32;
     match RUN_SPEED_TABLE.binary_search(&runway_subpixels) {
         Ok(i) => (i as f32) / 16.0,
@@ -139,7 +145,7 @@ fn get_max_extra_run_speed(runway_length: f32) -> f32 {
 
 // Minimum extra run speed (in pixels per frame) obtainable by gaining a shortcharge
 // at the given skill level (in minimum number of tiles to gain a shortcharge)
-fn get_shortcharge_min_extra_run_speed(shortcharge_tile_skill: f32) -> f32 {
+pub fn get_shortcharge_min_extra_run_speed(shortcharge_tile_skill: f32) -> f32 {
     // Table mapping minimum shortcharge tiles into number of frames with dash held:
     let table: Vec<(i32, i32)> = vec![
         (11, 0x07),
@@ -156,7 +162,7 @@ fn get_shortcharge_min_extra_run_speed(shortcharge_tile_skill: f32) -> f32 {
     linear_interpolate(shortcharge_tile_skill, &table)
 }
 
-fn get_shortcharge_max_extra_run_speed(shortcharge_tile_skill: f32, runway_length: f32) -> Option<f32> {
+pub fn get_shortcharge_max_extra_run_speed(shortcharge_tile_skill: f32, runway_length: f32) -> Option<f32> {
     if shortcharge_tile_skill > runway_length {
         return None;
     }
@@ -227,4 +233,25 @@ fn get_shortcharge_max_extra_run_speed(shortcharge_tile_skill: f32, runway_lengt
         ]
     };
     Some(linear_interpolate(runway_length, &table) / 16.0)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_linear_interpolate() {
+        let table = vec![
+            (3, 10),
+            (5, 16),
+            (9, 20),
+        ];
+        assert_eq!(linear_interpolate(0.0, &table), 10.0);
+        assert_eq!(linear_interpolate(3.0, &table), 10.0);
+        assert_eq!(linear_interpolate(4.0, &table), 13.0);
+        assert_eq!(linear_interpolate(5.0, &table), 16.0);
+        assert_eq!(linear_interpolate(6.0, &table), 17.0);
+        assert_eq!(linear_interpolate(9.0, &table), 20.0);
+        assert_eq!(linear_interpolate(10.0, &table), 20.0);
+    }
 }

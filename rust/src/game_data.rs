@@ -571,6 +571,7 @@ pub enum ExitCondition {
         remote_runway_length: Float,
         landing_runway_length: Float,
         blue: BlueOption,
+        heated: bool,
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
     },
@@ -578,6 +579,7 @@ pub enum ExitCondition {
         remote_runway_length: Float,
         landing_runway_length: Float,
         blue: BlueOption,
+        heated: bool,
         movement_type: BounceMovementType,
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
@@ -585,6 +587,7 @@ pub enum ExitCondition {
     LeaveSpaceJumping {
         remote_runway_length: Float,
         blue: BlueOption,
+        heated: bool,
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
     },
@@ -2782,6 +2785,7 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     landing_runway_length: Float::new(landing_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
+                    heated,
                     min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
                     max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
@@ -2797,6 +2801,7 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     landing_runway_length: Float::new(landing_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
+                    heated,
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),
                     )?,
@@ -2811,6 +2816,7 @@ impl GameData {
                 ExitCondition::LeaveSpaceJumping {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
+                    heated,
                     min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
                     max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
                 }
