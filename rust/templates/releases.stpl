@@ -52,16 +52,19 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Logic updates:
     <ul>
-    <li>Refined logic in Metal Pirates Room to account for energy drops.
+    <li>Refined logic in Metal Pirates Room and Magdollite Tunnel to account for energy drops.
     <li>New tech:
         <ul>
         <li>canFarmWhileShooting (Expert)
+        <li>canHighPixelCeilingClip (Extreme)
         </ul>
     <li>New notable strats:
         <ul>
         <li>Lava Dive with HiJump (Hard)
         <li>Ice Beam Tutorial Room Impressive Damage Boost (Very Hard)
         <li>East Sand Hall Cross-Room Blue Spring Ball Bounce (Expert)
+        <li>Crab Shaft Sciser High Pixel Ice Clip Door Lock Skip (Insane)
+        <li>Spore Spawn Kihunter Ice Clip Door Lock Skip Without Morph and X-Ray (Insane)
         </ul>
     </ul>
 </ul>

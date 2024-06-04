@@ -896,10 +896,12 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveSpaceJumping {
                 remote_runway_length,
                 blue,
-                heated,
-                min_extra_run_speed,
-                max_extra_run_speed,
+                ..
             } => {
+                // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
+                // Currently there might not be any scenarios where this matters, but that could change?
+                // It is awkward because for a non-blue entrance strat like this, the constraints are measured in tiles rather
+                // than run speed, though we could convert between the two. 
                 let remote_runway_length = remote_runway_length.get();
                 if *blue == BlueOption::Yes {
                     return None;
@@ -981,7 +983,7 @@ impl<'a> Preprocessor<'a> {
         exit_heated: bool,
         entrance_min_extra_run_speed: f32,
         entrance_max_extra_run_speed: f32,
-        mut reqs: &mut Vec<Requirement>,
+        reqs: &mut Vec<Requirement>,
     ) -> bool {
         let exit_min_speed = f32::max(
             entrance_min_extra_run_speed,
@@ -1266,9 +1268,6 @@ impl<'a> Preprocessor<'a> {
                 ..
             } => {
                 // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
-                // Currently there might not be any scenarios where this matters, but that could change?
-                // It is awkward because for a non-blue entrance strat like this, the constraints are measured in tiles rather
-                // than run speed, though we could convert between the two. 
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();
 

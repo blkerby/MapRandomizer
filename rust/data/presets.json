@@ -529,7 +529,8 @@
       "canUnmorphGrappleHang",
       "canLongChainTemporaryBlue",
       "canSandBombBoost",
-      "canEnemyStuckMoonfall"
+      "canEnemyStuckMoonfall",
+      "canHighPixelCeilingClip"
     ],
     "notable_strats": [
       "Landing Site Big Jump Leave With Temporary Blue",
@@ -687,6 +688,7 @@
       "Blue Brinstar Energy Tank Room - Geemer Ice Stuck XRay Climb",
 
       "Green Hills Grapple Teleport into Grapple Jump (from Red Brinstar Firefleas)",
+      "Spore Spawn Kihunter Ice Clip Door Lock Skip Without Morph and X-Ray",
  
       "Dachora Room G-Mode Setup - Lure the Zeela Down Below",
       "Dachora Room Reo Zeela Stuck Moonfall",
@@ -726,6 +728,7 @@
       "Back-Side Botwoon Super Only Fight",
       "Botwoon Energy Tank Room Puyo Bomb-Grapple-Jump",
       "Botwoon Energy Tank Room Sand Grapple Boost",
+      "Crab Shaft Sciser High Pixel Ice Clip Door Lock Skip",
       "Colosseum with no Equipment",
       "Colosseum Stored Moonfall Grapple Door Lock Skip",
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
