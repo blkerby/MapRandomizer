@@ -15,8 +15,8 @@ RUN rm /rust/src/*.rs
 # Download the map datasets, extraction will occur in-container to reduce image size
 WORKDIR /maps
 
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-tame.tgz
-RUN tar xfz v110c-tame.tgz --directory /maps && rm v110c-tame.tgz
+RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v113-tame.tgz
+RUN tar xfz v110c-tame.tgz --directory /maps && rm v113-tame.tgz
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.tgz
 RUN tar xfz v110c-wild.tgz --directory /maps && rm v110c-wild.tgz
 

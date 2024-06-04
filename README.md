@@ -68,8 +68,8 @@ After cloning the GitHub repository, download and extract the randomized map poo
 
 ```sh
 cd maps
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-tame.tgz
-tar xfz v110c-tame.tgz && rm v110c-tame.tgz
+wget https://storage.googleapis.com/super-metroid-map-rando/maps/v113-tame.tgz
+tar xfz v113-tame.tgz && rm v113-tame.tgz
 wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.tgz
 tar xfz v110c-wild.tgz && rm v110c-wild.tgz
 cd ..

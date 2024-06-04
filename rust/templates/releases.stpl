@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release113">Version 113 (2024-06-03)</a>:
+<p><a id="release113">Version 113 (2024-06-04)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
 <li>Tile theming updates:
@@ -31,6 +31,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>The "Alternate" colors may be easier to distinguish for color-blind players. 
     </ul>
+<li>The Tame map pool is enlarged from 9658 to 18051 maps.
 <li>Bugfixes:
     <ul>
     <li>Escape timer had flickering and sometimes graphical corruption across door transitions.

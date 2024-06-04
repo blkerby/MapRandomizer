@@ -4,9 +4,9 @@ v113:
    - Kiara sprite
    - check on Celeste/Madeline sprite and Fight (ARNF) sprite?
 - implement stuff for new logic:
-  - add `leaveWithRunway` case for `comeInWithSpringBallBounce`
-  - add `comeInWithBlueSpringBallBounce`
-  - implement constraints on "minExtraRunSpeed" and "maxExtraRunSpeed"
+  - DONE: add `leaveWithRunway` case for `comeInWithSpringBallBounce`
+  - DONE: add `comeInWithBlueSpringBallBounce`
+  - DONE: implement constraints on "minExtraRunSpeed" and "maxExtraRunSpeed"
   - DONE: add "speedball" difficulty setting
   - DONE: implement `speedBall` logical requirement
   - DONE: re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
