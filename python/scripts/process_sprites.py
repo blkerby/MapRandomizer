@@ -9,7 +9,9 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("base_rom", help="path to base ROM")
-parser.add_argument("sprites", default="", help="sprite names to process (comma-separated list)")
+parser.add_argument("--sprites", default="", help="sprite names to process (comma-separated list)")
+parser.add_argument("--thumbnails", action="store_true")
+parser.add_argument("--patches", action="store_true")
 args = parser.parse_args()
 
 sprite_path = "MapRandoSprites/samus_sprites"
@@ -17,7 +19,7 @@ manifest = json.load(open(f"{sprite_path}/manifest.json", "r"))
 manifest = [sprite for category in manifest for sprite in category['sprites']]
 if args.sprites != "":
     sprite_set = set(args.sprites.split(","))
-    manifest = [[sprite for sprite in category if sprite["name"] in sprite_set] for category in manifest]
+    manifest = [sprite for sprite in manifest if sprite["name"] in sprite_set]
 
 def create_static_thumbnails():
     logging.info("Creating static thumbnails")
@@ -93,8 +95,9 @@ def create_patches():
         os.system(f"ips_util create -o ../{output_path}/{output_patch_filename} {args.base_rom} {tmpfile}")
     os.chdir("..")
 
-
-create_static_thumbnails()
-create_animated_thumbnails()
-# create_patches()
+if args.thumbnails:
+    create_static_thumbnails()
+    create_animated_thumbnails()
+if args.patches:
+    create_patches()
 logging.info("Done!")
