@@ -16,7 +16,7 @@ RUN rm /rust/src/*.rs
 WORKDIR /maps
 
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v113-tame.tgz
-RUN tar xfz v110c-tame.tgz --directory /maps && rm v113-tame.tgz
+RUN tar xfz v113-tame.tgz --directory /maps && rm v113-tame.tgz
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.tgz
 RUN tar xfz v110c-wild.tgz --directory /maps && rm v110c-wild.tgz
 
