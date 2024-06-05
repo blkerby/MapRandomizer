@@ -100,7 +100,6 @@
       "canMockball",
       "canHorizontalDamageBoost",
       "canSuitlessLavaDive",
-      "can4HighMidAirMorph",
       "canLateralMidAirMorph",
       "canStaggeredWalljump",
       "canHitbox",
@@ -126,7 +125,6 @@
     ],
     "notable_strats": [
       "Alcatraz Escape",
-      "Moat SpringBall Bounce",
 
       "Blue Brin E-Tank Return Through Crumble Blocks",
 
@@ -145,10 +143,6 @@
       "Croc Speedway Reverse Spark",
       "Crumble Shaft Top Item Frozen Sova",
       "HiJump E-Tank Return Through Crumble Blocks",
-
-      "Lava Dive with HiJump",
-
-      "Amphitheatre Reverse Acid Dive",
 
       "Botwoon Hallway Mochtroid Ice Clip",
       "Aqueduct Snail Clip",
@@ -189,6 +183,7 @@
       "canMetroidAvoid",
       "canBlueSpaceJump",
       "canStationarySpinJump",
+      "can4HighMidAirMorph",
       "canFlatleyJump",
       "canPartialFloorClip",
       "canTurnaroundAimCancel",
@@ -213,8 +208,9 @@
     "notable_strats": [
       "Climb Behemoth Shinespark",
       "Climb Moonfall Block Break",
-      "Landing Site Blue Space Jump (Bottom)",
       "Gauntlet Entrance Shinecharge Under Yapping Maw",
+      "Landing Site Blue Space Jump (Bottom)",
+      "Moat SpringBall Bounce",
       
       "East Ocean Space Jump Water Escape with Ice (Left to Right)",
       "East Ocean Space Jump Water Escape with Ice and XRay Standup",
@@ -247,12 +243,12 @@
       "Cathedral Entrance Left Door Frozen Sova Step",
       "Double Chamber Shinespark through Wave Beam Door",
       "Frog Speedway Shot Block Overload (Speedless Speedway)",
+      "Lava Dive with HiJump",
       "Spiky Acid Snakes Frozen Platforms",
 
       "Croc Escape SpringBall Freeze",
       "Croc Speedway Reverse Speedball",
       "Ice Beam Gate Room Frozen Sova Platform",
-      "Ice Beam Tutorial Room Impressive Damage Boost",
 
       "Post Crocomire Farming Room Damage Boost",
       "Grapple Tutorial 3 Frozen Gamet Bridge",
@@ -267,6 +263,7 @@
       "Screw Attack Room Transition Screwjump",
       "Screw Attack Room Transition Speedjump with Bombs",
 
+      "Amphitheatre Reverse Acid Dive",
       "Lower Norfair Pillar Room with Two Power Bombs",
       "LN Firefleas Ice Bridge",
       "LN Spring Ball Maze Air Speedball",
@@ -428,6 +425,7 @@
       "Croc Escape SpringBall Bomb Boost",
       "Croc Escape Ice Only Geruta Platforming",
       "Ice Beam Gate Room Sova Boost",
+      "Ice Beam Tutorial Room Impressive Damage Boost",
 
       "Grapple Tutorial 3 Double Gamet Boost",
       "Post Crocomire Farming Room Speed Jump",
