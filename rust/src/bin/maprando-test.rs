@@ -142,7 +142,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         objectives: vec![Objective::Kraid, Objective::Phantoon, Objective::Draygon, Objective::Ridley],
         vanilla_map: false,
         doors_mode: DoorsMode::Blue,
-        start_location_mode: StartLocationMode::Ship,
+        start_location_mode: StartLocationMode::Random,
         save_animals: SaveAnimals::No,
 
         // Other options
@@ -189,14 +189,17 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
     diff.item_priorities = vec![
         ItemPriorityGroup {
             name: "Early".to_string(),
-            items: vec!["ETank", "Morph"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
+            items: vec![
+                "Morph",
+            ]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect(),
         },
         ItemPriorityGroup {
             name: "Default".to_string(),
             items: vec![
+                "ETank",
                 "ReserveTank",
                 "Super",
                 "PowerBomb",
@@ -212,6 +215,8 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
                 "SpringBall",
                 "XRayScope",
                 "WallJump",
+                "SpaceJump",
+                "ScrewAttack",
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -219,7 +224,7 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Late".to_string(),
-            items: vec!["SpaceJump", "ScrewAttack", "Varia", "Gravity"]
+            items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
@@ -252,11 +257,8 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
     diff.item_priorities = vec![
         ItemPriorityGroup {
             name: "Early".to_string(),
-            items: vec![],
-        },
-        ItemPriorityGroup {
-            name: "Default".to_string(),
             items: vec![
+                "Morph",
                 "ETank",
                 "ReserveTank",
                 "Super",
@@ -266,14 +268,23 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
                 "Wave",
                 "Spazer",
                 "Plasma",
-                "Morph",
                 "Bombs",
                 "Grapple",
                 "HiJump",
                 "SpeedBooster",
                 "SpringBall",
-                "XRayScope",
+                "XRayScope",                
+            ]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect(),
+        },
+        ItemPriorityGroup {
+            name: "Default".to_string(),
+            items: vec![
                 "WallJump",
+                "SpaceJump",
+                "ScrewAttack", 
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -281,7 +292,7 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Late".to_string(),
-            items: vec!["SpaceJump", "ScrewAttack", "Varia", "Gravity"]
+            items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
@@ -303,10 +314,6 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
     diff.item_priorities = vec![
         ItemPriorityGroup {
             name: "Early".to_string(),
-            items: vec![],
-        },
-        ItemPriorityGroup {
-            name: "Default".to_string(),
             items: vec![
                 "ETank",
                 "ReserveTank",
@@ -317,14 +324,24 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
                 "Wave",
                 "Spazer",
                 "Plasma",
-                "Morph",
                 "Bombs",
                 "Grapple",
                 "HiJump",
                 "SpeedBooster",
                 "SpringBall",
-                "XRayScope",
+                "XRayScope",                
+            ]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect(),
+        },
+        ItemPriorityGroup {
+            name: "Default".to_string(),
+            items: vec![
+                "Morph",
                 "WallJump",
+                "SpaceJump",
+                "ScrewAttack", 
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -332,7 +349,7 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Late".to_string(),
-            items: vec!["SpaceJump", "ScrewAttack", "Varia", "Gravity"]
+            items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
@@ -361,10 +378,6 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
     diff.item_priorities = vec![
         ItemPriorityGroup {
             name: "Early".to_string(),
-            items: vec![],
-        },
-        ItemPriorityGroup {
-            name: "Default".to_string(),
             items: vec![
                 "ETank",
                 "ReserveTank",
@@ -375,14 +388,24 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
                 "Wave",
                 "Spazer",
                 "Plasma",
-                "Morph",
                 "Bombs",
                 "Grapple",
                 "HiJump",
                 "SpeedBooster",
                 "SpringBall",
-                "XRayScope",
+                "XRayScope",                
+            ]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect(),
+        },
+        ItemPriorityGroup {
+            name: "Default".to_string(),
+            items: vec![
+                "Morph",
                 "WallJump",
+                "SpaceJump",
+                "ScrewAttack", 
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -390,7 +413,7 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Late".to_string(),
-            items: vec!["SpaceJump", "ScrewAttack", "Varia", "Gravity"]
+            items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
