@@ -877,7 +877,7 @@ fn main() -> Result<()> {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    let tame_maps_path = Path::new("../maps/v110c-tame");
+    let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let mosaic_path = Path::new("../Mosaic");
