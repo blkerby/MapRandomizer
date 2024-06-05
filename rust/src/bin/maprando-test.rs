@@ -20,7 +20,7 @@ struct Args {
     test_cycles: usize,
 
     #[arg(long)]
-    rng_seed: Option<u64>,
+    attempt_num: Option<u64>,
 
     #[arg(long)]
     input_rom: PathBuf,
@@ -527,7 +527,7 @@ fn set_ultra_low_qol(mut diff: &mut DifficultyConfig) -> () {
 
 // Reduced version of web::AppData for test tool
 struct TestAppData {
-    rng_seed: Option<u64>,
+    attempt_num: Option<u64>,
     input_rom: Rom,
     output_dir: PathBuf,
     game_data: GameData,
@@ -767,7 +767,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     //     let mut rng = rand::rngs::StdRng::from_entropy();
     //     rng.next_u64()
     // });
-    let seed = cycle_count as u64;
+    let seed: u64 = app.attempt_num.unwrap_or(cycle_count as u64);
 
     info!("Test cycle {cycle_count} Start: seed={}", seed);
 
@@ -933,6 +933,7 @@ fn main() -> Result<()> {
         "canUseGrapple",
         "canEscapeEnemyGrab",
         "canDownBack",
+        "canTrivialUseFrozenEnemies",
     ]
     .into_iter()
     .map(|x| x.to_string())
@@ -1045,7 +1046,7 @@ fn main() -> Result<()> {
     }
 
     let app = TestAppData {
-        rng_seed: args.rng_seed,
+        attempt_num: args.attempt_num,
         input_rom,
         output_dir: args.output_seeds,
         game_data,
@@ -1071,6 +1072,9 @@ fn main() -> Result<()> {
     for test_cycle in 0..args.test_cycles {
         perform_test_cycle(&app, test_cycle + 1)
             .with_context(|| "Failed during test cycle {test_cycle + 1}")?;
+        if args.attempt_num.is_some() {
+            break;
+        }
     }
 
     Ok(())

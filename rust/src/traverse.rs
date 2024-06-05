@@ -1907,7 +1907,7 @@ pub fn traverse(
                 for &(link_idx, ref link) in all_src_links {
                     let dst_id = link.to_vertex_id;
                     let dst_old_cost_arr = result.cost[dst_id];
-                    if let Some(mut dst_new_local_state) = apply_link(
+                    if let Some(dst_new_local_state) = apply_link(
                         &link,
                         global,
                         src_local_state,

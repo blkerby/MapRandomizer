@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release113">Version 113 (2024-06-04)</a>:
+<p><a id="release113">Version 113 (2024-06-05)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
 <li>Tile theming updates:
@@ -61,6 +61,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Refined logic in Metal Pirates Room and Magdollite Tunnel to account for energy drops.
     <li>New tech:
         <ul>
+        <li>canPowerBombMidIBJ (Hard)
         <li>canFarmWhileShooting (Expert)
         <li>canHighPixelCeilingClip (Extreme)
         </ul>

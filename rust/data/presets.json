@@ -121,7 +121,8 @@
       "canXRayCeilingClip",
       "canSnailClimb",
       "canOffScreenSuperShot",
-      "canManageReserves"
+      "canManageReserves",
+      "canPowerBombMidIBJ"
     ],
     "notable_strats": [
       "Alcatraz Escape",
@@ -292,6 +293,7 @@
       "Back-Side Botwoon Magic Pixel Beam Fight",
       "Back-Side Botwoon Plasma Shield Microwave",
       "Back-Side Botwoon Plasma Shield Fight",
+      "Colosseum Full Halfie Shinespark",      
       "Crab Shaft Suitless Walljump Climb with HiJump",
       "Crab Shaft Ice Only Crab Climb",
       "Draygon Grapple Quick Kill",

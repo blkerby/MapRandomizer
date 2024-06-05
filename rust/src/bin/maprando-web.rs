@@ -1968,6 +1968,7 @@ fn get_implicit_tech() -> HashSet<String> {
         "canUseGrapple",
         "canEscapeEnemyGrab",
         "canDownBack",
+        "canTrivialUseFrozenEnemies",
     ]
     .into_iter()
     .map(|x| x.to_string())

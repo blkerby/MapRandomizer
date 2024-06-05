@@ -4660,15 +4660,16 @@ impl<'a> Randomizer<'a> {
         // info!("reverse: {:?}", state.debug_data.as_ref().unwrap().reverse.local_states[vertex_id]);
         let forward = &state.debug_data.as_ref().unwrap().forward;
         let reverse = &state.debug_data.as_ref().unwrap().reverse;
+        let global_state = &state.debug_data.as_ref().unwrap().global_state;
         let (forward_cost_idx, reverse_cost_idx) =
-            get_bireachable_idxs(&state.global_state, vertex_id, forward, reverse).unwrap();
+            get_bireachable_idxs(global_state, vertex_id, forward, reverse).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let reverse_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
         // info!("obtain");
         let obtain_route = self.get_spoiler_route(
-            &state.global_state,
+            global_state,
             LocalState::new(),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
@@ -4676,7 +4677,7 @@ impl<'a> Randomizer<'a> {
         );
         // info!("return");
         let return_route = self.get_spoiler_route(
-            &state.global_state,
+            global_state,
             LocalState::new(),
             &reverse_link_idxs,
             &self.difficulty_tiers[0],
@@ -4691,12 +4692,13 @@ impl<'a> Randomizer<'a> {
         vertex_id: usize,
     ) -> Vec<SpoilerRouteEntry> {
         let forward = &state.debug_data.as_ref().unwrap().forward;
+        let global_state = &state.debug_data.as_ref().unwrap().global_state;
         let forward_cost_idx =
-            get_one_way_reachable_idx(&state.global_state, vertex_id, forward).unwrap();
+            get_one_way_reachable_idx(global_state, vertex_id, forward).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let obtain_route = self.get_spoiler_route(
-            &state.global_state,
+            global_state,
             LocalState::new(),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
