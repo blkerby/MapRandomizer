@@ -18,9 +18,9 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-# import logic.rooms.crateria_isolated
+import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
-import logic.rooms.all_rooms
+# import logic.rooms.all_rooms
 
 
 start_time = datetime.now()
@@ -44,16 +44,16 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 6
-# rooms = logic.rooms.crateria_isolated.rooms
+num_envs = 2 ** 10
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-# map_x = 32
-# map_y = 32
-map_x = 72
-map_y = 72
+map_x = 32
+map_y = 32
+# map_x = 72
+# map_y = 72
 # map_x = 48
 # map_y = 48
 
@@ -101,7 +101,7 @@ embedding_width = 512
 key_width = 32
 value_width = 32
 attn_heads = 8
-hidden_width = 2048
+hidden_width = 1024
 model = TransformerModel(
     rooms=envs[0].rooms,
     num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects,
@@ -131,7 +131,7 @@ logging.info("{}".format(model))
 model.global_value.data.zero_()
 # model.output_lin.weight.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 23
+replay_size = 2 ** 18
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -206,7 +206,8 @@ class Unpickler(pickle.Unpickler):
 
 
 # pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
+# pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
+# pickle_name = 'models/session-2024-06-05T13:43:00.485204.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
 # session = Unpickler(open(pickle_name, 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk36', 'rb')).load()
@@ -215,7 +216,7 @@ pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
 # old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk47', 'rb')).load()
-session = Unpickler(open(pickle_name + '-bk57', 'rb')).load()
+# session = Unpickler(open(pickle_name + '-bk57', 'rb')).load()
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -351,14 +352,14 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.00005
+lr0 = 0.0001
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 255.5
-num_candidates_max0 = 256.5
-num_candidates_min1 = 255.5
-num_candidates_max1 = 256.5
+num_candidates_min0 = 31.5
+num_candidates_max0 = 32.5
+num_candidates_min1 = 31.5
+num_candidates_max1 = 32.5
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -386,10 +387,10 @@ door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alph
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 0.01
-temperature_max0 = 1.0
-temperature_min1 = 0.01
-temperature_max1 = 1.0
+temperature_min0 = 0.1
+temperature_max0 = 10.0
+temperature_min1 = 0.1
+temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -584,7 +585,7 @@ for i in range(1000000):
     explore_eps = temperature * explore_eps_factor
 
     # tame_mask = torch.arange(num_envs) % 2 == 0
-    tame_mask = torch.full([num_envs], True)
+    tame_mask = torch.full([num_envs], False)
     mc_dist_coef = torch.where(tame_mask, torch.tensor(mc_dist_coef_tame), torch.tensor(mc_dist_coef_wild)).to(device)
 
     with util.DelayedKeyboardInterrupt():
@@ -793,7 +794,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk58')
+            # save_session(session, pickle_name + '-bk1')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:

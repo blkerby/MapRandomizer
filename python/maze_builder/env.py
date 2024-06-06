@@ -419,6 +419,7 @@ class MazeBuilderEnv:
 
         good_positions = []
         bad_positions = []
+        self.toilet_idx = None
         for room_idx, room in enumerate(self.rooms):
             if room.name == 'Toilet':
                 self.toilet_idx = room_idx
@@ -923,6 +924,8 @@ class MazeBuilderEnv:
         return distance_matrix[:, self.missing_connection_src, self.missing_connection_dst]
 
     def compute_toilet_good(self, room_mask, room_position_x, room_position_y):
+        if self.toilet_idx is None:
+            return torch.full([room_mask.shape[0]], True)
         toilet_idx = self.toilet_idx
         toilet_x = room_position_x[:, toilet_idx].view(-1, 1)
         toilet_y = room_position_y[:, toilet_idx].view(-1, 1)
