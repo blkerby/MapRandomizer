@@ -474,7 +474,7 @@ impl<'a> Patcher<'a> {
                 "escape_autosave",
                 "boss_exit",
                 "oob_death",
-                "jam_vertical_doors_fix",
+                "vertical_door_fix",
                 "spin_lock",
             ]);
         }
