@@ -35,6 +35,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>New Samus sprites:
     <ul>
     <li>"Aroace Samus (New)" by mm2nescartridge.
+    <li>"Fight" by SpoonyBard.
     <li>"Kiara" by ShinobuFujiko.
     </ul>
 <li>Bugfixes:
