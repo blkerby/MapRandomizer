@@ -119,19 +119,21 @@ model = TransformerModel(
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=0,
-    global_width=0,
-    global_hidden_width=0,
+    num_global_layers=1,
+    global_attn_heads=16,
+    global_attn_key_width=32,
+    global_attn_value_width=32,
+    global_width=512,
+    global_hidden_width=1024,
     global_ff_dropout=0.0,
 ).to(device)
 logging.info("{}".format(model))
 
 # model.state_value_lin.weight.data.zero_()
 # model.state_value_lin.bias.data.zero_()
-model.global_value.data.zero_()
-# model.output_lin.weight.data.zero_()
+model.output_lin2.weight.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 18
+replay_size = 2 ** 19
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -352,7 +354,7 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0001
+lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
@@ -379,7 +381,7 @@ toilet_good_coef = 0.5
 graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 
-door_connect_bound = 5.0
+door_connect_bound = 10.0
 # door_connect_bound = 0.0
 door_connect_alpha = 0.02
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
@@ -401,11 +403,11 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 74368
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices) // 8
+annealing_start = 0
+annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 1.0
-pass_factor1 = pass_factor0
+pass_factor0 = 0.0
+pass_factor1 = 1.0
 print_freq = 16
 total_reward = 0
 total_loss = 0.0
