@@ -30,6 +30,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>A new setting "Door locks size on map" is added (under "Other options"):
     <ul>
     <li>With the new "Large" option, door locks will stand out more on the map.
+    <li>For technical reasons, this is currently a generation-time option.
     </ul>
 <li>A new customization setting "Door colors" is added.
     <ul>
