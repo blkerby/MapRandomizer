@@ -551,12 +551,21 @@ impl<'a> MapPatcher<'a> {
             TileSide::Left => [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)],
             TileSide::Right => [(7, 6), (6, 6), (5, 6), (4, 6), (3, 6), (2, 6), (1, 6), (0, 6)],
         };
+        let deep_coords = match tile_side {
+            TileSide::Top => [(2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7)],
+            TileSide::Bottom => [(5, 7), (5, 6), (5, 5), (5, 4), (5, 3), (5, 2), (5, 1), (5, 0)],
+            TileSide::Left => [(0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2)],
+            TileSide::Right => [(7, 5), (6, 5), (5, 5), (4, 5), (3, 5), (2, 5), (1, 5), (0, 5)],
+        };
 
         let set_wall_pixel = |tile: &mut [[u8; 8]; 8], i: usize, color: u8| {
             tile[wall_coords[i].0][wall_coords[i].1] = color;
         };
         let set_air_pixel = |tile: &mut [[u8; 8]; 8], i: usize, color: u8| {
             tile[air_coords[i].0][air_coords[i].1] = color;
+        };
+        let set_deep_pixel = |tile: &mut [[u8; 8]; 8], i: usize, color: u8| {
+            tile[deep_coords[i].0][deep_coords[i].1] = color;
         };
         match edge {
             Edge::Empty => {},
@@ -594,14 +603,28 @@ impl<'a> MapPatcher<'a> {
                 };
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 12);
+                // set_wall_pixel(tile, 2, 12);
+                // set_wall_pixel(tile, 3, color);
+                // set_wall_pixel(tile, 4, color);
+                // set_wall_pixel(tile, 5, 12);
+                set_wall_pixel(tile, 2, 3);
                 set_wall_pixel(tile, 3, color);
                 set_wall_pixel(tile, 4, color);
-                set_wall_pixel(tile, 5, 12);
+                set_wall_pixel(tile, 5, 3);
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
-                set_air_pixel(tile, 3, 4);
-                set_air_pixel(tile, 4, 4);
+                // set_air_pixel(tile, 3, 4);
+                // set_air_pixel(tile, 4, 4);
+                set_air_pixel(tile, 1, 4);
+                set_air_pixel(tile, 2, color);
+                set_air_pixel(tile, 3, color);
+                set_air_pixel(tile, 4, color);
+                set_air_pixel(tile, 5, color);
+                set_air_pixel(tile, 6, 4);
+                set_deep_pixel(tile, 2, 4);
+                set_deep_pixel(tile, 3, 4);
+                set_deep_pixel(tile, 4, 4);
+                set_deep_pixel(tile, 5, 4);
             },
             Edge::ChargeDoor | Edge::IceDoor | Edge::WaveDoor | Edge::SpazerDoor | Edge::PlasmaDoor => {
                 let color = match edge {
@@ -614,16 +637,26 @@ impl<'a> MapPatcher<'a> {
                 };
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 12);
+                set_wall_pixel(tile, 2, 3);
                 set_wall_pixel(tile, 3, color);
                 set_wall_pixel(tile, 4, color);
-                set_wall_pixel(tile, 5, 12);
+                set_wall_pixel(tile, 5, 3);
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
+                // set_air_pixel(tile, 2, 13);
+                // set_air_pixel(tile, 3, 4);
+                // set_air_pixel(tile, 4, 4);
+                // set_air_pixel(tile, 5, 13);
+                // set_air_pixel(tile, 1, 13);
                 set_air_pixel(tile, 2, 13);
-                set_air_pixel(tile, 3, 4);
-                set_air_pixel(tile, 4, 4);
+                set_air_pixel(tile, 3, color);
+                set_air_pixel(tile, 4, color);
                 set_air_pixel(tile, 5, 13);
+                // set_air_pixel(tile, 6, 13);
+                // set_deep_pixel(tile, 2, 13);
+                set_deep_pixel(tile, 3, 4);
+                set_deep_pixel(tile, 4, 4);
+                // set_deep_pixel(tile, 5, 13);
             }
         }
     }
@@ -1925,14 +1958,14 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(0, 24, 0)),   // Brinstar green
+            (14, rgb(6, 25, 6)),   // Brinstar green (and green doors)
             (10, rgb(29, 0, 0)),   // Norfair red
             (8, rgb(4, 13, 31)),   // Maridia blue
             (9, rgb(23, 24, 9)),   // Wrecked Ship yellow
             (11, rgb(20, 3, 31)),  // Crateria purple
-            (6, rgb(29, 15, 0)),   // Tourian,
+            (6, rgb(31, 12, 0)),   // Tourian, (and orange doors)
             (15, rgb(18, 12, 14)), // Gray door
-            (7, rgb(27, 7, 18)),   // Red (pink) door
+            (7, rgb(27, 2, 27)),   // Red (pink) door
             (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)
             (13, rgb(31, 31, 31)), // White (item dots)
         ];
