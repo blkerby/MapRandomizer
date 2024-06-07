@@ -151,6 +151,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         area_assignment: AreaAssignment::Standard,
         item_dot_change: ItemDotChange::Fade,
         transition_letters: false,
+        door_locks_size: maprando::randomize::DoorLocksSize::Small,
         maps_revealed: maprando::randomize::MapsRevealed::No,
         map_station_reveal: maprando::randomize::MapStationReveal::Full,
         energy_free_shinesparks: false,

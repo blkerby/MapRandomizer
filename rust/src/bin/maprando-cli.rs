@@ -189,6 +189,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         mark_map_stations: true,
         room_outline_revealed: true,
         transition_letters: true,
+        door_locks_size: maprando::randomize::DoorLocksSize::Small,
         item_markers: ItemMarkers::ThreeTiered,
         item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,

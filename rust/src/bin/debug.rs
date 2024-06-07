@@ -128,6 +128,7 @@ fn run_scenario(
         mark_map_stations: true,
         room_outline_revealed: true,
         transition_letters: false,
+        door_locks_size: maprando::randomize::DoorLocksSize::Small,
         item_markers: ItemMarkers::ThreeTiered,
         item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,

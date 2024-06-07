@@ -55,6 +55,12 @@ pub enum ItemPriorityStrength {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum DoorLocksSize {
+    Small,
+    Large
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ItemMarkers {
     Simple,
     Majors,
@@ -254,6 +260,7 @@ pub struct DifficultyConfig {
     pub mark_map_stations: bool,
     pub room_outline_revealed: bool,
     pub transition_letters: bool,
+    pub door_locks_size: DoorLocksSize,
     pub item_markers: ItemMarkers,
     pub item_dot_change: ItemDotChange,
     pub all_items_spawn: bool,

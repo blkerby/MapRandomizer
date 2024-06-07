@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release113">Version 113 (2024-06-06)</a>:
+<p><a id="release113">Version 113 (2024-06-07)</a>:
 <ul>
 <li>A new "Beam" doors option is added.
 <li>Tile theming updates:
@@ -26,6 +26,10 @@ document.getElementById("navigation-releases").classList.add("active");
         <li>This is a convenient way to select the main useful combinations of "Room palettes" and "Tile theme" settings.
         <li>The individual settings are still available under "Other customization options".
         </ul>
+    </ul>
+<li>A new setting "Door locks size on map" is added (under "Other options"):
+    <ul>
+    <li>With the new "Large" option, door locks will stand out more on the map.
     </ul>
 <li>A new customization setting "Door colors" is added.
     <ul>

@@ -3,7 +3,7 @@ use log::info;
 
 use crate::{
     game_data::{AreaIdx, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{BeamType, DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
+    randomize::{BeamType, DoorLocksSize, DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
 };
 
 use super::{beam_doors_tiles, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -538,7 +538,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn draw_edge(tile_side: TileSide, edge: Edge, tile: &mut [[u8; 8]; 8]) {
+    fn draw_edge(&self, tile_side: TileSide, edge: Edge, tile: &mut [[u8; 8]; 8]) {
         let wall_coords = match tile_side {
             TileSide::Top => [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7)],
             TileSide::Bottom => [(7, 7), (7, 6), (7, 5), (7, 4), (7, 3), (7, 2), (7, 1), (7, 0)],
@@ -601,30 +601,40 @@ impl<'a> MapPatcher<'a> {
                     Edge::YellowDoor => 6,
                     _ => panic!("Internal error"),
                 };
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                // set_wall_pixel(tile, 2, 12);
-                // set_wall_pixel(tile, 3, color);
-                // set_wall_pixel(tile, 4, color);
-                // set_wall_pixel(tile, 5, 12);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, color);
-                set_wall_pixel(tile, 4, color);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
-                // set_air_pixel(tile, 3, 4);
-                // set_air_pixel(tile, 4, 4);
-                set_air_pixel(tile, 1, 4);
-                set_air_pixel(tile, 2, color);
-                set_air_pixel(tile, 3, color);
-                set_air_pixel(tile, 4, color);
-                set_air_pixel(tile, 5, color);
-                set_air_pixel(tile, 6, 4);
-                set_deep_pixel(tile, 2, 4);
-                set_deep_pixel(tile, 3, 4);
-                set_deep_pixel(tile, 4, 4);
-                set_deep_pixel(tile, 5, 4);
+                match self.randomization.difficulty.door_locks_size {
+                    DoorLocksSize::Small => {
+                        set_wall_pixel(tile, 0, 3);
+                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 2, 12);
+                        set_wall_pixel(tile, 3, color);
+                        set_wall_pixel(tile, 4, color);
+                        set_wall_pixel(tile, 5, 12);
+                        set_wall_pixel(tile, 6, 3);
+                        set_wall_pixel(tile, 7, 3);
+                        set_air_pixel(tile, 3, 4);
+                        set_air_pixel(tile, 4, 4);        
+                    }
+                    DoorLocksSize::Large => {
+                        set_wall_pixel(tile, 0, 3);
+                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 2, 12);
+                        set_wall_pixel(tile, 3, color);
+                        set_wall_pixel(tile, 4, color);
+                        set_wall_pixel(tile, 5, 12);
+                        set_wall_pixel(tile, 6, 3);
+                        set_wall_pixel(tile, 7, 3);
+                        set_air_pixel(tile, 1, 4);
+                        set_air_pixel(tile, 2, color);
+                        set_air_pixel(tile, 3, color);
+                        set_air_pixel(tile, 4, color);
+                        set_air_pixel(tile, 5, color);
+                        set_air_pixel(tile, 6, 4);
+                        set_deep_pixel(tile, 2, 4);
+                        set_deep_pixel(tile, 3, 4);
+                        set_deep_pixel(tile, 4, 4);
+                        set_deep_pixel(tile, 5, 4);                                
+                    }
+                }
             },
             Edge::ChargeDoor | Edge::IceDoor | Edge::WaveDoor | Edge::SpazerDoor | Edge::PlasmaDoor => {
                 let color = match edge {
@@ -635,28 +645,38 @@ impl<'a> MapPatcher<'a> {
                     Edge::PlasmaDoor => 14,
                     _ => panic!("Internal error"),
                 };
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, color);
-                set_wall_pixel(tile, 4, color);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
-                // set_air_pixel(tile, 2, 13);
-                // set_air_pixel(tile, 3, 4);
-                // set_air_pixel(tile, 4, 4);
-                // set_air_pixel(tile, 5, 13);
-                // set_air_pixel(tile, 1, 13);
-                set_air_pixel(tile, 2, 13);
-                set_air_pixel(tile, 3, color);
-                set_air_pixel(tile, 4, color);
-                set_air_pixel(tile, 5, 13);
-                // set_air_pixel(tile, 6, 13);
-                // set_deep_pixel(tile, 2, 13);
-                set_deep_pixel(tile, 3, 4);
-                set_deep_pixel(tile, 4, 4);
-                // set_deep_pixel(tile, 5, 13);
+                match self.randomization.difficulty.door_locks_size {
+                    DoorLocksSize::Small => {
+                        set_wall_pixel(tile, 0, 3);
+                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 2, 12);
+                        set_wall_pixel(tile, 3, color);
+                        set_wall_pixel(tile, 4, color);
+                        set_wall_pixel(tile, 5, 12);
+                        set_wall_pixel(tile, 6, 3);
+                        set_wall_pixel(tile, 7, 3);
+                        set_air_pixel(tile, 2, 13);
+                        set_air_pixel(tile, 3, 4);
+                        set_air_pixel(tile, 4, 4);
+                        set_air_pixel(tile, 5, 13);
+                    }
+                    DoorLocksSize::Large => {
+                        set_wall_pixel(tile, 0, 3);
+                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 2, 3);
+                        set_wall_pixel(tile, 3, color);
+                        set_wall_pixel(tile, 4, color);
+                        set_wall_pixel(tile, 5, 3);
+                        set_wall_pixel(tile, 6, 3);
+                        set_wall_pixel(tile, 7, 3);
+                        set_air_pixel(tile, 2, 13);
+                        set_air_pixel(tile, 3, color);
+                        set_air_pixel(tile, 4, color);
+                        set_air_pixel(tile, 5, 13);
+                        set_deep_pixel(tile, 3, 4);
+                        set_deep_pixel(tile, 4, 4);
+                    }
+                }
             }
         }
     }
@@ -814,13 +834,12 @@ impl<'a> MapPatcher<'a> {
                     (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
                 ]);
             },
-
         }
 
-        Self::draw_edge(TileSide::Top, tile.up, &mut data);
-        Self::draw_edge(TileSide::Bottom, tile.down, &mut data);
-        Self::draw_edge(TileSide::Left, tile.left, &mut data);
-        Self::draw_edge(TileSide::Right, tile.right, &mut data);
+        self.draw_edge(TileSide::Top, tile.up, &mut data);
+        self.draw_edge(TileSide::Bottom, tile.down, &mut data);
+        self.draw_edge(TileSide::Left, tile.left, &mut data);
+        self.draw_edge(TileSide::Right, tile.right, &mut data);
         Ok(data)
     }
 

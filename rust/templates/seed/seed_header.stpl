@@ -73,6 +73,9 @@
         if !transition_letters {
             game_variations.push("Area transitions marked as arrows");
         }
+        if difficulty.door_locks_size == DoorLocksSize::Large {
+            game_variations.push("Door locks drawn larger on map");
+        }
         match difficulty.wall_jump {
             WallJump::Collectible => {
                 game_variations.push("Collectible wall jump");

@@ -376,6 +376,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         mark_map_stations: true,
         room_outline_revealed: true,
         transition_letters: false,
+        door_locks_size: crate::randomize::DoorLocksSize::Small,
         item_markers: crate::randomize::ItemMarkers::ThreeTiered,
         item_dot_change: crate::randomize::ItemDotChange::Fade,
         all_items_spawn: true,

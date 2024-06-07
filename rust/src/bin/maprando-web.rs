@@ -25,10 +25,7 @@ use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup, 
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
-    DifficultyConfig, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle,
-    ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, Randomization,
-    Randomizer, SaveAnimals, StartLocationMode, WallJump,
+    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DifficultyConfig, DoorLocksSize, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -297,6 +294,7 @@ struct RandomizeRequest {
     mark_map_stations: Text<bool>,
     room_outline_revealed: Text<bool>,
     transition_letters: Text<bool>,
+    door_locks_size: Text<String>,
     item_markers: Text<String>,
     item_dot_change: Text<String>,
     all_items_spawn: Text<bool>,
@@ -1217,6 +1215,7 @@ fn get_difficulty_tiers(
             mark_map_stations: difficulty.mark_map_stations,
             room_outline_revealed: difficulty.room_outline_revealed,
             transition_letters: difficulty.transition_letters,
+            door_locks_size: difficulty.door_locks_size,
             item_markers: difficulty.item_markers,
             item_dot_change: difficulty.item_dot_change,
             all_items_spawn: difficulty.all_items_spawn,
@@ -1509,6 +1508,11 @@ async fn randomize(
         mark_map_stations: req.mark_map_stations.0,
         room_outline_revealed: req.room_outline_revealed.0,
         transition_letters: req.transition_letters.0,
+        door_locks_size: match req.door_locks_size.0.as_str() {
+            "small" => DoorLocksSize::Small,
+            "large" => DoorLocksSize::Large,
+            _ => panic!("Unrecognized door_locks_size: {}", req.door_locks_size.0),
+        },
         item_markers: match req.item_markers.0.as_str() {
             "Simple" => ItemMarkers::Simple,
             "Majors" => ItemMarkers::Majors,
