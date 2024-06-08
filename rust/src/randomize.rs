@@ -3,7 +3,12 @@ mod run_speed;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexAction, VertexId, VertexKey
+        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity,
+        DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, Float,
+        GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx,
+        LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement,
+        RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection,
+        VertexAction, VertexId, VertexKey,
     },
     traverse::{
         apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs,
@@ -22,7 +27,11 @@ use rand::{seq::SliceRandom, Rng};
 use run_speed::{get_shortcharge_max_extra_run_speed, get_shortcharge_min_extra_run_speed};
 use serde_derive::{Deserialize, Serialize};
 use std::{
-    any, cmp::{max, min}, convert::TryFrom, hash::Hash, iter
+    any,
+    cmp::{max, min},
+    convert::TryFrom,
+    hash::Hash,
+    iter,
 };
 use strum::VariantNames;
 
@@ -57,7 +66,7 @@ pub enum ItemPriorityStrength {
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum DoorLocksSize {
     Small,
-    Large
+    Large,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
@@ -472,7 +481,6 @@ struct Preprocessor<'a> {
     difficulty: &'a DifficultyConfig,
 }
 
-
 fn compute_shinecharge_frames(
     other_runway_length: f32,
     runway_length: f32,
@@ -695,16 +703,14 @@ impl<'a> Preprocessor<'a> {
                 heated,
                 min_extra_run_speed,
                 max_extra_run_speed,
-            } => {
-                self.get_come_in_getting_blue_speed_reqs(
-                    exit_condition,
-                    effective_length.get(),
-                    min_tiles.get(),
-                    *heated,
-                    min_extra_run_speed.get(),
-                    max_extra_run_speed.get(),
-                )
-            }
+            } => self.get_come_in_getting_blue_speed_reqs(
+                exit_condition,
+                effective_length.get(),
+                min_tiles.get(),
+                *heated,
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
+            ),
             MainEntranceCondition::ComeInShinecharged {} => {
                 self.get_come_in_shinecharged_reqs(exit_condition)
             }
@@ -780,16 +786,14 @@ impl<'a> Preprocessor<'a> {
                 min_extra_run_speed,
                 max_extra_run_speed,
                 min_landing_tiles,
-                movement_type
-            } => {
-                self.get_come_in_with_blue_spring_ball_bounce_reqs(
-                    exit_condition,
-                    min_extra_run_speed.get(),
-                    max_extra_run_speed.get(),
-                    min_landing_tiles.get(),
-                    *movement_type
-                )
-            },
+                movement_type,
+            } => self.get_come_in_with_blue_spring_ball_bounce_reqs(
+                exit_condition,
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
+                min_landing_tiles.get(),
+                *movement_type,
+            ),
             MainEntranceCondition::ComeInWithRMode {} => {
                 self.get_come_in_with_r_mode_reqs(exit_condition)
             }
@@ -908,7 +912,7 @@ impl<'a> Preprocessor<'a> {
                 // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
                 // Currently there might not be any scenarios where this matters, but that could change?
                 // It is awkward because for a non-blue entrance strat like this, the constraints are measured in tiles rather
-                // than run speed, though we could convert between the two. 
+                // than run speed, though we could convert between the two.
                 let remote_runway_length = remote_runway_length.get();
                 if *blue == BlueOption::Yes {
                     return None;
@@ -931,7 +935,14 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn get_cross_room_shortcharge_heat_frames(&self, from_exit_node: bool, entrance_length: f32, exit_length: f32, entrance_heated: bool, exit_heated: bool) -> Capacity {
+    fn get_cross_room_shortcharge_heat_frames(
+        &self,
+        from_exit_node: bool,
+        entrance_length: f32,
+        exit_length: f32,
+        entrance_heated: bool,
+        exit_heated: bool,
+    ) -> Capacity {
         let mut total_heat_frames = 0;
         if from_exit_node {
             // Runway in the exiting room starts and ends at the door so we need to run both directions:
@@ -951,8 +962,7 @@ impl<'a> Preprocessor<'a> {
             } else if !entrance_heated && exit_heated {
                 // Only the destination room is heated. Heat frames are optimized by using the full runway in
                 // the source room.
-                let (_, heat_frames) =
-                    compute_shinecharge_frames(exit_length, entrance_length);
+                let (_, heat_frames) = compute_shinecharge_frames(exit_length, entrance_length);
                 total_heat_frames += heat_frames + 5;
             } else if entrance_heated && !exit_heated {
                 // Only the source room is heated. As in the first case above, heat frames are optimized by
@@ -967,8 +977,7 @@ impl<'a> Preprocessor<'a> {
         } else if entrance_heated || exit_heated {
             // Runway in the other room starts at a different node and runs toward the door. The full combined
             // runway is used.
-            let (frames_1, frames_2) =
-                compute_shinecharge_frames(exit_length, entrance_length);
+            let (frames_1, frames_2) = compute_shinecharge_frames(exit_length, entrance_length);
             total_heat_frames += 5;
             if exit_heated {
                 // Heat frames for source room
@@ -998,7 +1007,11 @@ impl<'a> Preprocessor<'a> {
         );
         let exit_max_speed = f32::min(
             entrance_max_extra_run_speed,
-            get_shortcharge_max_extra_run_speed(self.difficulty.shine_charge_tiles, exit_runway_length).unwrap_or(-1.0),
+            get_shortcharge_max_extra_run_speed(
+                self.difficulty.shine_charge_tiles,
+                exit_runway_length,
+            )
+            .unwrap_or(-1.0),
         );
         let overall_min_speed = f32::max(exit_min_speed, exit_min_extra_run_speed);
         let overall_max_speed = f32::min(exit_max_speed, exit_max_extra_run_speed);
@@ -1013,13 +1026,17 @@ impl<'a> Preprocessor<'a> {
             );
             let exit_max_speed = f32::min(
                 entrance_max_extra_run_speed,
-                get_shortcharge_max_extra_run_speed(self.difficulty.heated_shine_charge_tiles, exit_runway_length).unwrap_or(-1.0),
+                get_shortcharge_max_extra_run_speed(
+                    self.difficulty.heated_shine_charge_tiles,
+                    exit_runway_length,
+                )
+                .unwrap_or(-1.0),
             );
             let overall_min_speed = f32::max(exit_min_speed, exit_min_extra_run_speed);
             let overall_max_speed = f32::min(exit_max_speed, exit_max_extra_run_speed);
             if overall_min_speed > overall_max_speed {
                 reqs.push(Requirement::Item(Item::Varia as usize));
-            }    
+            }
         }
         true
     }
@@ -1061,11 +1078,11 @@ impl<'a> Preprocessor<'a> {
                     *heated || runway_heated,
                     min_extra_run_speed,
                     max_extra_run_speed,
-                    &mut reqs
+                    &mut reqs,
                 ) {
                     return None;
                 }
-                
+
                 reqs.push(Requirement::make_blue_speed(
                     combined_runway_length,
                     runway_heated || *heated,
@@ -1075,7 +1092,12 @@ impl<'a> Preprocessor<'a> {
                 }
                 if *heated || runway_heated {
                     let heat_frames = self.get_cross_room_shortcharge_heat_frames(
-                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
+                        *from_exit_node,
+                        runway_length,
+                        effective_length,
+                        runway_heated,
+                        *heated,
+                    );
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
@@ -1121,7 +1143,12 @@ impl<'a> Preprocessor<'a> {
                 }
                 if *heated || runway_heated {
                     let heat_frames = self.get_cross_room_shortcharge_heat_frames(
-                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
+                        *from_exit_node,
+                        runway_length,
+                        effective_length,
+                        runway_heated,
+                        *heated,
+                    );
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
@@ -1151,13 +1178,13 @@ impl<'a> Preprocessor<'a> {
                     runway_length = 0.0;
                 }
 
-                let mut reqs: Vec<Requirement> = vec![
-                    Requirement::Tech(self.game_data.tech_isv.index_by_key["canSpeedball"])
-                ];
+                let mut reqs: Vec<Requirement> = vec![Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key["canSpeedball"],
+                )];
                 let combined_runway_length = effective_length + runway_length;
                 reqs.push(Requirement::SpeedBall {
                     used_tiles: Float::new(combined_runway_length),
-                    heated: *heated || runway_heated 
+                    heated: *heated || runway_heated,
                 });
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
@@ -1167,7 +1194,12 @@ impl<'a> Preprocessor<'a> {
                     // gaining run speed while in the air, but this is a small enough difference to neglect for now. There should be
                     // enough lenience in the heat frame calculation already to account for it.
                     let heat_frames = self.get_cross_room_shortcharge_heat_frames(
-                        *from_exit_node, runway_length, effective_length, runway_heated, *heated);
+                        *from_exit_node,
+                        runway_length,
+                        effective_length,
+                        runway_heated,
+                        *heated,
+                    );
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
@@ -1200,14 +1232,17 @@ impl<'a> Preprocessor<'a> {
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,
-                    &mut reqs
+                    &mut reqs,
                 ) {
                     return None;
                 }
                 if *blue == BlueOption::No {
                     return None;
                 }
-                Some(Requirement::make_shinecharge(remote_runway_length.get(), *heated))
+                Some(Requirement::make_shinecharge(
+                    remote_runway_length.get(),
+                    *heated,
+                ))
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -1225,7 +1260,7 @@ impl<'a> Preprocessor<'a> {
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,
-                    &mut reqs
+                    &mut reqs,
                 ) {
                     return None;
                 }
@@ -1342,7 +1377,7 @@ impl<'a> Preprocessor<'a> {
                 // TODO: Take into account any exit constraints on min_extra_run_speed and max_extra_run_speed.
                 // Currently there might not be any scenarios where this matters, but that could change?
                 // It is awkward because for a non-blue entrance strat like this, the constraints are measured in tiles rather
-                // than run speed, though we could convert between the two. 
+                // than run speed, though we could convert between the two.
                 let remote_runway_length = remote_runway_length.get();
                 let landing_runway_length = landing_runway_length.get();
                 if *blue == BlueOption::Yes {
@@ -1483,7 +1518,7 @@ impl<'a> Preprocessor<'a> {
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,
-                    &mut reqs
+                    &mut reqs,
                 ) {
                     return None;
                 }
@@ -1531,7 +1566,7 @@ impl<'a> Preprocessor<'a> {
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,
-                    &mut reqs
+                    &mut reqs,
                 ) {
                     return None;
                 }
@@ -1567,7 +1602,7 @@ impl<'a> Preprocessor<'a> {
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,
-                    &mut reqs
+                    &mut reqs,
                 ) {
                     return None;
                 }
@@ -2889,15 +2924,21 @@ impl<'r> Randomizer<'r> {
             {
                 continue;
             }
-            let any_already_placed = state.items_remaining[item as usize]
-                < self.initial_items_remaining[item as usize];
+
+            let progression_ammo = item == Item::Super || item == Item::PowerBomb;
+
+            let any_already_placed =
+                state.items_remaining[item as usize] < self.initial_items_remaining[item as usize];
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
-                && !any_already_placed && bireachable
+                && !any_already_placed
+                && bireachable
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
-            } else if (self.difficulty_tiers[0].filler_items.contains(&item) && (bireachable || any_already_placed))
-                || (self.difficulty_tiers[0].semi_filler_items.contains(&item) && any_already_placed)
+            } else if (self.difficulty_tiers[0].filler_items.contains(&item)
+                && (bireachable || any_already_placed || !progression_ammo))
+                || (self.difficulty_tiers[0].semi_filler_items.contains(&item)
+                    && any_already_placed)
             {
                 item_types_to_mix.push(item);
             } else if expansion_item_set.contains(&item) {
@@ -2955,7 +2996,12 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
     ) -> Vec<Item> {
         // println!("select_filler_items: {} {}", num_bireachable_filler_items_to_select, num_one_way_filler_items_to_select);
-        let bireachable_filler_items = self.select_filler_items_of_type(state, num_bireachable_filler_items_to_select, true, rng);
+        let bireachable_filler_items = self.select_filler_items_of_type(
+            state,
+            num_bireachable_filler_items_to_select,
+            true,
+            rng,
+        );
         let mut new_state = state.clone();
         for &item in &bireachable_filler_items {
             if new_state.items_remaining[item as usize] > 0 {
@@ -2964,7 +3010,12 @@ impl<'r> Randomizer<'r> {
                 panic!("Unexpected items_remaining[{:?}] = 0", item);
             }
         }
-        let one_way_filler_items = self.select_filler_items_of_type(&new_state, num_one_way_filler_items_to_select, false, rng);
+        let one_way_filler_items = self.select_filler_items_of_type(
+            &new_state,
+            num_one_way_filler_items_to_select,
+            false,
+            rng,
+        );
         let mut filler_items = vec![];
         filler_items.extend(bireachable_filler_items);
         filler_items.extend(one_way_filler_items);
@@ -3144,7 +3195,10 @@ impl<'r> Randomizer<'r> {
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
     ) {
-        assert!(bireachable_locations.len() + other_locations.len() == key_items_to_place.len() + other_items_to_place.len());
+        assert!(
+            bireachable_locations.len() + other_locations.len()
+                == key_items_to_place.len() + other_items_to_place.len()
+        );
         let mut forced_items_to_place = key_items_to_place.to_owned();
         let mut anywhere_items_to_place = vec![];
         if key_items_to_place.len() >= 2 {
@@ -3159,20 +3213,31 @@ impl<'r> Randomizer<'r> {
                 forced_items_to_place.swap(0, key_items_to_place.len() - 1);
             }
         }
-        for &item in &other_items_to_place[..bireachable_locations.len() - key_items_to_place.len()] {
-            // Try to force "valuable" filler items (namely, ones that have never had a copy placed on earlier steps)
+        for &item in &other_items_to_place[..bireachable_locations.len() - key_items_to_place.len()]
+        {
+            // Try to force first Super/PB packs (namely, ones that have never had a copy placed on earlier steps)
             // into a hard bireachable location:
-            if state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
+            let progression_ammo_item = item == Item::Super || item == Item::PowerBomb;
+            if progression_ammo_item && state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
                 forced_items_to_place.push(item);
             } else {
                 anywhere_items_to_place.push(item);
             }
         }
-        anywhere_items_to_place.extend(&other_items_to_place[bireachable_locations.len() - key_items_to_place.len()..]);
+        anywhere_items_to_place.extend(
+            &other_items_to_place[bireachable_locations.len() - key_items_to_place.len()..],
+        );
 
-        assert!(bireachable_locations.len() + other_locations.len() == forced_items_to_place.len() + anywhere_items_to_place.len());
+        assert!(
+            bireachable_locations.len() + other_locations.len()
+                == forced_items_to_place.len() + anywhere_items_to_place.len()
+        );
 
-        info!("num_bireachable_loc={}, key items: {:?}", bireachable_locations.len(), key_items_to_place);
+        info!(
+            "num_bireachable_loc={}, key items: {:?}",
+            bireachable_locations.len(),
+            key_items_to_place
+        );
         info!(
             "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
             forced_items_to_place, anywhere_items_to_place
@@ -3363,10 +3428,16 @@ impl<'r> Randomizer<'r> {
             num_unplaced_bireachable,
             num_unplaced_oneway_reachable,
         );
-        let num_bireachable_filler_items_to_select = num_unplaced_bireachable - num_key_items_to_select;
-        let num_one_way_reachable_filler_items_to_select = num_filler_items_to_select - num_bireachable_filler_items_to_select;
-        let selected_filler_items =
-            self.select_filler_items(state, num_bireachable_filler_items_to_select, num_one_way_reachable_filler_items_to_select, rng);
+        let num_bireachable_filler_items_to_select =
+            num_unplaced_bireachable - num_key_items_to_select;
+        let num_one_way_reachable_filler_items_to_select =
+            num_filler_items_to_select - num_bireachable_filler_items_to_select;
+        let selected_filler_items = self.select_filler_items(
+            state,
+            num_bireachable_filler_items_to_select,
+            num_one_way_reachable_filler_items_to_select,
+            rng,
+        );
 
         let mut new_state_filler: RandomizationState = RandomizationState {
             step_num: state.step_num,
@@ -3778,7 +3849,11 @@ impl<'r> Randomizer<'r> {
         let spoiler_escape =
             escape_timer::compute_escape_data(self.game_data, self.map, &self.difficulty_tiers[0])?;
         let spoiler_log = SpoilerLog {
-            item_priority: state.item_precedence.iter().map(|x| format!("{:?}", x)).collect(),
+            item_priority: state
+                .item_precedence
+                .iter()
+                .map(|x| format!("{:?}", x))
+                .collect(),
             summary: spoiler_summaries,
             escape: spoiler_escape,
             details: spoiler_details,
@@ -4700,8 +4775,7 @@ impl<'a> Randomizer<'a> {
     ) -> Vec<SpoilerRouteEntry> {
         let forward = &state.debug_data.as_ref().unwrap().forward;
         let global_state = &state.debug_data.as_ref().unwrap().global_state;
-        let forward_cost_idx =
-            get_one_way_reachable_idx(global_state, vertex_id, forward).unwrap();
+        let forward_cost_idx = get_one_way_reachable_idx(global_state, vertex_id, forward).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let obtain_route = self.get_spoiler_route(

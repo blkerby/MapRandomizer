@@ -55,12 +55,12 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Adjustments to how item placement works:
     <ul>
-    <li>When using Forced mode (e.g. Tricky/Challenge/Desolate), first-of-kind filler items are placed in hard locations where possible, similar to key items but with lower priority.
+    <li>When using Forced mode (e.g. Tricky/Challenge/Desolate), the initial Super and Power Bomb packs are placed in hard locations where possible, similar to key items but with lower priority.
     <li>The amount of key items placed per step is slightly reduced, for Fast and Uniform progression (e.g. Normal/Tricky).
     <li>The randomizer always tries to fill one-way reachable locations with filler items.
         <ul>
         <li>This now applies across all settings, whereas previously it applied only to Slow progression (e.g. Challenge/Desolate).
-        <li>Additionally, the randomizer avoids putting first-of-kind filler items in one-way-reachable locations.
+        <li>Additionally, the randomizer avoids putting the initial Super and Power Bomb packs in one-way-reachable locations.
         </ul>
     </ul>
 <li>Logic updates:
