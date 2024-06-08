@@ -132,6 +132,8 @@ class EnvConfig:
 @dataclass
 class EpisodeData:
     action: torch.tensor  # 3D uint8: (num_episodes, episode_length, 3)  (room id, x position, y position)
+    map_door_id: torch.tensor  # 2D uint16: (num_episodes, episode_length)
+    room_door_id: torch.tensor  # 2D uint16: (num_episodes, episode_length)
     door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
     save_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
@@ -193,6 +195,8 @@ class TrainingData:
     room_mask: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_x: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
     room_position_y: torch.tensor  # 2D uint64: (num_transitions, num_rooms)
+    map_door_id: torch.tensor  # 1D uint64: num_transitions
+    room_door_id: torch.tensor  # 1D uint64: num_transitions
 
     # def move_to(self, device):
     #     for field in self.__dataclass_fields__.keys():

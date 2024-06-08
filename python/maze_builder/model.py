@@ -774,39 +774,6 @@ class TransformerModel(torch.nn.Module):
         self.output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width)
         self.output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs)
 
-        # Assign weights to the amounts to shift the map (in X and Y dimensions) for data augmentation, such that
-        # each within-block position (and hence room embedding vector) has an equal probability of being sampled.
-        # For even-sized blocks (e.g. 8 x 8) this means that shifting by the maximum amount (e.g. -4 or +4) should
-        # have its probability cut in half since both these shifts fall into the same within-block position.
-        self.num_augment = (self.block_size_x // 2 * 2 + 1) * (self.block_size_y // 2 * 2 + 1)
-        self.no_augment_idx = self.num_augment // 2
-        self.augment_weight = torch.zeros([self.num_augment], dtype=torch.float)
-        self.augment_shift_x = torch.zeros([self.num_augment], dtype=torch.int64)
-        self.augment_shift_y = torch.zeros([self.num_augment], dtype=torch.int64)
-        i = 0
-        for y in range(-self.block_size_y // 2, self.block_size_y // 2 + 1):
-            for x in range(-self.block_size_x // 2, self.block_size_y // 2 + 1):
-                edge_x = self.block_size_x % 2 == 0 and x in [-self.block_size_x // 2, self.block_size_x // 2]
-                edge_y = self.block_size_y % 2 == 0 and y in [-self.block_size_x // 2, self.block_size_x // 2]
-                if edge_x and edge_y:
-                    self.augment_weight[i] = 0.25
-                elif edge_x or edge_y:
-                    self.augment_weight[i] = 0.50
-                else:
-                    self.augment_weight[i] = 1.0
-                self.augment_shift_x[i] = x
-                self.augment_shift_y[i] = y
-                i += 1
-        assert i == self.num_augment
-        assert self.augment_shift_x[self.no_augment_idx] == 0
-        assert self.augment_shift_y[self.no_augment_idx] == 0
-
-        # Shifting the map can have subtle effects near the boundary (even though we constrain the augment shifts
-        # to keep the rooms in bounds). To prevent this from causing a skew between training and inference,
-        # we add a learned embedding (onto the global embedding) to allow the model to be informed of the shift that
-        # was applied.
-        self.augment_embedding = torch.nn.Parameter(torch.randn([self.num_augment, self.embedding_width]) / math.sqrt(self.embedding_width))
-
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y, steps_remaining, round_frac,
                            temperature, mc_dist_coef):
@@ -823,52 +790,9 @@ class TransformerModel(torch.nn.Module):
                                      ], dim=1).to(dtype)
             global_embedding = self.global_lin(global_data)
 
-            # Initialize embeddings by replicating the global embedding across all blocks
-            # X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
-            # X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
-
             adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
             adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
 
-            # if augment_frac > 0.0:
-            #     min_room_position_x = torch.min(adj_room_position_x, dim=1)[0]
-            #     max_room_position_x = torch.max(adj_room_position_x, dim=1)[0]
-            #     min_shift_x = -torch.clamp(min_room_position_x, max=4)
-            #     max_shift_x = torch.clamp(self.map_x - max_room_position_x, max=4)
-            #
-            #     min_room_position_y = torch.min(adj_room_position_y, dim=1)[0]
-            #     max_room_position_y = torch.max(adj_room_position_y, dim=1)[0]
-            #     min_shift_y = -torch.clamp(min_room_position_y, max=4)
-            #     max_shift_y = torch.clamp(self.map_y - max_room_position_y, max=4)
-            #
-            #     augment_shift_x = self.augment_shift_x.to(device)  # TODO: just keep these on the device
-            #     augment_shift_y = self.augment_shift_y.to(device)
-            #     augment_valid_x_min = augment_shift_x.view(1, -1) >= min_shift_x.view(-1, 1)
-            #     augment_valid_x_max = augment_shift_x.view(1, -1) < max_shift_x.view(-1, 1)
-            #     augment_valid_y_min = augment_shift_y.view(1, -1) >= min_shift_y.view(-1, 1)
-            #     augment_valid_y_max = augment_shift_y.view(1, -1) < max_shift_y.view(-1, 1)
-            #     augment_valid = augment_valid_x_min & augment_valid_x_max & augment_valid_y_min & augment_valid_y_max
-            #     augment_weight = torch.where(augment_valid, self.augment_weight.to(device).view(1, -1),
-            #                                  torch.zeros_like(self.augment_weight.to(device)).view(1, -1))
-            #     augment_idx = torch.multinomial(augment_weight, num_samples=1, replacement=True)[:, 0]
-            #     augment_selected = torch.rand([n], device=device) < augment_frac
-            #     augment_idx = torch.where(augment_selected, augment_idx, torch.full_like(augment_idx, self.no_augment_idx))
-            #
-            #     augment_x = augment_shift_x[augment_idx]
-            #     augment_y = augment_shift_y[augment_idx]
-            #     adj_room_position_x = adj_room_position_x + augment_x.view(-1, 1)
-            #     adj_room_position_y = adj_room_position_y + augment_y.view(-1, 1)
-            #
-            #     augment_embedding = self.augment_embedding.to(dtype)[augment_idx, :]
-            # else:
-            #     augment_embedding = self.augment_embedding.to(dtype)[self.no_augment_idx, :]
-
-            # assert torch.min(adj_room_position_x) >= 0
-            # assert torch.max(adj_room_position_x) < self.map_x
-            # assert torch.min(adj_room_position_y) >= 0
-            # assert torch.max(adj_room_position_y) < self.map_y
-
-            # global_embedding = global_embedding + augment_embedding
 
             nz = torch.nonzero(room_mask)
             nz_env_idx = nz[:, 0]
@@ -884,31 +808,18 @@ class TransformerModel(torch.nn.Module):
             nz_within_block_x = nz_room_position_x - nz_block_x * self.block_size_x
             nz_within_block_y = nz_room_position_y - nz_block_y * self.block_size_y
             nz_within_block_idx = nz_within_block_y * self.block_size_x + nz_within_block_x
-            # nz_embedding_idx = nz_room_idx * self.block_size + nz_within_block_idx
-
-            # A_sparse_ind = torch.stack([nz_env_block_idx, nz_embedding_idx], dim=0)
-            # A_sparse_val = torch.ones([nz_env_block_idx.shape[0]], device=device)
-            # A_sparse = torch.sparse_coo_tensor(A_sparse_ind, A_sparse_val, [n * self.num_blocks, self.num_rooms * self.block_size])
-            # X = torch.sparse.mm(A_sparse, self.room_embedding.view(self.num_rooms * self.block_size, self.embedding_width))
-            #
 
             X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
             X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
             nz_embedding = self.room_embedding.to(dtype)[nz_room_idx, nz_within_block_idx, :]
             X = torch.scatter_add(X, dim=0, index=nz_env_block_idx.view(-1, 1).repeat(1, self.embedding_width), src=nz_embedding)
 
-            # Add room embedding to the appropriate block, i.e. the block that the room is centered on.
-            # print("X={}, idx={}, emb={}".format(X.shape, nz_env_block_idx.shape, nz_embedding.shape))
-
-            # X = torch.scatter_add(X, dim=0, index=nz_env_block_idx, src=nz_embedding)
             X = X.reshape(n, self.num_blocks, self.embedding_width)  # Unflatten X
-            # X = X + global_embedding.view(n, 1, self.embedding_width) + self.pos_embedding.view(1, self.num_blocks, self.embedding_width)
             X = X + self.pos_embedding.to(dtype).view(1, self.num_blocks, self.embedding_width)
 
             if self.embed_dropout.p > 0.0:
                 X = self.embed_dropout(X)
             for i in range(len(self.attn_layers)):
-                # X = self.transformer_layers[i](X)
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)
 
@@ -918,22 +829,11 @@ class TransformerModel(torch.nn.Module):
             X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
             X = self.pool_attn_post_lin(X)
 
-            # raw_global_weight = torch.einsum('bse,ge->bsg', X, self.global_query)
-            # global_weight = torch.softmax(raw_global_weight, dim=1)
-            # global_value = torch.einsum('bse,ge->bsg', X, self.global_value)
-            # X = torch.sum(global_weight * global_value, dim=1)
-
-            # X = self.pooling_lin(X)
-            # X = torch.sum(X, dim=1)
             for i in range(self.num_global_layers):
                 X = self.global_ff_layers[i](X)
             X = self.output_lin1(X)
             X = torch.nn.functional.relu(X)
             X = self.output_lin2(X)
-
-            # X = torch.sum(X, dim=1)
-            # output = self.output_lin(X).to(torch.float32)
-            # print("output: ", output.dtype)
 
         return X.to(torch.float32)
 

@@ -949,3 +949,7 @@ for i in range(1000000):
 # diam = session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)
 # print(torch.mean(diam), torch.var(diam), torch.min(diam), torch.max(diam))
 
+# from collections import Counter
+# cnt = Counter(session.replay_buffer.episode_data.room_door_id.view(-1).tolist())
+# for k in sorted(cnt.keys()):
+#     print(k, cnt[k])

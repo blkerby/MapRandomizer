@@ -310,6 +310,8 @@ class TrainingSession():
             prob_list = []
             prob0_list = []
             cand_count_list = []
+            map_door_id_list = []
+            room_door_id_list = []
             model.eval()
             temperature = temperature.to(device)
             mc_dist_coef = mc_dist_coef.to(device)
@@ -332,9 +334,9 @@ class TrainingSession():
 
                 # torch.cuda.synchronize()
                 # logging.debug("Getting candidates")
-                action_candidates = env.get_action_candidates(num_candidates, env.room_mask, env.room_position_x,
-                                                              env.room_position_y,
-                                                              verbose=self.verbose)
+                action_candidates, map_door_ids = env.get_action_candidates(
+                    num_candidates, env.room_mask, env.room_position_x,
+                    env.room_position_y, verbose=self.verbose)
                 # action_candidates = env.get_all_action_candidates(env.room_mask, env.room_position_x, env.room_position_y)
                 steps_remaining = torch.full([env.num_envs], episode_length - j,
                                              dtype=torch.float32, device=device)
@@ -372,6 +374,7 @@ class TrainingSession():
                 selected_prob = probs[torch.arange(env.num_envs, device=device), action_index]
                 selected_prob0 = selected_prob * candidate_count
                 action = action_candidates[torch.arange(env.num_envs, device=device), action_index, :3]
+                room_door_ids = action_candidates[torch.arange(env.num_envs, device=device), action_index, 4]
                 selected_raw_logodds = raw_logodds[torch.arange(env.num_envs, device=device), action_index, :]
 
                 env.step(action)
@@ -380,6 +383,8 @@ class TrainingSession():
                 prob_list.append(selected_prob.to('cpu'))
                 prob0_list.append(selected_prob0.to('cpu'))
                 cand_count_list.append(candidate_count.to(torch.float32).to('cpu'))
+                map_door_id_list.append(map_door_ids.to(torch.int16).to('cpu'))
+                room_door_id_list.append(room_door_ids.to(torch.int16).to('cpu'))
 
             # torch.cuda.synchronize(device)
             door_connects_tensor = env.current_door_connects().to('cpu')
@@ -396,6 +401,8 @@ class TrainingSession():
             prob_tensor = torch.mean(torch.stack(prob_list, dim=1), dim=1)
             prob0_tensor = torch.mean(torch.stack(prob0_list, dim=1), dim=1)
             cand_count_tensor = torch.mean(torch.stack(cand_count_list, dim=1), dim=1)
+            map_door_ids_tensor = torch.stack(map_door_id_list, dim=1)
+            room_door_ids_tensor = torch.stack(room_door_id_list, dim=1)
 
             selected_raw_logodds_flat = selected_raw_logodds_tensor.view(env.num_envs * episode_length,
                                                                    selected_raw_logodds_tensor.shape[-1])
@@ -424,6 +431,8 @@ class TrainingSession():
                 toilet_good=toilet_good,
                 cycle_cost=None,  # populated later in generate_round_model
                 action=action_tensor.to(torch.uint8),
+                map_door_id=map_door_ids_tensor,
+                room_door_id=room_door_ids_tensor,
                 prob=prob_tensor,
                 prob0=prob0_tensor,
                 cand_count=cand_count_tensor,
@@ -479,6 +488,8 @@ class TrainingSession():
             toilet_good=torch.cat([d.toilet_good for d in episode_data_list], dim=0),
             cycle_cost=torch.cat([d.cycle_cost for d in episode_data_list], dim=0),
             action=torch.cat([d.action for d in episode_data_list], dim=0),
+            map_door_id=torch.cat([d.map_door_id for d in episode_data_list], dim=0),
+            room_door_id=torch.cat([d.room_door_id for d in episode_data_list], dim=0),
             prob=torch.cat([d.prob for d in episode_data_list], dim=0),
             prob0=torch.cat([d.prob0 for d in episode_data_list], dim=0),
             cand_count=torch.cat([d.cand_count for d in episode_data_list], dim=0),
