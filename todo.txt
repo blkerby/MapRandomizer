@@ -42,6 +42,7 @@ v113:
 
 
 TODO:
+- Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
 - model energy usage in the escape.
   - can be necessary to ensure beatability of seeds with reduced items and disabled escape refill.
 - possible QoL: while pause menu is fading in, press R to immediately initiate switching to equipment screen

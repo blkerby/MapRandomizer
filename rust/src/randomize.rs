@@ -2901,13 +2901,16 @@ impl<'r> Randomizer<'r> {
         (num_key_items_to_place, num_filler_items_to_place)
     }
 
-    fn select_filler_items_of_type<R: Rng>(
+    fn select_filler_items<R: Rng>(
         &self,
         state: &RandomizationState,
-        num_filler_items_to_select: usize,
-        bireachable: bool,
+        num_bireachable_filler_items_to_select: usize,
+        num_one_way_reachable_filler_items_to_select: usize,
         rng: &mut R,
     ) -> Vec<Item> {
+        // In the future we might do something different with how bireachable locations are filled vs. one-way,
+        // but for now they are just lumped together:
+        let num_filler_items_to_select = num_bireachable_filler_items_to_select + num_one_way_reachable_filler_items_to_select;
         let expansion_item_set: HashSet<Item> =
             [Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb]
                 .into_iter()
@@ -2924,21 +2927,16 @@ impl<'r> Randomizer<'r> {
             {
                 continue;
             }
-
-            let progression_ammo = item == Item::Super || item == Item::PowerBomb;
-
-            let any_already_placed =
-                state.items_remaining[item as usize] < self.initial_items_remaining[item as usize];
             if self.difficulty_tiers[0].early_filler_items.contains(&item)
-                && !any_already_placed
-                && bireachable
+                && state.items_remaining[item as usize]
+                    == self.initial_items_remaining[item as usize]
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
-            } else if (self.difficulty_tiers[0].filler_items.contains(&item)
-                && (bireachable || any_already_placed || !progression_ammo))
+            } else if self.difficulty_tiers[0].filler_items.contains(&item)
                 || (self.difficulty_tiers[0].semi_filler_items.contains(&item)
-                    && any_already_placed)
+                    && state.items_remaining[item as usize]
+                        < self.initial_items_remaining[item as usize])
             {
                 item_types_to_mix.push(item);
             } else if expansion_item_set.contains(&item) {
@@ -2986,40 +2984,6 @@ impl<'r> Randomizer<'r> {
         }
         items_to_place = items_to_place[0..num_filler_items_to_select].to_vec();
         items_to_place
-    }
-
-    fn select_filler_items<R: Rng>(
-        &self,
-        state: &RandomizationState,
-        num_bireachable_filler_items_to_select: usize,
-        num_one_way_filler_items_to_select: usize,
-        rng: &mut R,
-    ) -> Vec<Item> {
-        // println!("select_filler_items: {} {}", num_bireachable_filler_items_to_select, num_one_way_filler_items_to_select);
-        let bireachable_filler_items = self.select_filler_items_of_type(
-            state,
-            num_bireachable_filler_items_to_select,
-            true,
-            rng,
-        );
-        let mut new_state = state.clone();
-        for &item in &bireachable_filler_items {
-            if new_state.items_remaining[item as usize] > 0 {
-                new_state.items_remaining[item as usize] -= 1;
-            } else if item != Item::Nothing {
-                panic!("Unexpected items_remaining[{:?}] = 0", item);
-            }
-        }
-        let one_way_filler_items = self.select_filler_items_of_type(
-            &new_state,
-            num_one_way_filler_items_to_select,
-            false,
-            rng,
-        );
-        let mut filler_items = vec![];
-        filler_items.extend(bireachable_filler_items);
-        filler_items.extend(one_way_filler_items);
-        filler_items
     }
 
     fn select_key_items(
@@ -3195,56 +3159,13 @@ impl<'r> Randomizer<'r> {
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
     ) {
-        assert!(
-            bireachable_locations.len() + other_locations.len()
-                == key_items_to_place.len() + other_items_to_place.len()
-        );
-        let mut forced_items_to_place = key_items_to_place.to_owned();
-        let mut anywhere_items_to_place = vec![];
-        if key_items_to_place.len() >= 2 {
-            // The last key item is the one that is cycled through to verify progression, so it is likely to be
-            // the most important one. Hence we swap it with the first one, to ensure it is prioritized
-            // for placing in a hard location in case Forced mode is used. The exception is if it is a
-            // Missile or Nothing item.
-            if [Item::Missile, Item::Nothing].contains(&key_items_to_place.last().unwrap()) {
-                anywhere_items_to_place.push(*key_items_to_place.last().unwrap());
-                forced_items_to_place.pop();
-            } else {
-                forced_items_to_place.swap(0, key_items_to_place.len() - 1);
-            }
-        }
-        for &item in &other_items_to_place[..bireachable_locations.len() - key_items_to_place.len()]
-        {
-            // Try to force first Super/PB packs (namely, ones that have never had a copy placed on earlier steps)
-            // into a hard bireachable location:
-            let progression_ammo_item = item == Item::Super || item == Item::PowerBomb;
-            if progression_ammo_item && state.items_remaining[item as usize] == self.initial_items_remaining[item as usize] {
-                forced_items_to_place.push(item);
-            } else {
-                anywhere_items_to_place.push(item);
-            }
-        }
-        anywhere_items_to_place.extend(
-            &other_items_to_place[bireachable_locations.len() - key_items_to_place.len()..],
-        );
-
-        assert!(
-            bireachable_locations.len() + other_locations.len()
-                == forced_items_to_place.len() + anywhere_items_to_place.len()
-        );
-
-        info!(
-            "num_bireachable_loc={}, key items: {:?}",
-            bireachable_locations.len(),
-            key_items_to_place
-        );
         info!(
             "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
-            forced_items_to_place, anywhere_items_to_place
+            key_items_to_place, other_items_to_place
         );
 
         let num_items_remaining: usize = state.items_remaining.iter().sum();
-        let num_items_to_place: usize = forced_items_to_place.len() + anywhere_items_to_place.len();
+        let num_items_to_place: usize = key_items_to_place.len() + other_items_to_place.len();
         let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early
             && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
@@ -3255,12 +3176,11 @@ impl<'r> Randomizer<'r> {
                 Some(x) => Some(&x.forward),
                 None => None,
             };
-            for i in 0..forced_items_to_place.len() {
-                let (hard_idx, tier) = if forced_items_to_place.len() > 1 {
+            for i in 0..key_items_to_place.len() {
+                let (hard_idx, tier) = if key_items_to_place.len() > 1 {
                     // We're placing more than one key item in this step. Obtaining some of them could help make
                     // others easier to obtain. So we use "new_state" to try to find locations that are still hard to
                     // reach even with the new items.
-                    // TODO: refine this by creating a state assuming having collected all the new items except the target one
                     self.find_hard_location(
                         new_state,
                         &new_bireachable_locations[i..],
@@ -3273,7 +3193,7 @@ impl<'r> Randomizer<'r> {
                 };
                 info!(
                     "[attempt {attempt_num_rando}] {:?} in tier {} (of {})",
-                    forced_items_to_place[i],
+                    key_items_to_place[i],
                     tier,
                     self.difficulty_tiers.len()
                 );
@@ -3310,14 +3230,14 @@ impl<'r> Randomizer<'r> {
         all_locations.extend(new_bireachable_locations);
         all_locations.extend(other_locations);
         let mut all_items_to_place: Vec<Item> = Vec::new();
-        all_items_to_place.extend(forced_items_to_place);
-        all_items_to_place.extend(anywhere_items_to_place);
+        all_items_to_place.extend(key_items_to_place);
+        all_items_to_place.extend(other_items_to_place);
         assert!(all_locations.len() == all_items_to_place.len());
         for (&loc, &item) in iter::zip(&all_locations, &all_items_to_place) {
             new_state.item_location_state[loc].placed_item = Some(item);
         }
     }
-
+    
     fn finish(&self, attempt_num_rando: usize, state: &mut RandomizationState) {
         let mut remaining_items: Vec<Item> = Vec::new();
         for item_id in 0..self.game_data.item_isv.keys.len() {

@@ -1977,7 +1977,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(6, 25, 6)),   // Brinstar green (and green doors)
+            (14, rgb(7, 28, 7)),   // Brinstar green (and green doors)
             (10, rgb(29, 0, 0)),   // Norfair red
             (8, rgb(4, 13, 31)),   // Maridia blue
             (9, rgb(23, 24, 9)),   // Wrecked Ship yellow

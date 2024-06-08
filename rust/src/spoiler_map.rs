@@ -96,7 +96,7 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
         8 => get_rgb(4, 13, 31), // Blue door (Ice)
         12 => get_rgb(0, 0, 0), // Door lock shadow covering wall (black)
         13 => get_rgb(31, 31, 31), // Item dots (white)
-        14 => get_rgb(6, 26, 6), // Green door (Super, Plasma)
+        14 => get_rgb(7, 28, 7), // Green door (Super, Plasma)
         15 => get_rgb(18, 12, 14), // Gray door (including Charge)
         _ => panic!("Unexpected color value {}", value),
     }
