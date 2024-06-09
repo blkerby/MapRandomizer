@@ -509,7 +509,7 @@ function checkOtherOptions() {
         document.getElementById("areaAssignmentRandom").checked ||
         document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersNo").checked ||
-        document.getElementById("doorLocksSizeLarge").checked ||
+        document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapsRevealedPartial").checked ||
         document.getElementById("mapsRevealedFull").checked ||
         document.getElementById("mapStationRevealPartial").checked ||

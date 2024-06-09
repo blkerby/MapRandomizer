@@ -71,9 +71,9 @@
         <label for="preset">Door locks size on map</label>
     </div>
     <div class="col-3 btn-group my-2" role="group">
-        <input type="radio" class="btn-check" name="door_locks_size" id="doorLocksSizeSmall" value="small" checked>
+        <input type="radio" class="btn-check" name="door_locks_size" id="doorLocksSizeSmall" value="small">
         <label class="btn btn-outline-primary" for="doorLocksSizeSmall">Small</label>
-        <input type="radio" class="btn-check" name="door_locks_size" id="doorLocksSizeLarge" value="large">
+        <input type="radio" class="btn-check" name="door_locks_size" id="doorLocksSizeLarge" value="large" checked>
         <label class="btn btn-outline-primary" for="doorLocksSizeLarge">Large</label>
     </div>
 </div>
