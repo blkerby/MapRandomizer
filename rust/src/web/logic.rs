@@ -439,6 +439,12 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
             if let MainEntranceCondition::ComeInWithGrappleTeleport { .. } = main {
                 reqs.push(Requirement::Tech(game_data.tech_isv.index_by_key["canGrappleTeleport"]));
             }
+            if let MainEntranceCondition::ComeInWithStoredFallSpeed { .. } = main {
+                reqs.push(Requirement::Or(vec![
+                    Requirement::Tech(game_data.tech_isv.index_by_key["canMoondance"]),
+                    Requirement::Tech(game_data.tech_isv.index_by_key["canEnemyStuckMoonfall"]),
+                ]));
+            }
         }    
     }
     for action in &to_vertex_key.actions {
