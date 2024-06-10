@@ -23,6 +23,8 @@
             <% for theme in &mosaic_themes { %>
             <option value="<%= theme.name %>"><%= theme.display_name %></option>
             <% } %>
+            <hr>
+            <option value="Outline">Practice Outlines</option>
         </select>
     </div>
 </div>
