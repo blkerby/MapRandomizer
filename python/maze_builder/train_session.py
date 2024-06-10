@@ -2,7 +2,7 @@ from typing import Optional, List
 import copy
 import torch
 import torch.nn.functional as F
-from maze_builder.model import DoorLocalModel, TransformerModel
+from maze_builder.model import TransformerModel
 from maze_builder.env import MazeBuilderEnv, compute_cycle_costs
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
@@ -161,14 +161,15 @@ class TrainingSession():
 
         return penalty
 
-    def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
-                             steps_remaining, temperature,
-                             env_id, save_dist_coef: float, graph_diam_coef: float,
-                            mc_dist_coef: torch.tensor,
-                            toilet_good_coef: float,
-                            adjust_left_right,
-                            adjust_down_up,
-                             executor):
+    def forward_action(self, model, room_mask, room_position_x, room_position_y,
+                       map_door_ids, action_candidates,
+                       steps_remaining, temperature,
+                       env_id, save_dist_coef: float, graph_diam_coef: float,
+                       mc_dist_coef: torch.tensor,
+                       toilet_good_coef: float,
+                       adjust_left_right,
+                       adjust_down_up,
+                       executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()
@@ -179,39 +180,14 @@ class TrainingSession():
         action_room_id = action_candidates[:, :, 0]
         action_x = action_candidates[:, :, 1]
         action_y = action_candidates[:, :, 2]
-        action_map_door_id = action_candidates[:, :, 3]
         action_room_door_id = action_candidates[:, :, 4]
         valid = (action_room_id != len(self.envs[0].rooms) - 1)
+        round_frac = torch.zeros([num_envs], device=action_candidates.device,
+                                      dtype=torch.float32)
 
-        all_room_mask = room_mask.unsqueeze(1).repeat(1, num_candidates, 1)
-        all_room_position_x = room_position_x.unsqueeze(1).repeat(1, num_candidates, 1)
-        all_room_position_y = room_position_y.unsqueeze(1).repeat(1, num_candidates, 1)
-        all_steps_remaining = steps_remaining.unsqueeze(1).repeat(1, num_candidates)
-        all_temperature = temperature.unsqueeze(1).repeat(1, num_candidates)
         all_mc_dist_coef = mc_dist_coef.unsqueeze(1).repeat(1, num_candidates)
 
-        # print(action_candidates.device, action_room_id.device)
-        all_room_mask[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                      torch.arange(num_candidates, device=action_candidates.device).view(1, -1),
-                      action_room_id] = True
-        all_room_mask[:, :, -1] = False
-        all_room_position_x[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_x
-        all_room_position_y[torch.arange(num_envs, device=action_candidates.device).view(-1, 1),
-                            torch.arange(num_candidates, device=action_candidates.device).view(1, -1),
-                            action_room_id] = action_y
-        all_steps_remaining[:, :] -= 1
-
-        room_mask_flat = all_room_mask.view(num_envs * num_candidates, num_rooms)
-        room_position_x_flat = all_room_position_x.view(num_envs * num_candidates, num_rooms)
-        room_position_y_flat = all_room_position_y.view(num_envs * num_candidates, num_rooms)
-        map_door_id_flat = action_map_door_id.view(num_envs * num_candidates)
         room_door_id_flat = action_room_door_id.view(num_envs * num_candidates)
-        steps_remaining_flat = all_steps_remaining.view(num_envs * num_candidates)
-        round_frac_flat = torch.zeros([num_envs * num_candidates], device=action_candidates.device,
-                                      dtype=torch.float32)
-        temperature_flat = all_temperature.view(num_envs * num_candidates)
         mc_dist_coef_flat = all_mc_dist_coef.view(num_envs * num_candidates)
         valid_flat = valid.view(num_envs * num_candidates)
         valid_flat_ind = torch.nonzero(valid_flat)[:, 0]
@@ -224,15 +200,8 @@ class TrainingSession():
         action_room_id_valid = action_room_id_flat[valid_flat_ind]
         action_x_valid = action_x_flat[valid_flat_ind]
         action_y_valid = action_y_flat[valid_flat_ind]
+        room_door_id_valid = room_door_id_flat[valid_flat_ind]
 
-        room_mask_valid = room_mask_flat[valid_flat, :]
-        room_position_x_valid = room_position_x_flat[valid_flat, :]
-        room_position_y_valid = room_position_y_flat[valid_flat, :]
-        # map_door_id_valid = map_door_id_flat[valid_flat]
-        # room_door_id_valid = room_door_id_flat[valid_flat]
-        steps_remaining_valid = steps_remaining_flat[valid_flat]
-        round_frac_valid = round_frac_flat[valid_flat]
-        temperature_valid = temperature_flat[valid_flat]
         mc_dist_coef_valid = mc_dist_coef_flat[valid_flat]
 
         # mc_dist_coef_valid = mc_dist_coef[action_env_id_valid]
@@ -250,8 +219,10 @@ class TrainingSession():
         #     temperature_flat, env)
 
         raw_preds_valid = model.forward_multiclass(
-            room_mask_valid, room_position_x_valid, room_position_y_valid, steps_remaining_valid, round_frac_valid,
-            temperature_valid, mc_dist_coef_valid)
+            room_mask, room_position_x, room_position_y,
+            map_door_ids, action_env_id_valid, room_door_id_valid,
+            steps_remaining, round_frac,
+            temperature, mc_dist_coef)
 
         num_logodds = env.num_doors + env.num_missing_connects
         logodds_valid = raw_preds_valid[:, :num_logodds]
@@ -349,7 +320,7 @@ class TrainingSession():
                 else:
                     # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                     action_expected, raw_logodds = self.forward_action(
-                        model, env.room_mask, env.room_position_x, env.room_position_y,
+                        model, env.room_mask, env.room_position_x, env.room_position_y, map_door_ids,
                         action_candidates, steps_remaining, temperature, env_id, save_dist_coef, graph_diam_coef,
                         mc_dist_coef, toilet_good_coef, adjust_left_right, adjust_down_up, executor)
                     curr_temperature = temperature * temperature_decay ** (j / (episode_length - 1))
@@ -529,8 +500,13 @@ class TrainingSession():
     def compute_losses(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        n = data.room_mask.shape[0]
+        device = data.room_mask.device
+        action_env_id = torch.arange(data.room_mask.shape[0], device=device)
         raw_preds = self.model.forward_multiclass(
-            data.room_mask, data.room_position_x, data.room_position_y, data.steps_remaining, data.round_frac,
+            data.room_mask, data.room_position_x, data.room_position_y,
+            data.map_door_id, action_env_id, data.room_door_id,
+            data.steps_remaining, data.round_frac,
             data.temperature, data.mc_dist_coef)
 
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
@@ -576,9 +552,9 @@ class TrainingSession():
         self.average_parameters.update(self.model.all_param_data())
         return losses
 
-    def eval_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float):
+    def eval_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.eval()
         with torch.no_grad():
-            losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight)
+            losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
         return losses[0].item(), losses[1:]
 

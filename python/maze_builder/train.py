@@ -13,7 +13,7 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import Model, DoorLocalModel, TransformerModel, AttentionLayer, FeedforwardLayer
+from maze_builder.model import TransformerModel, AttentionLayer, FeedforwardLayer
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
@@ -44,7 +44,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 10
+num_envs = 2 ** 14
 rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
@@ -97,13 +97,14 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #     arity=2,
 # ).to(device)
 
-embedding_width = 512
+embedding_width = 256
 key_width = 32
 value_width = 32
 attn_heads = 8
 hidden_width = 1024
 model = TransformerModel(
     rooms=envs[0].rooms,
+    num_doors=envs[0].num_doors,
     num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects,
     map_x=env_config.map_x,
     map_y=env_config.map_y,
@@ -142,7 +143,7 @@ session = TrainingSession(envs,
                           decay_amount=0.0,
                           sam_scale=None)
 
-
+#
 # num_eval_rounds = 256
 # eval_buffer = ReplayBuffer(num_eval_rounds * envs[0].num_envs * len(envs), session.replay_buffer.num_rooms, torch.device('cpu'))
 # for i in range(num_eval_rounds):
@@ -151,6 +152,7 @@ session = TrainingSession(envs,
 #             episode_length=episode_length,
 #             num_candidates_min=1.0,
 #             num_candidates_max=1.0,
+#             toilet_good_coef=0.0,
 #             temperature=torch.full([envs[0].num_envs], 1.0),
 #             temperature_decay=1.0,
 #             explore_eps=0.0,
@@ -173,9 +175,10 @@ session = TrainingSession(envs,
 #     data = eval_buffer.sample(eval_batch_size, hist=eval_buffer.size, c=1.0, device=device)
 #     eval_batches.append(data)
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
-# pickle.dump(eval_batches, open("eval_batches_zebes.pkl", "wb"))
+# pickle.dump(eval_batches, open(eval_filename, "wb"))
 
-# eval_batches = pickle.load(open("eval_batches_zebes.pkl", "rb"))
+# eval_filename = "eval_batches_crateria.pkl"
+# eval_batches = pickle.load(open(eval_filename, "rb"))
 
 # for i in range(len(eval_batches)):
 #     i = 0
@@ -358,10 +361,10 @@ lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 31.5
-num_candidates_max0 = 32.5
-num_candidates_min1 = 31.5
-num_candidates_max1 = 32.5
+num_candidates_min0 = 32
+num_candidates_max0 = 32
+num_candidates_min1 = 32
+num_candidates_max1 = 32
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -369,21 +372,24 @@ explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
 save_loss_weight = 0.001
-save_dist_coef = 0.01
+# save_dist_coef = 0.01
+save_dist_coef = 0.0
 
 mc_dist_weight = 0.0002
 mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
 toilet_weight = 0.01
-toilet_good_coef = 0.5
+toilet_good_coef = 1.0
 
 graph_diam_weight = 0.00002
-graph_diam_coef = 0.2
+# graph_diam_coef = 0.2
+graph_diam_coef = 0.0
 
 door_connect_bound = 10.0
 # door_connect_bound = 0.0
-door_connect_alpha = 0.02
+door_connect_samples = 0.2 * replay_size
+door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 # door_connect_bound = 0.0
@@ -404,11 +410,12 @@ temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 0
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
+annealing_time = 1
+# annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.0
-pass_factor1 = 1.0
-print_freq = 16
+pass_factor0 = 0.5
+pass_factor1 = 0.5
+print_freq = 2
 total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
@@ -417,10 +424,10 @@ total_graph_diam_loss = 0.0
 total_mc_loss = 0.0
 total_toilet_loss = 0.0
 total_loss_cnt = 0
-# total_eval_loss = 0.0
-# total_eval_loss_cnt = 0
-# total_summary_eval_loss = 0.0
-# total_summary_eval_loss_cnt = 0
+total_eval_loss = 0.0
+total_eval_loss_cnt = 0
+total_summary_eval_loss = 0.0
+total_summary_eval_loss_cnt = 0
 total_test_loss = 0.0
 total_prob = 0.0
 total_prob0 = 0.0
@@ -432,8 +439,8 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 256
-summary_freq = 256
+save_freq = 32
+summary_freq = 32
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
@@ -759,7 +766,7 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: loss={:.4f}, ({:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
+            "{}: loss={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
                 session.num_rounds,
                 new_loss,
                 new_binary_loss,
@@ -787,8 +794,8 @@ for i in range(1000000):
         total_mc_loss = 0.0
         total_toilet_loss =0.0
         total_loss_cnt = 0
-        # total_eval_loss = 0.0
-        # total_eval_loss_cnt = 0
+        total_eval_loss = 0.0
+        total_eval_loss_cnt = 0
         min_door_value = max_possible_reward
 
     if session.num_rounds % save_freq == 0:
@@ -809,7 +816,8 @@ for i in range(1000000):
                         eval_loss, other_losses = session.eval_batch(data,
                             save_dist_weight = save_loss_weight,
                             graph_diam_weight = graph_diam_weight,
-                            mc_dist_weight = mc_dist_weight)
+                            mc_dist_weight = mc_dist_weight,
+                            toilet_weight=toilet_weight)
                         total_eval_loss += eval_loss
                         for i in range(len(total_other_losses)):
                             total_other_losses[i] += other_losses[i]
@@ -887,19 +895,16 @@ for i in range(1000000):
             counts1 = compute_door_connect_counts(only_success=True, ind=ind)
             ent = session.compute_door_stats_entropy(counts)
             ent1 = session.compute_door_stats_entropy(counts1)
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
-                temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-                buffer_frac_min, ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
-            ))
-            # logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ts={:.4f}, ent1={:.6f}, save1={:.6f}, diam1={:.3f}, tame1={:.3f}, wild1={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
+            # logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
             #     temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-            #     buffer_frac_min, tame_success_rate, ent1, buffer_save_dist1, buffer_mean_graph_diam1, buffer_tame1, buffer_wild1, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
+            #     buffer_frac_min, ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             # ))
-            # logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), eval={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}), test={:.6f}, p={:.4f}, cnt={}, temp={:.4f}".format(
-            #     temp_low, temp_high, buffer_mean_reward, buffer_min_reward, buffer_frac_min,
-            #     mean_eval_loss, mean_other_losses[0], mean_other_losses[1], mean_other_losses[2], mean_other_losses[3],
-            #     buffer_mean_test_loss, buffer_mean_prob, ind.shape[0], buffer_mean_temp
-            # ))
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), eval={:.6f}, ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
+                temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
+                buffer_frac_min, mean_eval_loss,
+                ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
+            ))
+
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
         counts1 = compute_door_connect_counts(only_success=True)
