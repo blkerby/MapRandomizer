@@ -1234,6 +1234,7 @@ fn main() -> Result<()> {
         "WreckedShip",
         "WestMaridia",
         "MechaTourian",
+        "Outline",
     ]
     .into_iter()
     .map(|x| x.to_string())

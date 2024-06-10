@@ -1,0 +1,368 @@
+[
+    {
+        "name": "Amphitheatre", 
+        "x": [0, 1, 2, 3],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Below Spazer",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Beta Power Bomb Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Bowling Alley",
+        "x": [2, 3, 4],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Bubble Mountain",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Bat Cave",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Cathedral Entrance",
+        "x": [1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Cathedral",
+        "x": [0, 1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Construction Zone",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Crab Hole", 
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "The Moat",
+        "x": [0, 1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Crocomire Escape",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Crumble Shaft",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Double Chamber",
+        "x": [0, 1, 2, 3],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "The Precious Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Early Supers Room",
+        "x": [0, 1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "East Ocean", 
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Electric Death Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Etecoon Energy Tank Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Fast Pillars Setup Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Fish Tank",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Grapple Beam Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Post Crocomire Jump Room",
+        "x": [0, 1, 2, 3],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Grapple Tutorial Room 2",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Ice Beam Snake Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Kraid Eye Door Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Warehouse Entrance",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Kronic Boost Room",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Landing Site",
+        "x": [3, 5],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Lava Dive Room",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Lower Norfair Spring Ball Maze Room",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Aqueduct",
+        "x": [2, 4, 5],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Metroid Room 2",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Mickey Mouse Room",
+        "x": [3],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Northwest Maridia Bug Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Pants Room",
+        "x": [0, 1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Parlor And Alcatraz",
+        "x": [3],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Pink Brinstar Hopper Room",
+        "x": [0, 1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Pink Brinstar Power Bomb Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Plasma Room",
+        "x": [0, 1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Kassiuz Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Post Crocomire Farming Room",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Pseudo Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Mt. Everest",
+        "x": [3, 5],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Red Kihunter Shaft",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Rinka Shaft",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Screw Attack Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Single Chamber",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "The Worst Room In The Game",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Three Musketeers' Room",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "x": [0, 1, 2, 3, 4, 5],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Seaweed Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "x": [0, 1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Mama Turtle Room",
+        "x": [1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Volcano Room",
+        "x": [2],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Wasteland",
+        "x": [1],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Watering Hole",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "West Cactus Alley Room",
+        "x": [0],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "West Ocean",
+        "x": [0, 1, 2, 5],
+        "top": "Outline",
+        "bottom": "Outline"
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "x": [1, 2],
+        "top": "Outline",
+        "bottom": "Outline"
+    }
+]

@@ -19,7 +19,7 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>A new "Beam" doors option is added.
 <li>Tile theming updates:
     <ul>
-    <li>A new tile theme "Mecha Tourian" is available.
+    <li>New tile themes "Mecha Tourian" and "Practice Outlines" are available.
     <li>A new "Area-themed" option for "Tile theme" is added. 
     <li>A "Room theming" customization option is added:
         <ul>

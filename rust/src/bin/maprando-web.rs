@@ -2005,6 +2005,7 @@ fn build_app_data() -> AppData {
         ("WreckedShip", "Wrecked Ship"),
         ("WestMaridia", "West Maridia"),
         ("MechaTourian", "Mecha Tourian"),
+        ("Outline", "Practice Outlines"),
     ]
     .into_iter()
     .map(|(x, y)| MosaicTheme {
