@@ -12,8 +12,14 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>If enabled, the rooms in the game will be retiled using the selected theme. This affects only the
-        graphical appearance of the rooms.</p>
+        <p>This setting controls how the rooms in the game will be drawn. This affects only the graphical appearance of the rooms.</p>
+        <ul>
+        <li><p>If <strong>Vanilla</strong> is selected, then rooms are tiled as they are in the vanilla game.</p>
+        <li><p>If <strong>Area-themed</strong> is selceted, then rooms are tiled according to their area on the map.</p>
+        <li><p>If <strong>Scrambled</strong> is selected, then each room is tiled using a random theme.</p>
+        <li><p>If an individual theme is selected (e.g. <strong>Outer Crateria</strong>), then all the rooms are tiled using that theme.</p>
+        <li><p>If <strong>Practice Outlines</strong> is selected, then rooms are tiled using green outlines to mark the room collision; special blocks are shown in their true form; and a background grid helps with measuring positions and distances.</p>
+        </ul>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
