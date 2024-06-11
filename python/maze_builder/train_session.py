@@ -111,65 +111,14 @@ class TrainingSession():
             reward += torch.sum(~missing_connects, dim=1)
         return reward
 
-    def compute_candidate_penalties(self, room_mask, room_position_x, room_position_y,
-                                    action_env_id, action_room_id, action_x, action_y, env_id,
-                                    adjust_left_right, adjust_down_up):
-        device = room_mask.device
-        env = self.envs[env_id]
-        num_candidates = action_env_id.shape[0]
-
-        data_tuples = [
-            (env.room_left, env.room_right, adjust_left_right),
-            (env.room_right, env.room_left, torch.transpose(adjust_left_right, 0, 1)),
-            (env.room_down, env.room_up, adjust_down_up),
-            (env.room_up, env.room_down, torch.transpose(adjust_down_up, 0, 1)),
-        ]
-        penalty = torch.zeros([num_candidates], device=device)
-        for room_dir, room_dir_opp, adjust in data_tuples:
-            room_id = room_dir[:, 0]
-            relative_door_x = room_dir[:, 1]
-            relative_door_y = room_dir[:, 2]
-
-            nz_idxs = torch.nonzero(torch.eq(action_room_id.view(-1, 1), room_id.view(1, -1)))
-            cand_idx = nz_idxs[:, 0]
-            cand_door_idx = nz_idxs[:, 1]
-            cand_env_id = action_env_id[cand_idx]
-            cand_door_x = action_x[cand_idx] + relative_door_x[cand_door_idx]
-            cand_door_y = action_y[cand_idx] + relative_door_y[cand_door_idx]
-
-            map_room_id = room_dir_opp[:, 0]
-            map_relative_door_x = room_dir_opp[:, 1]
-            map_relative_door_y = room_dir_opp[:, 2]
-            map_door_x = room_position_x[:, map_room_id] + map_relative_door_x.unsqueeze(0)
-            map_door_y = room_position_y[:, map_room_id] + map_relative_door_y.unsqueeze(0)
-            map_mask = room_mask[:, map_room_id]
-
-            # print(cand_door_y.shape, map_door_y.shape, env_idx.shape, map_door_y[env_idx, :].shape)
-            match_x = torch.eq(cand_door_x.view(-1, 1), map_door_x[cand_env_id, :])
-            match_y = torch.eq(cand_door_y.view(-1, 1), map_door_y[cand_env_id, :])
-            match_mask = map_mask[cand_env_id, :]
-            match = match_x & match_y & match_mask
-
-            nz_match_idxs = torch.nonzero(match)
-            cand_i = nz_match_idxs[:, 0]
-            map_door_i = nz_match_idxs[:, 1]
-            cand_door_i = cand_door_idx[cand_i]
-
-            penalty_value = adjust[cand_door_i, map_door_i]
-            penalty_cand_idx = cand_idx[cand_i]
-            penalty.scatter_add_(dim=0, index=penalty_cand_idx, src=penalty_value)
-
-        return penalty
-
-    def forward_action(self, model, room_mask, room_position_x, room_position_y,
-                       map_door_ids, action_candidates,
-                       steps_remaining, temperature,
-                       env_id, save_dist_coef: float, graph_diam_coef: float,
-                       mc_dist_coef: torch.tensor,
-                       toilet_good_coef: float,
-                       adjust_left_right,
-                       adjust_down_up,
-                       executor):
+    def forward_action(self, model, room_mask, room_position_x, room_position_y, action_candidates,
+                             steps_remaining, temperature,
+                             env_id, save_dist_coef: float, graph_diam_coef: float,
+                            mc_dist_coef: torch.tensor,
+                            toilet_good_coef: float,
+                            adjust_left_right,
+                            adjust_down_up,
+                             executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()

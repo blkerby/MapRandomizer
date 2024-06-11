@@ -68,6 +68,7 @@ class ReplayBuffer:
         temperature = self.episode_data.temperature[episode_indices]
         mc_dist_coef = self.episode_data.mc_dist_coef[episode_indices]
         door_connects = self.episode_data.door_connects[episode_indices, :]
+        door_balance = self.episode_data.door_balance[episode_indices, :]
         missing_connects = self.episode_data.missing_connects[episode_indices, :]
         save_distances = self.episode_data.save_distances[episode_indices, :]
         graph_diameter = self.episode_data.graph_diameter[episode_indices]
@@ -84,6 +85,7 @@ class ReplayBuffer:
         return TrainingData(
             reward=reward.to(device),
             door_connects=door_connects.to(device),
+            door_balance=door_balance.to(device),
             missing_connects=missing_connects.to(device),
             save_distances=save_distances.to(device),
             graph_diameter=graph_diameter.to(device),
