@@ -854,6 +854,7 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Mickey Mouse Crumble Jump IBJ", // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark", // does not seem to be viable with the vanilla door connection
         "Waterway Grapple Teleport Inside Wall",    // no way out after getting item
+        "Plasma Spark X-Ray Climb Into Fake Kassiuz Room",    // useless, since the misaligned transition will put you OOB
         "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)",  // flash suit strats not supported yet
         "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)",   // flash suit strats not supported yet
     ]
