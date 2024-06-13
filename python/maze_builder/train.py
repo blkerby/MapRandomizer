@@ -105,7 +105,7 @@ hidden_width = 1024
 model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
-    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects,
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
     map_x=env_config.map_x,
     map_y=env_config.map_y,
     block_size_x=8,
@@ -386,12 +386,14 @@ graph_diam_weight = 0.00002
 # graph_diam_coef = 0.2
 graph_diam_coef = 0.0
 
-door_connect_bound = 10.0
+door_connect_bound = 1.0
 # door_connect_bound = 0.0
-door_connect_samples = 0.2 * replay_size
+door_connect_samples = 2.0 * replay_size
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
+balance_coef = 1.0
+balance_weight = 10.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
@@ -419,6 +421,7 @@ print_freq = 2
 total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
+total_balance_loss = 0.0
 total_save_loss = 0.0
 total_graph_diam_loss = 0.0
 total_mc_loss = 0.0
@@ -445,8 +448,8 @@ session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-ema_beta0 = 0.999
-ema_beta1 = 0.999
+ema_beta0 = 0.99
+ema_beta1 = ema_beta0
 session.average_parameters.beta = ema_beta0
 use_connectivity = True
 # use_connectivity = False
@@ -555,12 +558,13 @@ torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, dropout={}".format(
+    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, dropout={}, balance_coef={}, balance_weight={}".format(
         map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
         session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
         annealing_time, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
-        mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound, dropout))
+        mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound, dropout,
+        balance_coef, balance_weight))
 logging.info(session.optimizer)
 logging.info("Starting training")
 for i in range(1000000):
@@ -606,6 +610,7 @@ for i in range(1000000):
             temperature_decay=temperature_decay,
             explore_eps=explore_eps,
             compute_cycles=False,
+            balance_coef=balance_coef,
             save_dist_coef=save_dist_coef,
             graph_diam_coef=graph_diam_coef,
             mc_dist_coef=mc_dist_coef,
@@ -677,8 +682,9 @@ for i in range(1000000):
     for j in range(num_batches):
         data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
         with util.DelayedKeyboardInterrupt():
-            loss, binary_loss, save_loss, graph_diam_loss, mc_loss, toilet_loss = session.train_batch(
+            loss, binary_loss, balance_loss, save_loss, graph_diam_loss, mc_loss, toilet_loss = session.train_batch(
                 data,
+                balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
                 mc_dist_weight=mc_dist_weight,
@@ -686,6 +692,7 @@ for i in range(1000000):
             )
             total_loss += loss
             total_binary_loss += binary_loss
+            total_balance_loss += balance_loss
             total_save_loss += save_loss
             total_graph_diam_loss += graph_diam_loss
             total_mc_loss += mc_loss
@@ -732,6 +739,7 @@ for i in range(1000000):
 
         new_loss = total_loss / total_loss_cnt
         new_binary_loss = total_binary_loss / total_loss_cnt
+        new_balance_loss = total_balance_loss / total_loss_cnt
         new_save_loss = total_save_loss / total_loss_cnt
         new_graph_diam_loss = total_graph_diam_loss / total_loss_cnt
         new_mc_loss = total_mc_loss / total_loss_cnt
@@ -766,10 +774,11 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: loss={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
+            "{}: loss={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
                 session.num_rounds,
                 new_loss,
                 new_binary_loss,
+                new_balance_loss,
                 new_save_loss,
                 new_graph_diam_loss,
                 new_mc_loss,
@@ -789,6 +798,7 @@ for i in range(1000000):
             ))
         total_loss = 0.0
         total_binary_loss = 0.0
+        total_balance_loss = 0.0
         total_save_loss = 0.0
         total_graph_diam_loss = 0.0
         total_mc_loss = 0.0
@@ -958,3 +968,13 @@ for i in range(1000000):
 # cnt = Counter(session.replay_buffer.episode_data.room_door_id.view(-1).tolist())
 # for k in sorted(cnt.keys()):
 #     print(k, cnt[k])
+
+# env = session.envs[0]
+# room_mask = env.room_mask[0:1]
+# room_position_x = env.room_position_x[0:1]
+# room_position_y = env.room_position_y[0:1]
+# db = env.get_door_match_data(room_mask, room_position_x, room_position_y)
+
+
+# left door 21, 22: crateria supers (room_id=23)
+# right door 8, 9: climb (room_id=4)

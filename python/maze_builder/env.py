@@ -1377,6 +1377,73 @@ class MazeBuilderEnv:
         colors = [self.color_map[room.sub_area] for room in rooms]
         self.map_display._display(rooms, xs, ys, colors)
 
+    def get_door_match_data(self, room_mask, room_position_x, room_position_y):
+        n = room_mask.shape[0]
+        data_tuples = [
+            (self.room_left, self.room_right),
+            (self.room_down, self.room_up),
+        ]
+        device = room_mask.device
+        connect_list = []
+        for room_dir, room_dir_opp in data_tuples:
+            room_dir = room_dir.to(device)
+            room_dir_opp = room_dir_opp.to(device)
+            room_id = room_dir[:, 0]
+            relative_door_x = room_dir[:, 1]
+            relative_door_y = room_dir[:, 2]
+            door_x = room_position_x[:, room_id] + relative_door_x.unsqueeze(0)
+            door_y = room_position_y[:, room_id] + relative_door_y.unsqueeze(0)
+            mask = room_mask[:, room_id]
+
+            room_id_opp = room_dir_opp[:, 0]
+            relative_door_x_opp = room_dir_opp[:, 1]
+            relative_door_y_opp = room_dir_opp[:, 2]
+            door_x_opp = room_position_x[:, room_id_opp] + relative_door_x_opp.unsqueeze(0)
+            door_y_opp = room_position_y[:, room_id_opp] + relative_door_y_opp.unsqueeze(0)
+            mask_opp = room_mask[:, room_id_opp]
+
+            door_map = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=device, dtype=torch.int64)
+            door_mask = torch.zeros([n, (self.map_x + 1) * (self.map_y + 1)], device=device, dtype=torch.bool)
+            door_pos = door_y * (self.map_x + 1) + door_x
+            door_id = torch.arange(room_dir.shape[0], device=device).view(1, -1)
+            door_map.scatter_add_(dim=1, index=door_pos, src=door_id * mask)
+            door_mask.scatter_add_(dim=1, index=door_pos, src=mask)
+
+            door_pos_opp = door_y_opp * (self.map_x + 1) + door_x_opp
+            all_env_ids = torch.arange(n, device=device).view(-1, 1)
+            door_map_lookup = door_map[all_env_ids, door_pos_opp]
+            door_mask_lookup = door_mask[all_env_ids, door_pos_opp]
+
+            both_mask = mask_opp & door_mask_lookup
+            nz = torch.nonzero(both_mask)
+            nz_env = nz[:, 0]
+            nz_door_opp = nz[:, 1]
+            nz_door = door_map_lookup[nz_env, nz_door_opp]
+
+            connect_list.append([nz_env, nz_door, nz_door_opp])
+        return connect_list
+
+    def get_door_balance(self, room_mask, room_position_x, room_position_y, adjust_left_right, adjust_down_up):
+        device = room_mask.device
+        num_envs = room_mask.shape[0]
+        num_left_doors = adjust_left_right.shape[0]
+        num_down_doors = adjust_down_up.shape[0]
+        num_doors = 2 * num_left_doors + 2 * num_down_doors
+        door_match = self.get_door_match_data(room_mask, room_position_x, room_position_y)
+        out = torch.full([num_envs, num_doors], float('nan'), device=device)
+
+        horiz_env, horiz_door_left, horiz_door_right = door_match[0]
+        horiz_balance = adjust_left_right[horiz_door_left, horiz_door_right]
+        out[horiz_env, horiz_door_left] = horiz_balance
+        out[horiz_env, horiz_door_right + num_left_doors] = horiz_balance
+
+        vert_env, vert_door_down, vert_door_up = door_match[1]
+        vert_balance = adjust_down_up[vert_door_down, vert_door_up]
+        out[vert_env, vert_door_down + 2 * num_left_doors] = vert_balance
+        out[vert_env, vert_door_up + 2 * num_left_doors + num_down_doors] = vert_balance
+
+        return out
+
     def get_door_connect_stats(self, room_mask, room_position_x, room_position_y):
         n = room_mask.shape[0]
         data_tuples = [
