@@ -1,5 +1,5 @@
 v113:
-- add more sprites:
+- DONE: add more sprites:
    - mm2 updated aroace sprite
    - Kiara sprite
    - check on Celeste/Madeline sprite and Fight (ARNF) sprite?
@@ -43,6 +43,7 @@ v113:
 
 TODO:
 - Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
+- prevent empty tiles (grid lines only) from showing as explored on mini-map?
 - model energy usage in the escape.
   - can be necessary to ensure beatability of seeds with reduced items and disabled escape refill.
 - possible QoL: while pause menu is fading in, press R to immediately initiate switching to equipment screen
