@@ -55,8 +55,7 @@ class TrainingSession():
         self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms), storage_device=torch.device('cpu'))
 
         self.door_connect_adjust_left_right, self.door_connect_adjust_down_up = self.get_initial_door_connect_stats()
-        self.door_connect_weight_left_right = torch.zeros_like(self.door_connect_adjust_left_right)
-        self.door_connect_weight_down_up = torch.zeros_like(self.door_connect_adjust_down_up)
+        self.door_connect_adjust_weight = 0.0
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
@@ -115,6 +114,7 @@ class TrainingSession():
         # self.door_connect_adjust_down_up = self.center_matrix(beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(torch.float32), self.door_connect_weight_down_up)
         self.door_connect_adjust_left_right = beta * self.door_connect_adjust_left_right + alpha0 * stats_left.to(torch.float32)
         self.door_connect_adjust_down_up = beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(torch.float32)
+        self.door_connect_adjust_weight = beta * self.door_connect_adjust_weight + alpha
         return ent
 
     def compute_reward(self, door_connects, missing_connects, use_connectivity):

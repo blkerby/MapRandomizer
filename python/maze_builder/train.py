@@ -134,7 +134,7 @@ logging.info("{}".format(model))
 # model.state_value_lin.bias.data.zero_()
 model.output_lin2.weight.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 19
+replay_size = 2 ** 20
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -357,7 +357,7 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0001
+lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
@@ -388,11 +388,11 @@ graph_diam_coef = 0.0
 
 door_connect_bound = 2.0
 # door_connect_bound = 0.0
-door_connect_samples = 5.0 * replay_size
+door_connect_samples = replay_size
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
-balance_coef = 2.0
+balance_coef = 1.0
 balance_weight = 10.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -413,10 +413,10 @@ temperature_decay = 1.0
 
 annealing_start = 0
 annealing_time = 1
-# annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
+# annealing_time = 4 * session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.5
-pass_factor1 = 0.5
+pass_factor0 = 0.25
+pass_factor1 = 0.25
 print_freq = 2
 total_reward = 0
 total_loss = 0.0
@@ -448,7 +448,7 @@ session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
-ema_beta0 = 0.99
+ema_beta0 = 0.999
 ema_beta1 = ema_beta0
 session.average_parameters.beta = ema_beta0
 use_connectivity = True

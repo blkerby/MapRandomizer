@@ -181,7 +181,7 @@
                     <label class="btn btn-outline-primary" for="doorsBlue">Blue</label>
                     <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo" checked=true>
                     <label class="btn btn-outline-primary" for="doorsAmmo">Ammo</label>
-                    <input type="radio" class="btn-check" name="doors" id="doorsBeam" value="Beam" checked=true>
+                    <input type="radio" class="btn-check" name="doors" id="doorsBeam" value="Beam">
                     <label class="btn btn-outline-primary" for="doorsBeam">Beam</label>
                 </div>
             </div>
