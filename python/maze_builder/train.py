@@ -18,8 +18,8 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-import logic.rooms.crateria_isolated
-# import logic.rooms.norfair_isolated
+# import logic.rooms.crateria_isolated
+import logic.rooms.norfair_isolated
 # import logic.rooms.all_rooms
 
 
@@ -45,17 +45,17 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 14
-rooms = logic.rooms.crateria_isolated.rooms
-# rooms = logic.rooms.norfair_isolated.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.norfair_isolated.rooms
 # rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
+# map_x = 32
+# map_y = 32
 # map_x = 72
 # map_y = 72
-# map_x = 48
-# map_y = 48
+map_x = 48
+map_y = 48
 
 env_config = EnvConfig(
     rooms=rooms,
@@ -68,8 +68,8 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                       starting_room_name="Landing Site")
-                       # starting_room_name="Business Center")
+                       # starting_room_name="Landing Site")
+                       starting_room_name="Business Center")
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -97,11 +97,11 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 #     arity=2,
 # ).to(device)
 
-embedding_width = 256
+embedding_width = 512
 key_width = 32
 value_width = 32
 attn_heads = 8
-hidden_width = 1024
+hidden_width = 2048
 model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
@@ -125,7 +125,7 @@ model = TransformerModel(
     global_attn_key_width=32,
     global_attn_value_width=32,
     global_width=512,
-    global_hidden_width=1024,
+    global_hidden_width=2048,
     global_ff_dropout=0.0,
 ).to(device)
 logging.info("{}".format(model))
@@ -361,10 +361,10 @@ lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 32
-num_candidates_max0 = 32
-num_candidates_min1 = 32
-num_candidates_max1 = 32
+num_candidates_min0 = 64
+num_candidates_max0 = 64
+num_candidates_min1 = 64
+num_candidates_max1 = 64
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -386,9 +386,9 @@ graph_diam_weight = 0.00002
 # graph_diam_coef = 0.2
 graph_diam_coef = 0.0
 
-door_connect_bound = 2.0
+door_connect_bound = 1.0
 # door_connect_bound = 0.0
-door_connect_samples = replay_size
+door_connect_samples = 2.0 * replay_size
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
@@ -446,7 +446,7 @@ save_freq = 32
 summary_freq = 32
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
 session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.999
 ema_beta1 = ema_beta0
