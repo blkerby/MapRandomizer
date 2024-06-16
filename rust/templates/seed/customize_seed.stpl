@@ -114,9 +114,9 @@ window.spoilerTokenPrefix = "<%- spoiler_token_prefix %>";
                             <label class="col-form-label" for="disable_shaking"><% include!("help/shaking.stpl"); %>Screen shaking</label>
                             </div>
                             <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
-                                <input type="radio" class="btn-check" name="shaking" id="shakingVanilla" value="Vanilla" checked>
+                                <input type="radio" class="btn-check" name="shaking" id="shakingVanilla" value="Vanilla">
                                 <label class="btn btn-outline-primary" style="width:120px" for="shakingVanilla">Vanilla</label>
-                                <input type="radio" class="btn-check" name="shaking" id="shakingReduced" value="Reduced">
+                                <input type="radio" class="btn-check" name="shaking" id="shakingReduced" value="Reduced" checked>
                                 <label class="btn btn-outline-primary" style="width:120px" for="shakingReduced">Reduced</label>
                                 <input type="radio" class="btn-check" name="shaking" id="shakingDisabled" value="Disabled">
                                 <label class="btn btn-outline-primary" style="width:120px" for="shakingDisabled">Disabled</label>
