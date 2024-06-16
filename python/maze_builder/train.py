@@ -397,9 +397,9 @@ balance_weight = 10.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 0.1
+temperature_min0 = 0.02
 temperature_max0 = 10.0
-temperature_min1 = 0.1
+temperature_min1 = 0.02
 temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
@@ -413,7 +413,7 @@ temperature_decay = 1.0
 
 annealing_start = 0
 annealing_time = 1
-# annealing_time = 4 * session.replay_buffer.capacity // (num_envs * num_devices)
+# annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
 pass_factor0 = 0.25
 pass_factor1 = 0.25
