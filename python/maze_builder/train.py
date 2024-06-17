@@ -19,8 +19,8 @@ from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
 # import logic.rooms.crateria_isolated
-import logic.rooms.norfair_isolated
-# import logic.rooms.all_rooms
+# import logic.rooms.norfair_isolated
+import logic.rooms.all_rooms
 
 
 start_time = datetime.now()
@@ -44,18 +44,20 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 14
+num_envs = 2 ** 11
 # rooms = logic.rooms.crateria_isolated.rooms
-rooms = logic.rooms.norfair_isolated.rooms
-# rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.norfair_isolated.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 # map_x = 32
 # map_y = 32
 # map_x = 72
 # map_y = 72
-map_x = 48
-map_y = 48
+# map_x = 48
+# map_y = 48
+map_x = 64
+map_y = 64
 
 env_config = EnvConfig(
     rooms=rooms,
@@ -134,7 +136,7 @@ logging.info("{}".format(model))
 # model.state_value_lin.bias.data.zero_()
 model.output_lin2.weight.data.zero_()
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 20
+replay_size = 2 ** 22
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
@@ -361,10 +363,10 @@ lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 64
-num_candidates_max0 = 64
-num_candidates_min1 = 64
-num_candidates_max1 = 64
+num_candidates_min0 = 128
+num_candidates_max0 = 128
+num_candidates_min1 = 128
+num_candidates_max1 = 128
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -372,8 +374,8 @@ explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
 save_loss_weight = 0.001
-# save_dist_coef = 0.01
-save_dist_coef = 0.0
+save_dist_coef = 0.01
+# save_dist_coef = 0.0
 
 mc_dist_weight = 0.0002
 mc_dist_coef_tame = 0.2
@@ -383,8 +385,8 @@ toilet_weight = 0.01
 toilet_good_coef = 1.0
 
 graph_diam_weight = 0.00002
-# graph_diam_coef = 0.2
-graph_diam_coef = 0.0
+graph_diam_coef = 0.2
+# graph_diam_coef = 0.0
 
 door_connect_bound = 1.0
 # door_connect_bound = 0.0
@@ -417,7 +419,7 @@ annealing_time = 1
 
 pass_factor0 = 0.25
 pass_factor1 = 0.25
-print_freq = 2
+print_freq = 1
 total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
@@ -597,8 +599,8 @@ for i in range(1000000):
     # explore_eps = torch.full_like(temperature, explore_eps_val)
     explore_eps = temperature * explore_eps_factor
 
-    # tame_mask = torch.arange(num_envs) % 2 == 0
-    tame_mask = torch.full([num_envs], False)
+    tame_mask = torch.arange(num_envs) % 2 == 0
+    # tame_mask = torch.full([num_envs], False)
     mc_dist_coef = torch.where(tame_mask, torch.tensor(mc_dist_coef_tame), torch.tensor(mc_dist_coef_wild)).to(device)
 
     with util.DelayedKeyboardInterrupt():
