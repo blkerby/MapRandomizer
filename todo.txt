@@ -1,4 +1,5 @@
 v113:
+- check on speedball tiles in presets
 - DONE: add more sprites:
    - mm2 updated aroace sprite
    - Kiara sprite
@@ -42,6 +43,7 @@ v113:
 
 
 TODO:
+- fix: g-mode immobile strats show Beyond on logic pages
 - Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
 - prevent empty tiles (grid lines only) from showing as explored on mini-map?
 - model energy usage in the escape.

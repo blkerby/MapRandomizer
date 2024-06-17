@@ -215,7 +215,8 @@ class Unpickler(pickle.Unpickler):
 # pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # pickle_name = 'models/session-2024-06-05T13:43:00.485204.pkl'
-# session = pickle.load(open(pickle_name, 'rb'))
+pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
+session = pickle.load(open(pickle_name, 'rb'))
 # session = Unpickler(open(pickle_name, 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk36', 'rb')).load()
 # session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()

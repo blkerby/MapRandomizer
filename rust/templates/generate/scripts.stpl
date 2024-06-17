@@ -8,6 +8,7 @@ function presetChanged() {
         if (document.getElementById("preset<%- name_no_space %>").checked) {
             document.getElementById("shinesparkTiles").value = <%= p.preset.shinespark_tiles %>;
             document.getElementById("heatedShinesparkTiles").value = <%= p.preset.heated_shinespark_tiles %>;
+            document.getElementById("speedBallTiles").value = <%= p.preset.speed_ball_tiles %>;
             document.getElementById("shinechargeLeniencyFrames").value = <%= p.preset.shinecharge_leniency_frames %>;
             document.getElementById("resourceMultiplier").value = <%= p.preset.resource_multiplier %>;
             document.getElementById("escapeTimerMultiplier").value = <%= p.preset.escape_timer_multiplier %>;
