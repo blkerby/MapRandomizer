@@ -1977,12 +1977,12 @@ impl<'a> MapPatcher<'a> {
         }
 
         let extended_map_palette: Vec<(u8, u16)> = vec![
-            (14, rgb(7, 28, 7)),   // Brinstar green (and green doors)
+            (14, rgb(7, 31, 7)),   // Brinstar green (and green doors)
             (10, rgb(29, 0, 0)),   // Norfair red
             (8, rgb(4, 13, 31)),   // Maridia blue
             (9, rgb(23, 24, 9)),   // Wrecked Ship yellow
             (11, rgb(20, 3, 31)),  // Crateria purple
-            (6, rgb(31, 12, 0)),   // Tourian, (and orange doors)
+            (6, rgb(29, 15, 0)),   // Tourian, (and orange doors)
             (15, rgb(18, 12, 14)), // Gray door
             (7, rgb(27, 2, 27)),   // Red (pink) door
             (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)

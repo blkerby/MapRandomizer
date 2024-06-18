@@ -1,12 +1,12 @@
 !bank_82_free_space_start = $82FA00
 !bank_82_free_space_end = $82FA80
 
-!pb_1 = #$013F
-!pb_2 = #$00D8
-!pb_3 = #$006C
-!super_1 = #$4BF2
-!super_2 = #$328C
-!super_3 = #$1D87
+!pb_1 = #$019E
+!pb_2 = #$0114
+!pb_3 = #$008A
+!super_1 = #$43F0
+!super_2 = #$2A8A
+!super_3 = #$1184
 !missile_1 = #$7C1F
 !missile_2 = #$5816
 !missile_3 = #$340D
