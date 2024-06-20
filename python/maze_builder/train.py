@@ -52,12 +52,12 @@ episode_length = len(rooms)
 
 # map_x = 32
 # map_y = 32
-# map_x = 72
-# map_y = 72
+map_x = 72
+map_y = 72
 # map_x = 48
 # map_y = 48
-map_x = 64
-map_y = 64
+# map_x = 64
+# map_y = 64
 
 env_config = EnvConfig(
     rooms=rooms,
@@ -70,8 +70,8 @@ envs = [MazeBuilderEnv(rooms,
                        num_envs=num_envs,
                        device=device,
                        must_areas_be_connected=False,
-                       # starting_room_name="Landing Site")
-                       starting_room_name="Business Center")
+                       starting_room_name="Landing Site")
+                       # starting_room_name="Business Center")
         for device in devices]
 
 max_possible_reward = envs[0].max_reward
@@ -80,24 +80,6 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
 
-# layer_width = 512
-# main_depth = 2
-# fc_depth = 3
-# model = DoorLocalModel(
-#     env_config=env_config,
-#     num_doors=envs[0].num_doors,
-#     num_missing_connects=envs[0].num_missing_connects,
-#     num_good_room_parts=len(envs[0].good_room_parts),
-#     num_parts=envs[0].num_parts,
-#     map_channels=4,
-#     map_kernel_size=16,
-#     connectivity_in_width=64,
-#     local_widths=main_depth * [layer_width],
-#     global_widths=main_depth * [layer_width],
-#     fc_widths=fc_depth * [layer_width],
-#     alpha=2.0,
-#     arity=2,
-# ).to(device)
 
 embedding_width = 512
 key_width = 32
@@ -132,9 +114,7 @@ model = TransformerModel(
 ).to(device)
 logging.info("{}".format(model))
 
-# model.state_value_lin.weight.data.zero_()
-# model.state_value_lin.bias.data.zero_()
-model.output_lin2.weight.data.zero_()
+model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 replay_size = 2 ** 22
 session = TrainingSession(envs,
@@ -144,6 +124,7 @@ session = TrainingSession(envs,
                           replay_size=replay_size,
                           decay_amount=0.0,
                           sam_scale=None)
+
 
 #
 # num_eval_rounds = 256
@@ -215,16 +196,11 @@ class Unpickler(pickle.Unpickler):
 # pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # pickle_name = 'models/session-2024-06-05T13:43:00.485204.pkl'
-pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
-session = pickle.load(open(pickle_name, 'rb'))
+# pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
+# session = pickle.load(open(pickle_name, 'rb'))
+# session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session = Unpickler(open(pickle_name, 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk36', 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk35', 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk43', 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk54', 'rb')).load()  # After backfilling graph diameter data
-# old_session = Unpickler(open(pickle_name + '-bk72', 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk47', 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk57', 'rb')).load()
+# session = Unpickler(open(pickle_name + '-bk1', 'rb')).load()
 
 
 # # Perform model surgery to add Toilet as decoupled room:
@@ -389,6 +365,7 @@ graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
+replay_size = session.replay_buffer.capacity
 door_connect_bound = 1.0
 # door_connect_bound = 0.0
 door_connect_samples = 2.0 * replay_size
@@ -981,3 +958,13 @@ for i in range(1000000):
 
 # left door 21, 22: crateria supers (room_id=23)
 # right door 8, 9: climb (room_id=4)
+
+# cnt = {}
+# for r in session.replay_buffer.episode_data.reward.tolist():
+#     if r not in cnt:
+#         cnt[r] = 0
+#     cnt[r] += 1
+# for r in sorted(cnt.keys()):
+#     logging.info("{}: {}".format(r, cnt[r]))
+
+

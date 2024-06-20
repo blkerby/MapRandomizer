@@ -1,46 +1,11 @@
-v113:
-- check on speedball tiles in presets
-- DONE: add more sprites:
-   - mm2 updated aroace sprite
-   - Kiara sprite
-   - check on Celeste/Madeline sprite and Fight (ARNF) sprite?
-- implement stuff for new logic:
-  - DONE: add `leaveWithRunway` case for `comeInWithSpringBallBounce`
-  - DONE: add `comeInWithBlueSpringBallBounce`
-  - DONE: implement constraints on "minExtraRunSpeed" and "maxExtraRunSpeed"
-  - DONE: add "speedball" difficulty setting
-  - DONE: implement `speedBall` logical requirement
-  - DONE: re-implement `comeInSpeedballing` to resolve requirement like `speedBall`
-  - DONE: implement "heatFramesWithEnergyDrops"
-- DONE: reveal tile above sloped rooms like Terminator
-- DONE: Various Mosaic fixes, pull in updates
-- DONE: fix bug where quick reloading at end of elevator ride does a loadback
-- DONE: Troubleshoot why shinesparking from Shaktool across West Sand Hall not in logic here:
-  - http://localhost:8080/seed/iLuf_jofwAdNTZWzl1lagQ/data/visualizer/index.html
-- DONE: Investigate rare failure in constructing reverse spoiler route
-- DONE: investigate beam door graphical issue in Red Brin Elevator Room (and Forgotten Highway Elevator)
-- DONE: investigate reported crash x-ray climbing west ocean
-- DONE: fix slowlock with MB Skip option
-- DONE: fix escape graphics (affecting ship, spore spawn, etc.)
-- DONE: update credits, adding selicre in additional devs
-- DONE: screw attack animation option
-- DONE: beam doors
-  - DONE: make sure hyper beam can open them.
-  - DONE: take into account extra heat frames for charge door
-  - DONE: fix charge door animation
-  - DONE: unpause hook
-  - DONE: keep door unlocked after opening
-- DONE: add FX tests on Mosaic
-  - DONE: possibly related: figure out why Climb doesn't have acid in escape anymore (sometimes?)
-- DONE: treat first copy of filler items like key items for purposes of Forced placement
-  - DONE: area-theme mode if ready
-- DONE: include item priority order in spoiler JSON
-- DONE: enable compression, to speed up spoiler JSON transfer: https://cseweb.ucsd.edu/classes/sp22/cse223B-a/tribbler/actix_web/middleware/struct.Compress.html
-- DONE: alternative door color customization option
-- DONE: fix escape timer graphics corruption/flickering
-- DONE: add item priority strength to seed page
-- DONE: fix ammo HUD display in Escape start
+v114:
+- verify respin implementation and iron out issues:
+  - issue with sand escape in butterfly room.
+  - issue with shooting into spin-jump?: https://discord.com/channels/1053421401354285129/1073621773184159764/1205894290350407700
 
+v113b (hotfix):
+- fix logic problem with locked East Pants Room right door
+- fix beam door partial map reveal: https://discord.com/channels/1053421401354285129/1053434532973510748/1253249446255263744
 
 TODO:
 - fix: g-mode immobile strats show Beyond on logic pages

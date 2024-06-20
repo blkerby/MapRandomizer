@@ -2455,10 +2455,16 @@ pub fn randomize_doors(
         locked_door_node_map.insert((32, 7), idx);
     }
 
+    // Homing Geemer Room right door -> West Ocean Bridge right door
     if let Some(&idx) = locked_door_node_map.get(&(313, 2)) {
         locked_door_node_map.insert((32, 8), idx);
     }
 
+    // Pants Room right door -> East Pants Room right door
+    if let Some(&idx) = locked_door_node_map.get(&(322, 2)) {
+        locked_door_node_map.insert((220, 2), idx);
+    }
+    
     let mut locked_door_vertex_ids = vec![vec![]; locked_doors.len()];
     for (&(room_id, node_id), vertex_ids) in &game_data.node_door_unlock {
         if let Some(&locked_door_idx) = locked_door_node_map.get(&(room_id, node_id)) {
