@@ -963,7 +963,7 @@ impl<'a> MapPatcher<'a> {
         let (offset, bitmask) = super::xy_to_explored_bit_ptr(x0 + x, y0 + y);
         let mut data = self.rom.read_u8(base_ptr + offset as usize)? as u8;
         data |= bitmask;
-        self.rom.write_u16(base_ptr + offset as usize, data as isize)?;
+        self.rom.write_u8(base_ptr + offset as usize, data as isize)?;
         Ok(())
     }
 
@@ -2002,7 +2002,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
-        for i in [1, 2, 4, 6, 7, 13, 14, 15] {
+        for i in [1, 2, 4, 6, 7, 8, 13, 14, 15] {
             self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(0, 0, 0) as isize)?;
         }
         // In partially revealed palette, show walls/passages (as gray), and eliminate the door lock shadows covering walls:
