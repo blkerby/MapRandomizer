@@ -12,7 +12,7 @@ use crate::seed_repository::SeedRepository;
 
 use self::logic::LogicData;
 
-pub const VERSION: usize = 113;
+pub const VERSION: usize = 114;
 pub const HQ_VIDEO_URL_ROOT: &'static str = "https://storage.googleapis.com/super-metroid-map-rando-videos-webm";
 
 #[derive(Serialize, Deserialize, Clone)]

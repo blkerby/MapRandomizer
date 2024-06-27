@@ -546,9 +546,9 @@ class TrainingSession():
         self.average_parameters.update(self.model.all_param_data())
         return losses
 
-    def eval_batch(self, data: TrainingData, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+    def eval_batch(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.eval()
         with torch.no_grad():
-            losses = self.compute_losses(data, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            losses = self.compute_losses(data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
         return losses[0].item(), losses[1:]
 

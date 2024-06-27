@@ -105,11 +105,11 @@ model = TransformerModel(
     ff_dropout=0.0,
     attn_dropout=0.0,
     num_global_layers=1,
-    global_attn_heads=16,
+    global_attn_heads=32,
     global_attn_key_width=32,
     global_attn_value_width=32,
-    global_width=512,
-    global_hidden_width=2048,
+    global_width=2048,
+    global_hidden_width=4096,
     global_ff_dropout=0.0,
 ).to(device)
 logging.info("{}".format(model))
@@ -126,8 +126,8 @@ session = TrainingSession(envs,
                           sam_scale=None)
 
 
-#
-# num_eval_rounds = 256
+
+# num_eval_rounds = 16
 # eval_buffer = ReplayBuffer(num_eval_rounds * envs[0].num_envs * len(envs), session.replay_buffer.num_rooms, torch.device('cpu'))
 # for i in range(num_eval_rounds):
 #     with util.DelayedKeyboardInterrupt():
@@ -135,6 +135,7 @@ session = TrainingSession(envs,
 #             episode_length=episode_length,
 #             num_candidates_min=1.0,
 #             num_candidates_max=1.0,
+#             balance_coef=0.0,
 #             toilet_good_coef=0.0,
 #             temperature=torch.full([envs[0].num_envs], 1.0),
 #             temperature_decay=1.0,
@@ -158,10 +159,10 @@ session = TrainingSession(envs,
 #     data = eval_buffer.sample(eval_batch_size, hist=eval_buffer.size, c=1.0, device=device)
 #     eval_batches.append(data)
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
+#
+eval_filename = "eval_batches_zebes.pkl"
 # pickle.dump(eval_batches, open(eval_filename, "wb"))
-
-# eval_filename = "eval_batches_crateria.pkl"
-# eval_batches = pickle.load(open(eval_filename, "rb"))
+eval_batches = pickle.load(open(eval_filename, "rb"))
 
 # for i in range(len(eval_batches)):
 #     i = 0
@@ -292,22 +293,9 @@ session.envs = envs
 # # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
 
 
-# # Rip out the elementwise_affine params from the layer norms:
-# # session.model.ff_layers[0].lin1.weight.data *= session.model.attn_layers[0].layer_norm.weight
-# # session.model.attn_layers[1].query.weight.data *= session.model.ff_layers[0].layer_norm.weight
-# # session.model.attn_layers[1].key.weight.data *= session.model.ff_layers[0].layer_norm.weight
-# # session.model.attn_layers[1].value.weight.data *= session.model.ff_layers[0].layer_norm.weight
-# # session.model.ff_layers[1].lin1.weight.data *= session.model.attn_layers[1].layer_norm.weight
-# # session.model.global_query.data *= session.model.ff_layers[1].layer_norm.weight
-# # session.model.global_value.data *= session.model.ff_layers[1].layer_norm.weight
-# for i in range(2):
-#     session.model.attn_layers[i].layer_norm = torch.nn.LayerNorm([embedding_width], elementwise_affine=False)
-#     session.model.ff_layers[i].layer_norm = torch.nn.LayerNorm([embedding_width], elementwise_affine=False)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 
 
-# # # Add new Transformer layers
+# # Add new Transformer layers
 # new_layer_idxs = list(range(1, len(session.model.attn_layers) + 1))
 # logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
 # for i in reversed(new_layer_idxs):
@@ -326,7 +314,7 @@ session.envs = envs
 #     session.model.ff_layers.insert(i, ff_layer)
 # session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
-
+#
 
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 # session.replay_buffer.resize(2 ** 23)
@@ -340,10 +328,10 @@ lr0 = 0.0005
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 256
-num_candidates_max0 = 256
-num_candidates_min1 = 256
-num_candidates_max1 = 256
+num_candidates_min0 = 1
+num_candidates_max0 = 1
+num_candidates_min1 = 1
+num_candidates_max1 = 1
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -373,13 +361,13 @@ door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
 balance_coef = 1.0
-balance_weight = 10.0
+balance_weight = 1.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 0.02
+temperature_min0 = 0.01
 temperature_max0 = 10.0
-temperature_min1 = 0.02
+temperature_min1 = 0.01
 temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
@@ -392,12 +380,12 @@ temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 0
-annealing_time = 1
-# annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
+# annealing_time = 1
+annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.25
-pass_factor1 = 0.25
-print_freq = 8
+pass_factor0 = 0.1
+pass_factor1 = 0.1
+print_freq = 4
 total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
@@ -422,8 +410,8 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 128
-summary_freq = 128
+save_freq = 256
+summary_freq = 64
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
@@ -804,9 +792,10 @@ for i in range(1000000):
                 with session.average_parameters.average_parameters(session.model.all_param_data()):
                     for data in eval_batches:
                         eval_loss, other_losses = session.eval_batch(data,
-                            save_dist_weight = save_loss_weight,
-                            graph_diam_weight = graph_diam_weight,
-                            mc_dist_weight = mc_dist_weight,
+                            balance_weight=balance_weight,
+                            save_dist_weight=save_loss_weight,
+                            graph_diam_weight=graph_diam_weight,
+                            mc_dist_weight=mc_dist_weight,
                             toilet_weight=toilet_weight)
                         total_eval_loss += eval_loss
                         for i in range(len(total_other_losses)):
@@ -919,52 +908,5 @@ for i in range(1000000):
         # display_counts(counts1, 1000000, verbose=True)
 
         # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
-
-
-
-# obj = session.envs[1]
-# for name in dir(obj):
-#     x = getattr(obj,  name)
-#     if isinstance(x, torch.Tensor):
-#         print(name, x.device)
-
-# num_binary_outputs = session.envs[0].num_doors + session.envs[0].num_missing_connects
-# session.model.global_query.data[num_binary_outputs:, :] *= 0.5
-# torch.mean(torch.abs(session.model.global_query ** 2), dim=1)
-
-# torch.mean(torch.abs(session.model.global_value ** 2), dim=1)
-
-# S = session.replay_buffer.episode_data.save_distances.to(torch.float)
-# S = torch.where(S == 255, float('nan'), S)
-# torch.nanmean(S)
-# torch.nanmean((S - torch.nanmean(S, dim=0, keepdim=True)) ** 2)
-
-# session.replay_buffer.episode_data.save_distances[0]
-# ind = session.replay_buffer.episode_data.reward == 0
-# diam = session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float)
-# print(torch.mean(diam), torch.var(diam), torch.min(diam), torch.max(diam))
-
-# from collections import Counter
-# cnt = Counter(session.replay_buffer.episode_data.room_door_id.view(-1).tolist())
-# for k in sorted(cnt.keys()):
-#     print(k, cnt[k])
-
-# env = session.envs[0]
-# room_mask = env.room_mask[0:1]
-# room_position_x = env.room_position_x[0:1]
-# room_position_y = env.room_position_y[0:1]
-# db = env.get_door_match_data(room_mask, room_position_x, room_position_y)
-
-
-# left door 21, 22: crateria supers (room_id=23)
-# right door 8, 9: climb (room_id=4)
-
-# cnt = {}
-# for r in session.replay_buffer.episode_data.reward.tolist():
-#     if r not in cnt:
-#         cnt[r] = 0
-#     cnt[r] += 1
-# for r in sorted(cnt.keys()):
-#     logging.info("{}: {}".format(r, cnt[r]))
 
 

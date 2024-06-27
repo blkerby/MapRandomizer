@@ -1,13 +1,31 @@
 v114:
+- restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
 - verify respin implementation and iron out issues:
   - issue with sand escape in butterfly room.
   - issue with shooting into spin-jump?: https://discord.com/channels/1053421401354285129/1073621773184159764/1205894290350407700
-
-v113b (hotfix):
-- fix logic problem with locked East Pants Room right door
-- fix beam door partial map reveal: https://discord.com/channels/1053421401354285129/1053434532973510748/1253249446255263744
+- track down sprite artists if we can:
+  - Hyper: RealRed
+  - Ancient Chozo: "Albert V & Physix"
+  - Ascent: Benox50
+  - Decision: JoshShoeWah
+  - Escape II: Hiroishi
+  - Nature: Jefe962
+  - Phazon: A red monk called key
+  - Redesign: Drewseph
+  - SZM: SBniconico
+  - Kaizo: Green Samus
+  - Super Duper: Metaquarius, Daltone
+- add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- fix bug where dachora despawns global zeela in Dachora Room.
+  - probably caused by escape.asm: missing ",x" in stz, also check for Landing Site room ID so that it won't affect Dachora Room
+- update how seed names are chosen
+  - verify that seed name is not already in use
+  - use shorter name
+  - filter to exclude potentially offensive substrings: https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words
+    - map upper->lower case, and map digits 5 -> s, 4 -> a, 3 -> e, 1 -> i, 0 -> o
+- show transition arrows in connecting areas when map is revealed
 - fix: g-mode immobile strats show Beyond on logic pages
 - Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
 - prevent empty tiles (grid lines only) from showing as explored on mini-map?

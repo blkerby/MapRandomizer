@@ -333,7 +333,7 @@ class TransformerModel(torch.nn.Module):
                 dropout=global_ff_dropout))
 
         self.output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
+        self.output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=True)
 
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y,

@@ -2001,6 +2001,7 @@ fn build_app_data() -> AppData {
         ("OuterCrateria", "Outer Crateria"),
         ("InnerCrateria", "Inner Crateria"),
         ("GreenBrinstar", "Green Brinstar"),
+        ("RedBrinstar", "Red Brinstar"),
         ("UpperNorfair", "Upper Norfair"),
         ("WreckedShip", "Wrecked Ship"),
         ("WestMaridia", "West Maridia"),
