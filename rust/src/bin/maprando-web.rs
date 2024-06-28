@@ -11,8 +11,7 @@ use actix_web::http::header::{
 use actix_web::middleware::Compress;
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
-use anyhow::{Context, Result};
-use base64::Engine;
+use anyhow::{bail, Context, Result};
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
@@ -420,13 +419,6 @@ struct SeedData {
     ultra_low_qol: bool,
 }
 
-fn get_seed_name(seed_data: &SeedData) -> String {
-    let seed_data_str = serde_json::to_string(&seed_data).unwrap();
-    let digest = crypto_hash::digest(crypto_hash::Algorithm::MD5, seed_data_str.as_bytes());
-    let base64_str = base64::engine::general_purpose::URL_SAFE_NO_PAD.encode(digest);
-    base64_str
-}
-
 #[derive(TemplateOnce)]
 #[template(path = "seed/seed_header.stpl")]
 struct SeedHeaderTemplate<'a> {
@@ -601,6 +593,10 @@ fn render_seed(
     Ok((seed_header_html, seed_footer_html))
 }
 
+async fn check_seed_exists(seed_name: &str, app_data: &AppData) -> bool {
+    app_data.seed_repository.get_file(seed_name, "seed_data.json").await.is_ok()
+}
+
 async fn save_seed(
     seed_name: &str,
     seed_data: &SeedData,
@@ -610,6 +606,10 @@ async fn save_seed(
     randomization: &Randomization,
     app_data: &AppData,
 ) -> Result<()> {
+    if check_seed_exists(seed_name, app_data).await {
+        bail!("Seed name already exists: {}", seed_name);
+    }
+
     let mut files: Vec<SeedFile> = Vec::new();
 
     // Write the seed data JSON. This contains details about the seed and request origin,
@@ -1785,9 +1785,9 @@ async fn randomize(
         ultra_low_qol: req.ultra_low_qol.0,
     };
 
-    let seed_name = get_seed_name(&seed_data);
+    let seed_name = &output.randomization.seed_name;
     save_seed(
-        &seed_name,
+        seed_name,
         &seed_data,
         &req.spoiler_token.0,
         &rom,

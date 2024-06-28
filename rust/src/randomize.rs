@@ -18,6 +18,7 @@ use crate::{
     web::logic::strip_name,
 };
 use anyhow::{bail, Context, Result};
+use base64::Engine;
 use by_address::ByAddress;
 use hashbrown::{HashMap, HashSet};
 use json::short;
@@ -26,12 +27,13 @@ use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use run_speed::{get_shortcharge_max_extra_run_speed, get_shortcharge_min_extra_run_speed};
 use serde_derive::{Deserialize, Serialize};
+use core::num;
 use std::{
     any,
     cmp::{max, min},
     convert::TryFrom,
     hash::Hash,
-    iter,
+    iter, time::SystemTime,
 };
 use strum::VariantNames;
 
@@ -408,6 +410,7 @@ pub struct Randomization {
     pub spoiler_log: SpoilerLog,
     pub seed: usize,
     pub display_seed: usize,
+    pub seed_name: String,
 }
 
 struct SelectItemsOutput {
@@ -3629,6 +3632,25 @@ impl<'r> Randomizer<'r> {
         (spoiler_summary, spoiler_details, false)
     }
 
+    fn get_seed_name(&self, seed: usize) -> String {
+        let t = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos();
+        let mut rng_seed = [0u8; 32];
+        rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+        rng_seed[8..24].copy_from_slice(&t.to_le_bytes());
+        let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+        // Leave out vowels and characters that could read like vowels, to minimize the chance
+        // of forming words.
+        let alphabet = "256789BCDFGHJKLMNPQRSTVWXYZbcdfghjkmnpqrstvwxyz";
+        let mut out: String = String::new();
+        let num_chars = 11;
+        for _ in 0..num_chars {
+            let i = rng.gen_range(0..alphabet.len());
+            let c = alphabet.as_bytes()[i] as char;
+            out.push(c);
+        }
+        out
+    }    
+
     fn get_randomization(
         &self,
         state: &RandomizationState,
@@ -3801,6 +3823,7 @@ impl<'r> Randomizer<'r> {
             spoiler_log,
             seed,
             display_seed,
+            seed_name: self.get_seed_name(seed),
             // start_location: loc.clone(),
             start_location: state.start_location.clone(),
             starting_items: self.difficulty_tiers[0].starting_items.clone(),
@@ -4122,6 +4145,7 @@ impl<'r> Randomizer<'r> {
             item_placement: vec![Item::Nothing; 100],
             spoiler_log,
             seed,
+            seed_name: self.get_seed_name(seed),
             display_seed,
             start_location: StartLocation::default(),
             starting_items,

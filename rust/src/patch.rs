@@ -1621,7 +1621,17 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn apply_seed_hash(&mut self) -> Result<()> {
+    fn apply_seed_identifiers(&mut self) -> Result<()> {
+        let cartridge_name = "SUPERMETROID MAPRANDO";
+        self.rom.write_n(0x7FC0, cartridge_name.as_bytes())?;
+
+        // Write seed name as a null-terminated URL-safe base64-encoded ASCII string.
+        // This can be used to look up seeds on the website as https://maprando.com/seed/{seed name}/
+        assert!(self.randomization.seed_name.as_bytes().len() < 16);
+        self.rom.write_n(snes2pc(0xdffef0), &[0; 16])?;
+        self.rom.write_n(snes2pc(0xdffef0), self.randomization.seed_name.as_bytes())?;
+
+        // Write the display_seed, used by "seed_hash_display.asm" to show enemy names in the main menu.
         let seed_bytes = (self.randomization.display_seed as u32).to_le_bytes();
         self.rom.write_n(snes2pc(0xdfff00), &seed_bytes)?;
         Ok(())
@@ -2572,7 +2582,7 @@ pub fn make_rom(
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
     patcher.write_walljump_item_graphics()?;
-    patcher.apply_seed_hash()?;
+    patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
     if !randomization.difficulty.ultra_low_qol {
         patcher.apply_hazard_markers()?;
