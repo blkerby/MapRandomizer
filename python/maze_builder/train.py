@@ -104,8 +104,8 @@ model = TransformerModel(
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=1,
-    global_attn_heads=32,
+    num_global_layers=2,
+    global_attn_heads=64,
     global_attn_key_width=32,
     global_attn_value_width=32,
     global_width=2048,
@@ -114,7 +114,7 @@ model = TransformerModel(
 ).to(device)
 logging.info("{}".format(model))
 
-model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
+# model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 replay_size = 2 ** 22
 session = TrainingSession(envs,
@@ -324,7 +324,7 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0005
+lr0 = 0.0001
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100

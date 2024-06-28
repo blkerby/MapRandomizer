@@ -1625,7 +1625,7 @@ impl<'a> Patcher<'a> {
         let cartridge_name = "SUPERMETROID MAPRANDO";
         self.rom.write_n(0x7FC0, cartridge_name.as_bytes())?;
 
-        // Write seed name as a null-terminated URL-safe base64-encoded ASCII string.
+        // Write seed name as a null-terminated URL-safe ASCII string.
         // This can be used to look up seeds on the website as https://maprando.com/seed/{seed name}/
         assert!(self.randomization.seed_name.as_bytes().len() < 16);
         self.rom.write_n(snes2pc(0xdffef0), &[0; 16])?;
