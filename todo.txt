@@ -1,5 +1,6 @@
 v114:
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
+- restore vanilla Climb rising lava when entering bottom-left door
 - verify respin implementation and iron out issues:
   - issue with sand escape in butterfly room.
   - issue with shooting into spin-jump?: https://discord.com/channels/1053421401354285129/1073621773184159764/1205894290350407700

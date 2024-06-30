@@ -1304,17 +1304,7 @@ impl<'a> Patcher<'a> {
         door_fx.insert((Some(0x195B2), Some(0x195BE)), 0x8385E0); // Speed Booster Hall right door: lava rising when Speed Booster collected
         door_fx.insert((Some(0x1983A), Some(0x19876)), 0x83876A); // Acid Statue Room bottom-right door: acid lowered
         door_fx.insert((Some(0x199A2), Some(0x199F6)), 0x83883C); // Amphitheatre right door: acid raised
-
-        // We skip applying this to Climb, because otherwise the lava would rise every time when entering
-        // the bottom-left door (not only during the escape):
-        // door_fx.insert((0x18B6E, 0x1AB34), 0x838060);  // Climb bottom-left door: lava rising
-
-        // Even still, as in the vanilla game, lava would rise in Climb if entered through Tourian Escape Room 4
-        // (even not in the escape). We prevent this possibility by replacing the Tourian Escape Room 4 door
-        // with the value 0xFFFF which does not match any door, effectively disabling the door-specific FX
-        // for this room. Note that lava will still rise in Climb during the escape because of the different
-        // room state (unrelated to door-specific FX).
-        self.rom.write_u16(snes2pc(0x838060), 0xffff)?;
+        door_fx.insert((Some(0x18B6E), Some(0x1AB34)), 0x838060); // Climb bottom-left door: lava rising
 
         for (door1, door2, _) in &self.map.doors {
             if door_fx.contains_key(door1) {
