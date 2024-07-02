@@ -1,15 +1,21 @@
 from typing import Optional
 import torch
 from maze_builder.types import EpisodeData, TrainingData, reconstruct_room_data
+import os
+import pickle
+import random
 
 class ReplayBuffer:
-    def __init__(self, capacity, num_rooms, storage_device):
+    def __init__(self, capacity, num_rooms, storage_device, data_path):
         self.capacity = capacity
         self.num_rooms = num_rooms
         self.storage_device = storage_device
         self.episode_data: Optional[EpisodeData] = None
         self.position = 0
         self.size = 0
+        self.data_path = data_path
+        self.num_files = 0
+        os.makedirs(data_path, exist_ok=True)
 
     def initial_allocation(self, prototype_episode_data: EpisodeData):
         episode_data_dict = {}
@@ -36,9 +42,36 @@ class ReplayBuffer:
         self.capacity = new_capacity
         self.position = new_size
 
+    def add_file(self, episode_data: EpisodeData):
+        next_file_number = self.num_files
+        file_path = os.path.join(self.data_path, "{}.pkl".format(next_file_number))
+        pickle.dump(episode_data, open(file_path, 'wb'))
+        self.num_files += 1
+
+    def load_file(self, file_num):
+        file_path = os.path.join(self.data_path, "{}.pkl".format(file_num))
+        data = pickle.load(open(file_path, 'rb'))
+        n = data.reward.shape[0]
+        rand_idxs = torch.randint(0, self.capacity, [n])
+
+        for field in EpisodeData.__dataclass_fields__.keys():
+            target_tensor = getattr(self.episode_data, field)
+            input_tensor = getattr(data, field)
+            target_tensor[rand_idxs] = input_tensor
+
+    def load_files(self, num_files):
+        if self.size != self.capacity:
+            return
+        for _ in range(num_files):
+            file_num = random.randrange(self.num_files)
+            self.load_file(file_num)
+
     def insert(self, episode_data: EpisodeData):
+        self.add_file(episode_data)
         if self.episode_data is None:
             self.initial_allocation(episode_data)
+        if self.size == self.capacity:
+            return
         size = episode_data.reward.shape[0]
         remaining = self.capacity - self.position
         size_to_use = min(size, remaining)

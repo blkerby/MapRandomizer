@@ -18,9 +18,9 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-# import logic.rooms.crateria_isolated
+import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
-import logic.rooms.all_rooms
+# import logic.rooms.all_rooms
 
 
 start_time = datetime.now()
@@ -45,15 +45,15 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-# map_x = 32
-# map_y = 32
-map_x = 72
-map_y = 72
+map_x = 32
+map_y = 32
+# map_x = 72
+# map_y = 72
 # map_x = 48
 # map_y = 48
 # map_x = 64
@@ -81,11 +81,11 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
 
-embedding_width = 512
+embedding_width = 256
 key_width = 32
 value_width = 32
 attn_heads = 8
-hidden_width = 2048
+hidden_width = 1024
 model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
@@ -104,22 +104,23 @@ model = TransformerModel(
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=2,
-    global_attn_heads=64,
+    num_global_layers=1,
+    global_attn_heads=32,
     global_attn_key_width=32,
     global_attn_value_width=32,
-    global_width=2048,
-    global_hidden_width=4096,
+    global_width=1024,
+    global_hidden_width=2048,
     global_ff_dropout=0.0,
 ).to(device)
 logging.info("{}".format(model))
 
 # model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
 optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 22
+replay_size = 2 ** 18
 session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
+                          data_path="data/{}".format(start_time.isoformat()),
                           ema_beta=0.999,
                           replay_size=replay_size,
                           decay_amount=0.0,
@@ -127,7 +128,7 @@ session = TrainingSession(envs,
 
 
 
-# num_eval_rounds = 16
+# num_eval_rounds = 64
 # eval_buffer = ReplayBuffer(num_eval_rounds * envs[0].num_envs * len(envs), session.replay_buffer.num_rooms, torch.device('cpu'))
 # for i in range(num_eval_rounds):
 #     with util.DelayedKeyboardInterrupt():
@@ -159,9 +160,10 @@ session = TrainingSession(envs,
 #     data = eval_buffer.sample(eval_batch_size, hist=eval_buffer.size, c=1.0, device=device)
 #     eval_batches.append(data)
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
-#
-eval_filename = "eval_batches_zebes.pkl"
-# pickle.dump(eval_batches, open(eval_filename, "wb"))
+# #
+# # eval_filename = "eval_batches_zebes.pkl"
+eval_filename = "eval_batches_crateria.pkl"
+# # pickle.dump(eval_batches, open(eval_filename, "wb"))
 eval_batches = pickle.load(open(eval_filename, "rb"))
 
 # for i in range(len(eval_batches)):
@@ -324,7 +326,7 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 hist_c = 1.0
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0001
+lr0 = 0.0003
 lr1 = lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
@@ -365,9 +367,9 @@ balance_weight = 1.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 0.01
+temperature_min0 = 0.1
 temperature_max0 = 10.0
-temperature_min1 = 0.01
+temperature_min1 = 0.1
 temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
@@ -383,9 +385,10 @@ annealing_start = 0
 # annealing_time = 1
 annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 0.1
-pass_factor1 = 0.1
-print_freq = 4
+pass_factor0 = 1.0
+pass_factor1 = 1.0
+num_load_files = int(episode_length * pass_factor1)
+print_freq = 8
 total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
@@ -410,8 +413,8 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 256
-summary_freq = 64
+save_freq = 128
+summary_freq = 128
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
@@ -591,6 +594,7 @@ for i in range(1000000):
             total_ent += session.update_door_connect_stats(door_connect_alpha, door_connect_beta, temp_num_min)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)
+        session.replay_buffer.load_files(num_files=num_load_files)
 
         total_reward += torch.mean(data.reward.to(torch.float32))
         total_test_loss += torch.mean(data.test_loss)

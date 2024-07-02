@@ -39,6 +39,7 @@ class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
                  model: TransformerModel,
                  optimizer: torch.optim.Optimizer,
+                 data_path: str,
                  ema_beta: float,
                  replay_size: int,
                  decay_amount: float,
@@ -52,7 +53,9 @@ class TrainingSession():
         self.decay_amount = decay_amount
         self.sam_scale = sam_scale
         self.grad_scaler = torch.cuda.amp.GradScaler()
-        self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms), storage_device=torch.device('cpu'))
+        self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms),
+                                          storage_device=torch.device('cpu'),
+                                          data_path=data_path)
 
         self.door_connect_adjust_left_right, self.door_connect_adjust_down_up = self.get_initial_door_connect_stats()
         self.door_connect_adjust_weight = 0.0
