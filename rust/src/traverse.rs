@@ -1926,6 +1926,11 @@ pub fn traverse(
                         //     }
                         // }
 
+                        // let debug_vertex_id = 13452;
+                        // if !reverse && dst_id == debug_vertex_id {
+                        //     println!("{}: {:?}", dst_id, dst_new_local_state);
+                        // }
+
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
                             link_idx,

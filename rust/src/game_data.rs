@@ -3109,6 +3109,7 @@ impl GameData {
 
     pub fn does_come_in_shinecharged(&self, entrance_condition: &EntranceCondition) -> bool {
         match entrance_condition.main {
+            MainEntranceCondition::ComeInShinecharging { .. } => true,
             MainEntranceCondition::ComeInShinecharged { .. } => true,
             MainEntranceCondition::ComeInShinechargedJumping { .. } => true,
             _ => false,
@@ -4231,9 +4232,13 @@ impl GameData {
         ];
         game_data.load_title_screens(title_screen_path)?;
 
+        // let debug_room_node_ids = vec![
+        //     (125, 3),
+        //     // (119, 3),
+        //     // (174, 1),
+        // ];
         // for (vertex_id, key) in game_data.vertex_isv.keys.iter().enumerate() {
-        //     // if (key.room_id, key.node_id) == (193, 1) {
-        //     if key.room_id == 169 {
+        //     if debug_room_node_ids.contains(&(key.room_id, key.node_id)) {
         //         println!("{}: {:?}", vertex_id, key);
 
         //         for (_, link) in &game_data.base_links_data.links_by_src[vertex_id] {
