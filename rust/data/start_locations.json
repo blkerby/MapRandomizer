@@ -604,7 +604,7 @@
     {
         "name": "Red Tower Bottom",
         "room_id": 66,
-        "node_id": 8,
+        "node_id": 7,
         "door_load_node_id": 3,
         "x": 8,
         "y": 154

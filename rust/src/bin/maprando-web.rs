@@ -1816,6 +1816,7 @@ fn init_presets(
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
     let ignored_tech: HashSet<String> = [
         "canSpikeSuit", // not ready to be used until flash suit logic is more complete.
+        "canTrickyCarryFlashSuit", // not ready to be used until flash suit logic is more complete.
         "canRiskPermanentLossOfAccess",
         "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]

@@ -25,6 +25,18 @@ document.getElementById("navigation-releases").classList.add("active");
     <ul>
     <li>Strats with comeInShinecharging + leaveShinecharged were not in logic (since v112).
     </ul>
+<li>Logic updates:
+    <ul>
+    <li>Many cross-room strats are added involving runways not connected to a door:
+        <ul>
+        <li>E.g. carrying blue speed using cross-room jumps, spring ball bounces, and Space Jump.
+        </ul>
+    <li>New tech:
+        <ul>
+        <li>"canTrickySpringBallBounce" (Expert)
+        <li>"canReserveDoubleDamageBoost" (Extreme)
+        </ul>
+    </ul>
 </ul>
 
 <p><a id="release113">Version 113 (2024-06-18)</a>:

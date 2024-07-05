@@ -1748,6 +1748,11 @@ impl GameData {
                     effective_length,
                     ctx.room_heated,
                 ));
+            } else if key == "shineChargeFrames" {
+                let frames = value
+                    .as_i32()
+                    .expect(&format!("invalid shineChargeFrames in {}", req_json));
+                return Ok(Requirement::ShineChargeFrames(frames as Capacity));
             } else if key == "heatFrames" {
                 let frames = value
                     .as_i32()
@@ -1815,7 +1820,8 @@ impl GameData {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
                 let attack_name = value["type"].as_str().unwrap().to_string();
                 let hits = value["hits"].as_i32().unwrap() as Capacity;
-                let base_damage = self.enemy_attack_damage[&(enemy_name, attack_name)];
+                let base_damage = self.enemy_attack_damage.get(&(enemy_name.clone(), attack_name.clone()))
+                    .with_context(|| format!("Missing enemy attack damage for {} - {}:", enemy_name, attack_name))?;
                 return Ok(Requirement::Damage(hits * base_damage));
             } else if key == "enemyKill" {
                 // We only consider enemy kill methods that are non-situational and do not require ammo.
@@ -3324,11 +3330,15 @@ impl GameData {
             });
             let start_with_shinecharge = if let Some(e) = &entrance_condition {
                 self.does_come_in_shinecharged(e)
+            } else if strat_json["startsWithShineCharge"].as_bool() == Some(true) {
+                true
             } else {
                 false
             };
             let end_with_shinecharge = if let Some(e) = &exit_condition {
                 self.does_leave_shinecharged(e)
+            } else if strat_json["endsWithShineCharge"].as_bool() == Some(true) {
+                true
             } else {
                 false
             };

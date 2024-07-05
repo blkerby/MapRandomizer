@@ -368,7 +368,8 @@
       "canGrappleTeleport",
       "canPreciseSpaceJump",
       "canMomentumConservingMorph",
-      "canFarmWhileShooting"
+      "canFarmWhileShooting",
+      "canTrickySpringBallBounce"      
     ],
     "notable_strats": [
       "Landing Site Big Jump Blue Suit Bounce",
@@ -383,8 +384,6 @@
       "East Ocean Shinespark Water Escape",
       "East Ocean Suitless Damage Boost Water Escape",
 
-      "Brinstar Reserve Temporary Blue",
-      "Brinstar Reserve Temporary Blue Spring Ball Bounce",
       "Green Hill Zone X-Ray Wiggle",
       "Green Hills Grapple Gate Glitch",
       "Etecoon Shaft Moonfall Spark",
@@ -408,7 +407,9 @@
       "Warehouse Kihunter Room Bottom Leave Shinecharged",
       "Warehouse Kihunter Speedball",
 
+      "Cathedral Entrance Sova Boost",
       "Cathedral Entrance Sova Morph Only Boost",
+
       "Cathedral Entrance Speedjump (Right to Left)",
       "Cathedral Entrance Speedjump (Left to Right)",
       "HiJump E-Tank Sova Boost",
@@ -532,7 +533,8 @@
       "canLongChainTemporaryBlue",
       "canSandBombBoost",
       "canEnemyStuckMoonfall",
-      "canHighPixelCeilingClip"
+      "canHighPixelCeilingClip",
+      "canReserveDoubleDamageBoost"
     ],
     "notable_strats": [
       "Landing Site Big Jump Leave With Temporary Blue",
