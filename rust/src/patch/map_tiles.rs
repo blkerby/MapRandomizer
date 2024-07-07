@@ -3,10 +3,13 @@ use log::info;
 
 use crate::{
     game_data::{AreaIdx, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{BeamType, DoorLocksSize, DoorType, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, Randomization},
+    randomize::{
+        BeamType, DoorLocksSize, DoorType, ItemDotChange, ItemMarkers, MapStationReveal,
+        MapsRevealed, Objective, Randomization,
+    },
 };
 
-use super::{beam_doors_tiles, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
+use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
 use anyhow::{bail, Context, Result};
 
 pub type TilemapOffset = u16;
@@ -220,17 +223,17 @@ impl<'a> MapPatcher<'a> {
     fn write_map_tiles_area(&mut self, area_idx: usize) -> Result<()> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD: (skipping "%", which is unused)
-            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D,
-            0x0E, 0x0F, 0x1C, 0x1D, 0x1E,
+            0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D, 0x0E,
+            0x0F, 0x1C, 0x1D, 0x1E,
             0x28, // slope tile that triggers tile above Samus to be marked explored
-            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A, 0x3B, 
+            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A, 0x3B,
             // Max ammo display digits: (removed in favor of normal digit graphics)
-            // 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 
+            // 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45,
             0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D,
             0xA8, // heated slope tile corresponding to 0x28
             // Message box letters and punctuation (skipping unused ones: "Q", "->", "'", "-", "!")
-            0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD, 0xCE, 0xCF,
-            0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDD, 0xDE,
+            0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD,
+            0xCE, 0xCF, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDD, 0xDE,
         ]
         .into_iter()
         .collect();
@@ -284,13 +287,13 @@ impl<'a> MapPatcher<'a> {
         }
 
         // Write garbage tiles to remaining "free" tiles, for testing to make sure they're unused:
-        for i in used_tiles.len() .. free_tiles.len() {
+        for i in used_tiles.len()..free_tiles.len() {
             let data = [[0, 1, 2, 3, 0, 1, 2, 3]; 8];
             let f = free_tiles[i];
             self.write_tile_2bpp_area(f as usize, data, Some(area_idx))?;
             self.write_map_tile_4bpp_area(f as usize, data, area_idx)?;
         }
-        
+
         let palette = 0x1800;
         let palette_mask = 0x1C00;
 
@@ -440,8 +443,18 @@ impl<'a> MapPatcher<'a> {
             // but other flips do not.
             return Ok(());
         }
-        let beam_edges = [Edge::ChargeDoor, Edge::IceDoor, Edge::WaveDoor, Edge::SpazerDoor, Edge::PlasmaDoor];
-        if beam_edges.contains(&tile.left) || beam_edges.contains(&tile.right) || beam_edges.contains(&tile.up) || beam_edges.contains(&tile.down) {
+        let beam_edges = [
+            Edge::ChargeDoor,
+            Edge::IceDoor,
+            Edge::WaveDoor,
+            Edge::SpazerDoor,
+            Edge::PlasmaDoor,
+        ];
+        if beam_edges.contains(&tile.left)
+            || beam_edges.contains(&tile.right)
+            || beam_edges.contains(&tile.up)
+            || beam_edges.contains(&tile.down)
+        {
             // For beam doors, again 180 degree rotation works but not other flips.
             return Ok(());
         }
@@ -534,28 +547,136 @@ impl<'a> MapPatcher<'a> {
         self.index_basic(0x8F, W, E, W, W, I)?; // Item (dot) tile with a wall on top, left, and bottom
                                                 // Note: there's no item tile with walls on left and right.
 
-        self.index_basic(0x4D, E, E, E, E, Interior::Save)?;  // Save station
+        self.index_basic(0x4D, E, E, E, E, Interior::Save)?; // Save station
         Ok(())
     }
 
     fn draw_edge(&self, tile_side: TileSide, edge: Edge, tile: &mut [[u8; 8]; 8]) {
         let wall_coords = match tile_side {
-            TileSide::Top => [(0, 0), (0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7)],
-            TileSide::Bottom => [(7, 7), (7, 6), (7, 5), (7, 4), (7, 3), (7, 2), (7, 1), (7, 0)],
-            TileSide::Left => [(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0)],
-            TileSide::Right => [(7, 7), (6, 7), (5, 7), (4, 7), (3, 7), (2, 7), (1, 7), (0, 7)],
+            TileSide::Top => [
+                (0, 0),
+                (0, 1),
+                (0, 2),
+                (0, 3),
+                (0, 4),
+                (0, 5),
+                (0, 6),
+                (0, 7),
+            ],
+            TileSide::Bottom => [
+                (7, 7),
+                (7, 6),
+                (7, 5),
+                (7, 4),
+                (7, 3),
+                (7, 2),
+                (7, 1),
+                (7, 0),
+            ],
+            TileSide::Left => [
+                (0, 0),
+                (1, 0),
+                (2, 0),
+                (3, 0),
+                (4, 0),
+                (5, 0),
+                (6, 0),
+                (7, 0),
+            ],
+            TileSide::Right => [
+                (7, 7),
+                (6, 7),
+                (5, 7),
+                (4, 7),
+                (3, 7),
+                (2, 7),
+                (1, 7),
+                (0, 7),
+            ],
         };
         let air_coords = match tile_side {
-            TileSide::Top => [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7)],
-            TileSide::Bottom => [(6, 7), (6, 6), (6, 5), (6, 4), (6, 3), (6, 2), (6, 1), (6, 0)],
-            TileSide::Left => [(0, 1), (1, 1), (2, 1), (3, 1), (4, 1), (5, 1), (6, 1), (7, 1)],
-            TileSide::Right => [(7, 6), (6, 6), (5, 6), (4, 6), (3, 6), (2, 6), (1, 6), (0, 6)],
+            TileSide::Top => [
+                (1, 0),
+                (1, 1),
+                (1, 2),
+                (1, 3),
+                (1, 4),
+                (1, 5),
+                (1, 6),
+                (1, 7),
+            ],
+            TileSide::Bottom => [
+                (6, 7),
+                (6, 6),
+                (6, 5),
+                (6, 4),
+                (6, 3),
+                (6, 2),
+                (6, 1),
+                (6, 0),
+            ],
+            TileSide::Left => [
+                (0, 1),
+                (1, 1),
+                (2, 1),
+                (3, 1),
+                (4, 1),
+                (5, 1),
+                (6, 1),
+                (7, 1),
+            ],
+            TileSide::Right => [
+                (7, 6),
+                (6, 6),
+                (5, 6),
+                (4, 6),
+                (3, 6),
+                (2, 6),
+                (1, 6),
+                (0, 6),
+            ],
         };
         let deep_coords = match tile_side {
-            TileSide::Top => [(2, 0), (2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6), (2, 7)],
-            TileSide::Bottom => [(5, 7), (5, 6), (5, 5), (5, 4), (5, 3), (5, 2), (5, 1), (5, 0)],
-            TileSide::Left => [(0, 2), (1, 2), (2, 2), (3, 2), (4, 2), (5, 2), (6, 2), (7, 2)],
-            TileSide::Right => [(7, 5), (6, 5), (5, 5), (4, 5), (3, 5), (2, 5), (1, 5), (0, 5)],
+            TileSide::Top => [
+                (2, 0),
+                (2, 1),
+                (2, 2),
+                (2, 3),
+                (2, 4),
+                (2, 5),
+                (2, 6),
+                (2, 7),
+            ],
+            TileSide::Bottom => [
+                (5, 7),
+                (5, 6),
+                (5, 5),
+                (5, 4),
+                (5, 3),
+                (5, 2),
+                (5, 1),
+                (5, 0),
+            ],
+            TileSide::Left => [
+                (0, 2),
+                (1, 2),
+                (2, 2),
+                (3, 2),
+                (4, 2),
+                (5, 2),
+                (6, 2),
+                (7, 2),
+            ],
+            TileSide::Right => [
+                (7, 5),
+                (6, 5),
+                (5, 5),
+                (4, 5),
+                (3, 5),
+                (2, 5),
+                (1, 5),
+                (0, 5),
+            ],
         };
 
         let set_wall_pixel = |tile: &mut [[u8; 8]; 8], i: usize, color: u8| {
@@ -568,7 +689,7 @@ impl<'a> MapPatcher<'a> {
             tile[deep_coords[i].0][deep_coords[i].1] = color;
         };
         match edge {
-            Edge::Empty => {},
+            Edge::Empty => {}
             Edge::Wall => {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
@@ -586,13 +707,13 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 5, 3);
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
-            },
+            }
             Edge::Passage => {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
-            },
+            }
             Edge::GrayDoor | Edge::RedDoor | Edge::GreenDoor | Edge::YellowDoor => {
                 let color = match edge {
                     Edge::GrayDoor => 15,
@@ -612,7 +733,7 @@ impl<'a> MapPatcher<'a> {
                         set_wall_pixel(tile, 6, 3);
                         set_wall_pixel(tile, 7, 3);
                         set_air_pixel(tile, 3, 4);
-                        set_air_pixel(tile, 4, 4);        
+                        set_air_pixel(tile, 4, 4);
                     }
                     DoorLocksSize::Large => {
                         set_wall_pixel(tile, 0, 3);
@@ -632,11 +753,15 @@ impl<'a> MapPatcher<'a> {
                         set_deep_pixel(tile, 2, 4);
                         set_deep_pixel(tile, 3, 4);
                         set_deep_pixel(tile, 4, 4);
-                        set_deep_pixel(tile, 5, 4);                                
+                        set_deep_pixel(tile, 5, 4);
                     }
                 }
-            },
-            Edge::ChargeDoor | Edge::IceDoor | Edge::WaveDoor | Edge::SpazerDoor | Edge::PlasmaDoor => {
+            }
+            Edge::ChargeDoor
+            | Edge::IceDoor
+            | Edge::WaveDoor
+            | Edge::SpazerDoor
+            | Edge::PlasmaDoor => {
                 let color = match edge {
                     Edge::ChargeDoor => 15,
                     Edge::IceDoor => 8,
@@ -700,7 +825,7 @@ impl<'a> MapPatcher<'a> {
                 }
             }
         }
-    
+
         let item_color = if tile.faded {
             if tile.heated {
                 1
@@ -750,43 +875,157 @@ impl<'a> MapPatcher<'a> {
                 // Use white instead of red for elevator platform:
                 data[5][3] = 3;
                 data[5][4] = 3;
-            },
-            Interior::Save => {  
-                update_tile(&mut data, 3, &vec![
-                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                    (0, 1), (1, 1), (7, 1),
-                    (0, 2), (4, 2), (5, 2), (6, 2), (7, 2),
-                    (0, 3), (6, 3), (7, 3),
-                    (0, 4), (1, 4), (7, 4),
-                    (0, 5), (1, 5), (2, 5), (3, 5), (7, 5),
-                    (0, 6), (6, 6), (7, 6),
-                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                ]);
-            },
-            Interior::DoubleRefill => {  
-                update_tile(&mut data, 3, &vec![
-                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                    (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
-                    (0, 2), (1, 2), (2, 2), (5, 2), (6, 2), (7, 2),
-                    (0, 3), (7, 3),
-                    (0, 4), (7, 4),
-                    (0, 5), (1, 5), (2, 5), (5, 5), (6, 5), (7, 5),
-                    (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
-                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                ]);
-            },
-            Interior::EnergyRefill => {  
+            }
+            Interior::Save => {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (1, 1),
+                        (7, 1),
+                        (0, 2),
+                        (4, 2),
+                        (5, 2),
+                        (6, 2),
+                        (7, 2),
+                        (0, 3),
+                        (6, 3),
+                        (7, 3),
+                        (0, 4),
+                        (1, 4),
+                        (7, 4),
+                        (0, 5),
+                        (1, 5),
+                        (2, 5),
+                        (3, 5),
+                        (7, 5),
+                        (0, 6),
+                        (6, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
+            Interior::DoubleRefill => {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (1, 1),
+                        (2, 1),
+                        (5, 1),
+                        (6, 1),
+                        (7, 1),
+                        (0, 2),
+                        (1, 2),
+                        (2, 2),
+                        (5, 2),
+                        (6, 2),
+                        (7, 2),
+                        (0, 3),
+                        (7, 3),
+                        (0, 4),
+                        (7, 4),
+                        (0, 5),
+                        (1, 5),
+                        (2, 5),
+                        (5, 5),
+                        (6, 5),
+                        (7, 5),
+                        (0, 6),
+                        (1, 6),
+                        (2, 6),
+                        (5, 6),
+                        (6, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
+            Interior::EnergyRefill => {
                 // Drawn the same as a double refill (for now at least):
-                update_tile(&mut data, 3, &vec![
-                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                    (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
-                    (0, 2), (1, 2), (2, 2), (5, 2), (6, 2), (7, 2),
-                    (0, 3), (7, 3),
-                    (0, 4), (7, 4),
-                    (0, 5), (1, 5), (2, 5), (5, 5), (6, 5), (7, 5),
-                    (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
-                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                ]);
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (1, 1),
+                        (2, 1),
+                        (5, 1),
+                        (6, 1),
+                        (7, 1),
+                        (0, 2),
+                        (1, 2),
+                        (2, 2),
+                        (5, 2),
+                        (6, 2),
+                        (7, 2),
+                        (0, 3),
+                        (7, 3),
+                        (0, 4),
+                        (7, 4),
+                        (0, 5),
+                        (1, 5),
+                        (2, 5),
+                        (5, 5),
+                        (6, 5),
+                        (7, 5),
+                        (0, 6),
+                        (1, 6),
+                        (2, 6),
+                        (5, 6),
+                        (6, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
                 // update_tile(&mut data, 3, &vec![
                 //     (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
                 //     (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
@@ -797,43 +1036,149 @@ impl<'a> MapPatcher<'a> {
                 //     (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
                 //     (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
                 // ]);
-            },
+            }
             Interior::AmmoRefill => {
-                update_tile(&mut data, 3, &vec![
-                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                    (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
-                    (0, 2), (1, 2), (6, 2), (7, 2),
-                    (0, 3), (1, 3), (3, 3), (4, 3), (6, 3), (7, 3),
-                    (0, 4), (1, 4), (6, 4), (7, 4),
-                    (0, 5), (7, 5),
-                    (0, 6), (2, 6), (5, 6), (7, 6),
-                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                ]);
-            },
-            Interior::Objective => {  
-                update_tile(&mut data, 3, &vec![
-                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                    (0, 1), (3, 1), (4, 1), (7, 1),
-                    (0, 2), (7, 2),
-                    (0, 3), (1, 3), (6, 3), (7, 3),
-                    (0, 4), (1, 4), (6, 4), (7, 4),
-                    (0, 5), (7, 5),
-                    (0, 6), (3, 6), (4, 6), (7, 6),
-                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                ]);
-            },
-            Interior::MapStation => {  
-                update_tile(&mut data, 3, &vec![
-                    (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                    (0, 1), (7, 1),
-                    (0, 2), (2, 2), (3, 2), (4, 2), (5, 2), (7, 2),
-                    (0, 3), (2, 3), (5, 3), (7, 3),
-                    (0, 4), (2, 4), (5, 4), (7, 4),
-                    (0, 5), (2, 5), (3, 5), (4, 5), (5, 5), (7, 5),
-                    (0, 6), (7, 6),
-                    (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                ]);
-            },
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (1, 1),
+                        (2, 1),
+                        (5, 1),
+                        (6, 1),
+                        (7, 1),
+                        (0, 2),
+                        (1, 2),
+                        (6, 2),
+                        (7, 2),
+                        (0, 3),
+                        (1, 3),
+                        (3, 3),
+                        (4, 3),
+                        (6, 3),
+                        (7, 3),
+                        (0, 4),
+                        (1, 4),
+                        (6, 4),
+                        (7, 4),
+                        (0, 5),
+                        (7, 5),
+                        (0, 6),
+                        (2, 6),
+                        (5, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
+            Interior::Objective => {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (3, 1),
+                        (4, 1),
+                        (7, 1),
+                        (0, 2),
+                        (7, 2),
+                        (0, 3),
+                        (1, 3),
+                        (6, 3),
+                        (7, 3),
+                        (0, 4),
+                        (1, 4),
+                        (6, 4),
+                        (7, 4),
+                        (0, 5),
+                        (7, 5),
+                        (0, 6),
+                        (3, 6),
+                        (4, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
+            Interior::MapStation => {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (7, 1),
+                        (0, 2),
+                        (2, 2),
+                        (3, 2),
+                        (4, 2),
+                        (5, 2),
+                        (7, 2),
+                        (0, 3),
+                        (2, 3),
+                        (5, 3),
+                        (7, 3),
+                        (0, 4),
+                        (2, 4),
+                        (5, 4),
+                        (7, 4),
+                        (0, 5),
+                        (2, 5),
+                        (3, 5),
+                        (4, 5),
+                        (5, 5),
+                        (7, 5),
+                        (0, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
         }
 
         self.draw_edge(TileSide::Top, tile.up, &mut data);
@@ -926,7 +1271,10 @@ impl<'a> MapPatcher<'a> {
         let base_ptr = self.game_data.area_map_ptrs[area] as usize;
         let offset = super::xy_to_map_offset(x0 + x, y0 + y) as usize;
         let word = (self.rom.read_u16(base_ptr + offset)? as TilemapWord) & 0xC3FF;
-        self.reverse_map.get(&word).context("Basic tile not found").map(|x| *x)
+        self.reverse_map
+            .get(&word)
+            .context("Basic tile not found")
+            .map(|x| *x)
     }
 
     fn patch_room(
@@ -948,12 +1296,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn make_tile_revealed(
-        &mut self,
-        room_name: &str,
-        x: isize,
-        y: isize,
-    ) -> Result<()> {
+    fn make_tile_revealed(&mut self, room_name: &str, x: isize, y: isize) -> Result<()> {
         let room_idx = self.game_data.room_idx_by_name[room_name];
         let room = &self.game_data.room_geometry[room_idx];
         let area = self.map.area[room_idx];
@@ -963,7 +1306,8 @@ impl<'a> MapPatcher<'a> {
         let (offset, bitmask) = super::xy_to_explored_bit_ptr(x0 + x, y0 + y);
         let mut data = self.rom.read_u8(base_ptr + offset as usize)? as u8;
         data |= bitmask;
-        self.rom.write_u8(base_ptr + offset as usize, data as isize)?;
+        self.rom
+            .write_u8(base_ptr + offset as usize, data as isize)?;
         Ok(())
     }
 
@@ -984,14 +1328,19 @@ impl<'a> MapPatcher<'a> {
                 heated: false,
                 liquid_type: LiquidType::None,
                 liquid_sublevel: 0,
-        };
+            };
             word_tiles.push((x, y, self.get_basic_tile(basic_tile)?));
         }
         self.patch_room(room_name, word_tiles)?;
         Ok(())
     }
 
-    fn indicate_obj_tiles(&mut self, objective: &Objective, boss_tile: u16, heated_boss_tile: u16) -> Result<()> {
+    fn indicate_obj_tiles(
+        &mut self,
+        objective: &Objective,
+        boss_tile: u16,
+        heated_boss_tile: u16,
+    ) -> Result<()> {
         use Objective::*;
         match objective {
             Kraid => self.patch_room(
@@ -1034,7 +1383,9 @@ impl<'a> MapPatcher<'a> {
                     // We don't mark the last tile, so the item can still be visible.
                 ],
             ),
-            Botwoon => self.patch_room("Botwoon's Room", vec![(0, 0, boss_tile), (1, 0, boss_tile)]),
+            Botwoon => {
+                self.patch_room("Botwoon's Room", vec![(0, 0, boss_tile), (1, 0, boss_tile)])
+            }
             GoldenTorizo => self.patch_room(
                 "Golden Torizo's Room",
                 vec![
@@ -1054,7 +1405,9 @@ impl<'a> MapPatcher<'a> {
                     (5, 0, boss_tile),
                 ],
             ),
-            MetroidRoom2 => self.patch_room("Metroid Room 2", vec![(0, 0, boss_tile), (0, 1, boss_tile)]),
+            MetroidRoom2 => {
+                self.patch_room("Metroid Room 2", vec![(0, 0, boss_tile), (0, 1, boss_tile)])
+            }
             MetroidRoom3 => self.patch_room(
                 "Metroid Room 3",
                 vec![
@@ -1066,7 +1419,9 @@ impl<'a> MapPatcher<'a> {
                     (5, 0, boss_tile),
                 ],
             ),
-            MetroidRoom4 => self.patch_room("Metroid Room 4", vec![(0, 0, boss_tile), (0, 1, boss_tile)]),
+            MetroidRoom4 => {
+                self.patch_room("Metroid Room 4", vec![(0, 0, boss_tile), (0, 1, boss_tile)])
+            }
             BombTorizo => self.patch_room("Bomb Torizo Room", vec![(0, 0, boss_tile)]),
             BowlingStatue => self.patch_room("Bowling Alley", vec![(4, 1, boss_tile)]),
             AcidChozoStatue => self.patch_room("Acid Statue Room", vec![(0, 0, heated_boss_tile)]),
@@ -1107,16 +1462,46 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_refill_station_tiles(&mut self) -> Result<()> {
-        self.patch_room_basic("Landing Site", vec![(4, 4, E, E, E, E, Interior::DoubleRefill)])?;
-        self.patch_room_basic("Kraid Recharge Station", vec![(0, 0, E, E, E, E, Interior::DoubleRefill)])?;
-        self.patch_room_basic("Tourian Recharge Room", vec![(0, 0, E, E, E, E, Interior::DoubleRefill)])?;
-        self.patch_room_basic("Dachora Energy Refill", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
-        self.patch_room_basic("Sloaters Refill", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
-        self.patch_room_basic("Nutella Refill", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
-        self.patch_room_basic("Maridia Health Refill Room", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
-        self.patch_room_basic("Golden Torizo Energy Recharge", vec![(0, 0, E, E, E, E, Interior::EnergyRefill)])?;
-        self.patch_room_basic("Green Brinstar Missile Refill", vec![(0, 0, E, E, E, E, Interior::AmmoRefill)])?;
-        self.patch_room_basic("Maridia Missile Refill Room", vec![(0, 0, E, E, E, E, Interior::AmmoRefill)])?;        
+        self.patch_room_basic(
+            "Landing Site",
+            vec![(4, 4, E, E, E, E, Interior::DoubleRefill)],
+        )?;
+        self.patch_room_basic(
+            "Kraid Recharge Station",
+            vec![(0, 0, E, E, E, E, Interior::DoubleRefill)],
+        )?;
+        self.patch_room_basic(
+            "Tourian Recharge Room",
+            vec![(0, 0, E, E, E, E, Interior::DoubleRefill)],
+        )?;
+        self.patch_room_basic(
+            "Dachora Energy Refill",
+            vec![(0, 0, E, E, E, E, Interior::EnergyRefill)],
+        )?;
+        self.patch_room_basic(
+            "Sloaters Refill",
+            vec![(0, 0, E, E, E, E, Interior::EnergyRefill)],
+        )?;
+        self.patch_room_basic(
+            "Nutella Refill",
+            vec![(0, 0, E, E, E, E, Interior::EnergyRefill)],
+        )?;
+        self.patch_room_basic(
+            "Maridia Health Refill Room",
+            vec![(0, 0, E, E, E, E, Interior::EnergyRefill)],
+        )?;
+        self.patch_room_basic(
+            "Golden Torizo Energy Recharge",
+            vec![(0, 0, E, E, E, E, Interior::EnergyRefill)],
+        )?;
+        self.patch_room_basic(
+            "Green Brinstar Missile Refill",
+            vec![(0, 0, E, E, E, E, Interior::AmmoRefill)],
+        )?;
+        self.patch_room_basic(
+            "Maridia Missile Refill Room",
+            vec![(0, 0, E, E, E, E, Interior::AmmoRefill)],
+        )?;
         Ok(())
     }
 
@@ -1132,27 +1517,27 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_objective_tiles(&mut self) -> Result<()> {
-        let boss_tile = self.get_basic_tile(BasicTile { 
-            left: E, 
-            right: E, 
-            up: E, 
-            down: E, 
+        let boss_tile = self.get_basic_tile(BasicTile {
+            left: E,
+            right: E,
+            up: E,
+            down: E,
             interior: Interior::Objective,
             faded: false,
             heated: false,
             liquid_type: LiquidType::None,
-            liquid_sublevel: 0 
+            liquid_sublevel: 0,
         })?;
-        let heated_boss_tile = self.get_basic_tile(BasicTile { 
-            left: E, 
-            right: E, 
-            up: E, 
-            down: E, 
+        let heated_boss_tile = self.get_basic_tile(BasicTile {
+            left: E,
+            right: E,
+            up: E,
+            down: E,
             interior: Interior::Objective,
             faded: false,
             heated: true,
             liquid_type: LiquidType::None,
-            liquid_sublevel: 0 
+            liquid_sublevel: 0,
         })?;
 
         for i in self.randomization.difficulty.objectives.iter() {
@@ -1251,8 +1636,16 @@ impl<'a> MapPatcher<'a> {
                 let basic_tile_opt = self.reverse_map.get(&word);
                 if let Some(basic_tile) = basic_tile_opt {
                     let mut new_tile = basic_tile.clone();
-                    if [Interior::Save, Interior::DoubleRefill, Interior::EnergyRefill, Interior::AmmoRefill, 
-                            Interior::Objective, Interior::MapStation].contains(&basic_tile.interior) {
+                    if [
+                        Interior::Save,
+                        Interior::DoubleRefill,
+                        Interior::EnergyRefill,
+                        Interior::AmmoRefill,
+                        Interior::Objective,
+                        Interior::MapStation,
+                    ]
+                    .contains(&basic_tile.interior)
+                    {
                         continue;
                     }
                     for &i in idxs {
@@ -1672,7 +2065,13 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_locked_doors(&mut self) -> Result<()> {
-        for (i, locked_door) in self.randomization.locked_door_data.locked_doors.iter().enumerate() {
+        for (i, locked_door) in self
+            .randomization
+            .locked_door_data
+            .locked_doors
+            .iter()
+            .enumerate()
+        {
             let mut ptr_pairs = vec![locked_door.src_ptr_pair];
             if locked_door.bidirectional {
                 ptr_pairs.push(locked_door.dst_ptr_pair);
@@ -1718,25 +2117,41 @@ impl<'a> MapPatcher<'a> {
                         }
                         "down" => {
                             new_tile.down = edge;
-                        },
-                        _ => panic!("Unexpected door direction: {:?}", door.direction)
+                        }
+                        _ => panic!("Unexpected door direction: {:?}", door.direction),
                     }
                     let modified_word = self.get_basic_tile(new_tile)?;
-                    self.rom.write_u16(base_ptr + offset, (tile | 0x0C00) as isize)?;
+                    self.rom
+                        .write_u16(base_ptr + offset, (tile | 0x0C00) as isize)?;
 
                     // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
-                    // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where 
+                    // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
                     // the item bits start.
                     let item_idx = self.locked_door_state_indices[i] + 512;
-                    self.area_data[area].push((item_idx, offset as TilemapOffset, modified_word | 0x0C00, Interior::Empty));
+                    self.area_data[area].push((
+                        item_idx,
+                        offset as TilemapOffset,
+                        modified_word | 0x0C00,
+                        Interior::Empty,
+                    ));
                 }
             }
         }
         Ok(())
     }
 
-    fn indicate_liquid_room(&mut self, room_name: &str, liquid_type: LiquidType, liquid_level: isize, liquid_sublevel: isize) -> Result<()> {
-        let room_idx = *self.game_data.room_idx_by_name.get(room_name).with_context(|| format!("Room not found: {}", room_name))?;
+    fn indicate_liquid_room(
+        &mut self,
+        room_name: &str,
+        liquid_type: LiquidType,
+        liquid_level: isize,
+        liquid_sublevel: isize,
+    ) -> Result<()> {
+        let room_idx = *self
+            .game_data
+            .room_idx_by_name
+            .get(room_name)
+            .with_context(|| format!("Room not found: {}", room_name))?;
         let room = &self.game_data.room_geometry[room_idx];
         let height = room.map.len() as isize;
         let width = room.map[0].len() as isize;
@@ -1752,7 +2167,7 @@ impl<'a> MapPatcher<'a> {
                                 basic_tile.liquid_sublevel = 0;
                             }
                             let tile = self.get_basic_tile(basic_tile)?;
-                            self.patch_room(room_name, vec![(x, y, tile)])?;    
+                            self.patch_room(room_name, vec![(x, y, tile)])?;
                         }
                         Err(e) => {
                             // println!("{} {} {:?}", x, y, e);
@@ -1782,7 +2197,7 @@ impl<'a> MapPatcher<'a> {
         // self.indicate_liquid_room("Waterway Energy Tank Room", LiquidType::Water, 0, 5)?;
         // self.indicate_liquid_room("Bat Room", LiquidType::Water, 0, 5)?;
         // self.indicate_liquid_room("Below Spazer", LiquidType::Water, 1, 5)?;
-        
+
         // Norfair:
         // self.indicate_liquid_room("Ice Beam Tutorial Room", LiquidType::Lava, 0, 5)?;
         // self.indicate_liquid_room("Ice Beam Acid Room", LiquidType::Lava, 0, 5)?;
@@ -1791,7 +2206,7 @@ impl<'a> MapPatcher<'a> {
         // self.indicate_liquid_room("Post Crocomire Missile Room", LiquidType::Acid, 0, 5)?;
         // self.indicate_liquid_room("Post Crocomire Jump Room", LiquidType::Acid, 2, 5)?;
         self.indicate_liquid_room("Grapple Tutorial Room 1", LiquidType::Water, 1, 0)?;
-        self.indicate_liquid_room("Grapple Tutorial Room 3", LiquidType::Water, 1, 0)?;        
+        self.indicate_liquid_room("Grapple Tutorial Room 3", LiquidType::Water, 1, 0)?;
         // self.indicate_liquid_room("Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
         // self.indicate_liquid_room("Spiky Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
         // self.indicate_liquid_room("Magdollite Tunnel", LiquidType::Lava, 0, 5)?;
@@ -1914,27 +2329,32 @@ impl<'a> MapPatcher<'a> {
             "left" => (x - 1, y),
             "down" => (x, y + 1),
             "up" => (x, y - 1),
-            _ => bail!("Unrecognized door direction: {dir}")
+            _ => bail!("Unrecognized door direction: {dir}"),
         };
         let tile_word = match dir.as_str() {
             "right" => right_arrow_tile,
             "left" => right_arrow_tile | FLIP_X,
             "down" => down_arrow_tile,
             "up" => down_arrow_tile | FLIP_Y,
-            _ => bail!("Unrecognized door direction: {dir}")
+            _ => bail!("Unrecognized door direction: {dir}"),
         };
 
         self.patch_room(
             &self.game_data.room_geometry[room_idx].name,
             vec![(coords.0, coords.1, tile_word)],
         )?;
-        self.make_tile_revealed(&self.game_data.room_geometry[room_idx].name, coords.0, coords.1)?;
+        self.make_tile_revealed(
+            &self.game_data.room_geometry[room_idx].name,
+            coords.0,
+            coords.1,
+        )?;
 
         let room = &self.game_data.room_geometry[room_idx];
         let room_x = self.rom.read_u8(room.rom_address + 2)? as isize;
         let room_y = self.rom.read_u8(room.rom_address + 3)? as isize;
         let area_idx = self.map.area[room_idx];
-        self.transition_tile_coords.push((area_idx, room_x + coords.0, room_y + coords.1));
+        self.transition_tile_coords
+            .push((area_idx, room_x + coords.0, room_y + coords.1));
 
         Ok(())
     }
@@ -1953,19 +2373,24 @@ impl<'a> MapPatcher<'a> {
             "left" => (x - 1, y),
             "down" => (x, y + 1),
             "up" => (x, y - 1),
-            _ => bail!("Unrecognized door direction: {dir}")
+            _ => bail!("Unrecognized door direction: {dir}"),
         };
         self.patch_room(
             &self.game_data.room_geometry[room_idx].name,
             vec![(coords.0, coords.1, letter_tile)],
         )?;
-        self.make_tile_revealed(&self.game_data.room_geometry[room_idx].name, coords.0, coords.1)?;
+        self.make_tile_revealed(
+            &self.game_data.room_geometry[room_idx].name,
+            coords.0,
+            coords.1,
+        )?;
 
         let room = &self.game_data.room_geometry[room_idx];
         let room_x = self.rom.read_u8(room.rom_address + 2)? as isize;
         let room_y = self.rom.read_u8(room.rom_address + 3)? as isize;
         let area_idx = self.map.area[room_idx];
-        self.transition_tile_coords.push((area_idx, room_x + coords.0, room_y + coords.1));
+        self.transition_tile_coords
+            .push((area_idx, room_x + coords.0, room_y + coords.1));
         Ok(())
     }
 
@@ -2003,11 +2428,17 @@ impl<'a> MapPatcher<'a> {
 
         // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
         for i in [1, 2, 4, 6, 7, 8, 13, 14, 15] {
-            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(0, 0, 0) as isize)?;
+            self.rom.write_u16(
+                snes2pc(0xB6F000) + 2 * (0x30 + i as usize),
+                rgb(0, 0, 0) as isize,
+            )?;
         }
         // In partially revealed palette, show walls/passages (as gray), and eliminate the door lock shadows covering walls:
         for i in [3, 12] {
-            self.rom.write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), rgb(16, 16, 16) as isize)?;
+            self.rom.write_u16(
+                snes2pc(0xB6F000) + 2 * (0x30 + i as usize),
+                rgb(16, 16, 16) as isize,
+            )?;
         }
 
         // Set up arrows of different colors (one per area):
@@ -2200,29 +2631,34 @@ impl<'a> MapPatcher<'a> {
 
         Ok(())
     }
-    
+
     fn set_initial_map(&mut self) -> Result<()> {
         let revealed_addr = snes2pc(0xB5F000);
         let partially_revealed_addr = snes2pc(0xB5F800);
         let area_seen_addr = snes2pc(0xB5F600);
         match self.randomization.difficulty.maps_revealed {
             MapsRevealed::Full => {
-                self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?;  // whole map revealed bits: true
-                self.rom.write_n(partially_revealed_addr, &vec![0xFF; 0x600])?;  // whole map partially revealed bits: true
-                self.rom.write_u16(area_seen_addr, 0x003F)?;  // area seen bits: true (for pause map area switching)    
-            },
+                self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?; // whole map revealed bits: true
+                self.rom
+                    .write_n(partially_revealed_addr, &vec![0xFF; 0x600])?; // whole map partially revealed bits: true
+                self.rom.write_u16(area_seen_addr, 0x003F)?; // area seen bits: true (for pause map area switching)
+            }
             MapsRevealed::Partial => {
-                self.rom.write_n(revealed_addr, &vec![0; 0x600])?;  // whole map revealed bits: false
-                self.rom.write_n(partially_revealed_addr, &vec![0xFF; 0x600])?;  // whole map partially revealed bits: true
-                self.rom.write_u16(area_seen_addr, 0x003F)?;  // area seen bits: true (for pause map area switching)
+                self.rom.write_n(revealed_addr, &vec![0; 0x600])?; // whole map revealed bits: false
+                self.rom
+                    .write_n(partially_revealed_addr, &vec![0xFF; 0x600])?; // whole map partially revealed bits: true
+                self.rom.write_u16(area_seen_addr, 0x003F)?; // area seen bits: true (for pause map area switching)
 
                 // Show area-transition markers (arrows or letters) as revealed:
                 for &(area, x, y) in &self.transition_tile_coords {
                     let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
                     let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
-                    self.rom.write_u8(ptr_revealed, self.rom.read_u8(ptr_revealed)? | bitmask as isize)?;
+                    self.rom.write_u8(
+                        ptr_revealed,
+                        self.rom.read_u8(ptr_revealed)? | bitmask as isize,
+                    )?;
                 }
-            },
+            }
             MapsRevealed::No => {
                 self.rom.write_n(revealed_addr, &vec![0; 0x600])?;
                 self.rom.write_n(partially_revealed_addr, &vec![0; 0x600])?;
@@ -2241,11 +2677,17 @@ impl<'a> MapPatcher<'a> {
                 let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
 
                 let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
-                self.rom.write_u8(ptr_revealed, self.rom.read_u8(ptr_revealed)? | bitmask as isize)?;
+                self.rom.write_u8(
+                    ptr_revealed,
+                    self.rom.read_u8(ptr_revealed)? | bitmask as isize,
+                )?;
 
                 let ptr_partial = partially_revealed_addr + area * 0x100 + offset as usize;
-                self.rom.write_u8(ptr_partial, self.rom.read_u8(ptr_partial)? | bitmask as isize)?;
-            }        
+                self.rom.write_u8(
+                    ptr_partial,
+                    self.rom.read_u8(ptr_partial)? | bitmask as isize,
+                )?;
+            }
         }
         Ok(())
     }
@@ -2304,7 +2746,12 @@ impl<'a> MapPatcher<'a> {
         let markers = self.randomization.difficulty.item_markers;
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
-            if room_id == 19 && self.randomization.difficulty.objectives.contains(&Objective::BombTorizo)
+            if room_id == 19
+                && self
+                    .randomization
+                    .difficulty
+                    .objectives
+                    .contains(&Objective::BombTorizo)
             {
                 // With Chozos objective, we don't draw item dot in Bomb Torizo Room since an objective X tile will be drawn instead.
                 continue;
@@ -2364,9 +2811,15 @@ impl<'a> MapPatcher<'a> {
             };
             basic_tile.interior = interior;
             let tile1 = self.get_basic_tile(basic_tile)?;
-            self.area_data[area].push((item_idx, offset as TilemapOffset, tile1 | 0x0C00, interior));
+            self.area_data[area].push((
+                item_idx,
+                offset as TilemapOffset,
+                tile1 | 0x0C00,
+                interior,
+            ));
             if self.randomization.difficulty.ultra_low_qol {
-                self.rom.write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
+                self.rom
+                    .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
             } else if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
                 if interior == Interior::MajorItem
                     || (interior == Interior::MediumItem

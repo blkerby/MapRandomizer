@@ -4,9 +4,12 @@ use image::{Rgb, RgbImage, Rgba, RgbaImage};
 use std::io::Cursor;
 
 use crate::{
-    game_data::{GameData, Map, AreaIdx},
-    patch::{snes2pc, xy_to_map_offset, Rom, map_tiles::{TilemapOffset, TilemapWord}},
+    game_data::{AreaIdx, GameData, Map},
     patch::map_tiles::TILE_GFX_ADDR_4BPP,
+    patch::{
+        map_tiles::{TilemapOffset, TilemapWord},
+        snes2pc, xy_to_map_offset, Rom,
+    },
 };
 
 // fn read_tile_2bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
@@ -62,15 +65,19 @@ fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]
     Ok(out)
 }
 
-fn get_rgb(r: isize, g: isize, b: isize)-> Rgb<u8> {
-    Rgb([(r * 255 / 31) as u8, (g * 255 / 31) as u8, (b * 255 / 31) as u8])
+fn get_rgb(r: isize, g: isize, b: isize) -> Rgb<u8> {
+    Rgb([
+        (r * 255 / 31) as u8,
+        (g * 255 / 31) as u8,
+        (b * 255 / 31) as u8,
+    ])
 }
 
 fn get_color(value: u8, area: usize) -> Rgb<u8> {
     let cool_area_color = match area {
         0 => get_rgb(18, 0, 27), // Crateria
-        1 => get_rgb(0, 18, 0), // Brinstar
-        2 => get_rgb(23, 0, 0), // Norfair
+        1 => get_rgb(0, 18, 0),  // Brinstar
+        2 => get_rgb(23, 0, 0),  // Norfair
         3 => get_rgb(16, 17, 0), // Wrecked Ship
         4 => get_rgb(3, 12, 29), // Maridia
         5 => get_rgb(21, 12, 0), // Tourian
@@ -89,7 +96,7 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
         0 => get_rgb(0, 0, 0),
         1 => cool_area_color,
         2 => hot_area_color,
-        3 => get_rgb(31, 31, 31), // Wall/passage (white)
+        3 => get_rgb(31, 31, 31),  // Wall/passage (white)
         4 => get_rgb(0, 0, 0), // Opaque black (used in elevators, covers up dotted grid background)
         6 => get_rgb(29, 15, 0), // Yellow (orange) door (Power Bomb, Spazer)
         7 => get_rgb(27, 2, 27), // Red (pink) door (Missile, Wave)
@@ -124,11 +131,7 @@ fn get_map_overrides(rom: &Rom) -> Result<HashMap<(AreaIdx, TilemapOffset), Tile
     Ok(out)
 }
 
-pub fn get_spoiler_map(
-    rom: &Rom,
-    map: &Map,
-    game_data: &GameData,
-) -> Result<SpoilerMaps> {
+pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<SpoilerMaps> {
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
     let height = (max_tiles + 2) * 8;
@@ -177,14 +180,22 @@ pub fn get_spoiler_map(
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
                         if tile[y][x] != 0 {
-                            img_grid.put_pixel(x1 as u32, y1 as u32, Rgba([0x00, 0x00, 0x00, 0x00]));
+                            img_grid.put_pixel(
+                                x1 as u32,
+                                y1 as u32,
+                                Rgba([0x00, 0x00, 0x00, 0x00]),
+                            );
                         }
                         img_vanilla.put_pixel(
                             x1 as u32,
                             y1 as u32,
                             get_color(tile[y][x], vanilla_area),
                         );
-                        img_assigned.put_pixel(x1 as u32, y1 as u32, get_color(tile[y][x], map_area));
+                        img_assigned.put_pixel(
+                            x1 as u32,
+                            y1 as u32,
+                            get_color(tile[y][x], map_area),
+                        );
                     }
                 }
             }

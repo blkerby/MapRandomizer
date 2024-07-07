@@ -1,23 +1,29 @@
+mod beam_doors_tiles;
+pub mod bps;
 pub mod compress;
 pub mod decompress;
 pub mod ips_write;
-pub mod suffix_tree;
-pub mod bps;
 pub mod map_tiles;
+pub mod suffix_tree;
 pub mod title;
-mod beam_doors_tiles;
 
 use std::path::Path;
 
 use crate::{
-    customize::vanilla_music::override_music, game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr}, patch::map_tiles::{diagonal_flip_tile, ELEVATOR_TILE, VANILLA_ELEVATOR_TILE}, randomize::{AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization, SaveAnimals, StartLocationMode, WallJump}
+    customize::vanilla_music::override_music,
+    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
+    patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
+    randomize::{
+        AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective,
+        Randomization, SaveAnimals, StartLocationMode, WallJump,
+    },
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
+use log::info;
 use ndarray::Array3;
 use rand::{Rng, SeedableRng};
-use log::info;
 use std::iter;
 use strum::VariantNames;
 
@@ -225,7 +231,7 @@ fn xy_to_explored_bit_ptr(x: isize, y: isize) -> (isize, u8) {
 
 fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     let item_id = item as isize;
-    
+
     // Item container: 0 = none, 1 = chozo orb, 2 = shot block (scenery)
     let item_container = (orig_plm_type - 0xEED7) / 84;
 
@@ -253,8 +259,8 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF1B, // Space jump
             0xEF1F, // Screw attack
             0xEF23, // Morph ball
-            0xEF27, // Reserve tank   
-            0xF600, // Wall-jump boots         
+            0xEF27, // Reserve tank
+            0xF600, // Wall-jump boots
             0xEEDB, // Missile tank (nothing)
         ],
         [
@@ -278,7 +284,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF6F, // Space jump, chozo orb
             0xEF73, // Screw attack, chozo orb
             0xEF77, // Morph ball, chozo orb
-            0xEF7B, // Reserve tank, chozo orb            
+            0xEF7B, // Reserve tank, chozo orb
             0xF604, // Wall-jump boots, chozo orb
             0xEF2F, // Missile tank (nothing)
         ],
@@ -303,12 +309,12 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFC3, // Space jump, shot block
             0xEFC7, // Screw attack, shot block
             0xEFCB, // Morph ball, shot block
-            0xEFCF, // Reserve tank, shot block            
-            0xF608, // Wall-jump boots, shot block       
+            0xEFCF, // Reserve tank, shot block
+            0xF608, // Wall-jump boots, shot block
             0xEF83, // Missile tank (nothing)
-        ]
+        ],
     ];
-    
+
     plm_table[item_container as usize][item_id as usize]
 }
 
@@ -387,31 +393,31 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         // Check for None objectives
         rom.write_u16(snes2pc(0x83AAD2), 0xECA0)?;
     } else if randomization.difficulty.objectives.len() == 4 {
-        for (i,obj) in randomization.difficulty.objectives.iter().enumerate() {
+        for (i, obj) in randomization.difficulty.objectives.iter().enumerate() {
             use Objective::*;
-            let (var,mask) = match obj {
-                Kraid =>            (0xD829, 1),
-                Ridley =>           (0xD82A, 1),
-                Phantoon =>         (0xD82B, 1),
-                Draygon =>          (0xD82C, 1),
-                SporeSpawn =>       (0xD829, 2),
-                Crocomire =>        (0xD82A, 2),
-                Botwoon =>          (0xD82C, 2),
-                GoldenTorizo =>     (0xD82A, 4),
-                MetroidRoom1 =>     (0xD822, 1),
-                MetroidRoom2 =>     (0xD822, 2),
-                MetroidRoom3 =>     (0xD822, 4),
-                MetroidRoom4 =>     (0xD822, 8),
-                BombTorizo =>       (0xD828, 4),
-                BowlingStatue =>    (0xD823, 1),
-                AcidChozoStatue =>  (0xD821, 0x10),
-                PitRoom =>          (0xD823, 2),
-                BabyKraidRoom =>    (0xD823, 4),
-                PlasmaRoom =>       (0xD823, 8),
+            let (var, mask) = match obj {
+                Kraid => (0xD829, 1),
+                Ridley => (0xD82A, 1),
+                Phantoon => (0xD82B, 1),
+                Draygon => (0xD82C, 1),
+                SporeSpawn => (0xD829, 2),
+                Crocomire => (0xD82A, 2),
+                Botwoon => (0xD82C, 2),
+                GoldenTorizo => (0xD82A, 4),
+                MetroidRoom1 => (0xD822, 1),
+                MetroidRoom2 => (0xD822, 2),
+                MetroidRoom3 => (0xD822, 4),
+                MetroidRoom4 => (0xD822, 8),
+                BombTorizo => (0xD828, 4),
+                BowlingStatue => (0xD823, 1),
+                AcidChozoStatue => (0xD821, 0x10),
+                PitRoom => (0xD823, 2),
+                BabyKraidRoom => (0xD823, 4),
+                PlasmaRoom => (0xD823, 8),
                 MetalPiratesRoom => (0xD823, 0x10),
             };
-            rom.write_u16(snes2pc(0x8FEBC0)+i*2, var)?;
-            rom.write_u16(snes2pc(0x8FEBC8)+i*2, mask)?;
+            rom.write_u16(snes2pc(0x8FEBC0) + i * 2, var)?;
+            rom.write_u16(snes2pc(0x8FEBC8) + i * 2, mask)?;
         }
     } else {
         panic!("Unimplemented objective count != 4")
@@ -492,7 +498,9 @@ impl<'a> Patcher<'a> {
             patches.push("all_items_spawn");
         }
 
-        if self.randomization.difficulty.escape_movement_items || self.randomization.difficulty.stop_item_placement_early {
+        if self.randomization.difficulty.escape_movement_items
+            || self.randomization.difficulty.stop_item_placement_early
+        {
             patches.push("escape_items");
             // patches.push("mother_brain_no_drain");
         }
@@ -577,7 +585,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(item_plm_ptr, new_plm_type)?;
             if item == Item::Nothing {
                 let idx = self.rom.read_u16(item_plm_ptr + 4).unwrap() as usize;
-                self.nothing_item_bitmask[idx>>3] |= 1 << (idx & 7);
+                self.nothing_item_bitmask[idx >> 3] |= 1 << (idx & 7);
 
                 if loc == (19, 2) {
                     // Placing nothing item in the Bomb Torizo Room could be a problem because then there would be
@@ -821,19 +829,22 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn clamp_samus_position(&mut self, extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>) -> Result<()> {
+    fn clamp_samus_position(
+        &mut self,
+        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
+    ) -> Result<()> {
         let sand_entrances = vec![
             // (door_pair, min_position_x, max_position_x)
-            ((Some(0x1A6C0), Some(0x1A6FC)), 0x65, 0x9B),  // East Sand Hole
-            ((Some(0x1A6A8), Some(0x1A6E4)), 0x165, 0x19B),  // West Sand Hole
-            ((Some(0x1A654), Some(0x1A6B4)), 0x265, 0x29B),  // West Sand Hall
-            ((Some(0x1A69C), Some(0x1A6CC)), 0x165, 0x19B),  // East Sand Hall
-            ((None, Some(0x1A624)), 0x45, 0xBB),  // Plasma Beach Quicksand Room
-            ((None, Some(0x1A8A0)), 0x65, 0x9B),  // Butterfly Room
-            ((None, Some(0x1A864)), 0x85, 0xDB),  // Botwoon Quicksand Room (left)
-            ((None, Some(0x1A858)), 0x125, 0x19B),  // Botwoon Quicksand Room (right)
-            ((None, Some(0x1A8AC)), 0x265, 0x2BB),  // Below Botwoon Energy Tank (left)
-            ((None, Some(0x1A8B8)), 0x345, 0x3BB),  // Below Botwoon Energy Tank (right)
+            ((Some(0x1A6C0), Some(0x1A6FC)), 0x65, 0x9B), // East Sand Hole
+            ((Some(0x1A6A8), Some(0x1A6E4)), 0x165, 0x19B), // West Sand Hole
+            ((Some(0x1A654), Some(0x1A6B4)), 0x265, 0x29B), // West Sand Hall
+            ((Some(0x1A69C), Some(0x1A6CC)), 0x165, 0x19B), // East Sand Hall
+            ((None, Some(0x1A624)), 0x45, 0xBB),          // Plasma Beach Quicksand Room
+            ((None, Some(0x1A8A0)), 0x65, 0x9B),          // Butterfly Room
+            ((None, Some(0x1A864)), 0x85, 0xDB),          // Botwoon Quicksand Room (left)
+            ((None, Some(0x1A858)), 0x125, 0x19B),        // Botwoon Quicksand Room (right)
+            ((None, Some(0x1A8AC)), 0x265, 0x2BB),        // Below Botwoon Energy Tank (left)
+            ((None, Some(0x1A8B8)), 0x345, 0x3BB),        // Below Botwoon Energy Tank (right)
         ];
         for (door_pair, min_position, max_position) in sand_entrances {
             let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
@@ -841,23 +852,44 @@ impl<'a> Patcher<'a> {
             // Note: we don't bother with adjusting subpixels.
             let asm = vec![
                 // Check if Samus X position is less than min_position, and if so set it to min_position:
-                0xA9, (min_position & 0xFF) as u8, (min_position >> 8) as u8,  // LDA #min_position
-                0xCD, 0xF6, 0x0A,  // CMP $0AF6
-                0x90, 0x06,  // BCC .no_clamp_min
-                0x8D, 0xF6, 0x0A,  // STA $0AF6
-                0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
+                0xA9,
+                (min_position & 0xFF) as u8,
+                (min_position >> 8) as u8, // LDA #min_position
+                0xCD,
+                0xF6,
+                0x0A, // CMP $0AF6
+                0x90,
+                0x06, // BCC .no_clamp_min
+                0x8D,
+                0xF6,
+                0x0A, // STA $0AF6
+                0x8D,
+                0x10,
+                0x0B, // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
                 // .no_clamp_min:
-    
+
                 // Check if Samus X position is greater than max_position, and if so set it to max_position:
-                0xA9, (max_position & 0xFF) as u8, (max_position >> 8) as u8,  // LDA #max_position
-                0xCD, 0xF6, 0x0A,  // CMP $0AF6
-                0xB0, 0x06,  // BCS .no_clamp_max            
-                0x8D, 0xF6, 0x0A,  // STA $0AF6
-                0x8D, 0x10, 0x0B,  // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
-                // .no_clamp_max:
+                0xA9,
+                (max_position & 0xFF) as u8,
+                (max_position >> 8) as u8, // LDA #max_position
+                0xCD,
+                0xF6,
+                0x0A, // CMP $0AF6
+                0xB0,
+                0x06, // BCS .no_clamp_max
+                0x8D,
+                0xF6,
+                0x0A, // STA $0AF6
+                0x8D,
+                0x10,
+                0x0B, // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
+                      // .no_clamp_max:
             ];
 
-            extra_door_asm.entry(other_door_pair.0.unwrap()).or_default().extend(asm);    
+            extra_door_asm
+                .entry(other_door_pair.0.unwrap())
+                .or_default()
+                .extend(asm);
         }
         Ok(())
     }
@@ -1020,8 +1052,10 @@ impl<'a> Patcher<'a> {
             let new_base_ptr = self.game_data.area_map_ptrs[new_area];
             let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
             let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2 - 1;
-            let new_base_x = self.map.rooms[toilet_idx].0 as isize - area_map_min_x[new_area] + new_margin_x;
-            let new_base_y = self.map.rooms[toilet_idx].1 as isize - area_map_min_y[new_area] + new_margin_y;
+            let new_base_x =
+                self.map.rooms[toilet_idx].0 as isize - area_map_min_x[new_area] + new_margin_x;
+            let new_base_y =
+                self.map.rooms[toilet_idx].1 as isize - area_map_min_y[new_area] + new_margin_y;
             assert!(new_base_x >= 2);
             assert!(new_base_y >= 0);
 
@@ -1029,7 +1063,8 @@ impl<'a> Patcher<'a> {
             let new_y = new_base_y + y as isize;
             let new_offset = xy_to_map_offset(new_x, new_y);
             let new_ptr = (new_base_ptr + new_offset) as usize;
-            self.rom.write_u16(new_ptr, (0x0C00 | VANILLA_ELEVATOR_TILE) as isize)?;
+            self.rom
+                .write_u16(new_ptr, (0x0C00 | VANILLA_ELEVATOR_TILE) as isize)?;
         }
 
         // Write new map tilemap data (and room X & Y map position) by room:
@@ -1365,7 +1400,9 @@ impl<'a> Patcher<'a> {
                     &[0x20, 0x00, 0xFD], // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
                 )?;
 
-                if self.randomization.difficulty.escape_movement_items || self.randomization.difficulty.stop_item_placement_early {
+                if self.randomization.difficulty.escape_movement_items
+                    || self.randomization.difficulty.stop_item_placement_early
+                {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }
@@ -1439,8 +1476,8 @@ impl<'a> Patcher<'a> {
             // self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (old Lenient Space Jump)
 
             // Lenient Space Jump: Remove check on maximum Y speed for Space Jump to trigger:
-            self.rom.write_n(snes2pc(0x90A4A0), &[0xEA, 0xEA])?;  // NOP : NOP
-            self.rom.write_n(snes2pc(0x90A4AF), &[0xEA, 0xEA])?;  // NOP : NOP
+            self.rom.write_n(snes2pc(0x90A4A0), &[0xEA, 0xEA])?; // NOP : NOP
+            self.rom.write_n(snes2pc(0x90A4AF), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
         if !self.randomization.difficulty.ultra_low_qol {
@@ -1478,8 +1515,6 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-
-
     fn apply_title_screen_patches(&mut self) -> Result<()> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&self.randomization.seed.to_le_bytes());
@@ -1491,19 +1526,21 @@ impl<'a> Patcher<'a> {
         loop {
             let top_left_idx = rng.gen_range(0..self.game_data.title_screen_data.top_left.len());
             let top_right_idx = rng.gen_range(0..self.game_data.title_screen_data.top_right.len());
-            let bottom_left_idx = rng.gen_range(0..self.game_data.title_screen_data.bottom_left.len());
+            let bottom_left_idx =
+                rng.gen_range(0..self.game_data.title_screen_data.bottom_left.len());
             let bottom_right_idx =
                 rng.gen_range(0..self.game_data.title_screen_data.bottom_right.len());
-    
+
             let top_left_slice = self.game_data.title_screen_data.top_left[top_left_idx]
                 .slice(ndarray::s![32..144, 0..128, ..]);
             let top_right_slice = self.game_data.title_screen_data.top_right[top_right_idx]
                 .slice(ndarray::s![32..144, 128..256, ..]);
             let bottom_left_slice = self.game_data.title_screen_data.bottom_left[bottom_left_idx]
                 .slice(ndarray::s![112..224, 0..128, ..]);
-            let bottom_right_slice = self.game_data.title_screen_data.bottom_right[bottom_right_idx]
+            let bottom_right_slice = self.game_data.title_screen_data.bottom_right
+                [bottom_right_idx]
                 .slice(ndarray::s![112..224, 128..256, ..]);
-    
+
             img.slice_mut(ndarray::s![0..112, 0..128, ..])
                 .assign(&top_left_slice);
             img.slice_mut(ndarray::s![0..112, 128..256, ..])
@@ -1512,7 +1549,7 @@ impl<'a> Patcher<'a> {
                 .assign(&bottom_left_slice);
             img.slice_mut(ndarray::s![112..224, 128..256, ..])
                 .assign(&bottom_right_slice);
-    
+
             let map = &self.game_data.title_screen_data.map_station;
             for y in 0..224 {
                 for x in 0..256 {
@@ -1524,17 +1561,23 @@ impl<'a> Patcher<'a> {
                     img[(y, x, 2)] = map[(y, x, 2)];
                 }
             }
-    
+
             let mut title_patcher = title::TitlePatcher::new(&mut self.rom);
             let bg_result = title_patcher.patch_title_background(&img);
             if bg_result.is_err() {
-                info!("Failed title screen randomization: {}", bg_result.unwrap_err());
+                info!(
+                    "Failed title screen randomization: {}",
+                    bg_result.unwrap_err()
+                );
                 continue;
             }
             title_patcher.patch_title_foreground()?;
             title_patcher.patch_title_gradient()?;
             title_patcher.patch_title_blue_light()?;
-            println!("Title screen data end: {:x}", pc2snes(title_patcher.next_free_space_pc));
+            println!(
+                "Title screen data end: {:x}",
+                pc2snes(title_patcher.next_free_space_pc)
+            );
             return Ok(());
         }
     }
@@ -1619,7 +1662,8 @@ impl<'a> Patcher<'a> {
         // This can be used to look up seeds on the website as https://maprando.com/seed/{seed name}/
         assert!(self.randomization.seed_name.as_bytes().len() < 16);
         self.rom.write_n(snes2pc(0xdffef0), &[0; 16])?;
-        self.rom.write_n(snes2pc(0xdffef0), self.randomization.seed_name.as_bytes())?;
+        self.rom
+            .write_n(snes2pc(0xdffef0), self.randomization.seed_name.as_bytes())?;
 
         // Write the display_seed, used by "seed_hash_display.asm" to show enemy names in the main menu.
         let seed_bytes = (self.randomization.display_seed as u32).to_le_bytes();
@@ -1643,7 +1687,7 @@ impl<'a> Patcher<'a> {
                 write_credits_big_digit(self.rom, step / 10, base_addr + 2)?;
             }
             write_credits_big_digit(self.rom, step % 10, base_addr + 4)?;
-            
+
             // Write colon after step number:
             self.rom.write_u16(base_addr + 6, 0x5A)?;
             self.rom.write_u16(base_addr + 6 + 0x40, 0x5A)?;
@@ -1755,13 +1799,7 @@ impl<'a> Patcher<'a> {
         for &(item, _cnt) in &self.randomization.starting_items {
             let raw_name = Item::VARIANTS[item as usize].to_string();
             let item_name = item_display_name_map[&raw_name].clone();
-            self.write_item_credits(
-                items_set.len(),
-                None,
-                &item_name,
-                None,
-                "starting item",
-            )?;
+            self.write_item_credits(items_set.len(), None, &item_name, None, "starting item")?;
             items_set.insert(raw_name.clone());
         }
 
@@ -1804,18 +1842,14 @@ impl<'a> Patcher<'a> {
 
         // Show unplaced items at the bottom:
         for (name, display_name) in &item_name_pairs {
-            if self.randomization.difficulty.wall_jump != WallJump::Collectible && name == "WallJump" {
+            if self.randomization.difficulty.wall_jump != WallJump::Collectible
+                && name == "WallJump"
+            {
                 // Don't show "WallJump" item unless using Collectible mode.
                 continue;
             }
             if !items_set.contains(name) {
-                self.write_item_credits(
-                    items_set.len(),
-                    None,
-                    &display_name,
-                    None,
-                    "not placed",
-                )?;
+                self.write_item_credits(items_set.len(), None, &display_name, None, "not placed")?;
                 items_set.insert(name.clone());
             }
         }
@@ -1860,14 +1894,18 @@ impl<'a> Patcher<'a> {
             (Item::SpeedBooster, 0x2000),
             (Item::Grapple, 0x4000),
             (Item::XRayScope, 0x8000),
-        ].into_iter().collect();
+        ]
+        .into_iter()
+        .collect();
         let beam_bitmask_map: HashMap<Item, u16> = vec![
             (Item::Wave, 0x0001),
             (Item::Ice, 0x0002),
             (Item::Spazer, 0x0004),
             (Item::Plasma, 0x0008),
             (Item::Charge, 0x1000),
-        ].into_iter().collect();    
+        ]
+        .into_iter()
+        .collect();
         for &(item, cnt) in &self.randomization.starting_items {
             if item_bitmask_map.contains_key(&item) {
                 item_mask |= item_bitmask_map[&item];
@@ -1893,38 +1931,52 @@ impl<'a> Patcher<'a> {
         };
 
         // Set items collected/equipped:
-        self.rom.write_u16(initial_items_collected, item_mask as isize)?;
-        self.rom.write_u16(initial_items_equipped, item_mask as isize)?;
-        self.rom.write_u16(initial_beams_collected, beam_mask as isize)?;
-        self.rom.write_u16(initial_beams_equipped, beam_equipped_mask as isize)?;
+        self.rom
+            .write_u16(initial_items_collected, item_mask as isize)?;
+        self.rom
+            .write_u16(initial_items_equipped, item_mask as isize)?;
+        self.rom
+            .write_u16(initial_beams_collected, beam_mask as isize)?;
+        self.rom
+            .write_u16(initial_beams_equipped, beam_equipped_mask as isize)?;
         self.rom.write_u16(initial_energy, starting_energy)?;
         self.rom.write_u16(initial_max_energy, starting_energy)?;
-        self.rom.write_u16(initial_reserve_energy, starting_reserves)?;
-        self.rom.write_u16(initial_max_reserve_energy, starting_reserves)?;
-        self.rom.write_u16(initial_reserve_mode, if starting_reserves > 0 { 1 } else { 0 })?;  // 0 = Not obtained, 1 = Auto
-        self.rom.write_u16(initial_max_missiles, starting_missiles)?;
+        self.rom
+            .write_u16(initial_reserve_energy, starting_reserves)?;
+        self.rom
+            .write_u16(initial_max_reserve_energy, starting_reserves)?;
+        self.rom.write_u16(
+            initial_reserve_mode,
+            if starting_reserves > 0 { 1 } else { 0 },
+        )?; // 0 = Not obtained, 1 = Auto
+        self.rom
+            .write_u16(initial_max_missiles, starting_missiles)?;
         self.rom.write_u16(initial_max_supers, starting_supers)?;
-        self.rom.write_u16(initial_max_power_bombs, starting_powerbombs)?;
-        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape 
-                && self.randomization.difficulty.mother_brain_fight != MotherBrainFight::Skip {
+        self.rom
+            .write_u16(initial_max_power_bombs, starting_powerbombs)?;
+        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape
+            && self.randomization.difficulty.mother_brain_fight != MotherBrainFight::Skip
+        {
             self.rom.write_u16(initial_missiles, 0)?;
             self.rom.write_u16(initial_supers, 0)?;
             self.rom.write_u16(initial_power_bombs, 0)?;
         } else {
             self.rom.write_u16(initial_missiles, starting_missiles)?;
             self.rom.write_u16(initial_supers, starting_supers)?;
-            self.rom.write_u16(initial_power_bombs, starting_powerbombs)?;    
+            self.rom
+                .write_u16(initial_power_bombs, starting_powerbombs)?;
         }
-        self.rom.write_n(initial_item_bits, &self.nothing_item_bitmask)?;
+        self.rom
+            .write_n(initial_item_bits, &self.nothing_item_bitmask)?;
 
-        Ok(())        
+        Ok(())
     }
 
     fn set_start_location(&mut self) -> Result<()> {
         let initial_area_addr = snes2pc(0xB5FE00);
         let initial_load_station_addr = snes2pc(0xB5FE02);
         let initial_boss_bits = snes2pc(0xB5FE0C);
-                
+
         if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape {
             // Use Tourian load station 2, set up in escape_autosave.asm
             self.rom.write_u16(initial_area_addr, 5)?;
@@ -2061,9 +2113,9 @@ impl<'a> Patcher<'a> {
         ];
         if self.randomization.difficulty.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
-                (Some(0x18A06), Some(0x1A300)),  // West Ocean Gravity Suit door
-                (Some(0x198BE), Some(0x198CA)),  // Ridley's Room top door
-                (Some(0x193EA), Some(0x193D2)),  // Crocomire's Room top door
+                (Some(0x18A06), Some(0x1A300)), // West Ocean Gravity Suit door
+                (Some(0x198BE), Some(0x198CA)), // Ridley's Room top door
+                (Some(0x193EA), Some(0x193D2)), // Crocomire's Room top door
             ]);
         }
         for pair in door_ptr_pairs {
@@ -2130,15 +2182,24 @@ impl<'a> Patcher<'a> {
                     (beam as usize) * 0xC40
                 } else {
                     (beam as usize) * 0xC40 + 0x620
-                } + 0xEA8000;   
-                self.extra_setup_asm.get_mut(&room_ptr).unwrap()
+                } + 0xEA8000;
+                self.extra_setup_asm
+                    .get_mut(&room_ptr)
+                    .unwrap()
                     .extend(vec![
                         // LDA #beam_type
-                        0xA9, beam as u8, 0x00,
+                        0xA9,
+                        beam as u8,
+                        0x00,
                         // LDX #gfx_base_addr
-                        0xA2, (gfx_base_addr & 0xFF) as u8, (gfx_base_addr >> 8) as u8,
+                        0xA2,
+                        (gfx_base_addr & 0xFF) as u8,
+                        (gfx_base_addr >> 8) as u8,
                         // JSL $84FCD8 (run `load_beam_tiles` in beam_doors.asm)
-                        0x22, 0xD8, 0xFC, 0x84
+                        0x22,
+                        0xD8,
+                        0xFC,
+                        0x84,
                     ]);
             }
         };
@@ -2192,7 +2253,13 @@ impl<'a> Patcher<'a> {
 
     fn apply_locked_doors(&mut self) -> Result<()> {
         self.assign_locked_door_states();
-        for (i, door) in self.randomization.locked_door_data.locked_doors.iter().enumerate() {
+        for (i, door) in self
+            .randomization
+            .locked_door_data
+            .locked_doors
+            .iter()
+            .enumerate()
+        {
             let mut door = *door;
             if door.door_type == DoorType::Gray {
                 // Skipping gray doors since they are already handled elsewhere.
@@ -2252,14 +2319,16 @@ impl<'a> Patcher<'a> {
             [f, 6, 5, 5, 6, f, f, f, 6, 6, 6, 6, 6, 6, 6, f],
             [f, f, f, f, f, 0, 0, 0, f, f, f, f, f, f, f, f],
         ];
-        let frame_2 = frame_1.map(|row| row.map(|x| match x {
-            4 => 0xb,
-            5 => 4,
-            6 => 5,
-            7 => 6,
-            0xf => 7,
-            y => y,
-        }));
+        let frame_2 = frame_1.map(|row| {
+            row.map(|x| match x {
+                4 => 0xb,
+                5 => 4,
+                6 => 5,
+                7 => 6,
+                0xf => 7,
+                y => y,
+            })
+        });
         let frames: [[[u8; 16]; 16]; 2] = [frame_1, frame_2];
         let mut addr = snes2pc(0x899100);
         for f in 0..2 {
@@ -2290,24 +2359,29 @@ impl<'a> Patcher<'a> {
                 if room.map[y][x] == 0 && room_idx != self.game_data.toilet_room_idx {
                     continue;
                 }
-                let (offset, bitmask) = xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
+                let (offset, bitmask) =
+                    xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
 
                 // Mark as partially revealed (which will persist after deaths/reloads):
                 let addr = 0x2700 + (area as isize) * 0x100 + offset;
                 asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+                asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]);
+                // STA $70:{addr}
                 // println!("{:x} {} {}", room_ptr, x, y);
             }
         }
-        self.extra_setup_asm.entry(room_ptr).or_insert(vec![]).extend(asm.clone());
+        self.extra_setup_asm
+            .entry(room_ptr)
+            .or_insert(vec![])
+            .extend(asm.clone());
         Ok(())
     }
 
     fn apply_all_room_outlines(&mut self) -> Result<()> {
         // Disable routine that marks tiles explored (used in vanilla game when entering boss rooms)
         // It's obsoleted by this more general "room outline" option.
-        self.rom.write_u8(snes2pc(0x90A8A6), 0x60)?;  // RTS
+        self.rom.write_u8(snes2pc(0x90A8A6), 0x60)?; // RTS
 
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_ptr = room.rom_address;
@@ -2320,7 +2394,10 @@ impl<'a> Patcher<'a> {
         // For the Toilet, apply room outlines for the intersecting room(s) and vice versa:
         for &room_idx in &self.randomization.toilet_intersections {
             self.apply_room_outline(room_idx, 0x7D408)?;
-            self.apply_room_outline(self.game_data.toilet_room_idx, self.game_data.room_geometry[room_idx].rom_address)?;
+            self.apply_room_outline(
+                self.game_data.toilet_room_idx,
+                self.game_data.room_geometry[room_idx].rom_address,
+            )?;
         }
         Ok(())
     }
@@ -2338,19 +2415,25 @@ impl<'a> Patcher<'a> {
             let toilet_pos = self.map.rooms[self.game_data.toilet_room_idx];
             let rel_x = toilet_pos.0 as isize - room_pos.0 as isize;
             let rel_y = toilet_pos.1 as isize - room_pos.1 as isize;
-            self.rom.write_u16(toilet_intersecting_room_ptr_addr, ((room_ptr & 0x7FFF) | 0x8000) as isize)?;
+            self.rom.write_u16(
+                toilet_intersecting_room_ptr_addr,
+                ((room_ptr & 0x7FFF) | 0x8000) as isize,
+            )?;
             self.rom.write_u8(toilet_rel_x_addr, rel_x as u8 as isize)?;
             self.rom.write_u8(toilet_rel_y_addr, rel_y as u8 as isize)?;
 
             let intersection_state_ptr = get_room_state_ptrs(self.rom, room_ptr)?[0].1 | 0x70000;
-            let mut intersection_plm_ptr = self.rom.read_u16(intersection_state_ptr + 20)? as usize | 0x70000;
+            let mut intersection_plm_ptr =
+                self.rom.read_u16(intersection_state_ptr + 20)? as usize | 0x70000;
             let mut toilet_plm_data: Vec<u8> = vec![];
             loop {
                 let plm_type = self.rom.read_u16(intersection_plm_ptr)?;
                 if plm_type == 0x0000 {
-                    break;        
+                    break;
                 }
-                if (plm_type >= 0xEED7 && plm_type <= 0xEFCF) || (plm_type >= 0xF600 && plm_type <= 0xF608) {
+                if (plm_type >= 0xEED7 && plm_type <= 0xEFCF)
+                    || (plm_type >= 0xF600 && plm_type <= 0xF608)
+                {
                     // item PLM
                     let mut plm_x = self.rom.read_u8(intersection_plm_ptr + 2)?;
                     let mut plm_y = self.rom.read_u8(intersection_plm_ptr + 3)?;
@@ -2377,7 +2460,10 @@ impl<'a> Patcher<'a> {
             let toilet_state_ptr = 0x7D415;
             let toilet_plm_ptr = snes2pc(0x8FFE00);
             self.rom.write_n(toilet_plm_ptr, &toilet_plm_data)?;
-            self.rom.write_u16(toilet_state_ptr + 20, (toilet_plm_ptr as isize & 0x7FFF) | 0x8000)?;
+            self.rom.write_u16(
+                toilet_state_ptr + 20,
+                (toilet_plm_ptr as isize & 0x7FFF) | 0x8000,
+            )?;
         }
         Ok(())
     }
@@ -2389,14 +2475,14 @@ impl<'a> Patcher<'a> {
         use beam_doors_tiles::*;
         let beam_door_gfx_idx = 0x260; // 0x260 through 0x267
         let beam_palettes = vec![
-            1,  // Charge
-            3,  // Ice
-            2,  // Wave
-            0,  // Spazer
-            1,  // Plasma
+            1, // Charge
+            3, // Ice
+            2, // Wave
+            0, // Spazer
+            1, // Plasma
         ];
         let free_space_addr = snes2pc(0xEA8000);
-        let gfx_size = 0x620;  // Size of graphics + tilemaps per combination of beam type and orientation
+        let gfx_size = 0x620; // Size of graphics + tilemaps per combination of beam type and orientation
 
         // Tilemap (16x16 tiles) indexed by orientation (0=horizontal, 1=vertical), then beam (0..5):
         // each address points to data for four 16x16 tiles, half of which is standard door frame and half of which is beam stuff
@@ -2409,50 +2495,110 @@ impl<'a> Patcher<'a> {
             // horizontal (left-side) door:
             let tilemap_ptr = free_space_addr + beam_idx * 2 * gfx_size;
             // 16x16 tile 0 (top)
-            self.rom.write_u16(tilemap_ptr + 0x00, 0x2340 | door_pal | flip_x)?;  // door frame tile 0
-            self.rom.write_u16(tilemap_ptr + 0x02, 0x2000 | beam_door_gfx_idx | door_pal)?;  // beam door tile 0
-            self.rom.write_u16(tilemap_ptr + 0x04, 0x2350 | door_pal | flip_x)?;  // door frame tile 1
-            self.rom.write_u16(tilemap_ptr + 0x06, 0x2000 | (beam_door_gfx_idx + 1) | door_pal)?;  // beam door tile 1
-            // 16x16 tile 1 (top middle):
-            self.rom.write_u16(tilemap_ptr + 0x08, 0x2360 | door_pal | flip_x)?;  // door frame tile 2
-            self.rom.write_u16(tilemap_ptr + 0x0A, 0x2000 | (beam_door_gfx_idx + 2) | beam_pal)?;  // beam door tile 2
-            self.rom.write_u16(tilemap_ptr + 0x0C, 0x2370 | door_pal | flip_x)?;  // door frame tile 3
-            self.rom.write_u16(tilemap_ptr + 0x0E, 0x2000 | (beam_door_gfx_idx + 3) | beam_pal)?;  // beam door tile 3
-            // 16x16 tile 2 (bottom middle):
-            self.rom.write_u16(tilemap_ptr + 0x10, 0x2370 | door_pal | flip_x | flip_y)?;  // door frame tile 3 (vertical flip)
-            self.rom.write_u16(tilemap_ptr + 0x12, 0x2000 | (beam_door_gfx_idx + 4) | beam_pal)?;  // beam door tile 4
-            self.rom.write_u16(tilemap_ptr + 0x14, 0x2360 | door_pal | flip_x | flip_y)?;  // door frame tile 2 (vertical flip)
-            self.rom.write_u16(tilemap_ptr + 0x16, 0x2000 | (beam_door_gfx_idx + 5) | beam_pal)?;  // beam door tile 5
-            // 16x16 tile 3 (bottom):
-            self.rom.write_u16(tilemap_ptr + 0x18, 0x2350 | door_pal | flip_x | flip_y)?;  // door frame tile 1 (vertical flip)
-            self.rom.write_u16(tilemap_ptr + 0x1A, 0x2000 | (beam_door_gfx_idx + 6) | door_pal)?;  // beam door tile 6
-            self.rom.write_u16(tilemap_ptr + 0x1C, 0x2340 | door_pal | flip_x | flip_y)?;  // door frame tile 0 (vertical flip)
-            self.rom.write_u16(tilemap_ptr + 0x1E, 0x2000 | (beam_door_gfx_idx + 7) | door_pal)?;  // beam door tile 7
+            self.rom
+                .write_u16(tilemap_ptr + 0x00, 0x2340 | door_pal | flip_x)?; // door frame tile 0
+            self.rom
+                .write_u16(tilemap_ptr + 0x02, 0x2000 | beam_door_gfx_idx | door_pal)?; // beam door tile 0
+            self.rom
+                .write_u16(tilemap_ptr + 0x04, 0x2350 | door_pal | flip_x)?; // door frame tile 1
+            self.rom.write_u16(
+                tilemap_ptr + 0x06,
+                0x2000 | (beam_door_gfx_idx + 1) | door_pal,
+            )?; // beam door tile 1
+                // 16x16 tile 1 (top middle):
+            self.rom
+                .write_u16(tilemap_ptr + 0x08, 0x2360 | door_pal | flip_x)?; // door frame tile 2
+            self.rom.write_u16(
+                tilemap_ptr + 0x0A,
+                0x2000 | (beam_door_gfx_idx + 2) | beam_pal,
+            )?; // beam door tile 2
+            self.rom
+                .write_u16(tilemap_ptr + 0x0C, 0x2370 | door_pal | flip_x)?; // door frame tile 3
+            self.rom.write_u16(
+                tilemap_ptr + 0x0E,
+                0x2000 | (beam_door_gfx_idx + 3) | beam_pal,
+            )?; // beam door tile 3
+                // 16x16 tile 2 (bottom middle):
+            self.rom
+                .write_u16(tilemap_ptr + 0x10, 0x2370 | door_pal | flip_x | flip_y)?; // door frame tile 3 (vertical flip)
+            self.rom.write_u16(
+                tilemap_ptr + 0x12,
+                0x2000 | (beam_door_gfx_idx + 4) | beam_pal,
+            )?; // beam door tile 4
+            self.rom
+                .write_u16(tilemap_ptr + 0x14, 0x2360 | door_pal | flip_x | flip_y)?; // door frame tile 2 (vertical flip)
+            self.rom.write_u16(
+                tilemap_ptr + 0x16,
+                0x2000 | (beam_door_gfx_idx + 5) | beam_pal,
+            )?; // beam door tile 5
+                // 16x16 tile 3 (bottom):
+            self.rom
+                .write_u16(tilemap_ptr + 0x18, 0x2350 | door_pal | flip_x | flip_y)?; // door frame tile 1 (vertical flip)
+            self.rom.write_u16(
+                tilemap_ptr + 0x1A,
+                0x2000 | (beam_door_gfx_idx + 6) | door_pal,
+            )?; // beam door tile 6
+            self.rom
+                .write_u16(tilemap_ptr + 0x1C, 0x2340 | door_pal | flip_x | flip_y)?; // door frame tile 0 (vertical flip)
+            self.rom.write_u16(
+                tilemap_ptr + 0x1E,
+                0x2000 | (beam_door_gfx_idx + 7) | door_pal,
+            )?; // beam door tile 7
 
             // vertical (top-side) door:
             let tilemap_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size;
             // 16x16 tile 0 (left)
-            self.rom.write_u16(tilemap_ptr + 0x00, 0x2347 | door_pal | flip_x | flip_y)?;  // door frame tile 0 (horizontal flip)
-            self.rom.write_u16(tilemap_ptr + 0x02, 0x2346 | door_pal | flip_x | flip_y)?;  // door frame tile 1 (horizontal flip)
-            self.rom.write_u16(tilemap_ptr + 0x04, 0x2000 | beam_door_gfx_idx | door_pal)?;  // beam door tile 0
-            self.rom.write_u16(tilemap_ptr + 0x06, 0x2000 | (beam_door_gfx_idx + 1) | door_pal)?;  // beam door tile 1
-            // 16x16 tile 1 (left middle):
-            self.rom.write_u16(tilemap_ptr + 0x08, 0x2345 | door_pal | flip_x | flip_y)?;  // door frame tile 2 (horizontal flip)
-            self.rom.write_u16(tilemap_ptr + 0x0A, 0x2344 | door_pal | flip_x | flip_y)?;  // door frame tile 3 (horizontal flip)
-            self.rom.write_u16(tilemap_ptr + 0x0C, 0x2000 | (beam_door_gfx_idx + 2) | beam_pal)?;  // beam door tile 2
-            self.rom.write_u16(tilemap_ptr + 0x0E, 0x2000 | (beam_door_gfx_idx + 3) | beam_pal)?;  // beam door tile 3
-            // 16x16 tile 2 (right middle):
-            self.rom.write_u16(tilemap_ptr + 0x10, 0x2344 | door_pal | flip_y)?;  // door frame tile 3
-            self.rom.write_u16(tilemap_ptr + 0x12, 0x2345 | door_pal | flip_y)?;  // door frame tile 2
-            self.rom.write_u16(tilemap_ptr + 0x14, 0x2000 | (beam_door_gfx_idx + 4) | beam_pal)?;  // beam door tile 4
-            self.rom.write_u16(tilemap_ptr + 0x16, 0x2000 | (beam_door_gfx_idx + 5) | beam_pal)?;  // beam door tile 5
-            // 16x16 tile 3 (right):
-            self.rom.write_u16(tilemap_ptr + 0x18, 0x2346 | door_pal | flip_y)?;  // door frame tile 1
-            self.rom.write_u16(tilemap_ptr + 0x1A, 0x2347 | door_pal | flip_y)?;  // door frame tile 0
-            self.rom.write_u16(tilemap_ptr + 0x1C, 0x2000 | (beam_door_gfx_idx + 6) | door_pal)?;  // beam door tile 6
-            self.rom.write_u16(tilemap_ptr + 0x1E, 0x2000 | (beam_door_gfx_idx + 7) | door_pal)?;  // beam door tile 7
+            self.rom
+                .write_u16(tilemap_ptr + 0x00, 0x2347 | door_pal | flip_x | flip_y)?; // door frame tile 0 (horizontal flip)
+            self.rom
+                .write_u16(tilemap_ptr + 0x02, 0x2346 | door_pal | flip_x | flip_y)?; // door frame tile 1 (horizontal flip)
+            self.rom
+                .write_u16(tilemap_ptr + 0x04, 0x2000 | beam_door_gfx_idx | door_pal)?; // beam door tile 0
+            self.rom.write_u16(
+                tilemap_ptr + 0x06,
+                0x2000 | (beam_door_gfx_idx + 1) | door_pal,
+            )?; // beam door tile 1
+                // 16x16 tile 1 (left middle):
+            self.rom
+                .write_u16(tilemap_ptr + 0x08, 0x2345 | door_pal | flip_x | flip_y)?; // door frame tile 2 (horizontal flip)
+            self.rom
+                .write_u16(tilemap_ptr + 0x0A, 0x2344 | door_pal | flip_x | flip_y)?; // door frame tile 3 (horizontal flip)
+            self.rom.write_u16(
+                tilemap_ptr + 0x0C,
+                0x2000 | (beam_door_gfx_idx + 2) | beam_pal,
+            )?; // beam door tile 2
+            self.rom.write_u16(
+                tilemap_ptr + 0x0E,
+                0x2000 | (beam_door_gfx_idx + 3) | beam_pal,
+            )?; // beam door tile 3
+                // 16x16 tile 2 (right middle):
+            self.rom
+                .write_u16(tilemap_ptr + 0x10, 0x2344 | door_pal | flip_y)?; // door frame tile 3
+            self.rom
+                .write_u16(tilemap_ptr + 0x12, 0x2345 | door_pal | flip_y)?; // door frame tile 2
+            self.rom.write_u16(
+                tilemap_ptr + 0x14,
+                0x2000 | (beam_door_gfx_idx + 4) | beam_pal,
+            )?; // beam door tile 4
+            self.rom.write_u16(
+                tilemap_ptr + 0x16,
+                0x2000 | (beam_door_gfx_idx + 5) | beam_pal,
+            )?; // beam door tile 5
+                // 16x16 tile 3 (right):
+            self.rom
+                .write_u16(tilemap_ptr + 0x18, 0x2346 | door_pal | flip_y)?; // door frame tile 1
+            self.rom
+                .write_u16(tilemap_ptr + 0x1A, 0x2347 | door_pal | flip_y)?; // door frame tile 0
+            self.rom.write_u16(
+                tilemap_ptr + 0x1C,
+                0x2000 | (beam_door_gfx_idx + 6) | door_pal,
+            )?; // beam door tile 6
+            self.rom.write_u16(
+                tilemap_ptr + 0x1E,
+                0x2000 | (beam_door_gfx_idx + 7) | door_pal,
+            )?; // beam door tile 7
         }
-        
+
         // Idle beam door animation (8x8 tiles): 4 tiles per frame, 4 frame loop:
         // These get copied into VRAM at $2620-$2660:
         for beam_idx in 0..5 {
@@ -2558,7 +2704,9 @@ pub fn make_rom(
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.remove_non_blue_doors()?;
-    if !randomization.difficulty.vanilla_map || randomization.difficulty.area_assignment == AreaAssignment::Random {
+    if !randomization.difficulty.vanilla_map
+        || randomization.difficulty.area_assignment == AreaAssignment::Random
+    {
         patcher.use_area_based_music()?;
     }
     patcher.setup_door_specific_fx()?;

@@ -4,7 +4,9 @@ use hashbrown::HashMap;
 use maprando::{
     game_data::{Capacity, GameData, Item, Requirement},
     randomize::{
-        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal, MapsRevealed, MotherBrainFight, Objective, ProgressionRate, SaveAnimals, WallJump
+        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
+        ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal,
+        MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, WallJump,
     },
     traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
 };
@@ -192,12 +194,13 @@ fn run_scenario(
     //         game_data
     // );
 
-    let outcome = new_local_state_opt.map(|x| format!("{}", x.energy_used)).unwrap_or("n/a".to_string());
+    let outcome = new_local_state_opt
+        .map(|x| format!("{}", x.energy_used))
+        .unwrap_or("n/a".to_string());
     println!(
         "proficiency={}, items={:?}, missiles={}, patience={}: {}",
         proficiency, item_loadout, missile_cnt, patience, outcome
     );
-
 }
 
 fn main() -> Result<()> {
@@ -232,7 +235,7 @@ fn main() -> Result<()> {
     //     vec!["C", "P"],
     //     vec!["C", "I", "W", "P"],
     //     vec!["G"],
-    //     vec!["G", "C"], 
+    //     vec!["G", "C"],
     //     vec!["G", "C", "I", "W", "P"],
     //     vec!["V", "G"],
     //     vec!["V", "G", "C"],
@@ -242,19 +245,24 @@ fn main() -> Result<()> {
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
     let missile_counts = vec![20];
     let super_counts = vec![0];
-    let item_loadouts = vec![
-        vec!["M"],
-    ];
+    let item_loadouts = vec![vec!["M"]];
 
     for &proficiency in &proficiencies {
         for &missile_cnt in &missile_counts {
             for &super_cnt in &super_counts {
                 for beam_loadout in &item_loadouts {
                     for patience in [true, false] {
-                        run_scenario(proficiency, missile_cnt, super_cnt, beam_loadout, patience, &game_data);
+                        run_scenario(
+                            proficiency,
+                            missile_cnt,
+                            super_cnt,
+                            beam_loadout,
+                            patience,
+                            &game_data,
+                        );
                     }
                 }
-            }    
+            }
         }
     }
 

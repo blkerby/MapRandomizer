@@ -6,7 +6,9 @@ use maprando::game_data::{Capacity, Item};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
-    randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode
+    randomize_doors, randomize_map_areas, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective,
+    ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando::web::{MapRepository, Preset, SamusSpriteCategory};
@@ -139,7 +141,12 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         buffed_drops: true,
 
         // Game options
-        objectives: vec![Objective::Kraid, Objective::Phantoon, Objective::Draygon, Objective::Ridley],
+        objectives: vec![
+            Objective::Kraid,
+            Objective::Phantoon,
+            Objective::Draygon,
+            Objective::Ridley,
+        ],
         vanilla_map: false,
         doors_mode: DoorsMode::Blue,
         start_location_mode: StartLocationMode::Random,
@@ -190,12 +197,7 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
     diff.item_priorities = vec![
         ItemPriorityGroup {
             name: "Early".to_string(),
-            items: vec![
-                "Morph",
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
+            items: vec!["Morph"].into_iter().map(|x| x.to_string()).collect(),
         },
         ItemPriorityGroup {
             name: "Default".to_string(),
@@ -274,7 +276,7 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
                 "HiJump",
                 "SpeedBooster",
                 "SpringBall",
-                "XRayScope",                
+                "XRayScope",
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -282,14 +284,10 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Default".to_string(),
-            items: vec![
-                "WallJump",
-                "SpaceJump",
-                "ScrewAttack", 
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
+            items: vec!["WallJump", "SpaceJump", "ScrewAttack"]
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect(),
         },
         ItemPriorityGroup {
             name: "Late".to_string(),
@@ -330,7 +328,7 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
                 "HiJump",
                 "SpeedBooster",
                 "SpringBall",
-                "XRayScope",                
+                "XRayScope",
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -338,15 +336,10 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Default".to_string(),
-            items: vec![
-                "Morph",
-                "WallJump",
-                "SpaceJump",
-                "ScrewAttack", 
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
+            items: vec!["Morph", "WallJump", "SpaceJump", "ScrewAttack"]
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect(),
         },
         ItemPriorityGroup {
             name: "Late".to_string(),
@@ -394,7 +387,7 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
                 "HiJump",
                 "SpeedBooster",
                 "SpringBall",
-                "XRayScope",                
+                "XRayScope",
             ]
             .into_iter()
             .map(|x| x.to_string())
@@ -402,15 +395,10 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
         },
         ItemPriorityGroup {
             name: "Default".to_string(),
-            items: vec![
-                "Morph",
-                "WallJump",
-                "SpaceJump",
-                "ScrewAttack", 
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
+            items: vec!["Morph", "WallJump", "SpaceJump", "ScrewAttack"]
+                .into_iter()
+                .map(|x| x.to_string())
+                .collect(),
         },
         ItemPriorityGroup {
             name: "Late".to_string(),

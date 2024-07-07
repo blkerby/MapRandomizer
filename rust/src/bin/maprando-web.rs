@@ -14,7 +14,6 @@ use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Resp
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
-use json::JsonValue;
 use log::{error, info};
 use maprando::customize::{
     customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
@@ -24,7 +23,10 @@ use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup, 
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
 use maprando::randomize::{
-    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions, DifficultyConfig, DoorLocksSize, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective, Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump
+    filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
+    DifficultyConfig, DoorLocksSize, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective,
+    Randomization, Randomizer, SaveAnimals, StartLocationMode, WallJump,
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
@@ -594,7 +596,11 @@ fn render_seed(
 }
 
 async fn check_seed_exists(seed_name: &str, app_data: &AppData) -> bool {
-    app_data.seed_repository.get_file(seed_name, "seed_data.json").await.is_ok()
+    app_data
+        .seed_repository
+        .get_file(seed_name, "seed_data.json")
+        .await
+        .is_ok()
 }
 
 async fn save_seed(
@@ -953,7 +959,10 @@ async fn customize_seed(
     }
 
     let settings = CustomizeSettings {
-        samus_sprite: if ultra_low_qol && req.samus_sprite.0 == "samus" && req.vanilla_screw_attack_animation.0 {
+        samus_sprite: if ultra_low_qol
+            && req.samus_sprite.0 == "samus"
+            && req.vanilla_screw_attack_animation.0
+        {
             None
         } else {
             Some(req.samus_sprite.0.clone())
@@ -1154,10 +1163,7 @@ fn get_difficulty_tiers(
                 difficulty.heated_shine_charge_tiles,
                 preset.heated_shinespark_tiles as f32,
             ),
-            speed_ball_tiles: f32::max(
-                difficulty.speed_ball_tiles,
-                preset.speed_ball_tiles as f32,
-            ),
+            speed_ball_tiles: f32::max(difficulty.speed_ball_tiles, preset.speed_ball_tiles as f32),
             shinecharge_leniency_frames: Capacity::max(
                 difficulty.shinecharge_leniency_frames,
                 preset.shinecharge_leniency_frames as Capacity,

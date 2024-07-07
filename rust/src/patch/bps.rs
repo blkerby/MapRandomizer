@@ -23,7 +23,7 @@ enum BPSBlock {
     },
     Data {
         dst_start: usize,
-        data: Vec<u8>
+        data: Vec<u8>,
     },
 }
 
@@ -47,20 +47,28 @@ impl BPSPatch {
                 &BPSBlock::Unchanged { .. } => {
                     // These blocks won't be loaded and wouldn't do anything anyway.
                 }
-                &BPSBlock::SourceCopy { src_start, dst_start, length } => {
-                    let src_slice = &source[src_start..(src_start+length)];
-                    let dst_slice = &mut output[dst_start..(dst_start+length)];
+                &BPSBlock::SourceCopy {
+                    src_start,
+                    dst_start,
+                    length,
+                } => {
+                    let src_slice = &source[src_start..(src_start + length)];
+                    let dst_slice = &mut output[dst_start..(dst_start + length)];
                     dst_slice.copy_from_slice(src_slice);
-                },
-                &BPSBlock::TargetCopy { src_start, dst_start, length } => {
+                }
+                &BPSBlock::TargetCopy {
+                    src_start,
+                    dst_start,
+                    length,
+                } => {
                     for i in 0..length {
                         output[dst_start + i] = output[src_start + i];
                     }
-                },
+                }
                 BPSBlock::Data { dst_start, data } => {
                     output[*dst_start..(*dst_start + data.len())].copy_from_slice(data);
                 }
-            }           
+            }
         }
     }
 
@@ -70,12 +78,18 @@ impl BPSPatch {
         for block in &self.blocks {
             match block {
                 &BPSBlock::Unchanged { .. } => {}
-                &BPSBlock::SourceCopy { src_start, dst_start, length } => {
+                &BPSBlock::SourceCopy {
+                    src_start,
+                    dst_start,
+                    length,
+                } => {
                     if src_start != dst_start {
                         out.push((dst_start, dst_start + length));
                     }
                 }
-                &BPSBlock::TargetCopy { dst_start, length, .. } => {
+                &BPSBlock::TargetCopy {
+                    dst_start, length, ..
+                } => {
                     out.push((dst_start, dst_start + length));
                 }
                 BPSBlock::Data { dst_start, data } => {
@@ -153,11 +167,11 @@ impl BPSDecoder {
             0 => {
                 let block = BPSBlock::Unchanged {
                     dst_start: self.output_pos,
-                    length, 
+                    length,
                 };
                 self.output_pos += length;
                 return Ok(block);
-            },
+            }
             1 => {
                 let block = BPSBlock::Data {
                     dst_start: self.output_pos,
@@ -165,7 +179,7 @@ impl BPSDecoder {
                 };
                 self.output_pos += length;
                 return Ok(block);
-            },
+            }
             2 => {
                 let raw_offset = self.decode_number()?;
                 let offset_neg = raw_offset & 1 == 1;
@@ -180,7 +194,7 @@ impl BPSDecoder {
                 self.src_pos += length;
                 self.output_pos += length;
                 return Ok(block);
-            },
+            }
             3 => {
                 let raw_offset = self.decode_number()?;
                 let offset_neg = raw_offset & 1 == 1;
@@ -195,8 +209,8 @@ impl BPSDecoder {
                 self.dst_pos += length;
                 self.output_pos += length;
                 return Ok(block);
-            },
-            _ => panic!("Unexpected BPS action: {}", action)
+            }
+            _ => panic!("Unexpected BPS action: {}", action),
         }
     }
 
@@ -216,7 +230,6 @@ impl BPSDecoder {
     }
 }
 
-
 pub struct BPSEncoder<'a> {
     source_suffix_tree: &'a SuffixTree,
     target: &'a [u8],
@@ -235,15 +248,19 @@ fn compute_crc32(data: &[u8]) -> u32 {
 }
 
 // This is a simplified BPS encoder that is not overly concerned with minimizing patch size,
-// mainly just with capturing dependencies on the source data (even when relocated) to avoid 
+// mainly just with capturing dependencies on the source data (even when relocated) to avoid
 // source data being copied into the patch. The key difference from other encoders (and the reason
 // we rolled a custom one here) is that this encoder enforces that only bytes that differ from the source
-// will get touched by the patch; this is important in order to ensure that we can correctly 
-// and efficiently layer multiple patches on top of each other (assuming they affect disjoint sets of 
+// will get touched by the patch; this is important in order to ensure that we can correctly
+// and efficiently layer multiple patches on top of each other (assuming they affect disjoint sets of
 // bytes). For a similar reason, this encoder also doesn't create blocks that copy from the target
 // (i.e. previously output data).
 impl<'a> BPSEncoder<'a> {
-    pub fn new(source_suffix_tree: &'a SuffixTree, target: &'a [u8], modified_ranges: &'a [(usize, usize)]) -> Self {
+    pub fn new(
+        source_suffix_tree: &'a SuffixTree,
+        target: &'a [u8],
+        modified_ranges: &'a [(usize, usize)],
+    ) -> Self {
         Self {
             source_suffix_tree,
             target,
@@ -253,7 +270,7 @@ impl<'a> BPSEncoder<'a> {
             input_pos: 0,
             count_copy_bytes: 0,
             count_data_bytes: 0,
-        }       
+        }
     }
 
     pub fn encode(&mut self) {
@@ -287,7 +304,9 @@ impl<'a> BPSEncoder<'a> {
 
         // Data and source copy blocks:
         while start_addr < end_addr {
-            let (source_start, match_length) = self.source_suffix_tree.find_longest_prefix(&self.target[start_addr..end_addr]);
+            let (source_start, match_length) = self
+                .source_suffix_tree
+                .find_longest_prefix(&self.target[start_addr..end_addr]);
             // println!("start_addr={start_addr}, match_length={match_length}, end_addr={end_addr}");
             if match_length as usize >= SOURCE_MATCH_THRESHOLD {
                 if start_addr > self.input_pos {
@@ -298,7 +317,7 @@ impl<'a> BPSEncoder<'a> {
                 start_addr = start_addr + match_length as usize;
             } else {
                 start_addr += 1;
-            }    
+            }
         }
         if end_addr > self.input_pos {
             self.encode_data(&self.target[self.input_pos..end_addr]);
@@ -348,8 +367,8 @@ impl<'a> BPSEncoder<'a> {
             let b = (x & 0x7f) as u8;
             x >>= 7;
             if x == 0 {
-              self.write(0x80 | b);
-              break;
+                self.write(0x80 | b);
+                break;
             }
             self.write(b);
             x -= 1;

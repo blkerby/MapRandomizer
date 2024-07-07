@@ -7,8 +7,8 @@
 
 use anyhow::Result;
 
-use crate::patch::Rom;
 use crate::patch::snes2pc;
+use crate::patch::Rom;
 
 pub fn override_music(rom: &mut Rom) -> Result<()> {
     let song_overrides = vec![

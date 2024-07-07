@@ -9,7 +9,7 @@ use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use rand::{Rng, SeedableRng};
 
-use super::{DoorTheme, TileTheme};
+use super::TileTheme;
 
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
@@ -64,7 +64,10 @@ pub fn apply_retiling(
         ((4, 1), "WestMaridia"),
         ((5, 0), "MechaTourian"),
         ((5, 1), "MechaTourian"),
-    ].into_iter().map(|(x, y)| (x, y.to_owned())).collect();
+    ]
+    .into_iter()
+    .map(|(x, y)| (x, y.to_owned()))
+    .collect();
 
     let patch_names = vec![
         "Scrolling Sky v1.6",

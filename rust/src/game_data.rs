@@ -2,19 +2,17 @@ pub mod smart_xml;
 
 use anyhow::{bail, ensure, Context, Result};
 // use log::info;
-use crate::customize::room_palettes::decode_palette;
 use crate::patch::title::read_image;
 use crate::randomize::{BeamType, DoorType};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
-use log::{error, info};
+use log::info;
 use num_enum::TryFromPrimitive;
 use serde::Serialize;
 use serde_derive::Deserialize;
 use std::borrow::ToOwned;
 use std::fs::File;
 use std::hash::Hash;
-use std::ops::IndexMut;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
@@ -166,8 +164,8 @@ pub enum Requirement {
     SupersAvailable(Capacity),
     PowerBombsAvailable(Capacity),
     RegularEnergyAvailable(Capacity),
-    ReserveEnergyAvailable(Capacity),    
-    EnergyAvailable(Capacity),    
+    ReserveEnergyAvailable(Capacity),
+    EnergyAvailable(Capacity),
     MissilesCapacity(Capacity),
     SupersCapacity(Capacity),
     PowerBombsCapacity(Capacity),
@@ -854,9 +852,9 @@ fn get_ignored_notable_strats() -> HashSet<String> {
         "Mickey Mouse Crumble Jump IBJ", // only useful with CF clip strat, or if we change item progression rules
         "Green Brinstar Main Shaft Moonfall Spark", // does not seem to be viable with the vanilla door connection
         "Waterway Grapple Teleport Inside Wall",    // no way out after getting item
-        "Plasma Spark X-Ray Climb Into Fake Kassiuz Room",    // useless, since the misaligned transition will put you OOB
-        "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)",  // flash suit strats not supported yet
-        "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)",   // flash suit strats not supported yet
+        "Plasma Spark X-Ray Climb Into Fake Kassiuz Room", // useless, since the misaligned transition will put you OOB
+        "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)", // flash suit strats not supported yet
+        "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)", // flash suit strats not supported yet
     ]
     .iter()
     .map(|x| x.to_string())
@@ -1168,8 +1166,15 @@ impl GameData {
         }
     }
 
-    fn get_tech_requirement(&mut self, tech_name: &str, include_other_requires: bool) -> Result<Requirement> {
-        if let Some(req_opt) = self.tech.get(&(tech_name.to_string(), include_other_requires)) {
+    fn get_tech_requirement(
+        &mut self,
+        tech_name: &str,
+        include_other_requires: bool,
+    ) -> Result<Requirement> {
+        if let Some(req_opt) = self
+            .tech
+            .get(&(tech_name.to_string(), include_other_requires))
+        {
             if let Some(req) = req_opt {
                 return Ok(req.clone());
             } else {
@@ -1181,36 +1186,47 @@ impl GameData {
         // }
 
         // Temporarily insert a None value to act as a sentinel for detecting circular dependencies:
-        self.tech.insert((tech_name.to_string(), include_other_requires), None);
+        self.tech
+            .insert((tech_name.to_string(), include_other_requires), None);
 
-        let tech_json = &self.tech_json_map.get(tech_name)
-          .context(format!("Tech not found: '{}'", tech_name))?.clone();
+        let tech_json = &self
+            .tech_json_map
+            .get(tech_name)
+            .context(format!("Tech not found: '{}'", tech_name))?
+            .clone();
 
-        let mut reqs: Vec<Requirement> = vec![
-            if tech_name == "canWalljump" {
-                Requirement::Walljump
-            } else {
-                Requirement::Tech(self.tech_isv.index_by_key[tech_name])
-            }
-        ];
+        let mut reqs: Vec<Requirement> = vec![if tech_name == "canWalljump" {
+            Requirement::Walljump
+        } else {
+            Requirement::Tech(self.tech_isv.index_by_key[tech_name])
+        }];
         let ctx = RequirementContext::default();
         ensure!(tech_json["techRequires"].is_array());
         for req in tech_json["techRequires"].members() {
             if req.is_string() {
-                reqs.push(self.get_tech_requirement(req.as_str().unwrap(), include_other_requires)
-                    .context(format!("Parsing tech requirement '{}'", req))?);
+                reqs.push(
+                    self.get_tech_requirement(req.as_str().unwrap(), include_other_requires)
+                        .context(format!("Parsing tech requirement '{}'", req))?,
+                );
             } else if req.has_key("tech") {
-                reqs.push(self.get_tech_requirement(req["tech"].as_str().unwrap(), false)
-                    .context(format!("Parsing pure tech requirement '{}'", req))?);
+                reqs.push(
+                    self.get_tech_requirement(req["tech"].as_str().unwrap(), false)
+                        .context(format!("Parsing pure tech requirement '{}'", req))?,
+                );
             } else {
                 bail!("Unexpected requirement type in techRequires: {}", req);
             }
         }
         if include_other_requires {
-            reqs.extend(self.parse_requires_list(&tech_json["otherRequires"].members().as_slice(), &ctx)?);
+            reqs.extend(
+                self.parse_requires_list(&tech_json["otherRequires"].members().as_slice(), &ctx)?,
+            );
         }
         let combined_req = Requirement::make_and(reqs);
-        *self.tech.get_mut(&(tech_name.to_string(), include_other_requires)).unwrap() = Some(combined_req.clone());
+        *self
+            .tech
+            .get_mut(&(tech_name.to_string(), include_other_requires))
+            .unwrap() = Some(combined_req.clone());
         Ok(combined_req)
     }
 
@@ -1416,7 +1432,10 @@ impl GameData {
                 Requirement::Item(Item::Charge as ItemId),
                 Requirement::HeatFrames(60),
             )],
-            DoorType::Gray | DoorType::Beam(_) => panic!("Unexpected DoorType in get_unlocks_door_type_req: {:?}", door_type),
+            DoorType::Gray | DoorType::Beam(_) => panic!(
+                "Unexpected DoorType in get_unlocks_door_type_req: {:?}",
+                door_type
+            ),
         };
         let room_id = ctx.room_id;
         let to_node_id = ctx.to_node_id;
@@ -1515,8 +1534,10 @@ impl GameData {
     ) -> Result<Vec<Requirement>> {
         let mut reqs: Vec<Requirement> = Vec::new();
         for req_json in req_jsons {
-            reqs.push(self.parse_requirement(req_json, ctx)
-                .with_context(|| format!("Processing requirement {}", req_json))?);
+            reqs.push(
+                self.parse_requirement(req_json, ctx)
+                    .with_context(|| format!("Processing requirement {}", req_json))?,
+            );
         }
         Ok(reqs)
     }
@@ -1739,7 +1760,7 @@ impl GameData {
                 let effective_length = compute_runway_effective_length(&runway_geometry);
                 return Ok(Requirement::SpeedBall {
                     used_tiles: Float::new(effective_length),
-                    heated: ctx.room_heated
+                    heated: ctx.room_heated,
                 });
             } else if key == "canShineCharge" {
                 let runway_geometry = parse_runway_geometry_shinecharge(value)?;
@@ -1820,8 +1841,15 @@ impl GameData {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
                 let attack_name = value["type"].as_str().unwrap().to_string();
                 let hits = value["hits"].as_i32().unwrap() as Capacity;
-                let base_damage = self.enemy_attack_damage.get(&(enemy_name.clone(), attack_name.clone()))
-                    .with_context(|| format!("Missing enemy attack damage for {} - {}:", enemy_name, attack_name))?;
+                let base_damage = self
+                    .enemy_attack_damage
+                    .get(&(enemy_name.clone(), attack_name.clone()))
+                    .with_context(|| {
+                        format!(
+                            "Missing enemy attack damage for {} - {}:",
+                            enemy_name, attack_name
+                        )
+                    })?;
                 return Ok(Requirement::Damage(hits * base_damage));
             } else if key == "enemyKill" {
                 // We only consider enemy kill methods that are non-situational and do not require ammo.
@@ -1871,9 +1899,10 @@ impl GameData {
                     // Here we check the first obstacle ("A") to see if we're in R-mode.
                     // Also we only want the R-mode logic to take effect with the R-Mode strats;
                     // currently, we do this in a hacky way by checking the strat name.
-                    // TODO: Make logical requirements for boss fights, so that we could express the requirements 
+                    // TODO: Make logical requirements for boss fights, so that we could express the requirements
                     // properly in the sm-json-data, e.g. like {"fightMotherBrain": {"rMode": true}}.
-                    let r_mode = (ctx.from_obstacles_bitmask & 1) == 1 && ctx.strat_name.contains("R-Mode");
+                    let r_mode =
+                        (ctx.from_obstacles_bitmask & 1) == 1 && ctx.strat_name.contains("R-Mode");
                     return Ok(Requirement::MotherBrain2Fight {
                         can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
                         r_mode,
@@ -2025,16 +2054,31 @@ impl GameData {
                     let enemy_json = &self.enemy_json[enemy_name];
                     let drops_json = &enemy_json["drops"];
                     let count = drop["count"].as_i32().unwrap() as Capacity;
-                    let small_energy_weight = drops_json["smallEnergy"].as_f32()
-                        .context(format!("missing smallEnergy for {}", enemy_name)).unwrap() / 102.0;
-                    let large_energy_weight = drops_json["bigEnergy"].as_f32()
-                        .context(format!("missing bigEnergy for {}", enemy_name)).unwrap() / 102.0;
-                    let missile_weight = drops_json["missile"].as_f32()
-                        .context(format!("missing missile for {}", enemy_name)).unwrap() / 102.0;
-                    let super_weight = drops_json["super"].as_f32()
-                        .context(format!("missing super for {}", enemy_name)).unwrap() / 102.0;
-                    let power_bomb_weight = drops_json["powerBomb"].as_f32()
-                        .context(format!("missing powerBomb for {}", enemy_name)).unwrap() / 102.0;
+                    let small_energy_weight = drops_json["smallEnergy"]
+                        .as_f32()
+                        .context(format!("missing smallEnergy for {}", enemy_name))
+                        .unwrap()
+                        / 102.0;
+                    let large_energy_weight = drops_json["bigEnergy"]
+                        .as_f32()
+                        .context(format!("missing bigEnergy for {}", enemy_name))
+                        .unwrap()
+                        / 102.0;
+                    let missile_weight = drops_json["missile"]
+                        .as_f32()
+                        .context(format!("missing missile for {}", enemy_name))
+                        .unwrap()
+                        / 102.0;
+                    let super_weight = drops_json["super"]
+                        .as_f32()
+                        .context(format!("missing super for {}", enemy_name))
+                        .unwrap()
+                        / 102.0;
+                    let power_bomb_weight = drops_json["powerBomb"]
+                        .as_f32()
+                        .context(format!("missing powerBomb for {}", enemy_name))
+                        .unwrap()
+                        / 102.0;
                     let enemy_drop = EnemyDrop {
                         small_energy_weight: Float::new(small_energy_weight),
                         large_energy_weight: Float::new(large_energy_weight),
@@ -2453,7 +2497,7 @@ impl GameData {
                     "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
                 });
             }
-            if (node_type == "door" || node_type == "entrance") {
+            if node_type == "door" || node_type == "entrance" {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap_or(node_id);
                 extra_strats.push(json::object! {
                     "link": [node_id, spawn_node_id],
@@ -2779,8 +2823,12 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                    min_extra_run_speed: Float::new(
+                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
+                    ),
+                    max_extra_run_speed: Float::new(
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    ),
                 }
             }
             "leaveWithMockball" => {
@@ -2795,8 +2843,12 @@ impl GameData {
                     landing_runway_length: Float::new(landing_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                    min_extra_run_speed: Float::new(
+                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
+                    ),
+                    max_extra_run_speed: Float::new(
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    ),
                 }
             }
             "leaveWithSpringBallBounce" => {
@@ -2814,8 +2866,12 @@ impl GameData {
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),
                     )?,
-                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                    min_extra_run_speed: Float::new(
+                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
+                    ),
+                    max_extra_run_speed: Float::new(
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    ),
                 }
             }
             "leaveSpaceJumping" => {
@@ -2826,8 +2882,12 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                    min_extra_run_speed: Float::new(
+                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
+                    ),
+                    max_extra_run_speed: Float::new(
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    ),
                 }
             }
             "leaveWithGModeSetup" => ExitCondition::LeaveWithGModeSetup {
@@ -2958,8 +3018,12 @@ impl GameData {
                     effective_length: Float::new(runway_effective_length),
                     min_tiles: Float::new(value["minTiles"].as_f32().unwrap_or(0.0)),
                     heated,
-                    min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                    max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                    min_extra_run_speed: Float::new(
+                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
+                    ),
+                    max_extra_run_speed: Float::new(
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    ),
                 }
             }
             "comeInShinecharged" => {
@@ -3013,7 +3077,9 @@ impl GameData {
             "comeInBlueSpinning" => MainEntranceCondition::ComeInBlueSpinning {
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
                 min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
+                max_extra_run_speed: Float::new(
+                    value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                ),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
@@ -3040,12 +3106,20 @@ impl GameData {
                     .collect(),
                 movement_type: parse_bounce_movement_type(value["movementType"].as_str().unwrap())?,
             },
-            "comeInWithBlueSpringBallBounce" => MainEntranceCondition::ComeInWithBlueSpringBallBounce {
-                min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0)),
-                min_landing_tiles: Float::new(value["minLandingTiles"].as_f32().unwrap_or(0.0)),
-                movement_type: parse_bounce_movement_type(value["movementType"].as_str().unwrap())?,
-            },
+            "comeInWithBlueSpringBallBounce" => {
+                MainEntranceCondition::ComeInWithBlueSpringBallBounce {
+                    min_extra_run_speed: Float::new(
+                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
+                    ),
+                    max_extra_run_speed: Float::new(
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    ),
+                    min_landing_tiles: Float::new(value["minLandingTiles"].as_f32().unwrap_or(0.0)),
+                    movement_type: parse_bounce_movement_type(
+                        value["movementType"].as_str().unwrap(),
+                    )?,
+                }
+            }
             "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {},
             "comeInWithGMode" => {
                 let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
@@ -3129,7 +3203,8 @@ impl GameData {
         }
     }
 
-    fn process_strat(&mut self, 
+    fn process_strat(
+        &mut self,
         strat_json: &JsonValue,
         room_json: &JsonValue,
         obstacles_idx_map: &HashMap<String, usize>,
@@ -3257,8 +3332,7 @@ impl GameData {
                     .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
             }
 
-            let bypasses_door_shell =
-                strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
+            let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
             if bypasses_door_shell {
                 requires_vec.push(Requirement::Tech(
                     self.tech_isv.index_by_key["canSkipDoorLock"],
@@ -3372,9 +3446,9 @@ impl GameData {
             }
 
             if let Some(r) = &maybe_exit_req {
-                let mut actions = vec![
+                let actions = vec![
                     VertexAction::Exit(ExitCondition::LeaveNormally {}),
-                    VertexAction::DoorUnlock(to_node_id, usize::MAX),                        
+                    VertexAction::DoorUnlock(to_node_id, usize::MAX),
                 ];
                 let exit_to_vertex_id = self.vertex_isv.add(&VertexKey {
                     room_id,
@@ -3523,7 +3597,7 @@ impl GameData {
                 for unlock_strat in lock["unlockStrats"].members() {
                     req_list.push(json::object! {"and": unlock_strat["requires"].clone()});
                 }
-                req_list.push(json::object!{"obstaclesCleared": [format!("door_{}", node_id)]});
+                req_list.push(json::object! {"obstaclesCleared": [format!("door_{}", node_id)]});
                 let req = json::object! {"or": JsonValue::Array(req_list)};
                 self.grey_lock_map.insert((room_id, node_id), req);
             }
@@ -3596,8 +3670,17 @@ impl GameData {
         // Process strats:
         ensure!(room_json["strats"].is_array());
         for strat_json in room_json["strats"].members() {
-            self.process_strat(strat_json, room_json, &obstacles_idx_map, &roomwide_notable, &node_implicit_door_unlocks)
-                .context(format!("Processing {} strat '{}'", strat_json["link"], strat_json["name"]))?;
+            self.process_strat(
+                strat_json,
+                room_json,
+                &obstacles_idx_map,
+                &roomwide_notable,
+                &node_implicit_door_unlocks,
+            )
+            .context(format!(
+                "Processing {} strat '{}'",
+                strat_json["link"], strat_json["name"]
+            ))?;
         }
         Ok(())
     }
@@ -3636,12 +3719,7 @@ impl GameData {
         Ok(())
     }
 
-    fn add_connection(
-        &mut self,
-        mut src: (RoomId, NodeId),
-        dst: (RoomId, NodeId),
-        conn: &JsonValue,
-    ) {
+    fn add_connection(&mut self, src: (RoomId, NodeId), dst: (RoomId, NodeId), conn: &JsonValue) {
         let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         let is_west_ocean_bridge = src == (32, 7) || src == (32, 8);

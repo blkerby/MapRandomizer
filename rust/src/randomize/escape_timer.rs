@@ -1,9 +1,9 @@
+use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use hashbrown::HashSet;
 use pathfinding;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
-use anyhow::{Result, Context};
 
 use crate::game_data::DoorPtrPair;
 use crate::game_data::EscapeConditionRequirement;
@@ -142,7 +142,7 @@ pub fn get_base_room_door_graph(
                         .all(|&req| is_requirement_satisfied(req, difficulty, &tech_map))
                     {
                         let cost = parse_in_game_time(condition.in_game_time);
-                        successors[from_idx].push((to_idx, cost));    
+                        successors[from_idx].push((to_idx, cost));
                     }
                 }
             }
@@ -167,8 +167,14 @@ pub fn get_full_room_door_graph(
     let mut door_ptr_pair_to_vertex: HashMap<DoorPtrPair, VertexId> = HashMap::new();
     for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
         for (door_idx, door) in room.doors.iter().enumerate() {
-            let vertex_id = *base.vertices.index_by_key.get(&(room_idx, door_idx))
-                .context(format!("base.vertices.index_by_key missing entry: ({}, {})", room_idx, door_idx))
+            let vertex_id = *base
+                .vertices
+                .index_by_key
+                .get(&(room_idx, door_idx))
+                .context(format!(
+                    "base.vertices.index_by_key missing entry: ({}, {})",
+                    room_idx, door_idx
+                ))
                 .unwrap();
             let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
             door_ptr_pair_to_vertex.insert(door_ptr_pair, vertex_id);
@@ -275,7 +281,12 @@ pub fn compute_escape_data(
             graph.animals_vertex_id,
             &graph,
         )?;
-        animals_spoiler = Some(get_spoiler_escape_route(&animals_path, &graph, &game_data, map));
+        animals_spoiler = Some(get_spoiler_escape_route(
+            &animals_path,
+            &graph,
+            &game_data,
+            map,
+        ));
         let ship_path = get_shortest_path(graph.animals_vertex_id, graph.ship_vertex_id, &graph)?;
         ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data, map);
         base_igt_frames = animals_path.last().unwrap().1 + ship_path.last().unwrap().1;

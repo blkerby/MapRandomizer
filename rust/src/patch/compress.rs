@@ -45,7 +45,7 @@ fn encode_block(data: &[u8], value: u8, rle_count: usize, out: &mut Vec<u8>) {
 pub fn compress(data: &[u8]) -> Vec<u8> {
     let mut out: Vec<u8> = Vec::new();
     let mut block_data: Vec<u8> = Vec::new();
-    let mut prev: isize = -1;  // Previous byte value (-1 used just as a dummy value at the beginning)
+    let mut prev: isize = -1; // Previous byte value (-1 used just as a dummy value at the beginning)
     let mut rle_count: usize = 0;
     for &x in data {
         if x as isize == prev {

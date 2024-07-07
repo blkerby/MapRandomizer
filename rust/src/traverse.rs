@@ -1,18 +1,14 @@
-use std::{
-    cmp::{max, min},
-    mem::swap,
-};
+use std::cmp::{max, min};
 
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 
 use crate::{
     game_data::{
-        self, Capacity, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, VertexId, WeaponMask
+        Capacity, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup,
+        NodeId, Requirement, RoomId, VertexId, WeaponMask,
     },
-    randomize::{BeamType, DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, Objective, WallJump},
+    randomize::{BeamType, DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, WallJump},
 };
-
-use log::info;
 
 // TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
 #[derive(Clone, Debug)]
@@ -245,9 +241,9 @@ fn apply_draygon_requirement(
         global.items[Item::Plasma as usize],
         global.items[Item::Wave as usize],
     ) {
-        (false, _) => 7.0,    // Basic beam
+        (false, _) => 7.0,     // Basic beam
         (true, false) => 10.0, // Plasma can hit multiple goops at once.
-        (true, true) => 13.0, // Wave+Plasma can hit even more goops at once.
+        (true, true) => 13.0,  // Wave+Plasma can hit even more goops at once.
     };
     let goop_farms_per_cycle = if global.items[Item::Gravity as usize] {
         farm_proficiency * base_goop_farms_per_cycle
@@ -701,10 +697,14 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
     let shinecharge_cost = -(local.shinecharge_frames_remaining as f32) / 180.0;
 
-    let ammo_sensitive_cost_metric =
-        energy_cost + reserve_cost + 100.0 * (missiles_cost + supers_cost + power_bombs_cost + shinecharge_cost);
-    let energy_sensitive_cost_metric =
-        100.0 * (energy_cost + reserve_cost) + missiles_cost + supers_cost + power_bombs_cost + shinecharge_cost;
+    let ammo_sensitive_cost_metric = energy_cost
+        + reserve_cost
+        + 100.0 * (missiles_cost + supers_cost + power_bombs_cost + shinecharge_cost);
+    let energy_sensitive_cost_metric = 100.0 * (energy_cost + reserve_cost)
+        + missiles_cost
+        + supers_cost
+        + power_bombs_cost
+        + shinecharge_cost;
     [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 
@@ -720,7 +720,8 @@ fn validate_energy(
             local.energy_used = global.max_energy - 1;
         } else {
             // Assume that reserves auto-trigger, leaving reserves empty.
-            let reserves_available = std::cmp::min(global.max_reserves - local.reserves_used, global.max_energy);
+            let reserves_available =
+                std::cmp::min(global.max_reserves - local.reserves_used, global.max_energy);
             local.reserves_used = global.max_reserves;
             local.energy_used = std::cmp::max(0, local.energy_used - reserves_available);
             if local.energy_used >= global.max_energy {
@@ -804,8 +805,9 @@ fn apply_gate_glitch_leniency(
     game_data: &GameData,
 ) -> Option<LocalState> {
     if heated && !global.items[Item::Varia as usize] {
-        local.energy_used +=
-            (difficulty.gate_glitch_leniency as f32 * difficulty.resource_multiplier * 60.0) as Capacity;
+        local.energy_used += (difficulty.gate_glitch_leniency as f32
+            * difficulty.resource_multiplier
+            * 60.0) as Capacity;
         local = match validate_energy(local, global, game_data) {
             Some(x) => x,
             None => return None,
@@ -864,7 +866,12 @@ fn apply_heat_frames(
     }
 }
 
-fn get_enemy_drop_value(drop: &EnemyDrop, local: LocalState, reverse: bool, buffed_drops: bool) -> Capacity {
+fn get_enemy_drop_value(
+    drop: &EnemyDrop,
+    local: LocalState,
+    reverse: bool,
+    buffed_drops: bool,
+) -> Capacity {
     let mut p_small = drop.small_energy_weight.get();
     let mut p_large = drop.large_energy_weight.get();
     let mut p_missile = drop.missile_weight.get();
@@ -874,7 +881,7 @@ fn get_enemy_drop_value(drop: &EnemyDrop, local: LocalState, reverse: bool, buff
     let rel_missile = p_missile / p_tier1;
     let p_super = drop.super_weight.get();
     let p_pb = drop.power_bomb_weight.get();
-    
+
     if !reverse {
         // For the forward traversal, we take into account how ammo drops roll over to energy if full.
         // This could also be done for the reverse traversal, but it would require branching on multiple
@@ -923,7 +930,8 @@ fn apply_heat_frames_with_energy_drops(
         } else {
             let mut total_drop_value = 0;
             for drop in drops {
-                total_drop_value += get_enemy_drop_value(drop, local, reverse, difficulty.buffed_drops)
+                total_drop_value +=
+                    get_enemy_drop_value(drop, local, reverse, difficulty.buffed_drops)
             }
             let heat_energy = (multiply(frames, difficulty) + 3) / 4;
             total_drop_value = Capacity::min(total_drop_value, heat_energy);
@@ -960,16 +968,24 @@ pub fn apply_link(
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
 ) -> Option<LocalState> {
-    let new_local = apply_requirement(&link.requirement, global, local, reverse, difficulty, game_data, locked_door_data);
+    let new_local = apply_requirement(
+        &link.requirement,
+        global,
+        local,
+        reverse,
+        difficulty,
+        game_data,
+        locked_door_data,
+    );
     if let Some(mut new_local) = new_local {
         if reverse {
             if !link.start_with_shinecharge {
                 new_local.shinecharge_frames_remaining = 0;
-            }    
+            }
         } else {
             if !link.end_with_shinecharge {
                 new_local.shinecharge_frames_remaining = 0;
-            }    
+            }
         }
         Some(new_local)
     } else {
@@ -1071,7 +1087,15 @@ pub fn apply_requirement(
             apply_heat_frames(*frames, local, global, game_data, difficulty)
         }
         Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops) => {
-            apply_heat_frames_with_energy_drops(*frames, enemy_drops, local, global, game_data, difficulty, reverse)
+            apply_heat_frames_with_energy_drops(
+                *frames,
+                enemy_drops,
+                local,
+                global,
+                game_data,
+                difficulty,
+                reverse,
+            )
         }
         Requirement::MainHallElevatorFrames => {
             if difficulty.fast_elevators {
@@ -1148,7 +1172,7 @@ pub fn apply_requirement(
                 None
             } else {
                 new_local.energy_used += energy;
-                validate_energy_no_auto_reserve(new_local, global, game_data)    
+                validate_energy_no_auto_reserve(new_local, global, game_data)
             }
         }
         // Requirement::Energy(count) => {
@@ -1279,7 +1303,8 @@ pub fn apply_requirement(
                 } else {
                     if global.max_energy < *count {
                         new_local.energy_used = global.max_energy;
-                        new_local.reserves_used = Capacity::max(new_local.reserves_used, *count - global.max_energy);
+                        new_local.reserves_used =
+                            Capacity::max(new_local.reserves_used, *count - global.max_energy);
                         Some(new_local)
                     } else {
                         new_local.energy_used = Capacity::max(new_local.energy_used, *count);
@@ -1287,7 +1312,9 @@ pub fn apply_requirement(
                     }
                 }
             } else {
-                if global.max_reserves - local.reserves_used + global.max_energy - local.energy_used < *count {
+                if global.max_reserves - local.reserves_used + global.max_energy - local.energy_used
+                    < *count
+                {
                     None
                 } else {
                     Some(local)
@@ -1363,7 +1390,7 @@ pub fn apply_requirement(
                 if local.energy_used > global.max_energy - limit {
                     new_local.energy_used = max(0, global.max_energy - limit);
                 }
-                Some(new_local)    
+                Some(new_local)
             }
         }
         Requirement::ReserveRefill(limit) => {
@@ -1378,7 +1405,7 @@ pub fn apply_requirement(
                 if local.reserves_used > global.max_reserves - limit {
                     new_local.reserves_used = max(0, global.max_reserves - limit);
                 }
-                Some(new_local)    
+                Some(new_local)
             }
         }
         Requirement::MissileRefill(limit) => {
@@ -1393,7 +1420,7 @@ pub fn apply_requirement(
                 if local.missiles_used > global.max_missiles - limit {
                     new_local.missiles_used = max(0, global.max_missiles - limit);
                 }
-                Some(new_local)    
+                Some(new_local)
             }
         }
         Requirement::SuperRefill(limit) => {
@@ -1408,7 +1435,7 @@ pub fn apply_requirement(
                 if local.supers_used > global.max_supers - limit {
                     new_local.supers_used = max(0, global.max_supers - limit);
                 }
-                Some(new_local)    
+                Some(new_local)
             }
         }
         Requirement::PowerBombRefill(limit) => {
@@ -1423,7 +1450,7 @@ pub fn apply_requirement(
                 if local.power_bombs_used > global.max_power_bombs - limit {
                     new_local.power_bombs_used = max(0, global.max_power_bombs - limit);
                 }
-                Some(new_local)    
+                Some(new_local)
             }
         }
         Requirement::AmmoStationRefill => {
@@ -1454,7 +1481,7 @@ pub fn apply_requirement(
                 None
             } else {
                 Some(local)
-            }            
+            }
         }
         Requirement::EnergyDrain => {
             if reverse {
@@ -1558,7 +1585,7 @@ pub fn apply_requirement(
                     Some(local)
                 } else {
                     None
-                }    
+                }
             }
         }
         Requirement::GetBlueSpeed { used_tiles, heated } => {
@@ -1586,7 +1613,8 @@ pub fn apply_requirement(
                 if reverse {
                     new_local.shinecharge_frames_remaining = 0;
                 } else {
-                    new_local.shinecharge_frames_remaining = 180 - difficulty.shinecharge_leniency_frames;
+                    new_local.shinecharge_frames_remaining =
+                        180 - difficulty.shinecharge_leniency_frames;
                 }
                 Some(new_local)
             } else {
@@ -1597,7 +1625,9 @@ pub fn apply_requirement(
             let mut new_local = local;
             if reverse {
                 new_local.shinecharge_frames_remaining += frames;
-                if new_local.shinecharge_frames_remaining <= 180 - difficulty.shinecharge_leniency_frames {
+                if new_local.shinecharge_frames_remaining
+                    <= 180 - difficulty.shinecharge_leniency_frames
+                {
                     Some(new_local)
                 } else {
                     None
@@ -1646,7 +1676,10 @@ pub fn apply_requirement(
             }
         }
         Requirement::DoorUnlocked { room_id, node_id } => {
-            if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
+            if let Some(locked_door_idx) = locked_door_data
+                .locked_door_node_map
+                .get(&(*room_id, *node_id))
+            {
                 if global.doors_unlocked[*locked_door_idx] {
                     Some(local)
                 } else {
@@ -1656,8 +1689,15 @@ pub fn apply_requirement(
                 Some(local)
             }
         }
-        Requirement::DoorType { room_id, node_id, door_type } => {
-            let actual_door_type = if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
+        Requirement::DoorType {
+            room_id,
+            node_id,
+            door_type,
+        } => {
+            let actual_door_type = if let Some(locked_door_idx) = locked_door_data
+                .locked_door_node_map
+                .get(&(*room_id, *node_id))
+            {
                 locked_door_data.locked_doors[*locked_door_idx].door_type
             } else {
                 DoorType::Blue
@@ -1668,37 +1708,73 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::UnlockDoor { room_id, node_id, requirement_red, requirement_green, requirement_yellow, requirement_charge } => {
-            if let Some(locked_door_idx) = locked_door_data.locked_door_node_map.get(&(*room_id, *node_id)) {
+        Requirement::UnlockDoor {
+            room_id,
+            node_id,
+            requirement_red,
+            requirement_green,
+            requirement_yellow,
+            requirement_charge,
+        } => {
+            if let Some(locked_door_idx) = locked_door_data
+                .locked_door_node_map
+                .get(&(*room_id, *node_id))
+            {
                 let door_type = locked_door_data.locked_doors[*locked_door_idx].door_type;
                 if global.doors_unlocked[*locked_door_idx] {
                     return Some(local);
                 }
                 match door_type {
-                    DoorType::Blue => {
-                        Some(local)
-                    }
-                    DoorType::Red => {
-                        apply_requirement(requirement_red, global, local, reverse, difficulty, game_data, locked_door_data)
-                    }
-                    DoorType::Green => {
-                        apply_requirement(requirement_green, global, local, reverse, difficulty, game_data, locked_door_data)
-                    }
-                    DoorType::Yellow => {
-                        apply_requirement(requirement_yellow, global, local, reverse, difficulty, game_data, locked_door_data)
-                    }
+                    DoorType::Blue => Some(local),
+                    DoorType::Red => apply_requirement(
+                        requirement_red,
+                        global,
+                        local,
+                        reverse,
+                        difficulty,
+                        game_data,
+                        locked_door_data,
+                    ),
+                    DoorType::Green => apply_requirement(
+                        requirement_green,
+                        global,
+                        local,
+                        reverse,
+                        difficulty,
+                        game_data,
+                        locked_door_data,
+                    ),
+                    DoorType::Yellow => apply_requirement(
+                        requirement_yellow,
+                        global,
+                        local,
+                        reverse,
+                        difficulty,
+                        game_data,
+                        locked_door_data,
+                    ),
                     DoorType::Beam(beam) => {
-                        if has_beam(beam, global) { 
+                        if has_beam(beam, global) {
                             if let BeamType::Charge = beam {
-                                apply_requirement(requirement_charge, global, local, reverse, difficulty, game_data, locked_door_data)
+                                apply_requirement(
+                                    requirement_charge,
+                                    global,
+                                    local,
+                                    reverse,
+                                    difficulty,
+                                    game_data,
+                                    locked_door_data,
+                                )
                             } else {
-                                Some(local) 
+                                Some(local)
                             }
-                        } else { 
-                            None 
+                        } else {
+                            None
                         }
                     }
-                    DoorType::Gray => panic!("Unexpected gray door while processing Requirement::UnlockDoor")
+                    DoorType::Gray => {
+                        panic!("Unexpected gray door while processing Requirement::UnlockDoor")
+                    }
                 }
             } else {
                 Some(local)
@@ -1708,13 +1784,27 @@ pub fn apply_requirement(
             let mut new_local = local;
             if reverse {
                 for req in reqs.into_iter().rev() {
-                    new_local =
-                        apply_requirement(req, global, new_local, reverse, difficulty, game_data, locked_door_data)?;
+                    new_local = apply_requirement(
+                        req,
+                        global,
+                        new_local,
+                        reverse,
+                        difficulty,
+                        game_data,
+                        locked_door_data,
+                    )?;
                 }
             } else {
                 for req in reqs {
-                    new_local =
-                        apply_requirement(req, global, new_local, reverse, difficulty, game_data, locked_door_data)?;
+                    new_local = apply_requirement(
+                        req,
+                        global,
+                        new_local,
+                        reverse,
+                        difficulty,
+                        game_data,
+                        locked_door_data,
+                    )?;
                 }
             }
             Some(new_local)
@@ -1723,9 +1813,15 @@ pub fn apply_requirement(
             let mut best_local = None;
             let mut best_cost = [f32::INFINITY; NUM_COST_METRICS];
             for req in reqs {
-                if let Some(new_local) =
-                    apply_requirement(req, global, local, reverse, difficulty, game_data, locked_door_data)
-                {
+                if let Some(new_local) = apply_requirement(
+                    req,
+                    global,
+                    local,
+                    reverse,
+                    difficulty,
+                    game_data,
+                    locked_door_data,
+                ) {
                     let cost = compute_cost(new_local, global);
                     // TODO: Maybe do something better than just using the first cost metric.
                     if cost[0] < best_cost[0] {
@@ -1739,9 +1835,7 @@ pub fn apply_requirement(
     }
 }
 
-pub fn is_reachable_state(
-    local: LocalState
-) -> bool {
+pub fn is_reachable_state(local: LocalState) -> bool {
     local.energy_used != IMPOSSIBLE_LOCAL_STATE.energy_used
 }
 
@@ -1962,7 +2056,10 @@ pub fn traverse(
                             check_value("missiles", dst_new_local_state.missiles_used);
                             check_value("supers", dst_new_local_state.supers_used);
                             check_value("power_bombs", dst_new_local_state.power_bombs_used);
-                            check_value("shinecharge_frames", dst_new_local_state.shinecharge_frames_remaining);
+                            check_value(
+                                "shinecharge_frames",
+                                dst_new_local_state.shinecharge_frames_remaining,
+                            );
                             new_modified_vertices.insert(dst_id, improved_arr);
                             result.step_trails.push(new_step_trail);
                         }
