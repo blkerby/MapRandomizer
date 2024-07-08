@@ -6,7 +6,9 @@ use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
-    randomize_doors, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal, MotherBrainFight, Objective, ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode
+    randomize_doors, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle,
+    ItemPriorityGroup, ItemPriorityStrength, MapStationReveal, MotherBrainFight, ProgressionRate,
+    Randomization, Randomizer, SaveAnimals, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando::web::{SamusSpriteCategory, SamusSpriteInfo};

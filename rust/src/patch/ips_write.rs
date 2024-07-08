@@ -31,22 +31,22 @@ fn get_next_chunk(mut pos: usize, old: &[u8], new: &[u8]) -> Chunk {
         }
         pos += 1;
     }
-    Chunk {
-        start,
-        end: pos,
-    }
+    Chunk { start, end: pos }
 }
 
 fn push_split_chunks(chunk_vec: &mut Vec<Chunk>, chunk: &Chunk) {
     let mut start = chunk.start;
     while start + 0xFFFF < chunk.end {
-        chunk_vec.push(Chunk { 
+        chunk_vec.push(Chunk {
             start,
             end: start + 0xFFFF,
         });
         start += 0xFFFF;
     }
-    chunk_vec.push(Chunk { start, end: chunk.end });
+    chunk_vec.push(Chunk {
+        start,
+        end: chunk.end,
+    });
 }
 
 fn get_chunks(old_rom: &[u8], new_rom: &[u8]) -> Vec<Chunk> {
@@ -72,10 +72,10 @@ pub fn create_ips_patch(old_rom: &[u8], new_rom: &[u8]) -> Vec<u8> {
     for chunk in &chunks {
         out.extend(&chunk.start.to_be_bytes()[5..8]);
         let size = chunk.end - chunk.start;
-        assert!(size <= 0xFFFF);  // TODO: Split into sub-chunks if necessary.
+        assert!(size <= 0xFFFF); // TODO: Split into sub-chunks if necessary.
         assert!(size > 0);
         out.extend(&size.to_be_bytes()[6..8]);
-        out.extend(&new_rom[chunk.start .. chunk.end]);
+        out.extend(&new_rom[chunk.start..chunk.end]);
     }
     out.extend("EOF".as_bytes());
     out

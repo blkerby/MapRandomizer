@@ -3,38 +3,27 @@ mod run_speed;
 
 use crate::{
     game_data::{
-        self, get_effective_runway_length, BlueOption, BounceMovementType, Capacity,
-        DoorOrientation, DoorPtrPair, EntranceCondition, ExitCondition, FlagId, Float,
-        GModeMobility, GModeMode, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx,
-        LinksDataGroup, MainEntranceCondition, Map, NodeId, Physics, Requirement,
-        RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection,
-        VertexAction, VertexId, VertexKey,
+        self, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
+        EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, HubLocation,
+        Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map,
+        NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation,
+        TemporaryBlueDirection, VertexId, VertexKey,
     },
     traverse::{
-        apply_link, apply_requirement, apply_ridley_requirement, get_bireachable_idxs,
-        get_one_way_reachable_idx, get_spoiler_route, traverse, GlobalState, LocalState,
-        LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
+        apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
+        get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult,
+        IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
     },
     web::logic::strip_name,
 };
-use anyhow::{bail, Context, Result};
-use base64::Engine;
-use by_address::ByAddress;
+use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
-use json::short;
 use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use run_speed::{get_shortcharge_max_extra_run_speed, get_shortcharge_min_extra_run_speed};
 use serde_derive::{Deserialize, Serialize};
-use core::num;
-use std::{
-    any,
-    cmp::{max, min},
-    convert::TryFrom,
-    hash::Hash,
-    iter, time::SystemTime,
-};
+use std::{cmp::min, convert::TryFrom, hash::Hash, iter, time::SystemTime};
 use strum::VariantNames;
 
 use crate::game_data::GameData;
@@ -1290,7 +1279,7 @@ impl<'a> Preprocessor<'a> {
                     // Runway in the other room starts at a different node and runs toward the door. The full combined
                     // runway is used.
                     let (frames_1, _) = compute_shinecharge_frames(effective_length, 0.0);
-                    let mut heat_frames = frames_1 + 5;
+                    let heat_frames = frames_1 + 5;
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
@@ -2467,7 +2456,7 @@ pub fn randomize_doors(
     if let Some(&idx) = locked_door_node_map.get(&(322, 2)) {
         locked_door_node_map.insert((220, 2), idx);
     }
-    
+
     let mut locked_door_vertex_ids = vec![vec![]; locked_doors.len()];
     for (&(room_id, node_id), vertex_ids) in &game_data.node_door_unlock {
         if let Some(&locked_door_idx) = locked_door_node_map.get(&(room_id, node_id)) {
@@ -2919,7 +2908,8 @@ impl<'r> Randomizer<'r> {
     ) -> Vec<Item> {
         // In the future we might do something different with how bireachable locations are filled vs. one-way,
         // but for now they are just lumped together:
-        let num_filler_items_to_select = num_bireachable_filler_items_to_select + num_one_way_reachable_filler_items_to_select;
+        let num_filler_items_to_select =
+            num_bireachable_filler_items_to_select + num_one_way_reachable_filler_items_to_select;
         let expansion_item_set: HashSet<Item> =
             [Item::ETank, Item::ReserveTank, Item::Super, Item::PowerBomb]
                 .into_iter()
@@ -3246,7 +3236,7 @@ impl<'r> Randomizer<'r> {
             new_state.item_location_state[loc].placed_item = Some(item);
         }
     }
-    
+
     fn finish(&self, attempt_num_rando: usize, state: &mut RandomizationState) {
         let mut remaining_items: Vec<Item> = Vec::new();
         for item_id in 0..self.game_data.item_isv.keys.len() {
@@ -3633,7 +3623,10 @@ impl<'r> Randomizer<'r> {
     }
 
     fn get_seed_name(&self, seed: usize) -> String {
-        let t = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_nanos();
+        let t = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         rng_seed[8..24].copy_from_slice(&t.to_le_bytes());
@@ -3649,7 +3642,7 @@ impl<'r> Randomizer<'r> {
             out.push(c);
         }
         out
-    }    
+    }
 
     fn get_randomization(
         &self,

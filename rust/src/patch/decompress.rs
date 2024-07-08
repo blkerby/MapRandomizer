@@ -1,5 +1,5 @@
 use super::Rom;
-use anyhow::{Result, bail};
+use anyhow::{bail, Result};
 
 pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
     let mut out: Vec<u8> = Vec::new();
@@ -25,13 +25,13 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                 // Raw block
                 out.extend(rom.read_n(addr, size)?);
                 addr += size;
-            },
+            }
             1 => {
                 // Byte-level RLE block
                 let value = rom.read_u8(addr)? as u8;
                 addr += 1;
-                out.extend(&vec![value; size]);                
-            },
+                out.extend(&vec![value; size]);
+            }
             2 => {
                 // Word-level RLE block
                 let b0 = rom.read_u8(addr)? as u8;
@@ -41,7 +41,7 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                 if size & 1 == 1 {
                     out.push(b0);
                 }
-            },
+            }
             3 => {
                 // Incrementing sequence
                 let mut b = rom.read_u8(addr)? as u8;
@@ -50,7 +50,7 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                     out.push(b);
                     b += 1;
                 }
-            },
+            }
             4 => {
                 // Copy earlier output, with absolute offset:
                 let offset = rom.read_u16(addr)? as usize;
@@ -59,7 +59,7 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                 for i in offset..(offset + size) {
                     out.push(out[i]);
                 }
-            },
+            }
             5 => {
                 // Copy complement of earlier output, with absolute offset:
                 let offset = rom.read_u16(addr)? as usize;
@@ -68,7 +68,7 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                 for i in offset..(offset + size) {
                     out.push(out[i] ^ 0xFF);
                 }
-            },
+            }
             6 => {
                 // Copy earlier output, with relative offset:
                 let rel = rom.read_u8(addr)? as usize;
@@ -78,7 +78,7 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                 for i in offset..(offset + size) {
                     out.push(out[i]);
                 }
-            },
+            }
             7 => {
                 // Copy complement of earlier output, with relative offset:
                 let rel = rom.read_u8(addr)? as usize;
@@ -88,7 +88,7 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
                 for i in offset..(offset + size) {
                     out.push(out[i] ^ 0xFF);
                 }
-            },
+            }
             _ => {
                 bail!("Unexpected/impossible block type: {block_type}");
             }

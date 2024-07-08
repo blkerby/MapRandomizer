@@ -3,7 +3,7 @@ use std::path::Path;
 use crate::{game_data::IndexedVec, patch::compress::compress};
 
 use super::{decompress::decompress, pc2snes, snes2pc, PcAddr, Rom};
-use anyhow::{Context, Result, ensure};
+use anyhow::{ensure, Context, Result};
 use hashbrown::HashMap;
 use image::{io::Reader as ImageReader, Rgb};
 use ndarray::{concatenate, Array2, Array3, Axis};
@@ -372,7 +372,7 @@ impl<'a> TitlePatcher<'a> {
         let image_path = Path::new("../gfx/title/maprando.png");
         let img = read_image(image_path)?;
         assert!(img.dim() == (224, 256, 3));
-        
+
         // We don't modify the palette, just reuse colors from the existing palette.
         // There are only 3 colors in the PNG, and we manually map them over (This is a
         // little silly, because we could just use an indexed PNG to begin with, instead of RGB.):
@@ -383,17 +383,12 @@ impl<'a> TitlePatcher<'a> {
 
         // Indexes of 16 x 16 tiles that are free for us to use for "Map Rando" subtitle:
         let free_tiles: Vec<usize> = vec![
-            0xA0, 0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC, 0xAE,
-            0xC0, 0xC2, 0xC4, 0xC6, 0xC8, 0xCA, 0xCC, 0xCE,
-            0xE0, 0xE2, 0xE4, 0xE6, 0xE8, 0xEA, 0xEC, 0xEE,
-            0x102, 0x104, 0x106, 0x108, 0x10A, 0x10C, 0x10E,
-            0x122, 0x124, 0x126, 0x128, 0x12A, 0x12C, 0x12E,
-            0x140, 0x142, 0x144, 0x146, 0x148, 0x14A, 0x14C, 0x14E,
-            0x160, 0x162, 0x164,
-            0x180, 0x182, 0x184,
-            0x1A0, 0x1A2, 0x1A4, 0x1AC, 0x1AE,
-            0x1CC, 0x1CE,
-            0x1E0, 0x1E2, 0x1E4, 0x1E6, 0x1E8, 0x1EA, 0x1EC, 0x1EE,
+            0xA0, 0xA2, 0xA4, 0xA6, 0xA8, 0xAA, 0xAC, 0xAE, 0xC0, 0xC2, 0xC4, 0xC6, 0xC8, 0xCA,
+            0xCC, 0xCE, 0xE0, 0xE2, 0xE4, 0xE6, 0xE8, 0xEA, 0xEC, 0xEE, 0x102, 0x104, 0x106, 0x108,
+            0x10A, 0x10C, 0x10E, 0x122, 0x124, 0x126, 0x128, 0x12A, 0x12C, 0x12E, 0x140, 0x142,
+            0x144, 0x146, 0x148, 0x14A, 0x14C, 0x14E, 0x160, 0x162, 0x164, 0x180, 0x182, 0x184,
+            0x1A0, 0x1A2, 0x1A4, 0x1AC, 0x1AE, 0x1CC, 0x1CE, 0x1E0, 0x1E2, 0x1E4, 0x1E6, 0x1E8,
+            0x1EA, 0x1EC, 0x1EE,
         ];
 
         let get_tile = |tile_y: usize, tile_x: usize| -> [[u8; 8]; 8] {
@@ -411,7 +406,7 @@ impl<'a> TitlePatcher<'a> {
         };
 
         let mut free_tile_idx = 0;
-        let y_shift = 0x10;  // Offset to shift the title down from where it is in vanilla
+        let y_shift = 0x10; // Offset to shift the title down from where it is in vanilla
         for tile_y in 0..14 {
             for tile_x in 0..16 {
                 let tile_00 = get_tile(tile_y * 2, tile_x * 2);
@@ -432,7 +427,7 @@ impl<'a> TitlePatcher<'a> {
                     priority: 1,
                     size_16: true,
                     x_flip: false,
-                    y_flip: false
+                    y_flip: false,
                 };
                 spritemap.push(entry);
                 tiles[tile_idx] = tile_00;
@@ -441,22 +436,31 @@ impl<'a> TitlePatcher<'a> {
                 tiles[tile_idx + 17] = tile_11;
             }
         }
-        
+
         // Write the tiles & spritemap to a new location in free space, since they would
         // no longer fit in the original location:
-        let encoded_tiles: Vec<[u8; 32]> = tiles.iter().map(|tile| encode_tile_4bpp(tile)).collect();
+        let encoded_tiles: Vec<[u8; 32]> =
+            tiles.iter().map(|tile| encode_tile_4bpp(tile)).collect();
         let new_gfx_pc_addr = self.write_to_free_space(&compress(encoded_tiles.flat()))?;
         let new_gfx_snes_addr = pc2snes(new_gfx_pc_addr);
         let new_spritemap_snes_addr = 0x8CF3E9;
         self.write_spritemap(snes2pc(new_spritemap_snes_addr), &spritemap)?;
 
         // Update pointer to the tile GFX data:
-        self.rom.write_u8(snes2pc(0x8B9BCA), (new_gfx_snes_addr >> 16) as isize)?;
-        self.rom.write_u16(snes2pc(0x8B9BCE), (new_gfx_snes_addr & 0xFFFF) as isize)?;
+        self.rom
+            .write_u8(snes2pc(0x8B9BCA), (new_gfx_snes_addr >> 16) as isize)?;
+        self.rom
+            .write_u16(snes2pc(0x8B9BCE), (new_gfx_snes_addr & 0xFFFF) as isize)?;
 
         // Update pointers to spritemap:
-        self.rom.write_u16(snes2pc(0x8BA0C7), (new_spritemap_snes_addr & 0xFFFF) as isize)?;
-        self.rom.write_u16(snes2pc(0x8BA0CD), (new_spritemap_snes_addr & 0xFFFF) as isize)?;
+        self.rom.write_u16(
+            snes2pc(0x8BA0C7),
+            (new_spritemap_snes_addr & 0xFFFF) as isize,
+        )?;
+        self.rom.write_u16(
+            snes2pc(0x8BA0CD),
+            (new_spritemap_snes_addr & 0xFFFF) as isize,
+        )?;
 
         // Shift the title spritemap down:
         self.rom.write_u16(snes2pc(0x8B9B21), 0x30 + y_shift)?;

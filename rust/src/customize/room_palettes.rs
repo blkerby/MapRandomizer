@@ -1,6 +1,6 @@
 use crate::{
     game_data::GameData,
-    patch::{decompress::decompress, snes2pc, Rom},
+    patch::{snes2pc, Rom},
 };
 use anyhow::Result;
 
@@ -122,7 +122,7 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 //         let pal = decode_palette(&encoded_pal);
 //         // let encoded_palette = encode_palette(palette);
 //         // rom.write_n(snes2pc(0xA9D082), &encoded_palette[104..128])?;
-    
+
 //         for i in 0..6 {
 //             let faded_palette: Vec<[u8; 3]> = pal
 //                 .iter()
@@ -131,7 +131,7 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 //             let encoded_faded_palette = encode_palette(&faded_palette);
 //             rom.write_n(snes2pc(0xADF283 + i * 56), &encoded_faded_palette[98..126])?;
 //             rom.write_n(snes2pc(0xADF283 + i * 56 + 28), &encoded_faded_palette[162..190])?;
-//         }    
+//         }
 //     }
 
 //     // Disable red background flashing at escape start:
@@ -145,7 +145,6 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 
 //     Ok(())
 // }
-
 
 // fn disable_glows(
 //     rom: &mut Rom,
@@ -178,7 +177,7 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 //                         pal_fx_bitflags = 0;
 //                     }
 //                     println!("after: {:x}: {:x}", fx_ptr_snes, pal_fx_bitflags);
-//                     rom.write_u8(snes2pc(fx_ptr_snes + 13), pal_fx_bitflags)?;    
+//                     rom.write_u8(snes2pc(fx_ptr_snes + 13), pal_fx_bitflags)?;
 
 //                     if fx_door_select == 0x0000 {
 //                         break;
@@ -190,7 +189,6 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 //     }
 //     Ok(())
 // }
-
 
 pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
     // Set flag to enable behavior in "Area Palettes.asm":

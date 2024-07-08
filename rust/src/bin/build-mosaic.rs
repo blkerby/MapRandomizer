@@ -669,8 +669,10 @@ impl MosaicPatchBuilder {
                     (_, false, false) => 0xF2,
                 };
                 let vflip = if y == 15 { 0x08 } else { 0x00 };
-                (layer2[i * 2], layer2[i * 2 + 1]) = ((tile & 0xFF) as u8, ((tile >> 8) as u8) ^ 0x04 ^ vflip);
-                (layer2[i * 2 + 2], layer2[i * 2 + 3]) = ((tile & 0xFF) as u8, ((tile >> 8) as u8) ^ vflip);
+                (layer2[i * 2], layer2[i * 2 + 1]) =
+                    ((tile & 0xFF) as u8, ((tile >> 8) as u8) ^ 0x04 ^ vflip);
+                (layer2[i * 2 + 2], layer2[i * 2 + 3]) =
+                    ((tile & 0xFF) as u8, ((tile >> 8) as u8) ^ vflip);
             }
         }
     }
@@ -800,13 +802,22 @@ impl MosaicPatchBuilder {
                     Self::load_room_state(&theme_project_path, &smart_room_name)?;
                 let twin_state_xml = if room_geometry.name == "Pants Room" {
                     let east_pants_room_name = room_name_by_pair[&(4, 37)].as_str();
-                    Some(Self::load_room_state(&theme_project_path, east_pants_room_name)?)
+                    Some(Self::load_room_state(
+                        &theme_project_path,
+                        east_pants_room_name,
+                    )?)
                 } else if room_geometry.name == "West Ocean" {
                     let homing_geemer_room_name = room_name_by_pair[&(0, 17)].as_str();
-                    Some(Self::load_room_state(&theme_project_path, homing_geemer_room_name)?)
+                    Some(Self::load_room_state(
+                        &theme_project_path,
+                        homing_geemer_room_name,
+                    )?)
                 } else if room_geometry.name == "Aqueduct" {
                     let botwoon_hallway_name = room_name_by_pair[&(4, 35)].as_str();
-                    Some(Self::load_room_state(&theme_project_path, botwoon_hallway_name)?)
+                    Some(Self::load_room_state(
+                        &theme_project_path,
+                        botwoon_hallway_name,
+                    )?)
                 } else {
                     None
                 };
@@ -876,7 +887,14 @@ impl MosaicPatchBuilder {
                     let mut y_max = 0 as isize;
 
                     let mut middle_layer_2 = orig_middle_layer_2.clone();
-                    Self::draw_tube(&mut middle_layer_2, room_width, room_height, x, true, tileset_idx);
+                    Self::draw_tube(
+                        &mut middle_layer_2,
+                        room_width,
+                        room_height,
+                        x,
+                        true,
+                        tileset_idx,
+                    );
 
                     for y in 0..(room_geometry.map.len() as isize) {
                         if room_geometry.map[y as usize][x as usize] == 1 {
@@ -919,10 +937,14 @@ impl MosaicPatchBuilder {
 
                     let compressed_middle_level_data =
                         self.get_compressed_data(&new_middle_level_data)?;
-                    let twin_level_data_len = compressed_twin_level_data.as_ref().map_or(0, |x| x.len());
+                    let twin_level_data_len =
+                        compressed_twin_level_data.as_ref().map_or(0, |x| x.len());
                     if dry_run {
-                        if compressed_middle_level_data.len() + twin_level_data_len > *max_intersection_level_data {
-                            *max_intersection_level_data = compressed_middle_level_data.len() + twin_level_data_len;
+                        if compressed_middle_level_data.len() + twin_level_data_len
+                            > *max_intersection_level_data
+                        {
+                            *max_intersection_level_data =
+                                compressed_middle_level_data.len() + twin_level_data_len;
                         }
                     }
 
@@ -1075,20 +1097,19 @@ impl MosaicPatchBuilder {
                                 &middle_state_xml,
                                 room_ptr,
                                 intersection_level_data_addr,
-                                &compressed_middle_level_data)?;
-                        
+                                &compressed_middle_level_data,
+                            )?;
+
                             if twin_state_xml.is_some() && room_geometry.name != "Aqueduct" {
-                                let twin_room_ptr = if room_idx == 138 {  
-                                    0x7D69A
-                                } else { 
-                                    0x7968F
-                                };
+                                let twin_room_ptr = if room_idx == 138 { 0x7D69A } else { 0x7968F };
                                 self.write_toilet_intersection_room(
                                     &mut new_rom,
                                     twin_state_xml.as_ref().unwrap(),
                                     twin_room_ptr,
-                                    intersection_level_data_addr + compressed_middle_level_data.len(),
-                                    compressed_twin_level_data.as_ref().unwrap())?;
+                                    intersection_level_data_addr
+                                        + compressed_middle_level_data.len(),
+                                    compressed_twin_level_data.as_ref().unwrap(),
+                                )?;
                             }
 
                             // Encode the BPS patch:
@@ -1120,16 +1141,19 @@ impl MosaicPatchBuilder {
                                     &middle_state_xml,
                                     room_ptr,
                                     intersection_level_data_addr,
-                                    &compressed_middle_level_data)?;
+                                    &compressed_middle_level_data,
+                                )?;
 
                                 // Write tube in background (Layer2) of Botwoon Hallway
                                 self.write_toilet_intersection_room(
                                     &mut new_rom,
                                     twin_state_xml.as_ref().unwrap(),
                                     0x7D617,
-                                    intersection_level_data_addr + compressed_middle_level_data.len(),
-                                    compressed_twin_level_data.as_ref().unwrap())?;
-                                        
+                                    intersection_level_data_addr
+                                        + compressed_middle_level_data.len(),
+                                    compressed_twin_level_data.as_ref().unwrap(),
+                                )?;
+
                                 // Encode the BPS patch:
                                 let modified_ranges = new_rom.get_modified_ranges();
                                 let mut encoder = BPSEncoder::new(
@@ -1144,7 +1168,7 @@ impl MosaicPatchBuilder {
                                     format!("{}-VanillaMapTransit.bps", theme_name);
                                 info!("Writing {}", output_filename);
                                 let output_path = self.output_patches_dir.join(output_filename);
-                                std::fs::write(&output_path, &encoder.patch_bytes)?;                                
+                                std::fs::write(&output_path, &encoder.patch_bytes)?;
                             }
                         }
                     }

@@ -2,8 +2,8 @@ pub mod retiling;
 pub mod room_palettes;
 pub mod vanilla_music;
 
-use std::cmp::min;
 use anyhow::{bail, Result};
+use std::cmp::min;
 use std::path::Path;
 
 use crate::customize::vanilla_music::override_music;
@@ -75,7 +75,6 @@ pub enum MusicSettings {
     Disabled,
 }
 
-
 #[derive(Debug)]
 pub enum PaletteTheme {
     Vanilla,
@@ -133,7 +132,7 @@ pub struct ControllerConfig {
 pub enum ShakingSetting {
     Vanilla,
     Reduced,
-    Disabled
+    Disabled,
 }
 
 #[derive(Debug)]
@@ -246,7 +245,7 @@ pub fn parse_controller_button(s: &str) -> Result<ControllerButton> {
         "Select" => ControllerButton::Select,
         "L" => ControllerButton::L,
         "R" => ControllerButton::R,
-        _ => bail!("Unexpected controller button: {}", s)
+        _ => bail!("Unexpected controller button: {}", s),
     })
 }
 
@@ -267,7 +266,7 @@ fn get_button_mask(mut controller_button: ControllerButton, default: ControllerB
         ControllerButton::R => 0x0010,
         ControllerButton::Select => 0x2000,
         ControllerButton::Start => 0x1000,
-        _ => panic!("Unexpected controller button: {:?}", controller_button)
+        _ => panic!("Unexpected controller button: {:?}", controller_button),
     }
 }
 
@@ -290,7 +289,11 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
         (0x81B32B, controller_config.dash, ControllerButton::B),
         (0x81B331, controller_config.shot, ControllerButton::X),
         (0x81B337, controller_config.item_cancel, ControllerButton::Y),
-        (0x81B33D, controller_config.item_select, ControllerButton::Select),
+        (
+            0x81B33D,
+            controller_config.item_select,
+            ControllerButton::Select,
+        ),
         (0x81B343, controller_config.angle_up, ControllerButton::R),
         (0x81B349, controller_config.angle_down, ControllerButton::L),
     ];
@@ -298,7 +301,7 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
         let mask = get_button_mask(button, default);
         rom.write_u16(snes2pc(addr), mask)?;
     }
-    
+
     let spin_lock_mask = get_button_list_mask(&controller_config.spin_lock_buttons);
     rom.write_u16(snes2pc(0x82FE7C), spin_lock_mask)?;
 
@@ -331,7 +334,14 @@ pub fn customize_rom(
     }
 
     remove_mother_brain_flashing(rom)?;
-    apply_retiling(rom, orig_rom, map, game_data, &settings.tile_theme, mosaic_themes)?;
+    apply_retiling(
+        rom,
+        orig_rom,
+        map,
+        game_data,
+        &settings.tile_theme,
+        mosaic_themes,
+    )?;
 
     match &settings.palette_theme {
         PaletteTheme::Vanilla => {}
@@ -364,9 +374,9 @@ pub fn customize_rom(
         // Make used reserve tiles empty, for when they appear when transitioning to and from Kraid's room
         // Since the current IPS creation tool doesn't include settings these addresses to zero, it has to be done here instead
         for i in 0..6 {
-            rom.write_n(snes2pc(0xE20000+(0x10000*i)+0xC330), &[0x00; 0x10])?;
-            rom.write_n(snes2pc(0xE20000+(0x10000*i)+0xC460), &[0x00; 0x10])?;
-            rom.write_n(snes2pc(0xE20000+(0x10000*i)+0xC4C0), &[0x00; 0x20])?;
+            rom.write_n(snes2pc(0xE20000 + (0x10000 * i) + 0xC330), &[0x00; 0x10])?;
+            rom.write_n(snes2pc(0xE20000 + (0x10000 * i) + 0xC460), &[0x00; 0x10])?;
+            rom.write_n(snes2pc(0xE20000 + (0x10000 * i) + 0xC4C0), &[0x00; 0x20])?;
         }
     }
     match settings.music {
@@ -389,7 +399,7 @@ pub fn customize_rom(
         rom.write_n(snes2pc(0x91E6DA), &[0xEA; 4])?;
     }
     match settings.shaking {
-        ShakingSetting::Vanilla => {},
+        ShakingSetting::Vanilla => {}
         ShakingSetting::Reduced => {
             // Limit BG shaking to 1-pixel displacements:
             for i in 0..144 {
@@ -402,14 +412,14 @@ pub fn customize_rom(
                 let x = rom.read_u16(snes2pc(0x86846B + i * 2))?;
                 rom.write_u16(snes2pc(0x86846B + i * 2), min(x, 1))?;
             }
-        },
+        }
         ShakingSetting::Disabled => {
             // Disable BG shaking globally, by setting the shake displacements to zero (this should be timing-neutral?)
             rom.write_n(snes2pc(0xA0872D), &[0; 288])?;
             // Disable enemy shaking:
-            rom.write_n(snes2pc(0xA09488), &[0xEA; 5])?;  // 5 * NOP
-            rom.write_n(snes2pc(0xA0948F), &[0xEA; 5])?;  // 5 * NOP
-            // rom.write_u8(snes2pc(0xA08712), 0x60)?;  // RTS
+            rom.write_n(snes2pc(0xA09488), &[0xEA; 5])?; // 5 * NOP
+            rom.write_n(snes2pc(0xA0948F), &[0xEA; 5])?; // 5 * NOP
+                                                         // rom.write_u8(snes2pc(0xA08712), 0x60)?;  // RTS
 
             // Disable enemy projectile shaking, by setting the displacements to zero:
             rom.write_n(snes2pc(0x86846B), &[0; 144])?;
