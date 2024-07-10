@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+    <!--{% include "common/header.html" %}-->
+    <meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
+    <title>About - Super Metroid Map Rando</title>
+    </head>
+    <body>
+    <!--{% include "common/navbar.html" %}-->
+    <script>
+    document.getElementById("navigation-about").classList.add("active");
+    </script>
+    <div class="container col-lg-9 col-xl-7 col-xxl-6">
+
+    <h3 class="my-3">About Map Rando</h3>
+
+    <p>Super Metroid Map Rando randomly arranges the rooms of the classic SNES game Super Metroid while ensuring they fit together in a geometrically consistent way. The in-game map accurately reflects the arrangement of the rooms, allowing players to track and make sense of the randomized world as they explore. Finding and activating map stations will help the player gain more information to decide where to go.</p>
+
+    <p>Map randomization create unique challenges and puzzles that players must solve. On the higher
+    difficulty settings, there are many tricky techniques that may be required in order to beat the game. Players can
+    customize the difficulty settings to select individual techniques that they know how to do. An interactive spoiler
+    map is available, allowing players to get a hint in case they get stumped.</p>
+
+    <p>To beat the game, the player must complete the required objectives, defeat Mother Brain, and escape by returning
+    to the Ship. By default, the objectives are to defeat the bosses Kraid, Phantoon, Draygon, and Ridley.
+    Completing the objectives opens the way to reach Mother Brain.</p>
+
+    <p>Even on lower difficulty settings, one consequence of map randomization is that players will
+    likely encounter risks of dying to powerful enemies while they have few or no items, or of getting stuck in places they
+    can't get out of. The randomizer includes many features that reduce these risks but do not eliminate them
+    (for more detail and a full list of changes, see <a href="#changes">below</a>):
+    <ul>
+    <li>Gray doors do not immediately close behind Samus when entering a room. This allows the player a chance to
+    turn around if they encounter a boss they are not prepared for.
+    <li>Hazard markings occur on certain doors, ones with immediate risk of death or softlock on the other side.
+    <li>The logic is designed so that going down a one-way path is unlikely to be required.
+    <li>Samus quickly respawns after death without needing to go through the game-over menu.
+    <li>Save animations are accelerated, to incentivize saving often.
+    <li>The player can immediately reload to the last save by pressing L + R + Select + Start.
+    <li>Rolling saves allow the player to return to previous saves.
+    <li>Map progress is retained after dying or reloading, helping the player keep track of potential dangers.
+    </ul>
+
+    <p>Except for the doors, room layouts are generally exactly the same as the vanilla game. There
+    are only a handful of minor changes, described in detail <a href="#layout_changes">below</a>. No platforms are added or removed, 
+    and no changes are made to special objects such as gates, bomb blocks, crumble blocks, or Power Bomb blocks.<a href="#footnote-softlock"><sup>1</sup></a></p>
+
+    <p>Even with the quality-of-life changes, it takes practice to master the wide variety of challenging
+    situations that can come up with randomized maps. For players that are newer to Super Metroid, before
+    trying Map Rando it is recommended to first gain some experience with the vanilla game and possibly
+    with another randomizer such as
+    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>.
+    It is also possible to play Map Rando without the map randomization, by selecting "Vanilla map" under
+    "Other options" on the <a href="/generate">Generate</a> page.</p>
+
+    <p>Work is still on-going to improve the accessibility of Map Rando and to create more resources to help new players.
+    There's a <a href="https://discord.gg/Gc99YV2ZcB">Discord</a> community that's happy to help and where players can
+    provide feedback and suggestions for future development.
+    </p>
+
+    <hr>
+    <h3 class="my-3"><a id="changes" style="scroll-margin-top: 80px;">Randomizer changes</a></h3>
+
+    <p>Aside from randomizing the map and items, many small changes are made to improve quality-of-life
+    and adapt the game to behave "as it should" in the context of map and item randomization. The following are
+    the changes that are either built into the randomizer or enabled by default (See the <a href="/generate">Generate</a>
+    page for more details and descriptions of all quality-of-life options, including those disabled by default):</p>
+
+    <h5 id="map_enhancements">Map enhancements</h5>
+    <ul>
+    <li>Map tiles are modified to show the locations of doors and in-room passages or false walls.
+    <li>Non-blue doors are specifically indicated on the map.
+    <li>Special map tiles show the locations of map stations, refills, objectives, and Mother Brain.
+    <li>Items are consistently marked using dots. Depending on the settings, different dot shapes identify
+    different tiers of items.
+    <li>Map progress is retained even after dying, reloading, resetting, or switching/creating save files.
+        <ul>
+        <li>Map tiles preserved in this way appear gray, the same as tiles revealed by map stations.
+        <li>Map progress is only cleared by creating a new file when all three save slots are empty.
+        </ul>
+    <li>Maps are color-coded by area. Lighter shades are used to represent heated rooms. A dark, checkered pattern
+        is used to represent rooms (or screens within rooms) that are submerged in water.
+    <li>The location of an area's map station is always visible (optional).
+    <li>Item dots fade after collection (or disappear, depending on the settings).
+    <li>Area transitions are marked, identifying the neighboring area using colored letters (or arrows, an alternative option).
+    </ul>
+
+    <h5 id="special_inputs">Special inputs</h5>
+    <ul>
+    <li>Pressing Select in the pause map cycles through maps of explored areas. Alternatively, press Y or X
+    to cycle forwards or backwards, respectively.
+    <li>Pressing L + R + Select + Start during gameplay does a quick reload from the last save.
+    Repeating this input combination cycles through previous saves; Samus just has to still be in the initial
+    facing-forward pose from the last reload.
+    <li>Pressing L + R + Up + X activates a mode called "Spin Lock", temporarily preventing up/down inputs from breaking spin. Pressing shot will cancel this mode.
+    </ul>
+
+    <h5>Saving & loading</h5>
+    <ul>
+    <li>After the death animation, the game immediately loads from the previous save, without needing to go
+    through the game over menu. The quick reload inputs (L + R + Select + Start) can also be used during the
+    death animation to make the process even faster.
+    <li>Saving at a different station from the last save will move to the next slot before saving (cycling back to the first
+    slot if the last save was on the third slot), making it possible to return to the earlier save. Saving at the same
+    station as the last save will overwrite the last save without advancing to the next slot.
+    </ul>
+
+    <h5 id="doors">Doors</h5>
+    <ul>
+    <li>By default, pink, green, and yellow doors are replaced with blue doors.
+        <ul>
+        <li>If the "Ammo" doors option is enabled, then pink, green, and yellow doors are randomized. To limit the
+        risk of softlocks due to doors, the two sides of the door always have the same color, and unlocking one side
+        automatically unlocks the other side as well.
+        </ul>
+    <li>Gray doors are replaced with blue doors, with the exception of boss/miniboss rooms and the following four
+    Space Pirate rooms where gray doors are retained:
+        <ul>
+        <li>Pit Room (old Mother Brain room)
+        <li>Baby Kraid Room
+        <li>Plasma Room
+        <li>Metal Pirates Room
+        </ul>
+    <li>Gray doors do not close behind Samus when entering a room. They close when any one of the following occurs:
+        <ul>
+        <li>An item in the room is collected (applicable in Bomb Torizo Room, Golden Torizo Room, Plasma Room, and Pit Room).
+        <li>A boss in the room is hurt.
+        <li>All enemies in the room are defeated (causing the door to simultaneously close and unlock).
+        </ul>
+    <li>A gray door is added on the right side of Metal Pirates Room (the vanilla game only has one on the left):
+        <ul>
+        <li>This makes the room symmetric so that the enemies must be defeated to cross the room in either direction.
+        <li>After defeating the enemies and shooting open either door, neither door will lock gray again.
+        <li>Note that this differs from Pit Room and Baby Kraid Room, where if the player shoots open one gray door and
+        leaves the room, the other door will still be gray when re-entering the room.
+        </ul>
+    <li>The green door at the bottom of Spore Spawn Room is replaced with a gray door.
+    <li>The solid wall PLM on the right side of Tourian Escape Room 1 is removed. Instead, during the escape, a gray door
+    spawns on the right side of whichever room connects to Mother Brain Room.
+    <li>Hazard markers (yellow & black stripes) are shown on doors leading into the following locations, either directly or via the Toilet:
+        <ul>
+        <li>Mt. Everest top door
+        <li>Oasis top door
+        <li>Fish Tank top left door
+        <li>Fish Tank top right door
+        <li>Bug Sand Hole left and right door
+        <li>Amphitheatre left door
+        <li>Tourian Blue Hoppers left door
+        <li>Big Pink crumble block left door
+        <li>Ice Beam Gate Room crumble block top left door
+        </ul>
+    </ul>
+
+    <h5 id="item_spawns">Item spawns</h5>
+    <ul>
+    <li>All items spawn at start of game (optional).
+        <ul>
+        <li>This simplifies the game behavior by making it so that all items appear from the start of the game, 
+        e.g. without needing to first awaken the planet or defeat Phantoon.
+        <li>Regardless of this option, other vanilla effects of defeating Phantoon and waking the planet are unchanged by the randomizer:
+            <ul>
+            <li>After defeating Phantoon, the Bowling Alley Chozo statue becomes usable and there are changes to enemy spawns. This includes
+            the Workrobot which will move and open access to the item in Wrecked Ship East Super Room.
+            <li>After the planet is awakened, enemies will spawn in Parlor, Climb, Morph Ball Room, Construction Zone,
+            and Blue Brinstar Energy Tank Room.
+            </ul>
+        </ul>
+    </ul>
+
+    <h5 id="suit_behavior">Suit behavior</h5>
+    <p>In the vanilla game, Gravity suit includes almost all the benefits of Varia suit, apparently based on the
+    expectation that the player will get Varia before Gravity. In the randomizer, Varia suit behaves as in vanilla,
+    but Gravity suit alone has only the incremental effects that Gravity gives on top of Varia in the vanilla game:
+    Gravity suit alone provides no heat protection and only 50% protection against other damage (including lava).
+    This makes the suits become "complementary", meaning their effects stack to give the same effect as combined
+    Varia + Gravity suits in the vanilla game:</p>
+    <table class="table w-auto table-striped table-bordered mx-auto">
+    <thead>
+        <tr>
+        <th scope="col">Suit combination</th>
+        <th scope="col">Heat</th>
+        <th scope="col">Lava</th>
+        <th scope="col">Rainbow beam</th>
+        <th scope="col">Other damage</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+        <td>Power Suit</td>
+        <td>0%</td>
+        <td>0%</td>
+        <td>0%</td>
+        <td>0%</td>
+        </tr>
+        <tr>
+        <td>Varia</td>
+        <td>100%</td>
+        <td>50%</td>
+        <td>50%</td>
+        <td>50%</td>
+        </tr>
+        <tr>
+        <td>Gravity (Map Rando)</td>
+        <td>0%</td>
+        <td>50%</td>
+        <td>0%</td>
+        <td>50%</td>
+        </tr>
+        <tr>
+        <td>Gravity (vanilla)</td>
+        <td>100%</td>
+        <td>100%</td>
+        <td>0%</td>
+        <td>75%</td>
+        </tr>
+        <tr>
+        <td>Varia + Gravity</td>
+        <td>100%</td>
+        <td>100%</td>
+        <td>50%</td>
+        <td>75%</td>
+        </tr>
+    </tbody>
+    </table>
+    <p>Note that the only case where the randomizer differs from the vanilla game is with Gravity alone. </p>
+    <h5 id="endgame">Endgame</h5>
+    <ul>
+    <li>Supers do double damage to Mother Brain (optional).
+    <li>The Mother Brain fight ends after phase two (optional).
+        <ul>
+        <li>Samus still gets Hyper Beam.
+        <li>Samus gets an energy refill at the start of the escape sequence (optional).
+        </ul>
+    <li>When acquiring Hyper Beam, Samus collects and equips the following items (optional):
+        <ul>
+        <li>Varia Suit, Gravity Suit, Morph Ball, Bombs, Spring Ball, Screw Attack, Hi-Jump Boots, Space Jump,
+        Speed Booster, Grapple, X-Ray.
+        </ul>
+    <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks, opens blue & green gates from either side, and
+    opens pink, green, and yellow doors. Note that Hyper Beam does <i>not</i> destroy Speed, Grapple, or crumble blocks.
+    <li>An auto-save is made after Mother Brain is defeated, immediately before the escape begins.
+    <li>Enemies are cleared during the escape (optional).
+    <li>The escape timer is adapted based on the estimated time required to return to the Ship.
+        <ul>
+        <li>If the "Save the animals" option is enabled, time is also included for a detour to Bomb Torizo Room.
+        <li>Leniency time is included based on selected Skill Assumptions.
+        </ul>
+    </ul>
+
+    <h5 id="fast_transitions">Fast transitions & cutscenes</h5>
+    <ul>
+    <li>Ship, save, refill, and map station animations are accelerated.
+    <li>Parts of the Big Boy Room cutscene are accelerated:
+        <ul>
+        <li>The Baby enters sooner, and the Hopper moves to the right sooner, stopping in the same position as vanilla.
+        <li>The Baby drains Samus' energy faster.
+        <li>The player regains control of Samus sooner after being drained.
+        <li>The part in the middle (starting when the Hopper is about to become a corpse) is left unmodified to avoid
+        disturbing the setup and execution of Baby Skip.
+        </ul>
+    <li>Some Mother Brain cutscenes are accelerated or simplified:
+        <ul>
+        <li>The whole-screen flashing during the MB1 death animation is removed (for photo-sensitive players & viewers).
+        <li>The delay after MB1 head falls to the ground is eliminated.
+        <li>For settings where MB3 is not skipped, the part where Baby Metroid is latched onto MB2 is
+        accelerated, as is the MB3 death animation. These should not affect the execution of the stand-up glitch.
+        </ul>
+    <li>Fast doors (optional):
+        <ul>
+        <li>Scrolling speed is doubled for both the door centering and transition.
+        <li>Gameplay fade-in speed is unaffected, to avoid disrupting enemy behavior or the ability of the
+            player to react to a new room.
+        <li>Likewise, gameplay fade-out is unaffected, to avoid disrupting R-mode and G-mode setups.
+        </ul>
+    <li>Fast elevators (optional):
+        <ul>
+        <li>Elevator speed is tripled.
+        </ul>
+    <li>Fast pause menu (optional):
+        <ul>
+        <li>Fade-in and fade-out of the pause menu map are accelerated, as are transitions between the map and equipment screens.
+        <li>Map scrolling speed is doubled.
+        <li>Gameplay fade-in and fade-out are unaffected, to avoid disrupting strats that rely on pausing
+        (such as Spring Ball jumps or R-jumps).
+        </ul>
+    </ul>
+
+    <h5 id="layout_changes">Layout changes</h5>
+    <ul>
+    <li>In the morph tunnel between Main Street and Mt. Everest, a few solid tiles are changed to air to allow room to stand.
+    <li>Solid tiles are added off-camera at at the bottom of Aqueduct to prevent going out-of-bounds.
+        <ul>
+        <li>In the vanilla game, when running with Speedbooster it is easy to unintentionally dip out-of-bounds there
+        (and possible to fall all the way through the floor).
+        </ul>
+    <li>Objective barriers are added in Mother Brain's room. Several slope tiles are also changed to solid, to prevent Samus from
+    clipping through the floor when running into the room.
+    </ul>
+
+    <h5 id="other_changes">Other changes</h5>
+    <ul>
+    <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.
+    <li>Enemy drops are buffed (optional):
+      <ul>
+      <li>Small energy drops give 10 energy.
+      <li>Respawning enemies drop Power Bombs at double the normal rate.
+      </ul>        
+    <li>The Acid Chozo statue can be activated without Space Jump (optional).
+    <li>The music for each room is based on its area & sub-area on the randomized map.
+    <li>Angle up/down can be bound to any button.
+    <li>Item fanfares are removed, replaced with short sound effects that do not interrupt gameplay.
+    <li>Most major glitches are patched out:
+        <ul>
+        <li>The pause menu is fixed so that glitched beams cannot occur.
+        <li>GT code is disabled.
+        <li>Going out-of-bounds triggers death. Going off-camera into screens that are normally inaccessible is fine,
+        as long as no part of Samus' hitbox goes outside the rectangle defining the room boundary.
+            <ul>
+            <li>The out-of-bounds check is suspended when Samus is riding an elevator or grabbed by Draygon, as in those
+            situations going out-of-bounds is normal and not a glitch.
+            </ul>
+        </ul>
+    <li>During the first phase of the Kraid fight, Samus's X position is no longer restricted to the left screen.
+        <ul>
+        <li>This allows the room to function properly when entering from the right, giving the player an option to exit back
+        through the right door before the fight starts.
+        </ul>
+    <li>Fix to vanilla bug where heat damage could cause Samus to lose blue speed.
+    <li>Heat does not damage Samus during the loading fanfare (applicable to the "Random" start location option).
+    <li>Fixes to many graphical glitches, mainly ones that would happen because of modifying the doors and how they connect.<a href="#footnote-graphical-fixes"><sup>2</sup></a></p>
+    </ul>
+
+    <hr>
+    <h3 class="my-3" id="how_it_works">How it works</h3>
+    <p>Randomization happens in a few phases: map generation, item placement, escape timer calculation, and ROM patching.
+    Map generation is done offline ahead-of-time, while the others happen in real-time when a user requests the system to
+    generate a game.</p>
+    <h5 id="map_generation">Map generation</h5>
+    <p>At the core of the map generation process is a machine-learning model trained to arrange Super Metroid rooms
+    onto a 72 x 72 grid, while satisfying the following constraints:</p>
+    <ul>
+    <li>Every Zebes room is used exactly once in every map.
+    <li>The rooms do not overlap.
+    <li>Every door transition connects to a compatible door transition, e.g., sand connects to sand, and elevators
+    connect to elevators.
+    <li>Every room has a path to and from every other room. This means that for every room containing one-ways
+    (e.g., crumble blocks, green gates), there must be some path that loops back around. This is to avoid creating 
+    areas which the player could either never reach or never escape from.
+    </ul>
+
+    <p>Maps produced by the model go through a few steps of post-processing:
+    <ul>
+    <li>The rooms are partitioned into six areas using a graph clustering algorithm.
+    <li>Each area is partitioned into two sub-areas (used to determine which music track plays).
+    <li>The Wrecked Ship map station and Phantoon's Room are moved (swapped with other single-tile rooms) so that they
+    connect to the same room.
+    <li>The other map station rooms are likewise moved to ensure there is one in each area.
+    <li>Save and refill rooms are moved to improve the balance of their distribution.
+    </ul>
+    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 12,000 maps.</p>
+
+    <p>It took about a year to develop the initial model architecture and training process, including about two months of
+    continuous training on a pair of RTX 3080 Ti GPUs. The original model suffered from some quirkiness where it almost 
+    always connected certain groups of rooms together. A newer model with a number of improvements was trained for about 4 months on a pair of RTX 4090 GPUs, leading to greater variety in room connections, better balancing of save stations, and better connectivity (e.g. shorter paths from one end of the map to the other).</p>
+
+    <h5 id="item_placement">Item placement</h5>
+    <p>Item placement happens by forward fill: items are first placed in locations that are bireachable
+    (i.e. possible to reach and return back to the starting room) before the player has collected any items, then in a
+    sequence of expanding spheres of bireachable locations based on having collected the previously placed items.
+
+    <p>On each step of item placement, among the bireachable item locations that do not yet have an item
+    placed in them, a subset of these locations is selected to place key items in, either randomly (if "Neutral" item
+    placement is selected), or by prioritizing those that require more difficult techniques to reach (if "Forced" is
+    selected). Key items are selected to ensure that progression is unlocked (i.e., at least one new item location
+    becomes bireachable). Filler items are placed in the remaining item locations that are reachable on that step, including locations that are only one-way reachable. The process then repeats with the next set of key items. If on a given step there is no key item that can provide progression, then the randomizer retries with a different map. For more details, see the "Item progression" section
+    of the <a href="/generate">Generate</a> page.</p>
+
+    <p>The logic used to determine reachability of item locations is based on the
+    <a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a> project.
+    This is a massive repository of Super Metroid strats, currently consisting of over 100,000 lines of manually
+    crafted JSON. For each room, it defines a set of logically meaningful nodes (points or regions within the room)
+    and defines tech, item, and resource requirements for strats traversing between nodes. In heated rooms,
+    this includes heat damage requirements. It also includes information about runways in front of doors and other
+    room details to support cross-room strats such as shinesparks, gravity jumps, and G-mode.
+
+    <p>Spoiler data is also generated during the process of item placement, recording which nodes (including item locations)
+    are reachable and/or bireachable on each step, and constructing an obtain & return path for each bireachable item
+    location, which is used in the implementation of the interactive spoiler map.</p>
+
+    <h5 id="escape_timer">Escape timer</h5>
+    <p>The escape timer is determined by computing the fastest path from Mother Brain Room to the Ship (including a
+    detour to Bomb Torizo Room if "Save the animals" is enabled). This is based on manually constructed
+    <a href="https://github.com/blkerby/MapRandomizer/blob/main/rust/data/escape_timings.json">escape timing data</a>
+    which gives a timing between every pair of doors in every room. Extra time is added for leniency based on the difficulty settings.</p>
+
+    <p>For escape timings that rely on tech in an important way, this is taken into account by making the timings
+    conditional on the tech (and where applicable, including alternative timings that do not use the tech):
+    <ul>
+    <li>"canMoonfall" to save a substantial amount of time in certain rooms,
+    <li>"canKago" to get through Wasteland faster from top to bottom,
+    <li>"canHyperGateShot" to go through gates in reverse,
+    <li>"canSuitlessLavaDive" to go through Amphitheatre in reverse,
+    <li>"canHeroShot" to go through Big Pink from the bottom left door,
+    <li>"canOffScreenSuperShot" to go through the Morph tunnel left-to-right in Big Pink,
+        <ul>
+        <li><b>Note</b>: It's easier with Hyper Beam than with a Super (and Super ammo is not guaranteed to be available).
+        </ul>
+    </ul></p>
+
+    <p>For other more minor uses of tech (e.g. "canMockball"), the base timings assume that the tech can be used,
+    and the difficulty multiplier should be enough to account for the player's potential inability to do
+    the tech on lower difficulty settings.</p>
+
+    <p>For timings which are heavily affected by the "Enemies cleared during escape" option, two timings are included
+    in the data, one based on the enemies being present and one based on them not, and the correct one will be used.
+    Otherwise a conservative timing is used which should be doable in both cases.</p>
+
+    <p>The escape timings assume that the player has all movement items. If the option "Hyper Beam gives all movement items"
+    is disabled, it possible that the player could defeat Mother Brain but not have the movement items required to
+    execute the escape in time; in this case the player would need to reload to an earlier save (before the escape auto-save)
+    and go back and collect the necessary movement items before reattempting Mother Brain and the escape. A similar scenario
+    could happen if the player needs more energy for the escape (e.g. to perform a shinespark or acid dive): it's possible
+    they could need to go back and collect more tanks or redo the Mother Brain fight with less energy loss (if the option
+    "Refill energy for escape" is disabled).
+
+    <h5 id="patching">ROM patching</h5>
+    <p>The final step is to construct a ROM patch which applies the item placements, door connections,
+    map data, and escape time, along with other game changes (as described <a href="#changes">above</a>) that are either
+    built into the randomizer or selected as options by the user. </p>
+
+    <p>The resulting ROM patch, spoiler data, and other information associated with the randomized game are saved off
+    to cloud object storage, allowing users to share the randomized games with one another. Each user needs to use 
+    their own vanilla ROM in order to apply the patch to create a playable game.
+
+    <hr>
+    <h3 class="my-3" id="credits">People & credits</h3>
+    <p>The following people contributed directly to the development of the randomizer, its web service, and/or the
+    underlying logic data:</p>
+    <ul>
+    <li>Game design: <i>Maddo</i>, <i>kyleb</i>
+    <li>Map generation, randomizer, escape timings, and web service frontend & backend: <i>Maddo</i>
+    <li>Spoiler map and various other dev work: <i>Selicre</i>
+    <li>Title screens, various other art (hazard doors, walljump boots): <i>kyleb</i>
+    <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>):
+        <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>DIProgan</i>, <i>kyleb</i>,
+        <i>Osse101</i>, <i>Maddo</i>, <i>Bokyubi</i>
+    <li>Area-themed palettes: <i>kyleb</i>, <i>Maddo</i>, <i>AmoebaOfDoom</i>
+    <li>Area-themed glows: <i>AmoebaOfDoom</i>
+    <li>Tile themes: <i>AmoebaOfDoom</i>, <i>Maddo</i>, <i>Tundain</i>, <i>chicdead26</i>
+    <li>Tech animated GIFs and videos: <i>Osse101</i>
+    <li>E-Tank refill & reserve tank patches: <i>Kewlan</i>
+    <li>Integration test: <i>aquanight</i>
+    <li>ASM help:
+        <ul>
+        <li><i>Buggmann</i> (created the title screen animation patch)
+        <li><i>somerando</i> (scrolling sky, West Ocean G4 statue bug, save/load bug, etc.)
+        <li><i>NobodyNada</i> (figured out BT statue crumble bug)
+        <li><i>PJBoy</i> (explained Big Boy Room enemy initialization issue)
+        <li><i>AmoebaOfDoom</i> (lots of helpful advice, on top of all the work on area-themed palettes, glows, tiling, etc.)
+        </ul>
+    </ul>
+
+    <p>Many people in the community have created and shared videos of interesting Super Metroid strats, which have
+    then contributed to the logic used by the randomizer:
+    <ul>
+    <li>Special thanks to <i>bobbob</i> and <i>insomniaspeed</i> who have been especially prolific in
+    creating & sharing strat videos.
+    </ul>
+
+    <p>There are also many ASM patches written by people for earlier projects, which this randomizer
+    reuses or builds on:</p>
+    <ul>
+    <li>Vanilla bugfixes: <i>total</i>, <i>PJBoy</i>, <i>strotlog</i>, <i>ouiche</i>
+    <li>Save/load patch: <i>Scyzer</i>
+    <li>Map tile expansion: <i>DC</i>, <i>TestRunner</i>
+    <li>Map Overhaul (inspiration & helpful reference): <i>MFreak</i>
+    <li>Max ammo display: <i>Personitis</i>, <i>theonlydude</i>
+    <li>Randomized escape: <i>ouiche</i>
+    <li>Seed hash display: <i>total</i>
+    <li>Progressive suits: <i>Smiley</i>
+    <li>Bomb Torizo patch: <i>PJBoy</i>
+    <li>Kraid vomit fix: <i>PJBoy</i>
+    <li>Water FX bug fix: <i>Benox</i>
+    <li>Item collection sound effects (replacing fanfares): <i>Scyzer</i>
+    <li>Bind angle up/down to any button: <i>Kejardon</i>
+    <li>Fast decompression: <i>Kejardon</i>, <i>PJBoy</i>
+    <li>Fast elevators: <i>Lioran</i>
+    <li>Fast doors: <i>Kazuto</i>
+    <li>Respin: <i>Kejardon</i>
+    <li>RTA timer and end-game credits: <i>total</i>, <i>ouiche</i>
+    <li>Momentum conservation: <i>Scyzer</i>, <i>Nodever2</i>, <i>OmegaDragnet7</i>
+    <li>Graphical fix to vertical door PLMs: <i>JAM</i>
+    <li>MSU-1 patch (to allow playing the game with customized music): <i>DarkShock</i>
+    </ul>
+
+    <p>Custom sprites are made possible by
+    <ul>
+    <li><a href="https://github.com/Artheau/SpriteSomething">SpriteSomething</a>
+    by <i>Artheau</i> and <i>Minnie Trethewey</i>
+    <li>Sprite artists:
+    <!--{{+ self.sprite_artists() }}-->
+    </ul>
+
+    <p>Other randomizers have been a significant source of inspiration and ideas, particularly
+    <a href="https://randommetroidsolver.pythonanywhere.com/randomizer">VARIA Randomizer</a>,
+    and also <a href="https://samus.link/">SMZ3 Randomizer</a> which was the first randomizer that we played (Maddo and kyleb).</p>
+
+    <p>The following tools and reference materials have been indispensible:
+    <ul>
+    <li><a href="https://patrickjohnston.org/bank/index.html">Bank logs</a> by <i>PJBoy</i>.
+        Basically every change we make on the ROM side of the randomizer involves consulting this.
+    <li><a href="http://metroidconstruction.com/SMMM/">Super Metroid Mod Manual</a> by <i>grime</i>.
+    <li><a href="https://www.raphnet.net/divers/retro_challenge_2019_03/qsnesdoc.html">SNES Graphics Information</a> by <i>Qwertie</i>.
+    <li><a href="https://github.com/MethylScottrick/SMME-Binaries">Super Metroid Music Editor (SMME)</a> by <i>Scottrick</i>.
+    We used this to consolidate the channels of the prologue music to make it work better during gameplay (less
+    tendency to cut out while sound effects play).
+    </ul>
+
+    <p>We've also received valuable feedback, suggestions, and bug reports from many players. Though there are too many
+    to mention them all individually, we are grateful for everyone who has shared their ideas and observations! There are
+    a few players who have been involved from an early period who we do have to mention:
+    <ul>
+    <li><i>Osse</i>, who does a lot of careful playtesting and is a main contributor to the on-going logic work (alongside <i>kyleb</i>)
+    <li><i>Joonie</i>, who gave very helpful feedback that guided much of the early development.
+    <li><i>somerando(cauuyjdp)</i>, who has reported a ton of bugs (and shared interesting strats, seeds, and ASM help).
+    <li><i>TarThoron</i> and <i>neen</i>, who have been super helpful on the Discord, sharing a lot of knowledge and answering questions.
+    </ul>
+    </p>
+
+    <p>Thanks also to the people who have created and shared tools related to the randomizer:
+    <ul>
+    <li><i>ocesse_sm</i>: <a href="https://forum.metroidconstruction.com/index.php/topic,5168.msg72455.html#msg72455">widescreen patch</a>
+    <li><i>chicdead26</i>: Map Rando package for <a href="https://emotracker.net/">EmoTracker</a>
+    <li><i>Dicene</i>: <a href="https://dicene.github.io/smCustomizer/index.html">palette randomizer</a> (work-in-progress)
+    </ul>
+
+    <p>
+
+    <hr>
+    <a id="footnote-softlock">
+    <p><small>
+    <sup>1</sup>With randomized maps, softlock risks are so pervasive that they cannot effectively be addressed by changing a
+    few blocks: even if all the special blocks in the entire game were removed (which would eliminate most of the opportunity
+    for interesting puzzles and challenges), water rooms and heated rooms would still be a big problem. This is why we decided
+    to take a different approach, where instead of trying to eliminate softlock risks we added quality-of-life changes to make
+    them less painful.
+    </small></p>
+
+    <a id="footnote-graphical-fixes">
+    <p><small>
+    <sup>2</sup>Specific graphical fixes include the following (most of which are disabled when using the "Ultra-low quality-of-life" option):
+    <ul>
+    <li>Camera fix in Kraid's, Crocomire's, Shaktool's, and Spore Spawn's Room when entering from the "wrong" side.
+    <li>Fix to background layer when exiting boss rooms without defeating the boss.
+    <li>Fix to CRE tiles when leaving Kraid's room (into non-vanilla destination rooms).
+    <li>Fix to remove "Kraid vomit" when entering Kraid's room (from a non-vanilla transition).
+    <li>Graphical fix to Crateria scrolling sky when entering from non-vanilla door connections.
+    <li>Fix to door cap closing animation when going through bottom right door of Green Brinstar Main Shaft (toward Etecoons).
+    <li>Remove fake gray door that would be drawn during the Phantoon fight.
+    <li>Fix to Bomb Torizo statue crumble animation (which otherwise could appear messed up, e.g. when encountering
+    Bomb Torizo after Botwoon).
+    <li>Fix to camera alignment in door transitions, so graphics don't get permanently messed up after doing certain
+    strats (or with "Randomized start location" option, where the camera sometimes starts unaligned to a screen boundary).
+    <li>Fix to graphical bug where red and green door PLMs are not intially drawn when entering Red Brinstar Elevator Room 
+    or Forgotten Highway Elevator.
+    </ul>
+    </small></p>
+
+</html>

@@ -1,0 +1,150 @@
+<div class="accordion p-0 m-0" id="accordion">
+    <div class="accordion-item p-0 m-0">
+        <h2 class="accordion-header p-0 m-0">
+            <button class="accordion-button collapsed my-0 d-block text-center customize-button"
+                style="padding-top:11px;padding-bottom:11px;" type="button" data-bs-toggle="collapse"
+                data-bs-target="#collapseDifficulty"> Customize </button>
+        </h2>
+        <div id="collapseDifficulty" class="accordion-collapse collapse p-0 m-0">
+            <div class="form-group row m-2">
+                <label for="shinesparkTiles" class="col-sm-6 col-form-label">Shinecharge tiles<br>
+                    <small>(Smaller values assume ability to short-charge over shorter distances)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="shinespark_tiles" id="shinesparkTiles" value="33"
+                        onchange="techChanged()">
+                </div>
+            </div>
+            <div class="form-group row m-2">
+                <label for="heatedShinesparkTiles" class="col-sm-6 col-form-label">Heated shinecharge tiles<br>
+                    <small>(Smaller values assume ability to short-charge over shorter distances)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="heated_shinespark_tiles" id="heatedShinesparkTiles"
+                        value="33" onchange="techChanged()">
+                </div>
+            </div>
+            <div class="form-group row m-2">
+                <label for="speedBallTiles" class="col-sm-6 col-form-label">Speedball tiles<br>
+                    <small>(Smaller values assume ability to speedball over shorter distances)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="speed_ball_tiles" id="speedBallTiles" value="99"
+                        onchange="techChanged()">
+                </div>
+            </div>
+            <div class="form-group row m-2">
+                <label for="shinechargeLeniencyFrames" class="col-sm-6 col-form-label">Shinecharge leniency frames<br>
+                    <small>(Extra time assumed needed to position to activate a shinespark)</small>
+                </label>
+                <div class="col-sm-2 my-2">
+                    <input type="text" class="form-control" name="shinecharge_leniency_frames"
+                        id="shinechargeLeniencyFrames" value="120" onchange="techChanged()">
+                </div>
+            </div>
+            <div class="card m-3">
+                <div class="card-header"> Leniency </div>
+                <div class="card-body my-0 p-0">
+                    <div class="form-group row m-2">
+                        <label for="resourceMultiplier" class="col-sm-6 col-form-label">Heat damage multiplier<br>
+                            <small>(Leniency factor on energy used in heated rooms, lava, etc.)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="resource_multiplier" id="resourceMultiplier"
+                                value="3.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="escapeTimerMultiplier" class="col-sm-6 col-form-label">Escape timer multiplier<br>
+                            <small>(Leniency factor on escape timer)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="escape_timer_multiplier"
+                                id="escapeTimerMultiplier" value="3.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="gateGlitchLeniency" class="col-sm-6 col-form-label">Gate glitch leniency<br>
+                            <small>(Expected failed attempts to get a gate glitch)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="gate_glitch_leniency" id="gateGlitchLeniency"
+                                value="14" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="doorStuckLeniency" class="col-sm-6 col-form-label">Door stuck leniency<br>
+                            <small>(Expected failed attempts to get door stuck for X-ray climbing)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="door_stuck_leniency" id="doorStuckLeniency"
+                                value="2" onchange="techChanged()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card m-3">
+                <div class="card-header"> Boss proficiency </div>
+                <div class="card-body my-0 p-0">
+                    <div class="form-group row m-2">
+                        <label for="phantoonProficiency" class="col-sm-6 col-form-label">Phantoon proficiency<br>
+                            <small>(Skill level at the Phantoon fight, between 0 and 1)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="phantoon_proficiency" id="phantoonProficiency"
+                                value="0.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="draygonProficiency" class="col-sm-6 col-form-label">Draygon proficiency<br>
+                            <small>(Skill level at the Draygon fight, between 0 and 1)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="draygon_proficiency" id="draygonProficiency"
+                                value="0.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="ridleyProficiency" class="col-sm-6 col-form-label">Ridley proficiency<br>
+                            <small>(Skill level at the Ridley fight, between 0 and 1)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="ridley_proficiency" id="ridleyProficiency"
+                                value="0.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="botwoonProficiency" class="col-sm-6 col-form-label">Botwoon proficiency<br>
+                            <small>(Skill level at the Botwoon fight, between 0 and 1)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="botwoon_proficiency" id="botwoonProficiency"
+                                value="0.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                    <div class="form-group row m-2">
+                        <label for="motherBrainProficiency" class="col-sm-6 col-form-label">Mother Brain proficiency<br>
+                            <small>(Skill level at the Mother Brain fight, between 0 and 1)</small>
+                        </label>
+                        <div class="col-sm-2 my-2">
+                            <input type="text" class="form-control" name="mother_brain_proficiency"
+                                id="motherBrainProficiency" value="0.0" onchange="techChanged()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card m-3">
+                <div class="card-header"> Tech and notable strats </div>
+                <div class="card-body my-0 p-0">
+                    <div class="form-group row my-0">
+                        <div class="col-sm-12">
+                            <div class="accordion my-0" id="techAccordion">
+                                <!--{% include "tech.html" %}-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,42 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#tileThemeModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="tileThemeModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Tile theme</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting controls how the rooms in the game will be drawn. This affects only the graphical appearance of
+          the rooms.</p>
+        <ul>
+          <li>
+            <p>If <strong>Vanilla</strong> is selected, then rooms are tiled as they are in the vanilla game.</p>
+          </li>
+          <li>
+            <p>If <strong>Area-themed</strong> is selceted, then rooms are tiled according to their area on the map.</p>
+          </li>
+          <li>
+            <p>If <strong>Scrambled</strong> is selected, then each room is tiled using a random theme.</p>
+          </li>
+          <li>
+            <p>If an individual theme is selected (e.g. <strong>Outer Crateria</strong>), then all the rooms are tiled
+              using that theme.</p>
+          </li>
+          <li>
+            <p>If <strong>Practice Outlines</strong> is selected, then rooms are tiled using green outlines to mark the
+              room collision; special blocks are shown in their true form; and a background grid helps with measuring
+              positions and distances.</p>
+          </li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

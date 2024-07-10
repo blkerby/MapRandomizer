@@ -1,0 +1,55 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemsSpawnModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="itemsSpawnModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">All items spawn at start of game</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>In the vanilla game, some items do not spawn until certain conditions are fulfilled:
+        <ul>
+          <li>Items in Wrecked Ship rooms (with the exception of the one item in Wrecked Ship Main Shaft) do not spawn
+            until after Phantoon is defeated, when the rooms change to appearing "powered on".</li>
+          <li>The item in the left side of Morph Ball Room and in The Final Missile do not spawn until the planet is
+            awakened.</li>
+          <li>The item in Pit Room does not spawn until entering with Morph and Missiles collected (regardless of
+            whether the planet is awake).</li>
+        </ul>
+        </p>
+        <p>These conditions are apparently unintended artifacts of how the game was coded and are not normally
+          observable during casual play of the vanilla game. However, they can frequently be observed in the randomizer,
+          which can be counter-intuitive for players. When this quality-of-life option is enabled, these items will
+          spawn from the beginning of the game instead of requiring those conditions.</p>
+        <h5>How to awaken the planet</h5>
+        <p>Whether or not this option is enabled, the way to awaken the planet is same as in the vanilla game: it is
+          done by unlocking any gray door that requires killing enemies in the room (not including bosses). In the
+          randomizer currently there are four rooms where this can be done:
+        <ul>
+          <li>Pit Room (old Mother Brain room)</li>
+          <li>Baby Kraid Room</li>
+          <li>Metal Pirates</li>
+          <li>Plasma Room</li>
+        </ul> Note that in order to awaken the planet using the Pit Room, the player must enter the room with Morph and
+        Missiles, otherwise the enemies and gray doors would not spawn. </p>
+        <h5>Additional Notes</h5>
+        <p>Other vanilla effects of defeating Phantoon and waking the planet are unaffected by this option, including:
+        <ul>
+          <li>After defeating Phantoon, the Bowling Alley Chozo statue becomes usable and there are changes to enemy
+            spawns. This includes the Workrobot which will move and open access to the item in Wrecked Ship East Super
+            Room.</li>
+          <li>After the planet is awakened, enemies will spawn in Parlor, Climb, Morph Ball Room, and Blue Brinstar
+            Energy Tank Room.</li>
+        </ul>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

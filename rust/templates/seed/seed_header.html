@@ -1,0 +1,141 @@
+<div class="card">
+    <div class="card-header">Seed Info</div>
+    <div class="card-body container">
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Seed name:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ seed_name }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Created:</div>
+            <div class="col-7 col-sm-8 col-md-9" id="createdTimestamp"></div>
+        </div>
+        <!--{% if race_mode %}-->
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Spoiler unlocked:</div>
+            <div class="col-7 col-sm-8 col-md-9" id="unlockedTimestamp"></div>
+        </div>
+        <!--{% endif %}-->
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Version:</div>
+            <div class="col-7 col-sm-8 col-md-9">
+            <!--{{+ version_info.version }}-->
+            <!--{% if version_info.dev %}-->
+            (DEV)
+            <!--{% endif %}-->
+            </div>
+        </div>
+        <!--{% if !race_mode %}-->
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Random seed:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ random_seed }}--></div>
+        </div>
+        <!--{% endif %}-->
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Skill assumption:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ preset }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Item progression:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ item_progression_preset }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Quality-of-life options:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ quality_of_life_preset }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Objectives:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ objectives }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Map layout:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ map_layout }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Doors:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ doors }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Start location:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ start_location_mode }}--></div>
+        </div>
+        <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Save the animals:</div>
+            <div class="col-7 col-sm-8 col-md-9"><!--{{+ save_animals }}--></div>
+        </div>
+        <!--{% let game_variations = self.game_variations() %}-->
+        <!--{% if game_variations.len() > 0 %}-->
+            <div class="row">
+                <div class="col-5 col-sm-4 col-md-3">Other options:</div>
+                <div class="col-7 col-sm-8 col-md-9"><!--{{+ game_variations.join("<br>")|safe }}--></div>
+            </div>
+        <!--{% endif %}-->
+    </div>
+    <style> 
+    html[data-bs-theme=dark] .details-button.collapsed {
+        background-color: #303030;
+    }
+    html[data-bs-theme=light] .details-button.collapsed {
+        background-color: #f4f4f4;
+    }
+    .accordion-button::after {
+        position: absolute;
+        z-index: 100;
+        right: 16px;
+    }
+    </style>
+
+    <div class="accordion m-0 p-0" id="accordionDetails">
+        <div class="accordion-item">
+            <h2 class="accordion-header">
+                <button class="accordion-button collapsed my-0 d-block text-center details-button" style="padding-top:11px;padding-bottom:11px;" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDetails">
+                Details
+                </button>
+            </h2>
+            <div id="collapseDetails" class="accordion-collapse collapse">
+                <div class="card">
+                    <div class="card-header">
+                        Skill assumptions
+                    </div>
+                    <div class="card-body">
+                        <!--{% include "skill_details.html" %}-->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        Item progression details
+                    </div>
+                    <div class="card-body">
+                        <!--{% include "item_progression_details.html" %}-->
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        Quality-of-life option details
+                    </div>
+                    <div class="card-body">
+                        <!--{% include "quality_of_life_details.html" %}-->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+var date = new Date();
+date.setTime(<!--{{+ timestamp }}-->);
+document.getElementById("createdTimestamp").innerHTML = date.toString();
+
+unlockedTimestampElement = document.getElementById("unlockedTimestamp")
+if (unlockedTimestampElement !== null) {
+    if (window.unlockedTimestampString == "") {
+        unlockedTimestampElement.innerHTML = "Not yet";    
+    } else {
+        var date = new Date();
+        date.setTime(parseInt(window.unlockedTimestampString));
+        unlockedTimestampElement.innerHTML = date.toString();
+    }
+}
+</script>

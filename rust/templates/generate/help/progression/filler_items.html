@@ -1,0 +1,42 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fillerItemsModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="fillerItemsModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Filler items</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting affects which items will be treated as filler items:
+        <ul>
+          <li>
+            <p><b>No</b>: The item is not treated as filler. This means it will only be placed if it is placed as a key
+              item (e.g. if it helps provide progression), or at the end of item placement when the remaining items are
+              placed.</p>
+          <li>
+            <p><b>Semi</b>: The item is not initially treated as filler. Once the first instance of the item is
+              obtainable, additional instances become filler on subsequent steps.</p>
+          <li>
+            <p><b>Yes</b>: This item is treated as filler. This means it is mixed into the pool of items, along with
+              Missiles, to fill up item locations on each step, without regard to whether it provides progression.</p>
+          <li>
+            <p><b>Early</b>: This item is treated as filler, and one instance of the item will be prioritized to be
+              placed as early as possible.</p>
+        </ul>
+        </p>
+        <p>Filler items are randomly mixed in with Missiles to fill up the remaining obtainable item locations on each
+          randomization step (ones not already being filled by key items).
+        <p>For example, assuming Power Bombs are not selected as a filler item, then the game will only place the first
+          Power Bomb pack as a key item (providing progression), but afterwards it will randomly mix the remaining Power
+          Bomb packs in with the Missiles even if they don't provide further progression.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

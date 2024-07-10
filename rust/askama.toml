@@ -1,0 +1,12 @@
+[general]
+default_syntax = "html_friendly"
+whitespace = "suppress"
+
+[[syntax]]
+name = "html_friendly"
+block_start = "<!--{%"
+block_end = "%}-->"
+comment_start = "<!--{#"
+comment_end = "#}-->"
+expr_start = "<!--{{"
+expr_end = "}}-->"

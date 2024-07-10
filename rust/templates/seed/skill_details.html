@@ -1,0 +1,88 @@
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinecharge tiles:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.shine_charge_tiles }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Heated shinecharge tiles:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.heated_shine_charge_tiles }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinecharge leniency frames:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.shinecharge_leniency_frames }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Heat damage multiplier:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.resource_multiplier }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Escape timer multiplier:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.escape_timer_multiplier }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Gate glitch leniency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.gate_glitch_leniency }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Door stuck leniency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.door_stuck_leniency }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Phantoon proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.phantoon_proficiency }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Draygon proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.draygon_proficiency }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Ridley proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.ridley_proficiency }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Botwoon proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.botwoon_proficiency }}--></div>
+</div>
+<div class="row">
+    <div class="col-7 col-sm-6 col-md-5 col-lg-4">Mother Brain proficiency:</div>
+    <div class="col-5 col-sm-6 col-md-7 col-lg-8"><!--{{+ difficulty.mother_brain_proficiency }}--></div>
+</div>
+
+<div class="accordion mt-3">
+<!--{% for p in preset_data %}-->
+    <!--{% let name_no_space = p.preset.name.replace(" ", "") %}-->
+    <div class="accordion-item my-0 p-0">
+        <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse<!--{{+ name_no_space }}-->Tech">
+            <!--{{+ p.preset.name }}--> (<!--{{+ self.percent_enabled(p) }}-->%)
+        </button>
+        </h2>
+        <div id="collapse<!--{{+ name_no_space }}-->Tech" class="accordion-collapse collapse p-2">
+            <div class="container">
+                <!--{% for tech in p.preset.tech %}-->
+                    <div class="row">
+                        <div class="col-9 col-sm-10 col-lg-8">
+                            <!--{{+ tech }}-->:
+                        </div>
+                        <div class="col-3 col-sm-2">
+                            <!--{% if enabled_tech.contains(tech.as_str()) %}-->Yes<!--{% else %}-->No<!--{% endif %}-->
+                        </div>
+                    </div>
+                <!--{% endfor %}-->
+                <!--{% if p.preset.notable_strats.len() > 0 %}-->
+                <hr class="my-2">
+                <!--{% endif %}-->
+                <!--{% for strat in p.preset.notable_strats %}-->
+                    <div class="row">
+                        <div class="col-9 col-sm-10 col-lg-8">
+                            <!--{{+ strat }}-->:
+                        </div>
+                        <div class="col-3 col-sm-2">
+                            <!--{% if enabled_notables.contains(strat.as_str()) %}-->Yes<!--{% else %}-->No<!--{% endif %}-->
+                        </div>
+                    </div>
+                <!--{% endfor %}-->
+            </div>
+        </div>
+    </div>
+<!--{% endfor %}-->
+</div>

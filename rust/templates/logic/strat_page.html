@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<!--{% include "../common/header.html" %}-->
+<title><!--{{+ strat_name }}--> - <!--{{+ room_name }}--> - Super Metroid Map Rando</title>
+</head>
+<body>
+<!--{% include "../common/navbar.html" %}-->
+<script>
+document.getElementById("navigation-logic").classList.add("active");
+</script>
+
+<!--{% include "../common/video-modal.html" %}-->
+
+<div class="container col-xl-10 col-xxl-8 pt-2 pb-2 mb-4">
+    <div class="row mb-0 pb-0">
+        <div class="col-sm-8">
+            <h3 class="mb-0 pb-0"><!--{{+ room_name }}-->: <!--{{+ strat_name }}--></h3>
+        </div>
+        <div class="col-sm-4 pb-2 hstack">
+            <div class="ms-auto">
+                <p class="my-auto"><small>Room ID: <!--{{+ room_id }}--></small></p>
+            </div>
+            <div class="vr mx-2"></div>
+            <div>
+                <small><a href="https://wiki.supermetroid.run/<!--{{+ room_name_url_encoded }}-->">Wiki</a></small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row my-2">
+        <div class="col-12 overflow-auto">
+            <img src="/<!--{{+ room_diagram_path }}-->">
+        </div>
+    </div>
+    <style>
+    html[data-bs-theme=dark] .table {
+        --bs-table-hover-bg: #2b3035;
+    }
+    html[data-bs-theme=light] .table {
+        --bs-table-hover-bg: #f4f5f6;
+    }
+    .png-tech {
+        position: absolute;
+    }
+    .strat-row:hover .png-tech {
+        opacity: 0;
+    }
+    .strat-row:not(:hover) .gif-tech {
+        opacity: 0;
+    }
+    </style>
+    <table class="table table-hover mb-0">
+    <tbody>
+    <tr class="strat-row" 
+        data-from-node="<!--{{+ strat.from_node_id }}-->" 
+        data-to-node="<!--{{+ strat.to_node_id }}-->"
+        data-difficulty="<!--{{+ strat.difficulty_idx }}-->">
+    <td class="p-2">
+        <!--{% include "strat.html" %}-->
+    </td>
+    </tr>
+    </tbody>
+    </table>
+    </div>
+</div>
+</body>
+</html>

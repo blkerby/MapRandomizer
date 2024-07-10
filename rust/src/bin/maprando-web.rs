@@ -12,6 +12,7 @@ use actix_web::middleware::Compress;
 use actix_web::middleware::Logger;
 use actix_web::{get, post, web, App, HttpRequest, HttpResponse, HttpServer, Responder};
 use anyhow::{bail, Context, Result};
+use askama::Template;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
@@ -35,7 +36,6 @@ use maprando::web::{
     HQ_VIDEO_URL_ROOT,
 };
 use rand::{RngCore, SeedableRng};
-use sailfish::TemplateOnce;
 use serde_derive::{Deserialize, Serialize};
 use std::time::Instant;
 
@@ -46,55 +46,65 @@ const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
 const NOTABLE_GIF_PATH: &'static str = "static/notable_gifs/";
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/missing_input_rom.stpl")]
+#[derive(Template)]
+#[template(path = "errors/missing_input_rom.html")]
 struct MissingInputRomTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/invalid_rom.stpl")]
+#[derive(Template)]
+#[template(path = "errors/invalid_rom.html")]
 struct InvalidRomTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/seed_not_found.stpl")]
+#[derive(Template)]
+#[template(path = "errors/seed_not_found.html")]
 struct SeedNotFoundTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/room_not_found.stpl")]
+#[derive(Template)]
+#[template(path = "errors/room_not_found.html")]
 struct RoomNotFoundTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/file_not_found.stpl")]
+#[derive(Template)]
+#[template(path = "errors/file_not_found.html")]
 struct FileNotFoundTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/invalid_token.stpl")]
+#[derive(Template)]
+#[template(path = "errors/invalid_token.html")]
 struct InvalidTokenTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "errors/already_unlocked.stpl")]
+#[derive(Template)]
+#[template(path = "errors/already_unlocked.html")]
 struct AlreadyUnlockedTemplate {}
 
-#[derive(TemplateOnce)]
-#[template(path = "home.stpl")]
+#[derive(Template)]
+#[template(path = "home.html")]
 struct HomeTemplate {
     version_info: VersionInfo,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "releases.stpl")]
+#[derive(Template)]
+#[template(path = "releases.html")]
 struct ReleasesTemplate {
     version_info: VersionInfo,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "about.stpl")]
+#[derive(Template)]
+#[template(path = "about.html")]
 struct AboutTemplate {
     version_info: VersionInfo,
     sprite_artists: Vec<String>,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "generate/main.stpl")]
+impl AboutTemplate {
+    fn sprite_artists(&self) -> String {
+        self.sprite_artists
+            .iter()
+            .map(|x| format!("<i>{}</i>", x))
+            .collect::<Vec<String>>()
+            .join(", ")
+    }
+}
+
+#[derive(Template)]
+#[template(path = "generate/main.html")]
 struct GenerateTemplate<'a> {
     version_info: VersionInfo,
     progression_rates: Vec<&'static str>,
@@ -123,7 +133,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
     let home_template = HomeTemplate {
         version_info: app_data.version_info.clone(),
     };
-    HttpResponse::Ok().body(home_template.render_once().unwrap())
+    HttpResponse::Ok().body(home_template.render().unwrap())
 }
 
 #[get("/releases")]
@@ -131,7 +141,7 @@ async fn releases(app_data: web::Data<AppData>) -> impl Responder {
     let changes_template = ReleasesTemplate {
         version_info: app_data.version_info.clone(),
     };
-    HttpResponse::Ok().body(changes_template.render_once().unwrap())
+    HttpResponse::Ok().body(changes_template.render().unwrap())
 }
 
 #[get("/about")]
@@ -153,7 +163,7 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
         version_info: app_data.version_info.clone(),
         sprite_artists,
     };
-    HttpResponse::Ok().body(about_template.render_once().unwrap())
+    HttpResponse::Ok().body(about_template.render().unwrap())
 }
 
 #[get("/generate")]
@@ -250,7 +260,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         hq_video_url_root: HQ_VIDEO_URL_ROOT,
     };
-    HttpResponse::Ok().body(generate_template.render_once().unwrap())
+    HttpResponse::Ok().body(generate_template.render().unwrap())
 }
 
 #[derive(MultipartForm)]
@@ -421,8 +431,8 @@ struct SeedData {
     ultra_low_qol: bool,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "seed/seed_header.stpl")]
+#[derive(Template)]
+#[template(path = "seed/seed_header.html")]
 struct SeedHeaderTemplate<'a> {
     seed_name: String,
     timestamp: usize, // Milliseconds since UNIX epoch
@@ -472,8 +482,116 @@ struct SeedHeaderTemplate<'a> {
     enabled_notables: HashSet<String>,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "seed/seed_footer.stpl")]
+impl<'a> SeedHeaderTemplate<'a> {
+    fn percent_enabled(&self, p: &PresetData) -> isize {
+        let tech_enabled_count = p
+            .preset
+            .tech
+            .iter()
+            .filter(|&x| self.enabled_tech.contains(x))
+            .count();
+        let notable_enabled_count = p
+            .preset
+            .notable_strats
+            .iter()
+            .filter(|&x| self.enabled_notables.contains(x))
+            .count();
+        let total_enabled_count = tech_enabled_count + notable_enabled_count;
+        let total_count = p.preset.tech.len() + p.preset.notable_strats.len();
+        let frac_enabled = (total_enabled_count as f32) / (total_count as f32);
+        let mut percent_enabled = (frac_enabled * 100.0) as isize;
+        if percent_enabled == 0 && frac_enabled > 0.0 {
+            percent_enabled = 1;
+        }
+        if percent_enabled == 100 && frac_enabled < 1.0 {
+            percent_enabled = 99;
+        }
+        percent_enabled
+    }
+
+    fn item_pool_strs(&self) -> String {
+        self.difficulty
+            .item_pool
+            .iter()
+            .map(|(x, cnt)| {
+                if *cnt > 1 {
+                    format!("{:?} ({})", x, cnt)
+                } else {
+                    format!("{:?}", x)
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(", ")
+    }
+
+    fn starting_items_strs(&self) -> String {
+        self.difficulty
+            .starting_items
+            .iter()
+            .map(|(x, cnt)| {
+                if *cnt > 1 {
+                    format!("{:?} ({})", x, cnt)
+                } else {
+                    format!("{:?}", x)
+                }
+            })
+            .collect::<Vec<String>>()
+            .join(", ")
+    }
+}
+
+impl<'a> SeedHeaderTemplate<'a> {
+    fn game_variations(&self) -> Vec<&str> {
+        let mut game_variations = vec![];
+        if self.area_assignment == "Random" {
+            game_variations.push("Random area assignment");
+        }
+        if self.item_dot_change == "Disappear" {
+            game_variations.push("Item dots disappear after collection");
+        }
+        if !self.transition_letters {
+            game_variations.push("Area transitions marked as arrows");
+        }
+        if self.difficulty.door_locks_size == DoorLocksSize::Small {
+            game_variations.push("Door locks drawn smaller on map");
+        }
+        match self.difficulty.wall_jump {
+            WallJump::Collectible => {
+                game_variations.push("Collectible wall jump");
+            }
+            _ => {}
+        }
+        match self.difficulty.etank_refill {
+            EtankRefill::Disabled => {
+                game_variations.push("E-Tank refill disabled");
+            }
+            EtankRefill::Full => {
+                game_variations.push("E-Tanks refill reserves");
+            }
+            _ => {}
+        }
+        if self.difficulty.maps_revealed == maprando::randomize::MapsRevealed::Partial {
+            game_variations.push("Maps partially revealed from start");
+        }
+        if self.difficulty.maps_revealed == maprando::randomize::MapsRevealed::Full {
+            game_variations.push("Maps revealed from start");
+        }
+        if self.difficulty.map_station_reveal == maprando::randomize::MapStationReveal::Partial {
+            game_variations.push("Map stations give partial reveal");
+        }
+
+        if self.difficulty.energy_free_shinesparks {
+            game_variations.push("Energy-free shinesparks");
+        }
+        if self.ultra_low_qol {
+            game_variations.push("Ultra-low quality of life");
+        }
+        game_variations
+    }
+}
+
+#[derive(Template)]
+#[template(path = "seed/seed_footer.html")]
 struct SeedFooterTemplate {
     race_mode: bool,
     all_items_spawn: bool,
@@ -481,8 +599,8 @@ struct SeedFooterTemplate {
     ultra_low_qol: bool,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "seed/customize_seed.stpl")]
+#[derive(Template)]
+#[template(path = "seed/customize_seed.html")]
 struct CustomizeSeedTemplate {
     version_info: VersionInfo,
     spoiler_token_prefix: String,
@@ -583,7 +701,7 @@ fn render_seed(
         enabled_tech,
         enabled_notables,
     };
-    let seed_header_html = seed_header_template.render_once()?;
+    let seed_header_html = seed_header_template.render()?;
 
     let seed_footer_template = SeedFooterTemplate {
         race_mode: seed_data.race_mode,
@@ -591,7 +709,7 @@ fn render_seed(
         supers_double: seed_data.supers_double,
         ultra_low_qol: seed_data.ultra_low_qol,
     };
-    let seed_footer_html = seed_footer_template.render_once()?;
+    let seed_footer_html = seed_footer_template.render()?;
     Ok((seed_header_html, seed_footer_html))
 }
 
@@ -716,7 +834,7 @@ async fn logic_room(info: web::Path<(String,)>, app_data: web::Data<AppData>) ->
         HttpResponse::Ok().body(html.clone())
     } else {
         let template = RoomNotFoundTemplate {};
-        HttpResponse::NotFound().body(template.render_once().unwrap())
+        HttpResponse::NotFound().body(template.render().unwrap())
     }
 }
 
@@ -738,7 +856,7 @@ async fn logic_strat(
         HttpResponse::Ok().body(html.clone())
     } else {
         let template = RoomNotFoundTemplate {};
-        HttpResponse::NotFound().body(template.render_once().unwrap())
+        HttpResponse::NotFound().body(template.render().unwrap())
     }
 }
 
@@ -749,7 +867,7 @@ async fn logic_tech(info: web::Path<(String,)>, app_data: web::Data<AppData>) ->
         HttpResponse::Ok().body(html.clone())
     } else {
         let template = RoomNotFoundTemplate {};
-        HttpResponse::NotFound().body(template.render_once().unwrap())
+        HttpResponse::NotFound().body(template.render().unwrap())
     }
 }
 
@@ -793,17 +911,17 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
             // Probably better would be to properly version the JS and control cache that way.
             HttpResponse::Ok()
                 .insert_header(CacheControl(vec![CacheDirective::NoCache]))
-                .body(customize_template.render_once().unwrap())
+                .body(customize_template.render().unwrap())
         }
         (Err(err), _) => {
             error!("{}", err.to_string());
             let template = SeedNotFoundTemplate {};
-            HttpResponse::NotFound().body(template.render_once().unwrap())
+            HttpResponse::NotFound().body(template.render().unwrap())
         }
         (_, Err(err)) => {
             error!("{}", err.to_string());
             let template = SeedNotFoundTemplate {};
-            HttpResponse::NotFound().body(template.render_once().unwrap())
+            HttpResponse::NotFound().body(template.render().unwrap())
         }
     }
 }
@@ -829,7 +947,7 @@ async fn unlock_seed(
         if unlocked_timestamp_data.is_ok() {
             // TODO: handle other errors that are not 404.
             let template = AlreadyUnlockedTemplate {};
-            return HttpResponse::UnprocessableEntity().body(template.render_once().unwrap());
+            return HttpResponse::UnprocessableEntity().body(template.render().unwrap());
         }
 
         app_data
@@ -853,7 +971,7 @@ async fn unlock_seed(
             .unwrap();
     } else {
         let template = InvalidTokenTemplate {};
-        return HttpResponse::Forbidden().body(template.render_once().unwrap());
+        return HttpResponse::Forbidden().body(template.render().unwrap());
     }
     HttpResponse::Found()
         .insert_header((header::LOCATION, format!("/seed/{}/", info.0)))
@@ -955,7 +1073,7 @@ async fn customize_seed(
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
     info!("Rom digest: {rom_digest}");
     if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
-        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render_once().unwrap());
+        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
     let settings = CustomizeSettings {
@@ -1086,7 +1204,7 @@ async fn get_seed_file(
         // TODO: Use more refined error handling instead of always returning 404:
         Err(err) => {
             error!("{}", err.to_string());
-            HttpResponse::NotFound().body(FileNotFoundTemplate {}.render_once().unwrap())
+            HttpResponse::NotFound().body(FileNotFoundTemplate {}.render().unwrap())
         }
     }
 }
@@ -1286,13 +1404,13 @@ async fn randomize(
     let rom = Rom::new(req.rom.data.to_vec());
 
     if rom.data.len() == 0 {
-        return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render_once().unwrap());
+        return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render().unwrap());
     }
 
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
     info!("Rom digest: {rom_digest}");
     if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
-        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render_once().unwrap());
+        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
     let race_mode = req.race_mode.0 == "Yes";

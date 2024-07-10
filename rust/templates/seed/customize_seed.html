@@ -1,0 +1,184 @@
+<html>
+<head>
+<!--{% include "../common/header.html" %}-->
+<style>
+input[type=submit] {
+padding: 12px 12px;
+box-sizing: border-box;
+}
+</style>
+<style>
+html[data-bs-theme=dark] .custom-button:hover {
+    background-color: #3b4045;
+}
+html[data-bs-theme=light] .custom-button:hover {
+    background-color: #e8eaec;
+}
+html[data-bs-theme=dark] .custom-button:not(:hover) {
+    background-color: #2b3035;
+}
+html[data-bs-theme=light] .custom-button:not(:hover) {
+    background-color: #f4f5f6;
+}
+html[data-bs-theme=dark] .customize-button.collapsed {
+    background-color: #303030;
+}
+html[data-bs-theme=light] .customize-button.collapsed {
+    background-color: #f4f4f4;
+}
+.accordion-button::after {
+    position: absolute;
+    z-index: 100;
+    right: 16px;
+}
+
+</style>
+</head>
+<body>
+<!--{% include "../common/navbar.html" %}-->
+<script src="/static/customize_seed.js?v=1" ></script>
+<script>
+window.unlockedTimestampString = "<!--{{+ unlocked_timestamp_str }}-->";
+window.spoilerTokenPrefix = "<!--{{+ spoiler_token_prefix }}-->";
+</script>
+
+<div class="container">
+    <div class="row my-2">
+        <div class="col-xl-9 mx-auto">
+            <div class="container my-3">
+                <!--{{+ seed_header|safe }}-->
+            </div>
+
+            <div class="container my-3">
+                <div class="card">
+                    <div class="card-header">Customization</div>
+                    <form id="customization-form" class="card-body container py-0" method="POST" enctype="multipart/form-data" action="customize" onchange="saveForm(this)">
+                        <div id="spriteSelectDiv" class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="custom_samus_sprite"><!--{% include "help/samus_sprite.html" %}-->Samus sprite</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 p-0" role="group">
+                                <!--{% include "samus_sprite_select.html" %}-->
+                            </div>
+                        </div>
+
+                        <div id="energyTankSelectDiv" class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="custom_etank_color"><!--{% include "help/energy_tank_color.html" %}-->Energy tank color</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 p-0" role="group">
+                                <!--{% include "energy_tank_select.html" %}-->
+                            </div>
+                        </div>
+
+                        <div id="roomTheming" class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="room_theming"><!--{% include "help/room_theming.html" %}-->Room theming</label>
+                            </div>
+                            <div class="col-md-8 col-lg-6 btn-group p-0" role="group" onchange="roomThemingChanged(this)">
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingVanilla" value="vanilla">
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomThemingVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingPalettes" value="palettes">
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomThemingPalettes">Area Palettes</label>
+                                <input type="radio" class="btn-check" name="room_theming" id="roomThemingTiling" value="tiling" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="roomThemingTiling">Area Tiling</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
+                                <label class="col-form-label" for="door_theme"><!--{% include "help/door_colors.html" %}-->Door colors</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="door_theme" id="doorColorsVanilla" value="vanilla" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="doorColorsVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="door_theme" id="doorColorsAlternate" value="alternate">
+                                <label class="btn btn-outline-primary" style="width:120px" for="doorColorsAlternate">Alternate</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
+                                <label class="col-form-label" for="music"><!--{% include "help/music.html" %}-->Music</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="music" id="musicArea" value="area" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicArea">On</label>
+                                <input type="radio" class="btn-check" name="music" id="musicDisabled" value="disabled">
+                                <label class="btn btn-outline-primary" style="width:120px" for="musicDisabled">Off</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="disable_shaking"><!--{% include "help/shaking.html" %}-->Screen shaking</label>
+                            </div>
+                            <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="shaking" id="shakingVanilla" value="Vanilla">
+                                <label class="btn btn-outline-primary" style="width:120px" for="shakingVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="shaking" id="shakingReduced" value="Reduced" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="shakingReduced">Reduced</label>
+                                <input type="radio" class="btn-check" name="shaking" id="shakingDisabled" value="Disabled">
+                                <label class="btn btn-outline-primary" style="width:120px" for="shakingDisabled">Disabled</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
+                            <label class="col-form-label" for="disable_beeping"><!--{% include "help/beeping.html" %}-->Low-energy beeping</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingNo" value="false" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="disableBeepingNo">Vanilla</label>
+                                <input type="radio" class="btn-check" name="disable_beeping" id="disableBeepingYes" value="true">
+                                <label class="btn btn-outline-primary" style="width:120px" for="disableBeepingYes">Disabled</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <label class="col-md-4 col-form-label" for="rom"><!--{% include "help/base_rom.html" %}-->Base ROM</label>
+                            <input class="col-sm-8 form-control-file p-0" type="file" id="baseRom" name="rom"
+                            onchange="saveROM(this, 'base')">
+                        </div>
+
+                        <div class="row my-3">
+                            <div class="accordion" id="accordionOtherCustomizationOptions">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed customize-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOtherCustomizationOptions">
+                                        Other customization options
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOtherCustomizationOptions" class="accordion-collapse collapse m-2 p-0">
+                                        <!--{% include "other_customization.html" %}-->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="submit" class="btn btn-primary my-2" value="Download ROM" />
+                    </form>
+                </div>
+            </div>
+            <div class="container my-3">
+                <!--{{+ seed_footer|safe }}-->
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!--{% include "../common/save_load_rom.html" %}-->
+<!--{% include "../common/save_settings.html" %}-->
+<script>
+window.onload = (event) => {
+  loadROM(document.getElementById("baseRom"), 'base');
+  loadForm(document.getElementById("customization-form"));
+  changeSamusSprite();
+  updateEnergyTankColor();
+  roomThemingChanged();
+};
+</script>
+
+</body>
+</html>

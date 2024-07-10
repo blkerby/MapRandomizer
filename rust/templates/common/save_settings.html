@@ -1,0 +1,74 @@
+<script>
+    function saveForm(form) {
+        data = {}
+        for (const element of form.elements) {
+            if (element.type == "file") {
+                continue;
+            }
+            if (element.type == "radio" && !element.checked) {
+                if (data[element.name] === undefined) {
+                    data[element.name] = '';
+                }
+                continue;
+            }
+            if (element.name == "") {
+                continue;
+            }
+            if (element.type == "checkbox") {
+                data[element.name] = element.checked;
+            } else {
+                data[element.name] = element.value;
+            }
+        }
+        localStorage[form.id] = JSON.stringify(data);
+    }
+
+    function migrateValue(name, value) {
+        var migrationMapping = {
+            "maps_revealed": {
+                "false": "No",
+                "true": "Full",
+                "Yes": "Full"
+            },
+            "music": {
+                "vanilla": "area"
+            }
+        };
+        if (migrationMapping[name] !== undefined) {
+            var newValue = migrationMapping[name][value];
+            if (newValue !== undefined) {
+                return newValue;
+            }
+        }
+        return value;
+    }
+
+    function loadForm(form) {
+        if (localStorage[form.id] === undefined) {
+            return;
+        }
+        data = JSON.parse(localStorage[form.id]);
+        for (const element of form.elements) {
+            if (element.type == "file") {
+                continue;
+            }
+            if (element.name == "") {
+                continue;
+            }
+            if (element.type == "radio") {
+                var value = migrateValue(element.name, data[element.name]);
+                if (value == element.value) {
+                    element.checked = true;
+                } else if (value !== undefined) {
+                    element.checked = false;
+                }
+            } else if (data[element.name] !== undefined) {
+                if (element.type == "checkbox") {
+                    element.checked = data[element.name];
+                } else {
+                    element.value = data[element.name];
+                }
+            }
+        }
+    }
+</script>

@@ -1,0 +1,40 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemPriorityStrengthModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="itemPriorityStrengthModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Item priority strength</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting affects how strongly the randomizer follows the item priority settings in placing key items:
+        <ul>
+          <li>
+            <p><b>Moderate</b>: The randomizer will usually prioritize placing "Early" items early and "Late" items
+              late, but not always.</p>
+          </li>
+          <li>
+            <p><b>Heavy</b>: The randomizer will always prioritize placing "Early" items early and "Late" items late,
+              only selecting an item with later priority when no other choice provides progression.</p>
+          </li>
+        </ul>
+        </p>
+        <h5>Details</h5>
+        <p>With the "Moderate" setting, at the start of each seed generation attempt, the randomizer randomly shuffles
+          the list of key items, with two copies of "Early" and "Late" items being included: for "Early" items,
+          whichever copy occurs earlier is kept, while for "Late" items, whichever copy comes later is kept, to
+          determine the item priority order.</p>
+        <p>With the "Heavy" setting, the "Early" items are shuffled among themselves, "Default" items are shuffled among
+          themselves, and "Late" items are shuffled among themselves; these three lists are then concatenated together
+          to determine the item priority order.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,30 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#areaAssignmentModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="areaAssignmentModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Area assignment</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Each map is partitioned into six connected regions, which are assigned to in-game areas in different ways
+          depending on this setting:
+        <ul>
+          <li><strong>Standard</strong>: Landing Site is always in Crateria. The other areas are assigned based on their
+            size (in number of map tiles), in order from largest to smallest: Norfair, Brinstar, Maridia, Tourian,
+            Wrecked Ship.</li>
+          <li><strong>Random</strong>: The areas are assigned randomly. In particular, Landing Site can be in any area.
+          </li>
+        </ul>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
