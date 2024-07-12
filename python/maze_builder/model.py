@@ -331,8 +331,14 @@ class TransformerModel(torch.nn.Module):
         self.action_door_embedding = torch.nn.Parameter(torch.randn([num_doors + 1, global_width]) / math.sqrt(global_width))
 
         self.global_ff_layers = torch.nn.ModuleList()
+        self.action_ff_layers = torch.nn.ModuleList()
         for i in range(num_global_layers):
             self.global_ff_layers.append(FeedforwardLayer(
+                input_width=global_width,
+                hidden_width=global_hidden_width,
+                arity=arity,
+                dropout=global_ff_dropout))
+            self.action_ff_layers.append(FeedforwardLayer(
                 input_width=global_width,
                 hidden_width=global_hidden_width,
                 arity=arity,
@@ -345,7 +351,7 @@ class TransformerModel(torch.nn.Module):
     def forward_multiclass(self, room_mask, room_position_x, room_position_y,
                            map_door_id, action_env_id, action_door_id,
                            steps_remaining, round_frac,
-                           temperature, mc_dist_coef):
+                           temperature, mc_dist_coef, use_action: bool):
         n = room_mask.shape[0]
         # print(f"n={n}, room_mask={room_mask.shape}, room_position_x={room_position_x.shape}, room_position_y={room_position_y.shape}, map_door_id={map_door_id.shape}, action_env_id={action_env_id.shape}, action_door_id={action_door_id.shape}, steps_remaining={steps_remaining.shape}, round_frac={round_frac.shape}, temperature={temperature.shape}, mc_dist_coef={mc_dist_coef.shape}")
         device = room_mask.device
@@ -414,14 +420,30 @@ class TransformerModel(torch.nn.Module):
             # X1 = torch.nn.functional.relu(X1)
             # X1 = self.action_lin2(X1)
             # X = X[action_env_id] + X1
-            X = X[action_env_id] + self.action_door_embedding[action_door_id]
-            for i in range(self.num_global_layers):
-                X = self.global_ff_layers[i](X)
-            X = self.output_lin1(X)
-            X = torch.nn.functional.relu(X)
-            X = self.output_lin2(X)
 
-        return X.to(torch.float32)
+            if use_action:
+                X = X[action_env_id]
+
+                X_action = X + self.action_door_embedding[action_door_id]
+                for i in range(self.num_global_layers):
+                    X_action = self.action_ff_layers[i](X_action)
+                X_action = self.output_lin1(X_action)
+                X_action = torch.nn.functional.relu(X_action)
+                X_action = self.output_lin2(X_action)
+            else:
+                X_action = None
+
+            X_state = X
+            for i in range(self.num_global_layers):
+                X_state = self.global_ff_layers[i](X_state)
+            X_state = self.output_lin1(X_state)
+            X_state = torch.nn.functional.relu(X_state)
+            X_state = self.output_lin2(X_state)
+
+        if use_action:
+            return X_state.to(torch.float32), X_action.to(torch.float32)
+        else:
+            return X_state.to(torch.float32)
 
     def decay(self, amount: Optional[float]):
         if amount is not None:

@@ -18,7 +18,7 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-# import logic.rooms.crateria_isolated
+import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
 import logic.rooms.all_rooms
 
@@ -45,15 +45,15 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-# map_x = 32
-# map_y = 32
-map_x = 72
-map_y = 72
+map_x = 32
+map_y = 32
+# map_x = 72
+# map_y = 72
 # map_x = 48
 # map_y = 48
 # map_x = 64
@@ -120,12 +120,13 @@ session = TrainingSession(envs,
                           model=model,
                           optimizer=optimizer,
                           # data_path="data/{}".format(start_time.isoformat()),
-                          data_path="data/pretraining",
+                          # data_path="data/pretraining",  # Zebes
+                          data_path="data/pregen-2024-07-12T08:22:29.843635",  # Crateria
                           ema_beta=0.999,
                           episodes_per_file=num_envs * num_devices,
                           decay_amount=0.0,
                           sam_scale=None)
-session.replay_buffer.num_files = 21481
+session.replay_buffer.num_files = 512
 
 #
 #
@@ -164,10 +165,14 @@ session.replay_buffer.num_files = 21481
 #
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
 # #
-eval_filename = "eval_batches_zebes2.pkl"
-# # eval_filename = "eval_batches_crateria.pkl"
+# eval_filename = "eval_batches_zebes2.pkl"
+eval_filename = "eval_batches_crateria.pkl"
 # pickle.dump(eval_batches, open(eval_filename, "wb"))
 eval_batches = pickle.load(open(eval_filename, "rb"))
+#
+# for b in eval_batches:
+#     b.round_frac.zero_()
+
 
 # for i in range(len(eval_batches)):
 #     i = 0
@@ -186,18 +191,6 @@ cpu_executor = None
 #     else:
 #         return torch.device('cuda:0')
 
-class Unpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == 'torch.storage' and name == '_load_from_bytes':
-            # return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-            return lambda b: torch.load(io.BytesIO(b), map_location={
-                'cpu': 'cpu',
-                'cuda:0': 'cuda:0',
-                'cuda:1': 'cuda:0',
-            })
-        else:
-            return super().find_class(module, name)
-
 
 # pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
@@ -209,127 +202,16 @@ class Unpickler(pickle.Unpickler):
 # session = Unpickler(open(pickle_name + '-bk1', 'rb')).load()
 
 
-# # Perform model surgery to add Toilet as decoupled room:
-# # Initialize Aqueduct and Toilet room embeddings to zero.
-# session.model.pos_embedding = old_session.model.pos_embedding
-# session.model.room_embedding.data[:102] = old_session.model.room_embedding.data[:102]
-# session.model.room_embedding.data[102:104].zero_()
-# session.model.room_embedding.data[104:] = old_session.model.room_embedding.data[103:]
-# session.model.attn_layers = old_session.model.attn_layers
-# session.model.ff_layers = old_session.model.ff_layers
-# session.model.global_lin.weight.data[:, :102] = old_session.model.global_lin.weight.data[:, :102]
-# session.model.global_lin.weight.data[:, 102:104].zero_()
-# session.model.global_lin.weight.data[:, 104:] = old_session.model.global_lin.weight.data[:, 103:]
-# session.model.global_lin.bias = old_session.model.global_lin.bias
-# # session.model.global_query.shape
-
-
-# for i, room in enumerate(rooms):
-#     if room.name == "Aqueduct":
-#         print(i)
-
-
-# session.replay_buffer.size = 0
-# session.replay_buffer.position = 0
-# session.replay_buffer.resize(2 ** 23)
 session.envs = envs
 
 
-# # Add new outputs to the model (for continued training):
-# # num_new_outputs = session.envs[0].num_missing_connects
-# num_new_outputs = 1
-# # new_pos = session.envs[0].num_missing_connects + session.envs[0].num_doors
-# session.model.global_query.data = torch.cat([
-#     # session.model.global_query.data[:new_pos, :],
-#     session.model.global_query.data,
-#     torch.randn([num_new_outputs, embedding_width], device=device) / math.sqrt(embedding_width),
-#     # session.model.global_query.data[new_pos:, :],
-# ])
-# session.model.global_value.data = torch.cat([
-#     # session.model.global_value.data[:new_pos, :],
-#     session.model.global_value.data,
-#     torch.zeros([num_new_outputs, embedding_width], device=device),
-#     # session.model.global_value.data[new_pos:, :],
-# ])
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
-
-# # Add new global input feature to the model:
-# num_new_inputs = 1
-# session.model.global_lin.weight.data = torch.cat([
-#     session.model.global_lin.weight.data,
-#     torch.zeros([embedding_width, num_new_inputs], device=device)
-# ], dim=1)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
-
-
-# # Backfill new output data:
-# batch_size = 1024
-# num_batches = session.replay_buffer.capacity // batch_size
-# out_list = []
-# session.envs[0].init_toilet_data()
-# session.envs[1].init_toilet_data()
-# for i in range(num_batches):
-#     if i % 100 == 0:
-#         print("{}/{}".format(i, num_batches))
-#     batch_start = i * batch_size
-#     batch_end = (i + 1) * batch_size
-#     batch_action = session.replay_buffer.episode_data.action[batch_start:batch_end]
-#     num_rooms = len(envs[0].rooms)
-#     step_indices = torch.tensor([num_rooms])
-#     room_mask, room_position_x, room_position_y = reconstruct_room_data(batch_action, step_indices, num_rooms)
-#     with torch.no_grad():
-#         # A = session.envs[0].compute_part_adjacency_matrix(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
-#         # D = session.envs[0].compute_distance_matrix(A)
-#         # S = session.envs[0].compute_save_distances(D)
-#         # graph_diameter = session.envs[0].compute_graph_diameter(D)
-#         # out = session.envs[0].compute_mc_distances(D)
-#         out = session.envs[0].compute_toilet_good(room_mask.to(device), room_position_x.to(device), room_position_y.to(device))
-#         out_list.append(out)
-# # save_distances = torch.cat(save_distances_list, dim=0)
-# # graph_diameter = torch.cat(graph_diameter_list, dim=0)
-# out = torch.cat(out_list, dim=0)
-# # session.replay_buffer.episode_data.save_distances = save_distances.to('cpu')
-# # session.replay_buffer.episode_data.graph_diameter = graph_diameter.to('cpu')
-# # session.replay_buffer.episode_data.mc_distances = out.to('cpu')
-# # session.replay_buffer.episode_data.mc_dist_coef = torch.zeros([session.replay_buffer.capacity])
-# session.replay_buffer.episode_data.toilet_good = out.to('cpu')
-# # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
-
-
-
-
-# # Add new Transformer layers
-# new_layer_idxs = list(range(1, len(session.model.attn_layers) + 1))
-# logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
-# for i in reversed(new_layer_idxs):
-#     attn_layer = AttentionLayer(
-#         input_width=embedding_width,
-#         key_width=key_width,
-#         value_width=value_width,
-#         num_heads=attn_heads,
-#         dropout=0.0).to(device)
-#     session.model.attn_layers.insert(i, attn_layer)
-#     ff_layer = FeedforwardLayer(
-#         input_width=embedding_width,
-#         hidden_width=hidden_width,
-#         arity=1,
-#         dropout=0.0).to(device)
-#     session.model.ff_layers.insert(i, ff_layer)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
-#
-
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
-# session.replay_buffer.resize(2 ** 23)
-# session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0001
-lr1 = 0.0001
+lr0 = 0.0003
+lr1 = 0.0003
 
 explore_eps_factor = 0.0
 save_loss_weight = 0.005
@@ -341,18 +223,15 @@ balance_weight = 0.1
 # door_connect_alpha = 1e-15
 
 annealing_start = 0
-annealing_time = 2 ** 22 // (num_envs * num_devices)
+annealing_time = 1
+# annealing_time = 2 ** 22 // (num_envs * num_devices)
 # annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
 print_freq = 16
+total_state_losses = None
+total_action_losses = None
+total_next_losses = None
 total_reward = 0
-total_loss = 0.0
-total_binary_loss = 0.0
-total_balance_loss = 0.0
-total_save_loss = 0.0
-total_graph_diam_loss = 0.0
-total_mc_loss = 0.0
-total_toilet_loss = 0.0
 total_loss_cnt = 0
 total_eval_loss = 0.0
 total_eval_loss_cnt = 0
@@ -370,7 +249,6 @@ total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
 save_freq = 256
-summary_freq = 256
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
@@ -381,7 +259,6 @@ session.average_parameters.beta = ema_beta0
 
 # layer_norm_param_decay = 0.9998
 layer_norm_param_decay = 0.999
-last_file_num = session.replay_buffer.num_files
 
 num_batches = 64
 
@@ -406,6 +283,12 @@ logging.info("{}".format(session.model))
 # print(torch.nanmean(S, dim=0, keepdim=True))
 # torch.nanmean((S - torch.nanmean(S, dim=0, keepdim=True)) ** 2)
 
+def update_losses(total_losses, losses):
+    if total_losses is None:
+        total_losses = list(losses)
+    for j in range(len(losses)):
+        total_losses[j] += losses[j]
+    return total_losses
 
 
 min_door_value = max_possible_reward
@@ -428,80 +311,68 @@ for i in range(1000000):
     ema_beta = ema_beta0 * (ema_beta1 / ema_beta0) ** frac
     session.average_parameters.beta = ema_beta
 
-    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device)
+    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=False)
     for data in batch_list:
         with util.DelayedKeyboardInterrupt():
-            loss, binary_loss, balance_loss, save_loss, graph_diam_loss, mc_loss, toilet_loss = session.train_batch(
-                data,
+            state_losses, action_losses, next_losses = session.train_batch(
+                data, None,
                 balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
                 mc_dist_weight=mc_dist_weight,
                 toilet_weight=toilet_weight,
             )
-            total_loss += loss
-            total_binary_loss += binary_loss
-            total_balance_loss += balance_loss
-            total_save_loss += save_loss
-            total_graph_diam_loss += graph_diam_loss
-            total_mc_loss += mc_loss
-            total_toilet_loss += toilet_loss
+            total_state_losses = update_losses(total_state_losses, state_losses)
+            total_action_losses = update_losses(total_action_losses, action_losses)
+            total_next_losses = update_losses(total_next_losses, next_losses)
             total_loss_cnt += 1
 
     session.num_rounds += 1
     if session.num_rounds % print_freq == 0:
-        new_loss = total_loss / total_loss_cnt
-        new_binary_loss = total_binary_loss / total_loss_cnt
-        new_balance_loss = total_balance_loss / total_loss_cnt
-        new_save_loss = total_save_loss / total_loss_cnt
-        new_graph_diam_loss = total_graph_diam_loss / total_loss_cnt
-        new_mc_loss = total_mc_loss / total_loss_cnt
-        new_toilet_loss = total_toilet_loss / total_loss_cnt
+        mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
+        mean_action_losses = [x / total_loss_cnt for x in total_action_losses]
+        mean_next_losses = [x / total_loss_cnt for x in total_next_losses]
 
-        total_eval_loss = 0.0
-        total_other_losses = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        total_eval_state_losses = None
+        total_eval_action_losses = None
         with torch.no_grad():
             with session.average_parameters.average_parameters(session.model.all_param_data()):
                 for data in eval_batches:
-                    eval_loss, other_losses = session.eval_batch(data,
+                    eval_state_losses, eval_action_losses = session.eval_batch(data,
                                                                  balance_weight=balance_weight,
                                                                  save_dist_weight=save_loss_weight,
                                                                  graph_diam_weight=graph_diam_weight,
                                                                  mc_dist_weight=mc_dist_weight,
                                                                  toilet_weight=toilet_weight)
-                    total_eval_loss += eval_loss
-                    # print(eval_loss, other_losses)
-                    for i in range(len(total_other_losses)):
-                        total_other_losses[i] += other_losses[i]
-        mean_eval_loss = total_eval_loss / len(eval_batches)
-        mean_other_losses = [x / len(eval_batches) for x in total_other_losses]
+                    total_eval_state_losses = update_losses(total_eval_state_losses, eval_state_losses)
+                    total_eval_action_losses = update_losses(total_eval_action_losses, eval_action_losses)
+
+        mean_eval_state_losses = [x / len(eval_batches) for x in total_eval_state_losses]
+        mean_eval_action_losses = [x / len(eval_batches) for x in total_eval_action_losses]
 
         logging.info(
-            "{}: loss={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}), eval={:.4f} ({}), frac={:.4f}".format(
+            "{}: train: {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
                 session.num_rounds,
-                new_loss,
-                new_binary_loss,
-                new_balance_loss,
-                new_save_loss,
-                new_graph_diam_loss,
-                new_mc_loss,
-                new_toilet_loss,
-                mean_eval_loss,
-                ', '.join('{:.4f}'.format(x) for x in mean_other_losses),
-                # new_prob0,
-                frac,
+                mean_state_losses[0],
+                ', '.join('{:.4f}'.format(x) for x in mean_state_losses[1:]),
+                mean_action_losses[0],
+                ', '.join('{:.4f}'.format(x) for x in mean_action_losses[1:]),
+                mean_next_losses[0],
+                ', '.join('{:.4f}'.format(x) for x in mean_next_losses[1:]),
             ))
-        total_loss = 0.0
-        total_binary_loss = 0.0
-        total_balance_loss = 0.0
-        total_save_loss = 0.0
-        total_graph_diam_loss = 0.0
-        total_mc_loss = 0.0
-        total_toilet_loss = 0.0
+        logging.info(
+            "{}: eval: state={:.4f} ({}), action={:.4f} ({})".format(
+                session.num_rounds,
+                mean_eval_state_losses[0],
+                ', '.join('{:.4f}'.format(x) for x in mean_eval_state_losses[1:]),
+                mean_eval_action_losses[0],
+                ', '.join('{:.4f}'.format(x) for x in mean_eval_action_losses[1:]),
+            ))
+
+        total_state_losses = None
+        total_action_losses = None
+        total_next_losses = None
         total_loss_cnt = 0
-        total_eval_loss = 0.0
-        total_eval_loss_cnt = 0
-        min_door_value = max_possible_reward
 
     if session.num_rounds % save_freq == 0:
         with util.DelayedKeyboardInterrupt():

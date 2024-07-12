@@ -210,11 +210,11 @@ class TrainingSession():
         #     map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
         #     temperature_flat, env)
 
-        raw_preds_valid = model.forward_multiclass(
+        _, raw_preds_valid = model.forward_multiclass(
             room_mask, room_position_x, room_position_y,
             map_door_ids, action_env_id_valid, room_door_id_valid,
             steps_remaining, round_frac,
-            temperature, mc_dist_coef)
+            temperature, mc_dist_coef, use_action=True)
 
         preds = self.get_preds(raw_preds_valid)
 
@@ -278,8 +278,8 @@ class TrainingSession():
             # torch.cuda.synchronize()
             # logging.debug("Averaging parameters")
 
-            adjust_left_right = self.door_connect_adjust_left_right.to(device) / self.door_connect_adjust_weight
-            adjust_down_up = self.door_connect_adjust_down_up.to(device) / self.door_connect_adjust_weight
+            adjust_left_right = self.door_connect_adjust_left_right.to(device) / (self.door_connect_adjust_weight + 1e-12)
+            adjust_down_up = self.door_connect_adjust_down_up.to(device) / (self.door_connect_adjust_weight + 1e-12)
             for j in range(episode_length):
                 if render:
                     env.render()
@@ -493,18 +493,7 @@ class TrainingSession():
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
-        env = self.envs[0]
-        # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
-        n = data.room_mask.shape[0]
-        device = data.room_mask.device
-        action_env_id = torch.arange(data.room_mask.shape[0], device=device)
-        raw_preds = model.forward_multiclass(
-            data.room_mask, data.room_position_x, data.room_position_y,
-            data.map_door_id, action_env_id, data.room_door_id,
-            data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef)
-
+    def compute_output_loss(self, raw_preds, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
 
         preds = self.get_preds(raw_preds)
@@ -536,11 +525,36 @@ class TrainingSession():
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
 
-    def train_batch(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
-        self.model.train()
-        losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
-        overall_loss = losses[0]
+    def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float, use_action: bool):
+        env = self.envs[0]
+        # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
+        n = data.room_mask.shape[0]
+        device = data.room_mask.device
+        action_env_id = torch.arange(data.room_mask.shape[0], device=device)
 
+        model_result = model.forward_multiclass(
+            data.room_mask, data.room_position_x, data.room_position_y,
+            data.map_door_id, action_env_id, data.room_door_id,
+            data.steps_remaining, data.round_frac,
+            data.temperature, data.mc_dist_coef, use_action)
+
+        if use_action:
+            state_preds, action_preds = model_result
+            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            return state_losses, action_losses
+        else:
+            state_preds = model_result
+            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            return state_losses
+
+
+    def train_batch(self, data: TrainingData, next_data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+        self.model.train()
+        state_losses, action_losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight, use_action=True)
+        # next_losses = self.compute_losses(self.model, next_data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight, use_action=False)
+
+        overall_loss = state_losses[0] + action_losses[0]# + 0.0 * next_losses[0]
         self.optimizer.zero_grad()
         self.grad_scaler.scale(overall_loss).backward()
         self.grad_scaler.step(self.optimizer)
@@ -548,11 +562,11 @@ class TrainingSession():
         self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
         self.model.project()
         self.average_parameters.update(self.model.all_param_data())
-        return losses
+        # return state_losses, action_losses, next_losses
+        return state_losses, action_losses, state_losses
 
     def eval_batch(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.eval()
         with torch.no_grad():
-            losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
-        return losses[0].item(), losses[1:]
-
+            state_losses, action_losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight, use_action=True)
+        return state_losses, action_losses

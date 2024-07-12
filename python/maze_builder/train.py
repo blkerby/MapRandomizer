@@ -18,7 +18,7 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-# import logic.rooms.crateria_isolated
+import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
 import os
 import logic.rooms.all_rooms
@@ -46,51 +46,84 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-# rooms = logic.rooms.crateria_isolated.rooms
+rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-rooms = logic.rooms.all_rooms.rooms
+# rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
 cpu_executor = None
 
 
-# pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
-# pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
-# pickle_name = 'models/session-2024-06-05T13:43:00.485204.pkl'
+map_x = 32
+map_y = 32
+# map_x = 48
+# map_y = 48
+# map_x = 64
+# map_y = 64
+
+env_config = EnvConfig(
+    rooms=rooms,
+    map_x=map_x,
+    map_y=map_y,
+)
+envs = [MazeBuilderEnv(rooms,
+                       map_x=map_x,
+                       map_y=map_y,
+                       num_envs=num_envs,
+                       device=device,
+                       must_areas_be_connected=False,
+                       starting_room_name="Landing Site")
+                       # starting_room_name="Business Center")
+        for device in devices]
+
+embedding_width = 512
+key_width = 32
+value_width = 32
+attn_heads = 8
+hidden_width = 2048
+model = TransformerModel(
+    rooms=envs[0].rooms,
+    num_doors=envs[0].num_doors,
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
+    map_x=env_config.map_x,
+    map_y=env_config.map_y,
+    block_size_x=8,
+    block_size_y=8,
+    embedding_width=embedding_width,
+    key_width=key_width,
+    value_width=value_width,
+    attn_heads=attn_heads,
+    hidden_width=hidden_width,
+    arity=1,
+    num_local_layers=2,
+    embed_dropout=0.0,
+    ff_dropout=0.0,
+    attn_dropout=0.0,
+    num_global_layers=0,
+    global_attn_heads=64,
+    global_attn_key_width=32,
+    global_attn_value_width=32,
+    global_width=2048,
+    global_hidden_width=4096,
+    global_ff_dropout=0.0,
+).to(device)
+logging.info("{}".format(model))
+
+# model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
+optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+session = TrainingSession(envs,
+                          model=model,
+                          optimizer=optimizer,
+                          data_path="data/{}".format(start_time.isoformat()),
+                          ema_beta=0.999,
+                          episodes_per_file=num_envs * num_devices,
+                          decay_amount=0.0,
+                          sam_scale=None)
+
 # pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
-session = pickle.load(open("models/pretrain-2024-07-07T13:33:46.473224.pkl", "rb"))
-session.replay_buffer.num_files = 0
-session.replay_buffer.data_path = "data/{}".format(start_time)
-os.makedirs(session.replay_buffer.data_path)
 # session = pickle.load(open(pickle_name, 'rb'))
 # session = pickle.load(open(pickle_name + '-bk1', 'rb'))
-# session = Unpickler(open(pickle_name, 'rb')).load()
-# session = Unpickler(open(pickle_name + '-bk1', 'rb')).load()
 
-
-# # Perform model surgery to add Toilet as decoupled room:
-# # Initialize Aqueduct and Toilet room embeddings to zero.
-# session.model.pos_embedding = old_session.model.pos_embedding
-# session.model.room_embedding.data[:102] = old_session.model.room_embedding.data[:102]
-# session.model.room_embedding.data[102:104].zero_()
-# session.model.room_embedding.data[104:] = old_session.model.room_embedding.data[103:]
-# session.model.attn_layers = old_session.model.attn_layers
-# session.model.ff_layers = old_session.model.ff_layers
-# session.model.global_lin.weight.data[:, :102] = old_session.model.global_lin.weight.data[:, :102]
-# session.model.global_lin.weight.data[:, 102:104].zero_()
-# session.model.global_lin.weight.data[:, 104:] = old_session.model.global_lin.weight.data[:, 103:]
-# session.model.global_lin.bias = old_session.model.global_lin.bias
-# # session.model.global_query.shape
-
-
-# for i, room in enumerate(rooms):
-#     if room.name == "Aqueduct":
-#         print(i)
-
-
-# session.replay_buffer.size = 0
-# session.replay_buffer.position = 0
-# session.replay_buffer.resize(2 ** 23)
 
 
 # # Add new outputs to the model (for continued training):
@@ -186,14 +219,14 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 # TODO: bundle all this stuff into a structure
 hist_frac = 0.5
 batch_size = 2 ** 10
-lr0 = 0.0002
-lr1 = 0.0002
+lr0 = 0.0003
+lr1 = 0.0003
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 1.5
-num_candidates_max0 = 2.5
-num_candidates_min1 = 3.5
-num_candidates_max1 = 4.5
+num_candidates_min0 = 32
+num_candidates_max0 = 32
+num_candidates_min1 = 32
+num_candidates_max1 = 32
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -201,7 +234,7 @@ explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
 save_loss_weight = 0.005
-save_dist_coef = 0.02
+save_dist_coef = 0.0
 # save_dist_coef = 0.0
 
 mc_dist_weight = 0.001
@@ -209,10 +242,10 @@ mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
 toilet_weight = 0.01
-toilet_good_coef = 1.0
+toilet_good_coef = 0.0
 
 graph_diam_weight = 0.0002
-graph_diam_coef = 0.2
+graph_diam_coef = 0.0
 # graph_diam_coef = 0.0
 
 door_connect_bound = 50.0
@@ -221,7 +254,7 @@ door_connect_samples = 2 ** 21
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = 1 - door_connect_alpha / door_connect_bound
-balance_coef = 10.0
+balance_coef = 5.0
 balance_weight = 1.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -240,12 +273,12 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 27008
-annealing_time = 2 ** 22 // (num_envs * num_devices)
-# annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
+annealing_start = 0
+annealing_time = 1
+# annealing_time = 2 ** 22 // (num_envs * num_devices)
 
-pass_factor0 = 0.1
-pass_factor1 = 0.1
+pass_factor0 = 0.25
+pass_factor1 = 0.25
 num_load_files = int(episode_length * pass_factor1)
 print_freq = 16
 total_reward = 0
@@ -284,7 +317,6 @@ session.average_parameters.beta = ema_beta0
 
 # layer_norm_param_decay = 0.9998
 layer_norm_param_decay = 0.999
-last_file_num = session.replay_buffer.num_files
 
 def compute_door_connect_counts(episode_data, only_success: bool, ind=None):
     batch_size = 1024
@@ -629,6 +661,7 @@ for i in range(1000000):
         else:
             temperature_endpoints = [temperature_min1 / 2, temperature_max1 * 2]
 
+        last_file_num = session.replay_buffer.num_files - summary_freq
         file_num_list = list(range(last_file_num, session.replay_buffer.num_files))
         episode_data = session.replay_buffer.read_files(file_num_list)
 

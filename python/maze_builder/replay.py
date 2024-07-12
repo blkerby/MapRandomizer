@@ -58,7 +58,7 @@ class ReplayBuffer:
         assert n == self.episodes_per_file
         self.add_file(episode_data)
 
-    def sample(self, batch_size, num_batches, hist_frac, device: torch.device) -> List[TrainingData]:
+    def sample(self, batch_size, num_batches, hist_frac, device: torch.device, include_next_step: bool) -> List[TrainingData]:
         n = batch_size * num_batches
         num_files = n // self.episodes_per_file
 
@@ -114,5 +114,46 @@ class ReplayBuffer:
                 map_door_id=map_door_id.to(device),
                 room_door_id=room_door_id.to(device),
             )
-            batch_list.append(batch)
+
+            if include_next_step:
+                next_step_indices = step_indices + 1
+                room_mask, room_position_x, room_position_y = reconstruct_room_data(action, next_step_indices,
+                                                                                    self.num_rooms)
+
+                next_step_indices = torch.clamp_max(next_step_indices, data.map_door_id.shape[1] - 1)
+                map_door_id = torch.where(
+                    step_indices == data.map_door_id.shape[1] - 1,
+                    torch.full_like(map_door_id, -1),
+                    data.map_door_id[torch.arange(start, end), next_step_indices].to(torch.int64)
+                )
+                room_door_id = torch.where(
+                    step_indices == data.room_door_id.shape[1] - 1,
+                    torch.full_like(room_door_id, -1),
+                    data.room_door_id[torch.arange(start, end), next_step_indices].to(torch.int64)
+                )
+
+                batch_next = TrainingData(
+                    reward=reward.to(device),
+                    door_connects=door_connects.to(device),
+                    door_balance=door_balance.to(device),
+                    missing_connects=missing_connects.to(device),
+                    save_distances=save_distances.to(device),
+                    graph_diameter=graph_diameter.to(device),
+                    mc_distances=mc_distances.to(device),
+                    toilet_good=toilet_good.to(device),
+                    cycle_cost=cycle_cost.to(device),
+                    steps_remaining=steps_remaining.to(device) - 1,
+                    round_frac=torch.zeros_like(graph_diameter).to(device),
+                    temperature=temperature.to(device),
+                    mc_dist_coef=mc_dist_coef.to(device),
+                    room_mask=room_mask.to(device),
+                    room_position_x=room_position_x.to(device),
+                    room_position_y=room_position_y.to(device),
+                    map_door_id=map_door_id.to(device),
+                    room_door_id=room_door_id.to(device),
+                )
+
+                batch_list.append((batch, batch_next))
+            else:
+                batch_list.append(batch)
         return batch_list
