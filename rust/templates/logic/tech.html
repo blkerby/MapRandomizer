@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<!--{% include "../common/header.html" %}-->
-<title><!--{{+ tech_name }}--> - Super Metroid Map Rando</title>
+{% include "../common/header.html" %}
+<title>{{+ tech_name }} - Super Metroid Map Rando</title>
 </head>
 <body>
-<!--{% include "../common/navbar.html" %}-->
+{% include "../common/navbar.html" %}
 <script>
 document.getElementById("navigation-logic").classList.add("active");
 </script>
 
-<!--{% include "../common/video-modal.html" %}-->
+{% include "../common/video-modal.html" %}
 
 <div class="container col-xl-10 col-xxl-8 pb-4">
-    <h3 class="my-2"><!--{{+ tech_name }}--> (<!--{{+ tech_difficulty_name }}-->)</h3>
+    <h3 class="my-2">{{+ tech_name }} ({{+ tech_difficulty_name }})</h3>
     <style>
     html[data-bs-theme=dark] .tech-row:hover {
         background-color: #2b3035;
@@ -37,21 +37,21 @@ document.getElementById("navigation-logic").classList.add("active");
 
     <div class="row tech-row">
         <div class="text-center col-sm-4 col-md-3 col-lg-2 p-3">
-            <!--{% let tech_name = tech_name|as_ref %}-->
-            <!--{% if tech_gif_listing.contains(format!("{}.gif", tech_name)) %}-->
-            <!--{% let hq_video_url_root = hq_video_url_root|as_ref %}-->
-            <!--{% let video_url = format!("{}/{}.webm", hq_video_url_root, tech_name) %}-->
-            <a href="#" onclick='startVideo("<!--{{+ video_url }}-->")' data-bs-toggle="modal" data-bs-target="#videoModal">
-            <img class="png-tech" loading="lazy" src="/static/tech_gifs/<!--{{+ tech_name }}-->.png" style="width:128px;height:128px;">
-            <img class="gif-tech" loading="lazy" src="/static/tech_gifs/<!--{{+ tech_name }}-->.gif" style="width:128px;height:128px;">
+            {% let tech_name = tech_name|as_ref %}
+            {% if tech_gif_listing.contains(format!("{}.gif", tech_name)) %}
+            {% let hq_video_url_root = hq_video_url_root|as_ref %}
+            {% let video_url = format!("{}/{}.webm", hq_video_url_root, tech_name) %}
+            <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+            <img class="png-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.png" style="width:128px;height:128px;">
+            <img class="gif-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.gif" style="width:128px;height:128px;">
             </a>
-            <!--{% endif %}-->
+            {% endif %}
         </div>
         <div class="col-sm-8 col-md-9 col-lg-10 p-3">
-            <p><!--{{+ tech_note }}--></p>
-            <!--{% if tech_dependencies.len() > 0 %}-->
-                <p><i>Dependencies: <!--{{+ tech_dependencies }}--></i></p>
-            <!--{% endif %}-->
+            <p>{{+ tech_note }}</p>
+            {% if tech_dependencies.len() > 0 %}
+                <p><i>Dependencies: {{+ tech_dependencies }}</i></p>
+            {% endif %}
         </div>
     </div>
 
@@ -61,15 +61,15 @@ document.getElementById("navigation-logic").classList.add("active");
             Difficulty filter
         </div>
         <div class="col-lg-9 my-2 btn-group overflow-auto" role="group">
-        <!--{% for difficulty in difficulty_names.iter() %}-->
-            <input type="radio" class="btn-check difficulty-filter" name="preset" value="<!--{{+ loop.index0 }}-->"
-                id="preset<!--{{+ loop.index0 }}-->" autocomplete="off" onclick="presetChanged()"
-                <!--{% if loop.last %}-->
+        {% for difficulty in difficulty_names.iter() %}
+            <input type="radio" class="btn-check difficulty-filter" name="preset" value="{{+ loop.index0 }}"
+                id="preset{{+ loop.index0 }}" autocomplete="off" onclick="presetChanged()"
+                {% if loop.last %}
                 checked
-                <!--{% endif %}-->
+                {% endif %}
                 >
-            <label class="btn btn-outline-secondary p-2" for="preset<!--{{+ loop.index0 }}-->"><!--{{+ difficulty }}--></label>
-        <!--{% endfor %}-->
+            <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ difficulty }}</label>
+        {% endfor %}
         </div>
     </div>
     </form>
@@ -85,20 +85,20 @@ document.getElementById("navigation-logic").classList.add("active");
     </style>
     <table class="table table-hover mb-0">
     <tbody>
-    <!--{% for strat in strats %}-->
+    {% for strat in strats %}
     <tr class="strat-row" 
-        data-from-node="<!--{{+ strat.from_node_id }}-->" 
-        data-to-node="<!--{{+ strat.to_node_id }}-->"
-        data-difficulty="<!--{{+ strat.difficulty_idx }}-->">
+        data-from-node="{{+ strat.from_node_id }}" 
+        data-to-node="{{+ strat.to_node_id }}"
+        data-difficulty="{{+ strat.difficulty_idx }}">
     <td class="p-2">
-        <!--{% include "strat.html" %}-->
+        {% include "strat.html" %}
     </td>
     </tr>
-    <!--{% endfor %}-->
+    {% endfor %}
     </tbody>
     </table>
 </div>
-<!--{% include "../common/save_settings.html" %}-->
+{% include "../common/save_settings.html" %}
 <script>
 function presetChanged() {
     updateSelect();

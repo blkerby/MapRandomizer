@@ -1,36 +1,36 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<!--{% include "../common/header.html" %}-->
-<title><!--{{+ room_name }}--> - Super Metroid Map Rando</title>
+{% include "../common/header.html" %}
+<title>{{+ room_name }} - Super Metroid Map Rando</title>
 </head>
 <body>
-<!--{% include "../common/navbar.html" %}-->
+{% include "../common/navbar.html" %}
 <script>
 document.getElementById("navigation-logic").classList.add("active");
 </script>
 
-<!--{% include "../common/video-modal.html" %}-->
+{% include "../common/video-modal.html" %}
 
 <div class="container col-xl-10 col-xxl-8 pt-2 pb-2">
     <div class="row mb-0 pb-0">
         <div class="col-sm-8">
-            <h3 class="mb-0 pb-0"><!--{{+ room_name }}--></h3>
+            <h3 class="mb-0 pb-0">{{+ room_name }}</h3>
         </div>
 
         <div class="col-sm-4 pb-2 hstack">
             <div class="ms-auto">
-                <p class="my-auto"><small>Room ID: <!--{{+ room_id }}--></small></p>
+                <p class="my-auto"><small>Room ID: {{+ room_id }}</small></p>
             </div>
             <div class="vr mx-2"></div>
             <div>
-                <small><a href="https://wiki.supermetroid.run/<!--{{+ room_name_url_encoded }}-->">Wiki</a></small>
+                <small><a href="https://wiki.supermetroid.run/{{+ room_name_url_encoded }}">Wiki</a></small>
             </div>
         </div>
     </div>
     <div class="row my-2">
         <div class="col-12 overflow-auto">
-            <img src="/<!--{{+ room_diagram_path }}-->">
+            <img src="/{{+ room_diagram_path }}">
         </div>
     </div>
 
@@ -40,15 +40,15 @@ document.getElementById("navigation-logic").classList.add("active");
             Difficulty filter
         </div>
         <div class="col-lg-10 my-2 btn-group overflow-auto" role="group">
-        <!--{% for (i, difficulty) in difficulty_names.iter().enumerate() %}-->
-            <input type="radio" class="btn-check difficulty-filter" name="preset" value="<!--{{+ i }}-->"
-                id="preset<!--{{+ i }}-->" autocomplete="off" onclick="presetChanged()" 
-                <!--{% if i == difficulty_names.len() - 1 %}-->
+        {% for (i, difficulty) in difficulty_names.iter().enumerate() %}
+            <input type="radio" class="btn-check difficulty-filter" name="preset" value="{{+ i }}"
+                id="preset{{+ i }}" autocomplete="off" onclick="presetChanged()" 
+                {% if i == difficulty_names.len() - 1 %}
                 checked
-                <!--{% endif %}-->
+                {% endif %}
                 >
-            <label class="btn btn-outline-secondary p-2" for="preset<!--{{+ i }}-->"><!--{{+ difficulty }}--></label>
-        <!--{% endfor %}-->
+            <label class="btn btn-outline-secondary p-2" for="preset{{+ i }}">{{+ difficulty }}</label>
+        {% endfor %}
         </div>
     </div>
     </form>
@@ -61,9 +61,9 @@ document.getElementById("navigation-logic").classList.add("active");
                 <div class="col-sm my-2">
                     <select id="fromNode" name="fromNode" class="form-select" onchange="updateSelect();">
                     <option value="any" selected>Any</option>
-                    <!--{% for (node_id, node_name) in nodes %}-->
-                        <option class="from-node-option" value="<!--{{+ node_id }}-->"><!--{{+ node_id }}-->: <!--{{+ node_name }}--></option>
-                    <!--{% endfor %}-->
+                    {% for (node_id, node_name) in nodes %}
+                        <option class="from-node-option" value="{{+ node_id }}">{{+ node_id }}: {{+ node_name }}</option>
+                    {% endfor %}
                     </select>
                 </div>
             </div>
@@ -74,9 +74,9 @@ document.getElementById("navigation-logic").classList.add("active");
                 <div class="col-sm my-2">
                     <select id="toNode" name="toNode" class="form-select" onchange="updateSelect();">
                     <option value="any" selected>Any</option>
-                    <!--{% for (node_id, node_name) in nodes %}-->
-                        <option class="to-node-option" value="<!--{{+ node_id }}-->"><!--{{+ node_id }}-->: <!--{{+ node_name }}--></option>
-                    <!--{% endfor %}-->
+                    {% for (node_id, node_name) in nodes %}
+                        <option class="to-node-option" value="{{+ node_id }}">{{+ node_id }}: {{+ node_name }}</option>
+                    {% endfor %}
                     </select>
                 </div>
             </div>
@@ -113,16 +113,16 @@ document.getElementById("navigation-logic").classList.add("active");
                 </style>
                 <table class="table table-hover mb-0">
                 <tbody>
-                <!--{% for strat in strats %}-->
+                {% for strat in strats %}
                 <tr class="strat-row" 
-                    data-from-node="<!--{{+ strat.from_node_id }}-->" 
-                    data-to-node="<!--{{+ strat.to_node_id }}-->"
-                    data-difficulty="<!--{{+ strat.difficulty_idx }}-->">
+                    data-from-node="{{+ strat.from_node_id }}" 
+                    data-to-node="{{+ strat.to_node_id }}"
+                    data-difficulty="{{+ strat.difficulty_idx }}">
                 <td class="p-2">
-                    <!--{% include "strat.html" %}-->
+                    {% include "strat.html" %}
                 </td>
                 </tr>
-                <!--{% endfor %}-->
+                {% endfor %}
                 </tbody>
                 </table>
             </div>
@@ -134,12 +134,12 @@ document.getElementById("navigation-logic").classList.add("active");
             </button>
             </h2>        
             <div id="collapseRoomJSON" class="accordion-collapse collapse">
-                <pre class="m-2"><!--{{+ room_json }}--></pre>
+                <pre class="m-2">{{+ room_json }}</pre>
             </div>
         </div>
     </div>
 </div>
-<!--{% include "../common/save_settings.html" %}-->
+{% include "../common/save_settings.html" %}
 <script>
 function presetChanged() {
     updateSelect();

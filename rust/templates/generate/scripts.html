@@ -1,53 +1,53 @@
 <script>
 function presetChanged() {
-    <!--{% for p in preset_data %}-->
-        <!--{% if p.preset.name == "Beyond" %}-->
-            <!--{% continue %}-->
-        <!--{% endif %}-->
-        <!--{% let name_no_space = p.preset.name.replace(" ", "") %}-->
-        if (document.getElementById("preset<!--{{+ name_no_space }}-->").checked) {
-            document.getElementById("shinesparkTiles").value = <!--{{+ p.preset.shinespark_tiles }}-->;
-            document.getElementById("heatedShinesparkTiles").value = <!--{{+ p.preset.heated_shinespark_tiles }}-->;
-            document.getElementById("speedBallTiles").value = <!--{{+ p.preset.speed_ball_tiles }}-->;
-            document.getElementById("shinechargeLeniencyFrames").value = <!--{{+ p.preset.shinecharge_leniency_frames }}-->;
-            document.getElementById("resourceMultiplier").value = <!--{{+ p.preset.resource_multiplier }}-->;
-            document.getElementById("escapeTimerMultiplier").value = <!--{{+ p.preset.escape_timer_multiplier }}-->;
-            document.getElementById("gateGlitchLeniency").value = <!--{{+ p.preset.gate_glitch_leniency }}-->;
-            document.getElementById("doorStuckLeniency").value = <!--{{+ p.preset.door_stuck_leniency }}-->;
-            document.getElementById("phantoonProficiency").value = <!--{{+ p.preset.phantoon_proficiency }}-->;
-            document.getElementById("draygonProficiency").value = <!--{{+ p.preset.draygon_proficiency }}-->;
-            document.getElementById("ridleyProficiency").value = <!--{{+ p.preset.ridley_proficiency }}-->;
-            document.getElementById("botwoonProficiency").value = <!--{{+ p.preset.botwoon_proficiency }}-->;
-            document.getElementById("motherBrainProficiency").value = <!--{{+ p.preset.botwoon_proficiency }}-->;
-            <!--{% for (tech, is_enabled) in p.tech_setting %}-->
-                <!--{% if p.implicit_tech.contains(tech.as_str()) %}-->
-                    <!--{% continue %}-->
-                <!--{% endif %}-->
-                <!--{% if is_enabled %}-->
-                    document.getElementById("tech-<!--{{+ tech }}-->-Yes").checked = true;
-                <!--{% else %}-->
-                    document.getElementById("tech-<!--{{+ tech }}-->-No").checked = true;
-                <!--{% endif %}-->
-            <!--{% endfor %}-->
-            <!--{% for (strat, is_enabled) in p.notable_strat_setting %}-->
-                <!--{% let strat_id = strat_id_by_name[strat] %}-->
-                <!--{% if is_enabled %}-->
-                    document.getElementById("strat-<!--{{+ strat_id }}-->-Yes").checked = true;
-                <!--{% else %}-->
-                    document.getElementById("strat-<!--{{+ strat_id }}-->-No").checked = true;
-                <!--{% endif %}-->
-            <!--{% endfor %}-->
+    {% for p in preset_data %}
+        {% if p.preset.name == "Beyond" %}
+            {% continue %}
+        {% endif %}
+        {% let name_no_space = p.preset.name.replace(" ", "") %}
+        if (document.getElementById("preset{{+ name_no_space }}").checked) {
+            document.getElementById("shinesparkTiles").value = {{+ p.preset.shinespark_tiles }};
+            document.getElementById("heatedShinesparkTiles").value = {{+ p.preset.heated_shinespark_tiles }};
+            document.getElementById("speedBallTiles").value = {{+ p.preset.speed_ball_tiles }};
+            document.getElementById("shinechargeLeniencyFrames").value = {{+ p.preset.shinecharge_leniency_frames }};
+            document.getElementById("resourceMultiplier").value = {{+ p.preset.resource_multiplier }};
+            document.getElementById("escapeTimerMultiplier").value = {{+ p.preset.escape_timer_multiplier }};
+            document.getElementById("gateGlitchLeniency").value = {{+ p.preset.gate_glitch_leniency }};
+            document.getElementById("doorStuckLeniency").value = {{+ p.preset.door_stuck_leniency }};
+            document.getElementById("phantoonProficiency").value = {{+ p.preset.phantoon_proficiency }};
+            document.getElementById("draygonProficiency").value = {{+ p.preset.draygon_proficiency }};
+            document.getElementById("ridleyProficiency").value = {{+ p.preset.ridley_proficiency }};
+            document.getElementById("botwoonProficiency").value = {{+ p.preset.botwoon_proficiency }};
+            document.getElementById("motherBrainProficiency").value = {{+ p.preset.botwoon_proficiency }};
+            {% for (tech, is_enabled) in p.tech_setting %}
+                {% if p.implicit_tech.contains(tech.as_str()) %}
+                    {% continue %}
+                {% endif %}
+                {% if is_enabled %}
+                    document.getElementById("tech-{{+ tech }}-Yes").checked = true;
+                {% else %}
+                    document.getElementById("tech-{{+ tech }}-No").checked = true;
+                {% endif %}
+            {% endfor %}
+            {% for (strat, is_enabled) in p.notable_strat_setting %}
+                {% let strat_id = strat_id_by_name[strat] %}
+                {% if is_enabled %}
+                    document.getElementById("strat-{{+ strat_id }}-Yes").checked = true;
+                {% else %}
+                    document.getElementById("strat-{{+ strat_id }}-No").checked = true;
+                {% endif %}
+            {% endfor %}
         }
-    <!--{% endfor %}-->
+    {% endfor %}
     updateTierPercent();
 }
 
 function updateTierPercent() {
     let presets = [];
-    <!--{% for p in preset_data %}-->
-        <!--{% let name_no_space = p.preset.name.replace(" ", "") %}-->
-        presets.push("<!--{{+ name_no_space }}-->");
-    <!--{% endfor %}-->
+    {% for p in preset_data %}
+        {% let name_no_space = p.preset.name.replace(" ", "") %}
+        presets.push("{{+ name_no_space }}");
+    {% endfor %}
     for (p of presets) {
         let els = document.getElementsByClassName("tier-input-" + p);
         let cnt = 0;
@@ -67,13 +67,13 @@ function updateTierPercent() {
     }
 }
 function techChanged() {
-    <!--{% for p in preset_data %}-->
-        <!--{% let name_no_space = p.preset.name.replace(" ", "") %}-->
-        <!--{% if name_no_space == "Beyond" %}-->
-            <!--{% continue %}-->
-        <!--{% endif %}-->
-        document.getElementById("preset<!--{{+ name_no_space }}-->").checked = false;
-    <!--{% endfor %}-->
+    {% for p in preset_data %}
+        {% let name_no_space = p.preset.name.replace(" ", "") %}
+        {% if name_no_space == "Beyond" %}
+            {% continue %}
+        {% endif %}
+        document.getElementById("preset{{+ name_no_space }}").checked = false;
+    {% endfor %}
     updateTierPercent();
 }
 function updateTechJSON() {
@@ -257,18 +257,18 @@ function itemProgressionPresetChanged() {
         document.getElementById("spazerBeforePlasmaYes").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("itemPriority<!--{{+ item }}-->Default").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("itemPriority{{+ item }}Default").checked = true;
+        {% endfor %}
         document.getElementById("itemPriorityMorphEarly").checked = true;
         document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
         document.getElementById("itemPriorityScrewAttackDefault").checked = true;
         document.getElementById("itemPriorityWallJumpDefault").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("fillerItems<!--{{+ item }}-->No").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("fillerItems{{+ item }}No").checked = true;
+        {% endfor %}
         document.getElementById("fillerItemsSuperYes").checked = true;
         document.getElementById("fillerItemsPowerBombYes").checked = true;
         document.getElementById("fillerItemsETankEarly").checked = true;
@@ -288,17 +288,17 @@ function itemProgressionPresetChanged() {
         document.getElementById("spazerBeforePlasmaYes").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("itemPriority<!--{{+ item }}-->Early").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("itemPriority{{+ item }}Early").checked = true;
+        {% endfor %}
         document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
         document.getElementById("itemPriorityScrewAttackDefault").checked = true;
         document.getElementById("itemPriorityWallJumpDefault").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("fillerItems<!--{{+ item }}-->No").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("fillerItems{{+ item }}No").checked = true;
+        {% endfor %}
         document.getElementById("fillerItemsSuperYes").checked = true;
         document.getElementById("fillerItemsPowerBombYes").checked = true;
         document.getElementById("fillerItemsETankEarly").checked = true;
@@ -318,18 +318,18 @@ function itemProgressionPresetChanged() {
         document.getElementById("spazerBeforePlasmaYes").checked = true;
         document.getElementById("itemPoolPresetFull").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("itemPriority<!--{{+ item }}-->Early").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("itemPriority{{+ item }}Early").checked = true;
+        {% endfor %}
         document.getElementById("itemPriorityMorphDefault").checked = true;
         document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
         document.getElementById("itemPriorityScrewAttackDefault").checked = true;
         document.getElementById("itemPriorityWallJumpDefault").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("fillerItems<!--{{+ item }}-->No").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("fillerItems{{+ item }}No").checked = true;
+        {% endfor %}
         document.getElementById("fillerItemsChargeYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
         document.getElementById("fillerItemsSuperSemi").checked = true;
@@ -343,18 +343,18 @@ function itemProgressionPresetChanged() {
         document.getElementById("spazerBeforePlasmaYes").checked = true;
         document.getElementById("itemPoolPresetReduced").checked = true;
         document.getElementById("startingItemsPresetNone").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("itemPriority<!--{{+ item }}-->Early").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("itemPriority{{+ item }}Early").checked = true;
+        {% endfor %}
         document.getElementById("itemPriorityMorphDefault").checked = true;
         document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
         document.getElementById("itemPriorityScrewAttackDefault").checked = true;
         document.getElementById("itemPriorityWallJumpDefault").checked = true;
         document.getElementById("itemPriorityVariaLate").checked = true;
         document.getElementById("itemPriorityGravityLate").checked = true;
-        <!--{% for item in prioritizable_items %}-->
-        document.getElementById("fillerItems<!--{{+ item }}-->No").checked = true;
-        <!--{% endfor %}-->
+        {% for item in prioritizable_items %}
+        document.getElementById("fillerItems{{+ item }}No").checked = true;
+        {% endfor %}
         document.getElementById("fillerItemsChargeYes").checked = true;
         document.getElementById("fillerItemsSpazerYes").checked = true;
         document.getElementById("fillerItemsSuperSemi").checked = true;
@@ -371,12 +371,12 @@ function itemProgressionChanged() {
 }
 function processStartingItemsPreset() {
     if (document.getElementById("startingItemsPresetNone").checked) {
-        <!--{% for item in starting_items_multiple %}-->
-        document.getElementById("startingItem<!--{{+ item }}-->").value = "0";
-        <!--{% endfor %}-->
-        <!--{% for item in starting_items_single %}-->
-        document.getElementById("startingItem<!--{{+ item }}-->No").checked = true;
-        <!--{% endfor %}-->
+        {% for item in starting_items_multiple %}
+        document.getElementById("startingItem{{+ item }}").value = "0";
+        {% endfor %}
+        {% for item in starting_items_single %}
+        document.getElementById("startingItem{{+ item }}No").checked = true;
+        {% endfor %}
     }
     if (document.getElementById("startingItemsPresetAll").checked) {
         document.getElementById("startingItemMissile").value = "46";
@@ -384,9 +384,9 @@ function processStartingItemsPreset() {
         document.getElementById("startingItemReserveTank").value = "4";
         document.getElementById("startingItemSuper").value = "10";
         document.getElementById("startingItemPowerBomb").value = "10";
-        <!--{% for item in starting_items_single %}-->
-        document.getElementById("startingItem<!--{{+ item }}-->Yes").checked = true;
-        <!--{% endfor %}-->
+        {% for item in starting_items_single %}
+        document.getElementById("startingItem{{+ item }}Yes").checked = true;
+        {% endfor %}
     }
 }
 function validateStartingItems() {
@@ -521,8 +521,8 @@ function checkOtherOptions() {
     document.getElementById("randomSeed").value = "";
 }
 </script>
-<!--{% include "../common/save_load_rom.html" %}-->
-<!--{% include "../common/save_settings.html" %}-->
+{% include "../common/save_load_rom.html" %}
+{% include "../common/save_settings.html" %}
 <script>
 loadForm(document.getElementById("main-form"));
 loadROM(document.getElementById("vanillaRom"), 'vanilla');

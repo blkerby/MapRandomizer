@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en-US">
     <head>
-    <!--{% include "common/header.html" %}-->
+    {% include "common/header.html" %}
     <meta name="keywords" content="Super Metroid, Map Randomizer, Map Rando, Map, Randomizer">
     <meta name="description" content="After planet Zebes exploded, Mother Brain put it back together again but arranged it differently this time.">
     <title>Super Metroid Map Rando</title>
     </head>
     <body>
-    <!--{% include "common/navbar.html" %}-->
+    {% include "common/navbar.html" %}
     <script>
     document.getElementById("navigation-home").classList.add("active");
     </script>
     <div class="container col-xl-9 col-xxl-7">
-        <!--{% if version_info.dev %}-->
+        {% if version_info.dev %}
         <div class="row my-4">
         <p><b>Note</b>: This is the development version of the site. Check out the <a href="/releases">Releases</a> tab to see what's new.
         New features may not yet be well-tested, so bugs are likely. If you notice any issues, please let us know in the
@@ -20,7 +20,7 @@
         of the site.
         </p>
         </div>
-        <!--{% endif %}-->
+        {% endif %}
         <div class="row align-items-center rounded-3 border shadow-lg mx-1 my-4 p-0">
             <div class="col-lg-8 p-4">
                 <h2 class="fw-bold">Super Metroid Map Rando</h2>

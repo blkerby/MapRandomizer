@@ -3,72 +3,72 @@
     <div class="card-body container">
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Seed name:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ seed_name }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ seed_name }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Created:</div>
             <div class="col-7 col-sm-8 col-md-9" id="createdTimestamp"></div>
         </div>
-        <!--{% if race_mode %}-->
+        {% if race_mode %}
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Spoiler unlocked:</div>
             <div class="col-7 col-sm-8 col-md-9" id="unlockedTimestamp"></div>
         </div>
-        <!--{% endif %}-->
+        {% endif %}
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Version:</div>
             <div class="col-7 col-sm-8 col-md-9">
-            <!--{{+ version_info.version }}-->
-            <!--{% if version_info.dev %}-->
+            {{+ version_info.version }}
+            {% if version_info.dev %}
             (DEV)
-            <!--{% endif %}-->
+            {% endif %}
             </div>
         </div>
-        <!--{% if !race_mode %}-->
+        {% if !race_mode %}
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Random seed:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ random_seed }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ random_seed }}</div>
         </div>
-        <!--{% endif %}-->
+        {% endif %}
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Skill assumption:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ preset }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ preset }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Item progression:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ item_progression_preset }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ item_progression_preset }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Quality-of-life options:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ quality_of_life_preset }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ quality_of_life_preset }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Objectives:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ objectives }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ objectives }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Map layout:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ map_layout }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ map_layout }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Doors:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ doors }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ doors }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Start location:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ start_location_mode }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ start_location_mode }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Save the animals:</div>
-            <div class="col-7 col-sm-8 col-md-9"><!--{{+ save_animals }}--></div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ save_animals }}</div>
         </div>
-        <!--{% let game_variations = self.game_variations() %}-->
-        <!--{% if game_variations.len() > 0 %}-->
+        {% let game_variations = self.game_variations() %}
+        {% if game_variations.len() > 0 %}
             <div class="row">
                 <div class="col-5 col-sm-4 col-md-3">Other options:</div>
-                <div class="col-7 col-sm-8 col-md-9"><!--{{+ game_variations.join("<br>")|safe }}--></div>
+                <div class="col-7 col-sm-8 col-md-9">{{+ game_variations.join("<br>")|safe }}</div>
             </div>
-        <!--{% endif %}-->
+        {% endif %}
     </div>
     <style> 
     html[data-bs-theme=dark] .details-button.collapsed {
@@ -97,7 +97,7 @@
                         Skill assumptions
                     </div>
                     <div class="card-body">
-                        <!--{% include "skill_details.html" %}-->
+                        {% include "skill_details.html" %}
                     </div>
                 </div>
 
@@ -106,7 +106,7 @@
                         Item progression details
                     </div>
                     <div class="card-body">
-                        <!--{% include "item_progression_details.html" %}-->
+                        {% include "item_progression_details.html" %}
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@
                         Quality-of-life option details
                     </div>
                     <div class="card-body">
-                        <!--{% include "quality_of_life_details.html" %}-->
+                        {% include "quality_of_life_details.html" %}
                     </div>
                 </div>
             </div>
@@ -125,7 +125,7 @@
 
 <script>
 var date = new Date();
-date.setTime(<!--{{+ timestamp }}-->);
+date.setTime({{+ timestamp }});
 document.getElementById("createdTimestamp").innerHTML = date.toString();
 
 unlockedTimestampElement = document.getElementById("unlockedTimestamp")

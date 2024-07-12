@@ -22,17 +22,17 @@
               <th scope="col">Author</th>
               </tr>
               </th>
-              <!--{% for category in samus_sprite_categories %}-->
-              <!--{% for info in category.sprites %}-->
-              <!--{% if info.display_name == "Samus" %}-->
-              <!--{% continue %}-->
-              <!--{% endif %}-->
+              {% for category in samus_sprite_categories %}
+              {% for info in category.sprites %}
+              {% if info.display_name == "Samus" %}
+              {% continue %}
+              {% endif %}
               <tr>
-                <td><!--{{+ info.display_name }}--></td>
-                <td><!--{{+ info.authors.join(", ") }}--></td>
+                <td>{{+ info.display_name }}</td>
+                <td>{{+ info.authors.join(", ") }}</td>
               </tr>
-              <!--{% endfor %}-->
-              <!--{% endfor %}-->
+              {% endfor %}
+              {% endfor %}
             </table>
           </div>
         </div>

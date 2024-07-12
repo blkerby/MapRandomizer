@@ -21,20 +21,20 @@
       <div class="modal-body">
         <input type="hidden" id="energyTankColor" name="energy_tank_color" value="">
         <div id="etankGrid">
-        <!--{% for row in etank_colors %}-->
+        {% for row in etank_colors %}
           <div class="row m-2">
-          <!--{% for color in row %}-->
+          {% for color in row %}
             <div class="col-1">
-              <button type="button" class="btn btn-secondary mx-auto custom-button" style="padding: 12px" data-bs-dismiss="modal" onclick="changeEnergyTankColor(this)" data-color="<!--{{+ color }}-->">
+              <button type="button" class="btn btn-secondary mx-auto custom-button" style="padding: 12px" data-bs-dismiss="modal" onclick="changeEnergyTankColor(this)" data-color="{{+ color }}">
                 <svg style="image-rendering:pixelated" class="m-0" width="18" height="15" version="1.1" xmlns="http://www.w3.org/2000/svg">
                   <rect x="0" y="0" width="18" height="15" fill="white"/>;
-                  <rect x="3" y="3" width="15" height="12" fill="#<!--{{+ color }}-->"/>;
+                  <rect x="3" y="3" width="15" height="12" fill="#{{+ color }}"/>;
                 </svg>
               </button>
             </div>
-          <!--{% endfor %}-->
+          {% endfor %}
           </div>
-        <!--{% endfor %}-->
+        {% endfor %}
         </div>
       </div>
       <div class="modal-footer">

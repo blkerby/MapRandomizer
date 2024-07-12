@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en-US">
 <head>
-<!--{% include "../common/header.html" %}-->
+{% include "../common/header.html" %}
 <title>Logic - Super Metroid Map Rando</title>
 </head>
 <body>
-<!--{% include "../common/navbar.html" %}-->
+{% include "../common/navbar.html" %}
 <script>
 document.getElementById("navigation-logic").classList.add("active");
 </script>
@@ -20,40 +20,40 @@ document.getElementById("navigation-logic").classList.add("active");
 
     <div class="row">
         <div class="col-lg-6">
-            <!--{% for area in area_order %}-->
-                <div class="card my-2" id="<!--{{+ area.replace(" ", "") }}-->">
+            {% for area in area_order %}
+                <div class="card my-2" id="{{+ area.replace(" ", "") }}">
                     <div class="card-header">
-                    <!--{{+ area }}-->
+                    {{+ area }}
                     </div>
                     <div class="card-body px-2 py-1">
-                        <!--{% for room in rooms %}-->
-                            <!--{% if room.area|as_ref == area %}-->
-                                <p class="m-1"><a href="/logic/room/<!--{{+ room.room_name_stripped }}-->"><!--{{+ room.room_name }}--></a></p>
-                            <!--{% endif %}-->
-                        <!--{% endfor %}-->
+                        {% for room in rooms %}
+                            {% if room.area|as_ref == area %}
+                                <p class="m-1"><a href="/logic/room/{{+ room.room_name_stripped }}">{{+ room.room_name }}</a></p>
+                            {% endif %}
+                        {% endfor %}
                     </div>
                 </div>
-            <!--{% endfor %}-->
+            {% endfor %}
         </div>
 
         <div class="col-lg-6">
-            <!--{% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() %}-->
-                <div class="card my-2" id="<!--{{+ tech_difficulty_name.replace(" ", "") }}-->Tech">
+            {% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() %}
+                <div class="card my-2" id="{{+ tech_difficulty_name.replace(" ", "") }}Tech">
                     <div class="card-header">
-                    <!--{{+ tech_difficulty_name }}--> Tech
+                    {{+ tech_difficulty_name }} Tech
                     </div>
                     <div class="card-body px-2 py-1">
-                    <!--{% for t in tech %}-->
-                        <!--{% if t.tech_name == "canEscapeMorphLocation" %}-->
-                            <!--{% continue %}-->
-                        <!--{% endif %}-->
-                        <!--{% if t.tech_difficulty_idx == tech_difficulty_idx %}-->
-                            <p class="m-1"><a href="/logic/tech/<!--{{+ t.tech_name }}-->"><!--{{+ t.tech_name }}--></a></p>
-                        <!--{% endif %}-->
-                    <!--{% endfor %}-->
+                    {% for t in tech %}
+                        {% if t.tech_name == "canEscapeMorphLocation" %}
+                            {% continue %}
+                        {% endif %}
+                        {% if t.tech_difficulty_idx == tech_difficulty_idx %}
+                            <p class="m-1"><a href="/logic/tech/{{+ t.tech_name }}">{{+ t.tech_name }}</a></p>
+                        {% endif %}
+                    {% endfor %}
                     </div>
                 </div>
-            <!--{% endfor %}-->
+            {% endfor %}
         </div>
     </div>
 

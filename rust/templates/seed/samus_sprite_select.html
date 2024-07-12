@@ -45,26 +45,26 @@
         </style>
 
         <input type="hidden" id="samusSprite" name="samus_sprite" value="samus">
-        <!--{% for category in samus_sprite_categories %}-->
-            <div class="card-header sprite-list mt-2"><!--{{+ category.category_name }}--></div>
+        {% for category in samus_sprite_categories %}
+            <div class="card-header sprite-list mt-2">{{+ category.category_name }}</div>
             <div class="form-group row m-0 p-0 sprite-list">
                 <div class="d-flex align-content-start flex-wrap m-0 p-0">
-                    <!--{% for info in category.sprites %}-->
-                        <div id="spriteButton-<!--{{+ info.name }}-->" class="border p-2 m-0 sprite" style="width:150px" onclick="selectSprite(this)" data-name="<!--{{+ info.name }}-->" data-display-name="<!--{{+ info.display_name }}-->" data-bs-dismiss="modal">
+                    {% for info in category.sprites %}
+                        <div id="spriteButton-{{+ info.name }}" class="border p-2 m-0 sprite" style="width:150px" onclick="selectSprite(this)" data-name="{{+ info.name }}" data-display-name="{{+ info.display_name }}" data-bs-dismiss="modal">
                             <div class="row">
                                 <div class="text-center">
-                                    <img class="mx-auto png-sprite" loading="lazy" src="/static/samus_sprites/<!--{{+ info.name }}-->.png" style="image-rendering: pixelated;width:120px;height:168px">
-                                    <img class="mx-auto gif-sprite" loading="lazy" src="/static/samus_sprites/<!--{{+ info.name }}-->.gif" style="image-rendering: pixelated;width:120px;height:168px">
+                                    <img class="mx-auto png-sprite" loading="lazy" src="/static/samus_sprites/{{+ info.name }}.png" style="image-rendering: pixelated;width:120px;height:168px">
+                                    <img class="mx-auto gif-sprite" loading="lazy" src="/static/samus_sprites/{{+ info.name }}.gif" style="image-rendering: pixelated;width:120px;height:168px">
                                 </div>
                             </div>
                             <div class="row mt-2">
-                                <p class="text-center sprite-text"><!--{{+ info.display_name }}--></p>
+                                <p class="text-center sprite-text">{{+ info.display_name }}</p>
                             </div>
                         </div>
-                    <!--{% endfor %}-->
+                    {% endfor %}
                 </div>
             </div>
-        <!--{% endfor %}-->
+        {% endfor %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

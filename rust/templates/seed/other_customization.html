@@ -1,6 +1,6 @@
 <div class="form-group row my-3">
     <div class="col-md-4">
-    <label class="col-form-label" for="room_palettes"><!--{% include "help/room_palettes.html" %}-->Room palettes</label>
+    <label class="col-form-label" for="room_palettes">{% include "help/room_palettes.html" %}Room palettes</label>
     </div>
     <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onchange="roomThemingSettingChanged()">
         <input type="radio" class="btn-check" name="room_palettes" id="roomPalettesVanilla" value="vanilla">
@@ -12,7 +12,7 @@
 
 <div class="form-group row my-3">
     <div class="col-md-4">
-        <label class="col-form-label" for="tile_theme"><!--{% include "help/tile_theme.html" %}-->Tile theme</label>
+        <label class="col-form-label" for="tile_theme">{% include "help/tile_theme.html" %}Tile theme</label>
     </div>
     <div class="col-md-6 col-lg-4 btn-group p-0" role="group" onchange="roomThemingSettingChanged()">
         <select id="tileTheme" name="tile_theme" class="form-select">
@@ -20,9 +20,9 @@
             <option value="area_themed">Area-themed</option>
             <option value="scrambled">Scrambled</option>
             <hr>
-            <!--{% for theme in mosaic_themes %}-->
-            <option value="<!--{{+ theme.name }}-->"><!--{{+ theme.display_name }}--></option>
-            <!--{% endfor %}-->
+            {% for theme in mosaic_themes %}
+            <option value="{{+ theme.name }}">{{+ theme.display_name }}</option>
+            {% endfor %}
             <hr>
             <option value="Outline">Practice Outlines</option>
         </select>
@@ -31,7 +31,7 @@
 
 <div class="form-group row my-3">
     <div class="col-md-4">
-    <label class="col-form-label" for="reserve_hud_style"><!--{% include "help/reserve_hud.html" %}-->Reserve tank HUD style</label>
+    <label class="col-form-label" for="reserve_hud_style">{% include "help/reserve_hud.html" %}Reserve tank HUD style</label>
     </div>
     <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
         <input type="radio" class="btn-check" name="reserve_hud_style" id="reserveHudStyleVanilla" value=false>
@@ -43,7 +43,7 @@
 
 <div class="form-group row my-3">
     <div class="col-md-4">
-    <label class="col-form-label" for="vanilla_screw_attack_animation"><!--{% include "help/screw_attack.html" %}-->Screw Attack animation</label>
+    <label class="col-form-label" for="vanilla_screw_attack_animation">{% include "help/screw_attack.html" %}Screw Attack animation</label>
     </div>
     <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
         <input type="radio" class="btn-check" name="vanilla_screw_attack_animation" id="screwAttackAnimationVanilla" value=true>
@@ -56,6 +56,6 @@
 <div class="card m-2">
     <div class="card-header">Controller settings</div>
     <div class="card-body">
-        <!--{% include "controller_settings.html" %}-->
+        {% include "controller_settings.html" %}
     </div>
 </div>
