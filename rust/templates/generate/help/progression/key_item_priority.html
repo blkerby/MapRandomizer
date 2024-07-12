@@ -1,0 +1,39 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#keyItemPriorityModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="keyItemPriorityModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Key item priority</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>These settings affect how the randomizer prioritizes placing key items, which can be used to nudge the
+          randomizer to try to place certain items earlier or later on average. Wide variation should still be expected
+          in the results, because of constraints that limit how early or late the randomizer can place a key item in any
+          given situation, especially for lower settings of "Skill assumptions".</p>
+        <h5>Details</h5>
+        <p>At the beginning of each randomization attempt, an item priority order is determined by randomly shuffling
+          all the item types, with a bias such that "Early" items (as selected below) tend to come before "Default"
+          items, which in turn tend to come before "Late" items. Every item type occurs somewhere in this priority order
+          (even Missiles and other filler items). The same priority order is used across all steps of a given attempt.
+        </p>
+        <p>On a given step, the randomizer determines the quantity of key items to place based on the "Progression
+          rate". It will always begin by attempting to place the first available key item(s) from the priority order in
+          two-way reachable locations, along with randomly selected filler items. The randomizer places filler items in
+          one-way reachable locations, and it tries to avoid putting potentially important items in such locations
+          (namely, a type of filler item that has not been placed before on an earlier step). If the selected
+          combination of items provides progression, then the randomizer will accept this placement and move on to the
+          next step. Otherwise, the randomizer replaces the last key item with the next one in the priority order and
+          tries again, continuing this way until it either succeeds or all item types are exhausted, in which case it
+          will try again with a new map and new item priority order.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,75 @@
+<div class="row">
+    <div class="col-md-4">
+        <a href="/logic/room/{{+ strat.room_name_stripped }}/{{+ strat.from_node_id }}/{{+ strat.to_node_id }}/{{+ strat.strat_name_stripped }}">
+            {{+ strat.strat_name }}
+        </a>
+        ({{+ strat.difficulty_name }})
+        <br>
+        <a href="/logic/room/{{+ strat.room_name_stripped }}">{{+ strat.room_name }}</a>
+    </div>
+    <div class="col-md-4">
+        From: {{+ strat.from_node_id }}<br>
+        {{+ strat.from_node_name }}
+    </div>
+    <div class="col-md-4">
+        To: {{+ strat.to_node_id }}<br>
+        {{+ strat.to_node_name }}
+    </div>
+</div>
+
+<p>
+{% if strat.notable %}
+Notable: true<br>
+{% endif %}
+</p>
+
+{% if strat.notable %}
+    <div class="row my-2">
+        <div class="text-center col-sm-4 col-md-3 col-lg-2">
+            {% let name = strat.notable_strat_name|as_ref %}
+            {% if notable_gif_listing.contains(format!("{}.png", name)) %}
+                {% let hq_video_url_root = hq_video_url_root|as_ref %}
+                {% let video_url = format!("{}/{}.webm", hq_video_url_root, name) %}
+                <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+                <img class="png-tech" loading="lazy" src="/static/notable_gifs/{{+ name }}.png" style="width:128px;height:128px;">
+                <img class="gif-tech" loading="lazy" src="/static/notable_gifs/{{+ name }}.gif" style="width:128px;height:128px;">
+                </a>
+            {% endif %}
+        </div>
+        <div class="col-sm-8 col-md-9 col-lg-10">
+            {% if strat.note.len() > 0 %}
+                <p>{{+ strat.note }}</p>
+            {% endif %}
+        </div>
+    </div>
+{% else %}
+    {% if strat.note.len() > 0 %}
+        <p>{{+ strat.note }}</p>
+    {% endif %}
+{% endif %}
+
+{% if let Some(entrance_condition) = strat.entrance_condition %}
+    <p class="mb-0">Entrance condition:</p>
+    <pre>{{+ entrance_condition }}</pre>
+{% endif %}
+{% if strat.requires.len() > 0 %}
+    <p class="mb-0">Requires:</p>
+    <pre>{{+ strat.requires }}</pre>
+{% endif %}
+{% if let Some(exit_condition) = strat.exit_condition %}
+    <p class="mb-0">Exit condition:</p>
+    <pre>{{+ exit_condition }}</pre>
+{% endif %}
+{% if strat.clears_obstacles.len() > 0 %}
+    <p>Clears obstacles: {{+ strat.clears_obstacles.join(", ") }}</p>
+{% endif %}
+{% if strat.resets_obstacles.len() > 0 %}
+    <p>Resets obstacles: {{+ strat.resets_obstacles.join(", ") }}</p>
+{% endif %}
+{% if strat.bypasses_door_shell %}
+    <p>Bypasses door shell: true</p>
+{% endif %}
+{% if strat.unlocks_doors.as_ref().is_some() %}
+    <p class="mb-0">Unlocks doors:</p>
+    <pre>{{+ strat.unlocks_doors.as_ref().unwrap() }}</pre>
+{% endif %}

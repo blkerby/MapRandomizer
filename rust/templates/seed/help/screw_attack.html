@@ -1,0 +1,34 @@
+<!-- Button trigger modal -->
+<button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#screwAttackModal">
+  <i class="bi bi-question-circle"></i>
+</button>
+<!-- Modal -->
+<div class="modal" id="screwAttackModal" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Screw Attack animation</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>This setting determines how the Screw Attack animation appears:</p>
+        <ul>
+          <li>
+            <p><strong>Vanilla</strong>: The Screw Attack animation is always based on the Space Jump animation
+              regardless of whether or not Space Jump is equipped.</p>
+          </li>
+          <li>
+            <p><strong>Split</strong>: Screw Attack without Space Jump equipped is based on the spin-jump animation.
+              Screw Attack with Space Jump equipped is based on the Space Jump animation.</p>
+          </li>
+        </ul>
+        <p>The behavior of the vanilla game can be explained by the fact that the player was expected to obtain Space
+          Jump before Screw Attack and never have a reason to unequip Space Jump. Hence the possibility of using Screw
+          Attack without Space Jump was apparently overlooked or considered unimportant.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

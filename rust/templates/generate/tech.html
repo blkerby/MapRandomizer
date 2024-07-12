@@ -1,0 +1,134 @@
+<input type="hidden" id="json-tech" name="tech_json">
+<input type="hidden" id="json-strat" name="strat_json">
+{% for (preset_idx, p) in preset_data.iter().enumerate() %}
+    {% let name_no_space = p.preset.name.replace(" ", "") %}
+    <div class="accordion-item my-0 p-0">
+        <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{+ name_no_space }}Tech">
+            {{+ p.preset.name }} (<span id="percent-tier-{{+ name_no_space }}"></span>%)
+        </button>
+        </h2>
+        <style>
+        html[data-bs-theme=dark] .tech-row:hover {
+            background-color: #2b3035;
+        }
+        html[data-bs-theme=light] .tech-row:hover {
+            background-color: #f4f5f6;
+        }
+        .png-tech {
+            position: absolute;
+        }
+        .tech-row:hover .png-tech {
+            opacity: 0;
+        }
+        .tech-row:not(:hover) .gif-tech {
+            opacity: 0;
+        }
+        </style>
+        <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse my-0 p-0">
+            <div class="card">
+                <div class="card-body my-0 p-0">
+                    {% for tech in p.preset.tech %}
+                        {% if loop.index0 > 0 %}
+                            <hr class="m-0">
+                        {% endif %}
+                        <div class="row m-0 p-3 tech-row">
+                            <div class="text-center col-sm-4 col-md-3 col-lg-2 my-0">
+                                {% if tech_gif_listing.contains(format!("{}.png", tech)) %}
+                                {% let hq_video_url_root = hq_video_url_root %}
+                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, tech) %}
+                                <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <img class="png-tech" loading="lazy" src="/static/tech_gifs/{{+ tech }}.png" style="width:128px;height:128px;">
+                                <img class="gif-tech" loading="lazy" src="/static/tech_gifs/{{+ tech }}.gif" style="width:128px;height:128px;">
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-8 col-md-9 col-lg-10 my-0">
+                                <div class="container mx-0 my-0">
+                                    <div class="row">
+                                        <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-0">
+                                            <label for="{{+ tech }}"><b>{{+ tech }}</b></label>
+                                        </div>
+                                        <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
+                                            <input type="radio" class="btn-check" name="tech-{{+ tech }}" id="tech-{{+ tech }}-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-{{+ tech }}-No">No</label>
+                                            <input type="radio" class="btn-check tech-input tier-input-{{+ name_no_space }}" name="tech-{{+ tech }}" id="tech-{{+ tech }}-Yes" value="true">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-{{+ tech }}-Yes">Yes</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 my-1">
+                                            {{+ tech_description[tech] }}
+                                        </div>
+                                    </div>
+                                    {% if tech_dependencies[tech].len() > 0usize|as_ref %}
+                                    <p><i>Dependencies: {{+ tech_dependencies[tech].join(", ") }} </i></p>
+                                    {% endif %}
+                                    {% if tech_strat_counts[tech] > 0usize|as_ref %}
+                                        <p class="mt-3"><a href="/logic/tech/{{+ tech }}" onclick="setPreset('{{+ preset_idx }}');">
+                                        {{+ tech_strat_counts[tech] }} strat(s)</a></p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="card">
+                {% if p.preset.notable_strats.len() > 0 %}
+                <div class="card-header">
+                    Notable strats
+                </div>
+                {% endif %}
+                <div class="card-body my-0 p-0">
+                    {% for strat in p.preset.notable_strats %}
+                        {% let strat_id = strat_id_by_name[strat] %}
+                        <hr class="m-0">
+                        <div class="row m-0 p-3 tech-row">
+                            <div class="text-center col-sm-4 col-md-3 col-lg-2">
+                                {% if notable_gif_listing.contains(format!("{}.png", strat)) %}
+                                {% let hq_video_url_root = hq_video_url_root %}
+                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, strat) %}
+                                <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <img class="png-tech" loading="lazy" src="/static/notable_gifs/{{+ strat }}.png" style="width:128px;height:128px;">
+                                <img class="gif-tech" loading="lazy" src="/static/notable_gifs/{{+ strat }}.gif" style="width:128px;height:128px;">
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-8 col-md-9 col-lg-10">
+                                <div class="container mx-0 my-0">
+                                    <div class="row">
+                                        <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-1">
+                                            <label for="strat-{{+ strat }}">
+                                            <b>{{+ strat }}</b>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
+                                            <input type="radio" class="btn-check" name="strat-{{+ strat }}" id="strat-{{+ strat_id }}-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{+ strat_id }}-No">No</label>
+                                            <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{+ strat }}" id="strat-{{+ strat_id }}-Yes" value="true">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{+ strat_id }}-Yes">Yes</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 my-1">
+                                            {{+ strat_description[strat] }}
+                                        </div>
+                                    </div>
+                                    {% if strat_dependencies[strat].len() > 0usize|as_ref %}
+                                    <i>Dependencies: {{+ strat_dependencies[strat].join(", ") }} </i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+<script>
+function setPreset(i) {
+    localStorage["filterForm"] = JSON.stringify({"preset": i});
+}
+</script>

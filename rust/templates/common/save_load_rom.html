@@ -1,0 +1,34 @@
+<script src="/static/localforage.js"></script>
+<script>
+    async function saveROM(fileInput, key) {
+        var file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async function (event) {
+            try {
+                await localforage.setItem(key + 'RomName', file.name);
+                await localforage.setItem(key + 'RomData', reader.result);
+            } catch (err) {
+                console.log(err);
+            };
+        };
+        reader.readAsArrayBuffer(file);
+    }
+    async function loadROM(fileInput, key) {
+        try {
+            var fileName = await localforage.getItem(key + 'RomName');
+            var data = await localforage.getItem(key + 'RomData');
+            if (data == null && key != 'vanilla') {
+                fileName = await localforage.getItem('vanillaRomName');
+                data = await localforage.getItem('vanillaRomData');
+            }
+            if (data !== null) {
+                var file = new File([data], fileName, { type: '' });
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                fileInput.files = dataTransfer.files;
+            }
+        } catch (err) {
+            console.log(err);
+        }
+    }
+</script>

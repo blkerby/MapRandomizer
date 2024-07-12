@@ -1,0 +1,138 @@
+<div class="card my-2">
+    <div class="card-header">Important tips</div>
+    <div class="card-body">
+        <ul>
+        {% if !ultra_low_qol %}
+        <li>Save frequently! Saves are fast, and saving at a different station from the last save will move 
+        to the next slot before saving, so you can go back to an earlier save if you get stuck.</li>
+        {% endif %}
+        <li>Be careful with one-ways: it's easy to get soft-locked. The logic usually doesn't require going down a one-way 
+        for an item, only if there is a way back to the Ship <i>without</i> using the new item. It's often best to avoid one-ways
+        until you know there's a way back or have exhausted all other options.</li>
+        <li>If you can't find any way to progress, don't give up! Check out the interactive spoiler map below to see
+        what the game intended. If it still seems impossible or too difficult, please let us know in the
+        <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>.</li>
+        </ul>
+    </div>
+</div>
+
+{% if race_mode %}
+    <div class="row">
+        <form id="unlockForm" method="POST" action="unlock" style="display:none;">
+            <input type="hidden" id="spoilerToken" name="spoiler_token">
+            <div class="col-sm-6 mx-auto text-center m-2">
+                <input type="submit" class="btn btn-secondary" value="Unlock spoiler data">
+            </div>
+        </form>
+    </div>
+    <div id="viewSpoilerDiv" class="row" style="display:none;">
+        <div class="col-sm-6 mx-auto text-center m-2">
+            <a class="btn btn-success" href="data/visualizer/index.html"><p class="m-2">View interactive spoiler map</p></a>
+        </div>
+    </div>
+    <script>
+    document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
+    if (window.unlockedTimestampString === "") {
+        if (localStorage["spoilerToken"].startsWith(window.spoilerTokenPrefix)) {
+            document.getElementById("unlockForm").style.display = "flex";
+        }
+    } else {
+        document.getElementById("viewSpoilerDiv").style.display = "flex";
+    }
+    </script>
+{% else %}
+    <div class="row">
+        <div class="col-sm-6 mx-auto text-center m-2">
+            <a class="btn btn-success" href="data/visualizer/index.html"><p class="m-2">View interactive spoiler map</p></a>
+        </div>
+    </div>
+{% endif %}
+
+<div class="card my-2">
+    <div class="card-header">Things to know</div>
+    <div class="card-body">
+        {% if !ultra_low_qol %}
+        <h6>Special inputs</h6>
+        <ul>
+        <li>Press Select or X/Y in the pause map to cycle through maps of explored areas.
+        <li>Press L + R + Select + Start simultaneously to quick reload from the last save. 
+        Repeat to cycle through previous saves.
+        <li>Press L + R + Up + X to activate Spin Lock, temporarily preventing up/down inputs from breaking spin.
+        Pressing shot will cancel this mode.
+        </ul>
+        {% endif %}
+        <h6>Map info</h6>
+        <ul>
+        <li>Every Zebes room from the vanilla game is placed somewhere. Once all movement items are
+        collected, it is possible to reach every room with only Basic tech.
+        <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
+        in the same area as the broken save room.
+        </ul>
+        
+        <h6>Item info</h6>
+        <ul>
+        {% if all_items_spawn %}
+        <li>The planet is awakened by killing the enemies (not including bosses or minibosses) 
+        in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
+        {% else %}
+        <li>Certain items do not spawn until the planet is awakened, by killing the enemies (not including bosses or minibosses) 
+        in a room where this unlocks a gray door.<a href="#footnote-pit-room"><sup>1</sup></a>
+        <li>Certain items do not spawn until Phantoon has been defeated, the same as in the vanilla game.
+        {% endif %}
+        <li>Varia suit behaves as in vanilla, but Gravity suit alone provides no heat protection and only 50% protection against other damage. 
+        The suits are "complementary", meaning they stack to give the same effect as combined suits in the vanilla game.
+        </ul>
+
+        <h6>Other info</h6>
+        <ul>
+        {% if !ultra_low_qol %}
+        <li>Missile Refill stations refill all ammo types: Missiles, Supers, and Power Bombs.</li>
+        {% endif %}
+        {% if supers_double %}
+        <li>Supers do double damage to Mother Brain (a quality-of-life option).</li>
+        {% endif %}
+        <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks, can open blue & green gates from either side,
+        and can unlock all types of ammo doors.</li>
+        <li>In the event that you end up softlocked in all three save files, you can clear a save file and restart
+        the game from the beginning while retaining your map progress. (Map progress will be deleted only if all 
+        three save files are clear at the same time.)</li>
+        </ul>
+        <p>
+    </div>
+</div>
+
+<div>
+    <a id="footnote-pit-room">
+    <small>
+    <sup>1</sup>This can be done in the following rooms: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates Room,
+    and Plasma Room. These are the rooms that involve killing Space Pirates to unlock the doors in the vanilla game.
+    Note that in the Pit Room, the 
+    {% if all_items_spawn %}
+    enemies and gray doors
+    {% else %}
+    enemies, gray doors, and item 
+    {% endif %}
+    only spawn after Morph and Missiles are collected (regardless of whether Zebes is awake).
+    </small>
+</div>
+
+{% if race_mode %}
+<div id="footnote-spoiler" style="display:none;">
+    <a>
+    <small>
+    <sup>2</sup>Spoiler log <a href="data/spoiler.json">JSON</a>, map PNG (<a href="data/map-assigned.png">assigned room colors</a>, <a href="data/map-vanilla.png">vanilla room colors</a>)</small>
+    </small>
+</div>
+<script>
+if (window.unlockedTimestampString != "") {
+    document.getElementById("footnote-spoiler").style.display = "inline-block";
+}
+</script>
+{% else %}
+<div>
+    <a id="footnote-spoiler">
+    <small>
+    <sup>2</sup>Spoiler log <a href="data/spoiler.json">JSON</a>, map PNG (<a href="data/map-assigned.png">assigned room colors</a>, <a href="data/map-vanilla.png">vanilla room colors</a>)</small>
+    </small>
+</div>
+{% endif %}

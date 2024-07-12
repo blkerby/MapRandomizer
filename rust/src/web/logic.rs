@@ -1,9 +1,9 @@
 use std::path::PathBuf;
 
+use askama::Template;
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
-use sailfish::TemplateOnce;
 use urlencoding;
 
 use crate::game_data::{
@@ -44,8 +44,8 @@ struct RoomStrat<'a> {
     notable_gif_listing: &'a HashSet<String>,
 }
 
-#[derive(TemplateOnce, Clone)]
-#[template(path = "logic/room.stpl")]
+#[derive(Template, Clone)]
+#[template(path = "logic/room.html")]
 struct RoomTemplate<'a> {
     version_info: VersionInfo,
     difficulty_names: Vec<String>,
@@ -62,8 +62,8 @@ struct RoomTemplate<'a> {
     hq_video_url_root: String,
 }
 
-#[derive(TemplateOnce, Clone)]
-#[template(path = "logic/tech.stpl")]
+#[derive(Template, Clone)]
+#[template(path = "logic/tech.html")]
 struct TechTemplate<'a> {
     version_info: VersionInfo,
     difficulty_names: Vec<String>,
@@ -79,8 +79,8 @@ struct TechTemplate<'a> {
     hq_video_url_root: String,
 }
 
-#[derive(TemplateOnce, Clone)]
-#[template(path = "logic/strat_page.stpl")]
+#[derive(Template, Clone)]
+#[template(path = "logic/strat_page.html")]
 struct StratTemplate<'a> {
     version_info: VersionInfo,
     room_id: usize,
@@ -95,8 +95,8 @@ struct StratTemplate<'a> {
     hq_video_url_root: String,
 }
 
-#[derive(TemplateOnce)]
-#[template(path = "logic/logic.stpl")]
+#[derive(Template)]
+#[template(path = "logic/logic.html")]
 struct LogicIndexTemplate<'a> {
     version_info: VersionInfo,
     rooms: &'a [RoomTemplate<'a>],
@@ -845,7 +845,7 @@ impl LogicData {
                 hq_video_url_root,
                 version_info,
             );
-            let html = template.clone().render_once().unwrap();
+            let html = template.clone().render().unwrap();
             let stripped_room_name = strip_name(&template.room_name);
             out.room_html.insert(stripped_room_name.clone(), html);
             room_templates.push(template.clone());
@@ -858,7 +858,7 @@ impl LogicData {
                     hq_video_url_root,
                     version_info,
                 );
-                let strat_html = strat_template.render_once().unwrap();
+                let strat_html = strat_template.render().unwrap();
                 let stripped_strat_name = strip_name(&strat.strat_name);
                 out.strat_html.insert(
                     (
@@ -885,7 +885,7 @@ impl LogicData {
             version_info,
         );
         for template in &tech_templates {
-            let html = template.clone().render_once().unwrap();
+            let html = template.clone().render().unwrap();
             let strat_count = template
                 .strats
                 .iter()
@@ -903,7 +903,7 @@ impl LogicData {
             area_order: &area_order,
             tech_difficulties: presets.iter().map(|x| x.preset.name.clone()).collect(),
         };
-        out.index_html = index_template.render_once().unwrap();
+        out.index_html = index_template.render().unwrap();
         out
     }
 }

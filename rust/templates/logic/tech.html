@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+{% include "../common/header.html" %}
+<title>{{+ tech_name }} - Super Metroid Map Rando</title>
+</head>
+<body>
+{% include "../common/navbar.html" %}
+<script>
+document.getElementById("navigation-logic").classList.add("active");
+</script>
+
+{% include "../common/video-modal.html" %}
+
+<div class="container col-xl-10 col-xxl-8 pb-4">
+    <h3 class="my-2">{{+ tech_name }} ({{+ tech_difficulty_name }})</h3>
+    <style>
+    html[data-bs-theme=dark] .tech-row:hover {
+        background-color: #2b3035;
+    }
+    html[data-bs-theme=light] .tech-row:hover {
+        background-color: #f4f5f6;
+    }
+    .png-tech {
+        position: absolute;
+    }
+    .tech-row:hover .png-tech {
+        opacity: 0;
+    }
+    .strat-row:hover .png-tech {
+        opacity: 0;
+    }
+    .strat-row:not(:hover) .gif-tech {
+        opacity: 0;
+    }
+    </style>
+
+    <div class="row tech-row">
+        <div class="text-center col-sm-4 col-md-3 col-lg-2 p-3">
+            {% let tech_name = tech_name|as_ref %}
+            {% if tech_gif_listing.contains(format!("{}.gif", tech_name)) %}
+            {% let hq_video_url_root = hq_video_url_root|as_ref %}
+            {% let video_url = format!("{}/{}.webm", hq_video_url_root, tech_name) %}
+            <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+            <img class="png-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.png" style="width:128px;height:128px;">
+            <img class="gif-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.gif" style="width:128px;height:128px;">
+            </a>
+            {% endif %}
+        </div>
+        <div class="col-sm-8 col-md-9 col-lg-10 p-3">
+            <p>{{+ tech_note }}</p>
+            {% if tech_dependencies.len() > 0 %}
+                <p><i>Dependencies: {{+ tech_dependencies }}</i></p>
+            {% endif %}
+        </div>
+    </div>
+
+    <form id="filterForm">
+    <div class="row">
+        <div class="col-lg-2 my-2 d-flex align-items-center">
+            Difficulty filter
+        </div>
+        <div class="col-lg-9 my-2 btn-group overflow-auto" role="group">
+        {% for difficulty in difficulty_names.iter() %}
+            <input type="radio" class="btn-check difficulty-filter" name="preset" value="{{+ loop.index0 }}"
+                id="preset{{+ loop.index0 }}" autocomplete="off" onclick="presetChanged()"
+                {% if loop.last %}
+                checked
+                {% endif %}
+                >
+            <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ difficulty }}</label>
+        {% endfor %}
+        </div>
+    </div>
+    </form>
+
+    <h3>Strats (<span id="stratCount"></span>)</h3>
+    <style>
+    html[data-bs-theme=dark] .table {
+        --bs-table-hover-bg: #2b3035;
+    }
+    html[data-bs-theme=light] .table {
+        --bs-table-hover-bg: #f4f5f6;
+    }
+    </style>
+    <table class="table table-hover mb-0">
+    <tbody>
+    {% for strat in strats %}
+    <tr class="strat-row" 
+        data-from-node="{{+ strat.from_node_id }}" 
+        data-to-node="{{+ strat.to_node_id }}"
+        data-difficulty="{{+ strat.difficulty_idx }}">
+    <td class="p-2">
+        {% include "strat.html" %}
+    </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+    </table>
+</div>
+{% include "../common/save_settings.html" %}
+<script>
+function presetChanged() {
+    updateSelect();
+    saveForm(document.getElementById("filterForm"));
+}
+function getDifficultyFilter() {
+    var elems = document.getElementsByClassName("difficulty-filter");
+    for (var i = 0; i < elems.length; i++) {
+        if (elems[i].checked) {
+            return elems[i].value;
+        }
+    }
+    return -1;
+}
+function updateSelect() {
+    var rows = document.getElementsByClassName("strat-row");
+    var difficultyFilter = getDifficultyFilter();
+
+    // Show/hide the matching set of Strats:
+    var cnt = 0;
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows.item(i);
+        var validDifficulty = (row.getAttribute("data-difficulty") <= difficultyFilter);
+        if (validDifficulty) {
+            row.classList.remove("d-none");
+            cnt += 1;
+        } else {
+            row.classList.add("d-none");
+        }
+    }
+    document.getElementById("stratCount").innerHTML = cnt;
+}
+loadForm(document.getElementById("filterForm"));
+updateSelect();
+</script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+{% include "../common/header.html" %}
+<title>Logic - Super Metroid Map Rando</title>
+</head>
+<body>
+{% include "../common/navbar.html" %}
+<script>
+document.getElementById("navigation-logic").classList.add("active");
+</script>
+
+<div class="container col-lg-9 col-xl-7 col-xxl-6 pb-4">
+    <h3 class="my-3">Logic</h3>
+    <p>
+    The logic for Super Metroid Map Rando is based on the
+    <a href="https://github.com/miketrethewey/sm-json-data/tree/master">sm-json-data</a> project. For details about
+    how to interpret the JSON, see the documentation there. This page links to listings of strats by room and also by
+    tech.
+
+    <div class="row">
+        <div class="col-lg-6">
+            {% for area in area_order %}
+                <div class="card my-2" id="{{+ area.replace(" ", "") }}">
+                    <div class="card-header">
+                    {{+ area }}
+                    </div>
+                    <div class="card-body px-2 py-1">
+                        {% for room in rooms %}
+                            {% if room.area|as_ref == area %}
+                                <p class="m-1"><a href="/logic/room/{{+ room.room_name_stripped }}">{{+ room.room_name }}</a></p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="col-lg-6">
+            {% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() %}
+                <div class="card my-2" id="{{+ tech_difficulty_name.replace(" ", "") }}Tech">
+                    <div class="card-header">
+                    {{+ tech_difficulty_name }} Tech
+                    </div>
+                    <div class="card-body px-2 py-1">
+                    {% for t in tech %}
+                        {% if t.tech_name == "canEscapeMorphLocation" %}
+                            {% continue %}
+                        {% endif %}
+                        {% if t.tech_difficulty_idx == tech_difficulty_idx %}
+                            <p class="m-1"><a href="/logic/tech/{{+ t.tech_name }}">{{+ t.tech_name }}</a></p>
+                        {% endif %}
+                    {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <hr>
+    <h5 id="additional_information">Additional information</h5>
+    <p>Work is still on-going on the logic. Some things to be aware of:</p>
+    <ul>
+    <li><p>More strats and tech will be added over time. The goal is that any useful strats that are humanly viable
+    should eventually be put into the logic.</p>
+    <li><p>A few of the tech, the ones not listed on the Generate page (e.g. canTrivialMidAirMorph), are currently
+    ignored by the randomizer as they are implicitly assumed to be in logic on all settings.
+    <li><p>The difficulty tier shown for a strat in these pages is based on the most favorable situation for executing it,
+    e.g. assuming unlimited resources, items, cross-room runway length, and obstacles being already cleared.
+    The randomizer logic takes into account such situational details: just because a strat is listed as "Basic"
+    in these pages does not mean it will necessarily be in logic on "Basic" settings in every situation.</p>
+    <li><p>The tech pages only list strats that reference the tech directly or by a helper, but not by a dependency.
+    For example, "canWalljump" does not list strats that require "canPreciseWalljump". This is to avoid cluttering the 
+    lower-level tech pages with strats that more properly belong to higher-level tech pages.
+    </p>
+    </ul>
+</div>
