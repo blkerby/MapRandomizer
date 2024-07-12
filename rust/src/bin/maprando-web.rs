@@ -475,7 +475,6 @@ struct SeedHeaderTemplate<'a> {
     save_animals: String,
     early_save: bool,
     area_assignment: String,
-    maps_revealed: String,
     ultra_low_qol: bool,
     preset_data: &'a [PresetData],
     enabled_tech: HashSet<String>,
@@ -695,7 +694,6 @@ fn render_seed(
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
         area_assignment: seed_data.area_assignment.clone(),
-        maps_revealed: seed_data.maps_revealed.clone(),
         ultra_low_qol: seed_data.ultra_low_qol,
         preset_data: &app_data.preset_data,
         enabled_tech,
@@ -2109,7 +2107,6 @@ fn build_app_data() -> AppData {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
-    let palette_theme_path = Path::new("../Mosaic/Projects");
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
@@ -2120,7 +2117,6 @@ fn build_app_data() -> AppData {
     let wild_maps_path = Path::new("../maps/v110c-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
-    let mosaic_path = Path::new("../Mosaic");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let mosaic_themes = vec![
         ("OuterCrateria", "Outer Crateria"),
@@ -2142,11 +2138,9 @@ fn build_app_data() -> AppData {
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
-        palette_theme_path,
         escape_timings_path,
         start_locations_path,
         hub_locations_path,
-        mosaic_path,
         title_screen_path,
     )
     .unwrap();

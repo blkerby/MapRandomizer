@@ -331,7 +331,7 @@ mod tests {
     #[test]
     fn test_random() {
         let mut rng = rand::rngs::StdRng::from_seed([0u8; 32]);
-        for i in 0..100 {
+        for _ in 0..100 {
             let mut data = vec![];
             let length = 1000;
             for _ in 0..length {

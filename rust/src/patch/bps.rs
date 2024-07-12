@@ -7,10 +7,7 @@ const SOURCE_MATCH_THRESHOLD: usize = 4;
 
 #[derive(Debug)]
 enum BPSBlock {
-    Unchanged {
-        dst_start: usize,
-        length: usize,
-    },
+    Unchanged,
     SourceCopy {
         src_start: usize,
         dst_start: usize,
@@ -165,10 +162,7 @@ impl BPSDecoder {
         let length = (cmd >> 2) + 1;
         match action {
             0 => {
-                let block = BPSBlock::Unchanged {
-                    dst_start: self.output_pos,
-                    length,
-                };
+                let block = BPSBlock::Unchanged;
                 self.output_pos += length;
                 return Ok(block);
             }

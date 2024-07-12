@@ -346,7 +346,7 @@ pub fn customize_rom(
     match &settings.palette_theme {
         PaletteTheme::Vanilla => {}
         PaletteTheme::AreaThemed => {
-            apply_area_themed_palettes(rom, game_data)?;
+            apply_area_themed_palettes(rom)?;
         }
     }
 

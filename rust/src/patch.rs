@@ -51,7 +51,6 @@ pub struct Rom {
 
 impl Rom {
     pub fn new(data: Vec<u8>) -> Self {
-        let len = data.len();
         Rom {
             data,
             track_touched: false,

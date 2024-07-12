@@ -19,7 +19,7 @@ fn linear_interpolate(x: f32, table: &[(i32, i32)]) -> f32 {
     if x >= table.last().unwrap().0 as f32 {
         return table.last().unwrap().1 as f32;
     }
-    let i = match table.binary_search_by_key(&(x as i32), |(x, y)| *x) {
+    let i = match table.binary_search_by_key(&(x as i32), |(x, _)| *x) {
         Ok(i) => i,
         Err(i) => i - 1,
     };

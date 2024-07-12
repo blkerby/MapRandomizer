@@ -2525,11 +2525,7 @@ fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<boo
         .collect()
 }
 
-fn ensure_enough_tanks(
-    initial_items_remaining: &mut [usize],
-    game_data: &GameData,
-    difficulty: &DifficultyConfig,
-) {
+fn ensure_enough_tanks(initial_items_remaining: &mut [usize], difficulty: &DifficultyConfig) {
     // Give an extra tank to two, compared to what may be needed for Ridley, for lenience:
     if difficulty.ridley_proficiency < 0.3 {
         while initial_items_remaining[Item::ETank as usize]
@@ -2628,11 +2624,7 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[item as usize] = cnt;
         }
 
-        ensure_enough_tanks(
-            &mut initial_items_remaining,
-            game_data,
-            &difficulty_tiers[0],
-        );
+        ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
 
         if initial_items_remaining.iter().sum::<usize>() > game_data.item_locations.len() {
             initial_items_remaining[Item::Missile as usize] -=
@@ -3373,7 +3365,6 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
         };
-        let selected_filler_items_len = selected_filler_items.len();
         // println!("filler items len={selected_filler_items_len}");
         for &item in &selected_filler_items {
             // We check if items_remaining is positive, only because with "Stop item placement early" there
@@ -3507,11 +3498,7 @@ impl<'r> Randomizer<'r> {
                 if state.door_state[i].bireachable {
                     any_update = true;
                     let door_vertex_id = state.door_state[i].bireachable_vertex_id.unwrap();
-                    spoiler_door_summaries.push(self.get_spoiler_door_summary(
-                        &state,
-                        door_vertex_id,
-                        i,
-                    ));
+                    spoiler_door_summaries.push(self.get_spoiler_door_summary(door_vertex_id, i));
                     spoiler_door_details.push(self.get_spoiler_door_details(
                         &state,
                         door_vertex_id,
@@ -3748,7 +3735,6 @@ impl<'r> Randomizer<'r> {
             .enumerate()
             .zip(self.game_data.room_geometry.iter())
             .map(|((room_idx, c), g)| {
-                let room = self.game_data.room_id_by_ptr[&g.rom_address];
                 // let room = self.game_data.room_json_map[&room]["name"]
                 //     .as_str()
                 //     .unwrap()
@@ -3941,7 +3927,7 @@ impl<'r> Randomizer<'r> {
 
             return Ok((ship_start, ship_hub));
         }
-        'attempt: for i in 0..num_attempts {
+        for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {}", i);
             let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
@@ -4077,10 +4063,8 @@ impl<'r> Randomizer<'r> {
             .map
             .rooms
             .iter()
-            .enumerate()
             .zip(self.game_data.room_geometry.iter())
-            .map(|((room_idx, c), g)| {
-                let room = self.game_data.room_id_by_ptr[&g.rom_address];
+            .map(|(c, g)| {
                 let room = g.name.clone();
                 let short_name = strip_name(&room);
                 let height = g.map.len();
@@ -4471,14 +4455,6 @@ pub struct SpoilerLog {
     pub all_rooms: Vec<SpoilerRoomLoc>,
 }
 
-struct ResourcesUsed {
-    energy: Option<Capacity>,
-    reserves: Option<Capacity>,
-    missiles: Option<Capacity>,
-    supers: Option<Capacity>,
-    power_bombs: Option<Capacity>,
-}
-
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let VertexKey {
@@ -4585,7 +4561,6 @@ impl<'a> Randomizer<'a> {
                     )
                 });
 
-                let vertex_key = &self.game_data.vertex_isv.keys[link.to_vertex_id];
                 // let debug_info = format!("{:?}", vertex_key);
 
                 let spoiler_entry = SpoilerRouteEntry {
@@ -4718,7 +4693,7 @@ impl<'a> Randomizer<'a> {
     ) -> Vec<SpoilerRouteEntry> {
         let forward = &state.debug_data.as_ref().unwrap().forward;
         let global_state = &state.debug_data.as_ref().unwrap().global_state;
-        let forward_cost_idx = get_one_way_reachable_idx(global_state, vertex_id, forward).unwrap();
+        let forward_cost_idx = get_one_way_reachable_idx(vertex_id, forward).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let obtain_route = self.get_spoiler_route(
@@ -4885,7 +4860,6 @@ impl<'a> Randomizer<'a> {
 
     fn get_spoiler_door_summary(
         &self,
-        state: &RandomizationState,
         _unlock_vertex_id: usize,
         locked_door_idx: usize,
     ) -> SpoilerDoorSummary {

@@ -883,7 +883,6 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
-    let palette_theme_path = Path::new("../palette_smart_exports");
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
@@ -892,16 +891,13 @@ fn main() -> Result<()> {
     let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
-    let mosaic_path = Path::new("../Mosaic");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
-        palette_theme_path,
         escape_timings_path,
         start_locations_path,
         hub_locations_path,
-        mosaic_path,
         title_screen_path,
     )?;
 

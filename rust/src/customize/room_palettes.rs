@@ -1,7 +1,4 @@
-use crate::{
-    game_data::GameData,
-    patch::{snes2pc, Rom},
-};
+use crate::patch::{snes2pc, Rom};
 use anyhow::Result;
 
 pub fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
@@ -26,54 +23,6 @@ pub fn decode_palette(pal_bytes: &[u8]) -> [[u8; 3]; 128] {
         let b = ((c >> 10) & 31) * 8;
         out[i] = [r as u8, g as u8, b as u8];
     }
-    out
-}
-
-// Returns list of (event_ptr, state_ptr):
-fn get_room_state_ptrs(rom: &Rom, room_ptr: usize) -> Result<Vec<(usize, usize)>> {
-    let mut pos = 11;
-    let mut ptr_pairs: Vec<(usize, usize)> = Vec::new();
-    loop {
-        let ptr = rom.read_u16(room_ptr + pos)? as usize;
-        if ptr == 0xE5E6 {
-            // This is the standard state, which is the last one.
-            ptr_pairs.push((ptr, room_ptr + pos + 2));
-            return Ok(ptr_pairs);
-        } else if ptr == 0xE612 || ptr == 0xE629 {
-            // This is an event state.
-            let state_ptr = 0x70000 + rom.read_u16(room_ptr + pos + 3)?;
-            ptr_pairs.push((ptr, state_ptr as usize));
-            pos += 5;
-        } else {
-            // This is another kind of state.
-            let state_ptr = 0x70000 + rom.read_u16(room_ptr + pos + 2)?;
-            ptr_pairs.push((ptr, state_ptr as usize));
-            pos += 4;
-        }
-    }
-}
-
-fn get_room_map_area(rom: &Rom, room_ptr: usize) -> Result<usize> {
-    let room_index = rom.read_u8(room_ptr)? as usize;
-    let vanilla_area = rom.read_u8(room_ptr + 1)? as usize;
-    let area_data_base_ptr = snes2pc(0x8FE99B);
-    let area_data_ptr = rom.read_u16(area_data_base_ptr + vanilla_area * 2)? as usize;
-    let map_area = rom.read_u8(snes2pc(0x8F0000 + area_data_ptr) + room_index)? as usize;
-    Ok(map_area)
-}
-
-fn encode_color(color: [u8; 3]) -> u16 {
-    let r = color[0] as u16;
-    let g = color[1] as u16;
-    let b = color[2] as u16;
-    r | (g << 5) | (b << 10)
-}
-
-fn decode_color(word: u16) -> [u8; 3] {
-    let mut out = [0u8; 3];
-    out[0] = (word & 0x1F) as u8;
-    out[1] = ((word >> 5) & 0x1F) as u8;
-    out[2] = ((word >> 10) & 0x1F) as u8;
     out
 }
 
@@ -190,7 +139,7 @@ fn lighten_firefleas(rom: &mut Rom) -> Result<()> {
 //     Ok(())
 // }
 
-pub fn apply_area_themed_palettes(rom: &mut Rom, game_data: &GameData) -> Result<()> {
+pub fn apply_area_themed_palettes(rom: &mut Rom) -> Result<()> {
     // Set flag to enable behavior in "Area Palettes.asm":
     rom.write_u16(snes2pc(0x8AC000), 0xF0F0)?;
 

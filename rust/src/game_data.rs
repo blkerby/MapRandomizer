@@ -1048,7 +1048,6 @@ pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
 struct RequirementContext<'a> {
     room_id: RoomId,
     strat_name: &'a str,
-    from_node_id: NodeId,
     to_node_id: NodeId,
     room_heated: bool,
     from_obstacles_bitmask: ObstacleMask,
@@ -1438,7 +1437,6 @@ impl GameData {
             ),
         };
         let room_id = ctx.room_id;
-        let to_node_id = ctx.to_node_id;
         let empty_array = json::array![];
         let unlocks_doors_json = ctx.unlocks_doors_json.unwrap_or(&empty_array);
 
@@ -2659,7 +2657,6 @@ impl GameData {
         for strat_json in new_room_json["strats"].members_mut() {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let from_node_id = strat_json["link"][0].as_usize().unwrap();
-            let to_node_id = strat_json["link"][1].as_usize().unwrap();
 
             if strat_json.has_key("entranceCondition")
                 && logical_gray_door_node_ids.contains(&(room_id, from_node_id))
@@ -2708,10 +2705,8 @@ impl GameData {
     pub fn get_obstacle_data(
         &self,
         strat_json: &JsonValue,
-        room_json: &JsonValue,
         from_obstacles_bitmask: ObstacleMask,
         obstacles_idx_map: &HashMap<String, usize>,
-        requires_json: &mut Vec<JsonValue>,
     ) -> Result<ObstacleMask> {
         let mut to_obstacles_bitmask = from_obstacles_bitmask;
         if strat_json.has_key("clearsObstacles") {
@@ -3264,22 +3259,16 @@ impl GameData {
                 continue;
             }
             ensure!(strat_json["requires"].is_array());
-            let mut requires_json: Vec<JsonValue> = strat_json["requires"]
+            let requires_json: Vec<JsonValue> = strat_json["requires"]
                 .members()
                 .map(|x| x.clone())
                 .collect();
 
-            let to_obstacles_bitmask = self.get_obstacle_data(
-                strat_json,
-                room_json,
-                from_obstacles_bitmask,
-                &obstacles_idx_map,
-                &mut requires_json,
-            )?;
+            let to_obstacles_bitmask =
+                self.get_obstacle_data(strat_json, from_obstacles_bitmask, &obstacles_idx_map)?;
             let ctx = RequirementContext {
                 room_id,
                 strat_name: &strat_json["name"].as_str().unwrap(),
-                from_node_id,
                 to_node_id: to_node_id,
                 room_heated: from_heated || to_heated,
                 from_obstacles_bitmask,
@@ -4087,11 +4076,9 @@ impl GameData {
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
-        palette_theme_path: &Path,
         escape_timings_path: &Path,
         start_locations_path: &Path,
         hub_locations_path: &Path,
-        mosaic_path: &Path,
         title_screen_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();

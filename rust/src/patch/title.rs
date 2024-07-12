@@ -39,13 +39,6 @@ fn rgb_to_u16(rgb: (u8, u8, u8)) -> u16 {
     (r as u16) | (g as u16) << 5 | (b as u16) << 10
 }
 
-fn u16_to_rgb(color: u16) -> (u8, u8, u8) {
-    let r = color & 0x1F;
-    let g = (color >> 5) & 0x1F;
-    let b = (color >> 10) & 0x1F;
-    (r as u8, g as u8, b as u8)
-}
-
 struct Graphics {
     palette: Vec<(u8, u8, u8)>,
     tiles: Vec<[[u8; 8]; 8]>, // indices into `palette`

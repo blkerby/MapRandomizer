@@ -307,7 +307,6 @@ fn apply_draygon_requirement(
         if net_dps < 0.0 {
             net_dps = 0.0;
         }
-        let total_damage = (net_dps * time) as Capacity;
         // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
         // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
         let result = LocalState {
@@ -1889,11 +1888,7 @@ pub fn get_bireachable_idxs(
 
 // If the given vertex is reachable, returns a cost metric index (between 0 and NUM_COST_METRICS),
 // indicating a forward route. Otherwise returns None.
-pub fn get_one_way_reachable_idx(
-    global: &GlobalState,
-    vertex_id: usize,
-    forward: &TraverseResult,
-) -> Option<usize> {
+pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &TraverseResult) -> Option<usize> {
     for forward_cost_idx in 0..NUM_COST_METRICS {
         let forward_state = forward.local_states[vertex_id][forward_cost_idx];
         if is_reachable_state(forward_state) {

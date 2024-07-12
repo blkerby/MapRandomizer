@@ -58,8 +58,8 @@ enum Interior {
 enum LiquidType {
     None,
     Water,
-    Lava,
-    Acid,
+    _Lava,
+    _Acid,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash, Debug)]
@@ -86,7 +86,6 @@ pub struct MapPatcher<'a> {
     basic_tile_map: HashMap<BasicTile, TilemapWord>,
     reverse_map: HashMap<TilemapWord, BasicTile>,
     tile_gfx_map: HashMap<TilemapWord, [[u8; 8]; 8]>,
-    edge_pixels_map: HashMap<Edge, Vec<usize>>,
     locked_door_state_indices: &'a [usize],
     area_data: Vec<Vec<(ItemIdx, TilemapOffset, TilemapWord, Interior)>>,
     transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
@@ -171,7 +170,6 @@ impl<'a> MapPatcher<'a> {
             basic_tile_map: HashMap::new(),
             reverse_map: HashMap::new(),
             tile_gfx_map: HashMap::new(),
-            edge_pixels_map: pixels_map,
             locked_door_state_indices,
             area_data: vec![vec![]; 6],
             transition_tile_coords: vec![],
@@ -813,8 +811,8 @@ impl<'a> MapPatcher<'a> {
         let liquid_color = match (tile.liquid_type, tile.heated) {
             (LiquidType::None, _) => bg_color,
             (LiquidType::Water, _) => 0,
-            (LiquidType::Lava | LiquidType::Acid, false) => 2,
-            (LiquidType::Lava | LiquidType::Acid, true) => 1,
+            (LiquidType::_Lava | LiquidType::_Acid, false) => 2,
+            (LiquidType::_Lava | LiquidType::_Acid, true) => 1,
         };
         if tile.liquid_type != LiquidType::None {
             for y in tile.liquid_sublevel..8 {
@@ -2169,9 +2167,7 @@ impl<'a> MapPatcher<'a> {
                             let tile = self.get_basic_tile(basic_tile)?;
                             self.patch_room(room_name, vec![(x, y, tile)])?;
                         }
-                        Err(e) => {
-                            // println!("{} {} {:?}", x, y, e);
-                        }
+                        Err(_) => {}
                     }
                 }
             }
