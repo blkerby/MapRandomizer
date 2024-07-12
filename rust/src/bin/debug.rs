@@ -1,6 +1,5 @@
 use anyhow::Result;
 use hashbrown::HashMap;
-// use hashbrown::HashSet;
 use maprando::{
     game_data::{Capacity, GameData, Item, Requirement},
     randomize::{
@@ -11,20 +10,6 @@ use maprando::{
     traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
 };
 use std::path::Path;
-
-// fn strip_cross_room_reqs(req: &Requirement) -> Requirement {
-//     match req {
-//         Requirement::AdjacentRunway { .. } => Requirement::Never,
-//         Requirement::CanComeInCharged { .. } => Requirement::Never,
-//         Requirement::And(sub_reqs) => {
-//             Requirement::make_and(sub_reqs.iter().map(strip_cross_room_reqs).collect())
-//         }
-//         Requirement::Or(sub_reqs) => {
-//             Requirement::make_or(sub_reqs.iter().map(strip_cross_room_reqs).collect())
-//         }
-//         _ => req.clone(),
-//     }
-// }
 
 fn run_scenario(
     proficiency: f32,
@@ -161,10 +146,6 @@ fn run_scenario(
         debug_options: None,
     };
 
-    // println!(
-    //     "{:?}",
-    //     apply_requirement(&Requirement::PhantoonFight {  }, &global_state, local_state, false, &difficulty, &game_data)
-    // );
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),
@@ -182,17 +163,6 @@ fn run_scenario(
         game_data,
         &locked_door_data,
     );
-
-    // let new_local_state_opt = apply_requirement(
-    //         &Requirement::RidleyFight {
-    //             can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"]
-    //         },
-    //         &global_state,
-    //         local_state,
-    //         false,
-    //         &difficulty,
-    //         game_data
-    // );
 
     let outcome = new_local_state_opt
         .map(|x| format!("{}", x.energy_used))
@@ -219,24 +189,6 @@ fn main() -> Result<()> {
         hub_locations_path,
         title_screen_path,
     )?;
-
-    // let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 1.0];
-    // let missile_counts = vec![0, 5, 30, 60, 120];
-    // let super_counts = vec![0, 5, 30];
-    // let item_loadouts = vec![
-    //     vec![],
-    //     vec!["C"],
-    //     vec!["C", "I"],
-    //     vec!["C", "I", "W", "S"],
-    //     vec!["C", "P"],
-    //     vec!["C", "I", "W", "P"],
-    //     vec!["G"],
-    //     vec!["G", "C"],
-    //     vec!["G", "C", "I", "W", "P"],
-    //     vec!["V", "G"],
-    //     vec!["V", "G", "C"],
-    //     vec!["V", "G", "C", "I", "W", "P"],
-    // ];
 
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
     let missile_counts = vec![20];

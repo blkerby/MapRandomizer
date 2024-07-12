@@ -225,7 +225,6 @@ pub struct DifficultyConfig {
     pub name: Option<String>,
     pub tech: Vec<String>,
     pub notable_strats: Vec<String>,
-    // pub notable_strats: Vec<String>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
     pub shinecharge_leniency_frames: Capacity,
@@ -507,7 +506,6 @@ impl<'a> Preprocessor<'a> {
                 game_data.door_ptr_pair_map[&(src_exit_ptr, src_entrance_ptr)];
             let (dst_room_id, dst_node_id) =
                 game_data.door_ptr_pair_map[&(dst_exit_ptr, dst_entrance_ptr)];
-            // println!("({}, {}) <-> ({}, {})", src_room_id, src_node_id, dst_room_id, dst_node_id);
             door_map.insert((src_room_id, src_node_id), (dst_room_id, dst_node_id));
             door_map.insert((dst_room_id, dst_node_id), (src_room_id, src_node_id));
 
@@ -2557,36 +2555,6 @@ fn ensure_enough_tanks(initial_items_remaining: &mut [usize], difficulty: &Diffi
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     }
-    // // let mut global = GlobalState {
-    //     tech: vec![true; game_data.tech_isv.keys.len()],
-    //     notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
-    //     items: vec![true; game_data.item_isv.keys.len()],
-    //     flags: vec![true; game_data.flag_isv.keys.len()],
-    //     max_energy: 99,
-    //     max_reserves: 0,
-    //     max_missiles: 0,
-    //     max_supers: 0,
-    //     max_power_bombs: 0,
-    //     weapon_mask: 0,
-    //     shine_charge_tiles: 32.0,
-    //     heated_shine_charge_tiles: 32.0,
-    // };
-    // for (item_idx, &cnt) in initial_items_remaining.iter().enumerate() {
-    //     for _ in 0..cnt {
-    //         global.collect(Item::try_from(item_idx).unwrap(), game_data);
-    //     }
-    // }
-    // let local = LocalState::new();
-    // while initial_items_remaining[Item::ETank as usize] <= 14 {
-    //     let result = apply_ridley_requirement(&global, local, difficulty.ridley_proficiency, 0);
-    //     if result.is_some() {
-    //         return;
-    //     }
-    //     println!("Adding extra tank to ensure Ridley is beatable");
-    //     initial_items_remaining[Item::ETank as usize] += 1;
-    //     global.collect(Item::ETank, game_data);
-    // }
-    // panic!("Not able to ensure Ridley beatable")
 }
 
 impl<'r> Randomizer<'r> {
@@ -2710,7 +2678,6 @@ impl<'r> Randomizer<'r> {
 
     fn update_reachability(&self, state: &mut RandomizationState) {
         let num_vertices = self.game_data.vertex_isv.keys.len();
-        // let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
             room_id: state.hub_location.room_id,
             node_id: state.hub_location.node_id,
@@ -2853,7 +2820,6 @@ impl<'r> Randomizer<'r> {
             .collect();
         let num_key_items_remaining = filtered_item_precedence.len();
         let num_items_remaining: usize = state.items_remaining.iter().sum();
-        // println!("num_items_to_place={num_items_to_place}, num_items_remaining={num_items_remaining}");
         let mut num_key_items_to_place = match self.difficulty_tiers[0].progression_rate {
             ProgressionRate::Slow => 1,
             ProgressionRate::Uniform => usize::max(
@@ -2887,7 +2853,6 @@ impl<'r> Randomizer<'r> {
 
         let num_filler_items_to_place = num_items_to_place - num_key_items_to_place;
 
-        // println!("{} {}: {} {}", num_bireachable, num_oneway_reachable, num_key_items_remaining, num_filler_items_to_place);
         (num_key_items_to_place, num_filler_items_to_place)
     }
 
@@ -3028,8 +2993,6 @@ impl<'r> Randomizer<'r> {
                 return None;
             }
 
-            // info!("remaining_items={}", remaining_items.len());
-
             // If we will be placing `k` key items, we let the first `k - 1` items to place remain fixed based on the
             // item precedence order, while we vary the last key item across attempts (to try to find some choice that
             // will expand the set of bireachable item locations).
@@ -3077,7 +3040,6 @@ impl<'r> Randomizer<'r> {
         // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
         // a location with the hardest possible difficulty to reach.
         let num_vertices = self.game_data.vertex_isv.keys.len();
-        // let start_vertex_id = self.game_data.vertex_isv.index_by_key[&(8, 5, 0)]; // Landing site
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
             room_id: state.hub_location.room_id,
             node_id: state.hub_location.node_id,
@@ -3085,32 +3047,12 @@ impl<'r> Randomizer<'r> {
             actions: vec![],
         }];
 
-        // for &v in &state.key_visited_vertices {
-        //     println!("key visited: {:?}", self.game_data.vertex_isv.keys[v]);
-        // }
-        // println!("items: {:?}", state.global_state.items);
-
-        // println!("global_state: {:?}", state.global_state);
-        // print!("Flags: ");
-        // for (i, flag) in self.game_data.flag_isv.keys.iter().enumerate() {
-        //     if state.global_state.flags[i] {
-        //         print!("{} ", flag);
-        //     }
-        // }
-        // println!("");
-
         for tier in 1..self.difficulty_tiers.len() {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
             tmp_global.tech = get_tech_vec(&self.game_data, difficulty);
             tmp_global.notable_strats = get_strat_vec(&self.game_data, difficulty);
-            // print!("tier:{} tech:", tier);
-            // for (i, tech) in self.game_data.tech_isv.keys.iter().enumerate() {
-            //     if tmp_global.tech[i] {
-            //         print!("{} ", tech);
-            //     }
-            // }
-            // println!("");
+
             let traverse_result = traverse(
                 &self.base_links_data,
                 &self.seed_links_data,
@@ -3160,7 +3102,6 @@ impl<'r> Randomizer<'r> {
         let skip_hard_placement = !self.difficulty_tiers[0].stop_item_placement_early
             && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
-        // println!("[attempt {attempt_num_rando}] # bireachable = {}", bireachable_locations.len());
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 && !skip_hard_placement {
             let traverse_result = match state.previous_debug_data.as_ref() {
@@ -3286,8 +3227,6 @@ impl<'r> Randomizer<'r> {
             new_state.global_state.collect(item, self.game_data);
         }
 
-        // info!("Trying placing {:?}", key_items);
-
         self.update_reachability(new_state);
         let num_bireachable = new_state
             .item_location_state
@@ -3365,7 +3304,6 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
         };
-        // println!("filler items len={selected_filler_items_len}");
         for &item in &selected_filler_items {
             // We check if items_remaining is positive, only because with "Stop item placement early" there
             // could be extra (unplanned) Nothing items placed.
@@ -3373,11 +3311,8 @@ impl<'r> Randomizer<'r> {
                 new_state_filler.items_remaining[item as usize] -= 1;
             }
         }
-        // let num_items_remaining: usize = new_state_filler.items_remaining.iter().sum();
-        // println!("post filler num_items_remaining={num_items_remaining}");
 
         let mut attempt_num = 0;
-        // info!("num_key_items_to_select={num_key_items_to_select}, num_filler_items_to_select={num_filler_items_to_select}");
         let mut selected_key_items = self
             .select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
             .unwrap();
@@ -3735,10 +3670,6 @@ impl<'r> Randomizer<'r> {
             .enumerate()
             .zip(self.game_data.room_geometry.iter())
             .map(|((room_idx, c), g)| {
-                // let room = self.game_data.room_json_map[&room]["name"]
-                //     .as_str()
-                //     .unwrap()
-                //     .to_string();
                 let room = g.name.clone();
                 let short_name = strip_name(&room);
                 let map = if room_idx == self.game_data.toilet_room_idx {
@@ -3788,11 +3719,6 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
         };
 
-        // // Messing around with starting location. TODO: remove this
-        // let start_locations: Vec<StartLocation> =
-        //     serde_json::from_str(&std::fs::read_to_string(&"data/start_locations.json").unwrap()).unwrap();
-        // let loc = start_locations.last().unwrap();
-
         Ok(Randomization {
             difficulty: self.difficulty_tiers[0].clone(),
             map: self.map.clone(),
@@ -3803,7 +3729,6 @@ impl<'r> Randomizer<'r> {
             seed,
             display_seed,
             seed_name: self.get_seed_name(seed),
-            // start_location: loc.clone(),
             start_location: state.start_location.clone(),
             starting_items: self.difficulty_tiers[0].starting_items.clone(),
         })
@@ -4259,12 +4184,6 @@ impl<'r> Randomizer<'r> {
                 // No further progress was made on the last step. So we are done with this attempt: either we have
                 // succeeded or we have failed.
 
-                // // TODO: get rid of this
-                // if self.difficulty_tiers[0].debug_options.is_some() {
-                //     // If debugging, accept failed seed generation.
-                //     break;
-                // }
-
                 if !self.is_game_beatable(&state) {
                     bail!("[attempt {attempt_num_rando}] Attempt failed: Game not beatable");
                 }
@@ -4547,8 +4466,6 @@ impl<'a> Randomizer<'a> {
                     obstacle_mask: to_obstacles_mask,
                     ..
                 } = self.game_data.vertex_isv.keys[link.to_vertex_id];
-                // info!("local: {:?}", local_state);
-                // info!("{:?}", link);
                 let door_coords = self
                     .game_data
                     .node_coords
@@ -4561,14 +4478,11 @@ impl<'a> Randomizer<'a> {
                     )
                 });
 
-                // let debug_info = format!("{:?}", vertex_key);
-
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
                     short_room: strip_name(&to_vertex_info.room_name),
                     room: to_vertex_info.room_name,
                     node: to_vertex_info.node_name,
-                    // node: debug_info,
                     from_node_id: from_vertex_info.node_id,
                     to_node_id: to_vertex_info.node_id,
                     obstacles_bitmask: to_obstacles_mask,
@@ -4602,7 +4516,6 @@ impl<'a> Randomizer<'a> {
                         Some(local_state.power_bombs_used)
                     },
                 };
-                // info!("spoiler: {:?}", spoiler_entry);
                 route.push(spoiler_entry);
             }
             local_state = new_local_state;
@@ -4646,7 +4559,6 @@ impl<'a> Randomizer<'a> {
             route[0].power_bombs_used = None;
         }
 
-        // info!("local: {:?}", local_state);
         route
     }
 
@@ -4655,9 +4567,6 @@ impl<'a> Randomizer<'a> {
         state: &RandomizationState,
         vertex_id: usize,
     ) -> (Vec<SpoilerRouteEntry>, Vec<SpoilerRouteEntry>) {
-        // info!("vertex_id: {}", vertex_id);
-        // info!("forward: {:?}", state.debug_data.as_ref().unwrap().forward.local_states[vertex_id]);
-        // info!("reverse: {:?}", state.debug_data.as_ref().unwrap().reverse.local_states[vertex_id]);
         let forward = &state.debug_data.as_ref().unwrap().forward;
         let reverse = &state.debug_data.as_ref().unwrap().reverse;
         let global_state = &state.debug_data.as_ref().unwrap().global_state;
@@ -4667,7 +4576,6 @@ impl<'a> Randomizer<'a> {
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         let reverse_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
-        // info!("obtain");
         let obtain_route = self.get_spoiler_route(
             global_state,
             LocalState::new(),
@@ -4675,7 +4583,6 @@ impl<'a> Randomizer<'a> {
             &self.difficulty_tiers[0],
             false,
         );
-        // info!("return");
         let return_route = self.get_spoiler_route(
             global_state,
             LocalState::new(),
@@ -4852,7 +4759,6 @@ impl<'a> Randomizer<'a> {
         _flag_vertex_id: usize,
         flag_id: FlagId,
     ) -> SpoilerFlagSummary {
-        // let flag_vertex_info = self.get_vertex_info(flag_vertex_id);
         SpoilerFlagSummary {
             flag: self.game_data.flag_isv.keys[flag_id].to_string(),
         }
@@ -4902,7 +4808,6 @@ impl<'a> Randomizer<'a> {
                 if !state.item_location_state[i].collected
                     && new_state.item_location_state[i].collected
                 {
-                    // info!("Item: {item:?}");
                     let item_vertex_id =
                         state.item_location_state[i].bireachable_vertex_id.unwrap();
                     let tier = new_state.item_location_state[i].difficulty_tier;

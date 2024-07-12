@@ -653,7 +653,6 @@ fn render_seed(
             .difficulty
             .semi_filler_items
             .iter()
-            // .filter(|&&x| x != Item::Nothing)
             .map(|x| format!("{:?}", x))
             .collect(),
         early_filler_items: seed_data
@@ -2112,11 +2111,9 @@ fn build_app_data() -> AppData {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    // let tame_maps_path = Path::new("../maps/v93-tame");
     let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
-    // let samus_spritesheet_layout_path = Path::new("data/samus_spritesheet_layout.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let mosaic_themes = vec![
         ("OuterCrateria", "Outer Crateria"),
@@ -2146,7 +2143,6 @@ fn build_app_data() -> AppData {
     .unwrap();
 
     info!("Loading logic preset data");
-    // let samus_customizer = SamusSpriteCustomizer::new(samus_spritesheet_layout_path).unwrap();
     let tech_gif_listing = list_tech_gif_files();
     let notable_gif_listing = list_notable_gif_files();
     let presets: Vec<Preset> =
@@ -2194,7 +2190,6 @@ fn build_app_data() -> AppData {
         notable_gif_listing,
         logic_data,
         samus_sprite_categories,
-        // samus_customizer,
         debug: args.debug,
         version_info: VersionInfo {
             version: VERSION,

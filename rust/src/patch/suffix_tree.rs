@@ -75,9 +75,7 @@ impl SuffixTree {
             },
         };
         for &b in data {
-            // println!("data: {:?}", tree.data);
             tree.push_byte(b);
-            // println!("end: {:?}", tree);
         }
         tree
     }
@@ -168,8 +166,6 @@ impl SuffixTree {
         // For i less than the cut position, this is already taken care of automatically, since in such cases
         // data[i..] is represented by a leaf, which has an implicit end position (DATA_END).
         loop {
-            // println!("tree: {:?}", self);
-
             let cut = &self.cut;
             let num_nodes = self.nodes.len();
             let node = &mut self.nodes[cut.node_id as usize];

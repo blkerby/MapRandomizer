@@ -435,11 +435,6 @@ pub fn apply_ridley_requirement(
         // already required to reach the boss node from the doors.
         // Include time pre- and post-fight when Samus must still take heat damage:
         let heat_time = time + 16.0;
-        // let heat_energy_used = if global.items[Item::Gravity as usize] {
-        //     (heat_time * 7.5) as Capacity
-        // } else {
-        //     (heat_time * 15.0) as Capacity
-        // };
         let heat_energy_used = (heat_time * 15.0) as Capacity;
         local.energy_used += heat_energy_used;
     }
@@ -1052,11 +1047,6 @@ pub fn apply_requirement(
             // We're ignoring this for now. It should be safe because all strats relying on a "not" flag will be
             // guarded by "canRiskPermanentLossOfAccess" if there is not an alternative strat with the flag set.
             Some(local)
-            // if !global.flags[*flag_id] {
-            //     Some(local)
-            // } else {
-            //     None
-            // }
         }
         Requirement::Objective(obj_id) => {
             if is_objective_complete(global, difficulty, game_data, *obj_id) {
@@ -1121,7 +1111,6 @@ pub fn apply_requirement(
             let varia = global.items[Item::Varia as usize];
             let gravity = global.items[Item::Gravity as usize];
             let mut new_local = local;
-            // if gravity {
             if gravity && varia {
                 Some(new_local)
             } else if gravity || varia {
@@ -1174,11 +1163,6 @@ pub fn apply_requirement(
                 validate_energy_no_auto_reserve(new_local, global, game_data)
             }
         }
-        // Requirement::Energy(count) => {
-        //     let mut new_local = local;
-        //     new_local.energy_used += count;
-        //     validate_energy(new_local, global)
-        // },
         Requirement::Missiles(count) => {
             let mut new_local = local;
             new_local.missiles_used += *count;
@@ -1968,18 +1952,6 @@ pub fn traverse(
     };
 
     while modified_vertices.len() > 0 {
-        // let mut cnt = 0;
-        // let mut total_cost = 0.0;
-        // for v in 0..result.cost.len() {
-        //     for k in 0..NUM_COST_METRICS {
-        //         if f32::is_finite(result.cost[v][k]) {
-        //             cnt += 1;
-        //             total_cost += result.cost[v][k];
-        //         }
-        //     }
-        // }
-        // println!("modified vertices: {}, cnt_finite: {}, cost={}", modified_vertices.len(), cnt, total_cost);
-
         let mut new_modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
         for (&src_id, &modified_costs) in &modified_vertices {
             let src_local_state_arr = result.local_states[src_id];
@@ -2006,19 +1978,6 @@ pub fn traverse(
                         locked_door_data,
                     ) {
                         let dst_new_cost_arr = compute_cost(dst_new_local_state, global);
-
-                        // for k in dst_new_cost_arr {
-                        //     if k < 0.0 {
-                        //         println!("{:?}", link);
-                        //         println!("{:?} {:?}", game_data.vertex_isv.keys[link.from_vertex_id], game_data.vertex_isv.keys[link.to_vertex_id]);
-                        //         panic!("negative cost");
-                        //     }
-                        // }
-
-                        // let debug_vertex_id = 13452;
-                        // if !reverse && dst_id == debug_vertex_id {
-                        //     println!("{}: {:?}", dst_id, dst_new_local_state);
-                        // }
 
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
@@ -2064,10 +2023,6 @@ pub fn traverse(
         }
         modified_vertices = new_modified_vertices;
     }
-
-    // for x in &result.local_state_history {
-    //     println!("{}", x.len());
-    // }
 
     result
 }

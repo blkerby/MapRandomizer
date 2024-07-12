@@ -515,16 +515,10 @@ impl<'a> MapPatcher<'a> {
 
     fn index_vanilla_tiles(&mut self) -> Result<()> {
         self.index_basic(0x10, W, W, E, P, V)?; // Elevator: walls on left & right; passage on bottom
-                                                // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: E, down: P, interior: V })?;
-                                                // self.write_tile_4bpp(0x10, tile)?;
 
         self.index_basic(0x4F, W, W, W, P, V)?; // Elevator: walls on left, right, & top; passage on bottom
-                                                // let tile = self.render_basic_tile(BasicTile { left: W, right: W, up: W, down: P, interior: V })?;
-                                                // self.write_tile_4bpp(0x4F, tile)?;
 
         self.index_basic(0x5F, P, P, P, W, V)?; // Elevator: passages on left, right, & top; wall on bottom
-                                                // let tile = self.render_basic_tile(BasicTile { left: P, right: P, up: P, down: W, interior: V })?;
-                                                // self.write_tile_4bpp(0x5F, tile)?;
 
         self.index_basic(0x1B, E, E, E, E, O)?; // Empty tile with no walls
         self.index_basic(0x20, W, W, W, W, O)?; // Empty tile with wall on all four sides
@@ -536,6 +530,7 @@ impl<'a> MapPatcher<'a> {
         self.index_basic(0x26, E, E, W, E, O)?; // Empty tile with wall on top
         self.index_basic(0x27, E, W, E, E, O)?; // Empty tile with wall on right
 
+        // Note: there's no item tile with walls on left and right.
         self.index_basic(0x76, E, E, W, E, I)?; // Item (dot) tile with a wall on top
         self.index_basic(0x77, W, E, E, E, I)?; // Item (dot) tile with a wall on left
         self.index_basic(0x5E, E, E, W, W, I)?; // Item (dot) tile with a wall on top and bottom
@@ -543,7 +538,6 @@ impl<'a> MapPatcher<'a> {
         self.index_basic(0x6F, W, W, W, W, I)?; // Item (dot) tile with a wall on all four sides
         self.index_basic(0x8E, W, E, W, E, I)?; // Item (dot) tile with a wall on top and left
         self.index_basic(0x8F, W, E, W, W, I)?; // Item (dot) tile with a wall on top, left, and bottom
-                                                // Note: there's no item tile with walls on left and right.
 
         self.index_basic(0x4D, E, E, E, E, Interior::Save)?; // Save station
         Ok(())
@@ -1024,16 +1018,6 @@ impl<'a> MapPatcher<'a> {
                         (7, 7),
                     ],
                 );
-                // update_tile(&mut data, 3, &vec![
-                //     (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0), (7, 0),
-                //     (0, 1), (1, 1), (2, 1), (5, 1), (6, 1), (7, 1),
-                //     (0, 2), (1, 2), (6, 2), (7, 2),
-                //     (0, 3), (7, 3),
-                //     (0, 4), (7, 4),
-                //     (0, 5), (1, 5), (6, 5), (7, 5),
-                //     (0, 6), (1, 6), (2, 6), (5, 6), (6, 6), (7, 6),
-                //     (0, 7), (1, 7), (2, 7), (3, 7), (4, 7), (5, 7), (6, 7), (7, 7),
-                // ]);
             }
             Interior::AmmoRefill => {
                 update_tile(
@@ -1241,8 +1225,6 @@ impl<'a> MapPatcher<'a> {
         self.patch_room("Blue Brinstar Elevator Room", vec![(0, 3, ELEVATOR_TILE)])?;
         self.patch_room("Forgotten Highway Elevator", vec![(0, 3, ELEVATOR_TILE)])?;
         self.patch_room("Statues Room", vec![(0, 4, ELEVATOR_TILE)])?;
-        // We skip "Warehouse Entrance" since the room geometry (arbitrarily) did not include the arrow tile.
-        // self.patch_room("Warehouse Entrance", vec![(0, 3, ELEVATOR_TILE)])?;
 
         // Likewise, in bottom elevator rooms, replace up arrow tiles with elevator tiles:
         // Oddly, in Main Shaft there wasn't an arrow here in the vanilla game. But we left a spot in the room geometry as if there were.
@@ -1253,9 +1235,6 @@ impl<'a> MapPatcher<'a> {
         // rooms in the room geometry (an inconsistency which doesn't really matter because its only observable effect is in the
         // final length of the elevator on the map, which already has variations across rooms). We skip Lower Norfair Elevator
         // and Main Hall because these have no arrows on the vanilla map (since these don't cross regions in vanilla).
-
-        // // Patch map tile in Aqueduct to replace Botwoon Hallway with tube/elevator tile
-        // self.patch_room("Aqueduct", vec![(2, 3, ELEVATOR_TILE)])?;
 
         Ok(())
     }
@@ -1874,7 +1853,6 @@ impl<'a> MapPatcher<'a> {
 
         // Wrecked Ship:
         self.patch_room_basic("Basement", vec![(3, 0, E, P, W, W, O)])?;
-        // self.patch_room_basic("Sponge Bath", vec![(1, 0, P, D, W, W, O)])?;
         self.patch_room_basic("Electric Death Room", vec![(0, 1, W, D, P, E, O)])?;
         self.patch_room_basic("Wrecked Ship East Super Room", vec![(3, 0, P, W, W, W, I)])?;
         self.patch_room_basic(
@@ -2180,48 +2158,13 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("The Moat", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("West Ocean", LiquidType::Water, 5, 0)?;
         self.indicate_liquid_room("East Ocean", LiquidType::Water, 5, 0)?;
-        // self.indicate_liquid_room("Bowling Alley Path", LiquidType::Water, 0, 5)?;
-        // self.indicate_liquid_room("Crab Maze", LiquidType::Water, 1, 5)?;
         self.indicate_liquid_room("Statues Room", LiquidType::Water, 1, 0)?;
-        // self.indicate_liquid_room("Gauntlet Entrance", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Gauntlet Energy Tank Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Crateria Power Bomb Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Crateria Super Room", LiquidType::Acid, 7, 5)?;
-
-        // Brinstar:
-        // self.indicate_liquid_room("Blue Brinstar Boulder Room", LiquidType::Water, 0, 5)?;
-        // self.indicate_liquid_room("Waterway Energy Tank Room", LiquidType::Water, 0, 5)?;
-        // self.indicate_liquid_room("Bat Room", LiquidType::Water, 0, 5)?;
-        // self.indicate_liquid_room("Below Spazer", LiquidType::Water, 1, 5)?;
 
         // Norfair:
-        // self.indicate_liquid_room("Ice Beam Tutorial Room", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Ice Beam Acid Room", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Crocomire Escape", LiquidType::Lava, 1, 5)?;
-        // self.indicate_liquid_room("Crocomire's Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Post Crocomire Missile Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Post Crocomire Jump Room", LiquidType::Acid, 2, 5)?;
         self.indicate_liquid_room("Grapple Tutorial Room 1", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Grapple Tutorial Room 3", LiquidType::Water, 1, 0)?;
-        // self.indicate_liquid_room("Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Spiky Acid Snakes Tunnel", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Magdollite Tunnel", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Cathedral", LiquidType::Lava, 1, 5)?;
-        // self.indicate_liquid_room("Rising Tide", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Bat Cave", LiquidType::Lava, 1, 5)?;
-        // self.indicate_liquid_room("Volcano Room", LiquidType::Lava, 2, 5)?;
-        // self.indicate_liquid_room("Spiky Platforms Tunnel", LiquidType::Lava, 0, 5)?;
-        // self.indicate_liquid_room("Lava Dive Room", LiquidType::Lava, 1, 0)?;
-        // self.indicate_liquid_room("Main Hall", LiquidType::Acid, 2, 5)?;
-        // self.indicate_liquid_room("Acid Statue Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Fast Ripper Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Pillar Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Amphitheatre", LiquidType::Acid, 1, 0)?;
 
         // Wrecked Ship:
-        // self.indicate_liquid_room("Sponge Bath", LiquidType::Water, 0, 5)?;
-        // self.indicate_liquid_room("Spiky Death Room", LiquidType::Water, 0, 5)?;
-        // self.indicate_liquid_room("Electric Death Room", LiquidType::Water, 2, 5)?;
         self.indicate_liquid_room("Wrecked Ship Energy Tank Room", LiquidType::Water, 1, 0)?;
 
         // Maridia:
@@ -2234,11 +2177,8 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("Red Fish Room", LiquidType::Water, 1, 0)?;
         self.indicate_liquid_room("Crab Shaft", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Pseudo Plasma Spark Room", LiquidType::Water, 2, 0)?;
-        // self.indicate_liquid_room("Northwest Maridia Bug Room", LiquidType::Water, 1, 5)?;
         self.indicate_liquid_room("Watering Hole", LiquidType::Water, 2, 0)?;
         self.indicate_liquid_room("Plasma Spark Room", LiquidType::Water, 4, 0)?;
-        // self.indicate_liquid_room("Maridia Elevator Room", LiquidType::Water, 5, 5)?;
-        // self.indicate_liquid_room("Thread The Needle Room", LiquidType::Water, 0, 5)?;
         self.indicate_liquid_room("Bug Sand Hole", LiquidType::Water, 0, 5)?;
         self.indicate_liquid_room("Plasma Beach Quicksand Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Butterfly Room", LiquidType::Water, 0, 0)?;
@@ -2269,15 +2209,7 @@ impl<'a> MapPatcher<'a> {
         self.indicate_liquid_room("East Aqueduct Quicksand Room", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Oasis", LiquidType::Water, 0, 0)?;
         self.indicate_liquid_room("Pants Room", LiquidType::Water, 2, 0)?;
-        // self.indicate_liquid_room("Shaktool Room", LiquidType::Water, 0, 5)?;
         self.indicate_liquid_room("Spring Ball Room", LiquidType::Water, 1, 0)?;
-
-        // Tourian:
-        // self.indicate_liquid_room("Tourian First Room", LiquidType::Acid, 3, 5)?;
-        // self.indicate_liquid_room("Metroid Room 1", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Metroid Room 3", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Mother Brain Room", LiquidType::Acid, 0, 5)?;
-        // self.indicate_liquid_room("Tourian Escape Room 4", LiquidType::Acid, 3, 5)?;
 
         Ok(())
     }
@@ -2840,21 +2772,6 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn fix_etank_color(&mut self) -> Result<()> {
-        // let etank_tile: [[u8; 8]; 8] = [
-        //     [0, 0, 0, 0, 0, 0, 0, 0],
-        //     [0, 2, 2, 2, 2, 2, 2, 0],
-        //     [0, 2, 3, 3, 3, 3, 3, 0],
-        //     [0, 2, 3, 3, 3, 3, 3, 0],
-        //     [0, 2, 3, 3, 3, 3, 3, 0],
-        //     [0, 2, 3, 3, 3, 3, 3, 0],
-        //     [0, 0, 0, 0, 0, 0, 0, 0],
-        //     [0, 0, 0, 0, 0, 0, 0, 0],
-        // ];
-        // self.write_tile_2bpp(0x31, etank_tile, false)?;
-        Ok(())
-    }
-
     fn fix_message_boxes(&mut self) -> Result<()> {
         // Fix message boxes GFX: use white letters (color 2) instead of dark gray (color 1)
         for idx in 0xC0..0x100 {
@@ -3037,7 +2954,8 @@ impl<'a> MapPatcher<'a> {
             TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000,
         )?;
         self.rom.write_u16(snes2pc(0x8FB81C), 0x0C00)?; // avoid overwriting hazard tiles with (unneeded) message box tiles
-                                                        // Kraid dead:
+
+        // Kraid dead:
         self.rom.write_u24(
             snes2pc(0x8FB842),
             TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000,
@@ -3159,6 +3077,7 @@ impl<'a> MapPatcher<'a> {
         let flip_door_frame2_idx = 0x366;
         let flip_door_frame3_idx = 0x365;
         let flip_door_frame4_idx = 0x364;
+
         // Top fourth of door going right:
         self.rom.write_u16(base_addr, hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
         self.rom
@@ -3167,7 +3086,8 @@ impl<'a> MapPatcher<'a> {
             .write_u16(base_addr + 4, hazard_tile2_idx | 0x2000)?; // top-left quarter (palette 0)
         self.rom
             .write_u16(base_addr + 6, door_frame2_idx | 0x2400)?; // top-right quarter (palette 1)
-                                                                  // Second-from top fourth of door going right:
+
+        // Second-from top fourth of door going right:
         self.rom
             .write_u16(base_addr + 8, hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
         self.rom
@@ -3176,7 +3096,8 @@ impl<'a> MapPatcher<'a> {
             .write_u16(base_addr + 12, hazard_tile4_idx | 0x2000)?; // top-left quarter (palette 0)
         self.rom
             .write_u16(base_addr + 14, door_frame4_idx | 0x2400)?; // top-right quarter (palette 1)
-                                                                   // Left fourth of door going down:
+
+        // Left fourth of door going down:
         self.rom
             .write_u16(base_addr + 16, flip_hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
         self.rom
@@ -3185,7 +3106,8 @@ impl<'a> MapPatcher<'a> {
             .write_u16(base_addr + 20, flip_door_frame1_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
         self.rom
             .write_u16(base_addr + 22, flip_door_frame2_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
-                                                                        // Second-from left fourth of door going down:
+
+        // Second-from left fourth of door going down:
         self.rom
             .write_u16(base_addr + 24, flip_hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
         self.rom
@@ -3204,7 +3126,6 @@ impl<'a> MapPatcher<'a> {
         self.fix_message_boxes()?;
         self.fix_hud_black()?;
         self.darken_hud_grid()?;
-        self.fix_etank_color()?;
         self.index_vanilla_tiles()?;
         self.fix_elevators()?;
         self.fix_item_dots()?;
@@ -3235,7 +3156,7 @@ impl<'a> MapPatcher<'a> {
         self.fix_fx_palettes()?;
         self.fix_kraid()?;
         self.fix_item_colors()?;
-        // info!("Free tiles: {} (out of {})", self.free_tiles.len() - self.next_free_tile_idx, self.free_tiles.len());
+
         Ok(())
     }
 }

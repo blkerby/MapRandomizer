@@ -529,69 +529,6 @@ struct TestAppData {
     samus_sprites: Vec<String>,
 }
 
-// fn get_difficulty_tiers(app: &TestAppData, diff: &DifficultyConfig) -> Vec<DifficultyConfig> {
-//     let presets = &app.presets;
-//     let mut out: Vec<DifficultyConfig> = vec![];
-//     let tech_set: HashSet<String> = diff.tech.iter().cloned().collect();
-//     let strat_set: HashSet<String> = diff.notable_strats.iter().cloned().collect();
-
-//     out.push(diff.clone());
-//     out.last_mut().unwrap().tech.sort();
-//     out.last_mut().unwrap().notable_strats.sort();
-
-//     for p in presets.iter().rev() {
-//         let tech_vec: Vec<String> = p
-//             .tech
-//             .iter()
-//             .filter(|&x| tech_set.contains(x))
-//             .cloned()
-//             .collect();
-//         let strat_vec: Vec<String> = p
-//             .notable_strats
-//             .iter()
-//             .filter(|&x| strat_set.contains(x))
-//             .cloned()
-//             .collect();
-//         let new_diff = DifficultyConfig {
-//             name: Some(p.name.clone()),
-//             tech: tech_vec,
-//             notable_strats: strat_vec,
-//             shine_charge_tiles: f32::max(diff.shine_charge_tiles, p.shinespark_tiles as f32),
-//             heated_shine_charge_tiles: f32::max(
-//                 diff.heated_shine_charge_tiles,
-//                 p.heated_shinespark_tiles as f32,
-//             ),
-//             item_priorities: diff.item_priorities.clone(),
-//             starting_items: vec![],
-//             semi_filler_items: diff.semi_filler_items.clone(),
-//             filler_items: diff.filler_items.clone(),
-//             early_filler_items: diff.early_filler_items.clone(),
-//             resource_multiplier: f32::max(diff.resource_multiplier, p.resource_multiplier),
-//             gate_glitch_leniency: i32::max(
-//                 diff.gate_glitch_leniency,
-//                 p.gate_glitch_leniency as i32,
-//             ),
-//             door_stuck_leniency: i32::max(diff.door_stuck_leniency, p.door_stuck_leniency as i32),
-//             phantoon_proficiency: f32::min(diff.phantoon_proficiency, p.phantoon_proficiency),
-//             draygon_proficiency: f32::min(diff.draygon_proficiency, p.draygon_proficiency),
-//             ridley_proficiency: f32::min(diff.ridley_proficiency, p.ridley_proficiency),
-//             botwoon_proficiency: f32::min(diff.botwoon_proficiency, p.botwoon_proficiency),
-//             skill_assumptions_preset: diff.skill_assumptions_preset.clone(),
-//             item_progression_preset: diff.item_progression_preset.clone(),
-//             quality_of_life_preset: diff.quality_of_life_preset.clone(),
-//             debug_options: diff.debug_options.clone(),
-//             ..diff.clone()
-//         };
-//         if new_diff.tech == out.last().as_ref().unwrap().tech
-//             && new_diff.notable_strats == out.last().as_ref().unwrap().notable_strats
-//         {
-//             out.pop();
-//         }
-//         out.push(new_diff);
-//     }
-//     out
-// }
-
 fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, String)> {
     let game_data = &app.game_data;
     let mut rng_seed = [0u8; 32];
@@ -634,11 +571,7 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
         "Generating seed using Skills {0}, Progression {1}, QoL {2}",
         skill_label, prog_label, qol_label
     );
-    // let difficulty_tiers = if diff.item_placement_style == ItemPlacementStyle::Forced {
-    //     get_difficulty_tiers(&app, &diff)
-    // } else {
-    //     vec![diff.clone()]
-    // };
+
     let difficulty_tiers = [diff.clone()]; // TODO needs to do the right thing for
                                            // ItemPlacementStyle::Forced
     let random_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
@@ -752,10 +685,6 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
 }
 
 fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
-    // let seed: u64 = app.rng_seed.unwrap_or_else(|| {
-    //     let mut rng = rand::rngs::StdRng::from_entropy();
-    //     rng.next_u64()
-    // });
     let seed: u64 = app.attempt_num.unwrap_or(cycle_count as u64);
 
     info!("Test cycle {cycle_count} Start: seed={}", seed);

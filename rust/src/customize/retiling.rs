@@ -14,7 +14,6 @@ use super::TileTheme;
 const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
 fn apply_bps_patch(rom: &mut Rom, orig_rom: &Rom, filename: &str) -> Result<()> {
-    // let patch_path = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
     let path = Path::new(BPS_PATCH_PATH).join(filename);
     let patch_bytes = std::fs::read(path).with_context(|| format!("Loading {}", filename))?;
     let patch = BPSPatch::new(patch_bytes)?;

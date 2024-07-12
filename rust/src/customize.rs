@@ -46,7 +46,6 @@ impl Allocator {
             if block.end_addr - block.current_addr >= size {
                 let addr = block.current_addr;
                 block.current_addr += size;
-                // println!("success: allocated {} bytes: ending at {:x}", size, pc2snes(block.current_addr));
                 return Ok(addr);
             }
         }
@@ -328,7 +327,6 @@ pub fn customize_rom(
 ) -> Result<()> {
     rom.resize(0x400000);
     let patch = ips::Patch::parse(seed_patch).unwrap();
-    // .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
     for hunk in patch.hunks() {
         rom.write_n(hunk.offset(), hunk.payload())?;
     }
@@ -365,7 +363,6 @@ pub fn customize_rom(
     if let Some((r, g, b)) = settings.etank_color {
         let color = (r as isize) | ((g as isize) << 5) | ((b as isize) << 10);
         rom.write_u16(snes2pc(0x82FFFE), color)?; // Gameplay ETank color
-                                                  // rom.write_u16(snes2pc(0xB6F01A), color)?;
         rom.write_u16(snes2pc(0x8EE416), color)?; // Main menu
         rom.write_u16(snes2pc(0xA7CA7B), color)?; // During Phantoon power-on
     }
@@ -419,7 +416,6 @@ pub fn customize_rom(
             // Disable enemy shaking:
             rom.write_n(snes2pc(0xA09488), &[0xEA; 5])?; // 5 * NOP
             rom.write_n(snes2pc(0xA0948F), &[0xEA; 5])?; // 5 * NOP
-                                                         // rom.write_u8(snes2pc(0xA08712), 0x60)?;  // RTS
 
             // Disable enemy projectile shaking, by setting the displacements to zero:
             rom.write_n(snes2pc(0x86846B), &[0; 144])?;

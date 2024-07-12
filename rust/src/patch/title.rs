@@ -231,7 +231,6 @@ impl<'a> TitlePatcher<'a> {
                     if intensity > 3 {
                         intensity = 3;
                     }
-                    // intensity = 0;
                 } else if color_plane_mask == 0xC0 {
                     // Effect applied to only blue and green color planes (used for additive mode, at bottom of screen)
                     // Apply the effect to all 3 color planes, producing a grayscale gradient instead of cyan.
@@ -288,7 +287,6 @@ impl<'a> TitlePatcher<'a> {
                 &decompressed[(i * 32)..(i * 32 + 32)].try_into()?,
             ));
         }
-        // println!("{:?}", tiles[1]);
         Ok(tiles)
     }
 
@@ -326,7 +324,6 @@ impl<'a> TitlePatcher<'a> {
             });
             pc_addr += 5;
         }
-        // println!("{:?}", out);
         Ok(out)
     }
 

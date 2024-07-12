@@ -73,11 +73,8 @@ impl SeedRepository {
         let path = object_store::path::Path::parse(
             self.base_path.clone() + seed_name + "/" + filename.as_str() + ".zstd",
         )?;
-        // info!("Compressing {}", filename);
         let compressed_data = zstd::bulk::compress(&data, 15)?;
-        // info!("Writing {}", filename);
         self.object_store.put(&path, compressed_data.into()).await?;
-        // info!("Done with {}", filename);
         Ok(())
     }
 

@@ -234,8 +234,6 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     // Item container: 0 = none, 1 = chozo orb, 2 = shot block (scenery)
     let item_container = (orig_plm_type - 0xEED7) / 84;
 
-    // let plm_table: [[isize; 22]; 3] = [[0xF608; 22]; 3];
-
     let plm_table: [[isize; 23]; 3] = [
         [
             0xEED7, // Energy tank
@@ -439,7 +437,6 @@ impl<'a> Patcher<'a> {
             "shaktool",
             "fix_water_fx_bug",
             "seed_hash_display",
-            // "max_ammo_display",
             "max_ammo_display_fast",
             "stats",
             "credits",
@@ -459,12 +456,7 @@ impl<'a> Patcher<'a> {
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
-            patches.extend([
-                "ultra_low_qol_vanilla_bugfixes",
-                // "ultra_low_qol_saveload",
-                // "ultra_low_qol_new_game",
-                // "ultra_low_qol_map_area",
-            ]);
+            patches.extend(["ultra_low_qol_vanilla_bugfixes"]);
         } else {
             patches.extend([
                 "vanilla_bugfixes",
@@ -489,7 +481,6 @@ impl<'a> Patcher<'a> {
             if options.new_game_extra {
                 new_game = "new_game_extra";
             }
-            // patches.push("items_test")
         }
         patches.push(new_game);
 
@@ -501,7 +492,6 @@ impl<'a> Patcher<'a> {
             || self.randomization.difficulty.stop_item_placement_early
         {
             patches.push("escape_items");
-            // patches.push("mother_brain_no_drain");
         }
 
         if self.randomization.difficulty.fast_elevators {
@@ -803,9 +793,6 @@ impl<'a> Patcher<'a> {
         }
 
         // Get x & y position of door (which we will turn gray during escape).
-        // let entrance_x = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 4)? as u8;
-        // let entrance_y = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 5)? as u8;
-        // println!("entrance: {} {}", entrance_x, entrance_y);
         let screen_x = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 6)? as u8;
         let screen_y = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 7)? as u8;
         let entrance_x = screen_x * 16 + 14;
@@ -914,7 +901,6 @@ impl<'a> Patcher<'a> {
         self.auto_reveal_arrows(&mut extra_door_asm)?;
         self.block_escape_return(&mut extra_door_asm)?;
         self.clamp_samus_position(&mut extra_door_asm)?;
-        // self.fix_tourian_blue_hopper(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();
@@ -1079,7 +1065,6 @@ impl<'a> Patcher<'a> {
             let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
             let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
             assert!(new_base_x >= 2);
-            // println!("map: {} {} {} {} {} {}", new_area, area_map_min_y[new_area], area_map_max_y[new_area], self.map.rooms[i].1, new_margin_y, new_base_y);
             assert!(new_base_y >= 0);
             self.rom.write_u8(room.rom_address + 2, new_base_x)?;
             self.rom.write_u8(room.rom_address + 3, new_base_y)?;
@@ -1130,8 +1115,6 @@ impl<'a> Patcher<'a> {
         }
 
         // Handle twin rooms:
-        // let aqueduct_room_idx = self.game_data.room_idx_by_name["Aqueduct"];
-        // room_index_area_hashmaps[4].insert(0x18, self.map.area[aqueduct_room_idx]); // Set Toilet to same map area as Aqueduct
         let pants_room_idx = self.game_data.room_idx_by_name["Pants Room"];
         room_index_area_hashmaps[4].insert(0x25, self.map.area[pants_room_idx]); // Set East Pants Room to same area as Pants Room
         let west_ocean_room_idx = self.game_data.room_idx_by_name["West Ocean"];
@@ -1246,7 +1229,6 @@ impl<'a> Patcher<'a> {
 
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
-                // (0x06, 0x05),   // Empty Crateria
                 0x050C, // Return to Crateria (ASM can replace with intro track or storm track)
                 0x0509, // Crateria Space Pirates (ASM can replace with zebes asleep track, with or without storm)
             ],
@@ -1310,11 +1292,6 @@ impl<'a> Patcher<'a> {
                     continue;
                 }
                 let new_song = area_music[area][subarea];
-                // if room.name == "Landing Site" {
-                //     // Set all Landing Site states to use the same track, the one that plays in vanilla before
-                //     // Power Bombs but after Zebes is awake:
-                //     new_song = 0x0606;
-                // }
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
                 if room.name == "Pants Room" {
                     // Set music for East Pants Room:
@@ -1519,8 +1496,6 @@ impl<'a> Patcher<'a> {
         rng_seed[..8].copy_from_slice(&self.randomization.seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
-        // let image_path = Path::new("../gfx/title/Title3.png");
-        // let img = read_image(image_path)?;
         let mut img = Array3::<u8>::zeros((224, 256, 3));
         loop {
             let top_left_idx = rng.gen_range(0..self.game_data.title_screen_data.top_left.len());
@@ -2135,10 +2110,6 @@ impl<'a> Patcher<'a> {
             "down" => (door.x * 16 + 6, door.y * 16 + 14 - door.offset.unwrap_or(0)),
             _ => panic!("Unexpected door direction: {}", door.direction),
         };
-        // if let DoorType::Beam(_) = locked_door.door_type {
-        //     // Skip beam doors for the moment
-        //     return Ok(());
-        // }
         let plm_id = match (locked_door.door_type, door.direction.as_str()) {
             (DoorType::Yellow, "right") => 0xC85A,
             (DoorType::Yellow, "left") => 0xC860,
@@ -2293,7 +2264,6 @@ impl<'a> Patcher<'a> {
         }
         println!("extra setup ASM end: {:x}", next_addr);
         assert!(next_addr <= snes2pc(0xB8FFFF));
-        // assert!(next_addr <= snes2pc(0xB5FF00));
 
         Ok(())
     }
@@ -2367,7 +2337,6 @@ impl<'a> Patcher<'a> {
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]);
                 // STA $70:{addr}
-                // println!("{:x} {} {}", room_ptr, x, y);
             }
         }
         self.extra_setup_asm
@@ -2491,8 +2460,10 @@ impl<'a> Patcher<'a> {
             let flip_x = 0x4000;
             let flip_y = 0x8000;
             let beam_pal = beam_palettes[beam_idx] << 10;
+
             // horizontal (left-side) door:
             let tilemap_ptr = free_space_addr + beam_idx * 2 * gfx_size;
+
             // 16x16 tile 0 (top)
             self.rom
                 .write_u16(tilemap_ptr + 0x00, 0x2340 | door_pal | flip_x)?; // door frame tile 0
@@ -2504,7 +2475,8 @@ impl<'a> Patcher<'a> {
                 tilemap_ptr + 0x06,
                 0x2000 | (beam_door_gfx_idx + 1) | door_pal,
             )?; // beam door tile 1
-                // 16x16 tile 1 (top middle):
+
+            // 16x16 tile 1 (top middle):
             self.rom
                 .write_u16(tilemap_ptr + 0x08, 0x2360 | door_pal | flip_x)?; // door frame tile 2
             self.rom.write_u16(
@@ -2517,7 +2489,8 @@ impl<'a> Patcher<'a> {
                 tilemap_ptr + 0x0E,
                 0x2000 | (beam_door_gfx_idx + 3) | beam_pal,
             )?; // beam door tile 3
-                // 16x16 tile 2 (bottom middle):
+
+            // 16x16 tile 2 (bottom middle):
             self.rom
                 .write_u16(tilemap_ptr + 0x10, 0x2370 | door_pal | flip_x | flip_y)?; // door frame tile 3 (vertical flip)
             self.rom.write_u16(
@@ -2530,7 +2503,8 @@ impl<'a> Patcher<'a> {
                 tilemap_ptr + 0x16,
                 0x2000 | (beam_door_gfx_idx + 5) | beam_pal,
             )?; // beam door tile 5
-                // 16x16 tile 3 (bottom):
+
+            // 16x16 tile 3 (bottom):
             self.rom
                 .write_u16(tilemap_ptr + 0x18, 0x2350 | door_pal | flip_x | flip_y)?; // door frame tile 1 (vertical flip)
             self.rom.write_u16(
@@ -2546,6 +2520,7 @@ impl<'a> Patcher<'a> {
 
             // vertical (top-side) door:
             let tilemap_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size;
+
             // 16x16 tile 0 (left)
             self.rom
                 .write_u16(tilemap_ptr + 0x00, 0x2347 | door_pal | flip_x | flip_y)?; // door frame tile 0 (horizontal flip)
@@ -2557,7 +2532,8 @@ impl<'a> Patcher<'a> {
                 tilemap_ptr + 0x06,
                 0x2000 | (beam_door_gfx_idx + 1) | door_pal,
             )?; // beam door tile 1
-                // 16x16 tile 1 (left middle):
+
+            // 16x16 tile 1 (left middle):
             self.rom
                 .write_u16(tilemap_ptr + 0x08, 0x2345 | door_pal | flip_x | flip_y)?; // door frame tile 2 (horizontal flip)
             self.rom
@@ -2570,7 +2546,8 @@ impl<'a> Patcher<'a> {
                 tilemap_ptr + 0x0E,
                 0x2000 | (beam_door_gfx_idx + 3) | beam_pal,
             )?; // beam door tile 3
-                // 16x16 tile 2 (right middle):
+
+            // 16x16 tile 2 (right middle):
             self.rom
                 .write_u16(tilemap_ptr + 0x10, 0x2344 | door_pal | flip_y)?; // door frame tile 3
             self.rom
@@ -2583,7 +2560,8 @@ impl<'a> Patcher<'a> {
                 tilemap_ptr + 0x16,
                 0x2000 | (beam_door_gfx_idx + 5) | beam_pal,
             )?; // beam door tile 5
-                // 16x16 tile 3 (right):
+
+            // 16x16 tile 3 (right):
             self.rom
                 .write_u16(tilemap_ptr + 0x18, 0x2346 | door_pal | flip_y)?; // door frame tile 1
             self.rom
@@ -2674,8 +2652,9 @@ pub fn make_rom(
     // (removed here). Both of these have to be removed in order to successfully get rid of this wall.
     // (The change has to be applied to the original ROM before doors are reconnected based on the randomized map.)
     orig_rom.write_u8(snes2pc(0x83AA8F), 0x01)?; // Door direction = 0x01
-                                                 // Even though there is no door cap closing animation, we need to move the door cap X out of the way to the left,
-                                                 // otherwise corrupts the hazard marker PLM somehow:
+
+    // Even though there is no door cap closing animation, we need to move the door cap X out of the way to the left,
+    // otherwise corrupts the hazard marker PLM somehow:
     orig_rom.write_u8(snes2pc(0x83AA90), 0x1E)?; // Door cap X = 0x1E
 
     let mut rom = orig_rom.clone();

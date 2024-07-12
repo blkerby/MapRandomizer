@@ -128,8 +128,6 @@ fn list_room_diagram_files() -> HashMap<usize, String> {
                     continue;
                 }
                 let room_id: usize = str::parse(segments[2]).unwrap();
-                // let img = image::open(path).unwrap();
-                // println!("{:?}", img.dimensions());
                 out.insert(room_id, path_string);
             }
             Err(e) => panic!("Failure reading room diagrams: {:?}", e),
@@ -322,7 +320,6 @@ pub fn strip_name(s: &str) -> String {
         out += &stripped_word;
     }
     out
-    // s.chars().filter(|x| x.is_ascii_alphanumeric()).collect()
 }
 
 fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
@@ -532,7 +529,6 @@ fn get_strat_difficulty(
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
         if !links_by_ids.contains_key(&key) {
-            // println!("`links_by_ids` is missing key {:?}", key);
             return difficulty_configs.len();
         }
         for link in &links_by_ids[&key] {
@@ -685,7 +681,6 @@ fn make_room_template<'a>(
         };
         room_strats.push(strat);
     }
-    // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
     let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
 
     RoomTemplate {

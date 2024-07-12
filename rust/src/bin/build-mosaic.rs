@@ -28,10 +28,13 @@ struct Args {
 
 #[derive(Deserialize, Default, Clone, Debug)]
 struct TransitData {
-    name: String, // Intersecting room name (matching room geometry)
+    /// Intersecting room name (matching room geometry)
+    name: String,
     x: Vec<usize>,
-    top: String, // Transit tube theme above room (matching room name in TransitTube SMART project)
-    bottom: String, // Transit tube theme below room (matching room name in TransitTube SMART project)
+    /// Transit tube theme above room (matching room name in TransitTube SMART project)
+    top: String,
+    /// Transit tube theme below room (matching room name in TransitTube SMART project)
+    bottom: String,
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone)]
@@ -254,14 +257,7 @@ impl MosaicPatchBuilder {
         new_rom.enable_tracking();
         self.apply_cre_tileset(&mut new_rom)?;
         self.apply_sce_tilesets(&mut new_rom)?;
-        // self.apply_palettes(&mut new_rom)?;
 
-        // let patch = flips::BpsDeltaBuilder::new()
-        //     .source(&self.rom.data)
-        //     .target(&new_rom.data)
-        //     .build()?;
-        // let output_path = self.output_patches_dir.join("tilesets.bps");
-        // std::fs::write(&output_path, &patch)?;
         let modified_ranges = new_rom.get_modified_ranges();
         let mut encoder =
             BPSEncoder::new(&self.source_suffix_tree, &new_rom.data, &modified_ranges);
@@ -578,7 +574,6 @@ impl MosaicPatchBuilder {
         src_layer_2: &[u8],
     ) {
         let dst_size = dst_level_data[0] as usize + ((dst_level_data[1] as usize) << 8);
-        // println!("{} {} {} : {} {} {}", dst_screen_x, dst_screen_y, dst_width, src_screen_x, src_screen_y, src_width);
         for y in 0..16 {
             for x in 0..16 {
                 let src_x = src_screen_x * 16 + x;
@@ -624,7 +619,6 @@ impl MosaicPatchBuilder {
             let mut out = level_data[(2 + size * 3 / 2)..(2 + size * 5 / 2)].to_vec();
             if state_xml.layer1_2 == 0x91C9 {
                 // Scrolling sky BG: replicate first column of screens
-                // println!("Scrolling sky: {} {}", room_width, room_height);
                 for sy in 0..room_height {
                     for sx in 1..room_width {
                         for y in 0..16 {
@@ -691,7 +685,6 @@ impl MosaicPatchBuilder {
 
             // Set BG X scroll rate to 100%
             new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
-            // new_rom.write_u8(state_ptr + 13, 0x00 as isize)?;
 
             if state_xml.layer1_2 == 0x91C9 {
                 // Disable scrolling sky, in order to be able to draw the tube in Layer2.
@@ -743,7 +736,6 @@ impl MosaicPatchBuilder {
             let room_name = room_filename
                 .strip_suffix(".xml")
                 .context("Expecting room filename to end in .xml")?;
-            // println!("Room: {}", room_name);
             let room_str = std::fs::read_to_string(&room_path)
                 .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
             let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
@@ -1124,7 +1116,6 @@ impl MosaicPatchBuilder {
                             // Save the BPS patch to a file:
                             let output_filename =
                                 format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, -y);
-                            // info!("Writing {}", output_filename);
                             let output_path = self.output_patches_dir.join(output_filename);
                             std::fs::write(&output_path, &encoder.patch_bytes)?;
 
