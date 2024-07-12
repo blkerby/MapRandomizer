@@ -344,9 +344,11 @@ class TransformerModel(torch.nn.Module):
                 arity=arity,
                 dropout=global_ff_dropout))
 
-        self.output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
+        self.state_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
+        self.state_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
 
+        self.action_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
+        self.action_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y,
                            map_door_id, action_env_id, action_door_id,
@@ -427,18 +429,18 @@ class TransformerModel(torch.nn.Module):
                 X_action = X + self.action_door_embedding[action_door_id]
                 for i in range(self.num_global_layers):
                     X_action = self.action_ff_layers[i](X_action)
-                X_action = self.output_lin1(X_action)
+                X_action = self.action_output_lin1(X_action)
                 X_action = torch.nn.functional.relu(X_action)
-                X_action = self.output_lin2(X_action)
+                X_action = self.action_output_lin2(X_action)
             else:
                 X_action = None
 
             X_state = X
             for i in range(self.num_global_layers):
                 X_state = self.global_ff_layers[i](X_state)
-            X_state = self.output_lin1(X_state)
+            X_state = self.state_output_lin1(X_state)
             X_state = torch.nn.functional.relu(X_state)
-            X_state = self.output_lin2(X_state)
+            X_state = self.state_output_lin2(X_state)
 
         if use_action:
             return X_state.to(torch.float32), X_action.to(torch.float32)

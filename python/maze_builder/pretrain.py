@@ -104,7 +104,7 @@ model = TransformerModel(
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=0,
+    num_global_layers=1,
     global_attn_heads=64,
     global_attn_key_width=32,
     global_attn_value_width=32,
@@ -128,14 +128,11 @@ session = TrainingSession(envs,
                           sam_scale=None)
 session.replay_buffer.num_files = 512
 
-#
-#
-#
-# num_eval_rounds = 16
+# num_eval_rounds = 64
 # eval_buffer = ReplayBuffer(
 #     session.replay_buffer.num_rooms,
 #     torch.device('cpu'),
-#     "eval_data",
+#     "crateria_eval_data",
 #     num_envs * num_devices)
 # for i in range(num_eval_rounds):
 #     with util.DelayedKeyboardInterrupt():
@@ -161,12 +158,12 @@ session.replay_buffer.num_files = 512
 # eval_pass_factor = 1 / episode_length
 # eval_batch_size = 4096
 # num_eval_batches = max(1, int(num_eval_rounds * num_envs * episode_length * num_devices / eval_batch_size * eval_pass_factor))
-# eval_batches = eval_buffer.sample(eval_batch_size, num_eval_batches, hist_frac=1.0, device=device)
+# eval_batches = eval_buffer.sample(eval_batch_size, num_eval_batches, hist_frac=1.0, device=device, include_next_step=True)
 #
 # logging.info("Constructed {} eval batches".format(num_eval_batches))
 # #
 # eval_filename = "eval_batches_zebes2.pkl"
-eval_filename = "eval_batches_crateria.pkl"
+eval_filename = "eval_batches_crateria2.pkl"
 # pickle.dump(eval_batches, open(eval_filename, "wb"))
 eval_batches = pickle.load(open(eval_filename, "rb"))
 #
@@ -214,6 +211,7 @@ lr0 = 0.0003
 lr1 = 0.0003
 
 explore_eps_factor = 0.0
+action_diff_weight = 0.1
 save_loss_weight = 0.005
 mc_dist_weight = 0.001
 toilet_weight = 0.01
@@ -231,6 +229,7 @@ print_freq = 16
 total_state_losses = None
 total_action_losses = None
 total_next_losses = None
+total_action_diff_losses = None
 total_reward = 0
 total_loss_cnt = 0
 total_eval_loss = 0.0
@@ -256,6 +255,8 @@ session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.999
 ema_beta1 = ema_beta0
 session.average_parameters.beta = ema_beta0
+
+verbose = False
 
 # layer_norm_param_decay = 0.9998
 layer_norm_param_decay = 0.999
@@ -283,11 +284,13 @@ logging.info("{}".format(session.model))
 # print(torch.nanmean(S, dim=0, keepdim=True))
 # torch.nanmean((S - torch.nanmean(S, dim=0, keepdim=True)) ** 2)
 
+
 def update_losses(total_losses, losses):
     if total_losses is None:
         total_losses = list(losses)
-    for j in range(len(losses)):
-        total_losses[j] += losses[j]
+    else:
+        for j in range(len(losses)):
+            total_losses[j] += losses[j]
     return total_losses
 
 
@@ -311,11 +314,12 @@ for i in range(1000000):
     ema_beta = ema_beta0 * (ema_beta1 / ema_beta0) ** frac
     session.average_parameters.beta = ema_beta
 
-    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=False)
-    for data in batch_list:
+    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=True)
+    for data, next_data in batch_list:
         with util.DelayedKeyboardInterrupt():
-            state_losses, action_losses, next_losses = session.train_batch(
-                data, None,
+            state_losses, action_losses, next_losses, action_diff_losses = session.train_batch(
+                data, next_data,
+                action_diff_weight=action_diff_weight,
                 balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
@@ -325,6 +329,7 @@ for i in range(1000000):
             total_state_losses = update_losses(total_state_losses, state_losses)
             total_action_losses = update_losses(total_action_losses, action_losses)
             total_next_losses = update_losses(total_next_losses, next_losses)
+            total_action_diff_losses = update_losses(total_action_diff_losses, action_diff_losses)
             total_loss_cnt += 1
 
     session.num_rounds += 1
@@ -332,13 +337,15 @@ for i in range(1000000):
         mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
         mean_action_losses = [x / total_loss_cnt for x in total_action_losses]
         mean_next_losses = [x / total_loss_cnt for x in total_next_losses]
+        mean_action_diff_losses = [x / total_loss_cnt for x in total_action_diff_losses]
 
         total_eval_state_losses = None
         total_eval_action_losses = None
+        total_eval_next_losses = None
         with torch.no_grad():
             with session.average_parameters.average_parameters(session.model.all_param_data()):
-                for data in eval_batches:
-                    eval_state_losses, eval_action_losses = session.eval_batch(data,
+                for data, next_data in eval_batches:
+                    eval_state_losses, eval_action_losses, eval_next_losses = session.eval_batch(data, next_data,
                                                                  balance_weight=balance_weight,
                                                                  save_dist_weight=save_loss_weight,
                                                                  graph_diam_weight=graph_diam_weight,
@@ -346,32 +353,53 @@ for i in range(1000000):
                                                                  toilet_weight=toilet_weight)
                     total_eval_state_losses = update_losses(total_eval_state_losses, eval_state_losses)
                     total_eval_action_losses = update_losses(total_eval_action_losses, eval_action_losses)
+                    total_eval_next_losses = update_losses(total_eval_next_losses, eval_next_losses)
 
         mean_eval_state_losses = [x / len(eval_batches) for x in total_eval_state_losses]
         mean_eval_action_losses = [x / len(eval_batches) for x in total_eval_action_losses]
+        mean_eval_next_losses = [x / len(eval_batches) for x in total_eval_next_losses]
 
-        logging.info(
-            "{}: train: {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
-                session.num_rounds,
-                mean_state_losses[0],
-                ', '.join('{:.4f}'.format(x) for x in mean_state_losses[1:]),
-                mean_action_losses[0],
-                ', '.join('{:.4f}'.format(x) for x in mean_action_losses[1:]),
-                mean_next_losses[0],
-                ', '.join('{:.4f}'.format(x) for x in mean_next_losses[1:]),
-            ))
-        logging.info(
-            "{}: eval: state={:.4f} ({}), action={:.4f} ({})".format(
-                session.num_rounds,
-                mean_eval_state_losses[0],
-                ', '.join('{:.4f}'.format(x) for x in mean_eval_state_losses[1:]),
-                mean_eval_action_losses[0],
-                ', '.join('{:.4f}'.format(x) for x in mean_eval_action_losses[1:]),
-            ))
+        if verbose:
+            logging.info("")
+            logging.info(
+                "{}: train: {:.4f} ({}), {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
+                    session.num_rounds,
+                    mean_state_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_state_losses[1:]),
+                    mean_action_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_action_losses[1:]),
+                    mean_next_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_next_losses[1:]),
+                    mean_action_diff_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_action_diff_losses[1:]),
+                ))
+            logging.info(
+                "{}: eval: {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
+                    session.num_rounds,
+                    mean_eval_state_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_eval_state_losses[1:]),
+                    mean_eval_action_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_eval_action_losses[1:]),
+                    mean_eval_next_losses[0],
+                    ', '.join('{:.4f}'.format(x) for x in mean_eval_next_losses[1:]),
+                ))
+        else:
+            logging.info(
+                "{}: train: state={:.4f}, action={:.4f}, next={:.4f}, diff={:.4f} | eval: state={:.4f}, action={:.4f}, next={:.4f}".format(
+                    session.num_rounds,
+                    mean_state_losses[0],
+                    mean_action_losses[0],
+                    mean_next_losses[0],
+                    mean_action_diff_losses[0],
+                    mean_eval_state_losses[0],
+                    mean_eval_action_losses[0],
+                    mean_eval_next_losses[0],
+                ))
 
         total_state_losses = None
         total_action_losses = None
         total_next_losses = None
+        total_action_diff_losses = None
         total_loss_cnt = 0
 
     if session.num_rounds % save_freq == 0:

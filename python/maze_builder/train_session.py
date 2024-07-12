@@ -10,6 +10,7 @@ from model_average import ExponentialAverage
 import concurrent.futures
 import dataclasses
 
+
 # TODO: try using torch.multinomial instead of implementing this from scratch?
 def _rand_choice(p):
     cumul_p = torch.cumsum(p, dim=1)
@@ -34,6 +35,7 @@ class Predictions:
     graph_diam: torch.tensor
     mc_dist: torch.tensor
     toilet_good: torch.tensor
+
 
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
@@ -116,8 +118,10 @@ class TrainingSession():
         # self.door_connect_weight_down_up = (1 - alpha0) * self.door_connect_weight_down_up + alpha0 * stats_down.to(torch.float32)
         # self.door_connect_adjust_left_right = self.center_matrix(beta * self.door_connect_adjust_left_right + alpha0 * stats_left.to(torch.float32), self.door_connect_weight_left_right)
         # self.door_connect_adjust_down_up = self.center_matrix(beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(torch.float32), self.door_connect_weight_down_up)
-        self.door_connect_adjust_left_right = beta * self.door_connect_adjust_left_right + alpha0 * stats_left.to(torch.float32)
-        self.door_connect_adjust_down_up = beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(torch.float32)
+        self.door_connect_adjust_left_right = beta * self.door_connect_adjust_left_right + alpha0 * stats_left.to(
+            torch.float32)
+        self.door_connect_adjust_down_up = beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(
+            torch.float32)
         self.door_connect_adjust_weight = beta * self.door_connect_adjust_weight + alpha
         return ent
 
@@ -155,13 +159,13 @@ class TrainingSession():
         )
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, map_door_ids, action_candidates,
-                             steps_remaining, temperature,
-                             env_id, balance_coef: float, save_dist_coef: float, graph_diam_coef: float,
-                            mc_dist_coef: torch.tensor,
-                            toilet_good_coef: float,
-                            adjust_left_right,
-                            adjust_down_up,
-                             executor):
+                       steps_remaining, temperature,
+                       env_id, balance_coef: float, save_dist_coef: float, graph_diam_coef: float,
+                       mc_dist_coef: torch.tensor,
+                       toilet_good_coef: float,
+                       adjust_left_right,
+                       adjust_down_up,
+                       executor):
         # print({k: v.shape for k, v in locals().items() if hasattr(v, 'shape')})
         #
         # torch.cuda.synchronize()
@@ -175,7 +179,7 @@ class TrainingSession():
         action_room_door_id = action_candidates[:, :, 4]
         valid = (action_room_id != len(self.envs[0].rooms) - 1)
         round_frac = torch.zeros([num_envs], device=action_candidates.device,
-                                      dtype=torch.float32)
+                                 dtype=torch.float32)
 
         all_mc_dist_coef = mc_dist_coef.unsqueeze(1).repeat(1, num_candidates)
 
@@ -201,8 +205,6 @@ class TrainingSession():
         env = self.envs[env_id]
         # map_flat = env.compute_map(room_mask_flat, room_position_x_flat, room_position_y_flat)
         # map_valid = env.compute_map(room_mask_valid, room_position_x_valid, room_position_y_valid)
-
-
 
         # torch.cuda.synchronize()
         # logging.info("Model forward")
@@ -241,7 +243,7 @@ class TrainingSession():
         # door_connect_cost = self.compute_candidate_penalties(
         #     room_mask, room_position_x, room_position_y, action_env_id_valid, action_room_id_valid, action_x_valid, action_y_valid, env_id,
         #     adjust_left_right, adjust_down_up)
-        door_connect_cost = 0.0   # TODO: compute this using model predictions
+        door_connect_cost = 0.0  # TODO: compute this using model predictions
         balance_cost = torch.sum(preds.door_balance, dim=1)
         save_dist_cost = torch.sum(preds.save_dist, dim=1)
         mc_dist_cost = torch.sum(preds.mc_dist, dim=1)
@@ -254,7 +256,8 @@ class TrainingSession():
         expected = expected_flat.view(num_envs, num_candidates)
         return expected, raw_logodds
 
-    def generate_round_inner(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
+    def generate_round_inner(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float,
+                             temperature: torch.tensor,
                              temperature_decay: float, explore_eps: torch.tensor,
                              env_id, balance_coef: float, save_dist_coef: float, graph_diam_coef: float,
                              mc_dist_coef: torch.tensor,
@@ -278,7 +281,8 @@ class TrainingSession():
             # torch.cuda.synchronize()
             # logging.debug("Averaging parameters")
 
-            adjust_left_right = self.door_connect_adjust_left_right.to(device) / (self.door_connect_adjust_weight + 1e-12)
+            adjust_left_right = self.door_connect_adjust_left_right.to(device) / (
+                    self.door_connect_adjust_weight + 1e-12)
             adjust_down_up = self.door_connect_adjust_down_up.to(device) / (self.door_connect_adjust_weight + 1e-12)
             for j in range(episode_length):
                 if render:
@@ -286,7 +290,8 @@ class TrainingSession():
 
                 frac = j / (episode_length - 1)
                 num_candidates = int(round(num_candidates_min * (num_candidates_max / num_candidates_min) ** frac))
-                num_candidates = min(num_candidates, episode_length - j)  # The number of candidates won't be more than the number of steps remaining.
+                num_candidates = min(num_candidates,
+                                     episode_length - j)  # The number of candidates won't be more than the number of steps remaining.
                 if j == 0:
                     # Place the first room (Landing Site) uniformly randomly:
                     num_candidates = 1
@@ -302,14 +307,16 @@ class TrainingSession():
 
                 if num_candidates == 1:
                     # action_expected = torch.zeros([env.num_envs, num_candidates], dtype=torch.float32, device=device)
-                    raw_logodds = torch.zeros([env.num_envs, num_candidates, env.num_doors + env.num_missing_connects], dtype=torch.float32, device=device)
+                    raw_logodds = torch.zeros([env.num_envs, num_candidates, env.num_doors + env.num_missing_connects],
+                                              dtype=torch.float32, device=device)
                     probs = torch.ones([env.num_envs, 1], dtype=torch.float32, device=device)
                     action_index = torch.zeros([env.num_envs], dtype=torch.long, device=device)
                 else:
                     # print("inner", env_id, j, env.device, model.state_value_lin.weight.device)
                     action_expected, raw_logodds = self.forward_action(
                         model, env.room_mask, env.room_position_x, env.room_position_y, map_door_ids,
-                        action_candidates, steps_remaining, temperature, env_id, balance_coef, save_dist_coef, graph_diam_coef,
+                        action_candidates, steps_remaining, temperature, env_id, balance_coef, save_dist_coef,
+                        graph_diam_coef,
                         mc_dist_coef, toilet_good_coef, adjust_left_right, adjust_down_up, executor)
                     curr_temperature = temperature * temperature_decay ** (j / (episode_length - 1))
                     probs = torch.softmax(action_expected / torch.unsqueeze(curr_temperature, 1), dim=1)
@@ -347,7 +354,8 @@ class TrainingSession():
 
             # torch.cuda.synchronize(device)
             door_connects_tensor = env.current_door_connects().to('cpu')
-            part_adjacency_matrix = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x, env.room_position_y)
+            part_adjacency_matrix = env.compute_part_adjacency_matrix(env.room_mask, env.room_position_x,
+                                                                      env.room_position_y)
             missing_connects_tensor = env.compute_missing_connections(part_adjacency_matrix).to('cpu')
             distance_matrix = env.compute_distance_matrix(part_adjacency_matrix)
             save_distances = env.compute_save_distances(distance_matrix).to('cpu')
@@ -364,7 +372,7 @@ class TrainingSession():
             room_door_ids_tensor = torch.stack(room_door_id_list, dim=1)
 
             selected_raw_logodds_flat = selected_raw_logodds_tensor.view(env.num_envs * episode_length,
-                                                                   selected_raw_logodds_tensor.shape[-1])
+                                                                         selected_raw_logodds_tensor.shape[-1])
             # reward_flat = reward_tensor.view(env.num_envs, 1).repeat(1, episode_length).view(-1)
             door_connects_flat = door_connects_tensor.view(env.num_envs, 1, -1).repeat(1, episode_length, 1).view(
                 env.num_envs * episode_length, -1)
@@ -405,7 +413,8 @@ class TrainingSession():
             )
             return episode_data
 
-    def generate_round_model(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float, temperature: torch.tensor,
+    def generate_round_model(self, model, episode_length: int, num_candidates_min: float, num_candidates_max: float,
+                             temperature: torch.tensor,
                              temperature_decay: float,
                              explore_eps: torch.tensor,
                              compute_cycles: bool,
@@ -423,8 +432,10 @@ class TrainingSession():
             model = model_list[i]
             # print("gen", i, env.device, model.state_value_lin.weight.device)
             future = executor.submit(lambda i=i, model=model: self.generate_round_inner(
-                model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay, explore_eps, render=render,
-                env_id=i, balance_coef=balance_coef, save_dist_coef=save_dist_coef, graph_diam_coef=graph_diam_coef, mc_dist_coef=mc_dist_coef,
+                model, episode_length, num_candidates_min, num_candidates_max, temperature, temperature_decay,
+                explore_eps, render=render,
+                env_id=i, balance_coef=balance_coef, save_dist_coef=save_dist_coef, graph_diam_coef=graph_diam_coef,
+                mc_dist_coef=mc_dist_coef,
                 toilet_good_coef=toilet_good_coef, executor=executor))
             futures_list.append(future)
 
@@ -463,7 +474,8 @@ class TrainingSession():
             test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
         )
 
-    def generate_round(self, episode_length: int, num_candidates_min: float, num_candidates_max: float,  temperature: torch.tensor,
+    def generate_round(self, episode_length: int, num_candidates_min: float, num_candidates_max: float,
+                       temperature: torch.tensor,
                        temperature_decay: float,
                        explore_eps: torch.tensor,
                        compute_cycles: bool,
@@ -493,7 +505,8 @@ class TrainingSession():
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def compute_output_loss(self, raw_preds, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+    def compute_output_loss(self, raw_preds, data: TrainingData, balance_weight: float, save_dist_weight: float,
+                            graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         all_binary_outputs = torch.cat([data.door_connects, data.missing_connects], dim=1)
 
         preds = self.get_preds(raw_preds)
@@ -502,7 +515,8 @@ class TrainingSession():
         # print("train idx: ", num_binary_outputs + num_save_dist_outputs, "num_binary_outputs =", num_binary_outputs, "num_save_dist_outputs =", num_save_dist_outputs)
 
         binary_loss = torch.nn.functional.binary_cross_entropy_with_logits(state_value_raw_logodds,
-                                                                    all_binary_outputs.to(state_value_raw_logodds.dtype))
+                                                                           all_binary_outputs.to(
+                                                                               state_value_raw_logodds.dtype))
 
         balance_mask = ~torch.isnan(data.door_balance)
         balance_zeros = torch.zeros_like(data.door_balance)
@@ -511,21 +525,54 @@ class TrainingSession():
         balance_loss = torch.mean((balance_data0 - balance_pred0) ** 2)
 
         toilet_loss = torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good,
-                                                                    data.toilet_good.to(preds.toilet_good.dtype))
+                                                                           data.toilet_good.to(preds.toilet_good.dtype))
 
         save_dist_mask = (data.save_distances != 255)
-        save_dist_loss = torch.mean(torch.where(save_dist_mask, (preds.save_dist - data.save_distances.to(torch.float)) ** 2, torch.zeros_like(preds.save_dist)))
+        save_dist_loss = torch.mean(
+            torch.where(save_dist_mask, (preds.save_dist - data.save_distances.to(torch.float)) ** 2,
+                        torch.zeros_like(preds.save_dist)))
 
         graph_diam_loss = torch.mean((preds.graph_diam - data.graph_diameter.to(torch.float)) ** 2)
 
         mc_dist_mask = (data.mc_distances != 255)
-        mc_dist_loss = torch.mean(torch.where(mc_dist_mask, (preds.mc_dist - data.mc_distances.to(torch.float)) ** 2, torch.zeros_like(preds.mc_dist)))
+        mc_dist_loss = torch.mean(torch.where(mc_dist_mask, (preds.mc_dist - data.mc_distances.to(torch.float)) ** 2,
+                                              torch.zeros_like(preds.mc_dist)))
 
         loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
+    def compute_soft_loss(self, raw_preds, raw_targets, balance_weight: float, save_dist_weight: float,
+                          graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+        preds = self.get_preds(raw_preds)
+        targets = self.get_preds(raw_targets)
 
-    def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float, use_action: bool):
+        binary_targets_logodds = torch.cat([targets.door_connects, targets.missing_connects], dim=1)
+        binary_targets_probs = torch.sigmoid(binary_targets_logodds)
+        binary_preds_logodds = torch.cat([preds.door_connects, preds.missing_connects], dim=1)
+        # print("train idx: ", num_binary_outputs + num_save_dist_outputs, "num_binary_outputs =", num_binary_outputs, "num_save_dist_outputs =", num_save_dist_outputs)
+
+        binary_loss = \
+            torch.nn.functional.binary_cross_entropy_with_logits(binary_preds_logodds, binary_targets_probs) - \
+            torch.nn.functional.binary_cross_entropy_with_logits(binary_targets_logodds, binary_targets_probs)
+
+        balance_loss = torch.mean(torch.square(preds.door_balance - targets.door_balance))
+
+        toilet_target_probs = torch.sigmoid(targets.toilet_good)
+        toilet_loss = \
+            torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good, toilet_target_probs) - \
+            torch.nn.functional.binary_cross_entropy_with_logits(targets.toilet_good, toilet_target_probs)
+
+        save_dist_loss = torch.mean(torch.square(preds.save_dist - targets.save_dist))
+
+        graph_diam_loss = torch.mean(torch.square(preds.graph_diam - targets.graph_diam))
+
+        mc_dist_loss = torch.mean(torch.square(preds.mc_dist - targets.mc_dist))
+
+        loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
+        return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
+
+    def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float,
+                       graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float, use_action: bool):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         n = data.room_mask.shape[0]
@@ -540,21 +587,51 @@ class TrainingSession():
 
         if use_action:
             state_preds, action_preds = model_result
-            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
-            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight,
+                                                    graph_diam_weight, mc_dist_weight, toilet_weight)
+            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight,
+                                                     graph_diam_weight, mc_dist_weight, toilet_weight)
             return state_losses, action_losses
         else:
             state_preds = model_result
-            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight,
+                                                    graph_diam_weight, mc_dist_weight, toilet_weight)
             return state_losses
 
-
-    def train_batch(self, data: TrainingData, next_data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+    def train_batch(self, data: TrainingData, next_data: TrainingData, action_diff_weight: float, balance_weight: float,
+                    save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.train()
-        state_losses, action_losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight, use_action=True)
-        # next_losses = self.compute_losses(self.model, next_data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight, use_action=False)
 
-        overall_loss = state_losses[0] + action_losses[0]# + 0.0 * next_losses[0]
+        device = data.room_mask.device
+        action_env_id = torch.arange(data.room_mask.shape[0], device=device)
+
+        state_preds, action_preds = self.model.forward_multiclass(
+            data.room_mask, data.room_position_x, data.room_position_y,
+            data.map_door_id, action_env_id, data.room_door_id,
+            data.steps_remaining, data.round_frac,
+            data.temperature, data.mc_dist_coef, use_action=True)
+
+        with torch.no_grad():
+            next_preds = self.model.forward_multiclass(
+                next_data.room_mask, next_data.room_position_x, next_data.room_position_y,
+                next_data.map_door_id, action_env_id, next_data.room_door_id,
+                next_data.steps_remaining, next_data.round_frac,
+                next_data.temperature, next_data.mc_dist_coef, use_action=False)
+            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight,
+                                                     graph_diam_weight,
+                                                     mc_dist_weight, toilet_weight)
+            next_losses = self.compute_output_loss(next_preds, next_data, balance_weight, save_dist_weight,
+                                                   graph_diam_weight,
+                                                   mc_dist_weight, toilet_weight)
+
+        state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight,
+                                                mc_dist_weight, toilet_weight)
+
+        action_diff_losses = self.compute_soft_loss(action_preds, next_preds, balance_weight, save_dist_weight,
+                                                    graph_diam_weight, mc_dist_weight, toilet_weight)
+
+        overall_loss = state_losses[0] + action_diff_weight * action_diff_losses[0] + 0.0 * action_losses[0] + 0.0 * \
+                       next_losses[0]
         self.optimizer.zero_grad()
         self.grad_scaler.scale(overall_loss).backward()
         self.grad_scaler.step(self.optimizer)
@@ -562,11 +639,15 @@ class TrainingSession():
         self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
         self.model.project()
         self.average_parameters.update(self.model.all_param_data())
-        # return state_losses, action_losses, next_losses
-        return state_losses, action_losses, state_losses
+        return state_losses, action_losses, next_losses, action_diff_losses
 
-    def eval_batch(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+    def eval_batch(self, data: TrainingData, next_data: TrainingData, balance_weight: float, save_dist_weight: float,
+                   graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.eval()
         with torch.no_grad():
-            state_losses, action_losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight, use_action=True)
-        return state_losses, action_losses
+            state_losses, action_losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight,
+                                                              graph_diam_weight, mc_dist_weight, toilet_weight,
+                                                              use_action=True)
+            next_losses = self.compute_losses(self.model, next_data, balance_weight, save_dist_weight,
+                                              graph_diam_weight, mc_dist_weight, toilet_weight, use_action=False)
+        return state_losses, action_losses, next_losses
