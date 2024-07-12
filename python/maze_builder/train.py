@@ -18,9 +18,10 @@ from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
-import logic.rooms.crateria_isolated
+# import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
-# import logic.rooms.all_rooms
+import os
+import logic.rooms.all_rooms
 
 
 start_time = datetime.now()
@@ -45,161 +46,22 @@ executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
 num_envs = 2 ** 11
-rooms = logic.rooms.crateria_isolated.rooms
+# rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
-# rooms = logic.rooms.all_rooms.rooms
+rooms = logic.rooms.all_rooms.rooms
 episode_length = len(rooms)
 
-map_x = 32
-map_y = 32
-# map_x = 72
-# map_y = 72
-# map_x = 48
-# map_y = 48
-# map_x = 64
-# map_y = 64
-
-env_config = EnvConfig(
-    rooms=rooms,
-    map_x=map_x,
-    map_y=map_y,
-)
-envs = [MazeBuilderEnv(rooms,
-                       map_x=map_x,
-                       map_y=map_y,
-                       num_envs=num_envs,
-                       device=device,
-                       must_areas_be_connected=False,
-                       starting_room_name="Landing Site")
-                       # starting_room_name="Business Center")
-        for device in devices]
-
-max_possible_reward = envs[0].max_reward
-good_room_parts = [i for i, r in enumerate(envs[0].part_room_id.tolist()) if len(envs[0].rooms[r].door_ids) > 1]
-logging.info("max_possible_reward = {}".format(max_possible_reward))
-
-
-
-
-embedding_width = 256
-key_width = 32
-value_width = 32
-attn_heads = 8
-hidden_width = 1024
-model = TransformerModel(
-    rooms=envs[0].rooms,
-    num_doors=envs[0].num_doors,
-    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
-    map_x=env_config.map_x,
-    map_y=env_config.map_y,
-    block_size_x=8,
-    block_size_y=8,
-    embedding_width=embedding_width,
-    key_width=key_width,
-    value_width=value_width,
-    attn_heads=attn_heads,
-    hidden_width=hidden_width,
-    arity=1,
-    num_local_layers=2,
-    embed_dropout=0.0,
-    ff_dropout=0.0,
-    attn_dropout=0.0,
-    num_global_layers=1,
-    global_attn_heads=32,
-    global_attn_key_width=32,
-    global_attn_value_width=32,
-    global_width=1024,
-    global_hidden_width=2048,
-    global_ff_dropout=0.0,
-).to(device)
-logging.info("{}".format(model))
-
-# model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
-optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-replay_size = 2 ** 18
-session = TrainingSession(envs,
-                          model=model,
-                          optimizer=optimizer,
-                          data_path="data/{}".format(start_time.isoformat()),
-                          ema_beta=0.999,
-                          replay_size=replay_size,
-                          decay_amount=0.0,
-                          sam_scale=None)
-
-
-
-# num_eval_rounds = 64
-# eval_buffer = ReplayBuffer(num_eval_rounds * envs[0].num_envs * len(envs), session.replay_buffer.num_rooms, torch.device('cpu'))
-# for i in range(num_eval_rounds):
-#     with util.DelayedKeyboardInterrupt():
-#         data = session.generate_round(
-#             episode_length=episode_length,
-#             num_candidates_min=1.0,
-#             num_candidates_max=1.0,
-#             balance_coef=0.0,
-#             toilet_good_coef=0.0,
-#             temperature=torch.full([envs[0].num_envs], 1.0),
-#             temperature_decay=1.0,
-#             explore_eps=0.0,
-#             save_dist_coef=0.0,
-#             graph_diam_coef=0.0,
-#             mc_dist_coef=torch.full([envs[0].num_envs], 0.0),
-#             compute_cycles=False,
-#             executor=executor,
-#             cpu_executor=None,
-#             render=False)
-#         eval_buffer.insert(data)
-#         reward = torch.mean(eval_buffer.episode_data.reward[:eval_buffer.size].to(torch.float32))
-#         logging.info("eval {}/{}: cost={:.4f}, cumul={:.4f}".format(i, num_eval_rounds, torch.mean(data.reward.to(torch.float32)), reward))
-#
-# eval_batches = []
-# eval_pass_factor = 1 / episode_length
-# eval_batch_size = 4096
-# num_eval_batches = max(1, int(eval_pass_factor * episode_length * eval_buffer.size / eval_batch_size))
-# for i in range(num_eval_batches):
-#     data = eval_buffer.sample(eval_batch_size, hist=eval_buffer.size, c=1.0, device=device)
-#     eval_batches.append(data)
-# logging.info("Constructed {} eval batches".format(num_eval_batches))
-# #
-# # eval_filename = "eval_batches_zebes.pkl"
-eval_filename = "eval_batches_crateria.pkl"
-# # pickle.dump(eval_batches, open(eval_filename, "wb"))
-eval_batches = pickle.load(open(eval_filename, "rb"))
-
-# for i in range(len(eval_batches)):
-#     i = 0
-#     for field in dir(eval_batches[i]):
-#         data = getattr(eval_batches[i], field)
-#         if isinstance(data, torch.Tensor):
-#             setattr(eval_batches[i], field, data.to(torch.device('cpu')))
-
-# cpu_executor = concurrent.futures.ProcessPoolExecutor()
 cpu_executor = None
-
-
-# def location_mapper(s, device):
-#     if device == 'cpu':
-#         return torch.device('cpu')
-#     else:
-#         return torch.device('cuda:0')
-
-class Unpickler(pickle.Unpickler):
-    def find_class(self, module, name):
-        if module == 'torch.storage' and name == '_load_from_bytes':
-            # return lambda b: torch.load(io.BytesIO(b), map_location='cpu')
-            return lambda b: torch.load(io.BytesIO(b), map_location={
-                'cpu': 'cpu',
-                'cuda:0': 'cuda:0',
-                'cuda:1': 'cuda:0',
-            })
-        else:
-            return super().find_class(module, name)
 
 
 # pickle_name = 'models/session-2023-06-08T14:55:16.779895.pkl'
 # pickle_name = 'models/session-2023-11-08T16:16:55.811707.pkl'
 # pickle_name = 'models/session-2024-06-05T13:43:00.485204.pkl'
 # pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
+session = pickle.load(open("models/pretrain-2024-07-07T13:33:46.473224.pkl", "rb"))
+session.replay_buffer.num_files = 0
+session.replay_buffer.data_path = "data/{}".format(start_time)
+os.makedirs(session.replay_buffer.data_path)
 # session = pickle.load(open(pickle_name, 'rb'))
 # session = pickle.load(open(pickle_name + '-bk1', 'rb'))
 # session = Unpickler(open(pickle_name, 'rb')).load()
@@ -229,7 +91,6 @@ class Unpickler(pickle.Unpickler):
 # session.replay_buffer.size = 0
 # session.replay_buffer.position = 0
 # session.replay_buffer.resize(2 ** 23)
-session.envs = envs
 
 
 # # Add new outputs to the model (for continued training):
@@ -323,46 +184,44 @@ num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in sessio
 # session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
-hist_c = 1.0
-hist_frac = 1.0
+hist_frac = 0.5
 batch_size = 2 ** 10
-lr0 = 0.0003
-lr1 = lr0
+lr0 = 0.0002
+lr1 = 0.0002
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
-num_candidates_min0 = 1
-num_candidates_max0 = 1
-num_candidates_min1 = 1
-num_candidates_max1 = 1
+num_candidates_min0 = 1.5
+num_candidates_max0 = 2.5
+num_candidates_min1 = 3.5
+num_candidates_max1 = 4.5
 
 # num_candidates0 = 40
 # num_candidates1 = 40
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.001
-save_dist_coef = 0.01
+save_loss_weight = 0.005
+save_dist_coef = 0.02
 # save_dist_coef = 0.0
 
-mc_dist_weight = 0.0002
+mc_dist_weight = 0.001
 mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
 toilet_weight = 0.01
 toilet_good_coef = 1.0
 
-graph_diam_weight = 0.00002
+graph_diam_weight = 0.0002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-replay_size = session.replay_buffer.capacity
-door_connect_bound = 1.0
+door_connect_bound = 50.0
 # door_connect_bound = 0.0
-door_connect_samples = 2.0 * replay_size
+door_connect_samples = 2 ** 21
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
-door_connect_beta = door_connect_bound / (door_connect_bound + door_connect_alpha)
-balance_coef = 1.0
+door_connect_beta = 1 - door_connect_alpha / door_connect_bound
+balance_coef = 10.0
 balance_weight = 1.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -381,14 +240,14 @@ temperature_frac_min0 = 0.5
 temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
-annealing_start = 0
-# annealing_time = 1
-annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
+annealing_start = 27008
+annealing_time = 2 ** 22 // (num_envs * num_devices)
+# annealing_time = session.replay_buffer.capacity // (num_envs * num_devices)
 
-pass_factor0 = 1.0
-pass_factor1 = 1.0
+pass_factor0 = 0.1
+pass_factor1 = 0.1
 num_load_files = int(episode_length * pass_factor1)
-print_freq = 8
+print_freq = 16
 total_reward = 0
 total_loss = 0.0
 total_binary_loss = 0.0
@@ -413,25 +272,24 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 128
-summary_freq = 128
+save_freq = 256
+summary_freq = 256
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.999)
+session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.optimizer.param_groups[0]['eps'] = 1e-5
 ema_beta0 = 0.999
 ema_beta1 = ema_beta0
 session.average_parameters.beta = ema_beta0
-use_connectivity = True
-# use_connectivity = False
 
 # layer_norm_param_decay = 0.9998
 layer_norm_param_decay = 0.999
+last_file_num = session.replay_buffer.num_files
 
-def compute_door_connect_counts(only_success: bool, ind=None):
+def compute_door_connect_counts(episode_data, only_success: bool, ind=None):
     batch_size = 1024
     if ind is None:
-        ind = torch.arange(session.replay_buffer.size)
+        ind = torch.arange(episode_data.reward.shape[0])
     num_batches = ind.shape[0] // batch_size
     num_rooms = len(rooms)
     counts = None
@@ -439,8 +297,8 @@ def compute_door_connect_counts(only_success: bool, ind=None):
         start = i * batch_size
         end = (i + 1) * batch_size
         batch_ind = ind[start:end]
-        batch_action = session.replay_buffer.episode_data.action[batch_ind]
-        batch_reward = session.replay_buffer.episode_data.reward[batch_ind]
+        batch_action = episode_data.action[batch_ind]
+        batch_reward = episode_data.reward[batch_ind]
         if only_success:
             # mask = (batch_reward == max_possible_reward)
             mask = (batch_reward == 0)
@@ -524,14 +382,14 @@ logging.info("{}".format(session.model))
 # print(torch.nanmean(S, dim=0, keepdim=True))
 # torch.nanmean((S - torch.nanmean(S, dim=0, keepdim=True)) ** 2)
 
-min_door_value = max_possible_reward
+min_door_value = float('inf')
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, replay_size={}/{}, hist_frac={}, hist_c={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, dropout={}, balance_coef={}, balance_weight={}".format(
-        map_x, map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1, session.replay_buffer.size,
-        session.replay_buffer.capacity, hist_frac, hist_c, num_params, session.decay_amount,
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, dropout={}, balance_coef={}, balance_weight={}".format(
+        len(rooms), session.model.map_x, session.model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
+        num_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
         annealing_time, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
         mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound, dropout,
@@ -594,7 +452,6 @@ for i in range(1000000):
             total_ent += session.update_door_connect_stats(door_connect_alpha, door_connect_beta, temp_num_min)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)
-        session.replay_buffer.load_files(num_files=num_load_files)
 
         total_reward += torch.mean(data.reward.to(torch.float32))
         total_test_loss += torch.mean(data.test_loss)
@@ -650,9 +507,8 @@ for i in range(1000000):
     #         profile_memory=False,
     #         with_stack=False,
     # ) as prof:
-    hist = hist_frac * session.replay_buffer.size
-    for j in range(num_batches):
-        data = session.replay_buffer.sample(batch_size, hist, c=hist_c, device=device)
+    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device)
+    for data in batch_list:
         with util.DelayedKeyboardInterrupt():
             loss, binary_loss, balance_loss, save_loss, graph_diam_loss, mc_loss, toilet_loss = session.train_batch(
                 data,
@@ -687,28 +543,6 @@ for i in range(1000000):
     # logging.info("Training time: {}".format(end_training_time - start_training_time))
 
     if session.num_rounds % print_freq == 0:
-        buffer_reward = session.replay_buffer.episode_data.reward[:session.replay_buffer.size].to(torch.float32)
-        buffer_mean_reward = torch.mean(buffer_reward)
-        buffer_min_reward = torch.min(session.replay_buffer.episode_data.reward[:session.replay_buffer.size])
-        buffer_frac_min_reward = torch.mean(
-            (session.replay_buffer.episode_data.reward[:session.replay_buffer.size] == buffer_min_reward).to(
-                torch.float32))
-        buffer_cycle = torch.nanmean(session.replay_buffer.episode_data.cycle_cost[:session.replay_buffer.size].to(torch.float32))
-        buffer_test_loss = torch.mean(session.replay_buffer.episode_data.test_loss[:session.replay_buffer.size])
-        buffer_prob = torch.mean(session.replay_buffer.episode_data.prob[:session.replay_buffer.size])
-        buffer_prob0 = torch.mean(session.replay_buffer.episode_data.prob0[:session.replay_buffer.size])
-        # buffer_doors = (session.envs[0].num_doors - torch.mean(torch.sum(
-        #     session.replay_buffer.episode_data.door_connects[:session.replay_buffer.size, :].to(torch.float32),
-        #     dim=1))) / 2
-        # all_outputs = torch.cat(
-        #     [session.replay_buffer.episode_data.door_connects[:session.replay_buffer.size, :].to(torch.float32),
-        #      session.replay_buffer.episode_data.missing_connects[:session.replay_buffer.size, :].to(torch.float32)],
-        #     dim=1)
-        # buffer_logr = -torch.sum(torch.log(torch.mean(all_outputs, dim=0)))
-
-        # buffer_test_loss = torch.mean(session.replay_buffer.episode_data.test_loss[:session.replay_buffer.size])
-        # buffer_prob = torch.mean(session.replay_buffer.episode_data.prob[:session.replay_buffer.size])
-
         new_loss = total_loss / total_loss_cnt
         new_binary_loss = total_binary_loss / total_loss_cnt
         new_balance_loss = total_balance_loss / total_loss_cnt
@@ -778,130 +612,98 @@ for i in range(1000000):
         total_loss_cnt = 0
         total_eval_loss = 0.0
         total_eval_loss_cnt = 0
-        min_door_value = max_possible_reward
+        min_door_value = float('inf')
 
     if session.num_rounds % save_freq == 0:
         with util.DelayedKeyboardInterrupt():
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk1')
+            # save_session(session, pickle_name + '-bk4')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:
-        if num_candidates_max == 1:
-            total_eval_loss = 0.0
-            total_other_losses = [0.0, 0.0, 0.0, 0.0]
-            with torch.no_grad():
-                with session.average_parameters.average_parameters(session.model.all_param_data()):
-                    for data in eval_batches:
-                        eval_loss, other_losses = session.eval_batch(data,
-                            balance_weight=balance_weight,
-                            save_dist_weight=save_loss_weight,
-                            graph_diam_weight=graph_diam_weight,
-                            mc_dist_weight=mc_dist_weight,
-                            toilet_weight=toilet_weight)
-                        total_eval_loss += eval_loss
-                        for i in range(len(total_other_losses)):
-                            total_other_losses[i] += other_losses[i]
-            mean_eval_loss = total_eval_loss / len(eval_batches)
-            mean_other_losses = [x / len(eval_batches) for x in total_other_losses]
-        else:
-            mean_eval_loss = float('nan')
-            mean_other_losses = [float('nan'), float('nan'), float('nan'), float('nan')]
-        # summary_mean_test_loss = total_summary_eval_loss / total_summary_eval_loss_cnt
-
         if num_candidates_max > 1:
             temperature_endpoints = [0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0,
                                      20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 2000.0, 5000.0, 10000.0]
         else:
             temperature_endpoints = [temperature_min1 / 2, temperature_max1 * 2]
-        buffer_temperature = session.replay_buffer.episode_data.temperature[:session.replay_buffer.size]
-        # round = (session.replay_buffer.position - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size
-        round = session.num_rounds - 1 - (session.replay_buffer.position - 1 - torch.arange(session.replay_buffer.size) + session.replay_buffer.size) % session.replay_buffer.size // (envs[0].num_envs * len(envs))
-        round_window = summary_freq
-        # round_window = session.replay_buffer.size
-        # for k in range(13):
-        round_start = session.num_rounds - round_window
-        # round_start = 139016
-        # round_end = 112000 + k * 256
 
-        round_end = session.num_rounds
-        # logging.info("round {} to {}".format(round_start, round_end))
+        file_num_list = list(range(last_file_num, session.replay_buffer.num_files))
+        episode_data = session.replay_buffer.read_files(file_num_list)
+
+        buffer_temperature = episode_data.temperature
         for i in range(len(temperature_endpoints) - 1):
             temp_low = temperature_endpoints[i]
             temp_high = temperature_endpoints[i + 1]
-            # ind = torch.nonzero((buffer_temperature > temp_low) & (buffer_temperature <= temp_high))[:, 0]
-            # ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high * 0.9999) & (round < round_window))[:, 0]
-            # ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high * 0.9999) & (round >= round_start) & (round < round_end))[:, 0]
-            ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high) & (round >= round_start) & (round < round_end))[:, 0]
+            ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high))
             if ind.shape[0] == 0:
                 continue
-            buffer_reward = session.replay_buffer.episode_data.reward[ind]
+            buffer_reward = episode_data.reward[ind]
             buffer_mean_reward = torch.mean(buffer_reward.to(torch.float32))
             buffer_min_reward = torch.min(buffer_reward)
             buffer_frac_min = torch.mean((buffer_reward == buffer_min_reward).to(torch.float32))
 
-            S = session.replay_buffer.episode_data.save_distances[ind].to(torch.float32)
+            S = episode_data.save_distances[ind].to(torch.float32)
             S = torch.where(S == 255.0, float('nan'), S)
             buffer_save_dist = torch.nanmean(S)
-            success_mask = session.replay_buffer.episode_data.reward[ind] == 0
+            success_mask = episode_data.reward[ind] == 0
             buffer_save_dist1 = torch.nanmean(S[success_mask, :])
 
-            S = session.replay_buffer.episode_data.mc_distances[ind].to(torch.float32)
+            S = episode_data.mc_distances[ind].to(torch.float32)
             S = torch.where(S == 255.0, float('nan'), S)
             # buffer_mc_dist = torch.nanmean(S)
-            success_mask = session.replay_buffer.episode_data.reward[ind] == 0
-            tame_mask = success_mask & (session.replay_buffer.episode_data.mc_dist_coef[ind] > 0.0)
-            wild_mask = success_mask & (session.replay_buffer.episode_data.mc_dist_coef[ind] == 0.0)
+            success_mask = episode_data.reward[ind] == 0
+            tame_mask = success_mask & (episode_data.mc_dist_coef[ind] > 0.0)
+            wild_mask = success_mask & (episode_data.mc_dist_coef[ind] == 0.0)
             buffer_tame1 = torch.nanmean(S[tame_mask, :])
             buffer_wild1 = torch.nanmean(S[wild_mask, :])
 
-            tame_success_rate = torch.sum(tame_mask) / torch.sum(session.replay_buffer.episode_data.mc_dist_coef[ind] > 0.0)
+            tame_success_rate = torch.sum(tame_mask) / torch.sum(episode_data.mc_dist_coef[ind] > 0.0)
 
-            buffer_graph_diam = session.replay_buffer.episode_data.graph_diameter[ind].to(torch.float32)
+            buffer_graph_diam = episode_data.graph_diameter[ind].to(torch.float32)
             buffer_mean_graph_diam = torch.mean(buffer_graph_diam)
             buffer_mean_graph_diam1 = torch.mean(buffer_graph_diam[success_mask])
             # buffer_mc_dist1 = torch.nanmean(S[success_mask, :])
 
-            buffer_test_loss = session.replay_buffer.episode_data.test_loss[ind]
+            buffer_test_loss = episode_data.test_loss[ind]
             buffer_mean_test_loss = torch.mean(buffer_test_loss)
-            buffer_cycle_cost = session.replay_buffer.episode_data.cycle_cost[ind]
+            buffer_cycle_cost = episode_data.cycle_cost[ind]
             buffer_mean_cycle_cost = torch.nanmean(buffer_cycle_cost)
-            buffer_prob = session.replay_buffer.episode_data.prob[ind]
+            buffer_prob = episode_data.prob[ind]
             buffer_mean_prob = torch.mean(buffer_prob)
-            buffer_prob0 = session.replay_buffer.episode_data.prob0[ind]
+            buffer_prob0 = episode_data.prob0[ind]
             buffer_mean_prob0 = torch.mean(buffer_prob0)
-            buffer_temp = session.replay_buffer.episode_data.temperature[ind]
+            buffer_temp = episode_data.temperature[ind]
             buffer_mean_temp = torch.mean(buffer_temp)
-            counts = compute_door_connect_counts(only_success=False, ind=ind)
-            counts1 = compute_door_connect_counts(only_success=True, ind=ind)
+            counts = compute_door_connect_counts(episode_data, only_success=False, ind=ind)
+            counts1 = compute_door_connect_counts(episode_data, only_success=True, ind=ind)
             ent = session.compute_door_stats_entropy(counts)
             ent1 = session.compute_door_stats_entropy(counts1)
             # logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
             #     temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
             #     buffer_frac_min, ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             # ))
-            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), eval={:.6f}, ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
+            logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
-                buffer_frac_min, mean_eval_loss,
+                buffer_frac_min,
                 ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
 
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
-        counts1 = compute_door_connect_counts(only_success=True)
+        counts1 = compute_door_connect_counts(episode_data, only_success=True)
         ent1 = session.compute_door_stats_entropy(counts1)
-        success_mask = session.replay_buffer.episode_data.reward == 0
-        S = session.replay_buffer.episode_data.save_distances[success_mask].to(torch.float32)
+        success_mask = episode_data.reward == 0
+        S = episode_data.save_distances[success_mask].to(torch.float32)
         S = torch.where(S == 255.0, float('nan'), S)
         save1 = torch.nanmean(S)
-        graph_diam1 = torch.mean(session.replay_buffer.episode_data.graph_diameter[success_mask].to(torch.float32))
+        graph_diam1 = torch.mean(episode_data.graph_diameter[success_mask].to(torch.float32))
 
-        S = session.replay_buffer.episode_data.mc_distances.to(torch.float32)
+        S = episode_data.mc_distances.to(torch.float32)
         S = torch.where(S == 255.0, float('nan'), S)
-        tame_mask = success_mask & (session.replay_buffer.episode_data.mc_dist_coef > 0.0)
-        wild_mask = success_mask & (session.replay_buffer.episode_data.mc_dist_coef == 0.0)
+        tame_mask = success_mask & (episode_data.mc_dist_coef > 0.0)
+        wild_mask = success_mask & (episode_data.mc_dist_coef == 0.0)
         tame1 = torch.nanmean(S[tame_mask, :])
         wild1 = torch.nanmean(S[wild_mask, :])
 
@@ -910,7 +712,4 @@ for i in range(1000000):
                 save1, graph_diam1, tame1, wild1))
         display_counts(counts1, 16, verbose=False)
         # display_counts(counts1, 1000000, verbose=True)
-
-        # logging.info(torch.sort(torch.sum(session.replay_buffer.episode_data.missing_connects, dim=0)))
-
-
+        last_file_num = session.replay_buffer.num_files

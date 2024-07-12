@@ -41,7 +41,7 @@ class TrainingSession():
                  optimizer: torch.optim.Optimizer,
                  data_path: str,
                  ema_beta: float,
-                 replay_size: int,
+                 episodes_per_file: int,
                  decay_amount: float,
                  sam_scale: Optional[float],
                  ):
@@ -53,9 +53,10 @@ class TrainingSession():
         self.decay_amount = decay_amount
         self.sam_scale = sam_scale
         self.grad_scaler = torch.cuda.amp.GradScaler()
-        self.replay_buffer = ReplayBuffer(replay_size, len(self.envs[0].rooms),
+        self.replay_buffer = ReplayBuffer(len(self.envs[0].rooms),
                                           storage_device=torch.device('cpu'),
-                                          data_path=data_path)
+                                          data_path=data_path,
+                                          episodes_per_file=episodes_per_file)
 
         self.door_connect_adjust_left_right, self.door_connect_adjust_down_up = self.get_initial_door_connect_stats()
         self.door_connect_adjust_weight = 0.0
@@ -277,8 +278,8 @@ class TrainingSession():
             # torch.cuda.synchronize()
             # logging.debug("Averaging parameters")
 
-            adjust_left_right = self.door_connect_adjust_left_right.to(device)
-            adjust_down_up = self.door_connect_adjust_down_up.to(device)
+            adjust_left_right = self.door_connect_adjust_left_right.to(device) / self.door_connect_adjust_weight
+            adjust_down_up = self.door_connect_adjust_down_up.to(device) / self.door_connect_adjust_weight
             for j in range(episode_length):
                 if render:
                     env.render()
@@ -492,13 +493,13 @@ class TrainingSession():
                                              cpu_executor=cpu_executor,
                                              render=render)
 
-    def compute_losses(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+    def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         n = data.room_mask.shape[0]
         device = data.room_mask.device
         action_env_id = torch.arange(data.room_mask.shape[0], device=device)
-        raw_preds = self.model.forward_multiclass(
+        raw_preds = model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y,
             data.map_door_id, action_env_id, data.room_door_id,
             data.steps_remaining, data.round_frac,
@@ -537,7 +538,7 @@ class TrainingSession():
 
     def train_batch(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.train()
-        losses = self.compute_losses(data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+        losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
         overall_loss = losses[0]
 
         self.optimizer.zero_grad()
@@ -552,6 +553,6 @@ class TrainingSession():
     def eval_batch(self, data: TrainingData, balance_weight: float, save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         self.model.eval()
         with torch.no_grad():
-            losses = self.compute_losses(data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
+            losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight, graph_diam_weight, mc_dist_weight, toilet_weight)
         return losses[0].item(), losses[1:]
 

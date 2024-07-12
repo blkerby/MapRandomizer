@@ -347,6 +347,7 @@ class TransformerModel(torch.nn.Module):
                            steps_remaining, round_frac,
                            temperature, mc_dist_coef):
         n = room_mask.shape[0]
+        # print(f"n={n}, room_mask={room_mask.shape}, room_position_x={room_position_x.shape}, room_position_y={room_position_y.shape}, map_door_id={map_door_id.shape}, action_env_id={action_env_id.shape}, action_door_id={action_door_id.shape}, steps_remaining={steps_remaining.shape}, round_frac={round_frac.shape}, temperature={temperature.shape}, mc_dist_coef={mc_dist_coef.shape}")
         device = room_mask.device
         dtype = torch.float16
 

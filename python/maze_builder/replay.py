@@ -1,31 +1,20 @@
 from typing import Optional
 import torch
+from typing import List
 from maze_builder.types import EpisodeData, TrainingData, reconstruct_room_data
 import os
 import pickle
 import random
 
+
 class ReplayBuffer:
-    def __init__(self, capacity, num_rooms, storage_device, data_path):
-        self.capacity = capacity
+    def __init__(self, num_rooms, storage_device, data_path, episodes_per_file):
         self.num_rooms = num_rooms
         self.storage_device = storage_device
-        self.episode_data: Optional[EpisodeData] = None
-        self.position = 0
-        self.size = 0
         self.data_path = data_path
+        self.episodes_per_file = episodes_per_file
         self.num_files = 0
         os.makedirs(data_path, exist_ok=True)
-
-    def initial_allocation(self, prototype_episode_data: EpisodeData):
-        episode_data_dict = {}
-        for field in EpisodeData.__dataclass_fields__.keys():
-            prototype_tensor = getattr(prototype_episode_data, field)
-            shape = list(prototype_tensor.shape)
-            shape[0] = self.capacity
-            allocated_tensor = torch.zeros(shape, dtype=prototype_tensor.dtype, device=self.storage_device)
-            episode_data_dict[field] = allocated_tensor
-        self.episode_data = EpisodeData(**episode_data_dict)
 
     def resize(self, new_capacity: int):
         new_size = min(new_capacity, self.size)
@@ -48,90 +37,82 @@ class ReplayBuffer:
         pickle.dump(episode_data, open(file_path, 'wb'))
         self.num_files += 1
 
-    def load_file(self, file_num):
-        file_path = os.path.join(self.data_path, "{}.pkl".format(file_num))
-        data = pickle.load(open(file_path, 'rb'))
-        n = data.reward.shape[0]
-        rand_idxs = torch.randint(0, self.capacity, [n])
-
+    def read_files(self, file_num_list):
+        data_list = []        
+        for file_num in file_num_list:
+            file_path = os.path.join(self.data_path, "{}.pkl".format(file_num))
+            data = pickle.load(open(file_path, 'rb'))
+            data_list.append(data)
+            
+        out = {}
         for field in EpisodeData.__dataclass_fields__.keys():
-            target_tensor = getattr(self.episode_data, field)
-            input_tensor = getattr(data, field)
-            target_tensor[rand_idxs] = input_tensor
-
-    def load_files(self, num_files):
-        if self.size != self.capacity:
-            return
-        for _ in range(num_files):
-            file_num = random.randrange(self.num_files)
-            self.load_file(file_num)
+            tensor_list = []
+            for data in data_list:
+                tensor_list.append(getattr(data, field))
+            combined_tensor = torch.cat(tensor_list, dim=0)
+            out[field] = combined_tensor
+        return EpisodeData(**out)
 
     def insert(self, episode_data: EpisodeData):
+        n = episode_data.reward.shape[0]
+        assert n == self.episodes_per_file
         self.add_file(episode_data)
-        if self.episode_data is None:
-            self.initial_allocation(episode_data)
-        if self.size == self.capacity:
-            return
-        size = episode_data.reward.shape[0]
-        remaining = self.capacity - self.position
-        size_to_use = min(size, remaining)
-        for field in EpisodeData.__dataclass_fields__.keys():
-            input_data = getattr(episode_data, field)[:size_to_use]
-            target_tensor = getattr(self.episode_data, field)
-            target_tensor[self.position:(self.position + size_to_use)] = input_data
-        self.position += size_to_use
-        self.size = max(self.size, self.position)
-        if self.position == self.capacity:
-            self.position = 0
 
-    def sample(self, n, hist, c, device: torch.device) -> TrainingData:
-        assert c >= 1.0
-        hist = min(hist, self.size)
-        x = torch.rand(size=[n])
-        age_frac = x / (c - (c - 1) * x)
-        # episode_ages = torch.randint(high=hist, size=[n])
-        episode_ages = (age_frac * hist).to(torch.int64)
-        episode_indices = (self.position - 1 - episode_ages + self.size) % self.size
-        episode_length = self.episode_data.action.shape[1]
-        # episode_indices = torch.randint(high=self.size, size=[n])
-        # round_frac = ((self.position - 1 - episode_indices + self.size) % self.size).to(torch.float32) / self.size
-        round_frac = episode_ages.to(torch.float32) / self.size  # hist
-        step_indices = torch.randint(high=episode_length, size=[n])
-        reward = self.episode_data.reward[episode_indices]
-        temperature = self.episode_data.temperature[episode_indices]
-        mc_dist_coef = self.episode_data.mc_dist_coef[episode_indices]
-        door_connects = self.episode_data.door_connects[episode_indices, :]
-        door_balance = self.episode_data.door_balance[episode_indices, :]
-        missing_connects = self.episode_data.missing_connects[episode_indices, :]
-        save_distances = self.episode_data.save_distances[episode_indices, :]
-        graph_diameter = self.episode_data.graph_diameter[episode_indices]
-        mc_distances = self.episode_data.mc_distances[episode_indices, :]
-        toilet_good = self.episode_data.toilet_good[episode_indices]
-        cycle_cost = self.episode_data.cycle_cost[episode_indices]
-        action = self.episode_data.action[episode_indices, :, :].to(torch.int64)
-        map_door_id = self.episode_data.map_door_id[episode_indices, step_indices].to(torch.int64)
-        room_door_id = self.episode_data.room_door_id[episode_indices, step_indices].to(torch.int64)
-        steps_remaining = episode_length - step_indices
+    def sample(self, batch_size, num_batches, hist_frac, device: torch.device) -> List[TrainingData]:
+        n = batch_size * num_batches
+        num_files = n // self.episodes_per_file
 
-        room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, self.num_rooms)
+        # if num_files > self.num_files:
+        #     num_files = self.num_files
+        # file_num_list = random.sample(list(range(self.num_files)), num_files)
+        file_num_list = torch.randint(int((1 - hist_frac) * self.num_files), self.num_files, [num_files]).tolist()
 
-        return TrainingData(
-            reward=reward.to(device),
-            door_connects=door_connects.to(device),
-            door_balance=door_balance.to(device),
-            missing_connects=missing_connects.to(device),
-            save_distances=save_distances.to(device),
-            graph_diameter=graph_diameter.to(device),
-            mc_distances=mc_distances.to(device),
-            toilet_good=toilet_good.to(device),
-            cycle_cost=cycle_cost.to(device),
-            steps_remaining=steps_remaining.to(device),
-            round_frac=round_frac.to(device),
-            temperature=temperature.to(device),
-            mc_dist_coef=mc_dist_coef.to(device),
-            room_mask=room_mask.to(device),
-            room_position_x=room_position_x.to(device),
-            room_position_y=room_position_y.to(device),
-            map_door_id=map_door_id.to(device),
-            room_door_id=room_door_id.to(device),
-        )
+        data = self.read_files(file_num_list)
+        episode_length = data.action.shape[1]
+        batch_list = []
+        for i in range(num_batches):
+            start = i * batch_size
+            end = (i + 1) * batch_size
+            if end > data.reward.shape[0]:
+                break
+            step_indices = torch.randint(high=episode_length, size=[batch_size])
+            reward = data.reward[start:end]
+            temperature = data.temperature[start:end]
+            mc_dist_coef = data.mc_dist_coef[start:end]
+            door_connects = data.door_connects[start:end, :]
+            door_balance = data.door_balance[start:end, :]
+            missing_connects = data.missing_connects[start:end, :]
+            save_distances = data.save_distances[start:end, :]
+            graph_diameter = data.graph_diameter[start:end]
+            mc_distances = data.mc_distances[start:end, :]
+            toilet_good = data.toilet_good[start:end]
+            cycle_cost = data.cycle_cost[start:end]
+            action = data.action[start:end, :, :].to(torch.int64)
+            map_door_id = data.map_door_id[torch.arange(start, end), step_indices].to(torch.int64)
+            room_door_id = data.room_door_id[torch.arange(start, end), step_indices].to(torch.int64)
+            steps_remaining = episode_length - step_indices
+
+            room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, self.num_rooms)
+
+            batch = TrainingData(
+                reward=reward.to(device),
+                door_connects=door_connects.to(device),
+                door_balance=door_balance.to(device),
+                missing_connects=missing_connects.to(device),
+                save_distances=save_distances.to(device),
+                graph_diameter=graph_diameter.to(device),
+                mc_distances=mc_distances.to(device),
+                toilet_good=toilet_good.to(device),
+                cycle_cost=cycle_cost.to(device),
+                steps_remaining=steps_remaining.to(device),
+                round_frac=torch.zeros_like(graph_diameter).to(device),
+                temperature=temperature.to(device),
+                mc_dist_coef=mc_dist_coef.to(device),
+                room_mask=room_mask.to(device),
+                room_position_x=room_position_x.to(device),
+                room_position_y=room_position_y.to(device),
+                map_door_id=map_door_id.to(device),
+                room_door_id=room_door_id.to(device),
+            )
+            batch_list.append(batch)
+        return batch_list
