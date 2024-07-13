@@ -39,22 +39,26 @@ class Predictions:
 
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
-                 model: TransformerModel,
-                 optimizer: torch.optim.Optimizer,
+                 state_model: TransformerModel,
+                 action_model: TransformerModel,
+                 state_optimizer: torch.optim.Optimizer,
+                 action_optimizer: torch.optim.Optimizer,
                  data_path: str,
                  ema_beta: float,
                  episodes_per_file: int,
-                 decay_amount: float,
-                 sam_scale: Optional[float],
+                 decay_amount: float
                  ):
         self.envs = envs
-        self.model = model
-        self.optimizer = optimizer
-        self.average_parameters = ExponentialAverage(model.all_param_data(), beta=ema_beta)
+        self.state_model = state_model
+        self.action_model = action_model
+        self.state_optimizer = state_optimizer
+        self.action_optimizer = action_optimizer
+        self.state_average_parameters = ExponentialAverage(state_model.all_param_data(), beta=ema_beta)
+        self.action_average_parameters = ExponentialAverage(action_model.all_param_data(), beta=ema_beta)
         self.num_rounds = 0
         self.decay_amount = decay_amount
-        self.sam_scale = sam_scale
-        self.grad_scaler = torch.cuda.amp.GradScaler()
+        self.state_grad_scaler = torch.cuda.amp.GradScaler()
+        self.action_grad_scaler = torch.cuda.amp.GradScaler()
         self.replay_buffer = ReplayBuffer(len(self.envs[0].rooms),
                                           storage_device=torch.device('cpu'),
                                           data_path=data_path,
@@ -216,7 +220,7 @@ class TrainingSession():
             room_mask, room_position_x, room_position_y,
             map_door_ids, action_env_id_valid, room_door_id_valid,
             steps_remaining, round_frac,
-            temperature, mc_dist_coef, use_action=True)
+            temperature, mc_dist_coef)
 
         preds = self.get_preds(raw_preds_valid)
 
@@ -487,8 +491,8 @@ class TrainingSession():
                        executor: Optional[concurrent.futures.ThreadPoolExecutor],
                        cpu_executor: concurrent.futures.ProcessPoolExecutor,
                        render=False) -> EpisodeData:
-        with self.average_parameters.average_parameters(self.model.all_param_data()):
-            return self.generate_round_model(model=self.model,
+        with self.action_average_parameters.average_parameters(self.action_model.all_param_data()):
+            return self.generate_round_model(model=self.action_model,
                                              episode_length=episode_length,
                                              num_candidates_min=num_candidates_min,
                                              num_candidates_max=num_candidates_max,
@@ -572,82 +576,98 @@ class TrainingSession():
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
     def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float,
-                       graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float, use_action: bool):
+                       graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         n = data.room_mask.shape[0]
         device = data.room_mask.device
         action_env_id = torch.arange(data.room_mask.shape[0], device=device)
 
-        model_result = model.forward_multiclass(
+        preds = model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y,
             data.map_door_id, action_env_id, data.room_door_id,
             data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef, use_action)
+            data.temperature, data.mc_dist_coef)
 
-        if use_action:
-            state_preds, action_preds = model_result
-            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight,
-                                                    graph_diam_weight, mc_dist_weight, toilet_weight)
-            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight,
-                                                     graph_diam_weight, mc_dist_weight, toilet_weight)
-            return state_losses, action_losses
-        else:
-            state_preds = model_result
-            state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight,
-                                                    graph_diam_weight, mc_dist_weight, toilet_weight)
-            return state_losses
+        losses = self.compute_output_loss(preds, data, balance_weight, save_dist_weight,
+                                          graph_diam_weight, mc_dist_weight, toilet_weight)
+        return losses
 
     def train_batch(self, data: TrainingData, next_data: TrainingData, action_diff_weight: float, balance_weight: float,
                     save_dist_weight: float, graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
-        self.model.train()
+        self.state_model.train()
+        self.action_model.train()
 
         device = data.room_mask.device
         action_env_id = torch.arange(data.room_mask.shape[0], device=device)
 
-        state_preds, action_preds = self.model.forward_multiclass(
+        # Compute state-value predictions for current step:
+        state_preds = self.state_model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y,
             data.map_door_id, action_env_id, data.room_door_id,
             data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef, use_action=True)
-
-        with torch.no_grad():
-            next_preds = self.model.forward_multiclass(
-                next_data.room_mask, next_data.room_position_x, next_data.room_position_y,
-                next_data.map_door_id, action_env_id, next_data.room_door_id,
-                next_data.steps_remaining, next_data.round_frac,
-                next_data.temperature, next_data.mc_dist_coef, use_action=False)
-            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight,
-                                                     graph_diam_weight,
-                                                     mc_dist_weight, toilet_weight)
-            next_losses = self.compute_output_loss(next_preds, next_data, balance_weight, save_dist_weight,
-                                                   graph_diam_weight,
-                                                   mc_dist_weight, toilet_weight)
+            data.temperature, data.mc_dist_coef)
 
         state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight,
                                                 mc_dist_weight, toilet_weight)
 
+        self.state_optimizer.zero_grad()
+        self.state_grad_scaler.scale(state_losses[0]).backward()
+        # self.state_grad_scaler.scale(state_losses[0] + next_losses[0]).backward()
+        self.state_grad_scaler.step(self.state_optimizer)
+        self.state_grad_scaler.update()
+        self.state_model.decay(self.decay_amount * self.state_optimizer.param_groups[0]['lr'])
+        self.state_model.project()
+        self.state_average_parameters.update(self.state_model.all_param_data())
+
+        with torch.no_grad():
+            with self.state_average_parameters.average_parameters(self.state_model.all_param_data()):
+                next_preds = self.state_model.forward_multiclass(
+                    next_data.room_mask, next_data.room_position_x, next_data.room_position_y,
+                    next_data.map_door_id, action_env_id, next_data.room_door_id,
+                    next_data.steps_remaining, next_data.round_frac,
+                    next_data.temperature, next_data.mc_dist_coef)
+
+                next_losses = self.compute_output_loss(next_preds, next_data, balance_weight, save_dist_weight,
+                                                       graph_diam_weight,
+                                                       mc_dist_weight, toilet_weight)
+
+        # Use action-value predictions to update action-value model:
+        action_preds = self.action_model.forward_multiclass(
+            data.room_mask, data.room_position_x, data.room_position_y,
+            data.map_door_id, action_env_id, data.room_door_id,
+            data.steps_remaining, data.round_frac,
+            data.temperature, data.mc_dist_coef)
+
         action_diff_losses = self.compute_soft_loss(action_preds, next_preds, balance_weight, save_dist_weight,
                                                     graph_diam_weight, mc_dist_weight, toilet_weight)
 
-        overall_loss = state_losses[0] + action_diff_weight * action_diff_losses[0] + 0.0 * action_losses[0] + 0.0 * \
-                       next_losses[0]
-        self.optimizer.zero_grad()
-        self.grad_scaler.scale(overall_loss).backward()
-        self.grad_scaler.step(self.optimizer)
-        self.grad_scaler.update()
-        self.model.decay(self.decay_amount * self.optimizer.param_groups[0]['lr'])
-        self.model.project()
-        self.average_parameters.update(self.model.all_param_data())
+        # Compute action-value losses against hard labels (for reference only, not used for training)
+        with torch.no_grad():
+            action_losses = self.compute_output_loss(action_preds, data, balance_weight, save_dist_weight,
+                                                     graph_diam_weight,
+                                                     mc_dist_weight, toilet_weight)
+
+        self.action_optimizer.zero_grad()
+        self.action_grad_scaler.scale(action_diff_losses[0]).backward()
+        # self.action_grad_scaler.scale(action_losses[0]).backward()
+        self.action_grad_scaler.step(self.action_optimizer)
+        self.action_grad_scaler.update()
+        self.action_model.decay(self.decay_amount * self.action_optimizer.param_groups[0]['lr'])
+        self.action_model.project()
+        self.action_average_parameters.update(self.action_model.all_param_data())
+
         return state_losses, action_losses, next_losses, action_diff_losses
 
     def eval_batch(self, data: TrainingData, next_data: TrainingData, balance_weight: float, save_dist_weight: float,
                    graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
-        self.model.eval()
+        self.state_model.eval()
+        self.action_model.eval()
         with torch.no_grad():
-            state_losses, action_losses = self.compute_losses(self.model, data, balance_weight, save_dist_weight,
-                                                              graph_diam_weight, mc_dist_weight, toilet_weight,
-                                                              use_action=True)
-            next_losses = self.compute_losses(self.model, next_data, balance_weight, save_dist_weight,
-                                              graph_diam_weight, mc_dist_weight, toilet_weight, use_action=False)
+            state_losses = self.compute_losses(self.state_model, data, balance_weight, save_dist_weight,
+                                                              graph_diam_weight, mc_dist_weight, toilet_weight)
+            action_losses = self.compute_losses(self.action_model, data, balance_weight, save_dist_weight,
+                                                              graph_diam_weight, mc_dist_weight, toilet_weight)
+            next_losses = self.compute_losses(self.state_model, next_data, balance_weight, save_dist_weight,
+                                              graph_diam_weight, mc_dist_weight, toilet_weight)
         return state_losses, action_losses, next_losses

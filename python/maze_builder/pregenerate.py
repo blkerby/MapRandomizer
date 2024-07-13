@@ -85,18 +85,20 @@ dummy_model = TransformerModel(
     global_width=1,
     global_hidden_width=1,
     global_ff_dropout=0.0,
+    use_action=True,
 ).to(device)
 
 
 optimizer = torch.optim.Adam(dummy_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
-                          model=dummy_model,
-                          optimizer=optimizer,
+                          state_model=dummy_model,
+                          action_model=dummy_model,
+                          state_optimizer=optimizer,
+                          action_optimizer=optimizer,
                           data_path="data/pregen-{}".format(start_time.isoformat()),
                           ema_beta=0.999,
                           episodes_per_file=num_envs * num_devices,
-                          decay_amount=0.0,
-                          sam_scale=None)
+                          decay_amount=0.0)
 
 print_freq = 128
 

@@ -81,12 +81,7 @@ logging.info("max_possible_reward = {}".format(max_possible_reward))
 
 
 
-embedding_width = 512
-key_width = 32
-value_width = 32
-attn_heads = 8
-hidden_width = 2048
-model = TransformerModel(
+state_model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
     num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
@@ -94,39 +89,70 @@ model = TransformerModel(
     map_y=env_config.map_y,
     block_size_x=8,
     block_size_y=8,
-    embedding_width=embedding_width,
-    key_width=key_width,
-    value_width=value_width,
-    attn_heads=attn_heads,
-    hidden_width=hidden_width,
+    embedding_width=256,
+    key_width=32,
+    value_width=32,
+    attn_heads=8,
+    hidden_width=1024,
     arity=1,
     num_local_layers=2,
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
     num_global_layers=1,
-    global_attn_heads=64,
+    global_attn_heads=32,
     global_attn_key_width=32,
     global_attn_value_width=32,
-    global_width=2048,
-    global_hidden_width=4096,
+    global_width=1024,
+    global_hidden_width=2048,
     global_ff_dropout=0.0,
+    use_action=False,
 ).to(device)
-logging.info("{}".format(model))
+action_model = TransformerModel(
+    rooms=envs[0].rooms,
+    num_doors=envs[0].num_doors,
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
+    map_x=env_config.map_x,
+    map_y=env_config.map_y,
+    block_size_x=8,
+    block_size_y=8,
+    embedding_width=256,
+    key_width=32,
+    value_width=32,
+    attn_heads=8,
+    hidden_width=1024,
+    arity=1,
+    num_local_layers=2,
+    embed_dropout=0.0,
+    ff_dropout=0.0,
+    attn_dropout=0.0,
+    num_global_layers=1,
+    global_attn_heads=32,
+    global_attn_key_width=32,
+    global_attn_value_width=32,
+    global_width=1024,
+    global_hidden_width=2048,
+    global_ff_dropout=0.0,
+    use_action=True,
+).to(device)
+logging.info("State model: {}".format(state_model))
+logging.info("Action model: {}".format(action_model))
 
 # model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
-optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+state_optimizer = torch.optim.Adam(state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+action_optimizer = torch.optim.Adam(action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
-                          model=model,
-                          optimizer=optimizer,
+                          state_model=state_model,
+                          action_model=action_model,
+                          state_optimizer=state_optimizer,
+                          action_optimizer=action_optimizer,
                           # data_path="data/{}".format(start_time.isoformat()),
                           # data_path="data/pretraining",  # Zebes
-                          data_path="data/pregen-2024-07-12T08:22:29.843635",  # Crateria
+                          data_path="data/pregen-2024-07-12T23:49:00.907499",  # Crateria
                           ema_beta=0.999,
                           episodes_per_file=num_envs * num_devices,
-                          decay_amount=0.0,
-                          sam_scale=None)
-session.replay_buffer.num_files = 512
+                          decay_amount=0.0)
+session.replay_buffer.num_files = 74112
 
 # num_eval_rounds = 64
 # eval_buffer = ReplayBuffer(
@@ -202,13 +228,14 @@ cpu_executor = None
 session.envs = envs
 
 
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 
 # TODO: bundle all this stuff into a structure
 hist_frac = 1.0
 batch_size = 2 ** 10
-lr0 = 0.0003
-lr1 = 0.0003
+state_lr0 = 0.0003
+state_lr1 = 0.0003
+action_lr0 = 0.001
+action_lr1 = 0.001
 
 explore_eps_factor = 0.0
 action_diff_weight = 0.1
@@ -250,16 +277,18 @@ total_cycle_cost = 0.0
 save_freq = 256
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.optimizer.param_groups[0]['eps'] = 1e-5
-ema_beta0 = 0.999
-ema_beta1 = ema_beta0
-session.average_parameters.beta = ema_beta0
+session.state_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.state_optimizer.param_groups[0]['eps'] = 1e-5
+session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.action_optimizer.param_groups[0]['eps'] = 1e-5
+state_ema_beta0 = 0.999
+state_ema_beta1 = state_ema_beta0
+session.state_average_parameters.beta = state_ema_beta0
+action_ema_beta0 = 0.999
+action_ema_beta1 = action_ema_beta0
+session.action_average_parameters.beta = action_ema_beta0
 
 verbose = False
-
-# layer_norm_param_decay = 0.9998
-layer_norm_param_decay = 0.999
 
 num_batches = 64
 
@@ -268,11 +297,11 @@ def save_session(session, name):
         logging.info("Saving to {}".format(name))
         pickle.dump(session, open(name, 'wb'))
 
-dropout = 0.0
-session.model.embed_dropout.p = dropout
-for m in session.model.ff_layers:
-    m.dropout.p = dropout
-logging.info("{}".format(session.model))
+# dropout = 0.0
+# session.model.embed_dropout.p = dropout
+# for m in session.model.ff_layers:
+#     m.dropout.p = dropout
+# logging.info("{}".format(session.model))
 # for m in session.model.modules():
 #     if isinstance(m, torch.nn.Dropout):
 #         if m.p > 0.0:
@@ -296,23 +325,30 @@ def update_losses(total_losses, losses):
 
 min_door_value = max_possible_reward
 torch.set_printoptions(linewidth=120, threshold=10000)
+logging.info("Data path: {}".format(session.replay_buffer.data_path))
 logging.info("Checkpoint path: {}".format(pickle_name))
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
+num_state_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.state_model.parameters())
+num_action_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.action_model.parameters())
 logging.info(
-    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, hist_frac={}, lr0={}, lr1={}, num_params={}, decay_amount={}, ema_beta0={}, ema_beta1={}, annealing_time={}, save_loss_weight={}, graph_diam_weight={}, mc_dist_weight={}, dropout={}, balance_weight={}, toilet_weight={}".format(
-        len(rooms), map_x, map_y, session.envs[0].num_envs, batch_size, hist_frac, lr0, lr1,
-        num_params, session.decay_amount,
-        ema_beta0, ema_beta1,
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, hist_frac={}, state_lr0={}, state_lr1={}, action_lr0={}, action_lr1={}, num_state_params={}, num_action_params={}, decay_amount={}, state_ema_beta0={}, state_ema_beta1={}, action_ema_beta0={}, action_ema_beta1={}, annealing_time={}, save_loss_weight={}, graph_diam_weight={}, mc_dist_weight={}, balance_weight={}, toilet_weight={}".format(
+        len(rooms), map_x, map_y, session.envs[0].num_envs, batch_size, hist_frac, state_lr0, state_lr1, action_lr0, action_lr1,
+        num_state_params, num_action_params, session.decay_amount,
+        state_ema_beta0, state_ema_beta1, action_ema_beta0, action_ema_beta1,
         annealing_time, save_loss_weight, graph_diam_weight,
-        mc_dist_weight, dropout, balance_weight, toilet_weight))
-logging.info(session.optimizer)
+        mc_dist_weight, balance_weight, toilet_weight))
+logging.info(session.state_optimizer)
+logging.info(session.action_optimizer)
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
-    lr = lr0 * (lr1 / lr0) ** frac
-    session.optimizer.param_groups[0]['lr'] = lr
-    ema_beta = ema_beta0 * (ema_beta1 / ema_beta0) ** frac
-    session.average_parameters.beta = ema_beta
+    state_lr = state_lr0 * (state_lr1 / state_lr0) ** frac
+    action_lr = action_lr0 * (action_lr1 / action_lr0) ** frac
+    session.state_optimizer.param_groups[0]['lr'] = state_lr
+    session.action_optimizer.param_groups[0]['lr'] = action_lr
+    state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
+    session.state_average_parameters.beta = state_ema_beta
+    action_ema_beta = action_ema_beta0 * (action_ema_beta1 / action_ema_beta0) ** frac
+    session.action_average_parameters.beta = action_ema_beta
 
     batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=True)
     for data, next_data in batch_list:
@@ -343,17 +379,18 @@ for i in range(1000000):
         total_eval_action_losses = None
         total_eval_next_losses = None
         with torch.no_grad():
-            with session.average_parameters.average_parameters(session.model.all_param_data()):
-                for data, next_data in eval_batches:
-                    eval_state_losses, eval_action_losses, eval_next_losses = session.eval_batch(data, next_data,
-                                                                 balance_weight=balance_weight,
-                                                                 save_dist_weight=save_loss_weight,
-                                                                 graph_diam_weight=graph_diam_weight,
-                                                                 mc_dist_weight=mc_dist_weight,
-                                                                 toilet_weight=toilet_weight)
-                    total_eval_state_losses = update_losses(total_eval_state_losses, eval_state_losses)
-                    total_eval_action_losses = update_losses(total_eval_action_losses, eval_action_losses)
-                    total_eval_next_losses = update_losses(total_eval_next_losses, eval_next_losses)
+            with session.action_average_parameters.average_parameters(session.action_model.all_param_data()):
+                with session.state_average_parameters.average_parameters(session.state_model.all_param_data()):
+                    for data, next_data in eval_batches:
+                        eval_state_losses, eval_action_losses, eval_next_losses = session.eval_batch(data, next_data,
+                                                                     balance_weight=balance_weight,
+                                                                     save_dist_weight=save_loss_weight,
+                                                                     graph_diam_weight=graph_diam_weight,
+                                                                     mc_dist_weight=mc_dist_weight,
+                                                                     toilet_weight=toilet_weight)
+                        total_eval_state_losses = update_losses(total_eval_state_losses, eval_state_losses)
+                        total_eval_action_losses = update_losses(total_eval_action_losses, eval_action_losses)
+                        total_eval_next_losses = update_losses(total_eval_next_losses, eval_next_losses)
 
         mean_eval_state_losses = [x / len(eval_batches) for x in total_eval_state_losses]
         mean_eval_action_losses = [x / len(eval_batches) for x in total_eval_action_losses]
@@ -362,7 +399,7 @@ for i in range(1000000):
         if verbose:
             logging.info("")
             logging.info(
-                "{}: train: {:.4f} ({}), {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
+                "{}: train: {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
                     session.num_rounds,
                     mean_state_losses[0],
                     ', '.join('{:.4f}'.format(x) for x in mean_state_losses[1:]),

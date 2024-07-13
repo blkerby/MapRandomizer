@@ -75,7 +75,6 @@ class ReplayBuffer:
             end = (i + 1) * batch_size
             if end > data.reward.shape[0]:
                 break
-            step_indices = torch.randint(high=episode_length, size=[batch_size])
             reward = data.reward[start:end]
             temperature = data.temperature[start:end]
             mc_dist_coef = data.mc_dist_coef[start:end]
@@ -88,51 +87,24 @@ class ReplayBuffer:
             toilet_good = data.toilet_good[start:end]
             cycle_cost = data.cycle_cost[start:end]
             action = data.action[start:end, :, :].to(torch.int64)
-            map_door_id = data.map_door_id[torch.arange(start, end), step_indices].to(torch.int64)
-            room_door_id = data.room_door_id[torch.arange(start, end), step_indices].to(torch.int64)
-            steps_remaining = episode_length - step_indices
 
-            room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step_indices, self.num_rooms)
-
-            batch = TrainingData(
-                reward=reward.to(device),
-                door_connects=door_connects.to(device),
-                door_balance=door_balance.to(device),
-                missing_connects=missing_connects.to(device),
-                save_distances=save_distances.to(device),
-                graph_diameter=graph_diameter.to(device),
-                mc_distances=mc_distances.to(device),
-                toilet_good=toilet_good.to(device),
-                cycle_cost=cycle_cost.to(device),
-                steps_remaining=steps_remaining.to(device),
-                round_frac=torch.zeros_like(graph_diameter).to(device),
-                temperature=temperature.to(device),
-                mc_dist_coef=mc_dist_coef.to(device),
-                room_mask=room_mask.to(device),
-                room_position_x=room_position_x.to(device),
-                room_position_y=room_position_y.to(device),
-                map_door_id=map_door_id.to(device),
-                room_door_id=room_door_id.to(device),
-            )
-
-            if include_next_step:
-                next_step_indices = step_indices + 1
-                room_mask, room_position_x, room_position_y = reconstruct_room_data(action, next_step_indices,
-                                                                                    self.num_rooms)
-
-                next_step_indices = torch.clamp_max(next_step_indices, data.map_door_id.shape[1] - 1)
+            def make_batch(s):
+                clamp_s = torch.clamp_max(s, data.map_door_id.shape[1] - 1)
                 map_door_id = torch.where(
                     step_indices == data.map_door_id.shape[1] - 1,
-                    torch.full_like(map_door_id, -1),
-                    data.map_door_id[torch.arange(start, end), next_step_indices].to(torch.int64)
+                    torch.full([batch_size], -1),
+                    data.map_door_id[torch.arange(start, end), clamp_s].to(torch.int64)
                 )
                 room_door_id = torch.where(
                     step_indices == data.room_door_id.shape[1] - 1,
-                    torch.full_like(room_door_id, -1),
-                    data.room_door_id[torch.arange(start, end), next_step_indices].to(torch.int64)
+                    torch.full([batch_size], -1),
+                    data.room_door_id[torch.arange(start, end), clamp_s].to(torch.int64)
                 )
 
-                batch_next = TrainingData(
+                steps_remaining = episode_length - s
+                room_mask, room_position_x, room_position_y = reconstruct_room_data(action, s, self.num_rooms)
+
+                batch = TrainingData(
                     reward=reward.to(device),
                     door_connects=door_connects.to(device),
                     door_balance=door_balance.to(device),
@@ -142,7 +114,7 @@ class ReplayBuffer:
                     mc_distances=mc_distances.to(device),
                     toilet_good=toilet_good.to(device),
                     cycle_cost=cycle_cost.to(device),
-                    steps_remaining=steps_remaining.to(device) - 1,
+                    steps_remaining=steps_remaining.to(device),
                     round_frac=torch.zeros_like(graph_diameter).to(device),
                     temperature=temperature.to(device),
                     mc_dist_coef=mc_dist_coef.to(device),
@@ -152,7 +124,13 @@ class ReplayBuffer:
                     map_door_id=map_door_id.to(device),
                     room_door_id=room_door_id.to(device),
                 )
+                return batch
 
+            step_indices = torch.randint(high=episode_length, size=[batch_size])
+            batch = make_batch(step_indices)
+
+            if include_next_step:
+                batch_next = make_batch(step_indices + 1)
                 batch_list.append((batch, batch_next))
             else:
                 batch_list.append(batch)
