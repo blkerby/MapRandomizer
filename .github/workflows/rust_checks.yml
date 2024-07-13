@@ -1,0 +1,24 @@
+name: rust checks
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+defaults:
+  run:
+    working-directory: ./rust
+
+env:
+  RUSTFLAGS: "-Dwarnings"
+
+jobs:
+  verify-code:
+    name: verify code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo fmt --check
+      - run: cargo check --all
