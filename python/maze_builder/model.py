@@ -349,7 +349,7 @@ class TransformerModel(torch.nn.Module):
     def forward_multiclass(self, room_mask, room_position_x, room_position_y,
                            map_door_id, action_env_id, action_door_id,
                            steps_remaining, round_frac,
-                           temperature, mc_dist_coef):
+                           temperature, mc_dist_coef, compute_state_value: bool):
         n = room_mask.shape[0]
         # print(f"n={n}, room_mask={room_mask.shape}, room_position_x={room_position_x.shape}, room_position_y={room_position_y.shape}, map_door_id={map_door_id.shape}, action_env_id={action_env_id.shape}, action_door_id={action_door_id.shape}, steps_remaining={steps_remaining.shape}, round_frac={round_frac.shape}, temperature={temperature.shape}, mc_dist_coef={mc_dist_coef.shape}")
         device = room_mask.device
@@ -415,21 +415,32 @@ class TransformerModel(torch.nn.Module):
             X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
             X = self.pool_attn_post_lin(X)
             X = self.pool_layer_norm(X)
+            X0 = X
 
-            # print("use_action={}, before: {}".format(self.use_action, X.shape))
+            if compute_state_value:
+                X = X0
+                for i in range(self.num_global_layers):
+                    X = self.global_ff_layers[i](X)
+                X = self.output_lin1(X)
+                X = torch.nn.functional.relu(X)
+                X = self.output_lin2(X)
+                X_state = X
 
             if self.use_action:
-                X = X[action_env_id] + self.action_door_embedding[action_door_id]
+                X = X0[action_env_id] + self.action_door_embedding[action_door_id]
+                for i in range(self.num_global_layers):
+                    X = self.global_ff_layers[i](X)
+                X = self.output_lin1(X)
+                X = torch.nn.functional.relu(X)
+                X = self.output_lin2(X)
+                X_action = X
 
-            # print("use_action={}, after: {}".format(self.use_action, X.shape))
-
-            for i in range(self.num_global_layers):
-                X = self.global_ff_layers[i](X)
-            X = self.output_lin1(X)
-            X = torch.nn.functional.relu(X)
-            X = self.output_lin2(X)
-
-        return X.to(torch.float32)
+        if compute_state_value and self.use_action:
+            return X_state.to(torch.float32), X_action.to(torch.float32)
+        elif self.use_action:
+            return X_action.to(torch.float32)
+        else:
+            return X_state.to(torch.float32)
 
     def decay(self, amount: Optional[float]):
         if amount is not None:

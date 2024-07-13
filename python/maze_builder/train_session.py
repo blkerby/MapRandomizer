@@ -216,11 +216,11 @@ class TrainingSession():
         #     map_flat, room_mask_flat, room_position_x_flat, room_position_y_flat, steps_remaining_flat, round_frac_flat,
         #     temperature_flat, env)
 
-        _, raw_preds_valid = model.forward_multiclass(
+        raw_preds_valid = model.forward_multiclass(
             room_mask, room_position_x, room_position_y,
             map_door_ids, action_env_id_valid, room_door_id_valid,
             steps_remaining, round_frac,
-            temperature, mc_dist_coef)
+            temperature, mc_dist_coef, compute_state_value=False)
 
         preds = self.get_preds(raw_preds_valid)
 
@@ -576,7 +576,7 @@ class TrainingSession():
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
     def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float,
-                       graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+                       graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float, compute_state_value: bool):
         env = self.envs[0]
         # map = env.compute_map(data.room_mask, data.room_position_x, data.room_position_y)
         n = data.room_mask.shape[0]
@@ -587,7 +587,7 @@ class TrainingSession():
             data.room_mask, data.room_position_x, data.room_position_y,
             data.map_door_id, action_env_id, data.room_door_id,
             data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef)
+            data.temperature, data.mc_dist_coef, compute_state_value)
 
         losses = self.compute_output_loss(preds, data, balance_weight, save_dist_weight,
                                           graph_diam_weight, mc_dist_weight, toilet_weight)
@@ -606,7 +606,7 @@ class TrainingSession():
             data.room_mask, data.room_position_x, data.room_position_y,
             data.map_door_id, action_env_id, data.room_door_id,
             data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef)
+            data.temperature, data.mc_dist_coef, compute_state_value=True)
 
         state_losses = self.compute_output_loss(state_preds, data, balance_weight, save_dist_weight, graph_diam_weight,
                                                 mc_dist_weight, toilet_weight)
@@ -626,21 +626,27 @@ class TrainingSession():
                     next_data.room_mask, next_data.room_position_x, next_data.room_position_y,
                     next_data.map_door_id, action_env_id, next_data.room_door_id,
                     next_data.steps_remaining, next_data.round_frac,
-                    next_data.temperature, next_data.mc_dist_coef)
+                    next_data.temperature, next_data.mc_dist_coef, compute_state_value=True)
 
                 next_losses = self.compute_output_loss(next_preds, next_data, balance_weight, save_dist_weight,
                                                        graph_diam_weight,
                                                        mc_dist_weight, toilet_weight)
 
         # Use action-value predictions to update action-value model:
-        action_preds = self.action_model.forward_multiclass(
+        aux_state_preds, action_preds = self.action_model.forward_multiclass(
             data.room_mask, data.room_position_x, data.room_position_y,
             data.map_door_id, action_env_id, data.room_door_id,
             data.steps_remaining, data.round_frac,
-            data.temperature, data.mc_dist_coef)
+            data.temperature, data.mc_dist_coef, compute_state_value=True)
 
         action_diff_losses = self.compute_soft_loss(action_preds, next_preds, balance_weight, save_dist_weight,
                                                     graph_diam_weight, mc_dist_weight, toilet_weight)
+
+        # aux_state_losses = self.compute_output_loss(aux_state_preds, data, balance_weight, save_dist_weight, graph_diam_weight,
+        #                                         mc_dist_weight, toilet_weight)
+
+        aux_state_losses = self.compute_soft_loss(aux_state_preds, next_preds, balance_weight, save_dist_weight, graph_diam_weight,
+                                                mc_dist_weight, toilet_weight)
 
         # Compute action-value losses against hard labels (for reference only, not used for training)
         with torch.no_grad():
@@ -649,7 +655,7 @@ class TrainingSession():
                                                      mc_dist_weight, toilet_weight)
 
         self.action_optimizer.zero_grad()
-        self.action_grad_scaler.scale(action_diff_losses[0]).backward()
+        self.action_grad_scaler.scale(action_diff_losses[0] + aux_state_losses[0]).backward()
         # self.action_grad_scaler.scale(action_losses[0]).backward()
         self.action_grad_scaler.step(self.action_optimizer)
         self.action_grad_scaler.update()
@@ -665,9 +671,9 @@ class TrainingSession():
         self.action_model.eval()
         with torch.no_grad():
             state_losses = self.compute_losses(self.state_model, data, balance_weight, save_dist_weight,
-                                                              graph_diam_weight, mc_dist_weight, toilet_weight)
+                                                              graph_diam_weight, mc_dist_weight, toilet_weight, compute_state_value=True)
             action_losses = self.compute_losses(self.action_model, data, balance_weight, save_dist_weight,
-                                                              graph_diam_weight, mc_dist_weight, toilet_weight)
+                                                              graph_diam_weight, mc_dist_weight, toilet_weight, compute_state_value=False)
             next_losses = self.compute_losses(self.state_model, next_data, balance_weight, save_dist_weight,
-                                              graph_diam_weight, mc_dist_weight, toilet_weight)
+                                              graph_diam_weight, mc_dist_weight, toilet_weight, compute_state_value=True)
         return state_losses, action_losses, next_losses

@@ -232,8 +232,8 @@ session.envs = envs
 # TODO: bundle all this stuff into a structure
 hist_frac = 1.0
 batch_size = 2 ** 10
-state_lr0 = 0.0003
-state_lr1 = 0.0003
+state_lr0 = 0.001
+state_lr1 = 0.001
 action_lr0 = 0.001
 action_lr1 = 0.001
 
