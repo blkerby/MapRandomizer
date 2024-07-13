@@ -12,22 +12,6 @@ use crate::{
     },
 };
 
-// fn read_tile_2bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
-//     let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
-//     for y in 0..8 {
-//         let addr = base_addr + idx * 16 + y * 2;
-//         let data_low = rom.read_u8(addr)?;
-//         let data_high = rom.read_u8(addr + 1)?;
-//         for x in 0..8 {
-//             let bit_low = (data_low >> (7 - x)) & 1;
-//             let bit_high = (data_high >> (7 - x)) & 1;
-//             let c = bit_low | (bit_high << 1);
-//             out[y][x] = c as u8;
-//         }
-//     }
-//     Ok(out)
-// }
-
 fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
     let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
     for y in 0..8 {
@@ -52,7 +36,6 @@ fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]
     let idx = (tilemap_word & 0x3FF) as usize;
     let x_flip = tilemap_word & 0x4000 != 0;
     let y_flip = tilemap_word & 0x8000 != 0;
-    // let tile = read_tile_2bpp(rom, snes2pc(0x9AB200), idx)?;
     let tile = read_tile_4bpp(rom, snes2pc(TILE_GFX_ADDR_4BPP + map_area * 0x10000), idx)?;
     let mut out = [[0u8; 8]; 8];
     for y in 0..8 {

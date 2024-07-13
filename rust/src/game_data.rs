@@ -1,9 +1,8 @@
 pub mod smart_xml;
 
-use anyhow::{bail, ensure, Context, Result};
-// use log::info;
 use crate::patch::title::read_image;
 use crate::randomize::{BeamType, DoorType};
+use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use json::{self, JsonValue};
 use log::info;
@@ -159,7 +158,6 @@ pub enum Requirement {
     GravitylessAcidFrames(Capacity),
     MetroidFrames(Capacity),
     Damage(Capacity),
-    // Energy(i32),
     MissilesAvailable(Capacity),
     SupersAvailable(Capacity),
     PowerBombsAvailable(Capacity),
@@ -373,21 +371,13 @@ pub struct EscapeTimingDoor {
 #[derive(Deserialize, Copy, Clone)]
 #[serde(rename_all = "snake_case")]
 pub enum EscapeConditionRequirement {
-    // #[serde(rename = "enemies_cleared")]
     EnemiesCleared,
-    // #[serde(rename = "can_use_powerbombs")]
     CanUsePowerBombs,
-    // #[serde(rename = "can_moonfall")]
     CanMoonfall,
-    // #[serde(rename = "can_reverse_gate")]
     CanReverseGate,
-    // #[serde(rename = "can_acid_dive")]
     CanAcidDive,
-    // #[serde(rename = "can_off_camera_shot")]
     CanOffCameraShot,
-    // #[serde(rename = "can_kago")]
     CanKago,
-    // #[serde(rename = "can_hero_shot")]
     CanHeroShot,
 }
 
@@ -1048,7 +1038,6 @@ pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
 struct RequirementContext<'a> {
     room_id: RoomId,
     strat_name: &'a str,
-    from_node_id: NodeId,
     to_node_id: NodeId,
     room_heated: bool,
     from_obstacles_bitmask: ObstacleMask,
@@ -1181,9 +1170,6 @@ impl GameData {
                 bail!("Circular dependence in tech: {}", tech_name);
             }
         }
-        // if self.tech.contains_key(tech_name) {
-        //     return self.tech[tech_name].clone().unwrap();
-        // }
 
         // Temporarily insert a None value to act as a sentinel for detecting circular dependencies:
         self.tech
@@ -1438,7 +1424,6 @@ impl GameData {
             ),
         };
         let room_id = ctx.room_id;
-        let to_node_id = ctx.to_node_id;
         let empty_array = json::array![];
         let unlocks_doors_json = ctx.unlocks_doors_json.unwrap_or(&empty_array);
 
@@ -1780,8 +1765,7 @@ impl GameData {
                     .expect(&format!("invalid heatFrames in {}", req_json));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "gravitylessHeatFrames" {
-                // In Map Rando, Gravity doesn't affect heat frames, so this is treated the
-                // same as "heatFrames".
+                // In Map Rando, Gravity doesn't affect heat frames, so this is treated the same as "heatFrames".
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid gravitylessHeatFrames in {}", req_json));
@@ -1806,7 +1790,6 @@ impl GameData {
                     .as_i32()
                     .expect(&format!("invalid acidFrames in {}", req_json));
                 return Ok(Requirement::AcidFrames(frames as Capacity));
-                // return Ok(Requirement::Damage(3 * frames / 2));
             } else if key == "metroidFrames" {
                 let frames = value
                     .as_i32()
@@ -2021,11 +2004,6 @@ impl GameData {
                 return Ok(Requirement::make_or(reqs_or));
             } else if key == "doorUnlockedAtNode" {
                 let node_id = value.as_usize().unwrap();
-                // if ctx.unlocks_doors_json.is_some() {
-                //     info!("node_id={node_id}, unlocksDoors={}", ctx.unlocks_doors_json.unwrap());
-                // } else {
-                //     info!("node_id={node_id}, unlocksDoors=None");
-                // }
                 return self.get_unlocks_doors_req(node_id, ctx);
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
@@ -2133,7 +2111,6 @@ impl GameData {
 
     fn override_morph_ball_room(&mut self, room_json: &mut JsonValue) {
         // Override the Careful Jump strat to get out from Morph Ball location:
-        //
         room_json["strats"]
             .members_mut()
             .find(|x| {
@@ -2659,7 +2636,6 @@ impl GameData {
         for strat_json in new_room_json["strats"].members_mut() {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let from_node_id = strat_json["link"][0].as_usize().unwrap();
-            let to_node_id = strat_json["link"][1].as_usize().unwrap();
 
             if strat_json.has_key("entranceCondition")
                 && logical_gray_door_node_ids.contains(&(room_id, from_node_id))
@@ -2708,10 +2684,8 @@ impl GameData {
     pub fn get_obstacle_data(
         &self,
         strat_json: &JsonValue,
-        room_json: &JsonValue,
         from_obstacles_bitmask: ObstacleMask,
         obstacles_idx_map: &HashMap<String, usize>,
-        requires_json: &mut Vec<JsonValue>,
     ) -> Result<ObstacleMask> {
         let mut to_obstacles_bitmask = from_obstacles_bitmask;
         if strat_json.has_key("clearsObstacles") {
@@ -3264,22 +3238,16 @@ impl GameData {
                 continue;
             }
             ensure!(strat_json["requires"].is_array());
-            let mut requires_json: Vec<JsonValue> = strat_json["requires"]
+            let requires_json: Vec<JsonValue> = strat_json["requires"]
                 .members()
                 .map(|x| x.clone())
                 .collect();
 
-            let to_obstacles_bitmask = self.get_obstacle_data(
-                strat_json,
-                room_json,
-                from_obstacles_bitmask,
-                &obstacles_idx_map,
-                &mut requires_json,
-            )?;
+            let to_obstacles_bitmask =
+                self.get_obstacle_data(strat_json, from_obstacles_bitmask, &obstacles_idx_map)?;
             let ctx = RequirementContext {
                 room_id,
                 strat_name: &strat_json["name"].as_str().unwrap(),
-                from_node_id,
                 to_node_id: to_node_id,
                 room_heated: from_heated || to_heated,
                 from_obstacles_bitmask,
@@ -3995,36 +3963,6 @@ impl GameData {
         Ok(())
     }
 
-    // fn load_palette(&mut self, json_path: &Path) -> Result<()> {
-    //     let file = File::open(json_path)?;
-    //     let json_value: serde_json::Value = serde_json::from_reader(file)?;
-    //     for area_json in json_value.as_array().unwrap() {
-    //         let mut pal_map: HashMap<TilesetIdx, ThemedTileset> = HashMap::new();
-    //         for (tileset_idx_str, palette) in area_json.as_object().unwrap().iter() {
-    //             let tileset_idx: usize = tileset_idx_str.parse()?;
-    //             let mut pal = [[0u8; 3]; 128];
-    //             for (i, color) in palette.as_array().unwrap().iter().enumerate() {
-    //                 let color_arr = color.as_array().unwrap();
-    //                 let r = color_arr[0].as_i64().unwrap();
-    //                 let g = color_arr[1].as_i64().unwrap();
-    //                 let b = color_arr[2].as_i64().unwrap();
-    //                 pal[i][0] = r as u8;
-    //                 pal[i][1] = g as u8;
-    //                 pal[i][2] = b as u8;
-    //             }
-
-    //             // for i in 0..128 {
-    //             //     for j in 0..3 {
-    //             //         pal[i][j] = 0;
-    //             //     }
-    //             // }
-    //             pal_map.insert(tileset_idx, ThemedTileset { palette: pal });
-    //         }
-    //         self.tileset_palette_themes.push(pal_map);
-    //     }
-    //     Ok(())
-    // }
-
     fn extract_all_tech_dependencies(&mut self) -> Result<()> {
         let tech_vec = self.tech_isv.keys.clone();
         for tech in &tech_vec {
@@ -4087,11 +4025,9 @@ impl GameData {
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
-        palette_theme_path: &Path,
         escape_timings_path: &Path,
         start_locations_path: &Path,
         hub_locations_path: &Path,
-        mosaic_path: &Path,
         title_screen_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
@@ -4319,33 +4255,6 @@ impl GameData {
             0x1AD000, // Tourian
         ];
         game_data.load_title_screens(title_screen_path)?;
-
-        // let debug_room_node_ids = vec![
-        //     (125, 3),
-        //     // (119, 3),
-        //     // (174, 1),
-        // ];
-        // for (vertex_id, key) in game_data.vertex_isv.keys.iter().enumerate() {
-        //     if debug_room_node_ids.contains(&(key.room_id, key.node_id)) {
-        //         println!("{}: {:?}", vertex_id, key);
-
-        //         for (_, link) in &game_data.base_links_data.links_by_src[vertex_id] {
-        //             println!(
-        //                 "{} -> {}: \"{}\" - {:?}",
-        //                 vertex_id, link.to_vertex_id, link.strat_name, link.requirement
-        //             );
-        //         }
-
-        //         for (_, link) in &game_data.base_links_data.links_by_dst[vertex_id] {
-        //             println!(
-        //                 "{} <- {}: \"{}\" - {:?}",
-        //                 vertex_id, link.to_vertex_id, link.strat_name, link.requirement
-        //             );
-        //         }
-
-        //         println!("")
-        //     }
-        // }
 
         Ok(game_data)
     }

@@ -50,81 +50,10 @@ struct Args {
 }
 
 fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization> {
-    // let ignored_tech: Vec<String> = ["canWallIceClip", "canGrappleClip", "canUseSpeedEchoes"].iter().map(|x| x.to_string()).collect();
-    // let tech: Vec<String> = game_data.tech_isv.keys.iter().filter(|&x| !ignored_tech.contains(&x)).cloned().collect();
-    // let tech: Vec<String> = vec![
-    //     "canCrouchJump",
-    //     "canDownGrab",
-    //     "canHeatRun",
-    //     "canIBJ",
-    //     "canShinespark",
-    //     "canSuitlessMaridia",
-    //     "canWalljump"
-    //     //   "can3HighMidAirMorph",
-    //     // "canBlueSpaceJump",
-    //     // "canBombAboveIBJ",
-    //     // "canBombHorizontally",
-    //     // "canBombJumpWaterEscape",
-    //     // "canCeilingClip",
-    //     // "canCrabClimb",
-    //     // "canCrouchJump",
-    //     // "canCrumbleJump",
-    //     // "canCrumbleSpinJump",
-    //     // "canCrystalFlash",
-    //     // "canCrystalFlashForceStandup",
-    //     // "canDamageBoost",
-    //     // "canDownGrab",
-    //     // "canGateGlitch",
-    //     // "canGrappleJump",
-    //     // "canGravityJump",
-    //     // "canHBJ",
-    //     // "canHeatRun",
-    //     // "canHitbox",
-    //     // "canIBJ",
-    //     // "canIceZebetitesSkip",
-    //     // "canIframeSpikeJump",
-    //     // "canJumpIntoIBJ",
-    //     // "canLateralMidAirMorph",
-    //     // "canLavaGravityJump",
-    //     // "canMaridiaTubeClip",
-    //     // "canMetroidAvoid",
-    //     // "canMochtroidIceClimb",
-    //     // "canMochtroidIceClip",
-    //     // "canMockball",
-    //     // "canMoonfall",
-    //     // "canPreciseWalljump",
-    //     // "canQuickLowTideWalljumpWaterEscape",
-    //     // "canSandMochtroidIceClimb",
-    //     // "canShinespark",
-    //     // "canShotBlockOverload",
-    //     // "canSnailClimb",
-    //     // "canSnailClip",
-    //     // "canSpringBallJump",
-    //     // "canSpringBallJumpMidAir",
-    //     // "canStationaryLateralMidAirMorph",
-    //     // "canStationarySpinJump",
-    //     // "canSuitlessLavaDive",
-    //     // "canSuitlessMaridia",
-    //     // "canSuperReachAround",
-    //     // "canTrickyJump",
-    //     // "canTrickyUseFrozenEnemies",
-    //     // "canTunnelCrawl",
-    //     // "canTurnaroundAimCancel",
-    //     // "canTwoTileSqueeze",
-    //     // "canUnmorphBombBoost",
-    //     // "canUseEnemies",
-    //     // "canUseFrozenEnemies",
-    //     // "canWalljump",
-    //     // "canWrapAroundShot",
-    //     // "canXRayStandUp"
-    // ].iter().map(|x| x.to_string()).collect();
-    // let tech = vec![];
-
     let difficulty = DifficultyConfig {
         name: None,
         tech: game_data.tech_isv.keys.clone(),
         notable_strats: vec![],
-        // tech,
         shine_charge_tiles: 16.0,
         heated_shine_charge_tiles: 16.0,
         speed_ball_tiles: 24.0,
@@ -220,10 +149,6 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         item_progression_preset: Some("None".to_string()),
         quality_of_life_preset: Some("None".to_string()),
         debug_options: None,
-        // debug_options: Some(DebugOptions {
-        //     new_game_extra: true,
-        //     extended_spoiler: true,
-        // }),
     };
     let single_map: Option<Map>;
     let mut filenames: Vec<String> = Vec::new();
@@ -331,35 +256,21 @@ fn main() -> Result<()> {
     let args = Args::parse();
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
-    let palette_theme_path = Path::new("../palette_smart_exports");
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
-    let mosaic_path = Path::new("../Mosaic");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
-        palette_theme_path,
         escape_timings_path,
         start_locations_path,
         hub_locations_path,
-        mosaic_path,
         title_screen_path,
     )?;
 
     // Perform randomization (map selection & item placement):
     let randomization = get_randomization(&args, &game_data)?;
-
-    // Override locked doors:
-    //randomization.locked_doors.push(LockedDoor {
-    //    src_ptr_pair: (Some(0x19012), Some(0x18F52)),
-    //    dst_ptr_pair: (Some(0x18F52), Some(0x19012)),
-    //    door_type: maprando::randomize::DoorType::Yellow,
-    //    bidirectional: true });
-
-    // Override start location:
-    // randomization.start_location = game_data.start_locations.last().unwrap().clone();
 
     // Generate the patched ROM:
     let orig_rom = Rom::load(&args.input_rom)?;

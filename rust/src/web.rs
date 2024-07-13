@@ -85,7 +85,6 @@ pub struct AppData {
     pub notable_gif_listing: HashSet<String>,
     pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
-    // pub samus_customizer: SamusSpriteCustomizer,
     pub debug: bool,
     pub version_info: VersionInfo,
     pub static_visualizer: bool,

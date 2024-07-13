@@ -18,7 +18,6 @@ pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
             addr += 1;
             block_type = (byte >> 2) & 7;
         }
-        // println!("{addr}: len={0}, type={block_type}, size={size}", out.len());
 
         match block_type {
             0 => {

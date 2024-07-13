@@ -75,9 +75,7 @@ impl SuffixTree {
             },
         };
         for &b in data {
-            // println!("data: {:?}", tree.data);
             tree.push_byte(b);
-            // println!("end: {:?}", tree);
         }
         tree
     }
@@ -168,8 +166,6 @@ impl SuffixTree {
         // For i less than the cut position, this is already taken care of automatically, since in such cases
         // data[i..] is represented by a leaf, which has an implicit end position (DATA_END).
         loop {
-            // println!("tree: {:?}", self);
-
             let cut = &self.cut;
             let num_nodes = self.nodes.len();
             let node = &mut self.nodes[cut.node_id as usize];
@@ -331,7 +327,7 @@ mod tests {
     #[test]
     fn test_random() {
         let mut rng = rand::rngs::StdRng::from_seed([0u8; 32]);
-        for i in 0..100 {
+        for _ in 0..100 {
             let mut data = vec![];
             let length = 1000;
             for _ in 0..length {

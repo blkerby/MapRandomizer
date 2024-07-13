@@ -19,7 +19,7 @@ use crate::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 
 #[derive(Clone)]
-struct RoomStrat<'a> {
+struct RoomStrat {
     room_name: String,
     room_name_stripped: String,
     area: String,
@@ -41,7 +41,6 @@ struct RoomStrat<'a> {
     unlocks_doors: Option<String>,
     difficulty_idx: usize,
     difficulty_name: String,
-    notable_gif_listing: &'a HashSet<String>,
 }
 
 #[derive(Template, Clone)]
@@ -56,7 +55,7 @@ struct RoomTemplate<'a> {
     area: String,
     room_diagram_path: String,
     nodes: Vec<(usize, String)>,
-    strats: Vec<RoomStrat<'a>>,
+    strats: Vec<RoomStrat>,
     room_json: String,
     notable_gif_listing: &'a HashSet<String>,
     hq_video_url_root: String,
@@ -72,10 +71,9 @@ struct TechTemplate<'a> {
     tech_dependencies: String,
     tech_difficulty_idx: usize,
     tech_difficulty_name: String,
-    strats: Vec<RoomStrat<'a>>,
+    strats: Vec<RoomStrat>,
     tech_gif_listing: &'a HashSet<String>,
     notable_gif_listing: &'a HashSet<String>,
-    area_order: Vec<String>,
     hq_video_url_root: String,
 }
 
@@ -85,12 +83,10 @@ struct StratTemplate<'a> {
     version_info: VersionInfo,
     room_id: usize,
     room_name: String,
-    room_name_stripped: String,
     room_name_url_encoded: String,
-    area: String,
     room_diagram_path: String,
     strat_name: String,
-    strat: RoomStrat<'a>,
+    strat: RoomStrat,
     notable_gif_listing: &'a HashSet<String>,
     hq_video_url_root: String,
 }
@@ -132,8 +128,6 @@ fn list_room_diagram_files() -> HashMap<usize, String> {
                     continue;
                 }
                 let room_id: usize = str::parse(segments[2]).unwrap();
-                // let img = image::open(path).unwrap();
-                // println!("{:?}", img.dimensions());
                 out.insert(room_id, path_string);
             }
             Err(e) => panic!("Failure reading room diagrams: {:?}", e),
@@ -267,7 +261,7 @@ fn make_tech_templates<'a>(
         let tech_name = game_data.tech_isv.keys[tech_idx].clone();
         let tech_note = game_data.tech_description[&tech_name].clone();
         let tech_dependencies = game_data.tech_dependencies[&tech_name].join(", ");
-        let mut strats: Vec<RoomStrat<'a>> = vec![];
+        let mut strats: Vec<RoomStrat> = vec![];
         let mut difficulty_idx = global_states.len();
 
         for (i, global) in global_states.iter().enumerate() {
@@ -308,7 +302,6 @@ fn make_tech_templates<'a>(
             strats,
             tech_gif_listing: tech_gif_listing,
             notable_gif_listing: notable_gif_listing,
-            area_order: area_order.to_vec(),
             hq_video_url_root: hq_video_url_root.to_string(),
         };
         tech_templates.push(template);
@@ -327,7 +320,6 @@ pub fn strip_name(s: &str) -> String {
         out += &stripped_word;
     }
     out
-    // s.chars().filter(|x| x.is_ascii_alphanumeric()).collect()
 }
 
 fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
@@ -537,7 +529,6 @@ fn get_strat_difficulty(
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
         if !links_by_ids.contains_key(&key) {
-            // println!("`links_by_ids` is missing key {:?}", key);
             return difficulty_configs.len();
         }
         for link in &links_by_ids[&key] {
@@ -687,11 +678,9 @@ fn make_room_template<'a>(
             resets_obstacles,
             difficulty_idx,
             difficulty_name,
-            notable_gif_listing,
         };
         room_strats.push(strat);
     }
-    // let shape = *game_data.room_shape.get(&room_id).unwrap_or(&(1, 1));
     let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
 
     RoomTemplate {
@@ -713,7 +702,7 @@ fn make_room_template<'a>(
 
 fn make_strat_template<'a>(
     room: &RoomTemplate<'a>,
-    strat: &RoomStrat<'a>,
+    strat: &RoomStrat,
     notable_gif_listing: &'a HashSet<String>,
     hq_video_url_root: &str,
     version_info: &VersionInfo,
@@ -722,9 +711,7 @@ fn make_strat_template<'a>(
         version_info: version_info.clone(),
         room_id: room.room_id,
         room_name: room.room_name.clone(),
-        room_name_stripped: room.room_name_stripped.clone(),
         room_name_url_encoded: room.room_name_url_encoded.clone(),
-        area: room.area.clone(),
         room_diagram_path: room.room_diagram_path.clone(),
         strat_name: strat.strat_name.clone(),
         strat: strat.clone(),
