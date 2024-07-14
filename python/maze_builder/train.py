@@ -76,12 +76,9 @@ envs = [MazeBuilderEnv(rooms,
                        # starting_room_name="Business Center")
         for device in devices]
 
-embedding_width = 512
-key_width = 32
-value_width = 32
-attn_heads = 8
-hidden_width = 2048
-model = TransformerModel(
+
+
+state_model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
     num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
@@ -89,36 +86,67 @@ model = TransformerModel(
     map_y=env_config.map_y,
     block_size_x=8,
     block_size_y=8,
-    embedding_width=embedding_width,
-    key_width=key_width,
-    value_width=value_width,
-    attn_heads=attn_heads,
-    hidden_width=hidden_width,
+    embedding_width=256,
+    key_width=32,
+    value_width=32,
+    attn_heads=8,
+    hidden_width=1024,
     arity=1,
     num_local_layers=2,
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=0,
-    global_attn_heads=64,
+    num_global_layers=1,
+    global_attn_heads=32,
     global_attn_key_width=32,
     global_attn_value_width=32,
-    global_width=2048,
-    global_hidden_width=4096,
+    global_width=1024,
+    global_hidden_width=2048,
     global_ff_dropout=0.0,
+    use_action=False,
 ).to(device)
-logging.info("{}".format(model))
+action_model = TransformerModel(
+    rooms=envs[0].rooms,
+    num_doors=envs[0].num_doors,
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
+    map_x=env_config.map_x,
+    map_y=env_config.map_y,
+    block_size_x=8,
+    block_size_y=8,
+    embedding_width=256,
+    key_width=32,
+    value_width=32,
+    attn_heads=8,
+    hidden_width=1024,
+    arity=1,
+    num_local_layers=2,
+    embed_dropout=0.0,
+    ff_dropout=0.0,
+    attn_dropout=0.0,
+    num_global_layers=1,
+    global_attn_heads=32,
+    global_attn_key_width=32,
+    global_attn_value_width=32,
+    global_width=1024,
+    global_hidden_width=2048,
+    global_ff_dropout=0.0,
+    use_action=True,
+).to(device)
+logging.info("State model: {}".format(state_model))
+logging.info("Action model: {}".format(action_model))
 
 # model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
-optimizer = torch.optim.Adam(model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+state_optimizer = torch.optim.Adam(state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+action_optimizer = torch.optim.Adam(action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
-                          model=model,
-                          optimizer=optimizer,
+                          state_model=state_model,
+                          action_model=action_model,
+                          state_optimizer=state_optimizer,
+                          action_optimizer=action_optimizer,
                           data_path="data/{}".format(start_time.isoformat()),
                           ema_beta=0.999,
                           episodes_per_file=num_envs * num_devices,
-                          decay_amount=0.0,
-                          sam_scale=None)
+                          decay_amount=0.0)
 
 # pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
@@ -212,15 +240,18 @@ session = TrainingSession(envs,
 # session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
 #
 
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
+num_state_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.state_model.parameters())
+num_action_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.action_model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 # session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
-hist_frac = 0.5
+hist_frac = 0.25
 batch_size = 2 ** 10
-lr0 = 0.0003
-lr1 = 0.0003
+state_lr0 = 0.0005
+state_lr1 = 0.0005
+action_lr0 = 0.0005
+action_lr1 = 0.0005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 32
@@ -228,34 +259,38 @@ num_candidates_max0 = 32
 num_candidates_min1 = 32
 num_candidates_max1 = 32
 
+state_weight = 2.0
+
 # num_candidates0 = 40
 # num_candidates1 = 40
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.005
-save_dist_coef = 0.0
+save_loss_weight = 0.001
+save_dist_coef = 0.01
 # save_dist_coef = 0.0
 
-mc_dist_weight = 0.001
+mc_dist_weight = 0.0002
 mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
 toilet_weight = 0.01
 toilet_good_coef = 0.0
 
-graph_diam_weight = 0.0002
-graph_diam_coef = 0.0
+graph_diam_weight = 0.00002
+graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-door_connect_bound = 50.0
+door_connect_bound = 1.0
 # door_connect_bound = 0.0
 door_connect_samples = 2 ** 21
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = 1 - door_connect_alpha / door_connect_bound
-balance_coef = 5.0
-balance_weight = 1.0
+
+balance_coef = 0.0
+balance_weight = 0.0
+
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
@@ -274,21 +309,17 @@ temperature_frac_min1 = 0.5
 temperature_decay = 1.0
 
 annealing_start = 0
-annealing_time = 1
-# annealing_time = 2 ** 22 // (num_envs * num_devices)
+# annealing_time = 1
+annealing_time = 2 ** 22 // (num_envs * num_devices)
 
-pass_factor0 = 0.25
-pass_factor1 = 0.25
+pass_factor0 = 0.05
+pass_factor1 = 1.0
 num_load_files = int(episode_length * pass_factor1)
-print_freq = 16
+print_freq = 8
+total_state_losses = None
+total_action_losses = None
+
 total_reward = 0
-total_loss = 0.0
-total_binary_loss = 0.0
-total_balance_loss = 0.0
-total_save_loss = 0.0
-total_graph_diam_loss = 0.0
-total_mc_loss = 0.0
-total_toilet_loss = 0.0
 total_loss_cnt = 0
 total_eval_loss = 0.0
 total_eval_loss_cnt = 0
@@ -305,15 +336,20 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 256
-summary_freq = 256
+save_freq = 128
+summary_freq = 128
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.optimizer.param_groups[0]['eps'] = 1e-5
-ema_beta0 = 0.999
-ema_beta1 = ema_beta0
-session.average_parameters.beta = ema_beta0
+session.state_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.state_optimizer.param_groups[0]['eps'] = 1e-5
+session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.action_optimizer.param_groups[0]['eps'] = 1e-5
+state_ema_beta0 = 0.999
+state_ema_beta1 = state_ema_beta0
+session.state_average_parameters.beta = state_ema_beta0
+action_ema_beta0 = 0.999
+action_ema_beta1 = action_ema_beta0
+session.action_average_parameters.beta = action_ema_beta0
 
 # layer_norm_param_decay = 0.9998
 layer_norm_param_decay = 0.999
@@ -398,11 +434,20 @@ def save_session(session, name):
         logging.info("Saving to {}".format(name))
         pickle.dump(session, open(name, 'wb'))
 
-dropout = 0.0
-session.model.embed_dropout.p = dropout
-for m in session.model.ff_layers:
-    m.dropout.p = dropout
-logging.info("{}".format(session.model))
+
+def update_losses(total_losses, losses):
+    if total_losses is None:
+        total_losses = list(losses)
+    else:
+        for j in range(len(losses)):
+            total_losses[j] += losses[j]
+    return total_losses
+
+# dropout = 0.0
+# session.model.embed_dropout.p = dropout
+# for m in session.model.ff_layers:
+#     m.dropout.p = dropout
+# logging.info("{}".format(session.model))
 # for m in session.model.modules():
 #     if isinstance(m, torch.nn.Dropout):
 #         if m.p > 0.0:
@@ -417,30 +462,28 @@ logging.info("{}".format(session.model))
 min_door_value = float('inf')
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
-num_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.model.parameters())
 logging.info(
-    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, ema_beta0={}, ema_beta1={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, dropout={}, balance_coef={}, balance_weight={}".format(
-        len(rooms), session.model.map_x, session.model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, lr0, lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
-        num_params, session.decay_amount,
-        temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, ema_beta0, ema_beta1, explore_eps_factor,
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef={}, balance_weight={}".format(
+        len(rooms), session.action_model.map_x, session.action_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, action_lr0, action_lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
+        num_action_params, session.decay_amount,
+        temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, explore_eps_factor,
         annealing_time, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
-        mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound, dropout,
+        mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound,
         balance_coef, balance_weight))
-logging.info(session.optimizer)
+logging.info(session.action_optimizer)
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
     num_candidates_min = num_candidates_min0 + (num_candidates_min1 - num_candidates_min0) * frac
     num_candidates_max = num_candidates_max0 + (num_candidates_max1 - num_candidates_max0) * frac
-
-    lr = lr0 * (lr1 / lr0) ** frac
-    # warmup = min(1.0, session.num_rounds / lr_warmup_time)
-    # lr = lr0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time) * warmup
-    # lr = lr0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
-    session.optimizer.param_groups[0]['lr'] = lr
-
-    ema_beta = ema_beta0 * (ema_beta1 / ema_beta0) ** frac
-    session.average_parameters.beta = ema_beta
+    state_lr = state_lr0 * (state_lr1 / state_lr0) ** frac
+    action_lr = action_lr0 * (action_lr1 / action_lr0) ** frac
+    session.state_optimizer.param_groups[0]['lr'] = state_lr
+    session.action_optimizer.param_groups[0]['lr'] = action_lr
+    state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
+    session.state_average_parameters.beta = state_ema_beta
+    action_ema_beta = action_ema_beta0 * (action_ema_beta1 / action_ema_beta0) ** frac
+    session.action_average_parameters.beta = action_ema_beta
 
     pass_factor = pass_factor0 + (pass_factor1 - pass_factor0) * frac
 
@@ -539,24 +582,20 @@ for i in range(1000000):
     #         profile_memory=False,
     #         with_stack=False,
     # ) as prof:
-    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device)
+    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=False)
     for data in batch_list:
         with util.DelayedKeyboardInterrupt():
-            loss, binary_loss, balance_loss, save_loss, graph_diam_loss, mc_loss, toilet_loss = session.train_batch(
-                data,
+            state_losses, action_losses = session.train_batch(
+                data, data,
+                state_weight=state_weight,
                 balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
                 mc_dist_weight=mc_dist_weight,
                 toilet_weight=toilet_weight,
             )
-            total_loss += loss
-            total_binary_loss += binary_loss
-            total_balance_loss += balance_loss
-            total_save_loss += save_loss
-            total_graph_diam_loss += graph_diam_loss
-            total_mc_loss += mc_loss
-            total_toilet_loss += toilet_loss
+            total_state_losses = update_losses(total_state_losses, state_losses)
+            total_action_losses = update_losses(total_action_losses, action_losses)
             total_loss_cnt += 1
 
             # # Drive down the LayerNorm `elementwise_affine` parameters to zero so we can get rid of them.
@@ -575,13 +614,9 @@ for i in range(1000000):
     # logging.info("Training time: {}".format(end_training_time - start_training_time))
 
     if session.num_rounds % print_freq == 0:
-        new_loss = total_loss / total_loss_cnt
-        new_binary_loss = total_binary_loss / total_loss_cnt
-        new_balance_loss = total_balance_loss / total_loss_cnt
-        new_save_loss = total_save_loss / total_loss_cnt
-        new_graph_diam_loss = total_graph_diam_loss / total_loss_cnt
-        new_mc_loss = total_mc_loss / total_loss_cnt
-        new_toilet_loss = total_toilet_loss / total_loss_cnt
+        mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
+        mean_action_losses = [x / total_loss_cnt for x in total_action_losses]
+
         new_reward = total_reward / total_round_cnt
         new_cycle_cost = total_cycle_cost / total_round_cnt
         new_save_distances = total_save_distances / total_round_cnt
@@ -612,15 +647,10 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: loss={:.4f} ({:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}, {:.4f}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
+            "{}: action={:.4f} ({}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
                 session.num_rounds,
-                new_loss,
-                new_binary_loss,
-                new_balance_loss,
-                new_save_loss,
-                new_graph_diam_loss,
-                new_mc_loss,
-                new_toilet_loss,
+                mean_action_losses[0],
+                ', '.join('{:.4f}'.format(x) for x in mean_action_losses[1:]),
                 new_reward,
                 min_door_value,
                 min_door_frac,
@@ -634,13 +664,8 @@ for i in range(1000000):
                 # new_prob0,
                 frac,
             ))
-        total_loss = 0.0
-        total_binary_loss = 0.0
-        total_balance_loss = 0.0
-        total_save_loss = 0.0
-        total_graph_diam_loss = 0.0
-        total_mc_loss = 0.0
-        total_toilet_loss =0.0
+        total_state_losses = None
+        total_action_losses = None
         total_loss_cnt = 0
         total_eval_loss = 0.0
         total_eval_loss_cnt = 0

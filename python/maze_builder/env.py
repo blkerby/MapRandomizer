@@ -361,6 +361,7 @@ class MazeBuilderEnv:
         self.room_right = torch.cat(room_right_list, dim=0)
         self.room_up = torch.cat(room_up_list, dim=0)
         self.room_down = torch.cat(room_down_list, dim=0)
+        self.room_dir = torch.cat([self.room_left, self.room_right, self.room_down, self.room_up], dim=0)
         self.room_data = torch.cat(room_data_list, dim=0)
         self.room_placements = torch.cat(room_placements_list, dim=0)
         self.room_min_x = torch.tensor(room_min_x_list, device=self.device)

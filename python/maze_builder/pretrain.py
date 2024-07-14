@@ -122,11 +122,11 @@ action_model = TransformerModel(
     attn_heads=8,
     hidden_width=1024,
     arity=1,
-    num_local_layers=2,
+    num_local_layers=4,
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=1,
+    num_global_layers=4,
     global_attn_heads=32,
     global_attn_key_width=32,
     global_attn_value_width=32,
@@ -231,14 +231,14 @@ session.envs = envs
 
 # TODO: bundle all this stuff into a structure
 hist_frac = 1.0
-batch_size = 2 ** 10
-state_lr0 = 0.001
-state_lr1 = 0.001
-action_lr0 = 0.001
-action_lr1 = 0.001
+batch_size = 2 ** 11
+state_lr0 = 0.0005
+state_lr1 = 0.0005
+action_lr0 = 0.0005
+action_lr1 = 0.0005
 
 explore_eps_factor = 0.0
-action_diff_weight = 0.1
+state_weight = 1.0
 save_loss_weight = 0.005
 mc_dist_weight = 0.001
 toilet_weight = 0.01
@@ -255,8 +255,8 @@ annealing_time = 1
 print_freq = 16
 total_state_losses = None
 total_action_losses = None
-total_next_losses = None
-total_action_diff_losses = None
+# total_next_losses = None
+# total_action_diff_losses = None
 total_reward = 0
 total_loss_cnt = 0
 total_eval_loss = 0.0
@@ -290,7 +290,7 @@ session.action_average_parameters.beta = action_ema_beta0
 
 verbose = False
 
-num_batches = 64
+num_batches = 32
 
 def save_session(session, name):
     with util.DelayedKeyboardInterrupt():
@@ -353,9 +353,9 @@ for i in range(1000000):
     batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=True)
     for data, next_data in batch_list:
         with util.DelayedKeyboardInterrupt():
-            state_losses, action_losses, next_losses, action_diff_losses = session.train_batch(
+            state_losses, action_losses = session.train_batch(
                 data, next_data,
-                action_diff_weight=action_diff_weight,
+                state_weight=state_weight,
                 balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
@@ -364,16 +364,16 @@ for i in range(1000000):
             )
             total_state_losses = update_losses(total_state_losses, state_losses)
             total_action_losses = update_losses(total_action_losses, action_losses)
-            total_next_losses = update_losses(total_next_losses, next_losses)
-            total_action_diff_losses = update_losses(total_action_diff_losses, action_diff_losses)
+            # total_next_losses = update_losses(total_next_losses, next_losses)
+            # total_action_diff_losses = update_losses(total_action_diff_losses, action_diff_losses)
             total_loss_cnt += 1
 
     session.num_rounds += 1
     if session.num_rounds % print_freq == 0:
         mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
         mean_action_losses = [x / total_loss_cnt for x in total_action_losses]
-        mean_next_losses = [x / total_loss_cnt for x in total_next_losses]
-        mean_action_diff_losses = [x / total_loss_cnt for x in total_action_diff_losses]
+        # mean_next_losses = [x / total_loss_cnt for x in total_next_losses]
+        # mean_action_diff_losses = [x / total_loss_cnt for x in total_action_diff_losses]
 
         total_eval_state_losses = None
         total_eval_action_losses = None
@@ -399,16 +399,16 @@ for i in range(1000000):
         if verbose:
             logging.info("")
             logging.info(
-                "{}: train: {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
+                "{}: train: {:.4f} ({}), {:.4f} ({})".format(
                     session.num_rounds,
                     mean_state_losses[0],
                     ', '.join('{:.4f}'.format(x) for x in mean_state_losses[1:]),
                     mean_action_losses[0],
                     ', '.join('{:.4f}'.format(x) for x in mean_action_losses[1:]),
-                    mean_next_losses[0],
-                    ', '.join('{:.4f}'.format(x) for x in mean_next_losses[1:]),
-                    mean_action_diff_losses[0],
-                    ', '.join('{:.4f}'.format(x) for x in mean_action_diff_losses[1:]),
+                    # mean_next_losses[0],
+                    # ', '.join('{:.4f}'.format(x) for x in mean_next_losses[1:]),
+                    # mean_action_diff_losses[0],
+                    # ', '.join('{:.4f}'.format(x) for x in mean_action_diff_losses[1:]),
                 ))
             logging.info(
                 "{}: eval: {:.4f} ({}), {:.4f} ({}), {:.4f} ({})".format(
@@ -422,12 +422,12 @@ for i in range(1000000):
                 ))
         else:
             logging.info(
-                "{}: train: state={:.4f}, action={:.4f}, next={:.4f}, diff={:.4f} | eval: state={:.4f}, action={:.4f}, next={:.4f}".format(
+                "{}: train: state={:.4f}, action={:.4f} | eval: state={:.4f}, action={:.4f}, next={:.4f}".format(
                     session.num_rounds,
                     mean_state_losses[0],
                     mean_action_losses[0],
-                    mean_next_losses[0],
-                    mean_action_diff_losses[0],
+                    # mean_next_losses[0],
+                    # mean_action_diff_losses[0],
                     mean_eval_state_losses[0],
                     mean_eval_action_losses[0],
                     mean_eval_next_losses[0],

@@ -177,6 +177,12 @@ def compute_cross_attn(Q, K, V):
     out = torch.einsum('bsth,bthe->bshe', attn, V)
     return out
 
+    # Q1 = Q.transpose(1, 2)
+    # K1 = K.transpose(1, 2)
+    # V1 = V.transpose(1, 2)
+    # out1 = torch.nn.functional.scaled_dot_product_attention(Q1, K1, V1).transpose(1, 2)
+    # return out1
+
 
 class AttentionLayer(torch.nn.Module):
     def __init__(self, input_width, key_width, value_width, num_heads, dropout):
@@ -323,33 +329,45 @@ class TransformerModel(torch.nn.Module):
         #     torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
 
         if use_action:
-            self.pool_attn_query = torch.nn.Parameter(
+            self.pool_attn_query_door = torch.nn.Parameter(
                 torch.randn([num_doors, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
+            self.pool_attn_query_position_x = torch.nn.Parameter(
+                torch.randn([map_x, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
+            self.pool_attn_query_position_y = torch.nn.Parameter(
+                torch.randn([map_y, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
             self.action_door_embedding = torch.nn.Parameter(torch.randn([num_doors + 1, global_width]) / math.sqrt(global_width))
         else:
-            self.pool_attn_query = torch.nn.Parameter(
+            self.pool_attn_query_door = torch.nn.Parameter(
                 torch.randn([global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
         self.pool_attn_key_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_key_width, bias=False)
         self.pool_attn_value_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_value_width, bias=False)
         self.pool_attn_post_lin = torch.nn.Linear(global_attn_heads * global_attn_value_width, global_width, bias=False)
         self.pool_layer_norm = torch.nn.LayerNorm(global_width, elementwise_affine=False)
 
-
-        self.global_ff_layers = torch.nn.ModuleList()
+        self.state_ff_layers = torch.nn.ModuleList()
         for i in range(num_global_layers):
-            self.global_ff_layers.append(FeedforwardLayer(
+            self.state_ff_layers.append(FeedforwardLayer(
                 input_width=global_width,
                 hidden_width=global_hidden_width,
                 arity=arity,
                 dropout=global_ff_dropout))
+        self.state_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
+        self.state_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
 
-        self.output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
+        self.action_ff_layers = torch.nn.ModuleList()
+        for i in range(num_global_layers):
+            self.action_ff_layers.append(FeedforwardLayer(
+                input_width=global_width,
+                hidden_width=global_hidden_width,
+                arity=arity,
+                dropout=global_ff_dropout))
+        self.action_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
+        self.action_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y,
                            map_door_id, action_env_id, action_door_id,
                            steps_remaining, round_frac,
-                           temperature, mc_dist_coef, compute_state_value: bool):
+                           temperature, mc_dist_coef, env, compute_state_value: bool):
         n = room_mask.shape[0]
         # print(f"n={n}, room_mask={room_mask.shape}, room_position_x={room_position_x.shape}, room_position_y={room_position_y.shape}, map_door_id={map_door_id.shape}, action_env_id={action_env_id.shape}, action_door_id={action_door_id.shape}, steps_remaining={steps_remaining.shape}, round_frac={round_frac.shape}, temperature={temperature.shape}, mc_dist_coef={mc_dist_coef.shape}")
         device = room_mask.device
@@ -407,9 +425,20 @@ class TransformerModel(torch.nn.Module):
             # #     X = self.output_lin(X)
 
             if self.use_action:
-                Q = self.pool_attn_query[map_door_id].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+                Q_door = self.pool_attn_query_door[map_door_id].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+                door_data = env.room_dir[map_door_id]
+                room_id = door_data[:, 0]
+                door_pos_x = door_data[:, 1]
+                door_pos_y = door_data[:, 2]
+                room_x = room_position_x[torch.arange(n, device=device), room_id]
+                room_y = room_position_y[torch.arange(n, device=device), room_id]
+                pos_x = room_x + door_pos_x
+                pos_y = room_y + door_pos_y
+                Q_x = self.pool_attn_query_position_x[pos_x].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+                Q_y = self.pool_attn_query_position_x[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+                Q = Q_door + Q_x + Q_y
             else:
-                Q = self.pool_attn_query.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
+                Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
             K = self.pool_attn_key_lin(X).view(n, self.num_blocks, self.global_attn_heads, self.global_attn_key_width)
             V = self.pool_attn_value_lin(X).view(n, self.num_blocks, self.global_attn_heads, self.global_attn_value_width)
             X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
@@ -420,19 +449,19 @@ class TransformerModel(torch.nn.Module):
             if compute_state_value:
                 X = X0
                 for i in range(self.num_global_layers):
-                    X = self.global_ff_layers[i](X)
-                X = self.output_lin1(X)
+                    X = self.state_ff_layers[i](X)
+                X = self.state_output_lin1(X)
                 X = torch.nn.functional.relu(X)
-                X = self.output_lin2(X)
+                X = self.state_output_lin2(X)
                 X_state = X
 
             if self.use_action:
                 X = X0[action_env_id] + self.action_door_embedding[action_door_id]
                 for i in range(self.num_global_layers):
-                    X = self.global_ff_layers[i](X)
-                X = self.output_lin1(X)
+                    X = self.action_ff_layers[i](X)
+                X = self.action_output_lin1(X)
                 X = torch.nn.functional.relu(X)
-                X = self.output_lin2(X)
+                X = self.action_output_lin2(X)
                 X_action = X
 
         if compute_state_value and self.use_action:
