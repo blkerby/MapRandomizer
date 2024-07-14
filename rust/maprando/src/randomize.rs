@@ -14,7 +14,6 @@ use crate::{
         get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult,
         IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
     },
-    web::logic::strip_name,
 };
 use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
@@ -2555,6 +2554,19 @@ fn ensure_enough_tanks(initial_items_remaining: &mut [usize], difficulty: &Diffi
             initial_items_remaining[Item::ETank as usize] += 1;
         }
     }
+}
+
+pub fn strip_name(s: &str) -> String {
+    let mut out = String::new();
+    for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
+        let capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];
+        let stripped_word: String = capitalized_word
+            .chars()
+            .filter(|x| x.is_ascii_alphanumeric())
+            .collect();
+        out += &stripped_word;
+    }
+    out
 }
 
 impl<'r> Randomizer<'r> {

@@ -1,7 +1,10 @@
+mod logic;
+mod m_web;
+
 use std::path::Path;
-use std::thread;
 use std::time::SystemTime;
 
+use crate::m_web::{AppData, PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 use actix_easy_multipart::bytes::Bytes;
 use actix_easy_multipart::text::Text;
 use actix_easy_multipart::{MultipartForm, MultipartFormConfig};
@@ -16,13 +19,17 @@ use askama::Template;
 use clap::Parser;
 use hashbrown::{HashMap, HashSet};
 use log::{error, info};
+use maprando::customize::mosaic::MosaicTheme;
+use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{
     customize_rom, parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings,
     DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
 };
 use maprando::game_data::{Capacity, GameData, IndexedVec, Item, LinksDataGroup, Map};
+use maprando::map_repository::MapRepository;
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::{make_rom, Rom};
+use maprando::preset::Preset;
 use maprando::randomize::{
     filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
     DifficultyConfig, DoorLocksSize, DoorsMode, EtankRefill, ItemDotChange, ItemMarkers,
@@ -31,16 +38,12 @@ use maprando::randomize::{
 };
 use maprando::seed_repository::{Seed, SeedFile, SeedRepository};
 use maprando::spoiler_map;
-use maprando::web::{
-    AppData, MapRepository, MosaicTheme, Preset, PresetData, SamusSpriteCategory, VersionInfo,
-    HQ_VIDEO_URL_ROOT,
-};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use std::time::Instant;
 
-use maprando::web::logic::LogicData;
-use maprando::web::VERSION;
+use crate::logic::LogicData;
+use crate::m_web::VERSION;
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
@@ -820,7 +823,7 @@ async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
 }
 
 #[get("/logic")]
-async fn logic(app_data: web::Data<AppData>) -> impl Responder {
+async fn logic_main(app_data: web::Data<AppData>) -> impl Responder {
     HttpResponse::Ok().body(app_data.logic_data.index_html.clone())
 }
 
@@ -2198,9 +2201,6 @@ fn build_app_data() -> AppData {
         static_visualizer: args.static_visualizer,
         etank_colors,
         mosaic_themes,
-        parallelism: args
-            .parallelism
-            .unwrap_or(thread::available_parallelism().unwrap().get()),
     };
     info!("Start-up time: {:.3}s", start_time.elapsed().as_secs_f32());
     app_data
@@ -2234,7 +2234,7 @@ async fn main() {
             .service(customize_seed)
             .service(unlock_seed)
             .service(view_seed_redirect)
-            .service(logic)
+            .service(logic_main)
             .service(logic_room)
             .service(logic_strat)
             .service(logic_tech)

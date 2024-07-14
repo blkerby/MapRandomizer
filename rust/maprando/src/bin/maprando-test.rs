@@ -1,17 +1,19 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
 use log::info;
+use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::game_data::{Capacity, Item};
+use maprando::map_repository::MapRepository;
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
+use maprando::preset::Preset;
 use maprando::randomize::{
     randomize_doors, randomize_map_areas, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers,
     ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective,
     ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode,
 };
 use maprando::spoiler_map;
-use maprando::web::{MapRepository, Preset, SamusSpriteCategory};
 use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};

@@ -6,15 +6,17 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use urlencoding;
 
-use crate::game_data::{
+use maprando::game_data::{
     Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId,
     VertexAction, VertexKey,
 };
-use crate::randomize::{
+use maprando::randomize::{
     AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal, MapsRevealed,
     SaveAnimals, StartLocationMode, WallJump,
 };
-use crate::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData};
+use maprando::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData};
+
+use maprando::randomize::strip_name;
 
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 
@@ -309,19 +311,6 @@ fn make_tech_templates<'a>(
     tech_templates
 }
 
-pub fn strip_name(s: &str) -> String {
-    let mut out = String::new();
-    for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
-        let capitalized_word = word[0..1].to_ascii_uppercase() + &word[1..];
-        let stripped_word: String = capitalized_word
-            .chars()
-            .filter(|x| x.is_ascii_alphanumeric())
-            .collect();
-        out += &stripped_word;
-    }
-    out
-}
-
 fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
     let mut tech_vec: Vec<String> = vec![];
     for (tech_name, enabled) in &preset.tech_setting {
@@ -344,14 +333,14 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
         speed_ball_tiles: preset.preset.speed_ball_tiles as f32,
         shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as Capacity,
-        progression_rate: crate::randomize::ProgressionRate::Fast,
+        progression_rate: maprando::randomize::ProgressionRate::Fast,
         random_tank: true,
         spazer_before_plasma: true,
         stop_item_placement_early: false,
         item_pool: vec![],
         starting_items: vec![],
-        item_placement_style: crate::randomize::ItemPlacementStyle::Forced,
-        item_priority_strength: crate::randomize::ItemPriorityStrength::Moderate,
+        item_placement_style: maprando::randomize::ItemPlacementStyle::Forced,
+        item_priority_strength: maprando::randomize::ItemPriorityStrength::Moderate,
         item_priorities: vec![],
         filler_items: vec![],
         semi_filler_items: vec![],
@@ -366,16 +355,16 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         botwoon_proficiency: preset.preset.botwoon_proficiency,
         mother_brain_proficiency: preset.preset.mother_brain_proficiency,
         supers_double: true,
-        mother_brain_fight: crate::randomize::MotherBrainFight::Short,
+        mother_brain_fight: maprando::randomize::MotherBrainFight::Short,
         escape_movement_items: true,
         escape_refill: true,
         escape_enemies_cleared: true,
         mark_map_stations: true,
         room_outline_revealed: true,
         transition_letters: false,
-        door_locks_size: crate::randomize::DoorLocksSize::Small,
-        item_markers: crate::randomize::ItemMarkers::ThreeTiered,
-        item_dot_change: crate::randomize::ItemDotChange::Fade,
+        door_locks_size: maprando::randomize::DoorLocksSize::Small,
+        item_markers: maprando::randomize::ItemMarkers::ThreeTiered,
+        item_dot_change: maprando::randomize::ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
         buffed_drops: true,
@@ -386,7 +375,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         infinite_space_jump: false,
         momentum_conservation: false,
         objectives: vec![],
-        doors_mode: crate::randomize::DoorsMode::Ammo,
+        doors_mode: maprando::randomize::DoorsMode::Ammo,
         save_animals: SaveAnimals::No,
         start_location_mode: StartLocationMode::Ship,
         early_save: false,
