@@ -65,7 +65,7 @@ class TrainingSession():
                                           episodes_per_file=episodes_per_file)
 
         self.door_connect_adjust_left_right, self.door_connect_adjust_down_up = self.get_initial_door_connect_stats()
-        self.door_connect_adjust_weight = 0.0
+        self.door_connect_adjust_weight = 1e-12
 
         self.total_step_remaining_gen = 0.0
         self.total_step_remaining_train = 0.0
@@ -182,7 +182,7 @@ class TrainingSession():
         action_y = action_candidates[:, :, 2]
         action_room_door_id = action_candidates[:, :, 4]
         valid = (action_room_id != len(self.envs[0].rooms) - 1)
-        round_frac = torch.zeros([num_envs], device=action_candidates.device,
+        round_frac = torch.ones([num_envs], device=action_candidates.device,
                                  dtype=torch.float32)
 
         all_mc_dist_coef = mc_dist_coef.unsqueeze(1).repeat(1, num_candidates)
@@ -392,13 +392,9 @@ class TrainingSession():
             loss = loss_flat.view(env.num_envs, episode_length)
             episode_loss = torch.mean(loss, dim=1)
 
-            door_balance = env.get_door_balance(
-                env.room_mask, env.room_position_x, env.room_position_y, adjust_left_right, adjust_down_up)
-
             episode_data = EpisodeData(
                 reward=reward_tensor,
                 door_connects=door_connects_tensor,
-                door_balance=door_balance.to('cpu'),
                 missing_connects=missing_connects_tensor,
                 save_distances=save_distances,
                 graph_diameter=graph_diameter,
@@ -460,7 +456,6 @@ class TrainingSession():
         return EpisodeData(
             reward=torch.cat([d.reward for d in episode_data_list], dim=0),
             door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
-            door_balance=torch.cat([d.door_balance for d in episode_data_list], dim=0),
             missing_connects=torch.cat([d.missing_connects for d in episode_data_list], dim=0),
             save_distances=torch.cat([d.save_distances for d in episode_data_list], dim=0),
             graph_diameter=torch.cat([d.graph_diameter for d in episode_data_list], dim=0),

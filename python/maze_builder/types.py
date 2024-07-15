@@ -135,7 +135,6 @@ class EpisodeData:
     map_door_id: torch.tensor  # 2D uint16: (num_episodes, episode_length)
     room_door_id: torch.tensor  # 2D uint16: (num_episodes, episode_length)
     door_connects: torch.tensor  # 2D bool: (num_episodes, num_doors)
-    door_balance: torch.tensor  # 2D float32: (num_episodes, num_doors)
     missing_connects: torch.tensor  # 2D bool: (num_episodes, num_missing_connects)
     save_distances: torch.tensor  # 2D bool: (num_episodes, num_non_potential_save_idxs)
     graph_diameter: torch.tensor  # 1D bool: (num_episodes)

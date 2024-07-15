@@ -350,11 +350,16 @@ for i in range(1000000):
     action_ema_beta = action_ema_beta0 * (action_ema_beta1 / action_ema_beta0) ** frac
     session.action_average_parameters.beta = action_ema_beta
 
-    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=True)
-    for data, next_data in batch_list:
+    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, hist_c=0.0,
+                                              env=envs[0],
+                                              adjust_left_right=session.door_connect_adjust_left_right / session.door_connect_adjust_weight,
+                                              adjust_down_up=session.door_connect_adjust_down_up / session.door_connect_adjust_weight,
+                                              include_next_step=False)
+
+    for data in batch_list:
         with util.DelayedKeyboardInterrupt():
             state_losses, action_losses = session.train_batch(
-                data, next_data,
+                data, data,
                 state_weight=state_weight,
                 balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,

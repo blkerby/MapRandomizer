@@ -246,7 +246,8 @@ num_action_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in
 # session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
-hist_frac = 0.25
+hist_frac = 0.5
+hist_c = 1.0
 batch_size = 2 ** 10
 state_lr0 = 0.0005
 state_lr1 = 0.0005
@@ -283,13 +284,13 @@ graph_diam_coef = 0.2
 
 door_connect_bound = 1.0
 # door_connect_bound = 0.0
-door_connect_samples = 2 ** 21
+door_connect_samples = 2 ** 17
 door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = 1 - door_connect_alpha / door_connect_bound
 
-balance_coef = 0.0
-balance_weight = 0.0
+balance_coef = 1.0
+balance_weight = 1.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -582,7 +583,11 @@ for i in range(1000000):
     #         profile_memory=False,
     #         with_stack=False,
     # ) as prof:
-    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, device=device, include_next_step=False)
+    batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, hist_c=hist_c,
+                                              env=envs[0],
+                                              adjust_left_right=session.door_connect_adjust_left_right / session.door_connect_adjust_weight,
+                                              adjust_down_up=session.door_connect_adjust_down_up / session.door_connect_adjust_weight,
+                                              include_next_step=False)
     for data in batch_list:
         with util.DelayedKeyboardInterrupt():
             state_losses, action_losses = session.train_batch(
@@ -688,7 +693,7 @@ for i in range(1000000):
 
         last_file_num = session.replay_buffer.num_files - summary_freq
         file_num_list = list(range(last_file_num, session.replay_buffer.num_files))
-        episode_data = session.replay_buffer.read_files(file_num_list)
+        episode_data, _ = session.replay_buffer.read_files(file_num_list)
 
         buffer_temperature = episode_data.temperature
         for i in range(len(temperature_endpoints) - 1):

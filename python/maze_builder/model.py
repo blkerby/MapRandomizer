@@ -446,14 +446,12 @@ class TransformerModel(torch.nn.Module):
             X = self.pool_layer_norm(X)
             X0 = X
 
-            if compute_state_value:
-                X = X0
-                for i in range(self.num_global_layers):
-                    X = self.state_ff_layers[i](X)
-                X = self.state_output_lin1(X)
-                X = torch.nn.functional.relu(X)
-                X = self.state_output_lin2(X)
-                X_state = X
+            for i in range(self.num_global_layers):
+                X = self.state_ff_layers[i](X)
+            X = self.state_output_lin1(X)
+            X = torch.nn.functional.relu(X)
+            X = self.state_output_lin2(X)
+            X_state = X
 
             if self.use_action:
                 X = X0[action_env_id] + self.action_door_embedding[action_door_id]
@@ -462,7 +460,7 @@ class TransformerModel(torch.nn.Module):
                 X = self.action_output_lin1(X)
                 X = torch.nn.functional.relu(X)
                 X = self.action_output_lin2(X)
-                X_action = X
+                X_action = X + X_state[action_env_id]
 
         if compute_state_value and self.use_action:
             return X_state.to(torch.float32), X_action.to(torch.float32)
