@@ -9,10 +9,12 @@ RUN cargo install lazy_static; exit 0
 # Now use a dummy binary to build the project dependencies (allowing the results to be cached)
 COPY rust/Cargo.lock /rust/Cargo.lock
 COPY rust/Cargo.toml /rust/Cargo.toml
+COPY rust/maprando/Cargo.toml /rust/maprando/Cargo.toml 
+COPY rust/maprando/src/bin/dummy.rs /rust/maprando/src/bin/dummy.rs
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 
-# Download the map datasets, extraction will occur in-container to reduce image size
+# Download the map datasets
 WORKDIR /maps
 
 RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v113-tame.tgz
