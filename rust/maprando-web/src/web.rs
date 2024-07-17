@@ -1,12 +1,20 @@
-use hashbrown::{HashMap, HashSet};
-use maprando::customize::mosaic::MosaicTheme;
-use maprando::customize::samus_sprite::SamusSpriteCategory;
-use maprando::game_data::GameData;
-use maprando::map_repository::MapRepository;
-use maprando::preset::Preset;
-use maprando::seed_repository::SeedRepository;
+pub mod about;
+pub mod generate;
+pub mod home;
+pub mod logic;
+pub mod randomize;
+pub mod releases;
+pub mod seed;
 
-use crate::logic::LogicData;
+use crate::logic_helper::LogicData;
+use hashbrown::{HashMap, HashSet};
+use maprando::{
+    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
+    game_data::GameData,
+    map_repository::MapRepository,
+    preset::Preset,
+    seed_repository::SeedRepository,
+};
 
 pub const VERSION: usize = 114;
 pub const HQ_VIDEO_URL_ROOT: &'static str =

@@ -1,22 +1,20 @@
-use std::path::PathBuf;
-
 use askama::Template;
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
+use maprando::{
+    game_data::{
+        Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement,
+        RoomId, VertexAction, VertexKey,
+    },
+    randomize::{
+        strip_name, AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal,
+        MapsRevealed, SaveAnimals, StartLocationMode, WallJump,
+    },
+    traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
+};
+use std::path::PathBuf;
 use urlencoding;
-
-use maprando::game_data::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId,
-    VertexAction, VertexKey,
-};
-use maprando::randomize::{
-    AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal, MapsRevealed,
-    SaveAnimals, StartLocationMode, WallJump,
-};
-use maprando::traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData};
-
-use maprando::randomize::strip_name;
 
 use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 
