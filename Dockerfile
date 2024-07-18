@@ -1,4 +1,4 @@
-FROM rust:1.67.0-buster as build
+FROM rust:1.79.0-bullseye as build
 
 # First get Cargo to download the crates.io index (which takes a long time) via `cargo install lazy_static`
 # Both `cargo update` and `crater search` no longer update the crates.io index, see: https://github.com/rust-lang/cargo/issues/3377
@@ -9,8 +9,10 @@ RUN cargo install lazy_static; exit 0
 # Now use a dummy binary to build the project dependencies (allowing the results to be cached)
 COPY rust/Cargo.lock /rust/Cargo.lock
 COPY rust/Cargo.toml /rust/Cargo.toml
-COPY rust/maprando/Cargo.toml /rust/maprando/Cargo.toml 
+COPY rust/maprando/Cargo.toml /rust/maprando/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando/src/bin/dummy.rs
+COPY rust/maprando-web/Cargo.toml /rust/maprando-web/Cargo.toml
+COPY rust/maprando/src/bin/dummy.rs /rust/maprando-web/src/bin/dummy.rs
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 

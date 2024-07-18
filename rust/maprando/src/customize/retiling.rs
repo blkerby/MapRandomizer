@@ -1,9 +1,9 @@
 use std::path::Path;
 
+use super::mosaic::MosaicTheme;
 use crate::{
     game_data::{AreaIdx, DoorPtr, GameData, Map, RoomPtr, RoomStateIdx},
     patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom},
-    web::MosaicTheme,
 };
 use anyhow::{Context, Result};
 use hashbrown::HashMap;

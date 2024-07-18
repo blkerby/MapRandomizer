@@ -1,5 +1,7 @@
+pub mod mosaic;
 pub mod retiling;
 pub mod room_palettes;
+pub mod samus_sprite;
 pub mod vanilla_music;
 
 use anyhow::{bail, Result};
@@ -8,14 +10,14 @@ use std::path::Path;
 
 use crate::customize::vanilla_music::override_music;
 use crate::game_data::Map;
-use crate::web::MosaicTheme;
 use crate::{
     game_data::GameData,
     patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom},
-    web::SamusSpriteCategory,
 };
+use mosaic::MosaicTheme;
 use retiling::apply_retiling;
 use room_palettes::apply_area_themed_palettes;
+use samus_sprite::SamusSpriteCategory;
 
 struct AllocatorBlock {
     start_addr: usize,

@@ -1666,6 +1666,45 @@ dependencies = [
 name = "maprando"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
+ "base64",
+ "by_address",
+ "clap",
+ "crc32fast",
+ "crypto-hash",
+ "env_logger",
+ "flips",
+ "futures",
+ "glob",
+ "hashbrown 0.13.2",
+ "hashers",
+ "image",
+ "ips",
+ "json",
+ "log",
+ "ndarray",
+ "num_enum",
+ "object_store",
+ "parse_int",
+ "pathfinding",
+ "png",
+ "rand",
+ "serde",
+ "serde-xml-rs",
+ "serde_derive",
+ "serde_json",
+ "slice-of-array",
+ "strum",
+ "strum_macros",
+ "urlencoding",
+ "zip",
+ "zstd 0.12.2+zstd.1.5.2",
+]
+
+[[package]]
+name = "maprando-web"
+version = "0.1.0"
+dependencies = [
  "actix-easy-multipart",
  "actix-files",
  "actix-form-data",
@@ -1687,6 +1726,7 @@ dependencies = [
  "ips",
  "json",
  "log",
+ "maprando",
  "ndarray",
  "num_enum",
  "object_store",
