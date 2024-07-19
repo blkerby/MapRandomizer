@@ -1,4 +1,7 @@
-use crate::web::{AppData, VersionInfo};
+use crate::web::{
+    seed::{unlock_seed::unlock_seed, SeedData},
+    AppData, VersionInfo,
+};
 use actix_web::{
     get,
     http::header::{self, CacheControl, CacheDirective},
@@ -7,6 +10,7 @@ use actix_web::{
 use askama::Template;
 use log::error;
 use maprando::customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory};
+use std::time::{Duration, SystemTime};
 
 #[derive(Template)]
 #[template(path = "errors/seed_not_found.html")]
@@ -36,7 +40,7 @@ async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
 #[get("/{name}/")]
 async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
     let seed_name = &info.0;
-    let (seed_header, seed_footer, unlocked_timestamp_str, spoiler_token) = futures::join!(
+    let (seed_header, seed_footer, mut unlocked_timestamp_str, spoiler_token) = futures::join!(
         app_data
             .seed_repository
             .get_file(seed_name, "seed_header.html"),
@@ -50,6 +54,24 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
             .seed_repository
             .get_file(seed_name, "spoiler_token.txt"),
     );
+
+    // Automatically unlock after 12 hours
+    if spoiler_token.is_ok() && unlocked_timestamp_str.is_err() {
+        let seed_data = SeedData::from_repository(&app_data, seed_name).await;
+        let duration_creation = Duration::from_millis(seed_data.timestamp as u64);
+        let duration_now = SystemTime::now()
+            .duration_since(SystemTime::UNIX_EPOCH)
+            .expect("SystemTime before UNIX EPOCH!");
+        let duration_since_creation = duration_now - duration_creation;
+
+        if duration_since_creation.as_secs() >= 12 * 60 * 60 {
+            unlocked_timestamp_str = Ok(unlock_seed(&app_data, seed_name)
+                .await
+                .to_string()
+                .into_bytes());
+        }
+    }
+
     let spoiler_token = String::from_utf8(spoiler_token.unwrap_or(vec![])).unwrap();
     let spoiler_token_prefix = if spoiler_token.is_empty() {
         "".to_string()

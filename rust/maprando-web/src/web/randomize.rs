@@ -1,6 +1,6 @@
 mod helpers;
 
-use crate::web::{AppData, VERSION};
+use crate::web::{seed::SeedData, AppData, VERSION};
 use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
 use actix_web::{
     http::header::{self},
@@ -20,55 +20,7 @@ use maprando::{
     },
 };
 use rand::{RngCore, SeedableRng};
-use serde_derive::{Deserialize, Serialize};
 use std::time::{Instant, SystemTime};
-
-#[derive(Serialize, Deserialize)]
-struct SeedData {
-    version: usize,
-    timestamp: usize,
-    peer_addr: String,
-    http_headers: serde_json::Map<String, serde_json::Value>,
-    random_seed: usize,
-    map_seed: usize,
-    door_randomization_seed: usize,
-    item_placement_seed: usize,
-    race_mode: bool,
-    preset: Option<String>,
-    item_progression_preset: Option<String>,
-    difficulty: DifficultyConfig,
-    quality_of_life_preset: Option<String>,
-    supers_double: bool,
-    mother_brain_fight: String,
-    escape_enemies_cleared: bool,
-    escape_refill: bool,
-    escape_movement_items: bool,
-    mark_map_stations: bool,
-    transition_letters: bool,
-    item_markers: String,
-    item_dot_change: String,
-    all_items_spawn: bool,
-    acid_chozo: bool,
-    buffed_drops: bool,
-    fast_elevators: bool,
-    fast_doors: bool,
-    fast_pause_menu: bool,
-    respin: bool,
-    infinite_space_jump: bool,
-    momentum_conservation: bool,
-    objectives: String,
-    doors: String,
-    start_location_mode: String,
-    map_layout: String,
-    save_animals: String,
-    early_save: bool,
-    area_assignment: String,
-    wall_jump: String,
-    etank_refill: String,
-    maps_revealed: String,
-    vanilla_map: bool,
-    ultra_low_qol: bool,
-}
 
 #[derive(Template)]
 #[template(path = "errors/missing_input_rom.html")]

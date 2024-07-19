@@ -21,7 +21,7 @@ struct UnlockRequest {
 }
 
 #[post("/{name}/unlock")]
-async fn unlock_seed(
+async fn unlock_request(
     req: web::Form<UnlockRequest>,
     info: web::Path<(String,)>,
     app_data: web::Data<AppData>,
@@ -44,25 +44,7 @@ async fn unlock_seed(
             return HttpResponse::UnprocessableEntity().body(template.render().unwrap());
         }
 
-        app_data
-            .seed_repository
-            .move_prefix(seed_name, "locked", "public")
-            .await
-            .unwrap();
-        let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
-            Ok(n) => n.as_millis() as usize,
-            Err(_) => panic!("SystemTime before UNIX EPOCH!"),
-        };
-        let unlock_time_str = format!("{}", timestamp);
-        app_data
-            .seed_repository
-            .put_file(
-                seed_name,
-                "unlocked_timestamp.txt".to_string(),
-                unlock_time_str.into_bytes(),
-            )
-            .await
-            .unwrap();
+        unlock_seed(&app_data, seed_name).await;
     } else {
         let template = InvalidTokenTemplate {};
         return HttpResponse::Forbidden().body(template.render().unwrap());
@@ -70,4 +52,33 @@ async fn unlock_seed(
     HttpResponse::Found()
         .insert_header((header::LOCATION, format!("/seed/{}/", info.0)))
         .finish()
+}
+
+/// Unlocks the specified seed.
+///
+/// Returns the timestamp of the unlock in milliseconds since [`SystemTime::UNIX_EPOCH`].
+///
+/// # Panics
+/// Panics if the specified seed doesn't exist.
+pub async fn unlock_seed(app_data: &AppData, seed_name: &str) -> usize {
+    app_data
+        .seed_repository
+        .move_prefix(seed_name, "locked", "public")
+        .await
+        .unwrap();
+    let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+        Ok(n) => n.as_millis() as usize,
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    };
+    let unlock_time_str = format!("{}", timestamp);
+    app_data
+        .seed_repository
+        .put_file(
+            seed_name,
+            "unlocked_timestamp.txt".to_string(),
+            unlock_time_str.into_bytes(),
+        )
+        .await
+        .unwrap();
+    timestamp
 }
