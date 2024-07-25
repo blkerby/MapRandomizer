@@ -394,6 +394,7 @@ async fn randomize(
             "Majors" => ItemMarkers::Majors,
             "Uniques" => ItemMarkers::Uniques,
             "3-Tiered" => ItemMarkers::ThreeTiered,
+            "4-Tiered" => ItemMarkers::FourTiered,
             _ => panic!("Unrecognized item_markers: {}", req.item_markers.0),
         },
         item_dot_change: match req.item_dot_change.0.as_str() {

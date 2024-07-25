@@ -43,6 +43,7 @@ enum TileSide {
 enum Interior {
     Empty,
     Item,
+    AmmoItem,
     MediumItem,
     MajorItem,
     Elevator,
@@ -848,6 +849,16 @@ impl<'a> MapPatcher<'a> {
                 data[4][5] = item_color;
                 data[5][3] = item_color;
                 data[5][4] = item_color;
+            }
+            Interior::AmmoItem => {
+                data[2][2] = item_color;
+                data[2][5] = item_color;
+                data[3][3] = item_color;
+                data[3][4] = item_color;
+                data[4][3] = item_color;
+                data[4][4] = item_color;
+                data[5][2] = item_color;
+                data[5][5] = item_color;
             }
             Interior::MajorItem => {
                 data[2][3] = item_color;
@@ -2648,6 +2659,7 @@ impl<'a> MapPatcher<'a> {
                 Interior::Empty,
                 Interior::Elevator,
                 Interior::Item,
+                Interior::AmmoItem,
                 Interior::MediumItem,
                 Interior::MajorItem,
             ] {
@@ -2736,6 +2748,18 @@ impl<'a> MapPatcher<'a> {
                         Interior::Item
                     }
                 }
+                ItemMarkers::FourTiered => {
+                    if item.is_unique() {
+                        Interior::MajorItem
+                    } else if item == Item::ETank || item == Item::ReserveTank {
+                        Interior::MediumItem
+                    } else if item == Item::Super || item == Item::PowerBomb {
+                        Interior::AmmoItem
+                    } else {
+                        assert!(item == Item::Missile || item == Item::Nothing);
+                        Interior::Item
+                    }
+                }
             };
             basic_tile.interior = interior;
             let tile1 = self.get_basic_tile(basic_tile)?;
@@ -2750,8 +2774,11 @@ impl<'a> MapPatcher<'a> {
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
             } else if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
                 if interior == Interior::MajorItem
+                    || (interior == Interior::AmmoItem
+                        && orig_basic_tile.interior != Interior::MediumItem)
                     || (interior == Interior::MediumItem
-                        && orig_basic_tile.interior != Interior::MajorItem)
+                        && orig_basic_tile.interior != Interior::MajorItem
+                        && orig_basic_tile.interior != Interior::AmmoItem)
                     || (interior == Interior::Item
                         && (orig_basic_tile.interior == Interior::Empty
                             || orig_basic_tile.interior == Interior::Item))

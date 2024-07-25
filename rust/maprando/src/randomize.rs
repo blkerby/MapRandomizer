@@ -65,6 +65,7 @@ pub enum ItemMarkers {
     Majors,
     Uniques,
     ThreeTiered,
+    FourTiered,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

@@ -1,4 +1,5 @@
 v114:
+- add note in spoiler map explaining how to interpret item difficulties shown (doesn't take into account return path or locks/flags that could be cleared before)
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
 - ensure Speedbooster is required when extra run speed is constrained to >$2.0.
