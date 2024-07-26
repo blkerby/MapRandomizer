@@ -32,12 +32,23 @@ fn linear_interpolate(x: f32, table: &[(i32, i32)]) -> f32 {
 
 // Maximum extra run speed (in pixels per frame) obtainable by running on a given length of runway
 // and jumping before the end of it, with SpeedBooster equipped.
-pub fn get_max_extra_run_speed(runway_length: f32) -> f32 {
-    let runway_subpixels = (runway_length * 16.0) as i32;
-    match RUN_SPEED_TABLE.binary_search(&runway_subpixels) {
-        Ok(i) => (i as f32) / 16.0,
-        Err(i) => (i as f32) / 16.0,
+pub fn get_max_extra_run_speed(runway_tiles: f32) -> f32 {
+    let runway_subpixels = (runway_tiles * 256.0) as i32;
+    let run_frames = match RUN_SPEED_TABLE.binary_search(&runway_subpixels) {
+        Ok(i) => i,
+        Err(i) => i,
+    };
+    (run_frames as f32) / 16.0
+}
+
+pub fn get_extra_run_speed_tiles(extra_run_speed: f32) -> f32 {
+    if extra_run_speed < 1.0 / 16.0 {
+        return 0.0;
     }
+    let dash_frames = (extra_run_speed * 16.0) as usize - 1;
+    let subpixels = RUN_SPEED_TABLE[dash_frames];
+    let tiles = subpixels as f32 / 256.0;
+    tiles
 }
 
 // Minimum extra run speed (in pixels per frame) obtainable by gaining a shortcharge
@@ -136,5 +147,17 @@ mod tests {
         assert_eq!(linear_interpolate(6.0, &table), 17.0);
         assert_eq!(linear_interpolate(9.0, &table), 20.0);
         assert_eq!(linear_interpolate(10.0, &table), 20.0);
+    }
+
+    #[test]
+    fn test_get_max_extra_run_speed() {
+        assert_eq!(get_max_extra_run_speed(6.5625), 2.0);
+        assert_eq!(get_max_extra_run_speed(45.0), 7.0);
+    }
+
+    #[test]
+    fn test_() {
+        assert_eq!(get_extra_run_speed_tiles(2.0) * 256.0, 0x68D as f32);
+        assert_eq!(get_extra_run_speed_tiles(7.0) * 256.0, 0x2AF5 as f32);
     }
 }

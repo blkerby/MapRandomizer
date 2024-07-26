@@ -282,7 +282,6 @@
       "Fish Tank Wall Jump Entry",
       "Fish Tank Top Left Direct Jump",
       "Glass Tunnel Maridia Tube Clip",
-      "Mt. Everest Bottom Right Charged Drop",
 
       "Aqueduct Bootless Suitless Snail Climb",
       "Botwoon Hallway Reverse Shinespark",
@@ -454,6 +453,7 @@
       "Crab Tunnel Stutter Shinecharge Through The Gate",
       "Red Fish Space Jump Spring Ball Jump",
 
+      "Aqueduct Blue Space Jump",
       "Colosseum Mochtroid Suitless, HiJumpless Ice Climb",
       "Colosseum Spike Platforming with Move Assist (Left to Right)",
       "Colosseum Bomb Jump Water Escape",
@@ -534,7 +534,8 @@
       "canSandBombBoost",
       "canEnemyStuckMoonfall",
       "canHighPixelCeilingClip",
-      "canReserveDoubleDamageBoost"
+      "canReserveDoubleDamageBoost",
+      "canPauseRemorphTemporaryBlue"
     ],
     "notable_strats": [
       "Landing Site Big Jump Leave With Temporary Blue",
@@ -605,13 +606,13 @@
       "Main Street G-Mode Overload Speed Blocks then use Frozen Crab",
       "Main Street Underwater Walljumps",
       "Mt. Everest Right Crab Climb with Only HiJump or Springball",
-      "Everest Tricky Cross Room Jump (Right to Left)",
-      "Everest Tricky Cross Room Jump (Right to Top)",
-      "Everest Tricky Cross Room Jump with HiJump (Right to Top)",
+      "Mt. Everest Spring Ball Bounce Right to Left",
       "Crab Hole Ice Clip",
       
       "Aqueduct Left-Side X-Ray Climb (Upper)",
       "Aqueduct G-Mode Overload PLMs - PB the Items",
+      "Aqueduct Suitless Blue Bomber",
+      "Aqueduct Suitless Temporary Blue To Items",
       "Cacatac Alley Springball Spike Boost",
       "Colosseum Spike Platforming with SpringBall (Left to Right)",
       "Colosseum Frozen Mochtroid Grapple Clip Door Lock Skip",
@@ -639,6 +640,7 @@
 
       "Tourian Escape Room 4 IBJ and Acid Bath",
       "Tourian Escape Room 4 Suitless Acid Bath Shinespark",
+      "Seaweed Room Temporary Blue Chain",
       "Mother Brain R-Mode Reduced Tanks",
       "Mother Brain R-Mode Light Pillar"
     ]
@@ -722,6 +724,7 @@
       "Mt. Everest Right Crab Climb with Only 1 Super",
       "Mt. Everest Cross Room Jump through Top Door",
       "Mt. Everest Top Left Shinecharge",
+      "Mt. Everest Spring Ball Bounce Left to Right",
       "Everest Crab HiJump Bomb-Grapple-Jump",
       "Red Fish Space Jump Escape",
       "Fish Tank Grapple Teleport into Grapple Jump",

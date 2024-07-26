@@ -20,7 +20,7 @@ use hashbrown::{HashMap, HashSet};
 use log::info;
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
-use run_speed::{get_shortcharge_max_extra_run_speed, get_shortcharge_min_extra_run_speed};
+use run_speed::{get_extra_run_speed_tiles, get_max_extra_run_speed, get_shortcharge_max_extra_run_speed, get_shortcharge_min_extra_run_speed};
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp::min, convert::TryFrom, hash::Hash, iter, time::SystemTime};
 use strum::VariantNames;
@@ -751,6 +751,16 @@ impl<'a> Preprocessor<'a> {
             MainEntranceCondition::ComeInWithTemporaryBlue { direction } => {
                 self.get_come_in_with_temporary_blue_reqs(exit_condition, *direction)
             }
+            MainEntranceCondition::ComeInSpinning {
+                unusable_tiles,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => self.get_come_in_spinning_reqs(
+                exit_condition,
+                unusable_tiles.get(),
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
+            ),
             MainEntranceCondition::ComeInBlueSpinning {
                 unusable_tiles,
                 min_extra_run_speed,
@@ -1076,7 +1086,7 @@ impl<'a> Preprocessor<'a> {
                 if !self.add_run_speed_reqs(
                     combined_runway_length,
                     0.0,
-                    255.0,
+                    7.0,
                     *heated || runway_heated,
                     min_extra_run_speed,
                     max_extra_run_speed,
@@ -1210,6 +1220,78 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
+    fn get_come_in_spinning_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        unusable_tiles: f32,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveSpinning {
+                remote_runway_length,
+                blue,
+                heated: _,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                let min_extra_run_speed = min_extra_run_speed.get();
+                let max_extra_run_speed = max_extra_run_speed.get();
+                let runway_max_speed = get_max_extra_run_speed(remote_runway_length);
+
+                let overall_max_extra_run_speed = f32::min(max_extra_run_speed, f32::min(entrance_max_extra_run_speed, runway_max_speed));
+                let overall_min_extra_run_speed = f32::max(min_extra_run_speed, entrance_min_extra_run_speed);
+                
+                if overall_min_extra_run_speed > overall_max_extra_run_speed {
+                    return None;
+                }
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                Some(Requirement::Free)
+            }
+            ExitCondition::LeaveWithRunway {
+                effective_length,
+                heated,
+                physics,
+                from_exit_node,
+            } => {
+                let effective_length = effective_length.get();
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if *physics != Some(Physics::Air) {
+                    reqs.push(Requirement::Item(Item::Gravity as ItemId));
+                }
+
+                let min_tiles = get_extra_run_speed_tiles(entrance_min_extra_run_speed);
+                let max_tiles = get_extra_run_speed_tiles(entrance_max_extra_run_speed);
+
+                if min_tiles > effective_length - unusable_tiles {
+                    return None;
+                }
+
+                if *heated {
+                    let heat_frames = if *from_exit_node {
+                        compute_run_frames(min_tiles + unusable_tiles) * 2 + 20
+                    } else {
+                        if max_tiles < effective_length - unusable_tiles {
+                            // 10 heat frames to position after stopping on a dime, before resuming running
+                            compute_run_frames(effective_length - unusable_tiles - max_tiles)
+                                + compute_run_frames(max_tiles + unusable_tiles)
+                                + 10
+                        } else {
+                            compute_run_frames(effective_length)
+                        }
+                    };
+                    reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
     fn get_come_in_blue_spinning_reqs(
         &self,
         exit_condition: &ExitCondition,
@@ -1258,7 +1340,7 @@ impl<'a> Preprocessor<'a> {
                 if !self.add_run_speed_reqs(
                     effective_length,
                     0.0,
-                    255.0,
+                    7.0,
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,
@@ -1600,7 +1682,7 @@ impl<'a> Preprocessor<'a> {
                 if !self.add_run_speed_reqs(
                     effective_length,
                     0.0,
-                    255.0,
+                    7.0,
                     *heated,
                     entrance_min_extra_run_speed,
                     entrance_max_extra_run_speed,

@@ -723,6 +723,11 @@ pub enum MainEntranceCondition {
     ComeInWithTemporaryBlue {
         direction: TemporaryBlueDirection,
     },
+    ComeInSpinning {
+        unusable_tiles: Float,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
+    },
     ComeInBlueSpinning {
         unusable_tiles: Float,
         min_extra_run_speed: Float,
@@ -1822,6 +1827,11 @@ impl GameData {
                     .as_i32()
                     .expect(&format!("invalid thornHits in {}", req_json));
                 return Ok(Requirement::Damage(hits as Capacity * 16));
+            } else if key == "electricityHits" {
+                let hits = value
+                    .as_i32()
+                    .expect(&format!("invalid electricityHits in {}", req_json));
+                return Ok(Requirement::Damage(hits as Capacity * 30));
             } else if key == "hibashiHits" {
                 let hits = value
                     .as_i32()
@@ -2808,7 +2818,7 @@ impl GameData {
                         value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
                     ),
                     max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                     ),
                 }
             }
@@ -2828,7 +2838,7 @@ impl GameData {
                         value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
                     ),
                     max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                     ),
                 }
             }
@@ -2851,7 +2861,7 @@ impl GameData {
                         value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
                     ),
                     max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                     ),
                 }
             }
@@ -2867,7 +2877,7 @@ impl GameData {
                         value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
                     ),
                     max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                     ),
                 }
             }
@@ -3003,7 +3013,7 @@ impl GameData {
                         value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
                     ),
                     max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                     ),
                 }
             }
@@ -3055,11 +3065,18 @@ impl GameData {
             "comeInWithTemporaryBlue" => MainEntranceCondition::ComeInWithTemporaryBlue {
                 direction: parse_temporary_blue_direction(value["direction"].as_str())?,
             },
+            "comeInSpinning" => MainEntranceCondition::ComeInSpinning {
+                unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
+                min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
+                max_extra_run_speed: Float::new(
+                    value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
+                ),
+            },
             "comeInBlueSpinning" => MainEntranceCondition::ComeInBlueSpinning {
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
                 min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
                 max_extra_run_speed: Float::new(
-                    value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                    value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                 ),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
@@ -3093,7 +3110,7 @@ impl GameData {
                         value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
                     ),
                     max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(255.0),
+                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
                     ),
                     min_landing_tiles: Float::new(value["minLandingTiles"].as_f32().unwrap_or(0.0)),
                     movement_type: parse_bounce_movement_type(
