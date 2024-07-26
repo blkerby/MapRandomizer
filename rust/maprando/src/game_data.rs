@@ -10,6 +10,7 @@ use num_enum::TryFromPrimitive;
 use serde::Serialize;
 use serde_derive::Deserialize;
 use std::borrow::ToOwned;
+use std::fmt::{self, Debug, Formatter};
 use std::fs::File;
 use std::hash::Hash;
 use std::path::{Path, PathBuf};
@@ -501,7 +502,7 @@ pub enum SparkPosition {
 }
 
 // Hashable wrapper for f32 based on its bits.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Float {
     data: u32,
 }
@@ -513,6 +514,12 @@ impl Float {
 
     pub fn get(&self) -> f32 {
         f32::from_bits(self.data)
+    }
+}
+
+impl Debug for Float {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        write!(f, "Float({})", self.get())
     }
 }
 

@@ -572,6 +572,19 @@ impl<'a> Preprocessor<'a> {
                 let enter_with_shinecharge =
                     self.game_data.does_come_in_shinecharged(entrance_condition);
                 let carry_shinecharge = exit_with_shinecharge || enter_with_shinecharge;
+
+                // if (src_room_id, src_node_id) == (155, 5) {
+                //     println!(
+                //         "({}, {}, {:?}) -> ({}, {}, {:?}): {:?}",
+                //         src_room_id,
+                //         src_node_id,
+                //         exit_condition,
+                //         dst_room_id,
+                //         dst_node_id,
+                //         entrance_condition,
+                //         req_opt
+                //     );
+                // }
                 if let Some(req) = req_opt {
                     door_links.push(Link {
                         from_vertex_id: *src_vertex_id,
@@ -991,17 +1004,16 @@ impl<'a> Preprocessor<'a> {
         entrance_max_extra_run_speed: f32,
         reqs: &mut Vec<Requirement>,
     ) -> bool {
-        let exit_min_speed = f32::max(
-            entrance_min_extra_run_speed,
-            get_shortcharge_min_extra_run_speed(self.difficulty.shine_charge_tiles),
+        let shortcharge_min_speed =
+            get_shortcharge_min_extra_run_speed(self.difficulty.shine_charge_tiles);
+        let shortcharge_max_speed_opt = get_shortcharge_max_extra_run_speed(
+            self.difficulty.shine_charge_tiles,
+            exit_runway_length,
         );
+        let exit_min_speed = f32::max(entrance_min_extra_run_speed, shortcharge_min_speed);
         let exit_max_speed = f32::min(
             entrance_max_extra_run_speed,
-            get_shortcharge_max_extra_run_speed(
-                self.difficulty.shine_charge_tiles,
-                exit_runway_length,
-            )
-            .unwrap_or(-1.0),
+            shortcharge_max_speed_opt.unwrap_or(-1.0),
         );
         let overall_min_speed = f32::max(exit_min_speed, exit_min_extra_run_speed);
         let overall_max_speed = f32::min(exit_max_speed, exit_max_extra_run_speed);

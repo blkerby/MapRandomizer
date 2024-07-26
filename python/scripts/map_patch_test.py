@@ -7,13 +7,7 @@ import io
 import os
 
 
-# input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
-# input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.9-tinystates-ntsc.sfc'
-# input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
-# input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
-# input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
-# input_rom_path = '/home/kerby/Downloads/smmr-v0-5-115673117270825932886574167490559.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.6.1-tinystates-ntsc.sfc'
 output_rom_path = '/home/kerby/Downloads/maptest.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
@@ -320,7 +314,7 @@ for room_obj in rooms:
 # rom.write_n(snes2pc(0xA7D4E5), 8, bytes(8 * [0xEA]))
 
 # Shaktool camera
-# rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
+rom.write_u8(snes2pc(0x84B8DC), 0x60)  # RTS
 
 # rom.write_n(snes2pc(0xA0872D), 288, bytes(288 * [0]))
 

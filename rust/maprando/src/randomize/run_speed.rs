@@ -56,7 +56,7 @@ pub fn get_shortcharge_min_extra_run_speed(shortcharge_tile_skill: f32) -> f32 {
         (25, 0x48),
         (30, 0x59),
     ];
-    linear_interpolate(shortcharge_tile_skill, &table)
+    linear_interpolate(shortcharge_tile_skill, &table) / 16.0
 }
 
 pub fn get_shortcharge_max_extra_run_speed(
