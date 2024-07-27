@@ -274,6 +274,32 @@ class FeedforwardLayer(torch.nn.Module):
 #         return self.layer_norm(X + self.post2(torch.relu(self.post1(A))))
 #
 
+class FeedforwardModel(torch.nn.Module):
+    def _init__(self, num_objects, numeric_width, embedding_width, hidden_widths):
+        self.num_objects = num_objects
+        self.numeric_width = numeric_width
+        self.embedding_width = embedding_width
+        self.hidden_widths = hidden_widths
+
+        self.embeddings = torch.nn.Parameter(torch.randn([num_objects, embedding_width]) / math.sqrt(embedding_width))
+
+        self.ff_layers = torch.nn.ModuleList()
+        prev_width = numeric_width + embedding_width
+        for width in self.hidden_widths:
+            self.ff_layers.append(torch.nn.Linear(prev_width, width, bias=False))
+            prev_width = width
+        self.output_layer = torch.nn.Linear(prev_width, 1, bias=False)
+
+    def forward(self, object_ids, numeric_input):
+        embedding = torch.sum(self.embeddings[object_ids, :], dim=1)
+        X = torch.cat([numeric_input, embedding], dim=1)
+        for layer in self.ff_layers:
+            X = layer(X)
+            X = torch.nn.functional.relu(X)
+        X = self.output_layer(X)
+        return X
+
+
 class TransformerModel(torch.nn.Module):
     def __init__(self, rooms, num_doors, num_outputs, map_x, map_y, block_size_x, block_size_y,
                  embedding_width, key_width, value_width, attn_heads, hidden_width, arity, num_local_layers,
@@ -435,7 +461,7 @@ class TransformerModel(torch.nn.Module):
                 pos_x = room_x + door_pos_x
                 pos_y = room_y + door_pos_y
                 Q_x = self.pool_attn_query_position_x[pos_x].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                Q_y = self.pool_attn_query_position_x[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+                Q_y = self.pool_attn_query_position_y[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
                 Q = Q_door + Q_x + Q_y
             else:
                 Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
@@ -446,12 +472,14 @@ class TransformerModel(torch.nn.Module):
             X = self.pool_layer_norm(X)
             X0 = X
 
-            for i in range(self.num_global_layers):
-                X = self.state_ff_layers[i](X)
-            X = self.state_output_lin1(X)
-            X = torch.nn.functional.relu(X)
-            X = self.state_output_lin2(X)
-            X_state = X
+            if compute_state_value:
+                X = X0
+                for i in range(self.num_global_layers):
+                    X = self.state_ff_layers[i](X)
+                X = self.state_output_lin1(X)
+                X = torch.nn.functional.relu(X)
+                X = self.state_output_lin2(X)
+                X_state = X
 
             if self.use_action:
                 X = X0[action_env_id] + self.action_door_embedding[action_door_id]
@@ -460,7 +488,7 @@ class TransformerModel(torch.nn.Module):
                 X = self.action_output_lin1(X)
                 X = torch.nn.functional.relu(X)
                 X = self.action_output_lin2(X)
-                X_action = X + X_state[action_env_id]
+                X_action = X
 
         if compute_state_value and self.use_action:
             return X_state.to(torch.float32), X_action.to(torch.float32)

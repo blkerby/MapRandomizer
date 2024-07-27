@@ -41,8 +41,10 @@ class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
                  state_model: TransformerModel,
                  action_model: TransformerModel,
+                 balance_model: torch.nn.Module,
                  state_optimizer: torch.optim.Optimizer,
                  action_optimizer: torch.optim.Optimizer,
+                 balance_optimizer: torch.optim.Optimizer,
                  data_path: str,
                  ema_beta: float,
                  episodes_per_file: int,
@@ -51,8 +53,10 @@ class TrainingSession():
         self.envs = envs
         self.state_model = state_model
         self.action_model = action_model
+        self.balance_model = balance_model
         self.state_optimizer = state_optimizer
         self.action_optimizer = action_optimizer
+        self.balance_optimizer = balance_optimizer
         self.state_average_parameters = ExponentialAverage(state_model.all_param_data(), beta=ema_beta)
         self.action_average_parameters = ExponentialAverage(action_model.all_param_data(), beta=ema_beta)
         self.num_rounds = 0
@@ -126,7 +130,7 @@ class TrainingSession():
             torch.float32)
         self.door_connect_adjust_down_up = beta * self.door_connect_adjust_down_up + alpha0 * stats_down.to(
             torch.float32)
-        self.door_connect_adjust_weight = beta * self.door_connect_adjust_weight + alpha
+        self.door_connect_adjust_weight = beta * self.door_connect_adjust_weight + (1 - beta)
         return ent
 
     def compute_reward(self, door_connects, missing_connects, use_connectivity):

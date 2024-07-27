@@ -13,13 +13,13 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import TransformerModel, AttentionLayer, FeedforwardLayer
+from maze_builder.model import TransformerModel, FeedforwardModel
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
 import io
 import logic.rooms.crateria_isolated
-# import logic.rooms.norfair_isolated
+import logic.rooms.norfair_isolated
 import os
 import logic.rooms.all_rooms
 
@@ -77,7 +77,7 @@ envs = [MazeBuilderEnv(rooms,
         for device in devices]
 
 
-
+# Dummy model, currently not used:
 state_model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
@@ -86,25 +86,33 @@ state_model = TransformerModel(
     map_y=env_config.map_y,
     block_size_x=8,
     block_size_y=8,
-    embedding_width=256,
-    key_width=32,
-    value_width=32,
-    attn_heads=8,
-    hidden_width=1024,
+    embedding_width=1,
+    key_width=1,
+    value_width=1,
+    attn_heads=1,
+    hidden_width=1,
     arity=1,
-    num_local_layers=2,
+    num_local_layers=0,
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=1,
-    global_attn_heads=32,
-    global_attn_key_width=32,
-    global_attn_value_width=32,
-    global_width=1024,
-    global_hidden_width=2048,
+    num_global_layers=0,
+    global_attn_heads=1,
+    global_attn_key_width=1,
+    global_attn_value_width=1,
+    global_width=1,
+    global_hidden_width=1,
     global_ff_dropout=0.0,
     use_action=False,
 ).to(device)
+
+embedding_width = 256
+key_width = 32
+value_width = 32
+attn_heads = 16
+hidden_width = 1024
+global_embedding_width = 1024
+global_hidden_width = 4096
 action_model = TransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
@@ -113,44 +121,53 @@ action_model = TransformerModel(
     map_y=env_config.map_y,
     block_size_x=8,
     block_size_y=8,
-    embedding_width=256,
-    key_width=32,
-    value_width=32,
-    attn_heads=8,
-    hidden_width=1024,
+    embedding_width=embedding_width,
+    key_width=key_width,
+    value_width=value_width,
+    attn_heads=attn_heads,
+    hidden_width=hidden_width,
     arity=1,
     num_local_layers=2,
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
-    num_global_layers=1,
-    global_attn_heads=32,
+    num_global_layers=2,
+    global_attn_heads=16,
     global_attn_key_width=32,
     global_attn_value_width=32,
-    global_width=1024,
-    global_hidden_width=2048,
+    global_width=global_embedding_width,
+    global_hidden_width=global_hidden_width,
     global_ff_dropout=0.0,
     use_action=True,
 ).to(device)
-logging.info("State model: {}".format(state_model))
-logging.info("Action model: {}".format(action_model))
+
+balance_model = FeedforwardModel(
+    num_objects=envs[0].num_doors,
+    numeric_width=3,
+    embedding_width=512,
+    hidden_widths=[256, 64]
+)
 
 # model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
 state_optimizer = torch.optim.Adam(state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 action_optimizer = torch.optim.Adam(action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+balance_optimizer = torch.optim.Adam(balance_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
                           state_model=state_model,
                           action_model=action_model,
+                          balance_model=balance_model,
                           state_optimizer=state_optimizer,
                           action_optimizer=action_optimizer,
+                          balance_optimizer=balance_optimizer,
                           data_path="data/{}".format(start_time.isoformat()),
                           ema_beta=0.999,
                           episodes_per_file=num_envs * num_devices,
                           decay_amount=0.0)
 
-# pickle_name = 'models/session-2024-06-17T06:07:13.725424.pkl'
+# pickle_name = 'models/session-2024-07-24T16:50:40.968460.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-# session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+# # session = pickle.load(open(pickle_name + '-bk1', 'rb'))
+# logging.info("Action model: {}".format(action_model))
 
 
 
@@ -220,7 +237,7 @@ session = TrainingSession(envs,
 
 
 # # Add new Transformer layers
-# new_layer_idxs = list(range(1, len(session.model.attn_layers) + 1))
+# new_layer_idxs = list(range(1, len(session.action_model.attn_layers) + 1))
 # logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
 # for i in reversed(new_layer_idxs):
 #     attn_layer = AttentionLayer(
@@ -229,15 +246,21 @@ session = TrainingSession(envs,
 #         value_width=value_width,
 #         num_heads=attn_heads,
 #         dropout=0.0).to(device)
-#     session.model.attn_layers.insert(i, attn_layer)
+#     session.action_model.attn_layers.insert(i, attn_layer)
 #     ff_layer = FeedforwardLayer(
 #         input_width=embedding_width,
 #         hidden_width=hidden_width,
 #         arity=1,
 #         dropout=0.0).to(device)
-#     session.model.ff_layers.insert(i, ff_layer)
-# session.optimizer = torch.optim.Adam(session.model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.average_parameters = ExponentialAverage(session.model.all_param_data(), beta=0.995)
+#     session.action_model.ff_layers.insert(i, ff_layer)
+#     global_ff_layer = FeedforwardLayer(
+#         input_width=global_embedding_width,
+#         hidden_width=global_hidden_width,
+#         arity=1,
+#         dropout=0.0).to(device)
+#     session.action_model.action_ff_layers.insert(i, global_ff_layer)
+# session.action_optimizer = torch.optim.Adam(session.action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# session.action_average_parameters = ExponentialAverage(session.action_model.all_param_data(), beta=0.995)
 #
 
 num_state_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.state_model.parameters())
@@ -246,13 +269,13 @@ num_action_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in
 # session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
-hist_frac = 0.5
-hist_c = 1.0
+hist_frac = 1.0
+hist_c = 4.0
 batch_size = 2 ** 10
-state_lr0 = 0.0005
-state_lr1 = 0.0005
-action_lr0 = 0.0005
-action_lr1 = 0.0005
+state_lr0 = 0.0001
+state_lr1 = 0.0001
+action_lr0 = 0.00005
+action_lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 32
@@ -260,7 +283,7 @@ num_candidates_max0 = 32
 num_candidates_min1 = 32
 num_candidates_max1 = 32
 
-state_weight = 2.0
+state_weight = 0.0
 
 # num_candidates0 = 40
 # num_candidates1 = 40
@@ -282,7 +305,7 @@ graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-door_connect_bound = 1.0
+door_connect_bound = 3.0
 # door_connect_bound = 0.0
 door_connect_samples = 2 ** 17
 door_connect_alpha = num_envs * num_devices / door_connect_samples
@@ -295,10 +318,10 @@ balance_weight = 1.0
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
 
-temperature_min0 = 0.1
+temperature_min0 = 1.0
 temperature_max0 = 10.0
 temperature_min1 = 0.1
-temperature_max1 = 10.0
+temperature_max1 = 1.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -311,10 +334,10 @@ temperature_decay = 1.0
 
 annealing_start = 0
 # annealing_time = 1
-annealing_time = 2 ** 22 // (num_envs * num_devices)
+annealing_time = 2 ** 20 // (num_envs * num_devices)
 
 pass_factor0 = 0.05
-pass_factor1 = 1.0
+pass_factor1 = 0.25
 num_load_files = int(episode_length * pass_factor1)
 print_freq = 8
 total_state_losses = None
@@ -345,12 +368,9 @@ session.state_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.state_optimizer.param_groups[0]['eps'] = 1e-5
 session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.action_optimizer.param_groups[0]['eps'] = 1e-5
-state_ema_beta0 = 0.999
-state_ema_beta1 = state_ema_beta0
-session.state_average_parameters.beta = state_ema_beta0
-action_ema_beta0 = 0.999
-action_ema_beta1 = action_ema_beta0
-session.action_average_parameters.beta = action_ema_beta0
+action_ema_alpha0 = 0.1
+action_ema_alpha1 = 0.001
+session.action_average_parameters.beta = 1 - action_ema_alpha0
 
 # layer_norm_param_decay = 0.9998
 layer_norm_param_decay = 0.999
@@ -464,14 +484,16 @@ min_door_value = float('inf')
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
-    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef={}, balance_weight={}".format(
-        len(rooms), session.action_model.map_x, session.action_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, action_lr0, action_lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef={}, balance_weight={}".format(
+        len(rooms), session.action_model.map_x, session.action_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, hist_c, action_lr0, action_lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
         num_action_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, explore_eps_factor,
-        annealing_time, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
+        annealing_time, state_weight, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
         mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound,
         balance_coef, balance_weight))
 logging.info(session.action_optimizer)
+# logging.info("State model: {}".format(session.state_model))
+logging.info("Action model: {}".format(session.action_model))
 logging.info("Starting training")
 for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
@@ -481,10 +503,10 @@ for i in range(1000000):
     action_lr = action_lr0 * (action_lr1 / action_lr0) ** frac
     session.state_optimizer.param_groups[0]['lr'] = state_lr
     session.action_optimizer.param_groups[0]['lr'] = action_lr
-    state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
-    session.state_average_parameters.beta = state_ema_beta
-    action_ema_beta = action_ema_beta0 * (action_ema_beta1 / action_ema_beta0) ** frac
-    session.action_average_parameters.beta = action_ema_beta
+    # state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
+    # session.state_average_parameters.beta = state_ema_beta
+    action_ema_alpha = action_ema_alpha0 * (action_ema_alpha1 / action_ema_alpha0) ** frac
+    session.action_average_parameters.beta = 1 - action_ema_alpha
 
     pass_factor = pass_factor0 + (pass_factor1 - pass_factor0) * frac
 
@@ -681,7 +703,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk4')
+            # save_session(session, pickle_name + '-bk1')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:
@@ -696,10 +718,15 @@ for i in range(1000000):
         episode_data, _ = session.replay_buffer.read_files(file_num_list)
 
         buffer_temperature = episode_data.temperature
+        first = True
         for i in range(len(temperature_endpoints) - 1):
             temp_low = temperature_endpoints[i]
             temp_high = temperature_endpoints[i + 1]
             ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high))
+            tame_ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high)
+                                     & (episode_data.mc_dist_coef > 0.0))
+            wild_ind = torch.nonzero((buffer_temperature > temp_low * 1.0001) & (buffer_temperature <= temp_high)
+                                     & (episode_data.mc_dist_coef == 0.0))
             if ind.shape[0] == 0:
                 continue
             buffer_reward = episode_data.reward[ind]
@@ -747,12 +774,18 @@ for i in range(1000000):
             #     temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
             #     buffer_frac_min, ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             # ))
+            if first:
+                display_counts(counts1, 16, verbose=False)
+                counts1_tame = compute_door_connect_counts(episode_data, only_success=True, ind=tame_ind)
+                display_counts(counts1_tame, 16, verbose=False)
+                counts1_wild = compute_door_connect_counts(episode_data, only_success=True, ind=wild_ind)
+                display_counts(counts1_wild, 16, verbose=False)
             logging.info("[{:.3f}, {:.3f}]: cost={:.3f} (min={}, frac={:.6f}), ent={:.6f}, save={:.6f}, diam={:.3f}, test={:.6f}, p={:.4f}, p0={:.4f}, cnt={}, temp={:.4f}".format(
                 temp_low, temp_high, buffer_mean_reward, buffer_min_reward,
                 buffer_frac_min,
                 ent, buffer_save_dist, buffer_mean_graph_diam, buffer_mean_test_loss, buffer_mean_prob, buffer_mean_prob0, ind.shape[0], buffer_mean_temp
             ))
-
+            first = False
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
         counts1 = compute_door_connect_counts(episode_data, only_success=True)
@@ -775,4 +808,3 @@ for i in range(1000000):
                 save1, graph_diam1, tame1, wild1))
         display_counts(counts1, 16, verbose=False)
         # display_counts(counts1, 1000000, verbose=True)
-        last_file_num = session.replay_buffer.num_files
