@@ -1555,7 +1555,7 @@ pub fn apply_requirement(
             game_data,
         ),
         Requirement::SpeedBall { used_tiles, heated } => {
-            if !global.tech[game_data.speed_ball_tech_id] {
+            if !global.tech[game_data.speed_ball_tech_id] || !global.items[Item::Morph as usize] {
                 None
             } else {
                 let used_tiles = used_tiles.get();
