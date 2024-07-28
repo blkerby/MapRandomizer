@@ -275,24 +275,16 @@ class FeedforwardLayer(torch.nn.Module):
 #
 
 class FeedforwardModel(torch.nn.Module):
-    def _init__(self, num_objects, numeric_width, embedding_width, hidden_widths):
-        self.num_objects = num_objects
-        self.numeric_width = numeric_width
-        self.embedding_width = embedding_width
-        self.hidden_widths = hidden_widths
-
-        self.embeddings = torch.nn.Parameter(torch.randn([num_objects, embedding_width]) / math.sqrt(embedding_width))
-
+    def __init__(self, input_width, output_width, hidden_widths):
+        super().__init__()
         self.ff_layers = torch.nn.ModuleList()
-        prev_width = numeric_width + embedding_width
-        for width in self.hidden_widths:
-            self.ff_layers.append(torch.nn.Linear(prev_width, width, bias=False))
+        prev_width = input_width
+        for width in hidden_widths:
+            self.ff_layers.append(torch.nn.Linear(prev_width, width))
             prev_width = width
-        self.output_layer = torch.nn.Linear(prev_width, 1, bias=False)
+        self.output_layer = torch.nn.Linear(prev_width, output_width)
 
-    def forward(self, object_ids, numeric_input):
-        embedding = torch.sum(self.embeddings[object_ids, :], dim=1)
-        X = torch.cat([numeric_input, embedding], dim=1)
+    def forward(self, X):
         for layer in self.ff_layers:
             X = layer(X)
             X = torch.nn.functional.relu(X)
@@ -327,7 +319,7 @@ class TransformerModel(torch.nn.Module):
         self.num_blocks_x = map_x // block_size_x
         self.num_blocks_y = map_y // block_size_y
         self.num_blocks = self.num_blocks_x * self.num_blocks_y
-        self.global_lin = torch.nn.Linear(self.num_rooms + 4, embedding_width)
+        self.global_lin = torch.nn.Linear(self.num_rooms + 3, embedding_width)
         self.pos_embedding = torch.nn.Parameter(torch.randn([self.num_blocks, embedding_width]) / math.sqrt(embedding_width))
         self.room_embedding = torch.nn.Parameter(
             torch.randn([self.num_rooms, self.block_size, embedding_width]) / math.sqrt(embedding_width))
@@ -402,7 +394,7 @@ class TransformerModel(torch.nn.Module):
         with torch.cuda.amp.autocast():
             global_data = torch.cat([room_mask.to(torch.float32),
                                      steps_remaining.view(-1, 1) / self.num_rooms,
-                                     round_frac.view(-1, 1),
+                                     # round_frac.view(-1, 1),
                                      torch.log(temperature.view(-1, 1)),
                                      mc_dist_coef.view(-1, 1),
                                      ], dim=1).to(dtype)

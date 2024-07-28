@@ -13,7 +13,7 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import TransformerModel, FeedforwardModel
+from maze_builder.model import TransformerModel, FeedforwardModel, AttentionLayer, FeedforwardLayer
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
@@ -76,36 +76,6 @@ envs = [MazeBuilderEnv(rooms,
                        # starting_room_name="Business Center")
         for device in devices]
 
-
-# Dummy model, currently not used:
-state_model = TransformerModel(
-    rooms=envs[0].rooms,
-    num_doors=envs[0].num_doors,
-    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
-    map_x=env_config.map_x,
-    map_y=env_config.map_y,
-    block_size_x=8,
-    block_size_y=8,
-    embedding_width=1,
-    key_width=1,
-    value_width=1,
-    attn_heads=1,
-    hidden_width=1,
-    arity=1,
-    num_local_layers=0,
-    embed_dropout=0.0,
-    ff_dropout=0.0,
-    attn_dropout=0.0,
-    num_global_layers=0,
-    global_attn_heads=1,
-    global_attn_key_width=1,
-    global_attn_value_width=1,
-    global_width=1,
-    global_hidden_width=1,
-    global_ff_dropout=0.0,
-    use_action=False,
-).to(device)
-
 embedding_width = 256
 key_width = 32
 value_width = 32
@@ -142,21 +112,17 @@ action_model = TransformerModel(
 ).to(device)
 
 balance_model = FeedforwardModel(
-    num_objects=envs[0].num_doors,
-    numeric_width=3,
-    embedding_width=512,
-    hidden_widths=[256, 64]
-)
+    input_width=2,
+    output_width=envs[0].room_left.shape[0] ** 2 + envs[0].room_up.shape[0] ** 2,
+    hidden_widths=[128],
+).to(device)
 
 # model.output_lin2.weight.data.zero_()  # TODO: this doesn't belong here, use an initializer in model.py
-state_optimizer = torch.optim.Adam(state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 action_optimizer = torch.optim.Adam(action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 balance_optimizer = torch.optim.Adam(balance_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 session = TrainingSession(envs,
-                          state_model=state_model,
                           action_model=action_model,
                           balance_model=balance_model,
-                          state_optimizer=state_optimizer,
                           action_optimizer=action_optimizer,
                           balance_optimizer=balance_optimizer,
                           data_path="data/{}".format(start_time.isoformat()),
@@ -235,7 +201,7 @@ session = TrainingSession(envs,
 
 
 
-
+#
 # # Add new Transformer layers
 # new_layer_idxs = list(range(1, len(session.action_model.attn_layers) + 1))
 # logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
@@ -261,21 +227,20 @@ session = TrainingSession(envs,
 #     session.action_model.action_ff_layers.insert(i, global_ff_layer)
 # session.action_optimizer = torch.optim.Adam(session.action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
 # session.action_average_parameters = ExponentialAverage(session.action_model.all_param_data(), beta=0.995)
-#
 
-num_state_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.state_model.parameters())
+
 num_action_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.action_model.parameters())
+num_balance_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.balance_model.parameters())
 # session.replay_buffer.resize(2 ** 23)
 # session.replay_buffer.resize(2 ** 18)
 
 # TODO: bundle all this stuff into a structure
 hist_frac = 1.0
 hist_c = 4.0
+hist_max = 2 ** 23
 batch_size = 2 ** 10
-state_lr0 = 0.0001
-state_lr1 = 0.0001
-action_lr0 = 0.00005
-action_lr1 = 0.00005
+action_lr0 = 0.0003
+action_lr1 = 0.0003
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 32
@@ -312,6 +277,7 @@ door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = 1 - door_connect_alpha / door_connect_bound
 
+balance_multiplier = 5.0
 balance_coef = 1.0
 balance_weight = 1.0
 
@@ -342,6 +308,7 @@ num_load_files = int(episode_length * pass_factor1)
 print_freq = 8
 total_state_losses = None
 total_action_losses = None
+total_balance_loss = 0.0
 
 total_reward = 0
 total_loss_cnt = 0
@@ -364,12 +331,13 @@ save_freq = 128
 summary_freq = 128
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.state_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.state_optimizer.param_groups[0]['eps'] = 1e-5
 session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.action_optimizer.param_groups[0]['eps'] = 1e-5
+session.balance_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.balance_optimizer.param_groups[0]['eps'] = 1e-5
+session.balance_optimizer.param_groups[0]['lr'] = 0.00005
 action_ema_alpha0 = 0.1
-action_ema_alpha1 = 0.001
+action_ema_alpha1 = 0.0005
 session.action_average_parameters.beta = 1 - action_ema_alpha0
 
 # layer_norm_param_decay = 0.9998
@@ -484,9 +452,9 @@ min_door_value = float('inf')
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
-    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef={}, balance_weight={}".format(
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params_action={}, num_params_balance={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef={}, balance_weight={}".format(
         len(rooms), session.action_model.map_x, session.action_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, hist_c, action_lr0, action_lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
-        num_action_params, session.decay_amount,
+        num_action_params, num_balance_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, explore_eps_factor,
         annealing_time, state_weight, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
         mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound,
@@ -499,9 +467,7 @@ for i in range(1000000):
     frac = max(0.0, min(1.0, (session.num_rounds - annealing_start) / annealing_time))
     num_candidates_min = num_candidates_min0 + (num_candidates_min1 - num_candidates_min0) * frac
     num_candidates_max = num_candidates_max0 + (num_candidates_max1 - num_candidates_max0) * frac
-    state_lr = state_lr0 * (state_lr1 / state_lr0) ** frac
     action_lr = action_lr0 * (action_lr1 / action_lr0) ** frac
-    session.state_optimizer.param_groups[0]['lr'] = state_lr
     session.action_optimizer.param_groups[0]['lr'] = action_lr
     # state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
     # session.state_average_parameters.beta = state_ema_beta
@@ -547,7 +513,7 @@ for i in range(1000000):
             render=False)
 
         if temp_num_min > 0 and num_candidates_max > 1:
-            total_ent += session.update_door_connect_stats(door_connect_alpha, door_connect_beta, temp_num_min)
+            total_ent += session.get_door_connect_entropy(temp_num_min)
         # logging.info("cand_count={:.3f}".format(torch.mean(data.cand_count)))
         session.replay_buffer.insert(data)
 
@@ -606,16 +572,16 @@ for i in range(1000000):
     #         with_stack=False,
     # ) as prof:
     batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, hist_c=hist_c,
+                                              hist_max=hist_max,
                                               env=envs[0],
-                                              adjust_left_right=session.door_connect_adjust_left_right / session.door_connect_adjust_weight,
-                                              adjust_down_up=session.door_connect_adjust_down_up / session.door_connect_adjust_weight,
                                               include_next_step=False)
     for data in batch_list:
         with util.DelayedKeyboardInterrupt():
-            state_losses, action_losses = session.train_batch(
-                data, data,
+            state_losses, balance_loss, action_losses = session.train_batch(
+                data,
                 state_weight=state_weight,
                 balance_weight=balance_weight,
+                balance_multiplier=balance_multiplier,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
                 mc_dist_weight=mc_dist_weight,
@@ -623,6 +589,7 @@ for i in range(1000000):
             )
             total_state_losses = update_losses(total_state_losses, state_losses)
             total_action_losses = update_losses(total_action_losses, action_losses)
+            total_balance_loss += balance_loss
             total_loss_cnt += 1
 
             # # Drive down the LayerNorm `elementwise_affine` parameters to zero so we can get rid of them.
@@ -643,6 +610,7 @@ for i in range(1000000):
     if session.num_rounds % print_freq == 0:
         mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
         mean_action_losses = [x / total_loss_cnt for x in total_action_losses]
+        mean_balance_loss = total_balance_loss / total_loss_cnt
 
         new_reward = total_reward / total_round_cnt
         new_cycle_cost = total_cycle_cost / total_round_cnt
@@ -674,10 +642,11 @@ for i in range(1000000):
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: action={:.4f} ({}), cost={:.2f} (min={:d}, frac={:.4f}), ent={:.4f}, save={:.4f}, diam={:.3f}, mc={:.3f}, tube={:.4f}, p={:.4f}, frac={:.4f}".format(
+            "{}: act={:.4f} ({}), bal={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), ent={:.3f}, save={:.3f}, diam={:.2f}, mc={:.2f}, tube={:.2f}, p={:.3f}, frac={:.2f}".format(
                 session.num_rounds,
                 mean_action_losses[0],
                 ', '.join('{:.4f}'.format(x) for x in mean_action_losses[1:]),
+                mean_balance_loss,
                 new_reward,
                 min_door_value,
                 min_door_frac,
@@ -693,6 +662,7 @@ for i in range(1000000):
             ))
         total_state_losses = None
         total_action_losses = None
+        total_balance_loss = 0.0
         total_loss_cnt = 0
         total_eval_loss = 0.0
         total_eval_loss_cnt = 0

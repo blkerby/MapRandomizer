@@ -62,7 +62,7 @@ class ReplayBuffer:
         assert n == self.episodes_per_file
         self.add_file(episode_data)
 
-    def sample(self, batch_size, num_batches, hist_frac, hist_c, env, adjust_left_right, adjust_down_up, include_next_step: bool) -> List[TrainingData]:
+    def sample(self, batch_size, num_batches, hist_frac, hist_c, hist_max, env, include_next_step: bool) -> List[TrainingData]:
         device = env.device
         n = batch_size * num_batches
         num_files = n // self.episodes_per_file
@@ -71,9 +71,10 @@ class ReplayBuffer:
         #     num_files = self.num_files
         # file_num_list = random.sample(list(range(self.num_files)), num_files)
 
+        hist_frac = min(hist_frac, hist_max / (self.num_files * self.episodes_per_file))
         t = torch.pow(torch.rand([num_files]), 1 / (1 + hist_c)) * hist_frac + (1 - hist_frac)
         # file_num_list = torch.randint(int((1 - hist_frac) * self.num_files), self.num_files, [num_files]).tolist()
-        file_num_list = torch.floor(t * self.num_files).to(torch.int64).tolist()
+        file_num_list = torch.floor(t * self.num_files).to(torch.int64).clamp_max(self.num_files - 1).tolist()
 
         data, file_num_tensor = self.read_files(file_num_list)
 
@@ -99,11 +100,6 @@ class ReplayBuffer:
 
             final_room_mask, final_room_position_x, final_room_position_y = \
                 reconstruct_room_data(action, torch.tensor(self.num_rooms), self.num_rooms)
-            door_balance = env.get_door_balance(
-                final_room_mask.to(device),
-                final_room_position_x.to(device),
-                final_room_position_y.to(device),
-                adjust_left_right, adjust_down_up)
 
             def make_batch(s):
                 clamp_s = torch.clamp_max(s, data.map_door_id.shape[1] - 1)
@@ -125,7 +121,6 @@ class ReplayBuffer:
                 batch = TrainingData(
                     reward=reward.to(device),
                     door_connects=door_connects.to(device),
-                    door_balance=door_balance.to(device),
                     missing_connects=missing_connects.to(device),
                     save_distances=save_distances.to(device),
                     graph_diameter=graph_diameter.to(device),
@@ -139,6 +134,9 @@ class ReplayBuffer:
                     room_mask=room_mask.to(device),
                     room_position_x=room_position_x.to(device),
                     room_position_y=room_position_y.to(device),
+                    final_room_mask=final_room_mask.to(device),
+                    final_room_position_x=final_room_position_x.to(device),
+                    final_room_position_y=final_room_position_y.to(device),
                     map_door_id=map_door_id.to(device),
                     room_door_id=room_door_id.to(device),
                 )
