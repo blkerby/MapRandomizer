@@ -3068,16 +3068,12 @@ impl GameData {
             "comeInSpinning" => MainEntranceCondition::ComeInSpinning {
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
                 min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                max_extra_run_speed: Float::new(
-                    value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                ),
+                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0)),
             },
             "comeInBlueSpinning" => MainEntranceCondition::ComeInBlueSpinning {
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
                 min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                max_extra_run_speed: Float::new(
-                    value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                ),
+                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0)),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
