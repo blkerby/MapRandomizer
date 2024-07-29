@@ -283,6 +283,7 @@ class FeedforwardModel(torch.nn.Module):
             self.ff_layers.append(torch.nn.Linear(prev_width, width))
             prev_width = width
         self.output_layer = torch.nn.Linear(prev_width, output_width)
+        self.output_layer.weight.data.zero_()
 
     def forward(self, X):
         for layer in self.ff_layers:

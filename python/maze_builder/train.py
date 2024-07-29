@@ -277,9 +277,9 @@ door_connect_alpha = num_envs * num_devices / door_connect_samples
 # door_connect_alpha = door_connect_alpha0 / math.sqrt(1 + session.num_rounds / lr_cooldown_time)
 door_connect_beta = 1 - door_connect_alpha / door_connect_bound
 
-balance_multiplier = 5.0
-balance_coef = 1.0
-balance_weight = 1.0
+balance_coef0 = 2.0
+balance_coef1 = 2.0
+balance_weight = 10.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -300,6 +300,7 @@ temperature_decay = 1.0
 
 annealing_start = 0
 # annealing_time = 1
+# annealing_start = session.num_rounds
 annealing_time = 2 ** 20 // (num_envs * num_devices)
 
 pass_factor0 = 0.05
@@ -335,7 +336,7 @@ session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.action_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.balance_optimizer.param_groups[0]['eps'] = 1e-5
-session.balance_optimizer.param_groups[0]['lr'] = 0.00005
+session.balance_optimizer.param_groups[0]['lr'] = 0.0002
 action_ema_alpha0 = 0.1
 action_ema_alpha1 = 0.0005
 session.action_average_parameters.beta = 1 - action_ema_alpha0
@@ -452,13 +453,13 @@ min_door_value = float('inf')
 torch.set_printoptions(linewidth=120, threshold=10000)
 logging.info("Checkpoint path: {}".format(pickle_name))
 logging.info(
-    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params_action={}, num_params_balance={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef={}, balance_weight={}".format(
+    "num_rooms={}, map_x={}, map_y={}, num_envs={}, batch_size={}, pass_factor0={}, pass_factor1={}, hist_frac={}, hist_c={}, lr0={}, lr1={}, num_candidates_min0={}, num_candidates_max0={}, num_candidates_min1={}, num_candidates_max1={}, num_params_action={}, num_params_balance={}, decay_amount={}, temperature_min0={}, temperature_min1={}, temperature_max0={}, temperature_max1={}, temperature_decay={}, explore_eps_factor={}, annealing_time={}, state_weight={}, save_loss_weight={}, save_dist_coef={}, graph_diam_weight={}, graph_diam_coef={}, mc_dist_weight={}, mc_dist_coef_tame={}, mc_dist_coef_wild={}, door_connect_alpha={}, door_connect_bound={}, balance_coef0={}, balance_coef1={}, balance_weight={}".format(
         len(rooms), session.action_model.map_x, session.action_model.map_y, session.envs[0].num_envs, batch_size, pass_factor0, pass_factor1, hist_frac, hist_c, action_lr0, action_lr1, num_candidates_min0, num_candidates_max0, num_candidates_min1, num_candidates_max1,
         num_action_params, num_balance_params, session.decay_amount,
         temperature_min0, temperature_min1, temperature_max0, temperature_max1, temperature_decay, explore_eps_factor,
         annealing_time, state_weight, save_loss_weight, save_dist_coef, graph_diam_weight, graph_diam_coef,
         mc_dist_weight, mc_dist_coef_tame, mc_dist_coef_wild, door_connect_alpha, door_connect_bound,
-        balance_coef, balance_weight))
+        balance_coef0, balance_coef1, balance_weight))
 logging.info(session.action_optimizer)
 # logging.info("State model: {}".format(session.state_model))
 logging.info("Action model: {}".format(session.action_model))
@@ -474,6 +475,7 @@ for i in range(1000000):
     action_ema_alpha = action_ema_alpha0 * (action_ema_alpha1 / action_ema_alpha0) ** frac
     session.action_average_parameters.beta = 1 - action_ema_alpha
 
+    balance_coef = balance_coef0 + (balance_coef1 - balance_coef0) * frac
     pass_factor = pass_factor0 + (pass_factor1 - pass_factor0) * frac
 
     temperature_min = temperature_min0 * (temperature_min1 / temperature_min0) ** frac
@@ -581,7 +583,6 @@ for i in range(1000000):
                 data,
                 state_weight=state_weight,
                 balance_weight=balance_weight,
-                balance_multiplier=balance_multiplier,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
                 mc_dist_weight=mc_dist_weight,
