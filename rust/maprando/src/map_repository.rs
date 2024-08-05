@@ -2,8 +2,8 @@ use anyhow::{Context, Result};
 use log::info;
 use std::path::{Path, PathBuf};
 
-use crate::game_data::{GameData, Map};
 use crate::randomize::Randomizer;
+use maprando_game::{GameData, Map};
 
 pub struct MapRepository {
     pub base_path: PathBuf,

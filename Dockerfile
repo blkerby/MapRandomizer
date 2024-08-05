@@ -13,6 +13,8 @@ COPY rust/maprando/Cargo.toml /rust/maprando/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando/src/bin/dummy.rs
 COPY rust/maprando-web/Cargo.toml /rust/maprando-web/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando-web/src/bin/dummy-web.rs
+COPY rust/maprando-game /rust/maprando-game
+COPY rust/maprando-logic /rust/maprando-logic
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 

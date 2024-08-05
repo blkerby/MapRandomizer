@@ -11,9 +11,9 @@ use maprando::{
         customize_rom, parse_controller_button, ControllerButton, ControllerConfig,
         CustomizeSettings, DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
     },
-    game_data::Map,
     patch::Rom,
 };
+use maprando_game::Map;
 
 #[derive(Template)]
 #[template(path = "errors/invalid_rom.html")]

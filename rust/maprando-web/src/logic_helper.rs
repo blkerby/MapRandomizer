@@ -3,16 +3,17 @@ use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use maprando::{
-    game_data::{
-        Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement,
-        RoomId, VertexAction, VertexKey,
-    },
     randomize::{
         strip_name, AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal,
         MapsRevealed, SaveAnimals, StartLocationMode, WallJump,
     },
-    traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
+    traverse::{apply_requirement, LockedDoorData},
 };
+use maprando_game::{
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId,
+    VertexAction, VertexKey,
+};
+use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
 use urlencoding;
 
@@ -769,14 +770,16 @@ impl LogicData {
             let global = GlobalState {
                 tech,
                 notable_strats,
-                items: items,
+                inventory: Inventory {
+                    items: items,
+                    max_energy: 1499,
+                    max_reserves: 400,
+                    max_missiles: 230,
+                    max_supers: 50,
+                    max_power_bombs: 50,
+                },
                 flags: vec![true; game_data.flag_isv.keys.len()],
                 doors_unlocked: vec![],
-                max_energy: 1499,
-                max_reserves: 400,
-                max_missiles: 230,
-                max_supers: 50,
-                max_power_bombs: 50,
                 weapon_mask: weapon_mask,
             };
 

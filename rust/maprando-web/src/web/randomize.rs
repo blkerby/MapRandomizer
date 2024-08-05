@@ -10,7 +10,6 @@ use askama::Template;
 use helpers::*;
 use log::info;
 use maprando::{
-    game_data::{Capacity, Item, LinksDataGroup},
     patch::{make_rom, Rom},
     randomize::{
         filter_links, randomize_doors, randomize_map_areas, AreaAssignment, DebugOptions,
@@ -19,6 +18,7 @@ use maprando::{
         StartLocationMode,
     },
 };
+use maprando_game::{Capacity, Item, LinksDataGroup};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use std::time::{Instant, SystemTime};

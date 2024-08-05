@@ -15,11 +15,11 @@ use hashbrown::HashSet;
 use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
-    game_data::GameData,
     map_repository::MapRepository,
     preset::Preset,
     seed_repository::SeedRepository,
 };
+use maprando_game::GameData;
 use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed};
 

@@ -2,86 +2,19 @@ use std::cmp::{max, min};
 
 use hashbrown::HashMap;
 
-use crate::{
-    game_data::{
-        Capacity, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup,
-        NodeId, Requirement, RoomId, VertexId, WeaponMask,
-    },
-    randomize::{BeamType, DifficultyConfig, DoorType, LockedDoor, MotherBrainFight, WallJump},
+use crate::randomize::{DifficultyConfig, LockedDoor, MotherBrainFight, WallJump};
+use maprando_game::{
+    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
+    LinksDataGroup, NodeId, Requirement, RoomId, VertexId,
 };
-
-// TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
-#[derive(Clone, Debug)]
-pub struct GlobalState {
-    pub tech: Vec<bool>,
-    pub notable_strats: Vec<bool>,
-    pub items: Vec<bool>,
-    pub flags: Vec<bool>,
-    pub doors_unlocked: Vec<bool>,
-    pub max_energy: Capacity,
-    pub max_reserves: Capacity,
-    pub max_missiles: Capacity,
-    pub max_supers: Capacity,
-    pub max_power_bombs: Capacity,
-    pub weapon_mask: WeaponMask,
-}
-
-impl GlobalState {
-    pub fn print_debug(&self, game_data: &GameData) {
-        for (i, item) in game_data.item_isv.keys.iter().enumerate() {
-            if self.items[i] {
-                println!("{:?}", item);
-            }
-        }
-    }
-}
-
-#[derive(Copy, Clone, Debug)]
-pub struct LocalState {
-    pub energy_used: Capacity,
-    pub reserves_used: Capacity,
-    pub missiles_used: Capacity,
-    pub supers_used: Capacity,
-    pub power_bombs_used: Capacity,
-    pub shinecharge_frames_remaining: Capacity,
-}
-
-impl LocalState {
-    pub fn new() -> Self {
-        Self {
-            energy_used: 0,
-            reserves_used: 0,
-            missiles_used: 0,
-            supers_used: 0,
-            power_bombs_used: 0,
-            shinecharge_frames_remaining: 0,
-        }
-    }
-}
-
-fn get_charge_damage(global: &GlobalState) -> f32 {
-    if !global.items[Item::Charge as usize] {
-        return 0.0;
-    }
-    let plasma = global.items[Item::Plasma as usize];
-    let spazer = global.items[Item::Spazer as usize];
-    let wave = global.items[Item::Wave as usize];
-    let ice = global.items[Item::Ice as usize];
-    return match (plasma, spazer, wave, ice) {
-        (false, false, false, false) => 20.0,
-        (false, false, false, true) => 30.0,
-        (false, false, true, false) => 50.0,
-        (false, false, true, true) => 60.0,
-        (false, true, false, false) => 40.0,
-        (false, true, false, true) => 60.0,
-        (false, true, true, false) => 70.0,
-        (false, true, true, true) => 100.0,
-        (true, _, false, false) => 150.0,
-        (true, _, false, true) => 200.0,
-        (true, _, true, false) => 250.0,
-        (true, _, true, true) => 300.0,
-    } * 3.0;
-}
+use maprando_logic::{
+    boss_requirements::{
+        apply_botwoon_requirement, apply_draygon_requirement, apply_mother_brain_2_requirement,
+        apply_phantoon_requirement, apply_ridley_requirement,
+    },
+    helpers::{suit_damage_factor, validate_energy},
+    GlobalState, Inventory, LocalState,
+};
 
 fn apply_enemy_kill_requirement(
     global: &GlobalState,
@@ -98,7 +31,7 @@ fn apply_enemy_kill_requirement(
 
     // Next use Missiles:
     if vul.missile_damage > 0 {
-        let missiles_available = global.max_missiles - local.missiles_used;
+        let missiles_available = global.inventory.max_missiles - local.missiles_used;
         let missiles_to_use_per_enemy = max(
             0,
             min(
@@ -112,7 +45,7 @@ fn apply_enemy_kill_requirement(
 
     // Then use Supers (some overkill is possible, where we could have used fewer Missiles, but we ignore that):
     if vul.super_damage > 0 {
-        let supers_available = global.max_supers - local.supers_used;
+        let supers_available = global.inventory.max_supers - local.supers_used;
         let supers_to_use_per_enemy = max(
             0,
             min(
@@ -125,8 +58,8 @@ fn apply_enemy_kill_requirement(
     }
 
     // Finally, use Power Bombs (overkill is possible, where we could have used fewer Missiles or Supers, but we ignore that):
-    if vul.power_bomb_damage > 0 && global.items[Item::Morph as usize] {
-        let pbs_available = global.max_power_bombs - local.power_bombs_used;
+    if vul.power_bomb_damage > 0 && global.inventory.items[Item::Morph as usize] {
+        let pbs_available = global.inventory.max_power_bombs - local.power_bombs_used;
         let pbs_to_use = max(
             0,
             min(
@@ -146,531 +79,6 @@ fn apply_enemy_kill_requirement(
     }
 }
 
-fn apply_phantoon_requirement(
-    global: &GlobalState,
-    mut local: LocalState,
-    proficiency: f32,
-    game_data: &GameData,
-) -> Option<LocalState> {
-    // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
-    // as soon as he opens his eye. Faster or more complex strats are not relevant, since at
-    // high proficiency the fight is considered free anyway (as long as Charge or any ammo is available)
-    // since all damage can be avoided.
-    let boss_hp: f32 = 2500.0;
-    let charge_damage = get_charge_damage(&global);
-
-    // Assume a firing rate of between 50% (on lowest difficulty) to 100% (on highest).
-    // This represents missing the opportunity to hit Phantoon when he first opens his eye,
-    // and having to wait for the invisible phase.
-    let firing_rate = 0.5 + 0.5 * proficiency;
-
-    let mut possible_kill_times: Vec<f32> = vec![];
-    if charge_damage > 0.0 {
-        let charge_shots_to_use = f32::ceil(boss_hp / charge_damage);
-        // Assume max 1 charge shot per 10 seconds. With weaker beams, a higher firing rate is
-        // possible, but we leave it like this to roughly account for the higher risk of
-        // damage from Phantoon's body when one shot won't immediately despawn him.
-        let time = charge_shots_to_use as f32 * 10.0 / firing_rate;
-        possible_kill_times.push(time);
-    }
-    if global.max_missiles > 0 {
-        // We don't worry about ammo quantity since they can be farmed from the flames.
-        let missiles_to_use = f32::ceil(boss_hp / 100.0);
-        // Assume max average rate of 3 missiles per 10 seconds:
-        let time = missiles_to_use as f32 * 10.0 / 3.0 / firing_rate;
-        possible_kill_times.push(time);
-    }
-    if global.max_supers > 0 {
-        // We don't worry about ammo quantity since they can be farmed from the flames.
-        let supers_to_use = f32::ceil(boss_hp / 600.0);
-        let time = supers_to_use as f32 * 30.0; // Assume average rate of 1 Super per 30 seconds
-        possible_kill_times.push(time);
-    }
-
-    let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
-        Some(t) => t,
-        None => {
-            return None;
-        }
-    };
-
-    // Assumed rate of damage to Samus per second.
-    let base_hit_dps = 10.0 * (1.0 - 0.6 * proficiency);
-
-    // Assumed average energy per second gained from farming flames:
-    let farm_rate = 4.0 * (0.25 + 0.75 * proficiency);
-
-    // Net damage taken by Samus per second, taking into account suit protection and farms:
-    let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - farm_rate;
-    if net_dps < 0.0 {
-        // We could assume we could refill on energy or ammo using farms, but by omitting this for now
-        // we're just making the logic a little more conservative in favor of the player.
-        net_dps = 0.0;
-    }
-
-    local.energy_used += (net_dps * kill_time) as Capacity;
-
-    validate_energy(local, global, game_data)
-}
-
-fn apply_draygon_requirement(
-    global: &GlobalState,
-    local: LocalState,
-    proficiency: f32,
-    can_be_very_patient_tech_id: usize,
-    game_data: &GameData,
-) -> Option<LocalState> {
-    let mut boss_hp: f32 = 6000.0;
-    let charge_damage = get_charge_damage(&global);
-
-    // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
-    let accuracy = 0.4 + 0.6 * proficiency;
-
-    // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest).
-    let firing_rate = 0.6 + 0.4 * proficiency;
-
-    const GOOP_CYCLES_PER_SECOND: f32 = 1.0 / 15.0;
-    const SWOOP_CYCLES_PER_SECOND: f32 = GOOP_CYCLES_PER_SECOND * 2.0;
-
-    // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per swoop.
-    let charge_firing_rate = (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate;
-    let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
-
-    let farm_proficiency = 0.2 + 0.8 * proficiency;
-    let base_goop_farms_per_cycle = match (
-        global.items[Item::Plasma as usize],
-        global.items[Item::Wave as usize],
-    ) {
-        (false, _) => 7.0,     // Basic beam
-        (true, false) => 10.0, // Plasma can hit multiple goops at once.
-        (true, true) => 13.0,  // Wave+Plasma can hit even more goops at once.
-    };
-    let goop_farms_per_cycle = if global.items[Item::Gravity as usize] {
-        farm_proficiency * base_goop_farms_per_cycle
-    } else {
-        // Without Gravity you can't farm as many goops since you have to spend more time avoiding Draygon.
-        0.75 * farm_proficiency * base_goop_farms_per_cycle
-    };
-    let energy_farm_rate =
-        GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
-    let missile_farm_rate = GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (2.0 * 0.44);
-
-    let base_hit_dps = if global.items[Item::Gravity as usize] {
-        // With Gravity, assume one Draygon hit per two cycles as the maximum rate of damage to Samus:
-        160.0 * 0.5 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
-    } else {
-        // Without Gravity, assume one Draygon hit per cycle as the maximum rate of damage to Samus:
-        160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
-    };
-
-    // We assume as many Supers are available can be used immediately (e.g. on the first goop cycle):
-    let supers_available = global.max_supers - local.supers_used;
-    boss_hp -= (supers_available as f32) * accuracy * 300.0;
-    if boss_hp < 0.0 {
-        return Some(local);
-    }
-
-    let missiles_available = global.max_missiles - local.missiles_used;
-    let missile_firing_rate = 20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
-    let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
-
-    let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
-    let overall_damage_rate = initial_missile_damage_rate + charge_damage_rate;
-    let time_boss_dead = f32::ceil(boss_hp / overall_damage_rate);
-    let time_missiles_exhausted = if global.max_missiles == 0 {
-        0.0
-    } else if net_missile_use_rate > 0.0 {
-        (missiles_available as f32) / net_missile_use_rate
-    } else {
-        f32::INFINITY
-    };
-    let mut time = f32::min(time_boss_dead, time_missiles_exhausted);
-    if time_missiles_exhausted < time_boss_dead {
-        // Boss is not dead yet after exhausting all Missiles (if any).
-        // Continue the fight using Missiles only at the lower rate at which they can be farmed (if available).
-        boss_hp -= time * overall_damage_rate;
-
-        let farming_missile_damage_rate = if global.max_missiles > 0 {
-            100.0 * missile_farm_rate * accuracy
-        } else {
-            0.0
-        };
-        let overall_damage_rate = farming_missile_damage_rate + charge_damage_rate;
-        if overall_damage_rate == 0.0 {
-            return None;
-        }
-        time += boss_hp / overall_damage_rate;
-    }
-
-    if time < 180.0 || global.tech[can_be_very_patient_tech_id] {
-        let mut net_dps = base_hit_dps / suit_damage_factor(global) as f32 - energy_farm_rate;
-        if net_dps < 0.0 {
-            net_dps = 0.0;
-        }
-        // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
-        // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
-        let result = LocalState {
-            energy_used: local.energy_used + (net_dps * time) as Capacity,
-            ..local
-        };
-        if validate_energy(result, global, game_data).is_some() {
-            return Some(local);
-        } else {
-            return None;
-        }
-    } else {
-        return None;
-    }
-}
-
-pub fn apply_ridley_requirement(
-    global: &GlobalState,
-    mut local: LocalState,
-    proficiency: f32,
-    can_be_very_patient_tech_id: usize,
-    game_data: &GameData,
-) -> Option<LocalState> {
-    let mut boss_hp: f32 = 18000.0;
-    let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
-    let charge_damage = get_charge_damage(&global);
-
-    // Assume an ammo accuracy rate of between 60% (on lowest difficulty) to 100% (on highest):
-    let accuracy = 0.6 + 0.4 * proficiency;
-
-    // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
-    let firing_rate = 0.3 + 0.7 * proficiency;
-
-    let charge_time = 1.4; // minimum of 1.4 seconds between charge shots
-
-    // Prioritize using supers:
-    let supers_available = global.max_supers - local.supers_used;
-    let supers_to_use = min(
-        supers_available,
-        f32::ceil(boss_hp / (600.0 * accuracy)) as Capacity,
-    );
-    local.supers_used += supers_to_use;
-    boss_hp -= supers_to_use as f32 * 600.0 * accuracy;
-    time += supers_to_use as f32 * 0.5 / firing_rate; // Assumes max average rate of 2 supers per second
-
-    // Use Charge Beam if it's powerful enough
-    // 500 is the point at which Charge Beam has better DPS than Missiles, this happens with Charge + Plasma + (Ice and/or Wave)
-    if charge_damage >= 500.0 {
-        let powerful_charge_shots_to_use = max(
-            0,
-            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
-        );
-        boss_hp = 0.0;
-        time += powerful_charge_shots_to_use as f32 * charge_time / firing_rate;
-    }
-
-    // Then use available missiles:
-    let missiles_available = global.max_missiles - local.missiles_used;
-    let missiles_to_use = max(
-        0,
-        min(
-            missiles_available,
-            f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
-        ),
-    );
-    local.missiles_used += missiles_to_use;
-    boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-    time += missiles_to_use as f32 * 0.34 / firing_rate; // Assume max average rate of 1 missile per 0.34 seconds
-
-    if global.items[Item::Charge as usize] {
-        // Then finish with Charge shots:
-        // (TODO: it would be a little better to prioritize Charge shots over Supers/Missiles in
-        // some cases).
-        let charge_shots_to_use = max(
-            0,
-            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
-        );
-        boss_hp = 0.0;
-        time += charge_shots_to_use as f32 * charge_time / firing_rate;
-    } else if global.items[Item::Morph as usize] {
-        // Only use Power Bombs if Charge is not available:
-        let pbs_available = global.max_power_bombs - local.power_bombs_used;
-        let pbs_to_use = max(
-            0,
-            min(
-                pbs_available,
-                f32::ceil(boss_hp / (400.0 * accuracy)) as Capacity,
-            ),
-        );
-        local.power_bombs_used += pbs_to_use;
-        boss_hp -= pbs_to_use as f32 * 400.0 * accuracy; // Assumes double hits (or single hits for 50% accuracy)
-        time += pbs_to_use as f32 * 3.0 * firing_rate; // Assume max average rate of 1 power bomb per 3 seconds
-    }
-
-    if boss_hp > 0.0 {
-        // We don't have enough ammo to finish the fight:
-        return None;
-    }
-
-    if time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
-        // We don't have enough patience to finish the fight:
-        return None;
-    }
-
-    let morph = global.items[Item::Morph as usize];
-    let screw = global.items[Item::ScrewAttack as usize];
-
-    // Assumed rate of Ridley damage to Samus (per second), given minimal dodging skill:
-    let base_ridley_attack_dps = 50.0;
-
-    // Multiplier to Ridley damage based on items (Morph and Screw) and proficiency (in dodging).
-    // This is a rough guess which could be refined. We could also take into account other items
-    // (HiJump and SpaceJump). We assume that at Insane level (proficiency=1.0) it is possible
-    // to avoid all damage from Ridley using either Morph or Screw.
-    let hit_rate = match (morph, screw) {
-        (false, false) => 1.0 - 0.8 * proficiency,
-        (false, true) => 1.0 - 1.0 * proficiency,
-        (true, false) => 0.5 - 0.5 * proficiency,
-        (true, true) => 0.5 - 0.5 * proficiency,
-    };
-    let damage = base_ridley_attack_dps * hit_rate * time;
-    local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
-
-    if !global.items[Item::Varia as usize] {
-        // Heat run case: We do not explicitly check canHeatRun tech here, because it is
-        // already required to reach the boss node from the doors.
-        // Include time pre- and post-fight when Samus must still take heat damage:
-        let heat_time = time + 16.0;
-        let heat_energy_used = (heat_time * 15.0) as Capacity;
-        local.energy_used += heat_energy_used;
-    }
-
-    // TODO: We could add back some energy and/or ammo by assuming we get drops.
-    // By omitting this for now we're just making the logic a little more conservative in favor of
-    // the player.
-    validate_energy(local, global, game_data)
-}
-
-fn apply_botwoon_requirement(
-    global: &GlobalState,
-    mut local: LocalState,
-    proficiency: f32,
-    second_phase: bool,
-    game_data: &GameData,
-) -> Option<LocalState> {
-    // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
-    // assuming instead the player just uses ammo and/or regular charged shots.
-
-    let mut boss_hp: f32 = 1500.0; // HP for one phase of the fight.
-    let mut time: f32 = 0.0; // Cumulative time in seconds for the phase
-    let charge_damage = get_charge_damage(&global);
-
-    // Assume an ammo accuracy rate of between 25% (on lowest difficulty) to 90% (on highest):
-    let accuracy = 0.25 + 0.65 * proficiency;
-
-    // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest),
-    let firing_rate = 0.3 + 0.7 * proficiency;
-
-    // The firing rates below are for the first phase (since the rate doesn't matter for
-    // the second phase):
-    let use_supers = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
-        let supers_available = global.max_supers - local.supers_used;
-        let supers_to_use = min(
-            supers_available,
-            f32::ceil(*boss_hp / (300.0 * accuracy)) as Capacity,
-        );
-        local.supers_used += supers_to_use;
-        *boss_hp -= supers_to_use as f32 * 300.0 * accuracy;
-        // Assume a max average rate of one super shot per 2.0 second:
-        *time += supers_to_use as f32 * 2.0 / firing_rate;
-    };
-
-    let use_missiles = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
-        let missiles_available = global.max_missiles - local.missiles_used;
-        let missiles_to_use = max(
-            0,
-            min(
-                missiles_available,
-                f32::ceil(*boss_hp / (100.0 * accuracy)) as Capacity,
-            ),
-        );
-        local.missiles_used += missiles_to_use;
-        *boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-        // Assume a max average rate of one missile shot per 1.0 seconds:
-        *time += missiles_to_use as f32 * 1.0 / firing_rate;
-    };
-
-    let use_charge = |boss_hp: &mut f32, time: &mut f32| {
-        if charge_damage == 0.0 {
-            return;
-        }
-        let charge_shots_to_use = max(
-            0,
-            f32::ceil(*boss_hp / (charge_damage * accuracy)) as Capacity,
-        );
-        *boss_hp = 0.0;
-        // Assume max average rate of one charge shot per 3.0 seconds
-        *time += charge_shots_to_use as f32 * 3.0 / firing_rate;
-    };
-
-    if second_phase {
-        // In second phase, prioritize using Charge beam if available. Even if it is slow, we are not
-        // taking damage so we want to conserve ammo.
-        if global.items[Item::Charge as usize] {
-            use_charge(&mut boss_hp, &mut time);
-        } else {
-            // Prioritize using missiles over supers. This is slower but the idea is to conserve supers
-            // since they are generally more valuable to save for later.
-            use_missiles(&mut local, &mut boss_hp, &mut time);
-            use_supers(&mut local, &mut boss_hp, &mut time);
-        }
-    } else {
-        // In the first phase, prioritize using the highest-DPS weapons, to finish the fight faster and
-        // hence minimize damage taken:
-        if charge_damage >= 450.0 {
-            use_charge(&mut boss_hp, &mut time);
-        } else {
-            use_supers(&mut local, &mut boss_hp, &mut time);
-            use_missiles(&mut local, &mut boss_hp, &mut time);
-            use_charge(&mut boss_hp, &mut time);
-        }
-    }
-
-    if boss_hp > 0.0 {
-        // We don't have enough ammo to finish the fight:
-        return None;
-    }
-
-    if !second_phase {
-        let morph = global.items[Item::Morph as usize];
-        let gravity = global.items[Item::Gravity as usize];
-
-        // Assumed average rate of boss attacks to Samus (per second), given minimal dodging skill:
-        let base_hit_rate = 0.1;
-
-        // Multiplier to boss damage based on items (Morph and Gravity) and proficiency (in dodging).
-        let hit_rate_multiplier = match (morph, gravity) {
-            (false, false) => 1.0 * (1.0 - proficiency) + 0.25 * proficiency,
-            (false, true) => 0.8 * (1.0 - proficiency) + 0.2 * proficiency,
-            (true, false) => 0.7 * (1.0 - proficiency) + 0.125 * proficiency,
-            (true, true) => 0.5 * (1.0 - proficiency) + 0.0 * proficiency,
-        };
-        let hits = f32::round(base_hit_rate * hit_rate_multiplier * time);
-        let damage_per_hit = 96.0 / suit_damage_factor(global) as f32;
-        local.energy_used += (hits * damage_per_hit) as Capacity;
-    }
-
-    // TODO: We could add back some energy and/or ammo by assuming we get drops.
-    // By omitting this for now we're just making the logic a little more conservative in favor of
-    // the player.
-    validate_energy(local, global, game_data)
-}
-
-fn apply_mother_brain_2_requirement(
-    global: &GlobalState,
-    mut local: LocalState,
-    difficulty: &DifficultyConfig,
-    can_be_very_patient_tech_id: usize,
-    r_mode: bool,
-    game_data: &GameData,
-) -> Option<LocalState> {
-    if difficulty.mother_brain_fight == MotherBrainFight::Skip {
-        return Some(local);
-    }
-
-    if global.max_energy < 199 && !r_mode {
-        // Need at least one ETank to survive rainbow beam, except in R-mode (where energy requirements are handled elsewhere
-        // in the strat logic)
-        return None;
-    }
-
-    let proficiency = difficulty.mother_brain_proficiency;
-    let mut boss_hp: f32 = 18000.0;
-    let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
-    let charge_damage = get_charge_damage(&global);
-
-    // Assume an ammo accuracy rate of between 75% (on lowest difficulty) to 100% (on highest):
-    let accuracy = 0.75 + 0.25 * proficiency;
-
-    // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest):
-    let firing_rate = 0.6 + 0.4 * proficiency;
-
-    let charge_time = 1.1; // minimum of 1.1 seconds between charge shots
-    let super_time = 0.35; // minimum of 0.35 seconds between Super shots
-    let missile_time = 0.17;
-
-    // Prioritize using supers:
-    let supers_available = global.max_supers - local.supers_used;
-    let super_damage = if difficulty.supers_double {
-        600.0
-    } else {
-        300.0
-    };
-    let supers_to_use = min(
-        supers_available,
-        f32::ceil(boss_hp / (super_damage * accuracy)) as Capacity,
-    );
-    local.supers_used += supers_to_use;
-    boss_hp -= supers_to_use as f32 * super_damage * accuracy;
-    time += supers_to_use as f32 * super_time / firing_rate;
-
-    // Use Charge Beam if it's powerful enough
-    // 500 is the point at which Charge Beam has better DPS than Missiles, this happens with Charge + Plasma + (Ice and/or Wave)
-    if charge_damage >= 500.0 {
-        let powerful_charge_shots_to_use = max(
-            0,
-            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
-        );
-        boss_hp = 0.0;
-        time += powerful_charge_shots_to_use as f32 * charge_time / firing_rate;
-    }
-
-    // Then use available missiles:
-    let missiles_available = global.max_missiles - local.missiles_used;
-    let missiles_to_use = max(
-        0,
-        min(
-            missiles_available,
-            f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
-        ),
-    );
-    local.missiles_used += missiles_to_use;
-    boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-    time += missiles_to_use as f32 * missile_time / firing_rate;
-
-    if global.items[Item::Charge as usize] {
-        // Then finish with Charge shots:
-        let charge_shots_to_use = max(
-            0,
-            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
-        );
-        boss_hp = 0.0;
-        time += charge_shots_to_use as f32 * charge_time / firing_rate;
-    }
-
-    if boss_hp > 0.0 {
-        // We don't have enough ammo to finish the fight:
-        return None;
-    }
-
-    if time >= 180.0 && !global.tech[can_be_very_patient_tech_id] {
-        // We don't have enough patience to finish the fight:
-        return None;
-    }
-
-    // Assumed rate of Mother Brain damage to Samus (per second), given minimal dodging skill:
-    // For simplicity we assume a uniform rate of damage (even though the ketchup phase has the highest risk of damage).
-    let base_mb_attack_dps = 20.0;
-    let hit_rate = 1.0 - proficiency;
-    let damage = base_mb_attack_dps * hit_rate * time;
-    if !r_mode {
-        local.energy_used += (damage / suit_damage_factor(global) as f32) as Capacity;
-
-        // Account for Rainbow beam damage:
-        if global.items[Item::Varia as usize] {
-            local.energy_used += 300;
-        } else {
-            local.energy_used += 600;
-        }
-    }
-
-    validate_energy(local, global, game_data)
-}
-
 pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
     energy_used: 0x3FFF,
     reserves_used: 0x3FFF,
@@ -682,13 +90,14 @@ pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
 
 pub const NUM_COST_METRICS: usize = 2;
 
-fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRICS] {
+fn compute_cost(local: LocalState, inventory: &Inventory) -> [f32; NUM_COST_METRICS] {
     let eps = 1e-15;
-    let energy_cost = (local.energy_used as f32) / (global.max_energy as f32 + eps);
-    let reserve_cost = (local.reserves_used as f32) / (global.max_reserves as f32 + eps);
-    let missiles_cost = (local.missiles_used as f32) / (global.max_missiles as f32 + eps);
-    let supers_cost = (local.supers_used as f32) / (global.max_supers as f32 + eps);
-    let power_bombs_cost = (local.power_bombs_used as f32) / (global.max_power_bombs as f32 + eps);
+    let energy_cost = (local.energy_used as f32) / (inventory.max_energy as f32 + eps);
+    let reserve_cost = (local.reserves_used as f32) / (inventory.max_reserves as f32 + eps);
+    let missiles_cost = (local.missiles_used as f32) / (inventory.max_missiles as f32 + eps);
+    let supers_cost = (local.supers_used as f32) / (inventory.max_supers as f32 + eps);
+    let power_bombs_cost =
+        (local.power_bombs_used as f32) / (inventory.max_power_bombs as f32 + eps);
     let shinecharge_cost = -(local.shinecharge_frames_remaining as f32) / 180.0;
 
     let ammo_sensitive_cost_metric = energy_cost
@@ -702,56 +111,29 @@ fn compute_cost(local: LocalState, global: &GlobalState) -> [f32; NUM_COST_METRI
     [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
 }
 
-fn validate_energy(
-    mut local: LocalState,
-    global: &GlobalState,
-    game_data: &GameData,
-) -> Option<LocalState> {
-    if local.energy_used >= global.max_energy {
-        if global.tech[game_data.manage_reserves_tech_id] {
-            // Assume that just enough reserve energy is manually converted to regular energy.
-            local.reserves_used += local.energy_used - (global.max_energy - 1);
-            local.energy_used = global.max_energy - 1;
-        } else {
-            // Assume that reserves auto-trigger, leaving reserves empty.
-            let reserves_available =
-                std::cmp::min(global.max_reserves - local.reserves_used, global.max_energy);
-            local.reserves_used = global.max_reserves;
-            local.energy_used = std::cmp::max(0, local.energy_used - reserves_available);
-            if local.energy_used >= global.max_energy {
-                return None;
-            }
-        }
-    }
-    if local.reserves_used > global.max_reserves {
-        return None;
-    }
-    Some(local)
-}
-
 fn validate_energy_no_auto_reserve(
     mut local: LocalState,
     global: &GlobalState,
     game_data: &GameData,
 ) -> Option<LocalState> {
-    if local.energy_used >= global.max_energy {
+    if local.energy_used >= global.inventory.max_energy {
         if global.tech[game_data.manage_reserves_tech_id] {
             // Assume that just enough reserve energy is manually converted to regular energy.
-            local.reserves_used += local.energy_used - (global.max_energy - 1);
-            local.energy_used = global.max_energy - 1;
+            local.reserves_used += local.energy_used - (global.inventory.max_energy - 1);
+            local.energy_used = global.inventory.max_energy - 1;
         } else {
             // Assume that reserves cannot be used (e.g. during a shinespark or enemy hit).
             return None;
         }
     }
-    if local.reserves_used > global.max_reserves {
+    if local.reserves_used > global.inventory.max_reserves {
         return None;
     }
     Some(local)
 }
 
 fn validate_missiles(local: LocalState, global: &GlobalState) -> Option<LocalState> {
-    if local.missiles_used > global.max_missiles {
+    if local.missiles_used > global.inventory.max_missiles {
         None
     } else {
         Some(local)
@@ -759,7 +141,7 @@ fn validate_missiles(local: LocalState, global: &GlobalState) -> Option<LocalSta
 }
 
 fn validate_supers(local: LocalState, global: &GlobalState) -> Option<LocalState> {
-    if local.supers_used > global.max_supers {
+    if local.supers_used > global.inventory.max_supers {
         None
     } else {
         Some(local)
@@ -767,7 +149,7 @@ fn validate_supers(local: LocalState, global: &GlobalState) -> Option<LocalState
 }
 
 fn validate_power_bombs(local: LocalState, global: &GlobalState) -> Option<LocalState> {
-    if local.power_bombs_used > global.max_power_bombs {
+    if local.power_bombs_used > global.inventory.max_power_bombs {
         None
     } else {
         Some(local)
@@ -778,18 +160,6 @@ fn multiply(amount: Capacity, difficulty: &DifficultyConfig) -> Capacity {
     ((amount as f32) * difficulty.resource_multiplier) as Capacity
 }
 
-fn suit_damage_factor(global: &GlobalState) -> Capacity {
-    let varia = global.items[Item::Varia as usize];
-    let gravity = global.items[Item::Gravity as usize];
-    if gravity && varia {
-        4
-    } else if gravity || varia {
-        2
-    } else {
-        1
-    }
-}
-
 fn apply_gate_glitch_leniency(
     mut local: LocalState,
     global: &GlobalState,
@@ -798,11 +168,15 @@ fn apply_gate_glitch_leniency(
     difficulty: &DifficultyConfig,
     game_data: &GameData,
 ) -> Option<LocalState> {
-    if heated && !global.items[Item::Varia as usize] {
+    if heated && !global.inventory.items[Item::Varia as usize] {
         local.energy_used += (difficulty.gate_glitch_leniency as f32
             * difficulty.resource_multiplier
             * 60.0) as Capacity;
-        local = match validate_energy(local, global, game_data) {
+        local = match validate_energy(
+            local,
+            &global.inventory,
+            global.tech[game_data.manage_reserves_tech_id],
+        ) {
             Some(x) => x,
             None => return None,
         };
@@ -811,12 +185,12 @@ fn apply_gate_glitch_leniency(
         local.supers_used += difficulty.gate_glitch_leniency;
         return validate_supers(local, global);
     } else {
-        let missiles_available = global.max_missiles - local.missiles_used;
+        let missiles_available = global.inventory.max_missiles - local.missiles_used;
         if missiles_available >= difficulty.gate_glitch_leniency {
             local.missiles_used += difficulty.gate_glitch_leniency;
             return validate_missiles(local, global);
         } else {
-            local.missiles_used = global.max_missiles;
+            local.missiles_used = global.inventory.max_missiles;
             local.supers_used += difficulty.gate_glitch_leniency - missiles_available;
             return validate_supers(local, global);
         }
@@ -846,7 +220,7 @@ fn apply_heat_frames(
     game_data: &GameData,
     difficulty: &DifficultyConfig,
 ) -> Option<LocalState> {
-    let varia = global.items[Item::Varia as usize];
+    let varia = global.inventory.items[Item::Varia as usize];
     let mut new_local = local;
     if varia {
         Some(new_local)
@@ -855,7 +229,11 @@ fn apply_heat_frames(
             None
         } else {
             new_local.energy_used += (multiply(frames, difficulty) + 3) / 4;
-            validate_energy(new_local, global, game_data)
+            validate_energy(
+                new_local,
+                &global.inventory,
+                global.tech[game_data.manage_reserves_tech_id],
+            )
         }
     }
 }
@@ -914,7 +292,7 @@ fn apply_heat_frames_with_energy_drops(
     difficulty: &DifficultyConfig,
     reverse: bool,
 ) -> Option<LocalState> {
-    let varia = global.items[Item::Varia as usize];
+    let varia = global.inventory.items[Item::Varia as usize];
     let mut new_local = local;
     if varia {
         Some(new_local)
@@ -930,7 +308,11 @@ fn apply_heat_frames_with_energy_drops(
             let heat_energy = (multiply(frames, difficulty) + 3) / 4;
             total_drop_value = Capacity::min(total_drop_value, heat_energy);
             new_local.energy_used += heat_energy;
-            if let Some(x) = validate_energy(new_local, global, game_data) {
+            if let Some(x) = validate_energy(
+                new_local,
+                &global.inventory,
+                global.tech[game_data.manage_reserves_tech_id],
+            ) {
                 new_local = x;
             } else {
                 return None;
@@ -987,7 +369,7 @@ pub fn apply_link(
     }
 }
 
-fn has_beam(beam: BeamType, global: &GlobalState) -> bool {
+fn has_beam(beam: BeamType, inventory: &Inventory) -> bool {
     let item = match beam {
         BeamType::Charge => Item::Charge,
         BeamType::Ice => Item::Ice,
@@ -995,7 +377,7 @@ fn has_beam(beam: BeamType, global: &GlobalState) -> bool {
         BeamType::Spazer => Item::Spazer,
         BeamType::Plasma => Item::Plasma,
     };
-    global.items[item as usize]
+    inventory.items[item as usize]
 }
 
 fn get_heated_speedball_tiles(difficulty: &DifficultyConfig) -> f32 {
@@ -1012,6 +394,7 @@ pub fn apply_requirement(
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
 ) -> Option<LocalState> {
+    let can_manage_reserves = global.tech[game_data.manage_reserves_tech_id];
     match req {
         Requirement::Free => Some(local),
         Requirement::Never => None,
@@ -1030,7 +413,7 @@ pub fn apply_requirement(
             }
         }
         Requirement::Item(item_id) => {
-            if global.items[*item_id] {
+            if global.inventory.items[*item_id] {
                 Some(local)
             } else {
                 None
@@ -1064,7 +447,8 @@ pub fn apply_requirement(
                 }
             }
             WallJump::Collectible => {
-                if global.tech[game_data.wall_jump_tech_id] && global.items[Item::WallJump as usize]
+                if global.tech[game_data.wall_jump_tech_id]
+                    && global.inventory.items[Item::WallJump as usize]
                 {
                     Some(local)
                 } else {
@@ -1108,55 +492,56 @@ pub fn apply_requirement(
             }
         }
         Requirement::LavaFrames(frames) => {
-            let varia = global.items[Item::Varia as usize];
-            let gravity = global.items[Item::Gravity as usize];
+            let varia = global.inventory.items[Item::Varia as usize];
+            let gravity = global.inventory.items[Item::Gravity as usize];
             let mut new_local = local;
             if gravity && varia {
                 Some(new_local)
             } else if gravity || varia {
                 new_local.energy_used += (multiply(*frames, difficulty) + 3) / 4;
-                validate_energy(new_local, global, game_data)
+                validate_energy(new_local, &global.inventory, can_manage_reserves)
             } else {
                 new_local.energy_used += (multiply(*frames, difficulty) + 1) / 2;
-                validate_energy(new_local, global, game_data)
+                validate_energy(new_local, &global.inventory, can_manage_reserves)
             }
         }
         Requirement::GravitylessLavaFrames(frames) => {
-            let varia = global.items[Item::Varia as usize];
+            let varia = global.inventory.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {
                 new_local.energy_used += (multiply(*frames, difficulty) + 3) / 4;
             } else {
                 new_local.energy_used += (multiply(*frames, difficulty) + 1) / 2;
             }
-            validate_energy(new_local, global, game_data)
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::AcidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
-                multiply((3 * frames + 1) / 2, difficulty) / suit_damage_factor(global);
-            validate_energy(new_local, global, game_data)
+                multiply((3 * frames + 1) / 2, difficulty) / suit_damage_factor(&global.inventory);
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::GravitylessAcidFrames(frames) => {
-            let varia = global.items[Item::Varia as usize];
+            let varia = global.inventory.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {
                 new_local.energy_used += multiply((3 * frames + 3) / 4, difficulty);
             } else {
                 new_local.energy_used += multiply((3 * frames + 1) / 2, difficulty);
             }
-            validate_energy(new_local, global, game_data)
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::MetroidFrames(frames) => {
             let mut new_local = local;
             new_local.energy_used +=
-                multiply((3 * frames + 3) / 4, difficulty) / suit_damage_factor(global);
-            validate_energy(new_local, global, game_data)
+                multiply((3 * frames + 3) / 4, difficulty) / suit_damage_factor(&global.inventory);
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
-            let energy = base_energy / suit_damage_factor(global);
-            if energy >= global.max_energy && !global.tech[game_data.pause_abuse_tech_id] {
+            let energy = base_energy / suit_damage_factor(&global.inventory);
+            if energy >= global.inventory.max_energy && !global.tech[game_data.pause_abuse_tech_id]
+            {
                 None
             } else {
                 new_local.energy_used += energy;
@@ -1182,13 +567,13 @@ pub fn apply_requirement(
             apply_gate_glitch_leniency(local, global, *green, *heated, difficulty, game_data)
         }
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
-            if !global.items[Item::Varia as usize] {
+            if !global.inventory.items[Item::Varia as usize] {
                 let mut new_local = local;
                 new_local.energy_used += (difficulty.door_stuck_leniency as f32
                     * difficulty.resource_multiplier
                     * *heat_frames as f32
                     / 4.0) as Capacity;
-                validate_energy(new_local, global, game_data)
+                validate_energy(new_local, &global.inventory, can_manage_reserves)
             } else {
                 Some(local)
             }
@@ -1196,14 +581,14 @@ pub fn apply_requirement(
         Requirement::MissilesAvailable(count) => {
             if reverse {
                 let mut new_local = local;
-                if global.max_missiles < *count {
+                if global.inventory.max_missiles < *count {
                     None
                 } else {
                     new_local.missiles_used = Capacity::max(new_local.missiles_used, *count);
                     Some(new_local)
                 }
             } else {
-                if global.max_missiles - local.missiles_used < *count {
+                if global.inventory.max_missiles - local.missiles_used < *count {
                     None
                 } else {
                     Some(local)
@@ -1213,14 +598,14 @@ pub fn apply_requirement(
         Requirement::SupersAvailable(count) => {
             if reverse {
                 let mut new_local = local;
-                if global.max_supers < *count {
+                if global.inventory.max_supers < *count {
                     None
                 } else {
                     new_local.supers_used = Capacity::max(new_local.supers_used, *count);
                     Some(new_local)
                 }
             } else {
-                if global.max_supers - local.supers_used < *count {
+                if global.inventory.max_supers - local.supers_used < *count {
                     None
                 } else {
                     Some(local)
@@ -1230,14 +615,14 @@ pub fn apply_requirement(
         Requirement::PowerBombsAvailable(count) => {
             if reverse {
                 let mut new_local = local;
-                if global.max_power_bombs < *count {
+                if global.inventory.max_power_bombs < *count {
                     None
                 } else {
                     new_local.power_bombs_used = Capacity::max(new_local.power_bombs_used, *count);
                     Some(new_local)
                 }
             } else {
-                if global.max_power_bombs - local.power_bombs_used < *count {
+                if global.inventory.max_power_bombs - local.power_bombs_used < *count {
                     None
                 } else {
                     Some(local)
@@ -1247,14 +632,14 @@ pub fn apply_requirement(
         Requirement::RegularEnergyAvailable(count) => {
             if reverse {
                 let mut new_local = local;
-                if global.max_energy < *count {
+                if global.inventory.max_energy < *count {
                     None
                 } else {
                     new_local.energy_used = Capacity::max(new_local.energy_used, *count);
                     Some(new_local)
                 }
             } else {
-                if global.max_energy - local.energy_used < *count {
+                if global.inventory.max_energy - local.energy_used < *count {
                     None
                 } else {
                     Some(local)
@@ -1264,14 +649,14 @@ pub fn apply_requirement(
         Requirement::ReserveEnergyAvailable(count) => {
             if reverse {
                 let mut new_local = local;
-                if global.max_reserves < *count {
+                if global.inventory.max_reserves < *count {
                     None
                 } else {
                     new_local.reserves_used = Capacity::max(new_local.reserves_used, *count);
                     Some(new_local)
                 }
             } else {
-                if global.max_reserves - local.reserves_used < *count {
+                if global.inventory.max_reserves - local.reserves_used < *count {
                     None
                 } else {
                     Some(local)
@@ -1281,13 +666,15 @@ pub fn apply_requirement(
         Requirement::EnergyAvailable(count) => {
             if reverse {
                 let mut new_local = local;
-                if global.max_energy + global.max_reserves < *count {
+                if global.inventory.max_energy + global.inventory.max_reserves < *count {
                     None
                 } else {
-                    if global.max_energy < *count {
-                        new_local.energy_used = global.max_energy;
-                        new_local.reserves_used =
-                            Capacity::max(new_local.reserves_used, *count - global.max_energy);
+                    if global.inventory.max_energy < *count {
+                        new_local.energy_used = global.inventory.max_energy;
+                        new_local.reserves_used = Capacity::max(
+                            new_local.reserves_used,
+                            *count - global.inventory.max_energy,
+                        );
                         Some(new_local)
                     } else {
                         new_local.energy_used = Capacity::max(new_local.energy_used, *count);
@@ -1295,7 +682,8 @@ pub fn apply_requirement(
                     }
                 }
             } else {
-                if global.max_reserves - local.reserves_used + global.max_energy - local.energy_used
+                if global.inventory.max_reserves - local.reserves_used + global.inventory.max_energy
+                    - local.energy_used
                     < *count
                 {
                     None
@@ -1305,42 +693,42 @@ pub fn apply_requirement(
             }
         }
         Requirement::MissilesCapacity(count) => {
-            if global.max_missiles >= *count {
+            if global.inventory.max_missiles >= *count {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::SupersCapacity(count) => {
-            if global.max_supers >= *count {
+            if global.inventory.max_supers >= *count {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::PowerBombsCapacity(count) => {
-            if global.max_power_bombs >= *count {
+            if global.inventory.max_power_bombs >= *count {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::RegularEnergyCapacity(count) => {
-            if global.max_energy >= *count {
+            if global.inventory.max_energy >= *count {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::ReserveEnergyCapacity(count) => {
-            if global.max_reserves >= *count {
+            if global.inventory.max_reserves >= *count {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::EnergyRefill(limit) => {
-            let limit_reserves = max(0, *limit - global.max_energy);
+            let limit_reserves = max(0, *limit - global.inventory.max_energy);
             if reverse {
                 let mut new_local = local;
                 if local.energy_used < *limit {
@@ -1352,11 +740,12 @@ pub fn apply_requirement(
                 Some(new_local)
             } else {
                 let mut new_local = local;
-                if local.energy_used > global.max_energy - limit {
-                    new_local.energy_used = max(0, global.max_energy - limit);
+                if local.energy_used > global.inventory.max_energy - limit {
+                    new_local.energy_used = max(0, global.inventory.max_energy - limit);
                 }
-                if local.reserves_used > global.max_reserves - limit_reserves {
-                    new_local.reserves_used = max(0, global.max_reserves - limit_reserves);
+                if local.reserves_used > global.inventory.max_reserves - limit_reserves {
+                    new_local.reserves_used =
+                        max(0, global.inventory.max_reserves - limit_reserves);
                 }
                 Some(new_local)
             }
@@ -1370,8 +759,8 @@ pub fn apply_requirement(
                 Some(new_local)
             } else {
                 let mut new_local = local;
-                if local.energy_used > global.max_energy - limit {
-                    new_local.energy_used = max(0, global.max_energy - limit);
+                if local.energy_used > global.inventory.max_energy - limit {
+                    new_local.energy_used = max(0, global.inventory.max_energy - limit);
                 }
                 Some(new_local)
             }
@@ -1385,8 +774,8 @@ pub fn apply_requirement(
                 Some(new_local)
             } else {
                 let mut new_local = local;
-                if local.reserves_used > global.max_reserves - limit {
-                    new_local.reserves_used = max(0, global.max_reserves - limit);
+                if local.reserves_used > global.inventory.max_reserves - limit {
+                    new_local.reserves_used = max(0, global.inventory.max_reserves - limit);
                 }
                 Some(new_local)
             }
@@ -1400,8 +789,8 @@ pub fn apply_requirement(
                 Some(new_local)
             } else {
                 let mut new_local = local;
-                if local.missiles_used > global.max_missiles - limit {
-                    new_local.missiles_used = max(0, global.max_missiles - limit);
+                if local.missiles_used > global.inventory.max_missiles - limit {
+                    new_local.missiles_used = max(0, global.inventory.max_missiles - limit);
                 }
                 Some(new_local)
             }
@@ -1415,8 +804,8 @@ pub fn apply_requirement(
                 Some(new_local)
             } else {
                 let mut new_local = local;
-                if local.supers_used > global.max_supers - limit {
-                    new_local.supers_used = max(0, global.max_supers - limit);
+                if local.supers_used > global.inventory.max_supers - limit {
+                    new_local.supers_used = max(0, global.inventory.max_supers - limit);
                 }
                 Some(new_local)
             }
@@ -1430,8 +819,8 @@ pub fn apply_requirement(
                 Some(new_local)
             } else {
                 let mut new_local = local;
-                if local.power_bombs_used > global.max_power_bombs - limit {
-                    new_local.power_bombs_used = max(0, global.max_power_bombs - limit);
+                if local.power_bombs_used > global.inventory.max_power_bombs - limit {
+                    new_local.power_bombs_used = max(0, global.inventory.max_power_bombs - limit);
                 }
                 Some(new_local)
             }
@@ -1471,14 +860,14 @@ pub fn apply_requirement(
                 let mut new_local = local;
                 new_local.reserves_used += new_local.energy_used;
                 new_local.energy_used = 0;
-                if new_local.reserves_used > global.max_reserves {
+                if new_local.reserves_used > global.inventory.max_reserves {
                     None
                 } else {
                     Some(new_local)
                 }
             } else {
                 let mut new_local = local;
-                new_local.energy_used = global.max_energy - 1;
+                new_local.energy_used = global.inventory.max_energy - 1;
                 Some(new_local)
             }
         }
@@ -1488,7 +877,7 @@ pub fn apply_requirement(
         } => {
             if reverse {
                 if local.reserves_used > 0
-                    || local.energy_used >= min(*max_reserve_energy, global.max_reserves)
+                    || local.energy_used >= min(*max_reserve_energy, global.inventory.max_reserves)
                 {
                     None
                 } else {
@@ -1499,13 +888,13 @@ pub fn apply_requirement(
                 }
             } else {
                 let reserve_energy = min(
-                    global.max_reserves - local.reserves_used,
+                    global.inventory.max_reserves - local.reserves_used,
                     *max_reserve_energy,
                 );
                 if reserve_energy >= *min_reserve_energy {
                     let mut new_local = local;
-                    new_local.reserves_used = global.max_reserves;
-                    new_local.energy_used = max(0, global.max_energy - reserve_energy);
+                    new_local.reserves_used = global.inventory.max_reserves;
+                    new_local.energy_used = max(0, global.inventory.max_energy - reserve_energy);
                     Some(new_local)
                 } else {
                     None
@@ -1515,56 +904,68 @@ pub fn apply_requirement(
         Requirement::EnemyKill { count, vul } => {
             apply_enemy_kill_requirement(global, local, *count, vul)
         }
-        Requirement::PhantoonFight {} => {
-            apply_phantoon_requirement(global, local, difficulty.phantoon_proficiency, game_data)
-        }
+        Requirement::PhantoonFight {} => apply_phantoon_requirement(
+            &global.inventory,
+            local,
+            difficulty.phantoon_proficiency,
+            can_manage_reserves,
+        ),
         Requirement::DraygonFight {
             can_be_very_patient_tech_id,
         } => apply_draygon_requirement(
-            global,
+            &global.inventory,
             local,
             difficulty.draygon_proficiency,
-            *can_be_very_patient_tech_id,
-            game_data,
+            can_manage_reserves,
+            global.tech[*can_be_very_patient_tech_id],
         ),
         Requirement::RidleyFight {
             can_be_very_patient_tech_id,
         } => apply_ridley_requirement(
-            global,
+            &global.inventory,
             local,
             difficulty.ridley_proficiency,
-            *can_be_very_patient_tech_id,
-            game_data,
+            can_manage_reserves,
+            global.tech[*can_be_very_patient_tech_id],
         ),
         Requirement::BotwoonFight { second_phase } => apply_botwoon_requirement(
-            global,
+            &global.inventory,
             local,
             difficulty.botwoon_proficiency,
             *second_phase,
-            game_data,
+            can_manage_reserves,
         ),
         Requirement::MotherBrain2Fight {
             can_be_very_patient_tech_id,
             r_mode,
-        } => apply_mother_brain_2_requirement(
-            global,
-            local,
-            difficulty,
-            *can_be_very_patient_tech_id,
-            *r_mode,
-            game_data,
-        ),
+        } => {
+            if difficulty.mother_brain_fight == MotherBrainFight::Skip {
+                return Some(local);
+            }
+            apply_mother_brain_2_requirement(
+                &global.inventory,
+                local,
+                difficulty.mother_brain_proficiency,
+                difficulty.supers_double,
+                can_manage_reserves,
+                global.tech[*can_be_very_patient_tech_id],
+                *r_mode,
+            )
+        }
         Requirement::SpeedBall { used_tiles, heated } => {
-            if !global.tech[game_data.speed_ball_tech_id] || !global.items[Item::Morph as usize] {
+            if !global.tech[game_data.speed_ball_tech_id]
+                || !global.inventory.items[Item::Morph as usize]
+            {
                 None
             } else {
                 let used_tiles = used_tiles.get();
-                let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
+                let tiles_limit = if *heated && !global.inventory.items[Item::Varia as usize] {
                     get_heated_speedball_tiles(difficulty)
                 } else {
                     difficulty.speed_ball_tiles
                 };
-                if global.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
+                if global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit
+                {
                     Some(local)
                 } else {
                     None
@@ -1573,12 +974,12 @@ pub fn apply_requirement(
         }
         Requirement::GetBlueSpeed { used_tiles, heated } => {
             let used_tiles = used_tiles.get();
-            let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
+            let tiles_limit = if *heated && !global.inventory.items[Item::Varia as usize] {
                 difficulty.heated_shine_charge_tiles
             } else {
                 difficulty.shine_charge_tiles
             };
-            if global.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
+            if global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
                 Some(local)
             } else {
                 None
@@ -1586,12 +987,12 @@ pub fn apply_requirement(
         }
         Requirement::ShineCharge { used_tiles, heated } => {
             let used_tiles = used_tiles.get();
-            let tiles_limit = if *heated && !global.items[Item::Varia as usize] {
+            let tiles_limit = if *heated && !global.inventory.items[Item::Varia as usize] {
                 difficulty.heated_shine_charge_tiles
             } else {
                 difficulty.shine_charge_tiles
             };
-            if global.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
+            if global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
                 let mut new_local = local;
                 if reverse {
                     new_local.shinecharge_frames_remaining = 0;
@@ -1646,7 +1047,8 @@ pub fn apply_requirement(
                     if let Some(mut new_local) =
                         validate_energy_no_auto_reserve(new_local, global, game_data)
                     {
-                        let energy_remaining = global.max_energy - new_local.energy_used - 1;
+                        let energy_remaining =
+                            global.inventory.max_energy - new_local.energy_used - 1;
                         new_local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
                         new_local.energy_used -= 28;
                         Some(new_local)
@@ -1737,7 +1139,7 @@ pub fn apply_requirement(
                         locked_door_data,
                     ),
                     DoorType::Beam(beam) => {
-                        if has_beam(beam, global) {
+                        if has_beam(beam, &global.inventory) {
                             if let BeamType::Charge = beam {
                                 apply_requirement(
                                     requirement_charge,
@@ -1805,7 +1207,7 @@ pub fn apply_requirement(
                     game_data,
                     locked_door_data,
                 ) {
-                    let cost = compute_cost(new_local, global);
+                    let cost = compute_cost(new_local, &global.inventory);
                     // TODO: Maybe do something better than just using the first cost metric.
                     if cost[0] < best_cost[0] {
                         best_cost = cost;
@@ -1827,22 +1229,22 @@ pub fn is_bireachable_state(
     forward: LocalState,
     reverse: LocalState,
 ) -> bool {
-    if forward.reserves_used + reverse.reserves_used > global.max_reserves {
+    if forward.reserves_used + reverse.reserves_used > global.inventory.max_reserves {
         return false;
     }
     let forward_total_energy_used = forward.energy_used + forward.reserves_used;
     let reverse_total_energy_used = reverse.energy_used + reverse.reserves_used;
-    let max_total_energy = global.max_energy + global.max_reserves;
+    let max_total_energy = global.inventory.max_energy + global.inventory.max_reserves;
     if forward_total_energy_used + reverse_total_energy_used >= max_total_energy {
         return false;
     }
-    if forward.missiles_used + reverse.missiles_used > global.max_missiles {
+    if forward.missiles_used + reverse.missiles_used > global.inventory.max_missiles {
         return false;
     }
-    if forward.supers_used + reverse.supers_used > global.max_supers {
+    if forward.supers_used + reverse.supers_used > global.inventory.max_supers {
         return false;
     }
-    if forward.power_bombs_used + reverse.power_bombs_used > global.max_power_bombs {
+    if forward.power_bombs_used + reverse.power_bombs_used > global.inventory.max_power_bombs {
         return false;
     }
     true
@@ -1936,7 +1338,7 @@ pub fn traverse(
         };
         result.local_states[start_vertex_id] = [init_local; NUM_COST_METRICS];
         result.start_trail_ids[start_vertex_id] = [-1; NUM_COST_METRICS];
-        result.cost[start_vertex_id] = compute_cost(init_local, global);
+        result.cost[start_vertex_id] = compute_cost(init_local, &global.inventory);
         modified_vertices.insert(start_vertex_id, first_metric);
     }
 
@@ -1977,7 +1379,7 @@ pub fn traverse(
                         game_data,
                         locked_door_data,
                     ) {
-                        let dst_new_cost_arr = compute_cost(dst_new_local_state, global);
+                        let dst_new_cost_arr = compute_cost(dst_new_local_state, &global.inventory);
 
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
@@ -2025,31 +1427,6 @@ pub fn traverse(
     }
 
     result
-}
-
-impl GlobalState {
-    pub fn collect(&mut self, item: Item, game_data: &GameData) {
-        self.items[item as usize] = true;
-        match item {
-            Item::Missile => {
-                self.max_missiles += 5;
-            }
-            Item::Super => {
-                self.max_supers += 5;
-            }
-            Item::PowerBomb => {
-                self.max_power_bombs += 5;
-            }
-            Item::ETank => {
-                self.max_energy += 100;
-            }
-            Item::ReserveTank => {
-                self.max_reserves += 100;
-            }
-            _ => {}
-        }
-        self.weapon_mask = game_data.get_weapon_mask(&self.items);
-    }
 }
 
 pub fn get_spoiler_route(
