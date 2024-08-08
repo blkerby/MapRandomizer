@@ -1,4 +1,9 @@
 v114:
+- investigate panic caused by negative energy resource (caused by large heat frame req that overflows with multiplier)
+- use nothing PLM instead of copy PLM to replace gray doors
+  - try to check if fixes crash in seed that oats played (2024-08-02)
+- fix issue with Toilet passing through left side of Pants Room:
+  - wrongly shows in bg of East Pants Room (oats vs. solski sgl seed)
 - add note in spoiler map explaining how to interpret item difficulties shown (doesn't take into account return path or locks/flags that could be cleared before)
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition

@@ -803,17 +803,19 @@ impl<'a> MapPatcher<'a> {
         let bg_color = if tile.heated { 2 } else { 1 };
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
-        let liquid_color = match (tile.liquid_type, tile.heated) {
-            (LiquidType::None, _) => bg_color,
-            (LiquidType::Water, _) => 0,
-            (LiquidType::_Lava | LiquidType::_Acid, false) => 2,
-            (LiquidType::_Lava | LiquidType::_Acid, true) => 1,
+        let liquid_colors = match (tile.liquid_type, tile.heated) {
+            (LiquidType::None, _) => (bg_color, bg_color),
+            (LiquidType::Water, _) => (0, 1),
+            (LiquidType::_Lava | LiquidType::_Acid, false) => (2, 1),
+            (LiquidType::_Lava | LiquidType::_Acid, true) => (1, 2),
         };
         if tile.liquid_type != LiquidType::None {
             for y in tile.liquid_sublevel..8 {
                 for x in 0..8 {
                     if (x + y) % 2 == 0 {
-                        data[y as usize][x as usize] = liquid_color;
+                        data[y as usize][x as usize] = liquid_colors.0;
+                    } else {
+                        data[y as usize][x as usize] = liquid_colors.1;
                     }
                 }
             }
@@ -840,12 +842,12 @@ impl<'a> MapPatcher<'a> {
                 data[2][3] = item_color;
                 data[2][4] = item_color;
                 data[3][2] = item_color;
-                data[3][3] = liquid_color;
-                data[3][4] = liquid_color;
+                data[3][3] = liquid_colors.0;
+                data[3][4] = liquid_colors.0;
                 data[3][5] = item_color;
                 data[4][2] = item_color;
-                data[4][3] = liquid_color;
-                data[4][4] = liquid_color;
+                data[4][3] = liquid_colors.0;
+                data[4][4] = liquid_colors.0;
                 data[4][5] = item_color;
                 data[5][3] = item_color;
                 data[5][4] = item_color;
