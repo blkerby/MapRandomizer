@@ -12,9 +12,9 @@ use maprando::{
         CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
         TileTheme,
     },
-    game_data::Map,
     patch::Rom,
 };
+use maprando_game::Map;
 
 #[derive(Template)]
 #[template(path = "errors/invalid_rom.html")]

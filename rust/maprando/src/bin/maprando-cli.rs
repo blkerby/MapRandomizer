@@ -3,7 +3,6 @@ use clap::Parser;
 use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
-use maprando::game_data::{Item, Map};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
@@ -12,7 +11,8 @@ use maprando::randomize::{
     Randomization, Randomizer, SaveAnimals, StartLocationMode,
 };
 use maprando::spoiler_map;
-use maprando::{game_data::GameData, patch::make_rom, randomize::DifficultyConfig};
+use maprando::{patch::make_rom, randomize::DifficultyConfig};
+use maprando_game::{GameData, Item, Map};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 

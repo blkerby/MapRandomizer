@@ -9,11 +9,8 @@ use std::cmp::min;
 use std::path::Path;
 
 use crate::customize::vanilla_music::override_music;
-use crate::game_data::Map;
-use crate::{
-    game_data::GameData,
-    patch::{apply_glowpatch, apply_ips_patch, snes2pc, write_credits_big_char, Rom},
-};
+use crate::patch::{apply_glowpatch, apply_ips_patch, snes2pc, write_credits_big_char, Rom};
+use maprando_game::{GameData, Map};
 use mosaic::MosaicTheme;
 use retiling::apply_retiling;
 use room_palettes::apply_area_themed_palettes;

@@ -4,13 +4,13 @@ use image::{Rgb, RgbImage, Rgba, RgbaImage};
 use std::io::Cursor;
 
 use crate::{
-    game_data::{AreaIdx, GameData, Map},
     patch::map_tiles::TILE_GFX_ADDR_4BPP,
     patch::{
         map_tiles::{TilemapOffset, TilemapWord},
         snes2pc, xy_to_map_offset, Rom,
     },
 };
+use maprando_game::{AreaIdx, GameData, Map};
 
 fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
     let mut out: [[u8; 8]; 8] = [[0; 8]; 8];

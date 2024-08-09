@@ -5,7 +5,6 @@ use anyhow::{bail, Result};
 use askama::Template;
 use hashbrown::HashSet;
 use maprando::{
-    game_data::{Capacity, IndexedVec, Item},
     patch::{ips_write::create_ips_patch, Rom},
     randomize::{
         DifficultyConfig, DoorLocksSize, EtankRefill, ItemPriorityGroup, Randomization, WallJump,
@@ -13,6 +12,7 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     spoiler_map,
 };
+use maprando_game::{Capacity, IndexedVec, Item};
 use rand::{RngCore, SeedableRng};
 
 #[derive(Template)]

@@ -5,18 +5,18 @@ use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
 use json::JsonValue;
 use log::{error, info};
-use maprando::game_data::smart_xml::RoomState;
+use maprando::customize::Allocator;
 use maprando::patch::bps::BPSEncoder;
 use maprando::patch::suffix_tree::SuffixTree;
+use maprando::patch::{get_room_state_ptrs, pc2snes, snes2pc, Rom};
+use maprando_game::{
+    smart_xml::{self, Layer2Type, RoomState, Screen},
+    DoorPtr, RoomGeometry,
+};
 use serde::Deserialize;
 use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-
-use maprando::customize::Allocator;
-use maprando::game_data::{smart_xml, DoorPtr, RoomGeometry};
-use maprando::patch::{get_room_state_ptrs, pc2snes, snes2pc, Rom};
-use smart_xml::{Layer2Type, Screen};
 
 #[derive(Parser)]
 struct Args {

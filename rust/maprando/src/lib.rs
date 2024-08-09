@@ -1,5 +1,4 @@
 pub mod customize;
-pub mod game_data;
 pub mod map_repository;
 pub mod patch;
 pub mod preset;

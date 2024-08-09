@@ -1,37 +1,17 @@
 use std::path::Path;
 
-use crate::{game_data::IndexedVec, patch::compress::compress};
+use crate::patch::compress::compress;
+use maprando_game::{read_image, IndexedVec};
 
 use super::{decompress::decompress, pc2snes, snes2pc, PcAddr, Rom};
-use anyhow::{ensure, Context, Result};
+use anyhow::{ensure, Result};
 use hashbrown::HashMap;
-use image::{io::Reader as ImageReader, Rgb};
 use ndarray::{concatenate, Array2, Array3, Axis};
 use slice_of_array::prelude::*;
 
 pub struct TitlePatcher<'a> {
     rom: &'a mut Rom,
     pub next_free_space_pc: usize,
-}
-
-pub fn read_image(path: &Path) -> Result<Array3<u8>> {
-    let img = ImageReader::open(path)
-        .with_context(|| format!("Unable to open image: {}", path.display()))?
-        .decode()
-        .with_context(|| format!("Unable to decode image: {}", path.display()))?
-        .to_rgb8();
-    let width = img.width() as usize;
-    let height = img.height() as usize;
-    let mut arr: Array3<u8> = Array3::zeros([height, width, 3]);
-    for y in 0..height {
-        for x in 0..width {
-            let &Rgb([r, g, b]) = img.get_pixel(x as u32, y as u32);
-            arr[[y, x, 0]] = r;
-            arr[[y, x, 1]] = g;
-            arr[[y, x, 2]] = b;
-        }
-    }
-    Ok(arr)
 }
 
 fn rgb_to_u16(rgb: (u8, u8, u8)) -> u16 {

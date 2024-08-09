@@ -5,14 +5,11 @@ use pathfinding;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
-use crate::game_data::DoorPtrPair;
-use crate::game_data::EscapeConditionRequirement;
-use crate::game_data::GameData;
-use crate::game_data::IndexedVec;
-use crate::game_data::Map;
-use crate::game_data::RoomGeometryDoorIdx;
-use crate::game_data::RoomGeometryRoomIdx;
 use crate::randomize::SaveAnimals;
+use maprando_game::{
+    DoorPtrPair, EscapeConditionRequirement, GameData, IndexedVec, Map, RoomGeometryDoorIdx,
+    RoomGeometryRoomIdx,
+};
 
 use super::DifficultyConfig;
 use super::MotherBrainFight;

@@ -1,11 +1,11 @@
 pub mod smart_xml;
 
-use crate::patch::title::read_image;
-use crate::randomize::{BeamType, DoorType};
 use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
+use image::{io::Reader as ImageReader, Rgb};
 use json::{self, JsonValue};
 use log::info;
+use ndarray::Array3;
 use num_enum::TryFromPrimitive;
 use serde::Serialize;
 use serde_derive::Deserialize;
@@ -120,6 +120,25 @@ pub struct EnemyDrop {
     pub super_weight: Float,
     pub power_bomb_weight: Float,
     pub count: Capacity,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum BeamType {
+    Charge,
+    Ice,
+    Wave,
+    Spazer,
+    Plasma,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum DoorType {
+    Blue,
+    Red,
+    Green,
+    Yellow,
+    Gray,
+    Beam(BeamType),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -915,6 +934,26 @@ pub struct TitleScreenData {
     pub bottom_left: Vec<TitleScreenImage>,
     pub bottom_right: Vec<TitleScreenImage>,
     pub map_station: TitleScreenImage,
+}
+
+pub fn read_image(path: &Path) -> Result<Array3<u8>> {
+    let img = ImageReader::open(path)
+        .with_context(|| format!("Unable to open image: {}", path.display()))?
+        .decode()
+        .with_context(|| format!("Unable to decode image: {}", path.display()))?
+        .to_rgb8();
+    let width = img.width() as usize;
+    let height = img.height() as usize;
+    let mut arr: Array3<u8> = Array3::zeros([height, width, 3]);
+    for y in 0..height {
+        for x in 0..width {
+            let &Rgb([r, g, b]) = img.get_pixel(x as u32, y as u32);
+            arr[[y, x, 0]] = r;
+            arr[[y, x, 1]] = g;
+            arr[[y, x, 2]] = b;
+        }
+    }
+    Ok(arr)
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]

@@ -1,14 +1,15 @@
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
-    game_data::{Capacity, GameData, Item, Requirement},
     randomize::{
         AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
         ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal,
         MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, WallJump,
     },
-    traverse::{apply_requirement, GlobalState, LocalState, LockedDoorData},
+    traverse::{apply_requirement, LockedDoorData},
 };
+use maprando_game::{Capacity, GameData, Item, Requirement};
+use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::Path;
 
 fn run_scenario(
@@ -57,14 +58,16 @@ fn run_scenario(
     let global_state = GlobalState {
         tech: vec![patience; game_data.tech_isv.keys.len()],
         notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
+        inventory: Inventory {
+            items: items,
+            max_energy: 1899,
+            max_missiles: missile_cnt,
+            max_reserves: 0,
+            max_supers: super_cnt,
+            max_power_bombs: 0,
+        },
         flags: vec![false; game_data.flag_isv.keys.len()],
-        items: items,
         doors_unlocked: vec![],
-        max_energy: 1899,
-        max_missiles: missile_cnt,
-        max_reserves: 0,
-        max_supers: super_cnt,
-        max_power_bombs: 0,
         weapon_mask,
     };
     let local_state = LocalState {
