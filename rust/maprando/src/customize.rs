@@ -12,7 +12,7 @@ use crate::customize::vanilla_music::override_music;
 use crate::game_data::Map;
 use crate::{
     game_data::GameData,
-    patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom},
+    patch::{apply_glowpatch, apply_ips_patch, snes2pc, write_credits_big_char, Rom},
 };
 use mosaic::MosaicTheme;
 use retiling::apply_retiling;
@@ -136,6 +136,12 @@ pub enum ShakingSetting {
     Disabled,
 }
 
+#[derive(Debug, Copy, Clone)]
+pub enum FlashingSetting {
+    Vanilla,
+    Reduced,
+}
+
 #[derive(Debug)]
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
@@ -148,6 +154,7 @@ pub struct CustomizeSettings {
     pub music: MusicSettings,
     pub disable_beeping: bool,
     pub shaking: ShakingSetting,
+    pub flashing: FlashingSetting,
     pub controller_config: ControllerConfig,
 }
 
@@ -421,6 +428,12 @@ pub fn customize_rom(
 
             // Disable enemy projectile shaking, by setting the displacements to zero:
             rom.write_n(snes2pc(0x86846B), &[0; 144])?;
+        }
+    }
+    match settings.flashing {
+        FlashingSetting::Vanilla => {}
+        FlashingSetting::Reduced => {
+            apply_glowpatch(rom, Path::new("../patches/ips/reduced_flashing.glowpatch"))?;
         }
     }
     apply_controller_config(rom, &settings.controller_config)?;

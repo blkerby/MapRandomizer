@@ -293,6 +293,7 @@ fn main() -> Result<()> {
         // music: MusicSettings::Vanilla,
         disable_beeping: false,
         shaking: maprando::customize::ShakingSetting::Vanilla,
+        flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
     };
     customize_rom(
