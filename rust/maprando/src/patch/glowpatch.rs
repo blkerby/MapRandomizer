@@ -1,40 +1,38 @@
 use crate::patch::Rom;
 use anyhow::{bail, ensure, Result};
 
-pub trait GlowPatchSection {
-    fn write(&self, rom: &mut Rom, offset: usize) -> Result<()>;
+pub enum GlowPatchSection {
+    Direct {
+        offset: usize,
+        data: Vec<u8>,
+    },
+    Indirect {
+        offset: usize,
+        read_length: u8,
+        sections: Vec<GlowPatchSection>,
+    },
 }
 
-struct GlowDirectPatchSection {
-    offset: usize,
-    data: Vec<u8>,
-}
-
-struct GlowIndirectPatchSection {
-    offset: usize,
-    read_length: u8,
-    sections: Vec<Box<dyn GlowPatchSection>>,
-}
-
-impl GlowPatchSection for GlowDirectPatchSection {
-    fn write(&self, rom: &mut Rom, offset: usize) -> Result<()> {
-        let total_offset = self.offset + offset;
-        rom.write_n(total_offset, &self.data)?;
-        Ok(())
-    }
-}
-
-impl GlowPatchSection for GlowIndirectPatchSection {
-    fn write(&self, rom: &mut Rom, offset: usize) -> Result<()> {
-        let total_offset = self.offset + offset;
-        let addr_data = rom
-            .read_n(total_offset, self.read_length as usize)?
-            .to_vec();
-        let addr = as_usize_le(&addr_data) as usize;
-        for i in 0..self.sections.len() {
-            self.sections[i].write(rom, addr)?;
+impl GlowPatchSection {
+    pub fn write(&self, rom: &mut Rom, base_offset: usize) -> Result<()> {
+        match self {
+            Self::Direct { offset, data } => {
+                let total_offset = offset + base_offset;
+                rom.write_n(total_offset, &data)?;
+                Ok(())
+            },
+            Self::Indirect { offset, read_length, sections } => {
+                let total_offset = offset + base_offset;
+                let addr_data = rom
+                    .read_n(total_offset, *read_length as usize)?
+                    .to_vec();
+                let addr = as_usize_le(&addr_data) as usize;
+                for i in 0..sections.len() {
+                    sections[i].write(rom, addr)?;
+                }
+                Ok(())
+            },
         }
-        Ok(())
     }
 }
 
@@ -85,10 +83,10 @@ impl GlowPatchReader {
     }
 }
 
-pub fn parse_glowpatch(patch: &Vec<u8>) -> Result<Vec<Box<dyn GlowPatchSection>>> {
+pub fn parse_glowpatch(patch: &Vec<u8>) -> Result<Vec<GlowPatchSection>> {
     let mut reader = GlowPatchReader::new(patch);
     let len = reader.read_varint()?;
-    let mut sections: Vec<Box<dyn GlowPatchSection>> = vec![];
+    let mut sections: Vec<GlowPatchSection> = vec![];
 
     for _i in 0..len {
         sections.push(parse_section(&mut reader)?);
@@ -97,11 +95,11 @@ pub fn parse_glowpatch(patch: &Vec<u8>) -> Result<Vec<Box<dyn GlowPatchSection>>
     Ok(sections)
 }
 
-fn parse_section(patch: &mut GlowPatchReader) -> Result<Box<dyn GlowPatchSection>> {
+fn parse_section(patch: &mut GlowPatchReader) -> Result<GlowPatchSection> {
     let kind = patch.read_u8()?;
-    let section: Box<dyn GlowPatchSection> = match kind {
-        0u8 => Box::new(parse_direct_section(patch)?),
-        1u8 => Box::new(parse_indirect_section(patch)?),
+    let section: GlowPatchSection = match kind {
+        0u8 => parse_direct_section(patch)?,
+        1u8 => parse_indirect_section(patch)?,
         _ => bail!(
             "Unexpected patch section kind header: {} at position: {:X}",
             kind,
@@ -112,27 +110,27 @@ fn parse_section(patch: &mut GlowPatchReader) -> Result<Box<dyn GlowPatchSection
     Ok(section)
 }
 
-fn parse_direct_section(patch: &mut GlowPatchReader) -> Result<GlowDirectPatchSection> {
+fn parse_direct_section(patch: &mut GlowPatchReader) -> Result<GlowPatchSection> {
     let offset = patch.read_varint()?;
     let len = patch.read_varint()?;
     let data = patch.read_n(len)?;
-    let section = GlowDirectPatchSection {
+    let section = GlowPatchSection::Direct {
         offset: offset,
         data: data.to_vec(),
     };
     Ok(section)
 }
 
-fn parse_indirect_section(patch: &mut GlowPatchReader) -> Result<GlowIndirectPatchSection> {
+fn parse_indirect_section(patch: &mut GlowPatchReader) -> Result<GlowPatchSection> {
     let offset = patch.read_varint()?;
     let read_length = patch.read_u8()?;
     let len = patch.read_varint()?;
-    let mut sections: Vec<Box<dyn GlowPatchSection>> = vec![];
+    let mut sections: Vec<GlowPatchSection> = vec![];
     for _i in 0..len {
         sections.push(parse_section(patch)?);
     }
 
-    let section = GlowIndirectPatchSection {
+    let section = GlowPatchSection::Indirect {
         offset: offset,
         read_length: read_length,
         sections: sections,
