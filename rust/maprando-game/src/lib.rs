@@ -1,5 +1,7 @@
 pub mod smart_xml;
+pub mod glowpatch;
 
+use crate::glowpatch::GlowPatch;
 use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use image::{io::Reader as ImageReader, Rgb};
@@ -1056,6 +1058,7 @@ pub struct GameData {
     pub pause_abuse_tech_id: TechId,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
+    pub reduced_flashing_patch: GlowPatch,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -4081,6 +4084,13 @@ impl GameData {
         Ok(())
     }
 
+    fn load_reduced_flashing_patch(&mut self, path: &Path) -> Result<()> {
+        let reduced_flashing_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load reduced flashing patch at {}", path.display()))?;
+        self.reduced_flashing_patch = serde_json::from_str(&reduced_flashing_str)?;
+        Ok(())
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -4088,9 +4098,12 @@ impl GameData {
         start_locations_path: &Path,
         hub_locations_path: &Path,
         title_screen_path: &Path,
+        reduced_flashing_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
+
+        game_data.load_reduced_flashing_patch(reduced_flashing_path)?;
 
         game_data.load_items_and_flags()?;
         game_data.load_tech()?;

@@ -2,7 +2,7 @@ mod beam_doors_tiles;
 pub mod bps;
 pub mod compress;
 pub mod decompress;
-pub mod glowpatch;
+pub mod glowpatch_writer;
 pub mod ips_write;
 pub mod map_tiles;
 pub mod suffix_tree;
@@ -12,7 +12,6 @@ use std::path::Path;
 
 use crate::{
     customize::vanilla_music::override_music,
-    patch::glowpatch::parse_glowpatch,
     patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
     randomize::{
         AreaAssignment, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization,
@@ -376,17 +375,6 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
         .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
     for hunk in patch.hunks() {
         rom.write_n(hunk.offset(), hunk.payload())?;
-    }
-    Ok(())
-}
-
-pub fn apply_glowpatch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
-    let patch_data = std::fs::read(&patch_path)
-        .with_context(|| format!("Unable to read patch {}", patch_path.display()))?;
-    let sections = parse_glowpatch(&patch_data)
-        .with_context(|| format!("Unable to parse patch {}", patch_path.display()))?;
-    for section in sections {
-        section.write(rom, 0)?;
     }
     Ok(())
 }

@@ -9,7 +9,8 @@ use std::cmp::min;
 use std::path::Path;
 
 use crate::customize::vanilla_music::override_music;
-use crate::patch::{apply_glowpatch, apply_ips_patch, snes2pc, write_credits_big_char, Rom};
+use crate::patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom};
+use crate::patch::glowpatch_writer::write_glowpatch;
 use maprando_game::{GameData, Map};
 use mosaic::MosaicTheme;
 use retiling::apply_retiling;
@@ -430,7 +431,7 @@ pub fn customize_rom(
     match settings.flashing {
         FlashingSetting::Vanilla => {}
         FlashingSetting::Reduced => {
-            apply_glowpatch(rom, Path::new("../patches/ips/reduced_flashing.glowpatch"))?;
+            write_glowpatch(rom, &game_data.reduced_flashing_patch)?;
         }
     }
     apply_controller_config(rom, &settings.controller_config)?;
