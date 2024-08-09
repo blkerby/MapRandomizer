@@ -11,17 +11,19 @@ use std::path::Path;
 
 use crate::{
     customize::vanilla_music::override_music,
-    game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
     patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
     randomize::{
-        AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective,
-        Randomization, SaveAnimals, StartLocationMode, WallJump,
+        AreaAssignment, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization,
+        SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
 use log::info;
+use maprando_game::{
+    DoorPtr, DoorPtrPair, DoorType, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr,
+};
 use ndarray::Array3;
 use rand::{Rng, SeedableRng};
 use std::iter;

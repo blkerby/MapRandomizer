@@ -1,12 +1,10 @@
 use std::path::Path;
 
 use super::mosaic::MosaicTheme;
-use crate::{
-    game_data::{AreaIdx, DoorPtr, GameData, Map, RoomPtr, RoomStateIdx},
-    patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom},
-};
+use crate::patch::{apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc, Rom};
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
+use maprando_game::{AreaIdx, DoorPtr, GameData, Map, RoomPtr, RoomStateIdx};
 use rand::{Rng, SeedableRng};
 
 use super::TileTheme;

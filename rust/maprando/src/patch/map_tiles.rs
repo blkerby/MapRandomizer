@@ -1,12 +1,12 @@
 use hashbrown::{HashMap, HashSet};
 use log::info;
 
-use crate::{
-    game_data::{AreaIdx, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem},
-    randomize::{
-        BeamType, DoorLocksSize, DoorType, ItemDotChange, ItemMarkers, MapStationReveal,
-        MapsRevealed, Objective, Randomization,
-    },
+use crate::randomize::{
+    DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective,
+    Randomization,
+};
+use maprando_game::{
+    AreaIdx, BeamType, DoorType, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem,
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};

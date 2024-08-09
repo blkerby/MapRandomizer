@@ -3,6 +3,8 @@ resolver = "2"
 members = [ 
     "maprando",
     "maprando-web",
+    "maprando-game",
+    "maprando-logic",
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

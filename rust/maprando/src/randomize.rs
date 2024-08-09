@@ -1,23 +1,22 @@
 pub mod escape_timer;
 mod run_speed;
 
-use crate::{
-    game_data::{
-        self, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
-        EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, HubLocation,
-        Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map,
-        NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation,
-        TemporaryBlueDirection, VertexId, VertexKey,
-    },
-    traverse::{
-        apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
-        get_spoiler_route, traverse, GlobalState, LocalState, LockedDoorData, TraverseResult,
-        IMPOSSIBLE_LOCAL_STATE, NUM_COST_METRICS,
-    },
+use crate::traverse::{
+    apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
+    get_spoiler_route, traverse, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
+    NUM_COST_METRICS,
 };
 use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
+use maprando_game::{
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
+    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
+    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+    MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId,
+    SparkPosition, StartLocation, TemporaryBlueDirection, VertexId, VertexKey,
+};
+use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
 use rand::{seq::SliceRandom, Rng};
 use run_speed::{
@@ -27,8 +26,6 @@ use run_speed::{
 use serde_derive::{Deserialize, Serialize};
 use std::{cmp::min, convert::TryFrom, hash::Hash, iter, time::SystemTime};
 use strum::VariantNames;
-
-use crate::game_data::GameData;
 
 use self::escape_timer::SpoilerEscape;
 
@@ -345,25 +342,6 @@ struct DebugData {
     reverse: TraverseResult,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum BeamType {
-    Charge,
-    Ice,
-    Wave,
-    Spazer,
-    Plasma,
-}
-
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
-pub enum DoorType {
-    Blue,
-    Red,
-    Green,
-    Yellow,
-    Gray,
-    Beam(BeamType),
-}
-
 #[derive(Clone, Copy)]
 pub struct LockedDoor {
     pub src_ptr_pair: DoorPtrPair,
@@ -551,12 +529,12 @@ impl<'a> Preprocessor<'a> {
                 .get(&(dst_room_id, dst_node_id))
                 .unwrap_or(&empty_vec_entrances)
             {
-                if entrance_condition.through_toilet == game_data::ToiletCondition::Yes
+                if entrance_condition.through_toilet == maprando_game::ToiletCondition::Yes
                     && !is_toilet
                 {
                     // The strat requires passing through the Toilet, which is not the case here.
                     continue;
-                } else if entrance_condition.through_toilet == game_data::ToiletCondition::No
+                } else if entrance_condition.through_toilet == maprando_game::ToiletCondition::No
                     && is_toilet
                 {
                     // The strat requires not passing through the Toilet, but here it does.
@@ -4075,14 +4053,16 @@ impl<'r> Randomizer<'r> {
         let mut global = GlobalState {
             tech: get_tech_vec(&self.game_data, &self.difficulty_tiers[0]),
             notable_strats: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
-            items: items,
+            inventory: Inventory {
+                items: items,
+                max_energy: 99,
+                max_reserves: 0,
+                max_missiles: 0,
+                max_supers: 0,
+                max_power_bombs: 0,
+            },
             flags: self.get_initial_flag_vec(),
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
-            max_energy: 99,
-            max_reserves: 0,
-            max_missiles: 0,
-            max_supers: 0,
-            max_power_bombs: 0,
             weapon_mask: weapon_mask,
         };
         for &(item, cnt) in &self.difficulty_tiers[0].starting_items {
@@ -4305,7 +4285,9 @@ impl<'r> Randomizer<'r> {
                 if !self.difficulty_tiers[0].stop_item_placement_early {
                     // Check that at least one instance of each item can be collected.
                     for i in 0..self.initial_items_remaining.len() {
-                        if self.initial_items_remaining[i] > 0 && !state.global_state.items[i] {
+                        if self.initial_items_remaining[i] > 0
+                            && !state.global_state.inventory.items[i]
+                        {
                             bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible, missing {:?}",
                                   Item::try_from(i).unwrap());
                         }
@@ -4519,7 +4501,7 @@ impl<'a> Randomizer<'a> {
     fn get_spoiler_start_state(&self, global_state: &GlobalState) -> SpoilerStartState {
         let mut items: Vec<String> = Vec::new();
         for i in 0..self.game_data.item_isv.keys.len() {
-            if global_state.items[i] {
+            if global_state.inventory.items[i] {
                 items.push(self.game_data.item_isv.keys[i].to_string());
             }
         }
@@ -4530,11 +4512,11 @@ impl<'a> Randomizer<'a> {
             }
         }
         SpoilerStartState {
-            max_energy: global_state.max_energy,
-            max_reserves: global_state.max_reserves,
-            max_missiles: global_state.max_missiles,
-            max_supers: global_state.max_supers,
-            max_power_bombs: global_state.max_power_bombs,
+            max_energy: global_state.inventory.max_energy,
+            max_reserves: global_state.inventory.max_reserves,
+            max_missiles: global_state.inventory.max_missiles,
+            max_supers: global_state.inventory.max_supers,
+            max_power_bombs: global_state.inventory.max_power_bombs,
             items: items,
             flags: flags,
         }

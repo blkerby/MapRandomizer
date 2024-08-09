@@ -10,11 +10,11 @@ use crate::logic_helper::LogicData;
 use hashbrown::{HashMap, HashSet};
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
-    game_data::GameData,
     map_repository::MapRepository,
     preset::Preset,
     seed_repository::SeedRepository,
 };
+use maprando_game::GameData;
 
 pub const VERSION: usize = 114;
 pub const HQ_VIDEO_URL_ROOT: &'static str =
