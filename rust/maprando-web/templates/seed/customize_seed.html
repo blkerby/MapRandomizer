@@ -125,6 +125,18 @@ window.spoilerTokenPrefix = "{{+ spoiler_token_prefix }}";
 
                         <div class="form-group row my-3">
                             <div class="col-md-4">
+                            <label class="col-form-label" for="reduced_flashing">{% include "help/flashing.html" %}Screen flashing</label>
+                            </div>
+                            <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+                                <input type="radio" class="btn-check" name="flashing" id="flashingVanilla" value="Vanilla">
+                                <label class="btn btn-outline-primary" style="width:120px" for="flashingVanilla">Vanilla</label>
+                                <input type="radio" class="btn-check" name="flashing" id="flashingReduced" value="Reduced" checked>
+                                <label class="btn btn-outline-primary" style="width:120px" for="flashingReduced">Reduced</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group row my-3">
+                            <div class="col-md-4">
                             <label class="col-form-label" for="disable_beeping">{% include "help/beeping.html" %}Low-energy beeping</label>
                             </div>
                             <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
