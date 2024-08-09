@@ -1,8 +1,7 @@
 use serde::Deserialize;
-use serde_hex::{SerHex,SerHexSeq,StrictPfx,CompactPfx};
+use serde_hex::{CompactPfx, SerHex, SerHexSeq, StrictPfx};
 
-#[derive(Deserialize)]
-#[derive(Default)]
+#[derive(Deserialize, Default)]
 pub struct GlowPatch {
     pub sections: Vec<GlowPatchSection>,
 }

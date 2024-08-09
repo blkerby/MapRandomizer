@@ -1,6 +1,6 @@
 use crate::patch::Rom;
-use maprando_game::glowpatch::{{GlowPatch, GlowPatchSection}};
 use anyhow::Result;
+use maprando_game::glowpatch::{GlowPatch, GlowPatchSection};
 
 pub fn write_glowpatch(rom: &mut Rom, patch: &GlowPatch) -> Result<()> {
     for section in &patch.sections {
@@ -9,24 +9,30 @@ pub fn write_glowpatch(rom: &mut Rom, patch: &GlowPatch) -> Result<()> {
     Ok(())
 }
 
-fn write_glowpatch_section(rom: &mut Rom, section: &GlowPatchSection, base_offset: usize) -> Result<()> {
+fn write_glowpatch_section(
+    rom: &mut Rom,
+    section: &GlowPatchSection,
+    base_offset: usize,
+) -> Result<()> {
     match section {
         GlowPatchSection::Direct { offset, data } => {
             let total_offset = *offset as usize + base_offset;
             rom.write_n(total_offset, &data)?;
             Ok(())
-        },
-        GlowPatchSection::Indirect { offset, read_length, sections } => {
+        }
+        GlowPatchSection::Indirect {
+            offset,
+            read_length,
+            sections,
+        } => {
             let total_offset = *offset as usize + base_offset;
-            let addr_data = rom
-                .read_n(total_offset, *read_length as usize)?
-                .to_vec();
+            let addr_data = rom.read_n(total_offset, *read_length as usize)?.to_vec();
             let addr = from_bytes_le(&addr_data) as usize;
             for subsection in sections {
                 write_glowpatch_section(rom, &subsection, addr)?;
             }
             Ok(())
-        },
+        }
     }
 }
 

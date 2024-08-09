@@ -1,5 +1,5 @@
-pub mod smart_xml;
 pub mod glowpatch;
+pub mod smart_xml;
 
 use crate::glowpatch::GlowPatch;
 use anyhow::{bail, ensure, Context, Result};
@@ -4085,8 +4085,12 @@ impl GameData {
     }
 
     fn load_reduced_flashing_patch(&mut self, path: &Path) -> Result<()> {
-        let reduced_flashing_str = std::fs::read_to_string(path)
-            .with_context(|| format!("Unable to load reduced flashing patch at {}", path.display()))?;
+        let reduced_flashing_str = std::fs::read_to_string(path).with_context(|| {
+            format!(
+                "Unable to load reduced flashing patch at {}",
+                path.display()
+            )
+        })?;
         self.reduced_flashing_patch = serde_json::from_str(&reduced_flashing_str)?;
         Ok(())
     }
