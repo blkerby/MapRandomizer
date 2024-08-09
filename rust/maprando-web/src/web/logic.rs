@@ -1,4 +1,3 @@
-mod logic_boss_calculator;
 mod logic_main;
 mod logic_room;
 mod logic_strat;
@@ -16,5 +15,4 @@ pub fn scope() -> actix_web::Scope {
         .service(logic_room::logic_room)
         .service(logic_strat::logic_strat)
         .service(logic_tech::logic_tech)
-        .service(logic_boss_calculator::logic_boss_calculator)
 }
