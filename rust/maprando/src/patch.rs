@@ -2,8 +2,8 @@ mod beam_doors_tiles;
 pub mod bps;
 pub mod compress;
 pub mod decompress;
-pub mod ips_write;
 pub mod glowpatch;
+pub mod ips_write;
 pub mod map_tiles;
 pub mod suffix_tree;
 pub mod title;
@@ -13,8 +13,8 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     game_data::{DoorPtr, DoorPtrPair, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr},
-    patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
     patch::glowpatch::parse_glowpatch,
+    patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
     randomize::{
         AreaAssignment, DoorType, EtankRefill, LockedDoor, MotherBrainFight, Objective,
         Randomization, SaveAnimals, StartLocationMode, WallJump,

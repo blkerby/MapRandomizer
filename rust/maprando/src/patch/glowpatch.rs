@@ -1,5 +1,5 @@
-use anyhow::{bail, ensure, Result};
 use crate::patch::Rom;
+use anyhow::{bail, ensure, Result};
 
 pub trait GlowPatchSection {
     fn write(&self, rom: &mut Rom, offset: usize) -> Result<()>;
@@ -27,7 +27,9 @@ impl GlowPatchSection for GlowDirectPatchSection {
 impl GlowPatchSection for GlowIndirectPatchSection {
     fn write(&self, rom: &mut Rom, offset: usize) -> Result<()> {
         let total_offset = self.offset + offset;
-        let addr_data = rom.read_n(total_offset, self.read_length as usize)?.to_vec();
+        let addr_data = rom
+            .read_n(total_offset, self.read_length as usize)?
+            .to_vec();
         let addr = as_usize_le(&addr_data) as usize;
         for i in 0..self.sections.len() {
             self.sections[i].write(rom, addr)?;
@@ -58,14 +60,20 @@ impl GlowPatchReader {
     }
 
     fn read_u8(&mut self) -> Result<u8> {
-        ensure!(self.pos + 1 <= self.data.len(), "read_u8 address out of bounds");
+        ensure!(
+            self.pos + 1 <= self.data.len(),
+            "read_u8 address out of bounds"
+        );
         let value = self.data[self.pos];
         self.pos += 1;
         Ok(value)
     }
 
     fn read_n(&mut self, n: usize) -> Result<&[u8]> {
-        ensure!(self.pos + n <= self.data.len(), "read_n address out of bounds");
+        ensure!(
+            self.pos + n <= self.data.len(),
+            "read_n address out of bounds"
+        );
         let value = &self.data[self.pos..self.pos + n];
         self.pos += n;
         Ok(value)
@@ -78,7 +86,7 @@ impl GlowPatchReader {
 }
 
 pub fn parse_glowpatch(patch: &Vec<u8>) -> Result<Vec<Box<dyn GlowPatchSection>>> {
-    let mut reader = GlowPatchReader::new(patch); 
+    let mut reader = GlowPatchReader::new(patch);
     let len = reader.read_varint()?;
     let mut sections: Vec<Box<dyn GlowPatchSection>> = vec![];
 
@@ -94,7 +102,11 @@ fn parse_section(patch: &mut GlowPatchReader) -> Result<Box<dyn GlowPatchSection
     let section: Box<dyn GlowPatchSection> = match kind {
         0u8 => Box::new(parse_direct_section(patch)?),
         1u8 => Box::new(parse_indirect_section(patch)?),
-        _ => bail!("Unexpected patch section kind header: {} at position: {:X}", kind, patch.pos - 1),
+        _ => bail!(
+            "Unexpected patch section kind header: {} at position: {:X}",
+            kind,
+            patch.pos - 1
+        ),
     };
 
     Ok(section)

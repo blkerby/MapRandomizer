@@ -9,7 +9,8 @@ use log::info;
 use maprando::{
     customize::{
         customize_rom, parse_controller_button, ControllerButton, ControllerConfig,
-        CustomizeSettings, DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, FlashingSetting, TileTheme,
+        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
+        TileTheme,
     },
     game_data::Map,
     patch::Rom,
