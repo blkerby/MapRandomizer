@@ -154,6 +154,8 @@ struct Args {
     parallelism: Option<usize>,
     #[arg(long, action)]
     dev: bool,
+    #[arg(long, default_value_t = 8080)]
+    port: u16,
 }
 
 fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
@@ -295,6 +297,7 @@ fn build_app_data() -> AppData {
         logic_data,
         samus_sprite_categories,
         debug: args.debug,
+        port: args.port,
         version_info: VersionInfo {
             version: VERSION,
             dev: args.dev,
@@ -314,6 +317,8 @@ async fn main() {
         .init();
 
     let app_data = actix_web::web::Data::new(build_app_data());
+
+    let port = app_data.port;
 
     HttpServer::new(move || {
         App::new()
@@ -338,7 +343,7 @@ async fn main() {
             ))
             .service(actix_files::Files::new("/static", "static"))
     })
-    .bind("0.0.0.0:8080")
+    .bind(("0.0.0.0", port))
     .unwrap()
     .run()
     .await

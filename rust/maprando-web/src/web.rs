@@ -45,6 +45,7 @@ pub struct AppData {
     pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
     pub debug: bool,
+    pub port: u16,
     pub version_info: VersionInfo,
     pub static_visualizer: bool,
     pub etank_colors: Vec<Vec<String>>, // colors in HTML hex format, e.g "#ff0000"
