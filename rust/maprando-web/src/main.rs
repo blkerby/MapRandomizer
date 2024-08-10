@@ -335,6 +335,7 @@ async fn main() {
                 "../sm-json-data",
             ))
             .service(actix_files::Files::new("/static", "static"))
+            .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"))
     })
     .bind("0.0.0.0:8080")
     .unwrap()

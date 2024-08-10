@@ -15,11 +15,13 @@ use maprando::{
     seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
+use serde::Serialize;
 
 pub const VERSION: usize = 114;
 pub const HQ_VIDEO_URL_ROOT: &'static str =
     "https://storage.googleapis.com/super-metroid-map-rando-videos-webm";
 
+#[derive(Serialize)]
 pub struct PresetData {
     pub preset: Preset,
     pub tech_setting: Vec<(String, bool)>,

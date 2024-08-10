@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    {% include "../common/header.html" %}
+    <title>Boss Calculator - Super Metroid Map Rando</title>
+</head>
+
+<body>
+    {% include "../common/navbar.html" %}
+    <div class="container col-lg-9 col-xl-7 col-xxl-6 pb-4">
+
+        <div class="row">
+            <div class="d-flex justify-content-around my-2">
+                <style>
+                    .boss-icon {
+                        width: 128px;
+                        height: 128px;
+                        background-color: black;
+                        image-rendering: pixelated;
+                    }
+                
+                    .boss-disabled {
+                        filter: grayscale(100%) brightness(50%);
+                    }
+                </style>
+                <img id="boss-phantoon" class="boss-icon" src="/static/bosses/phantoon.png" alt="Phantoon"></img>
+                <img id="boss-draygon" class="boss-icon" src="/static/bosses/draygon.png" alt="Draygon"></img>
+                <img id="boss-ridley" class="boss-icon" src="/static/bosses/ridley.png" alt="Ridley"></img>
+                <img id="boss-botwoon" class="boss-icon" src="/static/bosses/botwoon.png" alt="Botwoon"></img>
+                <img id="boss-mother-brain" class="boss-icon" src="/static/bosses/mother_brain.png" alt="Mother Brain"></img>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-2 my-2 d-flex align-items-center">
+                Techs and strats
+            </div>
+            <div class="col-lg-10 my-2 btn-group overflow-auto" role="group" id="presets">
+            {% for difficulty in difficulty_names.iter() %}
+                <input type="radio" class="btn-check" name="preset" value="{{+ loop.index0 }}"
+                    id="preset{{+ loop.index0 }}" autocomplete="off" {% if loop.first %}checked{% endif %}>
+                <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ difficulty }}</label>
+            {% endfor %}
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="form-group row m-2">
+                <label for="bossProficiency" class="col-6 col-form-label">Boss proficiency<br>
+                    <small>(Skill level at the boss fights, between 0 and 1)</small>
+                </label>
+                <div class="col-2 my-2">
+                    <input type="number" class="form-control" id="bossProficiency" min="0" max="1" step="0.05" id="proficiency" value="0">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group row align-items-center">
+            <div class="col-6 m-2">
+                {% include "../generate/help/quality/supers_double.html" %}
+                <label for="preset">Supers do double damage to Mother Brain</label>
+            </div>
+            <div class="col-2 btn-group m-2" role="group" id="supersDouble">
+                <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
+                <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
+                <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
+                <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="d-flex justify-content-center">
+                {% include "../common/inventory.html" %}
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        import init, { set_panic_hook, can_defeat_phantoon, can_defeat_draygon, can_defeat_ridley, can_defeat_botwoon, can_defeat_mother_brain_2 } from "/wasm/maprando_wasm.js";
+        let presets_json = {{ presets_json|safe }};
+
+        let ref_proficiency;
+        let can_manage_reserves = false;
+        let can_be_very_patient = false;
+        let supers_double = true;
+        let r_mode = false;
+
+        window.addEventListener("load", function () {
+            ref_proficiency = document.getElementById("bossProficiency");
+            let ref_inventory = document.getElementById("inventory-table");
+            
+            let ref_boss_phantoon = document.getElementById("boss-phantoon");
+            let ref_boss_draygon = document.getElementById("boss-draygon");
+            let ref_boss_ridley = document.getElementById("boss-ridley");
+            let ref_boss_botwoon = document.getElementById("boss-botwoon");
+            let ref_boss_mother_brain = document.getElementById("boss-mother-brain");
+
+            // wasm
+            init().then(() => {
+                set_panic_hook();
+
+                function do_checks() {
+                    let inventory = getInventory();
+                    let proficiency = getProficiency();
+
+                    ref_boss_phantoon.classList.toggle("boss-disabled",
+                        can_defeat_phantoon(inventory, proficiency, can_manage_reserves));
+                    ref_boss_draygon.classList.toggle("boss-disabled",
+                        can_defeat_draygon(inventory, proficiency, can_manage_reserves, can_be_very_patient));
+                    ref_boss_ridley.classList.toggle("boss-disabled",
+                        can_defeat_ridley(inventory, proficiency, can_manage_reserves, can_be_very_patient));
+                    ref_boss_botwoon.classList.toggle("boss-disabled",
+                        can_defeat_botwoon(inventory, proficiency, false, can_manage_reserves) &&
+                        can_defeat_botwoon(inventory, proficiency, true, can_manage_reserves));
+                    ref_boss_mother_brain.classList.toggle("boss-disabled",
+                        can_defeat_mother_brain_2(inventory, proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode));
+                }
+
+                ref_inventory.addEventListener("click", do_checks);
+                ref_inventory.addEventListener("contextmenu", do_checks);
+                ref_proficiency.addEventListener("input", do_checks);
+                for (let ref_radio_button of document.querySelectorAll("presets input[type='radio']")) {
+                    ref_radio_button.addEventListener("click", function () {
+                        function get_tech(techs, name) {
+                            for (let tech of techs) {
+                                if (tech[0] == name) {
+                                    return tech[1];
+                                }
+                            }
+                            return false;
+                        }
+
+                        let techs = presets_json[ref_radio_button.value].tech_setting;
+                        can_manage_reserves = get_tech(techs, "canManageReserves");
+                        can_be_very_patient = get_tech(techs, "canBeVeryPatient");
+                        r_mode = get_tech(techs, "canEnterRMode");
+
+                        do_checks();
+                    });
+                }
+                for (let ref_radio_button of document.querySelectorAll("#supersDouble input[type='radio']")) {
+                    ref_radio_button.addEventListener("click", function () {
+                        supers_double = (ref_radio_button.value === "true");
+                        do_checks();
+                    });
+                }
+            });
+        });
+
+        function getProficiency() { 
+            let proficiency = parseFloat(ref_proficiency.value);
+            if (isNaN(proficiency)) {
+                proficiency = 0;
+            } else if (proficiency > 1) {
+                proficiency = 1;
+            } else if (proficiency < 0) {
+                proficiency = 0;
+            }
+            return proficiency;
+        }
+    </script>
+</body>
+
+</html>

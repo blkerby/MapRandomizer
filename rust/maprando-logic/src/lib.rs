@@ -2,8 +2,9 @@ pub mod boss_requirements;
 pub mod helpers;
 
 use maprando_game::{Capacity, GameData, Item, WeaponMask};
+use serde::Deserialize;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Deserialize)]
 pub struct Inventory {
     pub items: Vec<bool>,
     pub max_energy: Capacity,
