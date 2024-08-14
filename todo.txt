@@ -1,4 +1,5 @@
 v114:
+- in logic pages, allocate more width to strat name, since node names are now shorter
 - investigate panic caused by negative energy resource (caused by large heat frame req that overflows with multiplier)
 - use nothing PLM instead of copy PLM to replace gray doors
   - try to check if fixes crash in seed that oats played (2024-08-02)
