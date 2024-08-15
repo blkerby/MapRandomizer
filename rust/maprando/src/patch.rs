@@ -456,6 +456,7 @@ impl<'a> Patcher<'a> {
             "escape_timer",
             "nothing_item",
             "beam_doors",
+            "flashing_placebo",
         ];
 
         if self.randomization.difficulty.ultra_low_qol {
