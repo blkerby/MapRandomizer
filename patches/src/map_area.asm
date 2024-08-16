@@ -7,7 +7,7 @@ lorom
 !bank_82_freespace_end = $82FA80
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
-!bank_a7_freespace_end = $A88000
+!bank_a7_freespace_end = $A7FFE0
 !bank_e8_freespace_start = $E88000
 !bank_e8_freespace_end = $E98000
 

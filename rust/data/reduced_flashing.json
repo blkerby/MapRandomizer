@@ -1429,6 +1429,14 @@
     {"direct": {
       "offset": "0x1276C0",
       "data": "2925FF7F9F2EBF2D982D722D6E299E73"
+    }},
+    {"direct": {
+      "offset": "0x12A299",
+      "data": "9953D246CB256925154FB13E2E320C2E5B27D7265426D0253C6596390D26"
+    }},
+    {"direct": {
+      "offset": "0x13FFE0",
+      "data": "29259C57D646CE256B25184FB53E3132EF29FF7F184B523A102E3E4D37393025"
     }}
   ]
 }
