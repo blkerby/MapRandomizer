@@ -1,16 +1,15 @@
 v114:
-- in logic pages, allocate more width to strat name, since node names are now shorter
-- investigate panic caused by negative energy resource (caused by large heat frame req that overflows with multiplier)
-- use nothing PLM instead of copy PLM to replace gray doors
+- DONE: in logic pages, allocate more width to strat name, since node names are now shorter
+- DONE: investigate panic caused by negative energy resource (caused by large heat frame req that overflows with multiplier)
+- DONE: use nothing PLM instead of copy PLM to replace gray doors
   - try to check if fixes crash in seed that oats played (2024-08-02)
-- fix issue with Toilet passing through left side of Pants Room:
+- DONE(?): fix issue with Toilet passing through left side of Pants Room:
   - wrongly shows in bg of East Pants Room (oats vs. solski sgl seed)
-- add note in spoiler map explaining how to interpret item difficulties shown (doesn't take into account return path or locks/flags that could be cleared before)
-- handle steep starting down tile better: only should affect short-charging, not other uses of runways
-- ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
+- DONE add note in spoiler map explaining how to interpret item difficulties shown (doesn't take into account return path or locks/flags that could be cleared before)
+- DONE: restore vanilla Climb rising lava when entering bottom-left door
+- DONE(?): ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
 - ensure Speedbooster is required when extra run speed is constrained to >$2.0.
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
-- restore vanilla Climb rising lava when entering bottom-left door
 - override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
 - verify respin implementation and iron out issues:
   - issue with sand escape in butterfly room.
@@ -27,9 +26,10 @@ v114:
   - SZM: SBniconico
   - Kaizo: Green Samus
   - Super Duper: Metaquarius, Daltone
-- add Map Rando identifier to the ROM (header?), and include seed name somewhere
+- DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - fix bug where dachora despawns global zeela in Dachora Room.
   - probably caused by escape.asm: missing ",x" in stz, also check for Landing Site room ID so that it won't affect Dachora Room
 - update how seed names are chosen
