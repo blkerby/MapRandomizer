@@ -2875,12 +2875,8 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(
-                        parse_hex(&value["minExtraRunSpeed"], 0.0)?,
-                    ),
-                    max_extra_run_speed: Float::new(
-                        parse_hex(&value["maxExtraRunSpeed"], 7.0)?,
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveWithMockball" => {
@@ -2895,12 +2891,8 @@ impl GameData {
                     landing_runway_length: Float::new(landing_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(
-                        parse_hex(&value["minExtraRunSpeed"], 0.0)?,
-                    ),
-                    max_extra_run_speed: Float::new(
-                        parse_hex(&value["maxExtraRunSpeed"], 7.0)?,
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveWithSpringBallBounce" => {
@@ -2918,12 +2910,8 @@ impl GameData {
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),
                     )?,
-                    min_extra_run_speed: Float::new(
-                        parse_hex(&value["minExtraRunSpeed"], 0.0)?,
-                    ),
-                    max_extra_run_speed: Float::new(
-                        parse_hex(&value["maxExtraRunSpeed"], 7.0)?,
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveSpaceJumping" => {
@@ -2934,12 +2922,8 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(
-                        parse_hex(&value["minExtraRunSpeed"], 0.0)?,
-                    ),
-                    max_extra_run_speed: Float::new(
-                        parse_hex(&value["maxExtraRunSpeed"], 7.0)?,
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveWithGModeSetup" => ExitCondition::LeaveWithGModeSetup {
@@ -3070,12 +3054,8 @@ impl GameData {
                     effective_length: Float::new(runway_effective_length),
                     min_tiles: Float::new(value["minTiles"].as_f32().unwrap_or(0.0)),
                     heated,
-                    min_extra_run_speed: Float::new(
-                        parse_hex(&value["minExtraRunSpeed"], 0.0)?,
-                    ),
-                    max_extra_run_speed: Float::new(
-                        parse_hex(&value["maxExtraRunSpeed"], 7.0)?,
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "comeInShinecharged" => {
@@ -3163,12 +3143,8 @@ impl GameData {
             },
             "comeInWithBlueSpringBallBounce" => {
                 MainEntranceCondition::ComeInWithBlueSpringBallBounce {
-                    min_extra_run_speed: Float::new(
-                        parse_hex(&value["minExtraRunSpeed"], 0.0)?,
-                    ),
-                    max_extra_run_speed: Float::new(
-                        parse_hex(&value["maxExtraRunSpeed"], 7.0)?,
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                     min_landing_tiles: Float::new(value["minLandingTiles"].as_f32().unwrap_or(0.0)),
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),

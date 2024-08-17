@@ -67,7 +67,9 @@ pub fn apply_phantoon_requirement(
     }
 
     // Overflow safeguard - bail here if Samus takes calamitous damage.
-    if net_dps * kill_time > 10000.0 { return None; }
+    if net_dps * kill_time > 10000.0 {
+        return None;
+    }
 
     local.energy_used += (net_dps * kill_time) as Capacity;
 
@@ -169,7 +171,9 @@ pub fn apply_draygon_requirement(
             net_dps = 0.0;
         }
         // Overflow safeguard - bail here if Samus takes calamitous damage.
-        if net_dps * time > 10000.0 { return None; }
+        if net_dps * time > 10000.0 {
+            return None;
+        }
         // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
         // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
         let result = LocalState {
@@ -292,7 +296,9 @@ pub fn apply_ridley_requirement(
     };
     let damage = base_ridley_attack_dps * hit_rate * time;
     // Overflow safeguard - bail here if Samus takes calamitous damage.
-    if damage > 10000.0 { return None; }
+    if damage > 10000.0 {
+        return None;
+    }
     local.energy_used += (damage / suit_damage_factor(inventory) as f32) as Capacity;
 
     if !inventory.items[Item::Varia as usize] {
@@ -417,7 +423,9 @@ pub fn apply_botwoon_requirement(
         let hits = f32::round(base_hit_rate * hit_rate_multiplier * time);
         let damage_per_hit = 96.0 / suit_damage_factor(inventory) as f32;
         // Overflow safeguard - bail here if Samus takes calamitous damage.
-        if hits * damage_per_hit > 10000.0 { return None; }
+        if hits * damage_per_hit > 10000.0 {
+            return None;
+        }
         local.energy_used += (hits * damage_per_hit) as Capacity;
     }
 
@@ -527,7 +535,9 @@ pub fn apply_mother_brain_2_requirement(
         }
     }
     // Overflow safeguard - bail here if Samus takes calamitous damage.
-    if damage > 10000.0 { return None; }
+    if damage > 10000.0 {
+        return None;
+    }
 
     validate_energy(local, inventory, can_manage_reserves)
 }
