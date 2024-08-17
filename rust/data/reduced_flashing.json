@@ -1465,6 +1465,10 @@
     {"direct": {
       "offset": "0x13FFE0",
       "data": "29259C57D646CE256B25184FB53E3132EF29FF7F184B523A102E3E4D37393025"
+    }},
+    {"direct": {
+      "offset": "0x14C7B1",
+      "data": "02"
     }}
   ]
 }
