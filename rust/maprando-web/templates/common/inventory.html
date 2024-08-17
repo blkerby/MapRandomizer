@@ -80,7 +80,7 @@
         height: 32px;
         background-image: url(/static/items.png);
         image-rendering: pixelated;
-        background-size: cover;
+        background-size: auto 100%;
     }
 
     .item-amount {
@@ -275,6 +275,9 @@
                         amount_pack = 5;
                         amount_max = 50;
                         break;
+                }
+                if (e.ctrlKey) {
+                    amount_pack *= 10;
                 }
                 // Add
                 if (e.type == "click") {

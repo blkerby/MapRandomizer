@@ -12,96 +12,126 @@ pub fn set_panic_hook() {
 #[wasm_bindgen]
 pub fn can_defeat_phantoon(
     inventory: JsValue,
+    local: JsValue,
     proficiency: f32,
     can_manage_reserves: bool,
-) -> Result<bool, JsValue> {
-    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory)?;
+) -> JsValue {
+    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
+    let local = match serde_wasm_bindgen::from_value(local) {
+        Ok(local) => local,
+        Err(_) => LocalState::new(),
+    };
 
-    Ok(apply_phantoon_requirement(
-        &inventory,
-        LocalState::new(),
-        proficiency,
-        can_manage_reserves,
-    )
-    .is_some())
+    match apply_phantoon_requirement(&inventory, local, proficiency, can_manage_reserves) {
+        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
+        None => JsValue::null(),
+    }
 }
 
 #[wasm_bindgen]
 pub fn can_defeat_draygon(
     inventory: JsValue,
+    local: JsValue,
     proficiency: f32,
     can_manage_reserves: bool,
     can_be_very_patient: bool,
-) -> Result<bool, JsValue> {
-    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory)?;
+) -> JsValue {
+    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
+    let local = match serde_wasm_bindgen::from_value(local) {
+        Ok(local) => local,
+        Err(_) => LocalState::new(),
+    };
 
-    Ok(apply_draygon_requirement(
+    match apply_draygon_requirement(
         &inventory,
-        LocalState::new(),
+        local,
         proficiency,
         can_manage_reserves,
         can_be_very_patient,
-    )
-    .is_some())
+    ) {
+        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
+        None => JsValue::null(),
+    }
 }
 
 #[wasm_bindgen]
 pub fn can_defeat_ridley(
     inventory: JsValue,
+    local: JsValue,
     proficiency: f32,
     can_manage_reserves: bool,
     can_be_very_patient: bool,
-) -> Result<bool, JsValue> {
-    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory)?;
+) -> JsValue {
+    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
+    let local = match serde_wasm_bindgen::from_value(local) {
+        Ok(local) => local,
+        Err(_) => LocalState::new(),
+    };
 
-    Ok(apply_ridley_requirement(
+    match apply_ridley_requirement(
         &inventory,
-        LocalState::new(),
+        local,
         proficiency,
         can_manage_reserves,
         can_be_very_patient,
-    )
-    .is_some())
+    ) {
+        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
+        None => JsValue::null(),
+    }
 }
 
 #[wasm_bindgen]
 pub fn can_defeat_botwoon(
     inventory: JsValue,
+    local: JsValue,
     proficiency: f32,
     second_phase: bool,
     can_manage_reserves: bool,
-) -> Result<bool, JsValue> {
-    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory)?;
+) -> JsValue {
+    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
+    let local = match serde_wasm_bindgen::from_value(local) {
+        Ok(local) => local,
+        Err(_) => LocalState::new(),
+    };
 
-    Ok(apply_botwoon_requirement(
+    match apply_botwoon_requirement(
         &inventory,
-        LocalState::new(),
+        local,
         proficiency,
         second_phase,
         can_manage_reserves,
-    )
-    .is_some())
+    ) {
+        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
+        None => JsValue::null(),
+    }
 }
 
 #[wasm_bindgen]
 pub fn can_defeat_mother_brain_2(
     inventory: JsValue,
+    local: JsValue,
     proficiency: f32,
     supers_double: bool,
     can_manage_reserves: bool,
     can_be_very_patient: bool,
     r_mode: bool,
-) -> Result<bool, JsValue> {
-    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory)?;
+) -> JsValue {
+    let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
+    let local = match serde_wasm_bindgen::from_value(local) {
+        Ok(local) => local,
+        Err(_) => LocalState::new(),
+    };
 
-    Ok(apply_mother_brain_2_requirement(
+    match apply_mother_brain_2_requirement(
         &inventory,
-        LocalState::new(),
+        local,
         proficiency,
         supers_double,
         can_manage_reserves,
         can_be_very_patient,
         r_mode,
-    )
-    .is_some())
+    ) {
+        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
+        None => JsValue::null(),
+    }
 }

@@ -10,7 +10,11 @@
     {% include "../common/navbar.html" %}
     <div class="container col-lg-9 col-xl-7 col-xxl-6 pb-4">
 
-        <div class="row">
+        <div class="d-flex justify-content-center">
+            <h2 id="boss-header">Select a boss</h2>
+        </div>
+
+        <div id="boss-selector" class="row">
             <div class="d-flex justify-content-around my-2">
                 <style>
                     .boss-icon {
@@ -24,11 +28,11 @@
                         filter: grayscale(100%) brightness(50%);
                     }
                 </style>
-                <img id="boss-phantoon" class="boss-icon" src="/static/bosses/phantoon.png" alt="Phantoon"></img>
-                <img id="boss-draygon" class="boss-icon" src="/static/bosses/draygon.png" alt="Draygon"></img>
-                <img id="boss-ridley" class="boss-icon" src="/static/bosses/ridley.png" alt="Ridley"></img>
-                <img id="boss-botwoon" class="boss-icon" src="/static/bosses/botwoon.png" alt="Botwoon"></img>
-                <img id="boss-mother-brain" class="boss-icon" src="/static/bosses/mother_brain.png" alt="Mother Brain"></img>
+                <img id="boss-phantoon" class="boss-icon boss-disabled" src="/static/bosses/phantoon.png" alt="Phantoon" data-name="Phantoon"></img>
+                <img id="boss-draygon" class="boss-icon boss-disabled" src="/static/bosses/draygon.png" alt="Draygon" data-name="Draygon"></img>
+                <img id="boss-ridley" class="boss-icon boss-disabled" src="/static/bosses/ridley.png" alt="Ridley" data-name="Ridley"></img>
+                <img id="boss-botwoon" class="boss-icon boss-disabled" src="/static/bosses/botwoon.png" alt="Botwoon" data-name="Botwoon"></img>
+                <img id="boss-mother-brain" class="boss-icon boss-disabled" src="/static/bosses/mother_brain.png" alt="Mother Brain" data-name="Mother Brain"></img>
             </div>
         </div>
 
@@ -47,16 +51,16 @@
 
         <div class="row">
             <div class="form-group row m-2">
-                <label for="bossProficiency" class="col-6 col-form-label">Boss proficiency<br>
+                <label for="boss-proficiency" class="col-6 col-form-label">Boss proficiency<br>
                     <small>(Skill level at the boss fights, between 0 and 1)</small>
                 </label>
                 <div class="col-2 my-2">
-                    <input type="number" class="form-control" id="bossProficiency" min="0" max="1" step="0.05" id="proficiency" value="0">
+                    <input type="number" class="form-control" id="boss-proficiency" min="0" max="1" step="0.05" id="proficiency" value="0">
                 </div>
             </div>
         </div>
 
-        <div class="form-group row align-items-center">
+        <div id="mother-brain-supers" class="form-group row align-items-center d-none">
             <div class="col-6 m-2">
                 {% include "../generate/help/quality/supers_double.html" %}
                 <label for="preset">Supers do double damage to Mother Brain</label>
@@ -70,56 +74,178 @@
         </div>
 
         <div class="row">
-            <div class="d-flex justify-content-center">
+            <div class="d-flex justify-content-center p-3">
                 {% include "../common/inventory.html" %}
             </div>
         </div>
+
+        <div id="results" class="d-none d-flex justify-content-center">
+            <div>
+                <h4 class="text-center">Results</h4>
+                <i class="text-center" id="result-fail">Not enough items/resources</i>
+                <div id="result-success" class="card" style="width: 300px;">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex">
+                            <div class="col-10">Energy used:</div>
+                            <div class="col-2" id="energy-used">0</div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <div class="col-10">Reserves used:</div>
+                            <div class="col-2" id="reserves-used">0</div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <div class="col-10">Missiles used:</div>
+                            <div class="col-2" id="missiles-used">0</div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <div class="col-10">Supers used:</div>
+                            <div class="col-2" id="supers-used">0</div>
+                        </li>
+                        <li class="list-group-item d-flex">
+                            <div class="col-10">Power Bombs used:</div>
+                            <div class="col-2" id="power-bombs-used">0</div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
     </div>
     <script type="module">
         import init, { set_panic_hook, can_defeat_phantoon, can_defeat_draygon, can_defeat_ridley, can_defeat_botwoon, can_defeat_mother_brain_2 } from "/wasm/maprando_wasm.js";
         let presets_json = {{ presets_json|safe }};
 
-        let ref_proficiency;
+        // First difficulty, then bosses
+        let preset_boss_proficiencies = [
+            {% for difficulty in boss_proficiencies.iter() %}
+            {
+                "Phantoon": {{ difficulty.0 }},
+                "Draygon": {{ difficulty.1 }},
+                "Ridley": {{ difficulty.2 }},
+                "Botwoon": {{ difficulty.3 }},
+                "Mother Brain": {{ difficulty.4 }},
+            },
+            {% endfor %}
+        ];
+
         let can_manage_reserves = false;
         let can_be_very_patient = false;
         let supers_double = true;
         let r_mode = false;
 
         window.addEventListener("load", function () {
-            ref_proficiency = document.getElementById("bossProficiency");
-            let ref_inventory = document.getElementById("inventory-table");
-            
+            // String of the currently selected boss. Empty when unselected.
+            let selected_boss = "";
+            let ref_boss_header = document.getElementById("boss-header");
+            let ref_boss_selector = document.getElementById("boss-selector");
+
             let ref_boss_phantoon = document.getElementById("boss-phantoon");
             let ref_boss_draygon = document.getElementById("boss-draygon");
             let ref_boss_ridley = document.getElementById("boss-ridley");
             let ref_boss_botwoon = document.getElementById("boss-botwoon");
             let ref_boss_mother_brain = document.getElementById("boss-mother-brain");
 
+            let ref_proficiency = document.getElementById("boss-proficiency");
+            let ref_inventory = document.getElementById("inventory-table");
+
+            let ref_mother_brain_supers = document.getElementById("mother-brain-supers");
+
+            let ref_results = document.getElementById("results");
+            let ref_result_fail = document.getElementById("result-fail");
+            let ref_result_success = document.getElementById("result-success");
+
+            let ref_energy_used = document.getElementById("energy-used");
+            let ref_reserves_used = document.getElementById("reserves-used");
+            let ref_missiles_used = document.getElementById("missiles-used");
+            let ref_supers_used = document.getElementById("supers-used");
+            let ref_power_bombs_used = document.getElementById("power-bombs-used");
+
             // wasm
             init().then(() => {
                 set_panic_hook();
 
-                function do_checks() {
-                    let inventory = getInventory();
-                    let proficiency = getProficiency();
-
-                    ref_boss_phantoon.classList.toggle("boss-disabled",
-                        can_defeat_phantoon(inventory, proficiency, can_manage_reserves));
-                    ref_boss_draygon.classList.toggle("boss-disabled",
-                        can_defeat_draygon(inventory, proficiency, can_manage_reserves, can_be_very_patient));
-                    ref_boss_ridley.classList.toggle("boss-disabled",
-                        can_defeat_ridley(inventory, proficiency, can_manage_reserves, can_be_very_patient));
-                    ref_boss_botwoon.classList.toggle("boss-disabled",
-                        can_defeat_botwoon(inventory, proficiency, false, can_manage_reserves) &&
-                        can_defeat_botwoon(inventory, proficiency, true, can_manage_reserves));
-                    ref_boss_mother_brain.classList.toggle("boss-disabled",
-                        can_defeat_mother_brain_2(inventory, proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode));
+                function getProficiency() {
+                    let proficiency = parseFloat(ref_proficiency.value);
+                    if (isNaN(proficiency)) {
+                        proficiency = 0;
+                    } else if (proficiency > 1) {
+                        proficiency = 1;
+                    } else if (proficiency < 0) {
+                        proficiency = 0;
+                    }
+                    return proficiency;
                 }
 
+                function updateProficiency() {
+                    if (selected_boss.length == 0) {
+                        return;
+                    }
+                    let presetIdx = parseInt(document.querySelector("#presets input:checked").value);
+                    ref_proficiency.value = preset_boss_proficiencies[presetIdx][selected_boss];
+                }
+
+                function updateResults(local) {
+                    ref_result_fail.classList.toggle("d-none", local != null);
+                    ref_result_success.classList.toggle("d-none", local == null);
+                    if (local == null) {
+                        return;
+                    }
+                    ref_energy_used.textContent = parseInt(local.energy_used);
+                    ref_reserves_used.textContent = parseInt(local.reserves_used);
+                    ref_missiles_used.textContent = parseInt(local.missiles_used);
+                    ref_supers_used.textContent = parseInt(local.supers_used);
+                    ref_power_bombs_used.textContent = parseInt(local.power_bombs_used);
+                }
+
+                function do_checks() {
+                    let inventory = getInventory();
+                    let local = null;
+                    let proficiency = getProficiency();
+
+                    if (selected_boss == "Phantoon") {
+                        local = can_defeat_phantoon(inventory, local, proficiency, can_manage_reserves);
+                    }
+                    else if (selected_boss == "Draygon") {
+                        local = can_defeat_draygon(inventory, local, proficiency, can_manage_reserves, can_be_very_patient);
+                    }
+                    else if (selected_boss == "Ridley") {
+                        local = can_defeat_ridley(inventory, local, proficiency, can_manage_reserves, can_be_very_patient);
+                    }
+                    else if (selected_boss == "Botwoon") {
+                        local = can_defeat_botwoon(inventory, local, proficiency, false, can_manage_reserves);
+                        if (local != null) {
+                            local = can_defeat_botwoon(inventory, local, proficiency, true, can_manage_reserves);
+                        }
+                    }
+                    else if (selected_boss == "Mother Brain") {
+                        local = can_defeat_mother_brain_2(inventory, local, proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode);
+                    }
+
+                    updateResults(local);
+                }
+
+                ref_boss_selector.addEventListener("click", function (e) { 
+                    let ref_boss_selected = e.target.closest("img");
+                    if (ref_boss_selected == null) {
+                        return;
+                    }
+                    for (let ref_boss of [ref_boss_phantoon, ref_boss_draygon, ref_boss_ridley, ref_boss_botwoon, ref_boss_mother_brain]) {
+                        ref_boss.classList.toggle("boss-disabled", ref_boss_selected != ref_boss);
+                        if (ref_boss_selected == ref_boss) {
+                            selected_boss = ref_boss_selected.getAttribute("data-name");
+                            ref_boss_header.textContent = selected_boss;
+                        }
+                    }
+                    ref_mother_brain_supers.classList.toggle("d-none", ref_boss_selected != ref_boss_mother_brain);
+                    ref_results.classList.remove("d-none");
+
+                    updateProficiency();
+                    do_checks();
+                });
                 ref_inventory.addEventListener("click", do_checks);
                 ref_inventory.addEventListener("contextmenu", do_checks);
                 ref_proficiency.addEventListener("input", do_checks);
-                for (let ref_radio_button of document.querySelectorAll("presets input[type='radio']")) {
+                for (let ref_radio_button of document.querySelectorAll("#presets input[type='radio']")) {
                     ref_radio_button.addEventListener("click", function () {
                         function get_tech(techs, name) {
                             for (let tech of techs) {
@@ -130,11 +256,12 @@
                             return false;
                         }
 
-                        let techs = presets_json[ref_radio_button.value].tech_setting;
+                        let techs = presets_json[parseInt(ref_radio_button.value)].tech_setting;
                         can_manage_reserves = get_tech(techs, "canManageReserves");
                         can_be_very_patient = get_tech(techs, "canBeVeryPatient");
                         r_mode = get_tech(techs, "canEnterRMode");
 
+                        updateProficiency();
                         do_checks();
                     });
                 }
@@ -146,18 +273,6 @@
                 }
             });
         });
-
-        function getProficiency() { 
-            let proficiency = parseFloat(ref_proficiency.value);
-            if (isNaN(proficiency)) {
-                proficiency = 0;
-            } else if (proficiency > 1) {
-                proficiency = 1;
-            } else if (proficiency < 0) {
-                proficiency = 0;
-            }
-            return proficiency;
-        }
     </script>
 </body>
 

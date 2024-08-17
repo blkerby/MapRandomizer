@@ -5,59 +5,63 @@
 export function set_panic_hook(): void;
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} can_manage_reserves
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_phantoon(inventory: any, proficiency: number, can_manage_reserves: boolean): boolean;
+export function can_defeat_phantoon(inventory: any, local: any, proficiency: number, can_manage_reserves: boolean): any;
 /**
 * @param {any} inventory
-* @param {number} proficiency
-* @param {boolean} can_manage_reserves
-* @param {boolean} can_be_very_patient
-* @returns {boolean}
-*/
-export function can_defeat_draygon(inventory: any, proficiency: number, can_manage_reserves: boolean, can_be_very_patient: boolean): boolean;
-/**
-* @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} can_manage_reserves
 * @param {boolean} can_be_very_patient
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_ridley(inventory: any, proficiency: number, can_manage_reserves: boolean, can_be_very_patient: boolean): boolean;
+export function can_defeat_draygon(inventory: any, local: any, proficiency: number, can_manage_reserves: boolean, can_be_very_patient: boolean): any;
 /**
 * @param {any} inventory
+* @param {any} local
+* @param {number} proficiency
+* @param {boolean} can_manage_reserves
+* @param {boolean} can_be_very_patient
+* @returns {any}
+*/
+export function can_defeat_ridley(inventory: any, local: any, proficiency: number, can_manage_reserves: boolean, can_be_very_patient: boolean): any;
+/**
+* @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} second_phase
 * @param {boolean} can_manage_reserves
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_botwoon(inventory: any, proficiency: number, second_phase: boolean, can_manage_reserves: boolean): boolean;
+export function can_defeat_botwoon(inventory: any, local: any, proficiency: number, second_phase: boolean, can_manage_reserves: boolean): any;
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} supers_double
 * @param {boolean} can_manage_reserves
 * @param {boolean} can_be_very_patient
 * @param {boolean} r_mode
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_mother_brain_2(inventory: any, proficiency: number, supers_double: boolean, can_manage_reserves: boolean, can_be_very_patient: boolean, r_mode: boolean): boolean;
+export function can_defeat_mother_brain_2(inventory: any, local: any, proficiency: number, supers_double: boolean, can_manage_reserves: boolean, can_be_very_patient: boolean, r_mode: boolean): any;
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly can_defeat_phantoon: (a: number, b: number, c: number, d: number) => void;
-  readonly can_defeat_draygon: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly can_defeat_ridley: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly can_defeat_botwoon: (a: number, b: number, c: number, d: number, e: number) => void;
-  readonly can_defeat_mother_brain_2: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => void;
+  readonly can_defeat_phantoon: (a: number, b: number, c: number, d: number) => number;
+  readonly can_defeat_draygon: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly can_defeat_ridley: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly can_defeat_botwoon: (a: number, b: number, c: number, d: number, e: number) => number;
+  readonly can_defeat_mother_brain_2: (a: number, b: number, c: number, d: number, e: number, f: number, g: number) => number;
   readonly set_panic_hook: () => void;
   readonly __wbindgen_malloc: (a: number, b: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number, d: number) => number;
-  readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
   readonly __wbindgen_exn_store: (a: number) => void;
   readonly __wbindgen_free: (a: number, b: number, c: number) => void;
 }

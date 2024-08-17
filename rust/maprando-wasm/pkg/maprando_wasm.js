@@ -1,5 +1,25 @@
 let wasm;
 
+const heap = new Array(128).fill(undefined);
+
+heap.push(undefined, null, true, false);
+
+function getObject(idx) { return heap[idx]; }
+
+let heap_next = heap.length;
+
+function dropObject(idx) {
+    if (idx < 132) return;
+    heap[idx] = heap_next;
+    heap_next = idx;
+}
+
+function takeObject(idx) {
+    const ret = getObject(idx);
+    dropObject(idx);
+    return ret;
+}
+
 const cachedTextDecoder = (typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8', { ignoreBOM: true, fatal: true }) : { decode: () => { throw Error('TextDecoder not available') } } );
 
 if (typeof TextDecoder !== 'undefined') { cachedTextDecoder.decode(); };
@@ -18,12 +38,6 @@ function getStringFromWasm0(ptr, len) {
     return cachedTextDecoder.decode(getUint8Memory0().subarray(ptr, ptr + len));
 }
 
-const heap = new Array(128).fill(undefined);
-
-heap.push(undefined, null, true, false);
-
-let heap_next = heap.length;
-
 function addHeapObject(obj) {
     if (heap_next === heap.length) heap.push(heap.length + 1);
     const idx = heap_next;
@@ -31,20 +45,6 @@ function addHeapObject(obj) {
 
     heap[idx] = obj;
     return idx;
-}
-
-function getObject(idx) { return heap[idx]; }
-
-function dropObject(idx) {
-    if (idx < 132) return;
-    heap[idx] = heap_next;
-    heap_next = idx;
-}
-
-function takeObject(idx) {
-    const ret = getObject(idx);
-    dropObject(idx);
-    return ret;
 }
 
 function isLikeNone(x) {
@@ -197,118 +197,68 @@ export function set_panic_hook() {
 
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} can_manage_reserves
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_phantoon(inventory, proficiency, can_manage_reserves) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.can_defeat_phantoon(retptr, addHeapObject(inventory), proficiency, can_manage_reserves);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return r0 !== 0;
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
+export function can_defeat_phantoon(inventory, local, proficiency, can_manage_reserves) {
+    const ret = wasm.can_defeat_phantoon(addHeapObject(inventory), addHeapObject(local), proficiency, can_manage_reserves);
+    return takeObject(ret);
 }
 
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} can_manage_reserves
 * @param {boolean} can_be_very_patient
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_draygon(inventory, proficiency, can_manage_reserves, can_be_very_patient) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.can_defeat_draygon(retptr, addHeapObject(inventory), proficiency, can_manage_reserves, can_be_very_patient);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return r0 !== 0;
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
+export function can_defeat_draygon(inventory, local, proficiency, can_manage_reserves, can_be_very_patient) {
+    const ret = wasm.can_defeat_draygon(addHeapObject(inventory), addHeapObject(local), proficiency, can_manage_reserves, can_be_very_patient);
+    return takeObject(ret);
 }
 
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} can_manage_reserves
 * @param {boolean} can_be_very_patient
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_ridley(inventory, proficiency, can_manage_reserves, can_be_very_patient) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.can_defeat_ridley(retptr, addHeapObject(inventory), proficiency, can_manage_reserves, can_be_very_patient);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return r0 !== 0;
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
+export function can_defeat_ridley(inventory, local, proficiency, can_manage_reserves, can_be_very_patient) {
+    const ret = wasm.can_defeat_ridley(addHeapObject(inventory), addHeapObject(local), proficiency, can_manage_reserves, can_be_very_patient);
+    return takeObject(ret);
 }
 
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} second_phase
 * @param {boolean} can_manage_reserves
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_botwoon(inventory, proficiency, second_phase, can_manage_reserves) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.can_defeat_botwoon(retptr, addHeapObject(inventory), proficiency, second_phase, can_manage_reserves);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return r0 !== 0;
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
+export function can_defeat_botwoon(inventory, local, proficiency, second_phase, can_manage_reserves) {
+    const ret = wasm.can_defeat_botwoon(addHeapObject(inventory), addHeapObject(local), proficiency, second_phase, can_manage_reserves);
+    return takeObject(ret);
 }
 
 /**
 * @param {any} inventory
+* @param {any} local
 * @param {number} proficiency
 * @param {boolean} supers_double
 * @param {boolean} can_manage_reserves
 * @param {boolean} can_be_very_patient
 * @param {boolean} r_mode
-* @returns {boolean}
+* @returns {any}
 */
-export function can_defeat_mother_brain_2(inventory, proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode) {
-    try {
-        const retptr = wasm.__wbindgen_add_to_stack_pointer(-16);
-        wasm.can_defeat_mother_brain_2(retptr, addHeapObject(inventory), proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode);
-        var r0 = getInt32Memory0()[retptr / 4 + 0];
-        var r1 = getInt32Memory0()[retptr / 4 + 1];
-        var r2 = getInt32Memory0()[retptr / 4 + 2];
-        if (r2) {
-            throw takeObject(r1);
-        }
-        return r0 !== 0;
-    } finally {
-        wasm.__wbindgen_add_to_stack_pointer(16);
-    }
+export function can_defeat_mother_brain_2(inventory, local, proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode) {
+    const ret = wasm.can_defeat_mother_brain_2(addHeapObject(inventory), addHeapObject(local), proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode);
+    return takeObject(ret);
 }
 
 function handleError(f, args) {
@@ -353,6 +303,9 @@ async function __wbg_load(module, imports) {
 function __wbg_get_imports() {
     const imports = {};
     imports.wbg = {};
+    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
+        takeObject(arg0);
+    };
     imports.wbg.__wbindgen_error_new = function(arg0, arg1) {
         const ret = new Error(getStringFromWasm0(arg0, arg1));
         return addHeapObject(ret);
@@ -369,9 +322,6 @@ function __wbg_get_imports() {
     imports.wbg.__wbindgen_in = function(arg0, arg1) {
         const ret = getObject(arg0) in getObject(arg1);
         return ret;
-    };
-    imports.wbg.__wbindgen_object_drop_ref = function(arg0) {
-        takeObject(arg0);
     };
     imports.wbg.__wbindgen_boolean_get = function(arg0) {
         const v = getObject(arg0);
@@ -400,6 +350,10 @@ function __wbg_get_imports() {
         const ret = +getObject(arg0);
         return ret;
     };
+    imports.wbg.__wbindgen_number_new = function(arg0) {
+        const ret = arg0;
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbindgen_object_clone_ref = function(arg0) {
         const ret = getObject(arg0);
         return addHeapObject(ret);
@@ -411,6 +365,9 @@ function __wbg_get_imports() {
     imports.wbg.__wbg_getwithrefkey_edc2c8960f0f1191 = function(arg0, arg1) {
         const ret = getObject(arg0)[getObject(arg1)];
         return addHeapObject(ret);
+    };
+    imports.wbg.__wbg_set_f975102236d3c502 = function(arg0, arg1, arg2) {
+        getObject(arg0)[takeObject(arg1)] = takeObject(arg2);
     };
     imports.wbg.__wbg_call_97ae9d8645dc388b = function() { return handleError(function (arg0, arg1) {
         const ret = getObject(arg0).call(getObject(arg1));
@@ -452,6 +409,10 @@ function __wbg_get_imports() {
         const ret = Reflect.get(getObject(arg0), getObject(arg1));
         return addHeapObject(ret);
     }, arguments) };
+    imports.wbg.__wbg_new_0b9bfdd97583284e = function() {
+        const ret = new Object();
+        return addHeapObject(ret);
+    };
     imports.wbg.__wbg_isArray_27c46c67f498e15d = function(arg0) {
         const ret = Array.isArray(getObject(arg0));
         return ret;
