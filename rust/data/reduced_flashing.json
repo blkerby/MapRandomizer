@@ -1435,6 +1435,34 @@
       "data": "9953D246CB256925154FB13E2E320C2E5B27D7265426D0253C6596390D26"
     }},
     {"direct": {
+      "offset": "0x13B3D3",
+      "data": "294D5E6239393231BF5B7953354BF046AF424E3A0D32CD2D2B255A6BFF7F2925"
+    }},
+    {"direct": {
+      "offset": "0x13B513",
+      "data": "294D"
+    }},
+    {"direct": {
+      "offset": "0x13B51B",
+      "data": "BF5B7953354BF046AF424E3A0D32CD2D2B255A6BFF7F2925"
+    }},
+    {"direct": {
+      "offset": "0x13B6E9",
+      "data": "01"
+    }},
+    {"direct": {
+      "offset": "0x13B72C",
+      "data": "01"
+    }},
+    {"direct": {
+      "offset": "0x13B759",
+      "data": "01"
+    }},
+    {"direct": {
+      "offset": "0x13B7A1",
+      "data": "01"
+    }},
+    {"direct": {
       "offset": "0x13FFE0",
       "data": "29259C57D646CE256B25184FB53E3132EF29FF7F184B523A102E3E4D37393025"
     }}
