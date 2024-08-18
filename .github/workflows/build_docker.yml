@@ -26,3 +26,5 @@ jobs:
         with:
           push: true
           tags: bkerby/map-rando:latest
+          cache-from: type=registry,ref=bkerby/map-rando:buildcache
+          cache-to: type=registry,ref=bkerby/map-rando:buildcache,mode=max
