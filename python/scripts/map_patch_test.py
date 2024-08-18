@@ -8,7 +8,7 @@ import os
 
 
 input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.6.1-tinystates-ntsc.sfc'
-output_rom_path = '/home/kerby/Downloads/maptest.smc'
+output_rom_path = '/home/kerby/Downloads/prachack-2.6.1.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
@@ -32,6 +32,7 @@ patches = [
     # 'new_game_extra',
     # 'door_hurt',
     "everest_tube",
+    "fast_pause_menu",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
