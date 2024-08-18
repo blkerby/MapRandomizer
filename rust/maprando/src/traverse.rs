@@ -874,7 +874,8 @@ pub fn apply_requirement(
                 }
             } else {
                 let mut new_local = local;
-                new_local.energy_used = Capacity::max(local.energy_used, global.inventory.max_energy - count);
+                new_local.energy_used =
+                    Capacity::max(local.energy_used, global.inventory.max_energy - count);
                 Some(new_local)
             }
         }
@@ -889,7 +890,8 @@ pub fn apply_requirement(
                 let mut new_local = local;
                 // TODO: Drained reserve energy could potentially be transferred into regular energy, but it wouldn't
                 // be consistent with how "resourceAtMost" is currently defined.
-                new_local.reserves_used = Capacity::max(local.reserves_used, global.inventory.max_reserves - count);
+                new_local.reserves_used =
+                    Capacity::max(local.reserves_used, global.inventory.max_reserves - count);
                 Some(new_local)
             }
         }

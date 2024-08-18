@@ -42,7 +42,7 @@ fn init_presets(
         "canTrickyCarryFlashSuit", // not ready to be used until flash suit logic is more complete.
         "canElevatorCrystalFlash", // not ready to be used until flash suit logic is more complete.
         "canRiskPermanentLossOfAccess", // would be logically unsound to enable, with the current randomizer implementation
-        "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
+        "canEscapeMorphLocation",       // Special internal tech for "vanilla map" option
     ]
     .iter()
     .map(|x| x.to_string())
