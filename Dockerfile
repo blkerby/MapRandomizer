@@ -1,4 +1,4 @@
-FROM rust:1.79.0-bullseye as build
+FROM rust:1.79.0-bullseye AS build
 
 # First get Cargo to download the crates.io index (which takes a long time) via `cargo install lazy_static`
 # Both `cargo update` and `crater search` no longer update the crates.io index, see: https://github.com/rust-lang/cargo/issues/3377
@@ -17,6 +17,9 @@ COPY rust/maprando-game/Cargo.toml /rust/maprando-game/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando-game/src/bin/dummy-game.rs
 COPY rust/maprando-logic/Cargo.toml /rust/maprando-logic/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando-logic/src/bin/dummy-logic.rs
+COPY rust/maprando-wasm/Cargo.toml /rust/maprando-wasm/Cargo.toml
+COPY rust/maprando/src/bin/dummy.rs /rust/maprando-wasm/src/bin/dummy-wasm.rs
+RUN mkdir -p /rust/maprando-wasm/src && touch /rust/maprando-wasm/src/lib.rs
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 
