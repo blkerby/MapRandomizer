@@ -342,6 +342,15 @@ pub fn apply_link(
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
 ) -> Option<LocalState> {
+    if reverse {
+        if !link.end_with_shinecharge && local.shinecharge_frames_remaining > 0 {
+            return None;
+        }
+    } else {
+        if link.start_with_shinecharge && local.shinecharge_frames_remaining == 0 {
+            return None;
+        }
+    }
     let new_local = apply_requirement(
         &link.requirement,
         global,
@@ -1269,6 +1278,9 @@ pub fn is_bireachable_state(
         return false;
     }
     if forward.power_bombs_used + reverse.power_bombs_used > global.inventory.max_power_bombs {
+        return false;
+    }
+    if reverse.shinecharge_frames_remaining > forward.shinecharge_frames_remaining {
         return false;
     }
     true
