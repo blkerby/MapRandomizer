@@ -1,0 +1,14 @@
+[package]
+name = "maprando-wasm"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+maprando-game = { path = "../maprando-game" }
+maprando-logic = { path = "../maprando-logic" }
+console_error_panic_hook = "0.1.7"
+wasm-bindgen = "0.2.92"
+serde-wasm-bindgen = "0.6.5"

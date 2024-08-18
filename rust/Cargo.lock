@@ -634,6 +634,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "console_error_panic_hook"
+version = "0.1.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a06aeb73f470f66dcdbf7223caeebb85984942f22f1adb2a088cf9668146bbbc"
+dependencies = [
+ "cfg-if",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "convert_case"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1549,7 +1559,6 @@ dependencies = [
  "num_enum",
  "parse_int",
  "serde",
- "serde_derive",
  "serde_json",
  "strum",
  "strum_macros",
@@ -1560,6 +1569,18 @@ name = "maprando-logic"
 version = "0.1.0"
 dependencies = [
  "maprando-game",
+ "serde",
+]
+
+[[package]]
+name = "maprando-wasm"
+version = "0.1.0"
+dependencies = [
+ "console_error_panic_hook",
+ "maprando-game",
+ "maprando-logic",
+ "serde-wasm-bindgen",
+ "wasm-bindgen",
 ]
 
 [[package]]
@@ -2292,6 +2313,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bc76f558e0cbb2a839d37354c575f1dc3fdc6546b5be373ba43d95f231bf7c12"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-wasm-bindgen"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8302e169f0eddcc139c70f139d19d6467353af16f9fce27e8c30158036a1e16b"
+dependencies = [
+ "js-sys",
+ "serde",
+ "wasm-bindgen",
 ]
 
 [[package]]
