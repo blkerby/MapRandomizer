@@ -1,0 +1,15 @@
+{
+  "name": "maprando-wasm",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "maprando_wasm_bg.wasm",
+    "maprando_wasm.js",
+    "maprando_wasm.d.ts"
+  ],
+  "main": "maprando_wasm.js",
+  "types": "maprando_wasm.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}

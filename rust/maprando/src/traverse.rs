@@ -156,10 +156,6 @@ fn validate_power_bombs(local: LocalState, global: &GlobalState) -> Option<Local
     }
 }
 
-fn multiply(amount: Capacity, difficulty: &DifficultyConfig) -> Capacity {
-    ((amount as f32) * difficulty.resource_multiplier) as Capacity
-}
-
 fn apply_gate_glitch_leniency(
     mut local: LocalState,
     global: &GlobalState,
@@ -228,7 +224,8 @@ fn apply_heat_frames(
         if !global.tech[game_data.heat_run_tech_id] {
             None
         } else {
-            new_local.energy_used += (multiply(frames, difficulty) + 3) / 4;
+            new_local.energy_used +=
+                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
             validate_energy(
                 new_local,
                 &global.inventory,
@@ -305,7 +302,8 @@ fn apply_heat_frames_with_energy_drops(
                 total_drop_value +=
                     get_enemy_drop_value(drop, local, reverse, difficulty.buffed_drops)
             }
-            let heat_energy = (multiply(frames, difficulty) + 3) / 4;
+            let heat_energy =
+                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
             total_drop_value = Capacity::min(total_drop_value, heat_energy);
             new_local.energy_used += heat_energy;
             if let Some(x) = validate_energy(
@@ -498,10 +496,12 @@ pub fn apply_requirement(
             if gravity && varia {
                 Some(new_local)
             } else if gravity || varia {
-                new_local.energy_used += (multiply(*frames, difficulty) + 3) / 4;
+                new_local.energy_used +=
+                    (*frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
                 validate_energy(new_local, &global.inventory, can_manage_reserves)
             } else {
-                new_local.energy_used += (multiply(*frames, difficulty) + 1) / 2;
+                new_local.energy_used +=
+                    (*frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity;
                 validate_energy(new_local, &global.inventory, can_manage_reserves)
             }
         }
@@ -509,32 +509,38 @@ pub fn apply_requirement(
             let varia = global.inventory.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {
-                new_local.energy_used += (multiply(*frames, difficulty) + 3) / 4;
+                new_local.energy_used +=
+                    (*frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity
             } else {
-                new_local.energy_used += (multiply(*frames, difficulty) + 1) / 2;
+                new_local.energy_used +=
+                    (*frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity
             }
             validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::AcidFrames(frames) => {
             let mut new_local = local;
-            new_local.energy_used +=
-                multiply((3 * frames + 1) / 2, difficulty) / suit_damage_factor(&global.inventory);
+            new_local.energy_used += (*frames as f32 * difficulty.resource_multiplier * 1.5
+                / suit_damage_factor(&global.inventory) as f32)
+                .ceil() as Capacity;
             validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::GravitylessAcidFrames(frames) => {
             let varia = global.inventory.items[Item::Varia as usize];
             let mut new_local = local;
             if varia {
-                new_local.energy_used += multiply((3 * frames + 3) / 4, difficulty);
+                new_local.energy_used +=
+                    (*frames as f32 * difficulty.resource_multiplier * 0.75).ceil() as Capacity;
             } else {
-                new_local.energy_used += multiply((3 * frames + 1) / 2, difficulty);
+                new_local.energy_used +=
+                    (*frames as f32 * difficulty.resource_multiplier * 1.5).ceil() as Capacity;
             }
             validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::MetroidFrames(frames) => {
             let mut new_local = local;
-            new_local.energy_used +=
-                multiply((3 * frames + 3) / 4, difficulty) / suit_damage_factor(&global.inventory);
+            new_local.energy_used += (*frames as f32 * difficulty.resource_multiplier * 0.75
+                / suit_damage_factor(&global.inventory) as f32)
+                .ceil() as Capacity;
             validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::Damage(base_energy) => {
@@ -855,11 +861,12 @@ pub fn apply_requirement(
                 Some(local)
             }
         }
-        Requirement::EnergyDrain => {
+        Requirement::RegularEnergyDrain(count) => {
             if reverse {
                 let mut new_local = local;
-                new_local.reserves_used += new_local.energy_used;
-                new_local.energy_used = 0;
+                let amt = Capacity::max(0, local.energy_used - count + 1);
+                new_local.reserves_used += amt;
+                new_local.energy_used -= amt;
                 if new_local.reserves_used > global.inventory.max_reserves {
                     None
                 } else {
@@ -867,7 +874,24 @@ pub fn apply_requirement(
                 }
             } else {
                 let mut new_local = local;
-                new_local.energy_used = global.inventory.max_energy - 1;
+                new_local.energy_used =
+                    Capacity::max(local.energy_used, global.inventory.max_energy - count);
+                Some(new_local)
+            }
+        }
+        Requirement::ReserveEnergyDrain(count) => {
+            if reverse {
+                if local.reserves_used > *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            } else {
+                let mut new_local = local;
+                // TODO: Drained reserve energy could potentially be transferred into regular energy, but it wouldn't
+                // be consistent with how "resourceAtMost" is currently defined.
+                new_local.reserves_used =
+                    Capacity::max(local.reserves_used, global.inventory.max_reserves - count);
                 Some(new_local)
             }
         }

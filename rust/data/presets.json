@@ -307,6 +307,7 @@
       "Pants Room Gravity Jump",
       "Pants Room Shinespark",
       "Pants Room Suitless Flatley Turnaround Climb",
+      "Shaktool Room Bounce the Snails Around the Room",
 
       "Bowling Alley Missile Chozo Camera Unlock",
       "Sponge Bath Bull Boost",
@@ -368,10 +369,11 @@
       "canPreciseSpaceJump",
       "canMomentumConservingMorph",
       "canFarmWhileShooting",
-      "canTrickySpringBallBounce"      
+      "canTrickySpringBallBounce",
+      "canTrickyDodgeEnemies"
     ],
     "notable_strats": [
-      "Landing Site Big Jump Blue Suit Bounce",
+      "Landing Site Big Jump with Blue Speed",
       "Landing Site Blue Space Jump (Top)",
       "Parlor Carry Shinecharge From Right to Bottom",
 
@@ -470,12 +472,16 @@
       "West Sand Hall Suitless Bootless Spring Ball",
       "West Sand Hall Ice Beam Only (Center to Left)",
       "West Sand Hall Spring Fling with Momentum",
+      "West Sand Hall Tricky Speedy Jump (Right to Left)",
       "East Sand Hall Spring Ball HiJump",
       "East Sand Hall Cross-Room SpringBall Jump",
       "East Sand Hall Cross-Room Speed Jump",
+      "East Sand Hall Cross-Room Spring Ball Bounce (Left to Right)",
+      "East Sand Hall Cross-Room Spring Ball Bounce (Right to Left)",      
       "East Sand Hall Cross-Room Blue Spring Ball Bounce (Right to Left)",
       "Oasis Cross Room Jump with Screw Attack",
       "Spring Ball Room Escape - Suitless, Bootless, Space Jump",
+      "Shaktool Room Suitless Bounce the Snails Around the Room",      
 
       "Metroid Room 1 Rinka Boost",
       "Metroid Room 1 PB Dodge Kill (Right to Left)",
@@ -535,7 +541,8 @@
       "canEnemyStuckMoonfall",
       "canHighPixelCeilingClip",
       "canReserveDoubleDamageBoost",
-      "canPauseRemorphTemporaryBlue"
+      "canPauseRemorphTemporaryBlue",
+      "canXRayCancelShinecharge"
     ],
     "notable_strats": [
       "Landing Site Big Jump Leave With Temporary Blue",
@@ -624,14 +631,19 @@
 
       "Butterfly Room Door Lock Wall Ice Clip",
       "Watering Hole Double Frozen Zeb Runway",
+      "Thread the Needle Leave With Temporary Blue",
 
       "West Sand Hall Suitless Damage Boost (Center to Left)",
       "West Sand Hall Ice Only (Center to Right)",
       "West Sand Hall Insane Bomb Jump",
+      "West Sand Hall Tricky Speedy Airball (Left to Right)",
+      "West Sand Hall Tricky Speedy Airball (Right to Left)",
+      "West Sand Hall Cross Room Space Jump (Right to Left)",
       "East Sand Hall Cross Room Jump with Ice or Damage Boost",
       "East Sand Hall Right Door G-Mode Setup Suitless HiJump",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
+      "East Sand Hall Cross-Room Blue Spring Ball Bounce (Left to Right)",
       "East Pants Room Suitless Puyo Clip",
       "Pants Room Bomb Jump Water Escape",
       "G-Mode Morph Reverse Shaktool",
@@ -742,6 +754,7 @@
       "East Cac Alley G-Mode Morph, IBJ, HBJ",
       "East Sand Hole Insane Walljump Morph",
       "East Sand Hole Suitless HiJump Perfect Bomb Boost",
+      "West Sand Hall Tricky Speedy Jump (Left to Right)",
       "Halfie Climb Stored Moonfall Grapple Door Lock Skip",
       "Halfie Climb Very Deep Stuck X-Ray Climb",
       "Halfie Climb Top Left Suitless Bombless Leave With Grapple Teleport",
@@ -795,6 +808,6 @@
       "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
 
       "Everest Double Crab Bomb-Grapple-Jump"
-   ]
+    ]
   }
 ]

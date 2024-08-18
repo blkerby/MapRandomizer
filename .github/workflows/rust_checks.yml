@@ -1,4 +1,4 @@
-name: rust checks
+name: Check Rust
 
 on:
   pull_request:

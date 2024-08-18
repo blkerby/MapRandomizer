@@ -9,8 +9,7 @@ use json::{self, JsonValue};
 use log::info;
 use ndarray::Array3;
 use num_enum::TryFromPrimitive;
-use serde::Serialize;
-use serde_derive::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::borrow::ToOwned;
 use std::fmt::{self, Debug, Formatter};
 use std::fs::File;
@@ -202,6 +201,8 @@ pub enum Requirement {
     PowerBombRefill(Capacity),
     AmmoStationRefill,
     AmmoStationRefillAll,
+    RegularEnergyDrain(Capacity),
+    ReserveEnergyDrain(Capacity),
     LowerNorfairElevatorDownFrames,
     LowerNorfairElevatorUpFrames,
     MainHallElevatorFrames,
@@ -214,7 +215,6 @@ pub enum Requirement {
     HeatedDoorStuckLeniency {
         heat_frames: Capacity,
     },
-    EnergyDrain,
     ReserveTrigger {
         min_reserve_energy: Capacity,
         max_reserve_energy: Capacity,
@@ -925,6 +925,28 @@ fn get_flagged_gray_door_node_ids() -> Vec<(RoomId, NodeId)> {
         (228, 2), // Metroid Room 3
         (229, 2), // Metroid Room 4
     ]
+}
+
+fn parse_hex(v: &JsonValue, default: f32) -> Result<f32> {
+    if v.is_null() {
+        return Ok(default);
+    } else if !v.is_string() {
+        bail!("Unexpected type of value in parse_hex: {}", v);
+    }
+    let s = v.as_str().unwrap();
+    if !s.starts_with("$") {
+        bail!("hex value should start with '$': {}", s);
+    }
+    let s: &str = s.split_at(1).1;
+    let pair: Vec<&str> = s.split(".").collect();
+    if pair.len() != 2 {
+        bail!("Unexpected format in parse_hex: {}", s);
+    }
+    let x = i64::from_str_radix(&pair[0], 16)?;
+    let y = i64::from_str_radix(&pair[1], 16)?;
+    let p = 16i64.pow(pair[1].len() as u32);
+    let f = x as f32 + (y as f32 / p as f32);
+    Ok(f)
 }
 
 type TitleScreenImage = ndarray::Array3<u8>;
@@ -1730,6 +1752,25 @@ impl GameData {
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
                 }
+            } else if key == "resourceAtMost" {
+                let mut reqs: Vec<Requirement> = vec![];
+                for r in value.members() {
+                    let resource_type = r["type"]
+                        .as_str()
+                        .expect(&format!("missing/invalid resource type in {}", req_json));
+                    let count = r["count"]
+                        .as_i32()
+                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                    if resource_type == "RegularEnergy" {
+                        assert!(count > 0);
+                        reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
+                    } else if resource_type == "ReserveEnergy" {
+                        reqs.push(Requirement::ReserveEnergyDrain(count as Capacity));
+                    } else {
+                        bail!("Unexpected resource type in {}", req_json);
+                    }
+                }
+                return Ok(Requirement::make_and(reqs));
             } else if key == "refill" {
                 let mut req_list_and: Vec<Requirement> = vec![];
                 for resource_type_json in value.members() {
@@ -2000,9 +2041,6 @@ impl GameData {
                     });
                 }
                 return Ok(Requirement::make_and(reqs));
-            } else if key == "energyAtMost" {
-                ensure!(value.as_i32().unwrap() == 1);
-                return Ok(Requirement::EnergyDrain);
             } else if key == "previousNode" {
                 // Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
                 // redundant in both cases, so we treat it as free.
@@ -2856,12 +2894,8 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(
-                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
-                    ),
-                    max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveWithMockball" => {
@@ -2876,12 +2910,8 @@ impl GameData {
                     landing_runway_length: Float::new(landing_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(
-                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
-                    ),
-                    max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveWithSpringBallBounce" => {
@@ -2899,12 +2929,8 @@ impl GameData {
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),
                     )?,
-                    min_extra_run_speed: Float::new(
-                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
-                    ),
-                    max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveSpaceJumping" => {
@@ -2915,12 +2941,8 @@ impl GameData {
                     remote_runway_length: Float::new(remote_runway_effective_length),
                     blue: parse_blue_option(value["blue"].as_str())?,
                     heated,
-                    min_extra_run_speed: Float::new(
-                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
-                    ),
-                    max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "leaveWithGModeSetup" => ExitCondition::LeaveWithGModeSetup {
@@ -3051,12 +3073,8 @@ impl GameData {
                     effective_length: Float::new(runway_effective_length),
                     min_tiles: Float::new(value["minTiles"].as_f32().unwrap_or(0.0)),
                     heated,
-                    min_extra_run_speed: Float::new(
-                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
-                    ),
-                    max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
             "comeInShinecharged" => {
@@ -3109,13 +3127,13 @@ impl GameData {
             },
             "comeInSpinning" => MainEntranceCondition::ComeInSpinning {
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
-                min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0)),
+                min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
             "comeInBlueSpinning" => MainEntranceCondition::ComeInBlueSpinning {
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
-                min_extra_run_speed: Float::new(value["minExtraRunSpeed"].as_f32().unwrap_or(0.0)),
-                max_extra_run_speed: Float::new(value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0)),
+                min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
@@ -3144,12 +3162,8 @@ impl GameData {
             },
             "comeInWithBlueSpringBallBounce" => {
                 MainEntranceCondition::ComeInWithBlueSpringBallBounce {
-                    min_extra_run_speed: Float::new(
-                        value["minExtraRunSpeed"].as_f32().unwrap_or(0.0),
-                    ),
-                    max_extra_run_speed: Float::new(
-                        value["maxExtraRunSpeed"].as_f32().unwrap_or(7.0),
-                    ),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                     min_landing_tiles: Float::new(value["minLandingTiles"].as_f32().unwrap_or(0.0)),
                     movement_type: parse_bounce_movement_type(
                         value["movementType"].as_str().unwrap(),
@@ -4333,5 +4347,27 @@ impl GameData {
         game_data.load_title_screens(title_screen_path)?;
 
         Ok(game_data)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_hex() {
+        let v = JsonValue::String("0.5".to_string());
+        let h = parse_hex(&v, 0.0);
+        assert!(h.is_err());
+
+        let v = JsonValue::Null;
+        let h = parse_hex(&v, 0.0);
+        assert!(h.is_ok());
+        assert!(h.unwrap() == 0.0);
+
+        let v = JsonValue::String("$2.8".to_string());
+        let h = parse_hex(&v, 0.0);
+        assert!(h.is_ok());
+        assert_eq!(h.unwrap(), 2.5);
     }
 }

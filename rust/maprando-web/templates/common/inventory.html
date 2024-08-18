@@ -1,0 +1,335 @@
+<table id="inventory-table">
+    <tbody>
+        <tr>
+            <td id="item-charge" class="item-disabled"><span></span></td>
+            <td id="item-varia" class="item-disabled"><span></span></td>
+            <td id="item-morph" class="item-disabled"><span></span></td>
+            <td id="item-hijump" class="item-disabled"><span></span></td>
+            <td id="item-missiles" class="item-disabled">
+                <span>
+                    <span class="item-amount"></span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td id="item-ice" class="item-disabled"><span></span></td>
+            <td id="item-gravity" class="item-disabled"><span></span></td>
+            <td id="item-bombs" class="item-disabled"><span></span></td>
+            <td id="item-spacejump" class="item-disabled"><span></span></td>
+            <td id="item-supers" class="item-disabled">
+                <span>
+                    <span class="item-amount"></span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td id="item-wave" class="item-disabled"><span></span></td>
+            <td></td>
+            <td id="item-springball" class="item-disabled"><span></span></td>
+            <td id="item-speedbooster" class="item-disabled"><span></span></td>
+            <td id="item-powerbombs" class="item-disabled">
+                <span>
+                    <span class="item-amount"></span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td id="item-spazer" class="item-disabled"><span></span></td>
+            <td id="item-grapple" class="item-disabled"><span></span></td>
+            <td id="item-screwattack" class="item-disabled"><span></span></td>
+            <td id="item-walljump"><span></span></td>
+            <td id="item-etanks" class="item-disabled">
+                <span>
+                    <span class="item-amount"></span>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <td id="item-plasma" class="item-disabled"><span></span></td>
+            <td id="item-xray" class="item-disabled"><span></span></td>
+            <td></td>
+            <td></td>
+            <td id="item-reserves" class="item-disabled">
+                <span>
+                    <span class="item-amount"></span>
+                </span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<style>
+    .item-disabled {
+        filter: grayscale(100%) brightness(50%);
+    }
+
+    #inventory-table {
+        font-size: 0;
+        background-color: black;
+        padding: 2px;
+        user-select: none;
+    }
+
+    #inventory-table td {
+        padding: 2px;
+    }
+
+    #inventory-table td>span {
+        display: inline-block;
+        position: relative;
+        width: 32px;
+        height: 32px;
+        background-image: url(/static/items.png);
+        image-rendering: pixelated;
+        background-size: auto 100%;
+    }
+
+    .item-amount {
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        font-size: 16px;
+        font-weight: bold;
+        padding: 2px;
+        color: white;
+        background-color: black;
+        line-height: 1;
+    }
+
+    .item-amount-max {
+        color: rgb(0, 255, 0) !important;
+    }
+
+    #inventory-table #item-charge>span {
+        background-position-x: calc(-16px * 10);
+    }
+
+    #inventory-table #item-varia>span {
+        background-position-x: calc(-16px * 24);
+    }
+
+    #inventory-table #item-morph>span {
+        background-position-x: calc(-16px * 38);
+    }
+
+    #inventory-table #item-hijump>span {
+        background-position-x: calc(-16px * 14);
+    }
+
+    #inventory-table #item-missiles>span {
+        background-position-x: calc(-16px * 2);
+    }
+
+    #inventory-table #item-ice>span {
+        background-position-x: calc(-16px * 12);
+    }
+
+    #inventory-table #item-gravity>span {
+        background-position-x: calc(-16px * 26);
+    }
+
+    #inventory-table #item-bombs>span {
+        background-position-x: calc(-16px * 8);
+    }
+
+    #inventory-table #item-spacejump>span {
+        background-position-x: calc(-16px * 34);
+    }
+
+    #inventory-table #item-supers>span {
+        background-position-x: calc(-16px * 4);
+    }
+
+    #inventory-table #item-wave>span {
+        background-position-x: calc(-16px * 18);
+    }
+
+    #inventory-table #item-springball>span {
+        background-position-x: calc(-16px * 22);
+    }
+
+    #inventory-table #item-speedbooster>span {
+        background-position-x: calc(-16px * 16);
+    }
+
+    #inventory-table #item-powerbombs>span {
+        background-position-x: calc(-16px * 6);
+    }
+
+    #inventory-table #item-spazer>span {
+        background-position-x: calc(-16px * 20);
+    }
+
+    #inventory-table #item-grapple>span {
+        background-position-x: calc(-16px * 32);
+    }
+
+    #inventory-table #item-screwattack>span {
+        background-position-x: calc(-16px * 36);
+    }
+
+    #inventory-table #item-walljump>span {
+        background-position-x: calc(-16px * 42);
+    }
+
+    #inventory-table #item-etanks>span {
+        background-position-x: calc(-16px * 0);
+    }
+
+    #inventory-table #item-plasma>span {
+        background-position-x: calc(-16px * 30);
+    }
+
+    #inventory-table #item-xray>span {
+        background-position-x: calc(-16px * 28);
+    }
+
+    #inventory-table #item-reserves>span {
+        background-position-x: calc(-16px * 40);
+    }
+</style>
+<script>
+    let ref_item_array = [];
+    let ref_etanks;
+    let ref_reserves;
+    let ref_missiles;
+    let ref_supers;
+    let ref_powerbombs;
+
+    window.addEventListener("load", function () {
+        let ref_inventory = document.getElementById("inventory-table");
+
+        ref_etanks = ref_inventory.querySelector("#item-etanks");
+        ref_reserves = ref_inventory.querySelector("#item-reserves");
+        ref_missiles = ref_inventory.querySelector("#item-missiles");
+        ref_supers = ref_inventory.querySelector("#item-supers");
+        ref_powerbombs = ref_inventory.querySelector("#item-powerbombs");
+
+        // Has to match the Item enum in the maprando-game crate
+        ref_item_array = [
+            ref_etanks,
+            ref_missiles,
+            ref_supers,
+            ref_powerbombs,
+            ref_inventory.querySelector("#item-bombs"),
+            ref_inventory.querySelector("#item-charge"),
+            ref_inventory.querySelector("#item-ice"),
+            ref_inventory.querySelector("#item-hijump"),
+            ref_inventory.querySelector("#item-speedbooster"),
+            ref_inventory.querySelector("#item-wave"),
+            ref_inventory.querySelector("#item-spazer"),
+            ref_inventory.querySelector("#item-springball"),
+            ref_inventory.querySelector("#item-varia"),
+            ref_inventory.querySelector("#item-gravity"),
+            ref_inventory.querySelector("#item-xray"),
+            ref_inventory.querySelector("#item-plasma"),
+            ref_inventory.querySelector("#item-grapple"),
+            ref_inventory.querySelector("#item-spacejump"),
+            ref_inventory.querySelector("#item-screwattack"),
+            ref_inventory.querySelector("#item-morph"),
+            ref_reserves,
+            ref_inventory.querySelector("#item-walljump"),
+        ];
+
+        let ref_consumables_array = [
+            ref_etanks,
+            ref_reserves,
+            ref_missiles,
+            ref_supers,
+            ref_powerbombs,
+        ];
+
+        /**
+         * @param {MouseEvent} e
+         */
+        function onItemClick(e) {
+            e.preventDefault();
+            /** @type {HTMLElement} */
+            let ref_item = e.target.closest("td");
+            if (ref_item == null) {
+                return;
+            }
+            // Special behaviour for pack items
+            if (ref_consumables_array.includes(ref_item)) {
+                let ref_item_num = ref_item.querySelector(".item-amount");
+                let amount = parseInt(ref_item_num.textContent);
+                if (isNaN(amount)) {
+                    amount = 0;
+                }
+                let amount_pack = 0;
+                let amount_max = 0;
+                switch (ref_item) {
+                    case ref_etanks:
+                        amount_pack = 1;
+                        amount_max = 14;
+                        break;
+                    case ref_reserves:
+                        amount_pack = 1;
+                        amount_max = 4;
+                        break;
+                    case ref_missiles:
+                        amount_pack = 5;
+                        amount_max = 255;
+                        break;
+                    case ref_supers:
+                    case ref_powerbombs:
+                        amount_pack = 5;
+                        amount_max = 50;
+                        break;
+                }
+                if (e.ctrlKey) {
+                    amount_pack *= 10;
+                }
+                // Add
+                if (e.type == "click") {
+                    amount += amount_pack;
+                    if (amount > amount_max) {
+                        amount = amount_max;
+                    }
+                }
+                // Remove
+                else if (e.type == "contextmenu") {
+                    amount -= amount_pack;
+                    if (amount < 0) {
+                        amount = 0;
+                    }
+                }
+                ref_item_num.textContent = amount;
+                ref_item_num.classList.toggle("d-none", amount == 0);
+                ref_item.classList.toggle("item-disabled", amount == 0);
+                ref_item_num.classList.toggle("item-amount-max", amount == amount_max);
+            }
+            // Majors
+            else {
+                ref_item.classList.toggle("item-disabled");
+            }
+        }
+
+        ref_inventory.addEventListener("click", onItemClick);
+        ref_inventory.addEventListener("contextmenu", onItemClick);
+    });
+
+    function getInventory() {
+        let inventory = {};
+
+        inventory.items = [];
+        for (let i in ref_item_array) {
+            inventory.items[i] = !ref_item_array[i].classList.contains("item-disabled");
+        }
+
+        function getAmount(ref_item) {
+            let amount = parseInt(ref_item.querySelector(".item-amount").textContent);
+            if (isNaN(amount)) {
+                amount = 0;
+            }
+            return amount;
+        }
+
+        inventory.max_energy = 99 + (getAmount(ref_etanks) * 100);
+        inventory.max_reserves = getAmount(ref_reserves) * 100;
+        inventory.max_missiles = getAmount(ref_missiles);
+        inventory.max_supers = getAmount(ref_supers);
+        inventory.max_power_bombs = getAmount(ref_powerbombs);
+
+        return inventory;
+    }
+</script>

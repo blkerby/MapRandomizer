@@ -40,8 +40,9 @@ fn init_presets(
     let ignored_tech: HashSet<String> = [
         "canSpikeSuit", // not ready to be used until flash suit logic is more complete.
         "canTrickyCarryFlashSuit", // not ready to be used until flash suit logic is more complete.
-        "canRiskPermanentLossOfAccess",
-        "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
+        "canElevatorCrystalFlash", // not ready to be used until flash suit logic is more complete.
+        "canRiskPermanentLossOfAccess", // would be logically unsound to enable, with the current randomizer implementation
+        "canEscapeMorphLocation",       // Special internal tech for "vanilla map" option
     ]
     .iter()
     .map(|x| x.to_string())
@@ -342,6 +343,7 @@ async fn main() {
                 "../sm-json-data",
             ))
             .service(actix_files::Files::new("/static", "static"))
+            .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"))
     })
     .bind(("0.0.0.0", port))
     .unwrap()

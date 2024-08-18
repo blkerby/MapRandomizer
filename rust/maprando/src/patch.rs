@@ -1207,7 +1207,7 @@ impl<'a> Patcher<'a> {
                     let is_removable_grey_door =
                         gray_door_plm_types.contains_key(&plm_type) && !room_keep_gray_door;
                     if plm_types_to_remove.contains(&plm_type) || is_removable_grey_door {
-                        self.rom.write_u16(ptr, 0xB63B)?; // right continuation arrow (should have no effect, giving a blue door)
+                        self.rom.write_u16(ptr, 0xB63F)?; // left continuation arrow (should have no effect, giving a blue door)
                         self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
                     } else if gray_door_plm_types.contains_key(&plm_type) {
                         let new_type = gray_door_plm_types[&plm_type];

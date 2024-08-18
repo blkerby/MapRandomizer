@@ -1092,7 +1092,10 @@ impl MosaicPatchBuilder {
                                 &compressed_middle_level_data,
                             )?;
 
-                            if twin_state_xml.is_some() && room_geometry.name != "Aqueduct" {
+                            if twin_state_xml.is_some()
+                                && room_geometry.name != "Aqueduct"
+                                && (room_idx != 138 || x == 0)
+                            {
                                 let twin_room_ptr = if room_idx == 138 { 0x7D69A } else { 0x7968F };
                                 self.write_toilet_intersection_room(
                                     &mut new_rom,
