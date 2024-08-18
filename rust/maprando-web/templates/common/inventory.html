@@ -325,7 +325,7 @@
         }
 
         inventory.max_energy = 99 + (getAmount(ref_etanks) * 100);
-        inventory.max_reserves = getAmount(ref_reserves);
+        inventory.max_reserves = getAmount(ref_reserves) * 100;
         inventory.max_missiles = getAmount(ref_missiles);
         inventory.max_supers = getAmount(ref_supers);
         inventory.max_power_bombs = getAmount(ref_powerbombs);

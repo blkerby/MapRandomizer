@@ -32,7 +32,7 @@
                 <img id="boss-draygon" class="boss-icon boss-disabled" src="/static/bosses/draygon.png" alt="Draygon" data-name="Draygon"></img>
                 <img id="boss-ridley" class="boss-icon boss-disabled" src="/static/bosses/ridley.png" alt="Ridley" data-name="Ridley"></img>
                 <img id="boss-botwoon" class="boss-icon boss-disabled" src="/static/bosses/botwoon.png" alt="Botwoon" data-name="Botwoon"></img>
-                <img id="boss-mother-brain" class="boss-icon boss-disabled" src="/static/bosses/mother_brain.png" alt="Mother Brain" data-name="Mother Brain"></img>
+                <img id="boss-mother-brain" class="boss-icon boss-disabled" src="/static/bosses/mother_brain.png" alt="Mother Brain" data-name="Mother Brain 2"></img>
             </div>
         </div>
 
@@ -123,7 +123,7 @@
                 "Draygon": {{ difficulty.1 }},
                 "Ridley": {{ difficulty.2 }},
                 "Botwoon": {{ difficulty.3 }},
-                "Mother Brain": {{ difficulty.4 }},
+                "Mother Brain 2": {{ difficulty.4 }},
             },
             {% endfor %}
         ];
@@ -131,7 +131,6 @@
         let can_manage_reserves = false;
         let can_be_very_patient = false;
         let supers_double = true;
-        let r_mode = false;
 
         window.addEventListener("load", function () {
             // String of the currently selected boss. Empty when unselected.
@@ -197,7 +196,7 @@
                     ref_power_bombs_used.textContent = parseInt(local.power_bombs_used);
                 }
 
-                function do_checks() {
+                function do_boss_check() {
                     let inventory = getInventory();
                     let local = null;
                     let proficiency = getProficiency();
@@ -217,8 +216,8 @@
                             local = can_defeat_botwoon(inventory, local, proficiency, true, can_manage_reserves);
                         }
                     }
-                    else if (selected_boss == "Mother Brain") {
-                        local = can_defeat_mother_brain_2(inventory, local, proficiency, supers_double, can_manage_reserves, can_be_very_patient, r_mode);
+                    else if (selected_boss == "Mother Brain 2") {
+                        local = can_defeat_mother_brain_2(inventory, local, proficiency, supers_double, can_manage_reserves, can_be_very_patient, false);
                     }
 
                     updateResults(local);
@@ -240,11 +239,11 @@
                     ref_results.classList.remove("d-none");
 
                     updateProficiency();
-                    do_checks();
+                    do_boss_check();
                 });
-                ref_inventory.addEventListener("click", do_checks);
-                ref_inventory.addEventListener("contextmenu", do_checks);
-                ref_proficiency.addEventListener("input", do_checks);
+                ref_inventory.addEventListener("click", do_boss_check);
+                ref_inventory.addEventListener("contextmenu", do_boss_check);
+                ref_proficiency.addEventListener("input", do_boss_check);
                 for (let ref_radio_button of document.querySelectorAll("#presets input[type='radio']")) {
                     ref_radio_button.addEventListener("click", function () {
                         function get_tech(techs, name) {
@@ -259,16 +258,15 @@
                         let techs = presets_json[parseInt(ref_radio_button.value)].tech_setting;
                         can_manage_reserves = get_tech(techs, "canManageReserves");
                         can_be_very_patient = get_tech(techs, "canBeVeryPatient");
-                        r_mode = get_tech(techs, "canEnterRMode");
 
                         updateProficiency();
-                        do_checks();
+                        do_boss_check();
                     });
                 }
                 for (let ref_radio_button of document.querySelectorAll("#supersDouble input[type='radio']")) {
                     ref_radio_button.addEventListener("click", function () {
                         supers_double = (ref_radio_button.value === "true");
-                        do_checks();
+                        do_boss_check();
                     });
                 }
             });
