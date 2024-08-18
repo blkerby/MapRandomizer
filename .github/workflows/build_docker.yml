@@ -20,11 +20,17 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - 
+        name: Extract metadata for the Docker image
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: bkerby/map-rando
       -
         name: Build and push
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: bkerby/map-rando:latest
+          tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=registry,ref=bkerby/map-rando:buildcache
           cache-to: type=registry,ref=bkerby/map-rando:buildcache,mode=max
