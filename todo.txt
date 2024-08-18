@@ -10,6 +10,8 @@ v114:
 - DONE(?): ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
 - DONE: ensure Speedbooster is required when extra run speed is constrained to >$2.0.
 - resolve buggy logic involving "startsWithShinecharge": https://discord.com/channels/1053421401354285129/1079847747307446413/1274426800260382750.
+- see if doorUnlockedAtNode is failing to get resolved when no door lock?
+  - step 2 of http://localhost:8080/seed/Cv5jWGBD2/data/visualizer/index.html says Very Hard
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
 - override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
 - verify respin implementation and iron out issues:

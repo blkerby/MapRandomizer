@@ -643,6 +643,7 @@
       "East Sand Hall Right Door G-Mode Setup Suitless HiJump",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Left)",
       "East Sand Hall Suitless Bootless Evir Freeze (Center to Right)",
+      "East Sand Hall Cross-Room Blue Spring Ball Bounce (Left to Right)",
       "East Pants Room Suitless Puyo Clip",
       "Pants Room Bomb Jump Water Escape",
       "G-Mode Morph Reverse Shaktool",
@@ -806,9 +807,7 @@
 
       "Cacatac Alley HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
 
-      "Everest Double Crab Bomb-Grapple-Jump",
- 
-      "Cross-Room Blue Spring Ball Bounce", "Cross-Room Blue Spring Ball Bounce, Leave With Temporary Blue"
+      "Everest Double Crab Bomb-Grapple-Jump"
     ]
   }
 ]
