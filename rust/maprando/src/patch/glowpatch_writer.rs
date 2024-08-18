@@ -1,3 +1,5 @@
+// Code to build the glow patch JSON ("reduced_flashing.json") is at https://github.com/ardnaxelarak/super_metroid_deflash
+
 use crate::patch::Rom;
 use anyhow::Result;
 use maprando_game::glowpatch::{GlowPatch, GlowPatchSection};
