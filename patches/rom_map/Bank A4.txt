@@ -1,0 +1,2 @@
+0000 - F6C0: used by vanilla game
+F6C0 - F6D0: flashing_placebo (for crocomire)

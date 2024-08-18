@@ -429,8 +429,11 @@ pub fn customize_rom(
         }
     }
     match settings.flashing {
-        FlashingSetting::Vanilla => {}
+        FlashingSetting::Vanilla => {
+            apply_ips_patch(rom, Path::new("../patches/ips/flashing_placebo.ips"))?;
+        }
         FlashingSetting::Reduced => {
+            apply_ips_patch(rom, Path::new("../patches/ips/flashing_placebo.ips"))?;
             write_glowpatch(rom, &game_data.reduced_flashing_patch)?;
         }
     }
