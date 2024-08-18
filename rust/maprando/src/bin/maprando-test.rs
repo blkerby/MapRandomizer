@@ -680,6 +680,10 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
             (true, false) => maprando::customize::ShakingSetting::Disabled,
             (false, _) => maprando::customize::ShakingSetting::Vanilla,
         },
+        flashing: match bits & 0x80 != 0 {
+            true => maprando::customize::FlashingSetting::Reduced,
+            false => maprando::customize::FlashingSetting::Vanilla,
+        },
         controller_config: ControllerConfig::default(),
     };
 
@@ -710,6 +714,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         music: MusicSettings::AreaThemed,
         disable_beeping: false,
         shaking: maprando::customize::ShakingSetting::Vanilla,
+        flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
     };
     customize_rom(
@@ -818,6 +823,7 @@ fn main() -> Result<()> {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
+    let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
@@ -830,6 +836,7 @@ fn main() -> Result<()> {
         start_locations_path,
         hub_locations_path,
         title_screen_path,
+        reduced_flashing_path,
     )?;
 
     if !args.output_seeds.is_dir() {

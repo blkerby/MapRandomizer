@@ -9,7 +9,8 @@ use log::info;
 use maprando::{
     customize::{
         customize_rom, parse_controller_button, ControllerButton, ControllerConfig,
-        CustomizeSettings, DoorTheme, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
+        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
+        TileTheme,
     },
     patch::Rom,
 };
@@ -31,6 +32,7 @@ struct CustomizeRequest {
     music: Text<String>,
     disable_beeping: Text<bool>,
     shaking: Text<String>,
+    flashing: Text<String>,
     vanilla_screw_attack_animation: Text<bool>,
     control_shot: Text<String>,
     control_jump: Text<String>,
@@ -160,6 +162,11 @@ async fn customize_seed(
             "Reduced" => ShakingSetting::Reduced,
             "Disabled" => ShakingSetting::Disabled,
             _ => panic!("Unexpected shaking option: {}", req.shaking.0.as_str()),
+        },
+        flashing: match req.flashing.0.as_str() {
+            "Vanilla" => FlashingSetting::Vanilla,
+            "Reduced" => FlashingSetting::Reduced,
+            _ => panic!("Unexpected flashing option: {}", req.flashing.0.as_str()),
         },
         controller_config: ControllerConfig {
             shot: parse_controller_button(&req.control_shot.0).unwrap(),

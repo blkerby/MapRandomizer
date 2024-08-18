@@ -259,6 +259,7 @@ fn main() -> Result<()> {
     let escape_timings_path = Path::new("data/escape_timings.json");
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
+    let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let game_data = GameData::load(
         sm_json_data_path,
@@ -267,6 +268,7 @@ fn main() -> Result<()> {
         start_locations_path,
         hub_locations_path,
         title_screen_path,
+        reduced_flashing_path,
     )?;
 
     // Perform randomization (map selection & item placement):
@@ -293,6 +295,7 @@ fn main() -> Result<()> {
         // music: MusicSettings::Vanilla,
         disable_beeping: false,
         shaking: maprando::customize::ShakingSetting::Vanilla,
+        flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
     };
     customize_rom(

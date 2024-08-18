@@ -2,6 +2,7 @@ mod beam_doors_tiles;
 pub mod bps;
 pub mod compress;
 pub mod decompress;
+pub mod glowpatch_writer;
 pub mod ips_write;
 pub mod map_tiles;
 pub mod suffix_tree;

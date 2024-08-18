@@ -155,6 +155,8 @@ struct Args {
     parallelism: Option<usize>,
     #[arg(long, action)]
     dev: bool,
+    #[arg(long, default_value_t = 8080)]
+    port: u16,
 }
 
 fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
@@ -213,6 +215,7 @@ fn build_app_data() -> AppData {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
+    let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
@@ -242,6 +245,7 @@ fn build_app_data() -> AppData {
         start_locations_path,
         hub_locations_path,
         title_screen_path,
+        reduced_flashing_path,
     )
     .unwrap();
 
@@ -294,6 +298,7 @@ fn build_app_data() -> AppData {
         logic_data,
         samus_sprite_categories,
         debug: args.debug,
+        port: args.port,
         version_info: VersionInfo {
             version: VERSION,
             dev: args.dev,
@@ -313,6 +318,8 @@ async fn main() {
         .init();
 
     let app_data = actix_web::web::Data::new(build_app_data());
+
+    let port = app_data.port;
 
     HttpServer::new(move || {
         App::new()
@@ -338,7 +345,7 @@ async fn main() {
             .service(actix_files::Files::new("/static", "static"))
             .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"))
     })
-    .bind("0.0.0.0:8080")
+    .bind(("0.0.0.0", port))
     .unwrap()
     .run()
     .await
