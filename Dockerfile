@@ -50,6 +50,8 @@ COPY TitleScreen /TitleScreen
 COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
+COPY rust/maprando-wasm/pkg/maprando_wasm.js /rust/maprando-wasm/pkg/maprando_wasm.js
+COPY rust/maprando-wasm/pkg/maprando_wasm_bg.wasm /rust/maprando-wasm/pkg/maprando_wasm_bg.wasm
 # Both stages will run in parallel until the build stage is refernced,
 # at which point this stage will wait for the `build` stage to complete, so delay these until last
 COPY --from=build /maps /maps
