@@ -75,6 +75,16 @@ tar xfz v110c-wild.tgz && rm v110c-wild.tgz
 cd ..
 ```
 
+Optionally, if you want to build and use the WebAssembly:
+
+```sh
+cd rust
+cargo install wasm-pack
+cd maprando-wasm
+wasm-pack build --target="web" --release
+cd ../..
+```
+
 Run the web service:
 
 ```sh

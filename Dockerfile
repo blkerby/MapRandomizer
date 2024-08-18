@@ -32,7 +32,10 @@ RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.
 RUN tar xfz v110c-wild.tgz --directory /maps && rm v110c-wild.tgz
 
 # Now copy over the source code and build the real binary
+RUN cargo install wasm-pack
 COPY rust /rust
+WORKDIR /rust/maprando-wasm
+RUN wasm-pack build --target="web" --release
 WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
@@ -50,13 +53,12 @@ COPY TitleScreen /TitleScreen
 COPY room_geometry.json /
 COPY palette_smart_exports /palette_smart_exports
 COPY visualizer /visualizer
-COPY rust/maprando-wasm/pkg/maprando_wasm.js /rust/maprando-wasm/pkg/maprando_wasm.js
-COPY rust/maprando-wasm/pkg/maprando_wasm_bg.wasm /rust/maprando-wasm/pkg/maprando_wasm_bg.wasm
-# Both stages will run in parallel until the build stage is refernced,
+# Both stages will run in parallel until the build stage is referenced,
 # at which point this stage will wait for the `build` stage to complete, so delay these until last
 COPY --from=build /maps /maps
 COPY --from=build /rust/data /rust/data
 COPY --from=build /rust/static /rust/static
+COPY --from=build /rust/maprando-wasm/pkg /rust/maprando-wasm/pkg
 # Since the bin is the most likely thing to have changed, copy it last to avoid invalidating the rest of the steps
 COPY --from=build /rust/target/release/maprando-web /rust
 WORKDIR /rust
