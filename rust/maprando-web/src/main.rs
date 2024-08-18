@@ -40,7 +40,8 @@ fn init_presets(
     let ignored_tech: HashSet<String> = [
         "canSpikeSuit", // not ready to be used until flash suit logic is more complete.
         "canTrickyCarryFlashSuit", // not ready to be used until flash suit logic is more complete.
-        "canRiskPermanentLossOfAccess",
+        "canElevatorCrystalFlash", // not ready to be used until flash suit logic is more complete.
+        "canRiskPermanentLossOfAccess", // would be logically unsound to enable, with the current randomizer implementation
         "canEscapeMorphLocation", // Special internal tech for "vanilla map" option
     ]
     .iter()

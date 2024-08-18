@@ -200,6 +200,8 @@ pub enum Requirement {
     PowerBombRefill(Capacity),
     AmmoStationRefill,
     AmmoStationRefillAll,
+    RegularEnergyDrain(Capacity),
+    ReserveEnergyDrain(Capacity),
     LowerNorfairElevatorDownFrames,
     LowerNorfairElevatorUpFrames,
     MainHallElevatorFrames,
@@ -212,7 +214,6 @@ pub enum Requirement {
     HeatedDoorStuckLeniency {
         heat_frames: Capacity,
     },
-    EnergyDrain,
     ReserveTrigger {
         min_reserve_energy: Capacity,
         max_reserve_energy: Capacity,
@@ -1749,6 +1750,25 @@ impl GameData {
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
                 }
+            } else if key == "resourceAtMost" {
+                let mut reqs: Vec<Requirement> = vec![];
+                for r in value.members() {
+                    let resource_type = r["type"]
+                        .as_str()
+                        .expect(&format!("missing/invalid resource type in {}", req_json));
+                    let count = r["count"]
+                        .as_i32()
+                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                    if resource_type == "RegularEnergy" {
+                        assert!(count > 0);
+                        reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
+                    } else if resource_type == "ReserveEnergy" {
+                        reqs.push(Requirement::ReserveEnergyDrain(count as Capacity));
+                    } else {
+                        bail!("Unexpected resource type in {}", req_json);
+                    }
+                }
+                return Ok(Requirement::make_and(reqs));
             } else if key == "refill" {
                 let mut req_list_and: Vec<Requirement> = vec![];
                 for resource_type_json in value.members() {
@@ -2019,9 +2039,6 @@ impl GameData {
                     });
                 }
                 return Ok(Requirement::make_and(reqs));
-            } else if key == "energyAtMost" {
-                ensure!(value.as_i32().unwrap() == 1);
-                return Ok(Requirement::EnergyDrain);
             } else if key == "previousNode" {
                 // Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
                 // redundant in both cases, so we treat it as free.

@@ -3649,7 +3649,7 @@ impl<'r> Randomizer<'r> {
         // of forming words.
         let alphabet = "256789BCDFGHJKLMNPQRSTVWXYZbcdfghjkmnpqrstvwxyz";
         let mut out: String = String::new();
-        let num_chars = 11;
+        let num_chars = 9;
         for _ in 0..num_chars {
             let i = rng.gen_range(0..alphabet.len());
             let c = alphabet.as_bytes()[i] as char;

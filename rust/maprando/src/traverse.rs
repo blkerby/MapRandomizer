@@ -861,11 +861,12 @@ pub fn apply_requirement(
                 Some(local)
             }
         }
-        Requirement::EnergyDrain => {
+        Requirement::RegularEnergyDrain(count) => {
             if reverse {
                 let mut new_local = local;
-                new_local.reserves_used += new_local.energy_used;
-                new_local.energy_used = 0;
+                let amt = Capacity::max(0, local.energy_used - count + 1);
+                new_local.reserves_used += amt;
+                new_local.energy_used -= amt;
                 if new_local.reserves_used > global.inventory.max_reserves {
                     None
                 } else {
@@ -873,7 +874,22 @@ pub fn apply_requirement(
                 }
             } else {
                 let mut new_local = local;
-                new_local.energy_used = global.inventory.max_energy - 1;
+                new_local.energy_used = Capacity::max(local.energy_used, global.inventory.max_energy - count);
+                Some(new_local)
+            }
+        }
+        Requirement::ReserveEnergyDrain(count) => {
+            if reverse {
+                if local.reserves_used > *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            } else {
+                let mut new_local = local;
+                // TODO: Drained reserve energy could potentially be transferred into regular energy, but it wouldn't
+                // be consistent with how "resourceAtMost" is currently defined.
+                new_local.reserves_used = Capacity::max(local.reserves_used, global.inventory.max_reserves - count);
                 Some(new_local)
             }
         }
