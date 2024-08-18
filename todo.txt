@@ -8,7 +8,7 @@ v114:
 - DONE add note in spoiler map explaining how to interpret item difficulties shown (doesn't take into account return path or locks/flags that could be cleared before)
 - DONE: restore vanilla Climb rising lava when entering bottom-left door
 - DONE(?): ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
-- ensure Speedbooster is required when extra run speed is constrained to >$2.0.
+- DONE: ensure Speedbooster is required when extra run speed is constrained to >$2.0.
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
 - override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
 - verify respin implementation and iron out issues:
@@ -32,11 +32,6 @@ TODO:
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - fix bug where dachora despawns global zeela in Dachora Room.
   - probably caused by escape.asm: missing ",x" in stz, also check for Landing Site room ID so that it won't affect Dachora Room
-- update how seed names are chosen
-  - verify that seed name is not already in use
-  - use shorter name
-  - filter to exclude potentially offensive substrings: https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words
-    - map upper->lower case, and map digits 5 -> s, 4 -> a, 3 -> e, 1 -> i, 0 -> o
 - show transition arrows in connecting areas when map is revealed
 - fix: g-mode immobile strats show Beyond on logic pages
 - Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
