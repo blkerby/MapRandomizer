@@ -13,7 +13,7 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import RoomTransformerModel, FeedforwardModel, MultiQueryAttentionLayer, FeedforwardLayer
+from maze_builder.model import TransformerModel, RoomTransformerModel, FeedforwardModel, MultiQueryAttentionLayer, FeedforwardLayer
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage
@@ -87,19 +87,27 @@ global_hidden_width = 1024
 action_model = RoomTransformerModel(
     rooms=envs[0].rooms,
     num_doors=envs[0].num_doors,
-    output_room_ids=maze_builder.train_session.get_output_room_ids(envs[0]),
+    num_outputs=envs[0].num_doors + envs[0].num_missing_connects + envs[0].num_doors + envs[0].num_non_save_dist + 1 + envs[0].num_missing_connects + 1,
     map_x=env_config.map_x,
     map_y=env_config.map_y,
+    block_size_x=8,
+    block_size_y=8,
     embedding_width=embedding_width,
     key_width=key_width,
     value_width=value_width,
     attn_heads=attn_heads,
     hidden_width=hidden_width,
     arity=1,
-    num_local_layers=3,
+    num_local_layers=2,
     embed_dropout=0.0,
     ff_dropout=0.0,
     attn_dropout=0.0,
+    num_global_layers=3,
+    global_attn_heads=32,
+    global_attn_key_width=32,
+    global_attn_value_width=32,
+    global_width=global_embedding_width,
+    global_hidden_width=global_hidden_width,
     global_ff_dropout=0.0,
     use_action=True,
 ).to(device)
