@@ -73,17 +73,6 @@ class MazeBuilderEnv:
         self.init_room_data()
         self.init_part_data()
         self.init_toilet_data()
-        # Index single-tile rooms that have the same shape as a save station room (so no up or down doors).
-        # Include Landing Site as well since the Ship can be used as a save.
-        def is_potential_save_room(room):
-            return room.name == "Landing Site" or (room.width == 1 and room.height == 1 and room.door_up[0][0] == 0 and room.door_down[0][0] == 0
-                and room.sand_up[0][0] == 0 and room.sand_down[0][0] == 0)
-        self.potential_save_idxs = torch.tensor(
-            [i for i in range(len(rooms)) if is_potential_save_room(rooms[i])],
-            dtype=torch.int64, device=device)
-        self.non_potential_save_idxs = torch.tensor(
-            [i for i in range(len(rooms)) if not is_potential_save_room(rooms[i])],
-            dtype=torch.int64, device=device)
         self.init_cpu_data()
         self.num_doors = int(torch.sum(self.room_door_count))
         self.num_missing_connects = self.missing_connection_src.shape[0]
@@ -1288,14 +1277,30 @@ class MazeBuilderEnv:
         return missing_connections
 
     def init_part_data(self):
+        # Index single-tile rooms that have the same shape as a save station room (so no up or down doors).
+        # Include Landing Site as well since the Ship can be used as a save.
+
+        # TODO: check if this is messed up: using room indexes when it should be room-part indexes?
+        def is_potential_save_room(room):
+            return room.name == "Landing Site" or (room.width == 1 and room.height == 1 and room.door_up[0][0] == 0 and room.door_down[0][0] == 0
+                and room.sand_up[0][0] == 0 and room.sand_down[0][0] == 0)
+        self.potential_save_idxs = []
+
         num_parts = 0
         num_parts_list = []
         for i, room in enumerate(self.rooms):
             if i == self.starting_room_idx:
-                self.starting_part = i
+                self.starting_part = num_parts
+            if is_potential_save_room(room):
+                self.potential_save_idxs.append(num_parts)
             num_parts_list.append(num_parts)
             num_parts += len(room.parts)
         self.num_parts = num_parts
+
+        potential_save_idx_set = set(self.potential_save_idxs)
+        self.potential_save_idxs = torch.tensor(self.potential_save_idxs, dtype=torch.long)
+        self.non_potential_save_idxs = [i for i in range(num_parts) if i not in potential_save_idx_set]
+        self.non_potential_save_idxs = torch.tensor(self.non_potential_save_idxs, dtype=torch.long)
 
         self.part_adjacency_matrix = torch.eye(num_parts, device=self.device, dtype=torch.int16)
         self.durable_part_adjacency_matrix = torch.eye(num_parts, device=self.device, dtype=torch.int16)

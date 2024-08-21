@@ -112,7 +112,39 @@ class TrainingSession():
             reward += torch.sum(~missing_connects, dim=1)
         return reward
 
+    def get_output_room_ids(self):
+        # Order must match get_preds
+        room_ids = []
+        env = self.envs[0]
+
+        # door connects
+        room_dir_list = [env.room_left, env.room_right, env.room_down, env.room_up]
+        for room_dir in room_dir_list:
+            room_ids.extend(room_dir[:, 0].tolist())
+
+        # missing connects
+        room_ids.extend(env.part_room_id[env.missing_connection_src].tolist())
+
+        # toilet good (use global token)
+        room_ids.append(len(env.rooms))
+
+        # door balance
+        for room_dir in room_dir_list:
+            room_ids.extend(room_dir[:, 0].tolist())
+
+        # save balance
+        room_ids.extend(env.part_room_id[env.non_potential_save_idxs])
+
+        # graph diameter (use global token)
+        room_ids.append(len(env.rooms))
+
+        # missing connect return distance
+        room_ids.extend(env.part_room_id[env.missing_connection_src].tolist())
+
+        return room_ids
+
     def get_preds(self, raw_preds):
+        # Order must match get_output_room_ids
         env = self.envs[0]
         output_sizes = [
             env.num_doors,

@@ -332,9 +332,9 @@ save_freq = 128
 summary_freq = 128
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
-session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.action_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.action_optimizer.param_groups[0]['eps'] = 1e-5
-session.balance_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
+session.balance_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.balance_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['lr'] = 0.0001
 action_ema_alpha0 = 0.1
@@ -675,7 +675,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk2')
+            # save_session(session, pickle_name + '-bk1')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.num_rounds % summary_freq == 0:
