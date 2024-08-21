@@ -2,7 +2,7 @@ from typing import Optional, List
 import copy
 import torch
 import torch.nn.functional as F
-from maze_builder.model import TransformerModel
+from maze_builder.model import RoomTransformerModel
 from maze_builder.env import MazeBuilderEnv, compute_cycle_costs
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
@@ -39,7 +39,7 @@ class Predictions:
 
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
-                 action_model: TransformerModel,
+                 action_model: RoomTransformerModel,
                  balance_model: torch.nn.Module,
                  action_optimizer: torch.optim.Optimizer,
                  balance_optimizer: torch.optim.Optimizer,

@@ -13,7 +13,7 @@ import logic.rooms.crateria
 from datetime import datetime
 import pickle
 import maze_builder.model
-from maze_builder.model import TransformerModel, RoomTransformerModel, FeedforwardModel, MultiQueryAttentionLayer, FeedforwardLayer
+from maze_builder.model import RoomTransformerModel, FeedforwardModel, MultiQueryAttentionLayer, FeedforwardLayer
 from maze_builder.train_session import TrainingSession
 from maze_builder.replay import ReplayBuffer
 from model_average import ExponentialAverage

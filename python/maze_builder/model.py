@@ -291,229 +291,6 @@ class FeedforwardModel(torch.nn.Module):
         return X
 
 
-class TransformerModel(torch.nn.Module):
-    def __init__(self, rooms, num_doors, num_outputs, map_x, map_y, block_size_x, block_size_y,
-                 embedding_width, key_width, value_width, attn_heads, hidden_width, arity, num_local_layers,
-                 num_global_layers, global_attn_heads, global_attn_key_width, global_attn_value_width, global_width, global_hidden_width,
-                 embed_dropout, attn_dropout, ff_dropout, global_ff_dropout, use_action):
-        super().__init__()
-        self.room_half_size_x = torch.tensor([len(r.map[0]) // 2 for r in rooms])
-        self.room_half_size_y = torch.tensor([len(r.map) // 2 for r in rooms])
-        self.map_x = map_x
-        self.map_y = map_y
-        self.num_rooms = len(rooms)
-        self.num_doors = num_doors
-        self.num_outputs = num_outputs
-        self.num_local_layers = num_local_layers
-        self.num_global_layers = num_global_layers
-        self.global_attn_heads = global_attn_heads
-        self.global_attn_key_width = global_attn_key_width
-        self.global_attn_value_width = global_attn_value_width
-        self.global_width = global_width
-        self.global_hidden_width = global_hidden_width
-        self.embedding_width = embedding_width
-        self.block_size_x = block_size_x
-        self.block_size_y = block_size_y
-        self.block_size = block_size_x * block_size_y
-        self.num_blocks_x = map_x // block_size_x
-        self.num_blocks_y = map_y // block_size_y
-        self.num_blocks = self.num_blocks_x * self.num_blocks_y
-        self.global_lin = torch.nn.Linear(self.num_rooms + 3, embedding_width)
-        self.pos_embedding = torch.nn.Parameter(torch.randn([self.num_blocks, embedding_width]) / math.sqrt(embedding_width))
-        self.room_embedding = torch.nn.Parameter(
-            torch.randn([self.num_rooms, self.block_size, embedding_width]) / math.sqrt(embedding_width))
-        self.embed_dropout = torch.nn.Dropout(p=embed_dropout)
-        self.attn_layers = torch.nn.ModuleList()
-        self.ff_layers = torch.nn.ModuleList()
-        self.use_action = use_action
-        # self.transformer_layers = torch.nn.ModuleList()
-        for i in range(num_local_layers):
-            self.attn_layers.append(MultiQueryAttentionLayer(
-                input_width=embedding_width,
-                key_width=key_width,
-                value_width=value_width,
-                num_heads=attn_heads,
-                dropout=attn_dropout))
-            self.ff_layers.append(FeedforwardLayer(
-                input_width=embedding_width,
-                hidden_width=hidden_width,
-                arity=arity,
-                dropout=ff_dropout))
-
-        # self.global_query = torch.nn.Parameter(
-        #     torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
-        # self.global_value = torch.nn.Parameter(
-        #     torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
-
-        if use_action:
-            self.pool_attn_query_door = torch.nn.Parameter(
-                torch.randn([num_doors, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-            self.pool_attn_query_position_x = torch.nn.Parameter(
-                torch.randn([map_x, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-            self.pool_attn_query_position_y = torch.nn.Parameter(
-                torch.randn([map_y, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-            self.action_door_embedding = torch.nn.Parameter(torch.randn([num_doors + 1, global_width]) / math.sqrt(global_width))
-        else:
-            self.pool_attn_query_door = torch.nn.Parameter(
-                torch.randn([global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-        # self.pool_attn_key_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_key_width, bias=False)
-        # self.pool_attn_value_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_value_width, bias=False)
-        self.pool_attn_key_lin = torch.nn.Linear(embedding_width, global_attn_key_width, bias=False)
-        self.pool_attn_value_lin = torch.nn.Linear(embedding_width, global_attn_value_width, bias=False)
-        self.pool_attn_post_lin = torch.nn.Linear(global_attn_heads * global_attn_value_width, global_width, bias=False)
-        self.pool_layer_norm = torch.nn.LayerNorm(global_width, elementwise_affine=False)
-
-        self.state_ff_layers = torch.nn.ModuleList()
-        for i in range(num_global_layers):
-            self.state_ff_layers.append(FeedforwardLayer(
-                input_width=global_width,
-                hidden_width=global_hidden_width,
-                arity=arity,
-                dropout=global_ff_dropout))
-        self.state_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.state_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
-
-        self.action_ff_layers = torch.nn.ModuleList()
-        for i in range(num_global_layers):
-            self.action_ff_layers.append(FeedforwardLayer(
-                input_width=global_width,
-                hidden_width=global_hidden_width,
-                arity=arity,
-                dropout=global_ff_dropout))
-        self.action_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.action_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
-
-    def forward_multiclass(self, room_mask, room_position_x, room_position_y,
-                           map_door_id, action_env_id, action_door_id,
-                           steps_remaining, round_frac,
-                           temperature, mc_dist_coef, env, compute_state_value: bool):
-        n = room_mask.shape[0]
-        # print(f"n={n}, room_mask={room_mask.shape}, room_position_x={room_position_x.shape}, room_position_y={room_position_y.shape}, map_door_id={map_door_id.shape}, action_env_id={action_env_id.shape}, action_door_id={action_door_id.shape}, steps_remaining={steps_remaining.shape}, round_frac={round_frac.shape}, temperature={temperature.shape}, mc_dist_coef={mc_dist_coef.shape}")
-        device = room_mask.device
-        dtype = torch.float16
-
-        with torch.cuda.amp.autocast():
-            global_data = torch.cat([room_mask.to(torch.float32),
-                                     steps_remaining.view(-1, 1) / self.num_rooms,
-                                     # round_frac.view(-1, 1),
-                                     torch.log(temperature.view(-1, 1)),
-                                     mc_dist_coef.view(-1, 1),
-                                     ], dim=1).to(dtype)
-            global_embedding = self.global_lin(global_data)
-
-            adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
-            adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
-
-
-            nz = torch.nonzero(room_mask)
-            nz_env_idx = nz[:, 0]
-            nz_room_idx = nz[:, 1]
-            nz_room_position_x = adj_room_position_x[nz_env_idx, nz_room_idx]
-            nz_room_position_y = adj_room_position_y[nz_env_idx, nz_room_idx]
-
-            nz_block_x = nz_room_position_x // self.block_size_x
-            nz_block_y = nz_room_position_y // self.block_size_y
-            nz_block_idx = nz_block_y * self.num_blocks_x + nz_block_x
-            nz_env_block_idx = nz_env_idx * self.num_blocks + nz_block_idx
-
-            nz_within_block_x = nz_room_position_x - nz_block_x * self.block_size_x
-            nz_within_block_y = nz_room_position_y - nz_block_y * self.block_size_y
-            nz_within_block_idx = nz_within_block_y * self.block_size_x + nz_within_block_x
-
-            X = global_embedding.view(n, 1, global_embedding.shape[1]).repeat(1, self.num_blocks, 1)
-            X = X.view(n * self.num_blocks, self.embedding_width)  # Flatten X in order to perform the scatter_add
-            nz_embedding = self.room_embedding.to(dtype)[nz_room_idx, nz_within_block_idx, :]
-            X = torch.scatter_add(X, dim=0, index=nz_env_block_idx.view(-1, 1).repeat(1, self.embedding_width), src=nz_embedding)
-
-            X = X.reshape(n, self.num_blocks, self.embedding_width)  # Unflatten X
-            X = X + self.pos_embedding.to(dtype).view(1, self.num_blocks, self.embedding_width)
-
-            if self.embed_dropout.p > 0.0:
-                X = self.embed_dropout(X)
-            for i in range(len(self.attn_layers)):
-                X = self.attn_layers[i](X)
-                X = self.ff_layers[i](X)
-
-            # raw_global_weight = torch.einsum('bse,ge->bsg', X, self.global_query)
-            # global_weight = torch.softmax(raw_global_weight, dim=1)
-            # global_value = torch.einsum('bse,ge->bsg', X, self.global_value)
-            # X = torch.sum(global_weight * global_value, dim=1)
-            # # for i in range(self.num_global_layers):
-            # #     X = self.global_ff_layers[i](X)
-            # # if self.num_global_layers > 0:
-            # #     X = self.output_lin(X)
-
-            if self.use_action:
-                Q_door = self.pool_attn_query_door[map_door_id].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                door_data = env.room_dir[map_door_id]
-                room_id = door_data[:, 0]
-                door_pos_x = door_data[:, 1]
-                door_pos_y = door_data[:, 2]
-                room_x = room_position_x[torch.arange(n, device=device), room_id]
-                room_y = room_position_y[torch.arange(n, device=device), room_id]
-                pos_x = room_x + door_pos_x
-                pos_y = room_y + door_pos_y
-                Q_x = self.pool_attn_query_position_x[pos_x].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                Q_y = self.pool_attn_query_position_y[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                Q = Q_door + Q_x + Q_y
-            else:
-                Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
-            # K = self.pool_attn_key_lin(X).view(n, self.num_blocks, self.global_attn_heads, self.global_attn_key_width)
-            # V = self.pool_attn_value_lin(X).view(n, self.num_blocks, self.global_attn_heads, self.global_attn_value_width)
-            # X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
-
-            # K = self.pool_attn_key_lin(X).view(n, self.num_blocks, self.global_attn_key_width)
-            # V = self.pool_attn_value_lin(X).view(n, self.num_blocks, self.global_attn_value_width)
-            # X = compute_multi_query_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
-
-            X = compute_simple_cross_attn(Q, X)
-            X = self.pool_attn_post_lin(X)
-            X = self.pool_layer_norm(X)
-            X0 = X
-
-            if compute_state_value:
-                X = X0
-                for i in range(self.num_global_layers):
-                    X = self.state_ff_layers[i](X)
-                X = self.state_output_lin1(X)
-                X = torch.nn.functional.relu(X)
-                X = self.state_output_lin2(X)
-                X_state = X
-
-            if self.use_action:
-                X = X0[action_env_id] + self.action_door_embedding[action_door_id]
-                for i in range(self.num_global_layers):
-                    X = self.action_ff_layers[i](X)
-                X = self.action_output_lin1(X)
-                X = torch.nn.functional.relu(X)
-                X = self.action_output_lin2(X)
-                X_action = X
-
-        if compute_state_value and self.use_action:
-            return X_state.to(torch.float32), X_action.to(torch.float32)
-        elif self.use_action:
-            return X_action.to(torch.float32)
-        else:
-            return X_state.to(torch.float32)
-
-    def decay(self, amount: Optional[float]):
-        if amount is not None:
-            factor = 1 - amount
-            for param in self.parameters():
-                param.data *= factor
-
-    def all_param_data(self):
-        params = [param.data for param in self.parameters()]
-        for module in self.modules():
-            if isinstance(module, (torch.nn.BatchNorm1d, torch.nn.BatchNorm2d)):
-                params.append(module.running_mean)
-                params.append(module.running_var)
-        return params
-
-    def project(self):
-        pass
-
-
 class RoomTransformerModel(torch.nn.Module):
     def __init__(self, rooms, num_doors, num_outputs, map_x, map_y, block_size_x, block_size_y,
                  embedding_width, key_width, value_width, attn_heads, hidden_width, arity, num_local_layers,
@@ -564,22 +341,13 @@ class RoomTransformerModel(torch.nn.Module):
                 arity=arity,
                 dropout=ff_dropout))
 
-        # self.global_query = torch.nn.Parameter(
-        #     torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
-        # self.global_value = torch.nn.Parameter(
-        #     torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+        self.action_door_embedding = torch.nn.Parameter(torch.randn([num_doors + 1, global_width]) / math.sqrt(global_width))
 
-        if use_action:
-            self.pool_attn_query_door = torch.nn.Parameter(
-                torch.randn([num_doors, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-            self.pool_attn_query_position_x = torch.nn.Parameter(
-                torch.randn([map_x, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-            self.pool_attn_query_position_y = torch.nn.Parameter(
-                torch.randn([map_y, global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-            self.action_door_embedding = torch.nn.Parameter(torch.randn([num_doors + 1, global_width]) / math.sqrt(global_width))
-        else:
-            self.pool_attn_query_door = torch.nn.Parameter(
-                torch.randn([global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
+        self.map_door_embedding = torch.nn.Parameter(
+            torch.randn([num_doors, embedding_width]) / math.sqrt(embedding_width))
+
+        self.pool_attn_query_door = torch.nn.Parameter(
+            torch.randn([global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
         self.pool_attn_key_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_key_width, bias=False)
         self.pool_attn_value_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_value_width, bias=False)
         self.pool_attn_post_lin = torch.nn.Linear(global_attn_heads * global_attn_value_width, global_width, bias=False)
@@ -621,7 +389,9 @@ class RoomTransformerModel(torch.nn.Module):
                                      torch.log(temperature.view(-1, 1)),
                                      mc_dist_coef.view(-1, 1),
                                      ], dim=1).to(dtype)
-            global_embedding = self.global_lin(global_data)
+
+            map_emb = self.map_door_embedding[map_door_id]
+            global_embedding = self.global_lin(global_data) + map_emb
 
             adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
             adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
@@ -651,21 +421,21 @@ class RoomTransformerModel(torch.nn.Module):
             # # if self.num_global_layers > 0:
             # #     X = self.output_lin(X)
 
-            if self.use_action:
-                Q_door = self.pool_attn_query_door[map_door_id].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                door_data = env.room_dir[map_door_id]
-                room_id = door_data[:, 0]
-                door_pos_x = door_data[:, 1]
-                door_pos_y = door_data[:, 2]
-                room_x = room_position_x[torch.arange(n, device=device), room_id]
-                room_y = room_position_y[torch.arange(n, device=device), room_id]
-                pos_x = room_x + door_pos_x
-                pos_y = room_y + door_pos_y
-                Q_x = self.pool_attn_query_position_x[pos_x].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                Q_y = self.pool_attn_query_position_y[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
-                Q = Q_door + Q_x + Q_y
-            else:
-                Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
+            # if self.use_action:
+            #     Q_door = self.pool_attn_query_door[map_door_id].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+            #     door_data = env.room_dir[map_door_id]
+            #     room_id = door_data[:, 0]
+            #     door_pos_x = door_data[:, 1]
+            #     door_pos_y = door_data[:, 2]
+            #     room_x = room_position_x[torch.arange(n, device=device), room_id]
+            #     room_y = room_position_y[torch.arange(n, device=device), room_id]
+            #     pos_x = room_x + door_pos_x
+            #     pos_y = room_y + door_pos_y
+            #     Q_x = self.pool_attn_query_position_x[pos_x].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+            #     Q_y = self.pool_attn_query_position_y[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
+            #     Q = Q_door + Q_x + Q_y
+            # else:
+            Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
             K = self.pool_attn_key_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_key_width)
             V = self.pool_attn_value_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_value_width)
             X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
