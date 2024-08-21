@@ -2,7 +2,11 @@ name: Check Rust
 
 on:
   pull_request:
+    paths:
+      - 'rust/**'
   push:
+    paths:
+      - 'rust/**'
     branches:
       - main
 
