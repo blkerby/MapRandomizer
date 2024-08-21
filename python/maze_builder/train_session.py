@@ -2,7 +2,7 @@ from typing import Optional, List
 import copy
 import torch
 import torch.nn.functional as F
-from maze_builder.model import TransformerModel
+from maze_builder.model import RoomTransformerModel
 from maze_builder.env import MazeBuilderEnv, compute_cycle_costs
 from maze_builder.replay import ReplayBuffer
 from maze_builder.types import EpisodeData, TrainingData
@@ -36,10 +36,69 @@ class Predictions:
     mc_dist: torch.tensor
     toilet_good: torch.tensor
 
+def get_output_room_ids(env):
+    # Order must match get_preds
+    room_ids = []
+
+    # door connects
+    room_dir_list = [env.room_left, env.room_right, env.room_down, env.room_up]
+    for room_dir in room_dir_list:
+        room_ids.extend(room_dir[:, 0].tolist())
+
+    # missing connects
+    room_ids.extend(env.part_room_id[env.missing_connection_src].tolist())
+
+    # toilet good (use global token)
+    room_ids.append(len(env.rooms))
+
+    # door balance
+    for room_dir in room_dir_list:
+        room_ids.extend(room_dir[:, 0].tolist())
+
+    # save balance
+    room_ids.extend(env.part_room_id[env.non_potential_save_idxs])
+
+    # graph diameter (use global token)
+    room_ids.append(len(env.rooms))
+
+    # missing connect return distance
+    room_ids.extend(env.part_room_id[env.missing_connection_src].tolist())
+
+    return room_ids
+
 
 class TrainingSession():
+
+    def get_preds(self, raw_preds):
+        # Order must match get_output_room_ids
+        env = self.envs[0]
+        output_sizes = [
+            env.num_doors,
+            env.num_missing_connects,
+            1,  # toilet_good
+            env.num_doors,  # door balance
+            env.non_potential_save_idxs.shape[0],
+            1,  # graph diam
+            env.num_missing_connects,
+        ]
+        assert raw_preds.shape[1] == sum(output_sizes)
+        preds = []
+        col = 0
+        for size in output_sizes:
+            preds.append(raw_preds[:, col:(col + size)])
+            col += size
+        return Predictions(
+            door_connects=preds[0],
+            missing_connects=preds[1],
+            toilet_good=preds[2][:, 0],
+            door_balance=preds[3],
+            save_dist=preds[4],
+            graph_diam=preds[5][:, 0],
+            mc_dist=preds[6],
+        )
+
     def __init__(self, envs: List[MazeBuilderEnv],
-                 action_model: TransformerModel,
+                 action_model: RoomTransformerModel,
                  balance_model: torch.nn.Module,
                  action_optimizer: torch.optim.Optimizer,
                  balance_optimizer: torch.optim.Optimizer,
@@ -111,65 +170,6 @@ class TrainingSession():
         if use_connectivity:
             reward += torch.sum(~missing_connects, dim=1)
         return reward
-
-    def get_output_room_ids(self):
-        # Order must match get_preds
-        room_ids = []
-        env = self.envs[0]
-
-        # door connects
-        room_dir_list = [env.room_left, env.room_right, env.room_down, env.room_up]
-        for room_dir in room_dir_list:
-            room_ids.extend(room_dir[:, 0].tolist())
-
-        # missing connects
-        room_ids.extend(env.part_room_id[env.missing_connection_src].tolist())
-
-        # toilet good (use global token)
-        room_ids.append(len(env.rooms))
-
-        # door balance
-        for room_dir in room_dir_list:
-            room_ids.extend(room_dir[:, 0].tolist())
-
-        # save balance
-        room_ids.extend(env.part_room_id[env.non_potential_save_idxs])
-
-        # graph diameter (use global token)
-        room_ids.append(len(env.rooms))
-
-        # missing connect return distance
-        room_ids.extend(env.part_room_id[env.missing_connection_src].tolist())
-
-        return room_ids
-
-    def get_preds(self, raw_preds):
-        # Order must match get_output_room_ids
-        env = self.envs[0]
-        output_sizes = [
-            env.num_doors,
-            env.num_missing_connects,
-            1,  # toilet_good
-            env.num_doors,  # door balance
-            env.non_potential_save_idxs.shape[0],
-            1,  # graph diam
-            env.num_missing_connects,
-        ]
-        assert raw_preds.shape[1] == sum(output_sizes)
-        preds = []
-        col = 0
-        for size in output_sizes:
-            preds.append(raw_preds[:, col:(col + size)])
-            col += size
-        return Predictions(
-            door_connects=preds[0],
-            missing_connects=preds[1],
-            toilet_good=preds[2][:, 0],
-            door_balance=preds[3],
-            save_dist=preds[4],
-            graph_diam=preds[5][:, 0],
-            mc_dist=preds[6],
-        )
 
     def forward_action(self, model, room_mask, room_position_x, room_position_y, map_door_ids, action_candidates,
                        steps_remaining, temperature,
