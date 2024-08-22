@@ -345,6 +345,10 @@ class RoomTransformerModel(torch.nn.Module):
 
         self.map_door_embedding = torch.nn.Parameter(
             torch.randn([num_doors, embedding_width]) / math.sqrt(embedding_width))
+        self.map_pos_x_embedding = torch.nn.Parameter(
+            torch.randn([map_x, embedding_width]) / math.sqrt(embedding_width))
+        self.map_pos_y_embedding = torch.nn.Parameter(
+            torch.randn([map_y, embedding_width]) / math.sqrt(embedding_width))
 
         self.pool_attn_query_door = torch.nn.Parameter(
             torch.randn([global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
@@ -390,8 +394,19 @@ class RoomTransformerModel(torch.nn.Module):
                                      mc_dist_coef.view(-1, 1),
                                      ], dim=1).to(dtype)
 
-            map_emb = self.map_door_embedding[map_door_id]
-            global_embedding = self.global_lin(global_data) + map_emb
+            Q_door = self.map_door_embedding[map_door_id]
+            door_data = env.room_dir[map_door_id]
+            room_id = door_data[:, 0]
+            door_pos_x = door_data[:, 1]
+            door_pos_y = door_data[:, 2]
+            room_x = room_position_x[torch.arange(n, device=device), room_id]
+            room_y = room_position_y[torch.arange(n, device=device), room_id]
+            pos_x = room_x + door_pos_x
+            pos_y = room_y + door_pos_y
+            Q_x = self.map_pos_x_embedding[pos_x]
+            Q_y = self.map_pos_y_embedding[pos_y]
+            Q = Q_door + Q_x + Q_y
+            global_embedding = self.global_lin(global_data) + Q
 
             adj_room_position_x = room_position_x + self.room_half_size_x.to(device).view(1, -1)
             adj_room_position_y = room_position_y + self.room_half_size_y.to(device).view(1, -1)
@@ -435,12 +450,24 @@ class RoomTransformerModel(torch.nn.Module):
             #     Q_y = self.pool_attn_query_position_y[pos_y].view(n, 1, self.global_attn_heads, self.global_attn_key_width)
             #     Q = Q_door + Q_x + Q_y
             # else:
+
             Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
             K = self.pool_attn_key_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_key_width)
             V = self.pool_attn_value_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_value_width)
             X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
             X = self.pool_attn_post_lin(X)
             X = self.pool_layer_norm(X)
+
+            # c = action_door_id.shape[0]
+            # Q = self.pool_attn_query_door[action_door_id].view(c, 1, self.global_attn_heads, self.global_attn_key_width)
+            # K = self.pool_attn_key_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_key_width)
+            # K = K[action_env_id]
+            # V = self.pool_attn_value_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_value_width)
+            # V = V[action_env_id]
+            # X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
+            # X = self.pool_attn_post_lin(X)
+            # X = self.pool_layer_norm(X)
+
             X0 = X
 
             if compute_state_value:
