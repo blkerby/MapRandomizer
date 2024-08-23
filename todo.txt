@@ -9,6 +9,7 @@ v114:
 - DONE: restore vanilla Climb rising lava when entering bottom-left door
 - DONE(?): ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
 - DONE: ensure Speedbooster is required when extra run speed is constrained to >$2.0.
+- use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
 - resolve buggy logic involving "startsWithShinecharge": https://discord.com/channels/1053421401354285129/1079847747307446413/1274426800260382750.
 - see if doorUnlockedAtNode is failing to get resolved when no door lock?
   - step 2 of http://localhost:8080/seed/Cv5jWGBD2/data/visualizer/index.html says Very Hard

@@ -531,7 +531,8 @@ impl<'a> Patcher<'a> {
         }
 
         if self.randomization.difficulty.respin {
-            patches.push("spinjumprestart");
+            patches.push("respin");
+            // patches.push("spinjumprestart");
         }
 
         if self.randomization.difficulty.momentum_conservation {
