@@ -3664,9 +3664,10 @@ impl<'r> Randomizer<'r> {
             ) {
                 // Success: we can now commit the placement.
                 for &item in &selected_key_items {
+                    // Handle Nothings later.
                     if item == Item::Nothing {
                         continue;
-                    } // Handle Nothings later.
+                    }
                       // The locations this item can be placed:
                     let where_to_place: Vec<ItemLocationId> = key_bireachable
                         .iter()
@@ -3677,8 +3678,9 @@ impl<'r> Randomizer<'r> {
                         })
                         .collect();
                     if where_to_place.len() < 1 {
+                        // It can't be placed? Why?
                         continue;
-                    } // It can't be placed? Why?
+                    }
                     self.place_items(
                         attempt_num_rando,
                         &state,
