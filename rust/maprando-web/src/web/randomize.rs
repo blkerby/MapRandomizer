@@ -100,6 +100,7 @@ struct RandomizeRequest {
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
     item_priority_strength: Text<String>,
+    item_location_restriction: Text<String>,
     random_tank: Text<String>,
     spazer_before_plasma: Text<String>,
     stop_item_placement_early: Text<String>,
@@ -299,6 +300,14 @@ async fn randomize(
             _ => panic!(
                 "Unrecognized progression rate {}",
                 req.progression_rate.0.as_str()
+            ),
+        },
+        item_location_restriction: match req.item_location_restriction.0.as_str() {
+            "None" => maprando::randomize::ItemLocationRestriction::None,
+            "Vanilla" => maprando::randomize::ItemLocationRestriction::Vanilla,
+            _ => panic!(
+                "Unrecognized item location restriction {}",
+                req.item_location_restriction.0.as_str()
             ),
         },
         item_priority_strength: match req.item_priority_strength.0.as_str() {

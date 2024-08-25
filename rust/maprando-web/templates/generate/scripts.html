@@ -251,6 +251,7 @@ function qualityOfLifeSettingChanged() {
 function itemProgressionPresetChanged() {
     if (document.getElementById("itemProgressionPresetNormal").checked) {
         document.getElementById("progressionRateFast").checked = true;
+	document.getElementById("itemLocationRestrictionNone").checked = true;
         document.getElementById("itemPlacementStyleNeutral").checked = true;
         document.getElementById("itemPriorityStrengthModerate").checked = true;
         document.getElementById("randomTankYes").checked = true;
@@ -282,6 +283,7 @@ function itemProgressionPresetChanged() {
     }
     if (document.getElementById("itemProgressionPresetTricky").checked) {
         document.getElementById("progressionRateUniform").checked = true;
+	document.getElementById("itemLocationRestrictionNone").checked = true;
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("itemPriorityStrengthModerate").checked = true;
         document.getElementById("randomTankYes").checked = true;
@@ -312,6 +314,7 @@ function itemProgressionPresetChanged() {
     }
     if (document.getElementById("itemProgressionPresetChallenge").checked) {
         document.getElementById("progressionRateSlow").checked = true;
+	document.getElementById("itemLocationRestrictionNone").checked = true;
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("itemPriorityStrengthModerate").checked = true;
         document.getElementById("randomTankYes").checked = true;
@@ -337,6 +340,7 @@ function itemProgressionPresetChanged() {
     }
     if (document.getElementById("itemProgressionPresetDesolate").checked) {
         document.getElementById("progressionRateSlow").checked = true;
+	document.getElementById("itemLocationRestrictionNone").checked = true;
         document.getElementById("itemPlacementStyleForced").checked = true;
         document.getElementById("itemPriorityStrengthModerate").checked = true;
         document.getElementById("randomTankYes").checked = true;
@@ -367,7 +371,7 @@ function itemProgressionChanged() {
     document.getElementById("itemProgressionPresetNormal").checked = false;
     document.getElementById("itemProgressionPresetTricky").checked = false;
     document.getElementById("itemProgressionPresetChallenge").checked = false;
-    document.getElementById("itemProgressionPresetDesolate").checked = false;
+    document.getElementById("itemProgressionPresetDesolate").checked = false;    
 }
 function processStartingItemsPreset() {
     if (document.getElementById("startingItemsPresetNone").checked) {

@@ -1044,6 +1044,7 @@ pub struct GameData {
     pub vertex_isv: IndexedVec<VertexKey>,
     pub grey_lock_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub item_locations: Vec<(RoomId, NodeId)>,
+    pub vanilla_items: HashMap<(RoomId, NodeId), Item>,
     pub item_vertex_ids: Vec<Vec<VertexId>>,
     pub flag_ids: Vec<FlagId>,
     pub flag_vertex_ids: Vec<Vec<VertexId>>,
@@ -3816,7 +3817,10 @@ impl GameData {
 
         for (&(room_id, node_id), node_json) in &self.node_json_map {
             if node_json["nodeType"] == "item" {
+                let item_type = &node_json["nodeItem"];
+                let item: Item = item_type.as_str().expect("Missing?").parse().unwrap();
                 self.item_locations.push((room_id, node_id));
+                self.vanilla_items.insert((room_id, node_id), item);
             }
             if node_json.has_key("utility") {
                 if node_json["utility"].members().any(|x| x == "save") {

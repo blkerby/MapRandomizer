@@ -2,8 +2,8 @@ use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
     randomize::{
-        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
-        ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal,
+        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemLocationRestriction,
+        ItemMarkers, ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal,
         MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, WallJump,
     },
     traverse::{apply_requirement, LockedDoorData},
@@ -87,6 +87,7 @@ fn run_scenario(
         speed_ball_tiles: 24.0,
         shinecharge_leniency_frames: 15,
         progression_rate: ProgressionRate::Uniform,
+        item_location_restriction: ItemLocationRestriction::None,
         random_tank: true,
         spazer_before_plasma: true,
         stop_item_placement_early: false,

@@ -48,6 +48,12 @@ pub enum ItemPlacementStyle {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum ItemLocationRestriction {
+    None,
+    Vanilla,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ItemPriorityStrength {
     Moderate,
     Heavy,
@@ -236,6 +242,7 @@ pub struct DifficultyConfig {
     pub item_pool: Vec<(Item, usize)>,
     pub starting_items: Vec<(Item, usize)>,
     pub item_placement_style: ItemPlacementStyle,
+    pub item_location_restriction: ItemLocationRestriction,
     pub item_priority_strength: ItemPriorityStrength,
     pub item_priorities: Vec<ItemPriorityGroup>,
     pub semi_filler_items: Vec<Item>,
@@ -3039,13 +3046,14 @@ impl<'r> Randomizer<'r> {
         state: &RandomizationState,
         num_key_items_to_select: usize,
         attempt_num: usize,
+        item_precedence: &Vec<Item>,
     ) -> Option<Vec<Item>> {
         if num_key_items_to_select >= 1 {
             let mut unplaced_items: Vec<Item> = vec![];
             let mut placed_items: Vec<Item> = vec![];
             let mut additional_items: Vec<Item> = vec![];
 
-            for &item in &state.item_precedence {
+            for &item in item_precedence {
                 if state.items_remaining[item as usize] > 0
                     || (self.difficulty_tiers[0].stop_item_placement_early && item == Item::Nothing)
                 {
@@ -3078,6 +3086,15 @@ impl<'r> Randomizer<'r> {
             remaining_items.extend(unplaced_items);
             remaining_items.extend(placed_items);
             remaining_items.extend(additional_items);
+
+            // For the case where no key items are available to select:
+            if remaining_items.len() < 1 {
+                if attempt_num > 0 {
+                    return None;
+                } else {
+                    return Some(vec![]);
+                }
+            }
 
             if attempt_num > 0
                 && num_key_items_to_select - 1 + attempt_num >= cnt_different_items_remaining
@@ -3183,6 +3200,7 @@ impl<'r> Randomizer<'r> {
         other_locations: &[ItemLocationId],
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
+        partial_placement: bool,
     ) {
         info!(
             "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
@@ -3256,7 +3274,7 @@ impl<'r> Randomizer<'r> {
         let mut all_items_to_place: Vec<Item> = Vec::new();
         all_items_to_place.extend(key_items_to_place);
         all_items_to_place.extend(other_items_to_place);
-        assert!(all_locations.len() == all_items_to_place.len());
+        assert!(partial_placement || all_locations.len() == all_items_to_place.len());
         for (&loc, &item) in iter::zip(&all_locations, &all_items_to_place) {
             new_state.item_location_state[loc].placed_item = Some(item);
         }
@@ -3284,14 +3302,35 @@ impl<'r> Randomizer<'r> {
                 "[attempt {attempt_num_rando}] Finishing with {:?}",
                 remaining_items
             );
-            let mut idx = 0;
-            for item_loc_state in &mut state.item_location_state {
-                if item_loc_state.placed_item.is_none() {
-                    item_loc_state.placed_item = Some(remaining_items[idx]);
-                    idx += 1;
+            if self.difficulty_tiers[0].item_location_restriction
+                == ItemLocationRestriction::Vanilla
+            {
+                remaining_items.retain(|&i| i != Item::Nothing);
+                while let Some(loc) = state
+                    .item_location_state
+                    .iter()
+                    .position(|ils| ils.placed_item.is_none())
+                {
+                    let can_place =
+                        self.game_data.vanilla_items[&self.game_data.item_locations[loc]];
+                    if let Some(idx) = remaining_items.iter().position(|&i| i == can_place) {
+                        remaining_items.remove(idx);
+                        state.item_location_state[loc].placed_item = Some(can_place);
+                    } else {
+                        state.item_location_state[loc].placed_item = Some(Item::Nothing);
+                    }
                 }
+                assert!(remaining_items.len() == 0);
+            } else {
+                let mut idx = 0;
+                for item_loc_state in &mut state.item_location_state {
+                    if item_loc_state.placed_item.is_none() {
+                        item_loc_state.placed_item = Some(remaining_items[idx]);
+                        idx += 1;
+                    }
+                }
+                assert!(idx == remaining_items.len());
             }
-            assert!(idx == remaining_items.len());
         }
     }
 
@@ -3406,7 +3445,12 @@ impl<'r> Randomizer<'r> {
 
         let mut attempt_num = 0;
         let mut selected_key_items = self
-            .select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
+            .select_key_items(
+                &new_state_filler,
+                num_key_items_to_select,
+                attempt_num,
+                &state.item_precedence,
+            )
             .unwrap();
 
         loop {
@@ -3432,9 +3476,12 @@ impl<'r> Randomizer<'r> {
                 return (selection, new_state);
             }
 
-            if let Some(new_selected_key_items) =
-                self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
-            {
+            if let Some(new_selected_key_items) = self.select_key_items(
+                &new_state_filler,
+                num_key_items_to_select,
+                attempt_num,
+                &state.item_precedence,
+            ) {
                 selected_key_items = new_selected_key_items;
             } else {
                 info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
@@ -3460,6 +3507,254 @@ impl<'r> Randomizer<'r> {
                 let selection = SelectItemsOutput {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
+                };
+                return (selection, new_state);
+            }
+            attempt_num += 1;
+        }
+    }
+
+    fn vanilla_classify_locations(
+        &self,
+        state: &RandomizationState,
+        location_set: &Vec<ItemLocationId>,
+    ) -> (Vec<ItemLocationId>, Vec<ItemLocationId>) {
+        let mut filler_locations: Vec<ItemLocationId> = Vec::new();
+        let mut key_locations: Vec<ItemLocationId> = Vec::new();
+
+        for &loc in location_set {
+            let (room, node) = self.game_data.item_locations[loc];
+            let item = self.game_data.vanilla_items[&(room, node)];
+            if self.difficulty_tiers[0].early_filler_items.contains(&item)
+                || self.difficulty_tiers[0].filler_items.contains(&item)
+                || (self.difficulty_tiers[0].semi_filler_items.contains(&item)
+                    && state.items_remaining[item as usize]
+                        < self.initial_items_remaining[item as usize])
+            {
+                filler_locations.push(loc);
+            } else {
+                key_locations.push(loc);
+            }
+        }
+        return (filler_locations, key_locations);
+    }
+
+    fn multi_attempt_select_and_place_vanilla<R: Rng + Clone>(
+        &self,
+        attempt_num_rando: usize,
+        state: &RandomizationState,
+        placed_uncollected_bireachable_items: &mut Vec<Item>,
+        placed_uncollected_bireachable_loc: &mut Vec<ItemLocationId>,
+        unplaced_bireachable: &mut Vec<ItemLocationId>,
+        unplaced_oneway_reachable: &mut Vec<ItemLocationId>,
+        rng: &mut R,
+    ) -> (SelectItemsOutput, RandomizationState) {
+        let (mut max_key_items_to_select, _) = self.determine_item_split(
+            state,
+            unplaced_bireachable.len(),
+            unplaced_oneway_reachable.len(),
+        );
+        info!("[attempt {attempt_num_rando}] Beginning vanilla placement attempt");
+        // Now we have to divide the list of bireachable/oneway reachable locations
+        // based on whether or not a location is filler or progression.
+        let (filler_bireachable, mut key_bireachable) =
+            self.vanilla_classify_locations(&state, &unplaced_bireachable);
+        let (filler_oneway, _) =
+            self.vanilla_classify_locations(&state, &unplaced_oneway_reachable);
+        // key_oneway won't be used for now.
+        // Now get the set of filler items that we might want to place on this step:
+        let mut selected_filler =
+            self.select_filler_items(&state, filler_bireachable.len(), filler_oneway.len(), rng);
+        let mut placed_filler: Vec<Item> = Vec::new();
+
+        if max_key_items_to_select > key_bireachable.len() {
+            max_key_items_to_select = key_bireachable.len();
+        }
+
+        let mut new_state_filler: RandomizationState = RandomizationState {
+            step_num: state.step_num,
+            start_location: state.start_location.clone(),
+            hub_location: state.hub_location.clone(),
+            item_precedence: state.item_precedence.clone(),
+            item_location_state: state.item_location_state.clone(),
+            flag_location_state: state.flag_location_state.clone(),
+            save_location_state: state.save_location_state.clone(),
+            door_state: state.door_state.clone(),
+            items_remaining: state.items_remaining.clone(),
+            global_state: state.global_state.clone(),
+            debug_data: None,
+            previous_debug_data: None,
+            key_visited_vertices: HashSet::new(),
+        };
+
+        // What we're going to place so far.
+        //let item_loc_placement : Vec<(ItemLocationId, Item)> = Vec::new();
+        for &loc in filler_bireachable.iter().chain(filler_oneway.iter()) {
+            // What item belongs here:
+            let mut item = self.game_data.vanilla_items[&self.game_data.item_locations[loc]];
+            if let Some(select_index) = selected_filler
+                .iter()
+                .position(|&i| i == item || i == Item::Nothing)
+            {
+                item = selected_filler[select_index];
+                // We can fill this spot.
+                new_state_filler.item_location_state[loc].placed_item = Some(item);
+                selected_filler.remove(select_index);
+                placed_filler.push(item);
+                // We check if items_remaining is positive, only because with "Stop item placement early" there
+                // could be extra (unplanned) Nothing items placed.
+                if new_state_filler.items_remaining[item as usize] > 0 {
+                    new_state_filler.items_remaining[item as usize] -= 1;
+                }
+            } else {
+                // We're out of Nothings and the item to be put here hasn't been selected yet. DO NOT FILL. This is so that reachable locations with Supers can get
+                // filled with Supers once logical Supers are placed.
+            }
+        }
+
+        new_state_filler.previous_debug_data = state.debug_data.clone();
+        new_state_filler.key_visited_vertices = state.key_visited_vertices.clone();
+
+        // Mark the newly collected items that were placed on earlier steps:
+        for &loc in placed_uncollected_bireachable_loc.iter() {
+            new_state_filler.item_location_state[loc].collected = true;
+        }
+
+        // And now the key item(s). ONLY bireachable key items will be placed. The one-way
+        // list is ignored.
+        let mut attempt_num = 0;
+
+        // Preprocess the item precedence to only include items that can be reached right now.
+        let placeable_key_items: Vec<Item> = key_bireachable
+            .iter()
+            .map(|&loc| self.game_data.vanilla_items[&self.game_data.item_locations[loc]])
+            .collect();
+        let item_precedence: Vec<Item> = state
+            .item_precedence
+            .iter()
+            .filter(|&i| placeable_key_items.contains(i))
+            .map(|&i| i)
+            .collect();
+
+        let mut selected_key_items = self
+            .select_key_items(
+                &state,
+                max_key_items_to_select,
+                attempt_num,
+                &item_precedence,
+            )
+            .unwrap();
+        loop {
+            // Remove from selected_key_items all key items that we can't reach.
+            selected_key_items.retain(|&i| placeable_key_items.contains(&i));
+
+            let mut new_state: RandomizationState = new_state_filler.clone();
+            for &item in &selected_key_items {
+                if new_state.items_remaining[item as usize] > 0 {
+                    new_state.items_remaining[item as usize] -= 1;
+                }
+            }
+
+            if self.provides_progression(
+                &state,
+                &mut new_state,
+                &selected_key_items,
+                &placed_filler,
+                &placed_uncollected_bireachable_items,
+                unplaced_bireachable.len(),
+            ) {
+                // Success: we can now commit the placement.
+                for &item in &selected_key_items {
+                    if item == Item::Nothing {
+                        continue;
+                    } // Handle Nothings later.
+                      // The locations this item can be placed:
+                    let where_to_place: Vec<ItemLocationId> = key_bireachable
+                        .iter()
+                        .map(|&loc| loc)
+                        .filter(|&loc| {
+                            self.game_data.vanilla_items[&self.game_data.item_locations[loc]]
+                                == item
+                        })
+                        .collect();
+                    if where_to_place.len() < 1 {
+                        continue;
+                    } // It can't be placed? Why?
+                    self.place_items(
+                        attempt_num_rando,
+                        &state,
+                        &mut new_state,
+                        &where_to_place,
+                        &[],
+                        &[item],
+                        &[],
+                        true,
+                    );
+                    // Remove the locations we just filled.
+                    key_bireachable
+                        .retain(|&loc| new_state.item_location_state[loc].placed_item.is_none());
+                }
+                // Now for the Nothing(s) that were selected - we'll basically just stuff them randomly. Note that sticking a Nothing in a unique item's location
+                // effectively removes that item from randomization.
+                key_bireachable.shuffle(rng);
+                let nothings_to_place = selected_key_items
+                    .iter()
+                    .filter(|&i| *i == Item::Nothing)
+                    .count();
+                for _ in 0..nothings_to_place {
+                    // Pick a key location we didn't fill yet to stick a Nothing into.
+                    if let Some(loc) = key_bireachable.pop() {
+                        new_state.item_location_state[loc].placed_item = Some(Item::Nothing);
+                    }
+                }
+                let selection = SelectItemsOutput {
+                    key_items: selected_key_items,
+                    other_items: placed_filler,
+                };
+                return (selection, new_state);
+            }
+
+            if let Some(new_selected_key_items) = self.select_key_items(
+                &state,
+                max_key_items_to_select,
+                attempt_num,
+                &item_precedence,
+            ) {
+                selected_key_items = new_selected_key_items;
+            } else {
+                info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
+                if self.difficulty_tiers[0].stop_item_placement_early {
+                    for x in &mut selected_key_items {
+                        *x = Item::Nothing;
+                    }
+                    new_state = new_state_filler;
+                    for &item in &selected_key_items {
+                        if new_state.items_remaining[item as usize] > 0 {
+                            new_state.items_remaining[item as usize] -= 1;
+                        }
+                    }
+                    unplaced_bireachable.shuffle(rng);
+                    let nothings_to_place = selected_key_items
+                        .iter()
+                        .filter(|&i| *i == Item::Nothing)
+                        .count();
+                    for _ in 0..nothings_to_place {
+                        if let Some(loc) = unplaced_bireachable.pop() {
+                            new_state.item_location_state[loc].placed_item = Some(Item::Nothing);
+                        }
+                    }
+                    let _ = self.provides_progression(
+                        &state,
+                        &mut new_state,
+                        &selected_key_items,
+                        &placed_filler,
+                        &placed_uncollected_bireachable_items,
+                        unplaced_bireachable.len(),
+                    );
+                }
+                let selection = SelectItemsOutput {
+                    key_items: selected_key_items,
+                    other_items: placed_filler,
                 };
                 return (selection, new_state);
             }
@@ -3582,58 +3877,98 @@ impl<'r> Randomizer<'r> {
         }
         unplaced_bireachable.shuffle(rng);
         unplaced_oneway_reachable.shuffle(rng);
-        let (selection, mut new_state) = self.multi_attempt_select_items(
-            attempt_num_rando,
-            &state,
-            &placed_uncollected_bireachable_items,
-            unplaced_bireachable.len(),
-            unplaced_oneway_reachable.len(),
-            rng,
-        );
-        new_state.previous_debug_data = state.debug_data.clone();
-        new_state.key_visited_vertices = state.key_visited_vertices.clone();
 
-        // Mark the newly collected items that were placed on earlier steps:
-        for &loc in &placed_uncollected_bireachable_loc {
-            new_state.item_location_state[loc].collected = true;
+        if self.difficulty_tiers[0].item_location_restriction == ItemLocationRestriction::Vanilla {
+            let (_, mut new_state) = self.multi_attempt_select_and_place_vanilla(
+                attempt_num_rando,
+                &state,
+                &mut placed_uncollected_bireachable_items,
+                &mut placed_uncollected_bireachable_loc,
+                &mut unplaced_bireachable,
+                &mut unplaced_oneway_reachable,
+                rng,
+            );
+
+            // Mark the newly placed bireachable items as collected:
+            for &loc in &unplaced_bireachable {
+                // Skip if an item wasn't placed here.
+                if new_state.item_location_state[loc].placed_item.is_none() {
+                    continue;
+                }
+                new_state.item_location_state[loc].collected = true;
+            }
+
+            let spoiler_summary = self.get_spoiler_summary(
+                &orig_global_state,
+                state,
+                &new_state,
+                spoiler_flag_summaries,
+                spoiler_door_summaries,
+            );
+            let spoiler_details = self.get_spoiler_details(
+                &orig_global_state,
+                state,
+                &new_state,
+                spoiler_flag_details,
+                spoiler_door_details,
+            );
+            *state = new_state;
+            (spoiler_summary, spoiler_details, false)
+        } else {
+            let (selection, mut new_state) = self.multi_attempt_select_items(
+                attempt_num_rando,
+                &state,
+                &placed_uncollected_bireachable_items,
+                unplaced_bireachable.len(),
+                unplaced_oneway_reachable.len(),
+                rng,
+            );
+            new_state.previous_debug_data = state.debug_data.clone();
+            new_state.key_visited_vertices = state.key_visited_vertices.clone();
+
+            // Mark the newly collected items that were placed on earlier steps:
+            for &loc in &placed_uncollected_bireachable_loc {
+                new_state.item_location_state[loc].collected = true;
+            }
+
+            // Place the new items:
+            // We place items in all newly reachable locations (bireachable as
+            // well as one-way-reachable locations). One-way-reachable locations are filled only
+            // with filler items, to reduce the possibility of them being usable to break from the
+            // intended logical sequence.
+            self.place_items(
+                attempt_num_rando,
+                &state,
+                &mut new_state,
+                &unplaced_bireachable,
+                &unplaced_oneway_reachable,
+                &selection.key_items,
+                &selection.other_items,
+                false,
+            );
+
+            // Mark the newly placed bireachable items as collected:
+            for &loc in &unplaced_bireachable {
+                new_state.item_location_state[loc].collected = true;
+            }
+
+            let spoiler_summary = self.get_spoiler_summary(
+                &orig_global_state,
+                state,
+                &new_state,
+                spoiler_flag_summaries,
+                spoiler_door_summaries,
+            );
+            let spoiler_details = self.get_spoiler_details(
+                &orig_global_state,
+                state,
+                &new_state,
+                spoiler_flag_details,
+                spoiler_door_details,
+            );
+            *state = new_state;
+            (spoiler_summary, spoiler_details, false)
         }
-
-        // Place the new items:
-        // We place items in all newly reachable locations (bireachable as
-        // well as one-way-reachable locations). One-way-reachable locations are filled only
-        // with filler items, to reduce the possibility of them being usable to break from the
-        // intended logical sequence.
-        self.place_items(
-            attempt_num_rando,
-            &state,
-            &mut new_state,
-            &unplaced_bireachable,
-            &unplaced_oneway_reachable,
-            &selection.key_items,
-            &selection.other_items,
-        );
-
-        // Mark the newly placed bireachable items as collected:
-        for &loc in &unplaced_bireachable {
-            new_state.item_location_state[loc].collected = true;
-        }
-
-        let spoiler_summary = self.get_spoiler_summary(
-            &orig_global_state,
-            state,
-            &new_state,
-            spoiler_flag_summaries,
-            spoiler_door_summaries,
-        );
-        let spoiler_details = self.get_spoiler_details(
-            &orig_global_state,
-            state,
-            &new_state,
-            spoiler_flag_details,
-            spoiler_door_details,
-        );
-        *state = new_state;
-        (spoiler_summary, spoiler_details, false)
     }
 
     fn get_seed_name(&self, seed: usize) -> String {

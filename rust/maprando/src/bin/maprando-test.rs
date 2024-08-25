@@ -8,9 +8,10 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::preset::Preset;
 use maprando::randomize::{
-    randomize_doors, randomize_map_areas, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers,
-    ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective,
-    ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode,
+    randomize_doors, randomize_map_areas, AreaAssignment, DoorsMode, ItemDotChange,
+    ItemLocationRestriction, ItemMarkers, ItemPlacementStyle, ItemPriorityGroup,
+    ItemPriorityStrength, MotherBrainFight, Objective, ProgressionRate, Randomization, Randomizer,
+    SaveAnimals, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
@@ -63,6 +64,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         mother_brain_proficiency: preset.mother_brain_proficiency,
         // Progression options, Normal preset
         progression_rate: ProgressionRate::Fast,
+        item_location_restriction: ItemLocationRestriction::None,
         random_tank: true,
         spazer_before_plasma: true,
         stop_item_placement_early: false,

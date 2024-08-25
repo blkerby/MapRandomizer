@@ -333,6 +333,7 @@ fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
         speed_ball_tiles: preset.preset.speed_ball_tiles as f32,
         shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as Capacity,
         progression_rate: maprando::randomize::ProgressionRate::Fast,
+        item_location_restriction: maprando::randomize::ItemLocationRestriction::None,
         random_tank: true,
         spazer_before_plasma: true,
         stop_item_placement_early: false,

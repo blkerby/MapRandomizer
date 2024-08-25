@@ -31,6 +31,7 @@ pub struct SeedHeaderTemplate<'a> {
     semi_filler_items: Vec<String>,
     early_filler_items: Vec<String>,
     item_placement_style: String,
+    item_location_restriction: String,
     difficulty: &'a DifficultyConfig,
     _notable_strats: Vec<String>,
     quality_of_life_preset: String,
@@ -258,6 +259,7 @@ pub fn get_difficulty_tiers(
                 preset.shinecharge_leniency_frames as Capacity,
             ),
             progression_rate: difficulty.progression_rate,
+            item_location_restriction: difficulty.item_location_restriction,
             random_tank: difficulty.random_tank,
             spazer_before_plasma: difficulty.spazer_before_plasma,
             stop_item_placement_early: difficulty.stop_item_placement_early,
@@ -518,6 +520,7 @@ pub fn render_seed(
             .map(|x| format!("{:?}", x))
             .collect(),
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
+        item_location_restriction: format!("{:?}", seed_data.difficulty.item_location_restriction),
         difficulty: &seed_data.difficulty,
         _notable_strats: notable_strats,
         quality_of_life_preset: seed_data

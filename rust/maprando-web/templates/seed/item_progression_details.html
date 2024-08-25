@@ -7,6 +7,10 @@
     <div class="col-6 col-sm-7 col-md-8 col-lg-9">{{+ item_placement_style }}</div>
 </div>
 <div class="row">
+    <div class="col-6 col-sm-5 col-md-4 col-lg-3">Item location restriction:</div>
+    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{{+ item_location_restriction }}</div>
+</div>
+<div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Item priority strength:</div>
     <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% let difficulty = difficulty %}{{+ format!("{:?}", difficulty.item_priority_strength) }}</div>
 </div>
