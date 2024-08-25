@@ -3557,14 +3557,16 @@ impl<'r> Randomizer<'r> {
         info!("[attempt {attempt_num_rando}] Beginning vanilla placement attempt");
         // Now we have to divide the list of bireachable/oneway reachable locations
         // based on whether or not a location is filler or progression.
-        let (filler_bireachable, mut key_bireachable) =
+        let (mut filler_bireachable, mut key_bireachable) =
             self.vanilla_classify_locations(&state, &unplaced_bireachable);
-        let (filler_oneway, _) =
+        let (mut filler_oneway, _) =
             self.vanilla_classify_locations(&state, &unplaced_oneway_reachable);
         // key_oneway won't be used for now.
         // Now get the set of filler items that we might want to place on this step:
-        let mut selected_filler =
+        let selected_filler =
             self.select_filler_items(&state, filler_bireachable.len(), filler_oneway.len(), rng);
+        // The only thing we actually care about from selected_filler is whether we place Nothing or place an item.
+        // After all, a location is only in the filler set if its item is also in filler.
         let mut placed_filler: Vec<Item> = Vec::new();
 
         if max_key_items_to_select > key_bireachable.len() {
@@ -3587,28 +3589,25 @@ impl<'r> Randomizer<'r> {
             key_visited_vertices: HashSet::new(),
         };
 
-        // What we're going to place so far.
-        //let item_loc_placement : Vec<(ItemLocationId, Item)> = Vec::new();
-        for &loc in filler_bireachable.iter().chain(filler_oneway.iter()) {
-            // What item belongs here:
-            let mut item = self.game_data.vanilla_items[&self.game_data.item_locations[loc]];
-            if let Some(select_index) = selected_filler
-                .iter()
-                .position(|&i| i == item || i == Item::Nothing)
-            {
-                item = selected_filler[select_index];
-                // We can fill this spot.
-                new_state_filler.item_location_state[loc].placed_item = Some(item);
-                selected_filler.remove(select_index);
-                placed_filler.push(item);
-                // We check if items_remaining is positive, only because with "Stop item placement early" there
-                // could be extra (unplanned) Nothing items placed.
-                if new_state_filler.items_remaining[item as usize] > 0 {
-                    new_state_filler.items_remaining[item as usize] -= 1;
-                }
+        for (idx, &loc) in filler_bireachable
+            .iter()
+            .chain(filler_oneway.iter())
+            .enumerate()
+        {
+            let selected_item = selected_filler[idx];
+            // If Nothing was selected, place Nothing. Otherwise place the item that belongs here.
+            let item = if selected_item == Item::Nothing {
+                Item::Nothing
             } else {
-                // We're out of Nothings and the item to be put here hasn't been selected yet. DO NOT FILL. This is so that reachable locations with Supers can get
-                // filled with Supers once logical Supers are placed.
+                self.game_data.vanilla_items[&self.game_data.item_locations[loc]]
+            };
+            // We can fill this spot.
+            new_state_filler.item_location_state[loc].placed_item = Some(item);
+            placed_filler.push(item);
+            // We check if items_remaining is positive, only because with "Stop item placement early" there
+            // could be extra (unplanned) Nothing items placed.
+            if new_state_filler.items_remaining[item as usize] > 0 {
+                new_state_filler.items_remaining[item as usize] -= 1;
             }
         }
 
