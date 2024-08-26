@@ -13,5 +13,7 @@ async fn home(app_data: web::Data<AppData>) -> impl Responder {
     let home_template = HomeTemplate {
         version_info: app_data.version_info.clone(),
     };
-    HttpResponse::Ok().body(home_template.render().unwrap())
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(home_template.render().unwrap())
 }

@@ -72,6 +72,7 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
             // We use a no-cache directive to prevent problems when we change the JavaScript.
             // Probably better would be to properly version the JS and control cache that way.
             HttpResponse::Ok()
+                .content_type("text/html; charset=utf-8")
                 .insert_header(CacheControl(vec![CacheDirective::NoCache]))
                 .body(customize_template.render().unwrap())
         }

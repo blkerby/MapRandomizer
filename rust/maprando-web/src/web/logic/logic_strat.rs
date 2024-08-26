@@ -17,7 +17,9 @@ async fn logic_strat(
         to_node,
         strat_name.clone(),
     )) {
-        HttpResponse::Ok().body(html.clone())
+        HttpResponse::Ok()
+            .content_type("text/html; charset=utf-8")
+            .body(html.clone())
     } else {
         let template = RoomNotFoundTemplate {};
         HttpResponse::NotFound().body(template.render().unwrap())

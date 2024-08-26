@@ -38,5 +38,7 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
         version_info: app_data.version_info.clone(),
         sprite_artists,
     };
-    HttpResponse::Ok().body(about_template.render().unwrap())
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(about_template.render().unwrap())
 }

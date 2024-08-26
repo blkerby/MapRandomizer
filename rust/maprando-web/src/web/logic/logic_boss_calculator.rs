@@ -42,5 +42,7 @@ async fn logic_boss_calculator(app_data: web::Data<AppData>) -> impl Responder {
         difficulty_names,
         boss_proficiencies,
     };
-    HttpResponse::Ok().body(template.render().unwrap())
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(template.render().unwrap())
 }

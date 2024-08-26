@@ -122,5 +122,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         hq_video_url_root: HQ_VIDEO_URL_ROOT,
     };
-    HttpResponse::Ok().body(generate_template.render().unwrap())
+    HttpResponse::Ok()
+        .content_type("text/html; charset=utf-8")
+        .body(generate_template.render().unwrap())
 }
