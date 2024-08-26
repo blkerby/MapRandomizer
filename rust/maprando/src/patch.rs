@@ -208,7 +208,7 @@ pub struct Patcher<'a> {
     pub locked_door_state_indices: Vec<usize>,
     pub nothing_item_bitmask: [u8; 0x40],
     // per-area vec of (addr, bitmask) of cross-area tiles to reveal when map is activated:
-    pub map_reveal_bitmasks: Vec<Vec<(u16, u16)>>
+    pub map_reveal_bitmasks: Vec<Vec<(u16, u16)>>,
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -725,7 +725,8 @@ impl<'a> Patcher<'a> {
         let x = room_x + local_x;
         let y = room_y + local_y;
         let (offset, bitmask) = xy_to_explored_bit_ptr(x as isize, y as isize);
-        self.map_reveal_bitmasks[other_area].push(((offset + area as isize * 0x100) as u16, bitmask as u16));
+        self.map_reveal_bitmasks[other_area]
+            .push(((offset + area as isize * 0x100) as u16, bitmask as u16));
         Ok(())
     }
 
@@ -988,10 +989,12 @@ impl<'a> Patcher<'a> {
         let table_ptr = 0x90FA00;
         let mut ptr = 0x90FA10;
         for area in 0..NUM_AREAS {
-            self.rom.write_u16(snes2pc(table_ptr + area * 2), ptr & 0xFFFF)?;
+            self.rom
+                .write_u16(snes2pc(table_ptr + area * 2), ptr & 0xFFFF)?;
             for &(offset, bitmask) in &self.map_reveal_bitmasks[area] {
                 self.rom.write_u16(snes2pc(ptr as usize), offset as isize)?;
-                self.rom.write_u16(snes2pc(ptr as usize + 2), bitmask as isize)?;
+                self.rom
+                    .write_u16(snes2pc(ptr as usize + 2), bitmask as isize)?;
                 ptr += 4;
             }
             // Write terminator:
