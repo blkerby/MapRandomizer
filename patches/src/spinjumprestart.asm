@@ -1,5 +1,7 @@
 ; Based on https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/spinjumprestart.asm
 ; Developed by Kejardon
+; Note: this version reworks the transition tables to save space but introduces some deviations from vanilla behavior 
+; (aside from the respin changes); it's no longer used in the randomizer but kept for reference.
 
 LoRom
 
