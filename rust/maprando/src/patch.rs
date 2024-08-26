@@ -207,6 +207,8 @@ pub struct Patcher<'a> {
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
     pub locked_door_state_indices: Vec<usize>,
     pub nothing_item_bitmask: [u8; 0x40],
+    // per-area vec of (addr, bitmask) of cross-area tiles to reveal when map is activated:
+    pub map_reveal_bitmasks: Vec<Vec<(u16, u16)>>
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -704,6 +706,29 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn add_map_reveal_tile(
+        &mut self,
+        door_ptr_pair: &DoorPtrPair,
+        local_x: isize,
+        local_y: isize,
+    ) -> Result<()> {
+        let (room_idx, _door_idx) =
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[door_ptr_pair];
+        let room = &self.game_data.room_geometry[room_idx];
+        let room_x = self.rom.read_u8(room.rom_address + 2)?;
+        let room_y = self.rom.read_u8(room.rom_address + 3)?;
+        let area = self.map.area[room_idx];
+        let other_door_ptr_pair = self.other_door_ptr_pair_map[door_ptr_pair];
+        let (other_room_idx, _other_door_idx) =
+            self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
+        let other_area = self.map.area[other_room_idx];
+        let x = room_x + local_x;
+        let y = room_y + local_y;
+        let (offset, bitmask) = xy_to_explored_bit_ptr(x as isize, y as isize);
+        self.map_reveal_bitmasks[other_area].push(((offset + area as isize * 0x100) as u16, bitmask as u16));
+        Ok(())
+    }
+
     // There are map tiles at the bottom of elevator rooms (at the top of elevators) that
     // Samus does not pass through and hence would never be marked explored. This is an issue
     // that exists in the vanilla game but would be more noticeable in Map Rando because
@@ -775,6 +800,8 @@ impl<'a> Patcher<'a> {
                 self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
             self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm, false)?;
             self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm, false)?;
+            self.add_map_reveal_tile(src_pair, src_x, src_y)?;
+            self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
         }
         Ok(())
     }
@@ -952,6 +979,27 @@ impl<'a> Patcher<'a> {
                 )?;
             }
         }
+        Ok(())
+    }
+
+    fn write_map_reveal_tiles(&mut self) -> Result<()> {
+        // Write data to indicate cross-area tiles that should be revealed when a map station is activated.
+        // This is used to mark area transition arrows/letters in the other area's map.
+        let table_ptr = 0x90FA00;
+        let mut ptr = 0x90FA10;
+        for area in 0..NUM_AREAS {
+            self.rom.write_u16(snes2pc(table_ptr + area * 2), ptr & 0xFFFF)?;
+            for &(offset, bitmask) in &self.map_reveal_bitmasks[area] {
+                self.rom.write_u16(snes2pc(ptr as usize), offset as isize)?;
+                self.rom.write_u16(snes2pc(ptr as usize + 2), bitmask as isize)?;
+                ptr += 4;
+            }
+            // Write terminator:
+            self.rom.write_u16(snes2pc(ptr as usize), 0)?;
+            self.rom.write_u16(snes2pc(ptr as usize + 2), 0)?;
+            ptr += 2
+        }
+        assert!(ptr <= 0x90FC00);
         Ok(())
     }
 
@@ -2672,6 +2720,7 @@ pub fn make_rom(
         extra_setup_asm: HashMap::new(),
         locked_door_state_indices: vec![],
         nothing_item_bitmask: [0; 0x40],
+        map_reveal_bitmasks: vec![vec![]; NUM_AREAS],
     };
     patcher.apply_ips_patches()?;
     patcher.place_items()?;
@@ -2685,6 +2734,7 @@ pub fn make_rom(
     patcher.apply_locked_doors()?;
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
+    patcher.write_map_reveal_tiles()?;
     patcher.remove_non_blue_doors()?;
     if !randomization.difficulty.vanilla_map
         || randomization.difficulty.area_assignment == AreaAssignment::Random

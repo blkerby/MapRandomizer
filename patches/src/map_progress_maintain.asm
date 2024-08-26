@@ -2,6 +2,7 @@ arch snes.cpu
 lorom
 
 !map_station_reveal_type = $90F700  ; 0 = Full reveal,  1 = Partial reveal
+!map_reveal_tile_table = $90FA00  ; must match reference in patch.rs
 !bank_90_freespace_start = $90F702
 !bank_90_freespace_end = $90F800
 
@@ -111,7 +112,36 @@ mark_progress:
 ; When map station is activated, fill all map revealed bits for the area:
 activate_map_station_hook:
     LDA #$0001 : STA $0789   ; run hi-jacked instructions (set map flag)
-    
+
+    phb
+    pea $9090
+    plb
+    plb
+
+    ; reveal specific tiles in other area maps (e.g. area transition arrows/letters)
+    lda $1F5B
+    asl
+    tax          ; X <- map_area * 2
+    lda !map_reveal_tile_table, x
+    tay          ; Y <- [map_reveal_tile_table + map_area * 2]
+
+.cross_area_reveal_loop:
+    lda $0000,y
+    beq .done_cross_area_reveal
+    tax            ; X <- address of word containing tile to reveal (relative to base at $702000 and $702700)
+    lda $0002,y    ; A <- bitmask of tile to reveal
+    ora $702000,x
+    sta $702000,x
+    lda $0002,y
+    ora $702700,x
+    sta $702700,x
+    iny : iny : iny : iny
+    bra .cross_area_reveal_loop
+
+.done_cross_area_reveal:
+    plb
+
+    ; now reveal the current area's map:
     lda $1F5B
     xba
     tax          ; X <- map area * $100
