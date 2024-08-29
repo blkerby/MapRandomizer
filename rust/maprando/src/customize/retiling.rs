@@ -58,7 +58,7 @@ pub fn apply_retiling(
         ((3, 0), "WreckedShip"),
         ((3, 1), "WreckedShip"),
         ((4, 0), "WestMaridia"),
-        ((4, 1), "WestMaridia"),
+        ((4, 1), "YellowMaridia"),
         ((5, 0), "MechaTourian"),
         ((5, 1), "MechaTourian"),
     ]

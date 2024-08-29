@@ -1252,6 +1252,7 @@ fn main() -> Result<()> {
         "UpperNorfair",
         "WreckedShip",
         "WestMaridia",
+        "YellowMaridia",
         "MechaTourian",
         "Outline",
     ]

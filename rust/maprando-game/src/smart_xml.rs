@@ -20,6 +20,18 @@ where
     Ok(out)
 }
 
+pub fn from_hex_words_u32<'de, D>(deserializer: D) -> Result<Vec<u32>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let s: String = Deserialize::deserialize(deserializer)?;
+    let mut out: Vec<u32> = vec![];
+    for word in s.split_ascii_whitespace() {
+        out.push(u32::from_str_radix(word, 16).map_err(D::Error::custom)?);
+    }
+    Ok(out)
+}
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct FX1 {
     #[serde(deserialize_with = "from_hex", default)]
@@ -112,8 +124,8 @@ pub struct LevelData {
 pub struct BGDataData {
     #[serde(rename = "Type", default)]
     pub type_: String,
-    #[serde(rename = "SOURCE", default)]
-    pub source: String,
+    #[serde(rename = "SOURCE", deserialize_with = "from_hex_words_u32", default)]
+    pub source: Vec<u32>,
     #[serde(rename = "DEST", default)]
     pub dest: String,
     #[serde(rename = "SIZE", default)]
