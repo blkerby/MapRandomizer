@@ -57,6 +57,7 @@ struct MosaicPatchBuilder {
     fx_door_map: HashMap<FXDoor, DoorPtr>,
     main_allocator: Allocator,
     fx_allocator: Allocator,
+    dust_torizo_bgdata_ptr: usize,
 }
 
 fn extract_screen_words(screen: &Screen, out: &mut [u8], width: usize, _height: usize) {
@@ -488,18 +489,66 @@ impl MosaicPatchBuilder {
 
                 // Write (or clear) the BGData pointer:
                 if state_xml.layer2_type == Layer2Type::BGData {
-                    let bg_ptr = self
-                        .bgdata_map
-                        .get(&state_xml.bg_data)
-                        .map(|x| *x)
-                        .unwrap_or(0);
-                    if bg_ptr == 0 {
-                        error!("Unrecognized BGData in {}", project);
-                    }
-                    new_rom.write_u16(state_ptr + 22, bg_ptr)?;
+                    if room_ptr == 0x7DC65 {
+                        // Dust Torizo Room: allow a custom BGData (assumed to be the same across both room states)
+                        new_rom.write_u16(state_ptr + 22, 0xBCD1)?;
+                        for data in &state_xml.bg_data.data {
+                            if data.type_ == "DECOMP" {
+                                let mut data_u8: Vec<u8> = vec![];
+                                for &w in &data.source {
+                                    data_u8.push((w & 0xFF) as u8);
+                                    data_u8.push((w >> 8) as u8);
+                                }
+                                let compressed_bgdata = self.get_compressed_data(&data_u8)?;
+                                new_rom.write_n(self.dust_torizo_bgdata_ptr, &compressed_bgdata)?;
+                                // BG pointer instruction to load tilemap:
+                                new_rom.write_u16(snes2pc(0x8FBCD1), 0x0004)?;
+                                new_rom.write_u24(snes2pc(0x8FBCD1 + 2), pc2snes(self.dust_torizo_bgdata_ptr) as isize)?;
+                                new_rom.write_u16(snes2pc(0x8FBCD1 + 5), 0x4000)?;
+                                
+                                info!("{}: {}", project, data_u8.len());
+                                if data_u8.len() == 2048 {
+                                    // Instruction to copy single screen of BGData twice:
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 7), 0x0002)?;
+                                    new_rom.write_u24(snes2pc(0x8FBCD1 + 9), 0x7E4000)?;
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 12), 0x4800)?;
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 14), 0x0800)?;
+
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 16), 0x0002)?;
+                                    new_rom.write_u24(snes2pc(0x8FBCD1 + 18), 0x7E4000)?;
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 21), 0x4C00)?;
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 23), 0x0800)?;
+
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 25), 0x0000)?;
+                                } else  if data_u8.len() == 4096 {
+                                    // Instructions to copy two screens of BGData
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 7), 0x0002)?;
+                                    new_rom.write_u24(snes2pc(0x8FBCD1 + 9), 0x7E4000)?;
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 12), 0x4800)?;
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 14), 0x1000)?;
+
+                                    new_rom.write_u16(snes2pc(0x8FBCD1 + 16), 0x0000)?;
+                                } else {
+                                    panic!("Unexpected BGData size {}", data_u8.len());
+                                }
+                                break;
+                            }
+                        }    
+                    } else {
+                        // All other rooms: BGData is required to match a vanilla one, so we look up which one:
+                        let bg_ptr = self
+                            .bgdata_map
+                            .get(&state_xml.bg_data)
+                            .map(|x| *x)
+                            .unwrap_or(0);
+                        if bg_ptr == 0 {
+                            error!("Unrecognized BGData in {}", project);
+                        }
+                        new_rom.write_u16(state_ptr + 22, bg_ptr)?;
+                    }    
                 } else {
                     new_rom.write_u16(state_ptr + 22, 0)?;
-                }
+                }    
 
                 // Write BG scroll speeds:
                 let mut speed_x = state_xml.layer2_xscroll;
@@ -1212,7 +1261,7 @@ fn main() -> Result<()> {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_ptrs = load_room_ptrs(sm_json_data_path)?;
 
-    let main_allocator = Allocator::new(vec![
+    let mut main_allocator = Allocator::new(vec![
         // Vanilla tile GFX, which we overwrite:
         (snes2pc(0xBAC629), snes2pc(0xBB8000)),
         // Skipping bank BB, used by Mosaic "Area Palette Glows"
@@ -1272,6 +1321,7 @@ fn main() -> Result<()> {
     let source_suffix_tree = SuffixTree::new(&rom.data);
     info!("Done building vanilla ROM suffix tree");
 
+    let dust_torizo_bgdata_ptr = main_allocator.allocate(4096)?;
     let mut mosaic_builder = MosaicPatchBuilder {
         rom,
         source_suffix_tree,
@@ -1285,6 +1335,7 @@ fn main() -> Result<()> {
         output_patches_dir: Path::new("../patches/mosaic").to_owned(),
         main_allocator,
         fx_allocator,
+        dust_torizo_bgdata_ptr,
     };
     std::fs::create_dir_all(&mosaic_builder.tmp_dir)?;
     std::fs::create_dir_all(&mosaic_builder.compressed_data_cache_dir)?;
