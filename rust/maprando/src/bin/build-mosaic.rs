@@ -503,9 +503,12 @@ impl MosaicPatchBuilder {
                                 new_rom.write_n(self.dust_torizo_bgdata_ptr, &compressed_bgdata)?;
                                 // BG pointer instruction to load tilemap:
                                 new_rom.write_u16(snes2pc(0x8FBCD1), 0x0004)?;
-                                new_rom.write_u24(snes2pc(0x8FBCD1 + 2), pc2snes(self.dust_torizo_bgdata_ptr) as isize)?;
+                                new_rom.write_u24(
+                                    snes2pc(0x8FBCD1 + 2),
+                                    pc2snes(self.dust_torizo_bgdata_ptr) as isize,
+                                )?;
                                 new_rom.write_u16(snes2pc(0x8FBCD1 + 5), 0x4000)?;
-                                
+
                                 info!("{}: {}", project, data_u8.len());
                                 if data_u8.len() == 2048 {
                                     // Instruction to copy single screen of BGData twice:
@@ -520,7 +523,7 @@ impl MosaicPatchBuilder {
                                     new_rom.write_u16(snes2pc(0x8FBCD1 + 23), 0x0800)?;
 
                                     new_rom.write_u16(snes2pc(0x8FBCD1 + 25), 0x0000)?;
-                                } else  if data_u8.len() == 4096 {
+                                } else if data_u8.len() == 4096 {
                                     // Instructions to copy two screens of BGData
                                     new_rom.write_u16(snes2pc(0x8FBCD1 + 7), 0x0002)?;
                                     new_rom.write_u24(snes2pc(0x8FBCD1 + 9), 0x7E4000)?;
@@ -533,7 +536,7 @@ impl MosaicPatchBuilder {
                                 }
                                 break;
                             }
-                        }    
+                        }
                     } else {
                         // All other rooms: BGData is required to match a vanilla one, so we look up which one:
                         let bg_ptr = self
@@ -545,10 +548,10 @@ impl MosaicPatchBuilder {
                             error!("Unrecognized BGData in {}", project);
                         }
                         new_rom.write_u16(state_ptr + 22, bg_ptr)?;
-                    }    
+                    }
                 } else {
                     new_rom.write_u16(state_ptr + 22, 0)?;
-                }    
+                }
 
                 // Write BG scroll speeds:
                 let mut speed_x = state_xml.layer2_xscroll;
