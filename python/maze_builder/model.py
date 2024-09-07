@@ -135,14 +135,61 @@ def compute_cross_attn(Q, K, V):
     return out
 
 
+def compute_grouped_cross_attn(Q, K, V):
+    # Q: [batch, seq, head_group, head_within, emb]
+    # K, V: [batch, seq, head_group, emb]
+    d = Q.shape[-1]
+    s = Q.shape[1]
+    raw_attn = torch.einsum('bsgwe,btge->bstgw', Q, K / math.sqrt(d))
+    attn = torch.softmax(raw_attn, dim=2)
+    # attn = torch.relu(raw_attn) / s
+    out = torch.einsum('bstgw,btge->bsgwe', attn, V)
+    return out
+
+
 def compute_multi_query_cross_attn(Q, K, V):
     # Q: [batch, seq, head, emb]
-    # K, V: [batch, head, emb]
+    # K, V: [batch, seq, emb]
     d = Q.shape[-1]
     raw_attn = torch.einsum('bshe,bte->bsth', Q, K / math.sqrt(d))
     attn = torch.softmax(raw_attn, dim=2)
     out = torch.einsum('bsth,bte->bshe', attn, V)
     return out
+
+class GroupedQueryAttentionLayer(torch.nn.Module):
+    def __init__(self, input_width, key_width, value_width, num_heads, num_groups, dropout):
+        super().__init__()
+        self.input_width = input_width
+        self.key_width = key_width
+        self.value_width = value_width
+        self.num_heads = num_heads
+        self.num_groups = num_groups
+        assert num_heads % num_groups == 0
+        self.num_heads_per_group = num_heads // num_groups
+        self.query = torch.nn.Linear(input_width, num_heads * key_width, bias=False)
+        self.key = torch.nn.Linear(input_width, num_groups * key_width, bias=False)
+        self.value = torch.nn.Linear(input_width, num_groups * value_width, bias=False)
+        self.post = torch.nn.Linear(num_heads * value_width, input_width, bias=False)
+        # self.post.weight.data.zero_()
+        self.dropout = torch.nn.Dropout(p=dropout)
+        # self.layer_norm = torch.nn.LayerNorm(input_width, elementwise_affine=False)
+
+    def forward(self, X):
+        assert len(X.shape) == 3
+        assert X.shape[2] == self.input_width
+        n = X.shape[0]  # batch dimension
+        s = X.shape[1]  # sequence dimension
+        Q = self.query(X).view(n, s, self.num_groups, self.num_heads_per_group, self.key_width)
+        K = self.key(X).view(n, s, self.num_groups, self.key_width)
+        V = self.value(X).view(n, s, self.num_groups, self.value_width)
+        A = compute_grouped_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
+        # A = torch.nn.functional.gelu(A)
+        P = self.post(A)
+        if self.dropout.p > 0.0:
+            P = self.dropout(P)
+        # out = self.layer_norm(X + P).to(X.dtype)
+        # P = self.layer_norm(P).to(X.dtype)
+        return X + P
 
 class MultiHeadAttentionLayer(torch.nn.Module):
     def __init__(self, input_width, key_width, value_width, num_heads, dropout):
@@ -168,7 +215,7 @@ class MultiHeadAttentionLayer(torch.nn.Module):
         K = self.key(X).view(n, s, self.num_heads, self.key_width)
         V = self.value(X).view(n, s, self.num_heads, self.value_width)
         A = compute_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        A = torch.nn.functional.gelu(A)
+        # A = torch.nn.functional.gelu(A)
         P = self.post(A)
         if self.dropout.p > 0.0:
             P = self.dropout(P)
@@ -200,7 +247,7 @@ class MultiQueryAttentionLayer(torch.nn.Module):
         K = self.key(X).view(n, s, self.key_width)
         V = self.value(X).view(n, s, self.value_width)
         A = compute_multi_query_cross_attn(Q, K, V).reshape(n, s, self.num_heads * self.value_width)
-        A = torch.nn.functional.gelu(A)
+        # A = torch.nn.functional.gelu(A)
         P = self.post(A)
         if self.dropout.p > 0.0:
             P = self.dropout(P)
@@ -212,14 +259,16 @@ class FeedforwardLayer(torch.nn.Module):
     def __init__(self, input_width, hidden_width, arity, dropout):
         super().__init__()
         assert hidden_width % arity == 0
-        # assert arity == 1
+        assert arity == 1
         self.lin1 = torch.nn.Linear(input_width, hidden_width, bias=False)
         # self.act = HighOrderActivationB(arity, hidden_width // arity, arity)
+        # assert arity == 2
         # self.act = B2Activation(hidden_width // 2, 1.0)
+        # self.act.compile()
         # self.act.params.data.zero_()
         # self.act = MaxOut(2)
         # self.act = D2Activation(hidden_width // 2, 1.0)
-        self.lin2 = torch.nn.Linear(hidden_width, input_width, bias=False)
+        self.lin2 = torch.nn.Linear(hidden_width // arity, input_width, bias=False)
         # self.lin2.weight.data.zero_()
         # self.arity = arity
         self.dropout = torch.nn.Dropout(p=dropout)
@@ -234,6 +283,7 @@ class FeedforwardLayer(torch.nn.Module):
         # A1 = A.view(-1, A.shape[-1])
         # A2 = self.act(A1)
         # A = A2.view(*A_shape)
+
         # shape = list(A.shape)
         # shape[-1] //= self.arity
         # shape.append(self.arity)
@@ -292,8 +342,8 @@ class FeedforwardModel(torch.nn.Module):
 
 
 class RoomTransformerModel(torch.nn.Module):
-    def __init__(self, rooms, num_doors, num_outputs, map_x, map_y, block_size_x, block_size_y,
-                 embedding_width, key_width, value_width, attn_heads, hidden_width, arity, num_local_layers,
+    def __init__(self, rooms, num_doors, num_outputs, map_x, map_y,
+                 embedding_width, key_width, value_width, attn_heads, head_groups, hidden_width, arity, num_local_layers,
                  num_global_layers, global_attn_heads, global_attn_key_width, global_attn_value_width, global_width, global_hidden_width,
                  embed_dropout, attn_dropout, ff_dropout, global_ff_dropout, use_action):
         super().__init__()
@@ -329,18 +379,20 @@ class RoomTransformerModel(torch.nn.Module):
         self.use_action = use_action
         # self.transformer_layers = torch.nn.ModuleList()
         for i in range(num_local_layers):
-            self.attn_layers.append(MultiQueryAttentionLayer(
+            attn_layer = GroupedQueryAttentionLayer(
                 input_width=embedding_width,
                 key_width=key_width,
                 value_width=value_width,
                 num_heads=attn_heads,
-                dropout=attn_dropout))
-            self.ff_layers.append(FeedforwardLayer(
+                num_groups=head_groups,
+                dropout=attn_dropout)
+            self.attn_layers.append(attn_layer)
+            ff_layer = FeedforwardLayer(
                 input_width=embedding_width,
                 hidden_width=hidden_width,
                 arity=arity,
-                dropout=ff_dropout))
-
+                dropout=ff_dropout)
+            self.ff_layers.append(ff_layer)
         self.action_door_embedding = torch.nn.Parameter(torch.randn([num_doors + 1, global_width]) / math.sqrt(global_width))
 
         self.map_door_embedding = torch.nn.Parameter(
@@ -357,15 +409,15 @@ class RoomTransformerModel(torch.nn.Module):
         self.pool_attn_post_lin = torch.nn.Linear(global_attn_heads * global_attn_value_width, global_width, bias=False)
         self.pool_layer_norm = torch.nn.LayerNorm(global_width, elementwise_affine=False)
 
-        self.state_ff_layers = torch.nn.ModuleList()
-        for i in range(num_global_layers):
-            self.state_ff_layers.append(FeedforwardLayer(
-                input_width=global_width,
-                hidden_width=global_hidden_width,
-                arity=arity,
-                dropout=global_ff_dropout))
-        self.state_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.state_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
+        # self.state_ff_layers = torch.nn.ModuleList()
+        # for i in range(num_global_layers):
+        #     self.state_ff_layers.append(FeedforwardLayer(
+        #         input_width=global_width,
+        #         hidden_width=global_hidden_width,
+        #         arity=arity,
+        #         dropout=global_ff_dropout))
+        # self.state_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
+        # self.state_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
 
         self.action_ff_layers = torch.nn.ModuleList()
         for i in range(num_global_layers):
@@ -470,30 +522,30 @@ class RoomTransformerModel(torch.nn.Module):
 
             X0 = X
 
-            if compute_state_value:
-                X = X0
-                for i in range(self.num_global_layers):
-                    X = self.state_ff_layers[i](X)
-                X = self.state_output_lin1(X)
-                X = torch.nn.functional.relu(X)
-                X = self.state_output_lin2(X)
-                X_state = X
+            # if compute_state_value:
+            #     X = X0
+            #     for i in range(self.num_global_layers):
+            #         X = self.state_ff_layers[i](X)
+            #     X = self.state_output_lin1(X)
+            #     X = torch.nn.functional.gelu(X)
+            #     X = self.state_output_lin2(X)
+            #     X_state = X
 
             if self.use_action:
                 X = X0[action_env_id] + self.action_door_embedding[action_door_id]
                 for i in range(self.num_global_layers):
                     X = self.action_ff_layers[i](X)
                 X = self.action_output_lin1(X)
-                X = torch.nn.functional.relu(X)
+                X = torch.nn.functional.gelu(X)
                 X = self.action_output_lin2(X)
                 X_action = X
 
-        if compute_state_value and self.use_action:
-            return X_state.to(torch.float32), X_action.to(torch.float32)
-        elif self.use_action:
+        # if compute_state_value and self.use_action:
+        #     return X_state.to(torch.float32), X_action.to(torch.float32)
+        # elif self.use_action:
             return X_action.to(torch.float32)
-        else:
-            return X_state.to(torch.float32)
+        # else:
+        #     return X_state.to(torch.float32)
 
     def decay(self, amount: Optional[float]):
         if amount is not None:
