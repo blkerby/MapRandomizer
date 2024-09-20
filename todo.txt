@@ -1,6 +1,7 @@
 v114:
 - DONE: implement support for custom BGData in Dust Torizo Room
 - DONE: create github action to assign strat IDs
+- implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - adjust auto-formatting for unlocksDoors
 - assign IDs to tech and reusable notables?
 - set up way to assign tech/notable videos on video site

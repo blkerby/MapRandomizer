@@ -121,6 +121,36 @@ let item_rank = {
 	"PowerBomb": 21,
 	"Missile": 22,
 }
+let roomFlags = {
+	"Bomb Torizo Room": ["f_DefeatedBombTorizo", "Defeat Bomb Torizo"],
+	"Botwoon's Room": ["f_DefeatedBotwoon", "Defeat Botwoon"],
+    "Crocomire's Room": ["f_DefeatedCrocomire", "Defeat Crocomire"],
+	"Draygon's Room": ["f_DefeatedDraygon", "Defeat Draygon"],
+	"Golden Torizo's Room": ["f_DefeatedGoldenTorizo", "Defeat Golden Torizo"],
+	"Kraid Room": ["f_DefeatedKraid", "Defeat Kraid"],
+	"Mother Brain Room": ["f_DefeatedMotherBrain", "Defeat Mother Brain"],
+	"Phantoon's Room": ["f_DefeatedPhantoon", "Defeat Phantoon"],
+	"Ridley's Room": ["f_DefeatedRidley", "Defeat Ridley"],
+	"Spore Spawn Room": ["f_DefeatedSporeSpawn", "Defeat Spore Spawn"],
+	"Metroid Room 1": ["f_KilledMetroidRoom1", "Clear Metroid Room 1"],
+	"Metroid Room 2": ["f_KilledMetroidRoom2", "Clear Metroid Room 2"],
+	"Metroid Room 3": ["f_KilledMetroidRoom3", "Clear Metroid Room 3"],
+	"Metroid Room 4": ["f_KilledMetroidRoom4", "Clear Metroid Room 4"],
+	"Glass Tunnel": ["f_MaridiaTubeBroken", "Break Maridia Tube"],
+	"Shaktool Room": ["f_ShaktoolDoneDigging", "Clear Shaktool Room"],
+	"Acid Statue Room": ["f_UsedAcidChozoStatue", "Use Acid Statue"],
+	"Bowling Alley": ["f_UsedBowlingStatue", "Use Bowling Statue"],
+	"Pit Room": ["f_ClearedPitRoom", "Clear Pit Room"],
+	"Baby Kraid Room": ["f_ClearedBabyKraidRoom", "Clear Baby Kraid Room"],
+	"Plasma Room": ["f_ClearedPlasmaRoom", "Clear Plasma Room"],
+	"Metal Pirates Room": ["f_ClearedMetalPiratesRoom", "Clear Metal Pirates Room"],
+	"Parlor And Alcatraz": ["f_ZebesAwake", "Awaken Zebes"],
+	"Climb": ["f_ZebesAwake", "Awaken Zebes"],
+	"Construction Zone": ["f_ZebesAwake", "Awaken Zebes"],
+	"The Final Missile": ["f_ZebesAwake", "Awaken Zebes"],
+	"Morph Ball Room":  ["f_ZebesAwake", "Awaken Zebes"],
+	"Blue Brinstar Energy Tank Room": ["f_ZebesAwake", "Awaken Zebes"],
+};
 
 function lookupOffset(room, node) {
 	key = room + ": " + node
@@ -315,27 +345,41 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			el.classList.add("hidden")
+			el.innerText = "";
 		}
 	}
 	document.getElementById("map").onclick = ev => {
-		if (el.innerText == "Mother Brain Room") {
-			let path = "";
-			for (let i of c.escape.animals_route ?? []) {
-				for (let k of [i.from, i.to]) {
-					let x = k.x * 24 + 24 + 12;
-					let y = k.y * 24 + 24 + 12;
-					path += `${path == "" ? "M" : "L"}${x} ${y} `;
+		if (el.innerText in roomFlags) {
+			let flagPair = roomFlags[el.innerText];
+			let flagName = flagPair[0];
+			let flagDescription = flagPair[1];
+			for (let stepNum in c.details) {
+				let stepData = c.details[stepNum];
+				for (let flagData of stepData.flags) {
+					if (flagData.flag == flagName) {
+						show_item_details(flagDescription, flagData.location, stepNum, flagData);
+					}
 				}
 			}
-			for (let i of c.escape.ship_route) {
-				for (let k of [i.from, i.to]) {
-					let x = k.x * 24 + 24 + 12;
-					let y = k.y * 24 + 24 + 12;
-					path += `${path == "" ? "M" : "L"}${x} ${y} `;
+			if (el.innerText == "Mother Brain Room") {
+				let path = "";
+				for (let i of c.escape.animals_route ?? []) {
+					for (let k of [i.from, i.to]) {
+						let x = k.x * 24 + 24 + 12;
+						let y = k.y * 24 + 24 + 12;
+						path += `${path == "" ? "M" : "L"}${x} ${y} `;
+					}
 				}
+				for (let i of c.escape.ship_route) {
+					for (let k of [i.from, i.to]) {
+						let x = k.x * 24 + 24 + 12;
+						let y = k.y * 24 + 24 + 12;
+						path += `${path == "" ? "M" : "L"}${x} ${y} `;
+					}
+				}
+				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
+				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`	
 			}
-			document.getElementById("path-overlay").innerHTML = `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
-			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 		} else {
 			if (!dragged) {
 				// deselect
@@ -434,7 +478,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 		let item_info = document.createElement("div");
 		let item_difficulty = "";
-		if (j.difficulty !== null) {
+		if (j.difficulty !== null && j.difficulty !== undefined) {
 			item_difficulty = ` (${j.difficulty})`
 		}
 		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}${item_difficulty}</div><div class="category">LOCATION</div>${loc.room}: ${loc.node}<br><small>${loc.area}</small>`;
