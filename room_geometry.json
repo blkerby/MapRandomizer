@@ -2593,7 +2593,7 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [],
-        "node_tiles": [[1, [[0, 0]]], [2, [[2, 0], [3, 0]]], [3, [[1, 0]]]],
+        "node_tiles": [[1, [[0, 0]]], [2, [[1, 0], [2, 0], [3, 0]]]],
         "twin_node_tiles": null,
         "heated": false
     },
