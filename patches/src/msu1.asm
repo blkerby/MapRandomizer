@@ -315,7 +315,7 @@ MusicMappingPointers:
 MusicMapping:
 ;; 00 means use SPC music
 bank_00: ;; Opening
-	db 04,05
+	db 04,05,00
 bank_03: ;; Opening
 	db 04,05
 bank_06: ;; Crateria (First Landing)
@@ -345,11 +345,11 @@ bank_27: ;; Big Boss Battle 2
 bank_2A: ;; Plant Miniboss
 	db 24
 bank_2D: ;; Ceres Station
-	db 00,25,00
+	db 00,25,00,00
 bank_30: ;; Wrecked Ship
 	db 26,27
-bank_33: ;; Ambience SFX
-	db 00,00,00
+bank_33: ;; Exploding Zebes
+	db 00
 bank_36: ;; Theme of Super Metroid
 	db 28
 bank_39: ;; Death Cry

@@ -15,3 +15,7 @@ org $90D0FD
 ; remove energy decrement: horizontal shinespark
 org $90D129
     nop : nop : nop   ; replaces DEC $09C2
+
+; remove hurt sound when ending spark
+org $90D336
+    bra $05   ; replaces LDA #$0035 : JSL $809049
