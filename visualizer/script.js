@@ -1,77 +1,77 @@
 const offsets = {
-	"Morph Ball Room: Left Item": [2,2],
-	"Morph Ball Room: Right Item": [4,2],
-	"Cathedral: Hidden Item": [2,1],
-	"The Precious Room: Top Right Hidden Item": [1,0],
-	"Mama Turtle Room: Hidden Right Item": [2,1],
-	"Mama Turtle Room: Top Item": [1,0],
-	"Brinstar Reserve Tank Room: Middle Visible Item": [0.75,0],
-	"Brinstar Reserve Tank Room: Right Hidden Item": [1.25,0],
-	"Brinstar Reserve Tank Room: Chozo Item": [0,0],
-	"Lower Norfair Fireflea Room: Firefleas Item": [2,5],
-	"Main Street: Morph Tunnel Item": [1,2],
-	"Main Street: Speed Blocked Item": [0,3],
-	"Gauntlet Energy Tank Room: Item": [5,0],
-	"Wrecked Ship Main Shaft: Item": [0,5],
-	"Pseudo Plasma Spark Room: Hidden Item": [2,2],
-	"Assembly Line: Item": [2,0],
-	"Warehouse Kihunter Room: Hidden Item": [2,0],
-	"Billy Mays Room: Pedestal Item": [0.25,0],
-	"Billy Mays Room: Hidden Item": [-0.25,0],
-	"Norfair Reserve Tank Room: Hidden Platform Item": [0.5,0],
-	"Green Hill Zone: Item (Through the Pipe)": [3,1],
-	"Crocomire's Room: Item": [7,0],
-	"Blue Brinstar Energy Tank Room: Hidden Ceiling Item": [1,2],
-	"Blue Brinstar Energy Tank Room: Right Item": [2,2],
-	"Three Musketeers' Room: Hidden Item": [0,2],
-	"Alpha Power Bomb Room: Chozo Item": [1,0],
-	"Alpha Power Bomb Room: Hidden Left Item": [0,0],
-	"Aqueduct: Top Right Right Item": [5,0],
-	"Aqueduct: Top Right Left Item": [4,0],
-	"Screw Attack Room: Item": [0,2],
-	"Bubble Mountain: Bottom Right Item": [1,3],
-	"Watering Hole: Left Item": [-0.25,2],
-	"Watering Hole: Right Item": [0.25,2],
-	"Speed Booster Hall: Hidden Item": [11,1],
-	"West Sand Hole: Top Left - Right Item": [0.25,0],
-	"West Sand Hole: Top Left - Left Item": [-0.25,0],
-	"East Sand Hole: Top Left Item": [0,0],
-	"East Sand Hole: Right Item": [1,1],
-	"Post Crocomire Missile Room: Item": [3,0],
-	"Double Chamber: Item": [1,0],
-	"Beta Power Bomb Room: Item": [0,1],
-	"West Ocean: Bottom Left Underwater Item": [0,5],
-	"West Ocean: Left Morph Maze Item": [0,2],
-	"West Ocean: Top Hidden Item (Above Trippers)": [1,0],
-	"Early Supers Room: Lower Item": [1,1],
-	"Early Supers Room: Top Left Item": [0,0],
-	"Plasma Room: Item": [1,2],
-	"Green Pirates Shaft: Left Item": [-0.25,1],
-	"Green Pirates Shaft: Right Item": [0.25,1],
-	"Spring Ball Room: Item": [1,1],
-	"Pink Brinstar Power Bomb Room: Item": [0,1],
-	"Pit Room: Item": [0,1],
-	"Mickey Mouse Room: Item": [2,1],
-	"Grapple Beam Room: Item": [0,2],
-	"Golden Torizo's Room: Hidden Right Item": [1,0],
-	"Golden Torizo's Room: Top Left Item": [0,0],
-	"Wrecked Ship East Super Room: Item (Behind the Bomb Wall)": [3,0],
-	"Botwoon Energy Tank Room: Item": [3,0],
-	"Terminator Room: Item": [0,2],
-	"Post Crocomire Jump Room: Item": [4,0],
-	"Green Bubbles Missile Room: Item": [1,0],
-	"Lower Norfair Spring Ball Maze Room: Item": [2,0],
-	"Crateria Power Bomb Room: Item": [1,0],
-	"Green Brinstar Main Shaft: Right Etecoon Shaft - Item": [3,7],
-	"Crateria Super Room: Item": [3,0],
-	"Spore Spawn Super Room: Item": [1,8],
-	"Hi Jump Energy Tank Room: Top Right Item": [1,0],
-	"Hi Jump Energy Tank Room: Top Left Item": [0,0],
-	"Big Pink: Top Item (Above Hopper Pit)": [2,3],
-	"Big Pink: Middle Item": [2,6],
-	"Big Pink: Bottom Chozo Item": [2,7],
-	"Bowling Alley: Bottom Chozo Item": [3,2],
-	"Bowling Alley: Top Right Item": [5,0],
+	"Morph Ball Room: Left Item": [2, 2],
+	"Morph Ball Room: Right Item": [4, 2],
+	"Cathedral: Hidden Item": [2, 1],
+	"The Precious Room: Top Right Hidden Item": [1, 0],
+	"Mama Turtle Room: Hidden Right Item": [2, 1],
+	"Mama Turtle Room: Top Item": [1, 0],
+	"Brinstar Reserve Tank Room: Middle Visible Item": [0.75, 0],
+	"Brinstar Reserve Tank Room: Right Hidden Item": [1.25, 0],
+	"Brinstar Reserve Tank Room: Chozo Item": [0, 0],
+	"Lower Norfair Fireflea Room: Firefleas Item": [2, 5],
+	"Main Street: Morph Tunnel Item": [1, 2],
+	"Main Street: Speed Blocked Item": [0, 3],
+	"Gauntlet Energy Tank Room: Item": [5, 0],
+	"Wrecked Ship Main Shaft: Item": [0, 5],
+	"Pseudo Plasma Spark Room: Hidden Item": [2, 2],
+	"Assembly Line: Item": [2, 0],
+	"Warehouse Kihunter Room: Hidden Item": [2, 0],
+	"Billy Mays Room: Pedestal Item": [0.25, 0],
+	"Billy Mays Room: Hidden Item": [-0.25, 0],
+	"Norfair Reserve Tank Room: Hidden Platform Item": [0.5, 0],
+	"Green Hill Zone: Item (Through the Pipe)": [3, 1],
+	"Crocomire's Room: Item": [7, 0],
+	"Blue Brinstar Energy Tank Room: Hidden Ceiling Item": [1, 2],
+	"Blue Brinstar Energy Tank Room: Right Item": [2, 2],
+	"Three Musketeers' Room: Hidden Item": [0, 2],
+	"Alpha Power Bomb Room: Chozo Item": [1, 0],
+	"Alpha Power Bomb Room: Hidden Left Item": [0, 0],
+	"Aqueduct: Top Right Right Item": [5, 0],
+	"Aqueduct: Top Right Left Item": [4, 0],
+	"Screw Attack Room: Item": [0, 2],
+	"Bubble Mountain: Bottom Right Item": [1, 3],
+	"Watering Hole: Left Item": [-0.25, 2],
+	"Watering Hole: Right Item": [0.25, 2],
+	"Speed Booster Hall: Hidden Item": [11, 1],
+	"West Sand Hole: Top Left - Right Item": [0.25, 0],
+	"West Sand Hole: Top Left - Left Item": [-0.25, 0],
+	"East Sand Hole: Top Left Item": [0, 0],
+	"East Sand Hole: Right Item": [1, 1],
+	"Post Crocomire Missile Room: Item": [3, 0],
+	"Double Chamber: Item": [1, 0],
+	"Beta Power Bomb Room: Item": [0, 1],
+	"West Ocean: Bottom Left Underwater Item": [0, 5],
+	"West Ocean: Left Morph Maze Item": [0, 2],
+	"West Ocean: Top Hidden Item (Above Trippers)": [1, 0],
+	"Early Supers Room: Lower Item": [1, 1],
+	"Early Supers Room: Top Left Item": [0, 0],
+	"Plasma Room: Item": [1, 2],
+	"Green Pirates Shaft: Left Item": [-0.25, 1],
+	"Green Pirates Shaft: Right Item": [0.25, 1],
+	"Spring Ball Room: Item": [1, 1],
+	"Pink Brinstar Power Bomb Room: Item": [0, 1],
+	"Pit Room: Item": [0, 1],
+	"Mickey Mouse Room: Item": [2, 1],
+	"Grapple Beam Room: Item": [0, 2],
+	"Golden Torizo's Room: Hidden Right Item": [1, 0],
+	"Golden Torizo's Room: Top Left Item": [0, 0],
+	"Wrecked Ship East Super Room: Item (Behind the Bomb Wall)": [3, 0],
+	"Botwoon Energy Tank Room: Item": [3, 0],
+	"Terminator Room: Item": [0, 2],
+	"Post Crocomire Jump Room: Item": [4, 0],
+	"Green Bubbles Missile Room: Item": [1, 0],
+	"Lower Norfair Spring Ball Maze Room: Item": [2, 0],
+	"Crateria Power Bomb Room: Item": [1, 0],
+	"Green Brinstar Main Shaft: Right Etecoon Shaft - Item": [3, 7],
+	"Crateria Super Room: Item": [3, 0],
+	"Spore Spawn Super Room: Item": [1, 8],
+	"Hi Jump Energy Tank Room: Top Right Item": [1, 0],
+	"Hi Jump Energy Tank Room: Top Left Item": [0, 0],
+	"Big Pink: Top Item (Above Hopper Pit)": [2, 3],
+	"Big Pink: Middle Item": [2, 6],
+	"Big Pink: Bottom Chozo Item": [2, 7],
+	"Bowling Alley: Bottom Chozo Item": [3, 2],
+	"Bowling Alley: Top Right Item": [5, 0],
 };
 let item_plm = {
 	"ETank": 0,
@@ -124,7 +124,7 @@ let item_rank = {
 let roomFlags = {
 	"Bomb Torizo Room": ["f_DefeatedBombTorizo", "Defeat Bomb Torizo"],
 	"Botwoon's Room": ["f_DefeatedBotwoon", "Defeat Botwoon"],
-    "Crocomire's Room": ["f_DefeatedCrocomire", "Defeat Crocomire"],
+	"Crocomire's Room": ["f_DefeatedCrocomire", "Defeat Crocomire"],
 	"Draygon's Room": ["f_DefeatedDraygon", "Defeat Draygon"],
 	"Golden Torizo's Room": ["f_DefeatedGoldenTorizo", "Defeat Golden Torizo"],
 	"Kraid Room": ["f_DefeatedKraid", "Defeat Kraid"],
@@ -148,7 +148,7 @@ let roomFlags = {
 	"Climb": ["f_ZebesAwake", "Awaken Zebes"],
 	"Construction Zone": ["f_ZebesAwake", "Awaken Zebes"],
 	"The Final Missile": ["f_ZebesAwake", "Awaken Zebes"],
-	"Morph Ball Room":  ["f_ZebesAwake", "Awaken Zebes"],
+	"Morph Ball Room": ["f_ZebesAwake", "Awaken Zebes"],
 	"Blue Brinstar Energy Tank Room": ["f_ZebesAwake", "Awaken Zebes"],
 };
 
@@ -159,13 +159,13 @@ function lookupOffset(room, node) {
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	// generate map
-	let map = new Array(72*72).fill(-1);
+	let map = new Array(72 * 72).fill(-1);
 	for (let i in c.all_rooms) {
 		let v = c.all_rooms[i];
 		for (let y = 0; y < v.map.length; y++) {
 			for (let x = 0; x < v.map[y].length; x++) {
 				if (v.map[y][x] != 0) {
-					map[(v.coords[1]+y)*72+(v.coords[0]+x)] = +i;
+					map[(v.coords[1] + y) * 72 + (v.coords[0] + x)] = +i;
 				}
 			}
 		}
@@ -183,7 +183,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			for (let i of c.summary) {
 				document.getElementById(`step-${i.step}`).classList.remove("selected");
 			}
-			document.getElementById(`step-${step_limit}`).classList.add("selected");	
+			document.getElementById(`step-${step_limit}`).classList.add("selected");
 		}
 	}
 	let show_overview = () => {
@@ -197,7 +197,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			step_div.onclick = () => {
 				gen_obscurity(c.summary[i].step);
 			}
-			
+
 			let step_number = document.createElement("span");
 			step_number.className = "step-number";
 			if (i == c.summary.length - 1 && c.summary[i].items.length == 0) {
@@ -226,7 +226,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 							show_item_details(j.item, j.location, i, j);
 						}
 					}
-					first=false;
+					first = false;
 
 					seen.add(j.item);
 				}
@@ -244,7 +244,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		step_div.id = `step-null`;
 		step_div.className = "step-panel";
 		step_div.onclick = () => gen_obscurity(null);
-		
+
 		step_number = document.createElement("span");
 		step_number.className = "step-whole-map";
 		step_number.innerHTML = 'WHOLE MAP';
@@ -276,26 +276,26 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		// generate obscurity overlay
 		let ov = document.getElementById("obscure-overlay");
 		let ctx = ov.getContext("2d");
-		let img = ctx.createImageData(72,72);
+		let img = ctx.createImageData(72, 72);
 
 		if (step_limit === null) {
 			ctx.putImageData(img, 0, 0);
 			return;
 		}
 		for (let i = 0; i < 72 * 72; i++) {
-			img.data[i*4+3] = 0xD8; // mostly opaque
+			img.data[i * 4 + 3] = 0xD8; // mostly opaque
 		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
 				for (let x = 0; x < v.map[y].length; x++) {
 					if (v.map[y][x] == 1) {
-						let addr = (v.coords[1]+y)*72+(v.coords[0]+x);
+						let addr = (v.coords[1] + y) * 72 + (v.coords[0] + x);
 						if (v.map_bireachable_step[y][x] < step_limit) {
-							img.data[addr*4+3] = 0x00; // transparent
+							img.data[addr * 4 + 3] = 0x00; // transparent
 						} else if (v.map_reachable_step[y][x] < step_limit) {
-							img.data[addr*4+3] = 0x7F; // semiopaque
+							img.data[addr * 4 + 3] = 0x7F; // semiopaque
 						} else {
-							img.data[addr*4+3] = 0xD8; // mostly opaque
+							img.data[addr * 4 + 3] = 0xD8; // mostly opaque
 						}
 					}
 				}
@@ -331,10 +331,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.body.style.setProperty("--tx", page_x + "px");
 			document.body.style.setProperty("--ty", page_y + "px");
 		} else {
-			let x = ((ev.offsetX / 24)|0) - 1;
-			let y = ((ev.offsetY / 24)|0) - 1;
+			let x = ((ev.offsetX / 24) | 0) - 1;
+			let y = ((ev.offsetY / 24) | 0) - 1;
 			if (x >= 0 && x < 72 && y >= 0 && y < 72) {
-				let tile = map[y*72+x];
+				let tile = map[y * 72 + x];
 				if (tile >= 0) {
 					el.innerText = c.all_rooms[tile].room;
 					el.dataset.shortName = c.all_rooms[tile].short_name;
@@ -352,15 +352,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (el.innerText in roomFlags) {
 			let flagPair = roomFlags[el.innerText];
 			let flagName = flagPair[0];
-			let flagDescription = flagPair[1];
-			for (let stepNum in c.details) {
-				let stepData = c.details[stepNum];
-				for (let flagData of stepData.flags) {
-					if (flagData.flag == flagName) {
-						show_item_details(flagDescription, flagData.location, stepNum, flagData);
-					}
-				}
-			}
+			showFlag(c.details, flagName);
 			if (el.innerText == "Mother Brain Room") {
 				let path = "";
 				for (let i of c.escape.animals_route ?? []) {
@@ -378,7 +370,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					}
 				}
 				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
-				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`	
+				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 			}
 		} else {
 			if (!dragged) {
@@ -393,6 +385,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			window.open("/logic/room/" + el.dataset.shortName.replace(/\s+/g, ''))
 		}
 	}
+	let createDiv = (html) => {
+		const div = document.createElement('div');
+		div.innerHTML = html;
+		return div;
+	};
+	let createHtmlElement = (html) => {
+		const template = document.createElement('template');
+		template.innerHTML = html;
+		return template.content.firstChild;
+	};
 	let show_item_details = (item_name, loc, i, j) => {
 		if (j !== null) {
 			let path = "";
@@ -400,7 +402,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				if (k.coords) {
 					let x = k.coords[0] * 24 + 24 + 12;
 					let y = k.coords[1] * 24 + 24 + 12;
-					path += `${path == "" ? "M" : "L"}${x} ${y} `;			
+					path += `${path == "" ? "M" : "L"}${x} ${y} `;
 				}
 			}
 			document.getElementById("path-overlay").innerHTML = `<path d="${path}" stroke="black" fill="none" stroke-linejoin="round" stroke-width="4"/>`
@@ -417,6 +419,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="white" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 		}
 		let si = document.getElementById("sidebar-info");
+		si.scrollTop = 0;
 		si.innerHTML = "";
 		if (j !== null) {
 			step_limit = c.details[i].step;
@@ -481,15 +484,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (j.difficulty !== null && j.difficulty !== undefined) {
 			item_difficulty = ` (${j.difficulty})`
 		}
-		item_info.innerHTML += `<div class="sidebar-item-name">${item_name}${item_difficulty}</div><div class="category">LOCATION</div>${loc.room}: ${loc.node}<br><small>${loc.area}</small>`;
+		item_info.appendChild(createHtmlElement(`<div class="sidebar-item-name">${item_name}${item_difficulty}</div>`));
+		item_info.appendChild(createHtmlElement(`<div class="category">LOCATION</div>`));
+		item_info.appendChild(createDiv(`${loc.room}: ${loc.node}<br><small>${loc.area}</small>`));
 		if (j !== null) {
 			let ss = c.details[i].start_state;
-			item_info.innerHTML += `<div class="category">OBTAIN ROUTE</div>`;
+			item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
 			let lastNodeStr = null;
 			for (let k of j.obtain_route) {
 				nodeStr = `${k.room}: ${k.node}<br>`;
 				if (nodeStr != lastNodeStr) {
-					item_info.innerHTML += nodeStr;
+					item_info.appendChild(createDiv(nodeStr));
 					lastNodeStr = nodeStr;
 				}
 				let out = "";
@@ -521,10 +526,34 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					out += `PBs remaining: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
 				}
 				if (out != "") {
-					item_info.innerHTML += `<small>${out}</small>`;
+					item_info.appendChild(createDiv(`<small>${out}</small>`));
+				}
+				if (k.relevant_flags) {
+					let flagContainer = document.createElement("small");
+					let flagSpan0 = document.createElement("span");
+					flagSpan0.innerText = "Relevant flags: ";
+					flagContainer.appendChild(flagSpan0);
+					for (f in k.relevant_flags) {
+						if (f != 0) {
+							let flagSeparator = document.createElement("span");
+							flagSeparator.innerText = ", ";
+							flagContainer.appendChild(flagSeparator);
+						}
+						let flagA = document.createElement("a");
+						let flagSpan = document.createElement("span");
+						flagSpan.innerText = k.relevant_flags[f];
+						flagA.appendChild(flagSpan);
+						flagA.href = "#";
+						flagA.onclick = function () {
+							showFlag(c.details, k.relevant_flags[f]);
+						};
+						flagContainer.appendChild(flagA);
+					}
+					flagContainer.appendChild(document.createElement("br"));
+					item_info.appendChild(flagContainer);
 				}
 			}
-			item_info.innerHTML += `<div class="category">RETURN ROUTE</div>`;
+			item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
 			lastNodeStr = null;
 			for (let k of j.return_route) {
 				let out = "";
@@ -544,11 +573,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					out += `PBs still needed: ${k.power_bombs_used}<br>`;
 				}
 				if (out != "") {
-					item_info.innerHTML += `<small>${out}</small>`;
+					item_info.appendChild(createHtmlElement(`<small>${out}</small>`));
 				}
 				nodeStr = `${k.room}: ${k.node}<br>`;
 				if (nodeStr != lastNodeStr) {
-					item_info.innerHTML += nodeStr;
+					item_info.appendChild(createDiv(nodeStr));
 					lastNodeStr = nodeStr;
 				}
 				out = "";
@@ -565,11 +594,45 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					}
 				}
 				if (out != "") {
-					item_info.innerHTML += `<small>${out}</small>`;
+					item_info.appendChild(createHtmlElement(`<small>${out}</small>`));
+				}
+				if (k.relevant_flags) {
+					let flagContainer = document.createElement("small");
+					let flagSpan0 = document.createElement("span");
+					flagSpan0.innerText = "Relevant flags: ";
+					flagContainer.appendChild(flagSpan0);
+					for (f in k.relevant_flags) {
+						if (f != 0) {
+							let flagSeparator = document.createElement("span");
+							flagSeparator.innerText = ", ";
+							flagContainer.appendChild(flagSeparator);
+						}
+						let flagA = document.createElement("a");
+						let flagSpan = document.createElement("span");
+						flagSpan.innerText = k.relevant_flags[f];
+						flagA.appendChild(flagSpan);
+						flagA.href = "#";
+						flagA.onclick = function () {
+							showFlag(c.details, k.relevant_flags[f]);
+						};
+						flagContainer.appendChild(flagA);
+					}
+					flagContainer.appendChild(document.createElement("br"));
+					item_info.appendChild(flagContainer);
 				}
 			}
 		}
 		si.appendChild(item_info);
+	}
+	function showFlag(details, flagName) {
+		for (let stepNum in details) {
+			let stepData = details[stepNum];
+			for (let flagData of stepData.flags) {
+				if (flagData.flag == flagName) {
+					show_item_details(flagName, flagData.location, stepNum, flagData);
+				}
+			}
+		}
 	}
 	items: for (let v of c.all_items) {
 		if (v.item == "Nothing") { continue; }

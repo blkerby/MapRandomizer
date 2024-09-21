@@ -4364,6 +4364,8 @@ pub struct SpoilerRouteEntry {
     supers_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     power_bombs_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    relevant_flags: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -4470,6 +4472,27 @@ pub struct SpoilerLog {
     pub all_rooms: Vec<SpoilerRoomLoc>,
 }
 
+fn extract_relevant_flags(req: &Requirement, out: &mut Vec<usize>) {
+    match req {
+        Requirement::Flag(flag_id) => {
+            out.push(*flag_id);
+        },
+        Requirement::And(reqs) => {
+            for r in reqs {
+                extract_relevant_flags(r, out);
+            }
+        }
+        Requirement::Or(reqs) => {
+            for r in reqs {
+                extract_relevant_flags(r, out);
+            }
+        }
+        _ => {}
+    }
+}
+
+
+
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let VertexKey {
@@ -4574,6 +4597,14 @@ impl<'a> Randomizer<'a> {
                     )
                 });
 
+                let mut relevant_flag_ids = vec![];
+                extract_relevant_flags(&link.requirement, &mut relevant_flag_ids);
+                let mut relevant_flags = vec![];
+                for flag_id in relevant_flag_ids {
+                    let flag_name = self.game_data.flag_isv.keys[flag_id].clone();
+                    relevant_flags.push(flag_name);
+                }
+
                 let spoiler_entry = SpoilerRouteEntry {
                     area: to_vertex_info.area_name,
                     short_room: strip_name(&to_vertex_info.room_name),
@@ -4611,6 +4642,7 @@ impl<'a> Randomizer<'a> {
                     } else {
                         Some(local_state.power_bombs_used)
                     },
+                    relevant_flags
                 };
                 route.push(spoiler_entry);
             }
