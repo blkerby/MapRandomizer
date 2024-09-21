@@ -1,6 +1,9 @@
 v114:
 - DONE: implement support for custom BGData in Dust Torizo Room
 - DONE: create github action to assign strat IDs
+- fix buggy x-ray graphics
+  - likely caused by check at $84:8328 interacting badly with new/custom PLMs (e.g. hazard markers)
+- add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - adjust auto-formatting for unlocksDoors
 - assign IDs to tech and reusable notables?
