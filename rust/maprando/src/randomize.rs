@@ -4476,7 +4476,7 @@ fn extract_relevant_flags(req: &Requirement, out: &mut Vec<usize>) {
     match req {
         Requirement::Flag(flag_id) => {
             out.push(*flag_id);
-        },
+        }
         Requirement::And(reqs) => {
             for r in reqs {
                 extract_relevant_flags(r, out);
@@ -4490,8 +4490,6 @@ fn extract_relevant_flags(req: &Requirement, out: &mut Vec<usize>) {
         _ => {}
     }
 }
-
-
 
 impl<'a> Randomizer<'a> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
@@ -4642,7 +4640,7 @@ impl<'a> Randomizer<'a> {
                     } else {
                         Some(local_state.power_bombs_used)
                     },
-                    relevant_flags
+                    relevant_flags,
                 };
                 route.push(spoiler_entry);
             }
