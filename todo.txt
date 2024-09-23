@@ -6,12 +6,9 @@ v114:
 - add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - adjust auto-formatting for unlocksDoors
-- assign IDs to tech and reusable notables?
-- set up way to assign tech/notable videos on video site
-  - maybe also to assign difficulty tier
 - use strat IDs in logic pages
-- use new videos in logic pages
-- link to logic pages from video site
+- use new videos in logic pages and Generate page
+- link to logic pages from video site?
 - use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
 - see if doorUnlockedAtNode is failing to get resolved when no door lock?
   - step 2 of http://localhost:8080/seed/Cv5jWGBD2/data/visualizer/index.html says Very Hard
