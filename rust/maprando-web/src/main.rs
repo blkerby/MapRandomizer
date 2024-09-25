@@ -11,7 +11,7 @@ use actix_web::{
     App, HttpServer,
 };
 use clap::Parser;
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
@@ -71,6 +71,14 @@ fn init_presets(
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
 
     cumulative_tech.extend(implicit_tech.iter().cloned());
+
+    let mut notable_setting_map: HashMap<(RoomId, NotableId), NotableSetting> = HashMap::new();
+    for preset in &presets {
+        for notable_setting in &preset.notables {
+            notable_setting_map.insert((notable_setting.room_id, notable_setting.notable_id), notable_setting.clone());
+        }
+    }
+
     for preset in presets {
         for tech in &preset.tech {
             if cumulative_tech.contains(tech) {
@@ -92,27 +100,26 @@ fn init_presets(
             tech_setting.push((tech.clone(), cumulative_tech.contains(tech)));
         }
 
-        for notable_data in &preset.notables {
-            if cumulative_strats.contains(&(notable_data.room_id, notable_data.notable_id)) {
-                let room_name = &notable_data.room_name;
-                let notable_name = &notable_data.name;
+        for notable_setting in &preset.notables {
+            if cumulative_strats.contains(&(notable_setting.room_id, notable_setting.notable_id)) {
+                let room_name = &notable_setting.room_name;
+                let notable_name = &notable_setting.name;
                 panic!("Notable strat {room_name}:{notable_name} appears in presets more than once.");
             }
-            cumulative_strats.insert((notable_data.room_id, notable_data.notable_id));
+            cumulative_strats.insert((notable_setting.room_id, notable_setting.notable_id));
         }
         let mut notable_setting_vec: Vec<(NotableSetting, bool)> = Vec::new();
         for notable_idx in 0..game_data.notable_isv.keys.len() {
             let notable_data = &game_data.notable_data[notable_idx];
             let room_id = notable_data.room_id;
             let notable_id = notable_data.notable_id;
-            let notable_setting = NotableSetting {
-                room_id,
-                notable_id,
-                room_name: game_data.room_json_map[&notable_data.room_id]["name"].as_str().unwrap().to_string(),
-                name: notable_data.name.clone(),
-            };
-            notable_setting_vec
-                .push((notable_setting, cumulative_strats.contains(&(room_id, notable_id))));
+            if let Some(notable_setting) = notable_setting_map.get(&(room_id, notable_id)) {
+                notable_setting_vec
+                    .push((notable_setting.clone(), cumulative_strats.contains(&(room_id, notable_id))));
+            } else {
+                let room_name = game_data.room_json_map[&room_id]["name"].as_str().unwrap();
+                panic!("Notable not found in any preset: ({}, {}) {}: {}", room_id, notable_id, room_name, notable_data.name);
+            }
         }
 
         out.push(PresetData {
@@ -130,13 +137,6 @@ fn init_presets(
 
     //
     let visible_notable_strats: HashSet<(RoomId, NotableId)> = game_data.notable_isv.keys.iter().cloned().collect();
-    if !visible_notable_strats.is_subset(&cumulative_strats) {
-        let diff: Vec<(RoomId, NotableId)> = visible_notable_strats
-            .difference(&cumulative_strats)
-            .cloned()
-            .collect();
-        panic!("Notable strats not found in any preset: {:?}", diff);
-    }
     if !cumulative_strats.is_subset(&visible_notable_strats) {
         let diff: Vec<(RoomId, NotableId)> = cumulative_strats
             .difference(&visible_notable_strats)
@@ -152,6 +152,8 @@ fn init_presets(
 struct Args {
     #[arg(long)]
     seed_repository_url: String,
+    #[arg(long)]
+    video_storage_url: String,
     #[arg(long, action)]
     debug: bool,
     #[arg(long, action)]
@@ -301,6 +303,7 @@ fn build_app_data() -> AppData {
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,
         notable_gif_listing,
+        video_storage_url: args.video_storage_url,
         logic_data,
         samus_sprite_categories,
         debug: args.debug,

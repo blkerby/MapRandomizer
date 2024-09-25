@@ -12,6 +12,7 @@ pub struct NotableSetting {
     pub notable_id: usize,
     pub room_name: String,
     pub name: String,
+    pub video_id: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize, Clone)]

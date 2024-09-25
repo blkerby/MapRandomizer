@@ -1,7 +1,7 @@
 <script>
 function presetChanged() {
     {% for p in preset_data %}
-        {% if p.preset.name == "Beyond" %}
+        {% if p.preset.name == "Beyond" || p.preset.name == "Ignored" %}
             {% continue %}
         {% endif %}
         {% let name_no_space = p.preset.name.replace(" ", "") %}
@@ -19,25 +19,28 @@ function presetChanged() {
             document.getElementById("ridleyProficiency").value = {{+ p.preset.ridley_proficiency }};
             document.getElementById("botwoonProficiency").value = {{+ p.preset.botwoon_proficiency }};
             document.getElementById("motherBrainProficiency").value = {{+ p.preset.botwoon_proficiency }};
-            {% for (tech, is_enabled) in p.tech_setting %}
+            {%+ for (tech, is_enabled) in p.tech_setting %}
                 {% if p.implicit_tech.contains(tech.as_str()) %}
                     {% continue %}
                 {% endif %}
-                {% if is_enabled %}
+                {%+ if is_enabled %}
                     document.getElementById("tech-{{+ tech }}-Yes").checked = true;
-                {% else %}
-                    document.getElementById("tech-{{+ tech }}-No").checked = true;
+                {%+ else %}
+                    document.getElementById("tech-{{+ tech }}-No").checked = true; 
                 {% endif %}
             {% endfor %}
-            {% for (notable_setting, is_enabled) in p.notable_setting %}
+            {%+ for (notable_setting, is_enabled) in p.notable_setting %}
                 {% let room_id = notable_setting.room_id %}
                 {% let notable_id = notable_setting.notable_id %}
-                {% let combo_id = format!("{}-{}", room_id, notable_id) %}
-                {% if is_enabled %}
-                    document.getElementById("strat-{{ combo_id }}-Yes").checked = true;
-                {% else %}
-                    document.getElementById("strat-{{ combo_id }}-No").checked = true;
+                {% if ignored_notables.contains((room_id, notable_id)) %}
+                  {% continue %}
                 {% endif %}
+                {% let combo_id = format!("{}-{}", room_id, notable_id) %}
+                {%+ if is_enabled %}
+                    document.getElementById("strat-{{ combo_id }}-Yes").checked = true;
+                {%+ else %}
+                    document.getElementById("strat-{{ combo_id }}-No").checked = true;
+                {%+ endif %}
             {% endfor %}
         }
     {% endfor %}
@@ -47,6 +50,9 @@ function presetChanged() {
 function updateTierPercent() {
     let presets = [];
     {% for p in preset_data %}
+        {% if p.preset.name == "Ignored" %}
+            {% continue %}
+        {% endif %}
         {% let name_no_space = p.preset.name.replace(" ", "") %}
         presets.push("{{+ name_no_space }}");
     {% endfor %}
@@ -88,11 +94,14 @@ function updateTechJSON() {
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
 }
 function updateStratJSON() {
-    stratSelection = {}
+    stratSelection = []
     document.querySelectorAll('.strat-input')
     .forEach(function (x) { 
-        let name = x.name.substring(6);  // strip the "strat-" prefix
-        stratSelection[name] = x.checked;
+        let parts = x.name.split("-");
+        let roomId = parseInt(parts[1]);
+        let notableId = parseInt(parts[2]);
+        let enabled = x.checked;
+        stratSelection.push([roomId, notableId, enabled]);
     });
     document.getElementById("json-strat").value = JSON.stringify(stratSelection);
 }

@@ -49,11 +49,14 @@
 
 <div class="accordion mt-3">
 {% for p in preset_data %}
+    {% if p.preset.name == "Ignored" %}
+      {% continue %}
+    {% endif %}
     {% let name_no_space = p.preset.name.replace(" ", "") %}
     <div class="accordion-item my-0 p-0">
         <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{+ name_no_space }}Tech">
-            {{+ p.preset.name }} ({{+ self.percent_enabled(p) }}%)
+            {{+ p.preset.name +}} ({{+ self.percent_enabled(p) }}%)
         </button>
         </h2>
         <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse p-2">

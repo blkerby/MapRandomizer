@@ -205,6 +205,7 @@ async fn randomize(
     }
 
     let notable_json: serde_json::Value = serde_json::from_str(&req.notable_json).unwrap();
+    println!("notable_json: {}", notable_json);
     let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
     for notable_setting in notable_json.as_array().unwrap().iter() {
         let room_id = notable_setting[0].as_i64().unwrap() as RoomId;

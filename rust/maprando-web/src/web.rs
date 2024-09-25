@@ -44,6 +44,7 @@ pub struct AppData {
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
     pub tech_gif_listing: HashSet<String>,
     pub notable_gif_listing: HashSet<String>,
+    pub video_storage_url: String,
     pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
     pub debug: bool,
