@@ -18,7 +18,7 @@ use maprando::{
         StartLocationMode,
     },
 };
-use maprando_game::{Capacity, Item, LinksDataGroup};
+use maprando_game::{Capacity, Item, LinksDataGroup, NotableId, RoomId};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use std::time::{Instant, SystemTime};
@@ -96,7 +96,7 @@ struct RandomizeRequest {
     mother_brain_proficiency: Text<f32>,
     escape_timer_multiplier: Text<f32>,
     tech_json: Text<String>,
-    strat_json: Text<String>,
+    notable_json: Text<String>,
     progression_rate: Text<String>,
     item_placement_style: Text<String>,
     item_priority_strength: Text<String>,
@@ -204,11 +204,14 @@ async fn randomize(
         tech_vec.push("canEscapeMorphLocation".to_string());
     }
 
-    let strat_json: serde_json::Value = serde_json::from_str(&req.strat_json).unwrap();
-    let mut strat_vec: Vec<String> = vec![];
-    for (strat, is_enabled) in strat_json.as_object().unwrap().iter() {
-        if is_enabled.as_bool().unwrap() {
-            strat_vec.push(strat.to_string());
+    let notable_json: serde_json::Value = serde_json::from_str(&req.notable_json).unwrap();
+    let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
+    for notable_setting in notable_json.as_array().unwrap().iter() {
+        let room_id = notable_setting[0].as_i64().unwrap() as RoomId;
+        let notable_id = notable_setting[1].as_i64().unwrap() as NotableId;
+        let is_enabled = notable_setting[2].as_bool().unwrap();
+        if is_enabled {
+            notable_vec.push((room_id, notable_id));
         }
     }
 
@@ -287,7 +290,7 @@ async fn randomize(
     let difficulty = DifficultyConfig {
         name: None,
         tech: tech_vec,
-        notable_strats: strat_vec,
+        notables: notable_vec,
         shine_charge_tiles: req.shinespark_tiles.0,
         heated_shine_charge_tiles: req.heated_shinespark_tiles.0,
         speed_ball_tiles: req.speed_ball_tiles.0,

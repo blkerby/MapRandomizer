@@ -31,7 +31,7 @@ pub struct Map {
 }
 
 pub type TechId = usize; // Index into GameData.tech_isv.keys: distinct tech names from sm-json-data
-pub type StratId = usize; // Index into GameData.notable_strats_isv.keys: distinct notable strat names from sm-json-data
+pub type NotableIdx = usize; // Index into GameData.notable_strats_isv.keys: distinct pairs (room_id, notable_id) from sm-json-data
 pub type ItemId = usize; // Index into GameData.item_isv.keys: 21 distinct item names
 pub type ItemIdx = usize; // Index into the game's item bit array (in RAM at 7E:D870)
 pub type FlagId = usize; // Index into GameData.flag_isv.keys: distinct game flag names from sm-json-data
@@ -40,6 +40,7 @@ pub type RoomPtr = usize; // Room pointer (PC address of room header)
 pub type RoomStateIdx = usize; // Room state index
 pub type NodeId = usize; // Node ID from sm-json-data (only unique within a room)
 pub type NodePtr = usize; // nodeAddress from sm-json-data: for items this is the PC address of PLM, for doors it is PC address of door data
+pub type NotableId = usize; // Notable ID from sm-json-data (only unique within a room)
 pub type VertexId = usize; // Index into GameData.vertex_isv.keys: (room_id, node_id, obstacle_bitmask) combinations
 pub type ItemLocationId = usize; // Index into GameData.item_locations: 100 nodes each containing an item
 pub type ObstacleMask = usize; // Bitmask where `i`th bit (from least significant) indicates `i`th obstacle cleared within a room
@@ -147,7 +148,7 @@ pub enum Requirement {
     Free,
     Never,
     Tech(TechId),
-    Strat(StratId),
+    Notable(NotableIdx),
     Item(ItemId),
     Flag(FlagId),
     NotFlag(FlagId),
@@ -335,7 +336,6 @@ pub struct Link {
     pub requirement: Requirement,
     pub start_with_shinecharge: bool,
     pub end_with_shinecharge: bool,
-    pub notable_strat_name: Option<String>,
     pub strat_name: String,
     pub strat_notes: Vec<String>,
 }
@@ -868,19 +868,18 @@ impl LinksDataGroup {
     }
 }
 
-fn get_ignored_notable_strats() -> HashSet<String> {
+fn get_ignored_notable_strats() -> HashSet<(RoomId, NotableId)> {
     [
-        "Breaking the Maridia Tube Gravity Jump", // not usable because of canRiskPermanentLossOfAccess
-        "Wrecked Ship Main Shaft Partial Covern Ice Clip", // not usable because of canRiskPermanentLossOfAccess
-        "Mickey Mouse Crumble Jump IBJ", // only useful with CF clip strat, or if we change item progression rules
-        "Green Brinstar Main Shaft Moonfall Spark", // does not seem to be viable with the vanilla door connection
-        "Waterway Grapple Teleport Inside Wall",    // no way out after getting item
-        "Plasma Spark X-Ray Climb Into Fake Kassiuz Room", // useless, since the misaligned transition will put you OOB
-        "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)", // flash suit strats not supported yet
-        "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)", // flash suit strats not supported yet
+        (170, 4),  // "Breaking the Maridia Tube Gravity Jump", not usable because of canRiskPermanentLossOfAccess
+        (155, 1), // "Wrecked Ship Main Shaft Partial Covern Ice Clip", not usable because of canRiskPermanentLossOfAccess
+        // (144, 4), // "Mickey Mouse Crumble Jump IBJ", only useful with CF clip strat, or if we change item progression rules
+        (44, 1), // "Green Brinstar Main Shaft Moonfall Spark", does not seem to be viable with the vanilla door connection
+        (65, 1), // "Waterway Grapple Teleport Inside Wall", no way out after getting item
+        (197, 2), // "Plasma Spark X-Ray Climb Into Fake Kassiuz Room", useless, since the misaligned transition will put you OOB
+        (59, 10), // "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)", flash suit strats not supported yet
+        (51, 5), // "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)", flash suit strats not supported yet
     ]
-    .iter()
-    .map(|x| x.to_string())
+    .into_iter()
     .collect()
 }
 
@@ -1003,6 +1002,14 @@ pub struct VertexKey {
     pub actions: Vec<VertexAction>,
 }
 
+#[derive(Clone)]
+pub struct NotableData {
+    pub room_id: RoomId,
+    pub notable_id: NotableId,
+    pub name: String,
+    pub note: String,
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -1013,7 +1020,8 @@ pub struct VertexKey {
 pub struct GameData {
     sm_json_data_path: PathBuf,
     pub tech_isv: IndexedVec<String>,
-    pub notable_strat_isv: IndexedVec<String>,
+    pub notable_isv: IndexedVec<(RoomId, NotableId)>,
+    pub notable_data: Vec<NotableData>,
     pub flag_isv: IndexedVec<String>,
     pub item_isv: IndexedVec<String>,
     weapon_isv: IndexedVec<String>,
@@ -1028,7 +1036,6 @@ pub struct GameData {
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
-    pub ignored_notable_strats: HashSet<String>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
     pub reverse_node_ptr_map: HashMap<NodePtr, (RoomId, NodeId)>,
@@ -1066,10 +1073,6 @@ pub struct GameData {
     pub area_map_ptrs: Vec<isize>,
     pub tech_description: HashMap<String, String>,
     pub tech_dependencies: HashMap<String, Vec<String>>,
-    pub strat_dependencies: HashMap<String, Vec<String>>,
-    pub strat_area: HashMap<String, String>,
-    pub strat_room: HashMap<String, String>,
-    pub strat_description: HashMap<String, String>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
@@ -1120,6 +1123,7 @@ struct RequirementContext<'a> {
     obstacles_idx_map: Option<&'a HashMap<String, usize>>,
     unlocks_doors_json: Option<&'a JsonValue>,
     node_implicit_door_unlocks: Option<&'a HashMap<NodeId, bool>>,
+    notable_map: Option<&'a HashMap<String, NotableIdx>>,
 }
 
 impl GameData {
@@ -2120,6 +2124,11 @@ impl GameData {
                 return Ok(Requirement::Never);
             } else if key == "tech" {
                 return Ok(self.get_tech_requirement(value.as_str().unwrap(), false)?);
+            } else if key == "notable" {
+                let notable_name = value.as_str().unwrap().to_string();
+                let notable_idx = *ctx.notable_map.unwrap().get(&notable_name)
+                    .context(format!("Undefined notable: {}", &notable_name))?;
+                return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
                 let frames = value["frames"].as_i32().unwrap() as Capacity;
                 let mut enemy_drops = vec![];
@@ -2195,9 +2204,10 @@ impl GameData {
         }
 
         let ignored_notable_strats = get_ignored_notable_strats();
-        if !ignored_notable_strats.is_subset(&self.ignored_notable_strats) {
-            let diff: Vec<String> = ignored_notable_strats
-                .difference(&self.ignored_notable_strats)
+        let all_notable_strats: HashSet<(RoomId, NotableId)> = self.notable_isv.keys.iter().cloned().collect();
+        if !ignored_notable_strats.is_subset(&all_notable_strats) {
+            let diff: Vec<(RoomId, NotableId)> = ignored_notable_strats
+                .difference(&all_notable_strats)
                 .cloned()
                 .collect();
             panic!("Unrecognized ignored notable strats: {:?}", diff);
@@ -2506,8 +2516,6 @@ impl GameData {
     fn preprocess_room(&mut self, room_json: &JsonValue) -> Result<JsonValue> {
         // We apply some changes to the sm-json-data specific to Map Rando.
 
-        let ignored_notable_strats = get_ignored_notable_strats();
-
         let mut new_room_json = room_json.clone();
         ensure!(room_json["nodes"].is_array());
         let mut extra_strats: Vec<JsonValue> = Vec::new();
@@ -2731,7 +2739,6 @@ impl GameData {
         }
 
         for strat_json in new_room_json["strats"].members_mut() {
-            let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let from_node_id = strat_json["link"][0].as_usize().unwrap();
 
             if strat_json.has_key("entranceCondition")
@@ -2741,23 +2748,6 @@ impl GameData {
                     strat_json["clearsObstacles"] = json::array![];
                 }
                 strat_json["clearsObstacles"].push(format!("door_{}", from_node_id))?;
-            }
-
-            if ignored_notable_strats.contains(&strat_name) {
-                if strat_json["notable"].as_bool() == Some(true) {
-                    self.ignored_notable_strats.insert(strat_name.to_string());
-                }
-                strat_json["notable"] = JsonValue::Boolean(false);
-            }
-
-            if let Some(reusable_name) = strat_json["reusableRoomwideNotable"].as_str() {
-                if ignored_notable_strats.contains(reusable_name) {
-                    if strat_json["notable"].as_bool() == Some(true) {
-                        self.ignored_notable_strats
-                            .insert(reusable_name.to_string());
-                    }
-                    strat_json["notable"] = JsonValue::Boolean(false);
-                }
             }
         }
 
@@ -3258,7 +3248,7 @@ impl GameData {
         strat_json: &JsonValue,
         room_json: &JsonValue,
         obstacles_idx_map: &HashMap<String, usize>,
-        roomwide_notable: &HashMap<String, JsonValue>,
+        notable_map: &HashMap<String, NotableIdx>,
         node_implicit_door_unlocks: &HashMap<NodeId, bool>,
     ) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
@@ -3334,6 +3324,7 @@ impl GameData {
                     None
                 },
                 node_implicit_door_unlocks: Some(&node_implicit_door_unlocks),
+                notable_map: Some(notable_map),
             };
             let mut requires_vec = vec![];
             if let Some(r) = &entrance_req {
@@ -3342,39 +3333,6 @@ impl GameData {
             requires_vec.extend(self.parse_requires_list(&requires_json, &ctx)?);
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let strat_notes = self.parse_note(&strat_json["note"]);
-            let notable = strat_json["notable"].as_bool().unwrap_or(false);
-            let mut notable_strat_name = strat_name.clone();
-            if notable {
-                let mut notable_strat_note: Vec<String> = strat_notes.clone();
-                if strat_json.has_key("reusableRoomwideNotable") {
-                    notable_strat_name = strat_json["reusableRoomwideNotable"]
-                        .as_str()
-                        .unwrap()
-                        .to_string();
-                    if !roomwide_notable.contains_key(&notable_strat_name) {
-                        bail!(
-                            "Unrecognized reusable notable strat name: {}",
-                            notable_strat_name
-                        );
-                    }
-                    notable_strat_note =
-                        self.parse_note(&roomwide_notable[&notable_strat_name]["note"]);
-                }
-                let strat_id = self.notable_strat_isv.add(&notable_strat_name);
-                requires_vec.push(Requirement::Strat(strat_id));
-                let area = format!(
-                    "{} - {}",
-                    room_json["area"].as_str().unwrap(),
-                    room_json["subarea"].as_str().unwrap()
-                );
-                self.strat_area.insert(notable_strat_name.clone(), area);
-                self.strat_room.insert(
-                    notable_strat_name.clone(),
-                    room_json["name"].as_str().unwrap().to_string(),
-                );
-                self.strat_description
-                    .insert(notable_strat_name.clone(), notable_strat_note.join(" "));
-            }
 
             let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
             if bypasses_door_shell {
@@ -3466,11 +3424,6 @@ impl GameData {
                 requirement: requirement.clone(),
                 start_with_shinecharge,
                 end_with_shinecharge,
-                notable_strat_name: if notable {
-                    Some(notable_strat_name)
-                } else {
-                    None
-                },
                 strat_name: strat_name.clone(),
                 strat_notes,
             };
@@ -3506,7 +3459,6 @@ impl GameData {
                     requirement: r.clone(),
                     start_with_shinecharge: false,
                     end_with_shinecharge: false,
-                    notable_strat_name: None,
                     strat_name: "Base (Maybe Exit -> Exit)".to_string(),
                     strat_notes: vec![],
                 });
@@ -3525,7 +3477,6 @@ impl GameData {
                     requirement: Requirement::Free,
                     start_with_shinecharge: false,
                     end_with_shinecharge: false,
-                    notable_strat_name: None,
                     strat_name: "Base (Action -> Plain)".to_string(),
                     strat_notes: vec![],
                 });
@@ -3558,7 +3509,6 @@ impl GameData {
                         requirement: unlock_req,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
-                        notable_strat_name: None,
                         strat_name: "Base (Unlock)".to_string(),
                         strat_notes: vec![],
                     });
@@ -3568,7 +3518,6 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
-                        notable_strat_name: None,
                         strat_name: "Base (Return from Unlock)".to_string(),
                         strat_notes: vec![],
                     });
@@ -3690,7 +3639,6 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: false,
                         end_with_shinecharge: false,
-                        notable_strat_name: None,
                         strat_name: "G-Mode Go Back Through Door".to_string(),
                         strat_notes: vec![],
                     };
@@ -3705,10 +3653,22 @@ impl GameData {
             }
         }
 
-        // Process roomwide reusable strats:
-        let mut roomwide_notable: HashMap<String, JsonValue> = HashMap::new();
-        for strat in room_json["reusableRoomwideNotable"].members() {
-            roomwide_notable.insert(strat["name"].as_str().unwrap().to_string(), strat.clone());
+        // Process notables:
+        let mut notable_map: HashMap<String, NotableIdx> = HashMap::new();
+        for notable in room_json["notables"].members() {
+            let notable_name = notable["name"].as_str().unwrap().to_string();
+            let notable_id = notable["id"].as_usize().unwrap() as NotableId;
+            let notable_data = NotableData {
+                room_id,
+                notable_id,
+                name: notable_name.clone(),
+                note: self.parse_note(&notable["note"]).join(" "),
+            };
+            let notable_idx = self.notable_data.len();
+            let notable_idx2 = self.notable_isv.add(&(room_id, notable_id));
+            assert_eq!(notable_idx, notable_idx2);
+            self.notable_data.push(notable_data);
+            notable_map.insert(notable_name, notable_idx);
         }
 
         // Process strats:
@@ -3718,7 +3678,7 @@ impl GameData {
                 strat_json,
                 room_json,
                 &obstacles_idx_map,
-                &roomwide_notable,
+                &notable_map,
                 &node_implicit_door_unlocks,
             )
             .context(format!(
@@ -4054,14 +4014,7 @@ impl GameData {
     }
 
     fn extract_all_strat_dependencies(&mut self) -> Result<()> {
-        let links: Vec<Link> = self.all_links().cloned().collect();
-        for link in &links {
-            if let Some(notable_strat_name) = link.notable_strat_name.clone() {
-                let deps: HashSet<String> = self.extract_tech_dependencies(&link.requirement);
-                self.strat_dependencies
-                    .insert(notable_strat_name.clone(), deps.into_iter().collect());
-            }
-        }
+        // TODO: get rid of this, or replace it.
         Ok(())
     }
 

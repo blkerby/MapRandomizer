@@ -16,10 +16,10 @@ use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::Preset,
+    preset::{NotableSetting, Preset},
     seed_repository::SeedRepository,
 };
-use maprando_game::GameData;
+use maprando_game::{GameData, NotableId, RoomId};
 use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed};
 
@@ -34,7 +34,7 @@ fn init_presets(
 ) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<String> = HashSet::new();
-    let mut cumulative_strats: HashSet<String> = HashSet::new();
+    let mut cumulative_strats: HashSet<(RoomId, NotableId)> = HashSet::new();
 
     // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
     let ignored_tech: HashSet<String> = [
@@ -61,11 +61,6 @@ fn init_presets(
         }
     }
 
-    let all_notable_strats: HashSet<String> = game_data
-        .all_links()
-        .filter_map(|x| x.notable_strat_name.clone())
-        .collect();
-
     let visible_tech: Vec<String> = game_data
         .tech_isv
         .keys
@@ -74,9 +69,6 @@ fn init_presets(
         .cloned()
         .collect();
     let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
-
-    // TODO: remove this
-    let visible_notable_strats: HashSet<String> = all_notable_strats.iter().cloned().collect();
 
     cumulative_tech.extend(implicit_tech.iter().cloned());
     for preset in presets {
@@ -100,23 +92,34 @@ fn init_presets(
             tech_setting.push((tech.clone(), cumulative_tech.contains(tech)));
         }
 
-        for strat_name in &preset.notable_strats {
-            if cumulative_strats.contains(strat_name) {
-                panic!("Notable strat \"{strat_name}\" appears in presets more than once.");
+        for notable_data in &preset.notables {
+            if cumulative_strats.contains(&(notable_data.room_id, notable_data.notable_id)) {
+                let room_name = &notable_data.room_name;
+                let notable_name = &notable_data.name;
+                panic!("Notable strat {room_name}:{notable_name} appears in presets more than once.");
             }
-            cumulative_strats.insert(strat_name.clone());
+            cumulative_strats.insert((notable_data.room_id, notable_data.notable_id));
         }
-        let mut notable_strat_setting: Vec<(String, bool)> = Vec::new();
-        for strat_name in &visible_notable_strats {
-            notable_strat_setting
-                .push((strat_name.clone(), cumulative_strats.contains(strat_name)));
+        let mut notable_setting_vec: Vec<(NotableSetting, bool)> = Vec::new();
+        for notable_idx in 0..game_data.notable_isv.keys.len() {
+            let notable_data = &game_data.notable_data[notable_idx];
+            let room_id = notable_data.room_id;
+            let notable_id = notable_data.notable_id;
+            let notable_setting = NotableSetting {
+                room_id,
+                notable_id,
+                room_name: game_data.room_json_map[&notable_data.room_id]["name"].as_str().unwrap().to_string(),
+                name: notable_data.name.clone(),
+            };
+            notable_setting_vec
+                .push((notable_setting, cumulative_strats.contains(&(room_id, notable_id))));
         }
 
         out.push(PresetData {
             preset: preset,
             tech_setting: tech_setting,
             implicit_tech: implicit_tech.clone(),
-            notable_strat_setting: notable_strat_setting,
+            notable_setting: notable_setting_vec,
         });
     }
     for tech in &visible_tech_set {
@@ -125,15 +128,17 @@ fn init_presets(
         }
     }
 
+    //
+    let visible_notable_strats: HashSet<(RoomId, NotableId)> = game_data.notable_isv.keys.iter().cloned().collect();
     if !visible_notable_strats.is_subset(&cumulative_strats) {
-        let diff: Vec<String> = visible_notable_strats
+        let diff: Vec<(RoomId, NotableId)> = visible_notable_strats
             .difference(&cumulative_strats)
             .cloned()
             .collect();
         panic!("Notable strats not found in any preset: {:?}", diff);
     }
     if !cumulative_strats.is_subset(&visible_notable_strats) {
-        let diff: Vec<String> = cumulative_strats
+        let diff: Vec<(RoomId, NotableId)> = cumulative_strats
             .difference(&visible_notable_strats)
             .cloned()
             .collect();

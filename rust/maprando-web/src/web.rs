@@ -11,7 +11,7 @@ use hashbrown::{HashMap, HashSet};
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::Preset,
+    preset::{NotableSetting, Preset},
     seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
@@ -26,7 +26,7 @@ pub struct PresetData {
     pub preset: Preset,
     pub tech_setting: Vec<(String, bool)>,
     pub implicit_tech: HashSet<String>,
-    pub notable_strat_setting: Vec<(String, bool)>,
+    pub notable_setting: Vec<(NotableSetting, bool)>,
 }
 
 #[derive(Clone)]

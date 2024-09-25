@@ -29,12 +29,14 @@ function presetChanged() {
                     document.getElementById("tech-{{+ tech }}-No").checked = true;
                 {% endif %}
             {% endfor %}
-            {% for (strat, is_enabled) in p.notable_strat_setting %}
-                {% let strat_id = strat_id_by_name[strat] %}
+            {% for (notable_setting, is_enabled) in p.notable_setting %}
+                {% let room_id = notable_setting.room_id %}
+                {% let notable_id = notable_setting.notable_id %}
+                {% let combo_id = format!("{}-{}", room_id, notable_id) %}
                 {% if is_enabled %}
-                    document.getElementById("strat-{{+ strat_id }}-Yes").checked = true;
+                    document.getElementById("strat-{{ combo_id }}-Yes").checked = true;
                 {% else %}
-                    document.getElementById("strat-{{+ strat_id }}-No").checked = true;
+                    document.getElementById("strat-{{ combo_id }}-No").checked = true;
                 {% endif %}
             {% endfor %}
         }

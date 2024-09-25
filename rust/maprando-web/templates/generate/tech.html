@@ -75,23 +75,26 @@
                 </div>
             </div>
             <div class="card">
-                {% if p.preset.notable_strats.len() > 0 %}
+                {% if p.preset.notables.len() > 0 %}
                 <div class="card-header">
                     Notable strats
                 </div>
                 {% endif %}
                 <div class="card-body my-0 p-0">
-                    {% for strat in p.preset.notable_strats %}
-                        {% let strat_id = strat_id_by_name[strat] %}
+                    {% for notable_setting in p.preset.notables %}
+                    {% let notable_name = notable_setting.name|as_ref %}
+                    {% let room_id = notable_setting.room_id %}
+                    {% let notable_id = notable_setting.notable_id %}
+                    {% let combo_id = format!("{}-{}", room_id, notable_id) %}
                         <hr class="m-0">
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2">
-                                {% if notable_gif_listing.contains(format!("{}.png", strat)) %}
+                                {% if notable_gif_listing.contains(format!("{}.png", notable_name)) %}
                                 {% let hq_video_url_root = hq_video_url_root %}
-                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, strat) %}
+                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, notable_name) %}
                                 <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
-                                <img class="png-tech" loading="lazy" src="/static/notable_gifs/{{+ strat }}.png" style="width:128px;height:128px;">
-                                <img class="gif-tech" loading="lazy" src="/static/notable_gifs/{{+ strat }}.gif" style="width:128px;height:128px;">
+                                <img class="png-tech" loading="lazy" src="/static/notable_gifs/{{+ notable_name }}.png" style="width:128px;height:128px;">
+                                <img class="gif-tech" loading="lazy" src="/static/notable_gifs/{{+ notable_name }}.gif" style="width:128px;height:128px;">
                                 </a>
                                 {% endif %}
                             </div>
@@ -99,25 +102,22 @@
                                 <div class="container mx-0 my-0">
                                     <div class="row">
                                         <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-1">
-                                            <label for="strat-{{+ strat }}">
-                                            <b>{{+ strat }}</b>
+                                            <label for="strat-{{ combo_id }}">
+                                            <b>{{ notable_name }}</b>
                                             </label>
                                         </div>
                                         <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
-                                            <input type="radio" class="btn-check" name="strat-{{+ strat }}" id="strat-{{+ strat_id }}-No" value="false" checked=true>
-                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{+ strat_id }}-No">No</label>
-                                            <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{+ strat }}" id="strat-{{+ strat_id }}-Yes" value="true">
-                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{+ strat_id }}-Yes">Yes</label>
+                                            <input type="radio" class="btn-check" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-No">No</label>
+                                            <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-Yes" value="true">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-Yes">Yes</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12 my-1">
-                                            {{+ strat_description[strat] }}
+                                            Description goes here
                                         </div>
                                     </div>
-                                    {% if strat_dependencies[strat].len() > 0usize|as_ref %}
-                                    <i>Dependencies: {{+ strat_dependencies[strat].join(", ") }} </i>
-                                    {% endif %}
                                 </div>
                             </div>
                         </div>

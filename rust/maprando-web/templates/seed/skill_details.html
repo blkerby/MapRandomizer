@@ -68,16 +68,17 @@
                         </div>
                     </div>
                 {% endfor %}
-                {% if p.preset.notable_strats.len() > 0 %}
+                {% if p.preset.notables.len() > 0 %}
                 <hr class="my-2">
                 {% endif %}
-                {% for strat in p.preset.notable_strats %}
+                {% for notable_setting in p.preset.notables %}
                     <div class="row">
                         <div class="col-9 col-sm-10 col-lg-8">
-                            {{+ strat }}:
+                            {{ notable_setting.name }}:
                         </div>
                         <div class="col-3 col-sm-2">
-                            {% if enabled_notables.contains(strat.as_str()) %}Yes{% else %}No{% endif %}
+                            {% let notable_pair = (notable_setting.room_id, notable_setting.notable_id) %}
+                            {% if enabled_notables.contains(notable_pair) %}Yes{% else %}No{% endif %}
                         </div>
                     </div>
                 {% endfor %}

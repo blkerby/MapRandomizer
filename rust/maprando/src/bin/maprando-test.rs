@@ -14,7 +14,7 @@ use maprando::randomize::{
 };
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
-use maprando_game::{Capacity, GameData, Item};
+use maprando_game::{Capacity, GameData, Item, NotableId, RoomId};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 
@@ -43,11 +43,15 @@ struct Args {
 }
 
 fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
+    let mut notable_setting_vec: Vec<(RoomId, NotableId)> = vec![];
+    for notable in &preset.notables {
+        notable_setting_vec.push((notable.room_id, notable.notable_id));
+    }
     let diff = DifficultyConfig {
         name: None,
         // From the actual Preset
         tech: preset.tech.clone(),
-        notable_strats: preset.notable_strats.clone(),
+        notables: notable_setting_vec,
         shine_charge_tiles: preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.heated_shinespark_tiles as f32,
         speed_ball_tiles: preset.speed_ball_tiles as f32,
@@ -864,9 +868,9 @@ fn main() -> Result<()> {
     presets[0].tech.append(&mut implicit_tech);
     for ix in 0..(presets.len() - 1) {
         let mut tech = presets[ix].tech.clone();
-        let mut strat = presets[ix].notable_strats.clone();
+        let mut strat = presets[ix].notables.clone();
         presets[ix + 1].tech.append(&mut tech);
-        presets[ix + 1].notable_strats.append(&mut strat);
+        presets[ix + 1].notables.append(&mut strat);
     }
 
     // If we are using a locked-in preset, go ahead and remove all the others.

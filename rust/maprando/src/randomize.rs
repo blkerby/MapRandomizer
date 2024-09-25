@@ -10,11 +10,7 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
-    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
-    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
-    MainEntranceCondition, Map, NodeId, Physics, Requirement, RoomGeometryRoomIdx, RoomId,
-    SparkPosition, StartLocation, TemporaryBlueDirection, VertexId, VertexKey,
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexId, VertexKey
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -224,7 +220,7 @@ pub struct ItemPriorityGroup {
 pub struct DifficultyConfig {
     pub name: Option<String>,
     pub tech: Vec<String>,
-    pub notable_strats: Vec<String>,
+    pub notables: Vec<(RoomId, NotableId)>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
     pub shinecharge_leniency_frames: Capacity,
@@ -573,7 +569,6 @@ impl<'a> Preprocessor<'a> {
                         requirement: req,
                         start_with_shinecharge: carry_shinecharge,
                         end_with_shinecharge: carry_shinecharge,
-                        notable_strat_name: None,
                         strat_name: "Base (Cross Room)".to_string(),
                         strat_notes: vec![],
                     });
@@ -2551,7 +2546,7 @@ pub fn randomize_doors(
 fn is_req_possible(req: &Requirement, tech_active: &[bool], strats_active: &[bool]) -> bool {
     match req {
         Requirement::Tech(tech_id) => tech_active[*tech_id],
-        Requirement::Strat(strat_id) => strats_active[*strat_id],
+        Requirement::Notable(strat_id) => strats_active[*strat_id],
         Requirement::And(reqs) => reqs
             .iter()
             .all(|x| is_req_possible(x, tech_active, strats_active)),
@@ -2589,16 +2584,16 @@ fn get_tech_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool
 }
 
 fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
-    let strat_set: HashSet<String> = difficulty
-        .notable_strats
+    let notable_set: HashSet<(RoomId, NotableId)> = difficulty
+        .notables
         .iter()
         .map(|x| x.clone())
         .collect();
     game_data
-        .notable_strat_isv
+        .notable_isv
         .keys
         .iter()
-        .map(|x| strat_set.contains(x))
+        .map(|x| notable_set.contains(x))
         .collect()
 }
 
@@ -3143,7 +3138,7 @@ impl<'r> Randomizer<'r> {
             let difficulty = &self.difficulty_tiers[tier];
             let mut tmp_global = state.global_state.clone();
             tmp_global.tech = get_tech_vec(&self.game_data, difficulty);
-            tmp_global.notable_strats = get_strat_vec(&self.game_data, difficulty);
+            tmp_global.notables = get_strat_vec(&self.game_data, difficulty);
 
             let traverse_result = traverse(
                 &self.base_links_data,
@@ -4052,7 +4047,7 @@ impl<'r> Randomizer<'r> {
         let weapon_mask = self.game_data.get_weapon_mask(&items);
         let mut global = GlobalState {
             tech: get_tech_vec(&self.game_data, &self.difficulty_tiers[0]),
-            notable_strats: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
+            notables: get_strat_vec(&self.game_data, &self.difficulty_tiers[0]),
             inventory: Inventory {
                 items: items,
                 max_energy: 99,

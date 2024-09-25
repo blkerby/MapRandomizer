@@ -18,7 +18,7 @@ pub struct Inventory {
 #[derive(Clone, Debug)]
 pub struct GlobalState {
     pub tech: Vec<bool>,
-    pub notable_strats: Vec<bool>,
+    pub notables: Vec<bool>,
     pub inventory: Inventory,
     pub flags: Vec<bool>,
     pub doors_unlocked: Vec<bool>,
