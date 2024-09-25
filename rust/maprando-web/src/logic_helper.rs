@@ -10,8 +10,8 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, Requirement, RoomId,
-    VertexAction, VertexKey,
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
+    RoomId, VertexAction, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -310,24 +310,24 @@ fn make_tech_templates<'a>(
     tech_templates
 }
 
-fn get_difficulty_config(preset: &PresetData) -> DifficultyConfig {
+fn get_difficulty_config(preset: &PresetData, _game_data: &GameData) -> DifficultyConfig {
     let mut tech_vec: Vec<String> = vec![];
     for (tech_name, enabled) in &preset.tech_setting {
         if *enabled {
             tech_vec.push(tech_name.clone());
         }
     }
-    let mut strat_vec: Vec<String> = vec![];
-    for (strat_name, enabled) in &preset.notable_strat_setting {
+    let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
+    for (notable_setting, enabled) in preset.notable_setting.iter() {
         if *enabled {
-            strat_vec.push(strat_name.clone());
+            notable_vec.push((notable_setting.room_id, notable_setting.notable_id));
         }
     }
     // It's annoying how much irrelevant stuff we have to fill in here. TODO: restructure to make things cleaner
     DifficultyConfig {
         name: None,
         tech: tech_vec,
-        notable_strats: strat_vec,
+        notables: notable_vec,
         shine_charge_tiles: preset.preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
         speed_ball_tiles: preset.preset.speed_ball_tiles as f32,
@@ -719,8 +719,10 @@ impl LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
-        let mut difficulty_configs: Vec<DifficultyConfig> =
-            presets.iter().map(get_difficulty_config).collect();
+        let mut difficulty_configs: Vec<DifficultyConfig> = presets
+            .iter()
+            .map(|p| get_difficulty_config(p, game_data))
+            .collect();
 
         // Remove the "Beyond" difficulty tier: everything above Insane will be labeled as "Beyond" already.
         difficulty_configs.pop();
@@ -762,14 +764,14 @@ impl LogicData {
                 tech[game_data.tech_isv.index_by_key[tech_name]] = true;
             }
 
-            let mut notable_strats = vec![false; game_data.notable_strat_isv.keys.len()];
-            for strat_name in &difficulty.notable_strats {
-                notable_strats[game_data.notable_strat_isv.index_by_key[strat_name]] = true;
+            let mut notable_strats = vec![false; game_data.notable_isv.keys.len()];
+            for strat_name in &difficulty.notables {
+                notable_strats[game_data.notable_isv.index_by_key[strat_name]] = true;
             }
 
             let global = GlobalState {
                 tech,
-                notable_strats,
+                notables: notable_strats,
                 inventory: Inventory {
                     items: items,
                     max_energy: 1499,

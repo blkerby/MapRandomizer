@@ -1,5 +1,20 @@
 use serde::{Deserialize, Serialize};
 
+// #[derive(Serialize, Deserialize, Clone)]
+// pub struct TechSetting {
+//     tech_id: usize,
+//     name: String,
+// }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct NotableSetting {
+    pub room_id: usize,
+    pub notable_id: usize,
+    pub room_name: String,
+    pub name: String,
+    pub video_id: Option<usize>,
+}
+
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Preset {
     pub name: String,
@@ -17,5 +32,5 @@ pub struct Preset {
     pub botwoon_proficiency: f32,
     pub mother_brain_proficiency: f32,
     pub tech: Vec<String>,
-    pub notable_strats: Vec<String>,
+    pub notables: Vec<NotableSetting>,
 }

@@ -8,6 +8,10 @@ v114:
 - adjust auto-formatting for unlocksDoors
 - use strat IDs in logic pages
 - use new videos in logic pages and Generate page
+  - DONE: notable strat videos in Generate page
+  - strat videos in logic pages
+  - tech videos in Generate page
+  - tech videos in logic pages
 - link to logic pages from video site?
 - use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
 - see if doorUnlockedAtNode is failing to get resolved when no door lock?

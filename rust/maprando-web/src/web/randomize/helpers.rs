@@ -12,7 +12,7 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     spoiler_map,
 };
-use maprando_game::{Capacity, IndexedVec, Item};
+use maprando_game::{Capacity, IndexedVec, Item, NotableId, RoomId};
 use rand::{RngCore, SeedableRng};
 
 #[derive(Template)]
@@ -32,7 +32,6 @@ pub struct SeedHeaderTemplate<'a> {
     early_filler_items: Vec<String>,
     item_placement_style: String,
     difficulty: &'a DifficultyConfig,
-    _notable_strats: Vec<String>,
     quality_of_life_preset: String,
     supers_double: bool,
     mother_brain_fight: String,
@@ -62,7 +61,7 @@ pub struct SeedHeaderTemplate<'a> {
     ultra_low_qol: bool,
     preset_data: &'a [PresetData],
     enabled_tech: HashSet<String>,
-    enabled_notables: HashSet<String>,
+    enabled_notables: HashSet<(RoomId, NotableId)>,
 }
 
 impl<'a> SeedHeaderTemplate<'a> {
@@ -75,12 +74,12 @@ impl<'a> SeedHeaderTemplate<'a> {
             .count();
         let notable_enabled_count = p
             .preset
-            .notable_strats
+            .notables
             .iter()
-            .filter(|&x| self.enabled_notables.contains(x))
+            .filter(|x| self.enabled_notables.contains(&(x.room_id, x.notable_id)))
             .count();
         let total_enabled_count = tech_enabled_count + notable_enabled_count;
-        let total_count = p.preset.tech.len() + p.preset.notable_strats.len();
+        let total_count = p.preset.tech.len() + p.preset.notables.len();
         let frac_enabled = (total_enabled_count as f32) / (total_count as f32);
         let mut percent_enabled = (frac_enabled * 100.0) as isize;
         if percent_enabled == 0 && frac_enabled > 0.0 {
@@ -216,11 +215,11 @@ pub fn get_difficulty_tiers(
     let presets = &app_data.preset_data;
     let mut out: Vec<DifficultyConfig> = vec![];
     let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
-    let strat_set: HashSet<String> = difficulty.notable_strats.iter().cloned().collect();
+    let notable_set: HashSet<(RoomId, NotableId)> = difficulty.notables.iter().cloned().collect();
 
     out.push(difficulty.clone());
     out.last_mut().unwrap().tech.sort();
-    out.last_mut().unwrap().notable_strats.sort();
+    out.last_mut().unwrap().notables.sort();
     for preset_data in presets.iter().rev() {
         let preset = &preset_data.preset;
         let mut tech_vec: Vec<String> = Vec::new();
@@ -231,19 +230,21 @@ pub fn get_difficulty_tiers(
         }
         tech_vec.sort();
 
-        let mut strat_vec: Vec<String> = vec![];
-        for (strat, enabled) in &preset_data.notable_strat_setting {
-            if *enabled && strat_set.contains(strat) {
-                strat_vec.push(strat.clone());
+        let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
+        for (notable_setting, enabled) in &preset_data.notable_setting {
+            let room_id = notable_setting.room_id;
+            let notable_id = notable_setting.notable_id;
+            if *enabled && notable_set.contains(&(room_id, notable_id)) {
+                notable_vec.push((room_id, notable_id));
             }
         }
-        strat_vec.sort();
+        notable_vec.sort();
 
         // TODO: move some fields out of here so we don't have clone as much irrelevant stuff:
         let new_difficulty = DifficultyConfig {
             name: Some(preset.name.clone()),
             tech: tech_vec,
-            notable_strats: strat_vec,
+            notables: notable_vec,
             shine_charge_tiles: f32::max(
                 difficulty.shine_charge_tiles,
                 preset.shinespark_tiles as f32,
@@ -349,7 +350,7 @@ pub fn get_difficulty_tiers(
 // A simplified measure of "equivalence" in difficulty for the purposes of Forced mode logic, to reduce
 // the amount of tiers the randomizer has to consider:
 pub fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> bool {
-    return a.tech == b.tech && a.notable_strats == b.notable_strats;
+    return a.tech == b.tech && a.notables == b.notables;
 }
 
 pub async fn save_seed(
@@ -472,19 +473,9 @@ pub fn render_seed(
     seed_data: &SeedData,
     app_data: &AppData,
 ) -> Result<(String, String)> {
-    let notable_strats: Vec<String> = seed_data
-        .difficulty
-        .notable_strats
-        .iter()
-        .cloned()
-        .collect();
     let enabled_tech: HashSet<String> = seed_data.difficulty.tech.iter().cloned().collect();
-    let enabled_notables: HashSet<String> = seed_data
-        .difficulty
-        .notable_strats
-        .iter()
-        .cloned()
-        .collect();
+    let enabled_notables: HashSet<(RoomId, NotableId)> =
+        seed_data.difficulty.notables.iter().cloned().collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version_info: app_data.version_info.clone(),
@@ -519,7 +510,6 @@ pub fn render_seed(
             .collect(),
         item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
         difficulty: &seed_data.difficulty,
-        _notable_strats: notable_strats,
         quality_of_life_preset: seed_data
             .quality_of_life_preset
             .clone()

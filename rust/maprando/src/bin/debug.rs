@@ -57,7 +57,7 @@ fn run_scenario(
     let weapon_mask = game_data.get_weapon_mask(&items);
     let global_state = GlobalState {
         tech: vec![patience; game_data.tech_isv.keys.len()],
-        notable_strats: vec![true; game_data.notable_strat_isv.keys.len()],
+        notables: vec![true; game_data.notable_isv.keys.len()],
         inventory: Inventory {
             items: items,
             max_energy: 1899,
@@ -81,7 +81,7 @@ fn run_scenario(
     let difficulty = DifficultyConfig {
         name: None,
         tech: vec![],
-        notable_strats: vec![],
+        notables: vec![],
         shine_charge_tiles: 16.0,
         heated_shine_charge_tiles: 16.0,
         speed_ball_tiles: 24.0,

@@ -412,8 +412,8 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::Strat(strat_id) => {
-            if global.notable_strats[*strat_id] {
+        Requirement::Notable(notable_idx) => {
+            if global.notables[*notable_idx] {
                 Some(local)
             } else {
                 None
