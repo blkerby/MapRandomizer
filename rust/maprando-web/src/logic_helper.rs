@@ -10,7 +10,8 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement, RoomId, VertexAction, VertexKey
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
+    RoomId, VertexAction, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -718,8 +719,10 @@ impl LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
-        let mut difficulty_configs: Vec<DifficultyConfig> =
-            presets.iter().map(|p| get_difficulty_config(p, game_data)).collect();
+        let mut difficulty_configs: Vec<DifficultyConfig> = presets
+            .iter()
+            .map(|p| get_difficulty_config(p, game_data))
+            .collect();
 
         // Remove the "Beyond" difficulty tier: everything above Insane will be labeled as "Beyond" already.
         difficulty_configs.pop();

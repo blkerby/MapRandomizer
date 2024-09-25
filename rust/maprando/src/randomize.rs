@@ -10,7 +10,11 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexId, VertexKey
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
+    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
+    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+    MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx,
+    RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -2584,11 +2588,8 @@ fn get_tech_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool
 }
 
 fn get_strat_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
-    let notable_set: HashSet<(RoomId, NotableId)> = difficulty
-        .notables
-        .iter()
-        .map(|x| x.clone())
-        .collect();
+    let notable_set: HashSet<(RoomId, NotableId)> =
+        difficulty.notables.iter().map(|x| x.clone()).collect();
     game_data
         .notable_isv
         .keys

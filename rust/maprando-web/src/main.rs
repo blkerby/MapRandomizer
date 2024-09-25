@@ -75,7 +75,10 @@ fn init_presets(
     let mut notable_setting_map: HashMap<(RoomId, NotableId), NotableSetting> = HashMap::new();
     for preset in &presets {
         for notable_setting in &preset.notables {
-            notable_setting_map.insert((notable_setting.room_id, notable_setting.notable_id), notable_setting.clone());
+            notable_setting_map.insert(
+                (notable_setting.room_id, notable_setting.notable_id),
+                notable_setting.clone(),
+            );
         }
     }
 
@@ -104,7 +107,9 @@ fn init_presets(
             if cumulative_strats.contains(&(notable_setting.room_id, notable_setting.notable_id)) {
                 let room_name = &notable_setting.room_name;
                 let notable_name = &notable_setting.name;
-                panic!("Notable strat {room_name}:{notable_name} appears in presets more than once.");
+                panic!(
+                    "Notable strat {room_name}:{notable_name} appears in presets more than once."
+                );
             }
             cumulative_strats.insert((notable_setting.room_id, notable_setting.notable_id));
         }
@@ -114,11 +119,16 @@ fn init_presets(
             let room_id = notable_data.room_id;
             let notable_id = notable_data.notable_id;
             if let Some(notable_setting) = notable_setting_map.get(&(room_id, notable_id)) {
-                notable_setting_vec
-                    .push((notable_setting.clone(), cumulative_strats.contains(&(room_id, notable_id))));
+                notable_setting_vec.push((
+                    notable_setting.clone(),
+                    cumulative_strats.contains(&(room_id, notable_id)),
+                ));
             } else {
                 let room_name = game_data.room_json_map[&room_id]["name"].as_str().unwrap();
-                panic!("Notable not found in any preset: ({}, {}) {}: {}", room_id, notable_id, room_name, notable_data.name);
+                panic!(
+                    "Notable not found in any preset: ({}, {}) {}: {}",
+                    room_id, notable_id, room_name, notable_data.name
+                );
             }
         }
 
@@ -136,7 +146,8 @@ fn init_presets(
     }
 
     //
-    let visible_notable_strats: HashSet<(RoomId, NotableId)> = game_data.notable_isv.keys.iter().cloned().collect();
+    let visible_notable_strats: HashSet<(RoomId, NotableId)> =
+        game_data.notable_isv.keys.iter().cloned().collect();
     if !cumulative_strats.is_subset(&visible_notable_strats) {
         let diff: Vec<(RoomId, NotableId)> = cumulative_strats
             .difference(&visible_notable_strats)

@@ -474,12 +474,8 @@ pub fn render_seed(
     app_data: &AppData,
 ) -> Result<(String, String)> {
     let enabled_tech: HashSet<String> = seed_data.difficulty.tech.iter().cloned().collect();
-    let enabled_notables: HashSet<(RoomId, NotableId)> = seed_data
-        .difficulty
-        .notables
-        .iter()
-        .cloned()
-        .collect();
+    let enabled_notables: HashSet<(RoomId, NotableId)> =
+        seed_data.difficulty.notables.iter().cloned().collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version_info: app_data.version_info.clone(),

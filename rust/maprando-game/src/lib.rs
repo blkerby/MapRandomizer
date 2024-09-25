@@ -870,7 +870,7 @@ impl LinksDataGroup {
 
 fn get_ignored_notable_strats() -> HashSet<(RoomId, NotableId)> {
     [
-        (170, 4),  // "Breaking the Maridia Tube Gravity Jump", not usable because of canRiskPermanentLossOfAccess
+        (170, 4), // "Breaking the Maridia Tube Gravity Jump", not usable because of canRiskPermanentLossOfAccess
         (155, 1), // "Wrecked Ship Main Shaft Partial Covern Ice Clip", not usable because of canRiskPermanentLossOfAccess
         // (144, 4), // "Mickey Mouse Crumble Jump IBJ", only useful with CF clip strat, or if we change item progression rules
         (44, 1), // "Green Brinstar Main Shaft Moonfall Spark", does not seem to be viable with the vanilla door connection
@@ -2126,7 +2126,10 @@ impl GameData {
                 return Ok(self.get_tech_requirement(value.as_str().unwrap(), false)?);
             } else if key == "notable" {
                 let notable_name = value.as_str().unwrap().to_string();
-                let notable_idx = *ctx.notable_map.unwrap().get(&notable_name)
+                let notable_idx = *ctx
+                    .notable_map
+                    .unwrap()
+                    .get(&notable_name)
                     .context(format!("Undefined notable: {}", &notable_name))?;
                 return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
@@ -2204,7 +2207,8 @@ impl GameData {
         }
 
         let ignored_notable_strats = get_ignored_notable_strats();
-        let all_notable_strats: HashSet<(RoomId, NotableId)> = self.notable_isv.keys.iter().cloned().collect();
+        let all_notable_strats: HashSet<(RoomId, NotableId)> =
+            self.notable_isv.keys.iter().cloned().collect();
         if !ignored_notable_strats.is_subset(&all_notable_strats) {
             let diff: Vec<(RoomId, NotableId)> = ignored_notable_strats
                 .difference(&all_notable_strats)

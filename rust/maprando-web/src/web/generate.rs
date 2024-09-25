@@ -94,7 +94,8 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     for i in 0..app_data.game_data.notable_data.len() {
         let notable_data = &app_data.game_data.notable_data[i];
         notable_description.insert(
-            (notable_data.room_id, notable_data.notable_id), notable_data.note.clone()
+            (notable_data.room_id, notable_data.notable_id),
+            notable_data.note.clone(),
         );
     }
 
