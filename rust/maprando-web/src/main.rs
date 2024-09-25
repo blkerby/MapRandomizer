@@ -313,7 +313,6 @@ fn build_app_data() -> AppData {
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         tech_gif_listing,
-        notable_gif_listing,
         video_storage_url: args.video_storage_url,
         logic_data,
         samus_sprite_categories,
