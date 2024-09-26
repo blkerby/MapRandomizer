@@ -260,6 +260,7 @@ fn main() -> Result<()> {
     let start_locations_path = Path::new("data/start_locations.json");
     let hub_locations_path = Path::new("data/hub_locations.json");
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
+    let strat_videos_path = Path::new("data/strat_videos.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let game_data = GameData::load(
         sm_json_data_path,
@@ -269,6 +270,7 @@ fn main() -> Result<()> {
         hub_locations_path,
         title_screen_path,
         reduced_flashing_path,
+        strat_videos_path,
     )?;
 
     // Perform randomization (map selection & item placement):

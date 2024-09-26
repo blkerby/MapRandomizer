@@ -25,7 +25,6 @@ use web::{about, generate, home, logic, randomize, releases, seed};
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
-const NOTABLE_GIF_PATH: &'static str = "static/notable_gifs/";
 
 fn init_presets(
     presets: Vec<Preset>,
@@ -198,16 +197,6 @@ fn list_tech_gif_files() -> HashSet<String> {
     files
 }
 
-fn list_notable_gif_files() -> HashSet<String> {
-    let mut files: HashSet<String> = HashSet::new();
-    for entry_res in std::fs::read_dir(NOTABLE_GIF_PATH).unwrap() {
-        let entry = entry_res.unwrap();
-        let name = entry.file_name().to_str().unwrap().to_string();
-        files.insert(name);
-    }
-    files
-}
-
 fn get_implicit_tech() -> HashSet<String> {
     [
         "canSpecialBeamAttack",
@@ -234,6 +223,7 @@ fn build_app_data() -> AppData {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
+    let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
@@ -265,12 +255,12 @@ fn build_app_data() -> AppData {
         hub_locations_path,
         title_screen_path,
         reduced_flashing_path,
+        strat_videos_path,
     )
     .unwrap();
 
     info!("Loading logic preset data");
     let tech_gif_listing = list_tech_gif_files();
-    let notable_gif_listing = list_notable_gif_files();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let etank_colors: Vec<Vec<String>> =
@@ -284,9 +274,9 @@ fn build_app_data() -> AppData {
     let logic_data = LogicData::new(
         &game_data,
         &tech_gif_listing,
-        &notable_gif_listing,
         &preset_data,
         &version_info,
+        &args.video_storage_url,
     );
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();

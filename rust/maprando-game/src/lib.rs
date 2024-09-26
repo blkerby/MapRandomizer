@@ -40,6 +40,7 @@ pub type RoomPtr = usize; // Room pointer (PC address of room header)
 pub type RoomStateIdx = usize; // Room state index
 pub type NodeId = usize; // Node ID from sm-json-data (only unique within a room)
 pub type NodePtr = usize; // nodeAddress from sm-json-data: for items this is the PC address of PLM, for doors it is PC address of door data
+pub type StratId = usize; // Strat ID from sm-json-data (only unique within a room)
 pub type NotableId = usize; // Notable ID from sm-json-data (only unique within a room)
 pub type VertexId = usize; // Index into GameData.vertex_isv.keys: (room_id, node_id, obstacle_bitmask) combinations
 pub type ItemLocationId = usize; // Index into GameData.item_locations: 100 nodes each containing an item
@@ -1010,6 +1011,15 @@ pub struct NotableData {
     pub note: String,
 }
 
+#[derive(Deserialize)]
+pub struct StratVideo {
+    pub room_id: usize,
+    pub strat_id: usize,
+    pub video_id: usize,
+    pub created_user: String,
+    pub note: String,
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -1084,6 +1094,7 @@ pub struct GameData {
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
     pub reduced_flashing_patch: GlowPatch,
+    pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -4066,6 +4077,20 @@ impl GameData {
         Ok(())
     }
 
+    fn load_strat_videos(&mut self, path: &Path) -> Result<()> {
+        let strat_videos_str = std::fs::read_to_string(path).with_context(|| {
+            format!(
+                "Unable to load strat videos at {}",
+                path.display()
+            )
+        })?;
+        let strat_videos: Vec<StratVideo> = serde_json::from_str(&strat_videos_str)?;
+        for video in strat_videos {
+            self.strat_videos.entry((video.room_id, video.strat_id)).or_default().push(video);
+        }
+        Ok(())
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -4074,11 +4099,13 @@ impl GameData {
         hub_locations_path: &Path,
         title_screen_path: &Path,
         reduced_flashing_path: &Path,
+        strat_videos_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
 
         game_data.load_reduced_flashing_patch(reduced_flashing_path)?;
+        game_data.load_strat_videos(strat_videos_path)?;
 
         game_data.load_items_and_flags()?;
         game_data.load_tech()?;

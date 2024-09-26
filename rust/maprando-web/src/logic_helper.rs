@@ -10,8 +10,7 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
-    RoomId, VertexAction, VertexKey,
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement, RoomId, StratId, StratVideo, VertexAction, VertexKey
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -21,13 +20,13 @@ use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 
 #[derive(Clone)]
 struct RoomStrat {
+    room_id: usize,
     room_name: String,
     room_name_stripped: String,
     area: String,
+    strat_id: usize,
     strat_name: String,
     strat_name_stripped: String,
-    notable_strat_name: String,
-    notable: bool,
     bypasses_door_shell: bool,
     from_node_id: usize,
     from_node_name: String,
@@ -57,9 +56,9 @@ struct RoomTemplate<'a> {
     room_diagram_path: String,
     nodes: Vec<(usize, String)>,
     strats: Vec<RoomStrat>,
+    strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
     room_json: String,
-    notable_gif_listing: &'a HashSet<String>,
-    hq_video_url_root: String,
+    video_storage_url: String,
 }
 
 #[derive(Template, Clone)]
@@ -73,9 +72,10 @@ struct TechTemplate<'a> {
     tech_difficulty_idx: usize,
     tech_difficulty_name: String,
     strats: Vec<RoomStrat>,
+    strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
     tech_gif_listing: &'a HashSet<String>,
-    notable_gif_listing: &'a HashSet<String>,
     hq_video_url_root: String,
+    video_storage_url: String,
 }
 
 #[derive(Template, Clone)]
@@ -88,8 +88,8 @@ struct StratTemplate<'a> {
     room_diagram_path: String,
     strat_name: String,
     strat: RoomStrat,
-    notable_gif_listing: &'a HashSet<String>,
-    hq_video_url_root: String,
+    strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
+    video_storage_url: String,
 }
 
 #[derive(Template)]
@@ -179,14 +179,14 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
 }
 
 fn make_tech_templates<'a>(
-    game_data: &GameData,
+    game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
     tech_gif_listing: &'a HashSet<String>,
-    notable_gif_listing: &'a HashSet<String>,
     presets: &[PresetData],
     global_states: &[GlobalState],
     area_order: &[String],
     hq_video_url_root: &str,
+    video_storage_url: &str,
     version_info: &VersionInfo,
 ) -> Vec<TechTemplate<'a>> {
     let mut tech_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
@@ -301,9 +301,10 @@ fn make_tech_templates<'a>(
             tech_difficulty_idx: difficulty_idx,
             tech_difficulty_name: difficulty_name,
             strats,
+            strat_videos: &game_data.strat_videos,
             tech_gif_listing: tech_gif_listing,
-            notable_gif_listing: notable_gif_listing,
             hq_video_url_root: hq_video_url_root.to_string(),
+            video_storage_url: video_storage_url.to_string(),
         };
         tech_templates.push(template);
     }
@@ -543,13 +544,12 @@ fn get_strat_difficulty(
 fn make_room_template<'a>(
     room_json: &JsonValue,
     room_diagram_listing: &HashMap<usize, String>,
-    game_data: &GameData,
+    game_data: &'a GameData,
     presets: &[PresetData],
     difficulty_configs: &[DifficultyConfig],
     global_states: &[GlobalState],
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
-    notable_gif_listing: &'a HashSet<String>,
-    hq_video_url_root: &str,
+    video_storage_url: &str,
     version_info: &VersionInfo,
 ) -> RoomTemplate<'a> {
     let mut room_strats: Vec<RoomStrat> = vec![];
@@ -576,6 +576,10 @@ fn make_room_template<'a>(
     };
 
     for strat_json in room_json["strats"].members() {
+        if !strat_json["id"].is_number() {
+            continue;
+        }
+        let strat_id = strat_json["id"].as_usize().unwrap();
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
@@ -641,17 +645,14 @@ fn make_room_template<'a>(
         };
 
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
-        let reusable_strat_name = strat_json["reusableRoomwideNotable"]
-            .as_str()
-            .map(|x| x.to_string());
         let strat = RoomStrat {
+            room_id,
             room_name: room_name.clone(),
             room_name_stripped: room_name_stripped.clone(),
             area: full_area.clone(),
+            strat_id,
             strat_name: strat_name.clone(),
             strat_name_stripped: strip_name(&strat_name),
-            notable_strat_name: reusable_strat_name.unwrap_or(strat_name),
-            notable: strat_json["notable"].as_bool().unwrap_or(false),
             bypasses_door_shell: strat_json["bypassesDoorShell"].as_bool() == Some(true),
             from_node_id,
             from_node_name: node_name_map[&from_node_id].clone(),
@@ -682,18 +683,18 @@ fn make_room_template<'a>(
         room_diagram_path: room_diagram_listing[&room_id].clone(),
         nodes,
         strats: room_strats,
+        strat_videos: &game_data.strat_videos,
         room_json: room_json.pretty(2),
-        notable_gif_listing,
-        hq_video_url_root: hq_video_url_root.to_string(),
+        video_storage_url: video_storage_url.to_string(),
     }
 }
 
 fn make_strat_template<'a>(
     room: &RoomTemplate<'a>,
     strat: &RoomStrat,
-    notable_gif_listing: &'a HashSet<String>,
-    hq_video_url_root: &str,
+    video_storage_url: &str,
     version_info: &VersionInfo,
+    game_data: &'a GameData,
 ) -> StratTemplate<'a> {
     StratTemplate {
         version_info: version_info.clone(),
@@ -703,8 +704,8 @@ fn make_strat_template<'a>(
         room_diagram_path: room.room_diagram_path.clone(),
         strat_name: strat.strat_name.clone(),
         strat: strat.clone(),
-        notable_gif_listing,
-        hq_video_url_root: hq_video_url_root.to_string(),
+        strat_videos: &game_data.strat_videos,
+        video_storage_url: video_storage_url.to_string(),
     }
 }
 
@@ -712,9 +713,9 @@ impl LogicData {
     pub fn new(
         game_data: &GameData,
         tech_gif_listing: &HashSet<String>,
-        notable_gif_listing: &HashSet<String>,
         presets: &[PresetData],
         version_info: &VersionInfo,
+        video_storage_url: &str,
     ) -> LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
@@ -820,8 +821,7 @@ impl LogicData {
                 &difficulty_configs,
                 &global_states,
                 &links_by_ids,
-                notable_gif_listing,
-                hq_video_url_root,
+                video_storage_url,
                 version_info,
             );
             let html = template.clone().render().unwrap();
@@ -833,9 +833,9 @@ impl LogicData {
                 let strat_template = make_strat_template(
                     &template,
                     &strat,
-                    notable_gif_listing,
-                    hq_video_url_root,
+                    video_storage_url,
                     version_info,
+                    game_data,
                 );
                 let strat_html = strat_template.render().unwrap();
                 let stripped_strat_name = strip_name(&strat.strat_name);
@@ -856,11 +856,11 @@ impl LogicData {
             game_data,
             &room_templates,
             tech_gif_listing,
-            notable_gif_listing,
             presets,
             &global_states,
             &area_order,
             hq_video_url_root,
+            video_storage_url,
             version_info,
         );
         for template in &tech_templates {

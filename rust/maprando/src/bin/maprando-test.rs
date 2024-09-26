@@ -828,6 +828,7 @@ fn main() -> Result<()> {
     let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
+    let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     let tame_maps_path = Path::new("../maps/v113-tame");
     let wild_maps_path = Path::new("../maps/v110c-wild");
@@ -841,6 +842,7 @@ fn main() -> Result<()> {
         hub_locations_path,
         title_screen_path,
         reduced_flashing_path,
+        strat_videos_path,
     )?;
 
     if !args.output_seeds.is_dir() {
