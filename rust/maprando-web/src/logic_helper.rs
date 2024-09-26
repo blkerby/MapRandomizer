@@ -10,7 +10,8 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement, RoomId, StratId, StratVideo, VertexAction, VertexKey
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
+    RoomId, StratId, StratVideo, VertexAction, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;

@@ -4078,15 +4078,14 @@ impl GameData {
     }
 
     fn load_strat_videos(&mut self, path: &Path) -> Result<()> {
-        let strat_videos_str = std::fs::read_to_string(path).with_context(|| {
-            format!(
-                "Unable to load strat videos at {}",
-                path.display()
-            )
-        })?;
+        let strat_videos_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load strat videos at {}", path.display()))?;
         let strat_videos: Vec<StratVideo> = serde_json::from_str(&strat_videos_str)?;
         for video in strat_videos {
-            self.strat_videos.entry((video.room_id, video.strat_id)).or_default().push(video);
+            self.strat_videos
+                .entry((video.room_id, video.strat_id))
+                .or_default()
+                .push(video);
         }
         Ok(())
     }
