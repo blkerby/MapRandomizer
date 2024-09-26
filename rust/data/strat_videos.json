@@ -1,5 +1,1650 @@
 [
   {
+    "room_id": 115,
+    "strat_id": 27,
+    "video_id": 132,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 145,
+    "strat_id": 2,
+    "video_id": 133,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 226,
+    "strat_id": 45,
+    "video_id": 134,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 226,
+    "strat_id": 67,
+    "video_id": 135,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 227,
+    "strat_id": 25,
+    "video_id": 136,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 229,
+    "strat_id": 22,
+    "video_id": 137,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 229,
+    "strat_id": 11,
+    "video_id": 138,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 238,
+    "strat_id": 22,
+    "video_id": 139,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 238,
+    "strat_id": 21,
+    "video_id": 140,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 220,
+    "strat_id": 34,
+    "video_id": 141,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 16,
+    "video_id": 142,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 78,
+    "video_id": 143,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 28,
+    "video_id": 144,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 56,
+    "strat_id": 14,
+    "video_id": 145,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 15,
+    "video_id": 161,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 25,
+    "video_id": 162,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 95,
+    "video_id": 163,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 103,
+    "video_id": 165,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 64,
+    "video_id": 166,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 55,
+    "video_id": 167,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 184,
+    "strat_id": 14,
+    "video_id": 168,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 157,
+    "video_id": 169,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 148,
+    "video_id": 187,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 189,
+    "strat_id": 33,
+    "video_id": 188,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 189,
+    "strat_id": 19,
+    "video_id": 189,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 28,
+    "video_id": 190,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 176,
+    "strat_id": 11,
+    "video_id": 191,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 24,
+    "strat_id": 24,
+    "video_id": 192,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 137,
+    "strat_id": 12,
+    "video_id": 195,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 58,
+    "strat_id": 14,
+    "video_id": 196,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 58,
+    "strat_id": 55,
+    "video_id": 197,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 6,
+    "video_id": 199,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 15,
+    "video_id": 200,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 9,
+    "video_id": 201,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 40,
+    "video_id": 202,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 208,
+    "strat_id": 7,
+    "video_id": 203,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 194,
+    "video_id": 204,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 18,
+    "strat_id": 4,
+    "video_id": 205,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 65,
+    "video_id": 206,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 31,
+    "strat_id": 12,
+    "video_id": 207,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 50,
+    "strat_id": 4,
+    "video_id": 208,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 14,
+    "video_id": 209,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 49,
+    "video_id": 210,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 74,
+    "strat_id": 4,
+    "video_id": 211,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 57,
+    "video_id": 212,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 58,
+    "video_id": 213,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 180,
+    "strat_id": 21,
+    "video_id": 214,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 180,
+    "strat_id": 28,
+    "video_id": 215,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 139,
+    "strat_id": 19,
+    "video_id": 216,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 189,
+    "video_id": 217,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 34,
+    "video_id": 218,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 20,
+    "video_id": 219,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 213,
+    "video_id": 220,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 213,
+    "strat_id": 11,
+    "video_id": 233,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 213,
+    "strat_id": 20,
+    "video_id": 235,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 85,
+    "video_id": 237,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 95,
+    "video_id": 238,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 54,
+    "video_id": 239,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 61,
+    "video_id": 240,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 48,
+    "video_id": 241,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 197,
+    "strat_id": 66,
+    "video_id": 242,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 197,
+    "strat_id": 54,
+    "video_id": 243,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 113,
+    "video_id": 244,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 6,
+    "video_id": 246,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 222,
+    "strat_id": 11,
+    "video_id": 247,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 57,
+    "strat_id": 3,
+    "video_id": 248,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 185,
+    "strat_id": 25,
+    "video_id": 249,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 230,
+    "strat_id": 29,
+    "video_id": 250,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 242,
+    "strat_id": 21,
+    "video_id": 252,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 242,
+    "strat_id": 22,
+    "video_id": 253,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 80,
+    "strat_id": 4,
+    "video_id": 254,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 81,
+    "strat_id": 38,
+    "video_id": 255,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 138,
+    "strat_id": 76,
+    "video_id": 256,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 138,
+    "strat_id": 57,
+    "video_id": 258,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 138,
+    "strat_id": 54,
+    "video_id": 259,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 111,
+    "video_id": 260,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 103,
+    "video_id": 261,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 74,
+    "video_id": 263,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 63,
+    "video_id": 264,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 163,
+    "strat_id": 25,
+    "video_id": 265,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 58,
+    "video_id": 266,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 119,
+    "video_id": 267,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 232,
+    "strat_id": 23,
+    "video_id": 268,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 232,
+    "strat_id": 22,
+    "video_id": 269,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 30,
+    "video_id": 272,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 23,
+    "video_id": 273,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 42,
+    "video_id": 274,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 189,
+    "strat_id": 65,
+    "video_id": 276,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 24,
+    "video_id": 281,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 42,
+    "video_id": 282,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 41,
+    "video_id": 283,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 58,
+    "strat_id": 52,
+    "video_id": 284,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 7,
+    "video_id": 286,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 196,
+    "strat_id": 8,
+    "video_id": 287,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 43,
+    "video_id": 288,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 108,
+    "video_id": 289,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 222,
+    "strat_id": 12,
+    "video_id": 290,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 232,
+    "video_id": 292,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 21,
+    "strat_id": 62,
+    "video_id": 293,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 21,
+    "strat_id": 63,
+    "video_id": 294,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 21,
+    "strat_id": 58,
+    "video_id": 295,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 144,
+    "video_id": 296,
+    "created_user": "Osse101",
+    "note": "This video shows the full room strat."
+  },
+  {
+    "room_id": 172,
+    "strat_id": 132,
+    "video_id": 297,
+    "created_user": "Osse101",
+    "note": "This video shows the full room strat."
+  },
+  {
+    "room_id": 178,
+    "strat_id": 42,
+    "video_id": 298,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 166,
+    "video_id": 299,
+    "created_user": "Osse101",
+    "note": "This video is the full room strat."
+  },
+  {
+    "room_id": 174,
+    "strat_id": 167,
+    "video_id": 300,
+    "created_user": "Osse101",
+    "note": "This video is the full room strat."
+  },
+  {
+    "room_id": 198,
+    "strat_id": 16,
+    "video_id": 301,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 20,
+    "video_id": 302,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 199,
+    "strat_id": 12,
+    "video_id": 303,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 163,
+    "strat_id": 21,
+    "video_id": 304,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 27,
+    "video_id": 310,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 23,
+    "video_id": 311,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 24,
+    "video_id": 312,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 2,
+    "video_id": 313,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 12,
+    "video_id": 314,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 30,
+    "strat_id": 41,
+    "video_id": 315,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 147,
+    "strat_id": 3,
+    "video_id": 316,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 10,
+    "video_id": 317,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 81,
+    "strat_id": 37,
+    "video_id": 318,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 81,
+    "strat_id": 42,
+    "video_id": 319,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 115,
+    "video_id": 320,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 114,
+    "video_id": 321,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 102,
+    "video_id": 323,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 102,
+    "video_id": 324,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 101,
+    "video_id": 325,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 104,
+    "video_id": 326,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 47,
+    "video_id": 327,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 15,
+    "video_id": 328,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 13,
+    "video_id": 329,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 36,
+    "video_id": 330,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 10,
+    "video_id": 331,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 9,
+    "video_id": 332,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 54,
+    "strat_id": 71,
+    "video_id": 333,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 54,
+    "strat_id": 48,
+    "video_id": 334,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 8,
+    "strat_id": 59,
+    "video_id": 335,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 143,
+    "video_id": 336,
+    "created_user": "Osse101",
+    "note": "This is not a full room video"
+  },
+  {
+    "room_id": 227,
+    "strat_id": 28,
+    "video_id": 337,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 229,
+    "strat_id": 24,
+    "video_id": 338,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 229,
+    "strat_id": 14,
+    "video_id": 339,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 199,
+    "strat_id": 52,
+    "video_id": 340,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 135,
+    "strat_id": 14,
+    "video_id": 342,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 89,
+    "video_id": 346,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 8,
+    "video_id": 347,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 161,
+    "strat_id": 34,
+    "video_id": 348,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 100,
+    "video_id": 349,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 59,
+    "video_id": 350,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 12,
+    "video_id": 351,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 322,
+    "strat_id": 23,
+    "video_id": 352,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 23,
+    "video_id": 353,
+    "created_user": "Osse101",
+    "note": "Ice version"
+  },
+  {
+    "room_id": 208,
+    "strat_id": 16,
+    "video_id": 354,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 208,
+    "strat_id": 14,
+    "video_id": 355,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 51,
+    "strat_id": 35,
+    "video_id": 356,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 51,
+    "strat_id": 34,
+    "video_id": 357,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 51,
+    "strat_id": 62,
+    "video_id": 358,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 54,
+    "strat_id": 72,
+    "video_id": 361,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 31,
+    "video_id": 362,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 145,
+    "strat_id": 31,
+    "video_id": 363,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 110,
+    "video_id": 364,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 131,
+    "video_id": 365,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 144,
+    "strat_id": 27,
+    "video_id": 367,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 144,
+    "strat_id": 83,
+    "video_id": 368,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 168,
+    "video_id": 371,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 220,
+    "strat_id": 19,
+    "video_id": 372,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 87,
+    "video_id": 373,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 17,
+    "video_id": 374,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 135,
+    "video_id": 375,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 135,
+    "strat_id": 62,
+    "video_id": 376,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 135,
+    "strat_id": 18,
+    "video_id": 377,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 135,
+    "strat_id": 19,
+    "video_id": 378,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 199,
+    "strat_id": 11,
+    "video_id": 345,
+    "created_user": "kyleb",
+    "note": ""
+  },
+  {
+    "room_id": 8,
+    "strat_id": 43,
+    "video_id": 382,
+    "created_user": "Sinth",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 18,
+    "video_id": 383,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 24,
+    "video_id": 384,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 40,
+    "video_id": 385,
+    "created_user": "NZT",
+    "note": "Requires canWallJump"
+  },
+  {
+    "room_id": 127,
+    "strat_id": 40,
+    "video_id": 386,
+    "created_user": "NZT",
+    "note": "No Wall Jump but with Spring Ball and Morph Ball"
+  },
+  {
+    "room_id": 127,
+    "strat_id": 51,
+    "video_id": 387,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 12,
+    "video_id": 388,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 36,
+    "video_id": 389,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 70,
+    "strat_id": 31,
+    "video_id": 390,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 100,
+    "video_id": 392,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 111,
+    "video_id": 391,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 230,
+    "strat_id": 7,
+    "video_id": 394,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 230,
+    "strat_id": 22,
+    "video_id": 395,
+    "created_user": "Osse101",
+    "note": "This video could be improved by starting from room entry"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 101,
+    "video_id": 396,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 46,
+    "strat_id": 6,
+    "video_id": 397,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 213,
+    "strat_id": 31,
+    "video_id": 398,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 196,
+    "strat_id": 48,
+    "video_id": 399,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 90,
+    "strat_id": 48,
+    "video_id": 400,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 90,
+    "strat_id": 37,
+    "video_id": 401,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 90,
+    "strat_id": 33,
+    "video_id": 402,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 189,
+    "strat_id": 18,
+    "video_id": 403,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 27,
+    "video_id": 404,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 28,
+    "video_id": 405,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 12,
+    "video_id": 406,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 21,
+    "video_id": 407,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 58,
+    "strat_id": 31,
+    "video_id": 408,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 148,
+    "strat_id": 26,
+    "video_id": 409,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 196,
+    "strat_id": 27,
+    "video_id": 411,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 196,
+    "strat_id": 30,
+    "video_id": 412,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 38,
+    "video_id": 413,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 59,
+    "video_id": 414,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 54,
+    "video_id": 415,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 60,
+    "video_id": 416,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 78,
+    "video_id": 417,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 131,
+    "strat_id": 12,
+    "video_id": 420,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 56,
+    "video_id": 421,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 38,
+    "video_id": 422,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 137,
+    "strat_id": 72,
+    "video_id": 423,
+    "created_user": "Osse101",
+    "note": "This is possible without morph."
+  },
+  {
+    "room_id": 8,
+    "strat_id": 29,
+    "video_id": 424,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 8,
+    "strat_id": 28,
+    "video_id": 425,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 29,
+    "video_id": 426,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 14,
+    "video_id": 427,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 145,
+    "strat_id": 18,
+    "video_id": 428,
+    "created_user": "Osse101",
+    "note": "Damageless version"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 36,
+    "video_id": 429,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 60,
+    "strat_id": 32,
+    "video_id": 430,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 3,
+    "video_id": 431,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 61,
+    "video_id": 432,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 123,
+    "strat_id": 56,
+    "video_id": 433,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 102,
+    "video_id": 434,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 104,
+    "video_id": 435,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 56,
+    "video_id": 436,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 223,
+    "strat_id": 11,
+    "video_id": 437,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 81,
+    "strat_id": 41,
+    "video_id": 438,
+    "created_user": "Osse101",
+    "note": "Version with shinecharge temporary blue"
+  },
+  {
+    "room_id": 232,
+    "strat_id": 22,
+    "video_id": 439,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 83,
+    "video_id": 440,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 84,
+    "video_id": 441,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 199,
+    "strat_id": 50,
+    "video_id": 442,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 209,
+    "strat_id": 35,
+    "video_id": 443,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 209,
+    "strat_id": 7,
+    "video_id": 444,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 135,
+    "strat_id": 16,
+    "video_id": 445,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 135,
+    "strat_id": 17,
+    "video_id": 446,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 25,
+    "video_id": 447,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 67,
+    "strat_id": 61,
+    "video_id": 449,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 15,
+    "video_id": 450,
+    "created_user": "NZT",
+    "note": "Try to freeze the fish at its lowest point. Crouch jumping helps to make the springball jump more lenient. At the beginning you can also freeze the fish and jump off of it instead of springball jumping. "
+  },
+  {
+    "room_id": 198,
+    "strat_id": 17,
+    "video_id": 451,
+    "created_user": "NZT",
+    "note": ""
+  },
+  {
     "room_id": 172,
     "strat_id": 81,
     "video_id": 452,
