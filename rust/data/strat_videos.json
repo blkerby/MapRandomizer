@@ -1,5 +1,733 @@
 [
   {
+    "room_id": 149,
+    "strat_id": 9,
+    "video_id": 894,
+    "created_user": "maddo",
+    "note": "canDownBack"
+  },
+  {
+    "room_id": 163,
+    "strat_id": 18,
+    "video_id": 896,
+    "created_user": "maddo",
+    "note": "canTrivialMidAirMorph"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 43,
+    "video_id": 897,
+    "created_user": "maddo",
+    "note": "canUseGrapple"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 110,
+    "video_id": 898,
+    "created_user": "maddo",
+    "note": "canTrivialUseFrozenEnemies"
+  },
+  {
+    "room_id": 107,
+    "strat_id": 9,
+    "video_id": 899,
+    "created_user": "maddo",
+    "note": "canHeatRun"
+  },
+  {
+    "room_id": 81,
+    "strat_id": 44,
+    "video_id": 900,
+    "created_user": "maddo",
+    "note": "canMidAirMorph"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 32,
+    "video_id": 901,
+    "created_user": "maddo",
+    "note": "canWalljump"
+  },
+  {
+    "room_id": 54,
+    "strat_id": 11,
+    "video_id": 902,
+    "created_user": "maddo",
+    "note": "canUseFrozenEnemies"
+  },
+  {
+    "room_id": 8,
+    "strat_id": 68,
+    "video_id": 903,
+    "created_user": "maddo",
+    "note": "canShinespark"
+  },
+  {
+    "room_id": 186,
+    "strat_id": 34,
+    "video_id": 904,
+    "created_user": "maddo",
+    "note": "canSuitlessMaridia"
+  },
+  {
+    "room_id": 209,
+    "strat_id": 20,
+    "video_id": 907,
+    "created_user": "maddo",
+    "note": "can4HighMidAirMorph"
+  },
+  {
+    "room_id": 115,
+    "strat_id": 17,
+    "video_id": 908,
+    "created_user": "maddo",
+    "note": "canBounceBall"
+  },
+  {
+    "room_id": 46,
+    "strat_id": 16,
+    "video_id": 909,
+    "created_user": "maddo",
+    "note": "canTunnelCrawl"
+  },
+  {
+    "room_id": 150,
+    "strat_id": 34,
+    "video_id": 910,
+    "created_user": "maddo",
+    "note": "canMidAirWiggle"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 36,
+    "video_id": 911,
+    "created_user": "maddo",
+    "note": "canGrappleJump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 36,
+    "video_id": 912,
+    "created_user": "maddo",
+    "note": "Without HiJump"
+  },
+  {
+    "room_id": 181,
+    "strat_id": 18,
+    "video_id": 914,
+    "created_user": "maddo",
+    "note": "canStationarySpinJump"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 40,
+    "video_id": 915,
+    "created_user": "maddo",
+    "note": "Without a Spring Fling"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 39,
+    "video_id": 916,
+    "created_user": "maddo",
+    "note": "canSpringwall"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 46,
+    "video_id": 917,
+    "created_user": "maddo",
+    "note": "canTrickyJump"
+  },
+  {
+    "room_id": 41,
+    "strat_id": 20,
+    "video_id": 919,
+    "created_user": "maddo",
+    "note": "canBombAboveIBJ"
+  },
+  {
+    "room_id": 41,
+    "strat_id": 25,
+    "video_id": 920,
+    "created_user": "maddo",
+    "note": "canUnmorphBombBoost"
+  },
+  {
+    "room_id": 41,
+    "strat_id": 22,
+    "video_id": 921,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 34,
+    "video_id": 922,
+    "created_user": "maddo",
+    "note": "canBombJumpWaterEscape"
+  },
+  {
+    "room_id": 74,
+    "strat_id": 5,
+    "video_id": 923,
+    "created_user": "maddo",
+    "note": "canSamusEaterStandUp"
+  },
+  {
+    "room_id": 138,
+    "strat_id": 37,
+    "video_id": 924,
+    "created_user": "maddo",
+    "note": "canKago"
+  },
+  {
+    "room_id": 228,
+    "strat_id": 22,
+    "video_id": 925,
+    "created_user": "maddo",
+    "note": "canMetroidAvoid"
+  },
+  {
+    "room_id": 220,
+    "strat_id": 32,
+    "video_id": 926,
+    "created_user": "maddo",
+    "note": "canWalljumpWithCharge"
+  },
+  {
+    "room_id": 220,
+    "strat_id": 32,
+    "video_id": 927,
+    "created_user": "maddo",
+    "note": "Staggered wall jumps"
+  },
+  {
+    "room_id": 137,
+    "strat_id": 3,
+    "video_id": 929,
+    "created_user": "maddo",
+    "note": "canAutoCancelWeapon"
+  },
+  {
+    "room_id": 41,
+    "strat_id": 40,
+    "video_id": 930,
+    "created_user": "maddo",
+    "note": "canTemporaryBlue"
+  },
+  {
+    "room_id": 199,
+    "strat_id": 6,
+    "video_id": 931,
+    "created_user": "maddo",
+    "note": "canShinechargeMovementComplex"
+  },
+  {
+    "room_id": 134,
+    "strat_id": 7,
+    "video_id": 932,
+    "created_user": "maddo",
+    "note": "canBlueSpaceJump"
+  },
+  {
+    "room_id": 78,
+    "strat_id": 19,
+    "video_id": 933,
+    "created_user": "maddo",
+    "note": "X-ray turnaround"
+  },
+  {
+    "room_id": 78,
+    "strat_id": 34,
+    "video_id": 934,
+    "created_user": "maddo",
+    "note": "canXRayTurnaround"
+  },
+  {
+    "room_id": 310,
+    "strat_id": 2,
+    "video_id": 935,
+    "created_user": "maddo",
+    "note": "canCrystalFlash"
+  },
+  {
+    "room_id": 78,
+    "strat_id": 19,
+    "video_id": 936,
+    "created_user": "maddo",
+    "note": "canTurnaroundAimCancel"
+  },
+  {
+    "room_id": 189,
+    "strat_id": 47,
+    "video_id": 937,
+    "created_user": "maddo",
+    "note": "canMomentumConservingTurnaround"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 41,
+    "video_id": 938,
+    "created_user": "maddo",
+    "note": "canSpaceJumpWaterEscape"
+  },
+  {
+    "room_id": 213,
+    "strat_id": 21,
+    "video_id": 939,
+    "created_user": "maddo",
+    "note": "canSandfallBounce"
+  },
+  {
+    "room_id": 68,
+    "strat_id": 8,
+    "video_id": 942,
+    "created_user": "maddo",
+    "note": "can3HighWallMidAirMorph"
+  },
+  {
+    "room_id": 223,
+    "strat_id": 5,
+    "video_id": 943,
+    "created_user": "maddo",
+    "note": "canRJump"
+  },
+  {
+    "room_id": 30,
+    "strat_id": 18,
+    "video_id": 944,
+    "created_user": "maddo",
+    "note": "canTrickySpringBallBounce"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 40,
+    "video_id": 945,
+    "created_user": "maddo",
+    "note": "canStationaryLateralMidAirMorph"
+  },
+  {
+    "room_id": 45,
+    "strat_id": 35,
+    "video_id": 946,
+    "created_user": "maddo",
+    "note": "canQuickCrumbleEscape"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 16,
+    "video_id": 947,
+    "created_user": "maddo",
+    "note": "canDoubleSpringBallJump"
+  },
+  {
+    "room_id": 78,
+    "strat_id": 39,
+    "video_id": 950,
+    "created_user": "maddo",
+    "note": "canTrickyDashJump"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 36,
+    "video_id": 952,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 130,
+    "strat_id": 8,
+    "video_id": 953,
+    "created_user": "maddo",
+    "note": "canWallJumpBombBoost"
+  },
+  {
+    "room_id": 7,
+    "strat_id": 52,
+    "video_id": 954,
+    "created_user": "maddo",
+    "note": "canHBJ"
+  },
+  {
+    "room_id": 220,
+    "strat_id": 24,
+    "video_id": 955,
+    "created_user": "maddo",
+    "note": "canSandIBJ"
+  },
+  {
+    "room_id": 59,
+    "strat_id": 87,
+    "video_id": 956,
+    "created_user": "maddo",
+    "note": "canChainTemporaryBlue"
+  },
+  {
+    "room_id": 59,
+    "strat_id": 87,
+    "video_id": 957,
+    "created_user": "maddo",
+    "note": "Faster version by using canXRayCancelShinecharge and one fewer jump"
+  },
+  {
+    "room_id": 121,
+    "strat_id": 18,
+    "video_id": 958,
+    "created_user": "maddo",
+    "note": "canDoubleBombJump"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 2,
+    "video_id": 959,
+    "created_user": "Sinth",
+    "note": ""
+  },
+  {
+    "room_id": 232,
+    "strat_id": 21,
+    "video_id": 960,
+    "created_user": "maddo",
+    "note": "canBabyMetroidAvoid"
+  },
+  {
+    "room_id": 222,
+    "strat_id": 23,
+    "video_id": 961,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 2,
+    "video_id": 962,
+    "created_user": "maddo",
+    "note": "canEnemyExtendRunway"
+  },
+  {
+    "room_id": 59,
+    "strat_id": 30,
+    "video_id": 963,
+    "created_user": "maddo",
+    "note": "canShinechargeMovementTricky"
+  },
+  {
+    "room_id": 156,
+    "strat_id": 40,
+    "video_id": 965,
+    "created_user": "maddo",
+    "note": "canSlowShortCharge"
+  },
+  {
+    "room_id": 164,
+    "strat_id": 24,
+    "video_id": 966,
+    "created_user": "maddo",
+    "note": "canStutterWaterShineCharge"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 91,
+    "video_id": 968,
+    "created_user": "maddo",
+    "note": "canRightSideDoorStuck"
+  },
+  {
+    "room_id": 44,
+    "strat_id": 236,
+    "video_id": 969,
+    "created_user": "maddo",
+    "note": "canPreciseCeilingClip"
+  },
+  {
+    "room_id": 184,
+    "strat_id": 11,
+    "video_id": 970,
+    "created_user": "maddo",
+    "note": "canBombIntoCrystalFlashClip"
+  },
+  {
+    "room_id": 113,
+    "strat_id": 20,
+    "video_id": 971,
+    "created_user": "maddo",
+    "note": "can10PowerBombCrystalFlash"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 90,
+    "video_id": 973,
+    "created_user": "maddo",
+    "note": "canBePatient"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 59,
+    "video_id": 974,
+    "created_user": "maddo",
+    "note": "canBeVeryPatient"
+  },
+  {
+    "room_id": 27,
+    "strat_id": 22,
+    "video_id": 975,
+    "created_user": "maddo",
+    "note": "Right side"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 41,
+    "video_id": 976,
+    "created_user": "maddo",
+    "note": "canUnderwaterWalljump"
+  },
+  {
+    "room_id": 179,
+    "strat_id": 35,
+    "video_id": 977,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 7,
+    "strat_id": 7,
+    "video_id": 979,
+    "created_user": "maddo",
+    "note": "canInsaneJump"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 12,
+    "video_id": 982,
+    "created_user": "maddo",
+    "note": "canEnterGMode"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 42,
+    "video_id": 983,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 79,
+    "strat_id": 23,
+    "video_id": 984,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 11,
+    "video_id": 985,
+    "created_user": "maddo",
+    "note": "canArtificialMorph"
+  },
+  {
+    "room_id": 184,
+    "strat_id": 12,
+    "video_id": 986,
+    "created_user": "maddo",
+    "note": "canJumpIntoCrystalFlashClip"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 6,
+    "video_id": 987,
+    "created_user": "maddo",
+    "note": "canOffScreenMovement"
+  },
+  {
+    "room_id": 148,
+    "strat_id": 7,
+    "video_id": 988,
+    "created_user": "Sinth",
+    "note": ""
+  },
+  {
+    "room_id": 148,
+    "strat_id": 25,
+    "video_id": 989,
+    "created_user": "Sinth",
+    "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 146,
+    "video_id": 990,
+    "created_user": "maddo",
+    "note": "Slight variation: with an earlier pause (with HiJump)"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 146,
+    "video_id": 991,
+    "created_user": "maddo",
+    "note": "canReserveDoubleDamageBoost (with HiJump)"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 146,
+    "video_id": 992,
+    "created_user": "maddo",
+    "note": "With a Spring Ball jump"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 44,
+    "video_id": 993,
+    "created_user": "maddo",
+    "note": "With HiJump"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 37,
+    "video_id": 994,
+    "created_user": "maddo",
+    "note": "canEnterGModeImmobile"
+  },
+  {
+    "room_id": 29,
+    "strat_id": 24,
+    "video_id": 995,
+    "created_user": "maddo",
+    "note": "canSpeedKeep"
+  },
+  {
+    "room_id": 29,
+    "strat_id": 25,
+    "video_id": 996,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 26,
+    "video_id": 997,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 105,
+    "video_id": 998,
+    "created_user": "maddo",
+    "note": "canDiagonalBombJump"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 145,
+    "video_id": 999,
+    "created_user": "maddo",
+    "note": "canInsaneWalljump"
+  },
+  {
+    "room_id": 213,
+    "strat_id": 31,
+    "video_id": 1000,
+    "created_user": "maddo",
+    "note": "canWallIceClip"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 164,
+    "video_id": 1001,
+    "created_user": "maddo",
+    "note": "canCrazyCrabClimb"
+  },
+  {
+    "room_id": 29,
+    "strat_id": 2,
+    "video_id": 1002,
+    "created_user": "maddo",
+    "note": "canXMode"
+  },
+  {
+    "room_id": 36,
+    "strat_id": 6,
+    "video_id": 1004,
+    "created_user": "maddo",
+    "note": "canUpwardGModeSetup"
+  },
+  {
+    "room_id": 36,
+    "strat_id": 6,
+    "video_id": 1005,
+    "created_user": "maddo",
+    "note": "Version without Morph"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 91,
+    "video_id": 1006,
+    "created_user": "maddo",
+    "note": "canRightSideDoorStuckFromWater"
+  },
+  {
+    "room_id": 27,
+    "strat_id": 23,
+    "video_id": 1007,
+    "created_user": "maddo",
+    "note": "canUnderwaterBombIntoSpringBallJump"
+  },
+  {
+    "room_id": 27,
+    "strat_id": 22,
+    "video_id": 360,
+    "created_user": "Osse101",
+    "note": "Left side"
+  },
+  {
+    "room_id": 56,
+    "strat_id": 13,
+    "video_id": 800,
+    "created_user": "Nito",
+    "note": "canSkipDoorLock"
+  },
+  {
+    "room_id": 56,
+    "strat_id": 14,
+    "video_id": 145,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 51,
+    "strat_id": 26,
+    "video_id": 795,
+    "created_user": "Nito",
+    "note": "canXRayClimb"
+  },
+  {
+    "room_id": 123,
+    "strat_id": 56,
+    "video_id": 433,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 88,
+    "strat_id": 36,
+    "video_id": 796,
+    "created_user": "Nito",
+    "note": "canPartialFloorClip"
+  },
+  {
+    "room_id": 42,
+    "strat_id": 22,
+    "video_id": 730,
+    "created_user": "Nito",
+    "note": "canSpringBallBombJump"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 6,
+    "video_id": 853,
+    "created_user": "NZT",
+    "note": "canPrepareForNextRoom"
+  },
+  {
     "room_id": 115,
     "strat_id": 27,
     "video_id": 132,
@@ -87,13 +815,6 @@
     "room_id": 151,
     "strat_id": 28,
     "video_id": 144,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 56,
-    "strat_id": 14,
-    "video_id": 145,
     "created_user": "Osse101",
     "note": ""
   },
@@ -241,13 +962,6 @@
     "room_id": 210,
     "strat_id": 40,
     "video_id": 202,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 208,
-    "strat_id": 7,
-    "video_id": 203,
     "created_user": "Osse101",
     "note": ""
   },
@@ -1515,13 +2229,6 @@
     "room_id": 127,
     "strat_id": 61,
     "video_id": 432,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 56,
-    "video_id": 433,
     "created_user": "Osse101",
     "note": ""
   },
@@ -3571,13 +4278,6 @@
   },
   {
     "room_id": 42,
-    "strat_id": 22,
-    "video_id": 730,
-    "created_user": "Nito",
-    "note": ""
-  },
-  {
-    "room_id": 42,
     "strat_id": 19,
     "video_id": 732,
     "created_user": "Nito",
@@ -3913,20 +4613,6 @@
     "note": ""
   },
   {
-    "room_id": 51,
-    "strat_id": 26,
-    "video_id": 795,
-    "created_user": "Nito",
-    "note": ""
-  },
-  {
-    "room_id": 88,
-    "strat_id": 36,
-    "video_id": 796,
-    "created_user": "Nito",
-    "note": ""
-  },
-  {
     "room_id": 137,
     "strat_id": 62,
     "video_id": 797,
@@ -3944,13 +4630,6 @@
     "room_id": 45,
     "strat_id": 36,
     "video_id": 799,
-    "created_user": "Nito",
-    "note": ""
-  },
-  {
-    "room_id": 56,
-    "strat_id": 13,
-    "video_id": 800,
     "created_user": "Nito",
     "note": ""
   },
@@ -4086,13 +4765,6 @@
     "video_id": 852,
     "created_user": "NZT",
     "note": "If you're running too fast you'll go under the rightmost small hopper and it won't die."
-  },
-  {
-    "room_id": 61,
-    "strat_id": 6,
-    "video_id": 853,
-    "created_user": "NZT",
-    "note": ""
   },
   {
     "room_id": 61,
@@ -4835,13 +5507,6 @@
     "video_id": 39,
     "created_user": "maddo",
     "note": ""
-  },
-  {
-    "room_id": 222,
-    "strat_id": 23,
-    "video_id": 41,
-    "created_user": "maddo",
-    "note": "This should be redone with vanilla customization"
   },
   {
     "room_id": 183,

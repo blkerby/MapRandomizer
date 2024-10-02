@@ -725,6 +725,13 @@
         "video_id": 520
       },
       {
+        "room_id": 142,
+        "notable_id": 1,
+        "room_name": "Ridley's Room",
+        "name": "Ridley without Heat Protection",
+        "video_id": null
+      },
+      {
         "room_id": 135,
         "notable_id": 1,
         "room_name": "The Worst Room In The Game",
@@ -827,6 +834,13 @@
         "notable_id": 2,
         "room_name": "Botwoon's Room",
         "name": "Back-Side Botwoon Magic Pixel Beam Fight",
+        "video_id": null
+      },
+      {
+        "room_id": 185,
+        "notable_id": 6,
+        "room_name": "Botwoon's Room",
+        "name": "Back-Side Botwoon Plasma Shield Microwave",
         "video_id": null
       },
       {
@@ -2662,13 +2676,6 @@
         "video_id": 167
       },
       {
-        "room_id": 51,
-        "notable_id": 5,
-        "room_name": "Etecoon Energy Tank Room",
-        "name": "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)",
-        "video_id": null
-      },
-      {
         "room_id": 54,
         "notable_id": 6,
         "room_name": "Green Hill Zone",
@@ -2688,13 +2695,6 @@
         "room_name": "Big Pink",
         "name": "Big Pink Reo Ice Clip Without Morph and X-Ray",
         "video_id": 165
-      },
-      {
-        "room_id": 59,
-        "notable_id": 10,
-        "room_name": "Big Pink",
-        "name": "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)",
-        "video_id": null
       },
       {
         "room_id": 58,
@@ -2919,13 +2919,6 @@
         "room_name": "Red Fish Room",
         "name": "Red Fish Space Jump Escape",
         "video_id": 82
-      },
-      {
-        "room_id": 183,
-        "notable_id": 7,
-        "room_name": "Aqueduct",
-        "name": "High Pixel Suitless Bootless Snail Clip, Use Flash Suit",
-        "video_id": null
       },
       {
         "room_id": 183,
@@ -3173,10 +3166,24 @@
     "tech": [],
     "notables": [
       {
+        "room_id": 51,
+        "notable_id": 5,
+        "room_name": "Etecoon Energy Tank Room",
+        "name": "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)",
+        "video_id": null
+      },
+      {
         "room_id": 44,
         "notable_id": 1,
         "room_name": "Green Brinstar Main Shaft",
         "name": "Green Brinstar Main Shaft Moonfall Spark",
+        "video_id": null
+      },
+      {
+        "room_id": 59,
+        "notable_id": 10,
+        "room_name": "Big Pink",
+        "name": "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)",
         "video_id": null
       },
       {
@@ -3198,6 +3205,13 @@
         "notable_id": 4,
         "room_name": "Glass Tunnel",
         "name": "Breaking the Maridia Tube Gravity Jump",
+        "video_id": null
+      },
+      {
+        "room_id": 183,
+        "notable_id": 7,
+        "room_name": "Aqueduct",
+        "name": "High Pixel Suitless Bootless Snail Clip, Use Flash Suit",
         "video_id": null
       },
       {

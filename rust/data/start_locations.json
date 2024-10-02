@@ -1665,7 +1665,7 @@
         "x": 64.5,
         "y": 8,
         "spicy": true,
-        "requires": [{"spikeHits": 1}, "canHorizontalDamageBoost", "canPreciseWalljump"],
+        "requires": [{"spikeHits": 1}, "canHorizontalDamageBoost", "canTrickyJump", "canPreciseWalljump"],
         "camera_offset_x": -12,
         "devNote": ["This is as far right as we can adjust the camera without activating the Mochtroid."]
     },
