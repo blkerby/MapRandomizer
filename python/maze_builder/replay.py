@@ -14,6 +14,7 @@ class ReplayBuffer:
         self.data_path = data_path
         self.episodes_per_file = episodes_per_file
         self.num_files = 0
+        self.num_episodes = 0
         os.makedirs(data_path, exist_ok=True)
 
     def resize(self, new_capacity: int):
@@ -61,6 +62,7 @@ class ReplayBuffer:
         n = episode_data.reward.shape[0]
         assert n == self.episodes_per_file
         self.add_file(episode_data)
+        self.num_episodes += n
 
     def sample(self, batch_size, num_batches, hist_frac, hist_c, hist_max, env, include_next_step: bool) -> List[TrainingData]:
         device = env.device

@@ -1372,7 +1372,7 @@ class MazeBuilderEnv:
             self.good_room_parts.view(-1, 1), self.good_room_parts.view(1, -1)]
         self.directed_E = torch.nonzero(self.good_base_matrix).to(torch.uint8).to('cpu')
 
-    def render(self, env_index=0):
+    def render(self, env_index=0, show_saves=False):
         if self.map_display is None:
             self.map_display = MapDisplay(self.map_x, self.map_y, tile_width=14)
         ind = torch.tensor([i for i in range(len(self.rooms) - 1) if self.room_mask[env_index, i]],
@@ -1381,6 +1381,10 @@ class MazeBuilderEnv:
         xs = self.room_position_x[env_index, :][ind].tolist()
         ys = self.room_position_y[env_index, :][ind].tolist()
         colors = [self.color_map[room.sub_area] for room in rooms]
+        if show_saves:
+            for i, room in enumerate(rooms):
+                if ' Save' in room.name:
+                    colors[i] = (0x80, 0x40, 0x20)
         self.map_display._display(rooms, xs, ys, colors)
 
     def get_door_match_data(self, room_mask, room_position_x, room_position_y):

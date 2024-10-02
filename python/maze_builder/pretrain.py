@@ -232,10 +232,10 @@ session.envs = envs
 # TODO: bundle all this stuff into a structure
 hist_frac = 1.0
 batch_size = 2 ** 11
-state_lr0 = 0.0005
-state_lr1 = 0.0005
-action_lr0 = 0.0005
-action_lr1 = 0.0005
+state_lr0 = 0.0001
+state_lr1 = 0.0001
+action_lr0 = 0.0001
+action_lr1 = 0.0001
 
 explore_eps_factor = 0.0
 state_weight = 1.0
@@ -254,7 +254,7 @@ annealing_time = 1
 
 print_freq = 16
 total_state_losses = None
-total_action_losses = None
+total_balance_loss = 0.0
 # total_next_losses = None
 # total_action_diff_losses = None
 total_reward = 0
@@ -279,14 +279,12 @@ session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.state_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
 session.state_optimizer.param_groups[0]['eps'] = 1e-5
-session.action_optimizer.param_groups[0]['betas'] = (0.9, 0.9)
-session.action_optimizer.param_groups[0]['eps'] = 1e-5
 state_ema_beta0 = 0.999
 state_ema_beta1 = state_ema_beta0
 session.state_average_parameters.beta = state_ema_beta0
 action_ema_beta0 = 0.999
 action_ema_beta1 = action_ema_beta0
-session.action_average_parameters.beta = action_ema_beta0
+session.average_parameters.beta = action_ema_beta0
 
 verbose = False
 
@@ -348,7 +346,7 @@ for i in range(1000000):
     state_ema_beta = state_ema_beta0 * (state_ema_beta1 / state_ema_beta0) ** frac
     session.state_average_parameters.beta = state_ema_beta
     action_ema_beta = action_ema_beta0 * (action_ema_beta1 / action_ema_beta0) ** frac
-    session.action_average_parameters.beta = action_ema_beta
+    session.average_parameters.beta = action_ema_beta
 
     batch_list = session.replay_buffer.sample(batch_size, num_batches, hist_frac=hist_frac, hist_c=0.0,
                                               env=envs[0],
@@ -358,9 +356,8 @@ for i in range(1000000):
 
     for data in batch_list:
         with util.DelayedKeyboardInterrupt():
-            state_losses, action_losses = session.train_batch(
-                data, data,
-                state_weight=state_weight,
+            state_losses, balance_loss = session.train_batch(
+                data,
                 balance_weight=balance_weight,
                 save_dist_weight=save_loss_weight,
                 graph_diam_weight=graph_diam_weight,
@@ -368,15 +365,13 @@ for i in range(1000000):
                 toilet_weight=toilet_weight,
             )
             total_state_losses = update_losses(total_state_losses, state_losses)
-            total_action_losses = update_losses(total_action_losses, action_losses)
-            # total_next_losses = update_losses(total_next_losses, next_losses)
-            # total_action_diff_losses = update_losses(total_action_diff_losses, action_diff_losses)
+            total_balance_loss += balance_loss
             total_loss_cnt += 1
 
     session.num_rounds += 1
     if session.num_rounds % print_freq == 0:
         mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
-        mean_action_losses = [x / total_loss_cnt for x in total_action_losses]
+        mean_balance_loss = total_balance_loss / total_loss_cnt
         # mean_next_losses = [x / total_loss_cnt for x in total_next_losses]
         # mean_action_diff_losses = [x / total_loss_cnt for x in total_action_diff_losses]
 
@@ -384,7 +379,7 @@ for i in range(1000000):
         total_eval_action_losses = None
         total_eval_next_losses = None
         with torch.no_grad():
-            with session.action_average_parameters.average_parameters(session.action_model.all_param_data()):
+            with session.average_parameters.average_parameters(session.action_model.all_param_data()):
                 with session.state_average_parameters.average_parameters(session.state_model.all_param_data()):
                     for data, next_data in eval_batches:
                         eval_state_losses, eval_action_losses, eval_next_losses = session.eval_batch(data, next_data,
