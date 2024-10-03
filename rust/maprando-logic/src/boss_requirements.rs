@@ -210,7 +210,7 @@ pub fn apply_ridley_requirement(
     let super_time = 0.5 / firing_rate; // minimum of 0.5 seconds between Super shots
     let charge_time = 1.4 / firing_rate; // minimum of 1.4 seconds between charge shots
     let missile_time = 0.34 / firing_rate; // minimum of 0.34 seconds between Missile shots
-    let power_bomb_time = 3.5 / firing_rate; // minimum of 3.5 seconds between Power Bomb shots
+    let power_bomb_time = 3.0 / firing_rate; // minimum of 3.0 seconds between Power Bomb shots
 
     let charge_dps = charge_damage * accuracy / charge_time;
     let missiles_dps = 100.0 * accuracy / missile_time;
