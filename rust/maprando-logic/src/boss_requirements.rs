@@ -207,7 +207,14 @@ pub fn apply_ridley_requirement(
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest):
     let firing_rate = 0.3 + 0.7 * proficiency;
 
-    let charge_time = 1.4; // minimum of 1.4 seconds between charge shots
+    let super_time = 0.5 / firing_rate; // minimum of 0.5 seconds between Super shots
+    let charge_time = 1.4 / firing_rate; // minimum of 1.4 seconds between charge shots
+    let missile_time = 0.34 / firing_rate; // minimum of 0.34 seconds between Missile shots
+    let power_bomb_time = 3.0 / firing_rate; // minimum of 3.0 seconds between Power Bomb shots
+
+    let charge_dps = charge_damage * accuracy / charge_time;
+    let missiles_dps = 100.0 * accuracy / missile_time;
+    let power_bomb_dps = 400.0 * accuracy / power_bomb_time;
 
     // Prioritize using supers:
     let supers_available = inventory.max_supers - local.supers_used;
@@ -217,17 +224,18 @@ pub fn apply_ridley_requirement(
     );
     local.supers_used += supers_to_use;
     boss_hp -= supers_to_use as f32 * 600.0 * accuracy;
-    time += supers_to_use as f32 * 0.5 / firing_rate; // Assumes max average rate of 2 supers per second
+    time += supers_to_use as f32 * super_time;
 
-    // Use Charge Beam if it's powerful enough
-    // 500 is the point at which Charge Beam has better DPS than Missiles, this happens with Charge + Plasma + (Ice and/or Wave)
-    if charge_damage >= 500.0 {
-        let powerful_charge_shots_to_use = max(
+    // Use Charge if it's higher DPS than Missiles (which happens with Charge + Plasma).
+    // For less than full beam combo, a player could squeeze out more DPS by using
+    // Missiles during pogo and Charge during swoops, but we don't try to model this.
+    if charge_dps >= missiles_dps {
+        let charge_shots_to_use = max(
             0,
             f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
         );
         boss_hp = 0.0;
-        time += powerful_charge_shots_to_use as f32 * charge_time / firing_rate;
+        time += charge_shots_to_use as f32 * charge_time;
     }
 
     // Then use available missiles:
@@ -241,20 +249,20 @@ pub fn apply_ridley_requirement(
     );
     local.missiles_used += missiles_to_use;
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
-    time += missiles_to_use as f32 * 0.34 / firing_rate; // Assume max average rate of 1 missile per 0.34 seconds
+    time += missiles_to_use as f32 * missile_time;
 
-    if inventory.items[Item::Charge as usize] {
-        // Then finish with Charge shots:
-        // (TODO: it would be a little better to prioritize Charge shots over Supers/Missiles in
-        // some cases).
+    // Use Charge if it's more powerful than Power Bomb:
+    if charge_dps >= power_bomb_dps {
         let charge_shots_to_use = max(
             0,
             f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
         );
         boss_hp = 0.0;
-        time += charge_shots_to_use as f32 * charge_time / firing_rate;
-    } else if inventory.items[Item::Morph as usize] {
-        // Only use Power Bombs if Charge is not available:
+        time += charge_shots_to_use as f32 * charge_time;
+    }
+
+    if inventory.items[Item::Morph as usize] {
+        // Use Power Bombs:
         let pbs_available = inventory.max_power_bombs - local.power_bombs_used;
         let pbs_to_use = max(
             0,
@@ -264,8 +272,18 @@ pub fn apply_ridley_requirement(
             ),
         );
         local.power_bombs_used += pbs_to_use;
-        boss_hp -= pbs_to_use as f32 * 400.0 * accuracy; // Assumes double hits (or single hits for 50% accuracy)
-        time += pbs_to_use as f32 * 3.0 * firing_rate; // Assume max average rate of 1 power bomb per 3 seconds
+        boss_hp -= pbs_to_use as f32 * 400.0 * accuracy;
+        time += pbs_to_use as f32 * power_bomb_time;
+    }
+
+    // Use Charge, if available:
+    if charge_damage > 0.0 {
+        let charge_shots_to_use = max(
+            0,
+            f32::ceil(boss_hp / (charge_damage * accuracy)) as Capacity,
+        );
+        boss_hp = 0.0;
+        time += charge_shots_to_use as f32 * charge_time;
     }
 
     if boss_hp > 0.0 {

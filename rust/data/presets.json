@@ -44,7 +44,7 @@
     "escape_timer_multiplier": 1.75,
     "phantoon_proficiency": 0.3,
     "draygon_proficiency": 0.3,
-    "ridley_proficiency": 0.3,
+    "ridley_proficiency": 0.15,
     "botwoon_proficiency": 0.3,
     "mother_brain_proficiency": 0.3,
     "tech": [
@@ -125,7 +125,7 @@
     "escape_timer_multiplier": 1.4,
     "phantoon_proficiency": 0.5,
     "draygon_proficiency": 0.5,
-    "ridley_proficiency": 0.5,
+    "ridley_proficiency": 0.3,
     "botwoon_proficiency": 0.5,
     "mother_brain_proficiency": 0.5,
     "tech": [
@@ -334,7 +334,7 @@
     "escape_timer_multiplier": 1.2,
     "phantoon_proficiency": 0.7,
     "draygon_proficiency": 0.7,
-    "ridley_proficiency": 0.7,
+    "ridley_proficiency": 0.5,
     "botwoon_proficiency": 0.7,
     "mother_brain_proficiency": 0.7,
     "tech": [
