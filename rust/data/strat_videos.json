@@ -1,5 +1,509 @@
 [
   {
+    "room_id": 185,
+    "strat_id": 36,
+    "video_id": 271,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 122,
+    "strat_id": 46,
+    "video_id": 280,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 58,
+    "video_id": 291,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 30,
+    "strat_id": 27,
+    "video_id": 418,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 185,
+    "strat_id": 30,
+    "video_id": 468,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 185,
+    "strat_id": 33,
+    "video_id": 469,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 185,
+    "strat_id": 35,
+    "video_id": 470,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 185,
+    "strat_id": 34,
+    "video_id": 471,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 45,
+    "video_id": 495,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 46,
+    "video_id": 496,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 47,
+    "video_id": 497,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 52,
+    "video_id": 513,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 142,
+    "strat_id": 17,
+    "video_id": 548,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 49,
+    "video_id": 558,
+    "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 149,
+    "strat_id": 10,
+    "video_id": 1008,
+    "created_user": "maddo",
+    "note": "canCeilingBombJump"
+  },
+  {
+    "room_id": 24,
+    "strat_id": 27,
+    "video_id": 1009,
+    "created_user": "maddo",
+    "note": "canDownwardGModeSetup"
+  },
+  {
+    "room_id": 34,
+    "strat_id": 47,
+    "video_id": 1010,
+    "created_user": "kyleb",
+    "note": "canSpaceJumpWaterBounce"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 60,
+    "video_id": 1011,
+    "created_user": "maddo",
+    "note": "canSunkenTileWideWallClimb"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 81,
+    "video_id": 1012,
+    "created_user": "maddo",
+    "note": "canCrossRoomJumpIntoWater"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 55,
+    "video_id": 1013,
+    "created_user": "kyleb",
+    "note": "canDisableEquipment"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 32,
+    "video_id": 1014,
+    "created_user": "maddo",
+    "note": "canPlayInSand"
+  },
+  {
+    "room_id": 42,
+    "strat_id": 41,
+    "video_id": 1015,
+    "created_user": "kyleb",
+    "note": "canDownGrab"
+  },
+  {
+    "room_id": 145,
+    "strat_id": 52,
+    "video_id": 1016,
+    "created_user": "maddo",
+    "note": "canResetFallSpeed"
+  },
+  {
+    "room_id": 209,
+    "strat_id": 20,
+    "video_id": 1018,
+    "created_user": "maddo",
+    "note": "canWallJumpInstantMorph"
+  },
+  {
+    "room_id": 42,
+    "strat_id": 23,
+    "video_id": 1019,
+    "created_user": "maddo",
+    "note": "canLateralMidAirMorph"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 112,
+    "video_id": 1024,
+    "created_user": "maddo",
+    "note": "canSpringBallBounce"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 117,
+    "video_id": 1023,
+    "created_user": "Sinth",
+    "note": "Fall onto Waver over pit"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 157,
+    "video_id": 1025,
+    "created_user": "kyleb",
+    "note": "canGravityJump"
+  },
+  {
+    "room_id": 106,
+    "strat_id": 41,
+    "video_id": 1026,
+    "created_user": "maddo",
+    "note": "canMockball"
+  },
+  {
+    "room_id": 8,
+    "strat_id": 74,
+    "video_id": 1027,
+    "created_user": "kyleb",
+    "note": "canSpringBallJumpMidAir"
+  },
+  {
+    "room_id": 78,
+    "strat_id": 20,
+    "video_id": 1028,
+    "created_user": "maddo",
+    "note": "canTwoTileSqueeze"
+  },
+  {
+    "room_id": 44,
+    "strat_id": 239,
+    "video_id": 1029,
+    "created_user": "kyleb",
+    "note": "canConsecutiveWalljump"
+  },
+  {
+    "room_id": 189,
+    "strat_id": 17,
+    "video_id": 1031,
+    "created_user": "maddo",
+    "note": "canPreciseGrapple"
+  },
+  {
+    "room_id": 121,
+    "strat_id": 18,
+    "video_id": 1032,
+    "created_user": "kyleb",
+    "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 7,
+    "video_id": 1033,
+    "created_user": "maddo",
+    "note": "canIframeSpikeJump"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 103,
+    "video_id": 1034,
+    "created_user": "maddo",
+    "note": "canTrickySpringBallJump"
+  },
+  {
+    "room_id": 8,
+    "strat_id": 75,
+    "video_id": 1036,
+    "created_user": "maddo",
+    "note": "canDelayedWalljump"
+  },
+  {
+    "room_id": 31,
+    "strat_id": 44,
+    "video_id": 1035,
+    "created_user": "kyleb",
+    "note": "canBombHorizontally"
+  },
+  {
+    "room_id": 8,
+    "strat_id": 53,
+    "video_id": 1037,
+    "created_user": "kyleb",
+    "note": "canIBJ"
+  },
+  {
+    "room_id": 145,
+    "strat_id": 17,
+    "video_id": 1038,
+    "created_user": "kyleb",
+    "note": ""
+  },
+  {
+    "room_id": 110,
+    "strat_id": 8,
+    "video_id": 1039,
+    "created_user": "kyleb",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 51,
+    "video_id": 1040,
+    "created_user": "maddo",
+    "note": "canJumpIntoIBJ"
+  },
+  {
+    "room_id": 108,
+    "strat_id": 30,
+    "video_id": 1041,
+    "created_user": "kyleb",
+    "note": "canNeutralDamageBoost"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 49,
+    "video_id": 1042,
+    "created_user": "maddo",
+    "note": "canSnailClimb"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1043,
+    "created_user": "maddo",
+    "note": "canHorizontalDamageBoost (HiJump)"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 41,
+    "video_id": 1044,
+    "created_user": "maddo",
+    "note": "canMochtroidIceClimb"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 130,
+    "video_id": 1045,
+    "created_user": "maddo",
+    "note": "HiJump and Ice"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 130,
+    "video_id": 1046,
+    "created_user": "maddo",
+    "note": "canTrickyUseFrozenEnemies (HiJump, Ice, and Super)"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1047,
+    "created_user": "maddo",
+    "note": "Waiting for water cycle"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1048,
+    "created_user": "maddo",
+    "note": "Wall jumping to get out of the water"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1049,
+    "created_user": "maddo",
+    "note": "Using crouch jump down grab to get out of the water"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1050,
+    "created_user": "maddo",
+    "note": "Waiting for water cycle, jumping from lower ledge"
+  },
+  {
+    "room_id": 28,
+    "strat_id": 5,
+    "video_id": 1051,
+    "created_user": "maddo",
+    "note": "canDodgeWhileShooting"
+  },
+  {
+    "room_id": 65,
+    "strat_id": 34,
+    "video_id": 1052,
+    "created_user": "kyleb",
+    "note": "canHorizontalShinespark"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 77,
+    "video_id": 1053,
+    "created_user": "kyleb",
+    "note": "canShinechargeMovement"
+  },
+  {
+    "room_id": 219,
+    "strat_id": 22,
+    "video_id": 1055,
+    "created_user": "kyleb",
+    "note": "canPseudoScrew"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 10,
+    "video_id": 1056,
+    "created_user": "maddo",
+    "note": "canOffScreenSuperShot"
+  },
+  {
+    "room_id": 24,
+    "strat_id": 20,
+    "video_id": 1057,
+    "created_user": "kyleb",
+    "note": "canCameraManip"
+  },
+  {
+    "room_id": 54,
+    "strat_id": 47,
+    "video_id": 1059,
+    "created_user": "maddo",
+    "note": "canGateGlitch"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 33,
+    "video_id": 1061,
+    "created_user": "maddo",
+    "note": "canHeroShot"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 111,
+    "video_id": 1062,
+    "created_user": "maddo",
+    "note": "Shooting the block, falling, and climbing back up"
+  },
+  {
+    "room_id": 90,
+    "strat_id": 32,
+    "video_id": 1063,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 184,
+    "strat_id": 16,
+    "video_id": 1064,
+    "created_user": "kyleb",
+    "note": ""
+  },
+  {
+    "room_id": 184,
+    "strat_id": 34,
+    "video_id": 1065,
+    "created_user": "kyleb",
+    "note": "Morphless"
+  },
+  {
+    "room_id": 184,
+    "strat_id": 34,
+    "video_id": 1066,
+    "created_user": "kyleb",
+    "note": "Morph turnaround"
+  },
+  {
+    "room_id": 101,
+    "strat_id": 17,
+    "video_id": 1067,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 101,
+    "strat_id": 9,
+    "video_id": 1068,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 106,
+    "video_id": 455,
+    "created_user": "NZT",
+    "note": "The fast way itemless. This method requires walljumping. "
+  },
+  {
+    "room_id": 32,
+    "strat_id": 106,
+    "video_id": 456,
+    "created_user": "NZT",
+    "note": "The Trippers only move when they are on screen. This method is a bit slower but does not require walljumping off the trippers."
+  },
+  {
+    "room_id": 61,
+    "strat_id": 10,
+    "video_id": 541,
+    "created_user": "Osse101",
+    "note": "Using spin jump stationary turnaround instead of moonwalk"
+  },
+  {
+    "room_id": 148,
+    "strat_id": 7,
+    "video_id": 988,
+    "created_user": "Sinth",
+    "note": "canHitbox"
+  },
+  {
+    "room_id": 220,
+    "strat_id": 32,
+    "video_id": 927,
+    "created_user": "maddo",
+    "note": "canStaggeredWalljump"
+  },
+  {
     "room_id": 149,
     "strat_id": 9,
     "video_id": 894,
@@ -194,13 +698,6 @@
     "video_id": 926,
     "created_user": "maddo",
     "note": "canWalljumpWithCharge"
-  },
-  {
-    "room_id": 220,
-    "strat_id": 32,
-    "video_id": 927,
-    "created_user": "maddo",
-    "note": "Staggered wall jumps"
   },
   {
     "room_id": 137,
@@ -537,13 +1034,6 @@
     "video_id": 987,
     "created_user": "maddo",
     "note": "canOffScreenMovement"
-  },
-  {
-    "room_id": 148,
-    "strat_id": 7,
-    "video_id": 988,
-    "created_user": "Sinth",
-    "note": ""
   },
   {
     "room_id": 148,
@@ -2374,20 +2864,6 @@
   },
   {
     "room_id": 32,
-    "strat_id": 106,
-    "video_id": 455,
-    "created_user": "NZT",
-    "note": "The fast way itemless. This method requires walljumping. "
-  },
-  {
-    "room_id": 32,
-    "strat_id": 106,
-    "video_id": 456,
-    "created_user": "NZT",
-    "note": "The Trippers only move when they are on screen. This method is a bit slower but does not require walljumping off the trippers."
-  },
-  {
-    "room_id": 32,
     "strat_id": 117,
     "video_id": 457,
     "created_user": "NZT",
@@ -2887,13 +3363,6 @@
     "room_id": 60,
     "strat_id": 28,
     "video_id": 540,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 61,
-    "strat_id": 10,
-    "video_id": 541,
     "created_user": "Osse101",
     "note": ""
   },
