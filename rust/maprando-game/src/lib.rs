@@ -2528,7 +2528,7 @@ impl GameData {
             (150, "f_DefeatedGoldenTorizo"),
             (122, "f_DefeatedCrocomire"),
             (57, "f_DefeatedSporeSpawn"),
-            (185, "f_DefeatedBotwoon") ,
+            (185, "f_DefeatedBotwoon"),
             (170, "f_MaridiaTubeBroken"),
             (222, "f_ShaktoolDoneDigging"),
             (149, "f_UsedAcidChozoStatue"),
