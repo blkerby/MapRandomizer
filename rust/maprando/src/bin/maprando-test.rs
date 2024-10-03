@@ -882,8 +882,8 @@ fn main() -> Result<()> {
             bail!("Unknown skills preset {fixed_preset}");
         }
     } else {
-        // Remove Beyond preset
-        presets.retain(|x| x.name != "Beyond");
+        // Remove Beyond and Ignored preset
+        presets.retain(|x| x.name != "Beyond" && x.name != "Ignored");
     }
     let etank_color_from_json: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(&etank_colors_path)?)?;

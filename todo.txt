@@ -1,7 +1,8 @@
 v114:
 - DONE: implement support for custom BGData in Dust Torizo Room
 - DONE: create github action to assign strat IDs
-- fix buggy x-ray graphics
+- LN Firefleas: add tank the damage strat from bottom to top
+- fix buggy x-ray graphics?
   - likely caused by check at $84:8328 interacting badly with new/custom PLMs (e.g. hazard markers)
 - add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
@@ -19,7 +20,8 @@ v114:
   - step 2 of http://localhost:8080/seed/Cv5jWGBD2/data/visualizer/index.html says Very Hard
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
 - override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
-- update node tiles for Glass Tunnel
+- update node tiles for Glass Tunnel, Kraid Room
+  - add checks for node tiles
 - add sprites: HisBeardNis X, Bruno, ...
 - track down sprite artists if we can:
   - Hyper: RealRed

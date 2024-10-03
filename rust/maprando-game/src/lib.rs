@@ -2253,27 +2253,6 @@ impl GameData {
             .unwrap();
     }
 
-    fn override_shaktool_room(&mut self, room_json: &mut JsonValue) {
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 3 {
-                // Adding a dummy lock on Shaktool done digging event, so that the code in `preprocess_room`
-                // can pick it up and construct a corresponding obstacle for the flag (as it expects there
-                // to be a lock).
-                node_json["locks"] = json::array![{
-                    "name": "Shaktool Lock",
-                    "lockType": "triggeredEvent",
-                    "unlockStrats": [
-                        {
-                            "name": "Base",
-                            "notable": false,
-                            "requires": [],
-                        }
-                    ]
-                }];
-            }
-        }
-    }
-
     fn override_spore_spawn_room(&mut self, room_json: &mut JsonValue) {
         // Add lock on bottom door:
         let mut found = false;
@@ -2542,24 +2521,23 @@ impl GameData {
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
         // after setting the flag on the same graph traversal step (which cannot take into account the new flag).
-        let obstacle_flag_set: HashSet<String> = vec![
-            "f_DefeatedKraid",
-            "f_DefeatedDraygon",
-            "f_DefeatedRidley",
-            "f_DefeatedGoldenTorizo",
-            "f_DefeatedCrocomire",
-            "f_DefeatedSporeSpawn",
-            "f_DefeatedBotwoon",
-            "f_MaridiaTubeBroken",
-            "f_ShaktoolDoneDigging",
-            "f_UsedAcidChozoStatue",
+        let obstacle_flag_map: HashMap<RoomId, String> = vec![
+            (84, "f_DefeatedKraid"),
+            (193, "f_DefeatedDraygon"),
+            (142, "f_DefeatedRidley"),
+            (150, "f_DefeatedGoldenTorizo"),
+            (122, "f_DefeatedCrocomire"),
+            (57, "f_DefeatedSporeSpawn"),
+            (185, "f_DefeatedBotwoon") ,
+            (170, "f_MaridiaTubeBroken"),
+            (222, "f_ShaktoolDoneDigging"),
+            (149, "f_UsedAcidChozoStatue"),
         ]
         .into_iter()
-        .map(|x| x.to_string())
+        .map(|(x, y)| (x, y.to_string()))
         .collect();
 
         match room_id {
-            222 => self.override_shaktool_room(&mut new_room_json),
             38 => self.override_morph_ball_room(&mut new_room_json),
             225 => self.override_tourian_save_room(&mut new_room_json),
             238 => self.override_mother_brain_room(&mut new_room_json),
@@ -2576,7 +2554,6 @@ impl GameData {
             _ => {}
         }
 
-        let mut obstacle_flag: Option<String> = None;
         let logical_gray_door_node_ids: Vec<(RoomId, NodeId)> = get_logical_gray_door_node_ids();
         let flagged_gray_door_node_ids: Vec<(RoomId, NodeId)> = get_flagged_gray_door_node_ids();
         let mut extra_obstacles: Vec<String> = vec![];
@@ -2640,20 +2617,6 @@ impl GameData {
                     node_json["yields"].clone()
                 };
 
-                if yields != JsonValue::Null
-                    && obstacle_flag_set.contains(yields[0].as_str().unwrap())
-                {
-                    if obstacle_flag.is_some()
-                        && obstacle_flag.as_ref().unwrap() != yields[0].as_str().unwrap()
-                    {
-                        bail!(
-                            "Multiple obstacle flags in same room: {}, {}",
-                            obstacle_flag.unwrap(),
-                            yields[0]
-                        );
-                    }
-                    obstacle_flag = Some(yields[0].as_str().unwrap().to_owned());
-                }
                 if (room_id, node_id) == (158, 2) {
                     // Override Phantoon fight requirement
                     unlock_strats = json::array![
@@ -2717,7 +2680,7 @@ impl GameData {
             new_room_json["strats"].push(strat).unwrap();
         }
 
-        if let Some(obstacle_flag) = obstacle_flag {
+        if let Some(obstacle_flag) = obstacle_flag_map.get(&room_id) {
             extra_obstacles.push(obstacle_flag.clone());
             ensure!(new_room_json["strats"].is_array());
 

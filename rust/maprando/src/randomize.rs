@@ -2603,7 +2603,7 @@ fn ensure_enough_tanks(initial_items_remaining: &mut [usize], difficulty: &Diffi
     if difficulty.ridley_proficiency < 0.3 {
         while initial_items_remaining[Item::ETank as usize]
             + initial_items_remaining[Item::ReserveTank as usize]
-            < 11
+            < 12
         {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
