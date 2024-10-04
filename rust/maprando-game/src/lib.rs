@@ -3966,7 +3966,10 @@ impl GameData {
                 }
                 for &tile in tiles {
                     if room.map[tile.1][tile.0] == 0 && room.name != "Toilet" {
-                        error!("Node tile not belonging to map: {}:{}:({}, {})", room.name, node_id, tile.0, tile.1);
+                        error!(
+                            "Node tile not belonging to map: {}:{}:({}, {})",
+                            room.name, node_id, tile.0, tile.1
+                        );
                     }
                     tile_set.insert(tile);
                 }
@@ -3980,7 +3983,10 @@ impl GameData {
             for node_json in self.room_json_map[&room_id]["nodes"].members() {
                 let node_id = node_json["id"].as_usize().unwrap();
                 if !node_set.contains(&node_id) {
-                    error!("Node ID not covered in node tiles: {}:{}", room.name, node_id);
+                    error!(
+                        "Node ID not covered in node tiles: {}:{}",
+                        room.name, node_id
+                    );
                 }
             }
 
@@ -3993,21 +3999,30 @@ impl GameData {
 
                     for &tile in tiles {
                         if room.map[tile.1][tile.0] == 0 {
-                            error!("Invalid twin node tile: {}:{}:({}, {})", room.name, node_id, tile.0, tile.1);
+                            error!(
+                                "Invalid twin node tile: {}:{}:({}, {})",
+                                room.name, node_id, tile.0, tile.1
+                            );
                         }
                         tile_set.insert(tile);
-                    }        
+                    }
                     if !self.node_json_map.contains_key(&(room_id, *node_id)) {
-                        error!("Invalid node ID in twin node tiles: {}:{}", room.name, node_id);
+                        error!(
+                            "Invalid node ID in twin node tiles: {}:{}",
+                            room.name, node_id
+                        );
                     }
                     node_set.insert(*node_id);
                 }
                 for node_json in self.room_json_map[&room_id]["nodes"].members() {
                     let node_id = node_json["id"].as_usize().unwrap();
                     if !node_set.contains(&node_id) {
-                        error!("Node ID not covered in twin node tiles: {}:{}", room.name, node_id);
+                        error!(
+                            "Node ID not covered in twin node tiles: {}:{}",
+                            room.name, node_id
+                        );
                     }
-                }    
+                }
             }
 
             for y in 0..room.map.len() {
