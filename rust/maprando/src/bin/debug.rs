@@ -157,7 +157,7 @@ fn run_scenario(
 
     let new_local_state_opt = apply_requirement(
         &Requirement::DraygonFight {
-            can_be_very_patient_tech_id: game_data.tech_isv.index_by_key["canBeVeryPatient"],
+            can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key["canBeVeryPatient"],
         },
         &global_state,
         local_state,

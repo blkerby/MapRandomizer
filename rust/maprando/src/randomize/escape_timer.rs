@@ -1,6 +1,13 @@
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use hashbrown::HashSet;
+use maprando_game::TechId;
+use maprando_game::TECH_ID_CAN_HERO_SHOT;
+use maprando_game::TECH_ID_CAN_HYPER_GATE_SHOT;
+use maprando_game::TECH_ID_CAN_KAGO;
+use maprando_game::TECH_ID_CAN_MOONFALL;
+use maprando_game::TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT;
+use maprando_game::TECH_ID_CAN_SUITLESS_LAVA_DIVE;
 use pathfinding;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
@@ -69,19 +76,19 @@ fn parse_in_game_time(raw_time: f32) -> usize {
 fn is_requirement_satisfied(
     req: EscapeConditionRequirement,
     config: &DifficultyConfig,
-    tech_map: &HashMap<String, bool>,
+    tech_map: &HashMap<TechId, bool>,
 ) -> bool {
     match req {
         EscapeConditionRequirement::EnemiesCleared => config.escape_enemies_cleared,
         EscapeConditionRequirement::CanUsePowerBombs => {
             config.mother_brain_fight == MotherBrainFight::Skip
         }
-        EscapeConditionRequirement::CanAcidDive => tech_map["canSuitlessLavaDive"],
-        EscapeConditionRequirement::CanKago => tech_map["canKago"],
-        EscapeConditionRequirement::CanMoonfall => tech_map["canMoonfall"],
-        EscapeConditionRequirement::CanOffCameraShot => tech_map["canOffScreenSuperShot"],
-        EscapeConditionRequirement::CanReverseGate => tech_map["canHyperGateShot"],
-        EscapeConditionRequirement::CanHeroShot => tech_map["canHeroShot"],
+        EscapeConditionRequirement::CanAcidDive => tech_map[&TECH_ID_CAN_SUITLESS_LAVA_DIVE],
+        EscapeConditionRequirement::CanKago => tech_map[&TECH_ID_CAN_KAGO],
+        EscapeConditionRequirement::CanMoonfall => tech_map[&TECH_ID_CAN_MOONFALL],
+        EscapeConditionRequirement::CanOffCameraShot => tech_map[&TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT],
+        EscapeConditionRequirement::CanReverseGate => tech_map[&TECH_ID_CAN_HYPER_GATE_SHOT],
+        EscapeConditionRequirement::CanHeroShot => tech_map[&TECH_ID_CAN_HERO_SHOT],
     }
 }
 
@@ -95,8 +102,8 @@ pub fn get_base_room_door_graph(
     let mut animals_vertex_id = VertexId::MAX;
     let mut mother_brain_vertex_id = VertexId::MAX;
 
-    let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
-    let tech_map: HashMap<String, bool> = game_data
+    let tech_set: HashSet<TechId> = difficulty.tech.iter().cloned().collect();
+    let tech_map: HashMap<TechId, bool> = game_data
         .tech_isv
         .keys
         .iter()

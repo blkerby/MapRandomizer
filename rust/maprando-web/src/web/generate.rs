@@ -2,7 +2,7 @@ use crate::web::{AppData, PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
 use actix_web::{get, web, HttpResponse, Responder};
 use askama::Template;
 use hashbrown::{HashMap, HashSet};
-use maprando_game::{NotableId, RoomId};
+use maprando_game::{NotableId, RoomId, TechId};
 
 #[derive(Template)]
 #[template(path = "generate/main.html")]
@@ -17,8 +17,9 @@ struct GenerateTemplate<'a> {
     starting_items_multiple: Vec<String>,
     starting_items_single: Vec<String>,
     prioritizable_items: Vec<String>,
-    tech_description: &'a HashMap<String, String>,
-    tech_dependencies: &'a HashMap<String, Vec<String>>,
+    tech_names: &'a HashMap<TechId, String>,
+    tech_description: &'a HashMap<TechId, String>,
+    tech_dependencies: &'a HashMap<TechId, Vec<TechId>>,
     tech_gif_listing: &'a HashSet<String>,
     notable_description: &'a HashMap<(RoomId, NotableId), String>,
     ignored_notables: &'a HashSet<(RoomId, NotableId)>,
@@ -126,6 +127,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
             .collect(),
         prioritizable_items,
         preset_data: &app_data.preset_data,
+        tech_names: &app_data.game_data.tech_names,
         tech_description: &app_data.game_data.tech_description,
         tech_dependencies: &app_data.game_data.tech_dependencies,
         tech_gif_listing: &app_data.tech_gif_listing,

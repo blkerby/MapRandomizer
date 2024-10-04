@@ -18,6 +18,38 @@ use std::path::{Path, PathBuf};
 use strum::VariantNames;
 use strum_macros::{EnumString, EnumVariantNames};
 
+pub const TECH_ID_CAN_WALLJUMP: TechId = 76;
+pub const TECH_ID_CAN_HEAT_RUN: TechId = 6;
+pub const TECH_ID_CAN_SPEEDBALL: TechId = 42;
+pub const TECH_ID_CAN_MOCKBALL: TechId = 41;
+pub const TECH_ID_CAN_MANAGE_RESERVES: TechId = 18;
+pub const TECH_ID_CAN_PAUSE_ABUSE: TechId = 19;
+pub const TECH_ID_CAN_SHINESPARK: TechId = 132;
+pub const TECH_ID_CAN_BE_VERY_PATIENT: TechId = 2;
+pub const TECH_ID_CAN_SKIP_DOOR_LOCK: TechId = 184;
+pub const TECH_ID_CAN_DISABLE_EQUIPMENT: TechId = 12;
+pub const TECH_ID_CAN_SPRING_BALL_BOUNCE: TechId = 38;
+pub const TECH_ID_CAN_STUTTER_WATER_SHINECHARGE: TechId = 151;
+pub const TECH_ID_CAN_TEMPORARY_BLUE: TechId = 146;
+pub const TECH_ID_CAN_STATIONARY_SPIN_JUMP: TechId = 63;
+pub const TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK: TechId = 157;
+pub const TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER: TechId = 158;
+pub const TECH_ID_CAN_ENTER_R_MODE: TechId = 161;
+pub const TECH_ID_CAN_ENTER_G_MODE: TechId = 162;
+pub const TECH_ID_CAN_ENTER_G_MODE_IMMOBILE: TechId = 163;
+pub const TECH_ID_CAN_ARTIFICIAL_MORPH: TechId = 164;
+pub const TECH_ID_CAN_MOONFALL: TechId = 25;
+pub const TECH_ID_CAN_GRAPPLE_TELEPORT: TechId = 55;
+pub const TECH_ID_CAN_KAGO: TechId = 107;
+pub const TECH_ID_CAN_SUITLESS_LAVA_DIVE: TechId = 5;
+pub const TECH_ID_CAN_HERO_SHOT: TechId = 130;
+pub const TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT: TechId = 126;
+pub const TECH_ID_CAN_BOMB_HORIZONTALLY: TechId = 87;
+pub const TECH_ID_CAN_MOONDANCE: TechId = 26;
+pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
+pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = -1;
+pub const TECH_ID_CAN_ESCAPE_MORPH_LOCATION: TechId = -2;
+
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Map {
     pub rooms: Vec<(usize, usize)>, // (x, y) of upper-left corner of room on map
@@ -30,7 +62,8 @@ pub struct Map {
     pub subarea: Vec<usize>, // Subarea number: 0 or 1
 }
 
-pub type TechId = usize; // Index into GameData.tech_isv.keys: distinct tech names from sm-json-data
+pub type TechId = i32; // Tech ID from sm-json-data
+pub type TechIdx = usize; // Index into GameData.tech_isv.keys: distinct tech names from sm-json-data
 pub type NotableIdx = usize; // Index into GameData.notable_strats_isv.keys: distinct pairs (room_id, notable_id) from sm-json-data
 pub type ItemId = usize; // Index into GameData.item_isv.keys: 21 distinct item names
 pub type ItemIdx = usize; // Index into the game's item bit array (in RAM at 7E:D870)
@@ -148,7 +181,7 @@ pub enum DoorType {
 pub enum Requirement {
     Free,
     Never,
-    Tech(TechId),
+    Tech(TechIdx),
     Notable(NotableIdx),
     Item(ItemId),
     Flag(FlagId),
@@ -169,7 +202,7 @@ pub enum Requirement {
     },
     ShineChargeFrames(Capacity),
     Shinespark {
-        shinespark_tech_id: usize,
+        shinespark_tech_idx: usize,
         frames: Capacity,
         excess_frames: Capacity,
     },
@@ -227,10 +260,10 @@ pub enum Requirement {
     },
     PhantoonFight {},
     DraygonFight {
-        can_be_very_patient_tech_id: usize,
+        can_be_very_patient_tech_idx: usize,
     },
     RidleyFight {
-        can_be_very_patient_tech_id: usize,
+        can_be_very_patient_tech_idx: usize,
     },
     BotwoonFight {
         second_phase: bool,
@@ -1029,7 +1062,7 @@ pub struct StratVideo {
 #[derive(Default)]
 pub struct GameData {
     sm_json_data_path: PathBuf,
-    pub tech_isv: IndexedVec<String>,
+    pub tech_isv: IndexedVec<TechId>,
     pub notable_isv: IndexedVec<(RoomId, NotableId)>,
     pub notable_data: Vec<NotableData>,
     pub flag_isv: IndexedVec<String>,
@@ -1040,9 +1073,11 @@ pub struct GameData {
     enemy_json: HashMap<String, JsonValue>,
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
-    tech_json_map: HashMap<String, JsonValue>,
+    pub tech_json_map: HashMap<TechId, JsonValue>,
+    pub tech_names: HashMap<TechId, String>,
+    pub tech_id_by_name: HashMap<String, TechId>,
     pub helper_json_map: HashMap<String, JsonValue>,
-    tech: HashMap<(String, bool), Option<Requirement>>,
+    tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
@@ -1081,16 +1116,16 @@ pub struct GameData {
     pub room_shape: HashMap<RoomId, (usize, usize)>,
     pub area_names: Vec<String>,
     pub area_map_ptrs: Vec<isize>,
-    pub tech_description: HashMap<String, String>,
-    pub tech_dependencies: HashMap<String, Vec<String>>,
+    pub tech_description: HashMap<TechId, String>,
+    pub tech_dependencies: HashMap<TechId, Vec<TechId>>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub hub_locations: Vec<HubLocation>,
-    pub heat_run_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
-    pub speed_ball_tech_id: TechId, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
-    pub wall_jump_tech_id: TechId,
-    pub manage_reserves_tech_id: TechId,
-    pub pause_abuse_tech_id: TechId,
+    pub heat_run_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub speed_ball_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
+    pub wall_jump_tech_idx: TechIdx,
+    pub manage_reserves_tech_idx: TechIdx,
+    pub pause_abuse_tech_idx: TechIdx,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
     pub reduced_flashing_patch: GlowPatch,
@@ -1142,6 +1177,7 @@ impl GameData {
         let mut full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
         ensure!(full_tech_json["techCategories"].is_array());
         full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Shots").unwrap()["techs"].push(json::object!{
+            "id": -1,
             "name": "canHyperGateShot",
             "techRequires": [],
             "otherRequires": [],
@@ -1152,6 +1188,7 @@ impl GameData {
             ]
         })?;
         full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Movement").unwrap()["techs"].push(json::object!{
+            "id": -2,
             "name": "canEscapeMorphLocation",
             "techRequires": [],
             "otherRequires": [],
@@ -1164,12 +1201,12 @@ impl GameData {
                 self.load_tech_rec(tech_json)?;
             }
         }
-        self.heat_run_tech_id = *self.tech_isv.index_by_key.get("canHeatRun").unwrap();
-        self.speed_ball_tech_id = *self.tech_isv.index_by_key.get("canSpeedball").unwrap();
-        self.wall_jump_tech_id = *self.tech_isv.index_by_key.get("canWalljump").unwrap();
-        self.manage_reserves_tech_id =
-            *self.tech_isv.index_by_key.get("canManageReserves").unwrap();
-        self.pause_abuse_tech_id = *self.tech_isv.index_by_key.get("canPauseAbuse").unwrap();
+        self.heat_run_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_HEAT_RUN).unwrap();
+        self.speed_ball_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_SPEEDBALL).unwrap();
+        self.wall_jump_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_WALLJUMP).unwrap();
+        self.manage_reserves_tech_idx =
+            *self.tech_isv.index_by_key.get(&TECH_ID_CAN_MANAGE_RESERVES).unwrap();
+        self.pause_abuse_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_PAUSE_ABUSE).unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
         Ok(())
     }
@@ -1201,10 +1238,12 @@ impl GameData {
     }
 
     fn load_tech_rec(&mut self, tech_json: &JsonValue) -> Result<()> {
-        let name = tech_json["name"]
-            .as_str()
-            .context("Missing 'name' in tech")?;
-        self.tech_isv.add(name);
+        if tech_json["id"].as_i64().is_none() {
+            error!("Tech {} missing ID", tech_json["name"]);
+            return Ok(());
+        }
+        let id = tech_json["id"].as_i64().unwrap() as TechId;
+        self.tech_isv.add(&id);
 
         let desc = if tech_json["note"].is_string() {
             tech_json["note"].as_str().unwrap().to_string()
@@ -1218,9 +1257,12 @@ impl GameData {
             String::new()
         };
 
-        self.tech_description.insert(name.to_string(), desc);
+        self.tech_description.insert(id, desc);
         self.tech_json_map
-            .insert(name.to_string(), tech_json.clone());
+            .insert(id, tech_json.clone());
+        let tech_name = tech_json["name"].as_str().unwrap().to_string();
+        self.tech_names.insert(id, tech_name.clone());
+        self.tech_id_by_name.insert(tech_name.clone(), id);
         if tech_json.has_key("extensionTechs") {
             ensure!(tech_json["extensionTechs"].is_array());
             for ext_tech in tech_json["extensionTechs"].members() {
@@ -1230,13 +1272,13 @@ impl GameData {
         Ok(())
     }
 
-    fn extract_tech_dependencies(&self, req: &Requirement) -> HashSet<String> {
+    fn extract_tech_dependencies(&self, req: &Requirement) -> HashSet<TechId> {
         match req {
-            Requirement::Tech(tech_id) => vec![self.tech_isv.keys[*tech_id].clone()]
+            Requirement::Tech(tech_idx) => vec![self.tech_isv.keys[*tech_idx]]
                 .into_iter()
                 .collect(),
             Requirement::And(sub_reqs) => {
-                let mut out: HashSet<String> = HashSet::new();
+                let mut out: HashSet<TechId> = HashSet::new();
                 for r in sub_reqs {
                     out.extend(self.extract_tech_dependencies(r));
                 }
@@ -1251,31 +1293,32 @@ impl GameData {
         tech_name: &str,
         include_other_requires: bool,
     ) -> Result<Requirement> {
+        let tech_id = self.tech_id_by_name[tech_name];
         if let Some(req_opt) = self
-            .tech
-            .get(&(tech_name.to_string(), include_other_requires))
+            .tech_requirement
+            .get(&(tech_id, include_other_requires))
         {
             if let Some(req) = req_opt {
                 return Ok(req.clone());
             } else {
-                bail!("Circular dependence in tech: {}", tech_name);
+                bail!("Circular dependence in tech: {} ({})", tech_name, tech_id);
             }
         }
 
         // Temporarily insert a None value to act as a sentinel for detecting circular dependencies:
-        self.tech
-            .insert((tech_name.to_string(), include_other_requires), None);
+        self.tech_requirement
+            .insert((tech_id, include_other_requires), None);
 
         let tech_json = &self
             .tech_json_map
-            .get(tech_name)
-            .context(format!("Tech not found: '{}'", tech_name))?
+            .get(&tech_id)
+            .context(format!("Tech not found: {} ({})", tech_name, tech_id))?
             .clone();
 
-        let mut reqs: Vec<Requirement> = vec![if tech_name == "canWalljump" {
+        let mut reqs: Vec<Requirement> = vec![if tech_id == TECH_ID_CAN_WALLJUMP {
             Requirement::Walljump
         } else {
-            Requirement::Tech(self.tech_isv.index_by_key[tech_name])
+            Requirement::Tech(self.tech_isv.index_by_key[&tech_id])
         }];
         let ctx = RequirementContext::default();
         ensure!(tech_json["techRequires"].is_array());
@@ -1301,8 +1344,8 @@ impl GameData {
         }
         let combined_req = Requirement::make_and(reqs);
         *self
-            .tech
-            .get_mut(&(tech_name.to_string(), include_other_requires))
+            .tech_requirement
+            .get_mut(&(tech_id, include_other_requires))
             .unwrap() = Some(combined_req.clone());
         Ok(combined_req)
     }
@@ -1679,7 +1722,7 @@ impl GameData {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
                 return Ok(Requirement::Flag(flag_id as FlagId));
-            } else if self.tech_json_map.contains_key(value) {
+            } else if self.tech_id_by_name.contains_key(value) {
                 return self.get_tech_requirement(value, true);
             } else if self.helper_json_map.contains_key(value) {
                 return self.get_helper(value);
@@ -1839,7 +1882,7 @@ impl GameData {
                     as Capacity;
                 let excess_frames = value["excessFrames"].as_i32().unwrap_or(0) as Capacity;
                 return Ok(Requirement::Shinespark {
-                    shinespark_tech_id: self.tech_isv.index_by_key["canShinespark"],
+                    shinespark_tech_idx: self.tech_isv.index_by_key[&TECH_ID_CAN_SHINESPARK],
                     frames,
                     excess_frames,
                 });
@@ -1981,11 +2024,11 @@ impl GameData {
                     return Ok(Requirement::PhantoonFight {});
                 } else if enemy_set.contains("Draygon") {
                     return Ok(Requirement::DraygonFight {
-                        can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
+                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
                     });
                 } else if enemy_set.contains("Ridley") {
                     return Ok(Requirement::RidleyFight {
-                        can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
+                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
                     });
                 } else if enemy_set.contains("Botwoon 1") {
                     return Ok(Requirement::BotwoonFight {
@@ -2002,7 +2045,7 @@ impl GameData {
                     let r_mode =
                         (ctx.from_obstacles_bitmask & 1) == 1 && ctx.strat_name.contains("R-Mode");
                     return Ok(Requirement::MotherBrain2Fight {
-                        can_be_very_patient_tech_id: self.tech_isv.index_by_key["canBeVeryPatient"],
+                        can_be_very_patient_tech_id: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
                         r_mode,
                     });
                 }
@@ -3315,7 +3358,7 @@ impl GameData {
             let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
             if bypasses_door_shell {
                 requires_vec.push(Requirement::Tech(
-                    self.tech_isv.index_by_key["canSkipDoorLock"],
+                    self.tech_isv.index_by_key[&TECH_ID_CAN_SKIP_DOOR_LOCK],
                 ));
             }
 
@@ -4039,14 +4082,15 @@ impl GameData {
 
     fn extract_all_tech_dependencies(&mut self) -> Result<()> {
         let tech_vec = self.tech_isv.keys.clone();
-        for tech in &tech_vec {
-            let req = self.get_tech_requirement(tech, false)?;
-            let deps: Vec<String> = self
+        for tech_id in &tech_vec {
+            let tech_name = self.tech_json_map[tech_id]["name"].as_str().unwrap().to_string();
+            let req = self.get_tech_requirement(&tech_name, false)?;
+            let deps: Vec<TechId> = self
                 .extract_tech_dependencies(&req)
                 .into_iter()
-                .filter(|x| x != tech)
+                .filter(|x| x != tech_id)
                 .collect();
-            self.tech_dependencies.insert(tech.clone(), deps);
+            self.tech_dependencies.insert(tech_id.clone(), deps);
         }
         Ok(())
     }

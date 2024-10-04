@@ -10,11 +10,7 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
-    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
-    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
-    MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx,
-    RoomId, SparkPosition, StartLocation, TemporaryBlueDirection, VertexId, VertexKey,
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -223,7 +219,7 @@ pub struct ItemPriorityGroup {
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {
     pub name: Option<String>,
-    pub tech: Vec<String>,
+    pub tech: Vec<TechId>,
     pub notables: Vec<(RoomId, NotableId)>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
@@ -861,7 +857,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 if speed_booster == Some(false) {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canDisableEquipment"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
                     ));
                 }
                 if *physics != Some(Physics::Air) {
@@ -919,7 +915,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 if speed_booster == Some(false) {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canDisableEquipment"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
                     ));
                 }
                 Some(Requirement::make_and(reqs))
@@ -1171,7 +1167,7 @@ impl<'a> Preprocessor<'a> {
                 }
 
                 let mut reqs: Vec<Requirement> = vec![Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpeedball"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL],
                 )];
                 let combined_runway_length = effective_length + runway_length;
                 reqs.push(Requirement::SpeedBall {
@@ -1391,7 +1387,7 @@ impl<'a> Preprocessor<'a> {
                     return None;
                 }
                 Some(Requirement::make_and(vec![
-                    Requirement::Tech(self.game_data.tech_isv.index_by_key["canMockball"]),
+                    Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL]),
                     Requirement::Item(Item::Morph as ItemId),
                 ]))
             }
@@ -1419,7 +1415,7 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canMockball"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                 ));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 Some(Requirement::make_and(reqs))
@@ -1462,10 +1458,10 @@ impl<'a> Preprocessor<'a> {
                 }
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canMockball"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                 ));
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
@@ -1501,11 +1497,11 @@ impl<'a> Preprocessor<'a> {
                     || exit_movement_type == BounceMovementType::Controlled
                 {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canMockball"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                     ));
                 }
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
@@ -1535,11 +1531,11 @@ impl<'a> Preprocessor<'a> {
                 }
                 if exit_movement_type == BounceMovementType::Controlled {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canMockball"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                     ));
                 }
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
@@ -1592,10 +1588,10 @@ impl<'a> Preprocessor<'a> {
                 }
 
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canMockball"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                 ));
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
                 reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
@@ -1643,11 +1639,11 @@ impl<'a> Preprocessor<'a> {
                     || entrance_movement_type == BounceMovementType::Controlled
                 {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canMockball"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                     ));
                 }
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
                 reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
@@ -1689,11 +1685,11 @@ impl<'a> Preprocessor<'a> {
                 }
                 if entrance_movement_type == BounceMovementType::Controlled {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canMockball"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                     ));
                 }
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canSpringBallBounce"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
                 reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
@@ -1801,7 +1797,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canStutterWaterShineCharge"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
                 ));
                 reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
                 if *heated {
@@ -1883,7 +1879,7 @@ impl<'a> Preprocessor<'a> {
                 }
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canTemporaryBlue"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
                 ));
                 Some(Requirement::make_and(reqs))
             }
@@ -1896,7 +1892,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canTemporaryBlue"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
                 ));
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
                 if *physics != Some(Physics::Air) {
@@ -1979,18 +1975,18 @@ impl<'a> Preprocessor<'a> {
                 }
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canStationarySpinJump"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_STATIONARY_SPIN_JUMP],
                 ));
                 if door_orientation == DoorOrientation::Right {
                     reqs.push(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key["canRightSideDoorStuck"],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK],
                     ));
                     if *physics != Some(Physics::Air) {
                         reqs.push(Requirement::Or(vec![
                             Requirement::Item(Item::Gravity as ItemId),
                             Requirement::Tech(
                                 self.game_data.tech_isv.index_by_key
-                                    ["canRightSideDoorStuckFromWater"],
+                                    [&TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER],
                             ),
                         ]));
                     }
@@ -2019,7 +2015,7 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveWithGModeSetup { .. } => {
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canEnterRMode"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
                 ));
                 reqs.push(Requirement::Item(Item::XRayScope as ItemId));
                 reqs.push(Requirement::ReserveTrigger {
@@ -2068,12 +2064,12 @@ impl<'a> Preprocessor<'a> {
                 }
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canEnterGMode"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE],
                 ));
                 if entrance_morphed {
                     reqs.push(Requirement::Or(vec![
                         Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key["canArtificialMorph"],
+                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ARTIFICIAL_MORPH],
                         ),
                         Requirement::Item(Item::Morph as ItemId),
                     ]));
@@ -2093,7 +2089,7 @@ impl<'a> Preprocessor<'a> {
                     for (regain_mobility_link, _) in regain_mobility_vec {
                         immobile_req_or_vec.push(Requirement::make_and(vec![
                             Requirement::Tech(
-                                self.game_data.tech_isv.index_by_key["canEnterGModeImmobile"],
+                                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE_IMMOBILE],
                             ),
                             Requirement::ReserveTrigger {
                                 min_reserve_energy: 1,
@@ -2148,7 +2144,7 @@ impl<'a> Preprocessor<'a> {
                     return None;
                 }
                 return Some(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key["canMoonfall"],
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOONFALL],
                 ));
             }
             _ => None,
@@ -2207,7 +2203,7 @@ impl<'a> Preprocessor<'a> {
                 {
                     Some(Requirement::make_and(vec![
                         Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key["canGrappleTeleport"],
+                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT],
                         ),
                         Requirement::Item(self.game_data.item_isv.index_by_key["Grapple"]),
                     ]))
@@ -2578,7 +2574,7 @@ pub fn filter_links(
 }
 
 fn get_tech_vec(game_data: &GameData, difficulty: &DifficultyConfig) -> Vec<bool> {
-    let tech_set: HashSet<String> = difficulty.tech.iter().map(|x| x.clone()).collect();
+    let tech_set: HashSet<TechId> = difficulty.tech.iter().map(|x| x.clone()).collect();
     game_data
         .tech_isv
         .keys

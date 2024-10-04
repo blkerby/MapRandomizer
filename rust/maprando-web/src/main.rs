@@ -16,10 +16,10 @@ use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::{NotableSetting, Preset},
+    preset::{NotableSetting, Preset, TechSetting},
     seed_repository::SeedRepository,
 };
-use maprando_game::{GameData, NotableId, RoomId};
+use maprando_game::{GameData, NotableId, RoomId, TechId};
 use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed};
 
@@ -29,50 +29,17 @@ const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
 fn init_presets(
     presets: Vec<Preset>,
     game_data: &GameData,
-    implicit_tech: &HashSet<String>,
 ) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
-    let mut cumulative_tech: HashSet<String> = HashSet::new();
+    let mut cumulative_tech: HashSet<TechId> = HashSet::new();
     let mut cumulative_strats: HashSet<(RoomId, NotableId)> = HashSet::new();
-
-    // Tech which is currently not used by any strat in logic, so we avoid showing on the website:
-    let ignored_tech: HashSet<String> = [
-        "canSpikeSuit", // not ready to be used until flash suit logic is more complete.
-        "canTrickyCarryFlashSuit", // not ready to be used until flash suit logic is more complete.
-        "canElevatorCrystalFlash", // not ready to be used until flash suit logic is more complete.
-        "canRiskPermanentLossOfAccess", // would be logically unsound to enable, with the current randomizer implementation
-        "canEscapeMorphLocation",       // Special internal tech for "vanilla map" option
-    ]
-    .iter()
-    .map(|x| x.to_string())
-    .collect();
-    for tech in &ignored_tech {
-        if !game_data.tech_isv.index_by_key.contains_key(tech) {
-            panic!("Unrecognized ignored tech \"{tech}\"");
-        }
-    }
-    for tech in implicit_tech {
-        if !game_data.tech_isv.index_by_key.contains_key(tech) {
-            panic!("Unrecognized implicit tech \"{tech}\"");
-        }
-        if ignored_tech.contains(tech) {
-            panic!("Tech is both ignored and implicit: \"{tech}\"");
-        }
-    }
-
-    let visible_tech: Vec<String> = game_data
-        .tech_isv
-        .keys
-        .iter()
-        .filter(|&x| !ignored_tech.contains(x) && !implicit_tech.contains(x))
-        .cloned()
-        .collect();
-    let visible_tech_set: HashSet<String> = visible_tech.iter().cloned().collect();
-
-    cumulative_tech.extend(implicit_tech.iter().cloned());
-
+    let mut tech_setting_map: HashMap<TechId, TechSetting> = HashMap::new();
     let mut notable_setting_map: HashMap<(RoomId, NotableId), NotableSetting> = HashMap::new();
+
     for preset in &presets {
+        for tech_setting in &preset.tech {
+            tech_setting_map.insert(tech_setting.tech_id, tech_setting.clone());
+        }
         for notable_setting in &preset.notables {
             notable_setting_map.insert(
                 (notable_setting.room_id, notable_setting.notable_id),
@@ -82,24 +49,36 @@ fn init_presets(
     }
 
     for preset in presets {
-        for tech in &preset.tech {
-            if cumulative_tech.contains(tech) {
-                panic!("Tech \"{tech}\" appears in presets more than once.");
+        for tech_setting in &preset.tech {
+            let tech_id = tech_setting.tech_id;
+            let tech_name = &tech_setting.name;
+            if cumulative_tech.contains(&tech_id) {
+                panic!("Tech {tech_name} ({tech_id}) appears in presets more than once.");
             }
-            if !visible_tech_set.contains(tech) {
+            if !game_data.tech_isv.index_by_key.contains_key(&tech_id) {
                 panic!(
-                    "Unrecognized tech \"{tech}\" appears in preset {}",
+                    "Unrecognized tech {tech_name} ({tech_id}) appears in preset {}",
                     preset.name
                 );
             }
-            cumulative_tech.insert(tech.clone());
+            cumulative_tech.insert(tech_id);
         }
-        let mut tech_setting: Vec<(String, bool)> = Vec::new();
-        for tech in implicit_tech {
-            tech_setting.push((tech.clone(), true));
-        }
-        for tech in &visible_tech {
-            tech_setting.push((tech.clone(), cumulative_tech.contains(tech)));
+        let mut tech_setting_vec: Vec<(TechSetting, bool)> = Vec::new();
+        for tech_idx in 0..game_data.tech_isv.keys.len() {
+            let tech_id = game_data.tech_isv.keys[tech_idx];
+            if let Some(tech_setting) = tech_setting_map.get(&tech_id) {
+                tech_setting_vec.push((
+                    tech_setting.clone(),
+                    cumulative_tech.contains(&tech_id),
+                ));
+            } else {
+                let tech_name = game_data.tech_json_map[&tech_id]["name"].as_str().unwrap();
+                panic!(
+                    "Tech not found in any preset: {} ({})",
+                    tech_name, tech_id,
+                );
+            }
+
         }
 
         for notable_setting in &preset.notables {
@@ -133,18 +112,17 @@ fn init_presets(
 
         out.push(PresetData {
             preset: preset,
-            tech_setting: tech_setting,
-            implicit_tech: implicit_tech.clone(),
+            tech_setting: tech_setting_vec,
             notable_setting: notable_setting_vec,
         });
     }
-    for tech in &visible_tech_set {
-        if !cumulative_tech.contains(tech) {
-            panic!("Tech \"{tech}\" not found in any preset.");
+    for &tech_id in &game_data.tech_isv.keys {
+        if !cumulative_tech.contains(&tech_id) {
+            let tech_name = game_data.tech_json_map[&tech_id]["name"].as_str().unwrap();
+            panic!("Tech {tech_name} ({tech_id}) not found in any preset.");
         }
     }
 
-    //
     let visible_notable_strats: HashSet<(RoomId, NotableId)> =
         game_data.notable_isv.keys.iter().cloned().collect();
     if !cumulative_strats.is_subset(&visible_notable_strats) {
@@ -195,22 +173,6 @@ fn list_tech_gif_files() -> HashSet<String> {
         files.insert(name);
     }
     files
-}
-
-fn get_implicit_tech() -> HashSet<String> {
-    [
-        "canSpecialBeamAttack",
-        "canTrivialMidAirMorph",
-        "canTurnaroundSpinJump",
-        "canStopOnADime",
-        "canUseGrapple",
-        "canEscapeEnemyGrab",
-        "canDownBack",
-        "canTrivialUseFrozenEnemies",
-    ]
-    .into_iter()
-    .map(|x| x.to_string())
-    .collect()
 }
 
 fn build_app_data() -> AppData {
@@ -265,8 +227,7 @@ fn build_app_data() -> AppData {
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let etank_colors: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(&etank_colors_path).unwrap()).unwrap();
-    let implicit_tech = get_implicit_tech();
-    let preset_data = init_presets(presets, &game_data, &implicit_tech);
+    let preset_data = init_presets(presets, &game_data);
     let version_info = VersionInfo {
         version: VERSION,
         dev: args.dev,
@@ -283,7 +244,6 @@ fn build_app_data() -> AppData {
     let app_data = AppData {
         game_data,
         preset_data,
-        implicit_tech,
         map_repositories: vec![
             (
                 "Vanilla".to_string(),

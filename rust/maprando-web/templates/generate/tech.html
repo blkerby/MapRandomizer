@@ -32,18 +32,20 @@
         <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse my-0 p-0">
             <div class="card">
                 <div class="card-body my-0 p-0">
-                    {% for tech in p.preset.tech %}
+                    {% for tech_setting in p.preset.tech %}
+                        {% let tech_id = tech_setting.tech_id %}
+                        {% let tech_name = tech_setting.name %}
                         {% if loop.index0 > 0 %}
                             <hr class="m-0">
                         {% endif %}
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2 my-0">
-                                {% if tech_gif_listing.contains(format!("{}.png", tech)) %}
+                                {% if tech_gif_listing.contains(format!("{}.png", tech_name)) %}
                                 {% let hq_video_url_root = hq_video_url_root %}
-                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, tech) %}
+                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, tech_name) %}
                                 <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
-                                <img class="png-tech" loading="lazy" src="/static/tech_gifs/{{+ tech }}.png" style="width:128px;height:128px;">
-                                <img class="gif-tech" loading="lazy" src="/static/tech_gifs/{{+ tech }}.gif" style="width:128px;height:128px;">
+                                <img class="png-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.png" style="width:128px;height:128px;">
+                                <img class="gif-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.gif" style="width:128px;height:128px;">
                                 </a>
                                 {% endif %}
                             </div>
@@ -51,26 +53,26 @@
                                 <div class="container mx-0 my-0">
                                     <div class="row">
                                         <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-0">
-                                            <label for="{{+ tech }}"><b>{{+ tech }}</b></label>
+                                            <b>{{ tech_name }}</b>
                                         </div>
                                         <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
-                                            <input type="radio" class="btn-check" name="tech-{{+ tech }}" id="tech-{{+ tech }}-No" value="false" checked=true>
-                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-{{+ tech }}-No">No</label>
-                                            <input type="radio" class="btn-check tech-input tier-input-{{+ name_no_space }}" name="tech-{{+ tech }}" id="tech-{{+ tech }}-Yes" value="true">
-                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-{{+ tech }}-Yes">Yes</label>
+                                            <input type="radio" class="btn-check" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-{{ tech_id }}-No">No</label>
+                                            <input type="radio" class="btn-check tech-input tier-input-{{ name_no_space }}" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-Yes" value="true">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="tech-{{ tech_id }}-Yes">Yes</label>
                                         </div>
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12 my-1">
-                                            {{+ tech_description[tech] }}
+                                            {{+ tech_description[tech_id] }}
                                         </div>
                                     </div>
-                                    {% if tech_dependencies[tech].len() > 0usize|as_ref %}
-                                    <p><i>Dependencies: {{+ tech_dependencies[tech].join(", ") }} </i></p>
+                                    {% if tech_dependencies[tech_id].len() > 0usize|as_ref %}
+                                    <p><i>Dependencies: {{+ tech_dependencies[tech_id].join(", ") }} </i></p>
                                     {% endif %}
-                                    {% if tech_strat_counts[tech] > 0usize|as_ref %}
-                                        <p class="mt-3"><a href="/logic/tech/{{+ tech }}" onclick="setPreset('{{+ preset_idx }}');">
-                                        {{+ tech_strat_counts[tech] +}} strat(s)</a></p>
+                                    {% if tech_strat_counts[tech_id] > 0usize|as_ref %}
+                                        <p class="mt-3"><a href="/logic/tech/{{+ tech_name }}" onclick="setPreset('{{+ preset_idx }}');">
+                                        {{+ tech_strat_counts[tech_id] +}} strat(s)</a></p>
                                     {% endif %}
                                 </div>
                             </div>

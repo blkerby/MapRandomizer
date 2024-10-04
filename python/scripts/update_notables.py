@@ -8,6 +8,28 @@ sm_json_path = pathlib.Path("/home/kerby/MapRandomizer/sm-json-data")
 output_path = presets_path
 videos_url = "https://videos.maprando.com"
 
+area_order = [
+    "Central Crateria",
+    "West Crateria",
+    "East Crateria",
+    "Blue Brinstar",
+    "Green Brinstar",
+    "Pink Brinstar",
+    "Red Brinstar",
+    "Kraid Brinstar",
+    "East Upper Norfair",
+    "West Upper Norfair",
+    "Crocomire Upper Norfair",
+    "West Lower Norfair",
+    "East Lower Norfair",
+    "Wrecked Ship",
+    "Outer Maridia",
+    "Pink Inner Maridia",
+    "Yellow Inner Maridia",
+    "Green Inner Maridia",
+    "Tourian",
+]
+
 presets = json.load(open(presets_path, "r"))
 preset_dict = {}
 for preset in presets:
@@ -35,28 +57,6 @@ for room_path in sm_json_path.glob("region/**/*.json"):
     if area not in room_names_by_area:
         room_names_by_area[area] = []
     room_names_by_area[area].append(room_json["name"])
-
-area_order = [
-    "Central Crateria",
-    "West Crateria",
-    "East Crateria",
-    "Blue Brinstar",
-    "Green Brinstar",
-    "Pink Brinstar",
-    "Red Brinstar",
-    "Kraid Brinstar",
-    "East Upper Norfair",
-    "West Upper Norfair",
-    "Crocomire Upper Norfair",
-    "West Lower Norfair",
-    "East Lower Norfair",
-    "Wrecked Ship",
-    "Outer Maridia",
-    "Pink Inner Maridia",
-    "Yellow Inner Maridia",
-    "Green Inner Maridia",
-    "Tourian",
-]
 
 for area in area_order:
     for room_name in sorted(room_names_by_area[area]):

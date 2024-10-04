@@ -11,7 +11,7 @@ use hashbrown::{HashMap, HashSet};
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::{NotableSetting, Preset},
+    preset::{NotableSetting, Preset, TechSetting},
     seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
@@ -24,8 +24,7 @@ pub const HQ_VIDEO_URL_ROOT: &'static str =
 #[derive(Serialize)]
 pub struct PresetData {
     pub preset: Preset,
-    pub tech_setting: Vec<(String, bool)>,
-    pub implicit_tech: HashSet<String>,
+    pub tech_setting: Vec<(TechSetting, bool)>,
     pub notable_setting: Vec<(NotableSetting, bool)>,
 }
 
@@ -38,7 +37,6 @@ pub struct VersionInfo {
 pub struct AppData {
     pub game_data: GameData,
     pub preset_data: Vec<PresetData>,
-    pub implicit_tech: HashSet<String>,
     pub map_repositories: HashMap<String, MapRepository>,
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)

@@ -85,11 +85,13 @@ function techChanged() {
     updateTierPercent();
 }
 function updateTechJSON() {
-    techSelection = {}
+    techSelection = []
     document.querySelectorAll('.tech-input')
     .forEach(function (x) {
-        let name = x.name.substring(5);  // strip the "tech-" prefix
-        techSelection[name] = x.checked;
+        let parts = x.name.split("-");
+        let techId = parseInt(parts[1]);
+        let enabled = x.checked;
+        techSelection.push([techId, enabled]);
     });
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
 }
