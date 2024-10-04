@@ -99,6 +99,7 @@ rooms = [
             13: [(2, 0), (3, 0), (2, 1), (3, 1), (2, 2), (3, 2),  # main junction
                  (2, 3), (3, 3), (2, 4), (3, 4), (2, 5), (3, 5), (2, 6)],
             14: [(2, 4)],  # junction above crumbles
+            15: [(3, 6)],  # G-Mode Morph Junction (Middle Right)
         },
     ),
     Room(
@@ -150,8 +151,10 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 1, 0x18FBE, 0x18FCA, 0),  # Hopper Energy Tank Room
         ],
         node_tiles={
-            1: [(0, 0), (0, 1)],  # left door
+            1: [(0, 1)],  # left door
             2: [(1, 0), (1, 1)],  # right door
+            3: [(0, 0)],  # top junction
+            4: [(0, 1)],  # Frozen Hopper Junction
         },
     ),
     Room(
@@ -223,8 +226,9 @@ rooms = [
             Item(0, 0, 0x787FA),
         ],
         node_tiles={
-            1: [(1, 0), (2, 0), (3, 0), (4, 0), (5, 0), (6, 0)],  # door
+            1: [(3, 0), (4, 0), (5, 0), (6, 0)],  # door
             2: [(0, 0)],  # item
+            3: [(1, 0), (2, 0)],  # Dry Platform Junction
         },
     ),
 ]

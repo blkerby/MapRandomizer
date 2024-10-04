@@ -6,7 +6,6 @@ v114:
   - likely caused by check at $84:8328 interacting badly with new/custom PLMs (e.g. hazard markers)
 - add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
-- adjust auto-formatting for unlocksDoors
 - use strat IDs in logic pages
 - use new videos in logic pages and Generate page
   - DONE: notable strat videos in Generate page
@@ -52,6 +51,7 @@ v114:
 - DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- adjust auto-formatting for unlocksDoors
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - fix bug where dachora despawns global zeela in Dachora Room.
   - probably caused by escape.asm: missing ",x" in stz, also check for Landing Site room ID so that it won't affect Dachora Room

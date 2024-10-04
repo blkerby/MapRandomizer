@@ -50,6 +50,7 @@ rooms = [
             1: [(0, 0)],  # left door
             2: [(0, 0)],  # right door
             3: [(0, 1)],  # bottom left door
+            4: [(0, 0)],  # top junction
         },
     ),
     Room(
@@ -88,6 +89,8 @@ rooms = [
             2: [(2, 0)],  # top left door
             3: [(1, 2)],  # etank
             4: [(2, 2), (2, 1)],  # missile
+            5: [(0, 2), (1, 2), (2, 2)],  # g-mode morph junction
+            6: [(0, 2), (1, 2), (2, 2)],  # g-mode morph junction direct
         },
     ),
     Room(
@@ -101,6 +104,7 @@ rooms = [
         node_tiles={
             1: [(0, 0)],  # left door
             2: [(1, 0)],  # right door
+            3: [(1, 0)],  # right door spawnAt junction
         },
     ),
     Room(

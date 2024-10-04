@@ -37,9 +37,9 @@ rooms = [
             4: [(0, 9)],  # bottom right door
             5: [(0, 0)],  # top right door
             6: [(0, 7)],  # junction below PBs
-            7: [(0, 8)],  # ledge junction
-            8: [(0, 9)],  # bottom junction
+            7: [(0, 8), (0, 9)],  # ledge junction
             9: [(0, 1), (0, 2), (0, 3)],  # top junction
+            10: [(0, 4)], # temporary blue junction (top left door)
         },
     ),
     Room(
@@ -54,8 +54,10 @@ rooms = [
             DoorIdentifier(RIGHT, 7, 0, 0x19066, 0x19036, 0),  # Red Tower
         ],
         node_tiles={
-            1: [(0, 0), (0, 1), (1, 0), (1, 1), (2, 0)],  # left door
-            2: [(3, 0), (4, 0), (4, 1), (5, 0), (5, 1), (6, 0), (7, 0)],  # right door
+            1: [(0, 0)],  # left door
+            2: [(4, 0), (4, 1), (5, 0), (5, 1), (6, 0), (7, 0)],  # right door
+            3: [(2, 0), (3, 0)],  # safe block in the middle of room
+            4: [(0, 1), (1, 0), (1, 1)],  # small ledge below left door
         },
     ),
     Room(

@@ -261,6 +261,7 @@ rooms = [
             2: [(1, 0)],  # top right door
             3: [(6, 3), (7, 3)],  # bottom right door
             4: [(3, 1)],  # missile
+            5: [(2, 1)],  # Junction The Left End of Morph Tube
         },
     ),
     Room(
@@ -307,7 +308,6 @@ rooms = [
         node_tiles={
             1: [(0, 0), (0, 1)],  # top right door
             2: [(0, 2)],  # bottom door
-            3: [(0, 2)],  # spore spawn event
         }
     ),
 ]

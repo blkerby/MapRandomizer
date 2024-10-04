@@ -76,10 +76,11 @@ rooms = [
             Item(2, 0, 0x789EC),
         ],
         node_tiles={
-            1: [(0, 0), (1, 0), (2, 0)],  # left door (down to zeelas)
+            1: [(0, 0)],  # left door (down to zeelas)
             2: [(1, 1)],  # bottom right door
             3: [(3, 0)],  # top right door
             4: [(2, 0)],  # missile
+            5: [(1, 0), (2, 0)],  # Kihunter Junction
         },
     ),
     Room(
@@ -152,9 +153,8 @@ rooms = [
             DoorIdentifier(RIGHT, 1, 1, 0x191DA, 0x19252, 0),  # Varia Suit Room
         ],
         node_tiles={
-            1: [(0, 1)],  # left door
-            2: [(1, 1)],  # right door
-            3: [(0, 0), (1, 0), (0, 1), (1, 1)],  # boss
+            1: [(0, 0), (0, 1)],  # left door
+            2: [(1, 0), (1, 1)],  # right door
         },
     ),
     Room(

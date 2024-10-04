@@ -59,6 +59,8 @@ rooms = [
                 (3, 4), (4, 4), (5, 4), (6, 4)],
             6: [(4, 4)],  # Escape Zebes
             7: [(2, 2), (2, 3), (2, 4)],  # Gauntlet ledge
+            8: [(3, 3), (4, 3), (5, 3),  # G-Mode Junction (Ship)
+                (3, 4), (4, 4), (5, 4), (6, 4)],
         },
     ),
     Room(
@@ -135,6 +137,7 @@ rooms = [
             4: [(2, 7)],  # middle right door
             5: [(1, 8)],  # bottom right door
             6: [(1, 0), (1, 1), (1, 2), (1, 3), (1, 4), (1, 5), (1, 6), (1, 7), (1, 8)],  # main junction
+            7: [(0, 8)],  # bottom left door spawnAt
         },
     ),
     Room(
@@ -256,8 +259,6 @@ rooms = [
         node_tiles={
             1: [(0, 0)],  # door
             2: [(0, 0)],  # bombs
-            3: [(0, 0)],  # boss
-            4: [(0, 0)],  # animals
         },
     ),
     Room(
@@ -317,6 +318,7 @@ rooms = [
             6: [(0, 1)],  # right missile
             8: [(0, 1)],  # item junction
             9: [(0, 2), (0, 3)],  # middle junction
+            10: [(0, 4), (0, 5)],  # middle right door G-mode junction
         },
     ),
     Room(
@@ -443,8 +445,6 @@ rooms = [
         node_tiles={
             1: [(0, 0)],  # left door
             2: [(0, 1), (0, 2), (0, 3), (0, 4)],  # elevator
-            3: [(0, 0)],  # statues event
-            4: [(0, 1)],  # underwater statues event
         },
     ),
     Room(
@@ -494,6 +494,7 @@ rooms = [
             3: [(3, 0)],  # super missile
             4: [(1, 0), (2, 0)],  # right of spikes junction
             5: [(3, 7), (3, 6), (3, 5), (3, 4), (3, 3), (3, 2), (3, 1)],  # right of boyons junction
+            6: [(3, 0)],  # top junction with temporary blue (right of morph tunnel)
         },
     ),
     Room(
@@ -567,6 +568,8 @@ rooms = [
             4: [(5, 3)],  # right door (to gravity)
             5: [(6, 4), (7, 4)],  # bottom right door
             6: [(1, 2), (2, 2)],  # door to bowling alley path
+            7: [(5, 2)],  # bridge left door
+            8: [(5, 2)],  # bridge right door
             9: [(0, 0), (1, 0), (2, 0), (3, 0)],  # sky missile
             10: [(0, 2)],  # middle missile
             11: [(0, 5), (1, 5)],  # bottom missile
@@ -576,6 +579,9 @@ rooms = [
                  (0, 4), (1, 4), (2, 4), (3, 4), (4, 4), (5, 4),
                  (2, 5), (3, 5), (4, 5), (5, 5), (6, 5), (7, 5)],
             14: [(0, 2)],  # north-south junction
+            15: [(0, 4)],  # G-mode morph junction (by left door)
+            16: [(0, 4)],  # G-mode morph overloaded PLMs junction (by left door)
+            17: [(0, 4)],  # G-mode morph junction direct (by left door)
         },
         twin_node_tiles={
             1: [(5, 2)],
