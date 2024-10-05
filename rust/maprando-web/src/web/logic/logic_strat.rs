@@ -11,12 +11,11 @@ async fn logic_strat(
     let from_node = info.1;
     let to_node = info.2;
     let strat_id = info.3;
-    if let Some(html) = app_data.logic_data.strat_html.get(&(
-        room_id,
-        from_node,
-        to_node,
-        strat_id,
-    )) {
+    if let Some(html) = app_data
+        .logic_data
+        .strat_html
+        .get(&(room_id, from_node, to_node, strat_id))
+    {
         HttpResponse::Ok()
             .content_type("text/html; charset=utf-8")
             .body(html.clone())

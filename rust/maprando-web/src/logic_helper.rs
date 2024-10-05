@@ -107,8 +107,8 @@ struct LogicIndexTemplate<'a> {
 #[derive(Default)]
 pub struct LogicData {
     pub index_html: String,                        // Logic index page
-    pub room_html: HashMap<RoomId, String>, // Map from room ID to rendered HTML.
-    pub tech_html: HashMap<TechId, String>, // Map from tech name to rendered HTML.
+    pub room_html: HashMap<RoomId, String>,        // Map from room ID to rendered HTML.
+    pub tech_html: HashMap<TechId, String>,        // Map from tech name to rendered HTML.
     pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech name to strat count using that tech.
     pub strat_html: HashMap<(RoomId, NodeId, NodeId, StratId), String>, // Map from (room ID, from node ID, to node ID, strat ID) to rendered HTML.
 }
