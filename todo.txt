@@ -16,6 +16,7 @@ v114:
   - DONE: tech videos in Generate page
   - DONE: tech videos in logic pages
   - show multiple videos per strat
+  - show video author & note in tooltip
 - DONE: handle "ignored" and "implicit" tech/notables in presets.
 - link to logic pages from video site?
 - use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
