@@ -339,10 +339,9 @@ pub fn get_difficulty_tiers(
             quality_of_life_preset: difficulty.quality_of_life_preset.clone(),
             debug_options: difficulty.debug_options.clone(),
         };
-        if is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
-            out.pop();
+        if !is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
+            out.push(new_difficulty);
         }
-        out.push(new_difficulty);
     }
     out
 }
