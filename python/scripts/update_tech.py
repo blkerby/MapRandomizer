@@ -54,4 +54,15 @@ for c in tech_json["techCategories"]:
     for tech in c["techs"]:
         process_tech_rec(tech)
 
+presets[3]["tech"].append({
+    "tech_id": 10001,
+    "name": "canHyperGateShot",
+    "video_id": None,
+})
+presets[0]["tech"].append({
+    "tech_id": 10002,
+    "name": "canEscapeMorphLocation",
+    "video_id": None,
+})
+
 json.dump(presets, open(output_path, "w"), indent=2)

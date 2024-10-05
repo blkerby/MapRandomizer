@@ -66,6 +66,7 @@ struct RoomTemplate<'a> {
 struct TechTemplate<'a> {
     version_info: VersionInfo,
     difficulty_names: Vec<String>,
+    tech_id: TechId,
     tech_name: String,
     tech_note: String,
     tech_dependencies: String,
@@ -107,7 +108,7 @@ pub struct LogicData {
     pub index_html: String,                        // Logic index page
     pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
     pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
-    pub tech_strat_counts: HashMap<String, usize>, // Map from tech name to strat count using that tech.
+    pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech name to strat count using that tech.
     pub strat_html: HashMap<(String, usize, usize, String), String>, // Map from (room name, from node ID, to node ID, strat name) to rendered HTML.
 }
 
@@ -298,6 +299,7 @@ fn make_tech_templates<'a>(
         let template = TechTemplate {
             version_info: version_info.clone(),
             difficulty_names,
+            tech_id,
             tech_name: game_data.tech_json_map[&tech_id]["name"].as_str().unwrap().to_string(),
             tech_note,
             tech_dependencies,
@@ -874,7 +876,7 @@ impl LogicData {
                 .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
                 .count();
             out.tech_strat_counts
-                .insert(template.tech_name.clone(), strat_count);
+                .insert(template.tech_id, strat_count);
             out.tech_html.insert(template.tech_name.clone(), html);
         }
 

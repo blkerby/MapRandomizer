@@ -47,8 +47,8 @@ pub const TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT: TechId = 126;
 pub const TECH_ID_CAN_BOMB_HORIZONTALLY: TechId = 87;
 pub const TECH_ID_CAN_MOONDANCE: TechId = 26;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
-pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = -1;
-pub const TECH_ID_CAN_ESCAPE_MORPH_LOCATION: TechId = -2;
+pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
+pub const TECH_ID_CAN_ESCAPE_MORPH_LOCATION: TechId = 10002;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Map {
@@ -1177,7 +1177,7 @@ impl GameData {
         let mut full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
         ensure!(full_tech_json["techCategories"].is_array());
         full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Shots").unwrap()["techs"].push(json::object!{
-            "id": -1,
+            "id": 10001,
             "name": "canHyperGateShot",
             "techRequires": [],
             "otherRequires": [],
@@ -1188,7 +1188,7 @@ impl GameData {
             ]
         })?;
         full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Movement").unwrap()["techs"].push(json::object!{
-            "id": -2,
+            "id": 10002,
             "name": "canEscapeMorphLocation",
             "techRequires": [],
             "otherRequires": [],

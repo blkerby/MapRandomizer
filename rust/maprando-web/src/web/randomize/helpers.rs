@@ -12,7 +12,7 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     spoiler_map,
 };
-use maprando_game::{Capacity, IndexedVec, Item, NotableId, RoomId};
+use maprando_game::{Capacity, IndexedVec, Item, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 
 #[derive(Template)]
@@ -60,7 +60,7 @@ pub struct SeedHeaderTemplate<'a> {
     area_assignment: String,
     ultra_low_qol: bool,
     preset_data: &'a [PresetData],
-    enabled_tech: HashSet<String>,
+    enabled_tech: HashSet<TechId>,
     enabled_notables: HashSet<(RoomId, NotableId)>,
 }
 
@@ -70,7 +70,7 @@ impl<'a> SeedHeaderTemplate<'a> {
             .preset
             .tech
             .iter()
-            .filter(|&x| self.enabled_tech.contains(x))
+            .filter(|&x| self.enabled_tech.contains(&x.tech_id))
             .count();
         let notable_enabled_count = p
             .preset
@@ -214,18 +214,18 @@ pub fn get_difficulty_tiers(
 ) -> Vec<DifficultyConfig> {
     let presets = &app_data.preset_data;
     let mut out: Vec<DifficultyConfig> = vec![];
-    let tech_set: HashSet<String> = difficulty.tech.iter().cloned().collect();
+    let tech_set: HashSet<TechId> = difficulty.tech.iter().cloned().collect();
     let notable_set: HashSet<(RoomId, NotableId)> = difficulty.notables.iter().cloned().collect();
 
     out.push(difficulty.clone());
     out.last_mut().unwrap().tech.sort();
     out.last_mut().unwrap().notables.sort();
-    for preset_data in presets.iter().rev() {
+    for preset_data in presets[1..presets.len() - 1].iter().rev() {
         let preset = &preset_data.preset;
-        let mut tech_vec: Vec<String> = Vec::new();
-        for (tech, enabled) in &preset_data.tech_setting {
-            if *enabled && tech_set.contains(tech) {
-                tech_vec.push(tech.clone());
+        let mut tech_vec: Vec<TechId> = Vec::new();
+        for (tech_setting, enabled) in &preset_data.tech_setting {
+            if *enabled && tech_set.contains(&tech_setting.tech_id) {
+                tech_vec.push(tech_setting.tech_id);
             }
         }
         tech_vec.sort();
@@ -473,7 +473,7 @@ pub fn render_seed(
     seed_data: &SeedData,
     app_data: &AppData,
 ) -> Result<(String, String)> {
-    let enabled_tech: HashSet<String> = seed_data.difficulty.tech.iter().cloned().collect();
+    let enabled_tech: HashSet<TechId> = seed_data.difficulty.tech.iter().cloned().collect();
     let enabled_notables: HashSet<(RoomId, NotableId)> =
         seed_data.difficulty.notables.iter().cloned().collect();
     let seed_header_template = SeedHeaderTemplate {

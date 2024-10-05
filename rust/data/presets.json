@@ -1,14 +1,14 @@
 [
   {
     "name": "Implicit",
-    "shinespark_tiles": 0,
-    "heated_shinespark_tiles": 0,
-    "speed_ball_tiles": 0,
-    "shinecharge_leniency_frames": 0,
-    "resource_multiplier": 0,
-    "gate_glitch_leniency": 0,
-    "door_stuck_leniency": 0,
-    "escape_timer_multiplier": 0.0,
+    "shinespark_tiles": 45,
+    "heated_shinespark_tiles": 45,
+    "speed_ball_tiles": 65,
+    "shinecharge_leniency_frames": 120,
+    "resource_multiplier": 4.0,
+    "gate_glitch_leniency": 14,
+    "door_stuck_leniency": 2,
+    "escape_timer_multiplier": 2.5,
     "phantoon_proficiency": 0.0,
     "draygon_proficiency": 0.0,
     "ridley_proficiency": 0.0,
@@ -58,6 +58,11 @@
       {
         "tech_id": 125,
         "name": "canSpecialBeamAttack",
+        "video_id": null
+      },
+      {
+        "tech_id": 10002,
+        "name": "canEscapeMorphLocation",
         "video_id": null
       }
     ],
@@ -462,6 +467,11 @@
         "tech_id": 170,
         "name": "canXRayCeilingClip",
         "video_id": 1070
+      },
+      {
+        "tech_id": 10001,
+        "name": "canHyperGateShot",
+        "video_id": null
       }
     ],
     "notables": [

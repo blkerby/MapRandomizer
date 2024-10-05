@@ -189,6 +189,7 @@ async fn randomize(
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
     let mut tech_vec: Vec<TechId> = vec![];
     for tech_setting in tech_json.as_array().unwrap().iter() {
+        println!("tech_setting: {}", tech_setting);
         let tech_id = tech_setting[0].as_i64().unwrap() as TechId;
         let is_enabled = tech_setting[1].as_bool().unwrap();
         if tech_id == TECH_ID_CAN_WALLJUMP && req.wall_jump.0 == "Disabled" {

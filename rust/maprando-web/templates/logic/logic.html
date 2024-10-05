@@ -50,7 +50,7 @@ document.getElementById("navigation-logic").classList.add("active");
             {% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() %}
                 <div class="card my-2" id="{{+ tech_difficulty_name.replace(" ", "") }}Tech">
                     <div class="card-header">
-                    {{+ tech_difficulty_name }} Tech
+                    {{+ tech_difficulty_name +}} Tech
                     </div>
                     <div class="card-body px-2 py-1">
                     {% for t in tech %}

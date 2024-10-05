@@ -19,11 +19,12 @@ struct GenerateTemplate<'a> {
     prioritizable_items: Vec<String>,
     tech_names: &'a HashMap<TechId, String>,
     tech_description: &'a HashMap<TechId, String>,
-    tech_dependencies: &'a HashMap<TechId, Vec<TechId>>,
+    tech_dependencies_str: &'a HashMap<TechId, String>,
     tech_gif_listing: &'a HashSet<String>,
+    implicit_or_ignored_tech: &'a HashSet<TechId>,
+    implicit_or_ignored_notables: &'a HashSet<(RoomId, NotableId)>,
     notable_description: &'a HashMap<(RoomId, NotableId), String>,
-    ignored_notables: &'a HashSet<(RoomId, NotableId)>,
-    tech_strat_counts: &'a HashMap<String, usize>,
+    tech_strat_counts: &'a HashMap<TechId, usize>,
     hq_video_url_root: &'a str,
     video_storage_url: &'a str,
 }
@@ -99,10 +100,22 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         );
     }
 
-    let mut ignored_notables: HashSet<(RoomId, NotableId)> = HashSet::new();
-    // Assumption: Ignored notables are given in the last preset:
-    for notable in &app_data.preset_data.last().unwrap().preset.notables {
-        ignored_notables.insert((notable.room_id, notable.notable_id));
+    let mut tech_dependencies_strs: HashMap<TechId, String> = HashMap::new();
+    for (tech_id, deps) in &app_data.game_data.tech_dependencies {
+        let s: Vec<String> = deps.iter().map(|t| app_data.game_data.tech_names[t].clone()).collect();
+        tech_dependencies_strs.insert(*tech_id, s.join(", "));
+    }
+
+    let mut implicit_or_ignored_tech: HashSet<TechId> = HashSet::new();
+    let mut implicit_or_ignored_notables: HashSet<(RoomId, NotableId)> = HashSet::new();
+    // Assumption: Implicit notables are given in the first preset, ignored notables are given in the last:
+    for p in [&app_data.preset_data[0], app_data.preset_data.last().unwrap()] {
+        for tech_setting in &p.preset.tech {
+            implicit_or_ignored_tech.insert(tech_setting.tech_id);
+        }
+        for notable_setting in &p.preset.notables {
+            implicit_or_ignored_notables.insert((notable_setting.room_id, notable_setting.notable_id));
+        }
     }
 
     let generate_template = GenerateTemplate {
@@ -129,10 +142,11 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         preset_data: &app_data.preset_data,
         tech_names: &app_data.game_data.tech_names,
         tech_description: &app_data.game_data.tech_description,
-        tech_dependencies: &app_data.game_data.tech_dependencies,
+        tech_dependencies_str: &tech_dependencies_strs,
         tech_gif_listing: &app_data.tech_gif_listing,
         notable_description: &notable_description,
-        ignored_notables: &ignored_notables,
+        implicit_or_ignored_tech: &implicit_or_ignored_tech,    
+        implicit_or_ignored_notables: &implicit_or_ignored_notables,
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         hq_video_url_root: HQ_VIDEO_URL_ROOT,
         video_storage_url: &app_data.video_storage_url,

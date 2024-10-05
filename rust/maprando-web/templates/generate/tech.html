@@ -2,7 +2,7 @@
 <input type="hidden" id="json-strat" name="notable_json">
 {% for (preset_idx, p) in preset_data.iter().enumerate() %}
     {% let preset_name = p.preset.name|as_ref %}
-    {% if preset_name == "Ignored" %}
+    {% if preset_name == "Implicit" || preset_name == "Ignored" %}
     {% continue %}
     {% endif %}
     {% let name_no_space = p.preset.name.replace(" ", "") %}
@@ -33,19 +33,22 @@
             <div class="card">
                 <div class="card-body my-0 p-0">
                     {% for tech_setting in p.preset.tech %}
-                        {% let tech_id = tech_setting.tech_id %}
-                        {% let tech_name = tech_setting.name %}
+                        {% let tech_id = tech_setting.tech_id|as_ref %}
+                        {% let tech_name = tech_setting.name|as_ref %}
                         {% if loop.index0 > 0 %}
                             <hr class="m-0">
                         {% endif %}
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2 my-0">
-                                {% if tech_gif_listing.contains(format!("{}.png", tech_name)) %}
-                                {% let hq_video_url_root = hq_video_url_root %}
-                                {% let video_url = format!("{}/{}.webm", hq_video_url_root, tech_name) %}
-                                <a href="#" onclick='startVideo("{{+ video_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
-                                <img class="png-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.png" style="width:128px;height:128px;">
-                                <img class="gif-tech" loading="lazy" src="/static/tech_gifs/{{+ tech_name }}.gif" style="width:128px;height:128px;">
+                                {% if tech_setting.video_id.is_some() %}
+                                {% let video_id = tech_setting.video_id.unwrap() %}
+                                {% let video_storage_url = video_storage_url %}
+                                {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
+                                {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
+                                {% let mp4_url = format!("{}/mp4/{}.mp4", video_storage_url, video_id) %}
+                                <a href="#" onclick='startVideo("{{ mp4_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <img class="png-tech" loading="lazy" src="{{ png_url }}" style="width:128px;height:128px;">
+                                <img class="gif-tech" loading="lazy" src="{{ webp_url }}" style="width:128px;height:128px;">
                                 </a>
                                 {% endif %}
                             </div>
@@ -67,8 +70,8 @@
                                             {{+ tech_description[tech_id] }}
                                         </div>
                                     </div>
-                                    {% if tech_dependencies[tech_id].len() > 0usize|as_ref %}
-                                    <p><i>Dependencies: {{+ tech_dependencies[tech_id].join(", ") }} </i></p>
+                                    {% if tech_dependencies_str[tech_id].len() > 0usize|as_ref %}
+                                    <p><i>Dependencies: {{+ tech_dependencies_str[tech_id] }} </i></p>
                                     {% endif %}
                                     {% if tech_strat_counts[tech_id] > 0usize|as_ref %}
                                         <p class="mt-3"><a href="/logic/tech/{{+ tech_name }}" onclick="setPreset('{{+ preset_idx }}');">

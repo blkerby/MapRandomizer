@@ -8,7 +8,7 @@ use maprando::{
     },
     traverse::{apply_requirement, LockedDoorData},
 };
-use maprando_game::{Capacity, GameData, Item, Requirement};
+use maprando_game::{Capacity, GameData, Item, Requirement, TECH_ID_CAN_BE_VERY_PATIENT};
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::Path;
 
@@ -157,7 +157,7 @@ fn run_scenario(
 
     let new_local_state_opt = apply_requirement(
         &Requirement::DraygonFight {
-            can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key["canBeVeryPatient"],
+            can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
         },
         &global_state,
         local_state,
