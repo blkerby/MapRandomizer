@@ -191,8 +191,11 @@ async fn randomize(
 
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
     let mut tech_vec: Vec<TechId> = vec![];
+    for tech in &app_data.preset_data[0].preset.tech {
+        // Include implicit tech (which is in the first preset):
+        tech_vec.push(tech.tech_id);
+    }
     for tech_setting in tech_json.as_array().unwrap().iter() {
-        println!("tech_setting: {}", tech_setting);
         let tech_id = tech_setting[0].as_i64().unwrap() as TechId;
         let is_enabled = tech_setting[1].as_bool().unwrap();
         if tech_id == TECH_ID_CAN_WALLJUMP && req.wall_jump.0 == "Disabled" {
@@ -207,10 +210,12 @@ async fn randomize(
     if vanilla_map {
         tech_vec.push(TECH_ID_CAN_ESCAPE_MORPH_LOCATION);
     }
-
     let notable_json: serde_json::Value = serde_json::from_str(&req.notable_json).unwrap();
-    println!("notable_json: {}", notable_json);
     let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
+    for notable in &app_data.preset_data[0].preset.notables {
+        // Include implicit notables (which are in the first preset):
+        notable_vec.push((notable.room_id, notable.notable_id));
+    }
     for notable_setting in notable_json.as_array().unwrap().iter() {
         let room_id = notable_setting[0].as_i64().unwrap() as RoomId;
         let notable_id = notable_setting[1].as_i64().unwrap() as NotableId;

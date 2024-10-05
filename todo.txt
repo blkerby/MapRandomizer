@@ -6,6 +6,7 @@ v114:
   - might be related to check at $84:8328 interacting badly with new/custom PLMs
   - also see if this is the cause of crash reported by kyzentun, when x-raying while opening beam door
 - DONE: add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
+- remove canTrickyDodgeEnemies (maybe use notable in Sand Hall)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - make "reduced flashing" Phantoon less changed from vanilla?
 - DONE: use strat IDs in logic pages
@@ -16,7 +17,7 @@ v114:
   - DONE: tech videos in Generate page
   - DONE: tech videos in logic pages
   - show multiple videos per strat
-  - show video author & note in tooltip
+  - show video author, date, & note in tooltip
 - DONE: handle "ignored" and "implicit" tech/notables in presets.
 - link to logic pages from video site?
 - use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
