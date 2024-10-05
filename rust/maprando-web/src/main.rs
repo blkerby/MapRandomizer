@@ -25,10 +25,7 @@ use web::{about, generate, home, logic, randomize, releases, seed};
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 
-fn init_presets(
-    presets: Vec<Preset>,
-    game_data: &GameData,
-) -> Vec<PresetData> {
+fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<TechId> = HashSet::new();
     let mut cumulative_strats: HashSet<(RoomId, NotableId)> = HashSet::new();
@@ -66,18 +63,11 @@ fn init_presets(
         for tech_idx in 0..game_data.tech_isv.keys.len() {
             let tech_id = game_data.tech_isv.keys[tech_idx];
             if let Some(tech_setting) = tech_setting_map.get(&tech_id) {
-                tech_setting_vec.push((
-                    tech_setting.clone(),
-                    cumulative_tech.contains(&tech_id),
-                ));
+                tech_setting_vec.push((tech_setting.clone(), cumulative_tech.contains(&tech_id)));
             } else {
                 let tech_name = game_data.tech_json_map[&tech_id]["name"].as_str().unwrap();
-                panic!(
-                    "Tech not found in any preset: {} ({})",
-                    tech_name, tech_id,
-                );
+                panic!("Tech not found in any preset: {} ({})", tech_name, tech_id,);
             }
-
         }
 
         for notable_setting in &preset.notables {
@@ -228,12 +218,7 @@ fn build_app_data() -> AppData {
         args.video_storage_url.clone()
     };
 
-    let logic_data = LogicData::new(
-        &game_data,
-        &preset_data,
-        &version_info,
-        &video_storage_url,
-    );
+    let logic_data = LogicData::new(&game_data, &preset_data, &version_info, &video_storage_url);
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
     let app_data = AppData {
@@ -308,7 +293,7 @@ async fn main() {
             ))
             .service(actix_files::Files::new("/static", "static"))
             .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"));
-    
+
         if let Some(path) = &app_data.video_storage_path {
             app = app.service(actix_files::Files::new("/videos", path));
         }

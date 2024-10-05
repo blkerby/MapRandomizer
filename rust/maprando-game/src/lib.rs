@@ -1201,12 +1201,31 @@ impl GameData {
                 self.load_tech_rec(tech_json)?;
             }
         }
-        self.heat_run_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_HEAT_RUN).unwrap();
-        self.speed_ball_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_SPEEDBALL).unwrap();
-        self.wall_jump_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_WALLJUMP).unwrap();
-        self.manage_reserves_tech_idx =
-            *self.tech_isv.index_by_key.get(&TECH_ID_CAN_MANAGE_RESERVES).unwrap();
-        self.pause_abuse_tech_idx = *self.tech_isv.index_by_key.get(&TECH_ID_CAN_PAUSE_ABUSE).unwrap();
+        self.heat_run_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_HEAT_RUN)
+            .unwrap();
+        self.speed_ball_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_SPEEDBALL)
+            .unwrap();
+        self.wall_jump_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_WALLJUMP)
+            .unwrap();
+        self.manage_reserves_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_MANAGE_RESERVES)
+            .unwrap();
+        self.pause_abuse_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_PAUSE_ABUSE)
+            .unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
         Ok(())
     }
@@ -1258,8 +1277,7 @@ impl GameData {
         };
 
         self.tech_description.insert(id, desc);
-        self.tech_json_map
-            .insert(id, tech_json.clone());
+        self.tech_json_map.insert(id, tech_json.clone());
         let tech_name = tech_json["name"].as_str().unwrap().to_string();
         self.tech_names.insert(id, tech_name.clone());
         self.tech_id_by_name.insert(tech_name.clone(), id);
@@ -1274,9 +1292,9 @@ impl GameData {
 
     fn extract_tech_dependencies(&self, req: &Requirement) -> HashSet<TechId> {
         match req {
-            Requirement::Tech(tech_idx) => vec![self.tech_isv.keys[*tech_idx]]
-                .into_iter()
-                .collect(),
+            Requirement::Tech(tech_idx) => {
+                vec![self.tech_isv.keys[*tech_idx]].into_iter().collect()
+            }
             Requirement::And(sub_reqs) => {
                 let mut out: HashSet<TechId> = HashSet::new();
                 for r in sub_reqs {
@@ -2024,11 +2042,13 @@ impl GameData {
                     return Ok(Requirement::PhantoonFight {});
                 } else if enemy_set.contains("Draygon") {
                     return Ok(Requirement::DraygonFight {
-                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
+                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key
+                            [&TECH_ID_CAN_BE_VERY_PATIENT],
                     });
                 } else if enemy_set.contains("Ridley") {
                     return Ok(Requirement::RidleyFight {
-                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
+                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key
+                            [&TECH_ID_CAN_BE_VERY_PATIENT],
                     });
                 } else if enemy_set.contains("Botwoon 1") {
                     return Ok(Requirement::BotwoonFight {
@@ -2045,7 +2065,8 @@ impl GameData {
                     let r_mode =
                         (ctx.from_obstacles_bitmask & 1) == 1 && ctx.strat_name.contains("R-Mode");
                     return Ok(Requirement::MotherBrain2Fight {
-                        can_be_very_patient_tech_id: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT],
+                        can_be_very_patient_tech_id: self.tech_isv.index_by_key
+                            [&TECH_ID_CAN_BE_VERY_PATIENT],
                         r_mode,
                     });
                 }
@@ -4083,7 +4104,10 @@ impl GameData {
     fn extract_all_tech_dependencies(&mut self) -> Result<()> {
         let tech_vec = self.tech_isv.keys.clone();
         for tech_id in &tech_vec {
-            let tech_name = self.tech_json_map[tech_id]["name"].as_str().unwrap().to_string();
+            let tech_name = self.tech_json_map[tech_id]["name"]
+                .as_str()
+                .unwrap()
+                .to_string();
             let req = self.get_tech_requirement(&tech_name, false)?;
             let deps: Vec<TechId> = self
                 .extract_tech_dependencies(&req)

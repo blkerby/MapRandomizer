@@ -18,7 +18,10 @@ use maprando::{
         StartLocationMode,
     },
 };
-use maprando_game::{Capacity, Item, LinksDataGroup, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION, TECH_ID_CAN_WALLJUMP};
+use maprando_game::{
+    Capacity, Item, LinksDataGroup, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
+    TECH_ID_CAN_WALLJUMP,
+};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use std::time::{Instant, SystemTime};

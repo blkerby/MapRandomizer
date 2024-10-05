@@ -14,7 +14,9 @@ use maprando::randomize::{
 };
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
-use maprando_game::{Capacity, GameData, Item, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION};
+use maprando_game::{
+    Capacity, GameData, Item, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
+};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 

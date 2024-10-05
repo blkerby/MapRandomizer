@@ -10,7 +10,12 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement, RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
+    RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH,
+    TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOONDANCE,
+    TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -214,7 +219,9 @@ fn make_tech_templates<'a>(
                 tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL]);
             }
             if strat_json["entranceCondition"].has_key("comeInStutterShinecharging") {
-                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE]);
+                tech_set.insert(
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
+                );
             }
             if strat_json["entranceCondition"].has_key("comeInWithTemporaryBlue") {
                 tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE]);
@@ -260,8 +267,15 @@ fn make_tech_templates<'a>(
     for (tech_idx, tech_ids) in tech_strat_ids.iter().enumerate() {
         let tech_id = game_data.tech_isv.keys[tech_idx].clone();
         let tech_note = game_data.tech_description[&tech_id].clone();
-        let tech_dependency_names: Vec<String> = game_data.tech_dependencies[&tech_id].iter()
-            .map(|tech_id| game_data.tech_json_map[tech_id]["name"].as_str().unwrap().to_string()).collect();
+        let tech_dependency_names: Vec<String> = game_data.tech_dependencies[&tech_id]
+            .iter()
+            .map(|tech_id| {
+                game_data.tech_json_map[tech_id]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string()
+            })
+            .collect();
         let tech_dependencies = tech_dependency_names.join(", ");
         let mut strats: Vec<RoomStrat> = vec![];
         let mut difficulty_idx = global_states.len();
@@ -297,7 +311,10 @@ fn make_tech_templates<'a>(
             version_info: version_info.clone(),
             difficulty_names,
             tech_id,
-            tech_name: game_data.tech_json_map[&tech_id]["name"].as_str().unwrap().to_string(),
+            tech_name: game_data.tech_json_map[&tech_id]["name"]
+                .as_str()
+                .unwrap()
+                .to_string(),
             tech_note,
             tech_dependencies,
             tech_difficulty_idx: difficulty_idx,
@@ -443,7 +460,9 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
             if let MainEntranceCondition::ComeInWithStoredFallSpeed { .. } = main {
                 reqs.push(Requirement::Or(vec![
                     Requirement::Tech(game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOONDANCE]),
-                    Requirement::Tech(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENEMY_STUCK_MOONFALL]),
+                    Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENEMY_STUCK_MOONFALL],
+                    ),
                 ]));
             }
         }
@@ -870,8 +889,7 @@ impl LogicData {
                 .iter()
                 .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
                 .count();
-            out.tech_strat_counts
-                .insert(template.tech_id, strat_count);
+            out.tech_strat_counts.insert(template.tech_id, strat_count);
             out.tech_html.insert(template.tech_name.clone(), html);
         }
 

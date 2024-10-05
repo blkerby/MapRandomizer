@@ -86,7 +86,9 @@ fn is_requirement_satisfied(
         EscapeConditionRequirement::CanAcidDive => tech_map[&TECH_ID_CAN_SUITLESS_LAVA_DIVE],
         EscapeConditionRequirement::CanKago => tech_map[&TECH_ID_CAN_KAGO],
         EscapeConditionRequirement::CanMoonfall => tech_map[&TECH_ID_CAN_MOONFALL],
-        EscapeConditionRequirement::CanOffCameraShot => tech_map[&TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT],
+        EscapeConditionRequirement::CanOffCameraShot => {
+            tech_map[&TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT]
+        }
         EscapeConditionRequirement::CanReverseGate => tech_map[&TECH_ID_CAN_HYPER_GATE_SHOT],
         EscapeConditionRequirement::CanHeroShot => tech_map[&TECH_ID_CAN_HERO_SHOT],
     }
