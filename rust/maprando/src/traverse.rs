@@ -117,7 +117,7 @@ fn validate_energy_no_auto_reserve(
     game_data: &GameData,
 ) -> Option<LocalState> {
     if local.energy_used >= global.inventory.max_energy {
-        if global.tech[game_data.manage_reserves_tech_id] {
+        if global.tech[game_data.manage_reserves_tech_idx] {
             // Assume that just enough reserve energy is manually converted to regular energy.
             local.reserves_used += local.energy_used - (global.inventory.max_energy - 1);
             local.energy_used = global.inventory.max_energy - 1;
@@ -171,7 +171,7 @@ fn apply_gate_glitch_leniency(
         local = match validate_energy(
             local,
             &global.inventory,
-            global.tech[game_data.manage_reserves_tech_id],
+            global.tech[game_data.manage_reserves_tech_idx],
         ) {
             Some(x) => x,
             None => return None,
@@ -221,7 +221,7 @@ fn apply_heat_frames(
     if varia {
         Some(new_local)
     } else {
-        if !global.tech[game_data.heat_run_tech_id] {
+        if !global.tech[game_data.heat_run_tech_idx] {
             None
         } else {
             new_local.energy_used +=
@@ -229,7 +229,7 @@ fn apply_heat_frames(
             validate_energy(
                 new_local,
                 &global.inventory,
-                global.tech[game_data.manage_reserves_tech_id],
+                global.tech[game_data.manage_reserves_tech_idx],
             )
         }
     }
@@ -294,7 +294,7 @@ fn apply_heat_frames_with_energy_drops(
     if varia {
         Some(new_local)
     } else {
-        if !global.tech[game_data.heat_run_tech_id] {
+        if !global.tech[game_data.heat_run_tech_idx] {
             None
         } else {
             let mut total_drop_value = 0;
@@ -309,7 +309,7 @@ fn apply_heat_frames_with_energy_drops(
             if let Some(x) = validate_energy(
                 new_local,
                 &global.inventory,
-                global.tech[game_data.manage_reserves_tech_id],
+                global.tech[game_data.manage_reserves_tech_idx],
             ) {
                 new_local = x;
             } else {
@@ -401,7 +401,7 @@ pub fn apply_requirement(
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
 ) -> Option<LocalState> {
-    let can_manage_reserves = global.tech[game_data.manage_reserves_tech_id];
+    let can_manage_reserves = global.tech[game_data.manage_reserves_tech_idx];
     match req {
         Requirement::Free => Some(local),
         Requirement::Never => None,
@@ -447,14 +447,14 @@ pub fn apply_requirement(
         }
         Requirement::Walljump => match difficulty.wall_jump {
             WallJump::Vanilla => {
-                if global.tech[game_data.wall_jump_tech_id] {
+                if global.tech[game_data.wall_jump_tech_idx] {
                     Some(local)
                 } else {
                     None
                 }
             }
             WallJump::Collectible => {
-                if global.tech[game_data.wall_jump_tech_id]
+                if global.tech[game_data.wall_jump_tech_idx]
                     && global.inventory.items[Item::WallJump as usize]
                 {
                     Some(local)
@@ -555,7 +555,7 @@ pub fn apply_requirement(
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             let energy = base_energy / suit_damage_factor(&global.inventory);
-            if energy >= global.inventory.max_energy && !global.tech[game_data.pause_abuse_tech_id]
+            if energy >= global.inventory.max_energy && !global.tech[game_data.pause_abuse_tech_idx]
             {
                 None
             } else {
@@ -944,7 +944,7 @@ pub fn apply_requirement(
             can_manage_reserves,
         ),
         Requirement::DraygonFight {
-            can_be_very_patient_tech_id,
+            can_be_very_patient_tech_idx: can_be_very_patient_tech_id,
         } => apply_draygon_requirement(
             &global.inventory,
             local,
@@ -953,7 +953,7 @@ pub fn apply_requirement(
             global.tech[*can_be_very_patient_tech_id],
         ),
         Requirement::RidleyFight {
-            can_be_very_patient_tech_id,
+            can_be_very_patient_tech_idx: can_be_very_patient_tech_id,
         } => apply_ridley_requirement(
             &global.inventory,
             local,
@@ -986,7 +986,7 @@ pub fn apply_requirement(
             )
         }
         Requirement::SpeedBall { used_tiles, heated } => {
-            if !global.tech[game_data.speed_ball_tech_id]
+            if !global.tech[game_data.speed_ball_tech_idx]
                 || !global.inventory.items[Item::Morph as usize]
             {
                 None
@@ -1061,7 +1061,7 @@ pub fn apply_requirement(
         Requirement::Shinespark {
             frames,
             excess_frames,
-            shinespark_tech_id,
+            shinespark_tech_idx: shinespark_tech_id,
         } => {
             if global.tech[*shinespark_tech_id] {
                 let mut new_local = local;

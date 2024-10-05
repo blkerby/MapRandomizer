@@ -14,7 +14,9 @@ use maprando::randomize::{
 };
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
-use maprando_game::{Capacity, GameData, Item, NotableId, RoomId};
+use maprando_game::{
+    Capacity, GameData, Item, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
+};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 
@@ -43,15 +45,19 @@ struct Args {
 }
 
 fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
-    let mut notable_setting_vec: Vec<(RoomId, NotableId)> = vec![];
+    let mut tech_vec: Vec<TechId> = vec![];
+    for tech in &preset.tech {
+        tech_vec.push(tech.tech_id);
+    }
+    let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
     for notable in &preset.notables {
-        notable_setting_vec.push((notable.room_id, notable.notable_id));
+        notable_vec.push((notable.room_id, notable.notable_id));
     }
     let diff = DifficultyConfig {
         name: None,
         // From the actual Preset
-        tech: preset.tech.clone(),
-        notables: notable_setting_vec,
+        tech: tech_vec,
+        notables: notable_vec,
         shine_charge_tiles: preset.shinespark_tiles as f32,
         heated_shine_charge_tiles: preset.heated_shinespark_tiles as f32,
         speed_ball_tiles: preset.speed_ball_tiles as f32,
@@ -853,21 +859,6 @@ fn main() -> Result<()> {
     let mut presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json")?)?;
 
-    let mut implicit_tech: Vec<String> = vec![
-        // Implicit tech
-        "canSpecialBeamAttack",
-        "canMidAirMorph",
-        "canTurnaroundSpinJump",
-        "canStopOnADime",
-        "canUseGrapple",
-        "canEscapeEnemyGrab",
-        "canDownBack",
-        "canTrivialUseFrozenEnemies",
-    ]
-    .into_iter()
-    .map(|x| x.to_string())
-    .collect();
-    presets[0].tech.append(&mut implicit_tech);
     for ix in 0..(presets.len() - 1) {
         let mut tech = presets[ix].tech.clone();
         let mut strat = presets[ix].notables.clone();
@@ -882,8 +873,8 @@ fn main() -> Result<()> {
             bail!("Unknown skills preset {fixed_preset}");
         }
     } else {
-        // Remove Beyond and Ignored preset
-        presets.retain(|x| x.name != "Beyond" && x.name != "Ignored");
+        // Remove Implicit, Beyond, and Ignored preset
+        presets.retain(|x| x.name != "Implicit" && x.name != "Beyond" && x.name != "Ignored");
     }
     let etank_color_from_json: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(&etank_colors_path)?)?;
@@ -984,7 +975,7 @@ fn main() -> Result<()> {
                 MapRepository::new("Vanilla", vanilla_map_path)?,
                 Some(|diff| {
                     diff.vanilla_map = true;
-                    diff.tech.push("canEscapeMorphLocation".to_string())
+                    diff.tech.push(TECH_ID_CAN_ESCAPE_MORPH_LOCATION)
                 }),
             ),
             (MapRepository::new("Tame", tame_maps_path)?, None),

@@ -18,7 +18,10 @@ use maprando::{
         StartLocationMode,
     },
 };
-use maprando_game::{Capacity, Item, LinksDataGroup, NotableId, RoomId};
+use maprando_game::{
+    Capacity, Item, LinksDataGroup, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
+    TECH_ID_CAN_WALLJUMP,
+};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use std::time::{Instant, SystemTime};
@@ -187,21 +190,22 @@ async fn randomize(
     }
 
     let tech_json: serde_json::Value = serde_json::from_str(&req.tech_json).unwrap();
-    let mut tech_vec: Vec<String> = app_data.implicit_tech.iter().cloned().collect();
-    let walljump_tech = "canWalljump";
-    assert!(tech_json.as_object().unwrap().contains_key(walljump_tech));
-    for (tech, is_enabled) in tech_json.as_object().unwrap().iter() {
-        if tech == walljump_tech && req.wall_jump.0 == "Disabled" {
+    let mut tech_vec: Vec<TechId> = vec![];
+    for tech_setting in tech_json.as_array().unwrap().iter() {
+        println!("tech_setting: {}", tech_setting);
+        let tech_id = tech_setting[0].as_i64().unwrap() as TechId;
+        let is_enabled = tech_setting[1].as_bool().unwrap();
+        if tech_id == TECH_ID_CAN_WALLJUMP && req.wall_jump.0 == "Disabled" {
             continue;
         }
-        if is_enabled.as_bool().unwrap() {
-            tech_vec.push(tech.to_string());
+        if is_enabled {
+            tech_vec.push(tech_id);
         }
     }
 
     let vanilla_map = req.map_layout.0 == "Vanilla";
     if vanilla_map {
-        tech_vec.push("canEscapeMorphLocation".to_string());
+        tech_vec.push(TECH_ID_CAN_ESCAPE_MORPH_LOCATION);
     }
 
     let notable_json: serde_json::Value = serde_json::from_str(&req.notable_json).unwrap();

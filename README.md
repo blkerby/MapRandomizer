@@ -75,7 +75,7 @@ tar xfz v110c-wild.tgz && rm v110c-wild.tgz
 cd ..
 ```
 
-Optionally, if you want to build and use the WebAssembly:
+Optionally, if you want to build and use the WebAssembly (for the boss calculator):
 
 ```sh
 cd rust
@@ -90,6 +90,21 @@ Run the web service:
 ```sh
 cd rust
 cargo run --bin maprando-web -- --seed-repository-url mem
+```
+
+### Use local copy of videos
+
+If you want to be able to have full functionality of the site while offline, including being able to browse the library of videos in the Logic pages, a local copy of the video library can be downloaded or synced as follows:
+
+```sh
+sh scripts/download_videos.sh
+```
+
+This will require at least 10 GB of disk space; running this multiple times will only download files that are new or have been updated. Then run the randomizer using the `--video-storage-path` option to point the randomizer to the local copy of the videos:
+
+```sh
+cd rust
+cargo run --bin maprando-web -- --seed-repository-url mem --video-storage-path ../map-rando-videos
 ```
 
 ### Run the CLI using Cargo

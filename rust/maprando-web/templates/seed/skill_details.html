@@ -49,7 +49,7 @@
 
 <div class="accordion mt-3">
 {% for p in preset_data %}
-    {% if p.preset.name == "Ignored" %}
+    {% if p.preset.name == "Implicit" || p.preset.name == "Ignored" %}
       {% continue %}
     {% endif %}
     {% let name_no_space = p.preset.name.replace(" ", "") %}
@@ -61,13 +61,13 @@
         </h2>
         <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse p-2">
             <div class="container">
-                {% for tech in p.preset.tech %}
+                {% for tech_setting in p.preset.tech %}
                     <div class="row">
                         <div class="col-9 col-sm-10 col-lg-8">
-                            {{+ tech }}:
+                            {{+ tech_setting.name }}:
                         </div>
                         <div class="col-3 col-sm-2">
-                            {% if enabled_tech.contains(tech.as_str()) %}Yes{% else %}No{% endif %}
+                            {% if enabled_tech.contains(tech_setting.tech_id) %}Yes{% else %}No{% endif %}
                         </div>
                     </div>
                 {% endfor %}

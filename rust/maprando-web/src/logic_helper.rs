@@ -11,13 +11,17 @@ use maprando::{
 };
 use maprando_game::{
     Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
-    RoomId, StratId, StratVideo, VertexAction, VertexKey,
+    RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH,
+    TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOONDANCE,
+    TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
 use urlencoding;
 
-use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
+use super::{PresetData, VersionInfo};
 
 #[derive(Clone)]
 struct RoomStrat {
@@ -67,6 +71,7 @@ struct RoomTemplate<'a> {
 struct TechTemplate<'a> {
     version_info: VersionInfo,
     difficulty_names: Vec<String>,
+    tech_id: TechId,
     tech_name: String,
     tech_note: String,
     tech_dependencies: String,
@@ -74,8 +79,7 @@ struct TechTemplate<'a> {
     tech_difficulty_name: String,
     strats: Vec<RoomStrat>,
     strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
-    tech_gif_listing: &'a HashSet<String>,
-    hq_video_url_root: String,
+    tech_video_id: Option<usize>,
     video_storage_url: String,
 }
 
@@ -108,7 +112,7 @@ pub struct LogicData {
     pub index_html: String,                        // Logic index page
     pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
     pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
-    pub tech_strat_counts: HashMap<String, usize>, // Map from tech name to strat count using that tech.
+    pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech name to strat count using that tech.
     pub strat_html: HashMap<(String, usize, usize, String), String>, // Map from (room name, from node ID, to node ID, strat name) to rendered HTML.
 }
 
@@ -149,10 +153,11 @@ fn make_requires(requires_json: &JsonValue) -> String {
 fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &GameData) {
     if req.is_string() {
         let value = req.as_str().unwrap();
-        if let Some(idx) = game_data.tech_isv.index_by_key.get(value) {
+        if let Some(tech_id) = game_data.tech_id_by_name.get(value) {
             // Skipping tech dependencies, so that only techs that explicitly appear in a strat (or via a helper)
             // will show up under the corresponding tech page.
-            tech.insert(*idx);
+            let tech_idx = game_data.tech_isv.index_by_key[tech_id];
+            tech.insert(tech_idx);
         } else if let Some(helper_json) = game_data.helper_json_map.get(value) {
             for r in helper_json["requires"].members() {
                 extract_tech_rec(r, tech, game_data);
@@ -167,13 +172,13 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
         } else if key == "tech" {
             extract_tech_rec(value, tech, game_data);
         } else if key == "shinespark" {
-            tech.insert(game_data.tech_isv.index_by_key["canShinespark"]);
+            tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINESPARK]);
         } else if key == "comeInWithRMode" {
-            tech.insert(game_data.tech_isv.index_by_key["canEnterRMode"]);
+            tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE]);
         } else if key == "comeInWithGMode" {
-            tech.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+            tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE]);
             if value["artificialMorph"].as_bool().unwrap() {
-                tech.insert(game_data.tech_isv.index_by_key["canArtificialMorph"]);
+                tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ARTIFICIAL_MORPH]);
             }
         }
     }
@@ -182,11 +187,9 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
 fn make_tech_templates<'a>(
     game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
-    tech_gif_listing: &'a HashSet<String>,
     presets: &[PresetData],
     global_states: &[GlobalState],
     area_order: &[String],
-    hq_video_url_root: &str,
     video_storage_url: &str,
     version_info: &VersionInfo,
 ) -> Vec<TechTemplate<'a>> {
@@ -204,37 +207,39 @@ fn make_tech_templates<'a>(
                 extract_tech_rec(req, &mut tech_set, game_data);
             }
             if strat_json["bypassesDoorShell"].as_bool() == Some(true) {
-                tech_set.insert(game_data.tech_isv.index_by_key["canSkipDoorLock"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SKIP_DOOR_LOCK]);
             }
             if strat_json["entranceCondition"].has_key("comeInWithGMode") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE]);
             }
             if strat_json["entranceCondition"].has_key("comeInWithRMode") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canEnterRMode"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE]);
             }
             if strat_json["entranceCondition"].has_key("comeInSpeedballing") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canSpeedball"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL]);
             }
             if strat_json["entranceCondition"].has_key("comeInStutterShinecharging") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canStutterWaterShineCharge"]);
+                tech_set.insert(
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
+                );
             }
             if strat_json["entranceCondition"].has_key("comeInWithTemporaryBlue") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canTemporaryBlue"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE]);
             }
             if strat_json["entranceCondition"].has_key("comeInWithBombBoost") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canBombHorizontally"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_BOMB_HORIZONTALLY]);
             }
             if strat_json["entranceCondition"].has_key("comeInWithGrappleTeleport") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canGrappleTeleport"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT]);
             }
             if strat_json["exitCondition"].has_key("leaveWithGModeSetup") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE]);
             }
             if strat_json["exitCondition"].has_key("leaveWithGMode") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canEnterGMode"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE]);
             }
             if strat_json["exitCondition"].has_key("leaveWithGrappleTeleport") {
-                tech_set.insert(game_data.tech_isv.index_by_key["canGrappleTeleport"]);
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT]);
             }
 
             for tech_idx in tech_set {
@@ -260,9 +265,18 @@ fn make_tech_templates<'a>(
 
     let mut tech_templates: Vec<TechTemplate<'a>> = vec![];
     for (tech_idx, tech_ids) in tech_strat_ids.iter().enumerate() {
-        let tech_name = game_data.tech_isv.keys[tech_idx].clone();
-        let tech_note = game_data.tech_description[&tech_name].clone();
-        let tech_dependencies = game_data.tech_dependencies[&tech_name].join(", ");
+        let tech_id = game_data.tech_isv.keys[tech_idx].clone();
+        let tech_note = game_data.tech_description[&tech_id].clone();
+        let tech_dependency_names: Vec<String> = game_data.tech_dependencies[&tech_id]
+            .iter()
+            .map(|tech_id| {
+                game_data.tech_json_map[tech_id]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string()
+            })
+            .collect();
+        let tech_dependencies = tech_dependency_names.join(", ");
         let mut strats: Vec<RoomStrat> = vec![];
         let mut difficulty_idx = global_states.len();
 
@@ -273,7 +287,7 @@ fn make_tech_templates<'a>(
             }
         }
         let difficulty_name = if difficulty_idx == global_states.len() {
-            "Beyond".to_string()
+            "Ignored".to_string()
         } else {
             presets[difficulty_idx].preset.name.clone()
         };
@@ -296,15 +310,18 @@ fn make_tech_templates<'a>(
         let template = TechTemplate {
             version_info: version_info.clone(),
             difficulty_names,
-            tech_name: tech_name.clone(),
+            tech_id,
+            tech_name: game_data.tech_json_map[&tech_id]["name"]
+                .as_str()
+                .unwrap()
+                .to_string(),
             tech_note,
             tech_dependencies,
             tech_difficulty_idx: difficulty_idx,
             tech_difficulty_name: difficulty_name,
             strats,
             strat_videos: &game_data.strat_videos,
-            tech_gif_listing: tech_gif_listing,
-            hq_video_url_root: hq_video_url_root.to_string(),
+            tech_video_id: presets.last().unwrap().tech_setting[tech_idx].0.video_id,
             video_storage_url: video_storage_url.to_string(),
         };
         tech_templates.push(template);
@@ -313,10 +330,10 @@ fn make_tech_templates<'a>(
 }
 
 fn get_difficulty_config(preset: &PresetData, _game_data: &GameData) -> DifficultyConfig {
-    let mut tech_vec: Vec<String> = vec![];
-    for (tech_name, enabled) in &preset.tech_setting {
+    let mut tech_vec: Vec<TechId> = vec![];
+    for (tech_setting, enabled) in &preset.tech_setting {
         if *enabled {
-            tech_vec.push(tech_name.clone());
+            tech_vec.push(tech_setting.tech_id);
         }
     }
     let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
@@ -407,43 +424,45 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
             let main = &entrance_condition.main;
             if let MainEntranceCondition::ComeInWithGMode { .. } = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canEnterGMode"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE],
                 ));
             }
             if let MainEntranceCondition::ComeInWithRMode { .. } = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canEnterRMode"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
                 ));
             }
             if let MainEntranceCondition::ComeInSpeedballing { .. } = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canSpeedball"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL],
                 ));
             }
             if let MainEntranceCondition::ComeInStutterShinecharging { .. } = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canStutterWaterShineCharge"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
                 ));
             }
             if let MainEntranceCondition::ComeInWithTemporaryBlue { .. } = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canTemporaryBlue"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
                 ));
             }
             if let MainEntranceCondition::ComeInWithBombBoost {} = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canBombHorizontally"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_BOMB_HORIZONTALLY],
                 ));
             }
             if let MainEntranceCondition::ComeInWithGrappleTeleport { .. } = main {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canGrappleTeleport"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT],
                 ));
             }
             if let MainEntranceCondition::ComeInWithStoredFallSpeed { .. } = main {
                 reqs.push(Requirement::Or(vec![
-                    Requirement::Tech(game_data.tech_isv.index_by_key["canMoondance"]),
-                    Requirement::Tech(game_data.tech_isv.index_by_key["canEnemyStuckMoonfall"]),
+                    Requirement::Tech(game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOONDANCE]),
+                    Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENEMY_STUCK_MOONFALL],
+                    ),
                 ]));
             }
         }
@@ -452,17 +471,17 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
         if let VertexAction::Exit(exit_condition) = action {
             if let ExitCondition::LeaveWithGMode { .. } = exit_condition {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canEnterGMode"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE],
                 ));
             }
             if let ExitCondition::LeaveWithGModeSetup { .. } = exit_condition {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canEnterGMode"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE],
                 ));
             }
             if let ExitCondition::LeaveWithGrappleTeleport { .. } = exit_condition {
                 reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key["canGrappleTeleport"],
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT],
                 ));
             }
         }
@@ -506,6 +525,10 @@ fn get_strat_difficulty(
         locked_door_vertex_ids: vec![],
     };
     for (i, difficulty) in difficulty_configs.iter().enumerate() {
+        if i == 0 {
+            // Skip the "Implicit" difficulty
+            continue;
+        }
         let global = &global_states[i];
 
         let local = LocalState {
@@ -599,7 +622,7 @@ fn make_room_template<'a>(
             links_by_ids,
         );
         let difficulty_name = if difficulty_idx == difficulty_configs.len() {
-            "Beyond".to_string()
+            "Ignored".to_string()
         } else {
             presets[difficulty_idx].preset.name.clone()
         };
@@ -713,7 +736,6 @@ fn make_strat_template<'a>(
 impl LogicData {
     pub fn new(
         game_data: &GameData,
-        tech_gif_listing: &HashSet<String>,
         presets: &[PresetData],
         version_info: &VersionInfo,
         video_storage_url: &str,
@@ -726,10 +748,8 @@ impl LogicData {
             .map(|p| get_difficulty_config(p, game_data))
             .collect();
 
-        // Remove the "Beyond" difficulty tier: everything above Insane will be labeled as "Beyond" already.
+        // Remove the "Ignored" difficulty tier: everything above Beyond will be labeled as "Ignored" already.
         difficulty_configs.pop();
-
-        let hq_video_url_root = HQ_VIDEO_URL_ROOT;
 
         let area_order: Vec<String> = vec![
             "Central Crateria",
@@ -856,11 +876,9 @@ impl LogicData {
         let tech_templates = make_tech_templates(
             game_data,
             &room_templates,
-            tech_gif_listing,
             presets,
             &global_states,
             &area_order,
-            hq_video_url_root,
             video_storage_url,
             version_info,
         );
@@ -871,8 +889,7 @@ impl LogicData {
                 .iter()
                 .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
                 .count();
-            out.tech_strat_counts
-                .insert(template.tech_name.clone(), strat_count);
+            out.tech_strat_counts.insert(template.tech_id, strat_count);
             out.tech_html.insert(template.tech_name.clone(), html);
         }
 

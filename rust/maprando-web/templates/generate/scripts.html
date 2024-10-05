@@ -1,7 +1,7 @@
 <script>
 function presetChanged() {
     {% for p in preset_data %}
-        {% if p.preset.name == "Beyond" || p.preset.name == "Ignored" %}
+        {% if p.preset.name == "Implicit" || p.preset.name == "Beyond" || p.preset.name == "Ignored" %}
             {% continue %}
         {% endif %}
         {% let name_no_space = p.preset.name.replace(" ", "") %}
@@ -19,20 +19,21 @@ function presetChanged() {
             document.getElementById("ridleyProficiency").value = {{+ p.preset.ridley_proficiency }};
             document.getElementById("botwoonProficiency").value = {{+ p.preset.botwoon_proficiency }};
             document.getElementById("motherBrainProficiency").value = {{+ p.preset.botwoon_proficiency }};
-            {%+ for (tech, is_enabled) in p.tech_setting %}
-                {% if p.implicit_tech.contains(tech.as_str()) %}
+            {%+ for (tech_setting, is_enabled) in p.tech_setting %}
+                {% let tech_id = tech_setting.tech_id %}
+                {% if implicit_or_ignored_tech.contains(tech_setting.tech_id) %}
                     {% continue %}
                 {% endif %}
                 {%+ if is_enabled %}
-                    document.getElementById("tech-{{+ tech }}-Yes").checked = true;
+                    document.getElementById("tech-{{+ tech_id }}-Yes").checked = true;
                 {%+ else %}
-                    document.getElementById("tech-{{+ tech }}-No").checked = true; 
+                    document.getElementById("tech-{{+ tech_id }}-No").checked = true; 
                 {% endif %}
             {% endfor %}
             {%+ for (notable_setting, is_enabled) in p.notable_setting %}
                 {% let room_id = notable_setting.room_id %}
                 {% let notable_id = notable_setting.notable_id %}
-                {% if ignored_notables.contains((room_id, notable_id)) %}
+                {% if implicit_or_ignored_notables.contains((room_id, notable_id)) %}
                   {% continue %}
                 {% endif %}
                 {% let combo_id = format!("{}-{}", room_id, notable_id) %}
@@ -50,7 +51,7 @@ function presetChanged() {
 function updateTierPercent() {
     let presets = [];
     {% for p in preset_data %}
-        {% if p.preset.name == "Ignored" %}
+        {% if p.preset.name == "Implicit" || p.preset.name == "Ignored" %}
             {% continue %}
         {% endif %}
         {% let name_no_space = p.preset.name.replace(" ", "") %}
@@ -77,7 +78,7 @@ function updateTierPercent() {
 function techChanged() {
     {% for p in preset_data %}
         {% let name_no_space = p.preset.name.replace(" ", "") %}
-        {% if name_no_space == "Beyond" || name_no_space == "Ignored" %}
+        {% if name_no_space == "Implicit" || name_no_space == "Beyond" || name_no_space == "Ignored" %}
             {% continue %}
         {% endif %}
         document.getElementById("preset{{+ name_no_space }}").checked = false;
@@ -85,11 +86,13 @@ function techChanged() {
     updateTierPercent();
 }
 function updateTechJSON() {
-    techSelection = {}
+    techSelection = []
     document.querySelectorAll('.tech-input')
     .forEach(function (x) {
-        let name = x.name.substring(5);  // strip the "tech-" prefix
-        techSelection[name] = x.checked;
+        let parts = x.name.split("-");
+        let techId = parseInt(parts[1]);
+        let enabled = x.checked;
+        techSelection.push([techId, enabled]);
     });
     document.getElementById("json-tech").value = JSON.stringify(techSelection);
 }

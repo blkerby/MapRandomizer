@@ -49,7 +49,7 @@
                     <div class="col-lg-9 mt-0 btn-group overflow-auto" role="group">
                     {% for p in preset_data.iter() %}
                     {% let name = p.preset.name|as_ref %}
-                    {% if name == "Beyond" || name == "Ignored" %}
+                    {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
                     {% continue %}
                     {% endif %}
                     {% let name_no_space = p.preset.name.replace(" ", "") %}

@@ -2,17 +2,22 @@ v114:
 - DONE: implement support for custom BGData in Dust Torizo Room
 - DONE: create github action to assign strat IDs
 - LN Firefleas: add tank the damage strat from bottom to top
-- fix buggy x-ray graphics?
-  - likely caused by check at $84:8328 interacting badly with new/custom PLMs (e.g. hazard markers)
-- add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
+- remove fast drain change in Big Boy cutscene?
+- fix x-ray bugs? e.g. level graphics sometimes looking corrupted when using x-ray
+  - might be related to check at $84:8328 interacting badly with new/custom PLMs
+  - also see if this is the cause of crash reported by kyzentun, when x-raying while opening beam door
+- DONE: add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - use strat IDs in logic pages
+- create notable pages, and show strat counts on the Generate page like with tech
 - use new videos in logic pages and Generate page
   - DONE: notable strat videos in Generate page
   - DONE: strat videos in logic pages
-  - tech videos in Generate page
-  - tech videos in logic pages
-- handle "ignored" and "implicit" tech/notables in presets.
+  - DONE: tech videos in Generate page
+  - DONE: tech videos in logic pages
+  - show multiple videos per strat
+  - show video author & note in tooltip
+- DONE: handle "ignored" and "implicit" tech/notables in presets.
 - link to logic pages from video site?
 - use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
 - see if doorUnlockedAtNode is failing to get resolved when no door lock?

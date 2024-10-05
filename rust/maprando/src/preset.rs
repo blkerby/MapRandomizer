@@ -1,3 +1,4 @@
+use maprando_game::TechId;
 use serde::{Deserialize, Serialize};
 
 // #[derive(Serialize, Deserialize, Clone)]
@@ -5,6 +6,13 @@ use serde::{Deserialize, Serialize};
 //     tech_id: usize,
 //     name: String,
 // }
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct TechSetting {
+    pub tech_id: TechId,
+    pub name: String,
+    pub video_id: Option<usize>,
+}
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct NotableSetting {
@@ -31,6 +39,6 @@ pub struct Preset {
     pub ridley_proficiency: f32,
     pub botwoon_proficiency: f32,
     pub mother_brain_proficiency: f32,
-    pub tech: Vec<String>,
+    pub tech: Vec<TechSetting>,
     pub notables: Vec<NotableSetting>,
 }

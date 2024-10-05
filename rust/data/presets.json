@@ -1,5 +1,74 @@
 [
   {
+    "name": "Implicit",
+    "shinespark_tiles": 45,
+    "heated_shinespark_tiles": 45,
+    "speed_ball_tiles": 65,
+    "shinecharge_leniency_frames": 120,
+    "resource_multiplier": 4.0,
+    "gate_glitch_leniency": 14,
+    "door_stuck_leniency": 2,
+    "escape_timer_multiplier": 2.5,
+    "phantoon_proficiency": 0.0,
+    "draygon_proficiency": 0.0,
+    "ridley_proficiency": 0.0,
+    "botwoon_proficiency": 0.0,
+    "mother_brain_proficiency": 0.0,
+    "tech": [
+      {
+        "tech_id": 23,
+        "name": "canStopOnADime",
+        "video_id": 895
+      },
+      {
+        "tech_id": 31,
+        "name": "canTrivialMidAirMorph",
+        "video_id": 896
+      },
+      {
+        "tech_id": 50,
+        "name": "canUseGrapple",
+        "video_id": 897
+      },
+      {
+        "tech_id": 59,
+        "name": "canTurnaroundSpinJump",
+        "video_id": null
+      },
+      {
+        "tech_id": 101,
+        "name": "canUseEnemies",
+        "video_id": 456
+      },
+      {
+        "tech_id": 108,
+        "name": "canTrivialUseFrozenEnemies",
+        "video_id": 898
+      },
+      {
+        "tech_id": 118,
+        "name": "canTrickyDodgeEnemies",
+        "video_id": null
+      },
+      {
+        "tech_id": 119,
+        "name": "canEscapeEnemyGrab",
+        "video_id": null
+      },
+      {
+        "tech_id": 125,
+        "name": "canSpecialBeamAttack",
+        "video_id": null
+      },
+      {
+        "tech_id": 10002,
+        "name": "canEscapeMorphLocation",
+        "video_id": null
+      }
+    ],
+    "notables": []
+  },
+  {
     "name": "Basic",
     "shinespark_tiles": 33,
     "heated_shinespark_tiles": 33,
@@ -15,12 +84,31 @@
     "botwoon_proficiency": 0.0,
     "mother_brain_proficiency": 0.0,
     "tech": [
-      "canHeatRun",
-      "canMidAirMorph",
-      "canWalljump",
-      "canShinespark",
-      "canUseFrozenEnemies",
-      "canUseEnemies"
+      {
+        "tech_id": 6,
+        "name": "canHeatRun",
+        "video_id": 899
+      },
+      {
+        "tech_id": 32,
+        "name": "canMidAirMorph",
+        "video_id": 900
+      },
+      {
+        "tech_id": 76,
+        "name": "canWalljump",
+        "video_id": 901
+      },
+      {
+        "tech_id": 109,
+        "name": "canUseFrozenEnemies",
+        "video_id": 902
+      },
+      {
+        "tech_id": 132,
+        "name": "canShinespark",
+        "video_id": 903
+      }
     ],
     "notables": [
       {
@@ -48,25 +136,96 @@
     "botwoon_proficiency": 0.3,
     "mother_brain_proficiency": 0.3,
     "tech": [
-      "canSuitlessMaridia",
-      "canSpringBallJumpMidAir",
-      "canIBJ",
-      "canCarefulJump",
-      "canCrouchJump",
-      "canDownGrab",
-      "canConsecutiveWalljump",
-      "canHorizontalShinespark",
-      "canPreciseWalljump",
-      "canShinechargeMovement",
-      "canGravityJump",
-      "canNeutralDamageBoost",
-      "canSpaceJumpWaterBounce",
-      "canBombHorizontally",
-      "canPseudoScrew",
-      "canDisableEquipment",
-      "canCameraManip",
-      "canAwakenZebes",
-      "canHyperGateShot"
+      {
+        "tech_id": 7,
+        "name": "canSuitlessMaridia",
+        "video_id": 904
+      },
+      {
+        "tech_id": 10,
+        "name": "canSpaceJumpWaterBounce",
+        "video_id": 1010
+      },
+      {
+        "tech_id": 12,
+        "name": "canDisableEquipment",
+        "video_id": 1013
+      },
+      {
+        "tech_id": 21,
+        "name": "canDownGrab",
+        "video_id": 1015
+      },
+      {
+        "tech_id": 58,
+        "name": "canCrouchJump",
+        "video_id": 1022
+      },
+      {
+        "tech_id": 61,
+        "name": "canGravityJump",
+        "video_id": 1025
+      },
+      {
+        "tech_id": 64,
+        "name": "canSpringBallJumpMidAir",
+        "video_id": 1027
+      },
+      {
+        "tech_id": 71,
+        "name": "canCarefulJump",
+        "video_id": 457
+      },
+      {
+        "tech_id": 77,
+        "name": "canPreciseWalljump",
+        "video_id": 842
+      },
+      {
+        "tech_id": 80,
+        "name": "canConsecutiveWalljump",
+        "video_id": 1029
+      },
+      {
+        "tech_id": 87,
+        "name": "canBombHorizontally",
+        "video_id": 1035
+      },
+      {
+        "tech_id": 89,
+        "name": "canIBJ",
+        "video_id": 1037
+      },
+      {
+        "tech_id": 103,
+        "name": "canNeutralDamageBoost",
+        "video_id": 1041
+      },
+      {
+        "tech_id": 123,
+        "name": "canPseudoScrew",
+        "video_id": 1055
+      },
+      {
+        "tech_id": 133,
+        "name": "canHorizontalShinespark",
+        "video_id": 1052
+      },
+      {
+        "tech_id": 136,
+        "name": "canShinechargeMovement",
+        "video_id": 1053
+      },
+      {
+        "tech_id": 167,
+        "name": "canAwakenZebes",
+        "video_id": 1054
+      },
+      {
+        "tech_id": 182,
+        "name": "canCameraManip",
+        "video_id": 1057
+      }
     ],
     "notables": [
       {
@@ -129,41 +288,191 @@
     "botwoon_proficiency": 0.5,
     "mother_brain_proficiency": 0.5,
     "tech": [
-      "canCrossRoomJumpIntoWater",
-      "canWaterShineCharge",
-      "canMidairShinespark",
-      "canPlayInSand",
-      "canDodgeWhileShooting",
-      "canTrickyUseFrozenEnemies",
-      "canTrickySpringBallJump",
-      "canIframeSpikeJump",
-      "canJumpIntoIBJ",
-      "canMockball",
-      "canHorizontalDamageBoost",
-      "canSuitlessLavaDive",
-      "canLateralMidAirMorph",
-      "canStaggeredWalljump",
-      "canHitbox",
-      "canResetFallSpeed",
-      "canGateGlitch",
-      "canDelayedWalljump",
-      "canWallJumpInstantMorph",
-      "canPreciseGrapple",
-      "canSunkenTileWideWallClimb",
-      "canUseSpeedEchoes",
-      "canSpringBallBounce",
-      "canTwoTileSqueeze",
-      "canMochtroidIceClimb",
-      "canHeroShot",
-      "canXRayWaitForIFrames",
-      "canXRayStandUp",
-      "canCeilingClip",
-      "canXRayCeilingClip",
-      "canSnailClimb",
-      "canOffScreenSuperShot",
-      "canManageReserves",
-      "canPowerBombMidIBJ",
-      "canMorphTurnaround"
+      {
+        "tech_id": 5,
+        "name": "canSuitlessLavaDive",
+        "video_id": 132
+      },
+      {
+        "tech_id": 8,
+        "name": "canSunkenTileWideWallClimb",
+        "video_id": 1011
+      },
+      {
+        "tech_id": 9,
+        "name": "canCrossRoomJumpIntoWater",
+        "video_id": 1012
+      },
+      {
+        "tech_id": 13,
+        "name": "canPlayInSand",
+        "video_id": 1014
+      },
+      {
+        "tech_id": 18,
+        "name": "canManageReserves",
+        "video_id": 779
+      },
+      {
+        "tech_id": 24,
+        "name": "canMoonwalk",
+        "video_id": 555
+      },
+      {
+        "tech_id": 30,
+        "name": "canResetFallSpeed",
+        "video_id": 1016
+      },
+      {
+        "tech_id": 33,
+        "name": "canWallJumpInstantMorph",
+        "video_id": 1018
+      },
+      {
+        "tech_id": 37,
+        "name": "canLateralMidAirMorph",
+        "video_id": 1019
+      },
+      {
+        "tech_id": 38,
+        "name": "canSpringBallBounce",
+        "video_id": 1024
+      },
+      {
+        "tech_id": 41,
+        "name": "canMockball",
+        "video_id": 1026
+      },
+      {
+        "tech_id": 44,
+        "name": "canTwoTileSqueeze",
+        "video_id": 1028
+      },
+      {
+        "tech_id": 51,
+        "name": "canPreciseGrapple",
+        "video_id": 1031
+      },
+      {
+        "tech_id": 185,
+        "name": "canMorphTurnaround",
+        "video_id": 1066
+      },
+      {
+        "tech_id": 62,
+        "name": "canIframeSpikeJump",
+        "video_id": 1033
+      },
+      {
+        "tech_id": 65,
+        "name": "canTrickySpringBallJump",
+        "video_id": 1034
+      },
+      {
+        "tech_id": 78,
+        "name": "canDelayedWalljump",
+        "video_id": 1036
+      },
+      {
+        "tech_id": 82,
+        "name": "canStaggeredWalljump",
+        "video_id": 927
+      },
+      {
+        "tech_id": 90,
+        "name": "canJumpIntoIBJ",
+        "video_id": 1040
+      },
+      {
+        "tech_id": 98,
+        "name": "canPowerBombMidIBJ",
+        "video_id": 771
+      },
+      {
+        "tech_id": 102,
+        "name": "canSnailClimb",
+        "video_id": 1042
+      },
+      {
+        "tech_id": 104,
+        "name": "canHorizontalDamageBoost",
+        "video_id": 1043
+      },
+      {
+        "tech_id": 110,
+        "name": "canMochtroidIceClimb",
+        "video_id": 1044
+      },
+      {
+        "tech_id": 111,
+        "name": "canTrickyUseFrozenEnemies",
+        "video_id": 1046
+      },
+      {
+        "tech_id": 116,
+        "name": "canDodgeWhileShooting",
+        "video_id": 1051
+      },
+      {
+        "tech_id": 122,
+        "name": "canHitbox",
+        "video_id": 988
+      },
+      {
+        "tech_id": 126,
+        "name": "canOffScreenSuperShot",
+        "video_id": 1056
+      },
+      {
+        "tech_id": 127,
+        "name": "canGateGlitch",
+        "video_id": 1059
+      },
+      {
+        "tech_id": 130,
+        "name": "canHeroShot",
+        "video_id": 1061
+      },
+      {
+        "tech_id": 134,
+        "name": "canMidairShinespark",
+        "video_id": 453
+      },
+      {
+        "tech_id": 139,
+        "name": "canUseSpeedEchoes",
+        "video_id": 806
+      },
+      {
+        "tech_id": 150,
+        "name": "canWaterShineCharge",
+        "video_id": 577
+      },
+      {
+        "tech_id": 152,
+        "name": "canXRayWaitForIFrames",
+        "video_id": 1069
+      },
+      {
+        "tech_id": 155,
+        "name": "canXRayStandUp",
+        "video_id": 1071
+      },
+      {
+        "tech_id": 169,
+        "name": "canCeilingClip",
+        "video_id": 1064
+      },
+      {
+        "tech_id": 170,
+        "name": "canXRayCeilingClip",
+        "video_id": 1070
+      },
+      {
+        "tech_id": 10001,
+        "name": "canHyperGateShot",
+        "video_id": null
+      }
     ],
     "notables": [
       {
@@ -338,40 +647,176 @@
     "botwoon_proficiency": 0.7,
     "mother_brain_proficiency": 0.7,
     "tech": [
-      "canCrystalFlash",
-      "canTrickyJump",
-      "canPrepareForNextRoom",
-      "canMomentumConservingTurnaround",
-      "canSpringBallBombJump",
-      "canSpringwall",
-      "canSpeedball",
-      "canShinechargeMovementComplex",
-      "canTemporaryBlue",
-      "canXRayTurnaround",
-      "canMetroidAvoid",
-      "canBlueSpaceJump",
-      "canStationarySpinJump",
-      "can4HighMidAirMorph",
-      "canFlatleyJump",
-      "canPartialFloorClip",
-      "canTurnaroundAimCancel",
-      "canBombAboveIBJ",
-      "canBombJumpWaterEscape",
-      "canCrumbleJump",
-      "canEscapeSand",
-      "canMidairWiggle",
-      "canGrappleJump",
-      "canKago",
-      "canTunnelCrawl",
-      "canManipulateMellas",
-      "canWalljumpWithCharge",
-      "canMoonwalk",
-      "canMoonfall",
-      "canAutoCancelWeapon",
-      "canSamusEaterStandUp",
-      "canWrapAroundShot",
-      "canJumpIntoRespawningBlock",
-      "canBounceBall"
+      {
+        "tech_id": 4,
+        "name": "canPrepareForNextRoom",
+        "video_id": 853
+      },
+      {
+        "tech_id": 14,
+        "name": "canEscapeSand",
+        "video_id": 233
+      },
+      {
+        "tech_id": 22,
+        "name": "canDownBack",
+        "video_id": 894
+      },
+      {
+        "tech_id": 25,
+        "name": "canMoonfall",
+        "video_id": 485
+      },
+      {
+        "tech_id": 35,
+        "name": "can4HighMidAirMorph",
+        "video_id": 907
+      },
+      {
+        "tech_id": 42,
+        "name": "canSpeedball",
+        "video_id": 792
+      },
+      {
+        "tech_id": 43,
+        "name": "canBounceBall",
+        "video_id": 908
+      },
+      {
+        "tech_id": 46,
+        "name": "canTunnelCrawl",
+        "video_id": 909
+      },
+      {
+        "tech_id": 48,
+        "name": "canMidairWiggle",
+        "video_id": 910
+      },
+      {
+        "tech_id": 52,
+        "name": "canGrappleJump",
+        "video_id": 911
+      },
+      {
+        "tech_id": 60,
+        "name": "canFlatleyJump",
+        "video_id": 506
+      },
+      {
+        "tech_id": 63,
+        "name": "canStationarySpinJump",
+        "video_id": 914
+      },
+      {
+        "tech_id": 66,
+        "name": "canSpringwall",
+        "video_id": 916
+      },
+      {
+        "tech_id": 70,
+        "name": "canCrumbleJump",
+        "video_id": 641
+      },
+      {
+        "tech_id": 72,
+        "name": "canTrickyJump",
+        "video_id": 917
+      },
+      {
+        "tech_id": 84,
+        "name": "canJumpIntoRespawningBlock",
+        "video_id": 774
+      },
+      {
+        "tech_id": 91,
+        "name": "canBombAboveIBJ",
+        "video_id": 919
+      },
+      {
+        "tech_id": 95,
+        "name": "canSandIBJ",
+        "video_id": 955
+      },
+      {
+        "tech_id": 99,
+        "name": "canSpringBallBombJump",
+        "video_id": 730
+      },
+      {
+        "tech_id": 100,
+        "name": "canBombJumpWaterEscape",
+        "video_id": 922
+      },
+      {
+        "tech_id": 105,
+        "name": "canManipulateMellas",
+        "video_id": 79
+      },
+      {
+        "tech_id": 106,
+        "name": "canSamusEaterStandUp",
+        "video_id": 923
+      },
+      {
+        "tech_id": 107,
+        "name": "canKago",
+        "video_id": 924
+      },
+      {
+        "tech_id": 114,
+        "name": "canMetroidAvoid",
+        "video_id": 925
+      },
+      {
+        "tech_id": 124,
+        "name": "canWalljumpWithCharge",
+        "video_id": 926
+      },
+      {
+        "tech_id": 131,
+        "name": "canAutoCancelWeapon",
+        "video_id": 929
+      },
+      {
+        "tech_id": 137,
+        "name": "canShinechargeMovementComplex",
+        "video_id": 931
+      },
+      {
+        "tech_id": 145,
+        "name": "canBlueSpaceJump",
+        "video_id": 932
+      },
+      {
+        "tech_id": 146,
+        "name": "canTemporaryBlue",
+        "video_id": 930
+      },
+      {
+        "tech_id": 153,
+        "name": "canXRayTurnaround",
+        "video_id": 934
+      },
+      {
+        "tech_id": 173,
+        "name": "canPartialFloorClip",
+        "video_id": 796
+      },
+      {
+        "tech_id": 174,
+        "name": "canCrystalFlash",
+        "video_id": 935
+      },
+      {
+        "tech_id": 179,
+        "name": "canTurnaroundAimCancel",
+        "video_id": 936
+      },
+      {
+        "tech_id": 180,
+        "name": "canMomentumConservingTurnaround",
+        "video_id": 937
+      }
     ],
     "notables": [
       {
@@ -1022,41 +1467,171 @@
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
     "tech": [
-      "canXRayClimb",
-      "canRightSideDoorStuck",
-      "canTrickyDashJump",
-      "canDoubleBombJump",
-      "canShinechargeMovementTricky",
-      "canStutterWaterShineCharge",
-      "canSlowShortCharge",
-      "canDoubleSpringBallJumpMidAir",
-      "canStationaryLateralMidAirMorph",
-      "canRJump",
-      "canSpaceJumpWaterEscape",
-      "can3HighWallMidAirMorph",
-      "canPreciseCeilingClip",
-      "canFastWalljumpClimb",
-      "canQuickCrumbleEscape",
-      "canHBJ",
-      "canSpringFling",
-      "canChainTemporaryBlue",
-      "canBombIntoCrystalFlashClip",
-      "canUnmorphBombBoost",
-      "canStaggeredIBJ",
-      "canPauseAbuse",
-      "canWallJumpBombBoost",
-      "canBabyMetroidAvoid",
-      "canSandIBJ",
-      "canCWJ",
-      "canSandfallBounce",
-      "canEnemyExtendRunway",
-      "can10PowerBombCrystalFlash",
-      "canGrappleTeleport",
-      "canPreciseSpaceJump",
-      "canMomentumConservingMorph",
-      "canFarmWhileShooting",
-      "canTrickySpringBallBounce",
-      "canTrickyDodgeEnemies"
+      {
+        "tech_id": 11,
+        "name": "canSpaceJumpWaterEscape",
+        "video_id": 938
+      },
+      {
+        "tech_id": 15,
+        "name": "canSandfallBounce",
+        "video_id": 939
+      },
+      {
+        "tech_id": 19,
+        "name": "canPauseAbuse",
+        "video_id": 941
+      },
+      {
+        "tech_id": 34,
+        "name": "can3HighWallMidAirMorph",
+        "video_id": 942
+      },
+      {
+        "tech_id": 36,
+        "name": "canRJump",
+        "video_id": 943
+      },
+      {
+        "tech_id": 39,
+        "name": "canTrickySpringBallBounce",
+        "video_id": 944
+      },
+      {
+        "tech_id": 40,
+        "name": "canStationaryLateralMidAirMorph",
+        "video_id": 945
+      },
+      {
+        "tech_id": 47,
+        "name": "canQuickCrumbleEscape",
+        "video_id": 946
+      },
+      {
+        "tech_id": 55,
+        "name": "canGrappleTeleport",
+        "video_id": 775
+      },
+      {
+        "tech_id": 67,
+        "name": "canDoubleSpringBallJumpMidAir",
+        "video_id": 947
+      },
+      {
+        "tech_id": 69,
+        "name": "canSpringFling",
+        "video_id": 780
+      },
+      {
+        "tech_id": 73,
+        "name": "canTrickyDashJump",
+        "video_id": 950
+      },
+      {
+        "tech_id": 75,
+        "name": "canCWJ",
+        "video_id": 722
+      },
+      {
+        "tech_id": 81,
+        "name": "canFastWalljumpClimb",
+        "video_id": 951
+      },
+      {
+        "tech_id": 85,
+        "name": "canUnmorphBombBoost",
+        "video_id": 920
+      },
+      {
+        "tech_id": 86,
+        "name": "canWallJumpBombBoost",
+        "video_id": 953
+      },
+      {
+        "tech_id": 88,
+        "name": "canHBJ",
+        "video_id": 954
+      },
+      {
+        "tech_id": 96,
+        "name": "canDoubleBombJump",
+        "video_id": 958
+      },
+      {
+        "tech_id": 97,
+        "name": "canStaggeredIBJ",
+        "video_id": 434
+      },
+      {
+        "tech_id": 115,
+        "name": "canBabyMetroidAvoid",
+        "video_id": 960
+      },
+      {
+        "tech_id": 117,
+        "name": "canFarmWhileShooting",
+        "video_id": 767
+      },
+      {
+        "tech_id": 120,
+        "name": "canEnemyExtendRunway",
+        "video_id": 962
+      },
+      {
+        "tech_id": 138,
+        "name": "canShinechargeMovementTricky",
+        "video_id": 963
+      },
+      {
+        "tech_id": 140,
+        "name": "canSlowShortCharge",
+        "video_id": 965
+      },
+      {
+        "tech_id": 144,
+        "name": "canPreciseSpaceJump",
+        "video_id": 770
+      },
+      {
+        "tech_id": 147,
+        "name": "canChainTemporaryBlue",
+        "video_id": 956
+      },
+      {
+        "tech_id": 151,
+        "name": "canStutterWaterShineCharge",
+        "video_id": 966
+      },
+      {
+        "tech_id": 156,
+        "name": "canXRayClimb",
+        "video_id": 795
+      },
+      {
+        "tech_id": 157,
+        "name": "canRightSideDoorStuck",
+        "video_id": 968
+      },
+      {
+        "tech_id": 171,
+        "name": "canPreciseCeilingClip",
+        "video_id": 969
+      },
+      {
+        "tech_id": 175,
+        "name": "canBombIntoCrystalFlashClip",
+        "video_id": 970
+      },
+      {
+        "tech_id": 177,
+        "name": "can10PowerBombCrystalFlash",
+        "video_id": 971
+      },
+      {
+        "tech_id": 181,
+        "name": "canMomentumConservingMorph",
+        "video_id": 768
+      }
     ],
     "notables": [
       {
@@ -1784,38 +2359,161 @@
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
     "tech": [
-      "canBePatient",
-      "canEnterRMode",
-      "canEnterGMode",
-      "canEnterGModeImmobile",
-      "canArtificialMorph",
-      "canOffScreenMovement",
-      "canUpwardGModeSetup",
-      "canSkipDoorLock",
-      "canGrappleClip",
-      "canRightSideDoorStuckFromWater",
-      "canDiagonalBombJump",
-      "canInsaneJump",
-      "canInsaneWalljump",
-      "canUnderwaterWalljump",
-      "canShinesparkDeepStuck",
-      "canDeepTransition",
-      "canTrickyEnemyExtendRunway",
-      "canCrazyCrabClimb",
-      "canJumpIntoCrystalFlashClip",
-      "canXMode",
-      "canCrouchGateClip",
-      "canWallIceClip",
-      "canSuperJump",
-      "canSpeedKeep",
-      "canGrappleBombHang",
-      "canUnmorphGrappleHang",
-      "canSandBombBoost",
-      "canEnemyStuckMoonfall",
-      "canHighPixelCeilingClip",
-      "canReserveDoubleDamageBoost",
-      "canPauseRemorphTemporaryBlue",
-      "canXRayCancelShinecharge"
+      {
+        "tech_id": 1,
+        "name": "canBePatient",
+        "video_id": 973
+      },
+      {
+        "tech_id": 16,
+        "name": "canSandBombBoost",
+        "video_id": 764
+      },
+      {
+        "tech_id": 20,
+        "name": "canReserveDoubleDamageBoost",
+        "video_id": 991
+      },
+      {
+        "tech_id": 28,
+        "name": "canEnemyStuckMoonfall",
+        "video_id": 292
+      },
+      {
+        "tech_id": 45,
+        "name": "canCrouchGateClip",
+        "video_id": 791
+      },
+      {
+        "tech_id": 49,
+        "name": "canOffScreenMovement",
+        "video_id": 987
+      },
+      {
+        "tech_id": 56,
+        "name": "canGrappleBombHang",
+        "video_id": 31
+      },
+      {
+        "tech_id": 57,
+        "name": "canUnmorphGrappleHang",
+        "video_id": 766
+      },
+      {
+        "tech_id": 74,
+        "name": "canInsaneJump",
+        "video_id": 979
+      },
+      {
+        "tech_id": 79,
+        "name": "canInsaneWalljump",
+        "video_id": 999
+      },
+      {
+        "tech_id": 83,
+        "name": "canUnderwaterWalljump",
+        "video_id": 976
+      },
+      {
+        "tech_id": 94,
+        "name": "canDiagonalBombJump",
+        "video_id": 998
+      },
+      {
+        "tech_id": 112,
+        "name": "canWallIceClip",
+        "video_id": 1000
+      },
+      {
+        "tech_id": 113,
+        "name": "canCrazyCrabClimb",
+        "video_id": 1001
+      },
+      {
+        "tech_id": 121,
+        "name": "canTrickyEnemyExtendRunway",
+        "video_id": 777
+      },
+      {
+        "tech_id": 129,
+        "name": "canGrappleClip",
+        "video_id": 188
+      },
+      {
+        "tech_id": 135,
+        "name": "canShinesparkDeepStuck",
+        "video_id": 716
+      },
+      {
+        "tech_id": 143,
+        "name": "canSpeedKeep",
+        "video_id": 995
+      },
+      {
+        "tech_id": 149,
+        "name": "canPauseRemorphTemporaryBlue",
+        "video_id": 184
+      },
+      {
+        "tech_id": 154,
+        "name": "canXRayCancelShinecharge",
+        "video_id": 153
+      },
+      {
+        "tech_id": 158,
+        "name": "canRightSideDoorStuckFromWater",
+        "video_id": 1006
+      },
+      {
+        "tech_id": 159,
+        "name": "canXMode",
+        "video_id": 1002
+      },
+      {
+        "tech_id": 161,
+        "name": "canEnterRMode",
+        "video_id": 207
+      },
+      {
+        "tech_id": 162,
+        "name": "canEnterGMode",
+        "video_id": 982
+      },
+      {
+        "tech_id": 163,
+        "name": "canEnterGModeImmobile",
+        "video_id": 994
+      },
+      {
+        "tech_id": 164,
+        "name": "canArtificialMorph",
+        "video_id": 985
+      },
+      {
+        "tech_id": 166,
+        "name": "canUpwardGModeSetup",
+        "video_id": 1004
+      },
+      {
+        "tech_id": 172,
+        "name": "canHighPixelCeilingClip",
+        "video_id": 762
+      },
+      {
+        "tech_id": 176,
+        "name": "canJumpIntoCrystalFlashClip",
+        "video_id": 986
+      },
+      {
+        "tech_id": 183,
+        "name": "canDeepTransition",
+        "video_id": 778
+      },
+      {
+        "tech_id": 184,
+        "name": "canSkipDoorLock",
+        "video_id": 800
+      }
     ],
     "notables": [
       {
@@ -2529,17 +3227,61 @@
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
     "tech": [
-      "canBeVeryPatient",
-      "canMoondance",
-      "canExtendedMoondance",
-      "canCeilingBombJump",
-      "canBombGrappleJump",
-      "canDownwardGModeSetup",
-      "canUnderwaterBombIntoSpringBallJump",
-      "canTrickyGrappleJump",
-      "canSandGrappleBoost",
-      "canFreeFallClip",
-      "canLongChainTemporaryBlue"
+      {
+        "tech_id": 2,
+        "name": "canBeVeryPatient",
+        "video_id": 974
+      },
+      {
+        "tech_id": 17,
+        "name": "canSandGrappleBoost",
+        "video_id": 763
+      },
+      {
+        "tech_id": 26,
+        "name": "canMoondance",
+        "video_id": 293
+      },
+      {
+        "tech_id": 27,
+        "name": "canExtendedMoondance",
+        "video_id": 782
+      },
+      {
+        "tech_id": 29,
+        "name": "canFreeFallClip",
+        "video_id": 760
+      },
+      {
+        "tech_id": 53,
+        "name": "canTrickyGrappleJump",
+        "video_id": 776
+      },
+      {
+        "tech_id": 54,
+        "name": "canBombGrappleJump",
+        "video_id": 274
+      },
+      {
+        "tech_id": 68,
+        "name": "canUnderwaterBombIntoSpringBallJump",
+        "video_id": 1007
+      },
+      {
+        "tech_id": 92,
+        "name": "canCeilingBombJump",
+        "video_id": 1008
+      },
+      {
+        "tech_id": 148,
+        "name": "canLongChainTemporaryBlue",
+        "video_id": 765
+      },
+      {
+        "tech_id": 165,
+        "name": "canDownwardGModeSetup",
+        "video_id": 1009
+      }
     ],
     "notables": [
       {
@@ -3071,9 +3813,21 @@
     "botwoon_proficiency": 1.0,
     "mother_brain_proficiency": 1.0,
     "tech": [
-      "canBeExtremelyPatient",
-      "canLongCeilingBombJump",
-      "canUnderwaterWalljumpBreakFree"
+      {
+        "tech_id": 3,
+        "name": "canBeExtremelyPatient",
+        "video_id": 271
+      },
+      {
+        "tech_id": 186,
+        "name": "canUnderwaterWalljumpBreakFree",
+        "video_id": null
+      },
+      {
+        "tech_id": 93,
+        "name": "canLongCeilingBombJump",
+        "video_id": 273
+      }
     ],
     "notables": [
       {
@@ -3163,7 +3917,38 @@
     "ridley_proficiency": 0.0,
     "botwoon_proficiency": 0.0,
     "mother_brain_proficiency": 0.0,
-    "tech": [],
+    "tech": [
+      {
+        "tech_id": 128,
+        "name": "canWrapAroundShot",
+        "video_id": null
+      },
+      {
+        "tech_id": 141,
+        "name": "canSpikeSuit",
+        "video_id": null
+      },
+      {
+        "tech_id": 142,
+        "name": "canTrickyCarryFlashSuit",
+        "video_id": null
+      },
+      {
+        "tech_id": 160,
+        "name": "canSuperJump",
+        "video_id": null
+      },
+      {
+        "tech_id": 168,
+        "name": "canRiskPermanentLossOfAccess",
+        "video_id": null
+      },
+      {
+        "tech_id": 178,
+        "name": "canElevatorCrystalFlash",
+        "video_id": null
+      }
+    ],
     "notables": [
       {
         "room_id": 51,
