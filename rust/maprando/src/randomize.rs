@@ -579,6 +579,7 @@ impl<'a> Preprocessor<'a> {
                         requirement: req,
                         start_with_shinecharge: carry_shinecharge,
                         end_with_shinecharge: carry_shinecharge,
+                        strat_id: None,
                         strat_name: "Base (Cross Room)".to_string(),
                         strat_notes: vec![],
                     });
@@ -3765,6 +3766,7 @@ impl<'r> Randomizer<'r> {
             .enumerate()
             .zip(self.game_data.room_geometry.iter())
             .map(|((room_idx, c), g)| {
+                let room_id = self.game_data.room_id_by_ptr[&g.rom_address];
                 let room = g.name.clone();
                 let short_name = strip_name(&room);
                 let map = if room_idx == self.game_data.toilet_room_idx {
@@ -3790,6 +3792,7 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 SpoilerRoomLoc {
+                    room_id,
                     room,
                     short_name,
                     map,
@@ -4087,6 +4090,7 @@ impl<'r> Randomizer<'r> {
             .iter()
             .zip(self.game_data.room_geometry.iter())
             .map(|(c, g)| {
+                let room_id = self.game_data.room_id_by_ptr[&g.rom_address];
                 let room = g.name.clone();
                 let short_name = strip_name(&room);
                 let height = g.map.len();
@@ -4094,6 +4098,7 @@ impl<'r> Randomizer<'r> {
                 let map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
                 let map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
                 SpoilerRoomLoc {
+                    room_id,
                     room,
                     short_name,
                     map: g.map.clone(),
@@ -4347,6 +4352,7 @@ pub struct SpoilerRouteEntry {
     area: String,
     room: String,
     node: String,
+    room_id: usize,
     short_room: String,
     from_node_id: usize,
     to_node_id: usize,
@@ -4354,7 +4360,7 @@ pub struct SpoilerRouteEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     coords: Option<(usize, usize)>,
     strat_name: String,
-    short_strat_name: String,
+    strat_id: Option<usize>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     strat_notes: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -4432,6 +4438,7 @@ pub struct SpoilerItemLoc {
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerRoomLoc {
     // here temporarily, most likely, since these can be baked into the web UI
+    room_id: usize,
     room: String,
     short_name: String,
     map: Vec<Vec<u8>>,
@@ -4611,12 +4618,13 @@ impl<'a> Randomizer<'a> {
                     short_room: strip_name(&to_vertex_info.room_name),
                     room: to_vertex_info.room_name,
                     node: to_vertex_info.node_name,
+                    room_id: to_vertex_info.room_id,
                     from_node_id: from_vertex_info.node_id,
                     to_node_id: to_vertex_info.node_id,
+                    strat_id: link.strat_id,
                     obstacles_bitmask: to_obstacles_mask,
                     coords,
                     strat_name: link.strat_name.clone(),
-                    short_strat_name: strip_name(&link.strat_name),
                     strat_notes: link.strat_notes.clone(),
                     energy_used: if last {
                         Some(new_local_state.energy_used)

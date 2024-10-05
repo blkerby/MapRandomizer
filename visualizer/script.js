@@ -337,7 +337,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let tile = map[y * 72 + x];
 				if (tile >= 0) {
 					el.innerText = c.all_rooms[tile].room;
-					el.dataset.shortName = c.all_rooms[tile].short_name;
+					el.dataset.roomId = c.all_rooms[tile].room_id;
 					el.style.left = ev.offsetX + 16 + "px";
 					el.style.top = ev.offsetY + "px";
 					el.classList.remove("hidden");
@@ -382,7 +382,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	document.getElementById("map").ondblclick = ev => {
 		if (!el.classList.contains("hidden")) {
-			window.open("/logic/room/" + el.dataset.shortName.replace(/\s+/g, ''))
+			window.open("/logic/room/" + el.dataset.roomId);
 		}
 	}
 	let createDiv = (html) => {
@@ -499,7 +499,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 				let out = "";
 				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
-					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
+					let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 					if (k.strat_notes) {
 						let title = "";
 						for (let i of k.strat_notes) {
@@ -582,7 +582,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 				out = "";
 				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
-					let strat_url = `/logic/room/${k.short_room}/${k.from_node_id}/${k.to_node_id}/${k.short_strat_name}`;
+					let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 					if (k.strat_notes) {
 						let title = "";
 						for (let i of k.strat_notes) {

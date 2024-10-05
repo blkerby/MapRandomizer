@@ -370,7 +370,9 @@ pub struct Link {
     pub requirement: Requirement,
     pub start_with_shinecharge: bool,
     pub end_with_shinecharge: bool,
+    pub strat_id: Option<usize>,
     pub strat_name: String,
+    // TODO: Remove this field since this data can be looked up elsewhere:
     pub strat_notes: Vec<String>,
 }
 
@@ -3297,6 +3299,7 @@ impl GameData {
         let num_obstacles = obstacles_idx_map.len();
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
+        let strat_id = strat_json["id"].as_usize();
         // TODO: deal with heated room more explicitly for Volcano Room, instead of guessing based on node ID:
         let from_heated = self.get_room_heated(room_json, from_node_id)?;
         let to_node_json = self.node_json_map[&(room_id, to_node_id)].clone();
@@ -3466,6 +3469,7 @@ impl GameData {
                 requirement: requirement.clone(),
                 start_with_shinecharge,
                 end_with_shinecharge,
+                strat_id,
                 strat_name: strat_name.clone(),
                 strat_notes,
             };
@@ -3501,6 +3505,7 @@ impl GameData {
                     requirement: r.clone(),
                     start_with_shinecharge: false,
                     end_with_shinecharge: false,
+                    strat_id: None,
                     strat_name: "Base (Maybe Exit -> Exit)".to_string(),
                     strat_notes: vec![],
                 });
@@ -3519,6 +3524,7 @@ impl GameData {
                     requirement: Requirement::Free,
                     start_with_shinecharge: false,
                     end_with_shinecharge: false,
+                    strat_id: None,
                     strat_name: "Base (Action -> Plain)".to_string(),
                     strat_notes: vec![],
                 });
@@ -3551,6 +3557,7 @@ impl GameData {
                         requirement: unlock_req,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
+                        strat_id: None,
                         strat_name: "Base (Unlock)".to_string(),
                         strat_notes: vec![],
                     });
@@ -3560,6 +3567,7 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
+                        strat_id: None,
                         strat_name: "Base (Return from Unlock)".to_string(),
                         strat_notes: vec![],
                     });
@@ -3681,6 +3689,7 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: false,
                         end_with_shinecharge: false,
+                        strat_id: None,
                         strat_name: "G-Mode Go Back Through Door".to_string(),
                         strat_notes: vec![],
                     };

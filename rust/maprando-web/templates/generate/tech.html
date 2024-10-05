@@ -74,7 +74,7 @@
                                     <p><i>Dependencies: {{+ tech_dependencies_str[tech_id] }} </i></p>
                                     {% endif %}
                                     {% if tech_strat_counts[tech_id] > 0usize|as_ref %}
-                                        <p class="mt-3"><a href="/logic/tech/{{+ tech_name }}" onclick="setPreset('{{+ preset_idx }}');">
+                                        <p class="mt-3"><a href="/logic/tech/{{+ tech_id }}" onclick="setPreset('{{+ preset_idx }}');">
                                         {{+ tech_strat_counts[tech_id] +}} strat(s)</a></p>
                                     {% endif %}
                                 </div>

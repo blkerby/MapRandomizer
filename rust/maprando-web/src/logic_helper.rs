@@ -4,7 +4,7 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use maprando::{
     randomize::{
-        strip_name, AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal,
+        AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal,
         MapsRevealed, SaveAnimals, StartLocationMode, WallJump,
     },
     traverse::{apply_requirement, LockedDoorData},
@@ -27,11 +27,9 @@ use super::{PresetData, VersionInfo};
 struct RoomStrat {
     room_id: usize,
     room_name: String,
-    room_name_stripped: String,
     area: String,
     strat_id: usize,
     strat_name: String,
-    strat_name_stripped: String,
     bypasses_door_shell: bool,
     from_node_id: usize,
     from_node_name: String,
@@ -55,7 +53,6 @@ struct RoomTemplate<'a> {
     difficulty_names: Vec<String>,
     room_id: usize,
     room_name: String,
-    room_name_stripped: String,
     room_name_url_encoded: String,
     area: String,
     room_diagram_path: String,
@@ -110,10 +107,10 @@ struct LogicIndexTemplate<'a> {
 #[derive(Default)]
 pub struct LogicData {
     pub index_html: String,                        // Logic index page
-    pub room_html: HashMap<String, String>, // Map from room name (alphanumeric characters only) to rendered HTML.
-    pub tech_html: HashMap<String, String>, // Map from tech name to rendered HTML.
+    pub room_html: HashMap<RoomId, String>, // Map from room ID to rendered HTML.
+    pub tech_html: HashMap<TechId, String>, // Map from tech name to rendered HTML.
     pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech name to strat count using that tech.
-    pub strat_html: HashMap<(String, usize, usize, String), String>, // Map from (room name, from node ID, to node ID, strat name) to rendered HTML.
+    pub strat_html: HashMap<(RoomId, NodeId, NodeId, StratId), String>, // Map from (room ID, from node ID, to node ID, strat ID) to rendered HTML.
 }
 
 fn list_room_diagram_files() -> HashMap<usize, String> {
@@ -579,7 +576,6 @@ fn make_room_template<'a>(
     let mut room_strats: Vec<RoomStrat> = vec![];
     let room_id = room_json["id"].as_usize().unwrap();
     let room_name = room_json["name"].as_str().unwrap().to_string();
-    let room_name_stripped = strip_name(&room_name);
     let mut node_name_map: HashMap<usize, String> = HashMap::new();
     let mut nodes: Vec<(usize, String)> = vec![];
     for node_json in room_json["nodes"].members() {
@@ -672,11 +668,9 @@ fn make_room_template<'a>(
         let strat = RoomStrat {
             room_id,
             room_name: room_name.clone(),
-            room_name_stripped: room_name_stripped.clone(),
             area: full_area.clone(),
             strat_id,
             strat_name: strat_name.clone(),
-            strat_name_stripped: strip_name(&strat_name),
             bypasses_door_shell: strat_json["bypassesDoorShell"].as_bool() == Some(true),
             from_node_id,
             from_node_name: node_name_map[&from_node_id].clone(),
@@ -702,7 +696,6 @@ fn make_room_template<'a>(
         room_id,
         room_name_url_encoded: urlencoding::encode(&room_name).into_owned(),
         room_name,
-        room_name_stripped,
         area: full_area,
         room_diagram_path: room_diagram_listing[&room_id].clone(),
         nodes,
@@ -834,6 +827,7 @@ impl LogicData {
         }
 
         for (_, room_json) in game_data.room_json_map.iter() {
+            let room_id = room_json["id"].as_usize().unwrap();
             let template = make_room_template(
                 room_json,
                 &room_diagram_listing,
@@ -846,8 +840,7 @@ impl LogicData {
                 version_info,
             );
             let html = template.clone().render().unwrap();
-            let stripped_room_name = strip_name(&template.room_name);
-            out.room_html.insert(stripped_room_name.clone(), html);
+            out.room_html.insert(room_id, html);
             room_templates.push(template.clone());
 
             for strat in &template.strats {
@@ -859,13 +852,12 @@ impl LogicData {
                     game_data,
                 );
                 let strat_html = strat_template.render().unwrap();
-                let stripped_strat_name = strip_name(&strat.strat_name);
                 out.strat_html.insert(
                     (
-                        stripped_room_name.clone(),
+                        room_id,
                         strat.from_node_id,
                         strat.to_node_id,
-                        stripped_strat_name,
+                        strat.strat_id,
                     ),
                     strat_html,
                 );
@@ -890,7 +882,7 @@ impl LogicData {
                 .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
                 .count();
             out.tech_strat_counts.insert(template.tech_id, strat_count);
-            out.tech_html.insert(template.tech_name.clone(), html);
+            out.tech_html.insert(template.tech_id, html);
         }
 
         let index_template = LogicIndexTemplate {

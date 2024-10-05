@@ -1,11 +1,11 @@
 <div class="row">
     <div class="col-md-6">
-        <a href="/logic/room/{{+ strat.room_name_stripped }}/{{+ strat.from_node_id }}/{{+ strat.to_node_id }}/{{+ strat.strat_name_stripped }}">
+        <a href="/logic/room/{{+ strat.room_id }}/{{+ strat.from_node_id }}/{{+ strat.to_node_id }}/{{+ strat.strat_id }}">
             {{+ strat.strat_name }}
         </a>
         ({{+ strat.difficulty_name }})
         <br>
-        <a href="/logic/room/{{+ strat.room_name_stripped }}">{{+ strat.room_name }}</a>
+        <a href="/logic/room/{{+ strat.room_id }}">{{+ strat.room_name }}</a>
     </div>
     <div class="col-md-3">
         From: {{+ strat.from_node_id }}<br>

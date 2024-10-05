@@ -38,7 +38,7 @@ document.getElementById("navigation-logic").classList.add("active");
                     <div class="card-body px-2 py-1">
                         {% for room in rooms %}
                             {% if room.area|as_ref == area %}
-                                <p class="m-1"><a href="/logic/room/{{+ room.room_name_stripped }}">{{+ room.room_name }}</a></p>
+                                <p class="m-1"><a href="/logic/room/{{+ room.room_id }}">{{+ room.room_name }}</a></p>
                             {% endif %}
                         {% endfor %}
                     </div>
@@ -58,7 +58,7 @@ document.getElementById("navigation-logic").classList.add("active");
                             {% continue %}
                         {% endif %}
                         {% if t.tech_difficulty_idx == tech_difficulty_idx %}
-                            <p class="m-1"><a href="/logic/tech/{{+ t.tech_name }}">{{+ t.tech_name }}</a></p>
+                            <p class="m-1"><a href="/logic/tech/{{+ t.tech_id }}">{{+ t.tech_name }}</a></p>
                         {% endif %}
                     {% endfor %}
                     </div>
