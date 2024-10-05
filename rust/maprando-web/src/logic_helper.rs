@@ -16,7 +16,7 @@ use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
 use urlencoding;
 
-use super::{PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
+use super::{PresetData, VersionInfo};
 
 #[derive(Clone)]
 struct RoomStrat {
@@ -74,8 +74,7 @@ struct TechTemplate<'a> {
     tech_difficulty_name: String,
     strats: Vec<RoomStrat>,
     strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
-    tech_gif_listing: &'a HashSet<String>,
-    hq_video_url_root: String,
+    tech_video_id: Option<usize>,
     video_storage_url: String,
 }
 
@@ -183,11 +182,9 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
 fn make_tech_templates<'a>(
     game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
-    tech_gif_listing: &'a HashSet<String>,
     presets: &[PresetData],
     global_states: &[GlobalState],
     area_order: &[String],
-    hq_video_url_root: &str,
     video_storage_url: &str,
     version_info: &VersionInfo,
 ) -> Vec<TechTemplate<'a>> {
@@ -276,7 +273,7 @@ fn make_tech_templates<'a>(
             }
         }
         let difficulty_name = if difficulty_idx == global_states.len() {
-            "Beyond".to_string()
+            "Ignored".to_string()
         } else {
             presets[difficulty_idx].preset.name.clone()
         };
@@ -307,8 +304,7 @@ fn make_tech_templates<'a>(
             tech_difficulty_name: difficulty_name,
             strats,
             strat_videos: &game_data.strat_videos,
-            tech_gif_listing: tech_gif_listing,
-            hq_video_url_root: hq_video_url_root.to_string(),
+            tech_video_id: presets.last().unwrap().tech_setting[tech_idx].0.video_id,
             video_storage_url: video_storage_url.to_string(),
         };
         tech_templates.push(template);
@@ -510,6 +506,10 @@ fn get_strat_difficulty(
         locked_door_vertex_ids: vec![],
     };
     for (i, difficulty) in difficulty_configs.iter().enumerate() {
+        if i == 0 {
+            // Skip the "Implicit" difficulty
+            continue;
+        }
         let global = &global_states[i];
 
         let local = LocalState {
@@ -603,7 +603,7 @@ fn make_room_template<'a>(
             links_by_ids,
         );
         let difficulty_name = if difficulty_idx == difficulty_configs.len() {
-            "Beyond".to_string()
+            "Ignored".to_string()
         } else {
             presets[difficulty_idx].preset.name.clone()
         };
@@ -717,7 +717,6 @@ fn make_strat_template<'a>(
 impl LogicData {
     pub fn new(
         game_data: &GameData,
-        tech_gif_listing: &HashSet<String>,
         presets: &[PresetData],
         version_info: &VersionInfo,
         video_storage_url: &str,
@@ -730,10 +729,8 @@ impl LogicData {
             .map(|p| get_difficulty_config(p, game_data))
             .collect();
 
-        // Remove the "Beyond" difficulty tier: everything above Insane will be labeled as "Beyond" already.
+        // Remove the "Ignored" difficulty tier: everything above Beyond will be labeled as "Ignored" already.
         difficulty_configs.pop();
-
-        let hq_video_url_root = HQ_VIDEO_URL_ROOT;
 
         let area_order: Vec<String> = vec![
             "Central Crateria",
@@ -860,11 +857,9 @@ impl LogicData {
         let tech_templates = make_tech_templates(
             game_data,
             &room_templates,
-            tech_gif_listing,
             presets,
             &global_states,
             &area_order,
-            hq_video_url_root,
             video_storage_url,
             version_info,
         );

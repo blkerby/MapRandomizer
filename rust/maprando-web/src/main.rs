@@ -3,7 +3,7 @@ mod web;
 
 use crate::{
     logic_helper::LogicData,
-    web::{AppData, PresetData, VersionInfo, HQ_VIDEO_URL_ROOT, VERSION},
+    web::{AppData, PresetData, VersionInfo, VERSION},
 };
 use actix_easy_multipart::MultipartFormConfig;
 use actix_web::{
@@ -24,7 +24,6 @@ use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed};
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
-const TECH_GIF_PATH: &'static str = "static/tech_gifs/";
 
 fn init_presets(
     presets: Vec<Preset>,
@@ -140,8 +139,10 @@ fn init_presets(
 struct Args {
     #[arg(long)]
     seed_repository_url: String,
-    #[arg(long)]
+    #[arg(long, default_value = "https://map-rando-videos.b-cdn.net")]
     video_storage_url: String,
+    #[arg(long)]
+    video_storage_path: Option<String>,
     #[arg(long, action)]
     debug: bool,
     #[arg(long, action)]
@@ -161,16 +162,6 @@ fn load_visualizer_files() -> Vec<(String, Vec<u8>)> {
         let name = entry.file_name().to_str().unwrap().to_string();
         let data = std::fs::read(entry.path()).unwrap();
         files.push((name, data));
-    }
-    files
-}
-
-fn list_tech_gif_files() -> HashSet<String> {
-    let mut files: HashSet<String> = HashSet::new();
-    for entry_res in std::fs::read_dir(TECH_GIF_PATH).unwrap() {
-        let entry = entry_res.unwrap();
-        let name = entry.file_name().to_str().unwrap().to_string();
-        files.insert(name);
     }
     files
 }
@@ -222,7 +213,6 @@ fn build_app_data() -> AppData {
     .unwrap();
 
     info!("Loading logic preset data");
-    let tech_gif_listing = list_tech_gif_files();
     let presets: Vec<Preset> =
         serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let etank_colors: Vec<Vec<String>> =
@@ -232,12 +222,17 @@ fn build_app_data() -> AppData {
         version: VERSION,
         dev: args.dev,
     };
+    let video_storage_url = if args.video_storage_path.is_some() {
+        "/videos".to_string()
+    } else {
+        args.video_storage_url.clone()
+    };
+
     let logic_data = LogicData::new(
         &game_data,
-        &tech_gif_listing,
         &preset_data,
         &version_info,
-        &args.video_storage_url,
+        &video_storage_url,
     );
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
@@ -262,8 +257,8 @@ fn build_app_data() -> AppData {
         .collect(),
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
-        tech_gif_listing,
-        video_storage_url: args.video_storage_url,
+        video_storage_url,
+        video_storage_path: args.video_storage_path.clone(),
         logic_data,
         samus_sprite_categories,
         debug: args.debug,
@@ -291,7 +286,7 @@ async fn main() {
     let port = app_data.port;
 
     HttpServer::new(move || {
-        App::new()
+        let mut app = App::new()
             .wrap(Compress::default())
             .app_data(app_data.clone())
             .app_data(
@@ -312,7 +307,12 @@ async fn main() {
                 "../sm-json-data",
             ))
             .service(actix_files::Files::new("/static", "static"))
-            .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"))
+            .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"));
+    
+        if let Some(path) = &app_data.video_storage_path {
+            app = app.service(actix_files::Files::new("/videos", path));
+        }
+        app
     })
     .bind(("0.0.0.0", port))
     .unwrap()

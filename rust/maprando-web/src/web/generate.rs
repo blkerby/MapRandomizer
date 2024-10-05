@@ -1,4 +1,4 @@
-use crate::web::{AppData, PresetData, VersionInfo, HQ_VIDEO_URL_ROOT};
+use crate::web::{AppData, PresetData, VersionInfo};
 use actix_web::{get, web, HttpResponse, Responder};
 use askama::Template;
 use hashbrown::{HashMap, HashSet};
@@ -17,15 +17,12 @@ struct GenerateTemplate<'a> {
     starting_items_multiple: Vec<String>,
     starting_items_single: Vec<String>,
     prioritizable_items: Vec<String>,
-    tech_names: &'a HashMap<TechId, String>,
     tech_description: &'a HashMap<TechId, String>,
     tech_dependencies_str: &'a HashMap<TechId, String>,
-    tech_gif_listing: &'a HashSet<String>,
     implicit_or_ignored_tech: &'a HashSet<TechId>,
     implicit_or_ignored_notables: &'a HashSet<(RoomId, NotableId)>,
     notable_description: &'a HashMap<(RoomId, NotableId), String>,
     tech_strat_counts: &'a HashMap<TechId, usize>,
-    hq_video_url_root: &'a str,
     video_storage_url: &'a str,
 }
 
@@ -140,15 +137,12 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
             .collect(),
         prioritizable_items,
         preset_data: &app_data.preset_data,
-        tech_names: &app_data.game_data.tech_names,
         tech_description: &app_data.game_data.tech_description,
         tech_dependencies_str: &tech_dependencies_strs,
-        tech_gif_listing: &app_data.tech_gif_listing,
         notable_description: &notable_description,
         implicit_or_ignored_tech: &implicit_or_ignored_tech,    
         implicit_or_ignored_notables: &implicit_or_ignored_notables,
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
-        hq_video_url_root: HQ_VIDEO_URL_ROOT,
         video_storage_url: &app_data.video_storage_url,
     };
     HttpResponse::Ok()

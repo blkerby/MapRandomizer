@@ -41,6 +41,9 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
         <div class="col-lg-10 my-2 btn-group overflow-auto" role="group">
         {% for (i, difficulty) in difficulty_names.iter().enumerate() %}
+            {% if difficulty == "Implicit" || difficulty == "Ignored" %}
+              {% continue %}
+            {% endif %}
             <input type="radio" class="btn-check difficulty-filter" name="preset" value="{{+ i }}"
                 id="preset{{+ i }}" autocomplete="off" onclick="presetChanged()" 
                 {% if i == difficulty_names.len() - 1 %}
@@ -176,7 +179,8 @@ function updateSelect() {
     var cnt = 0;
     for (var i = 0; i < rows.length; i++) {
         var row = rows.item(i);
-        var validDifficulty = (row.getAttribute("data-difficulty") <= difficultyFilter);
+        // Include Ignored strats (difficulty 9) when Beyond (8) is selected:
+        var validDifficulty = difficultyFilter == 8 || (row.getAttribute("data-difficulty") <= difficultyFilter);
         var rowFromNode = row.getAttribute("data-from-node");
         var rowToNode = row.getAttribute("data-to-node");
         var validFrom = (selectedFromNode == "any" || rowFromNode == selectedFromNode);

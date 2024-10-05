@@ -78,7 +78,7 @@ function updateTierPercent() {
 function techChanged() {
     {% for p in preset_data %}
         {% let name_no_space = p.preset.name.replace(" ", "") %}
-        {% if name_no_space == "Beyond" %}
+        {% if name_no_space == "Implicit" || name_no_space == "Beyond" || name_no_space == "Ignored" %}
             {% continue %}
         {% endif %}
         document.getElementById("preset{{+ name_no_space }}").checked = false;
