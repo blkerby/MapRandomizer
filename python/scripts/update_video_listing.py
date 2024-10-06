@@ -9,7 +9,7 @@ users_response = requests.get(videos_url + "/list-users")
 users_list = users_response.json()
 user_dict = {x["id"]: x["username"] for x in users_list}
 
-videos_response = requests.get(videos_url + "/list-videos?status_list=Approved&sort_by=UpdatedTimestamp&limit=1000000")
+videos_response = requests.get(videos_url + "/list-videos?status_list=Approved&sort_by=LogicOrder&limit=1000000")
 videos_list = videos_response.json()
 
 output_list = []
