@@ -4429,6 +4429,16 @@ impl GameData {
         ];
         game_data.load_title_screens(title_screen_path)?;
 
+        // for link in &game_data.links {
+        //     let from_vertex_id = link.from_vertex_id;
+        //     let from_vertex_key = &game_data.vertex_isv.keys[from_vertex_id];
+        //     let to_vertex_id = link.to_vertex_id;
+        //     let to_vertex_key = &game_data.vertex_isv.keys[to_vertex_id];
+        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (66, 1) && from_vertex_key.room_id != 66 {
+        //         println!("From: {:?}\nTo: {:?}\nLink: {:?}\n", from_vertex_key, to_vertex_key, link);
+        //     }
+        // }
+
         Ok(game_data)
     }
 }

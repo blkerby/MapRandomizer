@@ -339,17 +339,20 @@ pub fn get_difficulty_tiers(
             quality_of_life_preset: difficulty.quality_of_life_preset.clone(),
             debug_options: difficulty.debug_options.clone(),
         };
-        if !is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
-            out.push(new_difficulty);
+        if is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
+            out.pop();
         }
+        out.push(new_difficulty);
     }
     out
 }
 
-// A simplified measure of "equivalence" in difficulty for the purposes of Forced mode logic, to reduce
-// the amount of tiers the randomizer has to consider:
 pub fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> bool {
-    return a.tech == b.tech && a.notables == b.notables;
+    let mut a1 = a.clone();
+    let mut b1 = b.clone();
+    a1.name = None;
+    b1.name = None;
+    return a1 == b1
 }
 
 pub async fn save_seed(

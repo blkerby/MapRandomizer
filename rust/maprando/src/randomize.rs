@@ -558,9 +558,8 @@ impl<'a> Preprocessor<'a> {
                 let exit_with_shinecharge = self.game_data.does_leave_shinecharged(exit_condition);
                 let enter_with_shinecharge =
                     self.game_data.does_come_in_shinecharged(entrance_condition);
-                let carry_shinecharge = exit_with_shinecharge || enter_with_shinecharge;
 
-                // if (src_room_id, src_node_id) == (155, 5) {
+                // if (dst_room_id, dst_node_id) == (66, 6) {
                 //     println!(
                 //         "({}, {}, {:?}) -> ({}, {}, {:?}): {:?}",
                 //         src_room_id,
@@ -577,8 +576,8 @@ impl<'a> Preprocessor<'a> {
                         from_vertex_id: *src_vertex_id,
                         to_vertex_id: *dst_vertex_id,
                         requirement: req,
-                        start_with_shinecharge: carry_shinecharge,
-                        end_with_shinecharge: carry_shinecharge,
+                        start_with_shinecharge: exit_with_shinecharge,
+                        end_with_shinecharge: enter_with_shinecharge,
                         strat_id: None,
                         strat_name: "Base (Cross Room)".to_string(),
                         strat_notes: vec![],
@@ -630,6 +629,17 @@ impl<'a> Preprocessor<'a> {
                 &mut door_links,
             )
         }
+
+        // for link in &door_links {
+        //     let from_vertex_id = link.from_vertex_id;
+        //     let from_vertex_key = &self.game_data.vertex_isv.keys[from_vertex_id];
+        //     let to_vertex_id = link.to_vertex_id;
+        //     let to_vertex_key = &self.game_data.vertex_isv.keys[to_vertex_id];
+        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (66, 3) && from_vertex_key.room_id != 66 {
+        //         println!("From: {:?}\nTo: {:?}\nLink: {:?}\n", from_vertex_key, to_vertex_key, link);
+        //     }
+        // }
+
         door_links
     }
 
