@@ -481,7 +481,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 		let item_info = document.createElement("div");
 		let item_difficulty = "";
-		if (j.difficulty !== null && j.difficulty !== undefined) {
+		if (j !== null && j.difficulty !== null && j.difficulty !== undefined) {
 			item_difficulty = ` (${j.difficulty})`
 		}
 		item_info.appendChild(createHtmlElement(`<div class="sidebar-item-name">${item_name}${item_difficulty}</div>`));
@@ -650,7 +650,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let j = null;
 		for (let l in c.details) {
 			for (let k of c.details[l].items) {
-				if (k.location.room == v.location.room && k.location.node == v.location.node) {
+				if (k.location.room_id == v.location.room_id && k.location.node_id == v.location.node_id) {
 					i = l;
 					j = k;
 					break;
@@ -668,7 +668,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		out:
 		for (let i in c.details) {
 			for (let j of c.details[i].items) {
-				if (j.location.room == v.location.room && j.location.node == v.location.node) {
+				if (j.location.room_id == v.location.room_id && j.location.node_id == v.location.node_id) {
 					el.innerHTML += `Step: ${c.details[i].step}<br>`;
 					fin = true;
 					break out;

@@ -3758,7 +3758,9 @@ impl<'r> Randomizer<'r> {
                 let item_vertex_info = self.get_vertex_info_by_id(r, n);
                 let location = SpoilerLocation {
                     area: item_vertex_info.area_name,
+                    room_id: item_vertex_info.room_id,
                     room: item_vertex_info.room_name,
+                    node_id: item_vertex_info.node_id,
                     node: item_vertex_info.node_name,
                     coords: item_vertex_info.room_coords,
                 };
@@ -4390,7 +4392,9 @@ pub struct SpoilerRouteEntry {
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLocation {
     pub area: String,
+    pub room_id: usize,
     pub room: String,
+    pub node_id: usize,
     pub node: String,
     pub coords: (usize, usize),
 }
@@ -4766,15 +4770,19 @@ impl<'a> Randomizer<'a> {
         item_vertex_id: usize,
         item: Item,
         tier: Option<usize>,
+        item_location_idx: usize,
     ) -> SpoilerItemDetails {
         let (obtain_route, return_route) =
             self.get_spoiler_route_birectional(state, item_vertex_id);
-        let item_vertex_info = self.get_vertex_info(item_vertex_id);
+        let (room_id, node_id) = self.game_data.item_locations[item_location_idx];
+        let item_vertex_info = self.get_vertex_info_by_id(room_id, node_id);
         SpoilerItemDetails {
             item: Item::VARIANTS[item as usize].to_string(),
             location: SpoilerLocation {
                 area: item_vertex_info.area_name,
+                room_id: item_vertex_info.room_id,
                 room: item_vertex_info.room_name,
+                node_id: item_vertex_info.node_id,
                 node: item_vertex_info.node_name,
                 coords: item_vertex_info.room_coords,
             },
@@ -4791,15 +4799,19 @@ impl<'a> Randomizer<'a> {
     fn get_spoiler_item_summary(
         &self,
         _state: &RandomizationState,
-        item_vertex_id: usize,
+        _item_vertex_id: usize,
         item: Item,
+        item_location_idx: usize,
     ) -> SpoilerItemSummary {
-        let item_vertex_info = self.get_vertex_info(item_vertex_id);
+        let (room_id, node_id) = self.game_data.item_locations[item_location_idx];
+        let item_vertex_info = self.get_vertex_info_by_id(room_id, node_id);
         SpoilerItemSummary {
             item: Item::VARIANTS[item as usize].to_string(),
             location: SpoilerLocation {
                 area: item_vertex_info.area_name,
+                room_id: item_vertex_info.room_id,
                 room: item_vertex_info.room_name,
+                node_id: item_vertex_info.node_id,
                 node: item_vertex_info.node_name,
                 coords: item_vertex_info.room_coords,
             },
@@ -4819,7 +4831,9 @@ impl<'a> Randomizer<'a> {
             flag: self.game_data.flag_isv.keys[flag_id].to_string(),
             location: SpoilerLocation {
                 area: flag_vertex_info.area_name,
+                room_id: flag_vertex_info.room_id,
                 room: flag_vertex_info.room_name,
+                node_id: flag_vertex_info.node_id,
                 node: flag_vertex_info.node_name,
                 coords: flag_vertex_info.room_coords,
             },
@@ -4841,7 +4855,9 @@ impl<'a> Randomizer<'a> {
             flag: self.game_data.flag_isv.keys[flag_id].to_string(),
             location: SpoilerLocation {
                 area: flag_vertex_info.area_name,
+                room_id: flag_vertex_info.room_id,
                 room: flag_vertex_info.room_name,
+                node_id: flag_vertex_info.node_id,
                 node: flag_vertex_info.node_name,
                 coords: flag_vertex_info.room_coords,
             },
@@ -4891,7 +4907,9 @@ impl<'a> Randomizer<'a> {
             ),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
+                room_id: door_vertex_info.room_id,
                 room: door_vertex_info.room_name,
+                node_id: door_vertex_info.node_id,
                 node: door_vertex_info.node_name,
                 coords: door_vertex_info.room_coords,
             },
@@ -4931,7 +4949,9 @@ impl<'a> Randomizer<'a> {
             ),
             location: SpoilerLocation {
                 area: door_vertex_info.area_name,
+                room_id: door_vertex_info.room_id,
                 room: door_vertex_info.room_name,
+                node_id: door_vertex_info.node_id,
                 node: door_vertex_info.node_name,
                 coords: door_vertex_info.room_coords,
             },
@@ -4958,7 +4978,7 @@ impl<'a> Randomizer<'a> {
                     let item_vertex_id =
                         state.item_location_state[i].bireachable_vertex_id.unwrap();
                     let tier = new_state.item_location_state[i].difficulty_tier;
-                    items.push(self.get_spoiler_item_details(state, item_vertex_id, item, tier));
+                    items.push(self.get_spoiler_item_details(state, item_vertex_id, item, tier, i));
                 }
             }
         }
@@ -4990,7 +5010,7 @@ impl<'a> Randomizer<'a> {
                 {
                     let item_vertex_id =
                         state.item_location_state[i].bireachable_vertex_id.unwrap();
-                    items.push(self.get_spoiler_item_summary(state, item_vertex_id, item));
+                    items.push(self.get_spoiler_item_summary(state, item_vertex_id, item, i));
                 }
             }
         }
