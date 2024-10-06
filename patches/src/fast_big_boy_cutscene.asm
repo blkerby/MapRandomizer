@@ -41,11 +41,15 @@ org $A9F31E
 org $A9F34A
     LDA #$0016          ; replaces: LDA #$0100  
 
-; Increase rate of draining Samus (without Varia):
-org $A9C560
-    LDY #$FFF9          ; replaces: LDY #$FFFC
-
-; Increase rate of draining Samus (with Varia):
-org $A9C569
-    LDY #$FFF9          ; replaces: LDY #$FFFD
-
+; Earlier versions made the energy drain go faster, but this was reverted:
+; - speeding up the drain is fairly unnecessary since damaging down on the Hopper is possible.
+; - speeding up the drain can interfere with strats for getting a blue suit during the drain.
+;
+;; Increase rate of draining Samus (without Varia):
+;org $A9C560
+;    LDY #$FFF9          ; replaces: LDY #$FFFC
+;
+;; Increase rate of draining Samus (with Varia):
+;org $A9C569
+;    LDY #$FFF9          ; replaces: LDY #$FFFD
+;

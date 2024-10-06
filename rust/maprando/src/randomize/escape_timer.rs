@@ -5,6 +5,7 @@ use maprando_game::TechId;
 use maprando_game::TECH_ID_CAN_HERO_SHOT;
 use maprando_game::TECH_ID_CAN_HYPER_GATE_SHOT;
 use maprando_game::TECH_ID_CAN_KAGO;
+use maprando_game::TECH_ID_CAN_MID_AIR_MORPH;
 use maprando_game::TECH_ID_CAN_MOONFALL;
 use maprando_game::TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT;
 use maprando_game::TECH_ID_CAN_SUITLESS_LAVA_DIVE;
@@ -80,6 +81,7 @@ fn is_requirement_satisfied(
 ) -> bool {
     match req {
         EscapeConditionRequirement::EnemiesCleared => config.escape_enemies_cleared,
+        EscapeConditionRequirement::CanMidAirMorph => tech_map[&TECH_ID_CAN_MID_AIR_MORPH],
         EscapeConditionRequirement::CanUsePowerBombs => {
             config.mother_brain_fight == MotherBrainFight::Skip
         }

@@ -20,6 +20,7 @@ use strum_macros::{EnumString, EnumVariantNames};
 
 pub const TECH_ID_CAN_WALLJUMP: TechId = 76;
 pub const TECH_ID_CAN_HEAT_RUN: TechId = 6;
+pub const TECH_ID_CAN_MID_AIR_MORPH: TechId = 32;
 pub const TECH_ID_CAN_SPEEDBALL: TechId = 42;
 pub const TECH_ID_CAN_MOCKBALL: TechId = 41;
 pub const TECH_ID_CAN_MANAGE_RESERVES: TechId = 18;
@@ -430,6 +431,7 @@ pub struct EscapeTimingDoor {
 #[serde(rename_all = "snake_case")]
 pub enum EscapeConditionRequirement {
     EnemiesCleared,
+    CanMidAirMorph,
     CanUsePowerBombs,
     CanMoonfall,
     CanReverseGate,
@@ -1078,6 +1080,7 @@ pub struct GameData {
     pub tech_json_map: HashMap<TechId, JsonValue>,
     pub tech_names: HashMap<TechId, String>,
     pub tech_id_by_name: HashMap<String, TechId>,
+    pub notable_id_by_name: HashMap<(RoomId, String), NotableId>,
     pub helper_json_map: HashMap<String, JsonValue>,
     tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
@@ -3719,6 +3722,9 @@ impl GameData {
             let notable_idx2 = self.notable_isv.add(&(room_id, notable_id));
             assert_eq!(notable_idx, notable_idx2);
             self.notable_data.push(notable_data);
+            self.notable_id_by_name.insert((room_id, notable_name.clone()), notable_id);
+            // TODO: the room-local `notable_map` could probably be eliminated, in favor of just using the global
+            // one (`notable_id_by_name``)
             notable_map.insert(notable_name, notable_idx);
         }
 

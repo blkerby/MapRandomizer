@@ -10,12 +10,7 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, Requirement,
-    RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH,
-    TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
-    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOONDANCE,
-    TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
-    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx, Requirement, RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -81,6 +76,24 @@ struct TechTemplate<'a> {
 }
 
 #[derive(Template, Clone)]
+#[template(path = "logic/notable.html")]
+struct NotableTemplate<'a> {
+    version_info: VersionInfo,
+    difficulty_names: Vec<String>,
+    room_id: RoomId,
+    _room_name: String,
+    notable_id: NotableId,
+    notable_name: String,
+    notable_note: String,
+    notable_difficulty_idx: usize,
+    notable_difficulty_name: String,
+    strats: Vec<RoomStrat>,
+    strat_videos: &'a HashMap<(RoomId, StratId), Vec<StratVideo>>,
+    notable_video_id: Option<usize>,
+    video_storage_url: String,
+}
+
+#[derive(Template, Clone)]
 #[template(path = "logic/strat_page.html")]
 struct StratTemplate<'a> {
     version_info: VersionInfo,
@@ -108,8 +121,10 @@ struct LogicIndexTemplate<'a> {
 pub struct LogicData {
     pub index_html: String,                        // Logic index page
     pub room_html: HashMap<RoomId, String>,        // Map from room ID to rendered HTML.
-    pub tech_html: HashMap<TechId, String>,        // Map from tech name to rendered HTML.
-    pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech name to strat count using that tech.
+    pub tech_html: HashMap<TechId, String>,        // Map from tech ID to rendered HTML.
+    pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech ID to strat count using that tech.
+    pub notable_html: HashMap<(RoomId, NotableId), String>, // Map from room/notable ID to rendered HTML.
+    pub notable_strat_counts: HashMap<(RoomId, NotableId), usize>, // Map from tech ID to strat count using that tech.
     pub strat_html: HashMap<(RoomId, NodeId, NodeId, StratId), String>, // Map from (room ID, from node ID, to node ID, strat ID) to rendered HTML.
 }
 
@@ -176,6 +191,21 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
             tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE]);
             if value["artificialMorph"].as_bool().unwrap() {
                 tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ARTIFICIAL_MORPH]);
+            }
+        }
+    }
+}
+
+fn extract_notable_rec(req: &JsonValue, room_id: RoomId, notables: &mut HashSet<NotableIdx>, game_data: &GameData) {
+    if req.is_object() && req.len() == 1 {
+        let (key, value) = req.entries().next().unwrap();
+        if key == "notable" {
+            let notable_id = game_data.notable_id_by_name[&(room_id, value.as_str().unwrap().to_string())];
+            let notable_idx = game_data.notable_isv.index_by_key[&(room_id, notable_id)];
+            notables.insert(notable_idx);
+        } else if key == "and" || key == "or" {
+            for x in value.members() {
+                extract_notable_rec(x, room_id, notables, game_data);
             }
         }
     }
@@ -324,6 +354,106 @@ fn make_tech_templates<'a>(
         tech_templates.push(template);
     }
     tech_templates
+}
+
+fn make_notable_templates<'a>(
+    game_data: &'a GameData,
+    room_templates: &[RoomTemplate<'a>],
+    presets: &[PresetData],
+    global_states: &[GlobalState],
+    area_order: &[String],
+    video_storage_url: &str,
+    version_info: &VersionInfo,
+) -> Vec<NotableTemplate<'a>> {
+    let mut notable_strat_ids: Vec<HashSet<(RoomId, NodeId, NodeId, String)>> =
+        vec![HashSet::new(); game_data.notable_isv.keys.len()];
+    for room_json in game_data.room_json_map.values() {
+        let room_id = room_json["id"].as_usize().unwrap();
+        for strat_json in room_json["strats"].members() {
+            let from_node_id = strat_json["link"][0].as_usize().unwrap();
+            let to_node_id = strat_json["link"][1].as_usize().unwrap();
+            let strat_name = strat_json["name"].as_str().unwrap().to_string();
+            let ids = (room_id, from_node_id, to_node_id, strat_name);
+            let mut notable_set: HashSet<NotableIdx> = HashSet::new();
+            for req in strat_json["requires"].members() {
+                extract_notable_rec(req, room_id, &mut notable_set, game_data);
+            }
+
+            for notable_idx in notable_set {
+                notable_strat_ids[notable_idx].insert(ids.clone());
+            }
+        }
+    }
+
+    let mut room_strat_map: HashMap<(RoomId, NodeId, NodeId, String), &RoomStrat> = HashMap::new();
+    for template in room_templates {
+        for strat in &template.strats {
+            room_strat_map.insert(
+                (
+                    template.room_id,
+                    strat.from_node_id,
+                    strat.to_node_id,
+                    strat.strat_name.to_string(),
+                ),
+                strat,
+            );
+        }
+    }
+
+    let mut notable_templates: Vec<NotableTemplate<'a>> = vec![];
+    for (notable_idx, ids_set) in notable_strat_ids.iter().enumerate() {
+        let room_id = game_data.notable_data[notable_idx].room_id.clone();
+        let notable_id = game_data.notable_data[notable_idx].notable_id.clone();
+        let notable_name = game_data.notable_data[notable_idx].name.clone();
+        let notable_note = game_data.notable_data[notable_idx].note.clone();
+        let mut strats: Vec<RoomStrat> = vec![];
+        let mut difficulty_idx = global_states.len();
+
+        for (i, global) in global_states.iter().enumerate() {
+            if global.notables[notable_idx] {
+                difficulty_idx = i;
+                break;
+            }
+        }
+        let difficulty_name = if difficulty_idx == global_states.len() {
+            "Ignored".to_string()
+        } else {
+            presets[difficulty_idx].preset.name.clone()
+        };
+
+        for ids in ids_set {
+            if room_strat_map.contains_key(ids) {
+                strats.push(room_strat_map[ids].clone());
+            }
+        }
+        strats.sort_by_key(|s| {
+            (
+                area_order.iter().position(|a| a == &s.area).unwrap(),
+                s.room_name.clone(),
+                s.from_node_id,
+                s.to_node_id,
+                s.strat_name.clone(),
+            )
+        });
+        let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+        let template = NotableTemplate {
+            version_info: version_info.clone(),
+            difficulty_names,
+            room_id,
+            _room_name: game_data.room_json_map[&room_id]["name"].as_str().unwrap().to_string(),
+            notable_id,
+            notable_name,
+            notable_note,
+            notable_difficulty_idx: difficulty_idx,
+            notable_difficulty_name: difficulty_name,
+            strats,
+            strat_videos: &game_data.strat_videos,
+            notable_video_id: presets.last().unwrap().notable_setting[notable_idx].0.video_id,
+            video_storage_url: video_storage_url.to_string(),
+        };
+        notable_templates.push(template);
+    }
+    notable_templates
 }
 
 fn get_difficulty_config(preset: &PresetData, _game_data: &GameData) -> DifficultyConfig {
@@ -883,6 +1013,26 @@ impl LogicData {
                 .count();
             out.tech_strat_counts.insert(template.tech_id, strat_count);
             out.tech_html.insert(template.tech_id, html);
+        }
+
+        let notable_templates = make_notable_templates(
+            game_data,
+            &room_templates,
+            presets,
+            &global_states,
+            &area_order,
+            video_storage_url,
+            version_info,
+        );
+        for template in &notable_templates {
+            let html = template.clone().render().unwrap();
+            let strat_count = template
+                .strats
+                .iter()
+                .filter(|x| x.difficulty_idx <= template.notable_difficulty_idx)
+                .count();
+            out.notable_strat_counts.insert((template.room_id, template.notable_id), strat_count);
+            out.notable_html.insert((template.room_id, template.notable_id), html);
         }
 
         let index_template = LogicIndexTemplate {
