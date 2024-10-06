@@ -119,7 +119,7 @@ struct LogicIndexTemplate<'a> {
     version_info: VersionInfo,
     rooms: &'a [RoomTemplate<'a>],
     tech: &'a [TechTemplate<'a>],
-    notables: &'a [NotableTemplate<'a>],
+    _notables: &'a [NotableTemplate<'a>],
     area_order: &'a [String],
     tech_difficulties: Vec<String>,
 }
@@ -1068,7 +1068,7 @@ impl LogicData {
             version_info: version_info.clone(),
             rooms: &room_templates,
             tech: &tech_templates,
-            notables: &notable_templates,
+            _notables: &notable_templates,
             area_order: &area_order,
             tech_difficulties: presets.iter().map(|x| x.preset.name.clone()).collect(),
         };
