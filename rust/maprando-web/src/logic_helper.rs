@@ -2,6 +2,7 @@ use askama::Template;
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
+use log::warn;
 use maprando::{
     randomize::{
         AreaAssignment, DebugOptions, DifficultyConfig, EtankRefill, MapStationReveal,
@@ -86,7 +87,7 @@ struct NotableTemplate<'a> {
     version_info: VersionInfo,
     difficulty_names: Vec<String>,
     room_id: RoomId,
-    _room_name: String,
+    room_name: String,
     notable_id: NotableId,
     notable_name: String,
     notable_note: String,
@@ -118,6 +119,7 @@ struct LogicIndexTemplate<'a> {
     version_info: VersionInfo,
     rooms: &'a [RoomTemplate<'a>],
     tech: &'a [TechTemplate<'a>],
+    notables: &'a [NotableTemplate<'a>],
     area_order: &'a [String],
     tech_difficulties: Vec<String>,
 }
@@ -451,7 +453,7 @@ fn make_notable_templates<'a>(
             version_info: version_info.clone(),
             difficulty_names,
             room_id,
-            _room_name: game_data.room_json_map[&room_id]["name"]
+            room_name: game_data.room_json_map[&room_id]["name"]
                 .as_str()
                 .unwrap()
                 .to_string(),
@@ -1027,6 +1029,10 @@ impl LogicData {
                 .iter()
                 .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
                 .count();
+            // if strat_count == 0 {
+            //     warn!("Tech {} ({}) has no strats in its assigned difficulty {}", 
+            //         template.tech_id, template.tech_name, template.tech_difficulty_name);
+            // }
             out.tech_strat_counts.insert(template.tech_id, strat_count);
             out.tech_html.insert(template.tech_id, html);
         }
@@ -1047,6 +1053,11 @@ impl LogicData {
                 .iter()
                 .filter(|x| x.difficulty_idx <= template.notable_difficulty_idx)
                 .count();
+            if strat_count == 0 {
+                warn!("Notable strat ({}, {}) {}: {} has no strats in its difficulty: {}", 
+                    template.room_id, template.notable_id,
+                    template.room_name, template.notable_name, template.notable_difficulty_name);
+            }
             out.notable_strat_counts
                 .insert((template.room_id, template.notable_id), strat_count);
             out.notable_html
@@ -1057,6 +1068,7 @@ impl LogicData {
             version_info: version_info.clone(),
             rooms: &room_templates,
             tech: &tech_templates,
+            notables: &notable_templates,
             area_order: &area_order,
             tech_difficulties: presets.iter().map(|x| x.preset.name.clone()).collect(),
         };

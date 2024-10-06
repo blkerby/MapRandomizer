@@ -15,7 +15,7 @@ document.getElementById("navigation-logic").classList.add("active");
     <p>The logic for Super Metroid Map Rando is based on the
     <a href="https://github.com/miketrethewey/sm-json-data/tree/master">sm-json-data</a> project. For details about
     how to interpret the JSON, see the documentation there. This page links to listings of strats by room and also by
-    tech.</p>
+    difficulty tier.</p>
 
     <a class="mb-2 border border-primary border-2 rounded-3 bg-primary-subtle p-3 d-flex align-items-center text-decoration-none" href="logic/boss_calculator">
         <div class="pe-2">
@@ -28,9 +28,11 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
     </a>
 
+    <h4 class="m-3">Logic by room</h4>
+
     <div class="row">
         <div class="col-lg-6">
-            {% for area in area_order %}
+            {% for area in area_order[..10] %}
                 <div class="card my-2" id="{{+ area.replace(" ", "") }}">
                     <div class="card-header">
                     {{+ area }}
@@ -47,10 +49,30 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
 
         <div class="col-lg-6">
+            {% for area in area_order[10..] %}
+                <div class="card my-2" id="{{+ area.replace(" ", "") }}">
+                    <div class="card-header">
+                    {{+ area }}
+                    </div>
+                    <div class="card-body px-2 py-1">
+                        {% for room in rooms %}
+                            {% if room.area|as_ref == area %}
+                                <p class="m-1"><a href="/logic/room/{{+ room.room_id }}">{{+ room.room_name }}</a></p>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <h4 class="m-3">Logic by difficulty tier</h4>
+    <div class="row">
+        <div class="col-12">
             {% for (tech_difficulty_idx, tech_difficulty_name) in tech_difficulties.iter().enumerate() %}
                 <div class="card my-2" id="{{+ tech_difficulty_name.replace(" ", "") }}Tech">
                     <div class="card-header">
-                    {{+ tech_difficulty_name +}} Tech
+                    {{+ tech_difficulty_name +}}
                     </div>
                     <div class="card-body px-2 py-1">
                     {% for t in tech %}
@@ -59,6 +81,14 @@ document.getElementById("navigation-logic").classList.add("active");
                         {% endif %}
                         {% if t.tech_difficulty_idx == tech_difficulty_idx %}
                             <p class="m-1"><a href="/logic/tech/{{+ t.tech_id }}">{{+ t.tech_name }}</a></p>
+                        {% endif %}
+                    {% endfor %}
+                    {% if tech_difficulty_idx != 0 %}
+                    <hr class="m-2">
+                    {% endif %}
+                    {% for x in notables %}
+                        {% if x.notable_difficulty_idx == tech_difficulty_idx %}
+                            <p class="m-1"><a href="/logic/notable/{{ x.room_id }}/{{ x.notable_id }}">{{+ x.notable_name }}</a></p>
                         {% endif %}
                     {% endfor %}
                     </div>
