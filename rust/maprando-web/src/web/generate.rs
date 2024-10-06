@@ -23,6 +23,7 @@ struct GenerateTemplate<'a> {
     implicit_or_ignored_notables: &'a HashSet<(RoomId, NotableId)>,
     notable_description: &'a HashMap<(RoomId, NotableId), String>,
     tech_strat_counts: &'a HashMap<TechId, usize>,
+    notable_strat_counts: &'a HashMap<(RoomId, NotableId), usize>,
     video_storage_url: &'a str,
 }
 
@@ -150,6 +151,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         implicit_or_ignored_tech: &implicit_or_ignored_tech,
         implicit_or_ignored_notables: &implicit_or_ignored_notables,
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
+        notable_strat_counts: &app_data.logic_data.notable_strat_counts,
         video_storage_url: &app_data.video_storage_url,
     };
     HttpResponse::Ok()
