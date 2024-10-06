@@ -2,8 +2,8 @@ v114:
 - DONE: implement support for custom BGData in Dust Torizo Room
 - DONE: create github action to assign strat IDs
 - video site:
-  - add "dev note" and "priority" fields
-  - add "logic order" option to "Sort By"
+  - DONE: add "priority" field
+  - DONE: add "logic order" option to "Sort By"
 - remove fast drain change in Big Boy cutscene?
 - fix x-ray bugs? e.g. level graphics sometimes looking corrupted when using x-ray
   - might be related to check at $84:8328 interacting badly with new/custom PLMs
@@ -24,7 +24,6 @@ v114:
   - DONE: show multiple videos per strat
   - DONE: show video note in tooltip
 - DONE: handle "ignored" and "implicit" tech/notables in presets.
-- link to logic pages from video site?
 - use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
 - see if doorUnlockedAtNode is failing to get resolved when no door lock?
   - step 2 of http://localhost:8080/seed/Cv5jWGBD2/data/visualizer/index.html says Very Hard
@@ -62,6 +61,7 @@ v114:
 - DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- link to logic pages from video site?
 - adjust auto-formatting for unlocksDoors
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - fix bug where dachora despawns global zeela in Dachora Room.
