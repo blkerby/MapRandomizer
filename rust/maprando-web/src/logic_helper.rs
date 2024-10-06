@@ -10,7 +10,12 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx, Requirement, RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
+    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx,
+    Requirement, RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey,
+    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL,
+    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK,
+    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -119,9 +124,9 @@ struct LogicIndexTemplate<'a> {
 
 #[derive(Default)]
 pub struct LogicData {
-    pub index_html: String,                        // Logic index page
-    pub room_html: HashMap<RoomId, String>,        // Map from room ID to rendered HTML.
-    pub tech_html: HashMap<TechId, String>,        // Map from tech ID to rendered HTML.
+    pub index_html: String,                                 // Logic index page
+    pub room_html: HashMap<RoomId, String>,                 // Map from room ID to rendered HTML.
+    pub tech_html: HashMap<TechId, String>,                 // Map from tech ID to rendered HTML.
     pub tech_strat_counts: HashMap<TechId, usize>, // Map from tech ID to strat count using that tech.
     pub notable_html: HashMap<(RoomId, NotableId), String>, // Map from room/notable ID to rendered HTML.
     pub notable_strat_counts: HashMap<(RoomId, NotableId), usize>, // Map from tech ID to strat count using that tech.
@@ -196,11 +201,17 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
     }
 }
 
-fn extract_notable_rec(req: &JsonValue, room_id: RoomId, notables: &mut HashSet<NotableIdx>, game_data: &GameData) {
+fn extract_notable_rec(
+    req: &JsonValue,
+    room_id: RoomId,
+    notables: &mut HashSet<NotableIdx>,
+    game_data: &GameData,
+) {
     if req.is_object() && req.len() == 1 {
         let (key, value) = req.entries().next().unwrap();
         if key == "notable" {
-            let notable_id = game_data.notable_id_by_name[&(room_id, value.as_str().unwrap().to_string())];
+            let notable_id =
+                game_data.notable_id_by_name[&(room_id, value.as_str().unwrap().to_string())];
             let notable_idx = game_data.notable_isv.index_by_key[&(room_id, notable_id)];
             notables.insert(notable_idx);
         } else if key == "and" || key == "or" {
@@ -440,7 +451,10 @@ fn make_notable_templates<'a>(
             version_info: version_info.clone(),
             difficulty_names,
             room_id,
-            _room_name: game_data.room_json_map[&room_id]["name"].as_str().unwrap().to_string(),
+            _room_name: game_data.room_json_map[&room_id]["name"]
+                .as_str()
+                .unwrap()
+                .to_string(),
             notable_id,
             notable_name,
             notable_note,
@@ -448,7 +462,9 @@ fn make_notable_templates<'a>(
             notable_difficulty_name: difficulty_name,
             strats,
             strat_videos: &game_data.strat_videos,
-            notable_video_id: presets.last().unwrap().notable_setting[notable_idx].0.video_id,
+            notable_video_id: presets.last().unwrap().notable_setting[notable_idx]
+                .0
+                .video_id,
             video_storage_url: video_storage_url.to_string(),
         };
         notable_templates.push(template);
@@ -1031,8 +1047,10 @@ impl LogicData {
                 .iter()
                 .filter(|x| x.difficulty_idx <= template.notable_difficulty_idx)
                 .count();
-            out.notable_strat_counts.insert((template.room_id, template.notable_id), strat_count);
-            out.notable_html.insert((template.room_id, template.notable_id), html);
+            out.notable_strat_counts
+                .insert((template.room_id, template.notable_id), strat_count);
+            out.notable_html
+                .insert((template.room_id, template.notable_id), html);
         }
 
         let index_template = LogicIndexTemplate {

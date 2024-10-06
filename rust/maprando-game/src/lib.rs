@@ -3722,7 +3722,8 @@ impl GameData {
             let notable_idx2 = self.notable_isv.add(&(room_id, notable_id));
             assert_eq!(notable_idx, notable_idx2);
             self.notable_data.push(notable_data);
-            self.notable_id_by_name.insert((room_id, notable_name.clone()), notable_id);
+            self.notable_id_by_name
+                .insert((room_id, notable_name.clone()), notable_id);
             // TODO: the room-local `notable_map` could probably be eliminated, in favor of just using the global
             // one (`notable_id_by_name``)
             notable_map.insert(notable_name, notable_idx);

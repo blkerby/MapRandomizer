@@ -1,9 +1,9 @@
 mod logic_boss_calculator;
 mod logic_main;
+mod logic_notable;
 mod logic_room;
 mod logic_strat;
 mod logic_tech;
-mod logic_notable;
 
 use askama::Template;
 
