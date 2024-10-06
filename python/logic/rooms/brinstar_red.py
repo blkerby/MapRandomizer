@@ -54,10 +54,10 @@ rooms = [
             DoorIdentifier(RIGHT, 7, 0, 0x19066, 0x19036, 0),  # Red Tower
         ],
         node_tiles={
-            1: [(0, 0)],  # left door
+            1: [(0, 0), (1, 0), (2, 0), (3, 0)],  # left door
             2: [(4, 0), (4, 1), (5, 0), (5, 1), (6, 0), (7, 0)],  # right door
-            3: [(2, 0), (3, 0)],  # safe block in the middle of room
-            4: [(0, 1), (1, 0), (1, 1)],  # small ledge below left door
+            3: [(3, 0)],  # safe block in the middle of room
+            4: [(0, 1), (1, 1)],  # small ledge below left door
         },
     ),
     Room(

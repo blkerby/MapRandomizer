@@ -6,6 +6,7 @@ v114:
   - might be related to check at $84:8328 interacting badly with new/custom PLMs
   - also see if this is the cause of crash reported by kyzentun, when x-raying while opening beam door
 - DONE: add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
+- link "Base" spoiler steps 
 - remove canTrickyDodgeEnemies (maybe use notable in Sand Hall)
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - make "reduced flashing" Phantoon less changed from vanilla?
