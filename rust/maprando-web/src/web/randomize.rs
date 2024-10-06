@@ -298,7 +298,12 @@ async fn randomize(
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
     let difficulty = DifficultyConfig {
-        name: Some(req.preset.as_ref().map(|x| x.to_string()).unwrap_or("Beyond".to_string())),
+        name: Some(
+            req.preset
+                .as_ref()
+                .map(|x| x.to_string())
+                .unwrap_or("Beyond".to_string()),
+        ),
         tech: tech_vec,
         notables: notable_vec,
         shine_charge_tiles: req.shinespark_tiles.0,

@@ -352,7 +352,7 @@ pub fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> b
     let mut b1 = b.clone();
     a1.name = None;
     b1.name = None;
-    return a1 == b1
+    return a1 == b1;
 }
 
 pub async fn save_seed(
