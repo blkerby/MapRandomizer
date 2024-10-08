@@ -6,6 +6,9 @@
 
 lorom
 
+!bank_84_free_space_start = $84F500
+!bank_84_free_space_end = $84F580
+
 ;--------------------------------SOUNDFX VALUES----------------------------------
 
 !None = $02			;Stops current sounds (use for no sound)
@@ -281,7 +284,7 @@ org $848BF2
 NORMAL:
 	JSR CLIPSET
 
-org $84EFD3			;You can safely change this address to free space in bank $84 ($20000-$27FFF)
+org !bank_84_free_space_start
 CLIPCHECK:
 	LDA $05D7
 	CMP #$0002
@@ -319,4 +322,4 @@ SETFX:
 	INY
 	RTS
 
-warnpc $84F100
+warnpc !bank_84_free_space_end

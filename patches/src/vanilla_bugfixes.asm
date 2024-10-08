@@ -10,6 +10,8 @@ lorom
 
 !bank_80_free_space_start = $80D200
 !bank_80_free_space_end = $80D240
+!item_plm_start = #$DF89
+!item_plm_end = #$F100
 
 ; Fix the crash that occurs when you kill an eye door whilst a eye door projectile is alive
 ; See the comments in the bank logs for $86:B6B9 for details on the bug
@@ -181,5 +183,30 @@ warnpc !bank_80_free_space_end
 
 
 ; skip loading special x-ray blocks (only used in BT room during escape, and we repurpose the space for other things)
-org $84836A
-	BRA $2C   ; was: BEQ $2C
+; and patch the check for item PLMs, so that it won't treat custom PLMs (e.g. beam doors) like item PLMs
+org $848328
+	jsr check_item_plm
+
+org $848363
+	bra special_xray_end
+
+org $848365
+; Return carry set if the PLM is an item.
+; We put this in space related to special X-ray blocks which is now unused (used in vanilla only in BT Room during escape)
+; The vanilla check is if PLM ID >= item_plm_start ($DF89)
+; We change this to check item_plm_start <= PLM_ID <= item_plm_end.
+check_item_plm:
+	cmp !item_plm_start
+	bcc .is_not_item
+	cmp !item_plm_end
+	bcs .is_not_item
+.is_item:
+	sec
+	rts
+.is_not_item:
+	clc
+	rts
+
+warnpc $848398
+org $848398
+special_xray_end:

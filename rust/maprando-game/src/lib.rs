@@ -2456,6 +2456,45 @@ impl GameData {
             }
         }
 
+        let mut new_strats: Vec<JsonValue> = vec![];
+        for x in room_json["strats"].members_mut() {
+            if x["id"].as_i32() == Some(8) {
+                // Leave With Runway: shorten the runway length slightly: the objective barrier creates a closed end
+                x["exitCondition"]["leaveWithRunway"]["openEnd"] = JsonValue::Number(0.into());
+
+                let obj_conditions = [
+                    "i_Objective1Complete", 
+                    "i_Objective2Complete", 
+                    "i_Objective3Complete", 
+                    "i_Objective4Complete", 
+                ];
+                for num_objectives_complete in 1..=4 {
+                    let mut strat = x.clone();
+                    let runway_length = 5 + num_objectives_complete;
+                    strat["exitCondition"]["leaveWithRunway"]["length"] = JsonValue::Number(runway_length.into());
+                    if num_objectives_complete == 4 {
+                        strat["exitCondition"]["leaveWithRunway"]["openEnd"] = JsonValue::Number(1.into());
+                    }
+
+                    strat["id"] = JsonValue::Number((10000 + num_objectives_complete).into());
+                    if num_objectives_complete == 1 {
+                        strat["name"] = JsonValue::String(
+                            format!("{}, 1 Objective Complete", x["name"].as_str().unwrap()));
+                    } else {
+                        strat["name"] = JsonValue::String(
+                            format!("{}, {} Objectives Complete", x["name"].as_str().unwrap(), num_objectives_complete));    
+                    }
+                    for i in 0..num_objectives_complete {
+                        strat["requires"].push(JsonValue::String(obj_conditions[i].to_string())).unwrap();
+                    }
+                    new_strats.push(strat);
+                }
+            }
+        }
+        for strat in new_strats {
+            room_json["strats"].push(strat).unwrap();
+        }
+
         // Override the MB2 boss fight requirements
         let mut found = false;
         for node_json in room_json["nodes"].members_mut() {
@@ -3303,6 +3342,7 @@ impl GameData {
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
         let strat_id = strat_json["id"].as_usize();
+        
         // TODO: deal with heated room more explicitly for Volcano Room, instead of guessing based on node ID:
         let from_heated = self.get_room_heated(room_json, from_node_id)?;
         let to_node_json = self.node_json_map[&(room_id, to_node_id)].clone();

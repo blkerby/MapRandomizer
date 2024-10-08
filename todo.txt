@@ -1,4 +1,7 @@
 v114:
+- adjust override_mother_brain_room after PR #1681 is merged
+- create separate QoL setting for map stations reveal connected area transitions
+- Yellow Maridia fixes
 - fix x-ray bugs? e.g. level graphics sometimes looking corrupted when using x-ray
   - might be related to check at $84:8328 interacting badly with new/custom PLMs
   - also see if this is the cause of crash reported by kyzentun, when x-raying while opening beam door
@@ -6,10 +9,10 @@ v114:
 - remove room names from notable names
 - remove canTrickyDodgeEnemies (maybe use notable in Sand Hall)
   - or maybe use it in more places, e.g. Morph Ball Room?
+- fix notables that are in wrong difficulty
 - implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - make "reduced flashing" Phantoon less changed from vanilla?
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
-- override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
 - add sprites: HisBeardNis X, Bruno, PED Suit, ...
 - track down sprite artists if we can:
   - Hyper: RealRed
@@ -23,7 +26,7 @@ v114:
   - SZM: SBniconico
   - Kaizo: Green Samus
   - Super Duper: Metaquarius, Daltone
-- link to notable pages from main logic index
+- DONE: override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
 - DONE: create notable pages, and show strat counts on the Generate page like with tech
 - DONE: update node tiles for Glass Tunnel, Kraid Room
   - DONE: add checks for node tiles

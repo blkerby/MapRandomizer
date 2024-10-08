@@ -2,8 +2,8 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_84_free_space_start = $84F600
-!bank_84_free_space_end = $84F700
+!bank_84_free_space_start = $84F000
+!bank_84_free_space_end = $84F100
 !bank_85_free_space_start = $8596B0
 !bank_85_free_space_end = $859800
 
@@ -12,11 +12,11 @@ incsrc "constants.asm"
 org !bank_84_free_space_start
 
 ; These PLM entries must be at an address matching what is in `patch.rs`, starting here at $84F600
-dw $EE64, inst        ; PLM $F600 (wall-jump boots)
-dw $EE64, inst_orb    ; PLM $F604 (wall-jump boots, chozo orb)
-dw $EE8E, inst_sce    ; PLM $F608 (wall-jump boots, scenery shot block)
+dw $EE64, inst        ; PLM $F000 (wall-jump boots)
+dw $EE64, inst_orb    ; PLM $F004 (wall-jump boots, chozo orb)
+dw $EE8E, inst_sce    ; PLM $F008 (wall-jump boots, scenery shot block)
 
-;;; Instruction list - PLM $F600 (wall-jump boots)
+;;; Instruction list - PLM $F000 (wall-jump boots)
 inst:
     dw $8764, $9100                        ; Load item PLM GFX
     db $01, $01, $01, $01, $01, $01, $01, $01
@@ -37,7 +37,7 @@ inst:
     dw $8724, $DFA9                        ; Go to $DFA9
 
 
-;;; Instruction list - PLM $F604 (wall-jump boots, chozo orb)
+;;; Instruction list - PLM $F004 (wall-jump boots, chozo orb)
 inst_orb:
     dw $8764, $9100                        ; Load item PLM GFX
     db $01, $01, $01, $01, $01, $01, $01, $01
@@ -63,7 +63,7 @@ inst_orb:
     dw $86BC                               ; Delete
 
 
-;;; Instruction list - PLM $F608 (wall-jump boots, scenery shot block)
+;;; Instruction list - PLM $F008 (wall-jump boots, scenery shot block)
 inst_sce:
     dw $8764, $9100                        ; Load item PLM GFX
     db $01, $01, $01, $01, $01, $01, $01, $01

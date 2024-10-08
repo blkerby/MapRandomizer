@@ -262,7 +262,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF1F, // Screw attack
             0xEF23, // Morph ball
             0xEF27, // Reserve tank
-            0xF600, // Wall-jump boots
+            0xF000, // Wall-jump boots
             0xEEDB, // Missile tank (nothing)
         ],
         [
@@ -287,7 +287,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF73, // Screw attack, chozo orb
             0xEF77, // Morph ball, chozo orb
             0xEF7B, // Reserve tank, chozo orb
-            0xF604, // Wall-jump boots, chozo orb
+            0xF004, // Wall-jump boots, chozo orb
             0xEF2F, // Missile tank (nothing)
         ],
         [
@@ -312,7 +312,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFC7, // Screw attack, shot block
             0xEFCB, // Morph ball, shot block
             0xEFCF, // Reserve tank, shot block
-            0xF608, // Wall-jump boots, shot block
+            0xF008, // Wall-jump boots, shot block
             0xEF83, // Missile tank (nothing)
         ],
     ];
@@ -2454,9 +2454,7 @@ impl<'a> Patcher<'a> {
                 if plm_type == 0x0000 {
                     break;
                 }
-                if (plm_type >= 0xEED7 && plm_type <= 0xEFCF)
-                    || (plm_type >= 0xF600 && plm_type <= 0xF608)
-                {
+                if plm_type >= 0xEED7 && plm_type <= 0xF100 {
                     // item PLM
                     let mut plm_x = self.rom.read_u8(intersection_plm_ptr + 2)?;
                     let mut plm_y = self.rom.read_u8(intersection_plm_ptr + 3)?;
