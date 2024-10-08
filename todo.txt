@@ -21,6 +21,8 @@ v114:
   - SZM: SBniconico
   - Kaizo: Green Samus
   - Super Duper: Metaquarius, Daltone
+- DONE: check issue with wrong faded item dot type:
+  - In Norfair Reserve: https://dev.maprando.com/seed/TdzGkwnhG/
 - DONE: create separate QoL setting for map stations reveal connected area transitions
 - DONE: adjust override_mother_brain_room after PR #1681 is merged
 - DONE: fix x-ray bugs? e.g. level graphics sometimes looking corrupted when using x-ray

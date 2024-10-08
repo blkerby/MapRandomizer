@@ -2761,11 +2761,11 @@ impl<'a> MapPatcher<'a> {
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
             } else if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
                 if interior == Interior::MajorItem
-                    || (interior == Interior::AmmoItem
-                        && orig_basic_tile.interior != Interior::MediumItem)
                     || (interior == Interior::MediumItem
-                        && orig_basic_tile.interior != Interior::MajorItem
-                        && orig_basic_tile.interior != Interior::AmmoItem)
+                        && orig_basic_tile.interior != Interior::MajorItem)
+                    || (interior == Interior::AmmoItem
+                        && orig_basic_tile.interior != Interior::MediumItem
+                        && orig_basic_tile.interior != Interior::MajorItem)
                     || (interior == Interior::Item
                         && (orig_basic_tile.interior == Interior::Empty
                             || orig_basic_tile.interior == Interior::Item))
