@@ -55,7 +55,7 @@
                     {% let name_no_space = p.preset.name.replace(" ", "") %}
                         <input type="radio" class="btn-check" name="preset" value="{{+ name }}"
                             id="preset{{+ name_no_space }}" autocomplete="off" onclick="presetChanged()"
-                            {% if loop.first %}
+                            {% if name == "Basic" %}
                             checked
                             {% endif %}
                             >
@@ -119,13 +119,13 @@
                             id="qualityOfLifeOff" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeOff">Off</label>
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Low"
-                            id="qualityOfLifeLow" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
+                            id="qualityOfLifeLow" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeLow">Low</label>
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Default"
                             id="qualityOfLifeDefault" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
                         <label class="btn btn-outline-primary" for="qualityOfLifeDefault">Default</label>
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="High"
-                            id="qualityOfLifeHigh" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
+                            id="qualityOfLifeHigh" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeHigh">High</label>
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Max"
                             id="qualityOfLifeMax" autocomplete="off" onclick="qualityOfLifePresetChanged()">
