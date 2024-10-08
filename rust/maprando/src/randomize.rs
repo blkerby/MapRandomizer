@@ -264,6 +264,7 @@ pub struct DifficultyConfig {
     pub escape_enemies_cleared: bool,
     pub mark_map_stations: bool,
     pub room_outline_revealed: bool,
+    pub opposite_area_revealed: bool,
     pub transition_letters: bool,
     pub door_locks_size: DoorLocksSize,
     pub item_markers: ItemMarkers,

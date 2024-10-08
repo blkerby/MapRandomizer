@@ -1,6 +1,4 @@
 v114:
-- adjust override_mother_brain_room after PR #1681 is merged
-- create separate QoL setting for map stations reveal connected area transitions
 - Yellow Maridia fixes
 - link "Base" spoiler steps
 - remove room names from notable names
@@ -23,6 +21,8 @@ v114:
   - SZM: SBniconico
   - Kaizo: Green Samus
   - Super Duper: Metaquarius, Daltone
+- DONE: create separate QoL setting for map stations reveal connected area transitions
+- DONE: adjust override_mother_brain_room after PR #1681 is merged
 - DONE: fix x-ray bugs? e.g. level graphics sometimes looking corrupted when using x-ray
 - DONE: override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
 - DONE: create notable pages, and show strat counts on the Generate page like with tech

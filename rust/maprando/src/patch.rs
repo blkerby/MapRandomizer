@@ -801,8 +801,10 @@ impl<'a> Patcher<'a> {
                 self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
             self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm, false)?;
             self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm, false)?;
-            self.add_map_reveal_tile(src_pair, src_x, src_y)?;
-            self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
+            if self.randomization.difficulty.opposite_area_revealed {
+                self.add_map_reveal_tile(src_pair, src_x, src_y)?;
+                self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;    
+            }
         }
         Ok(())
     }

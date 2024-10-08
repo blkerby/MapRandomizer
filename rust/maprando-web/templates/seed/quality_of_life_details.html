@@ -11,8 +11,8 @@
     <div class="col-4 col-sm-3">{% if difficulty.room_outline_revealed %}Yes{% else %}No{% endif %}</div>
 </div>
 <div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Guaranteed early save station:</div>
-    <div class="col-4 col-sm-3">{% if early_save %}Yes{% else %}No{% endif %}</div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Opposite area connections revealed by map:</div>
+    <div class="col-4 col-sm-3">{% if difficulty.opposite_area_revealed %}Yes{% else %}No{% endif %}</div>
 </div>
 <hr>
 <div class="row">
@@ -73,4 +73,8 @@
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Enemy drops are buffed:</div>
     <div class="col-4 col-sm-3">{% if buffed_drops %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Guaranteed early save station:</div>
+    <div class="col-4 col-sm-3">{% if early_save %}Yes{% else %}No{% endif %}</div>
 </div>

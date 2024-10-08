@@ -50,14 +50,14 @@
 
                 <div class="form-group row align-items-center">
                     <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/early_save.html" %}
-                        <label for="preset">Guaranteed early save station</label>
+                        {% include "help/quality/opposite_area_revealed.html" %}
+                        <label for="preset">Opposite area connections revealed by map</label>
                     </div>
                     <div class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo" value="false">
-                        <label class="btn btn-outline-primary" for="earlySaveNo">No</label>
-                        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
+                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedNo" value="false">
+                        <label class="btn btn-outline-primary" for="oppositeAreaRevealedNo">No</label>
+                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedYes" value="true" checked>
+                        <label class="btn btn-outline-primary" for="oppositeAreaRevealedYes">Yes</label>
                     </div>
                 </div>
             </div>
@@ -280,7 +280,20 @@
                         <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsYes" value="true" checked>
                         <label class="btn btn-outline-primary" for="buffedDropsYes">Yes</label>
                     </div>
-                </div>  
+                </div> 
+
+                <div class="form-group row align-items-center">
+                    <div class="col-lg-6 col-xl-5 m-2">
+                        {% include "help/quality/early_save.html" %}
+                        <label for="preset">Guaranteed early save station</label>
+                    </div>
+                    <div class="col-2 btn-group m-2" role="group">
+                        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo" value="false">
+                        <label class="btn btn-outline-primary" for="earlySaveNo">No</label>
+                        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes" value="true" checked>
+                        <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

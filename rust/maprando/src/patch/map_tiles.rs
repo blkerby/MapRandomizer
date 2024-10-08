@@ -442,21 +442,6 @@ impl<'a> MapPatcher<'a> {
             // but other flips do not.
             return Ok(());
         }
-        let beam_edges = [
-            Edge::ChargeDoor,
-            Edge::IceDoor,
-            Edge::WaveDoor,
-            Edge::SpazerDoor,
-            Edge::PlasmaDoor,
-        ];
-        if beam_edges.contains(&tile.left)
-            || beam_edges.contains(&tile.right)
-            || beam_edges.contains(&tile.up)
-            || beam_edges.contains(&tile.down)
-        {
-            // For beam doors, again 180 degree rotation works but not other flips.
-            return Ok(());
-        }
         self.index_basic_tile_case(
             BasicTile {
                 left: tile.right,

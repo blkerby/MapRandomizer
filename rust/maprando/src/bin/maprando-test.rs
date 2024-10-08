@@ -136,6 +136,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         item_markers: ItemMarkers::ThreeTiered,
         mark_map_stations: true,
         room_outline_revealed: true,
+        opposite_area_revealed: true,
         early_save: true,
         mother_brain_fight: MotherBrainFight::Short,
         supers_double: true,
@@ -428,6 +429,7 @@ fn set_qol_default(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::ThreeTiered;
     diff.mark_map_stations = true;
     diff.room_outline_revealed = true;
+    diff.opposite_area_revealed = false;
     diff.early_save = true;
     diff.mother_brain_fight = MotherBrainFight::Short;
     diff.supers_double = true;
@@ -448,10 +450,36 @@ fn set_qol_default(diff: &mut DifficultyConfig) -> () {
     ()
 }
 
+fn set_qol_high(diff: &mut DifficultyConfig) -> () {
+    diff.item_markers = ItemMarkers::FourTiered;
+    diff.mark_map_stations = true;
+    diff.room_outline_revealed = true;
+    diff.opposite_area_revealed = true;
+    diff.early_save = true;
+    diff.mother_brain_fight = MotherBrainFight::Short;
+    diff.supers_double = true;
+    diff.escape_movement_items = true;
+    diff.escape_refill = true;
+    diff.escape_enemies_cleared = true;
+    diff.fast_elevators = true;
+    diff.fast_doors = true;
+    diff.fast_pause_menu = true;
+    diff.respin = false;
+    diff.infinite_space_jump = false;
+    diff.momentum_conservation = false;
+    diff.all_items_spawn = true;
+    diff.acid_chozo = true;
+    diff.buffed_drops = true;
+    diff.ultra_low_qol = false;
+    diff.quality_of_life_preset = Some("High".to_string());
+    ()
+}
+
 fn set_qol_max(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::ThreeTiered;
     diff.mark_map_stations = true;
     diff.room_outline_revealed = true;
+    diff.opposite_area_revealed = true;
     diff.early_save = true;
     diff.mother_brain_fight = MotherBrainFight::Skip;
     diff.supers_double = true;
@@ -476,6 +504,7 @@ fn set_qol_low(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::Uniques;
     diff.mark_map_stations = true;
     diff.room_outline_revealed = false;
+    diff.opposite_area_revealed = false;
     diff.early_save = false;
     diff.mother_brain_fight = MotherBrainFight::Short;
     diff.supers_double = true;
@@ -500,6 +529,7 @@ fn set_qol_off(diff: &mut DifficultyConfig) -> () {
     diff.item_markers = ItemMarkers::Simple;
     diff.mark_map_stations = false;
     diff.room_outline_revealed = false;
+    diff.opposite_area_revealed = false;
     diff.early_save = false;
     diff.mother_brain_fight = MotherBrainFight::Vanilla;
     diff.supers_double = false;
@@ -928,6 +958,9 @@ fn main() -> Result<()> {
         Some("Max") => {
             vec![set_qol_max]
         }
+        Some("High") => {
+            vec![set_qol_high]
+        }
         Some("Default") => {
             vec![set_qol_default]
         }
@@ -944,7 +977,7 @@ fn main() -> Result<()> {
             bail!("Unknown QoL preset {other}");
         }
         None => {
-            vec![set_qol_max, set_qol_default, set_qol_low, set_qol_off]
+            vec![set_qol_max, set_qol_high, set_qol_default, set_qol_low, set_qol_off]
         }
     };
 

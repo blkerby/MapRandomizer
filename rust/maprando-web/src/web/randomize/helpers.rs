@@ -310,6 +310,7 @@ pub fn get_difficulty_tiers(
             escape_movement_items: difficulty.escape_movement_items,
             mark_map_stations: difficulty.mark_map_stations,
             room_outline_revealed: difficulty.room_outline_revealed,
+            opposite_area_revealed: difficulty.opposite_area_revealed,
             transition_letters: difficulty.transition_letters,
             door_locks_size: difficulty.door_locks_size,
             item_markers: difficulty.item_markers,

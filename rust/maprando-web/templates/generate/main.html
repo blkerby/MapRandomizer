@@ -114,7 +114,7 @@
                         {% include "help/quality.html" %}
                         <label for="preset">Quality-of-life options</label>
                     </div>
-                    <div class="col-lg-4 btn-group mt-0" role="group">
+                    <div class="col-lg-5 btn-group mt-0" role="group">
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Off"
                             id="qualityOfLifeOff" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeOff">Off</label>
@@ -124,6 +124,9 @@
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Default"
                             id="qualityOfLifeDefault" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
                         <label class="btn btn-outline-primary" for="qualityOfLifeDefault">Default</label>
+                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="High"
+                            id="qualityOfLifeHigh" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
+                        <label class="btn btn-outline-primary" for="qualityOfLifeHigh">High</label>
                         <input type="radio" class="btn-check" name="quality_of_life_preset" value="Max"
                             id="qualityOfLifeMax" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeMax">Max</label>

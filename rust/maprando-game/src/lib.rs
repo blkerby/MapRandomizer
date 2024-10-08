@@ -2456,6 +2456,17 @@ impl GameData {
             }
         }
 
+
+        for x in room_json["strats"].members_mut() {
+            if x["id"].as_i32() == Some(34) {
+                // Mother Brain 2 and 3 Fight: override requirements, removing rainbow beam damage requirement,
+                // since we already handle this inside the enemyKill requirement
+                x["requires"] = json::array![
+                    {"enemyKill": {"enemies": [["Mother Brain 2"]]}}
+                ];
+            }
+        }
+
         let mut new_strats: Vec<JsonValue> = vec![];
         for x in room_json["strats"].members_mut() {
             if x["id"].as_i32() == Some(8) {
@@ -2503,22 +2514,6 @@ impl GameData {
         for strat in new_strats {
             room_json["strats"].push(strat).unwrap();
         }
-
-        // Override the MB2 boss fight requirements
-        let mut found = false;
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 4 {
-                node_json["locks"][0]["unlockStrats"] = json::array![{
-                    "name": "Base",
-                    "notable": false,
-                    "requires": [
-                        {"enemyKill": {"enemies": [["Mother Brain 2"]]}}
-                    ]
-                }];
-                found = true;
-            }
-        }
-        assert!(found);
     }
 
     fn override_bowling_alley(&mut self, room_json: &mut JsonValue) {

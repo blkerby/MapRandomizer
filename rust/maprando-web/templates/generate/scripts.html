@@ -180,6 +180,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsNo").checked = true;
         document.getElementById("roomOutlineRevealedNo").checked = true;
+        document.getElementById("oppositeAreaRevealedNo").checked = true;
         document.getElementById("itemMarkersSimple").checked = true;
         document.getElementById("earlySaveNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
@@ -202,6 +203,7 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedNo").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("roomOutlineRevealedNo").checked = true;
+        document.getElementById("oppositeAreaRevealedNo").checked = true;
         document.getElementById("itemMarkersUniques").checked = true;
         document.getElementById("earlySaveNo").checked = true;
         document.getElementById("allItemsSpawnNo").checked = true;
@@ -222,7 +224,29 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("roomOutlineRevealedYes").checked = true;
+        document.getElementById("oppositeAreaRevealedNo").checked = true;
         document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("earlySaveYes").checked = true;
+        document.getElementById("allItemsSpawnYes").checked = true;
+        document.getElementById("acidChozoYes").checked = true;
+        document.getElementById("buffedDropsYes").checked = true;
+        document.getElementById("fastElevatorsYes").checked = true;
+        document.getElementById("fastDoorsYes").checked = true;
+        document.getElementById("fastPauseMenuYes").checked = true;
+        document.getElementById("respinNo").checked = true;
+        document.getElementById("infiniteSpaceJumpNo").checked = true;
+        document.getElementById("momentumConservationNo").checked = true;
+    }    
+    if (document.getElementById("qualityOfLifeHigh").checked) {
+        document.getElementById("supersDoubleYes").checked = true;
+        document.getElementById("motherBrainFightShort").checked = true;
+        document.getElementById("escapeMovementItemsYes").checked = true;
+        document.getElementById("escapeRefillYes").checked = true;
+        document.getElementById("escapeEnemiesClearedYes").checked = true;
+        document.getElementById("markMapStationsYes").checked = true;
+        document.getElementById("roomOutlineRevealedYes").checked = true;
+        document.getElementById("oppositeAreaRevealedYes").checked = true;
+        document.getElementById("itemMarkersFourTiered").checked = true;
         document.getElementById("earlySaveYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("acidChozoYes").checked = true;
@@ -242,7 +266,8 @@ function qualityOfLifePresetChanged() {
         document.getElementById("escapeEnemiesClearedYes").checked = true;
         document.getElementById("markMapStationsYes").checked = true;
         document.getElementById("roomOutlineRevealedYes").checked = true;
-        document.getElementById("itemMarkersThreeTiered").checked = true;
+        document.getElementById("oppositeAreaRevealedYes").checked = true;
+        document.getElementById("itemMarkersFourTiered").checked = true;
         document.getElementById("earlySaveYes").checked = true;
         document.getElementById("allItemsSpawnYes").checked = true;
         document.getElementById("acidChozoYes").checked = true;
@@ -259,6 +284,7 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeOff").checked = false;
     document.getElementById("qualityOfLifeLow").checked = false;
     document.getElementById("qualityOfLifeDefault").checked = false;
+    document.getElementById("qualityOfLifeHigh").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
 }

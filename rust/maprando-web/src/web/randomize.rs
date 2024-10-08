@@ -122,6 +122,7 @@ struct RandomizeRequest {
     escape_movement_items: Text<bool>,
     mark_map_stations: Text<bool>,
     room_outline_revealed: Text<bool>,
+    opposite_area_revealed: Text<bool>,
     transition_letters: Text<bool>,
     door_locks_size: Text<String>,
     item_markers: Text<String>,
@@ -401,6 +402,7 @@ async fn randomize(
         escape_movement_items: req.escape_movement_items.0,
         mark_map_stations: req.mark_map_stations.0,
         room_outline_revealed: req.room_outline_revealed.0,
+        opposite_area_revealed: req.opposite_area_revealed.0,
         transition_letters: req.transition_letters.0,
         door_locks_size: match req.door_locks_size.0.as_str() {
             "small" => DoorLocksSize::Small,

@@ -117,6 +117,7 @@ fn run_scenario(
         escape_movement_items: true,
         mark_map_stations: true,
         room_outline_revealed: true,
+        opposite_area_revealed: true,
         transition_letters: false,
         door_locks_size: maprando::randomize::DoorLocksSize::Small,
         item_markers: ItemMarkers::ThreeTiered,

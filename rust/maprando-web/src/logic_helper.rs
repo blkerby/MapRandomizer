@@ -524,6 +524,7 @@ fn get_difficulty_config(preset: &PresetData, _game_data: &GameData) -> Difficul
         escape_enemies_cleared: true,
         mark_map_stations: true,
         room_outline_revealed: true,
+        opposite_area_revealed: true,
         transition_letters: false,
         door_locks_size: maprando::randomize::DoorLocksSize::Small,
         item_markers: maprando::randomize::ItemMarkers::ThreeTiered,
