@@ -1030,7 +1030,7 @@ impl LogicData {
                 .filter(|x| x.difficulty_idx <= template.tech_difficulty_idx)
                 .count();
             // if strat_count == 0 {
-            //     warn!("Tech {} ({}) has no strats in its assigned difficulty {}", 
+            //     warn!("Tech {} ({}) has no strats in its assigned difficulty {}",
             //         template.tech_id, template.tech_name, template.tech_difficulty_name);
             // }
             out.tech_strat_counts.insert(template.tech_id, strat_count);
@@ -1054,9 +1054,14 @@ impl LogicData {
                 .filter(|x| x.difficulty_idx <= template.notable_difficulty_idx)
                 .count();
             if strat_count == 0 {
-                warn!("Notable strat ({}, {}) {}: {} has no strats in its difficulty: {}", 
-                    template.room_id, template.notable_id,
-                    template.room_name, template.notable_name, template.notable_difficulty_name);
+                warn!(
+                    "Notable strat ({}, {}) {}: {} has no strats in its difficulty: {}",
+                    template.room_id,
+                    template.notable_id,
+                    template.room_name,
+                    template.notable_name,
+                    template.notable_difficulty_name
+                );
             }
             out.notable_strat_counts
                 .insert((template.room_id, template.notable_id), strat_count);

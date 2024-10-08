@@ -2463,29 +2463,38 @@ impl GameData {
                 x["exitCondition"]["leaveWithRunway"]["openEnd"] = JsonValue::Number(0.into());
 
                 let obj_conditions = [
-                    "i_Objective1Complete", 
-                    "i_Objective2Complete", 
-                    "i_Objective3Complete", 
-                    "i_Objective4Complete", 
+                    "i_Objective1Complete",
+                    "i_Objective2Complete",
+                    "i_Objective3Complete",
+                    "i_Objective4Complete",
                 ];
                 for num_objectives_complete in 1..=4 {
                     let mut strat = x.clone();
                     let runway_length = 5 + num_objectives_complete;
-                    strat["exitCondition"]["leaveWithRunway"]["length"] = JsonValue::Number(runway_length.into());
+                    strat["exitCondition"]["leaveWithRunway"]["length"] =
+                        JsonValue::Number(runway_length.into());
                     if num_objectives_complete == 4 {
-                        strat["exitCondition"]["leaveWithRunway"]["openEnd"] = JsonValue::Number(1.into());
+                        strat["exitCondition"]["leaveWithRunway"]["openEnd"] =
+                            JsonValue::Number(1.into());
                     }
 
                     strat["id"] = JsonValue::Number((10000 + num_objectives_complete).into());
                     if num_objectives_complete == 1 {
-                        strat["name"] = JsonValue::String(
-                            format!("{}, 1 Objective Complete", x["name"].as_str().unwrap()));
+                        strat["name"] = JsonValue::String(format!(
+                            "{}, 1 Objective Complete",
+                            x["name"].as_str().unwrap()
+                        ));
                     } else {
-                        strat["name"] = JsonValue::String(
-                            format!("{}, {} Objectives Complete", x["name"].as_str().unwrap(), num_objectives_complete));    
+                        strat["name"] = JsonValue::String(format!(
+                            "{}, {} Objectives Complete",
+                            x["name"].as_str().unwrap(),
+                            num_objectives_complete
+                        ));
                     }
                     for i in 0..num_objectives_complete {
-                        strat["requires"].push(JsonValue::String(obj_conditions[i].to_string())).unwrap();
+                        strat["requires"]
+                            .push(JsonValue::String(obj_conditions[i].to_string()))
+                            .unwrap();
                     }
                     new_strats.push(strat);
                 }
@@ -3342,7 +3351,7 @@ impl GameData {
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
         let strat_id = strat_json["id"].as_usize();
-        
+
         // TODO: deal with heated room more explicitly for Volcano Room, instead of guessing based on node ID:
         let from_heated = self.get_room_heated(room_json, from_node_id)?;
         let to_node_json = self.node_json_map[&(room_id, to_node_id)].clone();
