@@ -803,7 +803,7 @@ impl<'a> Patcher<'a> {
             self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm, false)?;
             if self.randomization.difficulty.opposite_area_revealed {
                 self.add_map_reveal_tile(src_pair, src_x, src_y)?;
-                self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;    
+                self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
             }
         }
         Ok(())

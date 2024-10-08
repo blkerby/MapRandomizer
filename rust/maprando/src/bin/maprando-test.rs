@@ -977,7 +977,13 @@ fn main() -> Result<()> {
             bail!("Unknown QoL preset {other}");
         }
         None => {
-            vec![set_qol_max, set_qol_high, set_qol_default, set_qol_low, set_qol_off]
+            vec![
+                set_qol_max,
+                set_qol_high,
+                set_qol_default,
+                set_qol_low,
+                set_qol_off,
+            ]
         }
     };
 

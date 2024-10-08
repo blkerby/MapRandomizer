@@ -2456,7 +2456,6 @@ impl GameData {
             }
         }
 
-
         for x in room_json["strats"].members_mut() {
             if x["id"].as_i32() == Some(34) {
                 // Mother Brain 2 and 3 Fight: override requirements, removing rainbow beam damage requirement,
