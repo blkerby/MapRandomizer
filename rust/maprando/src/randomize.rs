@@ -737,15 +737,16 @@ impl<'a> Preprocessor<'a> {
             ),
             MainEntranceCondition::ComeInSpeedballing {
                 effective_runway_length,
+                min_extra_run_speed,
+                max_extra_run_speed,
                 heated,
-            } => {
-                // TODO: once flash suit logic is ready, handle this differently
-                self.get_come_in_speedballing_reqs(
-                    exit_condition,
-                    effective_runway_length.get(),
-                    *heated,
-                )
-            }
+            } => self.get_come_in_speedballing_reqs(
+                exit_condition,
+                effective_runway_length.get(),
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
+                *heated,
+            ),
             MainEntranceCondition::ComeInWithTemporaryBlue { direction } => {
                 self.get_come_in_with_temporary_blue_reqs(exit_condition, *direction)
             }
@@ -1171,6 +1172,8 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_condition: &ExitCondition,
         mut runway_length: f32,
+        final_min_extra_run_speed: f32,
+        final_max_extra_run_speed: f32,
         runway_heated: bool,
     ) -> Option<Requirement> {
         match exit_condition {
@@ -1196,6 +1199,21 @@ impl<'a> Preprocessor<'a> {
                     used_tiles: Float::new(combined_runway_length),
                     heated: *heated || runway_heated,
                 });
+
+                let midair_length = f32::max(0.0, self.difficulty.speed_ball_tiles - self.difficulty.shine_charge_tiles);
+                let shortcharge_length = combined_runway_length - midair_length;
+                if !self.add_run_speed_reqs(
+                    shortcharge_length,
+                    0.0,
+                    7.0,
+                    *heated,
+                    final_min_extra_run_speed,
+                    final_max_extra_run_speed,
+                    &mut reqs,
+                ) {
+                    return None;
+                }
+
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -1211,6 +1229,35 @@ impl<'a> Preprocessor<'a> {
                         *heated,
                     );
                     reqs.push(Requirement::HeatFrames(heat_frames));
+                }
+                Some(Requirement::make_and(reqs))
+            }
+            ExitCondition::LeaveWithMockball {
+                remote_runway_length,
+                landing_runway_length: _,
+                blue,
+                heated,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => {
+                let remote_runway_length = remote_runway_length.get();
+                if *blue == BlueOption::Yes {
+                    return None;
+                }
+                let mut reqs: Vec<Requirement> = vec![Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL],
+                )];
+                reqs.push(Requirement::Item(self.game_data.item_isv.index_by_key["SpeedBooster"]));
+                if !self.add_run_speed_reqs(
+                    remote_runway_length,
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    *heated,
+                    final_min_extra_run_speed,
+                    final_max_extra_run_speed,
+                    &mut reqs,
+                ) {
+                    return None;
                 }
                 Some(Requirement::make_and(reqs))
             }

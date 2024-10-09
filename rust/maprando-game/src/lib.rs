@@ -777,6 +777,8 @@ pub enum MainEntranceCondition {
     },
     ComeInSpeedballing {
         effective_runway_length: Float,
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
         heated: bool,
     },
     ComeInWithTemporaryBlue {
@@ -3198,6 +3200,8 @@ impl GameData {
                     (compute_runway_effective_length(&runway_geometry) - 1.25).max(0.0);
                 MainEntranceCondition::ComeInSpeedballing {
                     effective_runway_length: Float::new(effective_runway_length),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                    max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                     heated,
                 }
             }
