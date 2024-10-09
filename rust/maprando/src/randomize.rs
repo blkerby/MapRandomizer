@@ -1200,7 +1200,10 @@ impl<'a> Preprocessor<'a> {
                     heated: *heated || runway_heated,
                 });
 
-                let midair_length = f32::max(0.0, self.difficulty.speed_ball_tiles - self.difficulty.shine_charge_tiles);
+                let midair_length = f32::max(
+                    0.0,
+                    self.difficulty.speed_ball_tiles - self.difficulty.shine_charge_tiles,
+                );
                 let shortcharge_length = combined_runway_length - midair_length;
                 if !self.add_run_speed_reqs(
                     shortcharge_length,
@@ -1247,7 +1250,9 @@ impl<'a> Preprocessor<'a> {
                 let mut reqs: Vec<Requirement> = vec![Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL],
                 )];
-                reqs.push(Requirement::Item(self.game_data.item_isv.index_by_key["SpeedBooster"]));
+                reqs.push(Requirement::Item(
+                    self.game_data.item_isv.index_by_key["SpeedBooster"],
+                ));
                 if !self.add_run_speed_reqs(
                     remote_runway_length,
                     min_extra_run_speed.get(),
