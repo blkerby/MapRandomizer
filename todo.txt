@@ -65,6 +65,8 @@ v114:
 - DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- map hub: fast travel
+- partial farms
 - link to logic pages from video site?
 - adjust auto-formatting for unlocksDoors
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways

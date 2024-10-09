@@ -55,10 +55,10 @@
                             <div class="col-sm-8 col-md-9 col-lg-10 my-0">
                                 <div class="container mx-0 my-0">
                                     <div class="row">
-                                        <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-0">
+                                        <div class="col-lg-10 mx-0 my-0">
                                             <b>{{ tech_name }}</b>
                                         </div>
-                                        <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
+                                        <div class="col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
                                             <input type="radio" class="btn-check" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-No" value="false" checked=true>
                                             <label class="btn btn-outline-primary m-0 p-1" for="tech-{{ tech_id }}-No">No</label>
                                             <input type="radio" class="btn-check tech-input tier-input-{{ name_no_space }}" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-Yes" value="true">
@@ -75,7 +75,14 @@
                                     {% endif %}
                                     {% if tech_strat_counts[tech_id] > 0usize|as_ref %}
                                         <p class="mt-3"><a href="/logic/tech/{{+ tech_id }}" onclick="setPreset('{{+ preset_idx }}');">
-                                        {{+ tech_strat_counts[tech_id] +}} strat(s)</a></p>
+                                        {% let cnt = tech_strat_counts[tech_id] %}
+                                        {% let strat_pluralization -%}
+                                        {% if cnt == 1|as_ref %}
+                                          {% let strat_pluralization = "strat" %}
+                                        {% else %}
+                                          {% let strat_pluralization = "strats" %}
+                                        {% endif %}
+                                        {{+ cnt +}} {{+ strat_pluralization }}</a></p>
                                     {% endif %}
                                 </div>
                             </div>
@@ -93,6 +100,7 @@
                     {% for notable_setting in p.preset.notables %}
                     {% let notable_name = notable_setting.name|as_ref %}
                     {% let room_id = notable_setting.room_id %}
+                    {% let room_name = notable_setting.room_name|as_ref %}
                     {% let notable_id = notable_setting.notable_id %}
                     {% let combo_id = format!("{}-{}", room_id, notable_id) %}
                         <hr class="m-0">
@@ -113,12 +121,12 @@
                             <div class="col-sm-8 col-md-9 col-lg-10">
                                 <div class="container mx-0 my-0">
                                     <div class="row">
-                                        <div class="col-lg-9 col-xl-8 col-xxl-7 mx-0 my-1">
+                                        <div class="col-lg-10 mx-0 my-1">
                                             <label for="strat-{{ combo_id }}">
-                                            <b>{{ notable_name }}</b>
+                                            <b>{{ room_name +}}: {{+ notable_name }}</b>
                                             </label>
                                         </div>
-                                        <div class="col-lg-2 col-xl-2 btn-group my-0" role="group" onchange="techChanged()">
+                                        <div class="col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
                                             <input type="radio" class="btn-check" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-No" value="false" checked=true>
                                             <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-No">No</label>
                                             <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-Yes" value="true">
@@ -132,8 +140,15 @@
                                         </div>
                                     </div>
                                     <p class="mt-3"><a href="/logic/notable/{{ room_id }}/{{ notable_id }}" onclick="setPreset('{{+ preset_idx }}');">
-                                        {{+ notable_strat_counts[(room_id, notable_id)|as_ref] +}} strat(s)</a>
-                                    </p>
+                                        {% let cnt = notable_strat_counts[(room_id, notable_id)|as_ref] %}
+                                        {% let strat_pluralization -%}
+                                        {% if cnt == 1|as_ref %}
+                                          {% let strat_pluralization = "strat" %}
+                                        {% else %}
+                                          {% let strat_pluralization = "strats" %}
+                                        {% endif %}
+                                        {{+ cnt +}} {{+ strat_pluralization }}
+                                    </a></p>
                                 </div>
                             </div>
                         </div>

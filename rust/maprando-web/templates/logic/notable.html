@@ -2,7 +2,7 @@
 <html lang="en-US">
 <head>
 {% include "../common/header.html" %}
-<title>{{+ notable_name }} - Super Metroid Map Rando</title>
+<title>{{ room_name +}}: {{+ notable_name }} - Super Metroid Map Rando</title>
 </head>
 <body>
 {% include "../common/navbar.html" %}
@@ -13,7 +13,7 @@ document.getElementById("navigation-logic").classList.add("active");
 {% include "../common/video-modal.html" %}
 
 <div class="container col-xl-10 col-xxl-8 pb-4">
-    <h3 class="my-2">{{+ notable_name +}} ({{+ notable_difficulty_name }})</h3>
+    <h3 class="my-2">{{ room_name +}}: {{+ notable_name +}} ({{+ notable_difficulty_name }})</h3>
     <style>
     html[data-bs-theme=dark] .notable-row:hover {
         background-color: #2b3035;
