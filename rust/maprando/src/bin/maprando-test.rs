@@ -210,7 +210,7 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
     diff.item_priorities = vec![
         ItemPriorityGroup {
             name: "Early".to_string(),
-            items: vec!["Morph"].into_iter().map(|x| x.to_string()).collect(),
+            items: vec!["Morph", "Bombs"].into_iter().map(|x| x.to_string()).collect(),
         },
         ItemPriorityGroup {
             name: "Default".to_string(),
@@ -224,7 +224,6 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
                 "Wave",
                 "Spazer",
                 "Plasma",
-                "Bombs",
                 "Grapple",
                 "HiJump",
                 "SpeedBooster",
