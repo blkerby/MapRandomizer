@@ -1,11 +1,9 @@
 v114:
 - Yellow Maridia fixes
   - vanilla map: toilet in botwoon hallway is wrong.
-- skip strats without ID, and warn about them
 - link "Base" spoiler steps
-- remove room names from notable names
 - maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
-- fix notables that are in wrong difficulty
+- add missing videos for notables
 - restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
 - add sprites: HisBeardNis X, Bruno, PED Suit, ...
 - track down sprite artists if we can:
@@ -20,6 +18,10 @@ v114:
   - SZM: SBniconico
   - Kaizo: Green Samus
   - Super Duper: Metaquarius, Daltone
+- DONE: warn about strats without ID
+- DONE: implement "disableEquipment" requirement
+- DONE: fix notables that are in wrong difficulty
+- DONE: remove room names from notable names
 - DONE: make "reduced flashing" Phantoon less changed from vanilla
 - DONE: implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
 - DONE: check issue with wrong faded item dot type:

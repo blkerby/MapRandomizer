@@ -6,7 +6,7 @@ use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use image::{io::Reader as ImageReader, Rgb};
 use json::{self, JsonValue};
-use log::{error, info};
+use log::{error, info, warn};
 use ndarray::Array3;
 use num_enum::TryFromPrimitive;
 use serde::{Deserialize, Serialize};
@@ -2259,6 +2259,8 @@ impl GameData {
                     enemy_drops.push(enemy_drop);
                 }
                 return Ok(Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops));
+            } else if key == "disableEquipment" {
+                return Ok(Requirement::Tech(self.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]));
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
@@ -2630,6 +2632,14 @@ impl GameData {
 
         if room_json["name"].as_str().unwrap() == "Upper Tourian Save Room" {
             new_room_json["name"] = JsonValue::String("Tourian Map Room".to_string());
+        }
+
+        for strat_json in new_room_json["strats"].members_mut() {
+            if strat_json["id"].as_usize().is_none() {
+                let from_node_id = strat_json["link"][0].as_usize().unwrap();
+                let to_node_id = strat_json["link"][0].as_usize().unwrap();
+                warn!("Skipping strat without ID: {}:{}:{}:{}", room_json["name"], from_node_id, to_node_id, strat_json["name"].as_str().unwrap());
+            }
         }
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room

@@ -2,16 +2,16 @@
   {
     "room_id": 11,
     "strat_id": 11,
-    "video_id": 744,
-    "created_user": "Nito",
-    "note": "This shows the method jumping from the platform below the bomb block, which requires a frame-perfect morph. This also requires starting far on the left side of the platform."
+    "video_id": 838,
+    "created_user": "maddo",
+    "note": "This shows the method using the upper platform, which gives a 2-frame window for the morph. This is easier than using the platform below, which requires a frame-perfect morph."
   },
   {
     "room_id": 11,
     "strat_id": 11,
-    "video_id": 838,
-    "created_user": "maddo",
-    "note": "This shows the method using the upper platform, which gives a 2-frame window for the morph. This is easier than using the platform below, which requires a frame-perfect morph."
+    "video_id": 744,
+    "created_user": "Nito",
+    "note": "This shows the method jumping from the platform below the bomb block, which requires a frame-perfect morph. This also requires starting far on the left side of the platform."
   },
   {
     "room_id": 11,
@@ -401,6 +401,13 @@
   {
     "room_id": 12,
     "strat_id": 7,
+    "video_id": 787,
+    "created_user": "Osse101",
+    "note": "downback"
+  },
+  {
+    "room_id": 12,
+    "strat_id": 7,
     "video_id": 786,
     "created_user": "Osse101",
     "note": "morph"
@@ -411,13 +418,6 @@
     "video_id": 784,
     "created_user": "Osse101",
     "note": "morphless"
-  },
-  {
-    "room_id": 12,
-    "strat_id": 7,
-    "video_id": 787,
-    "created_user": "Osse101",
-    "note": "downback"
   },
   {
     "room_id": 12,
@@ -485,16 +485,16 @@
   {
     "room_id": 30,
     "strat_id": 46,
-    "video_id": 458,
+    "video_id": 459,
     "created_user": "maddo",
-    "note": "With wall jumps, making it a bit easier"
+    "note": "Without wall jump. This can also be done with no energy loss but it is very difficult."
   },
   {
     "room_id": 30,
     "strat_id": 46,
-    "video_id": 459,
+    "video_id": 458,
     "created_user": "maddo",
-    "note": "Without wall jump. This can also be done with no energy loss but it is very difficult."
+    "note": "With wall jumps, making it a bit easier"
   },
   {
     "room_id": 30,
@@ -1087,16 +1087,16 @@
   {
     "room_id": 46,
     "strat_id": 16,
-    "video_id": 477,
-    "created_user": "Osse101",
-    "note": ""
+    "video_id": 909,
+    "created_user": "maddo",
+    "note": "canTunnelCrawl"
   },
   {
     "room_id": 46,
     "strat_id": 16,
-    "video_id": 909,
-    "created_user": "maddo",
-    "note": "canTunnelCrawl"
+    "video_id": 477,
+    "created_user": "Osse101",
+    "note": ""
   },
   {
     "room_id": 45,
@@ -1136,16 +1136,16 @@
   {
     "room_id": 45,
     "strat_id": 15,
-    "video_id": 777,
+    "video_id": 200,
     "created_user": "Osse101",
-    "note": "canTrickyEnemyExtendRunway"
+    "note": ""
   },
   {
     "room_id": 45,
     "strat_id": 15,
-    "video_id": 200,
+    "video_id": 777,
     "created_user": "Osse101",
-    "note": ""
+    "note": "canTrickyEnemyExtendRunway"
   },
   {
     "room_id": 45,
@@ -1276,16 +1276,16 @@
   {
     "room_id": 44,
     "strat_id": 236,
-    "video_id": 969,
-    "created_user": "maddo",
-    "note": "canPreciseCeilingClip"
+    "video_id": 1070,
+    "created_user": "kyleb",
+    "note": "canXRayCeilingClip"
   },
   {
     "room_id": 44,
     "strat_id": 236,
-    "video_id": 1070,
-    "created_user": "kyleb",
-    "note": "canXRayCeilingClip"
+    "video_id": 969,
+    "created_user": "maddo",
+    "note": "canPreciseCeilingClip"
   },
   {
     "room_id": 44,
@@ -1451,16 +1451,16 @@
   {
     "room_id": 59,
     "strat_id": 93,
-    "video_id": 758,
+    "video_id": 759,
     "created_user": "NZT",
-    "note": ""
+    "note": "With Airball"
   },
   {
     "room_id": 59,
     "strat_id": 93,
-    "video_id": 759,
+    "video_id": 758,
     "created_user": "NZT",
-    "note": "With Airball"
+    "note": ""
   },
   {
     "room_id": 59,
@@ -1507,15 +1507,15 @@
   {
     "room_id": 59,
     "strat_id": 103,
-    "video_id": 165,
-    "created_user": "Osse101",
+    "video_id": 872,
+    "created_user": "Nito",
     "note": ""
   },
   {
     "room_id": 59,
     "strat_id": 103,
-    "video_id": 872,
-    "created_user": "Nito",
+    "video_id": 165,
+    "created_user": "Osse101",
     "note": ""
   },
   {
@@ -1682,16 +1682,16 @@
   {
     "room_id": 61,
     "strat_id": 10,
-    "video_id": 1056,
-    "created_user": "maddo",
-    "note": "canOffScreenSuperShot"
+    "video_id": 541,
+    "created_user": "Osse101",
+    "note": "Using spin jump stationary turnaround instead of moonwalk"
   },
   {
     "room_id": 61,
     "strat_id": 10,
-    "video_id": 541,
-    "created_user": "Osse101",
-    "note": "Using spin jump stationary turnaround instead of moonwalk"
+    "video_id": 1056,
+    "created_user": "maddo",
+    "note": "canOffScreenSuperShot"
   },
   {
     "room_id": 61,
@@ -1878,16 +1878,16 @@
   {
     "room_id": 70,
     "strat_id": 9,
-    "video_id": 640,
+    "video_id": 639,
     "created_user": "Sinth",
-    "note": "Eddie down-back into free crumble-jump"
+    "note": "insomniaspeed springball setup"
   },
   {
     "room_id": 70,
     "strat_id": 9,
-    "video_id": 639,
+    "video_id": 640,
     "created_user": "Sinth",
-    "note": "insomniaspeed springball setup"
+    "note": "Eddie down-back into free crumble-jump"
   },
   {
     "room_id": 70,
@@ -2221,16 +2221,16 @@
   {
     "room_id": 100,
     "strat_id": 8,
-    "video_id": 146,
+    "video_id": 147,
     "created_user": "maddo",
-    "note": ""
+    "note": "With canXRayCancelShinecharge"
   },
   {
     "room_id": 100,
     "strat_id": 8,
-    "video_id": 147,
+    "video_id": 146,
     "created_user": "maddo",
-    "note": "With canXRayCancelShinecharge"
+    "note": ""
   },
   {
     "room_id": 100,
@@ -2522,16 +2522,16 @@
   {
     "room_id": 97,
     "strat_id": 112,
-    "video_id": 712,
-    "created_user": "NZT",
-    "note": "With the top right door locked and using spring fling."
+    "video_id": 1024,
+    "created_user": "maddo",
+    "note": "canSpringBallBounce"
   },
   {
     "room_id": 97,
     "strat_id": 112,
-    "video_id": 1024,
-    "created_user": "maddo",
-    "note": "canSpringBallBounce"
+    "video_id": 712,
+    "created_user": "NZT",
+    "note": "With the top right door locked and using spring fling."
   },
   {
     "room_id": 97,
@@ -2550,16 +2550,16 @@
   {
     "room_id": 97,
     "strat_id": 117,
-    "video_id": 1023,
-    "created_user": "Sinth",
-    "note": "Fall onto Waver over pit"
+    "video_id": 478,
+    "created_user": "Osse101",
+    "note": ""
   },
   {
     "room_id": 97,
     "strat_id": 117,
-    "video_id": 478,
-    "created_user": "Osse101",
-    "note": ""
+    "video_id": 1023,
+    "created_user": "Sinth",
+    "note": "Fall onto Waver over pit"
   },
   {
     "room_id": 97,
@@ -2669,16 +2669,16 @@
   {
     "room_id": 91,
     "strat_id": 29,
-    "video_id": 305,
+    "video_id": 306,
     "created_user": "maddo",
-    "note": ""
+    "note": "With X-Ray"
   },
   {
     "room_id": 91,
     "strat_id": 29,
-    "video_id": 306,
+    "video_id": 305,
     "created_user": "maddo",
-    "note": "With X-Ray"
+    "note": ""
   },
   {
     "room_id": 90,
@@ -2760,16 +2760,16 @@
   {
     "room_id": 104,
     "strat_id": 80,
-    "video_id": 803,
+    "video_id": 804,
     "created_user": "maddo",
-    "note": ""
+    "note": "With X-Ray"
   },
   {
     "room_id": 104,
     "strat_id": 80,
-    "video_id": 804,
+    "video_id": 803,
     "created_user": "maddo",
-    "note": "With X-Ray"
+    "note": ""
   },
   {
     "room_id": 104,
@@ -2872,6 +2872,13 @@
   {
     "room_id": 115,
     "strat_id": 43,
+    "video_id": 592,
+    "created_user": "maddo",
+    "note": "With Gravity suit"
+  },
+  {
+    "room_id": 115,
+    "strat_id": 43,
     "video_id": 591,
     "created_user": "maddo",
     "note": "Suitless"
@@ -2882,13 +2889,6 @@
     "video_id": 4,
     "created_user": "maddo",
     "note": "With Varia suit"
-  },
-  {
-    "room_id": 115,
-    "strat_id": 43,
-    "video_id": 592,
-    "created_user": "maddo",
-    "note": "With Gravity suit"
   },
   {
     "room_id": 115,
@@ -3019,16 +3019,16 @@
   {
     "room_id": 121,
     "strat_id": 18,
-    "video_id": 958,
-    "created_user": "maddo",
-    "note": "canDoubleBombJump"
+    "video_id": 1032,
+    "created_user": "kyleb",
+    "note": ""
   },
   {
     "room_id": 121,
     "strat_id": 18,
-    "video_id": 1032,
-    "created_user": "kyleb",
-    "note": ""
+    "video_id": 958,
+    "created_user": "maddo",
+    "note": "canDoubleBombJump"
   },
   {
     "room_id": 121,
@@ -3193,13 +3193,6 @@
   },
   {
     "room_id": 110,
-    "strat_id": 8,
-    "video_id": 1039,
-    "created_user": "kyleb",
-    "note": ""
-  },
-  {
-    "room_id": 110,
     "strat_id": 12,
     "video_id": 129,
     "created_user": "Osse101",
@@ -3236,23 +3229,23 @@
   {
     "room_id": 131,
     "strat_id": 23,
-    "video_id": 1048,
-    "created_user": "maddo",
-    "note": "Wall jumping to get out of the water"
-  },
-  {
-    "room_id": 131,
-    "strat_id": 23,
-    "video_id": 1043,
-    "created_user": "maddo",
-    "note": "canHorizontalDamageBoost (HiJump)"
-  },
-  {
-    "room_id": 131,
-    "strat_id": 23,
     "video_id": 1047,
     "created_user": "maddo",
     "note": "Waiting for water cycle"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1049,
+    "created_user": "maddo",
+    "note": "Using crouch jump down grab to get out of the water"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1048,
+    "created_user": "maddo",
+    "note": "Wall jumping to get out of the water"
   },
   {
     "room_id": 131,
@@ -3264,16 +3257,9 @@
   {
     "room_id": 131,
     "strat_id": 23,
-    "video_id": 1049,
+    "video_id": 1043,
     "created_user": "maddo",
-    "note": "Using crouch jump down grab to get out of the water"
-  },
-  {
-    "room_id": 131,
-    "strat_id": 46,
-    "video_id": 454,
-    "created_user": "NZT",
-    "note": "Airball option. Don't use HiJump. SpeedBooster can be equipped but is not necessary. "
+    "note": "canHorizontalDamageBoost (HiJump)"
   },
   {
     "room_id": 131,
@@ -3281,6 +3267,13 @@
     "video_id": 917,
     "created_user": "maddo",
     "note": "canTrickyJump"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 46,
+    "video_id": 454,
+    "created_user": "NZT",
+    "note": "Airball option. Don't use HiJump. SpeedBooster can be equipped but is not necessary. "
   },
   {
     "room_id": 131,
@@ -3376,16 +3369,16 @@
   {
     "room_id": 127,
     "strat_id": 51,
-    "video_id": 1040,
-    "created_user": "maddo",
-    "note": "canJumpIntoIBJ"
+    "video_id": 387,
+    "created_user": "NZT",
+    "note": ""
   },
   {
     "room_id": 127,
     "strat_id": 51,
-    "video_id": 387,
-    "created_user": "NZT",
-    "note": ""
+    "video_id": 1040,
+    "created_user": "maddo",
+    "note": "canJumpIntoIBJ"
   },
   {
     "room_id": 127,
@@ -3607,16 +3600,16 @@
   {
     "room_id": 145,
     "strat_id": 18,
-    "video_id": 523,
+    "video_id": 428,
     "created_user": "Osse101",
-    "note": "Version with damage boost from fireball"
+    "note": "Damageless version"
   },
   {
     "room_id": 145,
     "strat_id": 18,
-    "video_id": 428,
+    "video_id": 523,
     "created_user": "Osse101",
-    "note": "Damageless version"
+    "note": "Version with damage boost from fireball"
   },
   {
     "room_id": 145,
@@ -3733,16 +3726,16 @@
   {
     "room_id": 140,
     "strat_id": 4,
-    "video_id": 607,
+    "video_id": 605,
     "created_user": "NZT",
-    "note": "A way to do this room by using i-frames from the right farm bug."
+    "note": "A way to doing this room with a Horizontal Damage Boost from the second farm bug instead of i-framing with the third. "
   },
   {
     "room_id": 140,
     "strat_id": 4,
-    "video_id": 605,
+    "video_id": 607,
     "created_user": "NZT",
-    "note": "A way to doing this room with a Horizontal Damage Boost from the second farm bug instead of i-framing with the third. "
+    "note": "A way to do this room by using i-frames from the right farm bug."
   },
   {
     "room_id": 140,
@@ -4020,16 +4013,16 @@
   {
     "room_id": 161,
     "strat_id": 56,
-    "video_id": 697,
+    "video_id": 696,
     "created_user": "maddo",
-    "note": "Power Off"
+    "note": "Power On"
   },
   {
     "room_id": 161,
     "strat_id": 56,
-    "video_id": 696,
+    "video_id": 697,
     "created_user": "maddo",
-    "note": "Power On"
+    "note": "Power Off"
   },
   {
     "room_id": 164,
@@ -4160,16 +4153,16 @@
   {
     "room_id": 201,
     "strat_id": 123,
-    "video_id": 688,
+    "video_id": 689,
     "created_user": "maddo",
-    "note": "Killing the crab with Missiles"
+    "note": ""
   },
   {
     "room_id": 201,
     "strat_id": 123,
-    "video_id": 689,
+    "video_id": 688,
     "created_user": "maddo",
-    "note": ""
+    "note": "Killing the crab with Missiles"
   },
   {
     "room_id": 201,
@@ -4363,16 +4356,16 @@
   {
     "room_id": 172,
     "strat_id": 77,
-    "video_id": 453,
-    "created_user": "NZT",
-    "note": "If you want to conserve health you can jump above the platform with a crab to initiate the spark instead. It is however a bit more tricky to do. "
+    "video_id": 1053,
+    "created_user": "kyleb",
+    "note": "canShinechargeMovement"
   },
   {
     "room_id": 172,
     "strat_id": 77,
-    "video_id": 1053,
-    "created_user": "kyleb",
-    "note": "canShinechargeMovement"
+    "video_id": 453,
+    "created_user": "NZT",
+    "note": "If you want to conserve health you can jump above the platform with a crab to initiate the spark instead. It is however a bit more tricky to do. "
   },
   {
     "room_id": 172,
@@ -4440,13 +4433,6 @@
   {
     "room_id": 172,
     "strat_id": 146,
-    "video_id": 990,
-    "created_user": "maddo",
-    "note": "Slight variation: with an earlier pause (with HiJump)"
-  },
-  {
-    "room_id": 172,
-    "strat_id": 146,
     "video_id": 991,
     "created_user": "maddo",
     "note": "canReserveDoubleDamageBoost (with HiJump)"
@@ -4457,6 +4443,13 @@
     "video_id": 992,
     "created_user": "maddo",
     "note": "With a Spring Ball jump"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 146,
+    "video_id": 990,
+    "created_user": "maddo",
+    "note": "Slight variation: with an earlier pause (with HiJump)"
   },
   {
     "room_id": 178,
@@ -4657,15 +4650,15 @@
   {
     "room_id": 174,
     "strat_id": 34,
-    "video_id": 49,
-    "created_user": "maddo",
+    "video_id": 218,
+    "created_user": "Osse101",
     "note": ""
   },
   {
     "room_id": 174,
     "strat_id": 34,
-    "video_id": 218,
-    "created_user": "Osse101",
+    "video_id": 49,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -4790,16 +4783,16 @@
   {
     "room_id": 174,
     "strat_id": 115,
-    "video_id": 9,
+    "video_id": 11,
     "created_user": "maddo",
-    "note": ""
+    "note": "Variation that bounces on both Grapple platforms. This is more difficult than using the islands, so there's probably no reason to do it. Except that with a spring fling it could be faster."
   },
   {
     "room_id": 174,
     "strat_id": 115,
-    "video_id": 11,
+    "video_id": 9,
     "created_user": "maddo",
-    "note": "Variation that bounces on both Grapple platforms. This is more difficult than using the islands, so there's probably no reason to do it. Except that with a spring fling it could be faster."
+    "note": ""
   },
   {
     "room_id": 174,
@@ -4972,16 +4965,16 @@
   {
     "room_id": 183,
     "strat_id": 86,
-    "video_id": 36,
+    "video_id": 34,
     "created_user": "maddo",
-    "note": "Using an unbroken Speed block as a stepping stone"
+    "note": "Using Grapple to get above the respawning speed blocks, in case the jump height is not enough on its own."
   },
   {
     "room_id": 183,
     "strat_id": 86,
-    "video_id": 34,
+    "video_id": 36,
     "created_user": "maddo",
-    "note": "Using Grapple to get above the respawning speed blocks, in case the jump height is not enough on its own."
+    "note": "Using an unbroken Speed block as a stepping stone"
   },
   {
     "room_id": 183,
@@ -5021,16 +5014,16 @@
   {
     "room_id": 183,
     "strat_id": 129,
-    "video_id": 107,
-    "created_user": "Osse101",
-    "note": "Align with the wall and tap left to move onto it just enough for a turn-around crouch jump to be possible to reach the transition."
+    "video_id": 106,
+    "created_user": "maddo",
+    "note": "Using Morph to more easily position at the edge"
   },
   {
     "room_id": 183,
     "strat_id": 129,
-    "video_id": 106,
-    "created_user": "maddo",
-    "note": "Using Morph to more easily position at the edge"
+    "video_id": 107,
+    "created_user": "Osse101",
+    "note": "Align with the wall and tap left to move onto it just enough for a turn-around crouch jump to be possible to reach the transition."
   },
   {
     "room_id": 186,
@@ -5161,15 +5154,15 @@
   {
     "room_id": 189,
     "strat_id": 34,
-    "video_id": 28,
-    "created_user": "maddo",
+    "video_id": 116,
+    "created_user": "Osse101",
     "note": ""
   },
   {
     "room_id": 189,
     "strat_id": 34,
-    "video_id": 116,
-    "created_user": "Osse101",
+    "video_id": 28,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -6057,14 +6050,14 @@
   {
     "room_id": 232,
     "strat_id": 22,
-    "video_id": 269,
+    "video_id": 439,
     "created_user": "Osse101",
     "note": ""
   },
   {
     "room_id": 232,
     "strat_id": 22,
-    "video_id": 439,
+    "video_id": 269,
     "created_user": "Osse101",
     "note": ""
   },
@@ -6225,16 +6218,9 @@
   {
     "room_id": 242,
     "strat_id": 19,
-    "video_id": 547,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 242,
-    "strat_id": 19,
-    "video_id": 1081,
+    "video_id": 1078,
     "created_user": "maddo",
-    "note": "Walljumpless precise Space Jumps, Plasma hitbox, damageless"
+    "note": "Walljumpless Space Jump with brief acid dip"
   },
   {
     "room_id": 242,
@@ -6246,9 +6232,16 @@
   {
     "room_id": 242,
     "strat_id": 19,
-    "video_id": 1078,
+    "video_id": 1081,
     "created_user": "maddo",
-    "note": "Walljumpless Space Jump with brief acid dip"
+    "note": "Walljumpless precise Space Jumps, Plasma hitbox, damageless"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 19,
+    "video_id": 547,
+    "created_user": "Osse101",
+    "note": ""
   },
   {
     "room_id": 242,

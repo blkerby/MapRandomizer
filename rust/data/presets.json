@@ -46,11 +46,6 @@
         "video_id": 898
       },
       {
-        "tech_id": 118,
-        "name": "canTrickyDodgeEnemies",
-        "video_id": null
-      },
-      {
         "tech_id": 119,
         "name": "canEscapeEnemyGrab",
         "video_id": null
@@ -1427,6 +1422,13 @@
         "room_name": "Metroid Room 4",
         "name": "Three Power Bomb Kill (Top to Bottom)",
         "video_id": 138
+      },
+      {
+        "room_id": 242,
+        "notable_id": 4,
+        "room_name": "Tourian Escape Room 4",
+        "name": "Reverse Tourian Escape Room 4 Bootless Walljumpless Space Jump",
+        "video_id": 1080
       }
     ]
   },
@@ -3226,6 +3228,11 @@
         "video_id": 1007
       },
       {
+        "tech_id": 187,
+        "name": "canLongUnderwaterWalljump",
+        "video_id": 123
+      },
+      {
         "tech_id": 92,
         "name": "canCeilingBombJump",
         "video_id": 1008
@@ -3524,13 +3531,6 @@
       },
       {
         "room_id": 173,
-        "notable_id": 2,
-        "room_name": "Fish Tank",
-        "name": "Very Long Underwater Walljump Climb",
-        "video_id": 123
-      },
-      {
-        "room_id": 173,
         "notable_id": 3,
         "room_name": "Fish Tank",
         "name": "Grapple Teleport into Grapple Jump",
@@ -3696,13 +3696,6 @@
         "room_name": "Halfie Climb Room",
         "name": "Stored Moonfall Grapple Door Lock Skip",
         "video_id": 209
-      },
-      {
-        "room_id": 187,
-        "notable_id": 4,
-        "room_name": "Halfie Climb Room",
-        "name": "Very Long Underwater Walljump Climb",
-        "video_id": 127
       },
       {
         "room_id": 187,
@@ -3891,6 +3884,11 @@
     "mother_brain_proficiency": 0.0,
     "tech": [
       {
+        "tech_id": 118,
+        "name": "canTrickyDodgeEnemies",
+        "video_id": null
+      },
+      {
         "tech_id": 128,
         "name": "canWrapAroundShot",
         "video_id": null
@@ -3991,13 +3989,6 @@
         "room_name": "Botwoon's Room",
         "name": "Back-Side Plasma Shield Fight",
         "video_id": 470
-      },
-      {
-        "room_id": 189,
-        "notable_id": 3,
-        "room_name": "Colosseum",
-        "name": "Green Door Grapple Clip",
-        "video_id": 188
       },
       {
         "room_id": 197,

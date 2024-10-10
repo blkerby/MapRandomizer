@@ -698,21 +698,23 @@ impl MosaicPatchBuilder {
         screen_x: usize,
         priority: bool,
         tileset_idx: usize,
+        theme_name: &str,
     ) {
+        let maridia_style_tube = tileset_idx == 12 && theme_name != "YellowMaridia";
         for screen_y in 0..room_height {
             for y in 0..16 {
                 let i = (screen_y * 16 + y) * room_width * 16 + screen_x * 16 + 7;
-                let tile: u16 = match (tileset_idx, priority, y == 0 || y == 15) {
+                let tile: u16 = match (maridia_style_tube, priority, y == 0 || y == 15) {
                     // Tube tiles specific to East Maridia (as in vanilla):
-                    (12, true, true) => 0x3B2,
-                    (12, true, false) => 0x3AB ^ 0x400,
-                    (12, false, true) => 0x33D,
-                    (12, false, false) => 0x33B ^ 0x400,
+                    (true, true, true) => 0x3B2,
+                    (true, true, false) => 0x3AB ^ 0x400,
+                    (true, false, true) => 0x33D,
+                    (true, false, false) => 0x33B ^ 0x400,
                     // Tube tiles in other tilesets:
-                    (_, true, true) => 0xEE,
-                    (_, true, false) => 0xEF,
-                    (_, false, true) => 0xF1,
-                    (_, false, false) => 0xF2,
+                    (false, true, true) => 0xEE,
+                    (false, true, false) => 0xEF,
+                    (false, false, true) => 0xF1,
+                    (false, false, false) => 0xF2,
                 };
                 let vflip = if y == 15 { 0x08 } else { 0x00 };
                 (layer2[i * 2], layer2[i * 2 + 1]) =
@@ -897,7 +899,8 @@ impl MosaicPatchBuilder {
                         width,
                         height,
                     );
-                    Self::draw_tube(&mut layer_2, width, height, x, false, tileset_idx);
+                    let twin_tileset_idx = twin_state_xml.as_ref().unwrap().gfx_set;
+                    Self::draw_tube(&mut layer_2, width, height, x, false, twin_tileset_idx, theme_name);
 
                     for sy in 0..height {
                         Self::copy_screen(
@@ -938,6 +941,7 @@ impl MosaicPatchBuilder {
                         x,
                         true,
                         tileset_idx,
+                        theme_name,
                     );
 
                     for y in 0..(room_geometry.map.len() as isize) {
@@ -962,6 +966,7 @@ impl MosaicPatchBuilder {
                         x,
                         false,
                         tileset_idx,
+                        theme_name,
                     );
                     for sy in 0..room_height {
                         for sx in 0..room_width {
