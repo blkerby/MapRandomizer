@@ -2260,7 +2260,9 @@ impl GameData {
                 }
                 return Ok(Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops));
             } else if key == "disableEquipment" {
-                return Ok(Requirement::Tech(self.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]));
+                return Ok(Requirement::Tech(
+                    self.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+                ));
             }
         }
         bail!("Unable to parse requirement: {}", req_json);
@@ -2638,7 +2640,13 @@ impl GameData {
             if strat_json["id"].as_usize().is_none() {
                 let from_node_id = strat_json["link"][0].as_usize().unwrap();
                 let to_node_id = strat_json["link"][0].as_usize().unwrap();
-                warn!("Skipping strat without ID: {}:{}:{}:{}", room_json["name"], from_node_id, to_node_id, strat_json["name"].as_str().unwrap());
+                warn!(
+                    "Skipping strat without ID: {}:{}:{}:{}",
+                    room_json["name"],
+                    from_node_id,
+                    to_node_id,
+                    strat_json["name"].as_str().unwrap()
+                );
             }
         }
 

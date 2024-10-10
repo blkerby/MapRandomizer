@@ -900,7 +900,15 @@ impl MosaicPatchBuilder {
                         height,
                     );
                     let twin_tileset_idx = twin_state_xml.as_ref().unwrap().gfx_set;
-                    Self::draw_tube(&mut layer_2, width, height, x, false, twin_tileset_idx, theme_name);
+                    Self::draw_tube(
+                        &mut layer_2,
+                        width,
+                        height,
+                        x,
+                        false,
+                        twin_tileset_idx,
+                        theme_name,
+                    );
 
                     for sy in 0..height {
                         Self::copy_screen(
