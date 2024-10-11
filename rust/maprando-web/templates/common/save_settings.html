@@ -67,9 +67,9 @@
                 }
             } else if (data[element.name] !== undefined) {
                 if (element.type == "checkbox") {
-                    element.checked = data[element.name];
+                    element.checked = migrateValue(element.name, data[element.name]);
                 } else {
-                    element.value = data[element.name];
+                    element.value = migrateValue(element.name, data[element.name]);
                 }
             }
         }
