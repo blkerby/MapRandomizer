@@ -4,9 +4,9 @@ v114:
 - link "Base" spoiler steps
 - maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
 - add missing videos for notables
-- restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
-- add sprites: HisBeardNis X, Bruno, PED Suit, ...
-- track down sprite artists if we can:
+- DONE: restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
+- DONE: add sprites: HisBeardNis X, Bruno, PED Suit, Samus Returns, ...
+- DONE: track down sprite artists if we can:
   - Hyper: RealRed
   - Ancient Chozo: "Albert V & Physix"
   - Ascent: Benox50
