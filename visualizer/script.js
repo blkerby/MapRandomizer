@@ -492,14 +492,19 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
 			let lastNodeStr = null;
 			for (let k of j.obtain_route) {
-				nodeStr = `${k.room}: ${k.node}<br>`;
+				let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
+				let nodeStr;
+				if (k.strat_id !== null) {
+					nodeStr = `<a style="text-decoration:none" href="${strat_url}">${k.room}: ${k.node}</a><br>`;
+				} else {
+					nodeStr = `${k.room}: ${k.node}<br>`;
+				}
 				if (nodeStr != lastNodeStr) {
 					item_info.appendChild(createDiv(nodeStr));
 					lastNodeStr = nodeStr;
 				}
 				let out = "";
 				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
-					let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 					if (k.strat_notes) {
 						let title = "";
 						for (let i of k.strat_notes) {
@@ -575,14 +580,20 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				if (out != "") {
 					item_info.appendChild(createHtmlElement(`<small>${out}</small>`));
 				}
-				nodeStr = `${k.room}: ${k.node}<br>`;
+
+				let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
+				let nodeStr;
+				if (k.strat_id !== null) {
+					nodeStr = `<a style="text-decoration:none" href="${strat_url}">${k.room}: ${k.node}</a><br>`;
+				} else {
+					nodeStr = `${k.room}: ${k.node}<br>`;
+				}
 				if (nodeStr != lastNodeStr) {
 					item_info.appendChild(createDiv(nodeStr));
 					lastNodeStr = nodeStr;
 				}
 				out = "";
 				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
-					let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 					if (k.strat_notes) {
 						let title = "";
 						for (let i of k.strat_notes) {
