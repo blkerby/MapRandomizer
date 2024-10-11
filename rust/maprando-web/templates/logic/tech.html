@@ -3,6 +3,14 @@
 <head>
 {% include "../common/header.html" %}
 <title>{{+ tech_name }} - Super Metroid Map Rando</title>
+
+<meta property="og:site_name" content="Map Rando Logic">
+<meta property="og:title" content="{{ tech_name +}} ({{ tech_difficulty_name }})">
+{% if tech_video_id.is_some() %}
+{% let video_id = tech_video_id.unwrap() %}
+<meta property="og:image:type" content="image/png">
+<meta property="og:image" content="{{ video_storage_url }}/png/{{ video_id }}.png">
+{% endif %}
 </head>
 <body>
 {% include "../common/navbar.html" %}

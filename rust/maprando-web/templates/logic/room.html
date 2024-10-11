@@ -3,6 +3,12 @@
 <head>
 {% include "../common/header.html" %}
 <title>{{+ room_name }} - Super Metroid Map Rando</title>
+
+<meta property="og:site_name" content="Map Rando Logic">
+<meta property="og:title" content="{{ room_name }}">
+<meta property="og:image:type" content="image/png">
+<meta property="og:image" content="/{{+ room_diagram_path }}">
+
 </head>
 <body>
 {% include "../common/navbar.html" %}

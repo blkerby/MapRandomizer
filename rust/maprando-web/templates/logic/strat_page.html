@@ -2,7 +2,18 @@
 <html lang="en-US">
 <head>
 {% include "../common/header.html" %}
-<title>{{+ strat_name }} - {{+ room_name }} - Super Metroid Map Rando</title>
+<title>{{ room_name +}}: {{+ strat_name }} - Super Metroid Map Rando</title>
+
+<meta property="og:site_name" content="Map Rando Logic">
+<meta property="og:title" content="{{ room_name +}}: {{+ strat_name +}} ({{ strat.difficulty_name }})">
+{% let videos = strat_videos.get((strat.room_id, strat.strat_id)) %}
+{% if videos.is_some() %}
+{% let video_id = videos.unwrap()[0].video_id %}
+{% let video_storage_url = video_storage_url|as_ref %}
+{% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
+<meta property="og:image:type" content="image/png">
+<meta property="og:image" content="{{ png_url }}">
+{% endif %}
 </head>
 <body>
 {% include "../common/navbar.html" %}
