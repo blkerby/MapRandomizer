@@ -286,7 +286,7 @@ fn main() -> Result<()> {
 
     let mut output_rom = input_rom.clone();
     let customize_settings = CustomizeSettings {
-        samus_sprite: Some("samus".to_string()),
+        samus_sprite: Some("samus_vanilla".to_string()),
         // samus_sprite: None,
         etank_color: None,
         reserve_hud_style: true,
@@ -311,7 +311,7 @@ fn main() -> Result<()> {
         &[SamusSpriteCategory {
             category_name: "category".to_string(),
             sprites: vec![SamusSpriteInfo {
-                name: "samus".to_string(),
+                name: "samus_vanilla".to_string(),
                 display_name: "Samus".to_string(),
                 credits_name: None,
                 authors: vec!["Nintendo".to_string()],
