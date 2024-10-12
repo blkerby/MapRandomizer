@@ -305,10 +305,45 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	gen_obscurity(null);
 	let el = document.getElementById("room-info");
-	let dragging = false;
-	let dragged = false;
-	document.getElementById("map").ondragstart = ev => {
+	let dragged = false, dragging = false;
+	var scale = 1, page_x = 0, page_y = 0;
+	let m = document.getElementById("map");
+	m.ondragstart = ev => {
 		return false;
+	}
+	m.ondragstart = ev => {
+		return false;
+	}
+	m.onmousedown = ev => {
+		dragging = true;
+	}
+	m.onwheel = ev => {
+		const scaleOld = scale;
+		var z = document.getElementById("zoom");
+
+		scale += ev.deltaY * -0.001;
+		scale = Math.min(Math.max(0.25, scale), 100);
+
+		var xorg = ev.x - page_x - z.offsetWidth/2;
+		var yorg = ev.y - page_y - z.offsetHeight/2;
+
+		var xnew = xorg / scaleOld;
+		var ynew = yorg / scaleOld;
+		
+		xnew *= scale;
+		ynew *= scale;
+
+		var xdiff = xorg -xnew;
+		var ydiff = yorg -ynew;
+
+		page_x += xdiff;
+		page_y += ydiff;
+
+		transfo();
+	}
+	function transfo() {
+		document.getElementById("zoom").style.transform =
+		 `translate(${page_x}px, ${page_y}px) scale(${scale})`;
 	}
 	document.body.onmousedown = ev => {
 		dragging = true;
@@ -321,15 +356,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		dragging = false;
 		el.classList.add("hidden")
 	}
-	let page_x = 0;
-	let page_y = 0;
 	document.body.onmousemove = ev => {
 		if (dragging) {
 			dragged = true;
-			page_x += ev.movementX
+			page_x += ev.movementX;
 			page_y += ev.movementY;
-			document.body.style.setProperty("--tx", page_x + "px");
-			document.body.style.setProperty("--ty", page_y + "px");
+			transfo();
 		} else {
 			let x = ((ev.offsetX / 24) | 0) - 1;
 			let y = ((ev.offsetY / 24) | 0) - 1;

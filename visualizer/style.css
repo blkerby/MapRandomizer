@@ -13,12 +13,10 @@ a {
 	image-rendering: pixelated;
 	top: 0;
 	left: 0;
-	transform: translate(var(--tx), var(--ty));
 }
 #path-overlay {
 	position: absolute;
 	pointer-events: none;
-	transform: translate(var(--tx), var(--ty));
 }
 #obscure-overlay {
 	position: absolute;
@@ -34,7 +32,6 @@ a {
 }
 #overlay {
 	position: absolute;
-	transform: translate(var(--tx), var(--ty));
 	z-index: 2;
 }
 #grid-overlay {
