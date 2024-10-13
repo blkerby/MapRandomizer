@@ -172,7 +172,10 @@ fn apply_custom_samus_sprite(
     samus_sprite_categories: &[SamusSpriteCategory],
 ) -> Result<()> {
     if settings.samus_sprite.is_some() || !settings.vanilla_screw_attack_animation {
-        let sprite_name = settings.samus_sprite.clone().unwrap_or("samus".to_string());
+        let sprite_name = settings
+            .samus_sprite
+            .clone()
+            .unwrap_or("samus_vanilla".to_string());
         let patch_path_str = format!("../patches/samus_sprites/{}.ips", sprite_name);
         apply_ips_patch(rom, Path::new(&patch_path_str))?;
 

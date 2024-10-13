@@ -64,15 +64,10 @@ Building and running locally using Cargo is generally faster than using Docker, 
 
 Install the stable Rust toolchain (e.g. using [rustup](https://rustup.rs/)).
 
-After cloning the GitHub repository, download and extract the randomized map pools:
+After cloning the GitHub repository, download and extract required external data, which includes the randomized map pools and the Mosaic theming patches:
 
 ```sh
-cd maps
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/v113-tame.tgz
-tar xfz v113-tame.tgz && rm v113-tame.tgz
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.tgz
-tar xfz v110c-wild.tgz && rm v110c-wild.tgz
-cd ..
+sh scripts/download_data.sh
 ```
 
 Optionally, if you want to build and use the WebAssembly (for the boss calculator):
