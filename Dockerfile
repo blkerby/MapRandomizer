@@ -1,5 +1,7 @@
 FROM rust:1.79.0-bullseye AS build
 
+RUN apt-get update && apt-get install -y zstd
+
 # First get Cargo to download the crates.io index (which takes a long time) via `cargo install lazy_static`
 # Both `cargo update` and `crater search` no longer update the crates.io index, see: https://github.com/rust-lang/cargo/issues/3377
 RUN cargo new --bin rust
@@ -23,13 +25,11 @@ RUN mkdir -p /rust/maprando-wasm/src && touch /rust/maprando-wasm/src/lib.rs
 RUN cargo build --release
 RUN rm /rust/src/*.rs
 
-# Download the map datasets
-WORKDIR /maps
-
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v113-tame.tgz
-RUN tar xfz v113-tame.tgz --directory /maps && rm v113-tame.tgz
-RUN wget https://storage.googleapis.com/super-metroid-map-rando/maps/v110c-wild.tgz
-RUN tar xfz v110c-wild.tgz --directory /maps && rm v110c-wild.tgz
+# Download the map datasets and Mosaic patches
+WORKDIR /
+COPY /scripts /scripts
+COPY /MOSAIC_COMMIT_ID /MOSAIC_COMMIT_ID
+RUN bash /scripts/download_data.sh
 
 # Now copy over the source code and build the real binary
 RUN cargo install wasm-pack
@@ -56,6 +56,7 @@ COPY visualizer /visualizer
 # Both stages will run in parallel until the build stage is referenced,
 # at which point this stage will wait for the `build` stage to complete, so delay these until last
 COPY --from=build /maps /maps
+COPY --from=build /patches/mosaic /patches/mosaic
 COPY --from=build /rust/data /rust/data
 COPY --from=build /rust/static /rust/static
 COPY --from=build /rust/maprando-wasm/pkg /rust/maprando-wasm/pkg
