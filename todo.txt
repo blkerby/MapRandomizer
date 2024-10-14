@@ -1,7 +1,6 @@
 v114:
-- maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
-- add missing videos for notables
 - add more new tech/notables to release notes
+- DONE: add missing videos for notables
 - DONE: add open graph tags to logic pages so embeds can work.
 - DONE: Yellow Maridia fixes
   - vanilla map: toilet in botwoon hallway is wrong.
@@ -69,6 +68,7 @@ v114:
 - DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
 - map hub: fast travel
 - partial farms
 - link to logic pages from video site?
