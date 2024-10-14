@@ -1554,6 +1554,11 @@
         "video_id": 767
       },
       {
+        "tech_id": 118,
+        "name": "canTrickyDodgeEnemies",
+        "video_id": 1139
+      },
+      {
         "tech_id": 120,
         "name": "canEnemyExtendRunway",
         "video_id": 962
@@ -3883,11 +3888,6 @@
     "botwoon_proficiency": 0.0,
     "mother_brain_proficiency": 0.0,
     "tech": [
-      {
-        "tech_id": 118,
-        "name": "canTrickyDodgeEnemies",
-        "video_id": null
-      },
       {
         "tech_id": 128,
         "name": "canWrapAroundShot",
