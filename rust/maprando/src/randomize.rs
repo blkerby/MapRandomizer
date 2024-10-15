@@ -4120,10 +4120,15 @@ impl<'r> Randomizer<'r> {
                         break;
                     }
                 }
-                if !forward.cost[hub_vertex_id].iter().any(|&x| f32::is_finite(x)) {
+                if !forward.cost[hub_vertex_id]
+                    .iter()
+                    .any(|&x| f32::is_finite(x))
+                {
                     continue;
                 }
-                if let Some((forward_cost_idx, reverse_cost_idx)) = get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse) {
+                if let Some((forward_cost_idx, reverse_cost_idx)) =
+                    get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse)
+                {
                     let local = apply_requirement(
                         &hub.requires_parsed.as_ref().unwrap(),
                         &global,
@@ -4134,8 +4139,10 @@ impl<'r> Randomizer<'r> {
                         &self.locked_door_data,
                     );
                     if local.is_some() {
-                        let hub_obtain_link_idxs = get_spoiler_route(&forward, hub_vertex_id, forward_cost_idx);
-                        let hub_return_link_idxs = get_spoiler_route(&reverse, hub_vertex_id, reverse_cost_idx);
+                        let hub_obtain_link_idxs =
+                            get_spoiler_route(&forward, hub_vertex_id, forward_cost_idx);
+                        let hub_return_link_idxs =
+                            get_spoiler_route(&reverse, hub_vertex_id, reverse_cost_idx);
 
                         let hub_obtain_route = self.get_spoiler_route(
                             &global,
@@ -4151,7 +4158,7 @@ impl<'r> Randomizer<'r> {
                             &self.difficulty_tiers[0],
                             true,
                         );
-                
+
                         return Ok(StartLocationData {
                             start_location: start_loc,
                             hub_location: hub.clone(),
