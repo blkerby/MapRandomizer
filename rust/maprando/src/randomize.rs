@@ -363,6 +363,8 @@ struct RandomizationState {
     step_num: usize,
     start_location: StartLocation,
     hub_location: HubLocation,
+    hub_obtain_route: Vec<SpoilerRouteEntry>,
+    hub_return_route: Vec<SpoilerRouteEntry>,
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
     save_location_state: Vec<SaveLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
@@ -401,6 +403,13 @@ struct VertexInfo {
     room_coords: (usize, usize),
     node_name: String,
     node_id: usize,
+}
+
+pub struct StartLocationData {
+    pub start_location: StartLocation,
+    pub hub_location: HubLocation,
+    pub hub_obtain_route: Vec<SpoilerRouteEntry>,
+    pub hub_return_route: Vec<SpoilerRouteEntry>,
 }
 
 pub fn randomize_map_areas(map: &mut Map, seed: usize) {
@@ -3452,6 +3461,8 @@ impl<'r> Randomizer<'r> {
             step_num: state.step_num,
             start_location: state.start_location.clone(),
             hub_location: state.hub_location.clone(),
+            hub_obtain_route: state.hub_obtain_route.clone(),
+            hub_return_route: state.hub_return_route.clone(),
             item_precedence: state.item_precedence.clone(),
             item_location_state: state.item_location_state.clone(),
             flag_location_state: state.flag_location_state.clone(),
@@ -3876,6 +3887,10 @@ impl<'r> Randomizer<'r> {
                 .map(|x| format!("{:?}", x))
                 .collect(),
             summary: spoiler_summaries,
+            hub_location_name: state.hub_location.name.clone(),
+            start_location_name: state.start_location.name.clone(),
+            hub_obtain_route: state.hub_obtain_route.clone(),
+            hub_return_route: state.hub_return_route.clone(),
             escape: spoiler_escape,
             details: spoiler_details,
             all_items: spoiler_all_items,
@@ -3998,7 +4013,7 @@ impl<'r> Randomizer<'r> {
         attempt_num_rando: usize,
         num_attempts: usize,
         rng: &mut R,
-    ) -> Result<(StartLocation, HubLocation)> {
+    ) -> Result<StartLocationData> {
         if self.difficulty_tiers[0].start_location_mode == StartLocationMode::Ship {
             let mut ship_start = StartLocation::default();
             ship_start.name = "Ship".to_string();
@@ -4013,7 +4028,12 @@ impl<'r> Randomizer<'r> {
             ship_hub.room_id = 8;
             ship_hub.node_id = 5;
 
-            return Ok((ship_start, ship_hub));
+            return Ok(StartLocationData {
+                start_location: ship_start,
+                hub_location: ship_hub,
+                hub_obtain_route: vec![],
+                hub_return_route: vec![],
+            });
         }
         for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {}", i);
@@ -4095,11 +4115,15 @@ impl<'r> Randomizer<'r> {
                     obstacle_mask: 0,
                     actions: vec![],
                 }];
-                if forward.cost[hub_vertex_id]
-                    .iter()
-                    .any(|&x| f32::is_finite(x))
-                    && get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse).is_some()
-                {
+                for cost_idx in 0..NUM_COST_METRICS {
+                    if f32::is_finite(forward.cost[hub_vertex_id][cost_idx]) {
+                        break;
+                    }
+                }
+                if !forward.cost[hub_vertex_id].iter().any(|&x| f32::is_finite(x)) {
+                    continue;
+                }
+                if let Some((forward_cost_idx, reverse_cost_idx)) = get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse) {
                     let local = apply_requirement(
                         &hub.requires_parsed.as_ref().unwrap(),
                         &global,
@@ -4110,7 +4134,30 @@ impl<'r> Randomizer<'r> {
                         &self.locked_door_data,
                     );
                     if local.is_some() {
-                        return Ok((start_loc, hub.clone()));
+                        let hub_obtain_link_idxs = get_spoiler_route(&forward, hub_vertex_id, forward_cost_idx);
+                        let hub_return_link_idxs = get_spoiler_route(&reverse, hub_vertex_id, reverse_cost_idx);
+
+                        let hub_obtain_route = self.get_spoiler_route(
+                            &global,
+                            LocalState::new(),
+                            &hub_obtain_link_idxs,
+                            &self.difficulty_tiers[0],
+                            false,
+                        );
+                        let hub_return_route = self.get_spoiler_route(
+                            &global,
+                            LocalState::new(),
+                            &hub_return_link_idxs,
+                            &self.difficulty_tiers[0],
+                            true,
+                        );
+                
+                        return Ok(StartLocationData {
+                            start_location: start_loc,
+                            hub_location: hub.clone(),
+                            hub_obtain_route,
+                            hub_return_route,
+                        });
                     }
                 }
             }
@@ -4201,6 +4248,10 @@ impl<'r> Randomizer<'r> {
         let spoiler_log = SpoilerLog {
             item_priority: vec![],
             summary: vec![],
+            start_location_name: String::new(),
+            hub_location_name: String::new(),
+            hub_obtain_route: vec![],
+            hub_return_route: vec![],
             escape: spoiler_escape,
             details: vec![],
             all_items: vec![],
@@ -4265,7 +4316,7 @@ impl<'r> Randomizer<'r> {
             bireachable_vertex_id: None,
         };
         let num_attempts_start_location = 10;
-        let (start_location, hub_location) = self.determine_start_location(
+        let start_location_data = self.determine_start_location(
             attempt_num_rando,
             num_attempts_start_location,
             &mut rng,
@@ -4285,8 +4336,10 @@ impl<'r> Randomizer<'r> {
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
-            start_location,
-            hub_location,
+            start_location: start_location_data.start_location,
+            hub_location: start_location_data.hub_location,
+            hub_obtain_route: start_location_data.hub_obtain_route,
+            hub_return_route: start_location_data.hub_return_route,
             item_location_state: vec![
                 initial_item_location_state;
                 self.game_data.item_locations.len()
@@ -4412,7 +4465,7 @@ impl<'r> Randomizer<'r> {
 
 // Spoiler log ---------------------------------------------------------
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SpoilerRouteEntry {
     area: String,
     room: String,
@@ -4544,6 +4597,10 @@ pub struct SpoilerLog {
     pub item_priority: Vec<String>,
     pub summary: Vec<SpoilerSummary>,
     pub escape: SpoilerEscape,
+    pub start_location_name: String,
+    pub hub_location_name: String,
+    pub hub_obtain_route: Vec<SpoilerRouteEntry>,
+    pub hub_return_route: Vec<SpoilerRouteEntry>,
     pub details: Vec<SpoilerDetails>,
     pub all_items: Vec<SpoilerItemLoc>,
     pub all_rooms: Vec<SpoilerRoomLoc>,
@@ -4629,6 +4686,10 @@ impl<'a> Randomizer<'a> {
         reverse: bool,
     ) -> Vec<SpoilerRouteEntry> {
         let mut route: Vec<SpoilerRouteEntry> = Vec::new();
+
+        if link_idxs.len() == 0 {
+            return route;
+        }
         for &link_idx in link_idxs {
             let link = self.get_link(link_idx as usize);
             let raw_link = self.get_link(link_idx as usize);

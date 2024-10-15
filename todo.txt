@@ -1,5 +1,5 @@
 v114:
-- add more new tech/notables to release notes
+- DONE: add more new tech/notables to release notes
 - DONE: add missing videos for notables
 - DONE: add open graph tags to logic pages so embeds can work.
 - DONE: Yellow Maridia fixes
@@ -68,11 +68,14 @@ v114:
 - DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
 
 TODO:
+- check if left/top OOB death check is off by a pixel? 
+  - sparking up a quicksand room causes OOB death, do we want that?
 - maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
 - map hub: fast travel
 - partial farms
 - link to logic pages from video site?
 - adjust auto-formatting for unlocksDoors
+- have auto-formatting also auto-order object properties by schema order
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - fix bug where dachora despawns global zeela in Dachora Room.
   - probably caused by escape.asm: missing ",x" in stz, also check for Landing Site room ID so that it won't affect Dachora Room
@@ -89,7 +92,6 @@ TODO:
 - fix issue with Low/Off QoL Chozo Desolate hanging the randomizer (won't place SpaceJump).
 - fix x-ray graphical glitches (seen in MemesAreHealthy seed):
   - affecting top row of HUD, etc.
-- beam doors?
 - map room teleports?
 - update protogen sprite?
 - look into faster decompression:
