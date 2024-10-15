@@ -1022,7 +1022,7 @@
         "notable_id": 3,
         "room_name": "Crocomire Speedway",
         "name": "Reverse Speedball",
-        "video_id": null
+        "video_id": 1102
       },
       {
         "room_id": 106,
@@ -1176,7 +1176,7 @@
         "notable_id": 1,
         "room_name": "Three Musketeers' Room",
         "name": "Dodge Going Down",
-        "video_id": null
+        "video_id": 1103
       },
       {
         "room_id": 161,
@@ -1554,6 +1554,11 @@
         "video_id": 767
       },
       {
+        "tech_id": 118,
+        "name": "canTrickyDodgeEnemies",
+        "video_id": 1139
+      },
+      {
         "tech_id": 120,
         "name": "canEnemyExtendRunway",
         "video_id": 962
@@ -1767,7 +1772,7 @@
         "notable_id": 3,
         "room_name": "Red Brinstar Fireflea Room",
         "name": "X-Ray Access Ice Bridge",
-        "video_id": null
+        "video_id": 1104
       },
       {
         "room_id": 67,
@@ -2194,14 +2199,14 @@
         "notable_id": 5,
         "room_name": "East Sand Hall",
         "name": "Cross-Room Spring Ball Bounce (Left to Right)",
-        "video_id": null
+        "video_id": 1106
       },
       {
         "room_id": 210,
         "notable_id": 7,
         "room_name": "East Sand Hall",
         "name": "Cross-Room Spring Ball Bounce (Right to Left)",
-        "video_id": null
+        "video_id": 1107
       },
       {
         "room_id": 210,
@@ -2222,7 +2227,7 @@
         "notable_id": 4,
         "room_name": "Shaktool Room",
         "name": "Suitless Bounce the Snails Around the Room",
-        "video_id": 41
+        "video_id": 961
       },
       {
         "room_id": 223,
@@ -2250,7 +2255,7 @@
         "notable_id": 6,
         "room_name": "West Sand Hall",
         "name": "Tricky Speedy Jump (Right to Left)",
-        "video_id": null
+        "video_id": 1105
       },
       {
         "room_id": 199,
@@ -2761,7 +2766,7 @@
         "notable_id": 4,
         "room_name": "Cathedral Entrance",
         "name": "Sova Morph Only Boost",
-        "video_id": null
+        "video_id": 1108
       },
       {
         "room_id": 104,
@@ -2845,7 +2850,7 @@
         "notable_id": 4,
         "room_name": "Mickey Mouse Room",
         "name": "Crumble Jump IBJ",
-        "video_id": null
+        "video_id": 1109
       },
       {
         "room_id": 137,
@@ -3034,7 +3039,7 @@
         "notable_id": 1,
         "room_name": "Thread The Needle Room",
         "name": "Leave With Temporary Blue",
-        "video_id": null
+        "video_id": 1110
       },
       {
         "room_id": 181,
@@ -3055,7 +3060,7 @@
         "notable_id": 3,
         "room_name": "East Sand Hall",
         "name": "Cross-Room Blue Spring Ball Bounce (Left to Right)",
-        "video_id": null
+        "video_id": 1114
       },
       {
         "room_id": 210,
@@ -3104,7 +3109,7 @@
         "notable_id": 3,
         "room_name": "West Sand Hall",
         "name": "Tricky Speedy Airball (Left to Right)",
-        "video_id": null
+        "video_id": 1111
       },
       {
         "room_id": 199,
@@ -3118,14 +3123,14 @@
         "notable_id": 7,
         "room_name": "West Sand Hall",
         "name": "Tricky Speedy Airball (Right to Left)",
-        "video_id": null
+        "video_id": 1112
       },
       {
         "room_id": 199,
         "notable_id": 8,
         "room_name": "West Sand Hall",
         "name": "Cross Room Space Jump (Right to Left)",
-        "video_id": null
+        "video_id": 1113
       },
       {
         "room_id": 199,
@@ -3310,7 +3315,7 @@
         "notable_id": 8,
         "room_name": "Parlor and Alcatraz",
         "name": "Downward G-Mode Setup with Ice",
-        "video_id": null
+        "video_id": 1117
       },
       {
         "room_id": 31,
@@ -3387,7 +3392,7 @@
         "notable_id": 6,
         "room_name": "Green Hill Zone",
         "name": "Grapple Teleport into Grapple Jump (from Red Brinstar Firefleas)",
-        "video_id": null
+        "video_id": 1124
       },
       {
         "room_id": 56,
@@ -3506,7 +3511,7 @@
         "notable_id": 2,
         "room_name": "Pillar Room",
         "name": "Bombs",
-        "video_id": null
+        "video_id": 1126
       },
       {
         "room_id": 156,
@@ -3534,21 +3539,21 @@
         "notable_id": 3,
         "room_name": "Fish Tank",
         "name": "Grapple Teleport into Grapple Jump",
-        "video_id": null
+        "video_id": 1134
       },
       {
         "room_id": 170,
         "notable_id": 2,
         "room_name": "Glass Tunnel",
         "name": "Grapple Teleport into Grapple Jump (or Tube Intact)",
-        "video_id": null
+        "video_id": 1132
       },
       {
         "room_id": 170,
         "notable_id": 3,
         "room_name": "Glass Tunnel",
         "name": "Cross Room Platform Stuck Wiggle to Top Door",
-        "video_id": null
+        "video_id": 1133
       },
       {
         "room_id": 172,
@@ -3681,7 +3686,7 @@
         "notable_id": 3,
         "room_name": "East Sand Hole",
         "name": "Insane Walljump Morph",
-        "video_id": null
+        "video_id": 1135
       },
       {
         "room_id": 187,
@@ -3751,7 +3756,7 @@
         "notable_id": 1,
         "room_name": "Seaweed Room",
         "name": "Temporary Blue Chain",
-        "video_id": null
+        "video_id": 1136
       }
     ]
   },
@@ -3779,7 +3784,7 @@
       {
         "tech_id": 186,
         "name": "canUnderwaterWalljumpBreakFree",
-        "video_id": null
+        "video_id": 1125
       },
       {
         "tech_id": 93,
@@ -3793,7 +3798,7 @@
         "notable_id": 2,
         "room_name": "Climb",
         "name": "G-Mode Morph Insane IBJ to Top",
-        "video_id": null
+        "video_id": 1116
       },
       {
         "room_id": 11,
@@ -3814,7 +3819,7 @@
         "notable_id": 3,
         "room_name": "Green Brinstar Main Shaft",
         "name": "TAS Dance",
-        "video_id": null
+        "video_id": 1137
       },
       {
         "room_id": 57,
@@ -3863,7 +3868,7 @@
         "notable_id": 5,
         "room_name": "East Cactus Alley Room",
         "name": "HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
-        "video_id": null
+        "video_id": 1138
       }
     ]
   },
@@ -3883,11 +3888,6 @@
     "botwoon_proficiency": 0.0,
     "mother_brain_proficiency": 0.0,
     "tech": [
-      {
-        "tech_id": 118,
-        "name": "canTrickyDodgeEnemies",
-        "video_id": null
-      },
       {
         "tech_id": 128,
         "name": "canWrapAroundShot",
