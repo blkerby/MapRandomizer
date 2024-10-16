@@ -463,11 +463,13 @@ pub fn apply_requirement(
                 }
             }
         },
-        Requirement::ClimbWithoutLava => if difficulty.remove_climb_lava {
-            Some(local)
-        } else {
-            None
-        },
+        Requirement::ClimbWithoutLava => {
+            if difficulty.remove_climb_lava {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::HeatFrames(frames) => {
             apply_heat_frames(*frames, local, global, game_data, difficulty)
         }
