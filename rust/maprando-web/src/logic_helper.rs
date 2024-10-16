@@ -531,6 +531,7 @@ fn get_difficulty_config(preset: &PresetData, _game_data: &GameData) -> Difficul
         item_dot_change: maprando::randomize::ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
+        remove_climb_lava: true,
         buffed_drops: true,
         fast_elevators: true,
         fast_doors: true,

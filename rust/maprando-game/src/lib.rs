@@ -235,6 +235,7 @@ pub enum Requirement {
     MissileRefill(Capacity),
     SuperRefill(Capacity),
     PowerBombRefill(Capacity),
+    ClimbWithoutLava,
     AmmoStationRefill,
     AmmoStationRefillAll,
     RegularEnergyDrain(Capacity),
@@ -1701,6 +1702,8 @@ impl GameData {
                 return Ok(Requirement::Free);
             } else if value == "canWalljump" {
                 return Ok(Requirement::Walljump);
+            } else if value == "i_ClimbWithoutLava" {
+                return Ok(Requirement::ClimbWithoutLava);
             } else if value == "i_ammoRefill" {
                 return Ok(Requirement::AmmoStationRefill);
             } else if value == "i_ammoRefillAll" {
@@ -4388,6 +4391,13 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_CrocomireCameraFix",
             "requires": [],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_ClimbWithoutLava")
+            .unwrap() = json::object! {
+            "name": "h_ClimbWithoutLava",
+            "requires": ["i_ClimbWithoutLava"],
         };
         *game_data
             .helper_json_map

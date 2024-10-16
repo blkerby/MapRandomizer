@@ -1504,6 +1504,12 @@ impl<'a> Patcher<'a> {
             self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
+        if self.randomization.difficulty.remove_climb_lava {
+            // Replace the Tourian Escape Room 4 door with the value 0xFFFF which does not match any door,
+            // effectively disabling the door-specific FX for this room.
+            self.rom.write_u16(snes2pc(0x838060), 0xFFFF)?;
+        }
+
         if self.randomization.difficulty.infinite_space_jump {
             // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
             // self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (old Lenient Space Jump)
