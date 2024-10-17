@@ -321,7 +321,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		const scaleOld = scale;
 		var z = document.getElementById("zoom");
 
-		scale += ev.deltaY * -0.001;
+		scale *= 1.0 - ev.deltaY * 0.0005;
 		scale = Math.min(Math.max(0.25, scale), 100);
 
 		var xorg = ev.x - page_x - z.offsetWidth/2;
