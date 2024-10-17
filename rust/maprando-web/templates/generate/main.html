@@ -30,16 +30,7 @@
     </script>
     <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
-        <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="prepareSubmit()">
-            <div class="form-group row">
-                <label class="col-lg-3 col-form-label my-2" for="rom">
-                    {% include "help/rom.html" %}
-                    <span>Input ROM</span>
-                </label>
-                <input class="col-lg-9 form-control-file my-3" type="file" id="vanillaRom" name="rom"
-                onchange="saveROM(this, 'vanilla')">
-            </div>
-
+        <form id="main-form" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="return prepareSubmit()">
             <div class="container border rounded-3 p-0 mt-3 mb-4 overflow-hidden">
                 <div class="form-group row">
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
@@ -242,6 +233,26 @@
             <div class="form-group row">
                 <div class="col-lg-3">
                     <input type="submit" class="btn btn-primary my-3" value="Generate Game">
+                </div>
+            </div>
+
+            <div class="modal" id="inputRomModal" tabindex="-1">
+                <div class="modal-dialog modal-lg">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h1 class="modal-title fs-5">Input ROM</h1>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Please provide a vanilla Super Metroid ROM: NTSC, USA/JU version, unheadered.</p>
+
+                        <input class="col-lg-9 form-control-file my-3" type="file" id="vanillaRom" name="rom"
+                        onchange="saveROM(this)">
+                    </div>
+                    <div class="modal-footer">
+                      <input type="submit" class="btn btn-primary" data-bs-dismiss="modal" value="Generate Game">
+                    </div>
+                  </div>
                 </div>
             </div>
         </form>

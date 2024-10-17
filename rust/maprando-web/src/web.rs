@@ -17,7 +17,7 @@ use maprando::{
 use maprando_game::GameData;
 use serde::Serialize;
 
-pub const VERSION: usize = 114;
+pub const VERSION: usize = 115;
 
 #[derive(Serialize)]
 pub struct PresetData {

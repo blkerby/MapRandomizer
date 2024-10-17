@@ -85,3 +85,19 @@ function roomThemingSettingChanged() {
     document.getElementById("roomThemingPalettes").checked = false;
     document.getElementById("roomThemingTiling").checked = false;
 }
+inputRomModal = new bootstrap.Modal('#inputRomModal', {});
+function prepareCustomize() {
+    let romEl = document.getElementById("vanillaRom");
+    if (romEl.value == "") {
+        inputRomModal.show();
+        return false;
+    }
+}
+window.onload = (event) => {
+    loadROM(document.getElementById("vanillaRom"));
+    loadForm(document.getElementById("customization-form"));
+    changeSamusSprite();
+    updateEnergyTankColor();
+    roomThemingChanged();
+  };
+  

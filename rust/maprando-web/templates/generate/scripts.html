@@ -161,8 +161,14 @@ function updateFillerItemsJSON() {
     });
     document.getElementById("json-filler-items").value = JSON.stringify(fillerItems);
 }
-submitModal = new bootstrap.Modal('#submitModal', {})
+let submitModal = new bootstrap.Modal('#submitModal', {})
+let inputRomModal = new bootstrap.Modal('#inputRomModal', {});
 function prepareSubmit() {
+    let romEl = document.getElementById("vanillaRom");
+    if (romEl.value == "") {
+        inputRomModal.show();
+        return false;
+    }
     updateTechJSON();
     updateStratJSON();
     updateItemPoolJSON();
@@ -571,7 +577,7 @@ function checkOtherOptions() {
 {% include "../common/save_settings.html" %}
 <script>
 loadForm(document.getElementById("main-form"));
-loadROM(document.getElementById("vanillaRom"), 'vanilla');
+loadROM(document.getElementById("vanillaRom"));
 presetChanged();
 gameVariationChanged();
 qualityOfLifePresetChanged();
