@@ -63,10 +63,10 @@
             <div class="container">
                 {% for tech_setting in p.preset.tech %}
                     <div class="row">
-                        <div class="col-9 col-sm-10 col-lg-8">
+                        <div class="col-11 col-lg-10">
                             {{+ tech_setting.name }}:
                         </div>
-                        <div class="col-3 col-sm-2">
+                        <div class="col-1 col-lg-2">
                             {% if enabled_tech.contains(tech_setting.tech_id) %}Yes{% else %}No{% endif %}
                         </div>
                     </div>
@@ -76,10 +76,10 @@
                 {% endif %}
                 {% for notable_setting in p.preset.notables %}
                     <div class="row">
-                        <div class="col-9 col-sm-10 col-lg-8">
-                            {{ notable_setting.name }}:
+                        <div class="col-11 col-lg-10">
+                            {{ notable_setting.room_name +}}: {{+ notable_setting.name }}
                         </div>
-                        <div class="col-3 col-sm-2">
+                        <div class="col-1 col-lg-2">
                             {% let notable_pair = (notable_setting.room_id, notable_setting.notable_id) %}
                             {% if enabled_notables.contains(notable_pair) %}Yes{% else %}No{% endif %}
                         </div>

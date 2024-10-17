@@ -122,9 +122,9 @@ def write_colors(addr, colors):
 # write_colors(snes2pc(0x9BFF00), gravity_suit_colors)
 
 # # release Kraid camera so it won't be as glitched when entering from the right
-# rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
+rom.write_n(snes2pc(0xA7A9F4), 4, bytes(4 * [0xEA]))
 # # No longer restrict Samus X position to left screen during start of Kraid fight
-# rom.write_u8(snes2pc(0xA7C9EE), 0x60)
+rom.write_u8(snes2pc(0xA7C9EE), 0x60)
 #
 
 # map_patcher = MapPatcher(rom, area_arr)

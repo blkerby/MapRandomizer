@@ -522,7 +522,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (j !== null) {
 			let ss = c.details[i].start_state;
 			item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
-			let lastNodeStr = null;
+			let lastRoom = null;
+			let lastNode = null;
 			for (let k of j.obtain_route) {
 				let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 				let nodeStr;
@@ -531,12 +532,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				} else {
 					nodeStr = `${k.room}: ${k.node}<br>`;
 				}
-				if (nodeStr != lastNodeStr) {
+				if (k.room != lastRoom || k.node != lastNode || k.strat_id !== null) {
 					item_info.appendChild(createDiv(nodeStr));
-					lastNodeStr = nodeStr;
+					lastRoom = k.room;
+					lastNode = k.node;
 				}
 				let out = "";
-				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
+				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base" && k.strat_name != "Leave Normally") {
 					if (k.strat_notes) {
 						let title = "";
 						for (let i of k.strat_notes) {
@@ -591,7 +593,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
-			lastNodeStr = null;
+			lastRoom = null;
+			lastNode = null;
 			for (let k of j.return_route) {
 				let out = "";
 				if (k.energy_used !== undefined) {
@@ -620,12 +623,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				} else {
 					nodeStr = `${k.room}: ${k.node}<br>`;
 				}
-				if (nodeStr != lastNodeStr) {
+				if (k.room != lastRoom || k.node != lastNode || k.strat_id !== null) {
 					item_info.appendChild(createDiv(nodeStr));
-					lastNodeStr = nodeStr;
+					lastRoom = k.room;
+					lastNode = k.node;
 				}
 				out = "";
-				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base") {
+				if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base" && k.strat_name != "Leave Normally") {
 					if (k.strat_notes) {
 						let title = "";
 						for (let i of k.strat_notes) {

@@ -151,6 +151,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         momentum_conservation: false,
         all_items_spawn: true,
         acid_chozo: true,
+        remove_climb_lava: true,
         buffed_drops: true,
 
         // Game options
@@ -446,6 +447,7 @@ fn set_qol_default(diff: &mut DifficultyConfig) -> () {
     diff.momentum_conservation = false;
     diff.all_items_spawn = true;
     diff.acid_chozo = true;
+    diff.remove_climb_lava = true;
     diff.buffed_drops = true;
     diff.ultra_low_qol = false;
     diff.quality_of_life_preset = Some("Default".to_string());
@@ -471,6 +473,7 @@ fn set_qol_high(diff: &mut DifficultyConfig) -> () {
     diff.momentum_conservation = false;
     diff.all_items_spawn = true;
     diff.acid_chozo = true;
+    diff.remove_climb_lava = true;
     diff.buffed_drops = true;
     diff.ultra_low_qol = false;
     diff.quality_of_life_preset = Some("High".to_string());
@@ -496,6 +499,7 @@ fn set_qol_max(diff: &mut DifficultyConfig) -> () {
     diff.momentum_conservation = true;
     diff.all_items_spawn = true;
     diff.acid_chozo = true;
+    diff.remove_climb_lava = true;
     diff.buffed_drops = true;
     diff.ultra_low_qol = false;
     diff.quality_of_life_preset = Some("Max".to_string());
@@ -521,6 +525,7 @@ fn set_qol_low(diff: &mut DifficultyConfig) -> () {
     diff.momentum_conservation = false;
     diff.all_items_spawn = false;
     diff.acid_chozo = false;
+    diff.remove_climb_lava = false;
     diff.buffed_drops = false;
     diff.ultra_low_qol = false;
     diff.quality_of_life_preset = Some("Low".to_string());
@@ -546,6 +551,7 @@ fn set_qol_off(diff: &mut DifficultyConfig) -> () {
     diff.momentum_conservation = false;
     diff.all_items_spawn = false;
     diff.acid_chozo = false;
+    diff.remove_climb_lava = false;
     diff.buffed_drops = false;
     diff.ultra_low_qol = false;
     diff.quality_of_life_preset = Some("Off".to_string());

@@ -124,6 +124,7 @@ fn run_scenario(
         item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
         acid_chozo: true,
+        remove_climb_lava: true,
         buffed_drops: true,
         fast_elevators: true,
         fast_doors: true,

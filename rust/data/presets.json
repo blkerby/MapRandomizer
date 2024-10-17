@@ -215,11 +215,6 @@
         "tech_id": 167,
         "name": "canAwakenZebes",
         "video_id": 1054
-      },
-      {
-        "tech_id": 182,
-        "name": "canCameraManip",
-        "video_id": 1057
       }
     ],
     "notables": [
@@ -464,6 +459,11 @@
         "video_id": 1070
       },
       {
+        "tech_id": 182,
+        "name": "canCameraManip",
+        "video_id": 1057
+      },
+      {
         "tech_id": 10001,
         "name": "canHyperGateShot",
         "video_id": null
@@ -583,6 +583,13 @@
         "video_id": 121
       },
       {
+        "room_id": 170,
+        "notable_id": 1,
+        "room_name": "Glass Tunnel",
+        "name": "Tube Clip",
+        "video_id": 508
+      },
+      {
         "room_id": 184,
         "notable_id": 1,
         "room_name": "Botwoon Hallway",
@@ -681,6 +688,11 @@
         "tech_id": 46,
         "name": "canTunnelCrawl",
         "video_id": 909
+      },
+      {
+        "tech_id": 47,
+        "name": "canQuickCrumbleEscape",
+        "video_id": 946
       },
       {
         "tech_id": 48,
@@ -786,6 +798,11 @@
         "tech_id": 146,
         "name": "canTemporaryBlue",
         "video_id": 930
+      },
+      {
+        "tech_id": 151,
+        "name": "canStutterWaterShineCharge",
+        "video_id": 966
       },
       {
         "tech_id": 153,
@@ -1228,13 +1245,6 @@
         "video_id": 505
       },
       {
-        "room_id": 170,
-        "notable_id": 1,
-        "room_name": "Glass Tunnel",
-        "name": "Tube Clip",
-        "video_id": 508
-      },
-      {
         "room_id": 183,
         "notable_id": 1,
         "room_name": "Aqueduct",
@@ -1484,11 +1494,6 @@
         "video_id": 945
       },
       {
-        "tech_id": 47,
-        "name": "canQuickCrumbleEscape",
-        "video_id": 946
-      },
-      {
         "tech_id": 55,
         "name": "canGrappleTeleport",
         "video_id": 775
@@ -1582,11 +1587,6 @@
         "tech_id": 147,
         "name": "canChainTemporaryBlue",
         "video_id": 956
-      },
-      {
-        "tech_id": 151,
-        "name": "canStutterWaterShineCharge",
-        "video_id": 966
       },
       {
         "tech_id": 156,
@@ -2356,6 +2356,11 @@
         "video_id": 764
       },
       {
+        "tech_id": 17,
+        "name": "canSandGrappleBoost",
+        "video_id": 763
+      },
+      {
         "tech_id": 20,
         "name": "canReserveDoubleDamageBoost",
         "video_id": 991
@@ -2532,6 +2537,13 @@
       },
       {
         "room_id": 31,
+        "notable_id": 1,
+        "room_name": "Gauntlet Energy Tank Room",
+        "name": "R-Mode Blue Suit",
+        "video_id": 207
+      },
+      {
+        "room_id": 31,
         "notable_id": 2,
         "room_name": "Gauntlet Energy Tank Room",
         "name": "Spark Master",
@@ -2543,6 +2555,13 @@
         "room_name": "Gauntlet Entrance",
         "name": "Temporary Blue Chains",
         "video_id": 393
+      },
+      {
+        "room_id": 21,
+        "notable_id": 3,
+        "room_name": "Green Pirates Shaft",
+        "name": "Beetom Stuck Moonfall",
+        "video_id": 294
       },
       {
         "room_id": 27,
@@ -2844,6 +2863,13 @@
         "room_name": "Mickey Mouse Room",
         "name": "Temporary Blue Crumble Jump without SpringBall",
         "video_id": 367
+      },
+      {
+        "room_id": 144,
+        "notable_id": 3,
+        "room_name": "Mickey Mouse Room",
+        "name": "Crumble Speedjump",
+        "video_id": 529
       },
       {
         "room_id": 144,
@@ -3198,11 +3224,6 @@
         "video_id": 974
       },
       {
-        "tech_id": 17,
-        "name": "canSandGrappleBoost",
-        "video_id": 763
-      },
-      {
         "tech_id": 26,
         "name": "canMoondance",
         "video_id": 293
@@ -3318,13 +3339,6 @@
         "video_id": 1117
       },
       {
-        "room_id": 31,
-        "notable_id": 1,
-        "room_name": "Gauntlet Energy Tank Room",
-        "name": "R-Mode Blue Suit",
-        "video_id": 207
-      },
-      {
         "room_id": 21,
         "notable_id": 1,
         "room_name": "Green Pirates Shaft",
@@ -3337,13 +3351,6 @@
         "room_name": "Green Pirates Shaft",
         "name": "Beetom Moondance",
         "video_id": 293
-      },
-      {
-        "room_id": 21,
-        "notable_id": 3,
-        "room_name": "Green Pirates Shaft",
-        "name": "Beetom Stuck Moonfall",
-        "video_id": 294
       },
       {
         "room_id": 33,
@@ -3498,13 +3505,6 @@
         "room_name": "Lower Norfair Escape Power Bomb Room",
         "name": "Crystal Flash Clip",
         "video_id": 51
-      },
-      {
-        "room_id": 144,
-        "notable_id": 3,
-        "room_name": "Mickey Mouse Room",
-        "name": "Crumble Speedjump",
-        "video_id": 529
       },
       {
         "room_id": 134,

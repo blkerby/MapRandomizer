@@ -317,6 +317,7 @@ pub fn get_difficulty_tiers(
             item_dot_change: difficulty.item_dot_change,
             all_items_spawn: difficulty.all_items_spawn,
             acid_chozo: difficulty.acid_chozo,
+            remove_climb_lava: difficulty.remove_climb_lava,
             buffed_drops: difficulty.buffed_drops,
             fast_elevators: difficulty.fast_elevators,
             fast_doors: difficulty.fast_doors,
