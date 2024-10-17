@@ -6,6 +6,7 @@
 !stat_loadbacks = $701E1A
 !stat_resets = $701E1C
 !stat_final_time = $701E1E
+!stat_pause_time = $701E22
 
 ; Local stats (stored to normal RAM that goes into save files)
 !stat_item_collection_times = $7efe06  ; must match address in patch.rs
