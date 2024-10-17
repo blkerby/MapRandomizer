@@ -2,7 +2,7 @@ import pathlib
 import requests
 import json
 
-output_path = pathlib.Path("/home/kerby/MapRandomizer/rust/data/strat_videos.json")
+output_path = pathlib.Path("rust/data/strat_videos.json")
 videos_url = "https://videos.maprando.com"
 
 users_response = requests.get(videos_url + "/list-users")

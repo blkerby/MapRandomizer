@@ -2,9 +2,9 @@ import pathlib
 import requests
 import json
 
-presets_path = pathlib.Path("/home/kerby/MapRandomizer/rust/data/presets.json")
-sm_json_path = pathlib.Path("/home/kerby/MapRandomizer/sm-json-data")
-# output_path = pathlib.Path("/home/kerby/MapRandomizer/rust/data/new_presets.json")
+presets_path = pathlib.Path("rust/data/presets.json")
+sm_json_path = pathlib.Path("sm-json-data")
+# output_path = pathlib.Path("rust/data/new_presets.json")
 output_path = presets_path
 videos_url = "https://videos.maprando.com"
 
