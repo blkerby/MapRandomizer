@@ -48,7 +48,9 @@ async fn about(app_data: web::Data<AppData>) -> impl Responder {
     let mut video_creator_cnt: HashMap<String, usize> = HashMap::new();
     for (_, video_list) in app_data.game_data.strat_videos.iter() {
         for video in video_list {
-            *video_creator_cnt.entry(video.created_user.clone()).or_default() += 1;
+            *video_creator_cnt
+                .entry(video.created_user.clone())
+                .or_default() += 1;
         }
     }
     let mut video_creators: Vec<(String, usize)> = video_creator_cnt.into_iter().collect();
