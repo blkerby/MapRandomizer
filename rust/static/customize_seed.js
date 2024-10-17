@@ -86,15 +86,29 @@ function roomThemingSettingChanged() {
     document.getElementById("roomThemingTiling").checked = false;
 }
 inputRomModal = new bootstrap.Modal('#inputRomModal', {});
-function prepareCustomize() {
-    let romEl = document.getElementById("vanillaRom");
+async function prepareCustomize(form) {
+    let romEl = document.getElementById("inputRom");
     if (romEl.value == "") {
         inputRomModal.show();
         return false;
     }
+
+    let romData = await localforage.getItem('vanillaRomData');
+    let hashBuffer = await window.crypto.subtle.digest("SHA-256", romData);
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+    const hashHex = hashArray
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""); // convert bytes to hex string
+    if (hashHex != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72") {
+        console.log("ROM hash: " + hashHex);
+        inputRomModal.show();
+        document.getElementById("romInvalid").classList.remove("d-none");
+        return;
+    }
+    form.submit();
 }
 window.onload = (event) => {
-    loadROM(document.getElementById("vanillaRom"));
+    loadROM(document.getElementById("inputRom"));
     loadForm(document.getElementById("customization-form"));
     changeSamusSprite();
     updateEnergyTankColor();

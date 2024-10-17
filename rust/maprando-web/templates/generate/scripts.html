@@ -163,12 +163,26 @@ function updateFillerItemsJSON() {
 }
 let submitModal = new bootstrap.Modal('#submitModal', {})
 let inputRomModal = new bootstrap.Modal('#inputRomModal', {});
-function prepareSubmit() {
-    let romEl = document.getElementById("vanillaRom");
+async function prepareSubmit(form) {
+    let romEl = document.getElementById("inputRom");
     if (romEl.value == "") {
         inputRomModal.show();
-        return false;
+        return;
     }
+
+    let romData = await localforage.getItem('vanillaRomData');
+    let hashBuffer = await window.crypto.subtle.digest("SHA-256", romData);
+    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
+    const hashHex = hashArray
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""); // convert bytes to hex string
+    if (hashHex != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72") {
+        console.log("ROM hash: " + hashHex);
+        inputRomModal.show();
+        document.getElementById("romInvalid").classList.remove("d-none");
+        return;
+    }
+    document.getElementById("romInvalid").classList.add("d-none");
     updateTechJSON();
     updateStratJSON();
     updateItemPoolJSON();
@@ -176,6 +190,7 @@ function prepareSubmit() {
     updateItemPriorityJSON();
     updateFillerItemsJSON();
     submitModal.show();
+    form.submit();
 }
 function qualityOfLifePresetChanged() {
     if (document.getElementById("qualityOfLifeOff").checked) {
@@ -577,7 +592,7 @@ function checkOtherOptions() {
 {% include "../common/save_settings.html" %}
 <script>
 loadForm(document.getElementById("main-form"));
-loadROM(document.getElementById("vanillaRom"));
+loadROM(document.getElementById("inputRom"));
 presetChanged();
 gameVariationChanged();
 qualityOfLifePresetChanged();

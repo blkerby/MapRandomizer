@@ -1,3 +1,9 @@
+v115:
+- DONE: move input ROM into modals
+- DONE: validate input ROM
+- save/load presets
+- built-in presets: default, and season 2 racing
+
 v114:
 - DONE: add more new tech/notables to release notes
 - DONE: add missing videos for notables
