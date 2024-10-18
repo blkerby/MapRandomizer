@@ -8,6 +8,8 @@
 1E18-1E1A: Quick reloads counter
 1E1A-1E1C: Quick loadbacks counter
 1E1C-1E1E: Resets counter
+1E1E-1E22: Final time
+1E22-1E26: Pause time
 1FE0-2000: Save slot selection, etc.
 ---------- expanded SRAM: ----------
 2000-2600: Map revealed bits (map_progress_maintain.asm)
