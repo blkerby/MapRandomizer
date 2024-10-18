@@ -8,5 +8,4 @@ FE00 - FE80: fast_reload
 FE80 - FF00: zebes_asleep_music
 FF00 - FF10: reserve_hud.asm
 FF10 - FF30: escape.asm
-FF30 - FF4E: pause time
 FFFE - end: custom etank color

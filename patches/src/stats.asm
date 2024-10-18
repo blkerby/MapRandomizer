@@ -3,9 +3,6 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_82_free_space_start = $82FF30
-!bank_82_free_space_end = $84FFFE
-
 !bank_84_free_space_start = $84F730
 !bank_84_free_space_end = $84F800
 
@@ -36,6 +33,10 @@ org $808455
 ; Capture final time when entering ship to leave the planet
 org $a2ab13
     jsl hook_game_end
+
+; Runs every frame while paused
+org $82a505
+    jml pause_frame_hook : nop : nop
 
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
@@ -369,6 +370,22 @@ collect_item:
 .skip:
     plx
     rtl
+
+pause_frame_hook:
+    lda !stat_pause_time
+    inc
+    sta !stat_pause_time
+    bne .leave_hook
+    lda !stat_pause_time+2
+    inc
+    sta !stat_pause_time+2
+.leave_hook
+    ; since hooked code is consecutive JSRs, just fill stack and return
+    lda #$a508
+    pha
+    lda #$a599
+    pha
+    jml $82a50c
 
 warnpc !bank_85_free_space_end
 
