@@ -501,27 +501,3 @@ collect_ReserveTank:
     jmp $8986
 
 warnpc !bank_84_free_space_end
-
-; Runs every frame while paused
-org $82A50C
-    jmp .pause_frame_hook
-
-org !bank_82_free_space_start
-
-.pause_frame_hook
-    php
-    rep #$30
-    lda !stat_pause_time
-    inc
-    sta !stat_pause_time
-    bne .leave_hook
-    lda !stat_pause_time+2
-    inc
-    sta !stat_pause_time+2
-.leave_hook
-    plp
-    php
-    rep #$30
-    jmp $A50F
-
-warnpc !bank_82_free_space_end
