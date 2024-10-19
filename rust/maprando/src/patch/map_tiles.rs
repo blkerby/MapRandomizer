@@ -1,10 +1,9 @@
 use hashbrown::{HashMap, HashSet};
 use log::info;
 
-use crate::randomize::{
-    DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective,
-    Randomization,
-};
+use crate::{randomize::{
+    Objective, Randomization,
+}, settings::{DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed}};
 use maprando_game::{
     AreaIdx, BeamType, DoorType, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem,
 };

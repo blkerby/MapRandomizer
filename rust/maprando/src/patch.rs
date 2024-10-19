@@ -14,9 +14,8 @@ use crate::{
     customize::vanilla_music::override_music,
     patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
     randomize::{
-        AreaAssignment, EtankRefill, LockedDoor, MotherBrainFight, Objective, Randomization,
-        SaveAnimals, StartLocationMode, WallJump,
-    },
+        LockedDoor, Objective, Randomization,
+    }, settings::{AreaAssignment, ETankRefill, MotherBrainFight, SaveAnimals, StartLocationMode, WallJump},
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
@@ -482,10 +481,8 @@ impl<'a> Patcher<'a> {
         }
 
         let mut new_game = "new_game";
-        if let Some(options) = &self.randomization.difficulty.debug_options {
-            if options.new_game_extra {
-                new_game = "new_game_extra";
-            }
+        if self.randomization.difficulty.debug {
+            new_game = "new_game_extra";
         }
         patches.push(new_game);
 
@@ -519,11 +516,11 @@ impl<'a> Patcher<'a> {
         }
 
         match self.randomization.difficulty.etank_refill {
-            EtankRefill::Disabled => {
+            ETankRefill::Disabled => {
                 patches.push("etank_refill_disabled");
             }
-            EtankRefill::Vanilla => {}
-            EtankRefill::Full => {
+            ETankRefill::Vanilla => {}
+            ETankRefill::Full => {
                 patches.push("etank_refill_full");
             }
         }

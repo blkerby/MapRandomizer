@@ -6,10 +6,11 @@ use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, Mu
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::randomize::{
-    randomize_doors, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers, ItemPlacementStyle,
-    ItemPriorityGroup, ItemPriorityStrength, MapStationReveal, MotherBrainFight, ProgressionRate,
-    Randomization, Randomizer, SaveAnimals, StartLocationMode,
+    randomize_doors, 
+    ItemPriorityGroup,
+    Randomization, Randomizer,
 };
+use maprando::settings::{AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump};
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
 use maprando_game::{GameData, Item, Map};
@@ -85,11 +86,11 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         item_priority_strength: ItemPriorityStrength::Moderate,
         item_priorities: vec![
             ItemPriorityGroup {
-                name: "Early".to_string(),
+                priority: KeyItemPriority::Early,
                 items: vec!["Morph".to_string()],
             },
             ItemPriorityGroup {
-                name: "Default".to_string(),
+                priority: KeyItemPriority::Default,
                 items: game_data
                     .item_isv
                     .keys
@@ -99,7 +100,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
                     .collect(),
             },
             ItemPriorityGroup {
-                name: "Late".to_string(),
+                priority: KeyItemPriority::Late,
                 items: vec!["Varia".to_string(), "Gravity".to_string()],
             },
         ],
@@ -121,7 +122,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         room_outline_revealed: true,
         opposite_area_revealed: true,
         transition_letters: true,
-        door_locks_size: maprando::randomize::DoorLocksSize::Small,
+        door_locks_size: DoorLocksSize::Small,
         item_markers: ItemMarkers::ThreeTiered,
         item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
@@ -140,9 +141,9 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         save_animals: SaveAnimals::No,
         area_assignment: AreaAssignment::Standard,
         early_save: false,
-        wall_jump: maprando::randomize::WallJump::Vanilla,
-        etank_refill: maprando::randomize::EtankRefill::Vanilla,
-        maps_revealed: maprando::randomize::MapsRevealed::Full,
+        wall_jump: WallJump::Vanilla,
+        etank_refill: ETankRefill::Vanilla,
+        maps_revealed: MapsRevealed::Full,
         map_station_reveal: MapStationReveal::Full,
         energy_free_shinesparks: false,
         vanilla_map: false,
@@ -150,7 +151,7 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
         skill_assumptions_preset: Some("None".to_string()),
         item_progression_preset: Some("None".to_string()),
         quality_of_life_preset: Some("None".to_string()),
-        debug_options: None,
+        debug: false,
     };
     let single_map: Option<Map>;
     let mut filenames: Vec<String> = Vec::new();

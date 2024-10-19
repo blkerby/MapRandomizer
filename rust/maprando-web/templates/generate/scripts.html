@@ -85,8 +85,102 @@ function techChanged() {
     {% endfor %}
     updateTierPercent();
 }
-function updateTechJSON() {
-    techSelection = []
+
+function tryParseInt(s) {
+    if (s == "") {
+        return null;
+    } else {
+        return parseInt(s);
+    }
+}
+
+function buildSettingsObject() {
+    var formData = new FormData(document.getElementById("main-form"));
+    let version = {{ version_info.version }};
+    let startingItems = [];
+    let keyItemPriority = [];
+    let fillerItems = [];
+    let settings = {
+        "version": version,
+        "skill_assumption_settings": {
+            "preset": formData.get("preset"),
+            "shinespark_tiles": parseFloat(formData.get("shinespark_tiles")),
+            "heated_shinespark_tiles": parseFloat(formData.get("heated_shinespark_tiles")),
+            "speed_ball_tiles": parseFloat(formData.get("speed_ball_tiles")),
+            "shinecharge_leniency_frames": parseFloat(formData.get("shinecharge_leniency_frames")),
+            "resource_multiplier": parseFloat(formData.get("resource_multiplier")),
+            "gate_glitch_leniency": parseFloat(formData.get("gate_glitch_leniency")),
+            "door_stuck_leniency": parseFloat(formData.get("door_stuck_leniency")),
+            "phantoon_proficiency": parseFloat(formData.get("phantoon_proficiency")),
+            "draygon_proficiency": parseFloat(formData.get("draygon_proficiency")),
+            "ridley_proficiency": parseFloat(formData.get("ridley_proficiency")),
+            "botwoon_proficiency": parseFloat(formData.get("botwoon_proficiency")),
+            "mother_brain_proficiency": parseFloat(formData.get("mother_brain_proficiency")),
+            "escape_timer_multiplier": parseFloat(formData.get("escape_timer_multiplier")),
+            "tech_settings": buildTechArray(),
+            "notable_settings": buildNotableArray(),
+        },
+        "item_progression_settings": {
+            "preset": formData.get("item_progression_preset"),
+            "progression_rate": formData.get("progression_rate"),
+            "item_placement_style": formData.get("item_placement_style"),
+            "item_priority_strength": formData.get("item_priority_strength"),
+            "random_tank": formData.get("random_tank") == "true",
+            "spazer_before_plasma": formData.get("spazer_before_plasma") == "true",
+            "stop_item_placement_early": formData.get("stop_item_placement_early") == "true",
+            "item_pool": buildItemPoolArray(),
+            "starting_items": buildStartingItemArray(),
+            "key_item_priority": buildItemPriorityArray(),
+            "filler_items": buildFillerItemsArray(),
+        },
+        "quality_of_life_settings": {
+            "preset": formData.get("preset"),
+            "item_markers": formData.get("item_markers"),
+            "mark_map_stations": formData.get("mark_map_stations") == "true",
+            "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
+            "room_outline_revealed": formData.get("room_outline_revealed") == "true",
+            "mother_brain_fight": formData.get("mother_brain_fight"),
+            "supers_double": formData.get("supers_double") == "true",
+            "escape_movement_items": formData.get("escape_movement_items") == "true",
+            "escape_refill": formData.get("escape_refill") == "true",
+            "escape_enemies_cleared": formData.get("escape_enemies_cleared") == "true",
+            "fast_elevators": formData.get("fast_elevators") == "true",
+            "fast_doors": formData.get("fast_doors") == "true",
+            "fast_pause_menu": formData.get("fast_pause_menu") == "true",
+            "respin": formData.get("respin") == "true",
+            "infinite_space_jump": formData.get("infinite_space_jump") == "true",
+            "momentum_conservation": formData.get("momentum_conservation") == "true",
+            "all_items_spawn": formData.get("all_items_spawn") == "true",
+            "acid_chozo": formData.get("acid_chozo") == "true",
+            "remove_climb_lava": formData.get("remove_climb_lava") == "true",
+            "buffed_drops": formData.get("buffed_drops") == "true",
+            "early_save": formData.get("early_save") == "true",
+        },
+        "objectives_mode": formData.get("objectives"),
+        "map_layout": formData.get("map_layout"),
+        "doors_mode": formData.get("doors"),
+        "start_location_mode": formData.get("start_location"),
+        "save_animals": formData.get("save_animals"),
+        "other_settings": {
+            "wall_jump": formData.get("wall_jump"),
+            "etank_refill": formData.get("etank_refill"),
+            "area_assignment": formData.get("area_assignment"),
+            "item_dot_change": formData.get("item_dot_change"),
+            "transition_letters": formData.get("transition_letters") == "true",
+            "door_locks_size": formData.get("door_locks_size"),
+            "maps_revealed": formData.get("maps_revealed"),
+            "map_station_reveal": formData.get("map_station_reveal"),
+            "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
+            "ultra_low_qol": formData.get("ultra_low_qol") == "true",
+            "race_mode": formData.get("race_mode") == "true",
+            "random_seed": tryParseInt(formData.get("random_seed")),
+        }
+    };
+    return settings;
+}
+
+function buildTechArray() {
+    let techSelection = [];
     document.querySelectorAll('.tech-input')
     .forEach(function (x) {
         let parts = x.name.split("-");
@@ -94,73 +188,78 @@ function updateTechJSON() {
         let enabled = x.checked;
         techSelection.push([techId, enabled]);
     });
-    document.getElementById("json-tech").value = JSON.stringify(techSelection);
+    return techSelection;
 }
-function updateStratJSON() {
-    stratSelection = []
+
+function buildNotableArray() {
+    let notableSelection = [];
     document.querySelectorAll('.strat-input')
     .forEach(function (x) { 
         let parts = x.name.split("-");
         let roomId = parseInt(parts[1]);
         let notableId = parseInt(parts[2]);
         let enabled = x.checked;
-        stratSelection.push([roomId, notableId, enabled]);
+        notableSelection.push([roomId, notableId, enabled]);
     });
-    document.getElementById("json-strat").value = JSON.stringify(stratSelection);
+    return notableSelection;
 }
-function updateItemPoolJSON() {
-    itemPool = {}
+function buildItemPoolArray() {
+    let itemPool = [];
     document.querySelectorAll('.item-pool-input-multiple')
     .forEach(function (x) { 
         // remove prefix: "item_pool_"
         name = x.name.substring(10);
-        itemPool[name] = x.value;
+        itemPool.push([name, tryParseInt(x.value)]);
     });
-    document.getElementById("json-item-pool").value = JSON.stringify(itemPool);
+    return itemPool;
 }
-function updateStartingItemJSON() {
-    startingItems = {}
+function buildStartingItemArray() {
+    let startingItems = [];
     document.querySelectorAll('.starting-item-input-multiple')
     .forEach(function (x) { 
         // remove prefix: "starting_item_"
         name = x.name.substring(14);
-        startingItems[name] = x.value;
+        let cnt = tryParseInt(x.value);
+        if (cnt > 0) {
+            startingItems.push([name, tryParseInt(x.value)]);
+        }
     });
     document.querySelectorAll('.starting-item-input-single')
     .forEach(function (x) { 
         // remove prefix: "starting_item_"
         name = x.name.substring(14);
-        if (x.checked) {
-            startingItems[name] = x.value;
+        if (x.checked && x.value == "Yes") {
+            startingItems.push([name, 1]);
         }
     });
-    document.getElementById("json-starting-items").value = JSON.stringify(startingItems);
+    return startingItems;
 }
-function updateItemPriorityJSON() {
-    itemPriority = {}
+function buildItemPriorityArray() {
+    let itemPriority = [];
     document.querySelectorAll('.item-priority-input')
     .forEach(function (x) { 
         // remove prefix: "item_priority_"
         name = x.name.substring(14);
         // console.log(name + ": " + x.value);
         if (x.checked) {
-            itemPriority[name] = x.value;
+            itemPriority.push([name, x.value]);
         }
     });
-    document.getElementById("json-item-priority").value = JSON.stringify(itemPriority);
+    return itemPriority;
 }
-function updateFillerItemsJSON() {
-    fillerItems = {}
+function buildFillerItemsArray() {
+    let fillerItems = [];
     document.querySelectorAll('.filler-items-input')
     .forEach(function (x) { 
         // remove prefix: "filler_items_"
         name = x.name.substring(13);
         if (x.checked) {
-            fillerItems[name] = x.value;
+            fillerItems.push([name, x.value]);
         }
     });
-    document.getElementById("json-filler-items").value = JSON.stringify(fillerItems);
+    return fillerItems;
 }
+
 let submitModal = new bootstrap.Modal('#submitModal', {})
 let inputRomModal = new bootstrap.Modal('#inputRomModal', {});
 async function prepareSubmit(form) {
@@ -183,14 +282,30 @@ async function prepareSubmit(form) {
         return;
     }
     document.getElementById("romInvalid").classList.add("d-none");
-    updateTechJSON();
-    updateStratJSON();
-    updateItemPoolJSON();
-    updateStartingItemJSON();
-    updateItemPriorityJSON();
-    updateFillerItemsJSON();
+
+    // updateTechJSON();
+    // updateStratJSON();
+    // updateItemPoolJSON();"
+    // updateStartingItemJSON();
+    // updateItemPriorityJSON();
+    // updateFillerItemsJSON();
     submitModal.show();
-    form.submit();
+    // form.submit();
+
+    let settings = buildSettingsObject();
+    let formData = new FormData();
+    formData.append("spoiler_token", document.getElementById("spoilerToken").value);
+    formData.append("settings", JSON.stringify(settings));
+    formData.append("rom", romEl.files[0]);
+    let response = await fetch("/randomize", {
+        "method": "POST",
+        "body": formData,
+    });
+    if (response.ok) {
+        // TODO: handle ok
+    } else {
+        console.log(`Error status ${response.status} submitting: ` + await response.text());
+    }
 }
 function qualityOfLifePresetChanged() {
     if (document.getElementById("qualityOfLifeOff").checked) {

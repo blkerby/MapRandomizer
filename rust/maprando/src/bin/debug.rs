@@ -2,11 +2,8 @@ use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
     randomize::{
-        AreaAssignment, DifficultyConfig, DoorsMode, ItemDotChange, ItemMarkers,
-        ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MapStationReveal,
-        MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, WallJump,
-    },
-    traverse::{apply_requirement, LockedDoorData},
+        DifficultyConfig, ItemPriorityGroup
+    }, settings::{AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump}, traverse::{apply_requirement, LockedDoorData}
 };
 use maprando_game::{Capacity, GameData, Item, Requirement, TECH_ID_CAN_BE_VERY_PATIENT};
 use maprando_logic::{GlobalState, Inventory, LocalState};
@@ -98,7 +95,7 @@ fn run_scenario(
         item_placement_style: ItemPlacementStyle::Neutral,
         item_priority_strength: ItemPriorityStrength::Moderate,
         item_priorities: vec![ItemPriorityGroup {
-            name: "Default".to_string(),
+            priority: KeyItemPriority::Default,
             items: game_data.item_isv.keys.clone(),
         }],
         resource_multiplier: 1.0,
@@ -119,7 +116,7 @@ fn run_scenario(
         room_outline_revealed: true,
         opposite_area_revealed: true,
         transition_letters: false,
-        door_locks_size: maprando::randomize::DoorLocksSize::Small,
+        door_locks_size: DoorLocksSize::Small,
         item_markers: ItemMarkers::ThreeTiered,
         item_dot_change: ItemDotChange::Fade,
         all_items_spawn: true,
@@ -134,12 +131,12 @@ fn run_scenario(
         momentum_conservation: false,
         objectives: vec![],
         doors_mode: DoorsMode::Ammo,
-        start_location_mode: maprando::randomize::StartLocationMode::Ship,
+        start_location_mode: StartLocationMode::Ship,
         save_animals: SaveAnimals::No,
         early_save: false,
         area_assignment: AreaAssignment::Standard,
         wall_jump: WallJump::Vanilla,
-        etank_refill: maprando::randomize::EtankRefill::Vanilla,
+        etank_refill: ETankRefill::Vanilla,
         maps_revealed: MapsRevealed::Full,
         map_station_reveal: MapStationReveal::Full,
         energy_free_shinesparks: false,
@@ -148,7 +145,7 @@ fn run_scenario(
         skill_assumptions_preset: None,
         item_progression_preset: None,
         quality_of_life_preset: None,
-        debug_options: None,
+        debug: false,
     };
 
     let locked_door_data = LockedDoorData {

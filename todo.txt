@@ -1,6 +1,9 @@
 v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
+- clean JSON API for /randomize
+- simplify SeedData
+- simplify DifficultyConfig
 - save/load presets
 - built-in presets: default, and season 2 racing
 
