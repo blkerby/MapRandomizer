@@ -158,6 +158,8 @@ startup:
     sta !stat_reloads
     sta !stat_loadbacks
     sta !stat_resets
+    sta !stat_pause_time
+    sta !stat_pause_time+2
 
     ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600
