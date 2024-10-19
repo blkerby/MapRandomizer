@@ -7,6 +7,12 @@ body {
 a {
 	color: white;	
 }
+img {
+	touch-action: none;
+}
+div {
+	touch-action: none;
+}
 #map {
 	position: absolute;
 	width: 1776px;

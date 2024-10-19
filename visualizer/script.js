@@ -304,83 +304,34 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		ctx.putImageData(img, 0, 0);
 	}
 	gen_obscurity(null);
+
 	let el = document.getElementById("room-info");
+
 	let dragged = false, dragging = false;
 	var scale = 1, page_x = 0, page_y = 0;
 	let m = document.getElementById("map");
-	m.ondragstart = ev => {
-		return false;
-	}
-	m.ondragstart = ev => {
-		return false;
-	}
-	m.onmousedown = ev => {
-		dragging = true;
-	}
-	m.onwheel = ev => {
-		const scaleOld = scale;
-		var z = document.getElementById("zoom");
-
-		scale *= 1.0 - ev.deltaY * 0.0005;
-		scale = Math.min(Math.max(0.25, scale), 100);
-
-		var xorg = ev.x - page_x - z.offsetWidth/2;
-		var yorg = ev.y - page_y - z.offsetHeight/2;
-
-		var xnew = xorg / scaleOld;
-		var ynew = yorg / scaleOld;
-		
-		xnew *= scale;
-		ynew *= scale;
-
-		var xdiff = xorg -xnew;
-		var ydiff = yorg -ynew;
-
-		page_x += xdiff;
-		page_y += ydiff;
-
-		transfo();
-	}
 	function transfo() {
 		document.getElementById("zoom").style.transform =
-		 `translate(${page_x}px, ${page_y}px) scale(${scale})`;
+		`translate(${page_x}px, ${page_y}px) scale(${scale})`;
 	}
-	document.body.onmousedown = ev => {
-		dragging = true;
-		dragged = false;
-	}
-	document.body.onmouseup = ev => {
-		dragging = false;
-	}
-	document.body.onmouseleave = ev => {
-		dragging = false;
-		el.classList.add("hidden")
-	}
-	document.body.onmousemove = ev => {
-		if (dragging) {
-			dragged = true;
-			page_x += ev.movementX;
-			page_y += ev.movementY;
-			transfo();
-		} else {
-			let x = ((ev.offsetX / 24) | 0) - 1;
-			let y = ((ev.offsetY / 24) | 0) - 1;
-			if (x >= 0 && x < 72 && y >= 0 && y < 72) {
-				let tile = map[y * 72 + x];
-				if (tile >= 0) {
-					el.innerText = c.all_rooms[tile].room;
-					el.dataset.roomId = c.all_rooms[tile].room_id;
-					el.style.left = ev.offsetX + 16 + "px";
-					el.style.top = ev.offsetY + "px";
-					el.classList.remove("hidden");
-					return;
-				}
+	function hover(ev) {
+		let x = ((ev.offsetX / 24) | 0) - 1;
+		let y = ((ev.offsetY / 24) | 0) - 1;
+		if (x >= 0 && x < 72 && y >= 0 && y < 72) {
+			let tile = map[y * 72 + x];
+			if (tile >= 0) {
+				el.innerText = c.all_rooms[tile].room;
+				el.dataset.roomId = c.all_rooms[tile].room_id;
+				el.style.left = ev.offsetX + 16 + "px";
+				el.style.top = ev.offsetY + "px";
+				el.classList.remove("hidden");
+				return;
 			}
-			el.classList.add("hidden")
-			el.innerText = "";
 		}
+		el.classList.add("hidden")
+		el.innerText = "";
 	}
-	document.getElementById("map").onclick = ev => {
+	function click() {
 		if (el.innerText in roomFlags) {
 			let flagPair = roomFlags[el.innerText];
 			let flagName = flagPair[0];
@@ -412,10 +363,88 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 	}
-	document.getElementById("map").ondblclick = ev => {
+	function dblclick() {
 		if (!el.classList.contains("hidden")) {
 			window.open("/logic/room/" + el.dataset.roomId);
 		}
+	}
+	m.onpointerdown = ev => {
+		ev.preventDefault();
+		dragging = true;
+		dragged = false;
+	}
+	let fclick = true, timer = null;
+	m.onpointerup = ev => {
+		ev.preventDefault();
+		dragging = false;
+		dragged = false;
+		if (dragged && ev.pointerType == "mouse")
+			el.classList.add("hidden");
+		else
+		{
+			if (fclick) {
+				click();
+				timer = setTimeout(function (){
+					fclick = true;
+				}, 500);
+				fclick = false;
+			} else {
+				fclick = true;
+				if (timer)
+					clearTimeout(timer);
+				let oldroom = el.innerText;
+				hover(ev);
+				if (oldroom == el.innerText)
+					dblclick();
+			}
+		}
+		
+	}
+	m.onpointerleave = ev => {
+		ev.preventDefault();
+		dragging = false;
+		dragged = false;
+		if (ev.pointerType == "mouse")
+			el.classList.add("hidden");
+	}
+	m.onpointermove = ev => {
+		ev.preventDefault();
+		if (dragging) {
+			dragged = true;
+			page_x += ev.movementX;
+			page_y += ev.movementY;
+			transfo();
+			if (ev.pointerType != "mouse")
+				hover(ev);
+		} else {
+			// mouse only.
+			hover(ev);
+		}
+	}
+
+	m.onwheel = ev => {
+		const scaleOld = scale;
+		var z = document.getElementById("zoom");
+
+		scale *= 1.0 - ev.deltaY * 0.0005;
+		scale = Math.min(Math.max(0.25, scale), 100);
+
+		var xorg = ev.x - page_x - z.offsetWidth/2;
+		var yorg = ev.y - page_y - z.offsetHeight/2;
+
+		var xnew = xorg / scaleOld;
+		var ynew = yorg / scaleOld;
+		
+		xnew *= scale;
+		ynew *= scale;
+
+		var xdiff = xorg -xnew;
+		var ydiff = yorg -ynew;
+
+		page_x += xdiff;
+		page_y += ydiff;
+
+		transfo();
 	}
 	let createDiv = (html) => {
 		const div = document.createElement('div');
