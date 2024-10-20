@@ -1,8 +1,8 @@
 v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
-- fix formatting in seed header, e.g. "ThreeTiered"
-- clean JSON API for /randomize
+- DONE: clean JSON API for /randomize
+- use RandomizerSettings in maprando-cli and maprando-test
 - simplify SeedData
 - simplify DifficultyConfig
 - save/load presets

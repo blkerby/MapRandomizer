@@ -18,6 +18,7 @@ use maprando_game::{
 };
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
+use serde_variant::to_variant_name;
 use std::time::{Instant, SystemTime};
 
 #[derive(Serialize, Deserialize)]
@@ -414,14 +415,14 @@ async fn randomize(
         difficulty: difficulty_tiers[0].clone(),
         quality_of_life_preset: qol_settings.preset.clone(),
         supers_double: qol_settings.supers_double,
-        mother_brain_fight: format!("{:?}", qol_settings.mother_brain_fight),
+        mother_brain_fight: to_variant_name(&qol_settings.mother_brain_fight).unwrap().to_string(),
         escape_enemies_cleared: qol_settings.escape_enemies_cleared,
         escape_refill: qol_settings.escape_refill,
         escape_movement_items: qol_settings.escape_movement_items,
         mark_map_stations: qol_settings.mark_map_stations,
         transition_letters: other_settings.transition_letters,
-        item_markers: format!("{:?}", qol_settings.item_markers),
-        item_dot_change: format!("{:?}", other_settings.item_dot_change),
+        item_markers: to_variant_name(&qol_settings.item_markers).unwrap().to_string(),
+        item_dot_change: to_variant_name(&other_settings.item_dot_change).unwrap().to_string(),
         all_items_spawn: qol_settings.all_items_spawn,
         acid_chozo: qol_settings.acid_chozo,
         remove_climb_lava: qol_settings.remove_climb_lava,
@@ -432,16 +433,16 @@ async fn randomize(
         respin: qol_settings.respin,
         infinite_space_jump: qol_settings.infinite_space_jump,
         momentum_conservation: qol_settings.momentum_conservation,
-        objectives: format!("{:?}", settings.objectives_mode),
-        doors: format!("{:?}", settings.doors_mode),
-        start_location_mode: format!("{:?}", settings.start_location_mode),
+        objectives: to_variant_name(&settings.objectives_mode).unwrap().to_string(),
+        doors: to_variant_name(&settings.doors_mode).unwrap().to_string(),
+        start_location_mode: to_variant_name(&settings.start_location_mode).unwrap().to_string(),
         map_layout: settings.map_layout.clone(),
-        save_animals: format!("{:?}", settings.save_animals),
+        save_animals: to_variant_name(&settings.save_animals).unwrap().to_string(),
         early_save: qol_settings.early_save,
-        area_assignment: format!("{:?}", other_settings.area_assignment),
-        wall_jump: format!("{:?}", other_settings.wall_jump),
-        etank_refill: format!("{:?}", other_settings.etank_refill),
-        maps_revealed: format!("{:?}", other_settings.maps_revealed),
+        area_assignment: to_variant_name(&other_settings.area_assignment).unwrap().to_string(),
+        wall_jump: to_variant_name(&other_settings.wall_jump).unwrap().to_string(),
+        etank_refill: to_variant_name(&other_settings.etank_refill).unwrap().to_string(),
+        maps_revealed: to_variant_name(&other_settings.maps_revealed).unwrap().to_string(),
         vanilla_map,
         ultra_low_qol: other_settings.ultra_low_qol,
     };
