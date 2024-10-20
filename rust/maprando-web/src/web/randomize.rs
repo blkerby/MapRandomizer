@@ -2,19 +2,23 @@ mod helpers;
 
 use crate::web::{AppData, VERSION};
 use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
-use actix_web::{
-    post, web, HttpRequest, HttpResponse, Responder,
-};
+use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
 use askama::Template;
 use helpers::*;
 use log::info;
 use maprando::{
-    patch::{make_rom, Rom}, randomize::{
-        filter_links, randomize_doors, randomize_map_areas, DifficultyConfig, Objective, Randomization, Randomizer 
-    }, settings::{parse_randomizer_settings, AreaAssignment, FillerItemPriority, ItemPlacementStyle, ObjectivesMode, RandomizerSettings, StartLocationMode, WallJump},
+    patch::{make_rom, Rom},
+    randomize::{
+        filter_links, randomize_doors, randomize_map_areas, DifficultyConfig, Objective,
+        Randomization, Randomizer,
+    },
+    settings::{
+        parse_randomizer_settings, AreaAssignment, FillerItemPriority, ItemPlacementStyle,
+        ObjectivesMode, RandomizerSettings, StartLocationMode, WallJump,
+    },
 };
 use maprando_game::{
-    Capacity, Item, LinksDataGroup, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION
+    Capacity, Item, LinksDataGroup, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
 };
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
@@ -76,7 +80,6 @@ struct MissingInputRomTemplate {}
 #[derive(Template)]
 #[template(path = "errors/invalid_rom.html")]
 struct InvalidRomTemplate {}
-
 
 #[derive(MultipartForm)]
 struct RandomizeRequest {
@@ -161,24 +164,26 @@ async fn randomize(
         }
     }
 
-    let semi_filler_items: Vec<Item> = item_settings.filler_items
+    let semi_filler_items: Vec<Item> = item_settings
+        .filler_items
         .iter()
         .filter(|(_k, v)| v == &FillerItemPriority::Semi)
         .map(|(k, _v)| *k)
         .collect();
     let mut filler_items = vec![Item::Missile, Item::Nothing];
     filler_items.extend(
-        item_settings.filler_items
+        item_settings
+            .filler_items
             .iter()
             .filter(|(_k, v)| v == &FillerItemPriority::Yes || v == &FillerItemPriority::Early)
-            .map(|(k, _v)| *k)
+            .map(|(k, _v)| *k),
     );
-    let early_filler_items: Vec<Item> = item_settings.filler_items
+    let early_filler_items: Vec<Item> = item_settings
+        .filler_items
         .iter()
         .filter(|(_k, v)| v == &FillerItemPriority::Early)
         .map(|(k, _v)| *k)
         .collect();
-
 
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
@@ -186,7 +191,8 @@ async fn randomize(
 
     let difficulty = DifficultyConfig {
         name: Some(
-            skill_settings.preset
+            skill_settings
+                .preset
                 .as_ref()
                 .map(|x| x.to_string())
                 .unwrap_or("Beyond".to_string()),
@@ -248,9 +254,15 @@ async fn randomize(
                 ObjectivesMode::None => vec![],
                 ObjectivesMode::Bosses => vec![Kraid, Phantoon, Draygon, Ridley],
                 ObjectivesMode::Minibosses => vec![SporeSpawn, Crocomire, Botwoon, GoldenTorizo],
-                ObjectivesMode::Metroids => vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4],
-                ObjectivesMode::Chozos => vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo],
-                ObjectivesMode::Pirates => vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom],
+                ObjectivesMode::Metroids => {
+                    vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4]
+                }
+                ObjectivesMode::Chozos => {
+                    vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo]
+                }
+                ObjectivesMode::Pirates => {
+                    vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom]
+                }
                 ObjectivesMode::Random => {
                     rand::seq::SliceRandom::choose_multiple(Objective::get_all(), &mut rng, 4)
                         .copied()
@@ -415,14 +427,20 @@ async fn randomize(
         difficulty: difficulty_tiers[0].clone(),
         quality_of_life_preset: qol_settings.preset.clone(),
         supers_double: qol_settings.supers_double,
-        mother_brain_fight: to_variant_name(&qol_settings.mother_brain_fight).unwrap().to_string(),
+        mother_brain_fight: to_variant_name(&qol_settings.mother_brain_fight)
+            .unwrap()
+            .to_string(),
         escape_enemies_cleared: qol_settings.escape_enemies_cleared,
         escape_refill: qol_settings.escape_refill,
         escape_movement_items: qol_settings.escape_movement_items,
         mark_map_stations: qol_settings.mark_map_stations,
         transition_letters: other_settings.transition_letters,
-        item_markers: to_variant_name(&qol_settings.item_markers).unwrap().to_string(),
-        item_dot_change: to_variant_name(&other_settings.item_dot_change).unwrap().to_string(),
+        item_markers: to_variant_name(&qol_settings.item_markers)
+            .unwrap()
+            .to_string(),
+        item_dot_change: to_variant_name(&other_settings.item_dot_change)
+            .unwrap()
+            .to_string(),
         all_items_spawn: qol_settings.all_items_spawn,
         acid_chozo: qol_settings.acid_chozo,
         remove_climb_lava: qol_settings.remove_climb_lava,
@@ -433,16 +451,28 @@ async fn randomize(
         respin: qol_settings.respin,
         infinite_space_jump: qol_settings.infinite_space_jump,
         momentum_conservation: qol_settings.momentum_conservation,
-        objectives: to_variant_name(&settings.objectives_mode).unwrap().to_string(),
+        objectives: to_variant_name(&settings.objectives_mode)
+            .unwrap()
+            .to_string(),
         doors: to_variant_name(&settings.doors_mode).unwrap().to_string(),
-        start_location_mode: to_variant_name(&settings.start_location_mode).unwrap().to_string(),
+        start_location_mode: to_variant_name(&settings.start_location_mode)
+            .unwrap()
+            .to_string(),
         map_layout: settings.map_layout.clone(),
         save_animals: to_variant_name(&settings.save_animals).unwrap().to_string(),
         early_save: qol_settings.early_save,
-        area_assignment: to_variant_name(&other_settings.area_assignment).unwrap().to_string(),
-        wall_jump: to_variant_name(&other_settings.wall_jump).unwrap().to_string(),
-        etank_refill: to_variant_name(&other_settings.etank_refill).unwrap().to_string(),
-        maps_revealed: to_variant_name(&other_settings.maps_revealed).unwrap().to_string(),
+        area_assignment: to_variant_name(&other_settings.area_assignment)
+            .unwrap()
+            .to_string(),
+        wall_jump: to_variant_name(&other_settings.wall_jump)
+            .unwrap()
+            .to_string(),
+        etank_refill: to_variant_name(&other_settings.etank_refill)
+            .unwrap()
+            .to_string(),
+        maps_revealed: to_variant_name(&other_settings.maps_revealed)
+            .unwrap()
+            .to_string(),
         vanilla_map,
         ultra_low_qol: other_settings.ultra_low_qol,
     };
@@ -461,6 +491,6 @@ async fn randomize(
     .unwrap();
 
     HttpResponse::Ok().json(RandomizeResponse {
-        seed_url: format!("/seed/{}/", seed_name)
+        seed_url: format!("/seed/{}/", seed_name),
     })
 }

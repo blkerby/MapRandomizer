@@ -1,7 +1,11 @@
 pub mod escape_timer;
 mod run_speed;
 
-use crate::settings::{AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump};
+use crate::settings::{
+    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
+    MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
+};
 use crate::traverse::{
     apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
     get_spoiler_route, traverse, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
@@ -40,7 +44,6 @@ use self::escape_timer::SpoilerEscape;
 // placed as quickly as possible. This helps prevent generation failures particularly on lower
 // difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
-
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum Objective {
@@ -121,7 +124,6 @@ pub struct ItemPriorityGroup {
     pub priority: KeyItemPriority,
     pub items: Vec<String>,
 }
-
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct DifficultyConfig {

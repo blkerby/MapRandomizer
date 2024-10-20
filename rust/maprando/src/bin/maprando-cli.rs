@@ -5,12 +5,12 @@ use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
-use maprando::randomize::{
-    randomize_doors, 
-    ItemPriorityGroup,
-    Randomization, Randomizer,
+use maprando::randomize::{randomize_doors, ItemPriorityGroup, Randomization, Randomizer};
+use maprando::settings::{
+    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
+    MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
 };
-use maprando::settings::{AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump};
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
 use maprando_game::{GameData, Item, Map};

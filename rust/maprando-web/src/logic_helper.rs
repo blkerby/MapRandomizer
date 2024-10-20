@@ -4,9 +4,7 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use log::warn;
 use maprando::{
-    randomize::{
-        DifficultyConfig
-    },
+    randomize::DifficultyConfig,
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{

@@ -1,6 +1,6 @@
+use anyhow::Result;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
-use anyhow::Result;
 
 #[derive(Serialize, Deserialize)]
 pub struct RandomizerSettings {
@@ -122,7 +122,7 @@ pub enum KeyItemPriority {
     Early,
     #[default]
     Default,
-    Late
+    Late,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

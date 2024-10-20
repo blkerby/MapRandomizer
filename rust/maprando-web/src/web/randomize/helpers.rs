@@ -5,9 +5,11 @@ use anyhow::{bail, Result};
 use askama::Template;
 use hashbrown::HashSet;
 use maprando::{
-    patch::{ips_write::create_ips_patch, Rom}, randomize::{
-        DifficultyConfig, ItemPriorityGroup, Randomization
-    }, seed_repository::{Seed, SeedFile}, settings::{DoorLocksSize, ETankRefill, KeyItemPriority, WallJump}, spoiler_map
+    patch::{ips_write::create_ips_patch, Rom},
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
+    seed_repository::{Seed, SeedFile},
+    settings::{DoorLocksSize, ETankRefill, KeyItemPriority, WallJump},
+    spoiler_map,
 };
 use maprando_game::{Capacity, IndexedVec, Item, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};

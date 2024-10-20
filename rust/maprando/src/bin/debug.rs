@@ -1,9 +1,13 @@
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
-    randomize::{
-        DifficultyConfig, ItemPriorityGroup
-    }, settings::{AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed, MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump}, traverse::{apply_requirement, LockedDoorData}
+    randomize::{DifficultyConfig, ItemPriorityGroup},
+    settings::{
+        AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
+        ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
+        MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
+    },
+    traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{Capacity, GameData, Item, Requirement, TECH_ID_CAN_BE_VERY_PATIENT};
 use maprando_logic::{GlobalState, Inventory, LocalState};
