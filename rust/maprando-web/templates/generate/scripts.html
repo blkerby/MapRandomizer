@@ -128,10 +128,10 @@ function buildSettingsObject() {
             "random_tank": formData.get("random_tank") == "true",
             "spazer_before_plasma": formData.get("spazer_before_plasma") == "true",
             "stop_item_placement_early": formData.get("stop_item_placement_early") == "true",
-            "item_pool": buildItemPoolArray(),
-            "starting_items": buildStartingItemArray(),
-            "key_item_priority": buildItemPriorityArray(),
-            "filler_items": buildFillerItemsArray(),
+            "item_pool": buildItemPool(),
+            "starting_items": buildStartingItems(),
+            "key_item_priority": buildItemPriorities(),
+            "filler_items": buildFillerItems(),
         },
         "quality_of_life_settings": {
             "preset": formData.get("preset"),
@@ -203,25 +203,25 @@ function buildNotableArray() {
     });
     return notableSelection;
 }
-function buildItemPoolArray() {
-    let itemPool = [];
+function buildItemPool() {
+    let itemPool = {};
     document.querySelectorAll('.item-pool-input-multiple')
     .forEach(function (x) { 
         // remove prefix: "item_pool_"
         name = x.name.substring(10);
-        itemPool.push([name, tryParseInt(x.value)]);
+        itemPool[name] = tryParseInt(x.value);
     });
     return itemPool;
 }
-function buildStartingItemArray() {
-    let startingItems = [];
+function buildStartingItems() {
+    let startingItems = {};
     document.querySelectorAll('.starting-item-input-multiple')
     .forEach(function (x) { 
         // remove prefix: "starting_item_"
         name = x.name.substring(14);
         let cnt = tryParseInt(x.value);
         if (cnt > 0) {
-            startingItems.push([name, tryParseInt(x.value)]);
+            startingItems[name] = tryParseInt(x.value);
         }
     });
     document.querySelectorAll('.starting-item-input-single')
@@ -229,32 +229,32 @@ function buildStartingItemArray() {
         // remove prefix: "starting_item_"
         name = x.name.substring(14);
         if (x.checked && x.value == "Yes") {
-            startingItems.push([name, 1]);
+            startingItems[name] = 1;
         }
     });
     return startingItems;
 }
-function buildItemPriorityArray() {
-    let itemPriority = [];
+function buildItemPriorities() {
+    let itemPriority = {};
     document.querySelectorAll('.item-priority-input')
     .forEach(function (x) { 
         // remove prefix: "item_priority_"
         name = x.name.substring(14);
         // console.log(name + ": " + x.value);
         if (x.checked) {
-            itemPriority.push([name, x.value]);
+            itemPriority[name] = x.value;
         }
     });
     return itemPriority;
 }
-function buildFillerItemsArray() {
-    let fillerItems = [];
+function buildFillerItems() {
+    let fillerItems = {};
     document.querySelectorAll('.filler-items-input')
     .forEach(function (x) { 
         // remove prefix: "filler_items_"
         name = x.name.substring(13);
         if (x.checked) {
-            fillerItems.push([name, x.value]);
+            fillerItems[name] = x.value;
         }
     });
     return fillerItems;

@@ -1,4 +1,5 @@
 use anyhow::Result;
+use hashbrown::HashMap;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
@@ -45,10 +46,10 @@ pub struct ItemProgressionSettings {
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
     pub stop_item_placement_early: bool,
-    pub item_pool: Vec<(Item, usize)>,
-    pub starting_items: Vec<(Item, usize)>,
-    pub key_item_priority: Vec<(Item, KeyItemPriority)>,
-    pub filler_items: Vec<(Item, FillerItemPriority)>,
+    pub item_pool: HashMap<Item, usize>,
+    pub starting_items: HashMap<Item, usize>,
+    pub key_item_priority: HashMap<Item, KeyItemPriority>,
+    pub filler_items: HashMap<Item, FillerItemPriority>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -57,8 +58,8 @@ pub struct QualityOfLifeSettings {
     // Map:
     pub item_markers: ItemMarkers,
     pub mark_map_stations: bool,
-    pub opposite_area_revealed: bool,
     pub room_outline_revealed: bool,
+    pub opposite_area_revealed: bool,
     // End game:
     pub mother_brain_fight: MotherBrainFight,
     pub supers_double: bool,
