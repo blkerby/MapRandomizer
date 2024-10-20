@@ -6,6 +6,7 @@ use crate::{
     web::{AppData, PresetData, VersionInfo, VERSION},
 };
 use actix_easy_multipart::MultipartFormConfig;
+use actix_files::NamedFile;
 use actix_web::{
     middleware::{Compress, Logger},
     App, HttpServer,
@@ -260,6 +261,10 @@ fn build_app_data() -> AppData {
     app_data
 }
 
+pub async fn fav_icon() -> actix_web::Result<actix_files::NamedFile> {
+    Ok(NamedFile::open("static/favicon.ico")?)
+}
+
 #[actix_web::main]
 async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
@@ -292,7 +297,8 @@ async fn main() {
                 "../sm-json-data",
             ))
             .service(actix_files::Files::new("/static", "static"))
-            .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"));
+            .service(actix_files::Files::new("/wasm", "maprando-wasm/pkg"))
+            .route("/favicon.ico", actix_web::web::get().to(fav_icon));
 
         if let Some(path) = &app_data.video_storage_path {
             app = app.service(actix_files::Files::new("/videos", path));
