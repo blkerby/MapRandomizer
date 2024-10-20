@@ -1,6 +1,7 @@
 v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
+- fix formatting in seed header, e.g. "ThreeTiered"
 - clean JSON API for /randomize
 - simplify SeedData
 - simplify DifficultyConfig

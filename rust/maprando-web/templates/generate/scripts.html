@@ -261,6 +261,7 @@ function buildFillerItemsArray() {
 }
 
 let submitModal = new bootstrap.Modal('#submitModal', {})
+let errorModal = new bootstrap.Modal('#errorModal', {})
 let inputRomModal = new bootstrap.Modal('#inputRomModal', {});
 async function prepareSubmit(form) {
     let romEl = document.getElementById("inputRom");
@@ -297,14 +298,28 @@ async function prepareSubmit(form) {
     formData.append("spoiler_token", document.getElementById("spoilerToken").value);
     formData.append("settings", JSON.stringify(settings));
     formData.append("rom", romEl.files[0]);
-    let response = await fetch("/randomize", {
-        "method": "POST",
-        "body": formData,
-    });
+    let errorEl = document.getElementById("errorMsg");
+    let response;
+    try {
+        response = await fetch("/randomize", {
+            "method": "POST",
+            "body": formData,
+        });    
+    } catch (e) {
+        submitModal.hide();
+        errorEl.textContent = `Error: ${e}`;
+        errorModal.show();
+        return;        
+    }
+    submitModal.hide();
     if (response.ok) {
-        // TODO: handle ok
+        let responseJson = await response.json();
+        let seedUrl = responseJson["seed_url"];
+        window.location.href = seedUrl;
     } else {
-        console.log(`Error status ${response.status} submitting: ` + await response.text());
+        let responseText = await response.text();
+        errorEl.textContent = `Error status ${response.status}: ${responseText}`;
+        errorModal.show();
     }
 }
 function qualityOfLifePresetChanged() {

@@ -3,7 +3,6 @@ mod helpers;
 use crate::web::{AppData, VERSION};
 use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
 use actix_web::{
-    http::header::{self},
     post, web, HttpRequest, HttpResponse, Responder,
 };
 use askama::Template;
@@ -83,6 +82,11 @@ struct RandomizeRequest {
     rom: Bytes,
     spoiler_token: Text<String>,
     settings: Text<String>,
+}
+
+#[derive(Serialize)]
+struct RandomizeResponse {
+    seed_url: String,
 }
 
 #[post("/randomize")]
@@ -455,8 +459,7 @@ async fn randomize(
     .await
     .unwrap();
 
-    // Redirect to the seed page:
-    HttpResponse::Found()
-        .insert_header((header::LOCATION, format!("seed/{}/", seed_name)))
-        .finish()
+    HttpResponse::Ok().json(RandomizeResponse {
+        seed_url: format!("/seed/{}/", seed_name)
+    })
 }
