@@ -368,12 +368,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			window.open("/logic/room/" + el.dataset.roomId);
 		}
 	}
-	m.onpointerdown = ev => {
+	let ox = 0, oy = 0;
+	document.body.onpointerdown = ev => {
 		ev.preventDefault();
 		dragging = true;
 		dragged = false;
+		ox = ev.x;
+		oy = ev.y;
 	}
 	let fclick = true, timer = null;
+
 	m.onpointerup = ev => {
 		ev.preventDefault();
 		dragging = false;
@@ -388,6 +392,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					fclick = true;
 				}, 500);
 				fclick = false;
+				if (ev.pointerType != "mouse")
+					hover(ev);
 			} else {
 				fclick = true;
 				if (timer)
@@ -398,28 +404,33 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					dblclick();
 			}
 		}
-		
 	}
-	m.onpointerleave = ev => {
+
+	document.body.onpointerup = ev => {
+		ev.preventDefault();
+		dragging = false;
+		dragged = false;
+	}
+	document.body.onpointerleave = ev => {
 		ev.preventDefault();
 		dragging = false;
 		dragged = false;
 		if (ev.pointerType == "mouse")
 			el.classList.add("hidden");
 	}
-	m.onpointermove = ev => {
+	document.body.onpointermove = ev => {
 		ev.preventDefault();
 		if (dragging) {
 			dragged = true;
-			page_x += ev.movementX;
-			page_y += ev.movementY;
+			page_x += ev.x - ox;
+			page_y += ev.y - oy;
 			transfo();
-			if (ev.pointerType != "mouse")
-				hover(ev);
 		} else {
 			// mouse only.
 			hover(ev);
 		}
+		ox = ev.x;
+		oy = ev.y;
 	}
 
 	m.onwheel = ev => {
