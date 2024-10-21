@@ -33,8 +33,25 @@ pub struct SkillAssumptionSettings {
     pub botwoon_proficiency: f32,
     pub mother_brain_proficiency: f32,
     pub escape_timer_multiplier: f32,
-    pub tech_settings: Vec<(TechId, bool)>,
-    pub notable_settings: Vec<(RoomId, NotableId, bool)>,
+    pub tech_settings: Vec<TechSetting>,
+    pub notable_settings: Vec<NotableSetting>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct TechSetting {
+    pub id: TechId,
+    pub name: String,
+    pub enabled: bool,
+}
+
+
+#[derive(Serialize, Deserialize)]
+pub struct NotableSetting {
+    pub room_id: RoomId,
+    pub notable_id: NotableId,
+    pub room_name: String,
+    pub notable_name: String,
+    pub enabled: bool,
 }
 
 #[derive(Serialize, Deserialize)]

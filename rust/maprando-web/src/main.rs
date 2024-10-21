@@ -17,7 +17,7 @@ use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::{NotableSetting, Preset, TechSetting},
+    preset::{NotableData, Preset, TechData},
     seed_repository::SeedRepository,
 };
 use maprando_game::{GameData, NotableId, RoomId, TechId};
@@ -30,8 +30,8 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
     let mut out: Vec<PresetData> = Vec::new();
     let mut cumulative_tech: HashSet<TechId> = HashSet::new();
     let mut cumulative_strats: HashSet<(RoomId, NotableId)> = HashSet::new();
-    let mut tech_setting_map: HashMap<TechId, TechSetting> = HashMap::new();
-    let mut notable_setting_map: HashMap<(RoomId, NotableId), NotableSetting> = HashMap::new();
+    let mut tech_setting_map: HashMap<TechId, TechData> = HashMap::new();
+    let mut notable_setting_map: HashMap<(RoomId, NotableId), NotableData> = HashMap::new();
 
     for preset in &presets {
         for tech_setting in &preset.tech {
@@ -60,7 +60,7 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
             }
             cumulative_tech.insert(tech_id);
         }
-        let mut tech_setting_vec: Vec<(TechSetting, bool)> = Vec::new();
+        let mut tech_setting_vec: Vec<(TechData, bool)> = Vec::new();
         for tech_idx in 0..game_data.tech_isv.keys.len() {
             let tech_id = game_data.tech_isv.keys[tech_idx];
             if let Some(tech_setting) = tech_setting_map.get(&tech_id) {
@@ -81,7 +81,7 @@ fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
             }
             cumulative_strats.insert((notable_setting.room_id, notable_setting.notable_id));
         }
-        let mut notable_setting_vec: Vec<(NotableSetting, bool)> = Vec::new();
+        let mut notable_setting_vec: Vec<(NotableData, bool)> = Vec::new();
         for notable_idx in 0..game_data.notable_isv.keys.len() {
             let notable_data = &game_data.notable_data[notable_idx];
             let room_id = notable_data.room_id;

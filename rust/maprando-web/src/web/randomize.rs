@@ -142,9 +142,9 @@ async fn randomize(
         // Include implicit tech (which is in the first preset):
         tech_vec.push(tech.tech_id);
     }
-    for &(tech_id, is_enabled) in skill_settings.tech_settings.iter() {
-        if is_enabled {
-            tech_vec.push(tech_id);
+    for tech_setting in skill_settings.tech_settings.iter() {
+        if tech_setting.enabled {
+            tech_vec.push(tech_setting.id);
         }
     }
 
@@ -158,9 +158,9 @@ async fn randomize(
         // Include implicit notables (which are in the first preset):
         notable_vec.push((notable.room_id, notable.notable_id));
     }
-    for &(room_id, notable_id, is_enabled) in skill_settings.notable_settings.iter() {
-        if is_enabled {
-            notable_vec.push((room_id, notable_id));
+    for notable_setting in skill_settings.notable_settings.iter() {
+        if notable_setting.enabled {
+            notable_vec.push((notable_setting.room_id, notable_setting.notable_id));
         }
     }
 

@@ -134,11 +134,11 @@ function buildSettingsObject() {
             "filler_items": buildFillerItems(),
         },
         "quality_of_life_settings": {
-            "preset": formData.get("preset"),
+            "preset": formData.get("quality_of_life_preset"),
             "item_markers": formData.get("item_markers"),
             "mark_map_stations": formData.get("mark_map_stations") == "true",
-            "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
+            "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
             "mother_brain_fight": formData.get("mother_brain_fight"),
             "supers_double": formData.get("supers_double") == "true",
             "escape_movement_items": formData.get("escape_movement_items") == "true",
@@ -186,7 +186,11 @@ function buildTechArray() {
         let parts = x.name.split("-");
         let techId = parseInt(parts[1]);
         let enabled = x.checked;
-        techSelection.push([techId, enabled]);
+        techSelection.push({
+            "id": techId,
+            "name": x.getAttribute("data-tech-name"),
+            "enabled": enabled,
+        });
     });
     return techSelection;
 }
@@ -199,7 +203,13 @@ function buildNotableArray() {
         let roomId = parseInt(parts[1]);
         let notableId = parseInt(parts[2]);
         let enabled = x.checked;
-        notableSelection.push([roomId, notableId, enabled]);
+        notableSelection.push({
+            "room_id": roomId,
+            "notable_id": notableId,
+            "room_name": x.getAttribute("data-room-name"),
+            "notable_name": x.getAttribute("data-notable-name"),
+            "enabled": enabled
+        });
     });
     return notableSelection;
 }
