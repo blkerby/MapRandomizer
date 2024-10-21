@@ -182,7 +182,9 @@ pub fn get_random_seed() -> usize {
     (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
 }
 
-pub fn get_item_priorities(item_priorities: &HashMap<Item, KeyItemPriority>) -> Vec<ItemPriorityGroup> {
+pub fn get_item_priorities(
+    item_priorities: &HashMap<Item, KeyItemPriority>,
+) -> Vec<ItemPriorityGroup> {
     let mut priorities: IndexedVec<KeyItemPriority> = IndexedVec::default();
     priorities.add(&KeyItemPriority::Early);
     priorities.add(&KeyItemPriority::Default);

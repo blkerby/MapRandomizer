@@ -44,7 +44,6 @@ pub struct TechSetting {
     pub enabled: bool,
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct NotableSetting {
     pub room_id: RoomId,

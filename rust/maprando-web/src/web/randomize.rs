@@ -208,8 +208,16 @@ async fn randomize(
         random_tank: item_settings.random_tank,
         spazer_before_plasma: item_settings.spazer_before_plasma,
         stop_item_placement_early: item_settings.stop_item_placement_early,
-        item_pool: item_settings.item_pool.iter().map(|(&x, &y)| (x, y)).collect(),
-        starting_items: item_settings.starting_items.iter().map(|(&x, &y)| (x, y)).collect(),
+        item_pool: item_settings
+            .item_pool
+            .iter()
+            .map(|(&x, &y)| (x, y))
+            .collect(),
+        starting_items: item_settings
+            .starting_items
+            .iter()
+            .map(|(&x, &y)| (x, y))
+            .collect(),
         filler_items,
         semi_filler_items,
         early_filler_items,
