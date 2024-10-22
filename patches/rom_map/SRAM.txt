@@ -10,6 +10,13 @@
 1E1C-1E1E: Resets counter
 1E1E-1E22: Final time
 1E22-1E26: Pause time
+1E26-1E2A: Area 0 time
+1E2A-1E2E: Area 1 time
+1E2E-1E32: Area 2 time
+1E32-1E36: Area 3 time
+1E36-1E3A: Area 4 time
+1E3A-1E3E: Area 5 time
+1E3E-1E42: Area 6 time (pre-game)
 1FE0-2000: Save slot selection, etc.
 ---------- expanded SRAM: ----------
 2000-2600: Map revealed bits (map_progress_maintain.asm)
