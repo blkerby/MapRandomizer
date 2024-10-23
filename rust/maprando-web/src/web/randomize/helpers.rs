@@ -3,13 +3,12 @@ use crate::web::{AppData, PresetData, VersionInfo};
 use actix_web::HttpRequest;
 use anyhow::{bail, Result};
 use askama::Template;
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 use maprando::{
     patch::{ips_write::create_ips_patch, Rom},
-    randomize::{
-        DifficultyConfig, DoorLocksSize, EtankRefill, ItemPriorityGroup, Randomization, WallJump,
-    },
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
     seed_repository::{Seed, SeedFile},
+    settings::{DoorLocksSize, ETankRefill, KeyItemPriority, WallJump},
     spoiler_map,
 };
 use maprando_game::{Capacity, IndexedVec, Item, NotableId, RoomId, TechId};
@@ -142,21 +141,21 @@ impl<'a> SeedHeaderTemplate<'a> {
             _ => {}
         }
         match self.difficulty.etank_refill {
-            EtankRefill::Disabled => {
+            ETankRefill::Disabled => {
                 game_variations.push("E-Tank refill disabled");
             }
-            EtankRefill::Full => {
+            ETankRefill::Full => {
                 game_variations.push("E-Tanks refill reserves");
             }
             _ => {}
         }
-        if self.difficulty.maps_revealed == maprando::randomize::MapsRevealed::Partial {
+        if self.difficulty.maps_revealed == maprando::settings::MapsRevealed::Partial {
             game_variations.push("Maps partially revealed from start");
         }
-        if self.difficulty.maps_revealed == maprando::randomize::MapsRevealed::Full {
+        if self.difficulty.maps_revealed == maprando::settings::MapsRevealed::Full {
             game_variations.push("Maps revealed from start");
         }
-        if self.difficulty.map_station_reveal == maprando::randomize::MapStationReveal::Partial {
+        if self.difficulty.map_station_reveal == maprando::settings::MapStationReveal::Partial {
             game_variations.push("Map stations give partial reveal");
         }
 
@@ -183,22 +182,24 @@ pub fn get_random_seed() -> usize {
     (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
 }
 
-pub fn get_item_priorities(item_priority_json: serde_json::Value) -> Vec<ItemPriorityGroup> {
-    let mut priorities: IndexedVec<String> = IndexedVec::default();
-    priorities.add("Early");
-    priorities.add("Default");
-    priorities.add("Late");
+pub fn get_item_priorities(
+    item_priorities: &HashMap<Item, KeyItemPriority>,
+) -> Vec<ItemPriorityGroup> {
+    let mut priorities: IndexedVec<KeyItemPriority> = IndexedVec::default();
+    priorities.add(&KeyItemPriority::Early);
+    priorities.add(&KeyItemPriority::Default);
+    priorities.add(&KeyItemPriority::Late);
 
     let mut out: Vec<ItemPriorityGroup> = Vec::new();
-    for priority in &priorities.keys {
+    for &priority in &priorities.keys {
         out.push(ItemPriorityGroup {
-            name: priority.clone(),
+            priority,
             items: vec![],
         });
     }
-    for (k, v) in item_priority_json.as_object().unwrap() {
-        let i = priorities.index_by_key[v.as_str().unwrap()];
-        out[i].items.push(k.to_string());
+    for (k, v) in item_priorities {
+        let i = priorities.index_by_key[v];
+        out[i].items.push(format!("{:?}", k));
     }
     out
 }
@@ -339,7 +340,7 @@ pub fn get_difficulty_tiers(
             skill_assumptions_preset: difficulty.skill_assumptions_preset.clone(),
             item_progression_preset: difficulty.item_progression_preset.clone(),
             quality_of_life_preset: difficulty.quality_of_life_preset.clone(),
-            debug_options: difficulty.debug_options.clone(),
+            debug: difficulty.debug,
         };
         if is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
             out.pop();

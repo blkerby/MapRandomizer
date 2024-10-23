@@ -30,12 +30,32 @@
                 "true": "Full",
                 "Yes": "Full"
             },
+            "door_locks_size": {
+                "small": "Small",
+                "large": "Large",
+            },
             "music": {
                 "vanilla": "area"
             },
             "samus_sprite": {
                 "samus": "samus_vanilla"
-            }
+            },
+            "random_tank": {
+                "Yes": "true",
+                "No": "false"
+            },
+            "spazer_before_plasma": {
+                "Yes": "true",
+                "No": "false"
+            },
+            "race_mode": {
+                "Yes": "true",
+                "No": "false"
+            },
+            "stop_item_placement_early":  {
+                "Yes": "true",
+                "No": "false"
+            },
         };
         if (migrationMapping[name] !== undefined) {
             var newValue = migrationMapping[name][value];

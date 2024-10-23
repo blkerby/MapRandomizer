@@ -1,6 +1,10 @@
 v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
+- DONE: clean JSON API for /randomize
+- use RandomizerSettings in maprando-cli and maprando-test
+- simplify SeedData
+- simplify DifficultyConfig
 - save/load presets
 - built-in presets: default, and season 2 racing
 

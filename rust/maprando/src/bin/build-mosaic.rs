@@ -1319,6 +1319,7 @@ fn main() -> Result<()> {
         "WestMaridia",
         "YellowMaridia",
         "MechaTourian",
+        "MetroidHabitat",
         "Outline",
     ]
     .into_iter()

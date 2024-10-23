@@ -1,6 +1,11 @@
 pub mod escape_timer;
 mod run_speed;
 
+use crate::settings::{
+    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
+    MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
+};
 use crate::traverse::{
     apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
     get_spoiler_route, traverse, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
@@ -39,46 +44,6 @@ use self::escape_timer::SpoilerEscape;
 // placed as quickly as possible. This helps prevent generation failures particularly on lower
 // difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ProgressionRate {
-    Slow,
-    Uniform,
-    Fast,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ItemPlacementStyle {
-    Neutral,
-    Forced,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ItemPriorityStrength {
-    Moderate,
-    Heavy,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum DoorLocksSize {
-    Small,
-    Large,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ItemMarkers {
-    Simple,
-    Majors,
-    Uniques,
-    ThreeTiered,
-    FourTiered,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ItemDotChange {
-    Fade,
-    Disappear,
-}
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum Objective {
@@ -154,75 +119,9 @@ impl Objective {
     }
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum DoorsMode {
-    Blue,
-    Ammo,
-    Beam,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum StartLocationMode {
-    Ship,
-    Random,
-    Escape,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum AreaAssignment {
-    Standard,
-    Random,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum WallJump {
-    Vanilla,
-    Collectible,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum EtankRefill {
-    Disabled,
-    Vanilla,
-    Full,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum MapsRevealed {
-    No,
-    Partial,
-    Full,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum MapStationReveal {
-    Partial,
-    Full,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum SaveAnimals {
-    No,
-    Maybe,
-    Yes,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum MotherBrainFight {
-    Vanilla,
-    Short,
-    Skip,
-}
-
-#[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
-pub struct DebugOptions {
-    pub new_game_extra: bool,
-    pub extended_spoiler: bool,
-}
-
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct ItemPriorityGroup {
-    pub name: String,
+    pub priority: KeyItemPriority,
     pub items: Vec<String>,
 }
 
@@ -287,7 +186,7 @@ pub struct DifficultyConfig {
     pub early_save: bool,
     pub area_assignment: AreaAssignment,
     pub wall_jump: WallJump,
-    pub etank_refill: EtankRefill,
+    pub etank_refill: ETankRefill,
     pub maps_revealed: MapsRevealed,
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
@@ -297,9 +196,8 @@ pub struct DifficultyConfig {
     pub skill_assumptions_preset: Option<String>,
     pub item_progression_preset: Option<String>,
     pub quality_of_life_preset: Option<String>,
-    // Debug:
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub debug_options: Option<DebugOptions>,
+    // Other:
+    pub debug: bool,
 }
 
 // Includes preprocessing specific to the map:

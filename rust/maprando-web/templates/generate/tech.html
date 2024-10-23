@@ -61,7 +61,7 @@
                                         <div class="col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
                                             <input type="radio" class="btn-check" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-No" value="false" checked=true>
                                             <label class="btn btn-outline-primary m-0 p-1" for="tech-{{ tech_id }}-No">No</label>
-                                            <input type="radio" class="btn-check tech-input tier-input-{{ name_no_space }}" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-Yes" value="true">
+                                            <input type="radio" class="btn-check tech-input tier-input-{{ name_no_space }}" name="tech-{{ tech_id }}" id="tech-{{ tech_id }}-Yes" value="true" data-tech-name="{{ tech_name }}">
                                             <label class="btn btn-outline-primary m-0 p-1" for="tech-{{ tech_id }}-Yes">Yes</label>
                                         </div>
                                     </div>
@@ -129,7 +129,7 @@
                                         <div class="col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
                                             <input type="radio" class="btn-check" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-No" value="false" checked=true>
                                             <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-No">No</label>
-                                            <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-Yes" value="true">
+                                            <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-Yes" value="true" data-room-name="{{ room_name }}" data-notable-name="{{ notable_name }}">
                                             <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-Yes">Yes</label>
                                         </div>
                                     </div>

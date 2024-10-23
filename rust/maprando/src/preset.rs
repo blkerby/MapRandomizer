@@ -8,14 +8,14 @@ use serde::{Deserialize, Serialize};
 // }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct TechSetting {
+pub struct TechData {
     pub tech_id: TechId,
     pub name: String,
     pub video_id: Option<usize>,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct NotableSetting {
+pub struct NotableData {
     pub room_id: usize,
     pub notable_id: usize,
     pub room_name: String,
@@ -39,6 +39,6 @@ pub struct Preset {
     pub ridley_proficiency: f32,
     pub botwoon_proficiency: f32,
     pub mother_brain_proficiency: f32,
-    pub tech: Vec<TechSetting>,
-    pub notables: Vec<NotableSetting>,
+    pub tech: Vec<TechData>,
+    pub notables: Vec<NotableData>,
 }
