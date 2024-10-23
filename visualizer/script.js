@@ -307,9 +307,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 	let el = document.getElementById("room-info");
 
-	let dragged = false, dragging = false;
+	let dragged = false;
 	var scale = 1, page_x = 0, page_y = 0;
 	let m = document.getElementById("map");
+	let evCache = [];
+	let odist = -1;
 	function transfo() {
 		document.getElementById("zoom").style.transform =
 		`translate(${page_x}px, ${page_y}px) scale(${scale})`;
@@ -368,80 +370,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			window.open("/logic/room/" + el.dataset.roomId);
 		}
 	}
-	let ox = 0, oy = 0;
-	document.body.onpointerdown = ev => {
-		ev.preventDefault();
-		dragging = true;
-		dragged = false;
-		ox = ev.x;
-		oy = ev.y;
-	}
-	let fclick = true, timer = null;
-
-	m.onpointerup = ev => {
-		ev.preventDefault();
-		dragging = false;
-		dragged = false;
-		if (dragged && ev.pointerType == "mouse")
-			el.classList.add("hidden");
-		else
-		{
-			if (fclick) {
-				click();
-				timer = setTimeout(function (){
-					fclick = true;
-				}, 500);
-				fclick = false;
-				if (ev.pointerType != "mouse")
-					hover(ev);
-			} else {
-				fclick = true;
-				if (timer)
-					clearTimeout(timer);
-				let oldroom = el.innerText;
-				hover(ev);
-				if (oldroom == el.innerText)
-					dblclick();
-			}
-		}
-	}
-
-	document.body.onpointerup = ev => {
-		ev.preventDefault();
-		dragging = false;
-		dragged = false;
-	}
-	document.body.onpointerleave = ev => {
-		ev.preventDefault();
-		dragging = false;
-		dragged = false;
-		if (ev.pointerType == "mouse")
-			el.classList.add("hidden");
-	}
-	document.body.onpointermove = ev => {
-		ev.preventDefault();
-		if (dragging) {
-			dragged = true;
-			page_x += ev.x - ox;
-			page_y += ev.y - oy;
-			transfo();
-		} else {
-			// mouse only.
-			hover(ev);
-		}
-		ox = ev.x;
-		oy = ev.y;
-	}
-
-	m.onwheel = ev => {
+	function zm(x, y, delta) {
 		const scaleOld = scale;
 		var z = document.getElementById("zoom");
 
-		scale *= 1.0 - ev.deltaY * 0.0005;
+		scale *= 1.0 - delta * 0.0005;
 		scale = Math.min(Math.max(0.25, scale), 100);
 
-		var xorg = ev.x - page_x - z.offsetWidth/2;
-		var yorg = ev.y - page_y - z.offsetHeight/2;
+		var xorg = x - page_x - z.offsetWidth/2;
+		var yorg = y - page_y - z.offsetHeight/2;
 
 		var xnew = xorg / scaleOld;
 		var ynew = yorg / scaleOld;
@@ -456,6 +393,92 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		page_y += ydiff;
 
 		transfo();
+	}
+	function up(ev) {
+		ev.preventDefault();
+		if ((zoomed || dragged) && ev.pointerType == "mouse")
+			el.classList.add("hidden");
+		
+		evCache.splice(evCache.findIndex((cached) => cached.pointerID == ev.pointerID), 1)
+		if (evCache.length == 0) {
+			zoomed = false;
+			dragged = false;
+		}
+	}
+	document.body.onpointerdown = ev => {
+		if (ev.button != 0)
+			return;
+
+		ev.preventDefault();
+		evCache.push(ev);
+		dragged = false;
+		zoomed = false;
+		if (evCache.length == 2) {
+			let dx = Math.abs(evCache[0].x-evCache[1].x);
+			let dy = Math.abs(evCache[0].y-evCache[1].y);
+			odist = Math.sqrt(dx**2+dy**2);
+		}
+	}
+	let fclick = true, timer = null;
+	m.onpointerup = ev => {
+		if (ev.button != 0)
+			return;
+		up(ev);
+
+		if (evCache.length == 0) {
+			
+			if (fclick) {
+				click();
+				timer = setTimeout(function (){
+					fclick = true;
+				}, 500);
+				fclick = false;
+				if (ev.pointerType != "mouse")
+					hover(ev);
+			} else {	
+				fclick = true;
+				if (timer)
+					clearTimeout(timer);
+				let oldroom = el.innerText;
+				hover(ev);
+				if (oldroom == el.innerText)
+					dblclick();
+			}
+		}
+	}
+	document.body.onpointerup = ev => {
+		if (ev.button != 0)
+			return;
+		up(ev);
+	}
+	document.body.onpointerleave = ev => {
+		up(ev);
+	}
+	document.body.onpointermove = ev => {
+		ev.preventDefault();
+		if (evCache.length == 2) {
+			zoomed = true;
+			var dx = Math.abs(evCache[0].x - evCache[1].x);
+			var dy = Math.abs(evCache[0].y - evCache[1].y);
+			var dist = Math.sqrt(dx**2 + dy**2);
+			var delta = odist-dist;
+			let i = evCache.findIndex((e) => e.pointerId == ev.pointerId);
+			evCache[i] = ev;
+			zm((evCache[0].x+evCache[1].x)/2, (evCache[0].y+evCache[1].y)/2,delta);
+			odist = dist;
+		} else if (evCache.length == 1  && !zoomed) {
+			dragged = true;
+			page_x += ev.x - evCache[0].x;
+			page_y += ev.y - evCache[0].y;
+			evCache[0] = ev;
+			transfo();
+		} else if (evCache.length == 0) {
+			// mouse only.
+			hover(ev);
+		}
+	}
+	m.onwheel = ev => {
+		zm(ev.x, ev.y, ev.deltaY);
 	}
 	let createDiv = (html) => {
 		const div = document.createElement('div');
