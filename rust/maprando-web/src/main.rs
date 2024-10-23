@@ -183,6 +183,7 @@ fn build_app_data() -> AppData {
         ("WestMaridia", "West Maridia"),
         ("YellowMaridia", "Yellow Maridia"),
         ("MechaTourian", "Mecha Tourian"),
+        ("MetroidHabitat", "Metroid Habitat"),
     ]
     .into_iter()
     .map(|(x, y)| MosaicTheme {

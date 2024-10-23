@@ -59,7 +59,7 @@ pub fn apply_retiling(
         ((3, 1), "WreckedShip"),
         ((4, 0), "WestMaridia"),
         ((4, 1), "YellowMaridia"),
-        ((5, 0), "MechaTourian"),
+        ((5, 0), "MetroidHabitat"),
         ((5, 1), "MechaTourian"),
     ]
     .into_iter()
