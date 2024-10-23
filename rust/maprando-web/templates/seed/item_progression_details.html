@@ -8,7 +8,7 @@
 </div>
 <div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Item priority strength:</div>
-    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% let difficulty = difficulty %}{{+ format!("{:?}", difficulty.item_priority_strength) }}</div>
+    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% let difficulty = difficulty %}{{+ format!("{:?}", settings.item_progression_settings.item_priority_strength) }}</div>
 </div>
 <div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Random tank priority:</div>
@@ -16,9 +16,9 @@
 </div>
 <div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Spazer before Plasma:</div>
-    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% if difficulty.spazer_before_plasma %}Yes{% else %}No{% endif %}</div>
+    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% if settings.item_progression_settings.spazer_before_plasma %}Yes{% else %}No{% endif %}</div>
 </div>
-{% if difficulty.item_pool.len() > 0 %}
+{% if settings.item_progression_settings.item_pool.len() > 0 %}
 <div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Item pool:</div>
     <div class="col-6 col-sm-7 col-md-8 col-lg-9">
@@ -28,12 +28,12 @@
 {% endif %}
 <div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Stop item placement early:</div>
-    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% if difficulty.stop_item_placement_early %}Yes{% else %}No{% endif %}</div>
+    <div class="col-6 col-sm-7 col-md-8 col-lg-9">{% if settings.item_progression_settings.stop_item_placement_early %}Yes{% else %}No{% endif %}</div>
 </div>
 <div class="row">
     <div class="col-6 col-sm-5 col-md-4 col-lg-3">Starting items:</div>
     <div class="col-6 col-sm-7 col-md-8 col-lg-9">
-        {% if difficulty.starting_items.len() == 0 %}
+        {% if settings.item_progression_settings.starting_items.len() == 0 %}
             None
         {% else %}
             {{+ self.starting_items_strs() }}
@@ -41,7 +41,7 @@
     </div>
 </div>
 
-{% for group in difficulty.item_priorities %}
+{% for group in item_priority_groups %}
     {% if group.items.len() > 0 %}
         <div class="row">
             <div class="col-6 col-sm-5 col-md-4 col-lg-3">{{+ format!("{:?}", group.priority) +}} key item priority:</div>

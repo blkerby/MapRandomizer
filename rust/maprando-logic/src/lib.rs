@@ -17,8 +17,6 @@ pub struct Inventory {
 // TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
 #[derive(Clone, Debug)]
 pub struct GlobalState {
-    pub tech: Vec<bool>,
-    pub notables: Vec<bool>,
     pub inventory: Inventory,
     pub flags: Vec<bool>,
     pub doors_unlocked: Vec<bool>,

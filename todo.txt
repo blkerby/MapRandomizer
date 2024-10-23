@@ -3,6 +3,8 @@ v115:
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
 - use RandomizerSettings in maprando-cli and maprando-test
+- set up script to automate syncing logic changes
+  - update skill assumption presets and full-settings presets
 - simplify SeedData
 - simplify DifficultyConfig
 - save/load presets

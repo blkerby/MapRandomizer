@@ -49,7 +49,6 @@ pub const TECH_ID_CAN_BOMB_HORIZONTALLY: TechId = 87;
 pub const TECH_ID_CAN_MOONDANCE: TechId = 26;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
-pub const TECH_ID_CAN_ESCAPE_MORPH_LOCATION: TechId = 10002;
 
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Map {
@@ -291,6 +290,7 @@ pub enum Requirement {
         requirement_yellow: Box<Requirement>,
         requirement_charge: Box<Requirement>,
     },
+    EscapeMorphLocation,
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -1195,13 +1195,6 @@ impl GameData {
                 "This is based on a randomizer patch applied on all settings (as in the vanilla game it isn't possible to open green gates using Hyper Beam.)"
             ]
         })?;
-        full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Movement").unwrap()["techs"].push(json::object!{
-            "id": 10002,
-            "name": "canEscapeMorphLocation",
-            "techRequires": [],
-            "otherRequires": [],
-            "devNote": "A special internal tech that is auto-enabled when using vanilla map, to ensure there is at least one bireachable item."
-        })?;
         Self::override_can_awaken_zebes_tech_note(&mut full_tech_json)?;
         for tech_category in full_tech_json["techCategories"].members_mut() {
             ensure!(tech_category["techs"].is_array());
@@ -1746,6 +1739,8 @@ impl GameData {
                 return Ok(Requirement::MainHallElevatorFrames);
             } else if value == "i_ShinesparksCostEnergy" {
                 return Ok(Requirement::ShinesparksCostEnergy);
+            } else if value == "i_canEscapeMorphLocation" {
+                return Ok(Requirement::EscapeMorphLocation);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {
@@ -2324,7 +2319,7 @@ impl GameData {
                 json::array![{
                     "or": [
                         "canCarefulJump",
-                        "canEscapeMorphLocation",
+                        "i_canEscapeMorphLocation",
                     ]
                 }],
             )

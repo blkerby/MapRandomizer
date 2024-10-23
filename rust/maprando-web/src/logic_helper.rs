@@ -4,11 +4,11 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use log::warn;
 use maprando::{
-    randomize::DifficultyConfig,
+    preset::{self, PresetData},
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    Capacity, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx,
+    ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx,
     Requirement, RoomId, StratId, StratVideo, TechId, VertexAction, VertexKey,
     TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_ENEMY_STUCK_MOONFALL,
     TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT,
@@ -19,7 +19,7 @@ use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
 use urlencoding;
 
-use super::{PresetData, VersionInfo};
+use super::VersionInfo;
 
 #[derive(Clone)]
 struct RoomStrat {
@@ -224,8 +224,8 @@ fn extract_notable_rec(
 fn make_tech_templates<'a>(
     game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
-    presets: &[PresetData],
-    global_states: &[GlobalState],
+    preset_data: &PresetData,
+    global: &GlobalState,
     area_order: &[String],
     video_storage_url: &str,
     version_info: &VersionInfo,
@@ -315,19 +315,15 @@ fn make_tech_templates<'a>(
             .collect();
         let tech_dependencies = tech_dependency_names.join(", ");
         let mut strats: Vec<RoomStrat> = vec![];
-        let mut difficulty_idx = global_states.len();
+        let mut difficulty_idx = preset_data.difficulty_tiers.len() - 1;
 
-        for (i, global) in global_states.iter().enumerate() {
-            if global.tech[tech_idx] {
+        for (i, difficulty) in preset_data.difficulty_tiers.iter().enumerate() {
+            if difficulty.tech[tech_idx] {
                 difficulty_idx = i;
                 break;
             }
         }
-        let difficulty_name = if difficulty_idx == global_states.len() {
-            "Ignored".to_string()
-        } else {
-            presets[difficulty_idx].preset.name.clone()
-        };
+        let difficulty_name = preset_data.difficulty_tiers[difficulty_idx].name.clone();
 
         for strat_ids in tech_ids {
             if room_strat_map.contains_key(strat_ids) {
@@ -343,7 +339,11 @@ fn make_tech_templates<'a>(
                 s.strat_name.clone(),
             )
         });
-        let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+        let difficulty_names: Vec<String> = preset_data
+            .difficulty_tiers
+            .iter()
+            .map(|x| x.name.clone())
+            .collect();
         let template = TechTemplate {
             version_info: version_info.clone(),
             difficulty_names,
@@ -358,7 +358,7 @@ fn make_tech_templates<'a>(
             tech_difficulty_name: difficulty_name,
             strats,
             strat_videos: &game_data.strat_videos,
-            tech_video_id: presets.last().unwrap().tech_setting[tech_idx].0.video_id,
+            tech_video_id: preset_data.tech_data_map[&tech_id].video_id,
             video_storage_url: video_storage_url.to_string(),
         };
         tech_templates.push(template);
@@ -369,8 +369,8 @@ fn make_tech_templates<'a>(
 fn make_notable_templates<'a>(
     game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
-    presets: &[PresetData],
-    global_states: &[GlobalState],
+    preset_data: &PresetData,
+    global: &GlobalState,
     area_order: &[String],
     video_storage_url: &str,
     version_info: &VersionInfo,
@@ -417,19 +417,15 @@ fn make_notable_templates<'a>(
         let notable_name = game_data.notable_data[notable_idx].name.clone();
         let notable_note = game_data.notable_data[notable_idx].note.clone();
         let mut strats: Vec<RoomStrat> = vec![];
-        let mut difficulty_idx = global_states.len();
+        let mut difficulty_idx = preset_data.difficulty_tiers.len() - 1;
 
-        for (i, global) in global_states.iter().enumerate() {
-            if global.notables[notable_idx] {
+        for (i, difficulty) in preset_data.difficulty_tiers.iter().enumerate() {
+            if difficulty.notables[notable_idx] {
                 difficulty_idx = i;
                 break;
             }
         }
-        let difficulty_name = if difficulty_idx == global_states.len() {
-            "Ignored".to_string()
-        } else {
-            presets[difficulty_idx].preset.name.clone()
-        };
+        let difficulty_name = preset_data.difficulty_tiers[difficulty_idx].name.clone();
 
         for ids in ids_set {
             if room_strat_map.contains_key(ids) {
@@ -445,7 +441,11 @@ fn make_notable_templates<'a>(
                 s.strat_name.clone(),
             )
         });
-        let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+        let difficulty_names: Vec<String> = preset_data
+            .difficulty_tiers
+            .iter()
+            .map(|x| x.name.clone())
+            .collect();
         let template = NotableTemplate {
             version_info: version_info.clone(),
             difficulty_names,
@@ -461,99 +461,12 @@ fn make_notable_templates<'a>(
             notable_difficulty_name: difficulty_name,
             strats,
             strat_videos: &game_data.strat_videos,
-            notable_video_id: presets.last().unwrap().notable_setting[notable_idx]
-                .0
-                .video_id,
+            notable_video_id: preset_data.notable_data_map[&(room_id, notable_id)].video_id,
             video_storage_url: video_storage_url.to_string(),
         };
         notable_templates.push(template);
     }
     notable_templates
-}
-
-fn get_difficulty_config(preset: &PresetData, _game_data: &GameData) -> DifficultyConfig {
-    let mut tech_vec: Vec<TechId> = vec![];
-    for (tech_setting, enabled) in &preset.tech_setting {
-        if *enabled {
-            tech_vec.push(tech_setting.tech_id);
-        }
-    }
-    let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
-    for (notable_setting, enabled) in preset.notable_setting.iter() {
-        if *enabled {
-            notable_vec.push((notable_setting.room_id, notable_setting.notable_id));
-        }
-    }
-    // It's annoying how much irrelevant stuff we have to fill in here. TODO: restructure to make things cleaner
-    DifficultyConfig {
-        name: None,
-        tech: tech_vec,
-        notables: notable_vec,
-        shine_charge_tiles: preset.preset.shinespark_tiles as f32,
-        heated_shine_charge_tiles: preset.preset.heated_shinespark_tiles as f32,
-        speed_ball_tiles: preset.preset.speed_ball_tiles as f32,
-        shinecharge_leniency_frames: preset.preset.shinecharge_leniency_frames as Capacity,
-        progression_rate: maprando::settings::ProgressionRate::Fast,
-        random_tank: true,
-        spazer_before_plasma: true,
-        stop_item_placement_early: false,
-        item_pool: vec![],
-        starting_items: vec![],
-        item_placement_style: maprando::settings::ItemPlacementStyle::Forced,
-        item_priority_strength: maprando::settings::ItemPriorityStrength::Moderate,
-        item_priorities: vec![],
-        filler_items: vec![],
-        semi_filler_items: vec![],
-        early_filler_items: vec![],
-        resource_multiplier: preset.preset.resource_multiplier,
-        escape_timer_multiplier: preset.preset.escape_timer_multiplier,
-        gate_glitch_leniency: preset.preset.gate_glitch_leniency as Capacity,
-        door_stuck_leniency: preset.preset.door_stuck_leniency as Capacity,
-        phantoon_proficiency: preset.preset.phantoon_proficiency,
-        draygon_proficiency: preset.preset.draygon_proficiency,
-        ridley_proficiency: preset.preset.ridley_proficiency,
-        botwoon_proficiency: preset.preset.botwoon_proficiency,
-        mother_brain_proficiency: preset.preset.mother_brain_proficiency,
-        supers_double: true,
-        mother_brain_fight: maprando::settings::MotherBrainFight::Short,
-        escape_movement_items: true,
-        escape_refill: true,
-        escape_enemies_cleared: true,
-        mark_map_stations: true,
-        room_outline_revealed: true,
-        opposite_area_revealed: true,
-        transition_letters: false,
-        door_locks_size: maprando::settings::DoorLocksSize::Small,
-        item_markers: maprando::settings::ItemMarkers::ThreeTiered,
-        item_dot_change: maprando::settings::ItemDotChange::Fade,
-        all_items_spawn: true,
-        acid_chozo: true,
-        remove_climb_lava: true,
-        buffed_drops: true,
-        fast_elevators: true,
-        fast_doors: true,
-        fast_pause_menu: true,
-        respin: false,
-        infinite_space_jump: false,
-        momentum_conservation: false,
-        objectives: vec![],
-        doors_mode: maprando::settings::DoorsMode::Ammo,
-        save_animals: maprando::settings::SaveAnimals::No,
-        start_location_mode: maprando::settings::StartLocationMode::Ship,
-        early_save: false,
-        area_assignment: maprando::settings::AreaAssignment::Standard,
-        wall_jump: maprando::settings::WallJump::Vanilla,
-        etank_refill: maprando::settings::ETankRefill::Vanilla,
-        maps_revealed: maprando::settings::MapsRevealed::Full,
-        map_station_reveal: maprando::settings::MapStationReveal::Full,
-        vanilla_map: false,
-        ultra_low_qol: false,
-        energy_free_shinesparks: false,
-        skill_assumptions_preset: None,
-        item_progression_preset: None,
-        quality_of_life_preset: None,
-        debug: false,
-    }
 }
 
 fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
@@ -656,8 +569,8 @@ fn get_strat_difficulty(
     to_node_id: usize,
     strat_name: String,
     game_data: &GameData,
-    difficulty_configs: &[DifficultyConfig],
-    global_states: &[GlobalState],
+    preset_data: &PresetData,
+    global: &GlobalState,
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
 ) -> usize {
     let locked_door_data = LockedDoorData {
@@ -665,12 +578,11 @@ fn get_strat_difficulty(
         locked_door_node_map: HashMap::new(),
         locked_door_vertex_ids: vec![],
     };
-    for (i, difficulty) in difficulty_configs.iter().enumerate() {
+    for (i, difficulty) in preset_data.difficulty_tiers.iter().enumerate() {
         if i == 0 {
             // Skip the "Implicit" difficulty
             continue;
         }
-        let global = &global_states[i];
 
         let local = LocalState {
             energy_used: 0,
@@ -683,7 +595,7 @@ fn get_strat_difficulty(
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
         if !links_by_ids.contains_key(&key) {
-            return difficulty_configs.len();
+            return preset_data.difficulty_tiers.len() - 1;
         }
         for link in &links_by_ids[&key] {
             let extra_req = get_cross_room_reqs(link, game_data);
@@ -694,25 +606,26 @@ fn get_strat_difficulty(
                 &global,
                 local,
                 false,
+                &preset_data.default_preset,
                 difficulty,
                 game_data,
                 &locked_door_data,
+                &[],
             );
             if new_local.is_some() {
                 return i;
             }
         }
     }
-    difficulty_configs.len()
+    preset_data.difficulty_tiers.len() - 1
 }
 
 fn make_room_template<'a>(
     room_json: &JsonValue,
     room_diagram_listing: &HashMap<usize, String>,
     game_data: &'a GameData,
-    presets: &[PresetData],
-    difficulty_configs: &[DifficultyConfig],
-    global_states: &[GlobalState],
+    preset_data: &PresetData,
+    global: &GlobalState,
     links_by_ids: &HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>>,
     video_storage_url: &str,
     version_info: &VersionInfo,
@@ -757,14 +670,16 @@ fn make_room_template<'a>(
             to_node_id,
             strat_name,
             game_data,
-            difficulty_configs,
-            global_states,
+            preset_data,
+            global,
             links_by_ids,
         );
-        let difficulty_name = if difficulty_idx == difficulty_configs.len() {
+        let difficulty_name = if difficulty_idx == preset_data.difficulty_tiers.len() {
             "Ignored".to_string()
         } else {
-            presets[difficulty_idx].preset.name.clone()
+            preset_data.difficulty_tiers[difficulty_idx]
+                .name
+                .clone()
         };
         let clears_obstacles: Vec<String> = if strat_json.has_key("clearsObstacles") {
             strat_json["clearsObstacles"]
@@ -832,7 +747,11 @@ fn make_room_template<'a>(
         };
         room_strats.push(strat);
     }
-    let difficulty_names: Vec<String> = presets.iter().map(|x| x.preset.name.clone()).collect();
+    let difficulty_names: Vec<String> = preset_data
+        .difficulty_tiers
+        .iter()
+        .map(|x| x.name.clone())
+        .collect();
 
     RoomTemplate {
         version_info: version_info.clone(),
@@ -873,20 +792,13 @@ fn make_strat_template<'a>(
 impl LogicData {
     pub fn new(
         game_data: &GameData,
-        presets: &[PresetData],
+        preset_data: &PresetData,
         version_info: &VersionInfo,
         video_storage_url: &str,
     ) -> LogicData {
         let mut out = LogicData::default();
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
-        let mut difficulty_configs: Vec<DifficultyConfig> = presets
-            .iter()
-            .map(|p| get_difficulty_config(p, game_data))
-            .collect();
-
-        // Remove the "Ignored" difficulty tier: everything above Beyond will be labeled as "Ignored" already.
-        difficulty_configs.pop();
 
         let area_order: Vec<String> = vec![
             "Central Crateria",
@@ -913,39 +825,21 @@ impl LogicData {
         .map(|x| x.to_string())
         .collect();
 
-        let mut global_states: Vec<GlobalState> = vec![];
-        for difficulty in &difficulty_configs {
-            let items = vec![true; game_data.item_isv.keys.len()];
-            let weapon_mask = game_data.get_weapon_mask(&items);
-
-            let mut tech = vec![false; game_data.tech_isv.keys.len()];
-            for tech_name in &difficulty.tech {
-                tech[game_data.tech_isv.index_by_key[tech_name]] = true;
-            }
-
-            let mut notable_strats = vec![false; game_data.notable_isv.keys.len()];
-            for strat_name in &difficulty.notables {
-                notable_strats[game_data.notable_isv.index_by_key[strat_name]] = true;
-            }
-
-            let global = GlobalState {
-                tech,
-                notables: notable_strats,
-                inventory: Inventory {
-                    items: items,
-                    max_energy: 1499,
-                    max_reserves: 400,
-                    max_missiles: 230,
-                    max_supers: 50,
-                    max_power_bombs: 50,
-                },
-                flags: vec![true; game_data.flag_isv.keys.len()],
-                doors_unlocked: vec![],
-                weapon_mask: weapon_mask,
-            };
-
-            global_states.push(global);
-        }
+        let items = vec![true; game_data.item_isv.keys.len()];
+        let weapon_mask = game_data.get_weapon_mask(&items);
+        let global = GlobalState {
+            inventory: Inventory {
+                items: items,
+                max_energy: 1499,
+                max_reserves: 400,
+                max_missiles: 230,
+                max_supers: 50,
+                max_power_bombs: 50,
+            },
+            flags: vec![true; game_data.flag_isv.keys.len()],
+            doors_unlocked: vec![],
+            weapon_mask: weapon_mask,
+        };
 
         let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
         for link in game_data.all_links() {
@@ -976,9 +870,8 @@ impl LogicData {
                 room_json,
                 &room_diagram_listing,
                 &game_data,
-                presets,
-                &difficulty_configs,
-                &global_states,
+                preset_data,
+                &global,
                 &links_by_ids,
                 video_storage_url,
                 version_info,
@@ -1012,8 +905,8 @@ impl LogicData {
         let tech_templates = make_tech_templates(
             game_data,
             &room_templates,
-            presets,
-            &global_states,
+            preset_data,
+            &global,
             &area_order,
             video_storage_url,
             version_info,
@@ -1036,8 +929,8 @@ impl LogicData {
         let notable_templates = make_notable_templates(
             game_data,
             &room_templates,
-            presets,
-            &global_states,
+            preset_data,
+            &global,
             &area_order,
             video_storage_url,
             version_info,
@@ -1071,7 +964,11 @@ impl LogicData {
             tech: &tech_templates,
             _notables: &notable_templates,
             area_order: &area_order,
-            tech_difficulties: presets.iter().map(|x| x.preset.name.clone()).collect(),
+            tech_difficulties: preset_data
+                .skill_presets
+                .iter()
+                .map(|x| x.preset.clone().unwrap())
+                .collect(),
         };
         out.index_html = index_template.render().unwrap();
         out

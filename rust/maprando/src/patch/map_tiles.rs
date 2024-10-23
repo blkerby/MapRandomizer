@@ -700,7 +700,7 @@ impl<'a> MapPatcher<'a> {
                     Edge::YellowDoor => 6,
                     _ => panic!("Internal error"),
                 };
-                match self.randomization.difficulty.door_locks_size {
+                match self.randomization.settings.other_settings.door_locks_size {
                     DoorLocksSize::Small => {
                         set_wall_pixel(tile, 0, 3);
                         set_wall_pixel(tile, 1, 3);
@@ -748,7 +748,7 @@ impl<'a> MapPatcher<'a> {
                     Edge::PlasmaDoor => 14,
                     _ => panic!("Internal error"),
                 };
-                match self.randomization.difficulty.door_locks_size {
+                match self.randomization.settings.other_settings.door_locks_size {
                     DoorLocksSize::Small => {
                         set_wall_pixel(tile, 0, 3);
                         set_wall_pixel(tile, 1, 3);
@@ -1515,7 +1515,7 @@ impl<'a> MapPatcher<'a> {
             liquid_sublevel: 0,
         })?;
 
-        for i in self.randomization.difficulty.objectives.iter() {
+        for i in self.randomization.objectives.iter() {
             self.indicate_obj_tiles(i, boss_tile, heated_boss_tile)?;
         }
 
@@ -2464,7 +2464,7 @@ impl<'a> MapPatcher<'a> {
         let mut right_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
         let mut down_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
         let mut letter_tile_idxs: Vec<TilemapWord> = Vec::new();
-        if self.randomization.difficulty.transition_letters {
+        if self.randomization.settings.other_settings.transition_letters {
             for area in 0..NUM_AREAS {
                 let color_number = area_arrow_colors[area] as u8;
 
@@ -2497,7 +2497,7 @@ impl<'a> MapPatcher<'a> {
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             if src_area != dst_area {
-                if self.randomization.difficulty.transition_letters {
+                if self.randomization.settings.other_settings.transition_letters {
                     self.add_door_letter(
                         src_room_idx,
                         &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
@@ -2562,7 +2562,7 @@ impl<'a> MapPatcher<'a> {
         let revealed_addr = snes2pc(0xB5F000);
         let partially_revealed_addr = snes2pc(0xB5F800);
         let area_seen_addr = snes2pc(0xB5F600);
-        match self.randomization.difficulty.maps_revealed {
+        match self.randomization.settings.other_settings.maps_revealed {
             MapsRevealed::Full => {
                 self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?; // whole map revealed bits: true
                 self.rom
@@ -2592,7 +2592,7 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if self.randomization.difficulty.mark_map_stations {
+        if self.randomization.settings.quality_of_life_settings.mark_map_stations {
             for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
                 if !room.name.contains(" Map Room") {
                     continue;
@@ -2619,7 +2619,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn set_map_activation_behavior(&mut self) -> Result<()> {
-        match self.randomization.difficulty.map_station_reveal {
+        match self.randomization.settings.other_settings.map_station_reveal {
             MapStationReveal::Partial => {
                 self.rom.write_u16(snes2pc(0x90F700), 0xFFFF)?;
             }
@@ -2670,17 +2670,16 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_major_items(&mut self) -> Result<()> {
-        let markers = self.randomization.difficulty.item_markers;
+        let markers = self.randomization.settings.quality_of_life_settings.item_markers;
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
             if room_id == 19
                 && self
                     .randomization
-                    .difficulty
                     .objectives
                     .contains(&Objective::BombTorizo)
             {
-                // With Chozos objective, we don't draw item dot in Bomb Torizo Room since an objective X tile will be drawn instead.
+                // If BT is an objective, we don't draw item dot there since an objective X tile will be drawn instead.
                 continue;
             }
             let item_ptr = self.game_data.node_ptr_map[&(room_id, node_id)];
@@ -2756,10 +2755,10 @@ impl<'a> MapPatcher<'a> {
                 tile1 | 0x0C00,
                 interior,
             ));
-            if self.randomization.difficulty.ultra_low_qol {
+            if self.randomization.settings.other_settings.ultra_low_qol {
                 self.rom
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
-            } else if self.randomization.difficulty.item_dot_change == ItemDotChange::Fade {
+            } else if self.randomization.settings.other_settings.item_dot_change == ItemDotChange::Fade {
                 if interior == Interior::MajorItem
                     || (interior == Interior::MediumItem
                         && orig_basic_tile.interior != Interior::MajorItem)
@@ -3144,7 +3143,7 @@ impl<'a> MapPatcher<'a> {
         self.fix_elevators()?;
         self.fix_item_dots()?;
         self.fix_walls()?;
-        if !self.randomization.difficulty.ultra_low_qol {
+        if !self.randomization.settings.other_settings.ultra_low_qol {
             self.indicate_passages()?;
             self.indicate_doors()?;
             self.indicate_gray_doors()?;
@@ -3157,7 +3156,7 @@ impl<'a> MapPatcher<'a> {
             self.patch_room_basic("Tourian Map Room", vec![(0, 0, W, W, W, W, Interior::Item)])?;
         }
         self.indicate_objective_tiles()?;
-        if !self.randomization.difficulty.ultra_low_qol {
+        if !self.randomization.settings.other_settings.ultra_low_qol {
             self.indicate_liquid()?;
             self.indicate_locked_doors()?;
         }
