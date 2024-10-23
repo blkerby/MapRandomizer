@@ -1,43 +1,44 @@
 <script>
 function presetChanged() {
-    {% for p in preset_data %}
-        {% if p.preset.name == "Implicit" || p.preset.name == "Beyond" || p.preset.name == "Ignored" %}
+    {% for p in preset_data.skill_presets.iter() %}
+        {% let name = p.preset.as_ref().unwrap() %}
+        {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
             {% continue %}
         {% endif %}
-        {% let name_no_space = p.preset.name.replace(" ", "") %}
+        {% let name_no_space = name.replace(" ", "") %}
         if (document.getElementById("preset{{+ name_no_space }}").checked) {
-            document.getElementById("shinesparkTiles").value = {{+ p.preset.shinespark_tiles }};
-            document.getElementById("heatedShinesparkTiles").value = {{+ p.preset.heated_shinespark_tiles }};
-            document.getElementById("speedBallTiles").value = {{+ p.preset.speed_ball_tiles }};
-            document.getElementById("shinechargeLeniencyFrames").value = {{+ p.preset.shinecharge_leniency_frames }};
-            document.getElementById("resourceMultiplier").value = {{+ p.preset.resource_multiplier }};
-            document.getElementById("escapeTimerMultiplier").value = {{+ p.preset.escape_timer_multiplier }};
-            document.getElementById("gateGlitchLeniency").value = {{+ p.preset.gate_glitch_leniency }};
-            document.getElementById("doorStuckLeniency").value = {{+ p.preset.door_stuck_leniency }};
-            document.getElementById("phantoonProficiency").value = {{+ p.preset.phantoon_proficiency }};
-            document.getElementById("draygonProficiency").value = {{+ p.preset.draygon_proficiency }};
-            document.getElementById("ridleyProficiency").value = {{+ p.preset.ridley_proficiency }};
-            document.getElementById("botwoonProficiency").value = {{+ p.preset.botwoon_proficiency }};
-            document.getElementById("motherBrainProficiency").value = {{+ p.preset.botwoon_proficiency }};
-            {%+ for (tech_setting, is_enabled) in p.tech_setting %}
-                {% let tech_id = tech_setting.tech_id %}
-                {% if implicit_or_ignored_tech.contains(tech_setting.tech_id) %}
+            document.getElementById("shinesparkTiles").value = {{+ p.shinespark_tiles }};
+            document.getElementById("heatedShinesparkTiles").value = {{+ p.heated_shinespark_tiles }};
+            document.getElementById("speedBallTiles").value = {{+ p.speed_ball_tiles }};
+            document.getElementById("shinechargeLeniencyFrames").value = {{+ p.shinecharge_leniency_frames }};
+            document.getElementById("resourceMultiplier").value = {{+ p.resource_multiplier }};
+            document.getElementById("escapeTimerMultiplier").value = {{+ p.escape_timer_multiplier }};
+            document.getElementById("gateGlitchLeniency").value = {{+ p.gate_glitch_leniency }};
+            document.getElementById("doorStuckLeniency").value = {{+ p.door_stuck_leniency }};
+            document.getElementById("phantoonProficiency").value = {{+ p.phantoon_proficiency }};
+            document.getElementById("draygonProficiency").value = {{+ p.draygon_proficiency }};
+            document.getElementById("ridleyProficiency").value = {{+ p.ridley_proficiency }};
+            document.getElementById("botwoonProficiency").value = {{+ p.botwoon_proficiency }};
+            document.getElementById("motherBrainProficiency").value = {{+ p.mother_brain_proficiency }};
+            {%+ for tech_setting in p.tech_settings %}
+                {% let tech_id = tech_setting.id %}
+                {% if implicit_or_ignored_tech.contains(tech_id) %}
                     {% continue %}
                 {% endif %}
-                {%+ if is_enabled %}
+                {%+ if tech_setting.enabled %}
                     document.getElementById("tech-{{+ tech_id }}-Yes").checked = true;
                 {%+ else %}
                     document.getElementById("tech-{{+ tech_id }}-No").checked = true; 
                 {% endif %}
             {% endfor %}
-            {%+ for (notable_setting, is_enabled) in p.notable_setting %}
+            {%+ for notable_setting in p.notable_settings %}
                 {% let room_id = notable_setting.room_id %}
                 {% let notable_id = notable_setting.notable_id %}
                 {% if implicit_or_ignored_notables.contains((room_id, notable_id)) %}
                   {% continue %}
                 {% endif %}
                 {% let combo_id = format!("{}-{}", room_id, notable_id) %}
-                {%+ if is_enabled %}
+                {%+ if notable_setting.enabled %}
                     document.getElementById("strat-{{ combo_id }}-Yes").checked = true;
                 {%+ else %}
                     document.getElementById("strat-{{ combo_id }}-No").checked = true;
@@ -50,11 +51,11 @@ function presetChanged() {
 
 function updateTierPercent() {
     let presets = [];
-    {% for p in preset_data %}
-        {% if p.preset.name == "Implicit" || p.preset.name == "Ignored" %}
+    {% for preset_name in preset_data.difficulty_levels.keys.iter() %}
+        {% if preset_name == "Implicit" || preset_name == "Ignored" %}
             {% continue %}
         {% endif %}
-        {% let name_no_space = p.preset.name.replace(" ", "") %}
+        {% let name_no_space = preset_name.replace(" ", "") %}
         presets.push("{{+ name_no_space }}");
     {% endfor %}
     for (p of presets) {
@@ -76,8 +77,9 @@ function updateTierPercent() {
     }
 }
 function techChanged() {
-    {% for p in preset_data %}
-        {% let name_no_space = p.preset.name.replace(" ", "") %}
+    {% for p in preset_data.skill_presets.iter() %}
+        {% let preset_name = p.preset.as_ref().unwrap() %}
+        {% let name_no_space = preset_name.replace(" ", "") %}
         {% if name_no_space == "Implicit" || name_no_space == "Beyond" || name_no_space == "Ignored" %}
             {% continue %}
         {% endif %}

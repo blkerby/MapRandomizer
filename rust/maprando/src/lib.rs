@@ -7,3 +7,4 @@ pub mod seed_repository;
 pub mod settings;
 pub mod spoiler_map;
 pub mod traverse;
+pub mod helpers;

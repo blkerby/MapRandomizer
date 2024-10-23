@@ -1,16 +1,19 @@
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
-    randomize::{DifficultyConfig, ItemPriorityGroup},
+    preset::PresetData,
+    randomize::{get_objectives, DifficultyConfig, ItemPriorityGroup},
     settings::{
         AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
         ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
-        MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
+        MotherBrainFight, ProgressionRate, RandomizerSettings, SaveAnimals, StartLocationMode,
+        WallJump,
     },
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{Capacity, GameData, Item, Requirement, TECH_ID_CAN_BE_VERY_PATIENT};
 use maprando_logic::{GlobalState, Inventory, LocalState};
+use rand::{RngCore, SeedableRng};
 use std::path::Path;
 
 fn run_scenario(
@@ -19,6 +22,8 @@ fn run_scenario(
     super_cnt: Capacity,
     item_loadout: &[&'static str],
     patience: bool,
+    settings: &RandomizerSettings,
+    mut difficulty: DifficultyConfig,
     game_data: &GameData,
 ) {
     let mut items = vec![false; game_data.item_isv.keys.len()];
@@ -57,8 +62,6 @@ fn run_scenario(
 
     let weapon_mask = game_data.get_weapon_mask(&items);
     let global_state = GlobalState {
-        tech: vec![patience; game_data.tech_isv.keys.len()],
-        notables: vec![true; game_data.notable_isv.keys.len()],
         inventory: Inventory {
             items: items,
             max_energy: 1899,
@@ -79,85 +82,17 @@ fn run_scenario(
         power_bombs_used: 0,
         shinecharge_frames_remaining: 0,
     };
-    let difficulty = DifficultyConfig {
-        name: None,
-        tech: vec![],
-        notables: vec![],
-        shine_charge_tiles: 16.0,
-        heated_shine_charge_tiles: 16.0,
-        speed_ball_tiles: 24.0,
-        shinecharge_leniency_frames: 15,
-        progression_rate: ProgressionRate::Uniform,
-        random_tank: true,
-        spazer_before_plasma: true,
-        stop_item_placement_early: false,
-        item_pool: vec![],
-        starting_items: vec![],
-        semi_filler_items: vec![],
-        filler_items: vec![Item::Missile],
-        early_filler_items: vec![],
-        item_placement_style: ItemPlacementStyle::Neutral,
-        item_priority_strength: ItemPriorityStrength::Moderate,
-        item_priorities: vec![ItemPriorityGroup {
-            priority: KeyItemPriority::Default,
-            items: game_data.item_isv.keys.clone(),
-        }],
-        resource_multiplier: 1.0,
-        escape_timer_multiplier: 1.0,
-        gate_glitch_leniency: 0,
-        door_stuck_leniency: 0,
-        phantoon_proficiency: proficiency,
-        draygon_proficiency: proficiency,
-        ridley_proficiency: proficiency,
-        botwoon_proficiency: proficiency,
-        mother_brain_proficiency: proficiency,
-        supers_double: true,
-        mother_brain_fight: MotherBrainFight::Short,
-        escape_enemies_cleared: true,
-        escape_refill: true,
-        escape_movement_items: true,
-        mark_map_stations: true,
-        room_outline_revealed: true,
-        opposite_area_revealed: true,
-        transition_letters: false,
-        door_locks_size: DoorLocksSize::Small,
-        item_markers: ItemMarkers::ThreeTiered,
-        item_dot_change: ItemDotChange::Fade,
-        all_items_spawn: true,
-        acid_chozo: true,
-        remove_climb_lava: true,
-        buffed_drops: true,
-        fast_elevators: true,
-        fast_doors: true,
-        fast_pause_menu: true,
-        respin: false,
-        infinite_space_jump: false,
-        momentum_conservation: false,
-        objectives: vec![],
-        doors_mode: DoorsMode::Ammo,
-        start_location_mode: StartLocationMode::Ship,
-        save_animals: SaveAnimals::No,
-        early_save: false,
-        area_assignment: AreaAssignment::Standard,
-        wall_jump: WallJump::Vanilla,
-        etank_refill: ETankRefill::Vanilla,
-        maps_revealed: MapsRevealed::Full,
-        map_station_reveal: MapStationReveal::Full,
-        energy_free_shinesparks: false,
-        vanilla_map: false,
-        ultra_low_qol: false,
-        skill_assumptions_preset: None,
-        item_progression_preset: None,
-        quality_of_life_preset: None,
-        debug: false,
-    };
-
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),
         locked_door_vertex_ids: vec![],
     };
 
+    let mut rng_seed = [0u8; 32];
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+    let objectives = get_objectives(&settings, &mut rng);
+    difficulty.draygon_proficiency = proficiency;
     let new_local_state_opt = apply_requirement(
         &Requirement::DraygonFight {
             can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key
@@ -166,9 +101,11 @@ fn run_scenario(
         &global_state,
         local_state,
         false,
+        settings,
         &difficulty,
         game_data,
         &locked_door_data,
+        &objectives,
     );
 
     let outcome = new_local_state_opt
@@ -189,6 +126,9 @@ fn main() -> Result<()> {
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let strat_videos_path = Path::new("data/strat_videos.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
+    let tech_path = Path::new("data/tech_data.json");
+    let notable_path = Path::new("data/notable_data.json");
+    let presets_path = Path::new("data/presets");
 
     let game_data = GameData::load(
         sm_json_data_path,
@@ -200,6 +140,11 @@ fn main() -> Result<()> {
         reduced_flashing_path,
         strat_videos_path,
     )?;
+
+    let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
+    let mut settings = preset_data.default_preset.clone();
+    settings.skill_assumption_settings = preset_data.skill_presets.last().unwrap().clone();
+    let difficulty = preset_data.difficulty_tiers.last().unwrap();
 
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
     let missile_counts = vec![20];
@@ -217,6 +162,8 @@ fn main() -> Result<()> {
                             super_cnt,
                             beam_loadout,
                             patience,
+                            &settings,
+                            difficulty.clone(),
                             &game_data,
                         );
                     }

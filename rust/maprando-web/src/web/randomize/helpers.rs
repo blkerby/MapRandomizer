@@ -1,17 +1,13 @@
 use super::SeedData;
-use crate::web::{AppData, PresetData, VersionInfo};
+use crate::web::{AppData, VersionInfo};
 use actix_web::HttpRequest;
 use anyhow::{bail, Result};
 use askama::Template;
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashSet;
 use maprando::{
-    patch::{ips_write::create_ips_patch, Rom},
-    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
-    seed_repository::{Seed, SeedFile},
-    settings::{DoorLocksSize, ETankRefill, KeyItemPriority, WallJump},
-    spoiler_map,
+    helpers::get_item_priorities, patch::{ips_write::create_ips_patch, Rom}, preset::PresetData, randomize::{DifficultyConfig, ItemPriorityGroup, Randomization}, seed_repository::{Seed, SeedFile}, settings::{AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange, KeyItemPriority, RandomizerSettings, SkillAssumptionSettings, WallJump}, spoiler_map
 };
-use maprando_game::{Capacity, IndexedVec, Item, NotableId, RoomId, TechId};
+use maprando_game::{Capacity, GameData, IndexedVec, Item, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 
 #[derive(Template)]
@@ -21,6 +17,8 @@ pub struct SeedHeaderTemplate<'a> {
     timestamp: usize, // Milliseconds since UNIX epoch
     random_seed: usize,
     version_info: VersionInfo,
+    settings: &'a RandomizerSettings,
+    item_priority_groups: Vec<ItemPriorityGroup>,
     race_mode: bool,
     preset: String,
     item_progression_preset: String,
@@ -58,27 +56,26 @@ pub struct SeedHeaderTemplate<'a> {
     early_save: bool,
     area_assignment: String,
     ultra_low_qol: bool,
-    preset_data: &'a [PresetData],
+    preset_data: &'a PresetData,
     enabled_tech: HashSet<TechId>,
     enabled_notables: HashSet<(RoomId, NotableId)>,
 }
 
 impl<'a> SeedHeaderTemplate<'a> {
-    fn percent_enabled(&self, p: &PresetData) -> isize {
-        let tech_enabled_count = p
-            .preset
-            .tech
+    fn percent_enabled(&self, preset_name: &str) -> isize {
+        let tech = &self.preset_data.tech_by_difficulty[preset_name];
+        let tech_enabled_count = tech
             .iter()
-            .filter(|&x| self.enabled_tech.contains(&x.tech_id))
+            .filter(|&x| self.enabled_tech.contains(x))
             .count();
-        let notable_enabled_count = p
-            .preset
-            .notables
+
+        let notables = &self.preset_data.notables_by_difficulty[preset_name];
+        let notable_enabled_count = notables
             .iter()
-            .filter(|x| self.enabled_notables.contains(&(x.room_id, x.notable_id)))
+            .filter(|&x| self.enabled_notables.contains(x))
             .count();
         let total_enabled_count = tech_enabled_count + notable_enabled_count;
-        let total_count = p.preset.tech.len() + p.preset.notables.len();
+        let total_count = tech.len() + notables.len();
         let frac_enabled = (total_enabled_count as f32) / (total_count as f32);
         let mut percent_enabled = (frac_enabled * 100.0) as isize;
         if percent_enabled == 0 && frac_enabled > 0.0 {
@@ -91,7 +88,8 @@ impl<'a> SeedHeaderTemplate<'a> {
     }
 
     fn item_pool_strs(&self) -> String {
-        self.difficulty
+        self.settings
+            .item_progression_settings
             .item_pool
             .iter()
             .map(|(x, cnt)| {
@@ -106,9 +104,11 @@ impl<'a> SeedHeaderTemplate<'a> {
     }
 
     fn starting_items_strs(&self) -> String {
-        self.difficulty
+        self.settings
+            .item_progression_settings
             .starting_items
             .iter()
+            .filter(|(_, &cnt)| cnt > 0)
             .map(|(x, cnt)| {
                 if *cnt > 1 {
                     format!("{:?} ({})", x, cnt)
@@ -122,25 +122,25 @@ impl<'a> SeedHeaderTemplate<'a> {
 
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
-        if self.area_assignment == "Random" {
+        if self.settings.other_settings.area_assignment == AreaAssignment::Random {
             game_variations.push("Random area assignment");
         }
-        if self.item_dot_change == "Disappear" {
+        if self.settings.other_settings.item_dot_change == ItemDotChange::Disappear {
             game_variations.push("Item dots disappear after collection");
         }
-        if !self.transition_letters {
+        if !self.settings.other_settings.transition_letters {
             game_variations.push("Area transitions marked as arrows");
         }
-        if self.difficulty.door_locks_size == DoorLocksSize::Small {
+        if self.settings.other_settings.door_locks_size == DoorLocksSize::Small {
             game_variations.push("Door locks drawn smaller on map");
         }
-        match self.difficulty.wall_jump {
+        match self.settings.other_settings.wall_jump {
             WallJump::Collectible => {
                 game_variations.push("Collectible wall jump");
             }
             _ => {}
         }
-        match self.difficulty.etank_refill {
+        match self.settings.other_settings.etank_refill {
             ETankRefill::Disabled => {
                 game_variations.push("E-Tank refill disabled");
             }
@@ -149,20 +149,20 @@ impl<'a> SeedHeaderTemplate<'a> {
             }
             _ => {}
         }
-        if self.difficulty.maps_revealed == maprando::settings::MapsRevealed::Partial {
+        if self.settings.other_settings.maps_revealed == maprando::settings::MapsRevealed::Partial {
             game_variations.push("Maps partially revealed from start");
         }
-        if self.difficulty.maps_revealed == maprando::settings::MapsRevealed::Full {
+        if self.settings.other_settings.maps_revealed == maprando::settings::MapsRevealed::Full {
             game_variations.push("Maps revealed from start");
         }
-        if self.difficulty.map_station_reveal == maprando::settings::MapStationReveal::Partial {
+        if self.settings.other_settings.map_station_reveal == maprando::settings::MapStationReveal::Partial {
             game_variations.push("Map stations give partial reveal");
         }
 
-        if self.difficulty.energy_free_shinesparks {
+        if self.settings.other_settings.energy_free_shinesparks {
             game_variations.push("Energy-free shinesparks");
         }
-        if self.ultra_low_qol {
+        if self.settings.other_settings.ultra_low_qol {
             game_variations.push("Ultra-low quality of life");
         }
         game_variations
@@ -180,182 +180,6 @@ pub struct SeedFooterTemplate {
 
 pub fn get_random_seed() -> usize {
     (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
-}
-
-pub fn get_item_priorities(
-    item_priorities: &HashMap<Item, KeyItemPriority>,
-) -> Vec<ItemPriorityGroup> {
-    let mut priorities: IndexedVec<KeyItemPriority> = IndexedVec::default();
-    priorities.add(&KeyItemPriority::Early);
-    priorities.add(&KeyItemPriority::Default);
-    priorities.add(&KeyItemPriority::Late);
-
-    let mut out: Vec<ItemPriorityGroup> = Vec::new();
-    for &priority in &priorities.keys {
-        out.push(ItemPriorityGroup {
-            priority,
-            items: vec![],
-        });
-    }
-    for (k, v) in item_priorities {
-        let i = priorities.index_by_key[v];
-        out[i].items.push(format!("{:?}", k));
-    }
-    out
-}
-
-// Computes the intersection of the selected difficulty with each preset. This
-// gives a set of difficulty tiers below the selected difficulty. These are
-// used in "forced mode" to try to identify locations at which to place
-// key items which are reachable using the selected difficulty but not at
-// lower difficulties.
-pub fn get_difficulty_tiers(
-    difficulty: &DifficultyConfig,
-    app_data: &AppData,
-) -> Vec<DifficultyConfig> {
-    let presets = &app_data.preset_data;
-    let mut out: Vec<DifficultyConfig> = vec![];
-    let tech_set: HashSet<TechId> = difficulty.tech.iter().cloned().collect();
-    let notable_set: HashSet<(RoomId, NotableId)> = difficulty.notables.iter().cloned().collect();
-
-    out.push(difficulty.clone());
-    out.last_mut().unwrap().tech.sort();
-    out.last_mut().unwrap().notables.sort();
-    for preset_data in presets[1..presets.len() - 1].iter().rev() {
-        let preset = &preset_data.preset;
-        let mut tech_vec: Vec<TechId> = Vec::new();
-        for (tech_setting, enabled) in &preset_data.tech_setting {
-            if *enabled && tech_set.contains(&tech_setting.tech_id) {
-                tech_vec.push(tech_setting.tech_id);
-            }
-        }
-        tech_vec.sort();
-
-        let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
-        for (notable_setting, enabled) in &preset_data.notable_setting {
-            let room_id = notable_setting.room_id;
-            let notable_id = notable_setting.notable_id;
-            if *enabled && notable_set.contains(&(room_id, notable_id)) {
-                notable_vec.push((room_id, notable_id));
-            }
-        }
-        notable_vec.sort();
-
-        // TODO: move some fields out of here so we don't have clone as much irrelevant stuff:
-        let new_difficulty = DifficultyConfig {
-            name: Some(preset.name.clone()),
-            tech: tech_vec,
-            notables: notable_vec,
-            shine_charge_tiles: f32::max(
-                difficulty.shine_charge_tiles,
-                preset.shinespark_tiles as f32,
-            ),
-            heated_shine_charge_tiles: f32::max(
-                difficulty.heated_shine_charge_tiles,
-                preset.heated_shinespark_tiles as f32,
-            ),
-            speed_ball_tiles: f32::max(difficulty.speed_ball_tiles, preset.speed_ball_tiles as f32),
-            shinecharge_leniency_frames: Capacity::max(
-                difficulty.shinecharge_leniency_frames,
-                preset.shinecharge_leniency_frames as Capacity,
-            ),
-            progression_rate: difficulty.progression_rate,
-            random_tank: difficulty.random_tank,
-            spazer_before_plasma: difficulty.spazer_before_plasma,
-            stop_item_placement_early: difficulty.stop_item_placement_early,
-            item_placement_style: difficulty.item_placement_style,
-            item_priority_strength: difficulty.item_priority_strength,
-            item_priorities: difficulty.item_priorities.clone(),
-            item_pool: difficulty.item_pool.clone(),
-            starting_items: difficulty.starting_items.clone(),
-            semi_filler_items: difficulty.semi_filler_items.clone(),
-            filler_items: difficulty.filler_items.clone(),
-            early_filler_items: difficulty.early_filler_items.clone(),
-            resource_multiplier: f32::max(
-                difficulty.resource_multiplier,
-                preset.resource_multiplier,
-            ),
-            gate_glitch_leniency: Capacity::max(
-                difficulty.gate_glitch_leniency,
-                preset.gate_glitch_leniency as Capacity,
-            ),
-            door_stuck_leniency: Capacity::max(
-                difficulty.door_stuck_leniency,
-                preset.door_stuck_leniency as Capacity,
-            ),
-            escape_timer_multiplier: difficulty.escape_timer_multiplier,
-            start_location_mode: difficulty.start_location_mode,
-            save_animals: difficulty.save_animals,
-            phantoon_proficiency: f32::min(
-                difficulty.phantoon_proficiency,
-                preset.phantoon_proficiency,
-            ),
-            draygon_proficiency: f32::min(
-                difficulty.draygon_proficiency,
-                preset.draygon_proficiency,
-            ),
-            ridley_proficiency: f32::min(difficulty.ridley_proficiency, preset.ridley_proficiency),
-            botwoon_proficiency: f32::min(
-                difficulty.botwoon_proficiency,
-                preset.botwoon_proficiency,
-            ),
-            mother_brain_proficiency: f32::min(
-                difficulty.mother_brain_proficiency,
-                preset.mother_brain_proficiency,
-            ),
-            // Quality-of-life options:
-            supers_double: difficulty.supers_double,
-            mother_brain_fight: difficulty.mother_brain_fight,
-            escape_enemies_cleared: difficulty.escape_enemies_cleared,
-            escape_refill: difficulty.escape_refill,
-            escape_movement_items: difficulty.escape_movement_items,
-            mark_map_stations: difficulty.mark_map_stations,
-            room_outline_revealed: difficulty.room_outline_revealed,
-            opposite_area_revealed: difficulty.opposite_area_revealed,
-            transition_letters: difficulty.transition_letters,
-            door_locks_size: difficulty.door_locks_size,
-            item_markers: difficulty.item_markers,
-            item_dot_change: difficulty.item_dot_change,
-            all_items_spawn: difficulty.all_items_spawn,
-            acid_chozo: difficulty.acid_chozo,
-            remove_climb_lava: difficulty.remove_climb_lava,
-            buffed_drops: difficulty.buffed_drops,
-            fast_elevators: difficulty.fast_elevators,
-            fast_doors: difficulty.fast_doors,
-            fast_pause_menu: difficulty.fast_pause_menu,
-            respin: difficulty.respin,
-            infinite_space_jump: difficulty.infinite_space_jump,
-            momentum_conservation: difficulty.momentum_conservation,
-            objectives: difficulty.objectives.clone(),
-            doors_mode: difficulty.doors_mode,
-            early_save: difficulty.early_save,
-            area_assignment: difficulty.area_assignment,
-            wall_jump: difficulty.wall_jump,
-            etank_refill: difficulty.etank_refill,
-            maps_revealed: difficulty.maps_revealed,
-            map_station_reveal: difficulty.map_station_reveal,
-            energy_free_shinesparks: difficulty.energy_free_shinesparks,
-            vanilla_map: difficulty.vanilla_map,
-            ultra_low_qol: difficulty.ultra_low_qol,
-            skill_assumptions_preset: difficulty.skill_assumptions_preset.clone(),
-            item_progression_preset: difficulty.item_progression_preset.clone(),
-            quality_of_life_preset: difficulty.quality_of_life_preset.clone(),
-            debug: difficulty.debug,
-        };
-        if is_equivalent_difficulty(&new_difficulty, out.last().as_ref().unwrap()) {
-            out.pop();
-        }
-        out.push(new_difficulty);
-    }
-    out
-}
-
-pub fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> bool {
-    let mut a1 = a.clone();
-    let mut b1 = b.clone();
-    a1.name = None;
-    b1.name = None;
-    return a1 == b1;
 }
 
 pub async fn save_seed(
@@ -473,18 +297,42 @@ pub async fn check_seed_exists(seed_name: &str, app_data: &AppData) -> bool {
         .is_ok()
 }
 
+fn get_enabled_tech(tech: &[bool], game_data: &GameData) -> HashSet<TechId> {
+    let mut tech_set: HashSet<TechId> = HashSet::new();
+    for (i, &tech_id) in game_data.tech_isv.keys.iter().enumerate() {
+        if tech[i] {
+            tech_set.insert(tech_id);
+        }
+    }
+    tech_set
+}
+
+fn get_enabled_notables(notables: &[bool], game_data: &GameData) -> HashSet<(RoomId, NotableId)> {
+    let mut notable_set: HashSet<(RoomId, NotableId)> = HashSet::new();
+    for (i, &(room_id, notable_id)) in game_data.notable_isv.keys.iter().enumerate() {
+        if notables[i] {
+            notable_set.insert((room_id, notable_id));
+        }
+    }
+    notable_set
+}
+
 pub fn render_seed(
     seed_name: &str,
     seed_data: &SeedData,
     app_data: &AppData,
 ) -> Result<(String, String)> {
-    let enabled_tech: HashSet<TechId> = seed_data.difficulty.tech.iter().cloned().collect();
+    let enabled_tech: HashSet<TechId> = get_enabled_tech(&seed_data.difficulty.tech, &app_data.game_data);
     let enabled_notables: HashSet<(RoomId, NotableId)> =
-        seed_data.difficulty.notables.iter().cloned().collect();
+        get_enabled_notables(&seed_data.difficulty.notables, &app_data.game_data);
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version_info: app_data.version_info.clone(),
         random_seed: seed_data.random_seed,
+        settings: &seed_data.settings,
+        item_priority_groups: get_item_priorities(
+            &seed_data.settings.item_progression_settings.key_item_priority,
+        ),
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
         preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),
@@ -492,28 +340,33 @@ pub fn render_seed(
             .item_progression_preset
             .clone()
             .unwrap_or("Custom".to_string()),
-        progression_rate: format!("{:?}", seed_data.difficulty.progression_rate),
-        random_tank: seed_data.difficulty.random_tank,
+        progression_rate: format!("{:?}", seed_data.settings.item_progression_settings.progression_rate),
+        random_tank: seed_data.settings.item_progression_settings.random_tank,
         filler_items: seed_data
-            .difficulty
+            .settings
+            .item_progression_settings
             .filler_items
             .iter()
-            .filter(|&&x| x != Item::Nothing)
-            .map(|x| format!("{:?}", x))
+            .filter(|(_, &x)| x == FillerItemPriority::Yes || x == FillerItemPriority::Early)
+            .map(|(item, _)| format!("{:?}", item))
             .collect(),
         semi_filler_items: seed_data
-            .difficulty
-            .semi_filler_items
+            .settings
+            .item_progression_settings
+            .filler_items
             .iter()
-            .map(|x| format!("{:?}", x))
+            .filter(|(_, &x)| x == FillerItemPriority::Semi)
+            .map(|(item, _)| format!("{:?}", item))
             .collect(),
         early_filler_items: seed_data
-            .difficulty
-            .early_filler_items
+            .settings
+            .item_progression_settings
+            .filler_items
             .iter()
-            .map(|x| format!("{:?}", x))
+            .filter(|(_, &x)| x == FillerItemPriority::Early)
+            .map(|(item, _)| format!("{:?}", item))
             .collect(),
-        item_placement_style: format!("{:?}", seed_data.difficulty.item_placement_style),
+        item_placement_style: format!("{:?}", seed_data.settings.item_progression_settings.item_placement_style),
         difficulty: &seed_data.difficulty,
         quality_of_life_preset: seed_data
             .quality_of_life_preset

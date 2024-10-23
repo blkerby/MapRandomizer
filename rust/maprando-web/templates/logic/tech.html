@@ -72,7 +72,7 @@ document.getElementById("navigation-logic").classList.add("active");
             Difficulty filter
         </div>
         <div class="col-lg-9 my-2 btn-group overflow-auto" role="group">
-        {% for difficulty in difficulty_names.iter() %}
+        {% for difficulty in preset_data.difficulty_levels.keys.iter() %}
             {% if difficulty == "Implicit" || difficulty == "Ignored" %}
                 {% continue %}
             {% endif %}
