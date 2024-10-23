@@ -396,12 +396,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	function up(ev) {
 		ev.preventDefault();
-		if ((zoomed || dragged) && ev.pointerType == "mouse")
+		if (dragged && ev.pointerType == "mouse")
 			el.classList.add("hidden");
 		
 		evCache.splice(evCache.findIndex((cached) => cached.pointerID == ev.pointerID), 1)
-		if (evCache.length == 0) {
-			zoomed = false;
+		if (evCache.length != 1) {
 			dragged = false;
 		}
 	}
@@ -412,7 +411,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		ev.preventDefault();
 		evCache.push(ev);
 		dragged = false;
-		zoomed = false;
 		if (evCache.length == 2) {
 			let dx = Math.abs(evCache[0].x-evCache[1].x);
 			let dy = Math.abs(evCache[0].y-evCache[1].y);
@@ -457,7 +455,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	document.body.onpointermove = ev => {
 		ev.preventDefault();
 		if (evCache.length == 2) {
-			zoomed = true;
 			var dx = Math.abs(evCache[0].x - evCache[1].x);
 			var dy = Math.abs(evCache[0].y - evCache[1].y);
 			var dist = Math.sqrt(dx**2 + dy**2);
@@ -466,7 +463,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			evCache[i] = ev;
 			zm((evCache[0].x+evCache[1].x)/2, (evCache[0].y+evCache[1].y)/2,delta);
 			odist = dist;
-		} else if (evCache.length == 1  && !zoomed) {
+		} else if (evCache.length == 1) {
 			dragged = true;
 			page_x += ev.x - evCache[0].x;
 			page_y += ev.y - evCache[0].y;
@@ -477,7 +474,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			hover(ev);
 		}
 	}
-	m.onwheel = ev => {
+	document.body.onwheel = ev => {
 		zm(ev.x, ev.y, ev.deltaY);
 	}
 	let createDiv = (html) => {
