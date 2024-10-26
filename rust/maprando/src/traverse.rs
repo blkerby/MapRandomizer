@@ -2,7 +2,10 @@ use std::cmp::{max, min};
 
 use hashbrown::HashMap;
 
-use crate::randomize::{DifficultyConfig, LockedDoor, MotherBrainFight, WallJump};
+use crate::{
+    randomize::{DifficultyConfig, LockedDoor},
+    settings::{MotherBrainFight, WallJump},
+};
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
     LinksDataGroup, NodeId, Requirement, RoomId, VertexId,

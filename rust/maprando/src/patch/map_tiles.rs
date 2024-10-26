@@ -1,9 +1,9 @@
 use hashbrown::{HashMap, HashSet};
 use log::info;
 
-use crate::randomize::{
-    DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective,
-    Randomization,
+use crate::{
+    randomize::{Objective, Randomization},
+    settings::{DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed},
 };
 use maprando_game::{
     AreaIdx, BeamType, DoorType, GameData, Item, ItemIdx, Map, RoomGeometryDoor, RoomGeometryItem,
@@ -926,10 +926,8 @@ impl<'a> MapPatcher<'a> {
                         (6, 0),
                         (7, 0),
                         (0, 1),
-                        (1, 1),
                         (2, 1),
                         (5, 1),
-                        (6, 1),
                         (7, 1),
                         (0, 2),
                         (1, 2),
@@ -948,10 +946,8 @@ impl<'a> MapPatcher<'a> {
                         (6, 5),
                         (7, 5),
                         (0, 6),
-                        (1, 6),
                         (2, 6),
                         (5, 6),
-                        (6, 6),
                         (7, 6),
                         (0, 7),
                         (1, 7),
@@ -965,7 +961,6 @@ impl<'a> MapPatcher<'a> {
                 );
             }
             Interior::EnergyRefill => {
-                // Drawn the same as a double refill (for now at least):
                 update_tile(
                     &mut data,
                     3,

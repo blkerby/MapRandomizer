@@ -3,6 +3,9 @@ lorom
 
 incsrc "constants.asm"
 
+!bank_80_free_space_start = $80D240
+!bank_80_free_space_end = $80D340
+
 !bank_84_free_space_start = $84F730
 !bank_84_free_space_end = $84F800
 
@@ -33,6 +36,47 @@ org $808455
 ; Capture final time when entering ship to leave the planet
 org $a2ab13
     jsl hook_game_end
+
+org !bank_80_free_space_start
+area_timer:
+    ldx $0998
+    cpx #$0006                    ; state < 6 = pre-game
+    bcs .load_area
+    lda #$0006                    ; area 6 (pre-game)
+    bra .update_area
+    
+.load_area
+    lda $1f5b
+    cmp #$0007                    ; only 0-6 valid
+    bcs .leave_area_timer
+    cpx #$000D                    ; $0D
+    bcc .update_area              ; to
+    cpx #$0012                    ; $11 = pause screen
+    bcs .update_area
+    lda #$FFFF                    ; pause timer
+
+.update_area
+    inc
+    asl
+    asl
+    tax
+    lda !stat_pause_time,X
+    inc
+    sta !stat_pause_time,X
+    bne .leave_area_timer
+    lda !stat_pause_time+2,X
+    inc
+    sta !stat_pause_time+2,X
+
+.leave_area_timer
+    ply
+    plx
+    pla
+    pld
+    plb
+    rti
+
+warnpc !bank_80_free_space_end
 
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
@@ -65,12 +109,8 @@ org $808FA3 ;; overwrite unused routine
     inc
     sta !stat_timer+2
 .end:
-    ply
-    plx
-    pla
-    pld
-    plb
-    rti
+    jmp area_timer
+
 warnpc $808FC1 ;; next used routine start
 
 !idx_ETank = #$0000
