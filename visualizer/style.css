@@ -173,3 +173,14 @@ div {
 	text-align: center;
 	margin: 10px;
 }
+.flag {
+	position: absolute;
+}
+.flag:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.flag:hover + .popup {
+	display: block;
+	width: auto;
+}

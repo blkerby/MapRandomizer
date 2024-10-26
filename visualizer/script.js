@@ -1,160 +1,9 @@
-const offsets = {
-	"Morph Ball Room: Left Item": [2, 2],
-	"Morph Ball Room: Right Item": [4, 2],
-	"Cathedral: Hidden Item": [2, 1],
-	"The Precious Room: Top Right Hidden Item": [1, 0],
-	"Mama Turtle Room: Hidden Right Item": [2, 1],
-	"Mama Turtle Room: Top Item": [1, 0],
-	"Brinstar Reserve Tank Room: Middle Visible Item": [0.75, 0],
-	"Brinstar Reserve Tank Room: Right Hidden Item": [1.25, 0],
-	"Brinstar Reserve Tank Room: Chozo Item": [0, 0],
-	"Lower Norfair Fireflea Room: Firefleas Item": [2, 5],
-	"Main Street: Morph Tunnel Item": [1, 2],
-	"Main Street: Speed Blocked Item": [0, 3],
-	"Gauntlet Energy Tank Room: Item": [5, 0],
-	"Wrecked Ship Main Shaft: Item": [0, 5],
-	"Pseudo Plasma Spark Room: Hidden Item": [2, 2],
-	"Assembly Line: Item": [2, 0],
-	"Warehouse Kihunter Room: Hidden Item": [2, 0],
-	"Billy Mays Room: Pedestal Item": [0.25, 0],
-	"Billy Mays Room: Hidden Item": [-0.25, 0],
-	"Norfair Reserve Tank Room: Hidden Platform Item": [0.5, 0],
-	"Green Hill Zone: Item (Through the Pipe)": [3, 1],
-	"Crocomire's Room: Item": [7, 0],
-	"Blue Brinstar Energy Tank Room: Hidden Ceiling Item": [1, 2],
-	"Blue Brinstar Energy Tank Room: Right Item": [2, 2],
-	"Three Musketeers' Room: Hidden Item": [0, 2],
-	"Alpha Power Bomb Room: Chozo Item": [1, 0],
-	"Alpha Power Bomb Room: Hidden Left Item": [0, 0],
-	"Aqueduct: Top Right Right Item": [5, 0],
-	"Aqueduct: Top Right Left Item": [4, 0],
-	"Screw Attack Room: Item": [0, 2],
-	"Bubble Mountain: Bottom Right Item": [1, 3],
-	"Watering Hole: Left Item": [-0.25, 2],
-	"Watering Hole: Right Item": [0.25, 2],
-	"Speed Booster Hall: Hidden Item": [11, 1],
-	"West Sand Hole: Top Left - Right Item": [0.25, 0],
-	"West Sand Hole: Top Left - Left Item": [-0.25, 0],
-	"East Sand Hole: Top Left Item": [0, 0],
-	"East Sand Hole: Right Item": [1, 1],
-	"Post Crocomire Missile Room: Item": [3, 0],
-	"Double Chamber: Item": [1, 0],
-	"Beta Power Bomb Room: Item": [0, 1],
-	"West Ocean: Bottom Left Underwater Item": [0, 5],
-	"West Ocean: Left Morph Maze Item": [0, 2],
-	"West Ocean: Top Hidden Item (Above Trippers)": [1, 0],
-	"Early Supers Room: Lower Item": [1, 1],
-	"Early Supers Room: Top Left Item": [0, 0],
-	"Plasma Room: Item": [1, 2],
-	"Green Pirates Shaft: Left Item": [-0.25, 1],
-	"Green Pirates Shaft: Right Item": [0.25, 1],
-	"Spring Ball Room: Item": [1, 1],
-	"Pink Brinstar Power Bomb Room: Item": [0, 1],
-	"Pit Room: Item": [0, 1],
-	"Mickey Mouse Room: Item": [2, 1],
-	"Grapple Beam Room: Item": [0, 2],
-	"Golden Torizo's Room: Hidden Right Item": [1, 0],
-	"Golden Torizo's Room: Top Left Item": [0, 0],
-	"Wrecked Ship East Super Room: Item (Behind the Bomb Wall)": [3, 0],
-	"Botwoon Energy Tank Room: Item": [3, 0],
-	"Terminator Room: Item": [0, 2],
-	"Post Crocomire Jump Room: Item": [4, 0],
-	"Green Bubbles Missile Room: Item": [1, 0],
-	"Lower Norfair Spring Ball Maze Room: Item": [2, 0],
-	"Crateria Power Bomb Room: Item": [1, 0],
-	"Green Brinstar Main Shaft: Right Etecoon Shaft - Item": [3, 7],
-	"Crateria Super Room: Item": [3, 0],
-	"Spore Spawn Super Room: Item": [1, 8],
-	"Hi Jump Energy Tank Room: Top Right Item": [1, 0],
-	"Hi Jump Energy Tank Room: Top Left Item": [0, 0],
-	"Big Pink: Top Item (Above Hopper Pit)": [2, 3],
-	"Big Pink: Middle Item": [2, 6],
-	"Big Pink: Bottom Chozo Item": [2, 7],
-	"Bowling Alley: Bottom Chozo Item": [3, 2],
-	"Bowling Alley: Top Right Item": [5, 0],
-};
-let item_plm = {
-	"ETank": 0,
-	"Missile": 1,
-	"Super": 2,
-	"PowerBomb": 3,
-	"Bombs": 4,
-	"Charge": 5,
-	"Ice": 6,
-	"HiJump": 7,
-	"SpeedBooster": 8,
-	"Wave": 9,
-	"Spazer": 10,
-	"SpringBall": 11,
-	"Varia": 12,
-	"Gravity": 13,
-	"XRayScope": 14,
-	"Plasma": 15,
-	"Grapple": 16,
-	"SpaceJump": 17,
-	"ScrewAttack": 18,
-	"Morph": 19,
-	"ReserveTank": 20,
-	"WallJump": 21,
-};
-let item_rank = {
-	"Varia": 1,
-	"Gravity": 2,
-	"Morph": 3,
-	"SpaceJump": 4,
-	"ScrewAttack": 5,
-	"WallJump": 6,
-	"Bombs": 7,
-	"HiJump": 8,
-	"SpeedBooster": 9,
-	"SpringBall": 10,
-	"Grapple": 11,
-	"XRayScope": 12,
-	"Charge": 13,
-	"Ice": 14,
-	"Wave": 15,
-	"Spazer": 16,
-	"Plasma": 17,
-	"ETank": 18,
-	"ReserveTank": 19,
-	"Super": 20,
-	"PowerBomb": 21,
-	"Missile": 22,
-}
-let roomFlags = {
-	"Bomb Torizo Room": ["f_DefeatedBombTorizo", "Defeat Bomb Torizo"],
-	"Botwoon's Room": ["f_DefeatedBotwoon", "Defeat Botwoon"],
-	"Crocomire's Room": ["f_DefeatedCrocomire", "Defeat Crocomire"],
-	"Draygon's Room": ["f_DefeatedDraygon", "Defeat Draygon"],
-	"Golden Torizo's Room": ["f_DefeatedGoldenTorizo", "Defeat Golden Torizo"],
-	"Kraid Room": ["f_DefeatedKraid", "Defeat Kraid"],
-	"Mother Brain Room": ["f_DefeatedMotherBrain", "Defeat Mother Brain"],
-	"Phantoon's Room": ["f_DefeatedPhantoon", "Defeat Phantoon"],
-	"Ridley's Room": ["f_DefeatedRidley", "Defeat Ridley"],
-	"Spore Spawn Room": ["f_DefeatedSporeSpawn", "Defeat Spore Spawn"],
-	"Metroid Room 1": ["f_KilledMetroidRoom1", "Clear Metroid Room 1"],
-	"Metroid Room 2": ["f_KilledMetroidRoom2", "Clear Metroid Room 2"],
-	"Metroid Room 3": ["f_KilledMetroidRoom3", "Clear Metroid Room 3"],
-	"Metroid Room 4": ["f_KilledMetroidRoom4", "Clear Metroid Room 4"],
-	"Glass Tunnel": ["f_MaridiaTubeBroken", "Break Maridia Tube"],
-	"Shaktool Room": ["f_ShaktoolDoneDigging", "Clear Shaktool Room"],
-	"Acid Statue Room": ["f_UsedAcidChozoStatue", "Use Acid Statue"],
-	"Bowling Alley": ["f_UsedBowlingStatue", "Use Bowling Statue"],
-	"Pit Room": ["f_ClearedPitRoom", "Clear Pit Room"],
-	"Baby Kraid Room": ["f_ClearedBabyKraidRoom", "Clear Baby Kraid Room"],
-	"Plasma Room": ["f_ClearedPlasmaRoom", "Clear Plasma Room"],
-	"Metal Pirates Room": ["f_ClearedMetalPiratesRoom", "Clear Metal Pirates Room"],
-	"Parlor And Alcatraz": ["f_ZebesAwake", "Awaken Zebes"],
-	"Climb": ["f_ZebesAwake", "Awaken Zebes"],
-	"Construction Zone": ["f_ZebesAwake", "Awaken Zebes"],
-	"The Final Missile": ["f_ZebesAwake", "Awaken Zebes"],
-	"Morph Ball Room": ["f_ZebesAwake", "Awaken Zebes"],
-	"Blue Brinstar Energy Tank Room": ["f_ZebesAwake", "Awaken Zebes"],
-};
-
 function lookupOffset(room, node) {
 	key = room + ": " + node
 	return offsets[key];
+}
+function flagn(f) {
+	return 2**fenum.indexOf(f);
 }
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
@@ -456,6 +305,24 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		template.innerHTML = html;
 		return template.content.firstChild;
 	};
+	function itemflags(k) {
+		let rmflg = 0;
+		for (let f in k.relevant_flags)
+			rmflg |= flagn(k.relevant_flags[f]);
+
+		if (rmflg & flagn("f_DefeatedPhantoon")
+		 && rmflg & flagn("f_AllItemsSpawn")) {
+			rmflg ^= flagn("f_AllItemsSpawn");
+			rmflg ^= flagn("f_DefeatedPhantoon");
+		}
+		if (rmflg & flagn("f_ZebesAwake")
+		 && rmflg & flagn("f_AllItemsSpawn")) {
+			rmflg ^= flagn("f_AllItemsSpawn");
+			rmflg ^= flagn("f_ZebesAwake");
+		}
+		
+		return rmflg;
+	}
 	let show_item_details = (item_name, loc, i, j) => {
 		if (j !== null) {
 			let path = "";
@@ -521,23 +388,57 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			collectible_header.innerHTML = "COLLECTIBLE ON THIS STEP";
 			si.appendChild(collectible_header);
 
-			let item_list = document.createElement("div");
-			item_list.className = "item-list";
 			let items = c.details[i].items;
-			sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
-			for (item_idx of sortedItemIdxs) {
-				let item = items[item_idx];
-				let icon_el = icon(item_plm[item.item]);
-				icon_el.className = "ui-icon-hoverable";
-				icon_el.onclick = ev => {
-					show_item_details(item.item, item.location, i, item);
+			let flagItems = [];
+			for (let it of items) {
+				let flgs = 0;
+				for (let k of it.obtain_route){
+					flgs |= itemflags(k);
 				}
-				if (item == j) {
-					icon_el.classList.add("selected")
+				for (let k of it.return_route) {
+					flgs |= itemflags(k);
 				}
-				item_list.appendChild(icon_el);
+				if (!flagItems[flgs])
+					flagItems[flgs] = new Array();
+				flagItems[flgs].push(it);
 			}
-			si.appendChild(item_list);
+			for (let ai in flagItems) {
+				let arr = flagItems[ai];
+				if (!arr) 
+					continue;
+				
+				let item_list = document.createElement("div");
+				item_list.className = "item-list";
+				for (let fi in fenum) {
+					if (ai & 2**fi) {
+						let ficon = document.createElement("img");
+						if (fenum[fi].includes("f_KilledMetroidRoom"))
+							ficon.src = "f_KilledMetroidRoom.png";
+						else
+							ficon.src = fenum[fi] + ".png";
+						
+						ficon.onclick = ev => {
+							showFlag(c.details, fenum[fi]);
+						}
+						ficon.height = 24;
+						item_list.appendChild(ficon);
+					}
+				}
+				arr.sort((a, b) => item_rank[a.item] - item_rank[b.item]);
+				for (let it in arr) {
+					let item = arr[it];
+					let icon_el = icon(item_plm[item.item]);
+					icon_el.className = "ui-icon-hoverable";
+					icon_el.onclick = ev => {
+						show_item_details(item.item, item.location, i, item);
+					}
+					if (item == j) {
+						icon_el.classList.add("selected")
+					}
+					item_list.appendChild(icon_el);
+				}
+				si.appendChild(item_list);
+			}
 		}
 
 		let item_info = document.createElement("div");
@@ -710,6 +611,92 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 	}
+
+	// starting spot
+	let sr = null, startoffset = [], e = null, i = -1;
+	let n = c.start_location_name;
+	startoffset = [106,88];
+	if (n == "Ship")
+	{
+		n = "Landing Site";
+		i = 1;
+	} else {
+		for (i in c.all_rooms) {
+			if (n.includes(c.all_rooms[i].room) )
+				break;
+		}
+		startoffset = startOffsets[n];
+	}
+	if (i != c.all_rooms.length && startoffset) {
+		sr = c.all_rooms[i];
+		e = document.createElement("img");
+		e.src = "samus_vanilla.png";
+		e.style.height = "32px";
+		e.className = "flag";
+		e.style.left = sr.coords[0]*24+startoffset[0]+24-8+"px";
+		e.style.top = sr.coords[1]*24+startoffset[1]+24-16+"px";
+		document.getElementById("overlay").appendChild(e);
+	}
+
+	// ship
+	sr = c.all_rooms[1];
+	startoffset = [120,120];
+	e = document.createElement("img");
+	e.src = "SamusShip.png";
+	e.style.height = "32px";
+	e.className = "flag";
+	e.style.left = sr.coords[0]*24+startoffset[0]-24+"px";
+	e.style.top = sr.coords[1]*24+startoffset[1]+"px";
+	document.getElementById("overlay").appendChild(e);
+
+	//flags	
+	for (i in roomFlags) {
+		e = document.createElement("img");
+		let rf = roomFlags[i];
+		let f = rf[0];
+		if (f.includes("f_KilledMetroidRoom"))
+			f = "f_KilledMetroidRoom";
+		e.src = f + ".png";
+
+		// revert metroid flag
+		f = rf[0];
+		for (j in c.all_rooms)
+		{
+			if (i == c.all_rooms[j].room)
+				break;
+		}
+		sr = c.all_rooms[j];
+		e.style.height = rf[4]+"px";
+		e.className = "flag";
+		e.style.left = (sr.coords[0]+rf[2])*24+24+"px";
+		e.style.top = (sr.coords[1]+rf[3])*24+rf[4]/2+"px";
+		e.onclick = ev => {
+			showFlag(c.details, f);
+		}
+		document.getElementById("overlay").appendChild(e);
+
+		e = document.createElement("div");
+		e.className = "popup";
+		e.innerHTML = `<b>${rf[1]}</b><br><small>${sr.room}</small><br>`;
+		let fin = false;
+		out:
+		for (i in c.summary) {
+			for (j in c.summary[i].flags) {
+				if (c.summary[i].flags[j]['flag'] == f) {
+					e.innerHTML += `Step: ${c.summary[i].step}<br>`;
+					fin = true;
+					break out;
+				}
+			}
+		}
+		if (!fin) {
+			e.innerHTML += "Route unavailable<br>";
+		}
+		e.style.left = sr.coords[0] * 24 + 56 + "px";
+		e.style.top = (sr.coords[1]+rf[3])*24+rf[4]/2+8 + "px";
+		document.getElementById("overlay").appendChild(e);
+	}
+
 	items: for (let v of c.all_items) {
 		if (v.item == "Nothing") { continue; }
 		let os = lookupOffset(v.location.room, v.location.node);
