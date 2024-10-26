@@ -8,9 +8,12 @@ use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::preset::Preset;
 use maprando::randomize::{
-    randomize_doors, randomize_map_areas, AreaAssignment, DoorsMode, ItemDotChange, ItemMarkers,
-    ItemPlacementStyle, ItemPriorityGroup, ItemPriorityStrength, MotherBrainFight, Objective,
-    ProgressionRate, Randomization, Randomizer, SaveAnimals, StartLocationMode,
+    randomize_doors, randomize_map_areas, ItemPriorityGroup, Objective, Randomization, Randomizer,
+};
+use maprando::settings::{
+    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
+    ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
+    MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
 };
 use maprando::spoiler_map;
 use maprando::{patch::make_rom, randomize::DifficultyConfig};
@@ -95,14 +98,14 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         item_priority_strength: ItemPriorityStrength::Moderate,
         item_priorities: vec![
             ItemPriorityGroup {
-                name: "Early".to_string(),
+                priority: KeyItemPriority::Early,
                 items: vec!["ETank", "Morph"]
                     .into_iter()
                     .map(|x| x.to_string())
                     .collect(),
             },
             ItemPriorityGroup {
-                name: "Default".to_string(),
+                priority: KeyItemPriority::Default,
                 items: vec![
                     "ReserveTank",
                     "Super",
@@ -125,7 +128,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
                 .collect(),
             },
             ItemPriorityGroup {
-                name: "Late".to_string(),
+                priority: KeyItemPriority::Late,
                 items: vec!["SpaceJump", "ScrewAttack", "Varia", "Gravity"]
                     .into_iter()
                     .map(|x| x.to_string())
@@ -167,14 +170,14 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         save_animals: SaveAnimals::No,
 
         // Other options
-        wall_jump: maprando::randomize::WallJump::Vanilla,
-        etank_refill: maprando::randomize::EtankRefill::Vanilla,
+        wall_jump: WallJump::Vanilla,
+        etank_refill: ETankRefill::Vanilla,
         area_assignment: AreaAssignment::Standard,
         item_dot_change: ItemDotChange::Fade,
         transition_letters: false,
-        door_locks_size: maprando::randomize::DoorLocksSize::Small,
-        maps_revealed: maprando::randomize::MapsRevealed::No,
-        map_station_reveal: maprando::randomize::MapStationReveal::Full,
+        door_locks_size: DoorLocksSize::Small,
+        maps_revealed: MapsRevealed::No,
+        map_station_reveal: MapStationReveal::Full,
         energy_free_shinesparks: false,
         ultra_low_qol: false,
 
@@ -182,7 +185,7 @@ fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
         item_progression_preset: Some("Normal".to_string()),
         quality_of_life_preset: Some("Default".to_string()),
 
-        debug_options: None,
+        debug: false,
     };
 
     diff
@@ -210,14 +213,14 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
     diff.item_placement_style = ItemPlacementStyle::Neutral;
     diff.item_priorities = vec![
         ItemPriorityGroup {
-            name: "Early".to_string(),
+            priority: KeyItemPriority::Early,
             items: vec!["Morph", "Bombs"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
         },
         ItemPriorityGroup {
-            name: "Default".to_string(),
+            priority: KeyItemPriority::Default,
             items: vec![
                 "ETank",
                 "ReserveTank",
@@ -242,7 +245,7 @@ fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
             .collect(),
         },
         ItemPriorityGroup {
-            name: "Late".to_string(),
+            priority: KeyItemPriority::Late,
             items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
@@ -275,7 +278,7 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
     diff.item_placement_style = ItemPlacementStyle::Forced;
     diff.item_priorities = vec![
         ItemPriorityGroup {
-            name: "Early".to_string(),
+            priority: KeyItemPriority::Early,
             items: vec![
                 "Morph",
                 "ETank",
@@ -299,14 +302,14 @@ fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
             .collect(),
         },
         ItemPriorityGroup {
-            name: "Default".to_string(),
+            priority: KeyItemPriority::Default,
             items: vec!["WallJump", "SpaceJump", "ScrewAttack"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
         },
         ItemPriorityGroup {
-            name: "Late".to_string(),
+            priority: KeyItemPriority::Late,
             items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
@@ -328,7 +331,7 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
     diff.item_placement_style = ItemPlacementStyle::Forced;
     diff.item_priorities = vec![
         ItemPriorityGroup {
-            name: "Early".to_string(),
+            priority: KeyItemPriority::Early,
             items: vec![
                 "ETank",
                 "ReserveTank",
@@ -351,14 +354,14 @@ fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
             .collect(),
         },
         ItemPriorityGroup {
-            name: "Default".to_string(),
+            priority: KeyItemPriority::Default,
             items: vec!["Morph", "WallJump", "SpaceJump", "ScrewAttack"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
         },
         ItemPriorityGroup {
-            name: "Late".to_string(),
+            priority: KeyItemPriority::Late,
             items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())
@@ -387,7 +390,7 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
     diff.item_placement_style = ItemPlacementStyle::Forced;
     diff.item_priorities = vec![
         ItemPriorityGroup {
-            name: "Early".to_string(),
+            priority: KeyItemPriority::Early,
             items: vec![
                 "ETank",
                 "ReserveTank",
@@ -410,14 +413,14 @@ fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
             .collect(),
         },
         ItemPriorityGroup {
-            name: "Default".to_string(),
+            priority: KeyItemPriority::Default,
             items: vec!["Morph", "WallJump", "SpaceJump", "ScrewAttack"]
                 .into_iter()
                 .map(|x| x.to_string())
                 .collect(),
         },
         ItemPriorityGroup {
-            name: "Late".to_string(),
+            priority: KeyItemPriority::Late,
             items: vec!["Varia", "Gravity"]
                 .into_iter()
                 .map(|x| x.to_string())

@@ -1,0 +1,23 @@
+{
+    "preset": "Max",
+    "item_markers": "4-Tiered",
+    "mark_map_stations": true,
+    "room_outline_revealed": true,
+    "opposite_area_revealed": true,
+    "mother_brain_fight": "Skip",
+    "supers_double": true,
+    "escape_movement_items": true,
+    "escape_refill": true,
+    "escape_enemies_cleared": true,
+    "fast_elevators": true,
+    "fast_doors": true,
+    "fast_pause_menu": true,
+    "respin": true,
+    "infinite_space_jump": true,
+    "momentum_conservation": true,
+    "all_items_spawn": true,
+    "acid_chozo": true,
+    "remove_climb_lava": true,
+    "buffed_drops": true,
+    "early_save": true
+}
