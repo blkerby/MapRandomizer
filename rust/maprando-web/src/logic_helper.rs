@@ -557,11 +557,12 @@ fn get_strat_difficulty(
         locked_door_node_map: HashMap::new(),
         locked_door_vertex_ids: vec![],
     };
-    for (i, difficulty) in preset_data.difficulty_tiers.iter().enumerate() {
-        if i == 0 {
+    for difficulty in preset_data.difficulty_tiers.iter().rev() {
+        if difficulty.name == "Implicit" {
             // Skip the "Implicit" difficulty
             continue;
         }
+        let difficulty_idx = preset_data.difficulty_levels.index_by_key[&difficulty.name];
 
         let local = LocalState {
             energy_used: 0,
@@ -592,7 +593,7 @@ fn get_strat_difficulty(
                 &[],
             );
             if new_local.is_some() {
-                return i;
+                return difficulty_idx;
             }
         }
     }

@@ -139,8 +139,11 @@ impl PresetData {
             let preset: SkillAssumptionSettings = serde_json::from_str(&preset_str)?;
             let difficulty = DifficultyConfig::new(&preset, game_data, implicit_tech, implicit_notables);
             skill_presets.push(preset);
-            difficulty_tiers.push(difficulty);
+            if name != "Implicit" && name != "Ignored" {
+                difficulty_tiers.push(difficulty);
+            }
         }
+        difficulty_tiers.reverse();
 
         let item_progression_preset_names = ["Normal", "Tricky", "Challenge", "Desolate"];
         let item_progression_preset_path = presets_path.join("item-progression");

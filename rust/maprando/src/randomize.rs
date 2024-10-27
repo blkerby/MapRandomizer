@@ -211,7 +211,7 @@ impl DifficultyConfig {
                 self.heated_shine_charge_tiles,
                 other.heated_shine_charge_tiles,
             ),
-            speed_ball_tiles: f32::max(self.speed_ball_tiles, self.speed_ball_tiles),
+            speed_ball_tiles: f32::max(self.speed_ball_tiles, other.speed_ball_tiles),
             shinecharge_leniency_frames: Capacity::max(
                 self.shinecharge_leniency_frames,
                 other.shinecharge_leniency_frames,
@@ -2666,7 +2666,11 @@ pub fn get_difficulty_tiers(
     difficulty_tiers.push(main_tier.clone());
     if settings.item_progression_settings.item_placement_style == ItemPlacementStyle::Forced {
         for ref_tier in tier_settings {
-            let new_tier = DifficultyConfig::intersect(&main_tier, &ref_tier);
+            let new_tier = DifficultyConfig::intersect(&ref_tier, &main_tier);
+            println!("main_tier: {}, ref_tier: {}, last_tier: {}, {}", main_tier.name, ref_tier.name, difficulty_tiers.last().unwrap().name, is_equivalent_difficulty(&new_tier, difficulty_tiers.last().unwrap()));
+            println!("new: {}", serde_json::to_string(&new_tier).unwrap());
+            println!("last: {}", serde_json::to_string(&difficulty_tiers.last().unwrap()).unwrap());
+
             if is_equivalent_difficulty(&new_tier, difficulty_tiers.last().unwrap()) {
                 difficulty_tiers.pop();
             }
