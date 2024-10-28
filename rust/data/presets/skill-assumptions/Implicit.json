@@ -891,7 +891,7 @@
             "notable_id": 1,
             "room_name": "Shaktool Room",
             "notable_name": "Reverse",
-            "enabled": true
+            "enabled": false
         },
         {
             "room_id": 41,

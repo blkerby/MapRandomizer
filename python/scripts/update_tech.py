@@ -35,6 +35,7 @@ tech_data.append({
     "difficulty": "Hard",
     "video_id": None,
 })
+tech_id_order.append(10001)
 
 # json.dump(tech_data, open(output_path, "w"), indent=2)
 
@@ -61,6 +62,7 @@ for tech_id in tech_id_order:
         print("Unrecognized difficulty {} for tech {}".format(difficulty, tech["name"]))
     tech_id_by_difficulty[difficulty].append(tech_id)
 
+# Update skill-assumption presets:
 for preset_difficulty_idx in range(0, 9):  # skip Ignored difficulty
     preset_difficulty = difficulty_levels[preset_difficulty_idx]
     path = skill_presets_path / f'{preset_difficulty}.json'
@@ -72,11 +74,8 @@ for preset_difficulty_idx in range(0, 9):  # skip Ignored difficulty
             tech = tech_dict[tech_id]
             tech_settings.append({
                 "id": tech_id,
-                "name": tech_data["name"],
+                "name": tech["name"],
                 "enabled": tech_difficulty_idx <= preset_difficulty_idx
             })
     preset["tech_settings"] = tech_settings
-
-    json.dump(preset, open(path, "w"))
-
-# TODO: full presets
+    json.dump(preset, open(path, "w"), indent=4)
