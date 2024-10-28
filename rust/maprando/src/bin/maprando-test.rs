@@ -11,7 +11,7 @@ use maprando::randomize::{
     get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, Randomization, Randomizer
 };
 use maprando::settings::{
-    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, SkillAssumptionSettings, StartLocationMode
+    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings, SkillAssumptionSettings, StartLocationMode
 };
 use maprando::spoiler_map;
 use maprando::patch::make_rom;
@@ -79,6 +79,9 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     let map_repo = &app.map_repos[repo_idx];
 
     let mut settings = app.preset_data.default_preset.clone();
+    // Use blue doors since ammo doors will cause failures due to not enough map tiles
+    // (TODO: handle this in a better way.)
+    settings.doors_mode = DoorsMode::Blue;
     settings.skill_assumption_settings = skill_preset.clone();
     settings.item_progression_settings = item_preset.clone();
     settings.quality_of_life_settings = qol_preset.clone();
