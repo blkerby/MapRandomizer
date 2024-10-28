@@ -6,13 +6,13 @@ use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, Mu
 use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
-use maprando::randomize::{get_difficulty_tiers, get_objectives, randomize_doors, ItemPriorityGroup, Randomization, Randomizer};
+use maprando::randomize::{get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer};
 use maprando::settings::{
-    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed, MotherBrainFight, ProgressionRate, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump
+    RandomizerSettings, StartLocationMode
 };
 use maprando::spoiler_map;
-use maprando::{patch::make_rom, randomize::DifficultyConfig};
-use maprando_game::{GameData, Item, Map};
+use maprando::patch::make_rom;
+use maprando_game::{GameData, Map};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 

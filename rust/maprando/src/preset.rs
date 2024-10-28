@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use log::warn;
 use maprando_game::{GameData, IndexedVec, NotableId, RoomId, TechId};

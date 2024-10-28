@@ -9,7 +9,7 @@ use log::info;
 use maprando::{
     patch::{make_rom, Rom},
     randomize::{
-        filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, DifficultyConfig, Objective, Randomization, Randomizer
+        filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, DifficultyConfig, Randomization, Randomizer
     },
     settings::{
         parse_randomizer_settings, AreaAssignment,

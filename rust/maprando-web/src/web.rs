@@ -12,7 +12,6 @@ use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory}, map_repository::MapRepository, preset::PresetData, seed_repository::SeedRepository
 };
 use maprando_game::GameData;
-use serde::Serialize;
 
 pub const VERSION: usize = 115;
 
@@ -32,7 +31,7 @@ pub struct AppData {
     pub video_storage_path: Option<String>,
     pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
-    pub debug: bool,
+    pub _debug: bool,
     pub port: u16,
     pub version_info: VersionInfo,
     pub static_visualizer: bool,

@@ -12,12 +12,11 @@ use actix_web::{
     App, HttpServer,
 };
 use clap::Parser;
-use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando::{
-    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory}, map_repository::MapRepository, preset::{NotableData, PresetData, TechData}, randomize::DifficultyConfig, seed_repository::SeedRepository, settings::SkillAssumptionSettings
+    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory}, map_repository::MapRepository, preset::PresetData, seed_repository::SeedRepository
 };
-use maprando_game::{GameData, NotableId, RoomId, TechId};
+use maprando_game::GameData;
 use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed};
 
@@ -146,7 +145,7 @@ fn build_app_data() -> AppData {
         video_storage_path: args.video_storage_path.clone(),
         logic_data,
         samus_sprite_categories,
-        debug: args.debug,
+        _debug: args.debug,
         port: args.port,
         version_info: VersionInfo {
             version: VERSION,

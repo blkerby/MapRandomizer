@@ -4,8 +4,8 @@ use hashbrown::{HashMap, HashSet};
 use json::JsonValue;
 use log::warn;
 use maprando::{
-    preset::{self, PresetData},
-    traverse::{apply_requirement, debug_requirement, LockedDoorData},
+    preset::PresetData,
+    traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
     ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx,
@@ -225,7 +225,7 @@ fn make_tech_templates<'a>(
     game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
     preset_data: &'a PresetData,
-    global: &GlobalState,
+    _global: &GlobalState,
     area_order: &[String],
     video_storage_url: &str,
     version_info: &VersionInfo,
@@ -359,7 +359,7 @@ fn make_notable_templates<'a>(
     game_data: &'a GameData,
     room_templates: &[RoomTemplate<'a>],
     preset_data: &'a PresetData,
-    global: &GlobalState,
+    _global: &GlobalState,
     area_order: &[String],
     video_storage_url: &str,
     version_info: &VersionInfo,
@@ -723,11 +723,6 @@ fn make_room_template<'a>(
         };
         room_strats.push(strat);
     }
-    let difficulty_names: Vec<String> = preset_data
-        .difficulty_tiers
-        .iter()
-        .map(|x| x.name.clone())
-        .collect();
 
     RoomTemplate {
         version_info: version_info.clone(),

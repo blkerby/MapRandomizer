@@ -5,9 +5,9 @@ use anyhow::{bail, Result};
 use askama::Template;
 use hashbrown::HashSet;
 use maprando::{
-    helpers::get_item_priorities, patch::{ips_write::create_ips_patch, Rom}, preset::PresetData, randomize::{DifficultyConfig, ItemPriorityGroup, Randomization}, seed_repository::{Seed, SeedFile}, settings::{AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange, KeyItemPriority, RandomizerSettings, SkillAssumptionSettings, WallJump}, spoiler_map
+    helpers::get_item_priorities, patch::{ips_write::create_ips_patch, Rom}, preset::PresetData, randomize::{DifficultyConfig, ItemPriorityGroup, Randomization}, seed_repository::{Seed, SeedFile}, settings::{AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange, RandomizerSettings, WallJump}, spoiler_map
 };
-use maprando_game::{Capacity, GameData, IndexedVec, Item, NotableId, RoomId, TechId};
+use maprando_game::{GameData, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 
 #[derive(Template)]
@@ -36,9 +36,7 @@ pub struct SeedHeaderTemplate<'a> {
     escape_refill: bool,
     escape_movement_items: bool,
     mark_map_stations: bool,
-    transition_letters: bool,
     item_markers: String,
-    item_dot_change: String,
     all_items_spawn: bool,
     acid_chozo: bool,
     buffed_drops: bool,
@@ -54,8 +52,6 @@ pub struct SeedHeaderTemplate<'a> {
     map_layout: String,
     save_animals: String,
     early_save: bool,
-    area_assignment: String,
-    ultra_low_qol: bool,
     preset_data: &'a PresetData,
     enabled_tech: HashSet<TechId>,
     enabled_notables: HashSet<(RoomId, NotableId)>,
@@ -379,8 +375,6 @@ pub fn render_seed(
         escape_movement_items: seed_data.escape_movement_items,
         mark_map_stations: seed_data.mark_map_stations,
         item_markers: seed_data.item_markers.clone(),
-        item_dot_change: seed_data.item_dot_change.clone(),
-        transition_letters: seed_data.transition_letters,
         all_items_spawn: seed_data.all_items_spawn,
         acid_chozo: seed_data.acid_chozo,
         buffed_drops: seed_data.buffed_drops,
@@ -396,8 +390,6 @@ pub fn render_seed(
         map_layout: seed_data.map_layout.clone(),
         save_animals: seed_data.save_animals.clone(),
         early_save: seed_data.early_save,
-        area_assignment: seed_data.area_assignment.clone(),
-        ultra_low_qol: seed_data.ultra_low_qol,
         preset_data: &app_data.preset_data,
         enabled_tech,
         enabled_notables,

@@ -2,18 +2,13 @@ use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
     preset::PresetData,
-    randomize::{get_objectives, DifficultyConfig, ItemPriorityGroup},
-    settings::{
-        AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
-        ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
-        MotherBrainFight, ProgressionRate, RandomizerSettings, SaveAnimals, StartLocationMode,
-        WallJump,
-    },
+    randomize::{get_objectives, DifficultyConfig},
+    settings::RandomizerSettings,
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{Capacity, GameData, Item, Requirement, TECH_ID_CAN_BE_VERY_PATIENT};
 use maprando_logic::{GlobalState, Inventory, LocalState};
-use rand::{RngCore, SeedableRng};
+use rand::SeedableRng;
 use std::path::Path;
 
 fn run_scenario(
@@ -88,7 +83,7 @@ fn run_scenario(
         locked_door_vertex_ids: vec![],
     };
 
-    let mut rng_seed = [0u8; 32];
+    let rng_seed = [0u8; 32];
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
     let objectives = get_objectives(&settings, &mut rng);
