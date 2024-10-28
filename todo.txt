@@ -2,7 +2,14 @@ v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
+- investigate issue with door lock skips not being in logic?:
+  - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
+- issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
+- fix main hall elevator frames:
+  - takes at least 47 energy with fast elevators.
 - use RandomizerSettings in maprando-cli and maprando-test
+- set up script to automate syncing logic changes
+  - update skill assumption presets and full-settings presets
 - simplify SeedData
 - simplify DifficultyConfig
 - save/load presets

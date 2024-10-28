@@ -5,21 +5,19 @@ use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::map_repository::MapRepository;
 use maprando::patch::ips_write::create_ips_patch;
+use maprando::patch::make_rom;
 use maprando::patch::Rom;
-use maprando::preset::Preset;
+use maprando::preset::PresetData;
 use maprando::randomize::{
-    randomize_doors, randomize_map_areas, ItemPriorityGroup, Objective, Randomization, Randomizer,
+    get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, Randomization,
+    Randomizer,
 };
 use maprando::settings::{
-    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
-    ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
-    MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
+    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings,
+    SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_map;
-use maprando::{patch::make_rom, randomize::DifficultyConfig};
-use maprando_game::{
-    Capacity, GameData, Item, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
-};
+use maprando_game::GameData;
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 
@@ -38,533 +36,16 @@ struct Args {
     output_seeds: PathBuf,
 
     #[arg(long)]
+    preset: Option<String>,
+
+    #[arg(long)]
     skill_preset: Option<String>,
 
     #[arg(long)]
-    progression_preset: Option<String>,
+    item_preset: Option<String>,
 
     #[arg(long)]
     qol_preset: Option<String>,
-}
-
-fn create_difficulty_from_preset(preset: &Preset) -> DifficultyConfig {
-    let mut tech_vec: Vec<TechId> = vec![];
-    for tech in &preset.tech {
-        tech_vec.push(tech.tech_id);
-    }
-    let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
-    for notable in &preset.notables {
-        notable_vec.push((notable.room_id, notable.notable_id));
-    }
-    let diff = DifficultyConfig {
-        name: None,
-        // From the actual Preset
-        tech: tech_vec,
-        notables: notable_vec,
-        shine_charge_tiles: preset.shinespark_tiles as f32,
-        heated_shine_charge_tiles: preset.heated_shinespark_tiles as f32,
-        speed_ball_tiles: preset.speed_ball_tiles as f32,
-        shinecharge_leniency_frames: preset.shinecharge_leniency_frames as Capacity,
-        resource_multiplier: preset.resource_multiplier,
-        escape_timer_multiplier: preset.escape_timer_multiplier,
-        gate_glitch_leniency: preset.gate_glitch_leniency as Capacity,
-        door_stuck_leniency: preset.door_stuck_leniency as Capacity,
-        phantoon_proficiency: preset.phantoon_proficiency,
-        draygon_proficiency: preset.draygon_proficiency,
-        ridley_proficiency: preset.ridley_proficiency,
-        botwoon_proficiency: preset.botwoon_proficiency,
-        mother_brain_proficiency: preset.mother_brain_proficiency,
-        // Progression options, Normal preset
-        progression_rate: ProgressionRate::Fast,
-        random_tank: true,
-        spazer_before_plasma: true,
-        stop_item_placement_early: false,
-        item_pool: vec![],
-        starting_items: vec![],
-        filler_items: vec![
-            Item::Missile,
-            Item::ETank,
-            Item::ReserveTank,
-            Item::Super,
-            Item::PowerBomb,
-            Item::Charge,
-            Item::Ice,
-            Item::Wave,
-            Item::Spazer,
-        ],
-        semi_filler_items: vec![],
-        early_filler_items: vec![Item::ETank],
-        item_placement_style: ItemPlacementStyle::Neutral,
-        item_priority_strength: ItemPriorityStrength::Moderate,
-        item_priorities: vec![
-            ItemPriorityGroup {
-                priority: KeyItemPriority::Early,
-                items: vec!["ETank", "Morph"]
-                    .into_iter()
-                    .map(|x| x.to_string())
-                    .collect(),
-            },
-            ItemPriorityGroup {
-                priority: KeyItemPriority::Default,
-                items: vec![
-                    "ReserveTank",
-                    "Super",
-                    "PowerBomb",
-                    "Charge",
-                    "Ice",
-                    "Wave",
-                    "Spazer",
-                    "Plasma",
-                    "Bombs",
-                    "Grapple",
-                    "HiJump",
-                    "SpeedBooster",
-                    "SpringBall",
-                    "XRayScope",
-                    "WallJump",
-                ]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-            },
-            ItemPriorityGroup {
-                priority: KeyItemPriority::Late,
-                items: vec!["SpaceJump", "ScrewAttack", "Varia", "Gravity"]
-                    .into_iter()
-                    .map(|x| x.to_string())
-                    .collect(),
-            },
-        ],
-        // QoL (Default)
-        item_markers: ItemMarkers::ThreeTiered,
-        mark_map_stations: true,
-        room_outline_revealed: true,
-        opposite_area_revealed: true,
-        early_save: true,
-        mother_brain_fight: MotherBrainFight::Short,
-        supers_double: true,
-        escape_movement_items: true,
-        escape_refill: true,
-        escape_enemies_cleared: true,
-        fast_elevators: true,
-        fast_doors: true,
-        fast_pause_menu: true,
-        respin: false,
-        infinite_space_jump: false,
-        momentum_conservation: false,
-        all_items_spawn: true,
-        acid_chozo: true,
-        remove_climb_lava: true,
-        buffed_drops: true,
-
-        // Game options
-        objectives: vec![
-            Objective::Kraid,
-            Objective::Phantoon,
-            Objective::Draygon,
-            Objective::Ridley,
-        ],
-        vanilla_map: false,
-        doors_mode: DoorsMode::Blue,
-        start_location_mode: StartLocationMode::Random,
-        save_animals: SaveAnimals::No,
-
-        // Other options
-        wall_jump: WallJump::Vanilla,
-        etank_refill: ETankRefill::Vanilla,
-        area_assignment: AreaAssignment::Standard,
-        item_dot_change: ItemDotChange::Fade,
-        transition_letters: false,
-        door_locks_size: DoorLocksSize::Small,
-        maps_revealed: MapsRevealed::No,
-        map_station_reveal: MapStationReveal::Full,
-        energy_free_shinesparks: false,
-        ultra_low_qol: false,
-
-        skill_assumptions_preset: Some(preset.name.clone()),
-        item_progression_preset: Some("Normal".to_string()),
-        quality_of_life_preset: Some("Default".to_string()),
-
-        debug: false,
-    };
-
-    diff
-}
-
-fn set_item_progression_normal(diff: &mut DifficultyConfig) -> () {
-    diff.progression_rate = ProgressionRate::Fast;
-    diff.random_tank = true;
-    diff.spazer_before_plasma = true;
-    diff.filler_items = vec![
-        Item::Missile,
-        Item::ETank,
-        Item::ReserveTank,
-        Item::Super,
-        Item::PowerBomb,
-        Item::Charge,
-        Item::Ice,
-        Item::Wave,
-        Item::Spazer,
-        Item::Plasma,
-        Item::XRayScope,
-    ];
-    diff.semi_filler_items = vec![];
-    diff.early_filler_items = vec![Item::ETank];
-    diff.item_placement_style = ItemPlacementStyle::Neutral;
-    diff.item_priorities = vec![
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Early,
-            items: vec!["Morph", "Bombs"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Default,
-            items: vec![
-                "ETank",
-                "ReserveTank",
-                "Super",
-                "PowerBomb",
-                "Charge",
-                "Ice",
-                "Wave",
-                "Spazer",
-                "Plasma",
-                "Grapple",
-                "HiJump",
-                "SpeedBooster",
-                "SpringBall",
-                "XRayScope",
-                "WallJump",
-                "SpaceJump",
-                "ScrewAttack",
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Late,
-            items: vec!["Varia", "Gravity"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-    ];
-    diff.item_progression_preset = Some("Normal".to_string());
-    ();
-}
-
-fn set_item_progression_tricky(diff: &mut DifficultyConfig) -> () {
-    diff.progression_rate = ProgressionRate::Uniform;
-    diff.random_tank = true;
-    diff.spazer_before_plasma = true;
-    diff.filler_items = vec![
-        Item::Missile,
-        Item::ETank,
-        Item::ReserveTank,
-        Item::Super,
-        Item::PowerBomb,
-        Item::Charge,
-        Item::Ice,
-        Item::Wave,
-        Item::Spazer,
-        Item::Plasma,
-        Item::XRayScope,
-    ];
-    diff.semi_filler_items = vec![];
-    diff.early_filler_items = vec![];
-    diff.item_placement_style = ItemPlacementStyle::Forced;
-    diff.item_priorities = vec![
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Early,
-            items: vec![
-                "Morph",
-                "ETank",
-                "ReserveTank",
-                "Super",
-                "PowerBomb",
-                "Charge",
-                "Ice",
-                "Wave",
-                "Spazer",
-                "Plasma",
-                "Bombs",
-                "Grapple",
-                "HiJump",
-                "SpeedBooster",
-                "SpringBall",
-                "XRayScope",
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Default,
-            items: vec!["WallJump", "SpaceJump", "ScrewAttack"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Late,
-            items: vec!["Varia", "Gravity"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-    ];
-    diff.item_progression_preset = Some("Tricky".to_string());
-    ();
-}
-
-fn set_item_progression_challenge(diff: &mut DifficultyConfig) -> () {
-    diff.progression_rate = ProgressionRate::Slow;
-    diff.random_tank = true;
-    diff.spazer_before_plasma = true;
-    diff.stop_item_placement_early = false;
-    diff.filler_items = vec![Item::Missile, Item::Charge, Item::Spazer];
-    diff.semi_filler_items = vec![Item::Super, Item::PowerBomb];
-    diff.early_filler_items = vec![];
-    diff.item_placement_style = ItemPlacementStyle::Forced;
-    diff.item_priorities = vec![
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Early,
-            items: vec![
-                "ETank",
-                "ReserveTank",
-                "Super",
-                "PowerBomb",
-                "Charge",
-                "Ice",
-                "Wave",
-                "Spazer",
-                "Plasma",
-                "Bombs",
-                "Grapple",
-                "HiJump",
-                "SpeedBooster",
-                "SpringBall",
-                "XRayScope",
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Default,
-            items: vec!["Morph", "WallJump", "SpaceJump", "ScrewAttack"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Late,
-            items: vec!["Varia", "Gravity"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-    ];
-    diff.item_progression_preset = Some("Challenge".to_string());
-    ();
-}
-
-fn set_item_progression_desolate(diff: &mut DifficultyConfig) -> () {
-    diff.progression_rate = ProgressionRate::Slow;
-    diff.random_tank = true;
-    diff.spazer_before_plasma = true;
-    diff.stop_item_placement_early = true;
-    diff.item_pool = vec![
-        (Item::Missile, 12),
-        (Item::Super, 6),
-        (Item::PowerBomb, 6),
-        (Item::ETank, 3),
-        (Item::ReserveTank, 3),
-    ];
-    diff.filler_items = vec![Item::Missile, Item::Charge, Item::Spazer];
-    diff.semi_filler_items = vec![Item::Super, Item::PowerBomb];
-    diff.early_filler_items = vec![];
-    diff.item_placement_style = ItemPlacementStyle::Forced;
-    diff.item_priorities = vec![
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Early,
-            items: vec![
-                "ETank",
-                "ReserveTank",
-                "Super",
-                "PowerBomb",
-                "Charge",
-                "Ice",
-                "Wave",
-                "Spazer",
-                "Plasma",
-                "Bombs",
-                "Grapple",
-                "HiJump",
-                "SpeedBooster",
-                "SpringBall",
-                "XRayScope",
-            ]
-            .into_iter()
-            .map(|x| x.to_string())
-            .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Default,
-            items: vec!["Morph", "WallJump", "SpaceJump", "ScrewAttack"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-        ItemPriorityGroup {
-            priority: KeyItemPriority::Late,
-            items: vec!["Varia", "Gravity"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect(),
-        },
-    ];
-    diff.item_progression_preset = Some("Desolate".to_string());
-    ();
-}
-
-fn set_qol_default(diff: &mut DifficultyConfig) -> () {
-    diff.item_markers = ItemMarkers::ThreeTiered;
-    diff.mark_map_stations = true;
-    diff.room_outline_revealed = true;
-    diff.opposite_area_revealed = false;
-    diff.early_save = true;
-    diff.mother_brain_fight = MotherBrainFight::Short;
-    diff.supers_double = true;
-    diff.escape_movement_items = true;
-    diff.escape_refill = true;
-    diff.escape_enemies_cleared = true;
-    diff.fast_elevators = true;
-    diff.fast_doors = true;
-    diff.fast_pause_menu = true;
-    diff.respin = false;
-    diff.infinite_space_jump = false;
-    diff.momentum_conservation = false;
-    diff.all_items_spawn = true;
-    diff.acid_chozo = true;
-    diff.remove_climb_lava = true;
-    diff.buffed_drops = true;
-    diff.ultra_low_qol = false;
-    diff.quality_of_life_preset = Some("Default".to_string());
-    ()
-}
-
-fn set_qol_high(diff: &mut DifficultyConfig) -> () {
-    diff.item_markers = ItemMarkers::FourTiered;
-    diff.mark_map_stations = true;
-    diff.room_outline_revealed = true;
-    diff.opposite_area_revealed = true;
-    diff.early_save = true;
-    diff.mother_brain_fight = MotherBrainFight::Short;
-    diff.supers_double = true;
-    diff.escape_movement_items = true;
-    diff.escape_refill = true;
-    diff.escape_enemies_cleared = true;
-    diff.fast_elevators = true;
-    diff.fast_doors = true;
-    diff.fast_pause_menu = true;
-    diff.respin = false;
-    diff.infinite_space_jump = false;
-    diff.momentum_conservation = false;
-    diff.all_items_spawn = true;
-    diff.acid_chozo = true;
-    diff.remove_climb_lava = true;
-    diff.buffed_drops = true;
-    diff.ultra_low_qol = false;
-    diff.quality_of_life_preset = Some("High".to_string());
-    ()
-}
-
-fn set_qol_max(diff: &mut DifficultyConfig) -> () {
-    diff.item_markers = ItemMarkers::ThreeTiered;
-    diff.mark_map_stations = true;
-    diff.room_outline_revealed = true;
-    diff.opposite_area_revealed = true;
-    diff.early_save = true;
-    diff.mother_brain_fight = MotherBrainFight::Skip;
-    diff.supers_double = true;
-    diff.escape_movement_items = true;
-    diff.escape_refill = true;
-    diff.escape_enemies_cleared = true;
-    diff.fast_elevators = true;
-    diff.fast_doors = true;
-    diff.fast_pause_menu = true;
-    diff.respin = true;
-    diff.infinite_space_jump = true;
-    diff.momentum_conservation = true;
-    diff.all_items_spawn = true;
-    diff.acid_chozo = true;
-    diff.remove_climb_lava = true;
-    diff.buffed_drops = true;
-    diff.ultra_low_qol = false;
-    diff.quality_of_life_preset = Some("Max".to_string());
-    ()
-}
-
-fn set_qol_low(diff: &mut DifficultyConfig) -> () {
-    diff.item_markers = ItemMarkers::Uniques;
-    diff.mark_map_stations = true;
-    diff.room_outline_revealed = false;
-    diff.opposite_area_revealed = false;
-    diff.early_save = false;
-    diff.mother_brain_fight = MotherBrainFight::Short;
-    diff.supers_double = true;
-    diff.escape_movement_items = false;
-    diff.escape_refill = false;
-    diff.escape_enemies_cleared = false;
-    diff.fast_elevators = true;
-    diff.fast_doors = true;
-    diff.fast_pause_menu = true;
-    diff.respin = false;
-    diff.infinite_space_jump = false;
-    diff.momentum_conservation = false;
-    diff.all_items_spawn = false;
-    diff.acid_chozo = false;
-    diff.remove_climb_lava = false;
-    diff.buffed_drops = false;
-    diff.ultra_low_qol = false;
-    diff.quality_of_life_preset = Some("Low".to_string());
-    ()
-}
-
-fn set_qol_off(diff: &mut DifficultyConfig) -> () {
-    diff.item_markers = ItemMarkers::Simple;
-    diff.mark_map_stations = false;
-    diff.room_outline_revealed = false;
-    diff.opposite_area_revealed = false;
-    diff.early_save = false;
-    diff.mother_brain_fight = MotherBrainFight::Vanilla;
-    diff.supers_double = false;
-    diff.escape_movement_items = false;
-    diff.escape_refill = false;
-    diff.escape_enemies_cleared = false;
-    diff.fast_elevators = false;
-    diff.fast_doors = false;
-    diff.fast_pause_menu = false;
-    diff.respin = false;
-    diff.infinite_space_jump = false;
-    diff.momentum_conservation = false;
-    diff.all_items_spawn = false;
-    diff.acid_chozo = false;
-    diff.remove_climb_lava = false;
-    diff.buffed_drops = false;
-    diff.ultra_low_qol = false;
-    diff.quality_of_life_preset = Some("Off".to_string());
-    ()
-}
-
-fn set_ultra_low_qol(mut diff: &mut DifficultyConfig) -> () {
-    set_qol_off(&mut diff);
-    diff.ultra_low_qol = true;
-    ()
 }
 
 // Reduced version of web::AppData for test tool
@@ -573,10 +54,11 @@ struct TestAppData {
     input_rom: Rom,
     output_dir: PathBuf,
     game_data: GameData,
-    map_repos: Vec<(MapRepository, Option<fn(&mut DifficultyConfig) -> ()>)>,
-    presets: Vec<Preset>,
-    progressions: Vec<fn(&mut DifficultyConfig) -> ()>,
-    qols: Vec<fn(&mut DifficultyConfig) -> ()>,
+    preset_data: PresetData,
+    map_repos: Vec<MapRepository>,
+    skill_presets: Vec<SkillAssumptionSettings>,
+    item_presets: Vec<ItemProgressionSettings>,
+    qol_presets: Vec<QualityOfLifeSettings>,
     etank_colors: Vec<(u8, u8, u8)>,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     samus_sprites: Vec<String>,
@@ -588,45 +70,50 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
-    let preset_idx = rng.next_u64() as usize % app.presets.len();
-    let progression_idx = rng.next_u64() as usize % app.progressions.len();
-    let qol_idx = rng.next_u64() as usize % app.qols.len();
+    let preset_idx = rng.next_u64() as usize % app.skill_presets.len();
+    let progression_idx = rng.next_u64() as usize % app.item_presets.len();
+    let qol_idx = rng.next_u64() as usize % app.qol_presets.len();
     let repo_idx = rng.next_u64() as usize % app.map_repos.len();
 
-    let preset = &app.presets[preset_idx];
-    let progression = &app.progressions[progression_idx];
-    let qol = &app.qols[qol_idx];
-    let (repo, repo_diff) = &app.map_repos[repo_idx];
+    let skill_preset = &app.skill_presets[preset_idx];
+    let item_preset = &app.item_presets[progression_idx];
+    let qol_preset = &app.qol_presets[qol_idx];
+    let map_repo = &app.map_repos[repo_idx];
 
-    let mut diff = create_difficulty_from_preset(&preset);
-    progression(&mut diff);
-    qol(&mut diff);
+    let mut settings = app.preset_data.default_preset.clone();
+    // Use blue doors since ammo doors will cause failures due to not enough map tiles
+    // (TODO: handle this in a better way.)
+    settings.doors_mode = DoorsMode::Blue;
+    settings.skill_assumption_settings = skill_preset.clone();
+    settings.item_progression_settings = item_preset.clone();
+    settings.quality_of_life_settings = qol_preset.clone();
 
-    match repo_diff {
-        Some(rd) => rd(&mut diff),
-        None => (),
-    };
-
-    let skill_label = match &diff.skill_assumptions_preset {
+    let skill_label = match &settings.skill_assumption_settings.preset {
         Some(s) => s.clone(),
         None => String::from("Custom"),
     };
-    let prog_label = match &diff.item_progression_preset {
+    let item_label = match &settings.item_progression_settings.preset {
         Some(s) => s.clone(),
         None => String::from("Custom"),
     };
-    let qol_label = match &diff.quality_of_life_preset {
+    let qol_label = match &settings.quality_of_life_settings.preset {
         Some(s) => s.clone(),
         None => String::from("Custom"),
     };
 
     info!(
         "Generating seed using Skills {0}, Progression {1}, QoL {2}",
-        skill_label, prog_label, qol_label
+        skill_label, item_label, qol_label
     );
 
-    let difficulty_tiers = [diff.clone()]; // TODO needs to do the right thing for
-                                           // ItemPlacementStyle::Forced
+    let difficulty_tiers = get_difficulty_tiers(
+        &settings,
+        &app.preset_data.difficulty_tiers,
+        game_data,
+        &app.preset_data.tech_by_difficulty["Implicit"],
+        &app.preset_data.notables_by_difficulty["Implicit"],
+    );
+
     let random_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
@@ -634,7 +121,7 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     rng = rand::rngs::StdRng::from_seed(rng_seed);
 
     let max_attempts = 10000;
-    let max_attempts_per_map = if diff.start_location_mode == StartLocationMode::Random {
+    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random {
         10
     } else {
         1
@@ -644,32 +131,37 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
 
     let output_file_prefix = format!(
         "{0}-{1}-{2}-{3}",
-        skill_label, prog_label, qol_label, random_seed
+        skill_label, item_label, qol_label, random_seed
     );
 
-    // Save a dump of the difficulty
+    // Save a dump of the settings
+    let settings_json = serde_json::to_string(&settings)?;
     std::fs::write(
         Path::join(
             &app.output_dir,
-            format!("{output_file_prefix}-difficulty.txt"),
+            format!("{output_file_prefix}-settings.json"),
         ),
-        format!("{diff:?}"),
+        settings_json,
     )?;
 
     for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let mut map = repo.get_map(attempt_num, map_seed, game_data)?;
-        if diff.area_assignment == AreaAssignment::Random {
+        let mut map = map_repo.get_map(attempt_num, map_seed, game_data)?;
+        if settings.other_settings.area_assignment == AreaAssignment::Random {
             randomize_map_areas(&mut map, map_seed);
         }
-        let locked_door_data = randomize_doors(&game_data, &map, &diff, door_seed);
+        let objectives = get_objectives(&settings, &mut rng);
+        let locked_door_data = randomize_doors(game_data, &map, &settings, &objectives, door_seed);
         let randomizer = Randomizer::new(
             &map,
             &locked_door_data,
+            objectives,
+            &settings,
             &difficulty_tiers,
             &game_data,
             &game_data.base_links_data,
+            &mut rng,
         );
         for _ in 0..max_attempts_per_map {
             attempt_num += 1;
@@ -862,12 +354,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     Ok(())
 }
 
-fn main() -> Result<()> {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
-        .format_timestamp_millis()
-        .init();
-
-    let args = Args::parse();
+fn build_app_data(args: &Args) -> Result<TestAppData> {
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
     let escape_timings_path = Path::new("data/escape_timings.json");
@@ -897,26 +384,43 @@ fn main() -> Result<()> {
     }
 
     info!("Loading logic preset data");
-    let mut presets: Vec<Preset> =
-        serde_json::from_str(&std::fs::read_to_string(&"data/presets.json")?)?;
+    let tech_path = Path::new("data/tech_data.json");
+    let notable_path = Path::new("data/notable_data.json");
+    let presets_path = Path::new("data/presets");
+    let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
 
-    for ix in 0..(presets.len() - 1) {
-        let mut tech = presets[ix].tech.clone();
-        let mut strat = presets[ix].notables.clone();
-        presets[ix + 1].tech.append(&mut tech);
-        presets[ix + 1].notables.append(&mut strat);
-    }
-
+    let mut skill_presets = preset_data.skill_presets.clone();
     // If we are using a locked-in preset, go ahead and remove all the others.
-    if let Some(fixed_preset) = args.skill_preset {
-        presets.retain(|x| x.name == fixed_preset);
-        if presets.len() < 1 {
-            bail!("Unknown skills preset {fixed_preset}");
-        }
+    if let Some(fixed_preset) = &args.skill_preset {
+        let path = format!("data/presets/skill-assumptions/{}.json", fixed_preset);
+        let s = std::fs::read_to_string(path)?;
+        let p: SkillAssumptionSettings = serde_json::from_str(&s)?;
+        skill_presets = vec![p];
     } else {
-        // Remove Implicit, Beyond, and Ignored preset
-        presets.retain(|x| x.name != "Implicit" && x.name != "Beyond" && x.name != "Ignored");
+        // Remove Implicit and Ignored preset
+        skill_presets.retain(|x| {
+            x.preset.as_ref().unwrap() != "Implicit" && x.preset.as_ref().unwrap() != "Beyond"
+        });
     }
+
+    let mut item_presets = preset_data.item_progression_presets.clone();
+    // If we are using a locked-in preset, go ahead and remove all the others.
+    if let Some(fixed_preset) = &args.item_preset {
+        let path = format!("data/presets/item-progression/{}.json", fixed_preset);
+        let s = std::fs::read_to_string(path)?;
+        let p: ItemProgressionSettings = serde_json::from_str(&s)?;
+        item_presets = vec![p];
+    }
+
+    let mut qol_presets = preset_data.quality_of_life_presets.clone();
+    // If we are using a locked-in preset, go ahead and remove all the others.
+    if let Some(fixed_preset) = &args.item_preset {
+        let path = format!("data/presets/quality-of-life/{}.json", fixed_preset);
+        let s = std::fs::read_to_string(path)?;
+        let p: QualityOfLifeSettings = serde_json::from_str(&s)?;
+        qol_presets = vec![p];
+    }
+
     let etank_color_from_json: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(&etank_colors_path)?)?;
     let mut etank_colors_str: Vec<String> = vec![];
@@ -938,76 +442,6 @@ fn main() -> Result<()> {
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path)?)?;
 
-    let progressions: Vec<fn(&mut DifficultyConfig) -> ()> =
-        match args.progression_preset.as_deref() {
-            Some("Normal") => {
-                vec![set_item_progression_normal]
-            }
-            Some("Tricky") => {
-                vec![set_item_progression_tricky]
-            }
-            Some("Challenge") => {
-                vec![set_item_progression_challenge]
-            }
-            Some("Desolate") => {
-                vec![set_item_progression_desolate]
-            }
-            Some(other) => {
-                bail!("Unknown progression preset {other}");
-            }
-            None => {
-                vec![
-                    set_item_progression_normal,
-                    set_item_progression_tricky,
-                    set_item_progression_challenge,
-                    set_item_progression_desolate,
-                ]
-            }
-        };
-
-    let qols: Vec<fn(&mut DifficultyConfig) -> ()> = match args.qol_preset.as_deref() {
-        Some("Max") => {
-            vec![set_qol_max]
-        }
-        Some("High") => {
-            vec![set_qol_high]
-        }
-        Some("Default") => {
-            vec![set_qol_default]
-        }
-        Some("Low") => {
-            vec![set_qol_low]
-        }
-        Some("Off") => {
-            vec![set_qol_off]
-        }
-        Some("Ultra-Low") => {
-            vec![set_ultra_low_qol]
-        }
-        Some(other) => {
-            bail!("Unknown QoL preset {other}");
-        }
-        None => {
-            vec![
-                set_qol_max,
-                set_qol_high,
-                set_qol_default,
-                set_qol_low,
-                set_qol_off,
-            ]
-        }
-    };
-
-    let mut input_rom = Rom::load(&args.input_rom)?;
-    if input_rom.data.len() < 0x300000 {
-        bail!("Invalid base ROM");
-    }
-    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &input_rom.data);
-    if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
-        info!("Warning: use of non-vanilla base ROM! Digest = {rom_digest}");
-    }
-    input_rom.data.resize(0x400000, 0);
-
     let mut samus_sprites: Vec<String> = vec![];
     for cat in &samus_sprite_categories {
         for inf in &cat.sprites {
@@ -1015,32 +449,44 @@ fn main() -> Result<()> {
         }
     }
 
+    let mut input_rom = Rom::load(&args.input_rom)?;
+    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &input_rom.data);
+    if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
+        info!("Warning: use of non-vanilla base ROM! Digest = {rom_digest}");
+    }
+    input_rom.data.resize(0x400000, 0);
+
     let app = TestAppData {
         attempt_num: args.attempt_num,
         input_rom,
-        output_dir: args.output_seeds,
+        output_dir: args.output_seeds.clone(),
         game_data,
+        preset_data,
         map_repos: vec![
-            (
-                MapRepository::new("Vanilla", vanilla_map_path)?,
-                Some(|diff| {
-                    diff.vanilla_map = true;
-                    diff.tech.push(TECH_ID_CAN_ESCAPE_MORPH_LOCATION)
-                }),
-            ),
-            (MapRepository::new("Tame", tame_maps_path)?, None),
-            (MapRepository::new("Wild", wild_maps_path)?, None),
+            MapRepository::new("Vanilla", vanilla_map_path)?,
+            MapRepository::new("Tame", tame_maps_path)?,
+            MapRepository::new("Wild", wild_maps_path)?,
         ],
-        presets,
-        progressions,
-        qols,
+        skill_presets,
+        item_presets,
+        qol_presets,
         etank_colors,
         samus_sprite_categories,
         samus_sprites,
     };
+    Ok(app)
+}
+
+fn main() -> Result<()> {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format_timestamp_millis()
+        .init();
+
+    let args = Args::parse();
+    let app_data = build_app_data(&args)?;
 
     for test_cycle in 0..args.test_cycles {
-        perform_test_cycle(&app, test_cycle + 1)
+        perform_test_cycle(&app_data, test_cycle + 1)
             .with_context(|| "Failed during test cycle {test_cycle + 1}")?;
         if args.attempt_num.is_some() {
             break;

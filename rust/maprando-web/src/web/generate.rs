@@ -11,7 +11,7 @@ struct GenerateTemplate<'a> {
     progression_rates: Vec<&'static str>,
     item_placement_styles: Vec<&'static str>,
     objectives: Vec<&'static str>,
-    preset_data: &'a [PresetData],
+    preset_data: &'a PresetData,
     item_priorities: Vec<String>,
     item_pool_multiple: Vec<String>,
     starting_items_multiple: Vec<String>,
@@ -90,8 +90,8 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     .collect();
 
     let mut notable_description: HashMap<(RoomId, NotableId), String> = HashMap::new();
-    for i in 0..app_data.game_data.notable_data.len() {
-        let notable_data = &app_data.game_data.notable_data[i];
+    for i in 0..app_data.game_data.notable_info.len() {
+        let notable_data = &app_data.game_data.notable_info[i];
         notable_description.insert(
             (notable_data.room_id, notable_data.notable_id),
             notable_data.note.clone(),
@@ -110,14 +110,13 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     let mut implicit_or_ignored_tech: HashSet<TechId> = HashSet::new();
     let mut implicit_or_ignored_notables: HashSet<(RoomId, NotableId)> = HashSet::new();
     // Assumption: Implicit notables are given in the first preset, ignored notables are given in the last:
-    for p in [
-        &app_data.preset_data[0],
-        app_data.preset_data.last().unwrap(),
-    ] {
-        for tech_setting in &p.preset.tech {
+    for tech_setting in app_data.preset_data.tech_data_map.values() {
+        if tech_setting.difficulty == "Implicit" || tech_setting.difficulty == "Ignored" {
             implicit_or_ignored_tech.insert(tech_setting.tech_id);
         }
-        for notable_setting in &p.preset.notables {
+    }
+    for notable_setting in app_data.preset_data.notable_data_map.values() {
+        if notable_setting.difficulty == "Implicit" || notable_setting.difficulty == "Ignored" {
             implicit_or_ignored_notables
                 .insert((notable_setting.room_id, notable_setting.notable_id));
         }

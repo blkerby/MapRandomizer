@@ -3,7 +3,7 @@ mod web;
 
 use crate::{
     logic_helper::LogicData,
-    web::{AppData, PresetData, VersionInfo, VERSION},
+    web::{AppData, VersionInfo, VERSION},
 };
 use actix_easy_multipart::MultipartFormConfig;
 use actix_files::NamedFile;
@@ -12,119 +12,18 @@ use actix_web::{
     App, HttpServer,
 };
 use clap::Parser;
-use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::{NotableData, Preset, TechData},
+    preset::PresetData,
     seed_repository::SeedRepository,
 };
-use maprando_game::{GameData, NotableId, RoomId, TechId};
+use maprando_game::GameData;
 use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed};
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
-
-fn init_presets(presets: Vec<Preset>, game_data: &GameData) -> Vec<PresetData> {
-    let mut out: Vec<PresetData> = Vec::new();
-    let mut cumulative_tech: HashSet<TechId> = HashSet::new();
-    let mut cumulative_strats: HashSet<(RoomId, NotableId)> = HashSet::new();
-    let mut tech_setting_map: HashMap<TechId, TechData> = HashMap::new();
-    let mut notable_setting_map: HashMap<(RoomId, NotableId), NotableData> = HashMap::new();
-
-    for preset in &presets {
-        for tech_setting in &preset.tech {
-            tech_setting_map.insert(tech_setting.tech_id, tech_setting.clone());
-        }
-        for notable_setting in &preset.notables {
-            notable_setting_map.insert(
-                (notable_setting.room_id, notable_setting.notable_id),
-                notable_setting.clone(),
-            );
-        }
-    }
-
-    for preset in presets {
-        for tech_setting in &preset.tech {
-            let tech_id = tech_setting.tech_id;
-            let tech_name = &tech_setting.name;
-            if cumulative_tech.contains(&tech_id) {
-                panic!("Tech {tech_name} ({tech_id}) appears in presets more than once.");
-            }
-            if !game_data.tech_isv.index_by_key.contains_key(&tech_id) {
-                panic!(
-                    "Unrecognized tech {tech_name} ({tech_id}) appears in preset {}",
-                    preset.name
-                );
-            }
-            cumulative_tech.insert(tech_id);
-        }
-        let mut tech_setting_vec: Vec<(TechData, bool)> = Vec::new();
-        for tech_idx in 0..game_data.tech_isv.keys.len() {
-            let tech_id = game_data.tech_isv.keys[tech_idx];
-            if let Some(tech_setting) = tech_setting_map.get(&tech_id) {
-                tech_setting_vec.push((tech_setting.clone(), cumulative_tech.contains(&tech_id)));
-            } else {
-                let tech_name = game_data.tech_json_map[&tech_id]["name"].as_str().unwrap();
-                panic!("Tech not found in any preset: {} ({})", tech_name, tech_id,);
-            }
-        }
-
-        for notable_setting in &preset.notables {
-            if cumulative_strats.contains(&(notable_setting.room_id, notable_setting.notable_id)) {
-                let room_name = &notable_setting.room_name;
-                let notable_name = &notable_setting.name;
-                panic!(
-                    "Notable strat {room_name}:{notable_name} appears in presets more than once."
-                );
-            }
-            cumulative_strats.insert((notable_setting.room_id, notable_setting.notable_id));
-        }
-        let mut notable_setting_vec: Vec<(NotableData, bool)> = Vec::new();
-        for notable_idx in 0..game_data.notable_isv.keys.len() {
-            let notable_data = &game_data.notable_data[notable_idx];
-            let room_id = notable_data.room_id;
-            let notable_id = notable_data.notable_id;
-            if let Some(notable_setting) = notable_setting_map.get(&(room_id, notable_id)) {
-                notable_setting_vec.push((
-                    notable_setting.clone(),
-                    cumulative_strats.contains(&(room_id, notable_id)),
-                ));
-            } else {
-                let room_name = game_data.room_json_map[&room_id]["name"].as_str().unwrap();
-                panic!(
-                    "Notable not found in any preset: ({}, {}) {}: {}",
-                    room_id, notable_id, room_name, notable_data.name
-                );
-            }
-        }
-
-        out.push(PresetData {
-            preset: preset,
-            tech_setting: tech_setting_vec,
-            notable_setting: notable_setting_vec,
-        });
-    }
-    for &tech_id in &game_data.tech_isv.keys {
-        if !cumulative_tech.contains(&tech_id) {
-            let tech_name = game_data.tech_json_map[&tech_id]["name"].as_str().unwrap();
-            panic!("Tech {tech_name} ({tech_id}) not found in any preset.");
-        }
-    }
-
-    let visible_notable_strats: HashSet<(RoomId, NotableId)> =
-        game_data.notable_isv.keys.iter().cloned().collect();
-    if !cumulative_strats.is_subset(&visible_notable_strats) {
-        let diff: Vec<(RoomId, NotableId)> = cumulative_strats
-            .difference(&visible_notable_strats)
-            .cloned()
-            .collect();
-        panic!("Unrecognized notable strats in presets: {:?}", diff);
-    }
-
-    out
-}
 
 #[derive(Parser)]
 struct Args {
@@ -173,6 +72,9 @@ fn build_app_data() -> AppData {
     let wild_maps_path = Path::new("../maps/v110c-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
+    let tech_path = Path::new("data/tech_data.json");
+    let notable_path = Path::new("data/notable_data.json");
+    let presets_path = Path::new("data/presets");
     let mosaic_themes = vec![
         ("OuterCrateria", "Outer Crateria"),
         ("InnerCrateria", "Inner Crateria"),
@@ -205,11 +107,8 @@ fn build_app_data() -> AppData {
     .unwrap();
 
     info!("Loading logic preset data");
-    let presets: Vec<Preset> =
-        serde_json::from_str(&std::fs::read_to_string(&"data/presets.json").unwrap()).unwrap();
     let etank_colors: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(&etank_colors_path).unwrap()).unwrap();
-    let preset_data = init_presets(presets, &game_data);
     let version_info = VersionInfo {
         version: VERSION,
         dev: args.dev,
@@ -219,6 +118,8 @@ fn build_app_data() -> AppData {
     } else {
         args.video_storage_url.clone()
     };
+
+    let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
 
     let logic_data = LogicData::new(&game_data, &preset_data, &version_info, &video_storage_url);
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
@@ -248,7 +149,7 @@ fn build_app_data() -> AppData {
         video_storage_path: args.video_storage_path.clone(),
         logic_data,
         samus_sprite_categories,
-        debug: args.debug,
+        _debug: args.debug,
         port: args.port,
         version_info: VersionInfo {
             version: VERSION,

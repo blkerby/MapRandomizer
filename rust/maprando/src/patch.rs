@@ -391,11 +391,11 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
     }
 
     // Overwrite door ASM for entering Mother Brain room from right, used for clearing objective barriers:
-    if randomization.difficulty.objectives.len() == 0 {
+    if randomization.objectives.len() == 0 {
         // Check for None objectives
         rom.write_u16(snes2pc(0x83AAD2), 0xECA0)?;
-    } else if randomization.difficulty.objectives.len() == 4 {
-        for (i, obj) in randomization.difficulty.objectives.iter().enumerate() {
+    } else if randomization.objectives.len() == 4 {
+        for (i, obj) in randomization.objectives.iter().enumerate() {
             use Objective::*;
             let (var, mask) = match obj {
                 Kraid => (0xD829, 1),
@@ -460,7 +460,7 @@ impl<'a> Patcher<'a> {
             "beam_doors",
         ];
 
-        if self.randomization.difficulty.ultra_low_qol {
+        if self.randomization.settings.other_settings.ultra_low_qol {
             patches.extend(["ultra_low_qol_vanilla_bugfixes"]);
         } else {
             patches.extend([
@@ -482,41 +482,69 @@ impl<'a> Patcher<'a> {
         }
 
         let mut new_game = "new_game";
-        if self.randomization.difficulty.debug {
+        if self.randomization.settings.debug {
             new_game = "new_game_extra";
         }
         patches.push(new_game);
 
-        if self.randomization.difficulty.all_items_spawn {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .all_items_spawn
+        {
             patches.push("all_items_spawn");
         }
 
-        if self.randomization.difficulty.escape_movement_items
-            || self.randomization.difficulty.stop_item_placement_early
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .escape_movement_items
+            || self
+                .randomization
+                .settings
+                .item_progression_settings
+                .stop_item_placement_early
         {
             patches.push("escape_items");
         }
 
-        if self.randomization.difficulty.fast_elevators {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_elevators
+        {
             patches.push("elevators_speed");
         }
 
-        if self.randomization.difficulty.fast_doors {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_doors
+        {
             patches.push("fast_doors");
         }
 
-        if self.randomization.difficulty.fast_pause_menu {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_pause_menu
+        {
             patches.push("fast_pause_menu");
         }
 
-        match self.randomization.difficulty.wall_jump {
+        match self.randomization.settings.other_settings.wall_jump {
             WallJump::Vanilla => {}
             WallJump::Collectible => {
                 patches.push("walljump_item");
             }
         }
 
-        match self.randomization.difficulty.etank_refill {
+        match self.randomization.settings.other_settings.etank_refill {
             ETankRefill::Disabled => {
                 patches.push("etank_refill_disabled");
             }
@@ -526,28 +554,49 @@ impl<'a> Patcher<'a> {
             }
         }
 
-        if self.randomization.difficulty.energy_free_shinesparks {
+        if self
+            .randomization
+            .settings
+            .other_settings
+            .energy_free_shinesparks
+        {
             patches.push("energy_free_shinesparks");
         }
 
-        if self.randomization.difficulty.respin {
+        if self.randomization.settings.quality_of_life_settings.respin {
             patches.push("respin");
             // patches.push("spinjumprestart");
         }
 
-        if self.randomization.difficulty.momentum_conservation {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .momentum_conservation
+        {
             patches.push("momentum_conservation");
         }
 
-        if self.randomization.difficulty.buffed_drops {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .buffed_drops
+        {
             patches.push("buffed_drops");
         }
 
-        if !self.randomization.difficulty.vanilla_map {
+        if self.randomization.settings.map_layout != "Vanilla" {
             patches.push("zebes_asleep_music");
         }
 
-        if self.randomization.difficulty.mother_brain_fight == MotherBrainFight::Skip {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .mother_brain_fight
+            == MotherBrainFight::Skip
+        {
             patches.push("fix_hyper_slowlock");
         }
 
@@ -559,7 +608,7 @@ impl<'a> Patcher<'a> {
         // Write settings flags, e.g. for use by auto-tracking tools:
         // For now this is just to indicate if walljump-boots exists as an item.
         let mut settings_flag = 0x0000;
-        if self.randomization.difficulty.wall_jump == WallJump::Collectible {
+        if self.randomization.settings.other_settings.wall_jump == WallJump::Collectible {
             settings_flag |= 0x0001;
         }
         self.rom.write_u16(snes2pc(0xdfff05), settings_flag)?;
@@ -799,7 +848,12 @@ impl<'a> Patcher<'a> {
                 self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
             self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm, false)?;
             self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm, false)?;
-            if self.randomization.difficulty.opposite_area_revealed {
+            if self
+                .randomization
+                .settings
+                .quality_of_life_settings
+                .opposite_area_revealed
+            {
                 self.add_map_reveal_tile(src_pair, src_x, src_y)?;
                 self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
             }
@@ -920,7 +974,7 @@ impl<'a> Patcher<'a> {
         let mut extra_door_asm: HashMap<DoorPtr, Vec<u8>> = HashMap::new();
         extra_door_asm.insert(0x1A600, toilet_exit_asm.clone()); // Aqueduct toilet door down
         extra_door_asm.insert(0x1A60C, toilet_exit_asm.clone()); // Aqueduct toilet door up
-        if !self.randomization.difficulty.ultra_low_qol {
+        if !self.randomization.settings.other_settings.ultra_low_qol {
             extra_door_asm.insert(0x191CE, boss_exit_asm.clone()); // Kraid left exit
             extra_door_asm.insert(0x191DA, boss_exit_asm.clone()); // Kraid right exit
             extra_door_asm.insert(0x1A96C, boss_exit_asm.clone()); // Draygon left exit
@@ -1391,12 +1445,22 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_mother_brain_fight_patches(&mut self) -> Result<()> {
-        if self.randomization.difficulty.supers_double {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .supers_double
+        {
             // Make Supers do double damage to Mother Brain:
             self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
         }
 
-        match self.randomization.difficulty.mother_brain_fight {
+        match self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .mother_brain_fight
+        {
             MotherBrainFight::Vanilla => {
                 // See fast_mother_brain_fight.asm patch for baseline changes to speed up cutscenes.
             }
@@ -1431,8 +1495,16 @@ impl<'a> Patcher<'a> {
                     &[0x20, 0x00, 0xFD], // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
                 )?;
 
-                if self.randomization.difficulty.escape_movement_items
-                    || self.randomization.difficulty.stop_item_placement_early
+                if self
+                    .randomization
+                    .settings
+                    .quality_of_life_settings
+                    .escape_movement_items
+                    || self
+                        .randomization
+                        .settings
+                        .item_progression_settings
+                        .stop_item_placement_early
                 {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
@@ -1458,7 +1530,12 @@ impl<'a> Patcher<'a> {
                 self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
                 self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which wouldn't have an effect here except for a delay)
 
-                if self.randomization.difficulty.escape_movement_items {
+                if self
+                    .randomization
+                    .settings
+                    .quality_of_life_settings
+                    .escape_movement_items
+                {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }
@@ -1490,25 +1567,45 @@ impl<'a> Patcher<'a> {
         // Remove fake gray door that gets drawn in Phantoon's Room:
         self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
 
-        if self.randomization.difficulty.all_items_spawn {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .all_items_spawn
+        {
             // Copy the item in Pit Room to the Zebes-asleep state.
             // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
             let plm_data = self.rom.read_n(0x783EE, 6)?.to_vec();
             self.rom.write_n(0x783C8, &plm_data)?;
         }
 
-        if self.randomization.difficulty.acid_chozo {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .acid_chozo
+        {
             // Remove Space Jump check
             self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
-        if self.randomization.difficulty.remove_climb_lava {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .remove_climb_lava
+        {
             // Replace the Tourian Escape Room 4 door with the value 0xFFFF which does not match any door,
             // effectively disabling the door-specific FX for this room.
             self.rom.write_u16(snes2pc(0x838060), 0xFFFF)?;
         }
 
-        if self.randomization.difficulty.infinite_space_jump {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .infinite_space_jump
+        {
             // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
             // self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (old Lenient Space Jump)
 
@@ -1517,7 +1614,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_n(snes2pc(0x90A4AF), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
-        if !self.randomization.difficulty.ultra_low_qol {
+        if !self.randomization.settings.other_settings.ultra_low_qol {
             // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
             // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
             // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
@@ -1534,17 +1631,27 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
         }
 
-        if self.randomization.difficulty.save_animals == SaveAnimals::Yes {
+        if self.randomization.settings.save_animals == SaveAnimals::Yes {
             // Change end-game behavior to require saving the animals. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }
 
-        if self.randomization.difficulty.escape_enemies_cleared {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .escape_enemies_cleared
+        {
             // Change escape behavior to clear enemies. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1f004), 0xFFFF)?;
         }
 
-        if !self.randomization.difficulty.escape_refill {
+        if !self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .escape_refill
+        {
             // Disable the energy refill at the start of the escape. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F002), 0x0001)?;
         }
@@ -1777,20 +1884,26 @@ impl<'a> Patcher<'a> {
         self.write_preset(
             224,
             self.randomization
-                .difficulty
-                .skill_assumptions_preset
+                .settings
+                .skill_assumption_settings
+                .preset
                 .clone(),
         )?;
         self.write_preset(
             226,
             self.randomization
-                .difficulty
-                .item_progression_preset
+                .settings
+                .item_progression_settings
+                .preset
                 .clone(),
         )?;
         self.write_preset(
             228,
-            self.randomization.difficulty.quality_of_life_preset.clone(),
+            self.randomization
+                .settings
+                .quality_of_life_settings
+                .preset
+                .clone(),
         )?;
 
         // Write item locations in credits tilemap
@@ -1831,11 +1944,18 @@ impl<'a> Patcher<'a> {
         let mut items_set: HashSet<String> = HashSet::new();
 
         // Show starting items at the top:
-        for &(item, _cnt) in &self.randomization.starting_items {
-            let raw_name = Item::VARIANTS[item as usize].to_string();
-            let item_name = item_display_name_map[&raw_name].clone();
-            self.write_item_credits(items_set.len(), None, &item_name, None, "starting item")?;
-            items_set.insert(raw_name.clone());
+        for (&item, &cnt) in &self
+            .randomization
+            .settings
+            .item_progression_settings
+            .starting_items
+        {
+            if cnt > 0 {
+                let raw_name = Item::VARIANTS[item as usize].to_string();
+                let item_name = item_display_name_map[&raw_name].clone();
+                self.write_item_credits(items_set.len(), None, &item_name, None, "starting item")?;
+                items_set.insert(raw_name.clone());
+            }
         }
 
         // Show collectible items in the middle:
@@ -1877,7 +1997,7 @@ impl<'a> Patcher<'a> {
 
         // Show unplaced items at the bottom:
         for (name, display_name) in &item_name_pairs {
-            if self.randomization.difficulty.wall_jump != WallJump::Collectible
+            if self.randomization.settings.other_settings.wall_jump != WallJump::Collectible
                 && name == "WallJump"
             {
                 // Don't show "WallJump" item unless using Collectible mode.
@@ -1941,7 +2061,15 @@ impl<'a> Patcher<'a> {
         ]
         .into_iter()
         .collect();
-        for &(item, cnt) in &self.randomization.starting_items {
+        for (&item, &cnt) in &self
+            .randomization
+            .settings
+            .item_progression_settings
+            .starting_items
+        {
+            if cnt == 0 {
+                continue;
+            }
             if item_bitmask_map.contains_key(&item) {
                 item_mask |= item_bitmask_map[&item];
             } else if beam_bitmask_map.contains_key(&item) {
@@ -1989,8 +2117,13 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, starting_supers)?;
         self.rom
             .write_u16(initial_max_power_bombs, starting_powerbombs)?;
-        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape
-            && self.randomization.difficulty.mother_brain_fight != MotherBrainFight::Skip
+        if self.randomization.settings.start_location_mode == StartLocationMode::Escape
+            && self
+                .randomization
+                .settings
+                .quality_of_life_settings
+                .mother_brain_fight
+                != MotherBrainFight::Skip
         {
             self.rom.write_u16(initial_missiles, 0)?;
             self.rom.write_u16(initial_supers, 0)?;
@@ -2012,7 +2145,7 @@ impl<'a> Patcher<'a> {
         let initial_load_station_addr = snes2pc(0xB5FE02);
         let initial_boss_bits = snes2pc(0xB5FE0C);
 
-        if self.randomization.difficulty.start_location_mode == StartLocationMode::Escape {
+        if self.randomization.settings.start_location_mode == StartLocationMode::Escape {
             // Use Tourian load station 2, set up in escape_autosave.asm
             self.rom.write_u16(initial_area_addr, 5)?;
             self.rom.write_u16(initial_load_station_addr, 2)?;
@@ -2146,7 +2279,7 @@ impl<'a> Patcher<'a> {
             (Some(0x1A630), Some(0x1A5C4)), // Bug Sand Hole (left)
             (Some(0x1A618), Some(0x1A564)), // Bug Sand Hole (right)
         ];
-        if self.randomization.difficulty.wall_jump != WallJump::Vanilla {
+        if self.randomization.settings.other_settings.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
                 (Some(0x18A06), Some(0x1A300)), // West Ocean Gravity Suit door
                 (Some(0x198BE), Some(0x198CA)), // Ridley's Room top door
@@ -2743,13 +2876,13 @@ pub fn make_rom(
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
     patcher.remove_non_blue_doors()?;
-    if !randomization.difficulty.vanilla_map
-        || randomization.difficulty.area_assignment == AreaAssignment::Random
+    if randomization.settings.map_layout != "Vanilla"
+        || randomization.settings.other_settings.area_assignment == AreaAssignment::Random
     {
         patcher.use_area_based_music()?;
     }
     patcher.setup_door_specific_fx()?;
-    if !randomization.difficulty.ultra_low_qol {
+    if !randomization.settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
     }
     patcher.fix_twin_rooms()?;
@@ -2761,10 +2894,14 @@ pub fn make_rom(
     patcher.write_walljump_item_graphics()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
-    if !randomization.difficulty.ultra_low_qol {
+    if !randomization.settings.other_settings.ultra_low_qol {
         patcher.apply_hazard_markers()?;
     }
-    if randomization.difficulty.room_outline_revealed {
+    if randomization
+        .settings
+        .quality_of_life_settings
+        .room_outline_revealed
+    {
         patcher.apply_all_room_outlines()?;
     }
     patcher.apply_toilet_data()?;

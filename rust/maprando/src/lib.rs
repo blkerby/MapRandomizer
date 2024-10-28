@@ -1,4 +1,5 @@
 pub mod customize;
+pub mod helpers;
 pub mod map_repository;
 pub mod patch;
 pub mod preset;

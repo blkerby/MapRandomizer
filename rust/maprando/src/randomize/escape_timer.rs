@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
-use hashbrown::HashSet;
 use maprando_game::TechId;
 use maprando_game::TECH_ID_CAN_HERO_SHOT;
 use maprando_game::TECH_ID_CAN_HYPER_GATE_SHOT;
@@ -14,6 +13,7 @@ use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
 use crate::randomize::SaveAnimals;
+use crate::settings::RandomizerSettings;
 use maprando_game::{
     DoorPtrPair, EscapeConditionRequirement, GameData, IndexedVec, Map, RoomGeometryDoorIdx,
     RoomGeometryRoomIdx,
@@ -76,28 +76,34 @@ fn parse_in_game_time(raw_time: f32) -> usize {
 
 fn is_requirement_satisfied(
     req: EscapeConditionRequirement,
-    config: &DifficultyConfig,
-    tech_map: &HashMap<TechId, bool>,
+    settings: &RandomizerSettings,
+    difficulty: &DifficultyConfig,
+    game_data: &GameData,
 ) -> bool {
+    let has_tech = |tech_id: TechId| {
+        let tech_idx = game_data.tech_isv.index_by_key[&tech_id];
+        difficulty.tech[tech_idx]
+    };
     match req {
-        EscapeConditionRequirement::EnemiesCleared => config.escape_enemies_cleared,
-        EscapeConditionRequirement::CanMidAirMorph => tech_map[&TECH_ID_CAN_MID_AIR_MORPH],
+        EscapeConditionRequirement::EnemiesCleared => {
+            settings.quality_of_life_settings.escape_enemies_cleared
+        }
+        EscapeConditionRequirement::CanMidAirMorph => has_tech(TECH_ID_CAN_MID_AIR_MORPH),
         EscapeConditionRequirement::CanUsePowerBombs => {
-            config.mother_brain_fight == MotherBrainFight::Skip
+            settings.quality_of_life_settings.mother_brain_fight == MotherBrainFight::Skip
         }
-        EscapeConditionRequirement::CanAcidDive => tech_map[&TECH_ID_CAN_SUITLESS_LAVA_DIVE],
-        EscapeConditionRequirement::CanKago => tech_map[&TECH_ID_CAN_KAGO],
-        EscapeConditionRequirement::CanMoonfall => tech_map[&TECH_ID_CAN_MOONFALL],
-        EscapeConditionRequirement::CanOffCameraShot => {
-            tech_map[&TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT]
-        }
-        EscapeConditionRequirement::CanReverseGate => tech_map[&TECH_ID_CAN_HYPER_GATE_SHOT],
-        EscapeConditionRequirement::CanHeroShot => tech_map[&TECH_ID_CAN_HERO_SHOT],
+        EscapeConditionRequirement::CanAcidDive => has_tech(TECH_ID_CAN_SUITLESS_LAVA_DIVE),
+        EscapeConditionRequirement::CanKago => has_tech(TECH_ID_CAN_KAGO),
+        EscapeConditionRequirement::CanMoonfall => has_tech(TECH_ID_CAN_MOONFALL),
+        EscapeConditionRequirement::CanOffCameraShot => has_tech(TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT),
+        EscapeConditionRequirement::CanReverseGate => has_tech(TECH_ID_CAN_HYPER_GATE_SHOT),
+        EscapeConditionRequirement::CanHeroShot => has_tech(TECH_ID_CAN_HERO_SHOT),
     }
 }
 
 pub fn get_base_room_door_graph(
     game_data: &GameData,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
 ) -> RoomDoorGraph {
     let mut vertices: IndexedVec<VertexKey> = IndexedVec::default();
@@ -105,14 +111,6 @@ pub fn get_base_room_door_graph(
     let mut ship_vertex_id = VertexId::MAX;
     let mut animals_vertex_id = VertexId::MAX;
     let mut mother_brain_vertex_id = VertexId::MAX;
-
-    let tech_set: HashSet<TechId> = difficulty.tech.iter().cloned().collect();
-    let tech_map: HashMap<TechId, bool> = game_data
-        .tech_isv
-        .keys
-        .iter()
-        .map(|x| (x.clone(), tech_set.contains(x)))
-        .collect();
 
     for (room_idx, escape_timing_room) in game_data.escape_timings.iter().enumerate() {
         for escape_timing_group in &escape_timing_room.timings {
@@ -147,7 +145,7 @@ pub fn get_base_room_door_graph(
                     if condition
                         .requires
                         .iter()
-                        .all(|&req| is_requirement_satisfied(req, difficulty, &tech_map))
+                        .all(|&req| is_requirement_satisfied(req, settings, difficulty, game_data))
                     {
                         let cost = parse_in_game_time(condition.in_game_time);
                         successors[from_idx].push((to_idx, cost));
@@ -169,9 +167,10 @@ pub fn get_base_room_door_graph(
 pub fn get_full_room_door_graph(
     game_data: &GameData,
     map: &Map,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
 ) -> RoomDoorGraph {
-    let base = get_base_room_door_graph(game_data, difficulty);
+    let base = get_base_room_door_graph(game_data, settings, difficulty);
     let mut door_ptr_pair_to_vertex: HashMap<DoorPtrPair, VertexId> = HashMap::new();
     for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
         for (door_idx, door) in room.doors.iter().enumerate() {
@@ -277,13 +276,14 @@ fn get_shortest_path(
 pub fn compute_escape_data(
     game_data: &GameData,
     map: &Map,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
 ) -> Result<SpoilerEscape> {
-    let graph = get_full_room_door_graph(game_data, map, difficulty);
+    let graph = get_full_room_door_graph(game_data, map, settings, difficulty);
     let animals_spoiler: Option<Vec<SpoilerEscapeRouteEntry>>;
     let ship_spoiler: Vec<SpoilerEscapeRouteEntry>;
     let base_igt_frames: usize;
-    if difficulty.save_animals != SaveAnimals::No {
+    if settings.save_animals != SaveAnimals::No {
         let animals_path = get_shortest_path(
             graph.mother_brain_vertex_id,
             graph.animals_vertex_id,

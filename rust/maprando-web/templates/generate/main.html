@@ -38,12 +38,12 @@
                         <label for="preset">Skill assumptions</label>
                     </div>
                     <div class="col-lg-9 mt-0 btn-group overflow-auto" role="group">
-                    {% for p in preset_data.iter() %}
-                    {% let name = p.preset.name|as_ref %}
+                    {% for p in preset_data.skill_presets.iter() %}
+                    {% let name = p.preset.as_ref().unwrap() %}
                     {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
                     {% continue %}
                     {% endif %}
-                    {% let name_no_space = p.preset.name.replace(" ", "") %}
+                    {% let name_no_space = name.replace(" ", "") %}
                         <input type="radio" class="btn-check" name="preset" value="{{+ name }}"
                             id="preset{{+ name_no_space }}" autocomplete="off" onclick="presetChanged()"
                             {% if name == "Basic" %}

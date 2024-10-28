@@ -4,16 +4,15 @@ use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::patch::ips_write::create_ips_patch;
+use maprando::patch::make_rom;
 use maprando::patch::Rom;
-use maprando::randomize::{randomize_doors, ItemPriorityGroup, Randomization, Randomizer};
-use maprando::settings::{
-    AreaAssignment, DoorLocksSize, DoorsMode, ETankRefill, ItemDotChange, ItemMarkers,
-    ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MapStationReveal, MapsRevealed,
-    MotherBrainFight, ProgressionRate, SaveAnimals, StartLocationMode, WallJump,
+use maprando::preset::PresetData;
+use maprando::randomize::{
+    get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer,
 };
+use maprando::settings::{RandomizerSettings, StartLocationMode};
 use maprando::spoiler_map;
-use maprando::{patch::make_rom, randomize::DifficultyConfig};
-use maprando_game::{GameData, Item, Map};
+use maprando_game::{GameData, Map};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 
@@ -21,6 +20,18 @@ use std::path::{Path, PathBuf};
 struct Args {
     #[arg(long)]
     map: PathBuf,
+
+    #[arg(long)]
+    preset: Option<String>,
+
+    #[arg(long)]
+    skill_preset: Option<String>,
+
+    #[arg(long)]
+    item_preset: Option<String>,
+
+    #[arg(long)]
+    qol_preset: Option<String>,
 
     #[arg(long)]
     random_seed: Option<usize>,
@@ -50,109 +61,48 @@ struct Args {
     area_themed_palette: bool,
 }
 
-fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization> {
-    let difficulty = DifficultyConfig {
-        name: None,
-        tech: game_data.tech_isv.keys.clone(),
-        notables: vec![],
-        shine_charge_tiles: 16.0,
-        heated_shine_charge_tiles: 16.0,
-        speed_ball_tiles: 24.0,
-        shinecharge_leniency_frames: 15,
-        progression_rate: ProgressionRate::Fast,
-        random_tank: true,
-        spazer_before_plasma: true,
-        stop_item_placement_early: false,
-        item_pool: vec![],
-        starting_items: vec![
-            (Item::Gravity, 1),
-            (Item::Varia, 1),
-            (Item::Morph, 1),
-            (Item::Missile, 1),
-            (Item::Super, 1),
-            (Item::PowerBomb, 1),
-            (Item::SpeedBooster, 1),
-            (Item::SpaceJump, 1),
-            (Item::ScrewAttack, 1),
-            (Item::HiJump, 1),
-            (Item::Grapple, 1),
-            (Item::ETank, 1),
-            (Item::ReserveTank, 1),
-        ],
-        semi_filler_items: vec![],
-        filler_items: vec![Item::Missile],
-        early_filler_items: vec![],
-        item_placement_style: ItemPlacementStyle::Neutral,
-        item_priority_strength: ItemPriorityStrength::Moderate,
-        item_priorities: vec![
-            ItemPriorityGroup {
-                priority: KeyItemPriority::Early,
-                items: vec!["Morph".to_string()],
-            },
-            ItemPriorityGroup {
-                priority: KeyItemPriority::Default,
-                items: game_data
-                    .item_isv
-                    .keys
-                    .iter()
-                    .filter(|x| x != &"Morph" && x != &"Varia" && x != &"Gravity")
-                    .cloned()
-                    .collect(),
-            },
-            ItemPriorityGroup {
-                priority: KeyItemPriority::Late,
-                items: vec!["Varia".to_string(), "Gravity".to_string()],
-            },
-        ],
-        resource_multiplier: 1.0,
-        escape_timer_multiplier: 3.0,
-        gate_glitch_leniency: 0,
-        door_stuck_leniency: 0,
-        phantoon_proficiency: 1.0,
-        draygon_proficiency: 1.0,
-        ridley_proficiency: 1.0,
-        botwoon_proficiency: 1.0,
-        mother_brain_proficiency: 1.0,
-        supers_double: true,
-        mother_brain_fight: MotherBrainFight::Skip,
-        escape_enemies_cleared: true,
-        escape_refill: true,
-        escape_movement_items: true,
-        mark_map_stations: true,
-        room_outline_revealed: true,
-        opposite_area_revealed: true,
-        transition_letters: true,
-        door_locks_size: DoorLocksSize::Small,
-        item_markers: ItemMarkers::ThreeTiered,
-        item_dot_change: ItemDotChange::Fade,
-        all_items_spawn: true,
-        acid_chozo: true,
-        remove_climb_lava: true,
-        buffed_drops: true,
-        fast_elevators: true,
-        fast_doors: true,
-        fast_pause_menu: true,
-        respin: false,
-        infinite_space_jump: false,
-        momentum_conservation: false,
-        objectives: vec![],
-        doors_mode: DoorsMode::Ammo,
-        start_location_mode: StartLocationMode::Ship,
-        save_animals: SaveAnimals::No,
-        area_assignment: AreaAssignment::Standard,
-        early_save: false,
-        wall_jump: WallJump::Vanilla,
-        etank_refill: ETankRefill::Vanilla,
-        maps_revealed: MapsRevealed::Full,
-        map_station_reveal: MapStationReveal::Full,
-        energy_free_shinesparks: false,
-        vanilla_map: false,
-        ultra_low_qol: false,
-        skill_assumptions_preset: Some("None".to_string()),
-        item_progression_preset: Some("None".to_string()),
-        quality_of_life_preset: Some("None".to_string()),
-        debug: false,
-    };
+fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSettings> {
+    let mut settings = preset_data.default_preset.clone();
+
+    if let Some(preset) = &args.preset {
+        let path = format!("data/presets/full-settings/{}.json", preset);
+        let s = std::fs::read_to_string(path)?;
+        settings = serde_json::from_str(&s)?;
+    }
+    if let Some(skill_preset) = &args.skill_preset {
+        let path = format!("data/presets/skill-assumptions/{}.json", skill_preset);
+        let s = std::fs::read_to_string(path)?;
+        settings.skill_assumption_settings = serde_json::from_str(&s)?;
+    }
+    if let Some(item_preset) = &args.item_preset {
+        let path = format!("data/presets/item-progression/{}.json", item_preset);
+        let s = std::fs::read_to_string(path)?;
+        settings.item_progression_settings = serde_json::from_str(&s)?;
+    }
+    if let Some(qol_preset) = &args.qol_preset {
+        let path = format!("data/presets/item-quality-of-life/{}.json", qol_preset);
+        let s = std::fs::read_to_string(path)?;
+        settings.quality_of_life_settings = serde_json::from_str(&s)?;
+    }
+    settings.other_settings.random_seed = args.random_seed;
+    Ok(settings)
+}
+
+fn get_randomization(
+    args: &Args,
+    settings: &RandomizerSettings,
+    game_data: &GameData,
+    preset_data: &PresetData,
+) -> Result<Randomization> {
+    let implicit_tech = &preset_data.tech_by_difficulty["Implicit"];
+    let implicit_notables = &preset_data.notables_by_difficulty["Implicit"];
+    let difficulty_tiers = get_difficulty_tiers(
+        &settings,
+        &preset_data.difficulty_tiers,
+        game_data,
+        implicit_tech,
+        implicit_notables,
+    );
     let single_map: Option<Map>;
     let mut filenames: Vec<String> = Vec::new();
     if args.map.is_dir() {
@@ -176,7 +126,6 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
                 .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?,
         );
     }
-    let difficulty_tiers = [difficulty];
     let root_seed = match args.random_seed {
         Some(s) => s,
         None => (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize,
@@ -193,12 +142,11 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             None => 10000, // Same as maprando-web.
         }
     };
-    let max_attempts_per_map =
-        if difficulty_tiers[0].start_location_mode == StartLocationMode::Random {
-            10
-        } else {
-            1
-        };
+    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random {
+        10
+    } else {
+        1
+    };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     let mut attempt_num = 0;
     for _ in 0..max_map_attempts {
@@ -220,13 +168,17 @@ fn get_randomization(args: &Args, game_data: &GameData) -> Result<Randomization>
             Some(s) => s,
             None => (rng.next_u64() & 0xFFFFFFFF) as usize,
         };
-        let locked_door_data = randomize_doors(game_data, &map, &difficulty_tiers[0], door_seed);
+        let objectives = get_objectives(&settings, &mut rng);
+        let locked_door_data = randomize_doors(game_data, &map, settings, &objectives, door_seed);
         let randomizer = Randomizer::new(
             &map,
             &locked_door_data,
+            objectives,
+            settings,
             &difficulty_tiers,
             &game_data,
             &game_data.base_links_data,
+            &mut rng,
         );
         for _ in 0..max_attempts_per_map {
             attempt_num += 1;
@@ -276,8 +228,14 @@ fn main() -> Result<()> {
         strat_videos_path,
     )?;
 
+    let tech_path = Path::new("data/tech_data.json");
+    let notable_path = Path::new("data/notable_data.json");
+    let presets_path = Path::new("data/presets");
+    let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
+    let settings = get_settings(&args, &preset_data)?;
+
     // Perform randomization (map selection & item placement):
-    let randomization = get_randomization(&args, &game_data)?;
+    let randomization = get_randomization(&args, &settings, &game_data, &preset_data)?;
 
     // Generate the patched ROM:
     let orig_rom = Rom::load(&args.input_rom)?;

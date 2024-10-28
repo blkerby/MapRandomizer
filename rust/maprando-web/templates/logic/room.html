@@ -46,13 +46,13 @@ document.getElementById("navigation-logic").classList.add("active");
             Difficulty filter
         </div>
         <div class="col-lg-10 my-2 btn-group overflow-auto" role="group">
-        {% for (i, difficulty) in difficulty_names.iter().enumerate() %}
+        {% for (i, difficulty) in preset_data.difficulty_levels.keys.iter().enumerate() %}
             {% if difficulty == "Implicit" || difficulty == "Ignored" %}
               {% continue %}
             {% endif %}
             <input type="radio" class="btn-check difficulty-filter" name="preset" value="{{+ i }}"
                 id="preset{{+ i }}" autocomplete="off" onclick="presetChanged()" 
-                {% if i == difficulty_names.len() - 1 %}
+                {% if i == 8 %}
                 checked
                 {% endif %}
                 >

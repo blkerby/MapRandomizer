@@ -1,15 +1,14 @@
 <input type="hidden" id="json-tech" name="tech_json">
 <input type="hidden" id="json-strat" name="notable_json">
-{% for (preset_idx, p) in preset_data.iter().enumerate() %}
-    {% let preset_name = p.preset.name|as_ref %}
-    {% if preset_name == "Implicit" || preset_name == "Ignored" %}
+{% for (difficulty_idx, difficulty_name) in preset_data.difficulty_levels.keys.iter().enumerate()  %}
+    {% if difficulty_name == "Implicit" || difficulty_name == "Ignored" %}
     {% continue %}
     {% endif %}
-    {% let name_no_space = p.preset.name.replace(" ", "") %}
+    {% let name_no_space = difficulty_name.replace(" ", "") %}
     <div class="accordion-item my-0 p-0">
         <h2 class="accordion-header">
         <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{+ name_no_space }}Tech">
-            {{+ p.preset.name +}} (<span id="percent-tier-{{+ name_no_space }}"></span>%)
+            {{+ difficulty_name +}} (<span id="percent-tier-{{+ name_no_space }}"></span>%)
         </button>
         </h2>
         <style>
@@ -32,16 +31,17 @@
         <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse my-0 p-0">
             <div class="card">
                 <div class="card-body my-0 p-0">
-                    {% for tech_setting in p.preset.tech %}
-                        {% let tech_id = tech_setting.tech_id|as_ref %}
-                        {% let tech_name = tech_setting.name|as_ref %}
+                    {% let difficulty_tech = preset_data.tech_by_difficulty[difficulty_name] %}
+                    {% for tech_id in difficulty_tech %}
+                        {% let tech_data = preset_data.tech_data_map[tech_id] %}
+                        {% let tech_name = tech_data.name|as_ref %}
                         {% if loop.index0 > 0 %}
                             <hr class="m-0">
                         {% endif %}
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2 my-0">
-                                {% if tech_setting.video_id.is_some() %}
-                                {% let video_id = tech_setting.video_id.unwrap() %}
+                                {% if tech_data.video_id.is_some() %}
+                                {% let video_id = tech_data.video_id.unwrap() %}
                                 {% let video_storage_url = video_storage_url %}
                                 {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
                                 {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
@@ -74,7 +74,7 @@
                                     <p><i>Dependencies: {{+ tech_dependencies_str[tech_id] }} </i></p>
                                     {% endif %}
                                     {% if tech_strat_counts[tech_id] > 0usize|as_ref %}
-                                        <p class="mt-3"><a href="/logic/tech/{{+ tech_id }}" onclick="setPreset('{{+ preset_idx }}');">
+                                        <p class="mt-3"><a href="/logic/tech/{{+ tech_id }}" onclick="setDifficulty('{{+ difficulty_idx }}');">
                                         {% let cnt = tech_strat_counts[tech_id] %}
                                         {% let strat_pluralization -%}
                                         {% if cnt == 1|as_ref %}
@@ -91,23 +91,25 @@
                 </div>
             </div>
             <div class="card">
-                {% if p.preset.notables.len() > 0 %}
+                {% if preset_data.notables_by_difficulty[difficulty_name].len() > 0|as_ref %}
                 <div class="card-header">
                     Notable strats
                 </div>
                 {% endif %}
                 <div class="card-body my-0 p-0">
-                    {% for notable_setting in p.preset.notables %}
-                    {% let notable_name = notable_setting.name|as_ref %}
-                    {% let room_id = notable_setting.room_id %}
-                    {% let room_name = notable_setting.room_name|as_ref %}
-                    {% let notable_id = notable_setting.notable_id %}
+                    {% let difficulty_notables = preset_data.notables_by_difficulty[difficulty_name] %}
+                    {% for id_pair in difficulty_notables %}
+                    {% let room_id = id_pair.0 %}
+                    {% let notable_id = id_pair.1 %}
+                    {% let notable_data = preset_data.notable_data_map[id_pair] %}
+                    {% let notable_name = notable_data.name|as_ref %}
+                    {% let room_name = notable_data.room_name|as_ref %}
                     {% let combo_id = format!("{}-{}", room_id, notable_id) %}
                         <hr class="m-0">
                         <div class="row m-0 p-3 tech-row">
                             <div class="text-center col-sm-4 col-md-3 col-lg-2">
-                                {% if notable_setting.video_id.is_some() %}
-                                {% let video_id = notable_setting.video_id.unwrap() %}
+                                {% if notable_data.video_id.is_some() %}
+                                {% let video_id = notable_data.video_id.unwrap() %}
                                 {% let video_storage_url = video_storage_url %}
                                 {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
                                 {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
@@ -135,12 +137,12 @@
                                     </div>
                                     <div class="row">
                                         <div class="col-sm-12 my-1">
-                                            {% let desc = notable_description[(room_id, notable_id)|as_ref] %}
+                                            {% let desc = notable_description[id_pair] %}
                                             {{ desc }}
                                         </div>
                                     </div>
-                                    <p class="mt-3"><a href="/logic/notable/{{ room_id }}/{{ notable_id }}" onclick="setPreset('{{+ preset_idx }}');">
-                                        {% let cnt = notable_strat_counts[(room_id, notable_id)|as_ref] %}
+                                    <p class="mt-3"><a href="/logic/notable/{{ room_id }}/{{ notable_id }}" onclick="setDifficulty('{{+ difficulty_idx }}');">
+                                        {% let cnt = notable_strat_counts[id_pair] %}
                                         {% let strat_pluralization -%}
                                         {% if cnt == 1|as_ref %}
                                           {% let strat_pluralization = "strat" %}
@@ -159,7 +161,7 @@
     </div>
 {% endfor %}
 <script>
-function setPreset(i) {
+function setDifficulty(i) {
     localStorage["filterForm"] = JSON.stringify({"preset": i});
 }
 </script>
