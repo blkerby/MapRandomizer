@@ -1,4 +1,5 @@
 pub mod customize;
+pub mod helpers;
 pub mod map_repository;
 pub mod patch;
 pub mod preset;
@@ -7,4 +8,3 @@ pub mod seed_repository;
 pub mod settings;
 pub mod spoiler_map;
 pub mod traverse;
-pub mod helpers;

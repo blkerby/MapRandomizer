@@ -2464,7 +2464,12 @@ impl<'a> MapPatcher<'a> {
         let mut right_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
         let mut down_arrow_tile_idxs: Vec<TilemapWord> = Vec::new();
         let mut letter_tile_idxs: Vec<TilemapWord> = Vec::new();
-        if self.randomization.settings.other_settings.transition_letters {
+        if self
+            .randomization
+            .settings
+            .other_settings
+            .transition_letters
+        {
             for area in 0..NUM_AREAS {
                 let color_number = area_arrow_colors[area] as u8;
 
@@ -2497,7 +2502,12 @@ impl<'a> MapPatcher<'a> {
             let src_area = self.map.area[src_room_idx];
             let dst_area = self.map.area[dst_room_idx];
             if src_area != dst_area {
-                if self.randomization.settings.other_settings.transition_letters {
+                if self
+                    .randomization
+                    .settings
+                    .other_settings
+                    .transition_letters
+                {
                     self.add_door_letter(
                         src_room_idx,
                         &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
@@ -2592,7 +2602,12 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if self.randomization.settings.quality_of_life_settings.mark_map_stations {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .mark_map_stations
+        {
             for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
                 if !room.name.contains(" Map Room") {
                     continue;
@@ -2619,7 +2634,12 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn set_map_activation_behavior(&mut self) -> Result<()> {
-        match self.randomization.settings.other_settings.map_station_reveal {
+        match self
+            .randomization
+            .settings
+            .other_settings
+            .map_station_reveal
+        {
             MapStationReveal::Partial => {
                 self.rom.write_u16(snes2pc(0x90F700), 0xFFFF)?;
             }
@@ -2670,7 +2690,11 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_major_items(&mut self) -> Result<()> {
-        let markers = self.randomization.settings.quality_of_life_settings.item_markers;
+        let markers = self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .item_markers;
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
             if room_id == 19
@@ -2758,7 +2782,9 @@ impl<'a> MapPatcher<'a> {
             if self.randomization.settings.other_settings.ultra_low_qol {
                 self.rom
                     .write_u16(base_ptr + offset, (tile1 | 0x0C00) as isize)?;
-            } else if self.randomization.settings.other_settings.item_dot_change == ItemDotChange::Fade {
+            } else if self.randomization.settings.other_settings.item_dot_change
+                == ItemDotChange::Fade
+            {
                 if interior == Interior::MajorItem
                     || (interior == Interior::MediumItem
                         && orig_basic_tile.interior != Interior::MajorItem)

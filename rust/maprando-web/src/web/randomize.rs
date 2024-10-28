@@ -9,12 +9,10 @@ use log::info;
 use maprando::{
     patch::{make_rom, Rom},
     randomize::{
-        filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, DifficultyConfig, Randomization, Randomizer
+        filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas,
+        DifficultyConfig, Randomization, Randomizer,
     },
-    settings::{
-        parse_randomizer_settings, AreaAssignment,
-        RandomizerSettings, StartLocationMode,
-    },
+    settings::{parse_randomizer_settings, AreaAssignment, RandomizerSettings, StartLocationMode},
 };
 use maprando_game::LinksDataGroup;
 use rand::{RngCore, SeedableRng};
@@ -141,9 +139,19 @@ async fn randomize(
 
     let implicit_tech = &app_data.preset_data.tech_by_difficulty["Implicit"];
     let implicit_notables = &app_data.preset_data.notables_by_difficulty["Implicit"];
-    let difficulty = DifficultyConfig::new(&skill_settings, &app_data.game_data, &implicit_tech, &implicit_notables);
-    let difficulty_tiers = get_difficulty_tiers(&settings, &app_data.preset_data.difficulty_tiers, &app_data.game_data,
-        &app_data.preset_data.tech_by_difficulty["Implicit"], &app_data.preset_data.notables_by_difficulty["Implicit"]);
+    let difficulty = DifficultyConfig::new(
+        &skill_settings,
+        &app_data.game_data,
+        &implicit_tech,
+        &implicit_notables,
+    );
+    let difficulty_tiers = get_difficulty_tiers(
+        &settings,
+        &app_data.preset_data.difficulty_tiers,
+        &app_data.game_data,
+        &app_data.preset_data.tech_by_difficulty["Implicit"],
+        &app_data.preset_data.notables_by_difficulty["Implicit"],
+    );
 
     let filtered_base_links =
         filter_links(&app_data.game_data.links, &app_data.game_data, &difficulty);
@@ -206,7 +214,7 @@ async fn randomize(
             &difficulty_tiers,
             &app_data.game_data,
             &filtered_base_links_data,
-            &mut rng
+            &mut rng,
         );
         for _ in 0..max_attempts_per_map {
             let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;

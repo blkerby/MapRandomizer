@@ -5,16 +5,18 @@ use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::map_repository::MapRepository;
 use maprando::patch::ips_write::create_ips_patch;
+use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, Randomization, Randomizer
+    get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, Randomization,
+    Randomizer,
 };
 use maprando::settings::{
-    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings, SkillAssumptionSettings, StartLocationMode
+    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings,
+    SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_map;
-use maprando::patch::make_rom;
 use maprando_game::GameData;
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
@@ -105,9 +107,12 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     );
 
     let difficulty_tiers = get_difficulty_tiers(
-        &settings, &app.preset_data.difficulty_tiers, game_data,
-        &app.preset_data.tech_by_difficulty["Implicit"], 
-        &app.preset_data.notables_by_difficulty["Implicit"]);
+        &settings,
+        &app.preset_data.difficulty_tiers,
+        game_data,
+        &app.preset_data.tech_by_difficulty["Implicit"],
+        &app.preset_data.notables_by_difficulty["Implicit"],
+    );
 
     let random_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
     let mut rng_seed = [0u8; 32];
@@ -383,7 +388,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
-    
+
     let mut skill_presets = preset_data.skill_presets.clone();
     // If we are using a locked-in preset, go ahead and remove all the others.
     if let Some(fixed_preset) = &args.skill_preset {
@@ -393,7 +398,9 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         skill_presets = vec![p];
     } else {
         // Remove Implicit and Ignored preset
-        skill_presets.retain(|x| x.preset.as_ref().unwrap() != "Implicit" && x.preset.as_ref().unwrap() != "Beyond");
+        skill_presets.retain(|x| {
+            x.preset.as_ref().unwrap() != "Implicit" && x.preset.as_ref().unwrap() != "Beyond"
+        });
     }
 
     let mut item_presets = preset_data.item_progression_presets.clone();

@@ -14,7 +14,10 @@ use actix_web::{
 use clap::Parser;
 use log::info;
 use maprando::{
-    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory}, map_repository::MapRepository, preset::PresetData, seed_repository::SeedRepository
+    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
+    map_repository::MapRepository,
+    preset::PresetData,
+    seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
 use std::{path::Path, time::Instant};
@@ -183,7 +186,7 @@ async fn main() {
                     .total_limit(16_000_000),
             )
             .wrap(Logger::default())
-            .service(home::home)    
+            .service(home::home)
             .service(releases::releases)
             .service(generate::generate)
             .service(randomize::randomize)

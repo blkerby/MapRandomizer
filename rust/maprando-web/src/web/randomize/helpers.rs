@@ -5,7 +5,16 @@ use anyhow::{bail, Result};
 use askama::Template;
 use hashbrown::HashSet;
 use maprando::{
-    helpers::get_item_priorities, patch::{ips_write::create_ips_patch, Rom}, preset::PresetData, randomize::{DifficultyConfig, ItemPriorityGroup, Randomization}, seed_repository::{Seed, SeedFile}, settings::{AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange, RandomizerSettings, WallJump}, spoiler_map
+    helpers::get_item_priorities,
+    patch::{ips_write::create_ips_patch, Rom},
+    preset::PresetData,
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
+    seed_repository::{Seed, SeedFile},
+    settings::{
+        AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange,
+        RandomizerSettings, WallJump,
+    },
+    spoiler_map,
 };
 use maprando_game::{GameData, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
@@ -151,7 +160,9 @@ impl<'a> SeedHeaderTemplate<'a> {
         if self.settings.other_settings.maps_revealed == maprando::settings::MapsRevealed::Full {
             game_variations.push("Maps revealed from start");
         }
-        if self.settings.other_settings.map_station_reveal == maprando::settings::MapStationReveal::Partial {
+        if self.settings.other_settings.map_station_reveal
+            == maprando::settings::MapStationReveal::Partial
+        {
             game_variations.push("Map stations give partial reveal");
         }
 
@@ -318,7 +329,8 @@ pub fn render_seed(
     seed_data: &SeedData,
     app_data: &AppData,
 ) -> Result<(String, String)> {
-    let enabled_tech: HashSet<TechId> = get_enabled_tech(&seed_data.difficulty.tech, &app_data.game_data);
+    let enabled_tech: HashSet<TechId> =
+        get_enabled_tech(&seed_data.difficulty.tech, &app_data.game_data);
     let enabled_notables: HashSet<(RoomId, NotableId)> =
         get_enabled_notables(&seed_data.difficulty.notables, &app_data.game_data);
     let seed_header_template = SeedHeaderTemplate {
@@ -327,7 +339,10 @@ pub fn render_seed(
         random_seed: seed_data.random_seed,
         settings: &seed_data.settings,
         item_priority_groups: get_item_priorities(
-            &seed_data.settings.item_progression_settings.key_item_priority,
+            &seed_data
+                .settings
+                .item_progression_settings
+                .key_item_priority,
         ),
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
@@ -336,7 +351,13 @@ pub fn render_seed(
             .item_progression_preset
             .clone()
             .unwrap_or("Custom".to_string()),
-        progression_rate: format!("{:?}", seed_data.settings.item_progression_settings.progression_rate),
+        progression_rate: format!(
+            "{:?}",
+            seed_data
+                .settings
+                .item_progression_settings
+                .progression_rate
+        ),
         random_tank: seed_data.settings.item_progression_settings.random_tank,
         filler_items: seed_data
             .settings
@@ -362,7 +383,13 @@ pub fn render_seed(
             .filter(|(_, &x)| x == FillerItemPriority::Early)
             .map(|(item, _)| format!("{:?}", item))
             .collect(),
-        item_placement_style: format!("{:?}", seed_data.settings.item_progression_settings.item_placement_style),
+        item_placement_style: format!(
+            "{:?}",
+            seed_data
+                .settings
+                .item_progression_settings
+                .item_placement_style
+        ),
         difficulty: &seed_data.difficulty,
         quality_of_life_preset: seed_data
             .quality_of_life_preset

@@ -3,7 +3,6 @@ use maprando_game::{IndexedVec, Item};
 
 use crate::{randomize::ItemPriorityGroup, settings::KeyItemPriority};
 
-
 pub fn get_item_priorities(
     item_priorities: &HashMap<Item, KeyItemPriority>,
 ) -> Vec<ItemPriorityGroup> {

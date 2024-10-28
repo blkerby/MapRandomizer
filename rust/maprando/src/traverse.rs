@@ -305,8 +305,12 @@ fn apply_heat_frames_with_energy_drops(
         } else {
             let mut total_drop_value = 0;
             for drop in drops {
-                total_drop_value +=
-                    get_enemy_drop_value(drop, local, reverse, settings.quality_of_life_settings.buffed_drops)
+                total_drop_value += get_enemy_drop_value(
+                    drop,
+                    local,
+                    reverse,
+                    settings.quality_of_life_settings.buffed_drops,
+                )
             }
             let heat_energy =
                 (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
@@ -411,20 +415,54 @@ pub fn debug_requirement(
     difficulty: &DifficultyConfig,
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
-    objectives: &[Objective]
+    objectives: &[Objective],
 ) {
-    println!("{:?}: {:?}", req, apply_requirement(req, global, local, reverse, settings, difficulty, game_data, locked_door_data, objectives));
+    println!(
+        "{:?}: {:?}",
+        req,
+        apply_requirement(
+            req,
+            global,
+            local,
+            reverse,
+            settings,
+            difficulty,
+            game_data,
+            locked_door_data,
+            objectives
+        )
+    );
     match req {
         Requirement::And(reqs) => {
             for r in reqs {
-                debug_requirement(r, global, local, reverse, settings, difficulty, game_data, locked_door_data, objectives);
+                debug_requirement(
+                    r,
+                    global,
+                    local,
+                    reverse,
+                    settings,
+                    difficulty,
+                    game_data,
+                    locked_door_data,
+                    objectives,
+                );
             }
         }
         Requirement::Or(reqs) => {
             for r in reqs {
-                debug_requirement(r, global, local, reverse, settings, difficulty, game_data, locked_door_data, objectives);
+                debug_requirement(
+                    r,
+                    global,
+                    local,
+                    reverse,
+                    settings,
+                    difficulty,
+                    game_data,
+                    locked_door_data,
+                    objectives,
+                );
             }
-        },
+        }
         _ => {}
     }
 }
@@ -602,7 +640,8 @@ pub fn apply_requirement(
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             let energy = base_energy / suit_damage_factor(&global.inventory);
-            if energy >= global.inventory.max_energy && !difficulty.tech[game_data.pause_abuse_tech_idx]
+            if energy >= global.inventory.max_energy
+                && !difficulty.tech[game_data.pause_abuse_tech_idx]
             {
                 None
             } else {
@@ -1259,7 +1298,7 @@ pub fn apply_requirement(
             } else {
                 None
             }
-        },
+        }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {

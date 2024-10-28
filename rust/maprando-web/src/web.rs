@@ -9,7 +9,10 @@ pub mod seed;
 use crate::logic_helper::LogicData;
 use hashbrown::HashMap;
 use maprando::{
-    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory}, map_repository::MapRepository, preset::PresetData, seed_repository::SeedRepository
+    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
+    map_repository::MapRepository,
+    preset::PresetData,
+    seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
 

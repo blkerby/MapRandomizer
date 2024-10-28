@@ -4,14 +4,14 @@ use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::patch::ips_write::create_ips_patch;
+use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
-use maprando::randomize::{get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer};
-use maprando::settings::{
-    RandomizerSettings, StartLocationMode
+use maprando::randomize::{
+    get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer,
 };
+use maprando::settings::{RandomizerSettings, StartLocationMode};
 use maprando::spoiler_map;
-use maprando::patch::make_rom;
 use maprando_game::{GameData, Map};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
@@ -88,11 +88,21 @@ fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSetti
     Ok(settings)
 }
 
-fn get_randomization(args: &Args, settings: &RandomizerSettings, game_data: &GameData, preset_data: &PresetData) -> Result<Randomization> {
+fn get_randomization(
+    args: &Args,
+    settings: &RandomizerSettings,
+    game_data: &GameData,
+    preset_data: &PresetData,
+) -> Result<Randomization> {
     let implicit_tech = &preset_data.tech_by_difficulty["Implicit"];
     let implicit_notables = &preset_data.notables_by_difficulty["Implicit"];
-    let difficulty_tiers = get_difficulty_tiers(&settings, &preset_data.difficulty_tiers, game_data,
-        implicit_tech, implicit_notables);
+    let difficulty_tiers = get_difficulty_tiers(
+        &settings,
+        &preset_data.difficulty_tiers,
+        game_data,
+        implicit_tech,
+        implicit_notables,
+    );
     let single_map: Option<Map>;
     let mut filenames: Vec<String> = Vec::new();
     if args.map.is_dir() {
@@ -132,12 +142,11 @@ fn get_randomization(args: &Args, settings: &RandomizerSettings, game_data: &Gam
             None => 10000, // Same as maprando-web.
         }
     };
-    let max_attempts_per_map =
-        if settings.start_location_mode == StartLocationMode::Random {
-            10
-        } else {
-            1
-        };
+    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random {
+        10
+    } else {
+        1
+    };
     let max_map_attempts = max_attempts / max_attempts_per_map;
     let mut attempt_num = 0;
     for _ in 0..max_map_attempts {

@@ -16,7 +16,17 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
+    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
+    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+    MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx,
+    RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey,
+    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -2659,8 +2669,12 @@ pub fn get_difficulty_tiers(
     implicit_tech: &[TechId],
     implicit_notables: &[(RoomId, NotableId)],
 ) -> Vec<DifficultyConfig> {
-    let main_tier =
-        DifficultyConfig::new(&settings.skill_assumption_settings, game_data, implicit_tech, implicit_notables);
+    let main_tier = DifficultyConfig::new(
+        &settings.skill_assumption_settings,
+        game_data,
+        implicit_tech,
+        implicit_notables,
+    );
     let mut difficulty_tiers = vec![];
 
     difficulty_tiers.push(main_tier.clone());
@@ -4284,7 +4298,9 @@ impl<'r> Randomizer<'r> {
             (Item::ScrewAttack, 1),
             (Item::Morph, 1),
             (Item::ReserveTank, 4),
-        ].into_iter().collect();
+        ]
+        .into_iter()
+        .collect();
 
         let spoiler_log = SpoilerLog {
             item_priority: vec![],

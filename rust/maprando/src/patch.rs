@@ -487,25 +487,53 @@ impl<'a> Patcher<'a> {
         }
         patches.push(new_game);
 
-        if self.randomization.settings.quality_of_life_settings.all_items_spawn {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .all_items_spawn
+        {
             patches.push("all_items_spawn");
         }
 
-        if self.randomization.settings.quality_of_life_settings.escape_movement_items
-            || self.randomization.settings.item_progression_settings.stop_item_placement_early
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .escape_movement_items
+            || self
+                .randomization
+                .settings
+                .item_progression_settings
+                .stop_item_placement_early
         {
             patches.push("escape_items");
         }
 
-        if self.randomization.settings.quality_of_life_settings.fast_elevators {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_elevators
+        {
             patches.push("elevators_speed");
         }
 
-        if self.randomization.settings.quality_of_life_settings.fast_doors {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_doors
+        {
             patches.push("fast_doors");
         }
 
-        if self.randomization.settings.quality_of_life_settings.fast_pause_menu {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_pause_menu
+        {
             patches.push("fast_pause_menu");
         }
 
@@ -526,7 +554,12 @@ impl<'a> Patcher<'a> {
             }
         }
 
-        if self.randomization.settings.other_settings.energy_free_shinesparks {
+        if self
+            .randomization
+            .settings
+            .other_settings
+            .energy_free_shinesparks
+        {
             patches.push("energy_free_shinesparks");
         }
 
@@ -535,11 +568,21 @@ impl<'a> Patcher<'a> {
             // patches.push("spinjumprestart");
         }
 
-        if self.randomization.settings.quality_of_life_settings.momentum_conservation {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .momentum_conservation
+        {
             patches.push("momentum_conservation");
         }
 
-        if self.randomization.settings.quality_of_life_settings.buffed_drops {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .buffed_drops
+        {
             patches.push("buffed_drops");
         }
 
@@ -547,7 +590,13 @@ impl<'a> Patcher<'a> {
             patches.push("zebes_asleep_music");
         }
 
-        if self.randomization.settings.quality_of_life_settings.mother_brain_fight == MotherBrainFight::Skip {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .mother_brain_fight
+            == MotherBrainFight::Skip
+        {
             patches.push("fix_hyper_slowlock");
         }
 
@@ -799,7 +848,12 @@ impl<'a> Patcher<'a> {
                 self.get_arrow_xy(&self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx]);
             self.add_double_explore_tile_asm(src_pair, src_x, src_y, extra_door_asm, false)?;
             self.add_double_explore_tile_asm(dst_pair, dst_x, dst_y, extra_door_asm, false)?;
-            if self.randomization.settings.quality_of_life_settings.opposite_area_revealed {
+            if self
+                .randomization
+                .settings
+                .quality_of_life_settings
+                .opposite_area_revealed
+            {
                 self.add_map_reveal_tile(src_pair, src_x, src_y)?;
                 self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
             }
@@ -1391,12 +1445,22 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_mother_brain_fight_patches(&mut self) -> Result<()> {
-        if self.randomization.settings.quality_of_life_settings.supers_double {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .supers_double
+        {
             // Make Supers do double damage to Mother Brain:
             self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
         }
 
-        match self.randomization.settings.quality_of_life_settings.mother_brain_fight {
+        match self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .mother_brain_fight
+        {
             MotherBrainFight::Vanilla => {
                 // See fast_mother_brain_fight.asm patch for baseline changes to speed up cutscenes.
             }
@@ -1431,8 +1495,16 @@ impl<'a> Patcher<'a> {
                     &[0x20, 0x00, 0xFD], // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
                 )?;
 
-                if self.randomization.settings.quality_of_life_settings.escape_movement_items
-                    || self.randomization.settings.item_progression_settings.stop_item_placement_early
+                if self
+                    .randomization
+                    .settings
+                    .quality_of_life_settings
+                    .escape_movement_items
+                    || self
+                        .randomization
+                        .settings
+                        .item_progression_settings
+                        .stop_item_placement_early
                 {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
@@ -1458,7 +1530,12 @@ impl<'a> Patcher<'a> {
                 self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
                 self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which wouldn't have an effect here except for a delay)
 
-                if self.randomization.settings.quality_of_life_settings.escape_movement_items {
+                if self
+                    .randomization
+                    .settings
+                    .quality_of_life_settings
+                    .escape_movement_items
+                {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }
@@ -1490,25 +1567,45 @@ impl<'a> Patcher<'a> {
         // Remove fake gray door that gets drawn in Phantoon's Room:
         self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
 
-        if self.randomization.settings.quality_of_life_settings.all_items_spawn {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .all_items_spawn
+        {
             // Copy the item in Pit Room to the Zebes-asleep state.
             // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
             let plm_data = self.rom.read_n(0x783EE, 6)?.to_vec();
             self.rom.write_n(0x783C8, &plm_data)?;
         }
 
-        if self.randomization.settings.quality_of_life_settings.acid_chozo {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .acid_chozo
+        {
             // Remove Space Jump check
             self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
-        if self.randomization.settings.quality_of_life_settings.remove_climb_lava {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .remove_climb_lava
+        {
             // Replace the Tourian Escape Room 4 door with the value 0xFFFF which does not match any door,
             // effectively disabling the door-specific FX for this room.
             self.rom.write_u16(snes2pc(0x838060), 0xFFFF)?;
         }
 
-        if self.randomization.settings.quality_of_life_settings.infinite_space_jump {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .infinite_space_jump
+        {
             // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
             // self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (old Lenient Space Jump)
 
@@ -1539,12 +1636,22 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }
 
-        if self.randomization.settings.quality_of_life_settings.escape_enemies_cleared {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .escape_enemies_cleared
+        {
             // Change escape behavior to clear enemies. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1f004), 0xFFFF)?;
         }
 
-        if !self.randomization.settings.quality_of_life_settings.escape_refill {
+        if !self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .escape_refill
+        {
             // Disable the energy refill at the start of the escape. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F002), 0x0001)?;
         }
@@ -1792,7 +1899,11 @@ impl<'a> Patcher<'a> {
         )?;
         self.write_preset(
             228,
-            self.randomization.settings.quality_of_life_settings.preset.clone(),
+            self.randomization
+                .settings
+                .quality_of_life_settings
+                .preset
+                .clone(),
         )?;
 
         // Write item locations in credits tilemap
@@ -1833,12 +1944,17 @@ impl<'a> Patcher<'a> {
         let mut items_set: HashSet<String> = HashSet::new();
 
         // Show starting items at the top:
-        for (&item, &cnt) in &self.randomization.settings.item_progression_settings.starting_items {
+        for (&item, &cnt) in &self
+            .randomization
+            .settings
+            .item_progression_settings
+            .starting_items
+        {
             if cnt > 0 {
                 let raw_name = Item::VARIANTS[item as usize].to_string();
                 let item_name = item_display_name_map[&raw_name].clone();
                 self.write_item_credits(items_set.len(), None, &item_name, None, "starting item")?;
-                items_set.insert(raw_name.clone());    
+                items_set.insert(raw_name.clone());
             }
         }
 
@@ -1945,7 +2061,12 @@ impl<'a> Patcher<'a> {
         ]
         .into_iter()
         .collect();
-        for (&item, &cnt) in &self.randomization.settings.item_progression_settings.starting_items {
+        for (&item, &cnt) in &self
+            .randomization
+            .settings
+            .item_progression_settings
+            .starting_items
+        {
             if cnt == 0 {
                 continue;
             }
@@ -1997,7 +2118,12 @@ impl<'a> Patcher<'a> {
         self.rom
             .write_u16(initial_max_power_bombs, starting_powerbombs)?;
         if self.randomization.settings.start_location_mode == StartLocationMode::Escape
-            && self.randomization.settings.quality_of_life_settings.mother_brain_fight != MotherBrainFight::Skip
+            && self
+                .randomization
+                .settings
+                .quality_of_life_settings
+                .mother_brain_fight
+                != MotherBrainFight::Skip
         {
             self.rom.write_u16(initial_missiles, 0)?;
             self.rom.write_u16(initial_supers, 0)?;
@@ -2771,7 +2897,11 @@ pub fn make_rom(
     if !randomization.settings.other_settings.ultra_low_qol {
         patcher.apply_hazard_markers()?;
     }
-    if randomization.settings.quality_of_life_settings.room_outline_revealed {
+    if randomization
+        .settings
+        .quality_of_life_settings
+        .room_outline_revealed
+    {
         patcher.apply_all_room_outlines()?;
     }
     patcher.apply_toilet_data()?;

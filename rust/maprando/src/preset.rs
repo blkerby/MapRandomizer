@@ -68,7 +68,9 @@ fn get_notables_by_difficulty(
         out.insert(d.clone(), vec![]);
     }
     for (&(room_id, notable_id), data) in notable_data_map.iter() {
-        out.get_mut(&data.difficulty).unwrap().push((room_id, notable_id));
+        out.get_mut(&data.difficulty)
+            .unwrap()
+            .push((room_id, notable_id));
     }
     out
 }
@@ -97,7 +99,10 @@ impl PresetData {
         let mut notable_data: Vec<NotableData> = serde_json::from_str(&notable_data_str)?;
         for d in &mut notable_data {
             if d.difficulty == "Uncategorized" {
-                warn!("Uncategorized notable ({}, {}) {}: ({})", d.room_id, d.notable_id, d.room_name, d.name);
+                warn!(
+                    "Uncategorized notable ({}, {}) {}: ({})",
+                    d.room_id, d.notable_id, d.room_name, d.name
+                );
                 d.difficulty = "Ignored".to_string();
             }
         }
@@ -105,7 +110,7 @@ impl PresetData {
             .into_iter()
             .map(|x| ((x.room_id, x.notable_id), x))
             .collect();
-        
+
         let mut difficulty_levels: IndexedVec<String> = IndexedVec::default();
         for d in [
             "Implicit",
@@ -123,7 +128,8 @@ impl PresetData {
         }
 
         let tech_by_difficulty = get_tech_by_difficulty(&tech_data_map, &difficulty_levels.keys);
-        let notables_by_difficulty = get_notables_by_difficulty(&notable_data_map, &difficulty_levels.keys);
+        let notables_by_difficulty =
+            get_notables_by_difficulty(&notable_data_map, &difficulty_levels.keys);
 
         let implicit_tech = &tech_by_difficulty["Implicit"];
         let implicit_notables = &notables_by_difficulty["Implicit"];
@@ -137,7 +143,8 @@ impl PresetData {
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
             let preset: SkillAssumptionSettings = serde_json::from_str(&preset_str)?;
-            let difficulty = DifficultyConfig::new(&preset, game_data, implicit_tech, implicit_notables);
+            let difficulty =
+                DifficultyConfig::new(&preset, game_data, implicit_tech, implicit_notables);
             skill_presets.push(preset);
             if name != "Implicit" && name != "Ignored" {
                 difficulty_tiers.push(difficulty);
