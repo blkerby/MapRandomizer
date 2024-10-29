@@ -34,8 +34,17 @@
         skillPresets[p.preset] = p;
     }
 
-    let itemPresets = {{ item_presets_json|safe }};
-    let qolPresets = {{ qol_presets_json|safe }};
+    let itemPresetsArr = {{ item_presets_json|safe }};
+    let itemPresets = {};
+    for (p of itemPresetsArr) {
+        itemPresets[p.preset] = p;
+    }
+
+    let qolPresetsArr = {{ qol_presets_json|safe }};
+    let qolPresets = {};
+    for (p of qolPresetsArr) {
+        qolPresets[p.preset] = p;
+    }
     </script>
     <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
@@ -73,22 +82,22 @@
                         <label for="preset">Item progression</label>
                     </div>
                     <div class="col-lg-5 btn-group mt-0" role="group">
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Normal"
+                        <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Normal"
                             id="itemProgressionPresetNormal" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()" checked>
                         <label class="btn btn-outline-primary" for="itemProgressionPresetNormal">Normal</label>
 
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Tricky"
+                        <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Tricky"
                             id="itemProgressionPresetTricky" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
                         <label class="btn btn-outline-primary" for="itemProgressionPresetTricky">Tricky</label>
 
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Challenge"
+                        <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Challenge"
                             id="itemProgressionPresetChallenge" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
                         <label class="btn btn-outline-primary" for="itemProgressionPresetChallenge">Challenge</label>
 
-                        <input type="radio" class="btn-check" name="item_progression_preset" value="Desolate"
+                        <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Desolate"
                             id="itemProgressionPresetDesolate" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
                         <label class="btn btn-outline-primary" for="itemProgressionPresetDesolate">Desolate</label>
@@ -115,19 +124,19 @@
                         <label for="preset">Quality-of-life options</label>
                     </div>
                     <div class="col-lg-5 btn-group mt-0" role="group">
-                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="Off"
+                        <input type="radio" class="btn-check qol-preset-button" name="quality_of_life_preset" value="Off"
                             id="qualityOfLifeOff" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeOff">Off</label>
-                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="Low"
+                        <input type="radio" class="btn-check qol-preset-button" name="quality_of_life_preset" value="Low"
                             id="qualityOfLifeLow" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeLow">Low</label>
-                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="Default"
+                        <input type="radio" class="btn-check qol-preset-button" name="quality_of_life_preset" value="Default"
                             id="qualityOfLifeDefault" autocomplete="off" onclick="qualityOfLifePresetChanged()" checked>
                         <label class="btn btn-outline-primary" for="qualityOfLifeDefault">Default</label>
-                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="High"
+                        <input type="radio" class="btn-check qol-preset-button" name="quality_of_life_preset" value="High"
                             id="qualityOfLifeHigh" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeHigh">High</label>
-                        <input type="radio" class="btn-check" name="quality_of_life_preset" value="Max"
+                        <input type="radio" class="btn-check qol-preset-button" name="quality_of_life_preset" value="Max"
                             id="qualityOfLifeMax" autocomplete="off" onclick="qualityOfLifePresetChanged()">
                         <label class="btn btn-outline-primary" for="qualityOfLifeMax">Max</label>
                     </div>

@@ -1,7 +1,7 @@
 use crate::web::{AppData, PresetData, VersionInfo};
 use actix_web::{get, web, HttpResponse, Responder};
 use askama::Template;
-use hashbrown::{HashMap, HashSet};
+use hashbrown::HashMap;
 use maprando_game::{NotableId, RoomId, TechId};
 
 #[derive(Template)]
@@ -22,8 +22,6 @@ struct GenerateTemplate<'a> {
     prioritizable_items: Vec<String>,
     tech_description: &'a HashMap<TechId, String>,
     tech_dependencies_str: &'a HashMap<TechId, String>,
-    implicit_or_ignored_tech: &'a HashSet<TechId>,
-    implicit_or_ignored_notables: &'a HashSet<(RoomId, NotableId)>,
     notable_description: &'a HashMap<(RoomId, NotableId), String>,
     tech_strat_counts: &'a HashMap<TechId, usize>,
     notable_strat_counts: &'a HashMap<(RoomId, NotableId), usize>,
@@ -110,21 +108,6 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_dependencies_strs.insert(*tech_id, s.join(", "));
     }
 
-    let mut implicit_or_ignored_tech: HashSet<TechId> = HashSet::new();
-    let mut implicit_or_ignored_notables: HashSet<(RoomId, NotableId)> = HashSet::new();
-    // Assumption: Implicit notables are given in the first preset, ignored notables are given in the last:
-    for tech_setting in app_data.preset_data.tech_data_map.values() {
-        if tech_setting.difficulty == "Implicit" || tech_setting.difficulty == "Ignored" {
-            implicit_or_ignored_tech.insert(tech_setting.tech_id);
-        }
-    }
-    for notable_setting in app_data.preset_data.notable_data_map.values() {
-        if notable_setting.difficulty == "Implicit" || notable_setting.difficulty == "Ignored" {
-            implicit_or_ignored_notables
-                .insert((notable_setting.room_id, notable_setting.notable_id));
-        }
-    }
-
     let skill_presets_json = serde_json::to_string(&app_data.preset_data.skill_presets).unwrap();
     let item_presets_json = serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
     let qol_presets_json = serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
@@ -157,8 +140,6 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_description: &app_data.game_data.tech_description,
         tech_dependencies_str: &tech_dependencies_strs,
         notable_description: &notable_description,
-        implicit_or_ignored_tech: &implicit_or_ignored_tech,
-        implicit_or_ignored_notables: &implicit_or_ignored_notables,
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         notable_strat_counts: &app_data.logic_data.notable_strat_counts,
         video_storage_url: &app_data.video_storage_url,

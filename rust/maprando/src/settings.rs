@@ -63,13 +63,28 @@ pub struct ItemProgressionSettings {
     pub item_priority_strength: ItemPriorityStrength,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub item_pool_preset: ItemPoolPreset,
     pub stop_item_placement_early: bool,
     pub item_pool: HashMap<Item, usize>,
+    pub starting_items_preset: StartingItemsPreset,
     pub starting_items: HashMap<Item, usize>,
     pub key_item_priority: HashMap<Item, KeyItemPriority>,
     pub filler_items: HashMap<Item, FillerItemPriority>,
 }
 
+
+#[derive(Serialize, Deserialize, Clone)]
+pub enum ItemPoolPreset {
+    Full,
+    Reduced,
+}
+
+
+#[derive(Serialize, Deserialize, Clone)]
+pub enum StartingItemsPreset {
+    None,
+    All,
+}
 #[derive(Serialize, Deserialize, Clone)]
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
