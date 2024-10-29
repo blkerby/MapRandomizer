@@ -12,6 +12,9 @@ struct GenerateTemplate<'a> {
     item_placement_styles: Vec<&'static str>,
     objectives: Vec<&'static str>,
     preset_data: &'a PresetData,
+    skill_presets_json: String,
+    item_presets_json: String,
+    qol_presets_json: String,
     item_priorities: Vec<String>,
     item_pool_multiple: Vec<String>,
     starting_items_multiple: Vec<String>,
@@ -122,6 +125,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         }
     }
 
+    let skill_presets_json = serde_json::to_string(&app_data.preset_data.skill_presets).unwrap();
+    let item_presets_json = serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
+    let qol_presets_json = serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
+
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
@@ -144,6 +151,9 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
             .collect(),
         prioritizable_items,
         preset_data: &app_data.preset_data,
+        skill_presets_json,
+        item_presets_json,
+        qol_presets_json,
         tech_description: &app_data.game_data.tech_description,
         tech_dependencies_str: &tech_dependencies_strs,
         notable_description: &notable_description,

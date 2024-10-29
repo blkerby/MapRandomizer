@@ -1,51 +1,54 @@
 <script>
-function presetChanged() {
-    {% for p in preset_data.skill_presets.iter() %}
-        {% let name = p.preset.as_ref().unwrap() %}
-        {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
-            {% continue %}
-        {% endif %}
-        {% let name_no_space = name.replace(" ", "") %}
-        if (document.getElementById("preset{{+ name_no_space }}").checked) {
-            document.getElementById("shinesparkTiles").value = {{+ p.shinespark_tiles }};
-            document.getElementById("heatedShinesparkTiles").value = {{+ p.heated_shinespark_tiles }};
-            document.getElementById("speedBallTiles").value = {{+ p.speed_ball_tiles }};
-            document.getElementById("shinechargeLeniencyFrames").value = {{+ p.shinecharge_leniency_frames }};
-            document.getElementById("resourceMultiplier").value = {{+ p.resource_multiplier }};
-            document.getElementById("escapeTimerMultiplier").value = {{+ p.escape_timer_multiplier }};
-            document.getElementById("gateGlitchLeniency").value = {{+ p.gate_glitch_leniency }};
-            document.getElementById("doorStuckLeniency").value = {{+ p.door_stuck_leniency }};
-            document.getElementById("phantoonProficiency").value = {{+ p.phantoon_proficiency }};
-            document.getElementById("draygonProficiency").value = {{+ p.draygon_proficiency }};
-            document.getElementById("ridleyProficiency").value = {{+ p.ridley_proficiency }};
-            document.getElementById("botwoonProficiency").value = {{+ p.botwoon_proficiency }};
-            document.getElementById("motherBrainProficiency").value = {{+ p.mother_brain_proficiency }};
-            {%+ for tech_setting in p.tech_settings %}
-                {% let tech_id = tech_setting.id %}
-                {% if implicit_or_ignored_tech.contains(tech_id) %}
-                    {% continue %}
-                {% endif %}
-                {%+ if tech_setting.enabled %}
-                    document.getElementById("tech-{{+ tech_id }}-Yes").checked = true;
-                {%+ else %}
-                    document.getElementById("tech-{{+ tech_id }}-No").checked = true; 
-                {% endif %}
-            {% endfor %}
-            {%+ for notable_setting in p.notable_settings %}
-                {% let room_id = notable_setting.room_id %}
-                {% let notable_id = notable_setting.notable_id %}
-                {% if implicit_or_ignored_notables.contains((room_id, notable_id)) %}
-                  {% continue %}
-                {% endif %}
-                {% let combo_id = format!("{}-{}", room_id, notable_id) %}
-                {%+ if notable_setting.enabled %}
-                    document.getElementById("strat-{{ combo_id }}-Yes").checked = true;
-                {%+ else %}
-                    document.getElementById("strat-{{ combo_id }}-No").checked = true;
-                {%+ endif %}
-            {% endfor %}
+function applySkillPreset(preset) {
+    for (presetEl of document.getElementsByClassName("skill-preset-button")) {
+        if (presetEl.value == preset.preset) {
+            presetEl.checked = true;
         }
-    {% endfor %}
+    }
+
+    document.getElementById("shinesparkTiles").value = preset.shinespark_tiles;
+    document.getElementById("heatedShinesparkTiles").value = preset.heated_shinespark_tiles;
+    document.getElementById("speedBallTiles").value = preset.speed_ball_tiles;
+    document.getElementById("shinechargeLeniencyFrames").value = preset.shinecharge_leniency_frames;
+    document.getElementById("resourceMultiplier").value = preset.resource_multiplier;
+    document.getElementById("gateGlitchLeniency").value = preset.gate_glitch_leniency;
+    document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
+    document.getElementById("phantoonProficiency").value = preset.phantoon_proficiency;
+    document.getElementById("draygonProficiency").value = preset.draygon_proficiency;
+    document.getElementById("ridleyProficiency").value = preset.ridley_proficiency;
+    document.getElementById("botwoonProficiency").value = preset.botwoon_proficiency;
+    document.getElementById("motherBrainProficiency").value = preset.mother_brain_proficiency;
+    document.getElementById("escapeTimerMultiplier").value = preset.escape_timer_multiplier;
+
+    for (t of preset.tech_settings) {
+        if (t.enabled) {
+            document.getElementById(`tech-${t.id}-Yes`).checked = true;    
+        } else {
+            document.getElementById(`tech-${t.id}-No`).checked = true;    
+        }
+    }
+
+    for (x of preset.notable_settings) {
+        let room_id = x.room_id;
+        let notable_id = x.notable_id;
+        let combo_id = `${room_id}-${notable_id}`;
+        if (x.enabled) {
+            document.getElementById(`strat-${combo_id}-Yes`).checked = true;
+        } else {
+            document.getElementById(`strat-${combo_id}-No`).checked = true;
+        }
+    }
+}
+
+function presetChanged() {
+    let preset = null;
+    for (presetEl of document.getElementsByClassName("skill-preset-button")) {
+        if (presetEl.checked) {
+            preset = skillPresets[presetEl.value];
+            applySkillPreset(preset);
+            break;
+        }
+    }
     updateTierPercent();
 }
 
