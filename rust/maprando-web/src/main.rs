@@ -124,6 +124,7 @@ fn build_app_data() -> AppData {
     let logic_data = LogicData::new(&game_data, &preset_data, &version_info, &video_storage_url);
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
+
     let app_data = AppData {
         game_data,
         preset_data,
