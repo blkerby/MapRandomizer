@@ -109,8 +109,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     }
 
     let skill_presets_json = serde_json::to_string(&app_data.preset_data.skill_presets).unwrap();
-    let item_presets_json = serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
-    let qol_presets_json = serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
+    let item_presets_json =
+        serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
+    let qol_presets_json =
+        serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
 
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),

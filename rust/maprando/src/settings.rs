@@ -72,13 +72,11 @@ pub struct ItemProgressionSettings {
     pub filler_items: HashMap<Item, FillerItemPriority>,
 }
 
-
 #[derive(Serialize, Deserialize, Clone)]
 pub enum ItemPoolPreset {
     Full,
     Reduced,
 }
-
 
 #[derive(Serialize, Deserialize, Clone)]
 pub enum StartingItemsPreset {
