@@ -447,6 +447,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	document.body.onpointerleave = ev => {
 		up(ev);
 	}
+	document.body.onpointerup = ev => {
+		up(ev);
+	}
 	m.onpointermove = ev => {
 		ev.preventDefault();
 		if (evCache.length == 2) {
