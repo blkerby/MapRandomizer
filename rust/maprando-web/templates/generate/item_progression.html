@@ -3,7 +3,7 @@
         {% include "help/progression/rate.html" %}
         <label for="preset">Progression rate</label>
     </div>
-    <div class="col-lg-3 btn-group m-2" role="group">
+    <div id="progressionRate" class="col-lg-3 btn-group m-2" role="group">
         {% for name in progression_rates %}
         <input type="radio"
             class="btn-check" 
@@ -21,7 +21,7 @@
         {% include "help/progression/item_placement.html" %}
         <label for="preset">Item placement</label>
     </div>
-    <div class="col-lg-3 btn-group m-2" role="group">
+    <div id="itemPlacementStyle" class="col-lg-3 btn-group m-2" role="group">
         {% for name in item_placement_styles %}
         <input type="radio"
             class="btn-check" 
@@ -43,7 +43,7 @@
         {% include "help/progression/priority_strength.html" %}
         <label for="preset">Item priority strength</label>
     </div>
-    <div class="col-lg-3 btn-group m-2" role="group">
+    <div id="itemPriorityStrength" class="col-lg-3 btn-group m-2" role="group">
         {% for name in ["Moderate", "Heavy"] %}
         <input type="radio"
             class="btn-check" 
@@ -65,7 +65,7 @@
         {% include "help/progression/random_tank.html" %}
         <label for="preset">Random tank priority</label>
     </div>
-    <div class="col-lg-2 btn-group m-2" role="group">
+    <div id="randomTank" class="col-lg-2 btn-group m-2" role="group">
         {% for name in ["No", "Yes"] %}
         {% let value = name == "Yes"|as_ref %}
         <input type="radio"
@@ -88,7 +88,7 @@
         {% include "help/progression/spazer_before_plasma.html" %}
         <label for="preset">Spazer before Plasma</label>
     </div>
-    <div class="col-lg-2 btn-group m-2" role="group">
+    <div id="spazerBeforePlasma" class="col-lg-2 btn-group m-2" role="group">
         {% for name in ["No", "Yes"] %}
         {% let value = name == "Yes"|as_ref %}
         <input type="radio"
@@ -111,7 +111,7 @@
         {% include "help/progression/item_pool.html" %}
         <label for="preset">Item pool</label>
     </div>
-    <div class="col-lg-3 btn-group mt-0" role="group">
+    <div id="itemPoolPreset" class="col-lg-3 btn-group mt-0" role="group">
         <input type="radio" class="btn-check" name="item_pool_preset" value="Full"
             id="itemPoolPresetFull" autocomplete="off" 
             onclick="itemPoolPresetChanged()" checked>
@@ -136,7 +136,7 @@
                         {% include "help/progression/stop_item_placement_early.html" %}
                         <label for="preset">Stop item placement early</label>
                     </div>
-                    <div class="col-lg-2 btn-group m-2" role="group">
+                    <div id="stopItemPlacementEarly" class="col-lg-2 btn-group m-2" role="group">
                         {% for name in ["No", "Yes"] %}
                         {% let value = name == "Yes"|as_ref %}
                         <input type="radio"
@@ -173,7 +173,7 @@
         {% include "help/progression/starting_items.html" %}
         <label for="preset">Starting items</label>
     </div>
-    <div class="col-lg-2 btn-group mt-0" role="group">
+    <div id="startingItemsPreset" class="col-lg-2 btn-group mt-0" role="group">
         <input type="radio" class="btn-check" name="starting_items_preset" value="None"
             id="startingItemsPresetNone" autocomplete="off" 
             onclick="startingItemsPresetChanged()" checked>
@@ -205,7 +205,7 @@
                 {% for item in starting_items_single %}
                     <div class="form-group row my-2">
                         <label class="col-sm-2 col-form-label text-end" for="starting_item_{{+ item }}">{{+ item }}</label>
-                        <div class="col-sm-3 btn-group" role="group">
+                        <div id="startingItem{{ item}}" class="col-sm-3 btn-group" role="group">
                             <input type="radio" class="btn-check starting-item-input-single" name="starting_item_{{+ item }}" value="No"
                                 id="startingItem{{+ item }}No" autocomplete="off" 
                                 onclick="startingItemsChanged()" checked>
@@ -235,7 +235,7 @@
                 {% for item in prioritizable_items %}
                     <div class="form-group row my-2">
                         <label class="col-sm-4 col-form-label text-end" for="item_priority_{{+ item }}">{{+ item }}</label>
-                        <div class="col-sm-7 btn-group" role="group">
+                        <div id="itemPriority{{ item }}" class="col-sm-7 btn-group" role="group">
                             {% for priority in item_priorities %}
                                 <input type="radio" class="btn-check item-priority-input" name="item_priority_{{+ item }}" value="{{+ priority }}"
                                     id="itemPriority{{+ item }}{{+ priority }}" autocomplete="off" 
@@ -261,7 +261,7 @@
             <div class="card-body">
                 <input type="hidden" id="json-filler-items" name="filler_items_json">
                 {% for item in prioritizable_items %}
-                    <div class="form-group row my-2">
+                    <div id="fillerItems{{ item }}" class="form-group row my-2">
                         <label class="col-sm-4 col-form-label text-end" for="filler_items_{{+ item }}">{{+ item }}</label>
                         <div class="col-sm-7 btn-group" role="group">
                             <input type="radio" class="btn-check filler-items-input" name="filler_items_{{+ item }}" value="No"

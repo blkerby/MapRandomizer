@@ -3,7 +3,7 @@ use hashbrown::HashMap;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct RandomizerSettings {
     pub version: usize,
     pub skill_assumption_settings: SkillAssumptionSettings,
@@ -15,9 +15,11 @@ pub struct RandomizerSettings {
     pub start_location_mode: StartLocationMode,
     pub save_animals: SaveAnimals,
     pub other_settings: OtherSettings,
+    #[serde(default)]
+    pub debug: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct SkillAssumptionSettings {
     pub preset: Option<String>,
     pub shinespark_tiles: f32,
@@ -37,14 +39,14 @@ pub struct SkillAssumptionSettings {
     pub notable_settings: Vec<NotableSetting>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct TechSetting {
     pub id: TechId,
     pub name: String,
     pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct NotableSetting {
     pub room_id: RoomId,
     pub notable_id: NotableId,
@@ -53,7 +55,7 @@ pub struct NotableSetting {
     pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct ItemProgressionSettings {
     pub preset: Option<String>,
     pub progression_rate: ProgressionRate,
@@ -61,14 +63,27 @@ pub struct ItemProgressionSettings {
     pub item_priority_strength: ItemPriorityStrength,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
+    pub item_pool_preset: ItemPoolPreset,
     pub stop_item_placement_early: bool,
     pub item_pool: HashMap<Item, usize>,
+    pub starting_items_preset: StartingItemsPreset,
     pub starting_items: HashMap<Item, usize>,
     pub key_item_priority: HashMap<Item, KeyItemPriority>,
     pub filler_items: HashMap<Item, FillerItemPriority>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
+pub enum ItemPoolPreset {
+    Full,
+    Reduced,
+}
+
+#[derive(Serialize, Deserialize, Clone)]
+pub enum StartingItemsPreset {
+    None,
+    All,
+}
+#[derive(Serialize, Deserialize, Clone)]
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
     // Map:
@@ -99,7 +114,7 @@ pub struct QualityOfLifeSettings {
     pub early_save: bool,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct OtherSettings {
     pub wall_jump: WallJump,
     pub etank_refill: ETankRefill,

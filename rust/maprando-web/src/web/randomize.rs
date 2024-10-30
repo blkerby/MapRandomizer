@@ -9,17 +9,12 @@ use log::info;
 use maprando::{
     patch::{make_rom, Rom},
     randomize::{
-        filter_links, randomize_doors, randomize_map_areas, DifficultyConfig, Objective,
-        Randomization, Randomizer,
+        filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas,
+        DifficultyConfig, Randomization, Randomizer,
     },
-    settings::{
-        parse_randomizer_settings, AreaAssignment, FillerItemPriority, ItemPlacementStyle,
-        ObjectivesMode, RandomizerSettings, StartLocationMode, WallJump,
-    },
+    settings::{parse_randomizer_settings, AreaAssignment, RandomizerSettings, StartLocationMode},
 };
-use maprando_game::{
-    Capacity, Item, LinksDataGroup, NotableId, RoomId, TechId, TECH_ID_CAN_ESCAPE_MORPH_LOCATION,
-};
+use maprando_game::LinksDataGroup;
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
@@ -35,6 +30,8 @@ struct SeedData {
     map_seed: usize,
     door_randomization_seed: usize,
     item_placement_seed: usize,
+    settings: RandomizerSettings,
+    // TODO: get rid of all the redundant stuff below:
     race_mode: bool,
     preset: Option<String>,
     item_progression_preset: Option<String>,
@@ -136,172 +133,25 @@ async fn randomize(
     if skill_settings.ridley_proficiency < 0.0 || skill_settings.ridley_proficiency > 1.0 {
         return HttpResponse::BadRequest().body("Invalid Ridley proficiency");
     }
-
-    let mut tech_vec: Vec<TechId> = vec![];
-    for tech in &app_data.preset_data[0].preset.tech {
-        // Include implicit tech (which is in the first preset):
-        tech_vec.push(tech.tech_id);
-    }
-    for tech_setting in skill_settings.tech_settings.iter() {
-        if tech_setting.enabled {
-            tech_vec.push(tech_setting.id);
-        }
-    }
-
-    let vanilla_map = settings.map_layout == "Vanilla";
-    if vanilla_map {
-        tech_vec.push(TECH_ID_CAN_ESCAPE_MORPH_LOCATION);
-    }
-
-    let mut notable_vec: Vec<(RoomId, NotableId)> = vec![];
-    for notable in &app_data.preset_data[0].preset.notables {
-        // Include implicit notables (which are in the first preset):
-        notable_vec.push((notable.room_id, notable.notable_id));
-    }
-    for notable_setting in skill_settings.notable_settings.iter() {
-        if notable_setting.enabled {
-            notable_vec.push((notable_setting.room_id, notable_setting.notable_id));
-        }
-    }
-
-    let semi_filler_items: Vec<Item> = item_settings
-        .filler_items
-        .iter()
-        .filter(|(_k, &v)| v == FillerItemPriority::Semi)
-        .map(|(k, _v)| *k)
-        .collect();
-    let mut filler_items = vec![Item::Missile, Item::Nothing];
-    filler_items.extend(
-        item_settings
-            .filler_items
-            .iter()
-            .filter(|(_k, &v)| v == FillerItemPriority::Yes || v == FillerItemPriority::Early)
-            .map(|(k, _v)| *k),
-    );
-    let early_filler_items: Vec<Item> = item_settings
-        .filler_items
-        .iter()
-        .filter(|(_k, &v)| v == FillerItemPriority::Early)
-        .map(|(k, _v)| *k)
-        .collect();
-
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
-    let difficulty = DifficultyConfig {
-        name: Some(
-            skill_settings
-                .preset
-                .as_ref()
-                .map(|x| x.to_string())
-                .unwrap_or("Beyond".to_string()),
-        ),
-        tech: tech_vec,
-        notables: notable_vec,
-        shine_charge_tiles: skill_settings.shinespark_tiles,
-        heated_shine_charge_tiles: skill_settings.heated_shinespark_tiles,
-        speed_ball_tiles: skill_settings.speed_ball_tiles,
-        shinecharge_leniency_frames: skill_settings.shinecharge_leniency_frames as Capacity,
-        progression_rate: item_settings.progression_rate,
-        item_priority_strength: item_settings.item_priority_strength,
-        random_tank: item_settings.random_tank,
-        spazer_before_plasma: item_settings.spazer_before_plasma,
-        stop_item_placement_early: item_settings.stop_item_placement_early,
-        item_pool: item_settings
-            .item_pool
-            .iter()
-            .map(|(&x, &y)| (x, y))
-            .collect(),
-        starting_items: item_settings
-            .starting_items
-            .iter()
-            .map(|(&x, &y)| (x, y))
-            .collect(),
-        filler_items,
-        semi_filler_items,
-        early_filler_items,
-        item_placement_style: item_settings.item_placement_style,
-        item_priorities: get_item_priorities(&item_settings.key_item_priority),
-        resource_multiplier: skill_settings.resource_multiplier,
-        escape_timer_multiplier: skill_settings.escape_timer_multiplier,
-        gate_glitch_leniency: skill_settings.gate_glitch_leniency as Capacity,
-        door_stuck_leniency: skill_settings.door_stuck_leniency as Capacity,
-        start_location_mode: settings.start_location_mode,
-        save_animals: settings.save_animals,
-        phantoon_proficiency: skill_settings.phantoon_proficiency,
-        draygon_proficiency: skill_settings.draygon_proficiency,
-        ridley_proficiency: skill_settings.ridley_proficiency,
-        botwoon_proficiency: skill_settings.botwoon_proficiency,
-        mother_brain_proficiency: skill_settings.mother_brain_proficiency,
-        supers_double: qol_settings.supers_double,
-        mother_brain_fight: qol_settings.mother_brain_fight,
-        escape_enemies_cleared: qol_settings.escape_enemies_cleared,
-        escape_refill: qol_settings.escape_refill,
-        escape_movement_items: qol_settings.escape_movement_items,
-        mark_map_stations: qol_settings.mark_map_stations,
-        room_outline_revealed: qol_settings.room_outline_revealed,
-        opposite_area_revealed: qol_settings.opposite_area_revealed,
-        transition_letters: other_settings.transition_letters,
-        door_locks_size: other_settings.door_locks_size,
-        item_markers: qol_settings.item_markers,
-        item_dot_change: other_settings.item_dot_change,
-        all_items_spawn: qol_settings.all_items_spawn,
-        acid_chozo: qol_settings.acid_chozo,
-        remove_climb_lava: qol_settings.remove_climb_lava,
-        buffed_drops: qol_settings.buffed_drops,
-        fast_elevators: qol_settings.fast_elevators,
-        fast_doors: qol_settings.fast_doors,
-        fast_pause_menu: qol_settings.fast_pause_menu,
-        respin: qol_settings.respin,
-        infinite_space_jump: qol_settings.infinite_space_jump,
-        momentum_conservation: qol_settings.momentum_conservation,
-        objectives: {
-            use Objective::*;
-            match settings.objectives_mode {
-                ObjectivesMode::None => vec![],
-                ObjectivesMode::Bosses => vec![Kraid, Phantoon, Draygon, Ridley],
-                ObjectivesMode::Minibosses => vec![SporeSpawn, Crocomire, Botwoon, GoldenTorizo],
-                ObjectivesMode::Metroids => {
-                    vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4]
-                }
-                ObjectivesMode::Chozos => {
-                    vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo]
-                }
-                ObjectivesMode::Pirates => {
-                    vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom]
-                }
-                ObjectivesMode::Random => {
-                    rand::seq::SliceRandom::choose_multiple(Objective::get_all(), &mut rng, 4)
-                        .copied()
-                        .collect()
-                }
-            }
-        },
-        doors_mode: settings.doors_mode,
-        early_save: qol_settings.early_save,
-        area_assignment: other_settings.area_assignment,
-        wall_jump: if settings.start_location_mode == StartLocationMode::Escape {
-            WallJump::Vanilla
-        } else {
-            other_settings.wall_jump
-        },
-        etank_refill: other_settings.etank_refill,
-        maps_revealed: other_settings.maps_revealed,
-        map_station_reveal: other_settings.map_station_reveal,
-        vanilla_map,
-        energy_free_shinesparks: other_settings.energy_free_shinesparks,
-        ultra_low_qol: other_settings.ultra_low_qol,
-        skill_assumptions_preset: skill_settings.preset.as_ref().map(|x| x.clone()),
-        item_progression_preset: item_settings.preset.as_ref().map(|x| x.clone()),
-        quality_of_life_preset: qol_settings.preset.as_ref().map(|x| x.clone()),
-        debug: app_data.debug,
-    };
-    let difficulty_tiers = if difficulty.item_placement_style == ItemPlacementStyle::Forced {
-        get_difficulty_tiers(&difficulty, &app_data)
-    } else {
-        vec![difficulty.clone()]
-    };
+    let implicit_tech = &app_data.preset_data.tech_by_difficulty["Implicit"];
+    let implicit_notables = &app_data.preset_data.notables_by_difficulty["Implicit"];
+    let difficulty = DifficultyConfig::new(
+        &skill_settings,
+        &app_data.game_data,
+        &implicit_tech,
+        &implicit_notables,
+    );
+    let difficulty_tiers = get_difficulty_tiers(
+        &settings,
+        &app_data.preset_data.difficulty_tiers,
+        &app_data.game_data,
+        &app_data.preset_data.tech_by_difficulty["Implicit"],
+        &app_data.preset_data.notables_by_difficulty["Implicit"],
+    );
 
     let filtered_base_links =
         filter_links(&app_data.game_data.links, &app_data.game_data, &difficulty);
@@ -312,7 +162,7 @@ async fn randomize(
     );
     let map_layout = settings.map_layout.clone();
     let max_attempts = 2000;
-    let max_attempts_per_map = if difficulty.start_location_mode == StartLocationMode::Random {
+    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random {
         10
     } else {
         1
@@ -345,21 +195,26 @@ async fn randomize(
         let mut map = app_data.map_repositories[&map_layout]
             .get_map(attempt_num, map_seed, &app_data.game_data)
             .unwrap();
-        if difficulty.area_assignment == AreaAssignment::Random {
+        if settings.other_settings.area_assignment == AreaAssignment::Random {
             randomize_map_areas(&mut map, map_seed);
         }
+        let objectives = get_objectives(&settings, &mut rng);
         let locked_door_data = randomize_doors(
             &app_data.game_data,
             &map,
-            &difficulty_tiers[0],
+            &settings,
+            &objectives,
             door_randomization_seed,
         );
         let randomizer = Randomizer::new(
             &map,
             &locked_door_data,
+            objectives.clone(),
+            &settings,
             &difficulty_tiers,
             &app_data.game_data,
             &filtered_base_links_data,
+            &mut rng,
         );
         for _ in 0..max_attempts_per_map {
             let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
@@ -429,6 +284,7 @@ async fn randomize(
         map_seed: output.map_seed,
         door_randomization_seed: output.door_randomization_seed,
         item_placement_seed: output.item_placement_seed,
+        settings: settings.clone(),
         race_mode,
         preset: skill_settings.preset.clone(),
         item_progression_preset: item_settings.preset.clone(),
@@ -481,7 +337,7 @@ async fn randomize(
         maps_revealed: to_variant_name(&other_settings.maps_revealed)
             .unwrap()
             .to_string(),
-        vanilla_map,
+        vanilla_map: settings.map_layout == "Vanilla",
         ultra_low_qol: other_settings.ultra_low_qol,
     };
 
