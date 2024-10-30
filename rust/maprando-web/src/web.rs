@@ -11,20 +11,12 @@ use hashbrown::HashMap;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
-    preset::{NotableData, Preset, TechData},
+    preset::PresetData,
     seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
-use serde::Serialize;
 
 pub const VERSION: usize = 115;
-
-#[derive(Serialize)]
-pub struct PresetData {
-    pub preset: Preset,
-    pub tech_setting: Vec<(TechData, bool)>,
-    pub notable_setting: Vec<(NotableData, bool)>,
-}
 
 #[derive(Clone)]
 pub struct VersionInfo {
@@ -34,7 +26,7 @@ pub struct VersionInfo {
 
 pub struct AppData {
     pub game_data: GameData,
-    pub preset_data: Vec<PresetData>,
+    pub preset_data: PresetData,
     pub map_repositories: HashMap<String, MapRepository>,
     pub seed_repository: SeedRepository,
     pub visualizer_files: Vec<(String, Vec<u8>)>, // (path, contents)
@@ -42,7 +34,7 @@ pub struct AppData {
     pub video_storage_path: Option<String>,
     pub samus_sprite_categories: Vec<SamusSpriteCategory>,
     pub logic_data: LogicData,
-    pub debug: bool,
+    pub _debug: bool,
     pub port: u16,
     pub version_info: VersionInfo,
     pub static_visualizer: bool,

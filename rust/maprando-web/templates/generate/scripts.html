@@ -1,60 +1,73 @@
 <script>
-function presetChanged() {
-    {% for p in preset_data %}
-        {% if p.preset.name == "Implicit" || p.preset.name == "Beyond" || p.preset.name == "Ignored" %}
-            {% continue %}
-        {% endif %}
-        {% let name_no_space = p.preset.name.replace(" ", "") %}
-        if (document.getElementById("preset{{+ name_no_space }}").checked) {
-            document.getElementById("shinesparkTiles").value = {{+ p.preset.shinespark_tiles }};
-            document.getElementById("heatedShinesparkTiles").value = {{+ p.preset.heated_shinespark_tiles }};
-            document.getElementById("speedBallTiles").value = {{+ p.preset.speed_ball_tiles }};
-            document.getElementById("shinechargeLeniencyFrames").value = {{+ p.preset.shinecharge_leniency_frames }};
-            document.getElementById("resourceMultiplier").value = {{+ p.preset.resource_multiplier }};
-            document.getElementById("escapeTimerMultiplier").value = {{+ p.preset.escape_timer_multiplier }};
-            document.getElementById("gateGlitchLeniency").value = {{+ p.preset.gate_glitch_leniency }};
-            document.getElementById("doorStuckLeniency").value = {{+ p.preset.door_stuck_leniency }};
-            document.getElementById("phantoonProficiency").value = {{+ p.preset.phantoon_proficiency }};
-            document.getElementById("draygonProficiency").value = {{+ p.preset.draygon_proficiency }};
-            document.getElementById("ridleyProficiency").value = {{+ p.preset.ridley_proficiency }};
-            document.getElementById("botwoonProficiency").value = {{+ p.preset.botwoon_proficiency }};
-            document.getElementById("motherBrainProficiency").value = {{+ p.preset.botwoon_proficiency }};
-            {%+ for (tech_setting, is_enabled) in p.tech_setting %}
-                {% let tech_id = tech_setting.tech_id %}
-                {% if implicit_or_ignored_tech.contains(tech_setting.tech_id) %}
-                    {% continue %}
-                {% endif %}
-                {%+ if is_enabled %}
-                    document.getElementById("tech-{{+ tech_id }}-Yes").checked = true;
-                {%+ else %}
-                    document.getElementById("tech-{{+ tech_id }}-No").checked = true; 
-                {% endif %}
-            {% endfor %}
-            {%+ for (notable_setting, is_enabled) in p.notable_setting %}
-                {% let room_id = notable_setting.room_id %}
-                {% let notable_id = notable_setting.notable_id %}
-                {% if implicit_or_ignored_notables.contains((room_id, notable_id)) %}
-                  {% continue %}
-                {% endif %}
-                {% let combo_id = format!("{}-{}", room_id, notable_id) %}
-                {%+ if is_enabled %}
-                    document.getElementById("strat-{{ combo_id }}-Yes").checked = true;
-                {%+ else %}
-                    document.getElementById("strat-{{ combo_id }}-No").checked = true;
-                {%+ endif %}
-            {% endfor %}
+function applyRadioValue(id, value) {
+    let el = document.getElementById(id);
+    for (inp of el.getElementsByClassName("btn-check")) {
+        if (inp.value == String(value)) {
+            inp.checked = true;
         }
-    {% endfor %}
+    }
+}
+    
+function applySkillPreset(preset) {
+    for (presetEl of document.getElementsByClassName("skill-preset-button")) {
+        if (presetEl.value == preset.preset) {
+            presetEl.checked = true;
+        }
+    }
+
+    document.getElementById("shinesparkTiles").value = preset.shinespark_tiles;
+    document.getElementById("heatedShinesparkTiles").value = preset.heated_shinespark_tiles;
+    document.getElementById("speedBallTiles").value = preset.speed_ball_tiles;
+    document.getElementById("shinechargeLeniencyFrames").value = preset.shinecharge_leniency_frames;
+    document.getElementById("resourceMultiplier").value = preset.resource_multiplier;
+    document.getElementById("gateGlitchLeniency").value = preset.gate_glitch_leniency;
+    document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
+    document.getElementById("phantoonProficiency").value = preset.phantoon_proficiency;
+    document.getElementById("draygonProficiency").value = preset.draygon_proficiency;
+    document.getElementById("ridleyProficiency").value = preset.ridley_proficiency;
+    document.getElementById("botwoonProficiency").value = preset.botwoon_proficiency;
+    document.getElementById("motherBrainProficiency").value = preset.mother_brain_proficiency;
+    document.getElementById("escapeTimerMultiplier").value = preset.escape_timer_multiplier;
+
+    for (t of preset.tech_settings) {
+        if (t.enabled) {
+            document.getElementById(`tech-${t.id}-Yes`).checked = true;    
+        } else {
+            document.getElementById(`tech-${t.id}-No`).checked = true;    
+        }
+    }
+
+    for (x of preset.notable_settings) {
+        let room_id = x.room_id;
+        let notable_id = x.notable_id;
+        let combo_id = `${room_id}-${notable_id}`;
+        if (x.enabled) {
+            document.getElementById(`strat-${combo_id}-Yes`).checked = true;
+        } else {
+            document.getElementById(`strat-${combo_id}-No`).checked = true;
+        }
+    }
+}
+
+function presetChanged() {
+    let preset = null;
+    for (presetEl of document.getElementsByClassName("skill-preset-button")) {
+        if (presetEl.checked) {
+            preset = skillPresets[presetEl.value];
+            applySkillPreset(preset);
+            break;
+        }
+    }
     updateTierPercent();
 }
 
 function updateTierPercent() {
     let presets = [];
-    {% for p in preset_data %}
-        {% if p.preset.name == "Implicit" || p.preset.name == "Ignored" %}
+    {% for preset_name in preset_data.difficulty_levels.keys.iter() %}
+        {% if preset_name == "Implicit" || preset_name == "Ignored" %}
             {% continue %}
         {% endif %}
-        {% let name_no_space = p.preset.name.replace(" ", "") %}
+        {% let name_no_space = preset_name.replace(" ", "") %}
         presets.push("{{+ name_no_space }}");
     {% endfor %}
     for (p of presets) {
@@ -76,8 +89,9 @@ function updateTierPercent() {
     }
 }
 function techChanged() {
-    {% for p in preset_data %}
-        {% let name_no_space = p.preset.name.replace(" ", "") %}
+    {% for p in preset_data.skill_presets.iter() %}
+        {% let preset_name = p.preset.as_ref().unwrap() %}
+        {% let name_no_space = preset_name.replace(" ", "") %}
         {% if name_no_space == "Implicit" || name_no_space == "Beyond" || name_no_space == "Ignored" %}
             {% continue %}
         {% endif %}
@@ -127,8 +141,10 @@ function buildSettingsObject() {
             "item_priority_strength": formData.get("item_priority_strength"),
             "random_tank": formData.get("random_tank") == "true",
             "spazer_before_plasma": formData.get("spazer_before_plasma") == "true",
+            "item_pool_preset": formData.get("item_pool_preset"),
             "stop_item_placement_early": formData.get("stop_item_placement_early") == "true",
             "item_pool": buildItemPool(),
+            "starting_items_preset": formData.get("starting_items_preset"),
             "starting_items": buildStartingItems(),
             "key_item_priority": buildItemPriorities(),
             "filler_items": buildFillerItems(),
@@ -332,119 +348,45 @@ async function prepareSubmit(form) {
         errorModal.show();
     }
 }
-function qualityOfLifePresetChanged() {
-    if (document.getElementById("qualityOfLifeOff").checked) {
-        document.getElementById("supersDoubleNo").checked = true;
-        document.getElementById("motherBrainFightVanilla").checked = true;
-        document.getElementById("escapeMovementItemsNo").checked = true;
-        document.getElementById("escapeRefillNo").checked = true;
-        document.getElementById("escapeEnemiesClearedNo").checked = true;
-        document.getElementById("markMapStationsNo").checked = true;
-        document.getElementById("roomOutlineRevealedNo").checked = true;
-        document.getElementById("oppositeAreaRevealedNo").checked = true;
-        document.getElementById("itemMarkersSimple").checked = true;
-        document.getElementById("earlySaveNo").checked = true;
-        document.getElementById("allItemsSpawnNo").checked = true;
-        document.getElementById("acidChozoNo").checked = true;
-        document.getElementById("removeClimbLavaNo").checked = true;
-        document.getElementById("buffedDropsNo").checked = true;
-        document.getElementById("fastElevatorsNo").checked = true;
-        document.getElementById("fastDoorsNo").checked = true;
-        document.getElementById("fastPauseMenuNo").checked = true;
-        document.getElementById("respinNo").checked = true;
-        document.getElementById("infiniteSpaceJumpNo").checked = true;
-        document.getElementById("momentumConservationNo").checked = true;
-    } else {
-        document.getElementById("ultraLowQoLNo").checked = true;
+
+function applyQolPreset(preset) {
+    for (presetEl of document.getElementsByClassName("qol-preset-button")) {
+        if (presetEl.value == preset.preset) {
+            presetEl.checked = true;
+        }
     }
-    if (document.getElementById("qualityOfLifeLow").checked) {
-        document.getElementById("supersDoubleYes").checked = true;
-        document.getElementById("motherBrainFightShort").checked = true;
-        document.getElementById("escapeMovementItemsNo").checked = true;
-        document.getElementById("escapeRefillNo").checked = true;
-        document.getElementById("escapeEnemiesClearedNo").checked = true;
-        document.getElementById("markMapStationsYes").checked = true;
-        document.getElementById("roomOutlineRevealedNo").checked = true;
-        document.getElementById("oppositeAreaRevealedNo").checked = true;
-        document.getElementById("itemMarkersUniques").checked = true;
-        document.getElementById("earlySaveNo").checked = true;
-        document.getElementById("allItemsSpawnNo").checked = true;
-        document.getElementById("acidChozoNo").checked = true;
-        document.getElementById("removeClimbLavaNo").checked = true;
-        document.getElementById("buffedDropsNo").checked = true;
-        document.getElementById("fastElevatorsYes").checked = true;
-        document.getElementById("fastDoorsYes").checked = true;
-        document.getElementById("fastPauseMenuYes").checked = true;
-        document.getElementById("respinNo").checked = true;
-        document.getElementById("infiniteSpaceJumpNo").checked = true;
-        document.getElementById("momentumConservationNo").checked = true;
-    }    
-    if (document.getElementById("qualityOfLifeDefault").checked) {
-        document.getElementById("supersDoubleYes").checked = true;
-        document.getElementById("motherBrainFightShort").checked = true;
-        document.getElementById("escapeMovementItemsYes").checked = true;
-        document.getElementById("escapeRefillYes").checked = true;
-        document.getElementById("escapeEnemiesClearedYes").checked = true;
-        document.getElementById("markMapStationsYes").checked = true;
-        document.getElementById("roomOutlineRevealedYes").checked = true;
-        document.getElementById("oppositeAreaRevealedNo").checked = true;
-        document.getElementById("itemMarkersThreeTiered").checked = true;
-        document.getElementById("earlySaveYes").checked = true;
-        document.getElementById("allItemsSpawnYes").checked = true;
-        document.getElementById("acidChozoYes").checked = true;
-        document.getElementById("removeClimbLavaYes").checked = true;
-        document.getElementById("buffedDropsYes").checked = true;
-        document.getElementById("fastElevatorsYes").checked = true;
-        document.getElementById("fastDoorsYes").checked = true;
-        document.getElementById("fastPauseMenuYes").checked = true;
-        document.getElementById("respinNo").checked = true;
-        document.getElementById("infiniteSpaceJumpNo").checked = true;
-        document.getElementById("momentumConservationNo").checked = true;
-    }    
-    if (document.getElementById("qualityOfLifeHigh").checked) {
-        document.getElementById("supersDoubleYes").checked = true;
-        document.getElementById("motherBrainFightShort").checked = true;
-        document.getElementById("escapeMovementItemsYes").checked = true;
-        document.getElementById("escapeRefillYes").checked = true;
-        document.getElementById("escapeEnemiesClearedYes").checked = true;
-        document.getElementById("markMapStationsYes").checked = true;
-        document.getElementById("roomOutlineRevealedYes").checked = true;
-        document.getElementById("oppositeAreaRevealedYes").checked = true;
-        document.getElementById("itemMarkersFourTiered").checked = true;
-        document.getElementById("earlySaveYes").checked = true;
-        document.getElementById("allItemsSpawnYes").checked = true;
-        document.getElementById("acidChozoYes").checked = true;
-        document.getElementById("removeClimbLavaYes").checked = true;
-        document.getElementById("buffedDropsYes").checked = true;
-        document.getElementById("fastElevatorsYes").checked = true;
-        document.getElementById("fastDoorsYes").checked = true;
-        document.getElementById("fastPauseMenuYes").checked = true;
-        document.getElementById("respinNo").checked = true;
-        document.getElementById("infiniteSpaceJumpNo").checked = true;
-        document.getElementById("momentumConservationNo").checked = true;
-    }    
-    if (document.getElementById("qualityOfLifeMax").checked) {
-        document.getElementById("supersDoubleYes").checked = true;
-        document.getElementById("motherBrainFightSkip").checked = true;
-        document.getElementById("escapeMovementItemsYes").checked = true;
-        document.getElementById("escapeRefillYes").checked = true;
-        document.getElementById("escapeEnemiesClearedYes").checked = true;
-        document.getElementById("markMapStationsYes").checked = true;
-        document.getElementById("roomOutlineRevealedYes").checked = true;
-        document.getElementById("oppositeAreaRevealedYes").checked = true;
-        document.getElementById("itemMarkersFourTiered").checked = true;
-        document.getElementById("earlySaveYes").checked = true;
-        document.getElementById("allItemsSpawnYes").checked = true;
-        document.getElementById("acidChozoYes").checked = true;
-        document.getElementById("removeClimbLavaYes").checked = true;
-        document.getElementById("buffedDropsYes").checked = true;
-        document.getElementById("fastElevatorsYes").checked = true;
-        document.getElementById("fastDoorsYes").checked = true;
-        document.getElementById("fastPauseMenuYes").checked = true;
-        document.getElementById("respinYes").checked = true;
-        document.getElementById("infiniteSpaceJumpYes").checked = true;
-        document.getElementById("momentumConservationYes").checked = true;
-    }    
+
+    applyRadioValue("itemMarkers", preset.item_markers);
+    applyRadioValue("markMapStations", preset.mark_map_stations);
+    applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
+    applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
+    applyRadioValue("motherBrainFight", preset.mother_brain_fight);
+    applyRadioValue("supersDouble", preset.supers_double);
+    applyRadioValue("escapeMovementItems", preset.escape_movement_items);
+    applyRadioValue("escapeRefill", preset.escape_refill);
+    applyRadioValue("escapeEnemiesCleared", preset.escape_enemies_cleared);
+    applyRadioValue("fastElevators", preset.fast_elevators);
+    applyRadioValue("fastDoors", preset.fast_doors);
+    applyRadioValue("fastPauseMenu", preset.fast_pause_menu);
+    applyRadioValue("respin", preset.respin);
+    applyRadioValue("infiniteSpaceJump", preset.infinite_space_jump);
+    applyRadioValue("momentumConservation", preset.momentum_conservation);
+    applyRadioValue("allItemsSpawn", preset.all_items_spawn);
+    applyRadioValue("acidChozo", preset.acid_chozo);
+    applyRadioValue("removeClimbLava", preset.remove_climb_lava);
+    applyRadioValue("buffedDrops", preset.buffed_drops);
+    applyRadioValue("earlySave", preset.early_save);
+}
+
+function qualityOfLifePresetChanged() {
+    let preset = null;
+    for (presetEl of document.getElementsByClassName("qol-preset-button")) {
+        if (presetEl.checked) {
+            preset = qolPresets[presetEl.value];
+            applyQolPreset(preset);
+            break;
+        }
+    }
 }
 function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeOff").checked = false;
@@ -454,118 +396,59 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
 }
+
+function applyItemProgressionPreset(preset) {
+    for (presetEl of document.getElementsByClassName("item-preset-button")) {
+        if (presetEl.value == preset.preset) {
+            presetEl.checked = true;
+        }
+    }
+
+    applyRadioValue("progressionRate", preset.progression_rate);
+    applyRadioValue("itemPlacementStyle", preset.item_placement_style);
+    applyRadioValue("itemPriorityStrength", preset.item_priority_strength);
+    applyRadioValue("randomTank", preset.random_tank);
+    applyRadioValue("spazerBeforePlasma", preset.spazer_before_plasma);
+    if (preset.item_pool_preset != null) {
+        applyRadioValue("itemPoolPreset", preset.item_pool_preset);
+    }
+    applyRadioValue("stopItemPlacementEarly", preset.stop_item_placement_early);
+    for (item in preset.item_pool) {
+        let cnt = preset.item_pool[item];
+        document.getElementById(`itemPool${item}`).value = cnt;
+    }
+    if (preset.starting_items_preset != null) {
+        applyRadioValue("startingItemsPreset", preset.starting_items_preset);
+    }
+    for (item in preset.starting_items) {
+        let cnt = preset.starting_items[item];
+        let el = document.getElementById(`startingItem${item}`);
+        if (el.classList.contains("starting-item-input-multiple")) {
+            el.value = cnt;
+        } else {
+            applyRadioValue(`startingItem${item}`, cnt > 0 ? "Yes" : "No");
+        }
+    }
+
+    for (item in preset.key_item_priority) {
+        let priority = preset.key_item_priority[item];
+        applyRadioValue(`itemPriority${item}`, priority);
+    }
+
+    for (item in preset.filler_items) {
+        let value = preset.filler_items[item];
+        applyRadioValue(`fillerItems${item}`, value);
+    }
+}
+
 function itemProgressionPresetChanged() {
-    if (document.getElementById("itemProgressionPresetNormal").checked) {
-        document.getElementById("progressionRateFast").checked = true;
-        document.getElementById("itemPlacementStyleNeutral").checked = true;
-        document.getElementById("itemPriorityStrengthModerate").checked = true;
-        document.getElementById("randomTankYes").checked = true;
-        document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("itemPoolPresetFull").checked = true;
-        document.getElementById("startingItemsPresetNone").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("itemPriority{{+ item }}Default").checked = true;
-        {% endfor %}
-        document.getElementById("itemPriorityMorphEarly").checked = true;
-        document.getElementById("itemPriorityBombsEarly").checked = true;
-        document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
-        document.getElementById("itemPriorityScrewAttackDefault").checked = true;
-        document.getElementById("itemPriorityWallJumpDefault").checked = true;
-        document.getElementById("itemPriorityVariaLate").checked = true;
-        document.getElementById("itemPriorityGravityLate").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("fillerItems{{+ item }}No").checked = true;
-        {% endfor %}
-        document.getElementById("fillerItemsSuperYes").checked = true;
-        document.getElementById("fillerItemsPowerBombYes").checked = true;
-        document.getElementById("fillerItemsETankEarly").checked = true;
-        document.getElementById("fillerItemsReserveTankYes").checked = true;
-        document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsWaveYes").checked = true;
-        document.getElementById("fillerItemsSpazerYes").checked = true;
-        document.getElementById("fillerItemsIceYes").checked = true;
-        document.getElementById("fillerItemsPlasmaYes").checked = true;
-        document.getElementById("fillerItemsXRayScopeYes").checked = true;
-    }
-    if (document.getElementById("itemProgressionPresetTricky").checked) {
-        document.getElementById("progressionRateUniform").checked = true;
-        document.getElementById("itemPlacementStyleForced").checked = true;
-        document.getElementById("itemPriorityStrengthModerate").checked = true;
-        document.getElementById("randomTankYes").checked = true;
-        document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("itemPoolPresetFull").checked = true;
-        document.getElementById("startingItemsPresetNone").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("itemPriority{{+ item }}Early").checked = true;
-        {% endfor %}
-        document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
-        document.getElementById("itemPriorityScrewAttackDefault").checked = true;
-        document.getElementById("itemPriorityWallJumpDefault").checked = true;
-        document.getElementById("itemPriorityVariaLate").checked = true;
-        document.getElementById("itemPriorityGravityLate").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("fillerItems{{+ item }}No").checked = true;
-        {% endfor %}
-        document.getElementById("fillerItemsSuperYes").checked = true;
-        document.getElementById("fillerItemsPowerBombYes").checked = true;
-        document.getElementById("fillerItemsETankEarly").checked = true;
-        document.getElementById("fillerItemsReserveTankYes").checked = true;
-        document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsIceYes").checked = true;
-        document.getElementById("fillerItemsWaveYes").checked = true;
-        document.getElementById("fillerItemsSpazerYes").checked = true;
-        document.getElementById("fillerItemsPlasmaYes").checked = true;
-        document.getElementById("fillerItemsXRayScopeYes").checked = true;
-    }
-    if (document.getElementById("itemProgressionPresetChallenge").checked) {
-        document.getElementById("progressionRateSlow").checked = true;
-        document.getElementById("itemPlacementStyleForced").checked = true;
-        document.getElementById("itemPriorityStrengthModerate").checked = true;
-        document.getElementById("randomTankYes").checked = true;
-        document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("itemPoolPresetFull").checked = true;
-        document.getElementById("startingItemsPresetNone").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("itemPriority{{+ item }}Early").checked = true;
-        {% endfor %}
-        document.getElementById("itemPriorityMorphDefault").checked = true;
-        document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
-        document.getElementById("itemPriorityScrewAttackDefault").checked = true;
-        document.getElementById("itemPriorityWallJumpDefault").checked = true;
-        document.getElementById("itemPriorityVariaLate").checked = true;
-        document.getElementById("itemPriorityGravityLate").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("fillerItems{{+ item }}No").checked = true;
-        {% endfor %}
-        document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsSpazerYes").checked = true;
-        document.getElementById("fillerItemsSuperSemi").checked = true;
-        document.getElementById("fillerItemsPowerBombSemi").checked = true;
-    }
-    if (document.getElementById("itemProgressionPresetDesolate").checked) {
-        document.getElementById("progressionRateSlow").checked = true;
-        document.getElementById("itemPlacementStyleForced").checked = true;
-        document.getElementById("itemPriorityStrengthModerate").checked = true;
-        document.getElementById("randomTankYes").checked = true;
-        document.getElementById("spazerBeforePlasmaYes").checked = true;
-        document.getElementById("itemPoolPresetReduced").checked = true;
-        document.getElementById("startingItemsPresetNone").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("itemPriority{{+ item }}Early").checked = true;
-        {% endfor %}
-        document.getElementById("itemPriorityMorphDefault").checked = true;
-        document.getElementById("itemPrioritySpaceJumpDefault").checked = true;
-        document.getElementById("itemPriorityScrewAttackDefault").checked = true;
-        document.getElementById("itemPriorityWallJumpDefault").checked = true;
-        document.getElementById("itemPriorityVariaLate").checked = true;
-        document.getElementById("itemPriorityGravityLate").checked = true;
-        {% for item in prioritizable_items %}
-        document.getElementById("fillerItems{{+ item }}No").checked = true;
-        {% endfor %}
-        document.getElementById("fillerItemsChargeYes").checked = true;
-        document.getElementById("fillerItemsSpazerYes").checked = true;
-        document.getElementById("fillerItemsSuperSemi").checked = true;
-        document.getElementById("fillerItemsPowerBombSemi").checked = true;
+    let preset = null;
+    for (presetEl of document.getElementsByClassName("item-preset-button")) {
+        if (presetEl.checked) {
+            preset = itemPresets[presetEl.value];
+            applyItemProgressionPreset(preset);
+            break;
+        }
     }
     processItemPoolPreset();
     processStartingItemsPreset();

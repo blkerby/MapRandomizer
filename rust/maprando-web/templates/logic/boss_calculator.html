@@ -41,10 +41,10 @@
                 Techs and strats
             </div>
             <div class="col-lg-10 my-2 btn-group overflow-auto" role="group" id="presets">
-            {% for difficulty in difficulty_names.iter() %}
+            {% for p in presets.iter() %}
                 <input type="radio" class="btn-check" name="preset" value="{{+ loop.index0 }}"
                     id="preset{{+ loop.index0 }}" autocomplete="off" {% if loop.first %}checked{% endif %}>
-                <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ difficulty }}</label>
+                <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ p.preset.as_ref().unwrap() }}</label>
             {% endfor %}
             </div>
         </div>
@@ -117,13 +117,13 @@
 
         // First difficulty, then bosses
         let preset_boss_proficiencies = [
-            {% for difficulty in boss_proficiencies.iter() %}
+            {% for p in presets.iter() %}
             {
-                "Phantoon": {{ difficulty.0 }},
-                "Draygon": {{ difficulty.1 }},
-                "Ridley": {{ difficulty.2 }},
-                "Botwoon": {{ difficulty.3 }},
-                "Mother Brain 2": {{ difficulty.4 }},
+                "Phantoon": {{ p.phantoon_proficiency }},
+                "Draygon": {{ p.draygon_proficiency }},
+                "Ridley": {{ p.ridley_proficiency }},
+                "Botwoon": {{ p.botwoon_proficiency }},
+                "Mother Brain 2": {{ p.mother_brain_proficiency }},
             },
             {% endfor %}
         ];
@@ -246,18 +246,18 @@
                 ref_proficiency.addEventListener("input", do_boss_check);
                 for (let ref_radio_button of document.querySelectorAll("#presets input[type='radio']")) {
                     ref_radio_button.addEventListener("click", function () {
-                        function get_tech(techs, name) {
-                            for (let tech of techs) {
-                                if (tech[0] == name) {
-                                    return tech[1];
+                        function get_tech(tech_settings, tech_id) {
+                            for (let s of tech_settings) {
+                                if (s.tech_id == tech_id) {
+                                    return s.enabled;
                                 }
                             }
                             return false;
                         }
 
-                        let techs = presets_json[parseInt(ref_radio_button.value)].tech_setting;
-                        can_manage_reserves = get_tech(techs, "canManageReserves");
-                        can_be_very_patient = get_tech(techs, "canBeVeryPatient");
+                        let techs = presets_json[parseInt(ref_radio_button.value)].tech_settings;
+                        can_manage_reserves = get_tech(techs, 18);
+                        can_be_very_patient = get_tech(techs, 2);
 
                         updateProficiency();
                         do_boss_check();

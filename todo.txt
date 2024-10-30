@@ -2,10 +2,23 @@ v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
-- use RandomizerSettings in maprando-cli and maprando-test
+- review spoiler zoom PR
+- fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
+- improve reproducibility:
+  - try processing region files in a deterministic order
+- add pause & area times to credits
+- investigate issue with door lock skips not being in logic?:
+  - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
+- issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
+- fix main hall elevator frames:
+  - takes at least 47 energy with fast elevators.
+- DONE: use RandomizerSettings in maprando-cli and maprando-test
+- DONE: set up script to automate syncing logic changes
+  - update skill assumption presets and full-settings presets
+- DONE: simplify DifficultyConfig
 - simplify SeedData
-- simplify DifficultyConfig
 - save/load presets
+  - download settings preset from seed page
 - built-in presets: default, and season 2 racing
 
 v114:

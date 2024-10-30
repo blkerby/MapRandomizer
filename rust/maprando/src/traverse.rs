@@ -3,8 +3,8 @@ use std::cmp::{max, min};
 use hashbrown::HashMap;
 
 use crate::{
-    randomize::{DifficultyConfig, LockedDoor},
-    settings::{MotherBrainFight, WallJump},
+    randomize::{DifficultyConfig, LockedDoor, Objective},
+    settings::{MotherBrainFight, RandomizerSettings, WallJump},
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
@@ -118,9 +118,10 @@ fn validate_energy_no_auto_reserve(
     mut local: LocalState,
     global: &GlobalState,
     game_data: &GameData,
+    difficulty: &DifficultyConfig,
 ) -> Option<LocalState> {
     if local.energy_used >= global.inventory.max_energy {
-        if global.tech[game_data.manage_reserves_tech_idx] {
+        if difficulty.tech[game_data.manage_reserves_tech_idx] {
             // Assume that just enough reserve energy is manually converted to regular energy.
             local.reserves_used += local.energy_used - (global.inventory.max_energy - 1);
             local.energy_used = global.inventory.max_energy - 1;
@@ -174,7 +175,7 @@ fn apply_gate_glitch_leniency(
         local = match validate_energy(
             local,
             &global.inventory,
-            global.tech[game_data.manage_reserves_tech_idx],
+            difficulty.tech[game_data.manage_reserves_tech_idx],
         ) {
             Some(x) => x,
             None => return None,
@@ -198,12 +199,13 @@ fn apply_gate_glitch_leniency(
 
 fn is_objective_complete(
     global: &GlobalState,
-    difficulty: &DifficultyConfig,
+    _difficulty: &DifficultyConfig,
+    objectives: &[Objective],
     game_data: &GameData,
     obj_id: usize,
 ) -> bool {
     // TODO: What to do when obj_id is out of bounds?
-    if let Some(obj) = difficulty.objectives.get(obj_id) {
+    if let Some(obj) = objectives.get(obj_id) {
         let flag_name = obj.get_flag_name();
         let flag_idx = game_data.flag_isv.index_by_key[flag_name];
         global.flags[flag_idx]
@@ -224,7 +226,7 @@ fn apply_heat_frames(
     if varia {
         Some(new_local)
     } else {
-        if !global.tech[game_data.heat_run_tech_idx] {
+        if !difficulty.tech[game_data.heat_run_tech_idx] {
             None
         } else {
             new_local.energy_used +=
@@ -232,7 +234,7 @@ fn apply_heat_frames(
             validate_energy(
                 new_local,
                 &global.inventory,
-                global.tech[game_data.manage_reserves_tech_idx],
+                difficulty.tech[game_data.manage_reserves_tech_idx],
             )
         }
     }
@@ -289,6 +291,7 @@ fn apply_heat_frames_with_energy_drops(
     local: LocalState,
     global: &GlobalState,
     game_data: &GameData,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     reverse: bool,
 ) -> Option<LocalState> {
@@ -297,13 +300,17 @@ fn apply_heat_frames_with_energy_drops(
     if varia {
         Some(new_local)
     } else {
-        if !global.tech[game_data.heat_run_tech_idx] {
+        if !difficulty.tech[game_data.heat_run_tech_idx] {
             None
         } else {
             let mut total_drop_value = 0;
             for drop in drops {
-                total_drop_value +=
-                    get_enemy_drop_value(drop, local, reverse, difficulty.buffed_drops)
+                total_drop_value += get_enemy_drop_value(
+                    drop,
+                    local,
+                    reverse,
+                    settings.quality_of_life_settings.buffed_drops,
+                )
             }
             let heat_energy =
                 (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
@@ -312,7 +319,7 @@ fn apply_heat_frames_with_energy_drops(
             if let Some(x) = validate_energy(
                 new_local,
                 &global.inventory,
-                global.tech[game_data.manage_reserves_tech_idx],
+                difficulty.tech[game_data.manage_reserves_tech_idx],
             ) {
                 new_local = x;
             } else {
@@ -341,9 +348,11 @@ pub fn apply_link(
     global: &GlobalState,
     local: LocalState,
     reverse: bool,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
+    objectives: &[Objective],
 ) -> Option<LocalState> {
     if reverse {
         if !link.end_with_shinecharge && local.shinecharge_frames_remaining > 0 {
@@ -359,9 +368,11 @@ pub fn apply_link(
         global,
         local,
         reverse,
+        settings,
         difficulty,
         game_data,
         locked_door_data,
+        objectives,
     );
     if let Some(mut new_local) = new_local {
         if reverse {
@@ -395,28 +406,91 @@ fn get_heated_speedball_tiles(difficulty: &DifficultyConfig) -> f32 {
     difficulty.speed_ball_tiles + heat_leniency
 }
 
+pub fn debug_requirement(
+    req: &Requirement,
+    global: &GlobalState,
+    local: LocalState,
+    reverse: bool,
+    settings: &RandomizerSettings,
+    difficulty: &DifficultyConfig,
+    game_data: &GameData,
+    locked_door_data: &LockedDoorData,
+    objectives: &[Objective],
+) {
+    println!(
+        "{:?}: {:?}",
+        req,
+        apply_requirement(
+            req,
+            global,
+            local,
+            reverse,
+            settings,
+            difficulty,
+            game_data,
+            locked_door_data,
+            objectives
+        )
+    );
+    match req {
+        Requirement::And(reqs) => {
+            for r in reqs {
+                debug_requirement(
+                    r,
+                    global,
+                    local,
+                    reverse,
+                    settings,
+                    difficulty,
+                    game_data,
+                    locked_door_data,
+                    objectives,
+                );
+            }
+        }
+        Requirement::Or(reqs) => {
+            for r in reqs {
+                debug_requirement(
+                    r,
+                    global,
+                    local,
+                    reverse,
+                    settings,
+                    difficulty,
+                    game_data,
+                    locked_door_data,
+                    objectives,
+                );
+            }
+        }
+        _ => {}
+    }
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
     local: LocalState,
     reverse: bool,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
+    objectives: &[Objective],
 ) -> Option<LocalState> {
-    let can_manage_reserves = global.tech[game_data.manage_reserves_tech_idx];
+    let can_manage_reserves = difficulty.tech[game_data.manage_reserves_tech_idx];
     match req {
         Requirement::Free => Some(local),
         Requirement::Never => None,
-        Requirement::Tech(tech_id) => {
-            if global.tech[*tech_id] {
+        Requirement::Tech(tech_idx) => {
+            if difficulty.tech[*tech_idx] {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::Notable(notable_idx) => {
-            if global.notables[*notable_idx] {
+            if difficulty.notables[*notable_idx] {
                 Some(local)
             } else {
                 None
@@ -442,22 +516,22 @@ pub fn apply_requirement(
             Some(local)
         }
         Requirement::Objective(obj_id) => {
-            if is_objective_complete(global, difficulty, game_data, *obj_id) {
+            if is_objective_complete(global, difficulty, objectives, game_data, *obj_id) {
                 Some(local)
             } else {
                 None
             }
         }
-        Requirement::Walljump => match difficulty.wall_jump {
+        Requirement::Walljump => match settings.other_settings.wall_jump {
             WallJump::Vanilla => {
-                if global.tech[game_data.wall_jump_tech_idx] {
+                if difficulty.tech[game_data.wall_jump_tech_idx] {
                     Some(local)
                 } else {
                     None
                 }
             }
             WallJump::Collectible => {
-                if global.tech[game_data.wall_jump_tech_idx]
+                if difficulty.tech[game_data.wall_jump_tech_idx]
                     && global.inventory.items[Item::WallJump as usize]
                 {
                     Some(local)
@@ -467,7 +541,7 @@ pub fn apply_requirement(
             }
         },
         Requirement::ClimbWithoutLava => {
-            if difficulty.remove_climb_lava {
+            if settings.quality_of_life_settings.remove_climb_lava {
                 Some(local)
             } else {
                 None
@@ -483,26 +557,27 @@ pub fn apply_requirement(
                 local,
                 global,
                 game_data,
+                settings,
                 difficulty,
                 reverse,
             )
         }
         Requirement::MainHallElevatorFrames => {
-            if difficulty.fast_elevators {
+            if settings.quality_of_life_settings.fast_elevators {
                 apply_heat_frames(160, local, global, game_data, difficulty)
             } else {
                 apply_heat_frames(436, local, global, game_data, difficulty)
             }
         }
         Requirement::LowerNorfairElevatorDownFrames => {
-            if difficulty.fast_elevators {
+            if settings.quality_of_life_settings.fast_elevators {
                 apply_heat_frames(24, local, global, game_data, difficulty)
             } else {
                 apply_heat_frames(60, local, global, game_data, difficulty)
             }
         }
         Requirement::LowerNorfairElevatorUpFrames => {
-            if difficulty.fast_elevators {
+            if settings.quality_of_life_settings.fast_elevators {
                 apply_heat_frames(40, local, global, game_data, difficulty)
             } else {
                 apply_heat_frames(108, local, global, game_data, difficulty)
@@ -565,12 +640,13 @@ pub fn apply_requirement(
         Requirement::Damage(base_energy) => {
             let mut new_local = local;
             let energy = base_energy / suit_damage_factor(&global.inventory);
-            if energy >= global.inventory.max_energy && !global.tech[game_data.pause_abuse_tech_idx]
+            if energy >= global.inventory.max_energy
+                && !difficulty.tech[game_data.pause_abuse_tech_idx]
             {
                 None
             } else {
                 new_local.energy_used += energy;
-                validate_energy_no_auto_reserve(new_local, global, game_data)
+                validate_energy_no_auto_reserve(new_local, global, game_data, difficulty)
             }
         }
         Requirement::Missiles(count) => {
@@ -853,28 +929,28 @@ pub fn apply_requirement(
         Requirement::AmmoStationRefill => {
             let mut new_local = local;
             new_local.missiles_used = 0;
-            if !difficulty.ultra_low_qol {
+            if !settings.other_settings.ultra_low_qol {
                 new_local.supers_used = 0;
                 new_local.power_bombs_used = 0;
             }
             Some(new_local)
         }
         Requirement::AmmoStationRefillAll => {
-            if difficulty.ultra_low_qol {
+            if settings.other_settings.ultra_low_qol {
                 None
             } else {
                 Some(local)
             }
         }
         Requirement::SupersDoubleDamageMotherBrain => {
-            if difficulty.supers_double {
+            if settings.quality_of_life_settings.supers_double {
                 Some(local)
             } else {
                 None
             }
         }
         Requirement::ShinesparksCostEnergy => {
-            if difficulty.energy_free_shinesparks {
+            if settings.other_settings.energy_free_shinesparks {
                 None
             } else {
                 Some(local)
@@ -960,7 +1036,7 @@ pub fn apply_requirement(
             local,
             difficulty.draygon_proficiency,
             can_manage_reserves,
-            global.tech[*can_be_very_patient_tech_id],
+            difficulty.tech[*can_be_very_patient_tech_id],
         ),
         Requirement::RidleyFight {
             can_be_very_patient_tech_idx: can_be_very_patient_tech_id,
@@ -969,7 +1045,7 @@ pub fn apply_requirement(
             local,
             difficulty.ridley_proficiency,
             can_manage_reserves,
-            global.tech[*can_be_very_patient_tech_id],
+            difficulty.tech[*can_be_very_patient_tech_id],
         ),
         Requirement::BotwoonFight { second_phase } => apply_botwoon_requirement(
             &global.inventory,
@@ -982,21 +1058,21 @@ pub fn apply_requirement(
             can_be_very_patient_tech_id,
             r_mode,
         } => {
-            if difficulty.mother_brain_fight == MotherBrainFight::Skip {
+            if settings.quality_of_life_settings.mother_brain_fight == MotherBrainFight::Skip {
                 return Some(local);
             }
             apply_mother_brain_2_requirement(
                 &global.inventory,
                 local,
                 difficulty.mother_brain_proficiency,
-                difficulty.supers_double,
+                settings.quality_of_life_settings.supers_double,
                 can_manage_reserves,
-                global.tech[*can_be_very_patient_tech_id],
+                difficulty.tech[*can_be_very_patient_tech_id],
                 *r_mode,
             )
         }
         Requirement::SpeedBall { used_tiles, heated } => {
-            if !global.tech[game_data.speed_ball_tech_idx]
+            if !difficulty.tech[game_data.speed_ball_tech_idx]
                 || !global.inventory.items[Item::Morph as usize]
             {
                 None
@@ -1073,9 +1149,9 @@ pub fn apply_requirement(
             excess_frames,
             shinespark_tech_idx: shinespark_tech_id,
         } => {
-            if global.tech[*shinespark_tech_id] {
+            if difficulty.tech[*shinespark_tech_id] {
                 let mut new_local = local;
-                if difficulty.energy_free_shinesparks {
+                if settings.other_settings.energy_free_shinesparks {
                     return Some(new_local);
                 }
                 if reverse {
@@ -1084,11 +1160,11 @@ pub fn apply_requirement(
                     } else {
                         new_local.energy_used += frames;
                     }
-                    validate_energy_no_auto_reserve(new_local, global, game_data)
+                    validate_energy_no_auto_reserve(new_local, global, game_data, difficulty)
                 } else {
                     new_local.energy_used += frames - excess_frames + 28;
                     if let Some(mut new_local) =
-                        validate_energy_no_auto_reserve(new_local, global, game_data)
+                        validate_energy_no_auto_reserve(new_local, global, game_data, difficulty)
                     {
                         let energy_remaining =
                             global.inventory.max_energy - new_local.energy_used - 1;
@@ -1159,27 +1235,33 @@ pub fn apply_requirement(
                         global,
                         local,
                         reverse,
+                        settings,
                         difficulty,
                         game_data,
                         locked_door_data,
+                        objectives,
                     ),
                     DoorType::Green => apply_requirement(
                         requirement_green,
                         global,
                         local,
                         reverse,
+                        settings,
                         difficulty,
                         game_data,
                         locked_door_data,
+                        objectives,
                     ),
                     DoorType::Yellow => apply_requirement(
                         requirement_yellow,
                         global,
                         local,
                         reverse,
+                        settings,
                         difficulty,
                         game_data,
                         locked_door_data,
+                        objectives,
                     ),
                     DoorType::Beam(beam) => {
                         if has_beam(beam, &global.inventory) {
@@ -1189,9 +1271,11 @@ pub fn apply_requirement(
                                     global,
                                     local,
                                     reverse,
+                                    settings,
                                     difficulty,
                                     game_data,
                                     locked_door_data,
+                                    objectives,
                                 )
                             } else {
                                 Some(local)
@@ -1208,6 +1292,13 @@ pub fn apply_requirement(
                 Some(local)
             }
         }
+        Requirement::EscapeMorphLocation => {
+            if settings.map_layout == "Vanilla" {
+                Some(local)
+            } else {
+                None
+            }
+        }
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {
@@ -1217,9 +1308,11 @@ pub fn apply_requirement(
                         global,
                         new_local,
                         reverse,
+                        settings,
                         difficulty,
                         game_data,
                         locked_door_data,
+                        objectives,
                     )?;
                 }
             } else {
@@ -1229,9 +1322,11 @@ pub fn apply_requirement(
                         global,
                         new_local,
                         reverse,
+                        settings,
                         difficulty,
                         game_data,
                         locked_door_data,
+                        objectives,
                     )?;
                 }
             }
@@ -1246,9 +1341,11 @@ pub fn apply_requirement(
                     global,
                     local,
                     reverse,
+                    settings,
                     difficulty,
                     game_data,
                     locked_door_data,
+                    objectives,
                 ) {
                     let cost = compute_cost(new_local, &global.inventory);
                     // TODO: Maybe do something better than just using the first cost metric.
@@ -1355,9 +1452,11 @@ pub fn traverse(
     num_vertices: usize,
     start_vertex_id: usize,
     reverse: bool,
+    settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
     locked_door_data: &LockedDoorData,
+    objectives: &[Objective],
 ) -> TraverseResult {
     let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
     let mut result: TraverseResult;
@@ -1421,9 +1520,11 @@ pub fn traverse(
                         global,
                         src_local_state,
                         reverse,
+                        settings,
                         difficulty,
                         game_data,
                         locked_door_data,
+                        objectives,
                     ) {
                         let dst_new_cost_arr = compute_cost(dst_new_local_state, &global.inventory);
 

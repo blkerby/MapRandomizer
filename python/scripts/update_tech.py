@@ -2,67 +2,80 @@ import pathlib
 import requests
 import json
 
-presets_path = pathlib.Path("rust/data/presets.json")
 sm_json_path = pathlib.Path("sm-json-data")
-# output_path = pathlib.Path("rust/data/new_presets.json")
-output_path = presets_path
+output_path = pathlib.Path("rust/data/tech_data.json")
+skill_presets_path = pathlib.Path("rust/data/presets/skill-assumptions")
 videos_url = "https://videos.maprando.com"
 
-tech_path = sm_json_path / "tech.json"
-tech_json = json.load(open(tech_path, "r"))
+tech_json_path = sm_json_path / "tech.json"
+tech_json = json.load(open(tech_json_path, "r"))
 
-presets = json.load(open(presets_path, "r"))
-preset_dict = {}
-for preset in presets:
-    preset["tech"] = []
-    preset_dict[preset["name"]] = preset
-
-video_tech_list = requests.get(videos_url + "/tech").json()
-video_tech_dict = {}
-for v in video_tech_list:
-    video_tech_dict[v["tech_id"]] = v
-
-def process_tech(tech):
-    if "id" not in tech:
-        print("Ignoring tech {} which has no ID".format(tech["name"]))
-        return
-    tech_id = tech["id"]
-    video_tech = video_tech_dict[tech_id]
-
-    difficulty = video_tech["difficulty"]
-    if difficulty == "Uncategorized":
-        print("Uncategorized tech {} ({})".format(
-            video_tech["name"], video_tech["tech_id"]))
-        return
-
-    preset = preset_dict[difficulty]
-    preset["tech"].append({
-        "tech_id": tech_id,
-        "name": video_tech["name"],
-        "video_id": video_tech["video_id"]
-    })
-
-    
-def process_tech_rec(tech):
-    process_tech(tech)
-    if "extensionTechs" in tech:
-        for t in tech["extensionTechs"]:
-            process_tech_rec(t)
-
-    
+# Extract all tech IDs in the order listed in sm-json-data:
+tech_id_order = []
+def get_tech_ids(t):
+    global tech_id_order
+    if "id" in t:
+        tech_id_order.append(t["id"])
+    else:
+        print("Tech {} has no 'id'".format(t["name"]))
+    for e in t.get("extensionTechs", []):
+        get_tech_ids(e)
+        
 for c in tech_json["techCategories"]:
-    for tech in c["techs"]:
-        process_tech_rec(tech)
+    for t in c["techs"]:
+        get_tech_ids(t)
 
-presets[3]["tech"].append({
+
+tech_data = requests.get(videos_url + "/tech").json()
+
+# Add randomizer-specific tech which isn't in sm-json-data:
+tech_data.append({
     "tech_id": 10001,
     "name": "canHyperGateShot",
+    "difficulty": "Hard",
     "video_id": None,
 })
-presets[0]["tech"].append({
-    "tech_id": 10002,
-    "name": "canEscapeMorphLocation",
-    "video_id": None,
-})
+tech_id_order.append(10001)
 
-json.dump(presets, open(output_path, "w"), indent=2)
+# json.dump(tech_data, open(output_path, "w"), indent=2)
+
+difficulty_levels = [
+    "Implicit",
+    "Basic",
+    "Medium",
+    "Hard",
+    "Very Hard",
+    "Expert",
+    "Extreme",
+    "Insane",
+    "Beyond",
+    "Ignored",
+]
+
+tech_dict = {t["tech_id"]: t for t in tech_data}
+tech_id_by_difficulty = {d: [] for d in difficulty_levels}
+
+for tech_id in tech_id_order:
+    tech = tech_dict[tech_id]
+    difficulty = tech["difficulty"]
+    if difficulty not in tech_id_by_difficulty:
+        print("Unrecognized difficulty {} for tech {}".format(difficulty, tech["name"]))
+    tech_id_by_difficulty[difficulty].append(tech_id)
+
+# Update skill-assumption presets:
+for preset_difficulty_idx in range(0, 9):  # skip Ignored difficulty
+    preset_difficulty = difficulty_levels[preset_difficulty_idx]
+    path = skill_presets_path / f'{preset_difficulty}.json'
+    preset = json.load(open(path, 'r'))
+    tech_settings = []
+    for tech_difficulty_idx in range(1, 9):  # skip Implicit and Ignored difficulties
+        tech_difficulty = difficulty_levels[tech_difficulty_idx]
+        for tech_id in tech_id_by_difficulty[tech_difficulty]:
+            tech = tech_dict[tech_id]
+            tech_settings.append({
+                "id": tech_id,
+                "name": tech["name"],
+                "enabled": tech_difficulty_idx <= preset_difficulty_idx
+            })
+    preset["tech_settings"] = tech_settings
+    json.dump(preset, open(path, "w"), indent=4)

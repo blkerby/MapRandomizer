@@ -2,80 +2,53 @@ import pathlib
 import requests
 import json
 
-presets_path = pathlib.Path("rust/data/presets.json")
-sm_json_path = pathlib.Path("sm-json-data")
-output_path = presets_path
+output_path = pathlib.Path("rust/data/notable_data.json")
+skill_presets_path = pathlib.Path("rust/data/presets/skill-assumptions")
 videos_url = "https://videos.maprando.com"
 
-area_order = [
-    "Central Crateria",
-    "West Crateria",
-    "East Crateria",
-    "Blue Brinstar",
-    "Green Brinstar",
-    "Pink Brinstar",
-    "Red Brinstar",
-    "Kraid Brinstar",
-    "East Upper Norfair",
-    "West Upper Norfair",
-    "Crocomire Upper Norfair",
-    "West Lower Norfair",
-    "East Lower Norfair",
-    "Wrecked Ship",
-    "Outer Maridia",
-    "Pink Inner Maridia",
-    "Yellow Inner Maridia",
-    "Green Inner Maridia",
-    "Tourian",
+notable_data = requests.get(videos_url + "/notables").json()
+json.dump(notable_data, open(output_path, "w"), indent=2)
+
+difficulty_levels = [
+    "Implicit",
+    "Basic",
+    "Medium",
+    "Hard",
+    "Very Hard",
+    "Expert",
+    "Extreme",
+    "Insane",
+    "Beyond",
+    "Ignored",
 ]
 
-presets = json.load(open(presets_path, "r"))
-preset_dict = {}
-for preset in presets:
-    preset["notables"] = []
-    preset_dict[preset["name"]] = preset
+notable_dict = {(n["room_id"], n["notable_id"]): n for n in notable_data}
+notable_id_by_difficulty = {d: [] for d in difficulty_levels}
 
-video_notables = requests.get(videos_url + "/notables").json()
-video_notable_dict = {}
-for notable in video_notables:
-    video_notable_dict[(notable["room_id"], notable["notable_id"])] = notable
-
-room_dict = {}
-room_names_by_area = {}
-for room_path in sm_json_path.glob("region/**/*.json"):
-    if room_path.name == "roomDiagrams.json":
+for notable in notable_data:
+    difficulty = notable["difficulty"]
+    if difficulty not in notable_id_by_difficulty:
+        print("Unrecognized difficulty {} for ({}, {}) notable {}: {}".format(
+            difficulty, notable["room_id"], notable["notable_id"], notable["room_name"], notable["name"]))
         continue
-    room_json = json.load(open(room_path, "r"))
-    room_dict[room_json["name"]] = room_json
+    notable_id_by_difficulty[difficulty].append((notable["room_id"], notable["notable_id"]))
 
-    area_parts = [room_json["area"], room_json["subarea"]]
-    if "subsubarea" in room_json:
-        area_parts.append(room_json["subsubarea"])
-    area_parts = [a for a in area_parts if a != "Main"]
-    area = " ".join(reversed(area_parts))
-    if area not in room_names_by_area:
-        room_names_by_area[area] = []
-    room_names_by_area[area].append(room_json["name"])
-
-for area in area_order:
-    for room_name in sorted(room_names_by_area[area]):
-        room_json = room_dict[room_name]
-        room_id = room_json["id"]
-        for notable in room_json["notables"]:
-            notable_id = notable["id"]
-            video_notable = video_notable_dict[(room_id, notable_id)]
-            difficulty = video_notable["difficulty"]
-            if difficulty == "Uncategorized":
-                print("Uncategorized notable ({}, {}) {}: {}".format(
-                    video_notable["room_id"], video_notable["notable_id"], room_json["name"], video_notable["name"]))
-                continue
-            preset = preset_dict[difficulty]
-            preset["notables"].append({
-                "room_id": room_id,
+# Update skill-assumption presets:
+for preset_difficulty_idx in range(0, 9):  # skip Ignored difficulty
+    preset_difficulty = difficulty_levels[preset_difficulty_idx]
+    path = skill_presets_path / f'{preset_difficulty}.json'
+    preset = json.load(open(path, 'r'))
+    notable_settings = []
+    for notable_difficulty_idx in range(1, 9):  # skip Implicit and Ignored difficulties
+        notable_difficulty = difficulty_levels[notable_difficulty_idx]
+        for (room_id, notable_id) in notable_id_by_difficulty[notable_difficulty]:
+            notable = notable_dict[(room_id, notable_id)]
+            notable_settings.append({
+                "room_id": notable["room_id"],
                 "notable_id": notable_id,
-                "room_name": room_json["name"],
-                "name": notable["name"],
-                "video_id": video_notable["video_id"]
+                "room_name": notable["room_name"],
+                "notable_name": notable["name"],
+                "enabled": notable_difficulty_idx <= preset_difficulty_idx
             })
-
-json.dump(presets, open(output_path, "w"), indent=2)
+    preset["notable_settings"] = notable_settings
+    json.dump(preset, open(path, "w"), indent=4)
