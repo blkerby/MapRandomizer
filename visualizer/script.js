@@ -404,7 +404,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			dragged = false;
 		}
 	}
-	document.body.onpointerdown = ev => {
+	m.onpointerdown = ev => {
 		if (ev.button != 0)
 			return;
 
@@ -444,15 +444,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 	}
-	document.body.onpointerup = ev => {
-		if (ev.button != 0)
-			return;
-		up(ev);
-	}
 	document.body.onpointerleave = ev => {
 		up(ev);
 	}
-	document.body.onpointermove = ev => {
+	m.onpointermove = ev => {
 		ev.preventDefault();
 		if (evCache.length == 2) {
 			var dx = Math.abs(evCache[0].x - evCache[1].x);
@@ -461,7 +456,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			var delta = odist-dist;
 			let i = evCache.findIndex((e) => e.pointerId == ev.pointerId);
 			evCache[i] = ev;
-			zm((evCache[0].x+evCache[1].x)/2, (evCache[0].y+evCache[1].y)/2,delta);
+			zm((evCache[0].x+evCache[1].x)/2, (evCache[0].y+evCache[1].y)/2,delta*2);
 			odist = dist;
 		} else if (evCache.length == 1) {
 			dragged = true;
@@ -474,7 +469,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			hover(ev);
 		}
 	}
-	document.body.onwheel = ev => {
+	m.onwheel = ev => {
 		zm(ev.x, ev.y, ev.deltaY);
 	}
 	let createDiv = (html) => {
