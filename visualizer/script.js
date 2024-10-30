@@ -1,4 +1,4 @@
-const offsets = {
+const offsets = { 
 	"Morph Ball Room: Left Item": [2, 2],
 	"Morph Ball Room: Right Item": [4, 2],
 	"Cathedral: Hidden Item": [2, 1],
@@ -308,7 +308,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	let el = document.getElementById("room-info");
 
 	let dragged = false;
-	var scale = 1, page_x = 0, page_y = 0;
+	var scale = 1, page_x = 0, page_y = 0, dm = 0;
 	let m = document.getElementById("map");
 	let evCache = [];
 	let odist = -1;
@@ -358,7 +358,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 			}
 		} else {
-			console.log("bye")
 			if (!dragged) {
 				// deselect
 				show_overview();
@@ -396,14 +395,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		transfo();
 	}
 	function up(ev) {
-		ev.preventDefault();
 		if (dragged)
 			el.classList.add("hidden");
 		
 		evCache.splice(evCache.findIndex((cached) => cached.pointerID == ev.pointerID), 1)
-		if (evCache.length != 1) {
-			dragged = false;
-		}
+		dragged = false;
 	}
 	m.onpointerdown = ev => {
 		if (ev.button != 0)
@@ -412,6 +408,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		ev.preventDefault();
 		evCache.push(ev);
 		dragged = false;
+		dm = 0;
 		if (evCache.length == 2) {
 			let dx = Math.abs(evCache[0].x-evCache[1].x);
 			let dy = Math.abs(evCache[0].y-evCache[1].y);
@@ -422,10 +419,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	m.onpointerup = ev => {
 		if (ev.button != 0)
 			return;
+		else
+			ev.preventDefault();
 		
 		if (evCache.length == 1) {
+			let oldroom = el.innerText;
+			hover(ev);
+			click();
 			if (fclick) {
-				click();
 				timer = setTimeout(function (){
 					fclick = true;
 				}, 500);
@@ -434,8 +435,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				fclick = true;
 				if (timer)
 					clearTimeout(timer);
-				let oldroom = el.innerText;
-				hover(ev);
 				if (oldroom == el.innerText)
 					dblclick();
 			}
@@ -446,11 +445,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		up(ev);
 	}
 	document.body.onpointerup = ev => {
+		if (ev.button != 0)
+			return;
+		else
+			ev.preventDefault();
 		up(ev);
 	}
 	m.onpointermove = ev => {
 		ev.preventDefault();
 		if (evCache.length == 2) {
+			if (ev.button == 0)
+				return;
 			var dx = Math.abs(evCache[0].x - evCache[1].x);
 			var dy = Math.abs(evCache[0].y - evCache[1].y);
 			var dist = Math.sqrt(dx**2 + dy**2);
@@ -460,7 +465,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			zm((evCache[0].x+evCache[1].x)/2, (evCache[0].y+evCache[1].y)/2,delta*2);
 			odist = dist;
 		} else if (evCache.length == 1) {
-			dragged = true;
+			dm += Math.abs(ev.x - evCache[0].x);
+			dm += Math.abs(ev.y - evCache[0].y);
+			if (dm > 3)
+				dragged = true;
 			page_x += ev.x - evCache[0].x;
 			page_y += ev.y - evCache[0].y;
 			evCache[0] = ev;
@@ -785,4 +793,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		el.style.top = v.location.coords[1] * 24 + 8 + "px";
 		document.getElementById("overlay").appendChild(el);
 	}
+	screen.orientation.onchange = ev => {
+		const h = screen.availHeight;
+		if (h < 600+32)
+			document.getElementById("sidebar-info").style.maxHeight = h-32 + "px";
+		else
+			document.getElementById("sidebar-info").style.maxHeight = "600px";
+	}
+	if (screen.availHeight < 600+32)
+		document.getElementById("sidebar-info").style.maxHeight = screen.availHeight-32 + "px";
 });
