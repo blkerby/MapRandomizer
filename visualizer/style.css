@@ -49,7 +49,7 @@ div {
 	left: 0;
 	z-index: 2;
 }
-.popup, #room-info, #sidebar-info, #sidebar-route {
+.popup, #room-info, #sidebar-info, #sidebar-route, #settings {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
@@ -66,6 +66,196 @@ div {
 	overflow-y: auto;
 	pointer-events: auto;
 	top: 16px;
+	left: 16px;
+}
+#settings {
+	top: 16px;
+	right: 16px;
+	position: fixed;
+	pointer-events: auto;
+}
+.sidebar-title {
+	font-size: x-large;
+}
+.sidebar-item-name {
+	font-size: x-large;
+	margin-top: 12px;
+}
+.item-list {
+	width: 440px;
+}
+.category {
+	font-size: small;
+	font-weight: bold;
+	margin-top: 8px;
+}
+.step-panel {
+	padding: 3px;
+	display: flex;
+	align-items: center;
+}
+.step-panel:hover {
+	background-color: #333333e0;
+}
+.step-panel.selected {
+	background-color: #444480e0;
+}
+.step-number {
+	font-size: small;
+	font-weight: bold;
+	text-align: right;
+	width: 16px;
+	height: 16px;
+	margin-right: 8px;
+}
+.step-whole-map {
+	font-size: small;
+	font-weight: bold;
+	margin-right: 8px;
+}
+.hidden {
+	display: none;
+}
+.popup {
+	display: none;
+	z-index: 2;
+}
+.icon:hover + .popup {
+	display: block;
+	width: auto;
+}
+.icon, .ui-icon, .ui-icon-hoverable {
+	background-image: url("items.png");
+	width: 16px;
+	height: 16px;
+	background-size: 384px;
+	image-rendering: pixelated;
+	transition: transform 200ms ease;
+}
+.icon {
+	position: absolute;
+}
+.ui-icon, .ui-icon-hoverable {
+	display: inline-block;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	margin-left: 1px;
+	margin-right: 1px;
+}
+.icon:hover {
+	transform: scale(2);
+	z-index: 2;
+}
+.ui-icon-hoverable:hover {
+	transform: scale(2);
+	z-index: 2;
+}
+.ui-icon-hoverable.selected {
+	transform: scale(1.5);
+}
+.button {
+	background-color: #36f;
+	border-radius: 2px;
+	font-weight: bold;
+	text-align: center;
+	padding: 5px;
+	cursor: pointer;
+}
+#msg-wrap {
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
+.msg {
+	background: #222;
+	color: #eee;
+	background-color: #222;
+	z-index: 3;
+	border-radius: 2px;
+	padding: 8px;
+}
+.msg-title {
+	text-align: center;
+	margin: 10px;
+}
+.flag {
+	position: absolute;
+}
+.flag:hover {body {
+	font-family: sans-serif;
+	background-color: #111;
+	margin: 0;
+	overflow: hidden;
+}
+a {
+	color: white;	
+}
+img {
+	touch-action: none;
+}
+div {
+	touch-action: none;
+}
+#map {
+	position: absolute;
+	width: 1776px;
+	image-rendering: pixelated;
+	top: 0;
+	left: 0;
+}
+#path-overlay {
+	position: absolute;
+	pointer-events: none;
+}
+#obscure-overlay {
+	position: absolute;
+	margin: 24px;
+	width: 1728px;
+	height: 1728px;
+	image-rendering: pixelated;
+	z-index: 1;
+	pointer-events: none
+}
+#path-overlay {
+	z-index: 3
+}
+#overlay {
+	position: absolute;
+	z-index: 2;
+}
+#grid-overlay {
+	position: absolute;
+	pointer-events: none;
+	width: 1776px;
+	image-rendering: pixelated;
+	top: 0;
+	left: 0;
+	z-index: 2;
+}
+.popup, #room-info, #sidebar-info, #sidebar-route, #settings {
+	position: relative;
+	color: #eee;
+	background-color: #222222e0;
+	z-index: 3;
+	border: 2px solid #222;
+	border-radius: 2px;
+	padding: 2px;
+	line-height: 1em;
+	pointer-events: none;
+}
+#sidebar-info {
+	position: fixed;
+	max-height: 600px;
+	overflow-y: auto;
+	pointer-events: auto;
+	top: 16px;
+	left: 16px;
+}
+#settings {
+	position: fixed;
+	pointer-events: auto;
+	bottom: 16px;
 	left: 16px;
 }
 .sidebar-title {
@@ -177,6 +367,13 @@ div {
 	position: absolute;
 }
 .flag:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.flag:hover + .popup {
+	display: block;
+	width: auto;
+}
 	transform: scale(1.5);
 	z-index: 2;
 }

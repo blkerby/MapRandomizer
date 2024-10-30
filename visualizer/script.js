@@ -305,24 +305,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		template.innerHTML = html;
 		return template.content.firstChild;
 	};
-	function itemflags(k) {
-		let rmflg = 0;
-		for (let f in k.relevant_flags)
-			rmflg |= flagn(k.relevant_flags[f]);
-
-		if (rmflg & flagn("f_DefeatedPhantoon")
-		 && rmflg & flagn("f_AllItemsSpawn")) {
-			rmflg ^= flagn("f_AllItemsSpawn");
-			rmflg ^= flagn("f_DefeatedPhantoon");
-		}
-		if (rmflg & flagn("f_ZebesAwake")
-		 && rmflg & flagn("f_AllItemsSpawn")) {
-			rmflg ^= flagn("f_AllItemsSpawn");
-			rmflg ^= flagn("f_ZebesAwake");
-		}
-		
-		return rmflg;
-	}
 	let show_item_details = (item_name, loc, i, j) => {
 		if (j !== null) {
 			let path = "";
@@ -366,79 +348,79 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			si.appendChild(previous_header);
 
 			let ss = c.details[i].start_state;
+			for (let f of ss.flags){
+				console.log(f)
+				let e = document.createElement("img");
+				if (f.includes("f_KilledMetroidRoom"))
+					e.src = "f_KilledMetroidRoom";
+				else 
+					e.src = f + ".png";
+
+				e.style.height = "16px";
+				e.onclick = ev => {
+					showFlag(c.details, f);
+				}
+				si.appendChild(e);
+			}
+			let item_list = document.createElement("div");
+			item_list.className = "item-list";
 			let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
 			let ic = [1, 2, 3, 0, 20];
 			for (let i in s) {
 				if (s[i] > 0) {
-					si.appendChild(icon(ic[i]));
+					item_list.appendChild(icon(ic[i]));
 					let count = document.createElement("span");
 					count.innerHTML = s[i] + " ";
-					si.appendChild(count);
+					item_list.appendChild(count);
 				}
 			}
 			for (let i of ss.items) {
 				if (i == "Nothing") { continue; }
 				if (!ic.includes(item_plm[i])) {
-					si.appendChild(icon(item_plm[i]));
+					item_list.appendChild(icon(item_plm[i]));
 				}
 			}
+			si.appendChild(item_list);
 
 			let collectible_header = document.createElement("div");
 			collectible_header.className = "category";
 			collectible_header.innerHTML = "COLLECTIBLE ON THIS STEP";
 			si.appendChild(collectible_header);
 
+			for (let x of c.summary[i].flags) {
+				let f = x.flag;
+				console.log(x, f)
+				let e = document.createElement("img");
+				if (f.includes("f_KilledMetroidRoom"))
+					e.src = "f_KilledMetroidRoom";
+				else 
+					e.src = f + ".png";
+
+				e.style.height = "16px";
+				e.onclick = ev => {
+					showFlag(c.details, f);
+				}
+				si.appendChild(e);
+			}
+
+			item_list = document.createElement("div");
+			item_list.className = "item-list";
 			let items = c.details[i].items;
-			let flagItems = [];
-			for (let it of items) {
-				let flgs = 0;
-				for (let k of it.obtain_route){
-					flgs |= itemflags(k);
+			sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
+			for (item_idx of sortedItemIdxs) {
+				let item = items[item_idx];
+				let icon_el = icon(item_plm[item.item]);
+				icon_el.className = "ui-icon-hoverable";
+				icon_el.onclick = ev => {
+					show_item_details(item.item, item.location, i, item);
 				}
-				for (let k of it.return_route) {
-					flgs |= itemflags(k);
+				if (item == j) {
+					icon_el.classList.add("selected")
 				}
-				if (!flagItems[flgs])
-					flagItems[flgs] = new Array();
-				flagItems[flgs].push(it);
+				item_list.appendChild(icon_el);
 			}
-			for (let ai in flagItems) {
-				let arr = flagItems[ai];
-				if (!arr) 
-					continue;
-				
-				let item_list = document.createElement("div");
-				item_list.className = "item-list";
-				for (let fi in fenum) {
-					if (ai & 2**fi) {
-						let ficon = document.createElement("img");
-						if (fenum[fi].includes("f_KilledMetroidRoom"))
-							ficon.src = "f_KilledMetroidRoom.png";
-						else
-							ficon.src = fenum[fi] + ".png";
-						
-						ficon.onclick = ev => {
-							showFlag(c.details, fenum[fi]);
-						}
-						ficon.height = 24;
-						item_list.appendChild(ficon);
-					}
-				}
-				arr.sort((a, b) => item_rank[a.item] - item_rank[b.item]);
-				for (let it in arr) {
-					let item = arr[it];
-					let icon_el = icon(item_plm[item.item]);
-					icon_el.className = "ui-icon-hoverable";
-					icon_el.onclick = ev => {
-						show_item_details(item.item, item.location, i, item);
-					}
-					if (item == j) {
-						icon_el.classList.add("selected")
-					}
-					item_list.appendChild(icon_el);
-				}
-				si.appendChild(item_list);
-			}
+			si.appendChild(item_list);
+			
 		}
 
 		let item_info = document.createElement("div");
@@ -744,5 +726,19 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		el.style.left = v.location.coords[0] * 24 + 56 + "px";
 		el.style.top = v.location.coords[1] * 24 + 8 + "px";
 		document.getElementById("overlay").appendChild(el);
+	}
+	document.getElementById("items").onchange = ev => {
+		var checked = ev.target.checked;
+		var a = document.getElementsByClassName("icon");
+		for (i of a) {
+			i.style.visibility = checked ? "visible" : "hidden";
+		}
+	}
+	document.getElementById("flags").onchange = ev => {
+		var checked = ev.target.checked;
+		var a = document.getElementsByClassName("flag");
+		for (i of a) {
+			i.style.visibility = checked ? "visible" : "hidden";
+		}
 	}
 });

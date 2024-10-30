@@ -151,33 +151,6 @@ let roomFlags = {
 	"Morph Ball Room": ["f_ZebesAwake", "Awaken Zebes",5,2,24],
 	"Blue Brinstar Energy Tank Room": ["f_ZebesAwake", "Awaken Zebes",0,2.5,24],
 };
-let fenum = [
-	"f_none",
-	"f_DefeatedBombTorizo",
-	"f_DefeatedBotwoon",
-	"f_DefeatedCrocomire",
-	"f_DefeatedDraygon",
-	"f_DefeatedGoldenTorizo",
-	"f_DefeatedKraid",
-	"f_DefeatedMotherBrain",
-	"f_DefeatedPhantoon",
-	"f_DefeatedRidley",
-	"f_DefeatedSporeSpawn",
-	"f_KilledMetroidRoom1",
-	"f_KilledMetroidRoom2",
-	"f_KilledMetroidRoom3",
-	"f_KilledMetroidRoom4",
-	"f_MaridiaTubeBroken",
-	"f_ShaktoolDoneDigging",
-	"f_UsedAcidChozoStatue",
-	"f_UsedBowlingStatue",
-	"f_ClearedPitRoom",
-	"f_ClearedBabyKraidRoom",
-	"f_ClearedPlasmaRoom",
-	"f_ClearedMetalPiratesRoom",
-	"f_ZebesAwake",
-	"f_AllItemsSpawn"
-];
 const startOffsets = {
 "Blue Brinstar Elevator Room":       [12, 10],
 "Bomb Torizo Room":       [8, 13],
