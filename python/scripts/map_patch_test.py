@@ -33,6 +33,7 @@ patches = [
     # 'door_hurt',
     "everest_tube",
     "fast_pause_menu",
+    "buffed_drops"
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',

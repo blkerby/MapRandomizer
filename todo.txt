@@ -3,6 +3,9 @@ v115:
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
 - review spoiler zoom PR
+- fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
+- improve reproducibility:
+  - try processing region files in a deterministic order
 - add pause & area times to credits
 - investigate issue with door lock skips not being in logic?:
   - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
