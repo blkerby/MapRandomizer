@@ -358,6 +358,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				document.getElementById("path-overlay").innerHTML += `<path d="${path}" stroke="cyan" fill="none" stroke-linejoin="round" stroke-width="2"/>`
 			}
 		} else {
+			console.log("bye")
 			if (!dragged) {
 				// deselect
 				show_overview();
@@ -396,7 +397,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	function up(ev) {
 		ev.preventDefault();
-		if (dragged && ev.pointerType == "mouse")
+		if (dragged)
 			el.classList.add("hidden");
 		
 		evCache.splice(evCache.findIndex((cached) => cached.pointerID == ev.pointerID), 1)
@@ -421,18 +422,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	m.onpointerup = ev => {
 		if (ev.button != 0)
 			return;
-		up(ev);
-
-		if (evCache.length == 0) {
-			
+		
+		if (evCache.length == 1) {
 			if (fclick) {
 				click();
 				timer = setTimeout(function (){
 					fclick = true;
 				}, 500);
 				fclick = false;
-				if (ev.pointerType != "mouse")
-					hover(ev);
 			} else {	
 				fclick = true;
 				if (timer)
@@ -443,6 +440,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					dblclick();
 			}
 		}
+		up(ev);
 	}
 	document.body.onpointerleave = ev => {
 		up(ev);
