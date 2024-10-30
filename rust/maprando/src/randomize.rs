@@ -1437,7 +1437,9 @@ impl<'a> Preprocessor<'a> {
                 {
                     return None;
                 }
-                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL]));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
+                ));
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 Some(Requirement::make_and(reqs))
             }
