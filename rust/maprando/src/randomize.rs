@@ -781,10 +781,12 @@ impl<'a> Preprocessor<'a> {
                 max_extra_run_speed.get(),
             ),
             MainEntranceCondition::ComeInWithMockball {
+                speed_booster,
                 adjacent_min_tiles,
                 remote_and_landing_min_tiles,
             } => self.get_come_in_with_mockball_reqs(
                 exit_condition,
+                *speed_booster,
                 adjacent_min_tiles.get(),
                 remote_and_landing_min_tiles
                     .into_iter()
@@ -792,11 +794,13 @@ impl<'a> Preprocessor<'a> {
                     .collect(),
             ),
             MainEntranceCondition::ComeInWithSpringBallBounce {
+                speed_booster,
                 adjacent_min_tiles,
                 remote_and_landing_min_tiles,
                 movement_type,
             } => self.get_come_in_with_spring_ball_bounce_reqs(
                 exit_condition,
+                *speed_booster,
                 adjacent_min_tiles.get(),
                 remote_and_landing_min_tiles
                     .into_iter()
@@ -1447,9 +1451,19 @@ impl<'a> Preprocessor<'a> {
     fn get_come_in_with_mockball_reqs(
         &self,
         exit_condition: &ExitCondition,
+        speed_booster: Option<bool>,
         adjacent_min_tiles: f32,
         remote_and_landing_min_tiles: Vec<(f32, f32)>,
     ) -> Option<Requirement> {
+        let mut reqs: Vec<Requirement> = vec![];
+        if speed_booster == Some(true) {
+            reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+        }
+        if speed_booster == Some(false) {
+            reqs.push(Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+            ));
+        }
         match exit_condition {
             ExitCondition::LeaveWithMockball {
                 remote_runway_length,
@@ -1470,10 +1484,9 @@ impl<'a> Preprocessor<'a> {
                 {
                     return None;
                 }
-                Some(Requirement::make_and(vec![
-                    Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL]),
-                    Requirement::Item(Item::Morph as ItemId),
-                ]))
+                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL]));
+                reqs.push(Requirement::Item(Item::Morph as ItemId));
+                Some(Requirement::make_and(reqs))
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -1485,7 +1498,6 @@ impl<'a> Preprocessor<'a> {
                 if effective_length < adjacent_min_tiles {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                     // TODO: in sm-json-data, add physics property to leaveWithRunway schema (for door nodes with multiple possible physics)
@@ -1511,10 +1523,20 @@ impl<'a> Preprocessor<'a> {
     fn get_come_in_with_spring_ball_bounce_reqs(
         &self,
         exit_condition: &ExitCondition,
+        speed_booster: Option<bool>,
         adjacent_min_tiles: f32,
         remote_and_landing_min_tiles: Vec<(f32, f32)>,
         exit_movement_type: BounceMovementType,
     ) -> Option<Requirement> {
+        let mut reqs: Vec<Requirement> = vec![];
+        if speed_booster == Some(true) {
+            reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+        }
+        if speed_booster == Some(false) {
+            reqs.push(Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+            ));
+        }
         match exit_condition {
             ExitCondition::LeaveWithMockball {
                 remote_runway_length,
@@ -1540,7 +1562,6 @@ impl<'a> Preprocessor<'a> {
                 if exit_movement_type == BounceMovementType::Uncontrolled {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
                 ));
@@ -1576,7 +1597,6 @@ impl<'a> Preprocessor<'a> {
                 {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
                 if *movement_type == BounceMovementType::Controlled
                     || exit_movement_type == BounceMovementType::Controlled
                 {
@@ -1601,7 +1621,6 @@ impl<'a> Preprocessor<'a> {
                 if effective_length < adjacent_min_tiles {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
