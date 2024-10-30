@@ -796,10 +796,12 @@ pub enum MainEntranceCondition {
         max_extra_run_speed: Float,
     },
     ComeInWithMockball {
+        speed_booster: Option<bool>,
         adjacent_min_tiles: Float,
         remote_and_landing_min_tiles: Vec<(Float, Float)>,
     },
     ComeInWithSpringBallBounce {
+        speed_booster: Option<bool>,
         adjacent_min_tiles: Float,
         remote_and_landing_min_tiles: Vec<(Float, Float)>,
         movement_type: BounceMovementType,
@@ -3235,6 +3237,7 @@ impl GameData {
                 max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
+                speed_booster: value["speedBooster"].as_bool(),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
                 remote_and_landing_min_tiles: value["remoteAndLandingMinTiles"]
                     .members()
@@ -3247,6 +3250,7 @@ impl GameData {
                     .collect(),
             },
             "comeInWithSpringBallBounce" => MainEntranceCondition::ComeInWithSpringBallBounce {
+                speed_booster: value["speedBooster"].as_bool(),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
                 remote_and_landing_min_tiles: value["remoteAndLandingMinTiles"]
                     .members()
