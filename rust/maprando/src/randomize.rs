@@ -4820,12 +4820,14 @@ impl<'a> Randomizer<'a> {
                     )
                 });
 
-                let mut relevant_flag_ids = vec![];
-                extract_relevant_flags(&link.requirement, &mut relevant_flag_ids);
+                let mut relevant_flag_idxs = vec![];
+                extract_relevant_flags(&link.requirement, &mut relevant_flag_idxs);
                 let mut relevant_flags = vec![];
-                for flag_id in relevant_flag_ids {
-                    let flag_name = self.game_data.flag_isv.keys[flag_id].clone();
-                    relevant_flags.push(flag_name);
+                for flag_idx in relevant_flag_idxs {
+                    let flag_name = self.game_data.flag_isv.keys[flag_idx].clone();
+                    if global_state.flags[flag_idx] {
+                        relevant_flags.push(flag_name);
+                    }
                 }
 
                 let spoiler_entry = SpoilerRouteEntry {

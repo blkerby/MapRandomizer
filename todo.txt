@@ -3,14 +3,15 @@ v115:
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
 - DONE: review spoiler zoom PR
+- Make f_allItemsSpawn not be a flag?
 - review spoiler flag PR
-- make relevant flags only show logically collected flags
+- DONE: make relevant flags only show logically collected flags
 - fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - DONE: fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
 - improve reproducibility:
   - try processing region files in a deterministic order
 - add pause & area times to credits
-- investigate issue with door lock skips not being in logic?:
+- DONE: investigate issue with door lock skips not being in logic?:
   - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
 - fix main hall elevator frames:
