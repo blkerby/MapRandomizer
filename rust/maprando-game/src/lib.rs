@@ -2271,6 +2271,7 @@ impl GameData {
     fn load_regions(&mut self) -> Result<()> {
         let region_pattern =
             self.sm_json_data_path.to_str().unwrap().to_string() + "/region/**/*.json";
+        let mut room_json_map: HashMap<usize, JsonValue> = HashMap::new();
         for entry in glob::glob(&region_pattern).unwrap() {
             if let Ok(path) = entry {
                 let path_str = path.to_str().with_context(|| {
@@ -2281,15 +2282,22 @@ impl GameData {
                 }
 
                 let room_json = read_json(&path)?;
-                let room_name = room_json["name"].clone();
-                let preprocessed_room_json = self
-                    .preprocess_room(&room_json)
-                    .with_context(|| format!("Preprocessing room {}", room_name))?;
-                self.process_room(&preprocessed_room_json)
-                    .with_context(|| format!("Processing room {}", room_name))?;
+                room_json_map.insert(room_json["id"].as_usize().unwrap(), room_json);
             } else {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }
+        }
+
+        let mut room_id_vec: Vec<usize> = room_json_map.keys().cloned().collect();
+        room_id_vec.sort();
+        for room_id in room_id_vec {
+            let room_json = &room_json_map[&room_id];
+            let room_name = room_json["name"].clone();
+            let preprocessed_room_json = self
+                .preprocess_room(&room_json)
+                .with_context(|| format!("Preprocessing room {}", room_name))?;
+            self.process_room(&preprocessed_room_json)
+                .with_context(|| format!("Processing room {}", room_name))?;
         }
 
         let ignored_notable_strats = get_ignored_notable_strats();
@@ -3405,7 +3413,10 @@ impl GameData {
             )?;
             (Some(e), Some(r))
         } else if bypasses_door_shell {
-            (Some(ExitCondition::LeaveNormally { }), Some(Requirement::Free))
+            (
+                Some(ExitCondition::LeaveNormally {}),
+                Some(Requirement::Free),
+            )
         } else {
             (None, None)
         };
