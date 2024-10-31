@@ -3394,6 +3394,7 @@ impl GameData {
         } else {
             (None, None)
         };
+        let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
         let (exit_condition, exit_req) = if strat_json.has_key("exitCondition") {
             ensure!(strat_json["exitCondition"].is_object());
             let (e, r) = self.parse_exit_condition(
@@ -3403,6 +3404,8 @@ impl GameData {
                 physics,
             )?;
             (Some(e), Some(r))
+        } else if bypasses_door_shell {
+            (Some(ExitCondition::LeaveNormally { }), Some(Requirement::Free))
         } else {
             (None, None)
         };
@@ -3449,7 +3452,6 @@ impl GameData {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let strat_notes = self.parse_note(&strat_json["note"]);
 
-            let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
             if bypasses_door_shell {
                 requires_vec.push(Requirement::Tech(
                     self.tech_isv.index_by_key[&TECH_ID_CAN_SKIP_DOOR_LOCK],
@@ -4515,7 +4517,7 @@ impl GameData {
         //     let from_vertex_key = &game_data.vertex_isv.keys[from_vertex_id];
         //     let to_vertex_id = link.to_vertex_id;
         //     let to_vertex_key = &game_data.vertex_isv.keys[to_vertex_id];
-        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (66, 1) && from_vertex_key.room_id != 66 {
+        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (10, 7) {
         //         println!("From: {:?}\nTo: {:?}\nLink: {:?}\n", from_vertex_key, to_vertex_key, link);
         //     }
         // }
