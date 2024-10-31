@@ -14,7 +14,7 @@ v115:
 - DONE: investigate issue with door lock skips not being in logic?:
   - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
-- fix main hall elevator frames:
+- DONE: fix main hall elevator frames:
   - takes at least 47 energy with fast elevators.
 - DONE: use RandomizerSettings in maprando-cli and maprando-test
 - DONE: set up script to automate syncing logic changes
