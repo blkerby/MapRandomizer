@@ -2300,9 +2300,7 @@ impl GameData {
                 .with_context(|| format!("Preprocessing room {}", room_name))?;
             self.process_room(&preprocessed_room_json)
                 .with_context(|| format!("Processing room {}", room_name))?;
-
         }
-
 
         let ignored_notable_strats = get_ignored_notable_strats();
         let all_notable_strats: HashSet<(RoomId, NotableId)> =
@@ -3417,7 +3415,10 @@ impl GameData {
             )?;
             (Some(e), Some(r))
         } else if bypasses_door_shell {
-            (Some(ExitCondition::LeaveNormally { }), Some(Requirement::Free))
+            (
+                Some(ExitCondition::LeaveNormally {}),
+                Some(Requirement::Free),
+            )
         } else {
             (None, None)
         };
