@@ -4827,6 +4827,7 @@ impl<'a> Randomizer<'a> {
                     let flag_name = self.game_data.flag_isv.keys[flag_idx].clone();
                     if global_state.flags[flag_idx] {
                         relevant_flags.push(flag_name);
+
                     }
                 }
 
