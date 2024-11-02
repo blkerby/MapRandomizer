@@ -3,6 +3,7 @@ v115:
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
 - DONE: review spoiler zoom PR
+- DONE: fix error when customizing item pool (preset not set)
 - Make f_allItemsSpawn not be a flag?
 - review spoiler flag PR
 - DONE: make relevant flags only show logically collected flags
