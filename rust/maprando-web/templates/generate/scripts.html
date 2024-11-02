@@ -47,6 +47,8 @@ function applySkillPreset(preset) {
             document.getElementById(`strat-${combo_id}-No`).checked = true;
         }
     }
+
+    updateTierPercent();
 }
 
 function presetChanged() {
@@ -58,7 +60,6 @@ function presetChanged() {
             break;
         }
     }
-    updateTierPercent();
 }
 
 function updateTierPercent() {
@@ -376,6 +377,41 @@ function applyQolPreset(preset) {
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
     applyRadioValue("buffedDrops", preset.buffed_drops);
     applyRadioValue("earlySave", preset.early_save);
+}
+
+function applyFullSettingsPreset(preset) {
+    // TODO: apply selection
+    applySkillPreset(preset.skill_assumption_settings);
+    applyItemProgressionPreset(preset.item_progression_settings);
+    applyQolPreset(preset.quality_of_life_settings);
+
+    applyRadioValue("objectives", preset.objectives_mode);
+    applyRadioValue("mapLayout", preset.map_layout);
+    applyRadioValue("doors", preset.doors_mode);
+    applyRadioValue("startLocation", preset.start_location_mode);
+    applyRadioValue("saveAnimals", preset.save_animals);
+
+    let other = preset.other_settings;
+    applyRadioValue("wallJump", other.wall_jump);
+    applyRadioValue("etankRefill", other.etank_refill);
+    applyRadioValue("areaAssignment", other.area_assignment);
+    applyRadioValue("itemDotChange", other.item_dot_change);
+    applyRadioValue("transitionLetters", other.transition_letters);
+    applyRadioValue("doorLocksSize", other.door_locks_size);
+    applyRadioValue("mapsRevealed", other.maps_revealed);
+    applyRadioValue("mapStationReveal", other.map_station_reveal);
+    applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
+    applyRadioValue("ultraLowQoL", other.ultra_low_qol);
+    applyRadioValue("raceMode", other.race_mode);
+    document.getElementById("randomSeed").value = other.random_seed;
+}
+
+function fullSettingsPresetChanged(presetEl) {
+    let presetName = presetEl.value;
+    if (presetName != "") {
+        let preset = fullPresets[presetName];
+        applyFullSettingsPreset(preset);    
+    }
 }
 
 function qualityOfLifePresetChanged() {

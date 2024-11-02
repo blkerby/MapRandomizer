@@ -27,7 +27,13 @@
     {% include "../common/video-modal.html" %}
     <script>
     document.getElementById("navigation-generate").classList.add("active");
-    
+
+    let fullPresetsArr = {{ full_presets_json|safe }};
+    let fullPresets = {};
+    for (p of fullPresetsArr) {
+        fullPresets[p.name] = p;
+    }
+
     let skillPresetsArr = {{ skill_presets_json|safe }};
     let skillPresets = {};
     for (p of skillPresetsArr) {
@@ -49,6 +55,25 @@
     <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
         <form id="main-form" class="needs-validation" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="prepareSubmit(this); return false;">
+            <div class="form-group row">
+                <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+                    {% include "help/preset.html" %}
+                    <label for="full_settings_preset">Settings preset</label>
+                </div>
+                <div class="col-lg-9 mt-0">
+                    <div class="input-group">
+                        <select id="fullSettingsPreset" class="form-select" name="full_settings_preset" onchange="fullSettingsPresetChanged(this)">
+                            <option value="" selected>Select an option to instantly fill all settings</option>
+                            <option value="Default">Default</option>
+                            <option value="Community Race Season 2">Community Race Season 2</option>
+                        </select>
+                        <button type="button" class="btn btn-secondary ms-1 me-0 p-1">
+                            <i class="bi bi-gear"></i>
+                        </button>    
+                    </div>
+                </div>
+            </div>
+
             <div class="container border rounded-3 p-0 mt-3 mb-4 overflow-hidden">
                 <div class="form-group row">
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
@@ -160,7 +185,7 @@
                     {% include "help/objectives.html" %}
                     <label for="objectives">Objectives</label>
                 </div>
-                <div class="col-lg-8 btn-group my-2" role="group">
+                <div id="objectives" class="col-lg-8 btn-group my-2" role="group">
                 {% for name in objectives.iter() %}
                 {% let name_no_space = name.replace(" ", "") %}
                     <input type="radio" class="btn-check" name="objectives" value="{{+ name }}"
@@ -179,7 +204,7 @@
                     {% include "help/map_layout.html" %}
                     <label for="map_layout">Map layout</label>
                 </div>
-                <div class="col-lg-4 btn-group my-2" role="group">
+                <div id="mapLayout" class="col-lg-4 btn-group my-2" role="group">
                     <input type="radio" class="btn-check" name="map_layout" id="mapLayoutVanilla" value="Vanilla">
                     <label class="btn btn-outline-primary" for="mapLayoutVanilla">Vanilla</label>
                     <input type="radio" class="btn-check" name="map_layout" id="mapLayoutTame" value="Tame" checked=true>
@@ -194,7 +219,7 @@
                     {% include "help/doors.html" %}
                     <label for="doors">Doors</label>
                 </div>
-                <div class="col-lg-4 btn-group my-2" role="group">
+                <div id="doors" class="col-lg-4 btn-group my-2" role="group">
                     <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue">
                     <label class="btn btn-outline-primary" for="doorsBlue">Blue</label>
                     <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo" checked=true>
@@ -209,7 +234,7 @@
                     {% include "help/start_location.html" %}
                     <label for="start_location">Start location</label>
                 </div>
-                <div class="col-lg-4 btn-group my-2" role="group">
+                <div id="startLocation" class="col-lg-4 btn-group my-2" role="group">
                     <input type="radio" class="btn-check" name="start_location" id="startLocationShip" value="Ship" checked=true>
                     <label class="btn btn-outline-primary" for="startLocationShip">Ship</label>
                     <input type="radio" class="btn-check" name="start_location" id="startLocationRandom" value="Random">
@@ -224,7 +249,7 @@
                     {% include "help/variations/save_the_animals.html" %}
                     <label for="save_animals">Save the animals</label>
                 </div>
-                <div class="col-lg-3 btn-group my-2" role="group">
+                <div id="saveAnimals" class="col-lg-3 btn-group my-2" role="group">
                     <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" checked=true>
                     <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
                     <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsMaybe" value="Maybe">
@@ -249,8 +274,16 @@
 
             <input type="hidden" id="spoilerToken" name="spoiler_token">
             <div class="form-group row">
-                <div class="col-lg-3">
-                    <input type="submit" class="btn btn-primary my-3" value="Generate Game">
+                <div class="col-lg-6">
+                    <button type="submit" class="btn btn-primary me-2 p-3">
+                        <svg class="me-1" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" height="24" width="24"><desc>Dice</desc><path d="M13.8828 2.45108 4.49429 6.50391C3.53238 6.93494 3 8.02436 3 9.12699V22.1681c0 1.5136 0.5463 2.8094 1.85714 3.3907l9.28576 4.0428c1.1976 0.5312 2.5166 0.5312 3.7142 0l9.2858 -5.0468C28.4537 23.9734 29 23.6817 29 22.1681V9.12699c0 -1.10263 -0.4309 -2.19205 -1.3929 -2.62308l-9.4899 -4.05283c-1.3392 -0.60144 -2.8764 -0.60144 -4.2344 0Z" fill="#f3eef8" stroke-width="1"></path><path d="M4.85714 25.5587C3.5463 24.9773 3 23.6816 3 22.168h26c0 1.5136 -0.5463 1.8707 -1.8571 2.452l-9.2858 4.9814c-1.1976 0.5313 -2.5166 0.5313 -3.7142 0l-9.28576 -4.0427Z" fill="#b4acbc" stroke-width="1"></path><path d="M3 9.23415c0 -1.08942 1.12468 -1.81548 2.1175 -1.36701l9.1175 4.11856c1.0744 0.4853 1.765 1.555 1.765 2.734v13.3954c0 1.0822 -1.1112 1.8083 -2.1023 1.3737l-9.70082 -4.2534C3.4697 24.9166 3 24.1978 3 23.4037V9.23415Z" fill="#b4acbc" stroke-width="1"></path><path d="M29 9.25368c0 -1.08942 -1.1247 -1.81548 -2.1175 -1.36701L17.765 12.0052c-1.0744 0.4854 -1.765 1.555 -1.765 2.734v13.3954c0 1.0823 1.1112 1.8084 2.1023 1.3738l9.7008 -4.2535C28.5303 24.9361 29 24.2173 29 23.4233V9.25368Z" fill="#e1d8ec" stroke-width="1"></path><path d="M6.68549 15.9964c0.81957 -0.0657 1.40619 -1.0185 1.30266 -2.1192 -0.10352 -1.1088 -0.85407 -1.9466 -1.67364 -1.8727 -0.81957 0.0657 -1.40619 1.0185 -1.30266 2.1192 0.10352 1.1006 0.85407 1.9384 1.67364 1.8727Zm20.30271 -1.8736c0.1035 -1.1007 -0.4831 -2.0535 -1.3027 -2.1192 -0.8196 -0.0657 -1.5701 0.7721 -1.6737 1.8727 -0.1035 1.1007 0.4831 2.0535 1.3027 2.1192 0.8196 0.0739 1.5701 -0.7639 1.6737 -1.8727Zm-13 9.7544c0.1035 1.1007 -0.4831 2.0535 -1.3027 2.1192 -0.8196 0.0657 -1.5701 -0.7721 -1.6737 -1.8727 -0.1035 -1.1007 0.4831 -2.0535 1.3027 -2.1192 0.8196 -0.0739 1.5701 0.7639 1.6737 1.8727Zm8.6973 -6.8736c0.8196 0.0657 1.4062 1.0185 1.3027 2.1192 -0.1036 1.1088 -0.8541 1.9466 -1.6737 1.8727 -0.8196 -0.0657 -1.4062 -1.0185 -1.3027 -2.1192 0.1036 -1.1006 0.8541 -1.9384 1.6737 -1.8727Zm-1.6973 7.1192c0.1035 -1.1007 -0.4831 -2.0535 -1.3027 -2.1192 -0.8196 -0.0657 -1.5701 0.7721 -1.6737 1.8727 -0.1035 1.1007 0.4831 2.0535 1.3027 2.1192 0.8196 0.0739 1.5701 -0.7639 1.6737 -1.8727Z" fill="#433b6b" stroke-width="1"></path><path d="M16 7.5c1.6568 0 3 -0.44771 3 -1s-1.3432 -1 -3 -1c-1.6569 0 -3 0.44771 -3 1s1.3431 1 3 1Z" fill="#48312f" stroke-width="1"></path></svg>
+                        Generate Game
+                    </button>
+
+                    <button type="button" class="btn btn-success m-2 p-3">
+                        <i class="bi bi-save me-1"></i>
+                        Save Settings
+                    </button>
                 </div>
             </div>
 
@@ -281,6 +314,6 @@
     </div>
     {% include "submit_modal.html" %}
     {% include "error_modal.html" %}
-    {% include "scripts.html" %}
+    {% include "scripts.html" %}    
     </body>
 </html>
