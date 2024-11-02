@@ -51,6 +51,11 @@ function applySkillPreset(preset) {
     updateTierPercent();
 }
 
+function fullSettingsChanged() {
+    document.getElementById("fullSettingsPreset").value = "";
+    console.log("changed");
+}
+
 function presetChanged() {
     let preset = null;
     for (presetEl of document.getElementsByClassName("skill-preset-button")) {
@@ -60,6 +65,7 @@ function presetChanged() {
             break;
         }
     }
+    fullSettingsChanged();
 }
 
 function updateTierPercent() {
@@ -99,6 +105,7 @@ function techChanged() {
         document.getElementById("preset{{+ name_no_space }}").checked = false;
     {% endfor %}
     updateTierPercent();
+    fullSettingsChanged();
 }
 
 function tryParseInt(s) {
@@ -415,14 +422,14 @@ function fullSettingsPresetChanged(presetEl) {
 }
 
 function qualityOfLifePresetChanged() {
-    let preset = null;
     for (presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.checked) {
-            preset = qolPresets[presetEl.value];
+            let preset = qolPresets[presetEl.value];
             applyQolPreset(preset);
             break;
         }
     }
+    fullSettingsChanged();
 }
 function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeOff").checked = false;
@@ -488,12 +495,14 @@ function itemProgressionPresetChanged() {
     }
     processItemPoolPreset();
     processStartingItemsPreset();
+    fullSettingsChanged();
 }
 function itemProgressionChanged() {
     document.getElementById("itemProgressionPresetNormal").checked = false;
     document.getElementById("itemProgressionPresetTricky").checked = false;
     document.getElementById("itemProgressionPresetChallenge").checked = false;
     document.getElementById("itemProgressionPresetDesolate").checked = false;
+    fullSettingsChanged();
 }
 function processStartingItemsPreset() {
     if (document.getElementById("startingItemsPresetNone").checked) {
@@ -610,6 +619,7 @@ function gameVariationChanged() {
         document.getElementById("qualityOfLifeOff").checked = true;
         qualityOfLifePresetChanged();
     }
+    fullSettingsChanged();
 }
 function initializeSpoilerToken() {
     if (localStorage["spoilerToken"] === undefined) {

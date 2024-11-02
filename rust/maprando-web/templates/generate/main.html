@@ -106,7 +106,7 @@
                         {% include "help/progression.html" %}
                         <label for="preset">Item progression</label>
                     </div>
-                    <div class="col-lg-5 btn-group mt-0" role="group">
+                    <div id="itemProgressionPreset" class="col-lg-5 btn-group mt-0" role="group">
                         <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Normal"
                             id="itemProgressionPresetNormal" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()" checked>
@@ -190,6 +190,7 @@
                 {% let name_no_space = name.replace(" ", "") %}
                     <input type="radio" class="btn-check" name="objectives" value="{{+ name }}"
                         id="objectives{{+ name_no_space }}" autocomplete="off"
+                        onchange="fullSettingsChanged()"
                         {% if loop.index0 == 1 %}
                         checked
                         {% endif %}
@@ -205,11 +206,11 @@
                     <label for="map_layout">Map layout</label>
                 </div>
                 <div id="mapLayout" class="col-lg-4 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutVanilla" value="Vanilla">
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutVanilla" value="Vanilla" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="mapLayoutVanilla">Vanilla</label>
-                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutTame" value="Tame" checked=true>
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutTame" value="Tame" onchange="fullSettingsChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="mapLayoutTame">Tame</label>
-                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutWild" value="Wild">
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutWild" value="Wild" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="mapLayoutWild">Wild</label>
                 </div>
             </div>
@@ -220,11 +221,11 @@
                     <label for="doors">Doors</label>
                 </div>
                 <div id="doors" class="col-lg-4 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue">
+                    <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="doorsBlue">Blue</label>
-                    <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo" checked=true>
+                    <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo" onchange="fullSettingsChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="doorsAmmo">Ammo</label>
-                    <input type="radio" class="btn-check" name="doors" id="doorsBeam" value="Beam">
+                    <input type="radio" class="btn-check" name="doors" id="doorsBeam" value="Beam" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="doorsBeam">Beam</label>
                 </div>
             </div>
@@ -235,11 +236,11 @@
                     <label for="start_location">Start location</label>
                 </div>
                 <div id="startLocation" class="col-lg-4 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="start_location" id="startLocationShip" value="Ship" checked=true>
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationShip" value="Ship" onchange="fullSettingsChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="startLocationShip">Ship</label>
-                    <input type="radio" class="btn-check" name="start_location" id="startLocationRandom" value="Random">
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationRandom" value="Random" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="startLocationRandom">Random</label>
-                    <input type="radio" class="btn-check" name="start_location" id="startLocationEscape" value="Escape">
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationEscape" value="Escape" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="startLocationEscape">Escape</label>
                 </div>
             </div>
@@ -250,11 +251,11 @@
                     <label for="save_animals">Save the animals</label>
                 </div>
                 <div id="saveAnimals" class="col-lg-3 btn-group my-2" role="group">
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" checked=true>
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" onchange="fullSettingsChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsMaybe" value="Maybe">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsMaybe" value="Maybe" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="saveAnimalsMaybe">Maybe</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="Yes">
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="Yes" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
                 </div>
             </div>
