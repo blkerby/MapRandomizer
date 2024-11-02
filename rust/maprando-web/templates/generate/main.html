@@ -54,7 +54,7 @@
     </script>
     <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
-        <form id="main-form" class="needs-validation" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveForm(this)"  onsubmit="prepareSubmit(this); return false;">
+        <form id="main-form" class="needs-validation" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveSettings()"  onsubmit="prepareSubmit(this); return false;">
             <div class="form-group row">
                 <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
                     {% include "help/preset.html" %}
@@ -63,9 +63,6 @@
                 <div class="col-lg-9 mt-0">
                     <div class="input-group">
                         <select id="fullSettingsPreset" class="form-select" name="full_settings_preset" onchange="fullSettingsPresetChanged(this)">
-                            <option value="" selected>Select an option to instantly fill all settings</option>
-                            <option value="Default">Default</option>
-                            <option value="Community Race Season 2">Community Race Season 2</option>
                         </select>
                         <button type="button" class="btn btn-secondary ms-1 me-0 p-1">
                             <i class="bi bi-gear"></i>
@@ -281,7 +278,7 @@
                         Generate Game
                     </button>
 
-                    <button type="button" class="btn btn-success m-2 p-3">
+                    <button type="button" class="btn btn-success m-2 p-3" data-bs-toggle="modal" data-bs-target="#saveSettingsModal">
                         <i class="bi bi-save me-1"></i>
                         Save Settings
                     </button>
@@ -315,6 +312,7 @@
     </div>
     {% include "submit_modal.html" %}
     {% include "error_modal.html" %}
+    {% include "save_settings_modal.html" %}
     {% include "scripts.html" %}    
     </body>
 </html>

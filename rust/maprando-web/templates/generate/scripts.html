@@ -12,6 +12,8 @@ function applySkillPreset(preset) {
     for (presetEl of document.getElementsByClassName("skill-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
+        } else {
+            presetEl.checked = false;
         }
     }
 
@@ -124,6 +126,7 @@ function buildSettingsObject() {
     let fillerItems = [];
     let settings = {
         "version": version,
+        "name": formData.get("full_settings_preset"),
         "skill_assumption_settings": {
             "preset": formData.get("preset"),
             "shinespark_tiles": parseFloat(formData.get("shinespark_tiles")),
@@ -361,6 +364,8 @@ function applyQolPreset(preset) {
     for (presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
+        } else {
+            presetEl.checked = false;
         }
     }
 
@@ -387,7 +392,7 @@ function applyQolPreset(preset) {
 }
 
 function applyFullSettingsPreset(preset) {
-    // TODO: apply selection
+    document.getElementById("fullSettingsPreset").value = preset.name;
     applySkillPreset(preset.skill_assumption_settings);
     applyItemProgressionPreset(preset.item_progression_settings);
     applyQolPreset(preset.quality_of_life_settings);
@@ -411,6 +416,46 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
     applyRadioValue("raceMode", other.race_mode);
     document.getElementById("randomSeed").value = other.random_seed;
+}
+
+async function populateFullPresetOptions() {
+    let selectEl = document.getElementById("fullSettingsPreset");
+    selectEl.innerHTML = "";
+
+    let optionEl = document.createElement("option");
+    optionEl.value = "";
+    optionEl.innerText = "Select a preset to instantly fill all settings";
+    selectEl.appendChild(optionEl);
+
+    let hrEl = document.createElement("hr");
+    selectEl.appendChild(hrEl);
+
+    let customPresets = await localforage.getItem("customPresets");
+    if (customPresets === null) {
+        customPresets = [];
+    }
+    if (customPresets.length > 0) {
+        for (preset of customPresets) {
+            fullPresets[preset.name] = preset;
+            optionEl = document.createElement("option");
+            optionEl.value = preset.name;
+            optionEl.innerText = preset.name;
+            selectEl.appendChild(optionEl);    
+        }
+
+        hrEl = document.createElement("hr");
+        selectEl.appendChild(hrEl);
+    }
+
+    for (preset of fullPresetsArr) {
+        optionEl = document.createElement("option");
+        optionEl.value = preset.name;
+        optionEl.innerText = preset.name;
+        if (optionEl.value == "Default") {
+            optionEl.checked = true;
+        }
+        selectEl.appendChild(optionEl);
+    }
 }
 
 function fullSettingsPresetChanged(presetEl) {
@@ -444,6 +489,8 @@ function applyItemProgressionPreset(preset) {
     for (presetEl of document.getElementsByClassName("item-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
+        } else {
+            presetEl.checked = false;
         }
     }
 
@@ -637,6 +684,13 @@ function initializeSpoilerToken() {
     document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
 }
 function checkOtherOptions() {
+    document.getElementById("randomSeed").value = "";
+    console.log("checking");
+    console.log("val: " + document.getElementById("fullSettingsPreset").value);
+    if (document.getElementById("fullSettingsPreset").value !== "") {
+        console.log("preset");
+        return;
+    }
     if (document.getElementById("wallJumpCollectible").checked ||
         document.getElementById("etankRefillDisabled").checked ||
         document.getElementById("etankRefillFull").checked ||
@@ -654,19 +708,55 @@ function checkOtherOptions() {
         document.getElementById("collapseGameVariations").classList.remove("collapse");
         document.getElementById("collapseGameVariations").classList.add("show");
     }
-    document.getElementById("randomSeed").value = "";
 }
+
+async function loadSettings() {
+    let settings = await localforage.getItem("generateSettings");
+    if (settings !== null) {
+        await populateFullPresetOptions();
+        applyFullSettingsPreset(settings);
+        checkOtherOptions();
+    }
+}
+
+async function saveSettings() {
+    let settings = buildSettingsObject();
+    await localforage.setItem("generateSettings", settings);
+}
+
+async function saveSettingsPreset() {
+    let name = document.getElementById("saveSettingsName").value;
+    let settings = buildSettingsObject();
+    settings.name = name;
+
+    let customPresets = await localforage.getItem("customPresets");
+    if (customPresets === null) {
+        customPresets = [];
+    }
+
+    let found = false;
+    for (var i = 0; i < customPresets.length; i++) {
+        if (customPresets[i].name == name) {
+            customPresets[i] = settings;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        customPresets.push(settings);
+    }
+
+    await localforage.setItem("customPresets", customPresets);
+    populateFullPresetOptions();    
+}
+
+document.getElementById("saveSettingsButton").addEventListener("click", saveSettingsPreset);
 </script>
 {% include "../common/save_load_rom.html" %}
-{% include "../common/save_settings.html" %}
 <script>
-loadForm(document.getElementById("main-form"));
+//loadForm(document.getElementById("main-form"));
 loadROM(document.getElementById("inputRom"));
-presetChanged();
-gameVariationChanged();
-qualityOfLifePresetChanged();
-itemProgressionPresetChanged();
-checkOtherOptions();
+loadSettings();
 initializeSpoilerToken();
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {
