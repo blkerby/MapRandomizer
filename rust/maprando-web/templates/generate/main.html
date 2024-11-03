@@ -64,7 +64,7 @@
                     <div class="input-group">
                         <select id="fullSettingsPreset" class="form-select" name="full_settings_preset" onchange="fullSettingsPresetChanged(this)">
                         </select>
-                        <button type="button" class="btn btn-secondary ms-1 me-0 p-1">
+                        <button type="button" class="btn btn-secondary ms-1 me-0 p-1" data-bs-toggle="modal" data-bs-target="#managePresetsModal" onclick="openManagePresetsModal()">
                             <i class="bi bi-gear"></i>
                         </button>    
                     </div>
@@ -278,7 +278,7 @@
                         Generate Game
                     </button>
 
-                    <button type="button" class="btn btn-success m-2 p-3" data-bs-toggle="modal" data-bs-target="#saveSettingsModal">
+                    <button type="button" class="btn btn-success m-2 p-3" data-bs-toggle="modal" data-bs-target="#saveSettingsModal" onclick="openSaveSettingsModal()">
                         <i class="bi bi-save me-1"></i>
                         Save Settings
                     </button>
@@ -313,6 +313,9 @@
     {% include "submit_modal.html" %}
     {% include "error_modal.html" %}
     {% include "save_settings_modal.html" %}
+    {% include "manage_presets_modal.html" %}
+    {% include "delete_preset_modal.html" %}
+    {% include "rename_preset_modal.html" %}
     {% include "scripts.html" %}    
     </body>
 </html>

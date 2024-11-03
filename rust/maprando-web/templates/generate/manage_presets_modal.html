@@ -1,0 +1,30 @@
+<style>
+    html[data-bs-theme=dark] .preset-row:hover {
+        background-color: #2b3035;
+    }
+    html[data-bs-theme=light] .preset-row:hover {
+        background-color: #f4f5f6;
+    }
+</style>
+<div class="modal" id="managePresetsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Manage Settings Presets</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        
+            <div class="modal-body">
+                <div id="managePresetsTable">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary">
+                    <i class="bi bi-upload me-2"></i>Import preset
+                </button>
+                <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+  

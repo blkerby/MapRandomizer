@@ -300,6 +300,10 @@ function buildFillerItems() {
 let submitModal = new bootstrap.Modal('#submitModal', {})
 let errorModal = new bootstrap.Modal('#errorModal', {})
 let inputRomModal = new bootstrap.Modal('#inputRomModal', {});
+let saveSettingsModal = new bootstrap.Modal('#saveSettingsModal', {})
+let managePresetsModal = new bootstrap.Modal('#managePresetsModal', {})
+let deletePresetModal = new bootstrap.Modal('#deletePresetModal', {})
+let renamePresetModal = new bootstrap.Modal('#renamePresetModal', {})
 async function prepareSubmit(form) {
     let romEl = document.getElementById("inputRom");
     if (romEl.value == "") {
@@ -685,8 +689,6 @@ function initializeSpoilerToken() {
 }
 function checkOtherOptions() {
     document.getElementById("randomSeed").value = "";
-    console.log("checking");
-    console.log("val: " + document.getElementById("fullSettingsPreset").value);
     if (document.getElementById("fullSettingsPreset").value !== "") {
         console.log("preset");
         return;
@@ -724,15 +726,44 @@ async function saveSettings() {
     await localforage.setItem("generateSettings", settings);
 }
 
-async function saveSettingsPreset() {
-    let name = document.getElementById("saveSettingsName").value;
-    let settings = buildSettingsObject();
-    settings.name = name;
+async function openSaveSettingsModal() {
+    document.getElementById("saveSettingInvalid").classList.add("d-none");
+    let datalistEl = document.getElementById("saveSettingsDatalist");
+    datalistEl.innerHTML = "";
+    let customPresets = await getCustomPresets();
+    for (preset of customPresets) {
+        let optionEl = document.createElement("option");
+        optionEl.value = preset.name;
+        datalistEl.appendChild(optionEl);
+    }
+}
 
+async function getCustomPresets() {
     let customPresets = await localforage.getItem("customPresets");
     if (customPresets === null) {
         customPresets = [];
     }
+    return customPresets;
+}
+
+async function saveSettingsPreset(ev) {
+    ev.preventDefault();
+    let name = document.getElementById("saveSettingsName").value;
+
+    let invalidNames = [""];
+    for (preset of fullPresetsArr) {
+        invalidNames.push(preset.name)
+    }
+    if (invalidNames.includes(name)) {
+        document.getElementById("saveSettingInvalid").classList.remove("d-none");
+        console.log("invalid");
+        return;   
+    }
+
+    let settings = buildSettingsObject();
+    settings.name = name;
+
+    let customPresets = await getCustomPresets();
 
     let found = false;
     for (var i = 0; i < customPresets.length; i++) {
@@ -747,10 +778,150 @@ async function saveSettingsPreset() {
     }
 
     await localforage.setItem("customPresets", customPresets);
-    populateFullPresetOptions();    
+    populateFullPresetOptions();
+    saveSettingsModal.hide();
 }
 
-document.getElementById("saveSettingsButton").addEventListener("click", saveSettingsPreset);
+document.getElementById("saveSettingsForm").addEventListener("submit", saveSettingsPreset);
+
+async function confirmDeletePreset() {
+    let presetName = document.getElementById("deletePresetName").innerText;
+    let customPresets = await getCustomPresets();
+
+    for (var i = 0; i < customPresets.length; i++) {
+        if (customPresets[i].name == presetName) {
+            customPresets.splice(i, 1);
+            break;
+        }
+    }
+    await localforage.setItem("customPresets", customPresets);
+    openManagePresetsModal();
+
+    deletePresetModal.hide();
+}
+
+function cancelDeletePreset() {
+    deletePresetModal.hide();
+}
+
+async function deletePreset(presetName) {
+    document.getElementById("deletePresetName").innerText = presetName;
+    managePresetsModal.hide();
+    deletePresetModal.show();
+}
+
+document.getElementById("deletePresetModal").addEventListener('hidden.bs.modal', () => {
+    managePresetsModal.show();
+});
+
+async function confirmRenamePreset(ev) {
+    ev.preventDefault();
+    let presetOldName = document.getElementById("renamePresetOldName").innerText;
+    let presetNewName = document.getElementById("renamePresetNewName").value;
+    let customPresets = await getCustomPresets();
+
+    let invalidNames = [""];
+    for (preset of fullPresetsArr) {
+        invalidNames.push(preset.name)
+    }
+    if (invalidNames.includes(presetNewName)) {
+        document.getElementById("renamePresetInvalid").classList.remove("d-none");
+        return;   
+    }
+
+    for (var i = 0; i < customPresets.length; i++) {
+        if (customPresets[i].name == presetOldName) {
+            customPresets[i].name = presetNewName;
+            break;
+        }
+    }
+    await localforage.setItem("customPresets", customPresets);
+    openManagePresetsModal();
+
+    renamePresetModal.hide();
+}
+
+function cancelRenamePreset() {
+    renamePresetModal.hide();
+}
+
+async function renamePreset(presetName) {
+    document.getElementById("renamePresetOldName").innerText = presetName;
+    document.getElementById("renamePresetNewName").value = presetName;
+    document.getElementById("renamePresetInvalid").classList.add("d-none");
+    managePresetsModal.hide();
+    renamePresetModal.show();
+}
+
+document.getElementById("renamePresetForm").addEventListener("submit", confirmRenamePreset);
+document.getElementById("renamePresetModal").addEventListener('shown.bs.modal', () => {
+    document.getElementById("renamePresetNewName").focus()
+});
+document.getElementById("renamePresetModal").addEventListener('hidden.bs.modal', () => {
+    managePresetsModal.show();
+});
+
+
+async function openManagePresetsModal() {
+    let customPresets = await getCustomPresets();
+    let table = document.getElementById("managePresetsTable");
+    table.innerHTML = "";
+    for (let preset of customPresets) {
+        let row = document.createElement("div");
+        row.classList.add("d-flex");
+        row.classList.add("preset-row");
+        row.classList.add("my-1");
+        
+        let col = document.createElement("div");
+        col.classList.add("mx-1");
+        col.classList.add("d-flex");
+        col.classList.add("align-items-center");
+        col.innerText = preset.name;
+        row.appendChild(col);
+        
+        col = document.createElement("div");
+        col.classList.add("ms-auto");
+
+        let renameButton = document.createElement("button");
+        renameButton.innerHTML = '<i class="bi bi-pencil"></i>';
+        renameButton.classList.add("btn");
+        renameButton.classList.add("btn-secondary");
+        renameButton.classList.add("m-1");
+        renameButton.classList.add("ms-auto");
+        renameButton.title = "Rename preset";
+        renameButton.addEventListener("click", function() { renamePreset(preset.name); });
+        col.appendChild(renameButton);
+
+        let a = document.createElement('a')
+        let blob = new Blob([JSON.stringify(preset, null, 4)], {type: "application/json"})
+        let url = URL.createObjectURL(blob)
+        let filename = `${preset.name}.json`;
+        a.setAttribute('href', url);
+        a.setAttribute('download', filename);
+
+        let downloadButton = document.createElement("button");
+        downloadButton.innerHTML = '<i class="bi bi-download"></i>';
+        downloadButton.classList.add("btn");
+        downloadButton.classList.add("btn-success");
+        downloadButton.classList.add("m-1");
+        downloadButton.title = "Download preset";
+        a.appendChild(downloadButton);
+        col.appendChild(a);
+
+        let deleteButton = document.createElement("button");
+        deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
+        deleteButton.classList.add("btn");
+        deleteButton.classList.add("btn-danger");
+        deleteButton.classList.add("m-1");
+        deleteButton.title = "Delete preset";
+        deleteButton.addEventListener("click", function() { deletePreset(preset.name); });
+        col.appendChild(deleteButton);
+
+        row.appendChild(col);
+        table.appendChild(row);
+    }
+}
+
 </script>
 {% include "../common/save_load_rom.html" %}
 <script>
