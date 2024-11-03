@@ -272,14 +272,14 @@ function buildStartingItems() {
     return startingItems;
 }
 function buildItemPriorities() {
-    let itemPriority = {};
+    let itemPriority = [];
     document.querySelectorAll('.item-priority-input')
     .forEach(function (x) { 
         // remove prefix: "item_priority_"
         name = x.name.substring(14);
         // console.log(name + ": " + x.value);
         if (x.checked) {
-            itemPriority[name] = x.value;
+            itemPriority.push({"item": name, "priority": x.value});
         }
     });
     return itemPriority;
@@ -516,7 +516,7 @@ function applyItemProgressionPreset(preset) {
     if (preset.starting_items_preset != null) {
         applyRadioValue("startingItemsPreset", preset.starting_items_preset);
     }
-    for (x in preset.starting_items) {
+    for (x of preset.starting_items) {
         let item = x.item;
         let cnt = x.count;
         let el = document.getElementById(`startingItem${item}`);
@@ -527,9 +527,8 @@ function applyItemProgressionPreset(preset) {
         }
     }
 
-    for (item in preset.key_item_priority) {
-        let priority = preset.key_item_priority[item];
-        applyRadioValue(`itemPriority${item}`, priority);
+    for (x of preset.key_item_priority) {
+        applyRadioValue(`itemPriority${x.item}`, x.priority);
     }
 
     for (item in preset.filler_items) {

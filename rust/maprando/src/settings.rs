@@ -69,7 +69,7 @@ pub struct ItemProgressionSettings {
     pub item_pool: Vec<ItemCount>,
     pub starting_items_preset: StartingItemsPreset,
     pub starting_items: Vec<ItemCount>,
-    pub key_item_priority: HashMap<Item, KeyItemPriority>,
+    pub key_item_priority: Vec<KeyItemPrioritySetting>,
     pub filler_items: HashMap<Item, FillerItemPriority>,
 }
 
@@ -77,6 +77,12 @@ pub struct ItemProgressionSettings {
 pub struct ItemCount {
     pub item: Item,
     pub count: usize,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct KeyItemPrioritySetting {
+    pub item: Item,
+    pub priority: KeyItemPriority,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
