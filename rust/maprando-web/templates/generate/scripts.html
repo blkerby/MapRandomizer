@@ -251,22 +251,22 @@ function buildItemPool() {
     return itemPool;
 }
 function buildStartingItems() {
-    let startingItems = {};
+    let startingItems = [];
     document.querySelectorAll('.starting-item-input-multiple')
     .forEach(function (x) { 
         // remove prefix: "starting_item_"
         name = x.name.substring(14);
         let cnt = tryParseInt(x.value);
-        if (cnt > 0) {
-            startingItems[name] = tryParseInt(x.value);
-        }
+        startingItems.push({"item": name, "count": cnt});
     });
     document.querySelectorAll('.starting-item-input-single')
     .forEach(function (x) { 
         // remove prefix: "starting_item_"
         name = x.name.substring(14);
         if (x.checked && x.value == "Yes") {
-            startingItems[name] = 1;
+            startingItems.push({"item": name, "count": 1});
+        } else {
+            startingItems.push({"item": name, "count": 0});
         }
     });
     return startingItems;
@@ -516,8 +516,9 @@ function applyItemProgressionPreset(preset) {
     if (preset.starting_items_preset != null) {
         applyRadioValue("startingItemsPreset", preset.starting_items_preset);
     }
-    for (item in preset.starting_items) {
-        let cnt = preset.starting_items[item];
+    for (x in preset.starting_items) {
+        let item = x.item;
+        let cnt = x.count;
         let el = document.getElementById(`startingItem${item}`);
         if (el.classList.contains("starting-item-input-multiple")) {
             el.value = cnt;

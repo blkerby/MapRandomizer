@@ -1944,14 +1944,14 @@ impl<'a> Patcher<'a> {
         let mut items_set: HashSet<String> = HashSet::new();
 
         // Show starting items at the top:
-        for (&item, &cnt) in &self
+        for x in &self
             .randomization
             .settings
             .item_progression_settings
             .starting_items
         {
-            if cnt > 0 {
-                let raw_name = Item::VARIANTS[item as usize].to_string();
+            if x.count > 0 {
+                let raw_name = Item::VARIANTS[x.item as usize].to_string();
                 let item_name = item_display_name_map[&raw_name].clone();
                 self.write_item_credits(items_set.len(), None, &item_name, None, "starting item")?;
                 items_set.insert(raw_name.clone());
@@ -2061,29 +2061,29 @@ impl<'a> Patcher<'a> {
         ]
         .into_iter()
         .collect();
-        for (&item, &cnt) in &self
+        for x in &self
             .randomization
             .settings
             .item_progression_settings
             .starting_items
         {
-            if cnt == 0 {
+            if x.count == 0 {
                 continue;
             }
-            if item_bitmask_map.contains_key(&item) {
-                item_mask |= item_bitmask_map[&item];
-            } else if beam_bitmask_map.contains_key(&item) {
-                beam_mask |= beam_bitmask_map[&item];
-            } else if item == Item::Missile {
-                starting_missiles += (cnt as isize) * 5;
-            } else if item == Item::ETank {
-                starting_energy += (cnt as isize) * 100;
-            } else if item == Item::ReserveTank {
-                starting_reserves += (cnt as isize) * 100;
-            } else if item == Item::Super {
-                starting_supers += (cnt as isize) * 5;
-            } else if item == Item::PowerBomb {
-                starting_powerbombs += (cnt as isize) * 5;
+            if item_bitmask_map.contains_key(&x.item) {
+                item_mask |= item_bitmask_map[&x.item];
+            } else if beam_bitmask_map.contains_key(&x.item) {
+                beam_mask |= beam_bitmask_map[&x.item];
+            } else if x.item == Item::Missile {
+                starting_missiles += (x.count as isize) * 5;
+            } else if x.item == Item::ETank {
+                starting_energy += (x.count as isize) * 100;
+            } else if x.item == Item::ReserveTank {
+                starting_reserves += (x.count as isize) * 100;
+            } else if x.item == Item::Super {
+                starting_supers += (x.count as isize) * 5;
+            } else if x.item == Item::PowerBomb {
+                starting_powerbombs += (x.count as isize) * 5;
             }
         }
         let beam_equipped_mask = if beam_mask & 0x000C == 0x000C {

@@ -68,7 +68,7 @@ pub struct ItemProgressionSettings {
     pub stop_item_placement_early: bool,
     pub item_pool: Vec<ItemCount>,
     pub starting_items_preset: StartingItemsPreset,
-    pub starting_items: HashMap<Item, usize>,
+    pub starting_items: Vec<ItemCount>,
     pub key_item_priority: HashMap<Item, KeyItemPriority>,
     pub filler_items: HashMap<Item, FillerItemPriority>,
 }

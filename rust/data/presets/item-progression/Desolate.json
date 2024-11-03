@@ -30,29 +30,92 @@
         }
     ],
     "starting_items_preset": "None",
-    "starting_items": {
-        "Missile": 0,
-        "ETank": 0,
-        "ReserveTank": 0,
-        "Super": 0,
-        "PowerBomb": 0,
-        "Charge": 0,
-        "Ice": 0,
-        "Wave": 0,
-        "Spazer": 0,
-        "Plasma": 0,
-        "XRayScope": 0,
-        "Morph": 0,
-        "Bombs": 0,
-        "Grapple": 0,
-        "HiJump": 0,
-        "SpeedBooster": 0,
-        "SpringBall": 0,
-        "SpaceJump": 0,
-        "ScrewAttack": 0,
-        "Varia": 0,
-        "Gravity": 0
-    },
+    "starting_items": [
+        {
+            "item": "Missile",
+            "count": 0
+        },
+        {
+            "item": "ETank",
+            "count": 0
+        },
+        {
+            "item": "ReserveTank",
+            "count": 0
+        },
+        {
+            "item": "Super",
+            "count": 0
+        },
+        {
+            "item": "PowerBomb",
+            "count": 0
+        },
+        {
+            "item": "Charge",
+            "count": 0
+        },
+        {
+            "item": "Ice",
+            "count": 0
+        },
+        {
+            "item": "Wave",
+            "count": 0
+        },
+        {
+            "item": "Spazer",
+            "count": 0
+        },
+        {
+            "item": "Plasma",
+            "count": 0
+        },
+        {
+            "item": "XRayScope",
+            "count": 0
+        },
+        {
+            "item": "Morph",
+            "count": 0
+        },
+        {
+            "item": "Bombs",
+            "count": 0
+        },
+        {
+            "item": "Grapple",
+            "count": 0
+        },
+        {
+            "item": "HiJump",
+            "count": 0
+        },
+        {
+            "item": "SpeedBooster",
+            "count": 0
+        },
+        {
+            "item": "SpringBall",
+            "count": 0
+        },
+        {
+            "item": "SpaceJump",
+            "count": 0
+        },
+        {
+            "item": "ScrewAttack",
+            "count": 0
+        },
+        {
+            "item": "Varia",
+            "count": 0
+        },
+        {
+            "item": "Gravity",
+            "count": 0
+        }
+    ],
     "key_item_priority": {
         "ETank": "Early",
         "ReserveTank": "Early",
