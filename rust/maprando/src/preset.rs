@@ -143,7 +143,8 @@ impl PresetData {
             let path = skill_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: SkillAssumptionSettings = serde_json::from_str(&preset_str)?;
+            let preset: SkillAssumptionSettings = serde_json::from_str(&preset_str)
+                .context(format!("parsing {}", path.display()))?;
             let difficulty =
                 DifficultyConfig::new(&preset, game_data, implicit_tech, implicit_notables);
             skill_presets.push(preset);
@@ -160,7 +161,8 @@ impl PresetData {
             let path = item_progression_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: ItemProgressionSettings = serde_json::from_str(&preset_str)?;
+            let preset: ItemProgressionSettings = serde_json::from_str(&preset_str)
+                .context(format!("parsing {}", path.display()))?;
             item_progression_presets.push(preset);
         }
 
@@ -171,7 +173,8 @@ impl PresetData {
             let path = qol_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: QualityOfLifeSettings = serde_json::from_str(&preset_str)?;
+            let preset: QualityOfLifeSettings = serde_json::from_str(&preset_str)
+                .context(format!("parsing {}", path.display()))?;
             quality_of_life_presets.push(preset);
         }
 
@@ -182,7 +185,8 @@ impl PresetData {
             let path = full_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: RandomizerSettings = serde_json::from_str(&preset_str)?;
+            let preset: RandomizerSettings = serde_json::from_str(&preset_str)
+                .context(format!("parsing {}", path.display()))?;
             full_presets.push(preset);
         }
 

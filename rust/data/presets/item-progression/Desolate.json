@@ -7,13 +7,28 @@
     "spazer_before_plasma": true,
     "item_pool_preset": "Reduced",
     "stop_item_placement_early": true,
-    "item_pool": {
-        "Missile": 12,
-        "ETank": 3,
-        "ReserveTank": 3,
-        "Super": 6,
-        "PowerBomb": 5
-    },
+    "item_pool": [
+        {
+            "item": "Missile",
+            "count": 46
+        },
+        {
+            "item": "ETank",
+            "count": 14
+        },
+        {
+            "item": "ReserveTank",
+            "count": 4
+        },
+        {
+            "item": "Super",
+            "count": 10
+        },
+        {
+            "item": "PowerBomb",
+            "count": 10
+        }
+    ],
     "starting_items_preset": "None",
     "starting_items": {
         "Missile": 0,

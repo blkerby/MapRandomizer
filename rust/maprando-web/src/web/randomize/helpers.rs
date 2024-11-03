@@ -98,11 +98,11 @@ impl<'a> SeedHeaderTemplate<'a> {
             .item_progression_settings
             .item_pool
             .iter()
-            .map(|(x, cnt)| {
-                if *cnt > 1 {
-                    format!("{:?} ({})", x, cnt)
+            .map(|x| {
+                if x.count > 1 {
+                    format!("{:?} ({})", x.item, x.count)
                 } else {
-                    format!("{:?}", x)
+                    format!("{:?}", x.item)
                 }
             })
             .collect::<Vec<String>>()

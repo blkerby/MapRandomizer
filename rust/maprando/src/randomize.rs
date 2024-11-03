@@ -2768,8 +2768,8 @@ impl<'r> Randomizer<'r> {
         initial_items_remaining[Item::Missile as usize] =
             game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
 
-        for (&item, &cnt) in &settings.item_progression_settings.item_pool {
-            initial_items_remaining[item as usize] = cnt;
+        for x in &settings.item_progression_settings.item_pool {
+            initial_items_remaining[x.item as usize] = x.count;
         }
 
         ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);

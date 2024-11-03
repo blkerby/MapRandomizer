@@ -66,11 +66,17 @@ pub struct ItemProgressionSettings {
     pub spazer_before_plasma: bool,
     pub item_pool_preset: ItemPoolPreset,
     pub stop_item_placement_early: bool,
-    pub item_pool: HashMap<Item, usize>,
+    pub item_pool: Vec<ItemCount>,
     pub starting_items_preset: StartingItemsPreset,
     pub starting_items: HashMap<Item, usize>,
     pub key_item_priority: HashMap<Item, KeyItemPriority>,
     pub filler_items: HashMap<Item, FillerItemPriority>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct ItemCount {
+    pub item: Item,
+    pub count: usize,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

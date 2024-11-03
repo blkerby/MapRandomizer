@@ -241,12 +241,12 @@ function buildNotableArray() {
     return notableSelection;
 }
 function buildItemPool() {
-    let itemPool = {};
+    let itemPool = [];
     document.querySelectorAll('.item-pool-input-multiple')
     .forEach(function (x) { 
         // remove prefix: "item_pool_"
         name = x.name.substring(10);
-        itemPool[name] = tryParseInt(x.value);
+        itemPool.push({"item": name, "count": tryParseInt(x.value)});
     });
     return itemPool;
 }
@@ -508,8 +508,9 @@ function applyItemProgressionPreset(preset) {
         applyRadioValue("itemPoolPreset", preset.item_pool_preset);
     }
     applyRadioValue("stopItemPlacementEarly", preset.stop_item_placement_early);
-    for (item in preset.item_pool) {
-        let cnt = preset.item_pool[item];
+    for (x of preset.item_pool) {
+        let item = x.item;
+        let cnt = x.count;
         document.getElementById(`itemPool${item}`).value = cnt;
     }
     if (preset.starting_items_preset != null) {
