@@ -30,6 +30,13 @@
         </div>
         {% endif %}
         <div class="row">
+            <div class="col-5 col-sm-4 col-md-3">Settings preset:</div>
+            <div class="col-7 col-sm-8 col-md-9">
+            {{ settings.name }}
+            <a href="data/settings.json" class="text-decoration-none link-secondary"><i class="bi bi-download ms-1"></i></a>
+            </div>
+        </div>
+        <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Skill assumption:</div>
             <div class="col-7 col-sm-8 col-md-9">{{+ preset }}</div>
         </div>

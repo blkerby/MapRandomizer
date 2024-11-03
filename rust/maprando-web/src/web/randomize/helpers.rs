@@ -16,6 +16,7 @@ use maprando::{
     },
     spoiler_map,
 };
+use serde::Serialize;
 use maprando_game::{GameData, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
 
@@ -244,6 +245,13 @@ pub async fn save_seed(
             .as_bytes()
             .to_vec(),
     ));
+
+    // Write the randomizer settings:
+    let mut buf = Vec::new();
+    let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
+    let mut ser = serde_json::Serializer::with_formatter(&mut buf, formatter);
+    randomization.settings.serialize(&mut ser).unwrap();
+    files.push(SeedFile::new("public/settings.json", buf));
 
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();

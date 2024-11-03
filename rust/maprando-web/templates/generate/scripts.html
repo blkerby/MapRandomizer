@@ -55,7 +55,7 @@ function applySkillPreset(preset) {
 
 function fullSettingsChanged() {
     document.getElementById("fullSettingsPreset").value = "";
-    console.log("changed");
+    document.getElementById("saveSettingsButton").classList.remove("d-none")
 }
 
 function presetChanged() {
@@ -466,7 +466,8 @@ function fullSettingsPresetChanged(presetEl) {
     let presetName = presetEl.value;
     if (presetName != "") {
         let preset = fullPresets[presetName];
-        applyFullSettingsPreset(preset);    
+        applyFullSettingsPreset(preset);
+        document.getElementById("saveSettingsButton").classList.add("d-none")
     }
 }
 
@@ -718,6 +719,10 @@ async function loadSettings() {
         await populateFullPresetOptions();
         applyFullSettingsPreset(settings);
         checkOtherOptions();
+        document.getElementById("saveSettingsButton").classList.remove("d-none");
+    } else {
+        // For backwards compatibility: load the form data the old way, if a settings JSON is not stored.
+        loadForm(document.getElementById("main-form"));
     }
 }
 

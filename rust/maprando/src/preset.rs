@@ -46,31 +46,31 @@ pub struct PresetData {
 }
 
 fn get_tech_by_difficulty(
-    tech_data_map: &HashMap<TechId, TechData>,
+    tech_data: &Vec<TechData>,
     difficulty_levels: &[String],
 ) -> HashMap<String, Vec<TechId>> {
     let mut out: HashMap<String, Vec<TechId>> = HashMap::new();
     for d in difficulty_levels {
         out.insert(d.clone(), vec![]);
     }
-    for (&tech_id, data) in tech_data_map.iter() {
-        out.get_mut(&data.difficulty).unwrap().push(tech_id);
+    for data in tech_data {
+        out.get_mut(&data.difficulty).unwrap().push(data.tech_id);
     }
     out
 }
 
 fn get_notables_by_difficulty(
-    notable_data_map: &HashMap<(RoomId, NotableId), NotableData>,
+    notable_data: &[NotableData],
     difficulty_levels: &[String],
 ) -> HashMap<String, Vec<(RoomId, NotableId)>> {
     let mut out: HashMap<String, Vec<(RoomId, NotableId)>> = HashMap::new();
     for d in difficulty_levels {
         out.insert(d.clone(), vec![]);
     }
-    for (&(room_id, notable_id), data) in notable_data_map.iter() {
+    for data in notable_data {
         out.get_mut(&data.difficulty)
             .unwrap()
-            .push((room_id, notable_id));
+            .push((data.room_id, data.notable_id));
     }
     out
 }
@@ -92,7 +92,7 @@ impl PresetData {
             }
         }
         let tech_data_map: HashMap<TechId, TechData> =
-            tech_data.into_iter().map(|x| (x.tech_id, x)).collect();
+            tech_data.clone().into_iter().map(|x| (x.tech_id, x)).collect();
 
         let notable_data_str = std::fs::read_to_string(notable_path)
             .context(format!("reading from {}", notable_path.display()))?;
@@ -107,6 +107,7 @@ impl PresetData {
             }
         }
         let notable_data_map: HashMap<(RoomId, NotableId), NotableData> = notable_data
+            .clone()
             .into_iter()
             .map(|x| ((x.room_id, x.notable_id), x))
             .collect();
@@ -127,9 +128,9 @@ impl PresetData {
             difficulty_levels.add(&d.to_string());
         }
 
-        let tech_by_difficulty = get_tech_by_difficulty(&tech_data_map, &difficulty_levels.keys);
+        let tech_by_difficulty = get_tech_by_difficulty(&tech_data, &difficulty_levels.keys);
         let notables_by_difficulty =
-            get_notables_by_difficulty(&notable_data_map, &difficulty_levels.keys);
+            get_notables_by_difficulty(&notable_data, &difficulty_levels.keys);
 
         let implicit_tech = &tech_by_difficulty["Implicit"];
         let implicit_notables = &notables_by_difficulty["Implicit"];

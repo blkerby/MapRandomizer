@@ -3,7 +3,7 @@ use hashbrown::HashMap;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct RandomizerSettings {
     pub version: usize,
     pub name: String,
@@ -20,7 +20,7 @@ pub struct RandomizerSettings {
     pub debug: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct SkillAssumptionSettings {
     pub preset: Option<String>,
     pub shinespark_tiles: f32,
@@ -40,14 +40,14 @@ pub struct SkillAssumptionSettings {
     pub notable_settings: Vec<NotableSetting>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct TechSetting {
     pub id: TechId,
     pub name: String,
     pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct NotableSetting {
     pub room_id: RoomId,
     pub notable_id: NotableId,
@@ -56,7 +56,7 @@ pub struct NotableSetting {
     pub enabled: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct ItemProgressionSettings {
     pub preset: Option<String>,
     pub progression_rate: ProgressionRate,
@@ -73,18 +73,18 @@ pub struct ItemProgressionSettings {
     pub filler_items: HashMap<Item, FillerItemPriority>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum ItemPoolPreset {
     Full,
     Reduced,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub enum StartingItemsPreset {
     None,
     All,
 }
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
     // Map:
@@ -115,7 +115,7 @@ pub struct QualityOfLifeSettings {
     pub early_save: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct OtherSettings {
     pub wall_jump: WallJump,
     pub etank_refill: ETankRefill,
@@ -131,20 +131,20 @@ pub struct OtherSettings {
     pub random_seed: Option<usize>,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum ProgressionRate {
     Slow,
     Uniform,
     Fast,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum ItemPlacementStyle {
     Neutral,
     Forced,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]
 pub enum ItemPriorityStrength {
     Moderate,
     Heavy,
