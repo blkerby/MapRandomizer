@@ -81,7 +81,7 @@ area_timer:
     plb
     jmp $95fc                     ; restore regs, rti
 
-.nmi_timer_hook
+nmi_timer_hook:
     pha
     lda $801f7c                   ; unpause bit
     beq .normal_nmi
@@ -98,19 +98,40 @@ area_timer:
     pha
     jmp $958c                     ; resume NMI
 
+enable_nmi_hook:
+    stz !nmi_timeronly
+    php
+    sep #$20
+    lda #$80
+    bit $84                       ; NMI already enabled?
+    beq .not_enabled
+    plp
+    rtl
+
+.not_enabled
+    plp
+    php                           ; replaced code
+    phb
+    phk
+    jmp $834e
+
+disable_nmi_hook:
+    inc !nmi_timeronly
+    rtl
+
 warnpc !bank_80_free_space_end
 
 ; NMI hook to check for timer-only mode
 org $809589
-    jmp .nmi_timer_hook
+    jmp nmi_timer_hook
     
-; Unpause func disable NMI
-org $80A153
-    inc !nmi_timeronly : nop      ; set unpause bit
+; Disable NMI func
+org $80835D
+    jmp disable_nmi_hook
     
-; Unpause func enable NMI
-org $80A16B
-    stz !nmi_timeronly : nop      ; clear unpause bit
+; Enable NMI func
+org $80834B
+    jmp enable_nmi_hook
 
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
