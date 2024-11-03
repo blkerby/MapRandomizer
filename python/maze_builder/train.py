@@ -45,7 +45,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 7
+num_envs = 2 ** 5
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -135,7 +135,7 @@ session = TrainingSession(envs,
 
 pickle_name = 'models/session-2024-09-18T05:56:26.276400.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk6', 'rb'))
+session = pickle.load(open(pickle_name + '-bk22', 'rb'))
 session.envs = envs
 session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # # # logging.info("Action model: {}".format(action_model))
@@ -246,8 +246,8 @@ hist_frac = 1.0
 hist_c = 4.0
 hist_max = 2 ** 23
 batch_size = 2 ** 8
-state_lr0 = 0.0001
-state_lr1 = 0.0001
+state_lr0 = 0.00005
+state_lr1 = 0.00005
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 0.5
@@ -267,7 +267,7 @@ save_dist_coef = 0.01
 # save_dist_coef = 0.0
 
 mc_dist_weight = 0.0002
-mc_dist_coef_tame = 0.2
+mc_dist_coef_tame = 0.1
 mc_dist_coef_wild = 0.0
 
 toilet_weight = 0.01
@@ -277,9 +277,9 @@ graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-balance_coef0 = 0.3
-balance_coef1 = 0.3
-balance_weight = 20.0
+balance_coef0 = 5.0
+balance_coef1 = balance_coef0
+balance_weight = 10.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -307,7 +307,7 @@ annealing_time = 2 ** 24
 pass_factor0 = 0.01
 pass_factor1 = 2.0
 num_load_files = int(episode_length * pass_factor1)
-print_freq = 8
+print_freq = 16
 total_state_losses = None
 total_action_losses = None
 total_balance_loss = 0.0
@@ -330,7 +330,7 @@ total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
 save_freq = 128
-summary_freq = 128
+summary_freq = 256
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
@@ -411,13 +411,68 @@ def display_counts(counts, top_n: int, verbose: bool):
                 print("Type {}".format(t))
                 for i in range(len(top_frac)):
                     if type_first[i] == t and type_first[i] == -type_second[i]:
-                        logging.info("{:.6f}: {} {} ({}, {}) -> {} ({}, {})".format(
+                        logging.info("{:.6f} ({:.6f}, {:.6f}): {} {} ({}, {}) -> {} ({}, {})".format(
                             top_frac[i], type_first[i], rooms[room_id_first[i]].name, x_first[i], y_first[i],
                             rooms[room_id_second[i]].name, x_second[i], y_second[i]))
         else:
             formatted_fracs = ['{:.4f}'.format(x) for x in top_frac[:top_n]]
             logging.info("{}: [{}]".format(name, ', '.join(formatted_fracs)))
 
+def display_counts2(counts, counts0, model_logodds, top_n: int, verbose: bool):
+    model_odds = torch.exp(model_logodds)
+    model_frac_flat = model_odds / (1 + model_odds)
+    n = counts[0].shape[0]
+    m = counts[1].shape[0]
+    model_frac_list = [
+        model_frac_flat[:(n * n)].view(n, n),
+        model_frac_flat[(n * n):].view(m, m),
+    ]
+    for i, (cnt, name) in reversed(list(enumerate(zip(counts, ["Horizontal", "Vertical"])))):
+        if torch.sum(cnt) == 0:
+            continue
+        cnt0 = counts0[i]
+        model_frac = model_frac_list[i]
+        frac = cnt.to(torch.float32) / torch.sum(cnt, dim=1, keepdims=True).to(torch.float32)
+        frac0 = cnt0.to(torch.float32) / torch.sum(cnt0, dim=1, keepdims=True).to(torch.float32)
+        top_frac, top_door_id_pair = torch.sort(frac.view(-1), descending=True)
+        top_frac0 = frac0.view(-1)[top_door_id_pair]
+        model_frac = model_frac.view(-1)[top_door_id_pair]
+        top_door_id_first = top_door_id_pair // cnt.shape[1]
+        top_door_id_second = top_door_id_pair % cnt.shape[1]
+        if name == "Vertical":
+            room_id_first = session.envs[0].room_down[top_door_id_first, 0]
+            x_first = session.envs[0].room_down[top_door_id_first, 1]
+            y_first = session.envs[0].room_down[top_door_id_first, 2]
+            type_first = session.envs[0].room_down[top_door_id_first, 3]
+            room_id_second = session.envs[0].room_up[top_door_id_second, 0]
+            x_second = session.envs[0].room_up[top_door_id_second, 1]
+            y_second = session.envs[0].room_up[top_door_id_second, 2]
+            type_second = session.envs[0].room_up[top_door_id_second, 3]
+        else:
+            room_id_first = session.envs[0].room_left[top_door_id_first, 0]
+            x_first = session.envs[0].room_left[top_door_id_first, 1]
+            y_first = session.envs[0].room_left[top_door_id_first, 2]
+            type_first = session.envs[0].room_left[top_door_id_first, 3]
+            room_id_second = session.envs[0].room_right[top_door_id_second, 0]
+            x_second = session.envs[0].room_right[top_door_id_second, 1]
+            y_second = session.envs[0].room_right[top_door_id_second, 2]
+            type_second = session.envs[0].room_right[top_door_id_second, 3]
+        if verbose:
+            logging.info(name)
+            if name == "Horizontal":
+                types = [1]
+            else:
+                types = [-3, -2, -1]
+            for t in types:
+                print("Type {}".format(t))
+                for i in range(len(top_frac)):
+                    if type_first[i] == t and type_first[i] == -type_second[i]:
+                        logging.info("{:.6f} ({:.6f}, {:.6f}): {} {} ({}, {}) -> {} ({}, {})".format(
+                            top_frac[i], top_frac0[i], model_frac[i], type_first[i], rooms[room_id_first[i]].name, x_first[i], y_first[i],
+                            rooms[room_id_second[i]].name, x_second[i], y_second[i]))
+        else:
+            formatted_fracs = ['{:.4f}'.format(x) for x in top_frac[:top_n]]
+            logging.info("{}: [{}]".format(name, ', '.join(formatted_fracs)))
 
 
 def save_session(session, name):
@@ -656,7 +711,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk12')
+            # save_session(session, pickle_name + '-bk30')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.replay_buffer.num_files % summary_freq == 0:
@@ -672,6 +727,14 @@ for i in range(1000000):
 
         buffer_temperature = episode_data.temperature
         first = True
+        model_door_balance_tame = session.balance_model(torch.tensor([
+            math.log(temperature_min),
+            mc_dist_coef_tame
+        ]).to(device))
+        model_door_balance_wild = session.balance_model(torch.tensor([
+            math.log(temperature_min),
+            mc_dist_coef_wild
+        ]).to(device))
         for i in range(len(temperature_endpoints) - 1):
             temp_low = temperature_endpoints[i]
             temp_high = temperature_endpoints[i + 1]
@@ -741,6 +804,11 @@ for i in range(1000000):
             first = False
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
+
+        last_file_num = max(0, session.replay_buffer.num_files - 128 * summary_freq)
+        file_num_list = list(range(last_file_num, session.replay_buffer.num_files))
+        episode_data, _ = session.replay_buffer.read_files(file_num_list)
+
         counts1 = compute_door_connect_counts(episode_data, only_success=True)
         ent1 = session.compute_door_stats_entropy(counts1)
         success_mask = episode_data.reward == 0
@@ -755,9 +823,23 @@ for i in range(1000000):
         wild_mask = success_mask & (episode_data.mc_dist_coef == 0.0)
         tame1 = torch.nanmean(S[tame_mask, :])
         wild1 = torch.nanmean(S[wild_mask, :])
+        tame_ind = torch.nonzero(episode_data.mc_dist_coef > 0.0)
+        wild_ind = torch.nonzero(episode_data.mc_dist_coef == 0.0)
 
         logging.info("Overall ({}, {}): ent1={:.6f}, save1={:.6f}, diam1={:.3f}, tame1={:.3f}, wild1={:.3f}".format(
             torch.sum(tame_mask).item(), torch.sum(wild_mask).item(), ent1,
                 save1, graph_diam1, tame1, wild1))
         display_counts(counts1, 16, verbose=False)
-        # display_counts(counts1, 1000000, verbose=True)
+        counts1_tame = compute_door_connect_counts(episode_data, only_success=True, ind=tame_ind)
+        display_counts(counts1_tame, 16, verbose=False)
+        counts1_wild = compute_door_connect_counts(episode_data, only_success=True, ind=wild_ind)
+        display_counts(counts1_wild, 16, verbose=False)
+
+        # logging.info("Tame:")
+        # counts_tame = compute_door_connect_counts(episode_data, only_success=False, ind=tame_ind)
+        # display_counts2(counts1_tame, counts_tame, model_door_balance_tame, 1000000, verbose=True)
+        #
+        # logging.info("Wild:")
+        # counts_wild = compute_door_connect_counts(episode_data, only_success=False, ind=wild_ind)
+        # display_counts2(counts1_wild, counts_wild, model_door_balance_wild, 1000000, verbose=True)
+        # # display_counts(counts1_wild, 1000000, verbose=True)

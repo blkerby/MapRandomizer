@@ -3,12 +3,14 @@ import torch
 import logging
 from maze_builder.env import MazeBuilderEnv
 from maze_builder.types import reconstruct_room_data, Direction
+from maze_builder.train_session import cat_episode_data
 import logic.rooms.all_rooms
 # import logic.rooms.crateria_isolated
 # import logic.rooms.norfair_isolated
 import pickle
 import concurrent.futures
 import random
+import pathlib
 
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -18,7 +20,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 
 torch.set_printoptions(linewidth=120, threshold=10000)
 import io
-
+import glob
 
 class CPU_Unpickler(pickle.Unpickler):
     def find_class(self, module, name):
@@ -30,15 +32,24 @@ class CPU_Unpickler(pickle.Unpickler):
 device = torch.device('cpu')
 
 rooms = logic.rooms.all_rooms.rooms
-env = MazeBuilderEnv(rooms,
-               map_x=72,
-               map_y=72,
-               num_envs=1,
-               device=device,
-               must_areas_be_connected=False,
-               starting_room_name="Landing Site")
 
-data = CPU_Unpickler(open('data/2024-09-18T05:56:26.276400/7565.pkl', 'rb')).load()
+num_files = 1000
+base_path = "data/2024-09-18T05:56:26.276400"
+path_list = glob.glob(f"{base_path}/*.pkl")
+file_num_list = []
+for path_str in path_list:
+    path = pathlib.Path(path_str)
+    num = int(path.stem)
+    file_num_list.append(num)
+file_num_list = list(reversed(sorted(file_num_list)))
+
+data_list = []
+for num in file_num_list[:num_files]:
+    data = CPU_Unpickler(open(f'{base_path}/{num}.pkl', 'rb')).load()
+    data_list.append(data)
+
+data = cat_episode_data(data_list)
+
 # session = CPU_Unpickler(open('models/session-2023-11-08T16:16:55.811707.pkl-small-51', 'rb')).load()
 
 S = data.save_distances.to(torch.float32)
@@ -57,22 +68,23 @@ M = torch.nanmean(M, dim=1)
 # ind = ind[(ind >= 200000) & (ind < 262144)].view(-1, 1)
 # num_feasible = torch.nonzero((data.reward == min_reward)).shape[0]
 
-ind = torch.arange(M.shape[0])
+# ind = torch.arange(M.shape[0])
+
+ind = torch.nonzero(
+    (data.reward == 0) &
+    # (S < 4.05) &
+    (data.graph_diameter <= 45) &
+    (data.mc_dist_coef > 0.0) &
+    # (data.mc_dist_coef == 0.0) &
+    data.toilet_good
+)
 
 # ind = torch.nonzero(
 #     (data.reward == 0) &
-#     (S < 4.05) &
-#     (data.graph_diameter <= 43) &
-#     # (data.mc_dist_coef > 0.0)
-#     (data.mc_dist_coef == 0.0) &
-#     data.toilet_good
-# )
-
-# ind = torch.nonzero(
-#     (data.reward == min_reward) #&
 #     # (S < 3.90) &
 #     # (data.graph_diameter <= 45) &
-#     # (data.mc_dist_coef > 0.0)
+#     (data.mc_dist_coef > 0.0) &
+#     data.toilet_good
 # )
 
 # print(sorted(M[ind].tolist()))
@@ -82,11 +94,18 @@ ind = torch.arange(M.shape[0])
 # print(sorted(M[ind].tolist()))
 # print(torch.where(data.graph_diameter[ind] == 29))
 
+env = MazeBuilderEnv(rooms,
+               map_x=72,
+               map_y=72,
+               num_envs=1,
+               device=device,
+               must_areas_be_connected=False,
+               starting_room_name="Landing Site")
+
 # print("success rate: ", ind.shape[0] / num_feasible)
 i = int(random.randint(0, ind.shape[0] - 1))
-# i = 26
+# i = 152
 print(len(ind), i)
-# i = 389
 num_rooms = len(env.rooms)
 # print("mean save_distance:", torch.mean(data.save_distances[ind].to(torch.float)))
 # print("mean diam:", torch.mean(data.graph_diameter[ind].to(torch.float)))
@@ -154,11 +173,11 @@ room_mask, room_position_x, room_position_y = reconstruct_room_data(action, step
 #         else:
 #             assert False
 
-for j, part_idx in enumerate(env.non_potential_save_idxs.tolist()):
-    room_idx = env.part_room_id[part_idx]
-    save_dist = data.save_distances[ind[i], j]
-    room_name = env.rooms[room_idx].name
-    print(part_idx, room_name, save_dist)
+# for j, part_idx in enumerate(env.non_potential_save_idxs.tolist()):
+#     room_idx = env.part_room_id[part_idx]
+#     save_dist = data.save_distances[ind[i], j]
+#     room_name = env.rooms[room_idx].name
+#     print(part_idx, room_name, save_dist)
 
 
 
@@ -166,7 +185,7 @@ episode_length = len(rooms)
 env.room_position_x = room_position_x
 env.room_position_y = room_position_y
 env.room_mask = room_mask
-env.render(0, show_saves=True)
+env.render(0, show_saves=False)
 env.map_display.image.show()
 
 

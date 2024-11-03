@@ -37,6 +37,28 @@ class Predictions:
     toilet_good: torch.tensor
 
 
+def cat_episode_data(episode_data_list):
+    return EpisodeData(
+        reward=torch.cat([d.reward for d in episode_data_list], dim=0),
+        door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
+        missing_connects=torch.cat([d.missing_connects for d in episode_data_list], dim=0),
+        save_distances=torch.cat([d.save_distances for d in episode_data_list], dim=0),
+        graph_diameter=torch.cat([d.graph_diameter for d in episode_data_list], dim=0),
+        mc_distances=torch.cat([d.mc_distances for d in episode_data_list], dim=0),
+        toilet_good=torch.cat([d.toilet_good for d in episode_data_list], dim=0),
+        cycle_cost=torch.cat([d.cycle_cost for d in episode_data_list], dim=0),
+        action=torch.cat([d.action for d in episode_data_list], dim=0),
+        map_door_id=torch.cat([d.map_door_id for d in episode_data_list], dim=0),
+        room_door_id=torch.cat([d.room_door_id for d in episode_data_list], dim=0),
+        prob=torch.cat([d.prob for d in episode_data_list], dim=0),
+        prob0=torch.cat([d.prob0 for d in episode_data_list], dim=0),
+        cand_count=torch.cat([d.cand_count for d in episode_data_list], dim=0),
+        temperature=torch.cat([d.temperature for d in episode_data_list], dim=0),
+        mc_dist_coef=torch.cat([d.mc_dist_coef for d in episode_data_list], dim=0),
+        test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
+    )
+
+
 class TrainingSession():
     def __init__(self, envs: List[MazeBuilderEnv],
                  state_model: RoomTransformerModel,
@@ -288,7 +310,9 @@ class TrainingSession():
 
         # Multiplying by temperature here cancels out the divison by temperature in the caller:
         # Unlike other score components, we want the balance penalties not to scale with temperature.
-        balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1) * temperature_valid
+        # (Nevermind, that seems bad.)
+        # balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1) * temperature_valid
+        balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1)
 
         save_dist_cost = torch.sum(preds.save_dist, dim=1)
         mc_dist_cost = torch.sum(preds.mc_dist, dim=1)
@@ -588,25 +612,7 @@ class TrainingSession():
         # for env in self.envs:
         #     if env.room_mask.is_cuda:
         #         torch.cuda.synchronize(env.device)
-        return EpisodeData(
-            reward=torch.cat([d.reward for d in episode_data_list], dim=0),
-            door_connects=torch.cat([d.door_connects for d in episode_data_list], dim=0),
-            missing_connects=torch.cat([d.missing_connects for d in episode_data_list], dim=0),
-            save_distances=torch.cat([d.save_distances for d in episode_data_list], dim=0),
-            graph_diameter=torch.cat([d.graph_diameter for d in episode_data_list], dim=0),
-            mc_distances=torch.cat([d.mc_distances for d in episode_data_list], dim=0),
-            toilet_good=torch.cat([d.toilet_good for d in episode_data_list], dim=0),
-            cycle_cost=torch.cat([d.cycle_cost for d in episode_data_list], dim=0),
-            action=torch.cat([d.action for d in episode_data_list], dim=0),
-            map_door_id=torch.cat([d.map_door_id for d in episode_data_list], dim=0),
-            room_door_id=torch.cat([d.room_door_id for d in episode_data_list], dim=0),
-            prob=torch.cat([d.prob for d in episode_data_list], dim=0),
-            prob0=torch.cat([d.prob0 for d in episode_data_list], dim=0),
-            cand_count=torch.cat([d.cand_count for d in episode_data_list], dim=0),
-            temperature=torch.cat([d.temperature for d in episode_data_list], dim=0),
-            mc_dist_coef=torch.cat([d.mc_dist_coef for d in episode_data_list], dim=0),
-            test_loss=torch.cat([d.test_loss for d in episode_data_list], dim=0),
-        )
+        return cat_episode_data(episode_data_list)
 
     def generate_round(self, episode_length: int, num_candidates_min: float, num_candidates_max: float,
                        temperature: torch.tensor,
