@@ -428,7 +428,7 @@ async function populateFullPresetOptions() {
 
     let optionEl = document.createElement("option");
     optionEl.value = "";
-    optionEl.innerText = "Select a preset to instantly fill all settings";
+    optionEl.innerText = "Select a preset to automatically fill all settings";
     selectEl.appendChild(optionEl);
 
     let hrEl = document.createElement("hr");
@@ -861,6 +861,15 @@ document.getElementById("renamePresetModal").addEventListener('hidden.bs.modal',
     managePresetsModal.show();
 });
 
+async function importPreset() {
+    let fileEl = document.getElementById("importPresetFile");
+    let preset = JSON.parse(await fileEl.files[0].text());
+    let customPresets = await getCustomPresets();
+    customPresets.push(preset);
+    console.log(preset);
+    await localforage.setItem("customPresets", customPresets);
+    openManagePresetsModal();
+}
 
 async function openManagePresetsModal() {
     let customPresets = await getCustomPresets();
@@ -921,6 +930,10 @@ async function openManagePresetsModal() {
         table.appendChild(row);
     }
 }
+
+document.getElementById("managePresetsModal").addEventListener('hidden.bs.modal', () => {
+    populateFullPresetOptions();
+});
 
 </script>
 {% include "../common/save_load_rom.html" %}

@@ -19,9 +19,10 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-primary">
+                <button type="button" class="btn btn-primary" onclick="document.getElementById('importPresetFile').click()">
                     <i class="bi bi-upload me-2"></i>Import preset
                 </button>
+                <input id="importPresetFile" type="file" class="d-none" onchange="importPreset()">
                 <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
