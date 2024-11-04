@@ -54,7 +54,7 @@ pub fn apply_retiling(
         ((1, 0), "GreenBrinstar"),
         ((1, 1), "RedBrinstar"),
         ((2, 0), "UpperNorfair"),
-        ((2, 1), "UpperNorfair"),
+        ((2, 1), "LowerNorfair"),
         ((3, 0), "WreckedShip"),
         ((3, 1), "WreckedShip"),
         ((4, 0), "WestMaridia"),

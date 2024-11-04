@@ -63,7 +63,7 @@ pub struct ItemProgressionSettings {
     pub item_priority_strength: ItemPriorityStrength,
     pub random_tank: bool,
     pub spazer_before_plasma: bool,
-    pub item_pool_preset: ItemPoolPreset,
+    pub item_pool_preset: Option<ItemPoolPreset>,
     pub stop_item_placement_early: bool,
     pub item_pool: Vec<ItemCount>,
     pub starting_items_preset: StartingItemsPreset,
