@@ -2,19 +2,24 @@ v115:
 - DONE: move input ROM into modals
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
-- review spoiler zoom PR
-- fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
-- improve reproducibility:
+- DONE: review spoiler zoom PR
+- DONE: fix error when customizing item pool (preset not set)
+- Make f_allItemsSpawn not be a flag?
+- review spoiler flag PR
+- DONE: make relevant flags only show logically collected flags
+- fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
+- DONE: fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
+- DONE: improve reproducibility:
   - try processing region files in a deterministic order
 - add pause & area times to credits
-- investigate issue with door lock skips not being in logic?:
+- DONE: investigate issue with door lock skips not being in logic?:
   - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
-- fix main hall elevator frames:
+- DONE: fix main hall elevator frames:
   - takes at least 47 energy with fast elevators.
 - DONE: use RandomizerSettings in maprando-cli and maprando-test
 - DONE: set up script to automate syncing logic changes
-  - update skill assumption presets and full-settings presets
+  - DONE: update skill assumption presets and full-settings presets
 - DONE: simplify DifficultyConfig
 - simplify SeedData
 - save/load presets

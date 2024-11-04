@@ -10,9 +10,6 @@ a {
 img {
 	touch-action: none;
 }
-div {
-	touch-action: none;
-}
 #map {
 	position: absolute;
 	width: 1776px;
@@ -67,6 +64,7 @@ div {
 	pointer-events: auto;
 	top: 16px;
 	left: 16px;
+	touch-action: auto;
 }
 #settings {
 	top: 16px;
