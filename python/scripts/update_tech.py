@@ -26,10 +26,8 @@ for c in tech_json["techCategories"]:
         get_tech_ids(t)
 
 
-tech_data = requests.get(videos_url + "/tech").json()
-
-# Add randomizer-specific tech which isn't in sm-json-data:
-tech_data.append({
+raw_tech_data = requests.get(videos_url + "/tech").json()
+raw_tech_data.append({
     "tech_id": 10001,
     "name": "canHyperGateShot",
     "difficulty": "Hard",
@@ -37,7 +35,12 @@ tech_data.append({
 })
 tech_id_order.append(10001)
 
-# json.dump(tech_data, open(output_path, "w"), indent=2)
+tech_data_map = {x["tech_id"]: x for x in raw_tech_data}
+tech_data = [tech_data_map[tech_id] for tech_id in tech_id_order]
+
+# Add randomizer-specific tech which isn't in sm-json-data:
+
+json.dump(tech_data, open(output_path, "w"), indent=4)
 
 difficulty_levels = [
     "Implicit",

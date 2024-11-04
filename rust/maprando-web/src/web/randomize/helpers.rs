@@ -18,6 +18,7 @@ use maprando::{
 };
 use maprando_game::{GameData, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
+use serde::Serialize;
 
 #[derive(Template)]
 #[template(path = "seed/seed_header.html")]
@@ -97,11 +98,11 @@ impl<'a> SeedHeaderTemplate<'a> {
             .item_progression_settings
             .item_pool
             .iter()
-            .map(|(x, cnt)| {
-                if *cnt > 1 {
-                    format!("{:?} ({})", x, cnt)
+            .map(|x| {
+                if x.count > 1 {
+                    format!("{:?} ({})", x.item, x.count)
                 } else {
-                    format!("{:?}", x)
+                    format!("{:?}", x.item)
                 }
             })
             .collect::<Vec<String>>()
@@ -113,12 +114,12 @@ impl<'a> SeedHeaderTemplate<'a> {
             .item_progression_settings
             .starting_items
             .iter()
-            .filter(|(_, &cnt)| cnt > 0)
-            .map(|(x, cnt)| {
-                if *cnt > 1 {
-                    format!("{:?} ({})", x, cnt)
+            .filter(|x| x.count > 0)
+            .map(|x| {
+                if x.count > 1 {
+                    format!("{:?} ({})", x.item, x.count)
                 } else {
-                    format!("{:?}", x)
+                    format!("{:?}", x.item)
                 }
             })
             .collect::<Vec<String>>()
@@ -245,6 +246,13 @@ pub async fn save_seed(
             .to_vec(),
     ));
 
+    // Write the randomizer settings:
+    let mut buf = Vec::new();
+    let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
+    let mut ser = serde_json::Serializer::with_formatter(&mut buf, formatter);
+    randomization.settings.serialize(&mut ser).unwrap();
+    files.push(SeedFile::new("public/settings.json", buf));
+
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
     files.push(SeedFile::new(
@@ -364,24 +372,26 @@ pub fn render_seed(
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|(_, &x)| x == FillerItemPriority::Yes || x == FillerItemPriority::Early)
-            .map(|(item, _)| format!("{:?}", item))
+            .filter(|x| {
+                x.priority == FillerItemPriority::Yes || x.priority == FillerItemPriority::Early
+            })
+            .map(|x| format!("{:?}", x.item))
             .collect(),
         semi_filler_items: seed_data
             .settings
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|(_, &x)| x == FillerItemPriority::Semi)
-            .map(|(item, _)| format!("{:?}", item))
+            .filter(|x| x.priority == FillerItemPriority::Semi)
+            .map(|x| format!("{:?}", x.item))
             .collect(),
         early_filler_items: seed_data
             .settings
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|(_, &x)| x == FillerItemPriority::Early)
-            .map(|(item, _)| format!("{:?}", item))
+            .filter(|x| x.priority == FillerItemPriority::Early)
+            .map(|x| format!("{:?}", x.item))
             .collect(),
         item_placement_style: format!(
             "{:?}",

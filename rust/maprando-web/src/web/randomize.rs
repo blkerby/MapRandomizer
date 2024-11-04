@@ -108,12 +108,24 @@ async fn randomize(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
-    let settings: RandomizerSettings = match parse_randomizer_settings(&req.settings.0) {
+    let mut settings: RandomizerSettings = match parse_randomizer_settings(&req.settings.0) {
         Ok(s) => s,
         Err(e) => {
             return HttpResponse::BadRequest().body(e.to_string());
         }
     };
+
+    let mut validated_preset = false;
+    for s in &app_data.preset_data.full_presets {
+        if s == &settings {
+            validated_preset = true;
+            break;
+        }
+    }
+    if !validated_preset {
+        settings.name = "Custom".to_string();
+    }
+
     let skill_settings = &settings.skill_assumption_settings;
     let item_settings = &settings.item_progression_settings;
     let qol_settings = &settings.quality_of_life_settings;

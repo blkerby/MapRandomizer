@@ -46,31 +46,31 @@ pub struct PresetData {
 }
 
 fn get_tech_by_difficulty(
-    tech_data_map: &HashMap<TechId, TechData>,
+    tech_data: &Vec<TechData>,
     difficulty_levels: &[String],
 ) -> HashMap<String, Vec<TechId>> {
     let mut out: HashMap<String, Vec<TechId>> = HashMap::new();
     for d in difficulty_levels {
         out.insert(d.clone(), vec![]);
     }
-    for (&tech_id, data) in tech_data_map.iter() {
-        out.get_mut(&data.difficulty).unwrap().push(tech_id);
+    for data in tech_data {
+        out.get_mut(&data.difficulty).unwrap().push(data.tech_id);
     }
     out
 }
 
 fn get_notables_by_difficulty(
-    notable_data_map: &HashMap<(RoomId, NotableId), NotableData>,
+    notable_data: &[NotableData],
     difficulty_levels: &[String],
 ) -> HashMap<String, Vec<(RoomId, NotableId)>> {
     let mut out: HashMap<String, Vec<(RoomId, NotableId)>> = HashMap::new();
     for d in difficulty_levels {
         out.insert(d.clone(), vec![]);
     }
-    for (&(room_id, notable_id), data) in notable_data_map.iter() {
+    for data in notable_data {
         out.get_mut(&data.difficulty)
             .unwrap()
-            .push((room_id, notable_id));
+            .push((data.room_id, data.notable_id));
     }
     out
 }
@@ -91,8 +91,11 @@ impl PresetData {
                 d.difficulty = "Ignored".to_string();
             }
         }
-        let tech_data_map: HashMap<TechId, TechData> =
-            tech_data.into_iter().map(|x| (x.tech_id, x)).collect();
+        let tech_data_map: HashMap<TechId, TechData> = tech_data
+            .clone()
+            .into_iter()
+            .map(|x| (x.tech_id, x))
+            .collect();
 
         let notable_data_str = std::fs::read_to_string(notable_path)
             .context(format!("reading from {}", notable_path.display()))?;
@@ -107,6 +110,7 @@ impl PresetData {
             }
         }
         let notable_data_map: HashMap<(RoomId, NotableId), NotableData> = notable_data
+            .clone()
             .into_iter()
             .map(|x| ((x.room_id, x.notable_id), x))
             .collect();
@@ -127,9 +131,9 @@ impl PresetData {
             difficulty_levels.add(&d.to_string());
         }
 
-        let tech_by_difficulty = get_tech_by_difficulty(&tech_data_map, &difficulty_levels.keys);
+        let tech_by_difficulty = get_tech_by_difficulty(&tech_data, &difficulty_levels.keys);
         let notables_by_difficulty =
-            get_notables_by_difficulty(&notable_data_map, &difficulty_levels.keys);
+            get_notables_by_difficulty(&notable_data, &difficulty_levels.keys);
 
         let implicit_tech = &tech_by_difficulty["Implicit"];
         let implicit_notables = &notables_by_difficulty["Implicit"];
@@ -142,7 +146,8 @@ impl PresetData {
             let path = skill_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: SkillAssumptionSettings = serde_json::from_str(&preset_str)?;
+            let preset: SkillAssumptionSettings =
+                serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
             let difficulty =
                 DifficultyConfig::new(&preset, game_data, implicit_tech, implicit_notables);
             skill_presets.push(preset);
@@ -159,7 +164,8 @@ impl PresetData {
             let path = item_progression_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: ItemProgressionSettings = serde_json::from_str(&preset_str)?;
+            let preset: ItemProgressionSettings =
+                serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
             item_progression_presets.push(preset);
         }
 
@@ -170,18 +176,20 @@ impl PresetData {
             let path = qol_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: QualityOfLifeSettings = serde_json::from_str(&preset_str)?;
+            let preset: QualityOfLifeSettings =
+                serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
             quality_of_life_presets.push(preset);
         }
 
-        let full_preset_names = ["Default"];
+        let full_preset_names = ["Default", "Community Race Season 2"];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
         for name in full_preset_names {
             let path = full_preset_path.join(format!("{}.json", name));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: RandomizerSettings = serde_json::from_str(&preset_str)?;
+            let preset: RandomizerSettings =
+                serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
             full_presets.push(preset);
         }
 

@@ -22,8 +22,10 @@ v115:
   - DONE: update skill assumption presets and full-settings presets
 - DONE: simplify DifficultyConfig
 - simplify SeedData
-- save/load presets
+- presets:
+  - show built-in preset on seed page if verified
   - download settings preset from seed page
+    - remove custom name from settings JSON
 - built-in presets: default, and season 2 racing
 
 v114:

@@ -1,0 +1,21 @@
+<div class="modal" id="deletePresetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Delete Preset</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="cancelDeletePreset()"></button>
+            </div>
+        
+            <div class="modal-body">
+                Delete the preset "<span id="deletePresetName"></span>"?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="confirmDeletePreset()">
+                    <i class="bi bi-trash me-2"></i>Delete
+                </button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="cancelDeletePreset()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+  
