@@ -270,7 +270,7 @@ function buildStartingItems() {
         name = x.name.substring(14);
         if (x.checked && x.value == "Yes") {
             startingItems.push({"item": name, "count": 1});
-        } else {
+        } else if (x.checked && x.value == "No") {
             startingItems.push({"item": name, "count": 0});
         }
     });
