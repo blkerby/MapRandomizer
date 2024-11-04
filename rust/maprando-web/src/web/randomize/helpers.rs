@@ -16,9 +16,9 @@ use maprando::{
     },
     spoiler_map,
 };
-use serde::Serialize;
 use maprando_game::{GameData, NotableId, RoomId, TechId};
 use rand::{RngCore, SeedableRng};
+use serde::Serialize;
 
 #[derive(Template)]
 #[template(path = "seed/seed_header.html")]
@@ -372,7 +372,9 @@ pub fn render_seed(
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|x| x.priority == FillerItemPriority::Yes || x.priority == FillerItemPriority::Early)
+            .filter(|x| {
+                x.priority == FillerItemPriority::Yes || x.priority == FillerItemPriority::Early
+            })
             .map(|x| format!("{:?}", x.item))
             .collect(),
         semi_filler_items: seed_data

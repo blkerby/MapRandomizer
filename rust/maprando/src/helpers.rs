@@ -1,10 +1,11 @@
 use maprando_game::IndexedVec;
 
-use crate::{randomize::ItemPriorityGroup, settings::{KeyItemPriority, KeyItemPrioritySetting}};
+use crate::{
+    randomize::ItemPriorityGroup,
+    settings::{KeyItemPriority, KeyItemPrioritySetting},
+};
 
-pub fn get_item_priorities(
-    item_priorities: &[KeyItemPrioritySetting],
-) -> Vec<ItemPriorityGroup> {
+pub fn get_item_priorities(item_priorities: &[KeyItemPrioritySetting]) -> Vec<ItemPriorityGroup> {
     let mut priorities: IndexedVec<KeyItemPriority> = IndexedVec::default();
     priorities.add(&KeyItemPriority::Early);
     priorities.add(&KeyItemPriority::Default);
