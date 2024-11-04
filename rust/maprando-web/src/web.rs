@@ -5,6 +5,7 @@ pub mod logic;
 pub mod randomize;
 pub mod releases;
 pub mod seed;
+pub mod upgrade;
 
 use crate::logic_helper::LogicData;
 use hashbrown::HashMap;

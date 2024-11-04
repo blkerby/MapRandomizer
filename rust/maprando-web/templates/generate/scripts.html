@@ -59,6 +59,7 @@ function applySkillPreset(preset) {
 function fullSettingsChanged() {
     document.getElementById("fullSettingsPreset").value = "";
     document.getElementById("saveSettingsButton").classList.remove("d-none")
+    saveSettings();
 }
 
 function presetChanged() {
@@ -67,6 +68,7 @@ function presetChanged() {
         if (presetEl.checked) {
             preset = skillPresets[presetEl.value];
             applySkillPreset(preset);
+            saveSettings();
             break;
         }
     }
@@ -280,7 +282,6 @@ function buildItemPriorities() {
     .forEach(function (x) { 
         // remove prefix: "item_priority_"
         name = x.name.substring(14);
-        // console.log(name + ": " + x.value);
         if (x.checked) {
             itemPriority.push({"item": name, "priority": x.value});
         }
@@ -425,6 +426,37 @@ function applyFullSettingsPreset(preset) {
     document.getElementById("randomSeed").value = other.random_seed;
 }
 
+async function upgradeSettings(settings) {
+    if (settings.version < {{ version_info.version }}) {
+        let response = await fetch("/upgrade-settings", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(settings),
+        });
+        let newSettings = await response.json();
+        return newSettings;
+    } else {
+        return null;
+    }
+}
+
+async function upgradeCustomPresets(customPresets) {
+    let updated = false;
+    for (var i = 0; i < customPresets.length; i++) {
+        let preset = customPresets[i];
+        let newPreset = await upgradeSettings(preset);
+        if (newPreset !== null) {
+            updated = true;
+            customPresets[i] = newPreset;
+        }
+    }
+    if (updated) {
+        await localforage.setItem("customPresets", customPresets);
+    }
+}
+
 async function populateFullPresetOptions() {
     let selectEl = document.getElementById("fullSettingsPreset");
     selectEl.innerHTML = "";
@@ -437,10 +469,8 @@ async function populateFullPresetOptions() {
     let hrEl = document.createElement("hr");
     selectEl.appendChild(hrEl);
 
-    let customPresets = await localforage.getItem("customPresets");
-    if (customPresets === null) {
-        customPresets = [];
-    }
+    let customPresets = await getCustomPresets();
+    await upgradeCustomPresets(customPresets);
     if (customPresets.length > 0) {
         for (preset of customPresets) {
             fullPresets[preset.name] = preset;
@@ -698,7 +728,6 @@ function initializeSpoilerToken() {
 function checkOtherOptions() {
     document.getElementById("randomSeed").value = "";
     if (document.getElementById("fullSettingsPreset").value !== "") {
-        console.log("preset");
         return;
     }
     if (document.getElementById("wallJumpCollectible").checked ||
@@ -729,13 +758,18 @@ function showError(e) {
 
 async function loadSettings() {
     let settings = await localforage.getItem("generateSettings");
+
     if (settings !== null) {
+        let newSettings = await upgradeSettings(settings);
+        if (newSettings !== null) {
+            settings = newSettings;
+            await localforage.setItem("generateSettings", settings);
+        }
         await populateFullPresetOptions();
 
         let found = false;
         for (presetName in fullPresets) {
             if (presetName == settings.name) {
-                console.log("loading settings from preset: " + presetName);
                 settings = fullPresets[presetName];
                 found = true;
             }
@@ -748,11 +782,12 @@ async function loadSettings() {
         if (!found) {
             document.getElementById("saveSettingsButton").classList.remove("d-none");
         }
-        checkOtherOptions();
     } else {
         // For backwards compatibility: load the form data the old way, if a settings JSON is not found.
         loadForm(document.getElementById("main-form"));
+        await populateFullPresetOptions();
     }
+    checkOtherOptions();
 }
 
 async function saveSettings() {
@@ -790,7 +825,6 @@ async function saveSettingsPreset(ev) {
     }
     if (invalidNames.includes(name)) {
         document.getElementById("saveSettingInvalid").classList.remove("d-none");
-        console.log("invalid");
         return;   
     }
 
@@ -900,7 +934,6 @@ async function importPreset() {
     let preset = JSON.parse(await fileEl.files[0].text());
     let customPresets = await getCustomPresets();
     customPresets.push(preset);
-    console.log(preset);
     await localforage.setItem("customPresets", customPresets);
     openManagePresetsModal();
 }
