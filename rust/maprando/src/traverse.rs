@@ -564,21 +564,21 @@ pub fn apply_requirement(
         }
         Requirement::MainHallElevatorFrames => {
             if settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(160, local, global, game_data, difficulty)
+                apply_heat_frames(188, local, global, game_data, difficulty)
             } else {
                 apply_heat_frames(436, local, global, game_data, difficulty)
             }
         }
         Requirement::LowerNorfairElevatorDownFrames => {
             if settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(24, local, global, game_data, difficulty)
+                apply_heat_frames(30, local, global, game_data, difficulty)
             } else {
                 apply_heat_frames(60, local, global, game_data, difficulty)
             }
         }
         Requirement::LowerNorfairElevatorUpFrames => {
             if settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(40, local, global, game_data, difficulty)
+                apply_heat_frames(48, local, global, game_data, difficulty)
             } else {
                 apply_heat_frames(108, local, global, game_data, difficulty)
             }

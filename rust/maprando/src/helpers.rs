@@ -18,9 +18,13 @@ pub fn get_item_priorities(
             items: vec![],
         });
     }
-    for (k, v) in item_priorities {
-        let i = priorities.index_by_key[v];
-        out[i].items.push(format!("{:?}", k));
+    let mut items: Vec<Item> = item_priorities.keys().cloned().collect();
+    items.sort();
+    for item in items {
+        let p = item_priorities[&item];
+        let i = priorities.index_by_key[&p];
+        out[i].items.push(format!("{:?}", item));
     }
+    println!("{:?}", out);
     out
 }

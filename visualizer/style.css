@@ -7,6 +7,9 @@ body {
 a {
 	color: white;	
 }
+img {
+	touch-action: none;
+}
 #map {
 	position: absolute;
 	width: 1776px;
@@ -61,6 +64,7 @@ a {
 	pointer-events: auto;
 	top: 16px;
 	left: 16px;
+	touch-action: auto;
 }
 .sidebar-title {
 	font-size: x-large;

@@ -1,4 +1,4 @@
-const offsets = {
+const offsets = { 
 	"Morph Ball Room: Left Item": [2, 2],
 	"Morph Ball Room: Right Item": [4, 2],
 	"Cathedral: Hidden Item": [2, 1],
@@ -304,83 +304,36 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		ctx.putImageData(img, 0, 0);
 	}
 	gen_obscurity(null);
+
 	let el = document.getElementById("room-info");
-	let dragged = false, dragging = false;
-	var scale = 1, page_x = 0, page_y = 0;
+
+	let dragged = false;
+	var scale = 1, page_x = 0, page_y = 0, dm = 0;
 	let m = document.getElementById("map");
-	m.ondragstart = ev => {
-		return false;
-	}
-	m.ondragstart = ev => {
-		return false;
-	}
-	m.onmousedown = ev => {
-		dragging = true;
-	}
-	m.onwheel = ev => {
-		const scaleOld = scale;
-		var z = document.getElementById("zoom");
-
-		scale *= 1.0 - ev.deltaY * 0.0005;
-		scale = Math.min(Math.max(0.25, scale), 100);
-
-		var xorg = ev.x - page_x - z.offsetWidth/2;
-		var yorg = ev.y - page_y - z.offsetHeight/2;
-
-		var xnew = xorg / scaleOld;
-		var ynew = yorg / scaleOld;
-		
-		xnew *= scale;
-		ynew *= scale;
-
-		var xdiff = xorg -xnew;
-		var ydiff = yorg -ynew;
-
-		page_x += xdiff;
-		page_y += ydiff;
-
-		transfo();
-	}
+	let evCache = [];
+	let odist = -1;
 	function transfo() {
 		document.getElementById("zoom").style.transform =
-		 `translate(${page_x}px, ${page_y}px) scale(${scale})`;
+		`translate(${page_x}px, ${page_y}px) scale(${scale})`;
 	}
-	document.body.onmousedown = ev => {
-		dragging = true;
-		dragged = false;
-	}
-	document.body.onmouseup = ev => {
-		dragging = false;
-	}
-	document.body.onmouseleave = ev => {
-		dragging = false;
-		el.classList.add("hidden")
-	}
-	document.body.onmousemove = ev => {
-		if (dragging) {
-			dragged = true;
-			page_x += ev.movementX;
-			page_y += ev.movementY;
-			transfo();
-		} else {
-			let x = ((ev.offsetX / 24) | 0) - 1;
-			let y = ((ev.offsetY / 24) | 0) - 1;
-			if (x >= 0 && x < 72 && y >= 0 && y < 72) {
-				let tile = map[y * 72 + x];
-				if (tile >= 0) {
-					el.innerText = c.all_rooms[tile].room;
-					el.dataset.roomId = c.all_rooms[tile].room_id;
-					el.style.left = ev.offsetX + 16 + "px";
-					el.style.top = ev.offsetY + "px";
-					el.classList.remove("hidden");
-					return;
-				}
+	function hover(ev) {
+		let x = ((ev.offsetX / 24) | 0) - 1;
+		let y = ((ev.offsetY / 24) | 0) - 1;
+		if (x >= 0 && x < 72 && y >= 0 && y < 72) {
+			let tile = map[y * 72 + x];
+			if (tile >= 0) {
+				el.innerText = c.all_rooms[tile].room;
+				el.dataset.roomId = c.all_rooms[tile].room_id;
+				el.style.left = ev.offsetX + 16 + "px";
+				el.style.top = ev.offsetY + "px";
+				el.classList.remove("hidden");
+				return;
 			}
-			el.classList.add("hidden")
-			el.innerText = "";
 		}
+		el.classList.add("hidden")
+		el.innerText = "";
 	}
-	document.getElementById("map").onclick = ev => {
+	function click() {
 		if (el.innerText in roomFlags) {
 			let flagPair = roomFlags[el.innerText];
 			let flagName = flagPair[0];
@@ -412,10 +365,121 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 	}
-	document.getElementById("map").ondblclick = ev => {
+	function dblclick() {
 		if (!el.classList.contains("hidden")) {
 			window.open("/logic/room/" + el.dataset.roomId);
 		}
+	}
+	function zm(x, y, delta) {
+		const scaleOld = scale;
+		var z = document.getElementById("zoom");
+
+		scale *= 1.0 - delta * 0.0005;
+		scale = Math.min(Math.max(0.25, scale), 100);
+
+		var xorg = x - page_x - z.offsetWidth/2;
+		var yorg = y - page_y - z.offsetHeight/2;
+
+		var xnew = xorg / scaleOld;
+		var ynew = yorg / scaleOld;
+		
+		xnew *= scale;
+		ynew *= scale;
+
+		var xdiff = xorg -xnew;
+		var ydiff = yorg -ynew;
+
+		page_x += xdiff;
+		page_y += ydiff;
+
+		transfo();
+	}
+	function up(ev) {
+		if (dragged)
+			el.classList.add("hidden");
+		
+		evCache.splice(evCache.findIndex((cached) => cached.pointerID == ev.pointerID), 1)
+		dragged = false;
+	}
+	m.onpointerdown = ev => {
+		if (ev.button != 0)
+			return;
+
+		ev.preventDefault();
+		evCache.push(ev);
+		dragged = false;
+		dm = 0;
+		if (evCache.length == 2) {
+			let dx = Math.abs(evCache[0].x-evCache[1].x);
+			let dy = Math.abs(evCache[0].y-evCache[1].y);
+			odist = Math.sqrt(dx**2+dy**2);
+		}
+	}
+	let fclick = true, timer = null;
+	m.onpointerup = ev => {
+		if (ev.button != 0)
+			return;
+		else
+			ev.preventDefault();
+		
+		if (evCache.length == 1) {
+			let oldroom = el.innerText;
+			hover(ev);
+			click();
+			if (fclick) {
+				timer = setTimeout(function (){
+					fclick = true;
+				}, 500);
+				fclick = false;
+			} else {	
+				fclick = true;
+				if (timer)
+					clearTimeout(timer);
+				if (oldroom == el.innerText)
+					dblclick();
+			}
+		}
+		up(ev);
+	}
+	document.body.onpointerleave = ev => {
+		up(ev);
+	}
+	document.body.onpointerup = ev => {
+		if (ev.button != 0)
+			return;
+		else
+			ev.preventDefault();
+		up(ev);
+	}
+	m.onpointermove = ev => {
+		ev.preventDefault();
+		if (evCache.length == 2) {
+			if (ev.button == 0)
+				return;
+			var dx = Math.abs(evCache[0].x - evCache[1].x);
+			var dy = Math.abs(evCache[0].y - evCache[1].y);
+			var dist = Math.sqrt(dx**2 + dy**2);
+			var delta = odist-dist;
+			let i = evCache.findIndex((e) => e.pointerId == ev.pointerId);
+			evCache[i] = ev;
+			zm((evCache[0].x+evCache[1].x)/2, (evCache[0].y+evCache[1].y)/2,delta*2);
+			odist = dist;
+		} else if (evCache.length == 1) {
+			dm += Math.abs(ev.x - evCache[0].x);
+			dm += Math.abs(ev.y - evCache[0].y);
+			if (dm > 3)
+				dragged = true;
+			page_x += ev.x - evCache[0].x;
+			page_y += ev.y - evCache[0].y;
+			evCache[0] = ev;
+			transfo();
+		} else if (evCache.length == 0) {
+			// mouse only.
+			hover(ev);
+		}
+	}
+	m.onwheel = ev => {
+		zm(ev.x, ev.y, ev.deltaY);
 	}
 	let createDiv = (html) => {
 		const div = document.createElement('div');
@@ -729,4 +793,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		el.style.top = v.location.coords[1] * 24 + 8 + "px";
 		document.getElementById("overlay").appendChild(el);
 	}
+	screen.orientation.onchange = ev => {
+		const h = screen.availHeight;
+		if (h < 600+32)
+			document.getElementById("sidebar-info").style.maxHeight = h-32 + "px";
+		else
+			document.getElementById("sidebar-info").style.maxHeight = "600px";
+	}
+	if (screen.availHeight < 600+32)
+		document.getElementById("sidebar-info").style.maxHeight = screen.availHeight-32 + "px";
 });

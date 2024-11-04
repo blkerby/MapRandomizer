@@ -105,6 +105,8 @@ pub struct IndexedVec<T: Hash + Eq> {
     TryFromPrimitive,
     Serialize,
     Deserialize,
+    PartialOrd,
+    Ord,
 )]
 #[repr(usize)]
 // Note: the ordering of these items is significant; it must correspond to the ordering of PLM types:
@@ -2271,6 +2273,7 @@ impl GameData {
     fn load_regions(&mut self) -> Result<()> {
         let region_pattern =
             self.sm_json_data_path.to_str().unwrap().to_string() + "/region/**/*.json";
+        let mut room_json_map: HashMap<usize, JsonValue> = HashMap::new();
         for entry in glob::glob(&region_pattern).unwrap() {
             if let Ok(path) = entry {
                 let path_str = path.to_str().with_context(|| {
@@ -2281,15 +2284,22 @@ impl GameData {
                 }
 
                 let room_json = read_json(&path)?;
-                let room_name = room_json["name"].clone();
-                let preprocessed_room_json = self
-                    .preprocess_room(&room_json)
-                    .with_context(|| format!("Preprocessing room {}", room_name))?;
-                self.process_room(&preprocessed_room_json)
-                    .with_context(|| format!("Processing room {}", room_name))?;
+                room_json_map.insert(room_json["id"].as_usize().unwrap(), room_json);
             } else {
                 bail!("Error processing region path: {}", entry.err().unwrap());
             }
+        }
+
+        let mut room_id_vec: Vec<usize> = room_json_map.keys().cloned().collect();
+        room_id_vec.sort();
+        for room_id in room_id_vec {
+            let room_json = &room_json_map[&room_id];
+            let room_name = room_json["name"].clone();
+            let preprocessed_room_json = self
+                .preprocess_room(&room_json)
+                .with_context(|| format!("Preprocessing room {}", room_name))?;
+            self.process_room(&preprocessed_room_json)
+                .with_context(|| format!("Processing room {}", room_name))?;
         }
 
         let ignored_notable_strats = get_ignored_notable_strats();
@@ -3394,6 +3404,7 @@ impl GameData {
         } else {
             (None, None)
         };
+        let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
         let (exit_condition, exit_req) = if strat_json.has_key("exitCondition") {
             ensure!(strat_json["exitCondition"].is_object());
             let (e, r) = self.parse_exit_condition(
@@ -3403,6 +3414,11 @@ impl GameData {
                 physics,
             )?;
             (Some(e), Some(r))
+        } else if bypasses_door_shell {
+            (
+                Some(ExitCondition::LeaveNormally {}),
+                Some(Requirement::Free),
+            )
         } else {
             (None, None)
         };
@@ -3449,7 +3465,6 @@ impl GameData {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let strat_notes = self.parse_note(&strat_json["note"]);
 
-            let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
             if bypasses_door_shell {
                 requires_vec.push(Requirement::Tech(
                     self.tech_isv.index_by_key[&TECH_ID_CAN_SKIP_DOOR_LOCK],
@@ -3899,7 +3914,10 @@ impl GameData {
         .map(|x| self.flag_isv.index_by_key[x])
         .collect();
 
-        for (&(room_id, node_id), node_json) in &self.node_json_map {
+        let mut node_pair_vec: Vec<(RoomId, NodeId)> = self.node_json_map.keys().cloned().collect();
+        node_pair_vec.sort();
+        for (room_id, node_id) in node_pair_vec {
+            let node_json = &self.node_json_map[&(room_id, node_id)];
             if node_json["nodeType"] == "item" {
                 self.item_locations.push((room_id, node_id));
             }
@@ -4515,7 +4533,7 @@ impl GameData {
         //     let from_vertex_key = &game_data.vertex_isv.keys[from_vertex_id];
         //     let to_vertex_id = link.to_vertex_id;
         //     let to_vertex_key = &game_data.vertex_isv.keys[to_vertex_id];
-        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (66, 1) && from_vertex_key.room_id != 66 {
+        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (10, 7) {
         //         println!("From: {:?}\nTo: {:?}\nLink: {:?}\n", from_vertex_key, to_vertex_key, link);
         //     }
         // }
