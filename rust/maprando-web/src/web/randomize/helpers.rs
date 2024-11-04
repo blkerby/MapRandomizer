@@ -372,24 +372,24 @@ pub fn render_seed(
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|(_, &x)| x == FillerItemPriority::Yes || x == FillerItemPriority::Early)
-            .map(|(item, _)| format!("{:?}", item))
+            .filter(|x| x.priority == FillerItemPriority::Yes || x.priority == FillerItemPriority::Early)
+            .map(|x| format!("{:?}", x.item))
             .collect(),
         semi_filler_items: seed_data
             .settings
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|(_, &x)| x == FillerItemPriority::Semi)
-            .map(|(item, _)| format!("{:?}", item))
+            .filter(|x| x.priority == FillerItemPriority::Semi)
+            .map(|x| format!("{:?}", x.item))
             .collect(),
         early_filler_items: seed_data
             .settings
             .item_progression_settings
             .filler_items
             .iter()
-            .filter(|(_, &x)| x == FillerItemPriority::Early)
-            .map(|(item, _)| format!("{:?}", item))
+            .filter(|x| x.priority == FillerItemPriority::Early)
+            .map(|x| format!("{:?}", x.item))
             .collect(),
         item_placement_style: format!(
             "{:?}",

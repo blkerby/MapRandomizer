@@ -3,7 +3,9 @@ mod run_speed;
 
 use crate::helpers::get_item_priorities;
 use crate::settings::{
-    DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MotherBrainFight, ObjectivesMode, ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump
+    DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength,
+    KeyItemPriority, MotherBrainFight, ObjectivesMode, ProgressionRate, RandomizerSettings,
+    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
     apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
@@ -257,6 +259,7 @@ pub struct Randomizer<'a> {
     pub game_data: &'a GameData,
     pub settings: &'a RandomizerSettings,
     pub objectives: Vec<Objective>,
+    pub filler_priority_map: HashMap<Item, FillerItemPriority>,
     pub item_priority_groups: Vec<ItemPriorityGroup>,
     pub difficulty_tiers: &'a [DifficultyConfig],
     pub base_links_data: &'a LinksDataGroup,
@@ -2788,6 +2791,13 @@ impl<'r> Randomizer<'r> {
 
         let toilet_intersections = Self::get_toilet_intersections(map, game_data);
 
+        let filler_priority_map: HashMap<Item, FillerItemPriority> = settings
+            .item_progression_settings
+            .filler_items
+            .iter()
+            .map(|x| (x.item, x.priority))
+            .collect();
+
         Randomizer {
             map,
             toilet_intersections,
@@ -2796,6 +2806,7 @@ impl<'r> Randomizer<'r> {
             game_data,
             settings,
             objectives,
+            filler_priority_map,
             item_priority_groups: get_item_priorities(
                 &settings.item_progression_settings.key_item_priority,
             ),
@@ -3074,7 +3085,7 @@ impl<'r> Randomizer<'r> {
             {
                 continue;
             }
-            let filler_type = self.settings.item_progression_settings.filler_items[&item];
+            let filler_type = self.filler_priority_map[&item];
             if filler_type == FillerItemPriority::Early
                 && state.items_remaining[item as usize]
                     == self.initial_items_remaining[item as usize]
@@ -4296,27 +4307,90 @@ impl<'r> Randomizer<'r> {
 
         let mut settings = self.settings.clone();
         settings.item_progression_settings.starting_items = vec![
-            ItemCount { item: Item::ETank, count: 14 },
-            ItemCount { item: Item::Missile, count: 46 },
-            ItemCount { item: Item::Super, count: 10 },
-            ItemCount { item: Item::PowerBomb, count: 10 },
-            ItemCount { item: Item::Bombs, count: 1 },
-            ItemCount { item: Item::Charge, count: 1 },
-            ItemCount { item: Item::Ice, count: 1 },
-            ItemCount { item: Item::HiJump, count: 1 },
-            ItemCount { item: Item::SpeedBooster, count: 1 },
-            ItemCount { item: Item::Wave, count: 1 },
-            ItemCount { item: Item::Spazer, count: 1 },
-            ItemCount { item: Item::SpringBall, count: 1 },
-            ItemCount { item: Item::Varia, count: 1 },
-            ItemCount { item: Item::Gravity, count: 1 },
-            ItemCount { item: Item::XRayScope, count: 1 },
-            ItemCount { item: Item::Plasma, count: 1 },
-            ItemCount { item: Item::Grapple, count: 1 },
-            ItemCount { item: Item::SpaceJump, count: 1 },
-            ItemCount { item: Item::ScrewAttack, count: 1 },
-            ItemCount { item: Item::Morph, count: 1 },
-            ItemCount { item: Item::ReserveTank, count: 4 },
+            ItemCount {
+                item: Item::ETank,
+                count: 14,
+            },
+            ItemCount {
+                item: Item::Missile,
+                count: 46,
+            },
+            ItemCount {
+                item: Item::Super,
+                count: 10,
+            },
+            ItemCount {
+                item: Item::PowerBomb,
+                count: 10,
+            },
+            ItemCount {
+                item: Item::Bombs,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Charge,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Ice,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::HiJump,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::SpeedBooster,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Wave,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Spazer,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::SpringBall,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Varia,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Gravity,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::XRayScope,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Plasma,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Grapple,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::SpaceJump,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::ScrewAttack,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::Morph,
+                count: 1,
+            },
+            ItemCount {
+                item: Item::ReserveTank,
+                count: 4,
+            },
         ]
         .into_iter()
         .collect();

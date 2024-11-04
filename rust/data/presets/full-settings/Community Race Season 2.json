@@ -3874,29 +3874,92 @@
                 "priority": "Late"
             }
         ],
-        "filler_items": {
-            "ETank": "Early",
-            "ReserveTank": "Yes",
-            "Super": "Yes",
-            "PowerBomb": "Yes",
-            "Charge": "Yes",
-            "Ice": "Yes",
-            "Wave": "Yes",
-            "Spazer": "Yes",
-            "Plasma": "Yes",
-            "XRayScope": "Yes",
-            "Morph": "No",
-            "Bombs": "No",
-            "Grapple": "No",
-            "HiJump": "No",
-            "SpeedBooster": "No",
-            "SpringBall": "No",
-            "WallJump": "No",
-            "SpaceJump": "No",
-            "ScrewAttack": "No",
-            "Varia": "No",
-            "Gravity": "No"
-        }
+        "filler_items": [
+            {
+                "item": "ETank",
+                "priority": "Early"
+            },
+            {
+                "item": "ReserveTank",
+                "priority": "Yes"
+            },
+            {
+                "item": "Super",
+                "priority": "Yes"
+            },
+            {
+                "item": "PowerBomb",
+                "priority": "Yes"
+            },
+            {
+                "item": "Charge",
+                "priority": "Yes"
+            },
+            {
+                "item": "Ice",
+                "priority": "Yes"
+            },
+            {
+                "item": "Wave",
+                "priority": "Yes"
+            },
+            {
+                "item": "Spazer",
+                "priority": "Yes"
+            },
+            {
+                "item": "Plasma",
+                "priority": "Yes"
+            },
+            {
+                "item": "XRayScope",
+                "priority": "Yes"
+            },
+            {
+                "item": "Morph",
+                "priority": "No"
+            },
+            {
+                "item": "Bombs",
+                "priority": "No"
+            },
+            {
+                "item": "Grapple",
+                "priority": "No"
+            },
+            {
+                "item": "HiJump",
+                "priority": "No"
+            },
+            {
+                "item": "SpeedBooster",
+                "priority": "No"
+            },
+            {
+                "item": "SpringBall",
+                "priority": "No"
+            },
+            {
+                "item": "WallJump",
+                "priority": "No"
+            },
+            {
+                "item": "SpaceJump",
+                "priority": "No"
+            },
+            {
+                "item": "ScrewAttack",
+                "priority": "No"
+            },
+            {
+                "item": "Varia",
+                "priority": "No"
+            },
+            {
+                "item": "Gravity",
+                "priority": "No"
+            }
+        ]
     },
     "quality_of_life_settings": {
         "preset": "High",

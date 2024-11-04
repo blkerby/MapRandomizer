@@ -285,13 +285,13 @@ function buildItemPriorities() {
     return itemPriority;
 }
 function buildFillerItems() {
-    let fillerItems = {};
+    let fillerItems = [];
     document.querySelectorAll('.filler-items-input')
     .forEach(function (x) { 
         // remove prefix: "filler_items_"
         name = x.name.substring(13);
         if (x.checked) {
-            fillerItems[name] = x.value;
+            fillerItems.push({"item": name, "priority": x.value});
         }
     });
     return fillerItems;

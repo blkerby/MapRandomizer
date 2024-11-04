@@ -1,5 +1,4 @@
 use anyhow::Result;
-use hashbrown::HashMap;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
@@ -70,7 +69,7 @@ pub struct ItemProgressionSettings {
     pub starting_items_preset: StartingItemsPreset,
     pub starting_items: Vec<ItemCount>,
     pub key_item_priority: Vec<KeyItemPrioritySetting>,
-    pub filler_items: HashMap<Item, FillerItemPriority>,
+    pub filler_items: Vec<FillerItemPrioritySetting>,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -83,6 +82,12 @@ pub struct ItemCount {
 pub struct KeyItemPrioritySetting {
     pub item: Item,
     pub priority: KeyItemPriority,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct FillerItemPrioritySetting {
+    pub item: Item,
+    pub priority: FillerItemPriority,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

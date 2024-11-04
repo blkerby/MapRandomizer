@@ -202,27 +202,90 @@
             "priority": "Late"
         }
     ],
-    "filler_items": {
-        "ETank": "No",
-        "ReserveTank": "No",
-        "Super": "Semi",
-        "PowerBomb": "Semi",
-        "Charge": "Yes",
-        "Ice": "No",
-        "Wave": "No",
-        "Spazer": "Yes",
-        "Plasma": "No",
-        "XRayScope": "No",
-        "Morph": "No",
-        "Bombs": "No",
-        "Grapple": "No",
-        "HiJump": "No",
-        "SpeedBooster": "No",
-        "SpringBall": "No",
-        "WallJump": "No",
-        "SpaceJump": "No",
-        "ScrewAttack": "No",
-        "Varia": "No",
-        "Gravity": "No"
-    }
+    "filler_items": [
+        {
+            "item": "ETank",
+            "priority": "No"
+        },
+        {
+            "item": "ReserveTank",
+            "priority": "No"
+        },
+        {
+            "item": "Super",
+            "priority": "Semi"
+        },
+        {
+            "item": "PowerBomb",
+            "priority": "Semi"
+        },
+        {
+            "item": "Charge",
+            "priority": "Yes"
+        },
+        {
+            "item": "Ice",
+            "priority": "No"
+        },
+        {
+            "item": "Wave",
+            "priority": "No"
+        },
+        {
+            "item": "Spazer",
+            "priority": "Yes"
+        },
+        {
+            "item": "Plasma",
+            "priority": "No"
+        },
+        {
+            "item": "XRayScope",
+            "priority": "No"
+        },
+        {
+            "item": "Morph",
+            "priority": "No"
+        },
+        {
+            "item": "Bombs",
+            "priority": "No"
+        },
+        {
+            "item": "Grapple",
+            "priority": "No"
+        },
+        {
+            "item": "HiJump",
+            "priority": "No"
+        },
+        {
+            "item": "SpeedBooster",
+            "priority": "No"
+        },
+        {
+            "item": "SpringBall",
+            "priority": "No"
+        },
+        {
+            "item": "WallJump",
+            "priority": "No"
+        },
+        {
+            "item": "SpaceJump",
+            "priority": "No"
+        },
+        {
+            "item": "ScrewAttack",
+            "priority": "No"
+        },
+        {
+            "item": "Varia",
+            "priority": "No"
+        },
+        {
+            "item": "Gravity",
+            "priority": "No"
+        }
+    ]
 }
