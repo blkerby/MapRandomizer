@@ -22,3 +22,4 @@
 !last_samus_map_x = $1F72
 !last_samus_map_y = $1F74
 !loadback_ready = $1F7A
+!nmi_timeronly = $1F7C

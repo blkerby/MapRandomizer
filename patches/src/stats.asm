@@ -39,6 +39,9 @@ org $a2ab13
 
 org !bank_80_free_space_start
 area_timer:
+    phb
+    phk
+    plb
     ldx $0998
     cpx #$0006                    ; state < 6 = pre-game
     bcs .load_area
@@ -69,14 +72,66 @@ area_timer:
     sta !stat_pause_time+2,X
 
 .leave_area_timer
-    ply
+    lda !nmi_timeronly            ; check unpause bit
+    beq .not_unpause
+    plb
+    rts                           ; return to timer-only NMI 
+
+.not_unpause
+    plb
+    jmp $95fc                     ; restore regs, rti
+
+nmi_timer_hook:
+    pha
+    lda $801f7c                   ; unpause bit
+    beq .normal_nmi
+    phx
+    jsr inc_skipcount             ; area timer func (skip $5b8 inc)
     plx
     pla
-    pld
-    plb
-    rti
+    rti                           ; leave NMI
+
+.normal_nmi
+    pla
+    phb                           ; replaced code
+    phd
+    pha
+    jmp $958c                     ; resume NMI
+
+enable_nmi_hook:
+    stz !nmi_timeronly
+    php
+    sep #$20
+    lda #$80
+    bit $84                       ; NMI already enabled?
+    beq .not_enabled
+    plp
+    rtl
+
+.not_enabled
+    plp
+    php                           ; replaced code
+    phb
+    phk
+    jmp $834e
+
+disable_nmi_hook:
+    inc !nmi_timeronly
+    rtl
 
 warnpc !bank_80_free_space_end
+
+; NMI hook to check for timer-only mode
+org $809589
+    jmp nmi_timer_hook
+    
+; Disable NMI func
+org $80835D
+    jmp disable_nmi_hook
+    
+; Enable NMI func
+org $80834B
+    jmp enable_nmi_hook
 
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
@@ -100,6 +155,7 @@ org $808FA3 ;; overwrite unused routine
 .inc:
     ; increment vanilla 16-bit timer (used by message boxes)
     inc $05b8
+inc_skipcount:
     ; increment 32-bit timer in SRAM:
     lda !stat_timer
     inc
