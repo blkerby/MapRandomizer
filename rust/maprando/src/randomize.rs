@@ -4408,7 +4408,7 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
         };
         Ok(Randomization {
-            settings: self.settings.clone(),
+            settings,
             difficulty: self.difficulty_tiers[0].clone(),
             objectives: self.objectives.clone(),
             map: self.map.clone(),
