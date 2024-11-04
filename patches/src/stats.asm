@@ -119,6 +119,12 @@ disable_nmi_hook:
     inc !nmi_timeronly
     rtl
 
+start_game_hook:
+    lda #$81               ; replaces lda #$01 (keep NMI active)
+    sta $4200
+    sta !nmi_timeronly
+    rtl
+
 warnpc !bank_80_free_space_end
 
 ; NMI hook to check for timer-only mode
@@ -132,6 +138,10 @@ org $80835D
 ; Enable NMI func
 org $80834B
     jmp enable_nmi_hook
+
+; Keep NMI running (with timer-only functionality) during game loading:
+org $8281A7
+    jsl start_game_hook : nop
 
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
