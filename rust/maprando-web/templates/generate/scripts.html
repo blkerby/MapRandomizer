@@ -1,6 +1,9 @@
 <script>
 function applyRadioValue(id, value) {
     let el = document.getElementById(id);
+    if (el === null) {
+        throw new Error(`Id "${id}" not found`);
+    }
     for (inp of el.getElementsByClassName("btn-check")) {
         if (inp.value == String(value)) {
             inp.checked = true;
@@ -466,7 +469,11 @@ function fullSettingsPresetChanged(presetEl) {
     let presetName = presetEl.value;
     if (presetName != "") {
         let preset = fullPresets[presetName];
-        applyFullSettingsPreset(preset);
+        try {
+            applyFullSettingsPreset(preset);
+        } catch (error) {
+            showError(error);
+        }
         document.getElementById("saveSettingsButton").classList.add("d-none")
     }
 }
@@ -531,9 +538,8 @@ function applyItemProgressionPreset(preset) {
         applyRadioValue(`itemPriority${x.item}`, x.priority);
     }
 
-    for (item in preset.filler_items) {
-        let value = preset.filler_items[item];
-        applyRadioValue(`fillerItems${item}`, value);
+    for (x of preset.filler_items) {
+        applyRadioValue(`fillerItems${x.item}`, x.priority);
     }
 }
 
@@ -714,15 +720,37 @@ function checkOtherOptions() {
     }
 }
 
+function showError(e) {
+    console.log(e);
+    let errorEl = document.getElementById("errorMsg");
+    errorEl.textContent = e.message + "\n" + String(e.stack);
+    errorModal.show();
+}
+
 async function loadSettings() {
     let settings = await localforage.getItem("generateSettings");
     if (settings !== null) {
         await populateFullPresetOptions();
-        applyFullSettingsPreset(settings);
+
+        let found = false;
+        for (presetName in fullPresets) {
+            if (presetName == settings.name) {
+                console.log("loading settings from preset: " + presetName);
+                settings = fullPresets[presetName];
+                found = true;
+            }
+        }    
+        try {
+            applyFullSettingsPreset(settings);
+        } catch (error) {
+            showError(error);
+        }
+        if (!found) {
+            document.getElementById("saveSettingsButton").classList.remove("d-none");
+        }
         checkOtherOptions();
-        document.getElementById("saveSettingsButton").classList.remove("d-none");
     } else {
-        // For backwards compatibility: load the form data the old way, if a settings JSON is not stored.
+        // For backwards compatibility: load the form data the old way, if a settings JSON is not found.
         loadForm(document.getElementById("main-form"));
     }
 }
