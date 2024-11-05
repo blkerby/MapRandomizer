@@ -2,6 +2,10 @@
 
 set -e
 
+cd Mosaic
+git fetch origin
+git checkout origin/main
+cd ..
 export MOSAIC_COMMIT_ID=$(git -C Mosaic rev-parse HEAD)
 echo Mosaic commit: $MOSAIC_COMMIT_ID
 
