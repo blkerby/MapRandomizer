@@ -2069,7 +2069,11 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn get_come_in_with_r_mode_reqs(&self, exit_condition: &ExitCondition, heated: bool) -> Option<Requirement> {
+    fn get_come_in_with_r_mode_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        heated: bool,
+    ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithGModeSetup { .. } => {
                 let mut reqs: Vec<Requirement> = vec![];
@@ -2080,7 +2084,7 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::ReserveTrigger {
                     min_reserve_energy: 1,
                     max_reserve_energy: 400,
-                    heated
+                    heated,
                 });
                 Some(Requirement::make_and(reqs))
             }

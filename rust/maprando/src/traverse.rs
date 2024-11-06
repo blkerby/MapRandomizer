@@ -1007,7 +1007,9 @@ pub fn apply_requirement(
                         local.energy_used
                     };
                     new_local.reserves_used = max(energy_needed + 1, *min_reserve_energy);
-                    if new_local.reserves_used > *max_reserve_energy || new_local.reserves_used > global.inventory.max_reserves {
+                    if new_local.reserves_used > *max_reserve_energy
+                        || new_local.reserves_used > global.inventory.max_reserves
+                    {
                         None
                     } else {
                         Some(new_local)
@@ -1026,7 +1028,8 @@ pub fn apply_requirement(
                 if reserve_energy >= *min_reserve_energy {
                     let mut new_local = local;
                     new_local.reserves_used = global.inventory.max_reserves;
-                    new_local.energy_used = max(0, global.inventory.max_energy - usable_reserve_energy);
+                    new_local.energy_used =
+                        max(0, global.inventory.max_energy - usable_reserve_energy);
                     Some(new_local)
                 } else {
                     None

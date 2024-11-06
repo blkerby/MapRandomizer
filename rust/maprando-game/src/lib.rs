@@ -3287,9 +3287,7 @@ impl GameData {
                     )?,
                 }
             }
-            "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {
-                heated,
-            },
+            "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode { heated },
             "comeInWithGMode" => {
                 let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
                     "direct" => GModeMode::Direct,
