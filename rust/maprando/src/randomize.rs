@@ -774,8 +774,8 @@ impl<'a> Preprocessor<'a> {
                 min_landing_tiles.get(),
                 *movement_type,
             ),
-            MainEntranceCondition::ComeInWithRMode {} => {
-                self.get_come_in_with_r_mode_reqs(exit_condition)
+            MainEntranceCondition::ComeInWithRMode { heated } => {
+                self.get_come_in_with_r_mode_reqs(exit_condition, *heated)
             }
             MainEntranceCondition::ComeInWithGMode {
                 mode,
@@ -2069,7 +2069,7 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn get_come_in_with_r_mode_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
+    fn get_come_in_with_r_mode_reqs(&self, exit_condition: &ExitCondition, heated: bool) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithGModeSetup { .. } => {
                 let mut reqs: Vec<Requirement> = vec![];
@@ -2080,6 +2080,7 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::ReserveTrigger {
                     min_reserve_energy: 1,
                     max_reserve_energy: 400,
+                    heated
                 });
                 Some(Requirement::make_and(reqs))
             }
@@ -2139,6 +2140,7 @@ impl<'a> Preprocessor<'a> {
                     Requirement::ReserveTrigger {
                         min_reserve_energy: 1,
                         max_reserve_energy: 4,
+                        heated: false,
                     }
                 } else {
                     Requirement::Never
@@ -2154,6 +2156,7 @@ impl<'a> Preprocessor<'a> {
                             Requirement::ReserveTrigger {
                                 min_reserve_energy: 1,
                                 max_reserve_energy: 400,
+                                heated: false,
                             },
                             regain_mobility_link.requirement.clone(),
                         ]));

@@ -256,6 +256,7 @@ pub enum Requirement {
     ReserveTrigger {
         min_reserve_energy: Capacity,
         max_reserve_energy: Capacity,
+        heated: bool,
     },
     EnemyKill {
         count: Capacity,
@@ -822,7 +823,9 @@ pub enum MainEntranceCondition {
         heated: bool,
         door_orientation: DoorOrientation,
     },
-    ComeInWithRMode {},
+    ComeInWithRMode {
+        heated: bool,
+    },
     ComeInWithGMode {
         mode: GModeMode,
         morphed: bool,
@@ -2198,6 +2201,7 @@ impl GameData {
                     min_reserve_energy: value["minReserveEnergy"].as_i32().unwrap_or(1) as Capacity,
                     max_reserve_energy: value["maxReserveEnergy"].as_i32().unwrap_or(400)
                         as Capacity,
+                    heated: ctx.room_heated,
                 });
             } else if key == "gainFlashSuit" {
                 // TODO: implement flash suit logic once the data is more complete
@@ -3283,7 +3287,9 @@ impl GameData {
                     )?,
                 }
             }
-            "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {},
+            "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {
+                heated,
+            },
             "comeInWithGMode" => {
                 let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
                     "direct" => GModeMode::Direct,
