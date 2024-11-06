@@ -1,5 +1,7 @@
 lorom
 
+incsrc "constants.asm"
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;
 ; Custom Layer 2 scrolling sky
@@ -972,9 +974,8 @@ LoadFullBG_Continue:
 
 
 ExecuteDMA:
-  LDA $84
-  AND #$0080
-  BEQ ExecuteDMA_NoNMI
+  LDA !nmi_timeronly
+  BNE ExecuteDMA_NoNMI
 ExecuteDMA_NMI:
   JSL $808338 ;Wait for NMI
   RTS
