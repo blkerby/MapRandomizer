@@ -1219,6 +1219,9 @@ impl<'a> Preprocessor<'a> {
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL],
                 )];
                 reqs.push(Requirement::Item(
+                    self.game_data.item_isv.index_by_key["Morph"],
+                ));
+                reqs.push(Requirement::Item(
                     self.game_data.item_isv.index_by_key["SpeedBooster"],
                 ));
                 if !self.add_run_speed_reqs(
