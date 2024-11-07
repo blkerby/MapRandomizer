@@ -9,7 +9,7 @@ incsrc "constants.asm"
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
-!bank_ce_free_space_end = $ced000
+!bank_ce_free_space_end = $ced200
 !bank_df_free_space_start = $dfd4df
 !bank_df_free_space_end = $dfd91b
 !stats_table_address = $dfdf80  ; must match address in patch.rs
@@ -616,14 +616,6 @@ script:
     dw !draw, !row*6
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
     
     ;; change scroll speed to 2 pixels per frame
     dw !speed, $0002
@@ -736,8 +728,6 @@ script:
     dw !draw, !row*229
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
 
     dw !draw, !row*208  ; GAMEPLAY STATISTICS
     dw !draw, !blank
@@ -755,8 +745,6 @@ script:
     dw !draw, !blank
     dw !draw, !row*217  ; RESETS
     dw !draw, !row*218
-    dw !draw, !blank
-    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
 
@@ -833,13 +821,32 @@ script:
 
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !row*239   ; TIME SPENT IN
+    dw !draw, !blank
+    dw !draw, !row*240   ; CRATERIA
+    dw !draw, !row*241
+    dw !draw, !blank
+    dw !draw, !row*242   ; BRINSTAR
+    dw !draw, !row*243
+    dw !draw, !blank
+    dw !draw, !row*244   ; NORFAIR
+    dw !draw, !row*245
+    dw !draw, !blank
+    dw !draw, !row*246   ; WRECKED SHIP
+    dw !draw, !row*247
+    dw !draw, !blank
+    dw !draw, !row*248   ; MARIDIA
+    dw !draw, !row*249
+    dw !draw, !blank
+    dw !draw, !row*250   ; TOURIAN
+    dw !draw, !row*251
+    dw !draw, !blank
+    dw !draw, !row*252   ; PAUSE TIME
+    dw !draw, !row*253
+    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*219   ; FINAL TIME
     dw !draw, !row*220
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*221   ; THANKS FOR PLAYING
@@ -894,6 +901,13 @@ stats:
     dw !stat_reloads,   $0070, !row*213,  1    ;; Reloads
     dw !stat_loadbacks, $0070, !row*215,  1    ;; Loadbacks
     dw !stat_resets,    $0070, !row*217,  1    ;; Resets
+    dw !stat_area0_time,     $0070, !row*240,  2    ;; Crateria time
+    dw !stat_area1_time,     $0070, !row*242,  2    ;; Brinstar time
+    dw !stat_area2_time,     $0070, !row*244,  2    ;; Norfair time
+    dw !stat_area3_time,     $0070, !row*246,  2    ;; Wrecked Ship time
+    dw !stat_area4_time,     $0070, !row*248,  2    ;; Maridia time
+    dw !stat_area5_time,     $0070, !row*250,  2    ;; Tourian time
+    dw !stat_pause_time,     $0070, !row*252,  2    ;; Pause time
     dw !stat_final_time,     $0070, !row*219,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
@@ -1043,6 +1057,23 @@ credits:
     !big
     dw "     ARTHEAU    MATRETHEWEY     " ;; 237
     dw "     artheau    matrethewey     " ;; 238
+    !blue
+    dw "         TIME SPENT IN          " ;; 239
+    !big
+    dw " CRATERIA              00.00.00 " ;; 240
+    dw " crateria              }}.}}.}} " ;; 241
+    dw " BRINSTAR              00.00.00 " ;; 242
+    dw " brinstar              }}.}}.}} " ;; 243
+    dw " NORFAIR               00.00.00 " ;; 244
+    dw " norfair               }}.}}.}} " ;; 245
+    dw " WRECKED SHIP          00.00.00 " ;; 246
+    dw " wrecked ship          }}.}}.}} " ;; 247
+    dw " MARIDIA               00.00.00 " ;; 248
+    dw " maridia               }}.}}.}} " ;; 249
+    dw " TOURIAN               00.00.00 " ;; 250
+    dw " tourian               }}.}}.}} " ;; 251
+    dw " PAUSE TIME            00.00.00 " ;; 252
+    dw " pause time            }}.}}.}} " ;; 253
 
     dw $0000
 warnpc !bank_ce_free_space_end
