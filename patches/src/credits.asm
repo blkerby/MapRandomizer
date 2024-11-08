@@ -155,47 +155,50 @@ copy:
 warnpc !bank_8b_free_space_end
 
 org !bank_df_free_space_start
-
-;; Draw full time as hh:mm:ss
-;; $18: Long pointer to 32-bit time in frames
+;; Draw full time as HH:mm:ss.hh
 draw_full_time:
     phx
     phb
+    pea $7f7f : plb : plb
     lda [$18]
     sta $16
     inc $18
     inc $18
     lda [$18]
     sta $14
-
-    bne .non_zero
-    lda $16
-    bne .non_zero
-    plb
-    plx
-    rtl
-
-.non_zero:
-    ; draw colons for time separators
-    lda #$005A  ; space
-    sta !credits_tilemap_offset-2, y
-    sta !credits_tilemap_offset-2+!row, y
-    sta !credits_tilemap_offset+4, y
-    sta !credits_tilemap_offset+4+!row, y
-
     lda #$003c
     sta $12
     lda #$ffff
     sta $1a
     jsl div32 ;; frames in $14, rest in $16
-    ; Skip drawing frames:
-;    rep 6 : iny ;; Increment Y three positions forward to write the last value
-;    lda $14
-;    jsl draw_two
-;    tya
-;    sec
-;    sbc #$000C
-;    tay     ;; Skip back 6 characters to draw the top three things
+    phb ;; convert frames to hundredths
+    phy
+    sep #$30
+    pea $8080 : plb : plb
+    lda $14
+    sta $4202
+    lda #$64
+    sta $4203
+    pha : pla :  pha : pla
+    lda $4216
+    sta $4204
+    lda $4217
+    sta $4205
+    lda #$3c
+    sta $4206
+    pha : pla :  pha : pla : pha : pla
+    lda $4214
+    sta $14
+    rep #$30
+    ply
+    plb
+    rep 6 : iny ;; Increment Y three positions forward to write the last value
+    lda $14
+    jsl draw_two
+    tya
+    sec
+    sbc #$0010
+    tay     ;; Skip back 8 characters to draw the top three things
     lda $16
     jsl draw_time
     plb
@@ -230,11 +233,9 @@ draw_time:
     iny : iny ;; Skip past separator
     lda $14 ;; Second group (minutes)
     jsl draw_two
-
     iny : iny
     lda $12 ;; Last group (seconds)
     jsl draw_two
-
     plb
     plx
     rtl
@@ -1029,8 +1030,8 @@ credits:
     dw " loadbacks                    } " ;; 216
     dw " RESETS                       0 " ;; 217
     dw " resets                       } " ;; 218
-    dw " FINAL TIME            00.00.00 " ;; 219
-    dw " final time            }}.}}.}} " ;; 220
+    dw " FINAL TIME         00.00.00 00 " ;; 219
+    dw " final time         }}.}}.}}.}} " ;; 220
     dw "       THANKS FOR PLAYING       " ;; 221
     dw "       thanks for playing       " ;; 222
     !blue
@@ -1060,20 +1061,20 @@ credits:
     !blue
     dw "         TIME SPENT IN          " ;; 239
     !big
-    dw " CRATERIA              00.00.00 " ;; 240
-    dw " crateria              }}.}}.}} " ;; 241
-    dw " BRINSTAR              00.00.00 " ;; 242
-    dw " brinstar              }}.}}.}} " ;; 243
-    dw " NORFAIR               00.00.00 " ;; 244
-    dw " norfair               }}.}}.}} " ;; 245
-    dw " WRECKED SHIP          00.00.00 " ;; 246
-    dw " wrecked ship          }}.}}.}} " ;; 247
-    dw " MARIDIA               00.00.00 " ;; 248
-    dw " maridia               }}.}}.}} " ;; 249
-    dw " TOURIAN               00.00.00 " ;; 250
-    dw " tourian               }}.}}.}} " ;; 251
-    dw " PAUSE TIME            00.00.00 " ;; 252
-    dw " pause time            }}.}}.}} " ;; 253
+    dw " CRATERIA           00.00.00 00 " ;; 240
+    dw " crateria           }}.}}.}}.}} " ;; 241
+    dw " BRINSTAR           00.00.00 00 " ;; 242
+    dw " brinstar           }}.}}.}}.}} " ;; 243
+    dw " NORFAIR            00.00.00 00 " ;; 244
+    dw " norfair            }}.}}.}}.}} " ;; 245
+    dw " WRECKED SHIP       00.00.00 00 " ;; 246
+    dw " wrecked ship       }}.}}.}}.}} " ;; 247
+    dw " MARIDIA            00.00.00 00 " ;; 248
+    dw " maridia            }}.}}.}}.}} " ;; 249
+    dw " TOURIAN            00.00.00 00 " ;; 250
+    dw " tourian            }}.}}.}}.}} " ;; 251
+    dw " PAUSE TIME         00.00.00 00 " ;; 252
+    dw " pause time         }}.}}.}}.}} " ;; 253
 
     dw $0000
 warnpc !bank_ce_free_space_end
