@@ -432,7 +432,7 @@ script:
     dw !delay, -
 
     ;; Show a compact and sped up version of the original credits so we get time to add more
-    ;; change scroll speed to 1 pixel per frame
+    ;; change scroll speed to 1 frame per pixel
 
     dw !speed, $0001
 
@@ -624,9 +624,6 @@ script:
     dw !draw, !blank
     dw !draw, !blank
 
-    ;; change scroll speed to 2 pixels per frame
-    dw !speed, $0002
-
     ;; Custom randomizer credits text
     dw !draw, !row*128  ; MAP RANDO CONTRIBUTORS
     dw !draw, !blank
@@ -707,8 +704,8 @@ script:
     dw !draw, !blank
     dw !draw, !blank
 
-    ;; Set scroll speed to 3 frames per pixel
-    dw !speed, $0003
+    ;; Set scroll speed to 2 frames per pixel
+    dw !speed, $0002
 
     dw !draw, !row*153  ; PLAY THIS RANDOMIZER AT
     dw !draw, !blank
@@ -722,6 +719,9 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+
+    ;; Set scroll speed to 3 frames per pixel
+    dw !speed, $0003
 
     dw !draw, !row*223  ; RANDOMIZER SETTINGS
     dw !draw, !blank
@@ -830,9 +830,6 @@ script:
     dw !draw, !row*206
     dw !draw, !row*207
 
-    ;; Set scroll speed to 3 frames per pixel
-    dw !speed, $0003
-
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*239   ; TIME SPENT IN
@@ -866,20 +863,16 @@ script:
     dw !draw, !row*221   ; THANKS FOR PLAYING
     dw !draw, !row*222
 
-
-    dw !set, $0018
+    ;; Blank lines to scroll all text off
+    dw !set, $001F
 -
     dw !draw, !blank
     dw !delay, -
 
-    ;; Set scroll speed to 6 frames per pixel
-    dw !speed, $0003
-
-    ;; Scroll all text off and end credits
-    dw !set, $0016
--
+    ;; Brief delay for music sync (voice/synth to come in just as Samus turns blue)
+    dw !speed, $0004
     dw !draw, !blank
-    dw !delay, -
+
     dw !end
 
 warnpc !stats_table_address
