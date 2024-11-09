@@ -6,15 +6,14 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_83_free_space_start = $83f000
-!bank_83_free_space_end = $84f800
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
 !bank_ce_free_space_end = $ced200
 !bank_df_free_space_start = $dfd4df
-!bank_df_free_space_end = $dfd91b
-!stats_table_address = $dfdf80  ; must match address in patch.rs
+!bank_df_free_space_end = $dfe200
+!credits_script_address = $dfd91b
+!stats_table_address = $dfe000  ; must match address in patch.rs
 !scroll_speed = $7fffe8
 
 !credits_tilemap_offset = $0034
@@ -35,11 +34,6 @@ incsrc "constants.asm"
 !orange = "table tables/orange.tbl,rtl"
 !purple = "table tables/purple.tbl,rtl"
 !big = "table tables/big.tbl,rtl"
-
-
-;; New offset for credits script ($83f000)
-org $8bf6fc
-    dw #$f000
 
 ;; Hijack the original credits code to read the script from bank $DF
 
@@ -67,7 +61,7 @@ org !bank_8b_free_space_start
 ;; set scroll speed routine (!speed instruction in credits script)
 set_scroll:
     rep #$30
-    phb : pea $8300 : plb : plb
+    phb : pea $df00 : plb : plb
     lda $0000, y
     sta !scroll_speed
     iny
@@ -90,7 +84,7 @@ scroll:
 
 
 patch1:
-    phb : pea $8300 : plb : plb
+    phb : pea $df00 : plb : plb
     lda $0000, y
     bpl +
     plb
@@ -101,13 +95,13 @@ patch1:
 
 patch2:
     sta $0014
-    phb : pea $8300 : plb : plb
+    phb : pea $df00 : plb : plb
     lda $0002, y
     plb
     jml $8b99eb
 
 patch3:
-    phb : pea $8300 : plb : plb
+    phb : pea $df00 : plb : plb
     lda $0000, y
 
     tay
@@ -115,7 +109,7 @@ patch3:
     jml $8b9a0c
 
 patch4:
-    phb : pea $8300 : plb : plb
+    phb : pea $df00 : plb : plb
     lda $0000, y
     plb
     sta $19fb
@@ -427,12 +421,10 @@ numbers_top:
 numbers_bot:
     dw $2070, $2071, $2072, $2073, $2074, $2075, $2076, $2077, $2078, $2079, $207a, $207b, $207c, $207d, $207e, $207f
 
-
-
-warnpc !bank_df_free_space_end
+warnpc !credits_script_address
 
 ;; New credits script in free space of bank $DF
-org !bank_83_free_space_start
+org !credits_script_address
 script:
     dw !set, $0002
 -
@@ -881,16 +873,16 @@ script:
     dw !delay, -
 
     ;; Set scroll speed to 6 frames per pixel
-    dw !speed, $0006
+    dw !speed, $0003
 
     ;; Scroll all text off and end credits
-    dw !set, $000C
+    dw !set, $0016
 -
     dw !draw, !blank
     dw !delay, -
     dw !end
 
-warnpc !bank_83_free_space_end
+warnpc !stats_table_address
 
 org !stats_table_address
 stats:
@@ -933,7 +925,7 @@ stats:
     dw !stat_final_time,     $0070, !row*219,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
-warnpc $e00000
+warnpc !bank_df_free_space_end
 
 ;; Relocated credits tilemap to free space in bank CE
 org !bank_ce_free_space_start

@@ -1855,7 +1855,7 @@ impl<'a> Patcher<'a> {
 
         if let Some(item_idx) = item_idx {
             // Write stats address for collection time
-            let stats_table_addr = snes2pc(0xdfdf80);
+            let stats_table_addr = snes2pc(0xdfe000);
             let item_time_addr = 0xfe06;
             self.rom.write_u16(
                 stats_table_addr + idx * 8,

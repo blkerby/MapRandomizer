@@ -1305,7 +1305,7 @@ fn main() -> Result<()> {
         (snes2pc(0x838000), snes2pc(0x8388FC)),
         (snes2pc(0x839AC2), snes2pc(0x83A0A4)),
         (snes2pc(0x83A0D4), snes2pc(0x83A18A)),
-        (snes2pc(0x83F800), snes2pc(0x840000)),
+        (snes2pc(0x83F000), snes2pc(0x840000)),
     ]);
 
     let project_names: Vec<String> = vec![
