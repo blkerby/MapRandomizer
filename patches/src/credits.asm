@@ -6,6 +6,8 @@ lorom
 
 incsrc "constants.asm"
 
+!bank_83_free_space_start = $83f000
+!bank_83_free_space_end = $84f800
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
@@ -35,6 +37,10 @@ incsrc "constants.asm"
 !big = "table tables/big.tbl,rtl"
 
 
+;; New offset for credits script ($83f000)
+org $8bf6fc
+    dw #$f000
+
 ;; Hijack the original credits code to read the script from bank $DF
 
 org $8b9976
@@ -61,7 +67,7 @@ org !bank_8b_free_space_start
 ;; set scroll speed routine (!speed instruction in credits script)
 set_scroll:
     rep #$30
-    phb : pea $df00 : plb : plb
+    phb : pea $8300 : plb : plb
     lda $0000, y
     sta !scroll_speed
     iny
@@ -84,7 +90,7 @@ scroll:
 
 
 patch1:
-    phb : pea $df00 : plb : plb
+    phb : pea $8300 : plb : plb
     lda $0000, y
     bpl +
     plb
@@ -95,13 +101,13 @@ patch1:
 
 patch2:
     sta $0014
-    phb : pea $df00 : plb : plb
+    phb : pea $8300 : plb : plb
     lda $0002, y
     plb
     jml $8b99eb
 
 patch3:
-    phb : pea $df00 : plb : plb
+    phb : pea $8300 : plb : plb
     lda $0000, y
 
     tay
@@ -109,7 +115,7 @@ patch3:
     jml $8b9a0c
 
 patch4:
-    phb : pea $df00 : plb : plb
+    phb : pea $8300 : plb : plb
     lda $0000, y
     plb
     sta $19fb
@@ -426,7 +432,7 @@ numbers_bot:
 warnpc !bank_df_free_space_end
 
 ;; New credits script in free space of bank $DF
-org $dfd91b
+org !bank_83_free_space_start
 script:
     dw !set, $0002
 -
@@ -617,7 +623,15 @@ script:
     dw !draw, !row*6
     dw !draw, !blank
     dw !draw, !blank
-    
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+
     ;; change scroll speed to 2 pixels per frame
     dw !speed, $0002
 
@@ -729,6 +743,8 @@ script:
     dw !draw, !row*229
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
 
     dw !draw, !row*208  ; GAMEPLAY STATISTICS
     dw !draw, !blank
@@ -746,6 +762,8 @@ script:
     dw !draw, !blank
     dw !draw, !row*217  ; RESETS
     dw !draw, !row*218
+    dw !draw, !blank
+    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
 
@@ -820,6 +838,9 @@ script:
     dw !draw, !row*206
     dw !draw, !row*207
 
+    ;; Set scroll speed to 3 frames per pixel
+    dw !speed, $0003
+
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*239   ; TIME SPENT IN
@@ -863,13 +884,13 @@ script:
     dw !speed, $0006
 
     ;; Scroll all text off and end credits
-    dw !set, $0008
+    dw !set, $000C
 -
     dw !draw, !blank
     dw !delay, -
     dw !end
 
-warnpc !stats_table_address
+warnpc !bank_83_free_space_end
 
 org !stats_table_address
 stats:
