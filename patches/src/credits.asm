@@ -166,6 +166,23 @@ draw_full_time:
     inc $18
     lda [$18]
     sta $14
+    bne .non_zero
+    lda $16
+    bne .non_zero
+    plb
+    plx
+    rtl
+.non_zero:
+    ; draw colons for time separators
+    lda #$005A  ; space
+    sta !credits_tilemap_offset-8, y
+    sta !credits_tilemap_offset-8+!row, y
+    sta !credits_tilemap_offset-2, y
+    sta !credits_tilemap_offset-2+!row, y
+    sta !credits_tilemap_offset+4+!row, y
+    ; draw period for hundredths
+    lda #$007F
+    sta !credits_tilemap_offset+4, y
     lda #$003c
     sta $12
     lda #$ffff
