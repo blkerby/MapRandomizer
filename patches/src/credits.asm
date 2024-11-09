@@ -426,11 +426,6 @@ warnpc !credits_script_address
 ;; New credits script in free space of bank $DF
 org !credits_script_address
 script:
-    dw !set, $0002
--
-    dw !draw, !blank
-    dw !delay, -
-
     ;; Show a compact and sped up version of the original credits so we get time to add more
     ;; change scroll speed to 1 frame per pixel
 
@@ -618,17 +613,14 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
 
     ;; Custom randomizer credits text
     dw !draw, !row*128  ; MAP RANDO CONTRIBUTORS
     dw !draw, !blank
     dw !draw, !row*129  ; MAIN DEVELOPER
     dw !draw, !blank
+    ;; Set scroll speed to 2 frames per pixel
+    dw !speed, $0002
     dw !draw, !row*130
     dw !draw, !row*131
     dw !draw, !blank
@@ -697,16 +689,7 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-
-    ;; Set scroll speed to 2 frames per pixel
-    dw !speed, $0002
-
+    
     dw !draw, !row*153  ; PLAY THIS RANDOMIZER AT
     dw !draw, !blank
     dw !draw, !row*154
@@ -714,15 +697,7 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-
-    ;; Set scroll speed to 3 frames per pixel
-    dw !speed, $0003
-
+    
     dw !draw, !row*223  ; RANDOMIZER SETTINGS
     dw !draw, !blank
     dw !draw, !row*224  ; SKILL ASSUMPTIONS
@@ -735,14 +710,14 @@ script:
     dw !draw, !row*229
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
 
     dw !draw, !row*208  ; GAMEPLAY STATISTICS
     dw !draw, !blank
     dw !draw, !row*209  ; SAVES
     dw !draw, !row*210
     dw !draw, !blank
+    ;; Set scroll speed to 3 frames per pixel
+    dw !speed, $0003
     dw !draw, !row*211  ; DEATHS
     dw !draw, !row*212
     dw !draw, !blank
@@ -756,17 +731,14 @@ script:
     dw !draw, !row*218
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-
-    ;; Set scroll speed to 5 frames per pixel
-    dw !speed, $0005
 
     dw !draw, !row*163  ; ITEM LOCATION AND COLLECT TIME
     dw !draw, !blank
     dw !draw, !row*164
     dw !draw, !row*165
     dw !draw, !blank
+    ;; Set scroll speed to 5 frames per pixel
+    dw !speed, $0005
     dw !draw, !row*166
     dw !draw, !row*167
     dw !draw, !blank
@@ -852,7 +824,7 @@ script:
     dw !draw, !row*250   ; TOURIAN
     dw !draw, !row*251
     dw !draw, !blank
-    dw !draw, !row*252   ; PAUSE TIME
+    dw !draw, !row*252   ; PAUSE MENU
     dw !draw, !row*253
     dw !draw, !blank
     dw !draw, !blank
@@ -870,7 +842,7 @@ script:
     dw !delay, -
 
     ;; Brief delay for music sync (voice/synth to come in just as Samus turns blue)
-    dw !speed, $0004
+    dw !speed, $0005
     dw !draw, !blank
 
     dw !end
@@ -1079,8 +1051,8 @@ credits:
     dw " maridia            }}.}}.}}.}} " ;; 249
     dw " TOURIAN            00.00.00 00 " ;; 250
     dw " tourian            }}.}}.}}.}} " ;; 251
-    dw " PAUSE TIME         00.00.00 00 " ;; 252
-    dw " pause time         }}.}}.}}.}} " ;; 253
+    dw " PAUSE MENU         00.00.00 00 " ;; 252
+    dw " pause menu         }}.}}.}}.}} " ;; 253
 
     dw $0000
 warnpc !bank_ce_free_space_end
