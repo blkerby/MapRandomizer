@@ -466,6 +466,10 @@ hook_game_end:
     lda !stat_timer+2
     sta !stat_final_time+2    
     
+    ; set area to -1 so timers stop
+    lda #$FFFF
+    sta $1f5b
+
     pla
     rtl
 

@@ -9,10 +9,11 @@ incsrc "constants.asm"
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
-!bank_ce_free_space_end = $ced000
+!bank_ce_free_space_end = $ced200
 !bank_df_free_space_start = $dfd4df
-!bank_df_free_space_end = $dfd91b
-!stats_table_address = $dfdf80  ; must match address in patch.rs
+!bank_df_free_space_end = $dfe200
+!credits_script_address = $dfd91b
+!stats_table_address = $dfe000  ; must match address in patch.rs
 !scroll_speed = $7fffe8
 
 !credits_tilemap_offset = $0034
@@ -33,7 +34,6 @@ incsrc "constants.asm"
 !orange = "table tables/orange.tbl,rtl"
 !purple = "table tables/purple.tbl,rtl"
 !big = "table tables/big.tbl,rtl"
-
 
 ;; Hijack the original credits code to read the script from bank $DF
 
@@ -155,47 +155,50 @@ copy:
 warnpc !bank_8b_free_space_end
 
 org !bank_df_free_space_start
-
-;; Draw full time as hh:mm:ss
-;; $18: Long pointer to 32-bit time in frames
+;; Draw full time as HH:mm:ss.hh
 draw_full_time:
     phx
     phb
+    pea $7f7f : plb : plb
     lda [$18]
     sta $16
     inc $18
     inc $18
     lda [$18]
     sta $14
-
-    bne .non_zero
-    lda $16
-    bne .non_zero
-    plb
-    plx
-    rtl
-
-.non_zero:
-    ; draw colons for time separators
-    lda #$005A  ; space
-    sta !credits_tilemap_offset-2, y
-    sta !credits_tilemap_offset-2+!row, y
-    sta !credits_tilemap_offset+4, y
-    sta !credits_tilemap_offset+4+!row, y
-
     lda #$003c
     sta $12
     lda #$ffff
     sta $1a
     jsl div32 ;; frames in $14, rest in $16
-    ; Skip drawing frames:
-;    rep 6 : iny ;; Increment Y three positions forward to write the last value
-;    lda $14
-;    jsl draw_two
-;    tya
-;    sec
-;    sbc #$000C
-;    tay     ;; Skip back 6 characters to draw the top three things
+    phb ;; convert frames to hundredths
+    phy
+    sep #$30
+    pea $8080 : plb : plb
+    lda $14
+    sta $4202
+    lda #$64
+    sta $4203
+    pha : pla :  pha : pla
+    lda $4216
+    sta $4204
+    lda $4217
+    sta $4205
+    lda #$3c
+    sta $4206
+    pha : pla :  pha : pla : pha : pla
+    lda $4214
+    sta $14
+    rep #$30
+    ply
+    plb
+    rep 6 : iny ;; Increment Y three positions forward to write the last value
+    lda $14
+    jsl draw_two
+    tya
+    sec
+    sbc #$0010
+    tay     ;; Skip back 8 characters to draw the top three things
     lda $16
     jsl draw_time
     plb
@@ -230,11 +233,9 @@ draw_time:
     iny : iny ;; Skip past separator
     lda $14 ;; Second group (minutes)
     jsl draw_two
-
     iny : iny
     lda $12 ;; Last group (seconds)
     jsl draw_two
-
     plb
     plx
     rtl
@@ -420,12 +421,10 @@ numbers_top:
 numbers_bot:
     dw $2070, $2071, $2072, $2073, $2074, $2075, $2076, $2077, $2078, $2079, $207a, $207b, $207c, $207d, $207e, $207f
 
-
-
-warnpc !bank_df_free_space_end
+warnpc !credits_script_address
 
 ;; New credits script in free space of bank $DF
-org $dfd91b
+org !credits_script_address
 script:
     dw !set, $0002
 -
@@ -624,7 +623,7 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    
+
     ;; change scroll speed to 2 pixels per frame
     dw !speed, $0002
 
@@ -831,15 +830,37 @@ script:
     dw !draw, !row*206
     dw !draw, !row*207
 
+    ;; Set scroll speed to 3 frames per pixel
+    dw !speed, $0003
+
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*239   ; TIME SPENT IN
+    dw !draw, !blank
+    dw !draw, !row*240   ; CRATERIA
+    dw !draw, !row*241
+    dw !draw, !blank
+    dw !draw, !row*242   ; BRINSTAR
+    dw !draw, !row*243
+    dw !draw, !blank
+    dw !draw, !row*244   ; NORFAIR
+    dw !draw, !row*245
+    dw !draw, !blank
+    dw !draw, !row*246   ; WRECKED SHIP
+    dw !draw, !row*247
+    dw !draw, !blank
+    dw !draw, !row*248   ; MARIDIA
+    dw !draw, !row*249
+    dw !draw, !blank
+    dw !draw, !row*250   ; TOURIAN
+    dw !draw, !row*251
+    dw !draw, !blank
+    dw !draw, !row*252   ; PAUSE TIME
+    dw !draw, !row*253
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*219   ; FINAL TIME
     dw !draw, !row*220
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*221   ; THANKS FOR PLAYING
@@ -852,10 +873,10 @@ script:
     dw !delay, -
 
     ;; Set scroll speed to 6 frames per pixel
-    dw !speed, $0006
+    dw !speed, $0003
 
     ;; Scroll all text off and end credits
-    dw !set, $0008
+    dw !set, $0016
 -
     dw !draw, !blank
     dw !delay, -
@@ -894,10 +915,17 @@ stats:
     dw !stat_reloads,   $0070, !row*213,  1    ;; Reloads
     dw !stat_loadbacks, $0070, !row*215,  1    ;; Loadbacks
     dw !stat_resets,    $0070, !row*217,  1    ;; Resets
+    dw !stat_area0_time,     $0070, !row*240,  2    ;; Crateria time
+    dw !stat_area1_time,     $0070, !row*242,  2    ;; Brinstar time
+    dw !stat_area2_time,     $0070, !row*244,  2    ;; Norfair time
+    dw !stat_area3_time,     $0070, !row*246,  2    ;; Wrecked Ship time
+    dw !stat_area4_time,     $0070, !row*248,  2    ;; Maridia time
+    dw !stat_area5_time,     $0070, !row*250,  2    ;; Tourian time
+    dw !stat_pause_time,     $0070, !row*252,  2    ;; Pause time
     dw !stat_final_time,     $0070, !row*219,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
-warnpc $e00000
+warnpc !bank_df_free_space_end
 
 ;; Relocated credits tilemap to free space in bank CE
 org !bank_ce_free_space_start
@@ -1015,8 +1043,8 @@ credits:
     dw " loadbacks                    } " ;; 216
     dw " RESETS                       0 " ;; 217
     dw " resets                       } " ;; 218
-    dw " FINAL TIME            00.00.00 " ;; 219
-    dw " final time            }}.}}.}} " ;; 220
+    dw " FINAL TIME         00.00.00 00 " ;; 219
+    dw " final time         }}.}}.}}.}} " ;; 220
     dw "       THANKS FOR PLAYING       " ;; 221
     dw "       thanks for playing       " ;; 222
     !blue
@@ -1043,6 +1071,23 @@ credits:
     !big
     dw "     ARTHEAU    MATRETHEWEY     " ;; 237
     dw "     artheau    matrethewey     " ;; 238
+    !blue
+    dw "         TIME SPENT IN          " ;; 239
+    !big
+    dw " CRATERIA           00.00.00 00 " ;; 240
+    dw " crateria           }}.}}.}}.}} " ;; 241
+    dw " BRINSTAR           00.00.00 00 " ;; 242
+    dw " brinstar           }}.}}.}}.}} " ;; 243
+    dw " NORFAIR            00.00.00 00 " ;; 244
+    dw " norfair            }}.}}.}}.}} " ;; 245
+    dw " WRECKED SHIP       00.00.00 00 " ;; 246
+    dw " wrecked ship       }}.}}.}}.}} " ;; 247
+    dw " MARIDIA            00.00.00 00 " ;; 248
+    dw " maridia            }}.}}.}}.}} " ;; 249
+    dw " TOURIAN            00.00.00 00 " ;; 250
+    dw " tourian            }}.}}.}}.}} " ;; 251
+    dw " PAUSE TIME         00.00.00 00 " ;; 252
+    dw " pause time         }}.}}.}}.}} " ;; 253
 
     dw $0000
 warnpc !bank_ce_free_space_end
