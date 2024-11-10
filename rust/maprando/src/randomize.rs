@@ -3955,7 +3955,11 @@ impl<'r> Randomizer<'r> {
             &self.difficulty_tiers[0],
         )?;
 
-        let spoiler_objectives:Vec<String> = self.objectives.iter().map(|x| x.get_flag_name().to_owned()).collect();
+        let spoiler_objectives: Vec<String> = self
+            .objectives
+            .iter()
+            .map(|x| x.get_flag_name().to_owned())
+            .collect();
 
         let spoiler_log = SpoilerLog {
             item_priority: state
@@ -3966,12 +3970,12 @@ impl<'r> Randomizer<'r> {
             summary: spoiler_summaries,
             objectives: spoiler_objectives,
             hub_location_name: state.hub_location.name.clone(),
-            start_location: SpoilerStartLocation { 
+            start_location: SpoilerStartLocation {
                 name: state.start_location.name.clone(),
                 room_id: state.start_location.room_id,
                 node_id: state.start_location.node_id,
                 x: state.start_location.x,
-                y: state.start_location.y
+                y: state.start_location.y,
             },
             hub_obtain_route: state.hub_obtain_route.clone(),
             hub_return_route: state.hub_return_route.clone(),
@@ -4423,7 +4427,7 @@ impl<'r> Randomizer<'r> {
                 name: StartLocation::default().name,
                 node_id: StartLocation::default().node_id,
                 x: StartLocation::default().x,
-                y: StartLocation::default().x
+                y: StartLocation::default().y,
             },
             hub_location_name: String::new(),
             hub_obtain_route: vec![],
@@ -4694,7 +4698,7 @@ pub struct SpoilerStartLocation {
     pub room_id: usize,
     pub node_id: usize,
     pub x: f32,
-    pub y: f32
+    pub y: f32,
 }
 
 #[derive(Serialize, Deserialize)]
