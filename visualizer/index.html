@@ -1,48 +1,89 @@
 <!DOCTYPE html>
 <head>
-	<meta name="viewport" content="user-scalable=no">
-	<title>Map Rando Spoiler Map Viewer</title>
-	<link rel="stylesheet" href="style.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
-	<script src="/static/localforage.js"></script>
+    <meta name="viewport" content="user-scalable=no">
+    <title>Map Rando Spoiler Map Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <script src="/static/localforage.js"></script>
+    <script src="save_settings.js"></script>
 </head>
 <body>
-	<div id="zoom">
-		<img id="map" src="../map-assigned.png">
-		<svg id="path-overlay" width="1776px" height="1776px"></svg>
-		<div id="overlay">
-			<canvas id="obscure-overlay" width="72" height="72"></canvas>
-			<img id="grid-overlay" src="../map-grid.png">
-			<div id="room-info"></div>
-		</div>
-	</div>
-	<div id="sidebar-info"></div>
-	<div id="settings">
-		<form>
-		<input type="checkbox" id="items" name="items" checked>
-		<label for="items">items</label><br>
-		<input type="checkbox" id="flags" name="flags" checked>
-		<label for="flags">flags</label><br>
-		</form>
-	</div>
-	<div id="msg-wrap" style="display:none;" onclick="this.style.display = 'none';">
-		<div class="msg">
-			<h1 class="msg-title">Spoiler map info</h1>
-			<ul>
-				<li>Select a step in the overview (top-left corner) to focus on logically reachable areas for that step.
-				<li>One-way-reachable areas appear darker.
-				<li>Only the first instance of each item is shown in the overview.
-				<li>Double-click a step to show details, including all items collectible on that step.
-				<li>Click an item to show a path to reach it (white) and return to the Ship (yellow).
-				<li>Double-click a room to pull up the logic for that room.
-				<li>Click on a room containing a boss, objective, or other flag to show logic for completing it.
-				<li>Click on the Mother Brain Room to show the intended escape route.
-				<li>Where an item routes shows a difficulty level, it represents only the difficulty of reaching the item;
+    <div id="msg-wrap" onclick="this.style.display = 'none';">
+        <div class="msg">
+            <h1 class="msg-title">Spoiler map info</h1>
+            <ul>
+                <li>Select a step in the overview (top-left corner) to focus on logically reachable areas for that step.
+                <li>One-way-reachable areas appear darker.
+                <li>Only the first instance of each item is shown in the overview.
+                <li>Double-click a step to show details, including all items collectible on that step.
+                <li>Click an item to show a path to reach it (white) and return to the Ship (yellow).
+                <li>Double-click a room to pull up the logic for that room.
+                <li>Click on a room containing a boss, objective, or other flag to show logic for completing it.
+                <li>Click on the Mother Brain Room to show the intended escape route.
+                <li>Where an item routes shows a difficulty level, it represents only the difficulty of reaching the item;
 					it does not include the difficulty of returning, nor of any flags assumed to be previously cleared (e.g. bosses).
-			</ul>
-			<div class="button">DISMISS</div>
-		</div>
-	</div>
-	<script src="consts.js"></script>
-	<script src="script.js"></script>
+            </ul>
+            <div class="button">DISMISS</div>
+        </div>
+    </div>
+    <div id="zoom">
+        <img id="map" src="../map-assigned.png">
+        <svg id="path-overlay" width="1776px" height="1776px"></svg>
+        <div id="overlay">
+            <canvas id="obscure-overlay" width="72" height="72"></canvas>
+            <img id="grid-overlay" src="../map-grid.png">
+            <div id="room-info"></div>
+        </div>
+    </div>
+    <div id="sidebar-info"></div>
+    <div id="settings">
+        <img id="settingsCog" src="cog.png">
+        <form id="settingsForm" onchange="saveForm(this)" style="display:none">
+            <input type="checkbox" id="items" name="items">
+            <label for="items">items</label>
+            <br>
+            <div id="sublabel">
+                <input class="subitems" type=checkbox id="majors" name="majors">
+                <label for="majors">majors</label>
+                <br>
+                <input class="subitems" type=checkbox id="beams" name="beams">
+                <label for="beams">beams</label>
+                <br>
+                <input class="subitems" type=checkbox id="ammo" name="ammo">
+                <label for="ammo">ammo</label>
+                <br>
+                <input class="subitems" type=checkbox id="health" name="health">
+                <label for="health">health</label>
+                <br>
+                <input class="subitems" type=checkbox id="missiles" name="missiles">
+                <label for="missiles">missiles</label>
+                <br>
+            </div>
+            <br>
+            <input type="checkbox" id="flags" name="flags">
+            <label for="flags">flags</label>
+            <div id="sublabel">
+                <input class="subflags" type=checkbox id="start" name="start">
+                <label for="start">start</label>
+                <br>
+                <input class="subflags" type=checkbox id="ship" name="ship">
+                <label for="ship">ship</label>
+                <br>
+                <input class="subflags" type=checkbox id="objectives" name="objectives">
+                <label for="objectives">objectives</label>
+                <br>
+                <input class="subflags" type=checkbox id="bosses" name="bosses">
+                <label for="bosses">bosses</label>
+                <br>
+                <input class="subflags" type=checkbox id="minibosses" name="minibosses">
+                <label for="minibosses">minibosses</label>
+                <br>
+                <input class="subflags" type=checkbox id="misc" name="misc">
+                <label for="misc">misc</label>
+                <br>
+            </div>
+        </form>
+    </div>
+    <script src="consts.js"></script>
+    <script src="script.js"></script>
 </body>

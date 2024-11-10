@@ -66,12 +66,7 @@ img {
 	left: 16px;
 	touch-action: auto;
 }
-#settings {
-	top: 16px;
-	right: 16px;
-	position: fixed;
-	pointer-events: auto;
-}
+
 .sidebar-title {
 	font-size: x-large;
 }
@@ -169,7 +164,7 @@ img {
 	background: #222;
 	color: #eee;
 	background-color: #222;
-	z-index: 3;
+	z-index: 4;
 	border-radius: 2px;
 	padding: 8px;
 }
@@ -180,7 +175,7 @@ img {
 .flag {
 	position: absolute;
 }
-.flag:hover {body {
+.flag:hover + .popup {
 	font-family: sans-serif;
 	background-color: #111;
 	margin: 0;
@@ -250,12 +245,6 @@ div {
 	top: 16px;
 	left: 16px;
 }
-#settings {
-	position: fixed;
-	pointer-events: auto;
-	bottom: 16px;
-	left: 16px;
-}
 .sidebar-title {
 	font-size: x-large;
 }
@@ -344,6 +333,7 @@ div {
 	cursor: pointer;
 }
 #msg-wrap {
+	position: absolute;
 	display:flex;
 	justify-content: center;
 	align-items: center;
@@ -353,7 +343,7 @@ div {
 	background: #222;
 	color: #eee;
 	background-color: #222;
-	z-index: 3;
+	z-index: 4;
 	border-radius: 2px;
 	padding: 8px;
 }
@@ -370,12 +360,22 @@ div {
 }
 .flag:hover + .popup {
 	display: block;
-	width: auto;
-}
-	transform: scale(1.5);
 	z-index: 2;
 }
-.flag:hover + .popup {
-	display: block;
-	width: auto;
+#settings {
+	top: 16px;
+	right: 16px;
+	position: fixed;
+	pointer-events: auto;
+	width:auto;
+}
+#settingsCog {
+	float:right;
+}
+#settingsForm {
+	clear:both;
+}
+#sublabel {
+	position:relative;
+	left:10px;
 }
