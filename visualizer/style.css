@@ -155,10 +155,15 @@ img {
 	cursor: pointer;
 }
 #msg-wrap {
-	display:flex;
+	position:fixed;
+	display:block;
+	top:0px;
+	bottom: 0px;
+	left:0px;
+	right:0px;
 	justify-content: center;
 	align-items: center;
-	height: 100vh;
+	z-index: 4;
 }
 .msg {
 	background: #222;
