@@ -12,6 +12,7 @@ struct GenerateTemplate<'a> {
     item_placement_styles: Vec<&'static str>,
     objectives: Vec<&'static str>,
     preset_data: &'a PresetData,
+    full_presets_json: String,
     skill_presets_json: String,
     item_presets_json: String,
     qol_presets_json: String,
@@ -108,6 +109,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_dependencies_strs.insert(*tech_id, s.join(", "));
     }
 
+    let full_presets_json = serde_json::to_string(&app_data.preset_data.full_presets).unwrap();
     let skill_presets_json = serde_json::to_string(&app_data.preset_data.skill_presets).unwrap();
     let item_presets_json =
         serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
@@ -136,6 +138,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
             .collect(),
         prioritizable_items,
         preset_data: &app_data.preset_data,
+        full_presets_json,
         skill_presets_json,
         item_presets_json,
         qol_presets_json,

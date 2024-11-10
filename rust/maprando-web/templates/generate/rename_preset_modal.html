@@ -1,0 +1,34 @@
+<div class="modal" id="renamePresetModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">        
+            <form id="renamePresetForm">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5">Rename Preset</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="cancelRenamePreset()"></button>
+                </div>        
+                <div class="modal-body">
+                    <div class="row form-group">
+                        <div class="col-lg-3 align-items-center">
+                            <label class="my-2 me-2 mb-2" for="renamePresetNewName">
+                                Rename preset
+                                <span id="renamePresetOldName" class="d-none"></span>
+                            </label>
+                        </div>
+                        <div class="col-lg-9">
+                            <input type="text" id="renamePresetNewName" class="form-control" placeholder="Enter new name for your custom preset" autocomplete="off">
+                        </div>
+                    </div>
+                    <p id="renamePresetInvalid" class="d-none text-danger my-2">
+                        This preset name is invalid. Please select a different name.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-pencil me-2"></i>Rename
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="cancelRenamePreset()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

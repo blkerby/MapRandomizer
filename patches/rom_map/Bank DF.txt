@@ -1,4 +1,5 @@
-d4df-d91b: credits.asm
+d4df-e200: credits.asm
+e200-fef0: [FREE]
 fef0-ff00: seed name (null-terminated ASCII string)
 ff00-ff04: seed_hash_display.asm
 ff05: randomizer settings:

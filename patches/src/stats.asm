@@ -39,15 +39,21 @@ org $a2ab13
 
 org !bank_80_free_space_start
 area_timer:
+    phb
+    phk
+    plb
     ldx $0998
-    cpx #$0006                    ; state < 6 = pre-game
+    cpx #$001F                    ; pre-game load state?
+    beq .pre_game
+    cpx #$0006                    ; pre-game = 0-5
     bcs .load_area
+.pre_game
     lda #$0006                    ; area 6 (pre-game)
     bra .update_area
     
 .load_area
     lda $1f5b
-    cmp #$0007                    ; only 0-6 valid
+    cmp #$0006                    ; only areas 0-5 valid
     bcs .leave_area_timer
     cpx #$000D                    ; $0D
     bcc .update_area              ; to
@@ -69,14 +75,91 @@ area_timer:
     sta !stat_pause_time+2,X
 
 .leave_area_timer
+    lda !nmi_timeronly            ; check unpause bit
+    beq .not_unpause
+    plb
+    rts                           ; return to timer-only NMI 
+
+.not_unpause
+    plb
+    jmp $95fc                     ; restore regs, rti
+
+nmi_timer_hook:
+    pha
+    phb
+    phk
+    plb
+    lda !nmi_timeronly
+    beq .normal_nmi
+    phx
+    phy
+    jsl $808c83                   ; process DMA
+    stz $5b4                      ; clear NMI flag
+    jsr inc_skipcount             ; area timer func (skip $5b8 inc)
     ply
     plx
-    pla
-    pld
     plb
-    rti
+    pla
+    rti                           ; leave NMI
+
+.normal_nmi
+    plb
+    pla
+    phb                           ; replaced code
+    phd
+    pha
+    jmp $958c                     ; resume NMI
+
+enable_nmi_hook:
+    stz !nmi_timeronly
+    php
+    sep #$20
+    lda #$80
+    bit $84                       ; NMI already enabled?
+    beq .not_enabled
+    plp
+    rtl
+
+.not_enabled
+    plp
+    php                           ; replaced code
+    phb
+    phk
+    jmp $834e
+
+disable_nmi_hook:
+    inc !nmi_timeronly
+    rtl
 
 warnpc !bank_80_free_space_end
+
+; NMI hook to check for timer-only mode
+org $809589
+    jmp nmi_timer_hook
+    
+; Disable NMI func
+org $80835D
+    jmp disable_nmi_hook
+    
+; Enable NMI func
+org $80834B
+    jmp enable_nmi_hook
+
+; Boot logo NMI override
+org $8b916b
+    lda #$81
+
+; Boot init CPU NMI override
+org $80875d
+    lda #$81
+
+; Common boot NMI override
+org $8084b3
+    nop : nop : nop : nop : nop
+
+; Start game NMI override
+org $8281a7
+    lda #$81
 
 ; RTA timer based on VARIA patch by total & ouiche
 org $8095e5
@@ -100,6 +183,7 @@ org $808FA3 ;; overwrite unused routine
 .inc:
     ; increment vanilla 16-bit timer (used by message boxes)
     inc $05b8
+inc_skipcount:
     ; increment 32-bit timer in SRAM:
     lda !stat_timer
     inc
@@ -382,6 +466,10 @@ hook_game_end:
     lda !stat_timer+2
     sta !stat_final_time+2    
     
+    ; set area to -1 so timers stop
+    lda #$FFFF
+    sta $1f5b
+
     pla
     rtl
 

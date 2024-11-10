@@ -21,7 +21,7 @@ use maprando::{
 };
 use maprando_game::GameData;
 use std::{path::Path, time::Instant};
-use web::{about, generate, home, logic, randomize, releases, seed};
+use web::{about, generate, home, logic, randomize, releases, seed, upgrade};
 
 const VISUALIZER_PATH: &'static str = "../visualizer/";
 
@@ -196,6 +196,7 @@ async fn main() {
             .service(about::about)
             .service(seed::scope())
             .service(logic::scope())
+            .service(upgrade::upgrade_settings)
             .service(actix_files::Files::new(
                 "/static/sm-json-data",
                 "../sm-json-data",

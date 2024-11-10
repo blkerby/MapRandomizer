@@ -993,27 +993,43 @@ pub fn apply_requirement(
         Requirement::ReserveTrigger {
             min_reserve_energy,
             max_reserve_energy,
+            heated,
         } => {
             if reverse {
-                if local.reserves_used > 0
-                    || local.energy_used >= min(*max_reserve_energy, global.inventory.max_reserves)
-                {
+                if local.reserves_used > 0 {
                     None
                 } else {
                     let mut new_local = local;
                     new_local.energy_used = 0;
-                    new_local.reserves_used = max(local.energy_used + 1, *min_reserve_energy);
-                    Some(new_local)
+                    let energy_needed = if *heated {
+                        (local.energy_used * 4 + 2) / 3
+                    } else {
+                        local.energy_used
+                    };
+                    new_local.reserves_used = max(energy_needed + 1, *min_reserve_energy);
+                    if new_local.reserves_used > *max_reserve_energy
+                        || new_local.reserves_used > global.inventory.max_reserves
+                    {
+                        None
+                    } else {
+                        Some(new_local)
+                    }
                 }
             } else {
                 let reserve_energy = min(
                     global.inventory.max_reserves - local.reserves_used,
                     *max_reserve_energy,
                 );
+                let usable_reserve_energy = if *heated {
+                    reserve_energy * 3 / 4
+                } else {
+                    reserve_energy
+                };
                 if reserve_energy >= *min_reserve_energy {
                     let mut new_local = local;
                     new_local.reserves_used = global.inventory.max_reserves;
-                    new_local.energy_used = max(0, global.inventory.max_energy - reserve_energy);
+                    new_local.energy_used =
+                        max(0, global.inventory.max_energy - usable_reserve_energy);
                     Some(new_local)
                 } else {
                     None

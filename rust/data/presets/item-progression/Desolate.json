@@ -7,81 +7,222 @@
     "spazer_before_plasma": true,
     "item_pool_preset": "Reduced",
     "stop_item_placement_early": true,
-    "item_pool": {
-        "Missile": 12,
-        "ETank": 3,
-        "ReserveTank": 3,
-        "Super": 6,
-        "PowerBomb": 5
-    },
+    "item_pool": [
+        {
+            "item": "Missile",
+            "count": 46
+        },
+        {
+            "item": "ETank",
+            "count": 14
+        },
+        {
+            "item": "ReserveTank",
+            "count": 4
+        },
+        {
+            "item": "Super",
+            "count": 10
+        },
+        {
+            "item": "PowerBomb",
+            "count": 10
+        }
+    ],
     "starting_items_preset": "None",
-    "starting_items": {
-        "Missile": 0,
-        "ETank": 0,
-        "ReserveTank": 0,
-        "Super": 0,
-        "PowerBomb": 0,
-        "Charge": 0,
-        "Ice": 0,
-        "Wave": 0,
-        "Spazer": 0,
-        "Plasma": 0,
-        "XRayScope": 0,
-        "Morph": 0,
-        "Bombs": 0,
-        "Grapple": 0,
-        "HiJump": 0,
-        "SpeedBooster": 0,
-        "SpringBall": 0,
-        "SpaceJump": 0,
-        "ScrewAttack": 0,
-        "Varia": 0,
-        "Gravity": 0
-    },
-    "key_item_priority": {
-        "ETank": "Early",
-        "ReserveTank": "Early",
-        "Super": "Early",
-        "PowerBomb": "Early",
-        "Charge": "Early",
-        "Ice": "Early",
-        "Wave": "Early",
-        "Spazer": "Early",
-        "Plasma": "Early",
-        "XRayScope": "Early",
-        "Morph": "Default",
-        "Bombs": "Early",
-        "Grapple": "Early",
-        "HiJump": "Early",
-        "SpeedBooster": "Early",
-        "SpringBall": "Early",
-        "WallJump": "Default",
-        "SpaceJump": "Default",
-        "ScrewAttack": "Default",
-        "Varia": "Late",
-        "Gravity": "Late"
-    },
-    "filler_items": {
-        "ETank": "No",
-        "ReserveTank": "No",
-        "Super": "Semi",
-        "PowerBomb": "Semi",
-        "Charge": "Yes",
-        "Ice": "No",
-        "Wave": "No",
-        "Spazer": "Yes",
-        "Plasma": "No",
-        "XRayScope": "No",
-        "Morph": "No",
-        "Bombs": "No",
-        "Grapple": "No",
-        "HiJump": "No",
-        "SpeedBooster": "No",
-        "SpringBall": "No",
-        "WallJump": "No",
-        "SpaceJump": "No",
-        "ScrewAttack": "No",
-        "Varia": "No",
-        "Gravity": "No"
-    }
+    "starting_items": [
+        {
+            "item": "Missile",
+            "count": 0
+        },
+        {
+            "item": "ETank",
+            "count": 0
+        },
+        {
+            "item": "ReserveTank",
+            "count": 0
+        },
+        {
+            "item": "Super",
+            "count": 0
+        },
+        {
+            "item": "PowerBomb",
+            "count": 0
+        },
+        {
+            "item": "Charge",
+            "count": 0
+        },
+        {
+            "item": "Ice",
+            "count": 0
+        },
+        {
+            "item": "Wave",
+            "count": 0
+        },
+        {
+            "item": "Spazer",
+            "count": 0
+        },
+        {
+            "item": "Plasma",
+            "count": 0
+        },
+        {
+            "item": "XRayScope",
+            "count": 0
+        },
+        {
+            "item": "Morph",
+            "count": 0
+        },
+        {
+            "item": "Bombs",
+            "count": 0
+        },
+        {
+            "item": "Grapple",
+            "count": 0
+        },
+        {
+            "item": "HiJump",
+            "count": 0
+        },
+        {
+            "item": "SpeedBooster",
+            "count": 0
+        },
+        {
+            "item": "SpringBall",
+            "count": 0
+        },
+        {
+            "item": "SpaceJump",
+            "count": 0
+        },
+        {
+            "item": "ScrewAttack",
+            "count": 0
+        },
+        {
+            "item": "Varia",
+            "count": 0
+        },
+        {
+            "item": "Gravity",
+            "count": 0
+        }
+    ],
+    "key_item_priority": [
+        {
+            "item": "ETank",
+            "priority": "Early"
+        },
+        {
+            "item": "ReserveTank",
+            "priority": "Early"
+        },
+        {
+            "item": "Super",
+            "priority": "Early"
+        },
+        {
+            "item": "PowerBomb",
+            "priority": "Early"
+        },
+        {
+            "item": "Charge",
+            "priority": "Early"
+        },
+        {
+            "item": "Ice",
+            "priority": "Early"
+        },
+        {
+            "item": "Wave",
+            "priority": "Early"
+        },
+        {
+            "item": "Spazer",
+            "priority": "Early"
+        },
+        {
+            "item": "Plasma",
+            "priority": "Early"
+        },
+        {
+            "item": "XRayScope",
+            "priority": "Early"
+        },
+        {
+            "item": "Morph",
+            "priority": "Default"
+        },
+        {
+            "item": "Bombs",
+            "priority": "Early"
+        },
+        {
+            "item": "Grapple",
+            "priority": "Early"
+        },
+        {
+            "item": "HiJump",
+            "priority": "Early"
+        },
+        {
+            "item": "SpeedBooster",
+            "priority": "Early"
+        },
+        {
+            "item": "SpringBall",
+            "priority": "Early"
+        },
+        {
+            "item": "WallJump",
+            "priority": "Default"
+        },
+        {
+            "item": "SpaceJump",
+            "priority": "Default"
+        },
+        {
+            "item": "ScrewAttack",
+            "priority": "Default"
+        },
+        {
+            "item": "Varia",
+            "priority": "Late"
+        },
+        {
+            "item": "Gravity",
+            "priority": "Late"
+        }
+    ],
+    "filler_items": [
+        {"item": "ETank", "priority": "No"},
+        {"item": "ReserveTank", "priority": "No"},
+        {"item": "Super", "priority": "Semi"},
+        {"item": "PowerBomb", "priority": "Semi"},
+        {"item": "Charge", "priority": "Yes"},
+        {"item": "Ice", "priority": "No"},
+        {"item": "Wave", "priority": "No"},
+        {"item": "Spazer", "priority": "Yes"},
+        {"item": "Plasma", "priority": "No"},
+        {"item": "XRayScope", "priority": "No"},
+        {"item": "Morph", "priority": "No"},
+        {"item": "Bombs", "priority": "No"},
+        {"item": "Grapple", "priority": "No"},
+        {"item": "HiJump", "priority": "No"},
+        {"item": "SpeedBooster", "priority": "No"},
+        {"item": "SpringBall", "priority": "No"},
+        {"item": "WallJump", "priority": "No"},
+        {"item": "SpaceJump", "priority": "No"},
+        {"item": "ScrewAttack", "priority": "No"},
+        {"item": "Varia", "priority": "No"},
+        {"item": "Gravity", "priority": "No"}
+    ]
 }
