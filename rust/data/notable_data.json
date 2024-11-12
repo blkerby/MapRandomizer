@@ -512,6 +512,14 @@
     "video_id": 167
   },
   {
+    "room_id": 41,
+    "room_name": "Blue Brinstar Energy Tank Room",
+    "notable_id": 6,
+    "name": "Leave With Spark (Fast Wall Climb)",
+    "difficulty": "Extreme",
+    "video_id": null
+  },
+  {
     "room_id": 46,
     "room_name": "Brinstar Reserve Tank Room",
     "notable_id": 1,
@@ -1292,7 +1300,7 @@
     "room_name": "Norfair Reserve Tank Room",
     "notable_id": 1,
     "name": "Power Bomb with Damage Boost",
-    "difficulty": "Uncategorized",
+    "difficulty": "Expert",
     "video_id": null
   },
   {
@@ -2142,6 +2150,14 @@
     "name": "Insane Walljump",
     "difficulty": "Insane",
     "video_id": 298
+  },
+  {
+    "room_id": 178,
+    "room_name": "Mama Turtle Room",
+    "notable_id": 2,
+    "name": "Shoot Down and Grab Right Item",
+    "difficulty": "Hard",
+    "video_id": null
   },
   {
     "room_id": 174,

@@ -227,6 +227,15 @@ pub enum Requirement {
     PowerBombsCapacity(Capacity),
     RegularEnergyCapacity(Capacity),
     ReserveEnergyCapacity(Capacity),
+    MissilesMissingAtMost(Capacity),
+    SupersMissingAtMost(Capacity),
+    PowerBombsMissingAtMost(Capacity),
+    RegularEnergyMissingAtMost(Capacity),
+    ReserveEnergyMissingAtMost(Capacity),
+    EnergyMissingAtMost(Capacity),
+    Energy(Capacity),
+    RegularEnergy(Capacity),
+    ReserveEnergy(Capacity),
     Missiles(Capacity),
     Supers(Capacity),
     PowerBombs(Capacity),
@@ -1852,8 +1861,58 @@ impl GameData {
                     if resource_type == "RegularEnergy" {
                         assert!(count > 0);
                         reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
+                    } else if resource_type == "Energy" {
+                        // TODO: remove this case or handle it properly.
+                        reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
                     } else if resource_type == "ReserveEnergy" {
                         reqs.push(Requirement::ReserveEnergyDrain(count as Capacity));
+                    } else {
+                        bail!("Unexpected resource type in {}", req_json);
+                    }
+                }
+                return Ok(Requirement::make_and(reqs));
+            } else if key == "resourceMissingAtMost" {
+                let mut reqs: Vec<Requirement> = vec![];
+                for r in value.members() {
+                    let resource_type = r["type"]
+                        .as_str()
+                        .expect(&format!("missing/invalid resource type in {}", req_json));
+                    let count = r["count"]
+                        .as_i32()
+                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                    if resource_type == "Missile" {
+                        reqs.push(Requirement::MissilesMissingAtMost(count as Capacity));
+                    } else if resource_type == "Super" {
+                        reqs.push(Requirement::SupersMissingAtMost(count as Capacity));
+                    } else if resource_type == "PowerBomb" {
+                        reqs.push(Requirement::PowerBombsMissingAtMost(count as Capacity));
+                    } else if resource_type == "RegularEnergy" {
+                        reqs.push(Requirement::RegularEnergyMissingAtMost(count as Capacity));
+                    } else if resource_type == "ReserveEnergy" {
+                        reqs.push(Requirement::ReserveEnergyMissingAtMost(count as Capacity));
+                    } else if resource_type == "Energy" {
+                        reqs.push(Requirement::EnergyMissingAtMost(count as Capacity));
+                    } else {
+                        bail!("Unexpected resource type in {}", req_json);
+                    }
+                }
+                return Ok(Requirement::make_and(reqs));
+            } else if key == "resourceConsumed" {
+                let mut reqs = vec![];
+                ensure!(value.is_array());
+                for value0 in value.members() {
+                    let resource_type = value0["type"]
+                        .as_str()
+                        .expect(&format!("missing/invalid resource type in {}", req_json));
+                    let count = value0["count"]
+                        .as_i32()
+                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                    if resource_type == "RegularEnergy" {
+                        reqs.push(Requirement::RegularEnergy(count as Capacity));
+                    } else if resource_type == "ReserveEnergy" {
+                        reqs.push(Requirement::ReserveEnergy(count as Capacity));
+                    } else if resource_type == "Energy" {
+                        reqs.push(Requirement::Energy(count as Capacity));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
