@@ -255,7 +255,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		ctx.putImageData(img, 0, 0);
 	}
-	gen_obscurity(1);
+	if (c.summary.length == 0)
+		gen_obscurity(null);
+	else
+		gen_obscurity(1);
 	
 	let show_item_details = (item_name, loc, i, j) => {
 		if (j !== null) {
@@ -284,8 +287,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 			let ss = c.details[i].start_state;
 			
-			flagIcons(si, ss.flags);
-			
 			let item_list = document.createElement("div");
 			item_list.className = "item-list";
 			let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
@@ -305,13 +306,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			si.appendChild(item_list);
+			
+			flagIcons(si, ss.flags);
 
 			let collectible_header = document.createElement("div");
 			collectible_header.className = "category";
 			collectible_header.innerHTML = "COLLECTIBLE ON THIS STEP";
 			si.appendChild(collectible_header);
 
-			flagIcons(si, c.summary[i].flags);
 
 			item_list = document.createElement("div");
 			item_list.className = "item-list";
@@ -331,6 +333,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 			si.appendChild(item_list);
 		}
+		
+		flagIcons(si, c.summary[i].flags, j);
+
 		let item_info = document.createElement("div");
 		let item_difficulty = "";
 		if (j !== null && j.difficulty !== null && j.difficulty !== undefined) {
@@ -345,7 +350,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			routeData(item_info, j.obtain_route);
 				
 			item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
-			routeData(item_info, j.return_route)
+			routeData(item_info, j.return_route);
 		}
 		si.appendChild(item_info);
 	}
@@ -425,24 +430,27 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 	}
-	function flagIcons(p, flags) {
+	function flagIcons(p, flags, j=null) {
 		for (i in flags) {
 			let x = flags[i]
 			let f = x;
 			if (x.flag != null)
 				f = x.flag;
 
+			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "f_AllItemsSpawn" || f == "f_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
+				continue;
+
 			let e = document.createElement("img");
 			if (f.includes("f_KilledMetroidRoom"))
-			e.src = "f_KilledMetroidRoom.png";
-			else if (f.includes("f_KilledZebetites"))
-			e.src = "f_KilledZebetites.png";
+				e.src = "f_KilledMetroidRoom.png";
 			else 
-			e.src = f + ".png";
+				e.src = f + ".png";
 			
-			e.style.height = "16px";
+			e.className = "ui-flag"
+			if (j && j.flag && j.flag == f)
+				e.classList.add("selected");
 			e.onclick = ev => {
-			showFlag(c.details, f);
+				showFlag(c.details, f);
 			}
 			p.appendChild(e);
 		}
@@ -508,43 +516,50 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 
 	// starting spot
-	let sr = null, e = null, i = -1;
+	let sr = null, e = null, ri = c.start_location.room_id, i =-1;
 	let n = c.start_location.name;
-	if (n == "Ship")
-	{
-		n = "Landing Site";
-		i = 1;
-	} else {
-		for (i in c.all_rooms) {
-			if (n.includes(c.all_rooms[i].room) )
-				break;
+	let found = true;
+	let ox = 0, oy = 0;
+	for (i in c.all_rooms) {
+		if (ri ==c.all_rooms[i].room_id )
+		{
+			found = true;
+			break;
 		}
 	}
-	if (i != c.all_rooms.length) {
-		sr = c.all_rooms[i];
-		e = document.createElement("img");
-		e.src = "samushelmet.png";
-		e.style.height = "24px";
-		e.className = "flag";
-		e.classList.add("start");
-		
-		e.style.left = sr.coords[0]*24+c.start_location.x+24-8+"px";
-		e.style.top = sr.coords[1]*24+c.start_location.y+24-16+"px";
-		e.onclick = ev => {
-			hubRoute();
-		}
-		e.onpointermove = ev => {
-			hideRoom();
-		}
-		document.getElementById("overlay").appendChild(e);
-		e = document.createElement("div");
-		e.className = "popup";
-		e.innerHTML = `<b>Starting Location</b><br><small>${sr.room}</small><br>`;
-		e.style.left = sr.coords[0] * 24+24+c.start_location.x+8 + "px";
-		e.style.top = sr.coords[1]*24+c.start_location.y+24+8 + "px";
-		document.getElementById("overlay").appendChild(e);
+	
+	if (n == "Ship") {
+		ox = 24;
+		oy = 6;
+	}
+	else if (n == "") {
+		n = "Mother Brain Room";
+		i = 248;
+		oy = 12;
 	}
 
+	sr = c.all_rooms[i];
+	e = document.createElement("img");
+	e.src = "samushelmet.png";
+	e.style.height = "24px";
+	e.className = "flag";
+	e.classList.add("start");
+	e.style.left = sr.coords[0] * 24 + c.start_location.x + 24 + ox + "px";
+	e.style.top = sr.coords[1] * 24 + c.start_location.y + 24 - 12 + oy + "px";
+	e.onclick = ev => {
+		hubRoute();
+	}
+	e.onpointermove = ev => {
+		hideRoom();
+	}
+	document.getElementById("overlay").appendChild(e);
+	e = document.createElement("div");
+	e.className = "popup";
+	e.innerHTML = `<b>Starting Location</b><br><small>${sr.room}</small><br>`;
+	e.style.left = sr.coords[0] * 24+c.start_location.x+48+ox+ "px";
+	e.style.top = sr.coords[1]*24+c.start_location.y+24+oy-12+ "px";
+	document.getElementById("overlay").appendChild(e);
+	
 	// ship
 	sr = c.all_rooms[1];
 	e = document.createElement("img");
@@ -554,7 +569,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	e.classList.add("ship");
 	e.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
 	e.style.left = sr.coords[0]*24+120-24+"px";
-	e.style.top = sr.coords[1]*24+120+"px";
+	e.style.top = sr.coords[1]*24+108+"px";
 	e.onclick = ev => {
 		document.getElementById("path-overlay").innerHTML = ""
 		show_overview();
@@ -569,7 +584,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	e.className = "popup";
 	e.innerHTML = `<b>Ship</b><br><small>${sr.room}</small><br>`;
 	e.style.left = sr.coords[0] * 24+120+24+32+"px";
-	e.style.top = sr.coords[1]* 24+120+24+8 + "px";
+	e.style.top = sr.coords[1]* 24+96+24+8 + "px";
 	document.getElementById("overlay").appendChild(e);
 
 	//flags	
@@ -577,12 +592,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e = document.createElement("img");
 		let rf = roomFlags[i];
 		let f = rf[0];
-		if (f.includes("f_KilledMetroidRoom"))
-			e.src = "f_KilledMetroidRoom.png";
-		else if (f.includes("f_KilledZebetites"))
-			e.src = "f_KilledZebetites.png";
-		else
-			e.src = f + ".png";
+		let obj = false;
+		if (f == "f_ZebesAwake")
+			continue;
 
 		for (j in c.all_rooms)
 		{
@@ -590,22 +602,30 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				break;
 		}
 		sr = c.all_rooms[j];
-		e.style.height = rf[4]+"px";
 		e.className = "flag";
 		e.classList.add(f);
-		found = false;
+		let fc = null;
 		for (ic in flagtypes) {
 			for (x of flagtypes[ic]) {
 				if (x == f) {
 					found = document.getElementById(ic).checked;
 					e.classList.add(ic);
+					
+					if (ic == "objectives")
+						obj = true;
+					else
+						fc = ic;
 					break;
 				}
 			}
 		}
+		if (obj)
+			e.src = fc + "obj.png"
+		else
+			e.src = fc + ".png"
 		e.style.visibility =  found ? "visible" : "hidden";
 		e.style.left = (sr.coords[0]+rf[2])*24+24+"px";
-		e.style.top = (sr.coords[1]+rf[3])*24+rf[4]/2+"px";
+		e.style.top = (sr.coords[1]+rf[3])*24+24+"px";
 		e.onclick = ev => {
 			showFlag(c.details, f);
 		}
@@ -617,6 +637,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e = document.createElement("div");
 		e.className = "popup";
 		e.innerHTML = `<b>${rf[1]}</b><br><small>${sr.room}</small><br>`;
+		if (obj == true)
+			e.innerHTML += "Objective<br>";
 		let fin = false;
 		out:
 		for (i in c.summary) {
@@ -631,8 +653,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (!fin) {
 			e.innerHTML += "Route unavailable<br>";
 		}
-		e.style.left = (sr.coords[0]+rf[2]) * 24+rf[4]+24 + "px";
-		e.style.top = (sr.coords[1]+rf[3])*24+rf[4]/2 + "px";
+		e.style.left = (sr.coords[0]+rf[2]) * 24+48 + "px";
+		e.style.top = (sr.coords[1]+rf[3])*+24+24 + "px";
 		document.getElementById("overlay").appendChild(e);
 	}
 

@@ -367,6 +367,16 @@ div {
 	display: block;
 	z-index: 2;
 }
+.ui-flag {
+	height: 24px;
+	margin-right: 2px;
+}
+.ui-flag.selected {
+	transform: scale(1.5);
+}
+.ui-flag:hover {
+	transform: scale(1.5);
+}
 #settings {
 	top: 16px;
 	right: 16px;
