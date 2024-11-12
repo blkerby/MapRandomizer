@@ -516,7 +516,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 
 	// starting spot
-	let sr = null, e = null, ri = c.start_location.room_id, i =-1;
+	let sr = null, e = null, ri = c.start_location.room_id, i=-1, x=0, y=0;
 	let n = c.start_location.name;
 	let found = true;
 	let ox = 0, oy = 0;
@@ -529,23 +529,26 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	
 	if (n == "Ship") {
-		ox = 24;
-		oy = 6;
+		ox = 36;
+		oy = 12;
 	}
 	else if (n == "") {
 		n = "Mother Brain Room";
 		i = 248;
+		ox = 12;
 		oy = 12;
 	}
-
 	sr = c.all_rooms[i];
 	e = document.createElement("img");
 	e.src = "samushelmet.png";
-	e.style.height = "24px";
 	e.className = "flag";
 	e.classList.add("start");
-	e.style.left = sr.coords[0] * 24 + c.start_location.x + 24 + ox + "px";
-	e.style.top = sr.coords[1] * 24 + c.start_location.y + 24 - 12 + oy + "px";
+
+	x = sr.coords[0] * 24 + c.start_location.x + 24 - 12 + ox;
+	y = sr.coords[1] * 24 + c.start_location.y + 24 - 12 + oy;
+
+	e.style.left =  x + "px";
+	e.style.top =  y + "px";
 	e.onclick = ev => {
 		hubRoute();
 	}
@@ -556,20 +559,22 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	e = document.createElement("div");
 	e.className = "popup";
 	e.innerHTML = `<b>Starting Location</b><br><small>${sr.room}</small><br>`;
-	e.style.left = sr.coords[0] * 24+c.start_location.x+48+ox+ "px";
-	e.style.top = sr.coords[1]*24+c.start_location.y+24+oy-12+ "px";
+	e.style.left = x+24+ "px";
+	e.style.top = y+ "px";
 	document.getElementById("overlay").appendChild(e);
 	
 	// ship
 	sr = c.all_rooms[1];
 	e = document.createElement("img");
 	e.src = "SamusShip.png";
-	e.style.height = "32px";
 	e.className = "flag";
 	e.classList.add("ship");
 	e.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
-	e.style.left = sr.coords[0]*24+120-24+"px";
-	e.style.top = sr.coords[1]*24+108+"px";
+	x = sr.coords[0]*24+104;
+	y = sr.coords[1]*24+120;
+	e.style.height = "24px";
+	e.style.left = x+"px";
+	e.style.top = y+"px";
 	e.onclick = ev => {
 		document.getElementById("path-overlay").innerHTML = ""
 		show_overview();
@@ -583,8 +588,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	e = document.createElement("div");
 	e.className = "popup";
 	e.innerHTML = `<b>Ship</b><br><small>${sr.room}</small><br>`;
-	e.style.left = sr.coords[0] * 24+120+24+32+"px";
-	e.style.top = sr.coords[1]* 24+96+24+8 + "px";
+	e.style.left = x + 64 +"px";
+	e.style.top = y + "px";
 	document.getElementById("overlay").appendChild(e);
 
 	//flags	

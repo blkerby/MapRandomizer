@@ -382,13 +382,13 @@ div {
 	right: 16px;
 	position: fixed;
 	pointer-events: auto;
-	width:auto;
 }
 #settingsCog {
 	float:right;
 }
 #settingsForm {
-	clear:both;
+	align-content:center;
+	clear:top;
 }
 #sublabel {
 	position:relative;
