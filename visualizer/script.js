@@ -245,7 +245,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 							img.data[addr * 4 + 3] = 0xD8; // mostly opaque
 							
 						}
-						if (c.hub_location_name.includes(v.room)) {
+						if (c.hub_location_name == v.room) {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
 							img.data[addr * 4] = 0xFF; // red
 						}
@@ -529,24 +529,28 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	
 	if (n == "Ship") {
-		ox = 36;
-		oy = 12;
-	}
-	else if (n == "") {
+		i = 1;
+		x = c.all_rooms[i].coords[0]*24+24;
+		y = c.all_rooms[i].coords[1]*24+24;
+		x += 96;
+		y += 72;	
+	} else if (n == "") {
 		n = "Mother Brain Room";
 		i = 248;
-		ox = 12;
-		oy = 12;
+		x = c.all_rooms[i].coords[0]*24+24;
+		y = c.all_rooms[i].coords[1]*24+24;
+	} else if (c.hub_obtain_route.length) {
+		let hr = c.hub_obtain_route[0]
+		x = hr.coords[0] *24+24;
+		y = hr.coords[1] *24+24;
 	}
+
 	sr = c.all_rooms[i];
+	console.log(c.start_location)
 	e = document.createElement("img");
 	e.src = "samushelmet.png";
 	e.className = "flag";
 	e.classList.add("start");
-
-	x = sr.coords[0] * 24 + c.start_location.x + 24 - 12 + ox;
-	y = sr.coords[1] * 24 + c.start_location.y + 24 - 12 + oy;
-
 	e.style.left =  x + "px";
 	e.style.top =  y + "px";
 	e.onclick = ev => {
