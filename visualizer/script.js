@@ -507,7 +507,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		show_overview();
 		showRoute(c.hub_return_route, "yellow");
 		showRoute(c.hub_obtain_route);
-		gen_obscurity(1);
+		if (c.summary.length)
+			gen_obscurity(1);
 	}
 
 	// starting spot
