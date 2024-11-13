@@ -515,18 +515,21 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	for (i in c.all_rooms) {
 		if (ri ==c.all_rooms[i].room_id )
 		{
-			// start location == hub
+			// only used when start location == hub
 			found = true;
 			x = c.all_rooms[i].coords[0]*24 +24 + c.start_location.x;
 			y = c.all_rooms[i].coords[1]*24 +24 + c.start_location.y;
 			break;
 		}
 	}
-	if (c.hub_obtain_route && c.hub_obtain_route.length) {
-		let hr = c.hub_obtain_route[0];
-		if (hr.coords) {
-			x = hr.coords[0] *24+24;
-			y = hr.coords[1] *24+24;
+	if (c.hub_obtain_route && c.hub_obtain_route.length>1) {
+		for (j in c.hub_obtain_route) {
+			let hr = c.hub_obtain_route[j];
+			if (hr.coords) {
+				x = hr.coords[0] *24+24;
+				y = hr.coords[1] *24+24;
+				break;
+			}
 		}
 	}
 	if (n == "Ship") {
@@ -548,11 +551,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let loc = c.all_items[i].location;
 		if (loc.room_id == ri) {
 			let rn = loc.room+": "+loc.node;
-			if (firstitem == null) {
-				x-=12;
-			} else if (firstitem[1][0] == loc.coords[0] && firstitem[1][1] == loc.coords[1]) {
-				x+=12;
-				y+=6;
+			let lx=loc.coords[0]*24+24, ly = loc.coords[1]*24+24;
+			if (lx == x && ly== y) {
+				if (firstitem == null) {
+					x-=12;
+				} else {
+					x+=12;
+					y+=6;
+				}
 			}
 		}
 	}

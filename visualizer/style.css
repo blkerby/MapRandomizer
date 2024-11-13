@@ -158,11 +158,15 @@ div {
 	cursor: pointer;
 }
 #msg-wrap {
-	position: absolute;
+	position:fixed;
 	display:flex;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
 	justify-content: center;
 	align-items: center;
-	height: 100vh;
+	z-index: 4;
 }
 .msg {
 	background: #222;
