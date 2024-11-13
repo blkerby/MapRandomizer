@@ -107,6 +107,9 @@ document.getElementById("settingsCog").onclick = ev => {
 	f.style.display = f.style.display == "none" ? "block" : "none";
 }
 loadForm(document.getElementById("settingsForm"));
+loadForm(document.getElementById("helpForm"));
+if (!document.getElementById("showonce").checked)
+	document.getElementById("msg-wrap").style.display = "flex";
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	flagtypes["objectives"] = c.objectives;
