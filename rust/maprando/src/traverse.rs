@@ -467,6 +467,154 @@ pub fn debug_requirement(
     }
 }
 
+fn apply_missiles_available_req(
+    local: LocalState,
+    global: &GlobalState,
+    count: Capacity,
+    reverse: bool,
+) -> Option<LocalState> {
+    if reverse {
+        let mut new_local = local;
+        if global.inventory.max_missiles < count {
+            None
+        } else {
+            new_local.missiles_used = Capacity::max(new_local.missiles_used, count);
+            Some(new_local)
+        }
+    } else {
+        if global.inventory.max_missiles - local.missiles_used < count {
+            None
+        } else {
+            Some(local)
+        }
+    }
+}
+
+fn apply_supers_available_req(
+    local: LocalState,
+    global: &GlobalState,
+    count: Capacity,
+    reverse: bool,
+) -> Option<LocalState> {
+    if reverse {
+        let mut new_local = local;
+        if global.inventory.max_supers < count {
+            None
+        } else {
+            new_local.supers_used = Capacity::max(new_local.supers_used, count);
+            Some(new_local)
+        }
+    } else {
+        if global.inventory.max_supers - local.supers_used < count {
+            None
+        } else {
+            Some(local)
+        }
+    }
+}
+
+fn apply_power_bombs_available_req(
+    local: LocalState,
+    global: &GlobalState,
+    count: Capacity,
+    reverse: bool,
+) -> Option<LocalState> {
+    if reverse {
+        let mut new_local = local;
+        if global.inventory.max_power_bombs < count {
+            None
+        } else {
+            new_local.power_bombs_used = Capacity::max(new_local.power_bombs_used, count);
+            Some(new_local)
+        }
+    } else {
+        if global.inventory.max_power_bombs - local.power_bombs_used < count {
+            None
+        } else {
+            Some(local)
+        }
+    }
+}
+
+fn apply_regular_energy_available_req(
+    local: LocalState,
+    global: &GlobalState,
+    count: Capacity,
+    reverse: bool,
+) -> Option<LocalState> {
+    if reverse {
+        let mut new_local = local;
+        if global.inventory.max_energy < count {
+            None
+        } else {
+            new_local.energy_used = Capacity::max(new_local.energy_used, count);
+            Some(new_local)
+        }
+    } else {
+        if global.inventory.max_energy - local.energy_used < count {
+            None
+        } else {
+            Some(local)
+        }
+    }
+}
+
+fn apply_reserve_energy_available_req(
+    local: LocalState,
+    global: &GlobalState,
+    count: Capacity,
+    reverse: bool,
+) -> Option<LocalState> {
+    if reverse {
+        let mut new_local = local;
+        if global.inventory.max_reserves < count {
+            None
+        } else {
+            new_local.reserves_used = Capacity::max(new_local.reserves_used, count);
+            Some(new_local)
+        }
+    } else {
+        if global.inventory.max_reserves - local.reserves_used < count {
+            None
+        } else {
+            Some(local)
+        }
+    }
+}
+
+fn apply_energy_available_req(
+    local: LocalState,
+    global: &GlobalState,
+    count: Capacity,
+    reverse: bool,
+) -> Option<LocalState> {
+    if reverse {
+        let mut new_local = local;
+        if global.inventory.max_energy + global.inventory.max_reserves < count {
+            None
+        } else {
+            if global.inventory.max_energy < count {
+                new_local.energy_used = global.inventory.max_energy;
+                new_local.reserves_used =
+                    Capacity::max(new_local.reserves_used, count - global.inventory.max_energy);
+                Some(new_local)
+            } else {
+                new_local.energy_used = Capacity::max(new_local.energy_used, count);
+                Some(new_local)
+            }
+        }
+    } else {
+        if global.inventory.max_reserves - local.reserves_used + global.inventory.max_energy
+            - local.energy_used
+            < count
+        {
+            None
+        } else {
+            Some(local)
+        }
+    }
+}
+
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
@@ -649,6 +797,23 @@ pub fn apply_requirement(
                 validate_energy_no_auto_reserve(new_local, global, game_data, difficulty)
             }
         }
+        Requirement::Energy(count) => {
+            let mut new_local = local;
+            new_local.energy_used += *count;
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
+        }
+        Requirement::RegularEnergy(count) => {
+            // For now, we assume reserve energy can be converted to regular energy, so this is
+            // implemented the same as the Energy requirement above.
+            let mut new_local = local;
+            new_local.energy_used += *count;
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
+        }
+        Requirement::ReserveEnergy(count) => {
+            let mut new_local = local;
+            new_local.reserves_used += *count;
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
+        }
         Requirement::Missiles(count) => {
             let mut new_local = local;
             new_local.missiles_used += *count;
@@ -680,119 +845,56 @@ pub fn apply_requirement(
             }
         }
         Requirement::MissilesAvailable(count) => {
-            if reverse {
-                let mut new_local = local;
-                if global.inventory.max_missiles < *count {
-                    None
-                } else {
-                    new_local.missiles_used = Capacity::max(new_local.missiles_used, *count);
-                    Some(new_local)
-                }
-            } else {
-                if global.inventory.max_missiles - local.missiles_used < *count {
-                    None
-                } else {
-                    Some(local)
-                }
-            }
+            apply_missiles_available_req(local, global, *count, reverse)
         }
         Requirement::SupersAvailable(count) => {
-            if reverse {
-                let mut new_local = local;
-                if global.inventory.max_supers < *count {
-                    None
-                } else {
-                    new_local.supers_used = Capacity::max(new_local.supers_used, *count);
-                    Some(new_local)
-                }
-            } else {
-                if global.inventory.max_supers - local.supers_used < *count {
-                    None
-                } else {
-                    Some(local)
-                }
-            }
+            apply_supers_available_req(local, global, *count, reverse)
         }
         Requirement::PowerBombsAvailable(count) => {
-            if reverse {
-                let mut new_local = local;
-                if global.inventory.max_power_bombs < *count {
-                    None
-                } else {
-                    new_local.power_bombs_used = Capacity::max(new_local.power_bombs_used, *count);
-                    Some(new_local)
-                }
-            } else {
-                if global.inventory.max_power_bombs - local.power_bombs_used < *count {
-                    None
-                } else {
-                    Some(local)
-                }
-            }
+            apply_power_bombs_available_req(local, global, *count, reverse)
         }
         Requirement::RegularEnergyAvailable(count) => {
-            if reverse {
-                let mut new_local = local;
-                if global.inventory.max_energy < *count {
-                    None
-                } else {
-                    new_local.energy_used = Capacity::max(new_local.energy_used, *count);
-                    Some(new_local)
-                }
-            } else {
-                if global.inventory.max_energy - local.energy_used < *count {
-                    None
-                } else {
-                    Some(local)
-                }
-            }
+            apply_regular_energy_available_req(local, global, *count, reverse)
         }
         Requirement::ReserveEnergyAvailable(count) => {
-            if reverse {
-                let mut new_local = local;
-                if global.inventory.max_reserves < *count {
-                    None
-                } else {
-                    new_local.reserves_used = Capacity::max(new_local.reserves_used, *count);
-                    Some(new_local)
-                }
-            } else {
-                if global.inventory.max_reserves - local.reserves_used < *count {
-                    None
-                } else {
-                    Some(local)
-                }
-            }
+            apply_reserve_energy_available_req(local, global, *count, reverse)
         }
         Requirement::EnergyAvailable(count) => {
-            if reverse {
-                let mut new_local = local;
-                if global.inventory.max_energy + global.inventory.max_reserves < *count {
-                    None
-                } else {
-                    if global.inventory.max_energy < *count {
-                        new_local.energy_used = global.inventory.max_energy;
-                        new_local.reserves_used = Capacity::max(
-                            new_local.reserves_used,
-                            *count - global.inventory.max_energy,
-                        );
-                        Some(new_local)
-                    } else {
-                        new_local.energy_used = Capacity::max(new_local.energy_used, *count);
-                        Some(new_local)
-                    }
-                }
-            } else {
-                if global.inventory.max_reserves - local.reserves_used + global.inventory.max_energy
-                    - local.energy_used
-                    < *count
-                {
-                    None
-                } else {
-                    Some(local)
-                }
-            }
+            apply_energy_available_req(local, global, *count, reverse)
         }
+        Requirement::MissilesMissingAtMost(count) => apply_missiles_available_req(
+            local,
+            global,
+            global.inventory.max_missiles - *count,
+            reverse,
+        ),
+        Requirement::SupersMissingAtMost(count) => {
+            apply_supers_available_req(local, global, global.inventory.max_supers - *count, reverse)
+        }
+        Requirement::PowerBombsMissingAtMost(count) => apply_power_bombs_available_req(
+            local,
+            global,
+            global.inventory.max_power_bombs - *count,
+            reverse,
+        ),
+        Requirement::RegularEnergyMissingAtMost(count) => apply_regular_energy_available_req(
+            local,
+            global,
+            global.inventory.max_energy - *count,
+            reverse,
+        ),
+        Requirement::ReserveEnergyMissingAtMost(count) => apply_reserve_energy_available_req(
+            local,
+            global,
+            global.inventory.max_reserves - *count,
+            reverse,
+        ),
+        Requirement::EnergyMissingAtMost(count) => apply_energy_available_req(
+            local,
+            global,
+            global.inventory.max_energy + global.inventory.max_reserves - *count,
+            reverse,
+        ),
         Requirement::MissilesCapacity(count) => {
             if global.inventory.max_missiles >= *count {
                 Some(local)

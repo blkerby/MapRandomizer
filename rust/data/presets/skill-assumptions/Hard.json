@@ -675,6 +675,11 @@
             "enabled": false
         },
         {
+            "id": 188,
+            "name": "canPreciseReserveRefill",
+            "enabled": false
+        },
+        {
             "id": 28,
             "name": "canEnemyStuckMoonfall",
             "enabled": false
@@ -1052,6 +1057,13 @@
             "notable_id": 1,
             "room_name": "Glass Tunnel",
             "notable_name": "Tube Clip",
+            "enabled": true
+        },
+        {
+            "room_id": 178,
+            "notable_id": 2,
+            "room_name": "Mama Turtle Room",
+            "notable_name": "Shoot Down and Grab Right Item",
             "enabled": true
         },
         {
@@ -1965,6 +1977,13 @@
             "enabled": false
         },
         {
+            "room_id": 99,
+            "notable_id": 1,
+            "room_name": "Norfair Reserve Tank Room",
+            "notable_name": "Power Bomb with Damage Boost",
+            "enabled": false
+        },
+        {
             "room_id": 112,
             "notable_id": 1,
             "room_name": "Spiky Acid Snakes Tunnel",
@@ -2543,6 +2562,13 @@
             "notable_id": 1,
             "room_name": "Blue Brinstar Energy Tank Room",
             "notable_name": "G-Mode Flashing Lights",
+            "enabled": false
+        },
+        {
+            "room_id": 41,
+            "notable_id": 6,
+            "room_name": "Blue Brinstar Energy Tank Room",
+            "notable_name": "Leave With Spark (Fast Wall Climb)",
             "enabled": false
         },
         {

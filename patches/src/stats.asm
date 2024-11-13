@@ -93,8 +93,6 @@ nmi_timer_hook:
     beq .normal_nmi
     phx
     phy
-    jsl $808c83                   ; process DMA
-    stz $5b4                      ; clear NMI flag
     jsr inc_skipcount             ; area timer func (skip $5b8 inc)
     ply
     plx

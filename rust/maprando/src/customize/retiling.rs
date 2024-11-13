@@ -131,8 +131,12 @@ pub fn apply_retiling(
     }
 
     if *theme != TileTheme::Vanilla {
+        // Enable tileset swap based on map area
         rom.write_u16(snes2pc(0x8AB500), 0xF0F0)?;
     }
+
+    // Enable handling of always-on NMI (for scrolling sky)
+    rom.write_u16(snes2pc(0x8AB180), 0xFFFF)?;
 
     // Make the Toilet's intersecting room use the same tile theme as the Toilet.
     // Likewise for East Pants Room and Homing Geemer Room.

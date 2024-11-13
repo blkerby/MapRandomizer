@@ -21,6 +21,7 @@ v115:
 - DONE: set up script to automate syncing logic changes
   - DONE: update skill assumption presets and full-settings presets
 - DONE: simplify DifficultyConfig
+- reduce Medium shortcharge tiles to 25? (will apply in bottom of Crateria Supers)
 - simplify SeedData
 - presets:
   - show built-in preset on seed page if verified
