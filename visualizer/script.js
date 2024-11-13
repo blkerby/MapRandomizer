@@ -243,11 +243,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
 						} else {
 							img.data[addr * 4 + 3] = 0xD8; // mostly opaque
-							
-						}
-						if (c.hub_location_name == v.room) {
-							img.data[addr * 4 + 3] = 0x7F; // semiopaque
-							img.data[addr * 4] = 0xFF; // red
 						}
 					}
 				}
@@ -441,10 +436,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				continue;
 
 			let e = document.createElement("img");
-			if (f.includes("f_KilledMetroidRoom"))
-				e.src = "f_KilledMetroidRoom.png";
-			else 
-				e.src = f + ".png";
+			e.src = f + ".png";
 			
 			e.className = "ui-flag"
 			if (j && j.flag && j.flag == f)
@@ -516,18 +508,27 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 
 	// starting spot
-	let sr = null, e = null, ri = c.start_location.room_id, i=-1, x=0, y=0;
+	let sr = null, e = null, ri = c.start_location.room_id, ni = c.start_location.node_id, i=-1, x=0, y=0;
 	let n = c.start_location.name;
 	let found = true;
 	let ox = 0, oy = 0;
 	for (i in c.all_rooms) {
 		if (ri ==c.all_rooms[i].room_id )
 		{
+			// start location == hub
 			found = true;
+			x = c.all_rooms[i].coords[0]*24 +24 + c.start_location.x;
+			y = c.all_rooms[i].coords[1]*24 +24 + c.start_location.y;
 			break;
 		}
 	}
-	
+	if (c.hub_obtain_route && c.hub_obtain_route.length) {
+		let hr = c.hub_obtain_route[0];
+		if (hr.coords) {
+			x = hr.coords[0] *24+24;
+			y = hr.coords[1] *24+24;
+		}
+	}
 	if (n == "Ship") {
 		i = 1;
 		x = c.all_rooms[i].coords[0]*24+24;
@@ -539,20 +540,30 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		i = 248;
 		x = c.all_rooms[i].coords[0]*24+24;
 		y = c.all_rooms[i].coords[1]*24+24;
-	} else if (c.hub_obtain_route.length) {
-		let hr = c.hub_obtain_route[0]
-		x = hr.coords[0] *24+24;
-		y = hr.coords[1] *24+24;
 	}
 
 	sr = c.all_rooms[i];
-	console.log(c.start_location)
+	let firstitem = null;
+	for (i in c.all_items) {
+		let loc = c.all_items[i].location;
+		if (loc.room_id == ri) {
+			let rn = loc.room+": "+loc.node;
+			if (firstitem == null) {
+				x-=12;
+			} else if (firstitem[1][0] == loc.coords[0] && firstitem[1][1] == loc.coords[1]) {
+				x+=12;
+				y+=6;
+			}
+		}
+	}
+
 	e = document.createElement("img");
-	e.src = "samushelmet.png";
+	e.src = "helm.png";
 	e.className = "flag";
 	e.classList.add("start");
 	e.style.left =  x + "px";
 	e.style.top =  y + "px";
+	e.style.setProperty("z-index", "4");
 	e.onclick = ev => {
 		hubRoute();
 	}
@@ -570,13 +581,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	// ship
 	sr = c.all_rooms[1];
 	e = document.createElement("img");
-	e.src = "SamusShip.png";
+	e.src = "gunship.png";
 	e.className = "flag";
 	e.classList.add("ship");
 	e.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
-	x = sr.coords[0]*24+104;
-	y = sr.coords[1]*24+120;
-	e.style.height = "24px";
+	x = sr.coords[0]*24+116;
+	y = sr.coords[1]*24+124;
 	e.style.left = x+"px";
 	e.style.top = y+"px";
 	e.onclick = ev => {
