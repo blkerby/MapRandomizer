@@ -510,11 +510,63 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	function hubRoute() {
 		document.getElementById("path-overlay").innerHTML = ""
-		show_overview();
+		// escape mode
+		if (c.summary.length ==0)
+			return;
+
+		gen_obscurity(1);
+
+		if (c.hub_obtain_route.length == 0)
+			return;
+		
 		showRoute(c.hub_return_route, "yellow");
 		showRoute(c.hub_obtain_route);
-		if (c.summary.length)
-			gen_obscurity(1);
+
+
+		let si = document.getElementById("sidebar-info")
+		si.scrollTop = 0;
+		si.innerHTML = "";
+		let title = document.createElement("div");
+		title.className = "sidebar-title";
+		title.innerHTML = `Hub route`;
+		si.appendChild(title);
+		
+
+		let previous_header = document.createElement("div");
+		previous_header.className = "category";
+		previous_header.innerHTML = "PREVIOUSLY COLLECTED";
+		si.appendChild(previous_header);
+
+		let ss = c.details[0].start_state;
+		
+		let item_list = document.createElement("div");
+		item_list.className = "item-list";
+		let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
+		let ic = [1, 2, 3, 0, 20];
+		for (let i in s) {
+			if (s[i] > 0) {
+				item_list.appendChild(icon(ic[i]));
+				let count = document.createElement("span");
+				count.innerHTML = s[i] + " ";
+				item_list.appendChild(count);
+			}
+		}
+		for (let i of ss.items) {
+			if (i == "Nothing") { continue; }
+			if (!ic.includes(item_plm[i])) {
+				item_list.appendChild(icon(item_plm[i]));
+			}
+		}
+		si.appendChild(item_list);
+		
+		flagIcons(si, ss.flags);
+		let item_info = document.createElement("div");
+		item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
+		routeData(item_info, c.hub_obtain_route);
+				
+		item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
+		routeData(item_info, c.hub_return_route);
+		si.appendChild(item_info);
 	}
 
 	// starting spot
@@ -785,7 +837,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				el.style.top = ev.offsetY + "px";
 				el.classList.remove("hidden");
 				if (el.innerText.length != "" && c.hub_location_name.includes(el.innerText)) {
-					el.innerHTML += "<br>Hub";
+					el.innerHTML += " (Hub)";
 				}
 				return;
 			}
