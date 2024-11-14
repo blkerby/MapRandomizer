@@ -181,6 +181,7 @@ div {
 	margin: 10px;
 }
 .flag {
+	image-rendering: pixelated;
 	position: absolute;
 }
 .flag:hover {
@@ -188,6 +189,30 @@ div {
 	z-index: 2;
 }
 .flag:hover + .popup {
+	display: block;
+	z-index: 2;
+}
+.start {
+	image-rendering: pixelated;
+	position: absolute;
+}
+.start:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.start:hover + .popup {
+	display: block;
+	z-index: 2;
+}
+.ship {
+	image-rendering: pixelated;
+	position: absolute;
+}
+.ship:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.ship:hover + .popup {
 	display: block;
 	z-index: 2;
 }

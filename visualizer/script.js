@@ -43,27 +43,30 @@ for (i of document.getElementsByClassName("subflags")) {
 		
 	}
 }
+document.getElementById("ship").onchange = ev => {
+	document.getElementById("gunship").style.visibility = ev.target.checked ? "visible" : "hidden";
+}
+document.getElementById("start").onchange = ev => {
+	document.getElementById("helm").style.visibility = ev.target.checked ? "visible" : "hidden";
+}
 function toggleflagvis(toggletype, vis) {
 	togglevis(toggletype, vis);
-	if (toggletype == "objectives") {
-		for (let e of document.getElementsByClassName("flag")) {
-			for (cn of e.classList) {
-				if (document.getElementById(cn) && document.getElementById(cn).checked)
-				{
-					e.style.visibility = "visible";
-					break;
-				}
+	for (let sf of document.getElementsByClassName("subflags")) {
+		let gone = true;
+		let full = true;
+		for (let e of document.getElementsByClassName(sf.id)) {
+			if (e.style.visibility == "visible") {
+				gone=false;
+			} else {
+				full=false;
 			}
 		}
-		for (let e of document.getElementsByClassName(toggletype)) {
-			e.src = vis == "visible" ? e.classList[1] + "obj.png" : e.classList[1] + ".png";
-		}
+		if (gone)
+			sf.checked = false;
+		if (full)
+			sf.checked = true;
 	}
-	if (document.getElementById("objectives").checked) {
-		for (let e of document.getElementsByClassName("objectives")) {
-			e.style.visibility = "visible";
-		}
-	}
+	fullcheck("flags");
 }
 function togglevis(toggletype, vis) {
 	var toggles = document.getElementsByClassName(toggletype);
@@ -103,9 +106,6 @@ document.getElementById("flags").onchange = ev => {
 	a = document.getElementsByClassName("subflags");
 	for (e of a) {
 		e.checked = checked;
-	}
-	for (let e of document.getElementsByClassName("objectives")) {
-		e.src = checked ? e.classList[1] + "obj.png" : e.classList[1] + ".png";
 	}
 }
 document.getElementById("settingsCog").onclick = ev => {
@@ -575,11 +575,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 	e = document.createElement("img");
 	e.src = "helm.png";
-	e.className = "flag";
-	e.classList.add("start");
+	e.id = "helm"
+	e.className = "start";
 	e.style.left =  x + "px";
 	e.style.top =  y + "px";
 	e.style.setProperty("z-index", "4");
+	e.style.visibility = document.getElementById("start").checked ? "visible" : "hidden";
 	e.onclick = ev => {
 		hubRoute();
 	}
@@ -598,13 +599,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	sr = c.all_rooms[1];
 	e = document.createElement("img");
 	e.src = "gunship.png";
-	e.className = "flag";
-	e.classList.add("ship");
-	e.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
-	x = sr.coords[0]*24+116;
-	y = sr.coords[1]*24+124;
+	e.id = "gunship"
+	e.className = "ship";
+	
+	x = sr.coords[0]*24+108;
+	y = sr.coords[1]*24+120;
 	e.style.left = x+"px";
 	e.style.top = y+"px";
+	e.style.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
 	e.onclick = ev => {
 		document.getElementById("path-overlay").innerHTML = ""
 		show_overview();
@@ -654,10 +656,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 		}
-		if (obj)
-			e.src = fc + "obj.png"
-		else
-			e.src = fc + ".png"
+		e.src = fc + ".png"
 		e.style.visibility =  found ? "visible" : "hidden";
 		e.style.left = (sr.coords[0]+rf[2])*24+24+"px";
 		e.style.top = (sr.coords[1]+rf[3])*24+24+"px";
