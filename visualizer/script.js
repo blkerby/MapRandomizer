@@ -46,7 +46,7 @@ for (i of document.getElementsByClassName("subflags")) {
 function toggleflagvis(toggletype, vis) {
 	togglevis(toggletype, vis);
 	if (toggletype == "objectives") {
-		for (e of document.getElementsByClassName("flag")) {
+		for (let e of document.getElementsByClassName("flag")) {
 			for (cn of e.classList) {
 				if (document.getElementById(cn) && document.getElementById(cn).checked)
 				{
@@ -55,9 +55,12 @@ function toggleflagvis(toggletype, vis) {
 				}
 			}
 		}
+		for (let e of document.getElementsByClassName(toggletype)) {
+			e.src = vis == "visible" ? e.classList[1] + "obj.png" : e.classList[1] + ".png";
+		}
 	}
 	if (document.getElementById("objectives").checked) {
-		for (e of document.getElementsByClassName("objectives")) {
+		for (let e of document.getElementsByClassName("objectives")) {
 			e.style.visibility = "visible";
 		}
 	}
@@ -100,6 +103,9 @@ document.getElementById("flags").onchange = ev => {
 	a = document.getElementsByClassName("subflags");
 	for (e of a) {
 		e.checked = checked;
+	}
+	for (let e of document.getElementsByClassName("objectives")) {
+		e.src = checked ? e.classList[1] + "obj.png" : e.classList[1] + ".png";
 	}
 }
 document.getElementById("settingsCog").onclick = ev => {
@@ -354,7 +360,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	function routeData(p, route) {
 		let lastRoom=null, lastNode=null;
-		for (k of route) {
+		for (let k of route) {
 			let out = "";
 			if (k.energy_used !== undefined) {
 				out += `Energy still needed: ${k.energy_used + 1}<br>`;
@@ -622,7 +628,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let rf = roomFlags[i];
 		let f = rf[0];
 		let obj = false;
-		if (f == "f_ZebesAwake")
+		if (f == "f_ZebesAwake" || f == "f_DefeatedBombTorizo")
 			continue;
 
 		for (j in c.all_rooms)
@@ -632,7 +638,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		sr = c.all_rooms[j];
 		e.className = "flag";
-		e.classList.add(f);
+		e.id = f;
 		let fc = null;
 		for (ic in flagtypes) {
 			for (x of flagtypes[ic]) {

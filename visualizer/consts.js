@@ -32,7 +32,7 @@ const offsets = {
 	"Bubble Mountain: Bottom Right Item": [1, 3],
 	"Watering Hole: Left Item": [-0.25, 2],
 	"Watering Hole: Right Item": [0.25, 2],
-	"Speed Booster Room: Hidden Item": [11, 1],
+	"Speed Booster Hall: Hidden Item": [11, 1],
 	"West Sand Hole: Top Left - Right Item": [0.25, 0],
 	"West Sand Hole: Top Left - Left Item": [-0.25, 0],
 	"East Sand Hole: Top Left Item": [0, 0],
@@ -72,7 +72,6 @@ const offsets = {
 	"Big Pink: Bottom Chozo Item": [2, 7],
 	"Bowling Alley: Bottom Chozo Item": [3, 2],
 	"Bowling Alley: Top Right Item": [5, 0],
-	"Bomb Torizo Room: Item": [-0.25, 0],
 };
 let item_plm = {
 	"ETank": 0,
