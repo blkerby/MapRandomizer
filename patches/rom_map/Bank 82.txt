@@ -2,7 +2,8 @@ F70F - FA00: map_area.asm
 FA00 - FA80: alternate_door_colors
 FA80 - FA90: fix_water_fx_bug
 FA90 - FBB0: seed_hash_display
-FBB0 - FD00: [FREE]
+FBB0 - FC30: fix_kraid_hud
+FC30 - FD00: [FREE]
 FD00 - FD80: item_dots_disappear
 FD80 - FE00: fast_doors
 FE00 - FE80: fast_reload
