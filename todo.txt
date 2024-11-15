@@ -28,6 +28,11 @@ v115:
   - download settings preset from seed page
     - remove custom name from settings JSON
 - built-in presets: default, and season 2 racing
+- new sm-json-data tests:
+  - leaveWithSpark should have shinespark in requires
+  - heated room strats should have heat frames
+  - resetRoom should reset obstacles
+- implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark?
 
 v114:
 - DONE: add more new tech/notables to release notes
