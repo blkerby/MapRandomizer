@@ -1,6 +1,8 @@
 ; Kraid exit HUD corruption fix for SM Map Rando
 ; 
 ; Occurs due to Kraid room moving HUD (BG3) tileset address to $2000, then back to $4000 on room exit.
+; Since the doors are left open initially, this can create a graphical race condition leading to 
+; transient corruption. We fix this by doing a DMA write earlier in the door transition process.
 ;
 ; -Stag Shot
 
@@ -13,8 +15,8 @@ lorom
 org $82de1d
     jmp room_ptr_hook
 
-org $8883dc
-    jml write_hud_vram
+org $8883d8
+    jsl write_hud_vram
 
 org !bank_82_free_space_start
 room_ptr_hook:              ; A = next room; $79b = current room
@@ -47,16 +49,10 @@ write_hud_vram:
     cmp #$02                ; left kraid?
     bne .leave
 
+    stz $009a               ; clear temp flag
+
     lda #$80
     sta $2100
-
-    phb
-    pea $8000 : plb : plb   ; set DB for reserve_hud
-    rep #$30
-    jsr $ff03               ; reserve_hud repaint (skip inc $998)
-    plb
-
-    stz $009a               ; clear temp flag
 
     sep #$20
     lda #$80
@@ -83,8 +79,8 @@ write_hud_vram:
     plp
     plx
     pla
-    sta $5a                 ; replaced code
-    sta $5b
-    jml $8883e0
+    sta $59                 ; replaced code
+    lda #$5A
+    rtl
 
 warnpc !bank_82_free_space_end

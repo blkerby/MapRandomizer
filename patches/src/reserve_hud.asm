@@ -329,9 +329,27 @@ FUNCTION_PAUSE_REPAINT_HELPER:
     JSL FUNCTION_REPAINT
     RTS
 
+FUNCTION_NEWROOM_REPAINT_BG3:
+    PHA
+    PHP
+    PHB
+    REP #$30
+    PEA $8000 : PLB : PLB
+    JSL FUNCTION_REPAINT
+    PLB
+    PLP
+    PLA
+    STA $5A ; Original code
+    STA $5B
+    RTL
+
 ; Hook: On reserve pickup
 org $848986
     JSR HOOK_RESERVE_PICKUP
+
+; Hook: Prevents blinking of reserve HUD on BG3 base address update (exiting Kraid)
+org $8883dc
+    JSL FUNCTION_NEWROOM_REPAINT_BG3
 
 org !bank_84_free_space_start
 HOOK_RESERVE_PICKUP:
