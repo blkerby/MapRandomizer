@@ -613,6 +613,11 @@
                 "enabled": false
             },
             {
+                "id": 189,
+                "name": "canControlShinesparkEnd",
+                "enabled": false
+            },
+            {
                 "id": 140,
                 "name": "canSlowShortCharge",
                 "enabled": false
@@ -655,6 +660,11 @@
             {
                 "id": 181,
                 "name": "canMomentumConservingMorph",
+                "enabled": false
+            },
+            {
+                "id": 190,
+                "name": "canUsePowerBombLag",
                 "enabled": false
             },
             {
@@ -2012,6 +2022,13 @@
                 "notable_id": 5,
                 "room_name": "Crocomire Escape",
                 "notable_name": "Ice Only Geruta Platforming",
+                "enabled": false
+            },
+            {
+                "room_id": 120,
+                "notable_id": 4,
+                "room_name": "Crocomire Speedway",
+                "notable_name": "Reverse Spark With Pause Abuse",
                 "enabled": false
             },
             {

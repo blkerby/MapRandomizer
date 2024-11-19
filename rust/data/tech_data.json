@@ -858,6 +858,12 @@
         "video_id": 806
     },
     {
+        "tech_id": 189,
+        "name": "canControlShinesparkEnd",
+        "difficulty": "Expert",
+        "video_id": null
+    },
+    {
         "tech_id": 140,
         "name": "canSlowShortCharge",
         "difficulty": "Expert",
@@ -1126,6 +1132,12 @@
         "name": "canSkipDoorLock",
         "difficulty": "Extreme",
         "video_id": 800
+    },
+    {
+        "tech_id": 190,
+        "name": "canUsePowerBombLag",
+        "difficulty": "Expert",
+        "video_id": null
     },
     {
         "tech_id": 10001,
