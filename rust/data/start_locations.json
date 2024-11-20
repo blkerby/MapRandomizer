@@ -362,8 +362,7 @@
     {
         "name": "Construction Zone Top",
         "room_id": 39,
-        "node_id": 4,
-        "door_load_node_id": 1,
+        "node_id": 1,
         "x": 8,
         "y": 8
     },
