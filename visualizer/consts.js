@@ -144,7 +144,7 @@ let item_rank = {
 	"Missile": 22,
 };
 let roomFlags = {
-	"Bomb Torizo Room": ["f_DefeatedBombTorizo", "Defeat Bomb Torizo", 0.25,0],
+	"Bomb Torizo Room": ["f_DefeatedBombTorizo", "Defeat Bomb Torizo", 0,0],
 	"Botwoon's Room": ["f_DefeatedBotwoon", "Defeat Botwoon",0.5,0],
 	"Crocomire's Room": ["f_DefeatedCrocomire", "Defeat Crocomire",4,0],
 	"Draygon's Room": ["f_DefeatedDraygon", "Defeat Draygon",0.5,0.5],
@@ -174,8 +174,6 @@ let roomFlags = {
 	"Blue Brinstar Energy Tank Room": ["f_ZebesAwake", "Awaken Zebes",0,2.5],
 };
 let flagtypes = {
-	"start":["start"],
-	"ship":["ship"],
 	"bosses":["f_DefeatedKraid","f_DefeatedPhantoon",
 		"f_DefeatedDraygon","f_DefeatedRidley","f_DefeatedMotherBrain"],
 	"minibosses":["f_DefeatedBombTorizo","f_DefeatedSporeSpawn","f_DefeatedCrocomire",

@@ -40,37 +40,20 @@
     <div id="settings">
         <i id="settingsCog" class="bi bi-gear"></i>
         <form id="settingsForm" onchange="saveForm(this)" style="display:none">
-            <input type="checkbox" id="items" name="items">
-            <label for="items">items</label>
-            <br>
-            <div id="sublabel">
-                <input class="subitems" type=checkbox id="majors" name="majors">
-                <label for="majors">majors</label><br>
-                <input class="subitems" type=checkbox id="health" name="health">
-                <label for="health">tanks</label><br>
-                <input class="subitems" type=checkbox id="ammo" name="ammo">
-                <label for="ammo">ammo</label><br>
-                <input class="subitems" type=checkbox id="missiles" name="missiles">
-                <label for="missiles">missiles</label><br>
-            </div>
-            <br>
-            <input type="checkbox" id="flags" name="flags">
-            <label for="flags">flags</label>
-            <div id="sublabel">
-                <input class="subflags" type=checkbox id="objectives" name="objectives">
-                <label for="objectives">objectives</label><br>
-                <input class="subflags" type=checkbox id="bosses" name="bosses">
-                <label for="bosses">bosses</label><br>
-                <input class="subflags" type=checkbox id="minibosses" name="minibosses">
-                <label for="minibosses">minibosses</label><br>
-                <input class="subflags" type=checkbox id="misc" name="misc">
-                <label for="misc">misc</label><br>
-            </div>
-            <br>
             <input type=checkbox id="start" name="start">
             <label for="start">start</label><br>
             <input type=checkbox id="ship" name="ship">
             <label for="ship">ship</label><br>
+            <input type="checkbox" class="subflags" id="items" name="items" onchange="toggleitemvis(event)">
+            <label for="items">items</label><br>
+            <input type=checkbox class="subflags" id="objectives" name="objectives" onchange="toggleflagvis(event)">
+            <label for="objectives">objectives</label><br>
+            <input type=checkbox class="subflags" id="bosses" name="bosses" onchange="toggleflagvis(event)">
+            <label for="bosses">bosses</label><br>
+            <input type=checkbox class="subflags" id="minibosses" name="minibosses" onchange="toggleflagvis(event)">
+            <label for="minibosses">minibosses</label><br>
+            <input type=checkbox class="subflags" id="misc" name="misc" onchange="toggleflagvis(event)">
+            <label for="misc">misc</label><br>
         </form>
     </div>
     <script src="consts.js"></script>
