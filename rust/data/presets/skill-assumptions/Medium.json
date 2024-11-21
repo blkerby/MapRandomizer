@@ -1,6 +1,6 @@
 {
     "preset": "Medium",
-    "shinespark_tiles": 26,
+    "shinespark_tiles": 25,
     "heated_shinespark_tiles": 29,
     "speed_ball_tiles": 50,
     "shinecharge_leniency_frames": 90,
