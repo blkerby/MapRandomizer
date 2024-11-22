@@ -11,7 +11,7 @@ v115:
 - DONE: fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
 - DONE: improve reproducibility:
   - try processing region files in a deterministic order
-- add pause & area times to credits
+- DONE: add pause & area times to credits
 - DONE: investigate issue with door lock skips not being in logic?:
   - sam's seed: https://dev.maprando.com/seed/Y9zWgfcGD/
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
@@ -28,79 +28,17 @@ v115:
   - download settings preset from seed page
     - remove custom name from settings JSON
 - built-in presets: default, and season 2 racing
-
-v114:
-- DONE: add more new tech/notables to release notes
-- DONE: add missing videos for notables
-- DONE: add open graph tags to logic pages so embeds can work.
-- DONE: Yellow Maridia fixes
-  - vanilla map: toilet in botwoon hallway is wrong.
-- DONE: link "Base" spoiler steps
-- DONE: restore silhouette CF colors in vanilla "samus" sprite: https://discord.com/channels/1053421401354285129/1053434499087728700/1255564728194043904
-- DONE: add sprites: HisBeardNis X, Bruno, PED Suit, Samus Returns, ...
-- DONE: track down sprite artists if we can:
-  - Hyper: RealRed
-  - Ancient Chozo: "Albert V & Physix"
-  - Ascent: Benox50
-  - Decision: JoshShoeWah
-  - Escape II: Hiroishi
-  - Nature: Jefe962
-  - Phazon: A red monk called key
-  - Redesign: Drewseph
-  - SZM: SBniconico
-  - Kaizo: Green Samus
-  - Super Duper: Metaquarius, Daltone
-- DONE: warn about strats without ID
-- DONE: implement "disableEquipment" requirement
-- DONE: fix notables that are in wrong difficulty
-- DONE: remove room names from notable names
-- DONE: make "reduced flashing" Phantoon less changed from vanilla
-- DONE: implement min/maxExtraRunSpeed constraint in comeInSpeedballing.
-- DONE: check issue with wrong faded item dot type:
-  - In Norfair Reserve: https://dev.maprando.com/seed/TdzGkwnhG/
-- DONE: create separate QoL setting for map stations reveal connected area transitions
-- DONE: adjust override_mother_brain_room after PR #1681 is merged
-- DONE: fix x-ray bugs? e.g. level graphics sometimes looking corrupted when using x-ray
-- DONE: override "Leave With Runway" strats in Mother Brain Room taking into account objective barriers
-- DONE: create notable pages, and show strat counts on the Generate page like with tech
-- DONE: update node tiles for Glass Tunnel, Kraid Room
-  - DONE: add checks for node tiles
-- DONE: use canMidAirMorph in escape logic (Crab Hole bottom-to-top)
-- DONE: implement support for custom BGData in Dust Torizo Room
-- DONE: create github action to assign strat IDs
-- DONE: video site:
-  - DONE: add "priority" field
-  - DONE: add "logic order" option to "Sort By"
-- DONE: remove fast drain change in Big Boy cutscene?
-- DONE: add validation on room geometry node tiles (to ensure the node set matches sm-json-data, and has full coverage of room tiles)
-- DONE: use strat IDs in logic pages
-- DONE: use new videos in logic pages and Generate page
-  - DONE: notable strat videos in Generate page
-  - DONE: strat videos in logic pages
-  - DONE: tech videos in Generate page
-  - DONE: tech videos in logic pages
-  - DONE: show multiple videos per strat
-  - DONE: show video note in tooltip
-- DONE: handle "ignored" and "implicit" tech/notables in presets.
-- DONE: resolve buggy logic involving "startsWithShinecharge": https://discord.com/channels/1053421401354285129/1079847747307446413/1274426800260382750.
-- DONE: in logic pages, allocate more width to strat name, since node names are now shorter
-- DONE: investigate panic caused by negative energy resource (caused by large heat frame req that overflows with multiplier)
-- DONE: use nothing PLM instead of copy PLM to replace gray doors
-  - try to check if fixes crash in seed that oats played (2024-08-02)
-- DONE(?): fix issue with Toilet passing through left side of Pants Room:
-  - wrongly shows in bg of East Pants Room (oats vs. solski sgl seed)
-- DONE add note in spoiler map explaining how to interpret item difficulties shown (doesn't take into account return path or locks/flags that could be cleared before)
-- DONE: restore vanilla Climb rising lava when entering bottom-left door
-- DONE(?): ensure that run speed constraints in exit conditions are accounted for in resolving comeInWithSpringBallBounce entrance condition
-- DONE: ensure Speedbooster is required when extra run speed is constrained to >$2.0.
-- DONE (by P.JBoy) verify respin implementation and iron out issues:
-  - issue with sand escape in butterfly room.
-  - issue with shooting into spin-jump?: https://discord.com/channels/1053421401354285129/1073621773184159764/1205894290350407700
-- DONE: add Map Rando identifier to the ROM (header?), and include seed name somewhere
+- new sm-json-data tests:
+  - leaveWithSpark should have shinespark in requires
+  - heated room strats should have heat frames
+  - resetRoom should reset obstacles
+- implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark?
 
 TODO:
-- check if left/top OOB death check is off by a pixel? 
-  - sparking up a quicksand room causes OOB death, do we want that?
+- remove framesRequired/framesRemaining from comeInShinecharged/leaveShinecharged schema
+  - replace with "shineChargeFrames" logical requirement, and add test to ensure it is included.
+- sparking up a quicksand room causes OOB death, do we want that?
+  - hitbox expands after shinespark crash.
 - maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
 - map hub: fast travel
 - partial farms
