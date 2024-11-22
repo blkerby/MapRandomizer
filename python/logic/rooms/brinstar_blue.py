@@ -50,7 +50,6 @@ rooms = [
             1: [(0, 0)],  # left door
             2: [(0, 0)],  # right door
             3: [(0, 1)],  # bottom left door
-            4: [(0, 0)],  # top junction
         },
     ),
     Room(

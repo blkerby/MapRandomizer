@@ -873,7 +873,7 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [],
-        "node_tiles": [[1, [[0, 0]]], [2, [[0, 0]]], [3, [[0, 1]]], [4, [[0, 0]]]],
+        "node_tiles": [[1, [[0, 0]]], [2, [[0, 0]]], [3, [[0, 1]]]],
         "twin_node_tiles": null,
         "heated": false
     },
@@ -1428,7 +1428,7 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [{"x": 0, "y": 0, "addr": 493562}],
-        "node_tiles": [[1, [[3, 0], [4, 0], [5, 0], [6, 0]]], [2, [[0, 0]]], [3, [[1, 0], [2, 0]]]],
+        "node_tiles": [[1, [[3, 0], [4, 0], [5, 0], [6, 0]]], [2, [[0, 0], [1, 0], [2, 0]]], [3, [[1, 0], [2, 0]]]],
         "twin_node_tiles": null,
         "heated": false
     },
@@ -1837,7 +1837,7 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [{"x": 1, "y": 0, "addr": 509053}, {"x": 2, "y": 1, "addr": 509059}],
-        "node_tiles": [[1, [[0, 3], [1, 3], [2, 3]]], [2, [[1, 0], [2, 0]]], [3, [[2, 1]]], [4, [[1, 2], [2, 2]]], [5, [[1, 1]]]],
+        "node_tiles": [[1, [[0, 3], [1, 3], [2, 3]]], [2, [[1, 0]]], [3, [[2, 1]]], [4, [[1, 2], [2, 2]]], [5, [[1, 1]]], [6, [[2, 0]]]],
         "twin_node_tiles": null,
         "heated": false
     },
@@ -1888,7 +1888,7 @@
         "durable_part_connections": [],
         "transient_part_connections": [],
         "items": [{"x": 0, "y": 2, "addr": 509103}, {"x": 0, "y": 2, "addr": 509109}],
-        "node_tiles": [[1, [[0, 0], [1, 0], [0, 1]]], [2, [[0, 2]]], [3, [[0, 2]]], [4, [[0, 2]]]],
+        "node_tiles": [[1, [[0, 0], [1, 0], [0, 1]]], [2, [[0, 2]]], [3, [[0, 2]]]],
         "twin_node_tiles": null,
         "heated": false
     },
