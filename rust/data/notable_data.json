@@ -1602,14 +1602,6 @@
   {
     "room_id": 151,
     "room_name": "Screw Attack Room",
-    "notable_id": 1,
-    "name": "Descent and Shinespark Escape",
-    "difficulty": "Expert",
-    "video_id": 436
-  },
-  {
-    "room_id": 151,
-    "room_name": "Screw Attack Room",
     "notable_id": 2,
     "name": "Transition Screwjump",
     "difficulty": "Very Hard",

@@ -199,7 +199,7 @@
             },
             {
                 "id": 62,
-                "name": "canIframeSpikeJump",
+                "name": "canUseIFrames",
                 "enabled": true
             },
             {
@@ -358,8 +358,13 @@
                 "enabled": false
             },
             {
+                "id": 180,
+                "name": "canMomentumConservingTurnaround",
+                "enabled": false
+            },
+            {
                 "id": 47,
-                "name": "canQuickCrumbleEscape",
+                "name": "canQuickDrop",
                 "enabled": false
             },
             {
@@ -493,11 +498,6 @@
                 "enabled": false
             },
             {
-                "id": 180,
-                "name": "canMomentumConservingTurnaround",
-                "enabled": false
-            },
-            {
                 "id": 11,
                 "name": "canSpaceJumpWaterEscape",
                 "enabled": false
@@ -530,6 +530,11 @@
             {
                 "id": 40,
                 "name": "canStationaryLateralMidAirMorph",
+                "enabled": false
+            },
+            {
+                "id": 181,
+                "name": "canMomentumConservingMorph",
                 "enabled": false
             },
             {
@@ -655,11 +660,6 @@
             {
                 "id": 177,
                 "name": "can10PowerBombCrystalFlash",
-                "enabled": false
-            },
-            {
-                "id": 181,
-                "name": "canMomentumConservingMorph",
                 "enabled": false
             },
             {
@@ -2099,13 +2099,6 @@
                 "notable_id": 5,
                 "room_name": "Golden Torizo's Room",
                 "notable_name": "Crystal Flash During Fight",
-                "enabled": false
-            },
-            {
-                "room_id": 151,
-                "notable_id": 1,
-                "room_name": "Screw Attack Room",
-                "notable_name": "Descent and Shinespark Escape",
                 "enabled": false
             },
             {

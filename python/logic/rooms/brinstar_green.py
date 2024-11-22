@@ -80,7 +80,6 @@ rooms = [
             2: [(2, 1)],  # right door
             3: [(1, 1)],  # missile
             4: [(0, 0), (1, 0), (2, 0)],  # super
-            5: [(1, 1)],  # hopper jail
         },
     ),
     Room(

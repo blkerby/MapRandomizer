@@ -198,9 +198,8 @@ rooms = [
             Item(0, 1, 0x788CA),
         ],
         node_tiles={
-            1: [(1, 0)],  # right door
+            1: [(0, 0), (1, 0)],  # right door
             2: [(0, 1)],  # power bomb
-            3: [(0, 0)],  # junction
         },
     ),
     Room(

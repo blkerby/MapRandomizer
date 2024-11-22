@@ -1151,7 +1151,7 @@
     {
         "name": "Post Crocomire Farming Room",
         "room_id": 123,
-        "node_id": 5,
+        "node_id": 2,
         "door_load_node_id": 3,
         "x": 3,
         "y": 27

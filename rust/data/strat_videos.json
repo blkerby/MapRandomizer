@@ -79,16 +79,16 @@
   {
     "room_id": 29,
     "strat_id": 7,
-    "video_id": 600,
-    "created_user": "NZT",
-    "note": ""
+    "video_id": 1033,
+    "created_user": "maddo",
+    "note": "canIframeSpikeJump"
   },
   {
     "room_id": 29,
     "strat_id": 7,
-    "video_id": 1033,
-    "created_user": "maddo",
-    "note": "canIframeSpikeJump"
+    "video_id": 600,
+    "created_user": "NZT",
+    "note": ""
   },
   {
     "room_id": 29,
@@ -156,16 +156,16 @@
   {
     "room_id": 29,
     "strat_id": 36,
-    "video_id": 1319,
+    "video_id": 1318,
     "created_user": "maddo",
-    "note": "HiJump"
+    "note": ""
   },
   {
     "room_id": 29,
     "strat_id": 36,
-    "video_id": 1318,
+    "video_id": 1319,
     "created_user": "maddo",
-    "note": ""
+    "note": "HiJump"
   },
   {
     "room_id": 29,
@@ -219,16 +219,16 @@
   {
     "room_id": 29,
     "strat_id": 72,
-    "video_id": 1321,
+    "video_id": 1320,
     "created_user": "maddo",
-    "note": ""
+    "note": "HiJump"
   },
   {
     "room_id": 29,
     "strat_id": 72,
-    "video_id": 1320,
+    "video_id": 1321,
     "created_user": "maddo",
-    "note": "HiJump"
+    "note": ""
   },
   {
     "room_id": 29,
@@ -386,6 +386,20 @@
   },
   {
     "room_id": 10,
+    "strat_id": 18,
+    "video_id": 1231,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 20,
+    "video_id": 1230,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 10,
     "strat_id": 124,
     "video_id": 1232,
     "created_user": "maddo",
@@ -484,6 +498,13 @@
   },
   {
     "room_id": 10,
+    "strat_id": 78,
+    "video_id": 1222,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 10,
     "strat_id": 131,
     "video_id": 1223,
     "created_user": "maddo",
@@ -493,6 +514,13 @@
     "room_id": 10,
     "strat_id": 132,
     "video_id": 1224,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 79,
+    "video_id": 1219,
     "created_user": "maddo",
     "note": ""
   },
@@ -519,8 +547,22 @@
   },
   {
     "room_id": 10,
+    "strat_id": 89,
+    "video_id": 1225,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 10,
     "strat_id": 135,
     "video_id": 1226,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 91,
+    "video_id": 1227,
     "created_user": "maddo",
     "note": ""
   },
@@ -548,15 +590,15 @@
   {
     "room_id": 10,
     "strat_id": 95,
-    "video_id": 33,
-    "created_user": "maddo",
+    "video_id": 238,
+    "created_user": "Osse101",
     "note": ""
   },
   {
     "room_id": 10,
     "strat_id": 95,
-    "video_id": 238,
-    "created_user": "Osse101",
+    "video_id": 33,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -604,13 +646,6 @@
   {
     "room_id": 12,
     "strat_id": 7,
-    "video_id": 784,
-    "created_user": "Osse101",
-    "note": "morphless"
-  },
-  {
-    "room_id": 12,
-    "strat_id": 7,
     "video_id": 787,
     "created_user": "Osse101",
     "note": "downback"
@@ -628,6 +663,13 @@
     "video_id": 785,
     "created_user": "Osse101",
     "note": "shinespark"
+  },
+  {
+    "room_id": 12,
+    "strat_id": 7,
+    "video_id": 784,
+    "created_user": "Osse101",
+    "note": "morphless"
   },
   {
     "room_id": 12,
@@ -667,16 +709,16 @@
   {
     "room_id": 31,
     "strat_id": 51,
-    "video_id": 589,
+    "video_id": 588,
     "created_user": "maddo",
-    "note": "Precise method to avoid acid damage at the end"
+    "note": "Taking acid damage at the end to make the last jump more lenient"
   },
   {
     "room_id": 31,
     "strat_id": 51,
-    "video_id": 588,
+    "video_id": 589,
     "created_user": "maddo",
-    "note": "Taking acid damage at the end to make the last jump more lenient"
+    "note": "Precise method to avoid acid damage at the end"
   },
   {
     "room_id": 31,
@@ -807,16 +849,16 @@
   {
     "room_id": 36,
     "strat_id": 6,
-    "video_id": 1005,
+    "video_id": 1004,
     "created_user": "maddo",
-    "note": "Version without Morph"
+    "note": "canUpwardGModeSetup"
   },
   {
     "room_id": 36,
     "strat_id": 6,
-    "video_id": 1004,
+    "video_id": 1005,
     "created_user": "maddo",
-    "note": "canUpwardGModeSetup"
+    "note": "Version without Morph"
   },
   {
     "room_id": 24,
@@ -900,6 +942,13 @@
     "strat_id": 13,
     "video_id": 329,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 32,
+    "video_id": 1665,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -1416,16 +1465,16 @@
   {
     "room_id": 46,
     "strat_id": 16,
-    "video_id": 909,
-    "created_user": "maddo",
-    "note": "canTunnelCrawl"
+    "video_id": 477,
+    "created_user": "Osse101",
+    "note": ""
   },
   {
     "room_id": 46,
     "strat_id": 16,
-    "video_id": 477,
-    "created_user": "Osse101",
-    "note": ""
+    "video_id": 909,
+    "created_user": "maddo",
+    "note": "canTunnelCrawl"
   },
   {
     "room_id": 46,
@@ -1472,16 +1521,16 @@
   {
     "room_id": 45,
     "strat_id": 15,
-    "video_id": 200,
+    "video_id": 777,
     "created_user": "Osse101",
-    "note": ""
+    "note": "canTrickyEnemyExtendRunway"
   },
   {
     "room_id": 45,
     "strat_id": 15,
-    "video_id": 777,
+    "video_id": 200,
     "created_user": "Osse101",
-    "note": "canTrickyEnemyExtendRunway"
+    "note": ""
   },
   {
     "room_id": 45,
@@ -1509,6 +1558,20 @@
     "strat_id": 36,
     "video_id": 799,
     "created_user": "Nito",
+    "note": ""
+  },
+  {
+    "room_id": 51,
+    "strat_id": 17,
+    "video_id": 1248,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 51,
+    "strat_id": 18,
+    "video_id": 1249,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -1815,16 +1878,16 @@
   {
     "room_id": 59,
     "strat_id": 93,
-    "video_id": 759,
+    "video_id": 758,
     "created_user": "NZT",
-    "note": "With Airball"
+    "note": ""
   },
   {
     "room_id": 59,
     "strat_id": 93,
-    "video_id": 758,
+    "video_id": 759,
     "created_user": "NZT",
-    "note": ""
+    "note": "With Airball"
   },
   {
     "room_id": 59,
@@ -1878,15 +1941,15 @@
   {
     "room_id": 59,
     "strat_id": 103,
-    "video_id": 165,
-    "created_user": "Osse101",
+    "video_id": 872,
+    "created_user": "Nito",
     "note": ""
   },
   {
     "room_id": 59,
     "strat_id": 103,
-    "video_id": 872,
-    "created_user": "Nito",
+    "video_id": 165,
+    "created_user": "Osse101",
     "note": ""
   },
   {
@@ -2053,16 +2116,16 @@
   {
     "room_id": 61,
     "strat_id": 10,
-    "video_id": 541,
-    "created_user": "Osse101",
-    "note": "Using spin jump stationary turnaround instead of moonwalk"
+    "video_id": 1056,
+    "created_user": "maddo",
+    "note": "canOffScreenSuperShot"
   },
   {
     "room_id": 61,
     "strat_id": 10,
-    "video_id": 1056,
-    "created_user": "maddo",
-    "note": "canOffScreenSuperShot"
+    "video_id": 541,
+    "created_user": "Osse101",
+    "note": "Using spin jump stationary turnaround instead of moonwalk"
   },
   {
     "room_id": 61,
@@ -2256,16 +2319,16 @@
   {
     "room_id": 70,
     "strat_id": 9,
-    "video_id": 639,
+    "video_id": 640,
     "created_user": "Sinth",
-    "note": "insomniaspeed springball setup"
+    "note": "Eddie down-back into free crumble-jump"
   },
   {
     "room_id": 70,
     "strat_id": 9,
-    "video_id": 640,
+    "video_id": 639,
     "created_user": "Sinth",
-    "note": "Eddie down-back into free crumble-jump"
+    "note": "insomniaspeed springball setup"
   },
   {
     "room_id": 70,
@@ -2300,13 +2363,6 @@
     "strat_id": 31,
     "video_id": 390,
     "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 77,
-    "strat_id": 16,
-    "video_id": 1644,
-    "created_user": "Sam",
     "note": ""
   },
   {
@@ -2662,16 +2718,16 @@
   {
     "room_id": 100,
     "strat_id": 8,
-    "video_id": 147,
+    "video_id": 146,
     "created_user": "maddo",
-    "note": "With canXRayCancelShinecharge"
+    "note": ""
   },
   {
     "room_id": 100,
     "strat_id": 8,
-    "video_id": 146,
+    "video_id": 147,
     "created_user": "maddo",
-    "note": ""
+    "note": "With canXRayCancelShinecharge"
   },
   {
     "room_id": 100,
@@ -3082,16 +3138,16 @@
   {
     "room_id": 97,
     "strat_id": 155,
-    "video_id": 711,
+    "video_id": 710,
     "created_user": "NZT",
-    "note": "Entry from other doors, walljump makes it much easier to get on the first Waver. "
+    "note": "The wavers are easy to setup for climbing if you can access the middle top door. Otherwise they fly all over the room and make it more difficult. "
   },
   {
     "room_id": 97,
     "strat_id": 155,
-    "video_id": 710,
+    "video_id": 711,
     "created_user": "NZT",
-    "note": "The wavers are easy to setup for climbing if you can access the middle top door. Otherwise they fly all over the room and make it more difficult. "
+    "note": "Entry from other doors, walljump makes it much easier to get on the first Waver. "
   },
   {
     "room_id": 97,
@@ -3110,16 +3166,16 @@
   {
     "room_id": 91,
     "strat_id": 29,
-    "video_id": 305,
+    "video_id": 306,
     "created_user": "maddo",
-    "note": ""
+    "note": "With X-Ray"
   },
   {
     "room_id": 91,
     "strat_id": 29,
-    "video_id": 306,
+    "video_id": 305,
     "created_user": "maddo",
-    "note": "With X-Ray"
+    "note": ""
   },
   {
     "room_id": 90,
@@ -3208,16 +3264,16 @@
   {
     "room_id": 104,
     "strat_id": 80,
-    "video_id": 804,
+    "video_id": 803,
     "created_user": "maddo",
-    "note": "With X-Ray"
+    "note": ""
   },
   {
     "room_id": 104,
     "strat_id": 80,
-    "video_id": 803,
+    "video_id": 804,
     "created_user": "maddo",
-    "note": ""
+    "note": "With X-Ray"
   },
   {
     "room_id": 104,
@@ -3313,23 +3369,16 @@
   {
     "room_id": 98,
     "strat_id": 16,
-    "video_id": 818,
-    "created_user": "maddo",
-    "note": "Without X-Ray"
-  },
-  {
-    "room_id": 98,
-    "strat_id": 16,
     "video_id": 817,
     "created_user": "maddo",
     "note": "With X-Ray"
   },
   {
     "room_id": 98,
-    "strat_id": 17,
-    "video_id": 816,
+    "strat_id": 16,
+    "video_id": 818,
     "created_user": "maddo",
-    "note": "With X-Ray"
+    "note": "Without X-Ray"
   },
   {
     "room_id": 98,
@@ -3337,6 +3386,13 @@
     "video_id": 815,
     "created_user": "maddo",
     "note": "Without X-Ray"
+  },
+  {
+    "room_id": 98,
+    "strat_id": 17,
+    "video_id": 816,
+    "created_user": "maddo",
+    "note": "With X-Ray"
   },
   {
     "room_id": 113,
@@ -3376,16 +3432,16 @@
   {
     "room_id": 113,
     "strat_id": 50,
-    "video_id": 811,
+    "video_id": 810,
     "created_user": "maddo",
-    "note": "With X-Ray"
+    "note": "Without X-Ray"
   },
   {
     "room_id": 113,
     "strat_id": 50,
-    "video_id": 810,
+    "video_id": 811,
     "created_user": "maddo",
-    "note": "Without X-Ray"
+    "note": "With X-Ray"
   },
   {
     "room_id": 113,
@@ -3411,9 +3467,9 @@
   {
     "room_id": 115,
     "strat_id": 43,
-    "video_id": 4,
+    "video_id": 592,
     "created_user": "maddo",
-    "note": "With Varia suit"
+    "note": "With Gravity suit"
   },
   {
     "room_id": 115,
@@ -3425,9 +3481,9 @@
   {
     "room_id": 115,
     "strat_id": 43,
-    "video_id": 592,
+    "video_id": 4,
     "created_user": "maddo",
-    "note": "With Gravity suit"
+    "note": "With Varia suit"
   },
   {
     "room_id": 115,
@@ -3719,16 +3775,16 @@
   {
     "room_id": 121,
     "strat_id": 18,
-    "video_id": 1032,
-    "created_user": "kyleb",
-    "note": ""
+    "video_id": 958,
+    "created_user": "maddo",
+    "note": "canDoubleBombJump"
   },
   {
     "room_id": 121,
     "strat_id": 18,
-    "video_id": 958,
-    "created_user": "maddo",
-    "note": "canDoubleBombJump"
+    "video_id": 1032,
+    "created_user": "kyleb",
+    "note": ""
   },
   {
     "room_id": 121,
@@ -3749,6 +3805,48 @@
     "strat_id": 24,
     "video_id": 312,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 25,
+    "video_id": 1263,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 26,
+    "video_id": 1266,
+    "created_user": "maddo",
+    "note": "Safe Geruta Manipulation"
+  },
+  {
+    "room_id": 121,
+    "strat_id": 26,
+    "video_id": 1267,
+    "created_user": "maddo",
+    "note": "Fast Geruta Dodge"
+  },
+  {
+    "room_id": 121,
+    "strat_id": 40,
+    "video_id": 1264,
+    "created_user": "maddo",
+    "note": "Geruta Damage"
+  },
+  {
+    "room_id": 121,
+    "strat_id": 40,
+    "video_id": 1265,
+    "created_user": "maddo",
+    "note": "Fast Geruta Dodge "
+  },
+  {
+    "room_id": 120,
+    "strat_id": 4,
+    "video_id": 1268,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -3782,9 +3880,9 @@
   {
     "room_id": 120,
     "strat_id": 10,
-    "video_id": 1308,
-    "created_user": "maddo",
-    "note": "Regular Exit"
+    "video_id": 490,
+    "created_user": "Osse101",
+    "note": ""
   },
   {
     "room_id": 120,
@@ -3796,9 +3894,9 @@
   {
     "room_id": 120,
     "strat_id": 10,
-    "video_id": 490,
-    "created_user": "Osse101",
-    "note": ""
+    "video_id": 1308,
+    "created_user": "maddo",
+    "note": "Regular Exit"
   },
   {
     "room_id": 120,
@@ -3818,6 +3916,20 @@
     "room_id": 120,
     "strat_id": 16,
     "video_id": 1102,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 120,
+    "strat_id": 17,
+    "video_id": 1310,
+    "created_user": "maddo",
+    "note": "Regular Exit"
+  },
+  {
+    "room_id": 120,
+    "strat_id": 18,
+    "video_id": 1303,
     "created_user": "maddo",
     "note": ""
   },
@@ -3893,10 +4005,17 @@
   },
   {
     "room_id": 120,
-    "strat_id": 65,
-    "video_id": 1302,
+    "strat_id": 32,
+    "video_id": 1299,
     "created_user": "maddo",
-    "note": ""
+    "note": "Regular Exit"
+  },
+  {
+    "room_id": 120,
+    "strat_id": 32,
+    "video_id": 1298,
+    "created_user": "maddo",
+    "note": "Speedball Exit"
   },
   {
     "room_id": 120,
@@ -3904,6 +4023,13 @@
     "video_id": 1391,
     "created_user": "maddo",
     "note": "With Cac Farm"
+  },
+  {
+    "room_id": 120,
+    "strat_id": 65,
+    "video_id": 1302,
+    "created_user": "maddo",
+    "note": ""
   },
   {
     "room_id": 120,
@@ -3929,15 +4055,15 @@
   {
     "room_id": 111,
     "strat_id": 8,
-    "video_id": 636,
-    "created_user": "Sinth",
+    "video_id": 493,
+    "created_user": "Osse101",
     "note": ""
   },
   {
     "room_id": 111,
     "strat_id": 8,
-    "video_id": 493,
-    "created_user": "Osse101",
+    "video_id": 636,
+    "created_user": "Sinth",
     "note": ""
   },
   {
@@ -4076,16 +4202,16 @@
   {
     "room_id": 108,
     "strat_id": 41,
-    "video_id": 1344,
+    "video_id": 1342,
     "created_user": "maddo",
-    "note": "Hitless"
+    "note": "Sova Knockback"
   },
   {
     "room_id": 108,
     "strat_id": 41,
-    "video_id": 1342,
+    "video_id": 1344,
     "created_user": "maddo",
-    "note": "Sova Knockback"
+    "note": "Hitless"
   },
   {
     "room_id": 108,
@@ -4180,6 +4306,41 @@
   },
   {
     "room_id": 128,
+    "strat_id": 6,
+    "video_id": 1370,
+    "created_user": "maddo",
+    "note": "Mid-Air"
+  },
+  {
+    "room_id": 128,
+    "strat_id": 6,
+    "video_id": 1371,
+    "created_user": "maddo",
+    "note": "Tricky Movement"
+  },
+  {
+    "room_id": 128,
+    "strat_id": 7,
+    "video_id": 1369,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 128,
+    "strat_id": 8,
+    "video_id": 1372,
+    "created_user": "maddo",
+    "note": "From Top"
+  },
+  {
+    "room_id": 128,
+    "strat_id": 8,
+    "video_id": 1374,
+    "created_user": "maddo",
+    "note": "From Bottom"
+  },
+  {
+    "room_id": 128,
     "strat_id": 28,
     "video_id": 1366,
     "created_user": "maddo",
@@ -4244,16 +4405,16 @@
   {
     "room_id": 129,
     "strat_id": 15,
-    "video_id": 1356,
+    "video_id": 1355,
     "created_user": "maddo",
-    "note": "Regular Movement"
+    "note": "Tricky Movement"
   },
   {
     "room_id": 129,
     "strat_id": 15,
-    "video_id": 1355,
+    "video_id": 1356,
     "created_user": "maddo",
-    "note": "Tricky Movement"
+    "note": "Regular Movement"
   },
   {
     "room_id": 129,
@@ -4300,16 +4461,16 @@
   {
     "room_id": 130,
     "strat_id": 14,
-    "video_id": 1362,
+    "video_id": 1395,
     "created_user": "maddo",
-    "note": ""
+    "note": "Tricky Movement"
   },
   {
     "room_id": 130,
     "strat_id": 14,
-    "video_id": 1395,
+    "video_id": 1362,
     "created_user": "maddo",
-    "note": "Tricky Movement"
+    "note": ""
   },
   {
     "room_id": 130,
@@ -4331,6 +4492,13 @@
     "video_id": 1394,
     "created_user": "maddo",
     "note": "Power Beam"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 18,
+    "video_id": 1393,
+    "created_user": "maddo",
+    "note": "Grapple"
   },
   {
     "room_id": 130,
@@ -4370,20 +4538,6 @@
   {
     "room_id": 131,
     "strat_id": 23,
-    "video_id": 1050,
-    "created_user": "maddo",
-    "note": "Waiting for water cycle, jumping from lower ledge"
-  },
-  {
-    "room_id": 131,
-    "strat_id": 23,
-    "video_id": 1043,
-    "created_user": "maddo",
-    "note": "canHorizontalDamageBoost (HiJump)"
-  },
-  {
-    "room_id": 131,
-    "strat_id": 23,
     "video_id": 1048,
     "created_user": "maddo",
     "note": "Wall jumping to get out of the water"
@@ -4397,10 +4551,17 @@
   },
   {
     "room_id": 131,
-    "strat_id": 46,
-    "video_id": 454,
-    "created_user": "NZT",
-    "note": "Airball option. Don't use HiJump. SpeedBooster can be equipped but is not necessary. "
+    "strat_id": 23,
+    "video_id": 1050,
+    "created_user": "maddo",
+    "note": "Waiting for water cycle, jumping from lower ledge"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 23,
+    "video_id": 1043,
+    "created_user": "maddo",
+    "note": "canHorizontalDamageBoost (HiJump)"
   },
   {
     "room_id": 131,
@@ -4408,6 +4569,13 @@
     "video_id": 917,
     "created_user": "maddo",
     "note": "canTrickyJump"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 46,
+    "video_id": 454,
+    "created_user": "NZT",
+    "note": "Airball option. Don't use HiJump. SpeedBooster can be equipped but is not necessary. "
   },
   {
     "room_id": 131,
@@ -4446,6 +4614,27 @@
   },
   {
     "room_id": 123,
+    "strat_id": 21,
+    "video_id": 1400,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 123,
+    "strat_id": 60,
+    "video_id": 1397,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 123,
+    "strat_id": 62,
+    "video_id": 1379,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 123,
     "strat_id": 31,
     "video_id": 1375,
     "created_user": "maddo",
@@ -4453,8 +4642,29 @@
   },
   {
     "room_id": 123,
+    "strat_id": 32,
+    "video_id": 1377,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 123,
     "strat_id": 33,
     "video_id": 1383,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 123,
+    "strat_id": 71,
+    "video_id": 1382,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 123,
+    "strat_id": 72,
+    "video_id": 1384,
     "created_user": "maddo",
     "note": ""
   },
@@ -4483,48 +4693,6 @@
     "room_id": 123,
     "strat_id": 86,
     "video_id": 1381,
-    "created_user": "maddo",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 56,
-    "video_id": 433,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 59,
-    "video_id": 543,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 60,
-    "video_id": 1397,
-    "created_user": "maddo",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 62,
-    "video_id": 1379,
-    "created_user": "maddo",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 71,
-    "video_id": 1382,
-    "created_user": "maddo",
-    "note": ""
-  },
-  {
-    "room_id": 123,
-    "strat_id": 72,
-    "video_id": 1384,
     "created_user": "maddo",
     "note": ""
   },
@@ -4572,6 +4740,20 @@
   },
   {
     "room_id": 127,
+    "strat_id": 19,
+    "video_id": 1401,
+    "created_user": "maddo",
+    "note": "Diagonal Spark"
+  },
+  {
+    "room_id": 127,
+    "strat_id": 19,
+    "video_id": 1403,
+    "created_user": "maddo",
+    "note": "Ripper Farm"
+  },
+  {
+    "room_id": 127,
     "strat_id": 80,
     "video_id": 1404,
     "created_user": "maddo",
@@ -4607,10 +4789,17 @@
   },
   {
     "room_id": 127,
-    "strat_id": 40,
-    "video_id": 386,
-    "created_user": "NZT",
-    "note": "No Wall Jump but with Spring Ball and Morph Ball"
+    "strat_id": 27,
+    "video_id": 1409,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 127,
+    "strat_id": 28,
+    "video_id": 1408,
+    "created_user": "maddo",
+    "note": ""
   },
   {
     "room_id": 127,
@@ -4618,6 +4807,13 @@
     "video_id": 385,
     "created_user": "NZT",
     "note": "Requires canWallJump"
+  },
+  {
+    "room_id": 127,
+    "strat_id": 40,
+    "video_id": 386,
+    "created_user": "NZT",
+    "note": "No Wall Jump but with Spring Ball and Morph Ball"
   },
   {
     "room_id": 127,
@@ -4629,16 +4825,16 @@
   {
     "room_id": 127,
     "strat_id": 51,
-    "video_id": 387,
-    "created_user": "NZT",
-    "note": ""
+    "video_id": 1040,
+    "created_user": "maddo",
+    "note": "canJumpIntoIBJ"
   },
   {
     "room_id": 127,
     "strat_id": 51,
-    "video_id": 1040,
-    "created_user": "maddo",
-    "note": "canJumpIntoIBJ"
+    "video_id": 387,
+    "created_user": "NZT",
+    "note": ""
   },
   {
     "room_id": 127,
@@ -4677,6 +4873,13 @@
   },
   {
     "room_id": 125,
+    "strat_id": 4,
+    "video_id": 1411,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 125,
     "strat_id": 39,
     "video_id": 1412,
     "created_user": "maddo",
@@ -4700,6 +4903,13 @@
     "room_id": 125,
     "strat_id": 42,
     "video_id": 1419,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 125,
+    "strat_id": 16,
+    "video_id": 1416,
     "created_user": "maddo",
     "note": ""
   },
@@ -4768,10 +4978,10 @@
   },
   {
     "room_id": 153,
-    "strat_id": 24,
-    "video_id": 1426,
+    "strat_id": 23,
+    "video_id": 1423,
     "created_user": "maddo",
-    "note": "Open Gate"
+    "note": ""
   },
   {
     "room_id": 153,
@@ -4779,6 +4989,20 @@
     "video_id": 1425,
     "created_user": "maddo",
     "note": "Kill More Rippers"
+  },
+  {
+    "room_id": 153,
+    "strat_id": 24,
+    "video_id": 1426,
+    "created_user": "maddo",
+    "note": "Open Gate"
+  },
+  {
+    "room_id": 153,
+    "strat_id": 25,
+    "video_id": 1427,
+    "created_user": "maddo",
+    "note": ""
   },
   {
     "room_id": 150,
@@ -4859,6 +5083,97 @@
   },
   {
     "room_id": 151,
+    "strat_id": 82,
+    "video_id": 1518,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 83,
+    "video_id": 1506,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 84,
+    "video_id": 1507,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 85,
+    "video_id": 1508,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 86,
+    "video_id": 1688,
+    "created_user": "maddo",
+    "note": "Distant Spark"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 86,
+    "video_id": 1511,
+    "created_user": "maddo",
+    "note": "Close Spark"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 87,
+    "video_id": 1510,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 4,
+    "video_id": 1630,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 88,
+    "video_id": 1517,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 89,
+    "video_id": 1500,
+    "created_user": "maddo",
+    "note": "Come In Shinecharged, End Shinecharged"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 90,
+    "video_id": 1487,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 91,
+    "video_id": 1488,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 92,
+    "video_id": 1489,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
     "strat_id": 18,
     "video_id": 555,
     "created_user": "Osse101",
@@ -4880,9 +5195,51 @@
   },
   {
     "room_id": 151,
+    "strat_id": 23,
+    "video_id": 1623,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 24,
+    "video_id": 1629,
+    "created_user": "maddo",
+    "note": "Diagonal spark"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 24,
+    "video_id": 1622,
+    "created_user": "maddo",
+    "note": "Vertical spark"
+  },
+  {
+    "room_id": 151,
     "strat_id": 28,
     "video_id": 144,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 30,
+    "video_id": 1610,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 31,
+    "video_id": 1493,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 32,
+    "video_id": 1490,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -4894,9 +5251,177 @@
   },
   {
     "room_id": 151,
+    "strat_id": 94,
+    "video_id": 1498,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 95,
+    "video_id": 1497,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 96,
+    "video_id": 1499,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 97,
+    "video_id": 1515,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 98,
+    "video_id": 1483,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 99,
+    "video_id": 1767,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 100,
+    "video_id": 1484,
+    "created_user": "maddo",
+    "note": "Without sliding off"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 100,
+    "video_id": 1486,
+    "created_user": "maddo",
+    "note": "Sliding off ledge"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 101,
+    "video_id": 1485,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 102,
+    "video_id": 1513,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 103,
+    "video_id": 1512,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 45,
+    "video_id": 1494,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 46,
+    "video_id": 1611,
+    "created_user": "maddo",
+    "note": "Moonfall"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 46,
+    "video_id": 1516,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 104,
+    "video_id": 1615,
+    "created_user": "maddo",
+    "note": "Moonfall"
+  },
+  {
+    "room_id": 151,
+    "strat_id": 104,
+    "video_id": 1495,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 105,
+    "video_id": 1491,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 106,
+    "video_id": 1492,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 55,
+    "video_id": 1501,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 107,
+    "video_id": 1505,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 108,
+    "video_id": 1503,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 109,
+    "video_id": 1504,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 110,
+    "video_id": 1502,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
     "strat_id": 56,
     "video_id": 436,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 56,
+    "video_id": 1496,
+    "created_user": "maddo",
     "note": ""
   },
   {
@@ -4928,6 +5453,167 @@
     "note": ""
   },
   {
+    "room_id": 133,
+    "strat_id": 66,
+    "video_id": 1741,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 67,
+    "video_id": 1745,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 68,
+    "video_id": 1749,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 69,
+    "video_id": 1764,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 70,
+    "video_id": 1766,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 71,
+    "video_id": 1719,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 72,
+    "video_id": 1720,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 73,
+    "video_id": 1721,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 74,
+    "video_id": 1723,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 75,
+    "video_id": 1724,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 76,
+    "video_id": 1725,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 77,
+    "video_id": 1727,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 78,
+    "video_id": 1726,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 79,
+    "video_id": 1664,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 80,
+    "video_id": 1662,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 81,
+    "video_id": 1733,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 82,
+    "video_id": 1709,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 83,
+    "video_id": 1707,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 84,
+    "video_id": 1708,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 85,
+    "video_id": 1710,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 86,
+    "video_id": 1711,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 133,
+    "strat_id": 87,
+    "video_id": 1713,
+    "created_user": "maddo",
+    "note": "Spin-jump Entry"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 87,
+    "video_id": 1712,
+    "created_user": "maddo",
+    "note": "Falling Entry"
+  },
+  {
     "room_id": 147,
     "strat_id": 3,
     "video_id": 316,
@@ -4957,6 +5643,13 @@
   },
   {
     "room_id": 145,
+    "strat_id": 8,
+    "video_id": 1820,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 145,
     "strat_id": 17,
     "video_id": 1038,
     "created_user": "kyleb",
@@ -4965,16 +5658,16 @@
   {
     "room_id": 145,
     "strat_id": 18,
-    "video_id": 523,
+    "video_id": 428,
     "created_user": "Osse101",
-    "note": "Version with damage boost from fireball"
+    "note": "Damageless version"
   },
   {
     "room_id": 145,
     "strat_id": 18,
-    "video_id": 428,
+    "video_id": 523,
     "created_user": "Osse101",
-    "note": "Damageless version"
+    "note": "Version with damage boost from fireball"
   },
   {
     "room_id": 145,
@@ -5027,6 +5720,13 @@
   },
   {
     "room_id": 146,
+    "strat_id": 27,
+    "video_id": 1823,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 146,
     "strat_id": 28,
     "video_id": 594,
     "created_user": "Sinth",
@@ -5045,6 +5745,34 @@
     "video_id": 527,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 139,
+    "strat_id": 5,
+    "video_id": 1828,
+    "created_user": "maddo",
+    "note": "Hitbox Pirates, Open Door First"
+  },
+  {
+    "room_id": 139,
+    "strat_id": 5,
+    "video_id": 1827,
+    "created_user": "maddo",
+    "note": "Pirates Dead"
+  },
+  {
+    "room_id": 139,
+    "strat_id": 11,
+    "video_id": 1825,
+    "created_user": "maddo",
+    "note": "Pirates Dead"
+  },
+  {
+    "room_id": 139,
+    "strat_id": 11,
+    "video_id": 1826,
+    "created_user": "maddo",
+    "note": "Hitbox Pirates, Open Door First"
   },
   {
     "room_id": 139,
@@ -5112,16 +5840,16 @@
   {
     "room_id": 140,
     "strat_id": 4,
-    "video_id": 605,
+    "video_id": 607,
     "created_user": "NZT",
-    "note": "A way to doing this room with a Horizontal Damage Boost from the second farm bug instead of i-framing with the third. "
+    "note": "A way to do this room by using i-frames from the right farm bug."
   },
   {
     "room_id": 140,
     "strat_id": 4,
-    "video_id": 607,
+    "video_id": 605,
     "created_user": "NZT",
-    "note": "A way to do this room by using i-frames from the right farm bug."
+    "note": "A way to doing this room with a Horizontal Damage Boost from the second farm bug instead of i-framing with the third. "
   },
   {
     "room_id": 140,
@@ -5553,16 +6281,16 @@
   {
     "room_id": 201,
     "strat_id": 123,
-    "video_id": 689,
+    "video_id": 688,
     "created_user": "maddo",
-    "note": ""
+    "note": "Killing the crab with Missiles"
   },
   {
     "room_id": 201,
     "strat_id": 123,
-    "video_id": 688,
+    "video_id": 689,
     "created_user": "maddo",
-    "note": "Killing the crab with Missiles"
+    "note": ""
   },
   {
     "room_id": 201,
@@ -5784,16 +6512,16 @@
   {
     "room_id": 172,
     "strat_id": 77,
-    "video_id": 1053,
-    "created_user": "kyleb",
-    "note": "canShinechargeMovement"
+    "video_id": 453,
+    "created_user": "NZT",
+    "note": "If you want to conserve health you can jump above the platform with a crab to initiate the spark instead. It is however a bit more tricky to do. "
   },
   {
     "room_id": 172,
     "strat_id": 77,
-    "video_id": 453,
-    "created_user": "NZT",
-    "note": "If you want to conserve health you can jump above the platform with a crab to initiate the spark instead. It is however a bit more tricky to do. "
+    "video_id": 1053,
+    "created_user": "kyleb",
+    "note": "canShinechargeMovement"
   },
   {
     "room_id": 172,
@@ -5868,16 +6596,16 @@
   {
     "room_id": 172,
     "strat_id": 146,
-    "video_id": 992,
+    "video_id": 991,
     "created_user": "maddo",
-    "note": "With a Spring Ball jump"
+    "note": "canReserveDoubleDamageBoost (with HiJump)"
   },
   {
     "room_id": 172,
     "strat_id": 146,
-    "video_id": 991,
+    "video_id": 992,
     "created_user": "maddo",
-    "note": "canReserveDoubleDamageBoost (with HiJump)"
+    "note": "With a Spring Ball jump"
   },
   {
     "room_id": 178,
@@ -6190,13 +6918,6 @@
   {
     "room_id": 174,
     "strat_id": 115,
-    "video_id": 11,
-    "created_user": "maddo",
-    "note": "Variation that bounces on both Grapple platforms. This is more difficult than using the islands, so there's probably no reason to do it. Except that with a spring fling it could be faster."
-  },
-  {
-    "room_id": 174,
-    "strat_id": 115,
     "video_id": 9,
     "created_user": "maddo",
     "note": ""
@@ -6207,6 +6928,13 @@
     "video_id": 10,
     "created_user": "maddo",
     "note": "Variation which comes in running and bounces on the Grapple platforms instead of the islands below."
+  },
+  {
+    "room_id": 174,
+    "strat_id": 115,
+    "video_id": 11,
+    "created_user": "maddo",
+    "note": "Variation that bounces on both Grapple platforms. This is more difficult than using the islands, so there's probably no reason to do it. Except that with a spring fling it could be faster."
   },
   {
     "room_id": 174,
@@ -6421,16 +7149,16 @@
   {
     "room_id": 183,
     "strat_id": 91,
-    "video_id": 1006,
+    "video_id": 968,
     "created_user": "maddo",
-    "note": "canRightSideDoorStuckFromWater"
+    "note": "canRightSideDoorStuck"
   },
   {
     "room_id": 183,
     "strat_id": 91,
-    "video_id": 968,
+    "video_id": 1006,
     "created_user": "maddo",
-    "note": "canRightSideDoorStuck"
+    "note": "canRightSideDoorStuckFromWater"
   },
   {
     "room_id": 183,
@@ -6442,16 +7170,16 @@
   {
     "room_id": 183,
     "strat_id": 129,
-    "video_id": 107,
-    "created_user": "Osse101",
-    "note": "Align with the wall and tap left to move onto it just enough for a turn-around crouch jump to be possible to reach the transition."
+    "video_id": 106,
+    "created_user": "maddo",
+    "note": "Using Morph to more easily position at the edge"
   },
   {
     "room_id": 183,
     "strat_id": 129,
-    "video_id": 106,
-    "created_user": "maddo",
-    "note": "Using Morph to more easily position at the edge"
+    "video_id": 107,
+    "created_user": "Osse101",
+    "note": "Align with the wall and tap left to move onto it just enough for a turn-around crouch jump to be possible to reach the transition."
   },
   {
     "room_id": 186,
@@ -6631,15 +7359,15 @@
   {
     "room_id": 189,
     "strat_id": 34,
-    "video_id": 116,
-    "created_user": "Osse101",
+    "video_id": 28,
+    "created_user": "maddo",
     "note": ""
   },
   {
     "room_id": 189,
     "strat_id": 34,
-    "video_id": 28,
-    "created_user": "maddo",
+    "video_id": 116,
+    "created_user": "Osse101",
     "note": ""
   },
   {
@@ -6659,15 +7387,15 @@
   {
     "room_id": 189,
     "strat_id": 64,
-    "video_id": 114,
-    "created_user": "Osse101",
+    "video_id": 38,
+    "created_user": "maddo",
     "note": ""
   },
   {
     "room_id": 189,
     "strat_id": 64,
-    "video_id": 38,
-    "created_user": "maddo",
+    "video_id": 114,
+    "created_user": "Osse101",
     "note": ""
   },
   {
@@ -6743,16 +7471,16 @@
   {
     "room_id": 175,
     "strat_id": 65,
-    "video_id": 789,
+    "video_id": 790,
     "created_user": "kyleb",
-    "note": "With Spazer\nThis is slightly easier with Spazer, and noticeably easier with Plasma."
+    "note": "With Morph"
   },
   {
     "room_id": 175,
     "strat_id": 65,
-    "video_id": 790,
+    "video_id": 789,
     "created_user": "kyleb",
-    "note": "With Morph"
+    "note": "With Spazer\nThis is slightly easier with Spazer, and noticeably easier with Plasma."
   },
   {
     "room_id": 193,
@@ -7078,6 +7806,34 @@
   },
   {
     "room_id": 187,
+    "strat_id": 169,
+    "video_id": 1654,
+    "created_user": "maddo",
+    "note": "From Red Brin Firefleas"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 169,
+    "video_id": 1658,
+    "created_user": "maddo",
+    "note": "From Moat"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 170,
+    "video_id": 1649,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 171,
+    "video_id": 1652,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 187,
     "strat_id": 96,
     "video_id": 518,
     "created_user": "Osse101",
@@ -7108,6 +7864,20 @@
     "room_id": 187,
     "strat_id": 164,
     "video_id": 1189,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 172,
+    "video_id": 1648,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 173,
+    "video_id": 1651,
     "created_user": "maddo",
     "note": ""
   },
@@ -7653,16 +8423,16 @@
   {
     "room_id": 220,
     "strat_id": 32,
-    "video_id": 926,
+    "video_id": 927,
     "created_user": "maddo",
-    "note": "canWalljumpWithCharge"
+    "note": "canStaggeredWalljump"
   },
   {
     "room_id": 220,
     "strat_id": 32,
-    "video_id": 927,
+    "video_id": 926,
     "created_user": "maddo",
-    "note": "canStaggeredWalljump"
+    "note": "canWalljumpWithCharge"
   },
   {
     "room_id": 220,
@@ -8017,6 +8787,13 @@
   {
     "room_id": 238,
     "strat_id": 30,
+    "video_id": 1092,
+    "created_user": "maddo",
+    "note": "Damageless"
+  },
+  {
+    "room_id": 238,
+    "strat_id": 30,
     "video_id": 1093,
     "created_user": "maddo",
     "note": "Damageless with Screw Attack (Down-back)"
@@ -8027,13 +8804,6 @@
     "video_id": 1094,
     "created_user": "maddo",
     "note": "With Wave"
-  },
-  {
-    "room_id": 238,
-    "strat_id": 30,
-    "video_id": 1092,
-    "created_user": "maddo",
-    "note": "Damageless"
   },
   {
     "room_id": 238,
