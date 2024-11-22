@@ -3017,8 +3017,17 @@ impl GameData {
         bail!("No match for node {} in roomEnvironments", node_id);
     }
 
-    pub fn all_links(&self) -> impl Iterator<Item = &Link> {
-        self.links.iter()
+    pub fn all_links(&self) -> Vec<Link> {
+        let mut links = self.links.clone();
+        for (link, _) in self.node_gmode_regain_mobility.values().flatten() {
+            let mut new_link = link.clone();
+            new_link.requirement = Requirement::make_and(vec![
+                link.requirement.clone(),
+                Requirement::Tech(self.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE_IMMOBILE]),
+            ]);
+            links.push(new_link);
+        }
+        links
     }
 
     fn parse_exit_condition(
