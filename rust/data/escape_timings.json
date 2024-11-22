@@ -2346,7 +2346,12 @@
               "door_idx": 0,
               "node_id": 1
             },
-            "in_game_time": 13.41
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 13.41
+              }
+            ]
           }
         ]
       }

@@ -452,6 +452,7 @@ pub enum EscapeConditionRequirement {
     CanOffCameraShot,
     CanKago,
     CanHeroShot,
+    CanOneTapShortcharge
 }
 
 #[derive(Deserialize)]

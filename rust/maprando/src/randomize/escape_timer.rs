@@ -98,6 +98,7 @@ fn is_requirement_satisfied(
         EscapeConditionRequirement::CanOffCameraShot => has_tech(TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT),
         EscapeConditionRequirement::CanReverseGate => has_tech(TECH_ID_CAN_HYPER_GATE_SHOT),
         EscapeConditionRequirement::CanHeroShot => has_tech(TECH_ID_CAN_HERO_SHOT),
+        EscapeConditionRequirement::CanOneTapShortcharge => difficulty.shine_charge_tiles <= 25.0,
     }
 }
 
