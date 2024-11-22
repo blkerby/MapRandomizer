@@ -10,7 +10,36 @@ function applyRadioValue(id, value) {
         }
     }
 }
-    
+
+function applyTechSetting(techId, enabled) {
+    if (enabled) {
+        let el = document.getElementById(`tech-${techId}-Yes`);
+        if (el !== null) {
+            el.checked = true;
+        }
+    } else {
+        let el = document.getElementById(`tech-${techId}-No`);
+        if (el !== null) {
+            el.checked = true;
+        }
+    }
+}
+
+function applyNotableSetting(roomId, notableId, enabled) {
+    let comboId = `${roomId}-${notableId}`;
+    if (x.enabled) {
+        let el = document.getElementById(`strat-${comboId}-Yes`);
+        if (el !== null) {
+            el.checked = true;
+        }
+    } else {
+        let el = document.getElementById(`strat-${comboId}-No`);
+        if (el !== null) {
+            el.checked = true;
+        }
+    }
+}
+
 function applySkillPreset(preset) {
     for (presetEl of document.getElementsByClassName("skill-preset-button")) {
         if (presetEl.value == preset.preset) {
@@ -35,22 +64,11 @@ function applySkillPreset(preset) {
     document.getElementById("escapeTimerMultiplier").value = preset.escape_timer_multiplier;
 
     for (t of preset.tech_settings) {
-        if (t.enabled) {
-            document.getElementById(`tech-${t.id}-Yes`).checked = true;    
-        } else {
-            document.getElementById(`tech-${t.id}-No`).checked = true;    
-        }
+        applyTechSetting(t.id, t.enabled);
     }
 
     for (x of preset.notable_settings) {
-        let room_id = x.room_id;
-        let notable_id = x.notable_id;
-        let combo_id = `${room_id}-${notable_id}`;
-        if (x.enabled) {
-            document.getElementById(`strat-${combo_id}-Yes`).checked = true;
-        } else {
-            document.getElementById(`strat-${combo_id}-No`).checked = true;
-        }
+        applyNotableSetting(x.room_id, x.notable_id, x.enabled);
     }
 
     updateTierPercent();
