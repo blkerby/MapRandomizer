@@ -79,21 +79,6 @@ function toggleflagvis(ev) {
 	var e = document.getElementById("f_DefeatedBombTorizo");
 	var eVis = e.style.visibility;
 	togglevis(ev);
-	for (let sf of document.getElementsByClassName("subflags")) {
-		let gone = true;
-		let full = true;
-		for (let e of document.getElementsByClassName(sf.id)) {
-			if (e.style.visibility == "visible") {
-				gone=false;
-			} else {
-				full=false;
-			}
-		}
-		if (gone)
-			sf.checked = false;
-		if (full)
-			sf.checked = true;
-	}
 	moveStart();
 	if (e.style.visibility != eVis) {
 		var i = document.getElementById("Bomb Torizo Room: Item");
@@ -106,6 +91,11 @@ function toggleflagvis(ev) {
 			}
 		}
 	}
+}
+function toggleobjectives(ev) {
+	var on = ev.target.checked;
+	for (var e of document.getElementsByClassName("objectives"))
+		e.src = on ? e.classList[1] + "obj.png" : e.classList[1] + ".png";
 }
 function togglevis(ev) {
 	var toggles = document.getElementsByClassName(ev.target.id);
@@ -684,7 +674,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		document.getElementById("overlay").appendChild(e);
 	}
 
-	flagicons: {
+	flags: {
 		for (i in roomFlags) {
 			e = document.createElement("img");
 			let rf = roomFlags[i];

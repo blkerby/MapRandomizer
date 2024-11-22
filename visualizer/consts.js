@@ -160,7 +160,7 @@ let roomFlags = {
 	"Metroid Room 4": ["f_KilledMetroidRoom4", "Clear Metroid Room 4",0,0.5],
 	"Glass Tunnel": ["f_MaridiaTubeBroken", "Break Maridia Tube",0,1],
 	"Shaktool Room": ["f_ShaktoolDoneDigging", "Clear Shaktool Room",1.5,0],
-	"Acid Statue Room": ["f_UsedAcidChozoStatue", "Use Acid Statue",0.5,0.5],
+	"Acid Statue Room": ["f_UsedAcidChozoStatue", "Use Acid Statue",0,0],
 	"Bowling Alley": ["f_UsedBowlingStatue", "Use Bowling Statue",4,1],
 	"Pit Room": ["f_ClearedPitRoom", "Clear Pit Room",1,0],
 	"Baby Kraid Room": ["f_ClearedBabyKraidRoom", "Clear Baby Kraid Room",2.5,0],

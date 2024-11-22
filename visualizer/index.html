@@ -40,20 +40,20 @@
     <div id="settings">
         <i id="settingsCog" class="bi bi-gear"></i>
         <form id="settingsForm" onchange="saveForm(this)" style="display:none">
-            <input type=checkbox id="start" name="start">
+            <input type=checkbox id="start" name="start" checked>
             <label for="start">start</label><br>
-            <input type=checkbox id="ship" name="ship">
+            <input type=checkbox id="ship" name="ship" checked>
             <label for="ship">ship</label><br>
-            <input type="checkbox" class="subflags" id="items" name="items" onchange="toggleitemvis(event)">
+            <input type="checkbox" id="items" name="items" onchange="toggleitemvis(event)" checked>
             <label for="items">items</label><br>
-            <input type=checkbox class="subflags" id="objectives" name="objectives" onchange="toggleflagvis(event)">
+            <input type=checkbox class="subflags" id="objectives" name="objectives" onchange="toggleobjectives(event)">
             <label for="objectives">objectives</label><br>
-            <input type=checkbox class="subflags" id="bosses" name="bosses" onchange="toggleflagvis(event)">
+            <input type=checkbox class="subflags" id="bosses" name="bosses" onchange="toggleflagvis(event)" checked>
             <label for="bosses">bosses</label><br>
-            <input type=checkbox class="subflags" id="minibosses" name="minibosses" onchange="toggleflagvis(event)">
+            <input type=checkbox class="subflags" id="minibosses" name="minibosses" onchange="toggleflagvis(event)" checked>
             <label for="minibosses">minibosses</label><br>
-            <input type=checkbox class="subflags" id="misc" name="misc" onchange="toggleflagvis(event)">
-            <label for="misc">misc</label><br>
+            <input type=checkbox class="subflags" id="misc" name="misc" onchange="toggleflagvis(event)" checked>
+            <label for="misc">flags</label><br>
         </form>
     </div>
     <script src="consts.js"></script>
