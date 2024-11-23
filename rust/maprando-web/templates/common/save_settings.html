@@ -68,7 +68,7 @@
 
     function loadForm(form) {
         if (localStorage[form.id] === undefined) {
-            return;
+            return false;
         }
         data = JSON.parse(localStorage[form.id]);
         for (const element of form.elements) {
@@ -93,5 +93,6 @@
                 }
             }
         }
+        return true;
     }
 </script>

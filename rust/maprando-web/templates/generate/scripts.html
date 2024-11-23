@@ -802,8 +802,11 @@ async function loadSettings() {
         }
     } else {
         // For backwards compatibility: load the form data the old way, if a settings JSON is not found.
-        loadForm(document.getElementById("main-form"));
         await populateFullPresetOptions();
+        if (!loadForm(document.getElementById("main-form"))) {
+            // If no saved form data is found, use the default preset:
+            applyFullSettingsPreset(fullPresetsArr[0]);
+        }
     }
     checkOtherOptions();
 }
