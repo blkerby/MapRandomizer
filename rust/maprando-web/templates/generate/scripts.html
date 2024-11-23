@@ -44,6 +44,10 @@ function applySkillPreset(preset) {
     for (presetEl of document.getElementsByClassName("skill-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
+            let p = skillPresets[presetEl.value];
+            if (p !== undefined) {
+                preset = p;
+            }
         } else {
             presetEl.checked = false;
         }
@@ -390,6 +394,10 @@ function applyQolPreset(preset) {
     for (presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
+            let p = qolPresets[presetEl.value];
+            if (p !== undefined) {
+                preset = p;
+            }
         } else {
             presetEl.checked = false;
         }
@@ -549,6 +557,10 @@ function applyItemProgressionPreset(preset) {
     for (presetEl of document.getElementsByClassName("item-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
+            let p = itemPresets[presetEl.value];
+            if (p !== undefined) {
+                preset = p;
+            }
         } else {
             presetEl.checked = false;
         }
