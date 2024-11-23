@@ -1,4 +1,5 @@
 v115:
+- implement isDoorImmediatelyClosed
 - DONE: move input ROM into modals
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
@@ -21,11 +22,11 @@ v115:
 - DONE: set up script to automate syncing logic changes
   - DONE: update skill assumption presets and full-settings presets
 - DONE: simplify DifficultyConfig
-- reduce Medium shortcharge tiles to 25? (will apply in bottom of Crateria Supers)
+- DONE: reduce Medium shortcharge tiles to 25? (will apply in bottom of Crateria Supers)
 - simplify SeedData
 - presets:
   - show built-in preset on seed page if verified
-  - download settings preset from seed page
+  - DONE: download settings preset from seed page
     - remove custom name from settings JSON
 - built-in presets: default, and season 2 racing
 - new sm-json-data tests:

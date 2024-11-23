@@ -2,7 +2,7 @@
 
 set -e
 
-if [ ${SKIP_CHECKOUT} -ne 1 ]; then
+if [ ${SKIP_CHECKOUT:-0} -ne 1 ]; then
 echo Checking out latest commit
 cd Mosaic
 git fetch origin
