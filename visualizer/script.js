@@ -651,8 +651,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e.id = "gunship"
 		e.className = "ship";
 		
-		x = sr.coords[0]*24+108;
-		y = sr.coords[1]*24+120;
+		x = sr.coords[0]*24+116;
+		y = sr.coords[1]*24+124;
 		e.style.left = x+"px";
 		e.style.top = y+"px";
 		e.style.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
@@ -669,7 +669,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e = document.createElement("div");
 		e.className = "popup";
 		e.innerHTML = `<b>Ship</b><br><small>${sr.room}</small><br>`;
-		e.style.left = x + 64 +"px";
+		e.style.left = x + 48 +"px";
 		e.style.top = y + "px";
 		document.getElementById("overlay").appendChild(e);
 	}
@@ -695,24 +695,23 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			for (ic in flagtypes) {
 				for (x of flagtypes[ic]) {
 					if (x == f) {
-						
-						found = document.getElementById(ic).checked;
 						e.classList.add(ic);
 						
 						if (ic == "objectives")
 							obj = true;
-						else
+						else {
 							fc = ic;
-
+							e.style.visibility =  document.getElementById(ic).checked ? "visible" : "hidden";
+						}
 						break;
 					}
 				}
 			}
-			if (obj)
+			if (obj && document.getElementById("objectives").checked)
 				e.src = fc + "obj.png"
 			else
 				e.src = fc + ".png"
-			e.style.visibility =  found ? "visible" : "hidden";
+			
 			ox = 0;
 			if (f == "f_DefeatedBombTorizo"  && document.getElementById("items").checked)
 				ox += 6;
