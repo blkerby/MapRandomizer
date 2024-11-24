@@ -3818,6 +3818,7 @@ impl GameData {
             if !node_json.has_key("spawnAt")
                 && node_json["nodeType"].as_str().unwrap() == "door"
                 && node_json["doorOrientation"] != "up"
+                && node_json["isDoorImmediatelyClosed"].as_bool() != Some(true)
             {
                 for morphed in [false, true] {
                     let from_vertex_id = self.vertex_isv.add(&VertexKey {
