@@ -2659,6 +2659,13 @@
             "enabled": true
         },
         {
+            "room_id": 64,
+            "notable_id": 1,
+            "room_name": "Spore Spawn Farming Room",
+            "notable_name": "Roll Under Door",
+            "enabled": true
+        },
+        {
             "room_id": 70,
             "notable_id": 1,
             "room_name": "Below Spazer",

@@ -123,7 +123,7 @@
         "tech_id": 188,
         "name": "canPreciseReserveRefill",
         "difficulty": "Extreme",
-        "video_id": null
+        "video_id": 1302
     },
     {
         "tech_id": 21,
@@ -873,7 +873,7 @@
         "tech_id": 189,
         "name": "canControlShinesparkEnd",
         "difficulty": "Expert",
-        "video_id": null
+        "video_id": 2074
     },
     {
         "tech_id": 140,
@@ -1137,7 +1137,7 @@
         "tech_id": 190,
         "name": "canUsePowerBombLag",
         "difficulty": "Expert",
-        "video_id": null
+        "video_id": 2072
     },
     {
         "tech_id": 10001,

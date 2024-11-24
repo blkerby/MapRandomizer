@@ -517,7 +517,7 @@
     "notable_id": 6,
     "name": "Leave With Spark (Fast Wall Climb)",
     "difficulty": "Extreme",
-    "video_id": null
+    "video_id": 1247
   },
   {
     "room_id": 46,
@@ -902,6 +902,14 @@
     "name": "Mission Impossible Walljumpless",
     "difficulty": "Extreme",
     "video_id": 76
+  },
+  {
+    "room_id": 64,
+    "room_name": "Spore Spawn Farming Room",
+    "notable_id": 1,
+    "name": "Roll Under Door",
+    "difficulty": "Extreme",
+    "video_id": 1822
   },
   {
     "room_id": 65,
@@ -1301,7 +1309,7 @@
     "notable_id": 1,
     "name": "Power Bomb with Damage Boost",
     "difficulty": "Expert",
-    "video_id": null
+    "video_id": 1096
   },
   {
     "room_id": 112,
@@ -1397,7 +1405,7 @@
     "notable_id": 4,
     "name": "Reverse Spark With Pause Abuse",
     "difficulty": "Expert",
-    "video_id": null
+    "video_id": 1301
   },
   {
     "room_id": 111,
@@ -2157,7 +2165,7 @@
     "notable_id": 2,
     "name": "Shoot Down and Grab Right Item",
     "difficulty": "Hard",
-    "video_id": null
+    "video_id": 662
   },
   {
     "room_id": 174,
