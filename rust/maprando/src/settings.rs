@@ -66,7 +66,7 @@ pub struct ItemProgressionSettings {
     pub item_pool_preset: Option<ItemPoolPreset>,
     pub stop_item_placement_early: bool,
     pub item_pool: Vec<ItemCount>,
-    pub starting_items_preset: StartingItemsPreset,
+    pub starting_items_preset: Option<StartingItemsPreset>,
     pub starting_items: Vec<ItemCount>,
     pub key_item_priority: Vec<KeyItemPrioritySetting>,
     pub filler_items: Vec<FillerItemPrioritySetting>,
