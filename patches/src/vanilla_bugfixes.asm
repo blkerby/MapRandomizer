@@ -210,3 +210,9 @@ check_item_plm:
 warnpc $848398
 org $848398
 special_xray_end:
+
+; Fix 32 sprite bug/crash that can occur during door transition
+; Possible when leaving Kraid mid-fight, killing Shaktool with wave-plasma, etc.
+; Documented by PJBoy: https://patrickjohnston.org/bank/B4#fBD97
+org $b4bda3
+    bpl $f8 ; was bne $f8
