@@ -1314,6 +1314,7 @@ fn main() -> Result<()> {
         "InnerCrateria",
         "GreenBrinstar",
         "RedBrinstar",
+        "PinkBrinstar",
         "UpperNorfair",
         "LowerNorfair",
         "WreckedShip",

@@ -79,6 +79,7 @@ fn build_app_data() -> AppData {
         ("OuterCrateria", "Outer Crateria"),
         ("InnerCrateria", "Inner Crateria"),
         ("GreenBrinstar", "Green Brinstar"),
+        ("PinkBrinstar", "Pink Brinstar"),
         ("RedBrinstar", "Red Brinstar"),
         ("UpperNorfair", "Upper Norfair"),
         ("LowerNorfair", "Lower Norfair"),

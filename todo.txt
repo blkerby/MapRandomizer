@@ -30,6 +30,7 @@ v115:
   - resetRoom should reset obstacles
 
 TODO:
+- update README to explain using download_data.sh
 - fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark?
 - implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball

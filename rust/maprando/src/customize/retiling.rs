@@ -51,7 +51,7 @@ pub fn apply_retiling(
     let area_theme_map: HashMap<(AreaIdx, usize), String> = vec![
         ((0, 0), "OuterCrateria"),
         ((0, 1), "InnerCrateria"),
-        ((1, 0), "GreenBrinstar"),
+        ((1, 0), "PinkBrinstar"),
         ((1, 1), "RedBrinstar"),
         ((2, 0), "UpperNorfair"),
         ((2, 1), "LowerNorfair"),

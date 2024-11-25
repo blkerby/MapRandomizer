@@ -17,7 +17,7 @@ use maprando::{
 };
 use maprando_game::GameData;
 
-pub const VERSION: usize = 115;
+pub const VERSION: usize = 116;
 
 #[derive(Clone)]
 pub struct VersionInfo {
