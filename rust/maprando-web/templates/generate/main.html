@@ -103,7 +103,7 @@
                         {% include "help/progression.html" %}
                         <label for="preset">Item progression</label>
                     </div>
-                    <div id="itemProgressionPreset" class="col-lg-5 btn-group mt-0" role="group">
+                    <div id="itemProgressionPreset" class="col-lg-7 btn-group mt-0" role="group">
                         <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Normal"
                             id="itemProgressionPresetNormal" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()" checked>
@@ -113,6 +113,11 @@
                             id="itemProgressionPresetTricky" autocomplete="off" 
                             onclick="itemProgressionPresetChanged()">
                         <label class="btn btn-outline-primary" for="itemProgressionPresetTricky">Tricky</label>
+
+                        <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Technical"
+                            id="itemProgressionPresetTechnical" autocomplete="off" 
+                            onclick="itemProgressionPresetChanged()">
+                        <label class="btn btn-outline-primary" for="itemProgressionPresetTechnical">Technical</label>
 
                         <input type="radio" class="btn-check item-preset-button" name="item_progression_preset" value="Challenge"
                             id="itemProgressionPresetChallenge" autocomplete="off" 
