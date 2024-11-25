@@ -157,7 +157,8 @@ impl PresetData {
         }
         difficulty_tiers.reverse();
 
-        let item_progression_preset_names = ["Normal", "Tricky", "Technical", "Challenge", "Desolate"];
+        let item_progression_preset_names =
+            ["Normal", "Tricky", "Technical", "Challenge", "Desolate"];
         let item_progression_preset_path = presets_path.join("item-progression");
         let mut item_progression_presets: Vec<ItemProgressionSettings> = vec![];
         for name in item_progression_preset_names {
