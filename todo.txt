@@ -1,12 +1,11 @@
 v115:
-- implement isDoorImmediatelyClosed
+- DONE: implement isDoorImmediatelyClosed
 - DONE: move input ROM into modals
 - DONE: validate input ROM
 - DONE: clean JSON API for /randomize
 - DONE: review spoiler zoom PR
 - DONE: fix error when customizing item pool (preset not set)
 - DONE: make relevant flags only show logically collected flags
-- fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - DONE: fix issue with comeInWithSpringBallBounce not checking speedbooster: https://discord.com/channels/1053421401354285129/1053434532973510748/1301251210606809130
 - DONE: improve reproducibility:
   - try processing region files in a deterministic order
@@ -23,15 +22,16 @@ v115:
 - DONE: presets:
   - DONE: show built-in preset on seed page if verified
   - DONE: download settings preset from seed page
-    - remove custom name from settings JSON
+    - DONE: remove custom name from settings JSON
 - DONE: built-in presets: default, and season 2 racing
-- new sm-json-data tests:
+- DONE: new sm-json-data tests:
   - leaveWithSpark should have shinespark in requires
   - heated room strats should have heat frames
   - resetRoom should reset obstacles
-- implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark?
 
 TODO:
+- fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
+- implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark?
 - implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
 - simplify SeedData

@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release115">Version 115 (2024-11-21)</a>:
+<p><a id="release115">Version 115 (2024-11-24)</a>:
 <ul>
 <li>New tile themes "Metroid Habitat" and "Lower Norfair" are available.
 <li>Double refills (energy + ammo) are drawn using a distinct map tile.
@@ -36,17 +36,35 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Bugfixes:
     <ul>
     <li>The "Split" Screw Attack animation did not appear correctly for some Samus sprites (hotfixed: 2024-10-19).
-    <li>In Below Spazer, the "Blue Space Jump" strat was missing a speedball/Morph requirement (hotfixed: 2024-10-29).
-    <li>In Crocomire's Room, the "HiJump Acid Bath" strat was missing a HiJump requirement (hotfixed: 2024-10-29).
+    <li>In Below Spazer, the <a href="/logic/room/70/3/1/32">Blue Space Jump</a> strat was missing a speedball/Morph requirement (hotfixed: 2024-10-29).
+    <li>In Crocomire's Room, the <a href="/logic/room/122/3/4/47">HiJump Acid Bath</a> strat was missing a HiJump requirement (hotfixed: 2024-10-29).
     <li>Certain strats with "comeInWithSpringBallBounce" and "comeInWithMockball" were missing a Speed Booster requirement (hotfixed: 2024-10-30).
     <li>Strats with a "comeInSpeedballing" from a remote runway were missing a Morph requirement (hotfixed: 2024-11-07).
     <li>Door lock skip strats without an "exitCondition" were ignored in logic.
     </ul>
 <li>Logic updates:
     <ul>
-    <li>More cross-room shinecharge strats are added.
+    <li>Cross-room shinecharge strats are added and refined throughout Upper Norfair, most of Lower Norfair, and a few other rooms.
+    <li>Many strats are added for <a href="/logic/tech/19">canPauseAbuse</a> (Expert), involving reaching zero energy while tanking an enemy hit.
+    <li>G-Mode setups are added in most of Upper Norfair.
     <li>The short-charge tiles on Medium difficulty are reduced from 26 to 25.
-    <li>Escape logic requires a Medium-level short-charge in Crateria Super Room.
+    <li>Escape logic now requires a Medium-level short-charge in Crateria Super Room.
+    <li>The tech "canIframeSpikeJump" (Hard) is renamed to <a href="/logic/tech/62">canUseIFrames</a> and its usage is broadened to include using i-frames from enemies.
+    <li>The tech "canQuickCrumbleEscape" (Very Hard) is renamed to <a href="/logic/tech/47">canQuickDrop</a> and its usage is broadened.
+    <li>New tech is added:
+        <ul>
+        <li><a href="/logic/tech/190">canUsePowerBombLag</a> (Expert)
+        <li><a href="/logic/tech/189">canControlShinesparkEnd</a> (Expert)
+        <li><a href="/logic/tech/188">canPreciseReserveRefill</a> (Extreme)
+        </ul>
+    <li>New notable strats are added:
+        <ul>
+        <li><a href="/logic/notable/178/2">Mama Turtle Room: Shoot Down and Grab Right Item</a> (Hard)
+        <li><a href="/logic/notable/99/1">Norfair Reserve Tank Room: Power Bomb with Damage Boost</a> (Expert)
+        <li><a href="/logic/notable/120/4">Crocomire Speedway: Reverse Spark With Pause Abuse</a> (Expert)
+        <li><a href="/logic/notable/41/6">Blue Brinstar Energy Tank Room: Leave With Spark</a> (Extreme)
+        <li><a href="/logic/notable/64/1">Spore Spawn Farming Room: Roll Under Door</a> (Extreme)
+        </ul>
     </ul>
 </ul>
     
