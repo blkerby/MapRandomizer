@@ -329,9 +329,58 @@ FUNCTION_PAUSE_REPAINT_HELPER:
     JSL FUNCTION_REPAINT
     RTS
 
+FUNCTION_KRAID_LEAVE_REPAINT_BG3:
+    PHA
+    PHP
+    JSR FUNCTION_KRAID_REPAINT
+    PLP
+    PLA
+    STA $5A ; Original code
+    STA $5B
+    RTL
+
+FUNCTION_KRAID_ENTER_REPAINT_BG3:
+    LDA #$8000
+    CPY #$B817                  ; Kraid (alive) initial cmd 0008?
+    BEQ .hook
+    CPY #$B842                  ; Kraid (dead) initial cmd 0008?
+    BEQ .hook
+    JMP $E606                   ; if not, return to hook point
+    
+.hook    
+    TSB $05BC
+.spin
+    BIT $05BC
+    BMI .spin                   ; process hooked VRAM update
+    PHY                         ; save cmd ptr
+    PHP
+    SEP #$20
+    LDA #$02
+    STA $5E                     ; update BG3 base address now
+    JSR FUNCTION_KRAID_REPAINT
+    PLP
+    PLY                         ; restore cmd ptr
+    JMP $E60E                   ; return to end of hooked func
+
+FUNCTION_KRAID_REPAINT:
+    PHB
+    REP #$30
+    PEA $8000 : PLB : PLB
+    JSL FUNCTION_REPAINT
+    PLB
+    RTS
+
 ; Hook: On reserve pickup
 org $848986
     JSR HOOK_RESERVE_PICKUP
+
+; Hook: Prevents blinking of reserve HUD on BG3 base address update (exiting Kraid)
+org $8883DC
+    JSL FUNCTION_KRAID_LEAVE_REPAINT_BG3
+
+; Hook: Prevents blinking of reserve HUD on BG3 base address update (entering Kraid)
+org $82E603
+    JMP FUNCTION_KRAID_ENTER_REPAINT_BG3
 
 org !bank_84_free_space_start
 HOOK_RESERVE_PICKUP:
