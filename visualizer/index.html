@@ -1,39 +1,61 @@
 <!DOCTYPE html>
 <head>
-	<meta name="viewport" content="user-scalable=no">
-	<title>Map Rando Spoiler Map Viewer</title>
-	<link rel="stylesheet" href="style.css">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
-	<script src="/static/localforage.js"></script>
+    <meta name="viewport" content="user-scalable=no">
+    <title>Map Rando Spoiler Map Viewer</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.4/font/bootstrap-icons.css">
+    <script src="/static/localforage.js"></script>
+    <script src="save_settings.js"></script>
 </head>
 <body>
-	<div id="zoom">
-		<img id="map" src="../map-assigned.png">
-		<svg id="path-overlay" width="1776px" height="1776px"></svg>
-		<div id="overlay">
-			<canvas id="obscure-overlay" width="72" height="72"></canvas>
-			<img id="grid-overlay" src="../map-grid.png">
-			<div id="room-info"></div>
-		</div>
-	</div>
-	<div id="sidebar-info"></div>
-	<div id="msg-wrap" style="display:none;" onclick="this.style.display = 'none';">
-		<div class="msg">
-			<h1 class="msg-title">Spoiler map info</h1>
-			<ul>
-				<li>Select a step in the overview (top-left corner) to focus on logically reachable areas for that step.
-				<li>One-way-reachable areas appear darker.
-				<li>Only the first instance of each item is shown in the overview.
-				<li>Double-click a step to show details, including all items collectible on that step.
-				<li>Click an item to show a path to reach it (white) and return to the Ship (yellow).
-				<li>Double-click a room to pull up the logic for that room.
-				<li>Click on a room containing a boss, objective, or other flag to show logic for completing it.
-				<li>Click on the Mother Brain Room to show the intended escape route.
-				<li>Where an item routes shows a difficulty level, it represents only the difficulty of reaching the item;
-					it does not include the difficulty of returning, nor of any flags assumed to be previously cleared (e.g. bosses).
-			</ul>
-			<div class="button">DISMISS</div>
-		</div>
-	</div>
-	<script src="script.js"></script>
+    <div id="msg-wrap" onclick="this.style.display = 'none';">
+        <div class="msg">
+            <h1 class="msg-title">Spoiler map info</h1>
+            <ul>
+                <li>Select a step in the overview (top-left corner) to focus on logically reachable areas for that step.
+                <li>One-way-reachable areas appear darker.
+                <li>Only the first instance of each item is shown in the overview.
+                <li>Double-click a step to show details, including all items collectible on that step.
+                <li>Click an item to show a path to reach it (white) and return to the Ship (yellow).
+                <li>Double-click a room to pull up the logic for that room.
+                <li>Click on a room containing a boss, objective, or other flag to show logic for completing it.
+                <li>Click on the Mother Brain Room or the Ship icon to show the intended escape route.
+                <li>Where an item route shows a difficulty level, it represents only the difficulty of reaching the item;
+					it does not include the difficulty of returning, nor of any flags cleared (e.g. bosses).
+            </ul>
+            <form id="helpForm" onchange="saveForm(this)"><input id="showonce" type="checkbox" name="showonce"><label for="showonce">Don't show again.</label></form>
+            <div class="button">DISMISS</div>
+        </div>
+    </div>
+    <div id="zoom">
+        <img id="map" src="../map-assigned.png">
+        <svg id="path-overlay" width="1776px" height="1776px"></svg>
+        <div id="overlay">
+            <canvas id="obscure-overlay" width="72" height="72"></canvas>
+            <img id="grid-overlay" src="../map-grid.png">
+            <div id="room-info"></div>
+        </div>
+    </div>
+    <div id="sidebar-info"></div>
+    <div id="settings">
+        <i id="settingsCog" class="bi bi-gear"></i>
+        <form id="settingsForm" onchange="saveForm(this)" style="display:none">
+            <input type=checkbox id="start" name="start" checked>
+            <label for="start">start</label><br>
+            <input type=checkbox id="ship" name="ship" checked>
+            <label for="ship">ship</label><br>
+            <input type="checkbox" id="items" name="items" onchange="toggleitemvis(event)" checked>
+            <label for="items">items</label><br>
+            <input type=checkbox class="subflags" id="objectives" name="objectives" onchange="toggleobjectives(event)">
+            <label for="objectives">objectives</label><br>
+            <input type=checkbox class="subflags" id="bosses" name="bosses" onchange="toggleflagvis(event)" checked>
+            <label for="bosses">bosses</label><br>
+            <input type=checkbox class="subflags" id="minibosses" name="minibosses" onchange="toggleflagvis(event)" checked>
+            <label for="minibosses">minibosses</label><br>
+            <input type=checkbox class="subflags" id="misc" name="misc" onchange="toggleflagvis(event)" checked>
+            <label for="misc">flags</label><br>
+        </form>
+    </div>
+    <script src="consts.js"></script>
+    <script src="script.js"></script>
 </body>

@@ -3954,6 +3954,13 @@ impl<'r> Randomizer<'r> {
             &self.settings,
             &self.difficulty_tiers[0],
         )?;
+
+        let spoiler_objectives: Vec<String> = self
+            .objectives
+            .iter()
+            .map(|x| x.get_flag_name().to_owned())
+            .collect();
+
         let spoiler_log = SpoilerLog {
             item_priority: state
                 .item_precedence
@@ -3961,8 +3968,15 @@ impl<'r> Randomizer<'r> {
                 .map(|x| format!("{:?}", x))
                 .collect(),
             summary: spoiler_summaries,
+            objectives: spoiler_objectives,
             hub_location_name: state.hub_location.name.clone(),
-            start_location_name: state.start_location.name.clone(),
+            start_location: SpoilerStartLocation {
+                name: state.start_location.name.clone(),
+                room_id: state.start_location.room_id,
+                node_id: state.start_location.node_id,
+                x: state.start_location.x,
+                y: state.start_location.y,
+            },
             hub_obtain_route: state.hub_obtain_route.clone(),
             hub_return_route: state.hub_return_route.clone(),
             escape: spoiler_escape,
@@ -4404,11 +4418,17 @@ impl<'r> Randomizer<'r> {
         ]
         .into_iter()
         .collect();
-
         let spoiler_log = SpoilerLog {
             item_priority: vec![],
             summary: vec![],
-            start_location_name: String::new(),
+            objectives: vec![],
+            start_location: SpoilerStartLocation {
+                room_id: StartLocation::default().room_id,
+                name: StartLocation::default().name,
+                node_id: StartLocation::default().node_id,
+                x: StartLocation::default().x,
+                y: StartLocation::default().y,
+            },
             hub_location_name: String::new(),
             hub_obtain_route: vec![],
             hub_return_route: vec![],
@@ -4673,6 +4693,15 @@ pub struct SpoilerLocation {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct SpoilerStartLocation {
+    pub name: String,
+    pub room_id: usize,
+    pub node_id: usize,
+    pub x: f32,
+    pub y: f32,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct SpoilerStartState {
     max_energy: Capacity,
     max_reserves: Capacity,
@@ -4763,8 +4792,9 @@ pub struct SpoilerSummary {
 pub struct SpoilerLog {
     pub item_priority: Vec<String>,
     pub summary: Vec<SpoilerSummary>,
+    pub objectives: Vec<String>,
     pub escape: SpoilerEscape,
-    pub start_location_name: String,
+    pub start_location: SpoilerStartLocation,
     pub hub_location_name: String,
     pub hub_obtain_route: Vec<SpoilerRouteEntry>,
     pub hub_return_route: Vec<SpoilerRouteEntry>,

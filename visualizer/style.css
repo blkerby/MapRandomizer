@@ -3,11 +3,15 @@ body {
 	background-color: #111;
 	margin: 0;
 	overflow: hidden;
+	user-select: none;
 }
 a {
 	color: white;	
 }
 img {
+	touch-action: none;
+}
+div {
 	touch-action: none;
 }
 #map {
@@ -46,7 +50,7 @@ img {
 	left: 0;
 	z-index: 2;
 }
-.popup, #room-info, #sidebar-info, #sidebar-route {
+.popup, #room-info, #sidebar-info, #sidebar-route, #settings {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
@@ -64,7 +68,7 @@ img {
 	pointer-events: auto;
 	top: 16px;
 	left: 16px;
-	touch-action: auto;
+	user-select: text;
 }
 .sidebar-title {
 	font-size: x-large;
@@ -154,20 +158,88 @@ img {
 	cursor: pointer;
 }
 #msg-wrap {
-	display:flex;
+	position:fixed;
+	display:none;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
 	justify-content: center;
 	align-items: center;
-	height: 100vh;
+	z-index: 4;
 }
 .msg {
 	background: #222;
 	color: #eee;
 	background-color: #222;
-	z-index: 3;
+	z-index: 4;
 	border-radius: 2px;
 	padding: 8px;
 }
 .msg-title {
 	text-align: center;
 	margin: 10px;
+}
+.flag {
+	image-rendering: pixelated;
+	position: absolute;
+}
+.flag:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.flag:hover + .popup {
+	display: block;
+	z-index: 2;
+}
+.start {
+	image-rendering: pixelated;
+	position: absolute;
+}
+.start:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.start:hover + .popup {
+	display: block;
+	z-index: 2;
+}
+.ship {
+	image-rendering: pixelated;
+	position: absolute;
+}
+.ship:hover {
+	transform: scale(1.5);
+	z-index: 2;
+}
+.ship:hover + .popup {
+	display: block;
+	z-index: 2;
+}
+.ui-flag {
+	height: 24px;
+	margin-right: 2px;
+}
+.ui-flag.selected {
+	transform: scale(1.5);
+}
+.ui-flag:hover {
+	transform: scale(1.5);
+}
+#settings {
+	top: 16px;
+	right: 16px;
+	position: fixed;
+	pointer-events: auto;
+}
+#settingsCog {
+	float:right;
+}
+#settingsForm {
+	align-content:center;
+	clear:top;
+}
+#sublabel {
+	position:relative;
+	left:10px;
 }
