@@ -7,6 +7,8 @@ function applyRadioValue(id, value) {
     for (inp of el.getElementsByClassName("btn-check")) {
         if (inp.value == String(value)) {
             inp.checked = true;
+        } else {
+            inp.checked = false;
         }
     }
 }
@@ -571,18 +573,14 @@ function applyItemProgressionPreset(preset) {
     applyRadioValue("itemPriorityStrength", preset.item_priority_strength);
     applyRadioValue("randomTank", preset.random_tank);
     applyRadioValue("spazerBeforePlasma", preset.spazer_before_plasma);
-    if (preset.item_pool_preset != null) {
-        applyRadioValue("itemPoolPreset", preset.item_pool_preset);
-    }
+    applyRadioValue("itemPoolPreset", preset.item_pool_preset);
     applyRadioValue("stopItemPlacementEarly", preset.stop_item_placement_early);
     for (x of preset.item_pool) {
         let item = x.item;
         let cnt = x.count;
         document.getElementById(`itemPool${item}`).value = cnt;
     }
-    if (preset.starting_items_preset != null) {
-        applyRadioValue("startingItemsPreset", preset.starting_items_preset);
-    }
+    applyRadioValue("startingItemsPreset", preset.starting_items_preset);
     for (x of preset.starting_items) {
         let item = x.item;
         let cnt = x.count;
