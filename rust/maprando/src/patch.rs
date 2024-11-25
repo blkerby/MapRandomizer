@@ -473,6 +473,7 @@ impl<'a> Patcher<'a> {
                 "fast_mother_brain_cutscene",
                 "fast_big_boy_cutscene",
                 "fix_kraid_vomit",
+                "fix_kraid_hud",
                 "escape_autosave",
                 "boss_exit",
                 "oob_death",

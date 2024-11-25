@@ -11,9 +11,13 @@ v116:
   - replace with "shineChargeFrames" logical requirement, and add test to ensure it is included.
 - farming strats: design new schema
 - have auto-formatting also auto-order object properties by schema order
+- fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 
 TODO:
+- set up a build process for the ASM patches
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
+  - also happens in Warehouse Entrance: https://discord.com/channels/1053421401354285129/1053434532973510748/1310613115313848461
+  - only happens when using vanilla reserve HUD (not revamped)
 - simplify SeedData
 - Make f_allItemsSpawn not be a flag?
 - maybe add canTrickyDodgeEnemies to more places, e.g. Morph Ball Room?
