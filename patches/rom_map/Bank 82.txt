@@ -8,6 +8,7 @@ FD00 - FD80: item_dots_disappear
 FD80 - FE00: fast_doors
 FE00 - FE80: fast_reload
 FE80 - FF00: zebes_asleep_music
-FF00 - FF50: reserve_hud.asm
-FF50 - FF70: escape.asm
+FF00 - FF10: reserve_hud.asm
+FF10 - FF30: escape.asm
+FF30 - FF80: reserve_hud.asm
 FFFE - end: custom etank color

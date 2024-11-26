@@ -9,6 +9,9 @@
 
 lorom
 
+!bank_82_free_space_start = $82FF30
+!bank_82_free_space_end = $82FF80
+
 !bank_84_free_space_start = $84F490
 !bank_84_free_space_end = $84F4A0
 
@@ -329,6 +332,7 @@ FUNCTION_PAUSE_REPAINT_HELPER:
     JSL FUNCTION_REPAINT
     RTS
 
+org !bank_82_free_space_start
 FUNCTION_KRAID_LEAVE_REPAINT_BG3:
     PHA
     PHP
@@ -369,6 +373,8 @@ FUNCTION_KRAID_REPAINT:
     JSL FUNCTION_REPAINT
     PLB
     RTS
+
+warnpc !bank_82_free_space_end
 
 ; Hook: On reserve pickup
 org $848986
