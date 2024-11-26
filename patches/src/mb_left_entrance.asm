@@ -7,10 +7,15 @@ lorom
 org $83AAEA
     dw $EE00               ; Set door ASM for Tourian Escape Room 1 toward Mother Brain
 
+org $83AAE3
+    db $00    ; Set door direction = $00  (to make door not close behind Samus)
+
+; Custom door ASM for Tourian Escape Room 1 toward Mother Brain
 org $8FEE00
     JSL $8483D7            ;\
     db  $00, $06           ;|
     dw  $B677              ;} Spawn Mother Brain's room escape door
+    rts
 
 ; Restore escape door after MB1 in case of left entry
 org $ADE3D1                ; hook MB1 => MB2 transition
@@ -32,14 +37,7 @@ org $84B66F                ; custom PLM in unused space
 org !bank_84_free_space_start
 fix_mb_escape_door:
     pha
-    lda $af6
-    cmp #$0025             ; check if samus is beyond left wall edge
-    bcs .no_fix
-    lda #$0025             ; push samus out of door before redrawing
-    sta $af6
-    stz $af8
 
-.no_fix
     jsl $8483d7            ; custom PLM that restores escape door
     db  $00, $06
     dw  $b66f

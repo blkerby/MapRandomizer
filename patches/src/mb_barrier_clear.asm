@@ -83,24 +83,6 @@ org $8FECA0
 warnpc $8FED00
 
 
-
-org $83AAEA
-    dw $EE00  ; Set door ASM for Tourian Escape Room 1 toward Mother Brain
-
-org $83AAE3
-    db $00    ; Set door direction = $00  (to make door not close behind Samus)
-
-; Custom door ASM for Tourian Escape Room 1 toward Mother Brain
-org $8FEE00
-    jsl $8483D7            ;\
-    db  $00, $06           ;|
-    dw  $B677              ;} Spawn Mother Brain's room escape door
-
-    ; Remove invisible spikes where Mother Brain used to be:
-    jsl remove_spikes
-
-    rts
-
 ; Remove invisible spikes where Mother Brain used to be (common routine used by both the left and right door ASMs)
 org !bank_84_freespace_start
 
