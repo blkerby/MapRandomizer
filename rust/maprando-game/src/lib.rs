@@ -2532,7 +2532,7 @@ impl GameData {
     fn override_mother_brain_room(&mut self, room_json: &mut JsonValue) {
         // Add a requirement for objectives to be completed in order to cross the barriers
         for x in room_json["strats"].members_mut() {
-            if x["link"][0].as_i32().unwrap() == 2 && x["link"][1].as_i32().unwrap() != 2 {
+            if x["id"] == 38 || (x["link"][0].as_i32().unwrap() == 2 && x["link"][1].as_i32().unwrap() != 2) {
                 x["requires"].push("i_Objective1Complete").unwrap();
                 x["requires"].push("i_Objective2Complete").unwrap();
                 x["requires"].push("i_Objective3Complete").unwrap();

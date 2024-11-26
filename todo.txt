@@ -5,13 +5,14 @@ v116:
 - implement settings upgrade process
 - update README to explain using download_data.sh
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
-- fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
+- DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
 - remove framesRequired/framesRemaining from comeInShinecharged/leaveShinecharged schema
   - replace with "shineChargeFrames" logical requirement, and add test to ensure it is included.
 - farming strats: design new schema
 - have auto-formatting also auto-order object properties by schema order
 - fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
+- finish pass of adding shinecharge strats?
 
 TODO:
 - set up a build process for the ASM patches
