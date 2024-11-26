@@ -16,7 +16,18 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
+    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
+    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+    MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx,
+    RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey,
+    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
+    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
+    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -672,9 +683,10 @@ impl<'a> Preprocessor<'a> {
             MainEntranceCondition::ComeInShinechargedJumping {} => {
                 self.get_come_in_shinecharged_jumping_reqs(exit_condition)
             }
-            MainEntranceCondition::ComeInWithSpark { position, door_orientation } => {
-                self.get_come_in_with_spark_reqs(exit_condition, *position, *door_orientation)
-            }
+            MainEntranceCondition::ComeInWithSpark {
+                position,
+                door_orientation,
+            } => self.get_come_in_with_spark_reqs(exit_condition, *position, *door_orientation),
             MainEntranceCondition::ComeInStutterShinecharging { min_tiles } => {
                 self.get_come_in_stutter_shinecharging_reqs(exit_condition, min_tiles.get())
             }
@@ -1754,7 +1766,9 @@ impl<'a> Preprocessor<'a> {
 
     fn get_come_in_shinecharged_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
         let mut reqs = vec![];
-        reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINECHARGE_MOVEMENT]));
+        reqs.push(Requirement::Tech(
+            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINECHARGE_MOVEMENT],
+        ));
         match exit_condition {
             ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway {
@@ -1876,10 +1890,14 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         let mut reqs = vec![];
         if door_orientation == DoorOrientation::Left || door_orientation == DoorOrientation::Right {
-            reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_SHINESPARK]));
+            reqs.push(Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_SHINESPARK],
+            ));
         }
         if come_in_position == SparkPosition::Top {
-            reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK]));
+            reqs.push(Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK],
+            ));
         }
         match exit_condition {
             ExitCondition::LeaveWithSpark { position } => {
@@ -1888,7 +1906,9 @@ impl<'a> Preprocessor<'a> {
                     || come_in_position == SparkPosition::Any
                 {
                     if *position == SparkPosition::Top && come_in_position == SparkPosition::Any {
-                        reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK]));
+                        reqs.push(Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK],
+                        ));
                     }
                     Some(Requirement::make_and(reqs))
                 } else {
@@ -1897,7 +1917,9 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveShinecharged { .. } => {
                 // Shinecharge frames are handled through Requirement::ShineChargeFrames
-                reqs.push(Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINECHARGE_MOVEMENT]));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINECHARGE_MOVEMENT],
+                ));
                 Some(Requirement::make_and(reqs))
             }
             ExitCondition::LeaveWithRunway {
