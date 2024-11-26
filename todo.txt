@@ -1,10 +1,10 @@
 v116:
-- "Technical" item progression preset
+- DONE: "Technical" item progression preset
 - implement map subsubareas
 - new map pools?
 - implement settings upgrade process
 - update README to explain using download_data.sh
-- implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark?
+- DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
 - remove framesRequired/framesRemaining from comeInShinecharged/leaveShinecharged schema

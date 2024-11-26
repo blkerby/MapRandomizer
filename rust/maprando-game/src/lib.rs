@@ -25,7 +25,10 @@ pub const TECH_ID_CAN_SPEEDBALL: TechId = 42;
 pub const TECH_ID_CAN_MOCKBALL: TechId = 41;
 pub const TECH_ID_CAN_MANAGE_RESERVES: TechId = 18;
 pub const TECH_ID_CAN_PAUSE_ABUSE: TechId = 19;
+pub const TECH_ID_CAN_SHINECHARGE_MOVEMENT: TechId = 136;
 pub const TECH_ID_CAN_SHINESPARK: TechId = 132;
+pub const TECH_ID_CAN_HORIZONTAL_SHINESPARK: TechId = 133;
+pub const TECH_ID_CAN_MIDAIR_SHINESPARK: TechId = 134;
 pub const TECH_ID_CAN_BE_VERY_PATIENT: TechId = 2;
 pub const TECH_ID_CAN_SKIP_DOOR_LOCK: TechId = 184;
 pub const TECH_ID_CAN_DISABLE_EQUIPMENT: TechId = 12;
@@ -558,9 +561,9 @@ fn parse_door_orientation(door_orientation: &str) -> Result<DoorOrientation> {
     Ok(match door_orientation {
         "left" => DoorOrientation::Left,
         "right" => DoorOrientation::Right,
-        "top" => DoorOrientation::Up,
-        "bottom" => DoorOrientation::Down,
-        _ => bail!(format!("Unrecognized door position '{}'", door_orientation)),
+        "up" => DoorOrientation::Up,
+        "down" => DoorOrientation::Down,
+        _ => bail!(format!("Unrecognized door orientation '{}'", door_orientation)),
     })
 }
 
@@ -788,6 +791,7 @@ pub enum MainEntranceCondition {
     ComeInShinechargedJumping {},
     ComeInWithSpark {
         position: SparkPosition,
+        door_orientation: DoorOrientation,
     },
     ComeInSpeedballing {
         effective_runway_length: Float,
@@ -3273,8 +3277,14 @@ impl GameData {
                 req = Requirement::ShineChargeFrames(frames_required as Capacity);
                 MainEntranceCondition::ComeInShinechargedJumping {}
             }
-            "comeInWithSpark" => MainEntranceCondition::ComeInWithSpark {
-                position: parse_spark_position(value["position"].as_str())?,
+            "comeInWithSpark" => {
+                let node_json = &self.node_json_map[&(room_id, from_node_id)];
+                let door_orientation =
+                    parse_door_orientation(node_json["doorOrientation"].as_str().unwrap())?;
+                MainEntranceCondition::ComeInWithSpark {
+                    position: parse_spark_position(value["position"].as_str())?,
+                    door_orientation,
+                }
             },
             "comeInStutterShinecharging" => MainEntranceCondition::ComeInStutterShinecharging {
                 min_tiles: Float::new(
@@ -3937,7 +3947,7 @@ impl GameData {
         Ok(())
     }
 
-    fn add_connection(&mut self, src: (RoomId, NodeId), dst: (RoomId, NodeId), conn: &JsonValue) {
+    fn add_connection(&mut self, src: (RoomId, NodeId), dst: (RoomId, NodeId), _conn: &JsonValue) {
         let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
         let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
         let is_west_ocean_bridge = src == (32, 7) || src == (32, 8);
@@ -3947,8 +3957,6 @@ impl GameData {
                 self.reverse_door_ptr_pair_map
                     .insert(src, (src_ptr, dst_ptr));
             }
-            let pos = parse_door_orientation(conn["position"].as_str().unwrap()).unwrap();
-            self.door_position.insert(src, pos);
         }
     }
 
