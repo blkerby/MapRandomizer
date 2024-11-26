@@ -383,7 +383,7 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 
 fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
-    let mut patches: Vec<&'static str> = vec!["mb_barrier", "mb_barrier_clear", "gray_doors"];
+    let mut patches: Vec<&'static str> = vec!["mb_barrier", "mb_barrier_clear", "mb_left_entrance", "gray_doors"];
     patches.push("hud_expansion_opaque");
     for patch_name in patches {
         let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
