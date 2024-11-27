@@ -20,10 +20,8 @@ room_ptr_hook:
     pha
     lda $79b                ; current room
     cmp #$a59f              ; leaving kraid?
-    beq .is_kraid
-    bra .exit
+    bne .exit
 
-.is_kraid
     phx
     php
     rep #$30
