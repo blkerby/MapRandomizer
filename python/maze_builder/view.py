@@ -33,7 +33,7 @@ device = torch.device('cpu')
 
 rooms = logic.rooms.all_rooms.rooms
 
-num_files = 1000
+num_files = 500
 base_path = "data/2024-09-18T05:56:26.276400"
 path_list = glob.glob(f"{base_path}/*.pkl")
 file_num_list = []

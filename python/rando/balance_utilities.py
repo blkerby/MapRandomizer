@@ -1,4 +1,3 @@
-from rando.sm_json_data import SMJsonData
 from logic.rooms.all_rooms import rooms
 from maze_builder.types import Direction
 import copy

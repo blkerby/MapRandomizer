@@ -45,7 +45,7 @@ device = devices[0]
 executor = concurrent.futures.ThreadPoolExecutor(len(devices))
 
 # num_envs = 1
-num_envs = 2 ** 5
+num_envs = 2 ** 4
 # rooms = logic.rooms.crateria_isolated.rooms
 # rooms = logic.rooms.norfair_isolated.rooms
 rooms = logic.rooms.all_rooms.rooms
@@ -135,7 +135,7 @@ session = TrainingSession(envs,
 
 pickle_name = 'models/session-2024-09-18T05:56:26.276400.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk22', 'rb'))
+session = pickle.load(open(pickle_name + '-bk41', 'rb'))
 session.envs = envs
 session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # # # logging.info("Action model: {}".format(action_model))
@@ -246,8 +246,8 @@ hist_frac = 1.0
 hist_c = 4.0
 hist_max = 2 ** 23
 batch_size = 2 ** 8
-state_lr0 = 0.00005
-state_lr1 = 0.00005
+state_lr0 = 0.00002
+state_lr1 = 0.00002
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 0.5
@@ -267,7 +267,7 @@ save_dist_coef = 0.01
 # save_dist_coef = 0.0
 
 mc_dist_weight = 0.0002
-mc_dist_coef_tame = 0.1
+mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
 toilet_weight = 0.01
@@ -277,9 +277,9 @@ graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-balance_coef0 = 5.0
+balance_coef0 = 0.1
 balance_coef1 = balance_coef0
-balance_weight = 10.0
+balance_weight = 20.0
 
 # door_connect_bound = 0.0
 # door_connect_alpha = 1e-15
@@ -287,7 +287,7 @@ balance_weight = 10.0
 temperature_min0 = 10.0
 temperature_max0 = 100.0
 temperature_min1 = 0.01
-temperature_max1 = 1.0
+temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
 # temperature_min1 = 0.01
@@ -307,7 +307,7 @@ annealing_time = 2 ** 24
 pass_factor0 = 0.01
 pass_factor1 = 2.0
 num_load_files = int(episode_length * pass_factor1)
-print_freq = 16
+print_freq = 32
 total_state_losses = None
 total_action_losses = None
 total_balance_loss = 0.0
@@ -329,8 +329,8 @@ total_graph_diameter = 0.0
 total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
-save_freq = 128
-summary_freq = 256
+save_freq = 256
+summary_freq = 512
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
@@ -477,7 +477,7 @@ def display_counts2(counts, counts0, model_logodds, top_n: int, verbose: bool):
 
 def save_session(session, name):
     with util.DelayedKeyboardInterrupt():
-        logging.info("Saving to {}".format(name))
+        logging.info("Saving to {} (num_files={})".format(name, session.replay_buffer.num_files))
         pickle.dump(session, open(name, 'wb'))
 
 
@@ -541,7 +541,7 @@ for i in range(1000000):
     temp_num_min = int(num_envs * temperature_frac_min)
     temp_num_higher = num_envs - temp_num_min
     temp_frac_min = torch.zeros([temp_num_min], dtype=torch.float32)
-    temp_frac_higher = torch.arange(0, temp_num_higher, dtype=torch.float32) / temp_num_higher
+    temp_frac_higher = torch.arange(0, temp_num_higher, dtype=torch.float32) / (temp_num_higher - 1)
     temp_frac = torch.cat([temp_frac_min, temp_frac_higher])
 
     temperature = temperature_min * (temperature_max / temperature_min) ** temp_frac
@@ -711,7 +711,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk30')
+            # save_session(session, pickle_name + '-bk51')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.replay_buffer.num_files % summary_freq == 0:
@@ -842,4 +842,3 @@ for i in range(1000000):
         # logging.info("Wild:")
         # counts_wild = compute_door_connect_counts(episode_data, only_success=False, ind=wild_ind)
         # display_counts2(counts1_wild, counts_wild, model_door_balance_wild, 1000000, verbose=True)
-        # # display_counts(counts1_wild, 1000000, verbose=True)
