@@ -156,6 +156,8 @@ div {
 	text-align: center;
 	padding: 5px;
 	cursor: pointer;
+	width: 200px;
+	margin:auto;
 }
 #msg-wrap {
 	position:fixed;
@@ -168,6 +170,7 @@ div {
 	align-items: center;
 	z-index: 4;
 }
+
 .msg {
 	background: #222;
 	color: #eee;
@@ -175,10 +178,16 @@ div {
 	z-index: 4;
 	border-radius: 2px;
 	padding: 8px;
+	max-width: 600px;
 }
 .msg-title {
 	text-align: center;
 	margin: 10px;
+}
+#helpForm {
+	margin:auto;
+	margin-bottom:2px;
+	width:fit-content;
 }
 .flag {
 	image-rendering: pixelated;
@@ -218,7 +227,7 @@ div {
 }
 .ui-flag {
 	height: 24px;
-	margin-right: 2px;
+	margin: 4px;
 }
 .ui-flag.selected {
 	transform: scale(1.5);
