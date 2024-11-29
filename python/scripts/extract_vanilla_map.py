@@ -37,10 +37,33 @@ subarea_mapping = {
     SubArea.ESCAPE_TOURIAN: 0,
 }
 
+subsubarea_mapping = {
+    SubArea.WEST_CRATERIA: 0,
+    SubArea.SOUTH_CRATERIA: 0,
+    SubArea.CENTRAL_CRATERIA: 0,
+    SubArea.EAST_CRATERIA: 0,
+    SubArea.BLUE_BRINSTAR: 0,
+    SubArea.GREEN_BRINSTAR: 0,
+    SubArea.PINK_BRINSTAR: 1,
+    SubArea.RED_BRINSTAR: 0,
+    SubArea.WAREHOUSE_BRINSTAR: 0,
+    SubArea.UPPER_NORFAIR: 0,
+    SubArea.LOWER_NORFAIR: 0,
+    SubArea.OUTER_MARIDIA: 0,
+    SubArea.GREEN_MARIDIA: 1,
+    SubArea.PINK_MARIDIA: 1,
+    SubArea.YELLOW_MARIDIA: 0,
+    SubArea.WRECKED_SHIP: 0,
+    SubArea.UPPER_TOURIAN: 0,
+    SubArea.LOWER_TOURIAN: 0,
+    SubArea.ESCAPE_TOURIAN: 0,
+}
+
 output_rooms = []
 output_doors = []
 output_areas = []
 output_subareas = []
+output_subsubareas = []
 
 for room in rooms:
     print(room.name)
@@ -62,6 +85,7 @@ for room in rooms:
             output_doors.append([[exit_ptr, entrance_ptr], [entrance_ptr, exit_ptr], bidirectional])
     output_areas.append(area)
     output_subareas.append(subarea_mapping[room.sub_area])
+    output_subsubareas.append(subarea_mapping[room.sub_area])
 
 
 
@@ -70,6 +94,7 @@ output_json = {
     'doors': output_doors,
     'area': output_areas,
     'subarea': output_subareas,
+    'subsubarea': output_subsubareas,
 }
 
 json.dump(output_json, open('maps/vanilla/vanilla_map.json', 'w'))

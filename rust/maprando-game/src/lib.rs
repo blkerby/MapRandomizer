@@ -63,6 +63,7 @@ pub struct Map {
     )>,
     pub area: Vec<usize>,    // Area number: 0, 1, 2, 3, 4, or 5
     pub subarea: Vec<usize>, // Subarea number: 0 or 1
+    pub subsubarea: Vec<usize>, // Subsubarea number: 0 or 1
 }
 
 pub type TechId = i32; // Tech ID from sm-json-data
