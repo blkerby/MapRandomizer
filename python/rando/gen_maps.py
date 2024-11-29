@@ -26,7 +26,7 @@ args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',
                     level=logging.INFO,
-                    handlers=[logging.FileHandler("train.log"),
+                    handlers=[logging.FileHandler("gen_maps.log"),
                               logging.StreamHandler()])
 
 data_path = args.data_path
@@ -187,25 +187,16 @@ def partition_areas(M, E, x_min, y_min, x_max, y_max, num_areas, num_attempts):
         return areas_valid[best_i, :], cross_cnt[best_i]
 
 
-def partition_subareas(M, num_subareas, num_attempts, min_subarea_size):
+def partition_subareas(M, num_subareas, num_attempts):
     n = M.shape[0]
     centers = np.random.randint(0, n, [num_attempts, num_subareas])
     subareas = np.argmin(M[centers, :], axis=1)
-    valid = np.full([num_attempts], True)
     min_subarea_room_cnt = np.full([num_attempts], 0x7FFF)
     for a in range(num_subareas):
         subarea_room_cnt = np.sum(subareas == a, axis=1)
         min_subarea_room_cnt = np.minimum(subarea_room_cnt, min_subarea_room_cnt)
-        valid = valid & (subarea_room_cnt >= min_subarea_size)
-
-    valid_i = np.nonzero(valid)[0]
-    subareas_valid = subareas[valid_i, :]
-    if valid_i.shape[0] == 0:
-        return None, None
-    else:
-        value = min_subarea_room_cnt[valid_i]
-        best_i = np.argmax(value)
-        return subareas_valid[best_i, :], value[best_i]
+    best_i = np.argmax(min_subarea_room_cnt)
+    return subareas[best_i, :], min_subarea_room_cnt[best_i]
 
 def get_subgraph_edges(v, E):
     vert_dict = {x: i for i, x in enumerate(v.tolist())}
@@ -269,7 +260,7 @@ for file_i in range(start_index, end_index):
                 M = compute_distance_matrix(A)
 
                 attempts_per_batch = 1024
-                num_batches = 16
+                num_batches = 512
                 best_areas = None
                 best_cost = float('inf')
                 for _ in range(num_batches):
@@ -280,6 +271,7 @@ for file_i in range(start_index, end_index):
                 if best_areas is None:
                     logging.error("Failed area assignment")
                     continue
+                logging.info("Area crossings: {}".format(best_cost))
                 areas = best_areas
                 areas = (areas - areas[1] + 6) % 6   # Ensure Landing Site is in Crateria
                 map['area'] = areas.tolist()
@@ -290,7 +282,7 @@ for file_i in range(start_index, end_index):
                     area_v = np.nonzero(areas == a)[0]
                     area_M = M[area_v.reshape(-1, 1), area_v.reshape(1, -1)]
                     # area_E = get_subgraph_edges(area_v, E)
-                    area_subareas, cost = partition_subareas(area_M, num_subareas=2, num_attempts=1000, min_subarea_size=5)
+                    area_subareas, cost = partition_subareas(area_M, num_subareas=2, num_attempts=1000)
                     for v, s in zip(area_v.tolist(), area_subareas.tolist()):
                         subareas[v] = s
                 subareas = np.array(subareas)
@@ -300,7 +292,7 @@ for file_i in range(start_index, end_index):
                     for s in range(2):
                         subarea_v = np.nonzero((areas == a) & (subareas == s))[0]
                         subarea_M = M[subarea_v.reshape(-1, 1), subarea_v.reshape(1, -1)]
-                        subarea_subsubareas, cost = partition_subareas(subarea_M, num_subareas=2, num_attempts=1000, min_subarea_size=2)
+                        subarea_subsubareas, cost = partition_subareas(subarea_M, num_subareas=2, num_attempts=1000)
                         for v, t in zip(subarea_v.tolist(), subarea_subsubareas.tolist()):
                             subsubareas[v] = t
 

@@ -172,7 +172,7 @@ def compute_hallway_cap_mask(dist_matrix):
     return hallway_cap_mask
 
 
-def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
+def compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
     # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
     # nearest refill. Then average these distances to get an overall cost which we will try to minimize.
 
@@ -203,7 +203,11 @@ def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_
     overall_save_cost = 2.0 * save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
     overall_cost = overall_save_cost + overall_refill_cost + 20.0 * map_dist_cost
-    return overall_cost
+    return overall_cost, overall_save_cost, overall_refill_cost, map_dist_cost
+
+
+def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
+    return compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec)[0]
 
 
 def get_room_indexes_by_doortype():
@@ -237,6 +241,35 @@ def get_room_indexes_by_doortype():
             other_indexes_by_doortype[doortype].append(i)
     return save_indexes_by_doortype, refill_indexes_by_doortype, map_indexes_by_doortype, other_indexes_by_doortype
 
+
+def get_balance_costs(map):
+    save_indexes_by_doortype, refill_indexes_by_doortype, map_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+    all_indexes_by_doortype = [save_idxs + refill_idxs + map_idxs + other_idxs
+                               for save_idxs, refill_idxs, map_idxs, other_idxs in
+                               zip(save_indexes_by_doortype, refill_indexes_by_doortype,
+                                   map_indexes_by_doortype, other_indexes_by_doortype)]
+    num_saves_by_doortype = [len(idxs) for idxs in save_indexes_by_doortype]
+    num_refills_by_doortype = [len(idxs) for idxs in refill_indexes_by_doortype]
+    num_maps_by_doortype = [len(idxs) for idxs in map_indexes_by_doortype]
+    num_other_by_doortype = [len(idxs) for idxs in other_indexes_by_doortype]
+    dist_matrix = compute_room_distance_matrix(map)
+    hallway_cap_mask = compute_hallway_cap_mask(dist_matrix)
+    area_vec = compute_area_vec(map)
+
+    def compute_balance_cost_for_indexes(idxs_by_doortype):
+        save_idxs = [idx for doortype in range(3)
+                     for idx in idxs_by_doortype[doortype][:num_saves_by_doortype[doortype]]]
+        refill_idxs = [idx for doortype in range(3)
+                       for idx in idxs_by_doortype[doortype][num_saves_by_doortype[doortype]:(
+                    num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype])]]
+        map_idxs = [idx for doortype in range(3)
+                    for idx in idxs_by_doortype[doortype][
+                               (num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]):(
+                                       num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]
+                                       + num_maps_by_doortype[doortype])]]
+        return compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec)
+
+    return compute_balance_cost_for_indexes(all_indexes_by_doortype)
 
 def redistribute_saves_and_refills(map, num_steps):
     # Move Save Rooms around to try to minimize the average distance of each room to a save, subject to constraints
