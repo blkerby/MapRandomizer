@@ -1,7 +1,7 @@
 v116:
 - DONE: "Technical" item progression preset
-- implement map subsubareas
-- new map pools?
+- DONE: implement map subsubareas
+- DONE: new map pools
 - implement settings upgrade process
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
@@ -14,6 +14,8 @@ v116:
 - finish pass of adding shinecharge strats?
 
 TODO:
+- fix clippy lints and set up as part of CI
+- investigate reported crash: https://discord.com/channels/1053421401354285129/1053434532973510748/1311929602179862578
 - set up a build process for the ASM patches
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
   - also happens in Warehouse Entrance: https://discord.com/channels/1053421401354285129/1053434532973510748/1310613115313848461
