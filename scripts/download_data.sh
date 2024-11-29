@@ -6,9 +6,9 @@ cd tmp
 
 # Download the map pools
 mkdir -p ../maps
-for pool in "v113-tame" "v110c-wild"
+for pool in "v116-tame" "v116-wild"
 do
-wget https://storage.googleapis.com/super-metroid-map-rando/maps/${pool}.tgz
+wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/${pool}.tgz
 tar xfz ${pool}.tgz --directory ../maps
 rm ${pool}.tgz
 done
