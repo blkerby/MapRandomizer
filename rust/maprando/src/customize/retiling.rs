@@ -107,8 +107,12 @@ pub fn apply_retiling(
                         (4, 1, _) => "YellowMaridia",
                         (5, 0, _) => "MetroidHabitat",
                         (5, 1, _) => "MechaTourian",
-                        _ => panic!("unexpected area/subarea/subsubarea combination: ({}, {}, {})", area, sub_area, sub_sub_area)
-                    }.to_string()
+                        _ => panic!(
+                            "unexpected area/subarea/subsubarea combination: ({}, {}, {})",
+                            area, sub_area, sub_sub_area
+                        ),
+                    }
+                    .to_string()
                 } else {
                     // Fall back to Base theme in case map is unavailable
                     // (since it wasn't saved off in earlier randomizer versions)
