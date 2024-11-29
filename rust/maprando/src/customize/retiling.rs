@@ -48,36 +48,6 @@ pub fn apply_retiling(
     theme: &TileTheme,
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
-    let area_theme_map: HashMap<(AreaIdx, usize, usize), String> = vec![
-        ((0, 0, 0), "OuterCrateria"),
-        ((0, 0, 1), "OuterCrateria"),
-        ((0, 1, 0), "InnerCrateria"),
-        ((0, 1, 1), "InnerCrateria"),
-        ((1, 0, 0), "GreenBrinstar"),
-        ((1, 0, 1), "PinkBrinstar"),
-        ((1, 1, 0), "RedBrinstar"),
-        ((1, 1, 1), "RedBrinstar"),
-        ((2, 0, 0), "UpperNorfair"),
-        ((2, 0, 1), "UpperNorfair"),
-        ((2, 1, 0), "LowerNorfair"),
-        ((2, 1, 1), "LowerNorfair"),
-        ((3, 0, 0), "WreckedShip"),
-        ((3, 0, 1), "WreckedShip"),
-        ((3, 1, 0), "WreckedShip"),
-        ((3, 1, 1), "WreckedShip"),
-        ((4, 0, 0), "WestMaridia"),
-        ((4, 0, 1), "WestMaridia"),
-        ((4, 1, 0), "YellowMaridia"),
-        ((4, 1, 1), "YellowMaridia"),
-        ((5, 0, 0), "MetroidHabitat"),
-        ((5, 0, 1), "MetroidHabitat"),
-        ((5, 1, 0), "MechaTourian"),
-        ((5, 1, 1), "MechaTourian"),
-    ]
-    .into_iter()
-    .map(|(x, y)| (x, y.to_owned()))
-    .collect();
-
     let patch_names = vec![
         "Scrolling Sky v1.6",
         "Area FX",
@@ -124,7 +94,21 @@ pub fn apply_retiling(
                     let area = map.area[room_idx];
                     let sub_area = map.subarea[room_idx];
                     let sub_sub_area = map.subsubarea[room_idx];
-                    area_theme_map[&(area, sub_area, sub_sub_area)].clone()
+                    match (area, sub_area, sub_sub_area) {
+                        (0, 0, _) => "OuterCrateria",
+                        (0, 1, _) => "InnerCrateria",
+                        (1, 0, 0) => "GreenBrinstar",
+                        (1, 0, 1) => "PinkBrinstar",
+                        (1, 1, _) => "RedBrinstar",
+                        (2, 0, _) => "UpperNorfair",
+                        (2, 1, _) => "LowerNorfair",
+                        (3, _, _) => "WreckedShip",
+                        (4, 0, _) => "WestMaridia",
+                        (4, 1, _) => "YellowMaridia",
+                        (5, 0, _) => "MetroidHabitat",
+                        (5, 1, _) => "MechaTourian",
+                        _ => panic!("unexpected area/subarea/subsubarea combination: ({}, {}, {})", area, sub_area, sub_sub_area)
+                    }.to_string()
                 } else {
                     // Fall back to Base theme in case map is unavailable
                     // (since it wasn't saved off in earlier randomizer versions)
