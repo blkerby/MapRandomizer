@@ -14,6 +14,7 @@ $1F76: beam door type: (0=Charge, 1=Ice, 2=Wave, 3=Spazer, 4=Plasma)
 $1F78: beam graphics base address (in bank $EA)
 $1F7A: loadback ready (haven't left room since saving)
 $1F7C: timer-only NMI
+$1F7E: previous room ID
 $7ED823: randomizer-specific event flags:
   $0001: bowling statue activated
   $0002: pit room door unlocked

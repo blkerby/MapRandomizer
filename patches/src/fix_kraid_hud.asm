@@ -18,7 +18,8 @@ org $82de1d
 org !bank_82_free_space_start
 room_ptr_hook:
     pha
-    lda $79b                ; current room
+    lda $79b                ; current room (leaving)
+    sta $1f7e               ; save
     cmp #$a59f              ; leaving kraid?
     bne .exit
 
@@ -36,7 +37,7 @@ room_ptr_hook:
 
 .exit
     pla
-    sta $079b               ; replaced code
+    sta $079b               ; replaced code (new room)
     rts
 
 warnpc !bank_82_free_space_end

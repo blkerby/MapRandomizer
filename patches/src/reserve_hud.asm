@@ -58,7 +58,7 @@ org $82AF36
     NOP #4
 
 ; Hook: At "Samus previous health = 0" in HUD init
-org $809AE4
+org $809AF0
     JSR HOOK_HUD_INIT
 
 ; Here's where the regular reserve HUD tiles are set; jump to custom draw function instead
@@ -300,7 +300,7 @@ FCST_DMA_SPECIAL_TILE:
 
 ; Hook: HUD init
 HOOK_HUD_INIT:
-    STZ $0A06 ; Original code: Samus previous health = 0
+    STZ $0A0E ; Original code: Samus previous health = 0
     LDA #$FFFF : STA !samus_previous_reserves
     RTS
 
@@ -336,7 +336,12 @@ org !bank_82_free_space_start
 FUNCTION_KRAID_LEAVE_REPAINT_BG3:
     PHA
     PHP
+    REP #$30
+    LDA $1F7E                   ; Previous room
+    CMP #$A59F                  ; Leaving Kraid?
+    BNE .no_fix
     JSR FUNCTION_KRAID_REPAINT
+.no_fix
     PLP
     PLA
     STA $5A ; Original code
@@ -344,7 +349,7 @@ FUNCTION_KRAID_LEAVE_REPAINT_BG3:
     RTL
 
 FUNCTION_KRAID_ENTER_REPAINT_BG3:
-    LDA #$8000
+    LDA #$8000                  ; Original code
     CPY #$B817                  ; Kraid (alive) initial cmd 0008?
     BEQ .hook
     CPY #$B842                  ; Kraid (dead) initial cmd 0008?
