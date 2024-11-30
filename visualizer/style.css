@@ -227,7 +227,7 @@ div {
 }
 .ui-flag {
 	height: 24px;
-	margin: 4px;
+	margin: 2px;
 }
 .ui-flag.selected {
 	transform: scale(1.5);
