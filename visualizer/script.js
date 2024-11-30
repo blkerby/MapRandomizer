@@ -565,6 +565,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 
 
+	let helmx = 0, helmy = 0;
 	starticon: {
 		let sr = null, e = null, ri = c.start_location.room_id, ni = c.start_location.node_id, i=-1, x=0, y=0;
 		let n = c.start_location.name;
@@ -627,6 +628,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e.className = "start";
 		e.style.left =  x + "px";
 		e.style.top =  y + "px";
+		helmx = x;
+		helmy = y;
 		e.style.setProperty("z-index", "4");
 		e.style.visibility = document.getElementById("start").checked ? "visible" : "hidden";
 		e.onclick = ev => {
@@ -822,12 +825,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	moveStart();
 
 	// input
+	let page_x = -helmx+document.documentElement.clientWidth/2;
+	let page_y = -helmy+document.documentElement.clientHeight/2;
 	let el = document.getElementById("room-info");
 	let dragged = false;
-	var scale = 1, page_x = 0, page_y = 0, dm = 0;
+	let scale = 1, dm = 0;
 	let m = document.getElementById("map");
 	let evCache = [];
 	let odist = -1;
+
+	transfo();
 	function transfo() {
 		document.getElementById("zoom").style.transform =
 		`translate(${page_x}px, ${page_y}px) scale(${scale})`;
@@ -853,18 +860,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		el.innerText = "";
 	}
 	function click() {
-		if (el.innerText in roomFlags) {
-			let flagPair = roomFlags[el.innerText];
-			let flagName = flagPair[0];
-			showFlag(c.details, flagName);
-		} else if (el.innerText.includes("Hub")) {
-			hubRoute();
-		} else {
-			if (!dragged) {
-				// deselect
-				show_overview();
-				document.getElementById("path-overlay").innerHTML = ""
-			}
+		if (!dragged) {
+			// deselect
+			show_overview();
+			document.getElementById("path-overlay").innerHTML = ""
 		}
 	}
 	function dblclick() {
@@ -893,7 +892,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			odist = Math.sqrt(dx**2+dy**2);
 		}
 	}
-	let fclick = true, timer = null;
+	let fclick = true, timer = null, oldroom = null;
 	m.onpointerup = ev => {
 		if (ev.button != 0)
 			return;
@@ -901,7 +900,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			ev.preventDefault();
 		
 		if (evCache.length == 1) {
-			let oldroom = el.innerText;
+			
 			hover(ev);
 			click();
 			if (fclick) {
@@ -909,12 +908,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					fclick = true;
 				}, 500);
 				fclick = false;
+				oldroom = el.innerText;
 			} else {	
 				fclick = true;
 				if (timer)
 					clearTimeout(timer);
 				if (oldroom == el.innerText)
 					dblclick();
+				oldroom = null;
 			}
 		}
 		up(ev);
@@ -983,7 +984,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	
 		transfo();
 	}
-
+	document.getElementById("helpForm").onclick = ev => {
+		ev.stopPropagation();
+	}
 	if (screen.availHeight < 600+32)
 		document.getElementById("sidebar-info").style.maxHeight = screen.availHeight-32 + "px";
 });
