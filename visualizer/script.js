@@ -825,8 +825,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	moveStart();
 
 	// input
-	let page_x = -helmx+screen.availWidth/2;
-	let page_y = -helmy+screen.availHeight/2;
+	let page_x = -helmx+document.documentElement.clientWidth/2;
+	let page_y = -helmy+document.documentElement.clientHeight/2;
 	let el = document.getElementById("room-info");
 	let dragged = false;
 	let scale = 1, dm = 0;
