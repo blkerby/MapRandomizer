@@ -3067,9 +3067,6 @@ impl GameData {
                 }
             }
             "leaveShinecharged" => {
-                if let Some(frames_remaining) = value["framesRemaining"].as_i32() {
-                    req = Requirement::ShineChargeFrames(180 - frames_remaining as Capacity);
-                }
                 ExitCondition::LeaveShinecharged { physics }
             }
             "leaveWithTemporaryBlue" => ExitCondition::LeaveWithTemporaryBlue {
@@ -3270,10 +3267,6 @@ impl GameData {
                 }
             }
             "comeInShinecharged" => {
-                let frames_required = value["framesRequired"]
-                    .as_i32()
-                    .context("Expecting integer 'framesRequired'")?;
-                req = Requirement::ShineChargeFrames(frames_required as Capacity);
                 MainEntranceCondition::ComeInShinecharged {}
             }
             "comeInShinechargedJumping" => {
