@@ -630,7 +630,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e.style.top =  y + "px";
 		helmx = x;
 		helmy = y;
-		e.style.setProperty("z-index", "4");
 		e.style.visibility = document.getElementById("start").checked ? "visible" : "hidden";
 		e.onclick = ev => {
 			hubRoute();
