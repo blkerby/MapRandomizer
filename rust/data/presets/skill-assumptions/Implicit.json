@@ -930,6 +930,13 @@
             "enabled": false
         },
         {
+            "room_id": 184,
+            "notable_id": 1,
+            "room_name": "Botwoon Hallway",
+            "notable_name": "Mochtroid Ice Clip",
+            "enabled": false
+        },
+        {
             "room_id": 185,
             "notable_id": 1,
             "room_name": "Botwoon's Room",
@@ -1077,17 +1084,24 @@
             "enabled": false
         },
         {
-            "room_id": 184,
-            "notable_id": 1,
-            "room_name": "Botwoon Hallway",
-            "notable_name": "Mochtroid Ice Clip",
-            "enabled": false
-        },
-        {
             "room_id": 185,
             "notable_id": 6,
             "room_name": "Botwoon's Room",
             "notable_name": "Back-Side Plasma Shield Microwave",
+            "enabled": false
+        },
+        {
+            "room_id": 196,
+            "notable_id": 7,
+            "room_name": "East Cactus Alley Room",
+            "notable_name": "Suitless Bootless Space Jump",
+            "enabled": false
+        },
+        {
+            "room_id": 195,
+            "notable_id": 1,
+            "room_name": "West Cactus Alley Room",
+            "notable_name": "Suitless HiJump Space Jump",
             "enabled": false
         },
         {

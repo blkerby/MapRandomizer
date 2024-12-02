@@ -2356,7 +2356,7 @@
     "room_name": "Botwoon Hallway",
     "notable_id": 1,
     "name": "Mochtroid Ice Clip",
-    "difficulty": "Hard",
+    "difficulty": "Medium",
     "video_id": 1064
   },
   {
@@ -2624,6 +2624,14 @@
     "video_id": 113
   },
   {
+    "room_id": 196,
+    "room_name": "East Cactus Alley Room",
+    "notable_id": 7,
+    "name": "Suitless Bootless Space Jump",
+    "difficulty": "Hard",
+    "video_id": 2338
+  },
+  {
     "room_id": 208,
     "room_name": "East Sand Hole",
     "notable_id": 1,
@@ -2686,6 +2694,14 @@
     "name": "Very Deep Stuck X-Ray Climb",
     "difficulty": "Insane",
     "video_id": 210
+  },
+  {
+    "room_id": 195,
+    "room_name": "West Cactus Alley Room",
+    "notable_id": 1,
+    "name": "Suitless HiJump Space Jump",
+    "difficulty": "Hard",
+    "video_id": 2343
   },
   {
     "room_id": 209,
