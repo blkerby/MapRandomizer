@@ -2,6 +2,8 @@ v116:
 - DONE: "Technical" item progression preset
 - DONE: implement map subsubareas
 - DONE: new map pools
+- consider adding hazard tape behind Fast Pillars Setup Room top right
+  - maybe behind Aqueduct top left?
 - implement settings upgrade process
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
@@ -14,8 +16,13 @@ v116:
 - finish pass of adding shinecharge strats?
 
 TODO:
+- improve formatting of logic pages to make them easier to read
+  - convert and/or to bulleted lists?
+  - hyperlinks
+  - maybe have a toggle to switch between a code/JSON view, vs. a more broadly understandable view
 - fix clippy lints and set up as part of CI
-- investigate reported crash: https://discord.com/channels/1053421401354285129/1053434532973510748/1311929602179862578
+- adjust etecoon door spawn fix to be more minimal:
+  - have the door just be immediately closed, rather than spawning in wrong location.
 - set up a build process for the ASM patches
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
   - also happens in Warehouse Entrance: https://discord.com/channels/1053421401354285129/1053434532973510748/1310613115313848461
