@@ -3053,7 +3053,7 @@ impl GameData {
         ensure!(value.is_object());
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
-        let mut req = Requirement::Free;
+        let req = Requirement::Free;  // This was used by "leaveShinecharged" before but is currently unused.
         let exit_condition = match key {
             "leaveNormally" => ExitCondition::LeaveNormally {},
             "leaveWithRunway" => {
