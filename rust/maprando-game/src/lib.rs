@@ -61,9 +61,9 @@ pub struct Map {
         (Option<usize>, Option<usize>), // Destination (exit_ptr, entrance_ptr)
         bool,                           // bidirectional
     )>,
-    pub area: Vec<usize>,       // Area number: 0, 1, 2, 3, 4, or 5
-    pub subarea: Vec<usize>,    // Subarea number: 0 or 1
-    #[serde(default)]           // Default for backward compatibility
+    pub area: Vec<usize>,    // Area number: 0, 1, 2, 3, 4, or 5
+    pub subarea: Vec<usize>, // Subarea number: 0 or 1
+    #[serde(default)] // Default for backward compatibility
     pub subsubarea: Vec<usize>, // Subsubarea number: 0 or 1
 }
 
