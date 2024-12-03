@@ -463,6 +463,7 @@ impl<'a> Patcher<'a> {
             "escape_timer",
             "nothing_item",
             "beam_doors",
+            "horizontal_door_fix",
         ];
 
         if self.randomization.settings.other_settings.ultra_low_qol {
