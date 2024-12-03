@@ -93,7 +93,12 @@ pub fn apply_retiling(
                 if let Some(map) = map {
                     let area = map.area[room_idx];
                     let sub_area = map.subarea[room_idx];
-                    let sub_sub_area = map.subsubarea[room_idx];
+                    let sub_sub_area = if map.subsubarea.len() > 0 {
+                        map.subsubarea[room_idx]
+                    } else {
+                        // For backward compatibility, use subsubarea 0 for old maps that didn't have a subsubarea.
+                        0
+                    };
                     match (area, sub_area, sub_sub_area) {
                         (0, 0, _) => "OuterCrateria",
                         (0, 1, _) => "InnerCrateria",
