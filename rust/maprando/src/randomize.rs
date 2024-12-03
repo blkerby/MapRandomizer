@@ -3135,7 +3135,8 @@ impl<'r> Randomizer<'r> {
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
-            } else if filler_type == FillerItemPriority::Yes
+            } else if filler_type == FillerItemPriority::Early
+                || filler_type == FillerItemPriority::Yes
                 || (filler_type == FillerItemPriority::Semi
                     && state.items_remaining[item as usize]
                         < self.initial_items_remaining[item as usize])
