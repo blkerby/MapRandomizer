@@ -1,5 +1,5 @@
 # TODO: Clean up this whole thing (it's a mess right now). Split stuff up into modules in some reasonable way.
-import numpy as np
+# import numpy as np
 import random
 from rando.balance_utilities import balance_utilities
 from logic.rooms.all_rooms import rooms
@@ -22,6 +22,7 @@ parser.add_argument('output_path')
 parser.add_argument('start_index')
 parser.add_argument('end_index')
 parser.add_argument('pool')
+parser.add_argument('device')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',
@@ -32,6 +33,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',
 data_path = args.data_path
 start_index = int(args.start_index)
 end_index = int(args.end_index)
+device = torch.device(args.device)
 
 num_rooms = len(rooms)
 toilet_idx = [i for i, room in enumerate(rooms) if room.name == "Toilet"][0]
@@ -135,67 +137,64 @@ def get_room_edges(map):
         edges_list.append((src_room_id, dst_room_id))
     for i in map['toilet_intersections']:
         edges_list.append((toilet_idx, i))
-    return np.array(edges_list)
+    return torch.tensor(edges_list)
 
 def get_room_adjacency_matrix(edges):
-    A = np.zeros([num_rooms, num_rooms])
+    A = torch.zeros([num_rooms, num_rooms], device=device)
     A[edges[:, 0], edges[:, 1]] = 1
     A[edges[:, 1], edges[:, 0]] = 1
     return A
 
 def compute_distance_matrix(A):
-    A = A.astype(np.int16)
+    A = A.to(torch.int16)
     n = A.shape[0]
-    M = np.where(np.eye(n) == 1, np.zeros_like(A),
-                 np.where(A > 0, np.full_like(A, 1), np.full_like(A, 0xff)))
+    M = torch.where(torch.eye(n, device=device) == 1, torch.zeros_like(A, device=device),
+                 torch.where(A > 0, torch.full_like(A, 1, device=device), torch.full_like(A, 0xff, device=device)))
     for i in range(8):
-        M1 = np.transpose(M).reshape(n, n, 1)
-        M2 = M.reshape(n, 1, n)
+        M1 = torch.transpose(M, 0, 1).view(n, n, 1)
+        M2 = M.view(n, 1, n)
         M_sum = M1 + M2
-        M = np.min(M_sum, axis=0)
+        M = torch.amin(M_sum, dim=0)
     return M
 
-
-def partition_areas(M, E, x_min, y_min, x_max, y_max, num_areas, num_attempts):
+@torch.compile
+def partition_areas(M, E, x_min, y_min, x_max, y_max, toilet_intersection, num_areas, num_attempts):
     n = M.shape[0]
-    # M = M * (1 + 0.1 * np.random.rand(n, n))
-    centers = np.random.randint(0, n, [num_attempts, num_areas])
-    areas = np.argmin(M[centers, :], axis=1)
+    centers = torch.randint(0, n, [num_attempts, num_areas], device=device, dtype=torch.int64)
+    areas = torch.argmin(M[centers, :], dim=1)
     max_val = 0x7FFF
-    valid = np.full([num_attempts], True)
+    valid = torch.full([num_attempts], True, device=device)
     for a in range(num_areas):
-        area_x_min = np.min(np.where(areas == a, x_min.reshape(1, -1), np.full([1, n], max_val)), axis=1)
-        area_y_min = np.min(np.where(areas == a, y_min.reshape(1, -1), np.full([1, n], max_val)), axis=1)
-        area_x_max = np.max(np.where(areas == a, x_max.reshape(1, -1), np.full([1, n], 0)), axis=1)
-        area_y_max = np.max(np.where(areas == a, y_max.reshape(1, -1), np.full([1, n], 0)), axis=1)
-        area_room_cnt = np.sum(areas == a, axis=1)
+        area_x_min = torch.amin(torch.where(areas == a, x_min.view(1, -1), torch.full([1, n], max_val, dtype=torch.int16, device=device)), dim=1)
+        area_y_min = torch.amin(torch.where(areas == a, y_min.view(1, -1), torch.full([1, n], max_val, dtype=torch.int16, device=device)), dim=1)
+        area_x_max = torch.amax(torch.where(areas == a, x_max.view(1, -1), torch.full([1, n], 0, dtype=torch.int16, device=device)), dim=1)
+        area_y_max = torch.amax(torch.where(areas == a, y_max.view(1, -1), torch.full([1, n], 0, dtype=torch.int16, device=device)), dim=1)
+        area_room_cnt = torch.sum((areas == a).to(torch.int16), dim=1)
         valid = valid & (area_x_max - area_x_min <= 58)
         valid = valid & (area_y_max - area_y_min <= 28)
         valid = valid & (area_room_cnt >= 11)
         valid = valid & (area_room_cnt <= 70)
 
-    for i in map['toilet_intersections']:
-        valid = valid & (areas[:, toilet_idx] == areas[:, i])
+    valid = valid & (areas[:, toilet_idx] == areas[:, toilet_intersection])
 
-    valid_i = np.nonzero(valid)[0]
+    valid_i = torch.nonzero(valid)[:, 0]
     areas_valid = areas[valid_i, :]
-    cross_cnt = np.sum(areas_valid[:, E[:, 0]] != areas_valid[:, E[:, 1]], axis=1)
+    cross_cnt = torch.sum((areas_valid[:, E[:, 0]] != areas_valid[:, E[:, 1]]).to(torch.int64), axis=1)
     if cross_cnt.shape[0] == 0:
         return None, None
     else:
-        best_i = np.argmin(cross_cnt)
+        best_i = torch.argmin(cross_cnt)
         return areas_valid[best_i, :], cross_cnt[best_i]
-
 
 def partition_subareas(M, num_subareas, num_attempts):
     n = M.shape[0]
-    centers = np.random.randint(0, n, [num_attempts, num_subareas])
-    subareas = np.argmin(M[centers, :], axis=1)
-    min_subarea_room_cnt = np.full([num_attempts], 0x7FFF)
+    centers = torch.randint(0, n, [num_attempts, num_subareas], device=device)
+    subareas = torch.argmin(M[centers, :], dim=1)
+    min_subarea_room_cnt = torch.full([num_attempts], 0x7FFF, device=device, dtype=torch.int16)
     for a in range(num_subareas):
-        subarea_room_cnt = np.sum(subareas == a, axis=1)
-        min_subarea_room_cnt = np.minimum(subarea_room_cnt, min_subarea_room_cnt)
-    best_i = np.argmax(min_subarea_room_cnt)
+        subarea_room_cnt = torch.sum((subareas == a).to(torch.int64), dim=1)
+        min_subarea_room_cnt = torch.minimum(subarea_room_cnt, min_subarea_room_cnt)
+    best_i = torch.argmax(min_subarea_room_cnt)
     return subareas[best_i, :], min_subarea_room_cnt[best_i]
 
 def get_subgraph_edges(v, E):
@@ -204,7 +203,7 @@ def get_subgraph_edges(v, E):
     for [e1, e2] in E.tolist():
         if e1 in vert_dict and e2 in vert_dict:
             edge_list.append([vert_dict[e1], vert_dict[e2]])
-    return np.array(edge_list)
+    return torch.tensor(edge_list)
 
 
 def get_room_size(room):
@@ -232,12 +231,12 @@ def rerank_areas(map):
     for i, area in enumerate(old_areas):
         if area != 0:
             area_count[area] += get_room_size(rooms[i])
-    ranked_areas = np.argsort(area_count).tolist()
+    ranked_areas = torch.argsort(torch.tensor(area_count)).tolist()
     area_mapping = {ranked_areas[i]: desired_ranking[i] for i in range(6)}
     map['area'] = [area_mapping[a] for a in old_areas]
 
 
-np.random.seed(0)
+torch.random.manual_seed(0)
 os.makedirs(args.output_path, exist_ok=True)
 file_set = set(os.listdir(data_path))
 for file_i in range(start_index, end_index):
@@ -251,20 +250,22 @@ for file_i in range(start_index, end_index):
                 out_filename = "{}-{}.json".format(file_i, j)
                 out_path = "{}/{}".format(args.output_path, out_filename)
                 map = get_base_map(episode_data, j)
-                x_min = np.array([p[0] for p in map['rooms']])
-                y_min = np.array([p[1] for p in map['rooms']])
-                x_max = np.array([p[0] + rooms[i].width for i, p in enumerate(map['rooms'])])
-                y_max = np.array([p[1] + rooms[i].height for i, p in enumerate(map['rooms'])])
+                x_min = torch.tensor([p[0] for p in map['rooms']], device=device)
+                y_min = torch.tensor([p[1] for p in map['rooms']], device=device)
+                x_max = torch.tensor([p[0] + rooms[i].width for i, p in enumerate(map['rooms'])], device=device)
+                y_max = torch.tensor([p[1] + rooms[i].height for i, p in enumerate(map['rooms'])], device=device)
                 E = get_room_edges(map)
                 A = get_room_adjacency_matrix(E)
                 M = compute_distance_matrix(A)
 
-                attempts_per_batch = 1024
-                num_batches = 512
+                attempts_per_batch = 2 ** 17
+                num_batches = 16
                 best_areas = None
                 best_cost = float('inf')
                 for _ in range(num_batches):
-                    areas, cost = partition_areas(M, E, x_min, y_min, x_max, y_max, num_areas=6, num_attempts=attempts_per_batch)
+                    areas, cost = partition_areas(M, E, x_min, y_min, x_max, y_max,
+                                                  torch.tensor(map['toilet_intersections'][0], dtype=torch.int64, device=device),
+                                                  num_areas=6, num_attempts=attempts_per_batch)
                     if cost is not None and cost < best_cost:
                         best_cost = cost
                         best_areas = areas
@@ -279,25 +280,28 @@ for file_i in range(start_index, end_index):
 
                 subareas = [0 for _ in range(num_rooms)]
                 for a in range(6):
-                    area_v = np.nonzero(areas == a)[0]
-                    area_M = M[area_v.reshape(-1, 1), area_v.reshape(1, -1)]
+                    area_v = torch.nonzero(areas == a)[:, 0]
+                    area_M = M[area_v.view(-1, 1), area_v.view(1, -1)]
                     # area_E = get_subgraph_edges(area_v, E)
                     area_subareas, cost = partition_subareas(area_M, num_subareas=2, num_attempts=1000)
                     for v, s in zip(area_v.tolist(), area_subareas.tolist()):
                         subareas[v] = s
-                subareas = np.array(subareas)
+                subareas = torch.tensor(subareas, dtype=torch.int64, device=device)
+                subareas = (subareas - subareas[1] + 2) % 2   # Ensure Landing Site is in first subarea (Outer Crateria)
 
                 subsubareas = [0 for _ in range(num_rooms)]
                 for a in range(6):
                     for s in range(2):
-                        subarea_v = np.nonzero((areas == a) & (subareas == s))[0]
-                        subarea_M = M[subarea_v.reshape(-1, 1), subarea_v.reshape(1, -1)]
+                        subarea_v = torch.nonzero((areas == a) & (subareas == s))[:, 0]
+                        subarea_M = M[subarea_v.view(-1, 1), subarea_v.view(1, -1)]
                         subarea_subsubareas, cost = partition_subareas(subarea_M, num_subareas=2, num_attempts=1000)
                         for v, t in zip(subarea_v.tolist(), subarea_subsubareas.tolist()):
                             subsubareas[v] = t
+                subsubareas = torch.tensor(subsubareas, dtype=torch.int64, device=device)
+                subsubareas = (subsubareas - subsubareas[1] + 2) % 2   # Ensure Landing Site is in first subsubarea (Outer Crateria)
 
                 map['subarea'] = subareas.tolist()
-                map['subsubarea'] = subsubareas
+                map['subsubarea'] = subsubareas.tolist()
                 map = balance_utilities(map)
                 if map is None:
                     logging.error("Failed balancing")

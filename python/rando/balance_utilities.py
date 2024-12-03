@@ -202,7 +202,7 @@ def compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway
     
     overall_save_cost = 2.0 * save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
-    overall_cost = overall_save_cost + overall_refill_cost + 20.0 * map_dist_cost
+    overall_cost = overall_save_cost + 0.5 * overall_refill_cost + 5.0 * map_dist_cost
     return overall_cost, overall_save_cost, overall_refill_cost, map_dist_cost
 
 
