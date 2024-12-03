@@ -3053,7 +3053,7 @@ impl GameData {
         ensure!(value.is_object());
         let from_node_id = strat_json["link"][0].as_usize().unwrap();
         let to_node_id = strat_json["link"][1].as_usize().unwrap();
-        let req = Requirement::Free;  // This was used by "leaveShinecharged" before but is currently unused.
+        let req = Requirement::Free; // This was used by "leaveShinecharged" before but is currently unused.
         let exit_condition = match key {
             "leaveNormally" => ExitCondition::LeaveNormally {},
             "leaveWithRunway" => {
@@ -3066,9 +3066,7 @@ impl GameData {
                     from_exit_node: from_node_id == to_node_id,
                 }
             }
-            "leaveShinecharged" => {
-                ExitCondition::LeaveShinecharged { physics }
-            }
+            "leaveShinecharged" => ExitCondition::LeaveShinecharged { physics },
             "leaveWithTemporaryBlue" => ExitCondition::LeaveWithTemporaryBlue {
                 direction: parse_temporary_blue_direction(value["direction"].as_str())?,
             },
@@ -3266,9 +3264,7 @@ impl GameData {
                     max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
                 }
             }
-            "comeInShinecharged" => {
-                MainEntranceCondition::ComeInShinecharged {}
-            }
+            "comeInShinecharged" => MainEntranceCondition::ComeInShinecharged {},
             "comeInShinechargedJumping" => {
                 let frames_required = value["framesRequired"]
                     .as_i32()
