@@ -381,9 +381,17 @@ pub fn randomize_map_areas(map: &mut Map, seed: usize) {
         subarea_mapping[i].shuffle(&mut rng);
     }
 
+    let mut subsubarea_mapping: Vec<Vec<Vec<usize>>> = vec![vec![(0..2).collect(); 2]; 6];
+    for i in 0..6 {
+        for j in 0..2 {
+            subsubarea_mapping[i][j].shuffle(&mut rng);
+        }
+    }
+
     for i in 0..map.area.len() {
         map.area[i] = area_mapping[map.area[i]];
         map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
+        map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
     }
 }
 
