@@ -2,7 +2,7 @@ arch snes.cpu
 lorom
 
 !bank_84_free_space_start = $84f580
-!bank_84_free_space_end = $84f5a0
+!bank_84_free_space_end = $84f590
 
 org $83AAEA
     dw $EE00               ; Set door ASM for Tourian Escape Room 1 toward Mother Brain
