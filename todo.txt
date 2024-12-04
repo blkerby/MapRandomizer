@@ -2,12 +2,11 @@ v116:
 - DONE: "Technical" item progression preset
 - DONE: implement map subsubareas
 - DONE: new map pools
-- consider adding hazard tape behind Fast Pillars Setup Room top right
-  - maybe behind Aqueduct top left?
-- implement settings upgrade process
+- DONE: consider adding hazard tape behind Fast Pillars Setup Room top right
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
-- implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
+- DONE: implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
+- implement settings upgrade process
 - farming strats: implement new schema
 - have auto-formatting also auto-order object properties by schema order
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.

@@ -2285,6 +2285,7 @@ impl<'a> Patcher<'a> {
             (Some(0x19312), Some(0x1934E)), // Ice Beam Gate Room crumbles (top left)
             (Some(0x1A630), Some(0x1A5C4)), // Bug Sand Hole (left)
             (Some(0x1A618), Some(0x1A564)), // Bug Sand Hole (right)
+            (Some(0x198EE), Some(0x1992A)), // Fast Pillars Setup Room (top right)
         ];
         if self.randomization.settings.other_settings.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
