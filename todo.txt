@@ -6,11 +6,14 @@ v116:
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - DONE: implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
+- set up x-mode leniency in skill assumptions
 - implement settings upgrade process
 - farming strats: implement new schema
 - have auto-formatting also auto-order object properties by schema order
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - finish pass of adding shinecharge strats?
+- adjust etecoon door spawn fix to be more minimal:
+  - have the door just be immediately closed, rather than spawning in wrong location.
 
 TODO:
 - remove framesRequired/framesRemaining from comeInShinechargedJumping schema
@@ -22,8 +25,6 @@ TODO:
   - hyperlinks
   - maybe have a toggle to switch between a code/JSON view, vs. a more broadly understandable view
 - fix clippy lints and set up as part of CI
-- adjust etecoon door spawn fix to be more minimal:
-  - have the door just be immediately closed, rather than spawning in wrong location.
 - set up a build process for the ASM patches
 - issue with Single Chamber door sometimes closing in wrong position: https://discord.com/channels/1053421401354285129/1053434532973510748/1300191178595110943
   - also happens in Warehouse Entrance: https://discord.com/channels/1053421401354285129/1053434532973510748/1310613115313848461
