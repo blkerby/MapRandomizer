@@ -2787,7 +2787,9 @@ impl GameData {
                     "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
                 });
             }
-            if node_type == "door" || node_type == "entrance" {
+            if (node_type == "door" || node_type == "entrance")
+                && node_json["useImplicitComeInNormally"].as_bool() != Some(false)
+            {
                 let spawn_node_id = node_json["spawnAt"].as_usize().unwrap_or(node_id);
                 extra_strats.push(json::object! {
                     "link": [node_id, spawn_node_id],
@@ -2796,6 +2798,32 @@ impl GameData {
                         "comeInNormally": {}
                     },
                     "requires": []
+                });
+            }
+
+            if !node_json.has_key("spawnAt")
+                && node_type == "door"
+                && (node_json["doorOrientation"] == "left"
+                    || node_json["doorOrientation"] == "right")
+                && node_json["useImplicitComeInWithMockball"].as_bool() == Some(false)
+            {
+                let heated = self.get_room_heated(room_json, node_id)?;
+                let req = if heated {
+                    json::array![{"heatFrames": 10}]
+                } else {
+                    json::array![]
+                };
+                extra_strats.push(json::object! {
+                    "link": [node_id, node_id],
+                    "name": "Base (Come In With Mockball)",
+                    "entranceCondition": {
+                        "comeInWithMockball": {
+                            "adjacentMinTiles": 0,
+                            "remoteAndLandingMinTiles": [[0, 0]],
+                            "speedBooster": "any"
+                        }
+                    },
+                    "requires": req
                 });
             }
 
@@ -3578,6 +3606,7 @@ impl GameData {
                 requires_vec.push(exit_req.clone().unwrap());
             } else if ["door", "exit"].contains(&to_node_json["nodeType"].as_str().unwrap())
                 && strat_json.has_key("unlocksDoors")
+                && to_node_json["useImplicitLeaveNormally"].as_bool() != Some(false)
             {
                 if let Ok(unlock_to_door_req) = self.get_unlocks_doors_req(to_node_id, &ctx) {
                     maybe_exit_req = Some(unlock_to_door_req);
@@ -3823,10 +3852,21 @@ impl GameData {
             // Implicit leaveWithGMode:
             if !node_json.has_key("spawnAt")
                 && node_json["nodeType"].as_str().unwrap() == "door"
-                && node_json["doorOrientation"] != "up"
                 && node_json["isDoorImmediatelyClosed"].as_bool() != Some(true)
             {
                 for morphed in [false, true] {
+                    if !morphed
+                        && node_json["useImplicitCarryGModeBackThrough"].as_bool() == Some(false)
+                    {
+                        continue;
+                    }
+                    if morphed
+                        && (node_json["doorOrientation"] == "up"
+                            || node_json["useImplicitCarryGModeMorphBackThrough"].as_bool()
+                                == Some(false))
+                    {
+                        continue;
+                    }
                     let from_vertex_id = self.vertex_isv.add(&VertexKey {
                         room_id,
                         node_id,
@@ -3855,7 +3895,11 @@ impl GameData {
                         start_with_shinecharge: false,
                         end_with_shinecharge: false,
                         strat_id: None,
-                        strat_name: "G-Mode Go Back Through Door".to_string(),
+                        strat_name: if morphed {
+                            "Carry G-Mode Morph Back Through".to_string()
+                        } else {
+                            "Carry G-Mode Back Through".to_string()
+                        },
                         strat_notes: vec![],
                     };
                     self.links.push(link);

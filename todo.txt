@@ -8,14 +8,16 @@ v116:
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
-- remove framesRequired/framesRemaining from comeInShinecharged/leaveShinecharged schema
-  - replace with "shineChargeFrames" logical requirement, and add test to ensure it is included.
-- farming strats: design new schema
+- farming strats: implement new schema
 - have auto-formatting also auto-order object properties by schema order
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - finish pass of adding shinecharge strats?
 
 TODO:
+- remove framesRequired/framesRemaining from comeInShinechargedJumping schema
+  - replace with "shineChargeFrames" logical requirement, and add test to ensure it is included.
+- investigate momentum conservation: 
+  - eddie says first-frame jump loses momentum: https://www.twitch.tv/videos/2317357753?t=2h17m11s
 - improve formatting of logic pages to make them easier to read
   - convert and/or to bulleted lists?
   - hyperlinks
