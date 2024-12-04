@@ -259,10 +259,21 @@ room_main:
     clc
     adc #$0007
     cmp $09c4
-    bcc .refill_not_finished
+    bcc .etanks_refill_not_finished
     lda $09c4
+    sta $09c2
+    ;; refill reserves
+    lda $09d6
+    clc
+    adc #$0007
+    cmp $09d4
+    bcc .reserves_refill_not_finished
+    lda $09d4
     sta $1f64  ; mark refill as complete
-.refill_not_finished:
+.reserves_refill_not_finished:
+    sta $09d6
+    bra .refill_done
+.etanks_refill_not_finished:
     sta $09c2
 .refill_done:
 
