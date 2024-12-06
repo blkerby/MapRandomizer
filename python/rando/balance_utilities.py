@@ -160,6 +160,14 @@ def make_ship_in_crateria(map):
     map['area'] = [(area - ship_area + num_areas) % num_areas for area in map['area']]
     return map
 
+def get_neighbor_degree(dist_matrix):
+    n = dist_matrix.shape[0]
+    dist_matrix = dist_matrix.copy()
+    dist_matrix[np.arange(n), np.arange(n)] = 127
+    degree = np.sum(dist_matrix == 1, axis=1)
+    neighbor = np.argmin(dist_matrix, axis=1)
+    return degree[neighbor]
+
 
 def compute_hallway_cap_mask(dist_matrix):
     n = dist_matrix.shape[0]
@@ -357,8 +365,10 @@ def place_phantoon_and_friends(map):
     dist = compute_room_distance_matrix(map)
     left_ids = []
     left_areas = []
+    left_degrees = []
     right_ids = []
     right_areas = []
+    neighbor_degrees = get_neighbor_degree(dist)
     for i, room in enumerate(rooms):
         if room.width != 1 or room.height != 1 or len(room.door_ids) != 1:
             continue
@@ -366,6 +376,7 @@ def place_phantoon_and_friends(map):
         if room.door_ids[0].direction == Direction.LEFT:
             left_ids.append(i)
             left_areas.append(area)
+            left_degrees.append(neighbor_degrees[i])
         elif room.door_ids[0].direction == Direction.RIGHT:
             right_ids.append(i)
             right_areas.append(area)
@@ -375,6 +386,7 @@ def place_phantoon_and_friends(map):
             continue
     left_ids = np.array(left_ids)
     left_areas = np.array(left_areas)
+    left_degrees = np.array(left_degrees)
     right_ids = np.array(right_ids)
     dist_left_right = dist[left_ids, :][:, right_ids]
 
@@ -393,7 +405,15 @@ def place_phantoon_and_friends(map):
         logging.info("Failed to place Phantoon's Room")
         return None
 
-    new_phantoon_idx = np.random.choice(list(eligible_phantoon_idxs))
+    eligible_degrees = left_degrees[eligible_phantoon_idxs]
+    print("Eligible Phantoon neighbor degrees: {}", eligible_degrees)
+
+    # Prefer placing Phantoon's Room next to a room with fewest possible doors, for better variety, since
+    # rooms with few doors otherwise tend to be underrepresented. In particular this cuts back on placements of
+    # Phantoon next to West Ocean, which used to be comically frequent.
+    min_degree = np.min(eligible_degrees)
+    best_eligible_phantoon_idxs = eligible_phantoon_idxs[np.where(eligible_degrees == min_degree)[0]]
+    new_phantoon_idx = np.random.choice(list(best_eligible_phantoon_idxs))
 
     # Randomly select a candidate for Wrecked Ship Map Room:
     eligible_ws_map_idxs = np.where(dist_left_right[new_phantoon_idx, :] <= 2)[0]
