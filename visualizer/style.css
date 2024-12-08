@@ -8,10 +8,7 @@ body {
 a {
 	color: white;	
 }
-img {
-	touch-action: none;
-}
-div {
+#zoom {
 	touch-action: none;
 }
 #map {

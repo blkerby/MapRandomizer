@@ -346,38 +346,62 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (j !== null) {
 			let ss = c.details[i].start_state;
 			item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
-			routeData(item_info, j.obtain_route);
+			routeData(item_info, j.obtain_route, ss);
 				
 			item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
 			routeData(item_info, j.return_route);
 		}
 		si.appendChild(item_info);
 	}
-	function routeData(p, route) {
+	function consumableData(k, ss=null) {
+		let remstr = ss == null ? "still needed" : "remaining";
+		let out = "";
+		if (k.energy_used !== undefined) {
+			if (ss == null)
+				out += `Energy ${remstr}: ${k.energy_used + 1}<br>`;
+			else
+				out += `Energy ${remstr}: ${ss.max_energy - k.energy_used}<br>`;
+		}
+		if (k.reserves_used !== undefined) {
+			if (ss == null)
+				out += `Reserves ${remstr}: ${k.reserves_used}<br>`;
+			else
+				out += `Reserves ${remstr}: ${ss.max_reserves - k.reserves_used}<br>`;
+		}
+		if (k.missiles_used !== undefined) {
+			if (ss == null)
+				out += `Missiles ${remstr}: ${k.missiles_used}<br>`;
+			else
+				out += `Missiles ${remstr}: ${ss.max_missiles - k.missiles_used}<br>`;
+		}
+		if (k.supers_used !== undefined) {
+			if (ss == null)
+				out += `Supers ${remstr}: ${k.supers_used}<br>`;
+			else
+				out += `Supers ${remstr}: ${ss.max_supers - k.supers_used}<br>`;
+		}
+		if (k.power_bombs_used !== undefined) {
+			if (ss == null)
+				out += `PBs ${remstr}: ${k.power_bombs_used}<br>`;
+			else
+				out += `PBs ${remstr}: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
+		}
+		return out;
+	}
+	function routeData(p, route, ss=null) {
 		let lastRoom=null, lastNode=null;
 		for (let k of route) {
-			let out = "";
-			if (k.energy_used !== undefined) {
-				out += `Energy still needed: ${k.energy_used + 1}<br>`;
-			}
-			if (k.reserves_used !== undefined) {
-				out += `Reserves still needed: ${k.reserves_used}<br>`;
-			}
-			if (k.missiles_used !== undefined) {
-				out += `Missiles still needed: ${k.missiles_used}<br>`;
-			}
-			if (k.supers_used !== undefined) {
-				out += `Supers still needed: ${k.supers_used}<br>`;
-			}
-			if (k.power_bombs_used !== undefined) {
-				out += `PBs still needed: ${k.power_bombs_used}<br>`;
-			}
-			if (out != "") {
-				p.appendChild(createHtmlElement(`<small>${out}</small>`));
-			}
-	
 			let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 			let nodeStr;
+			let out = "";
+
+			if (ss == null)	{
+				out = consumableData(k);
+				if (out != "") {
+					p.appendChild(createHtmlElement(`<small>${out}</small>`));
+				}
+			}
+
 			if (k.strat_id !== null) {
 				nodeStr = `<a style="text-decoration:none" href="${strat_url}">${k.room}: ${k.node}</a><br>`;
 			} else {
@@ -403,6 +427,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (out != "") {
 				p.appendChild(createHtmlElement(`<small>${out}</small>`));
 			}
+			if (ss != null)	{
+				out = consumableData(k, ss);
+				if (out != "") {
+					p.appendChild(createHtmlElement(`<small>${out}</small>`));
+				}
+			}
+			
 			if (k.relevant_flags) {
 				let flagContainer = document.createElement("small");
 				let flagSpan0 = document.createElement("span");
