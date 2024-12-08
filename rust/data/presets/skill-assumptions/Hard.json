@@ -2106,6 +2106,13 @@
             "enabled": false
         },
         {
+            "room_id": 127,
+            "notable_id": 9,
+            "room_name": "Post Crocomire Jump Room",
+            "notable_name": "Spring Ball Unmorph Bomb Boost",
+            "enabled": false
+        },
+        {
             "room_id": 150,
             "notable_id": 5,
             "room_name": "Golden Torizo's Room",
@@ -2887,6 +2894,20 @@
             "notable_id": 3,
             "room_name": "Wrecked Ship East Super Room",
             "notable_name": "R-Mode Standup Clip (Right to Left)",
+            "enabled": false
+        },
+        {
+            "room_id": 155,
+            "notable_id": 2,
+            "room_name": "Wrecked Ship Main Shaft",
+            "notable_name": "Atomic Ice Moonfall Screw Clip",
+            "enabled": false
+        },
+        {
+            "room_id": 155,
+            "notable_id": 3,
+            "room_name": "Wrecked Ship Main Shaft",
+            "notable_name": "Covern Wall Ice Screw Clip",
             "enabled": false
         },
         {

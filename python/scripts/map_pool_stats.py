@@ -19,7 +19,9 @@ for idx, room in enumerate(room_geometry):
 # map_dir = "maps/v90-wild/"
 # map_dir = "maps/v93-tame/"
 # map_dir = "maps/v110c-tame/"
-map_dir = "maps/v110c-wild/"
+# map_dir = "maps/v110c-wild/"
+map_dir = "maps/v113-tame/"
+# map_dir = "maps/v116-tame/"
 cnt_dict = defaultdict(lambda: defaultdict(lambda: 0))
 flat_cnt_dict = defaultdict(lambda: 0)
 map_filenames = list(os.listdir(map_dir))
@@ -38,13 +40,13 @@ for i in range(6):
     print("{:.1f}".format(cnt_phantoon_area[i] / cnt_maps * 100))
     
 
-# sorted_flat_cnts = sorted(flat_cnt_dict.items(), key=lambda x: x[1], reverse=True)
-# for ((door_ptr_pair1, door_ptr_pair2), cnt) in sorted_flat_cnts[:1000]:
-#     door1 = door_map[door_ptr_pair1]
-#     door2 = door_map[door_ptr_pair2]
-#     door1_name = door_name_map[door_ptr_pair1]    
-#     door2_name = door_name_map[door_ptr_pair2]
-#     if door1['subtype'] == 'normal' and door1['direction'] in ['left', 'right']:
-#         # print("{:.5f}: [{}] {} + {}".format(cnt / cnt_maps, door1['subtype'], door1_name, door2_name))
-#         print("{:.5f}: {} + {}".format(cnt / cnt_maps, door1_name, door2_name))
+sorted_flat_cnts = sorted(flat_cnt_dict.items(), key=lambda x: x[1], reverse=True)
+for ((door_ptr_pair1, door_ptr_pair2), cnt) in sorted_flat_cnts[:1000]:
+    door1 = door_map[door_ptr_pair1]
+    door2 = door_map[door_ptr_pair2]
+    door1_name = door_name_map[door_ptr_pair1]    
+    door2_name = door_name_map[door_ptr_pair2]
+    if door1['subtype'] == 'normal' and door1['direction'] in ['left', 'right']:
+        # print("{:.5f}: [{}] {} + {}".format(cnt / cnt_maps, door1['subtype'], door1_name, door2_name))
+        print("{:.5f}: {} + {}".format(cnt / cnt_maps, door1_name, door2_name))
     

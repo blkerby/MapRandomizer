@@ -64,6 +64,12 @@ pub struct LocalState {
     pub supers_used: Capacity,
     pub power_bombs_used: Capacity,
     pub shinecharge_frames_remaining: Capacity,
+    pub cycle_frames: Capacity,
+    pub farm_baseline_energy_used: Capacity,
+    pub farm_baseline_reserves_used: Capacity,
+    pub farm_baseline_missiles_used: Capacity,
+    pub farm_baseline_supers_used: Capacity,
+    pub farm_baseline_power_bombs_used: Capacity,
 }
 
 impl LocalState {
@@ -75,6 +81,12 @@ impl LocalState {
             supers_used: 0,
             power_bombs_used: 0,
             shinecharge_frames_remaining: 0,
+            cycle_frames: 0,
+            farm_baseline_energy_used: 0,
+            farm_baseline_reserves_used: 0,
+            farm_baseline_missiles_used: 0,
+            farm_baseline_supers_used: 0,
+            farm_baseline_power_bombs_used: 0,
         }
     }
 }

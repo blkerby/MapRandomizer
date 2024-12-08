@@ -29,7 +29,9 @@ pub const TECH_ID_CAN_SHINECHARGE_MOVEMENT: TechId = 136;
 pub const TECH_ID_CAN_SHINESPARK: TechId = 132;
 pub const TECH_ID_CAN_HORIZONTAL_SHINESPARK: TechId = 133;
 pub const TECH_ID_CAN_MIDAIR_SHINESPARK: TechId = 134;
+pub const TECH_ID_CAN_BE_PATIENT: TechId = 1;
 pub const TECH_ID_CAN_BE_VERY_PATIENT: TechId = 2;
+pub const TECH_ID_CAN_BE_EXTREMELY_PATIENT: TechId = 3;
 pub const TECH_ID_CAN_SKIP_DOOR_LOCK: TechId = 184;
 pub const TECH_ID_CAN_DISABLE_EQUIPMENT: TechId = 12;
 pub const TECH_ID_CAN_SPRING_BALL_BOUNCE: TechId = 38;
@@ -157,6 +159,7 @@ impl Item {
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct EnemyDrop {
+    pub nothing_weight: Float,
     pub small_energy_weight: Float,
     pub large_energy_weight: Float,
     pub missile_weight: Float,
@@ -220,6 +223,15 @@ pub enum Requirement {
     AcidFrames(Capacity),
     GravitylessAcidFrames(Capacity),
     MetroidFrames(Capacity),
+    CycleFrames(Capacity),
+    Farm {
+        requirement: Box<Requirement>,
+        drops: Vec<EnemyDrop>,
+        full_energy: bool,
+        full_missiles: bool,
+        full_supers: bool,
+        full_power_bombs: bool,
+    },
     Damage(Capacity),
     MissilesAvailable(Capacity),
     SupersAvailable(Capacity),
@@ -306,6 +318,10 @@ pub enum Requirement {
         requirement_green: Box<Requirement>,
         requirement_yellow: Box<Requirement>,
         requirement_charge: Box<Requirement>,
+    },
+    ResetRoom {
+        room_id: RoomId,
+        node_id: NodeId,
     },
     EscapeMorphLocation,
     And(Vec<Requirement>),
@@ -1706,6 +1722,58 @@ impl GameData {
         Ok(reqs)
     }
 
+    fn parse_enemy_drops(&self, value: &JsonValue) -> Vec<EnemyDrop> {
+        let mut enemy_drops = vec![];
+        assert!(value.is_array());
+        for drop in value.members() {
+            let enemy_name = drop["enemy"].as_str().unwrap();
+            let enemy_json = &self.enemy_json[enemy_name];
+            let drops_json = &enemy_json["drops"];
+            let count = drop["count"].as_i32().unwrap() as Capacity;
+            let nothing_weight = drops_json["noDrop"]
+                .as_f32()
+                .context(format!("missing noDrop for {}", enemy_name))
+                .unwrap()
+                / 102.0;
+            let small_energy_weight = drops_json["smallEnergy"]
+                .as_f32()
+                .context(format!("missing smallEnergy for {}", enemy_name))
+                .unwrap()
+                / 102.0;
+            let large_energy_weight = drops_json["bigEnergy"]
+                .as_f32()
+                .context(format!("missing bigEnergy for {}", enemy_name))
+                .unwrap()
+                / 102.0;
+            let missile_weight = drops_json["missile"]
+                .as_f32()
+                .context(format!("missing missile for {}", enemy_name))
+                .unwrap()
+                / 102.0;
+            let super_weight = drops_json["super"]
+                .as_f32()
+                .context(format!("missing super for {}", enemy_name))
+                .unwrap()
+                / 102.0;
+            let power_bomb_weight = drops_json["powerBomb"]
+                .as_f32()
+                .context(format!("missing powerBomb for {}", enemy_name))
+                .unwrap()
+                / 102.0;
+            let enemy_drop = EnemyDrop {
+                nothing_weight: Float::new(nothing_weight),
+                small_energy_weight: Float::new(small_energy_weight),
+                large_energy_weight: Float::new(large_energy_weight),
+                missile_weight: Float::new(missile_weight),
+                super_weight: Float::new(super_weight),
+                power_bomb_weight: Float::new(power_bomb_weight),
+                count,
+            };
+            enemy_drops.push(enemy_drop);
+        }
+        enemy_drops
+    }
+
     // TODO: Find some way to have this not need to be mutable (e.g. resolve the helper dependencies in a first pass)
     fn parse_requirement(
         &mut self,
@@ -2057,6 +2125,11 @@ impl GameData {
                     .as_i32()
                     .expect(&format!("invalid samusEaterFrames in {}", req_json));
                 return Ok(Requirement::Damage(frames as Capacity / 8));
+            } else if key == "cycleFrames" {
+                let frames = value
+                    .as_i32()
+                    .expect(&format!("invalid cycleFrames in {}", req_json));
+                return Ok(Requirement::CycleFrames(frames as Capacity));
             } else if key == "spikeHits" {
                 let hits = value
                     .as_i32()
@@ -2256,7 +2329,13 @@ impl GameData {
                 }
                 let mut reqs_or: Vec<Requirement> = vec![];
                 for node_id in node_ids {
-                    reqs_or.push(self.get_unlocks_doors_req(node_id, ctx)?);
+                    reqs_or.push(Requirement::make_and(vec![
+                        self.get_unlocks_doors_req(node_id, ctx)?,
+                        Requirement::ResetRoom {
+                            room_id: ctx.room_id,
+                            node_id,
+                        },
+                    ]));
                 }
                 return Ok(Requirement::make_or(reqs_or));
             } else if key == "doorUnlockedAtNode" {
@@ -2291,48 +2370,7 @@ impl GameData {
                 return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
                 let frames = value["frames"].as_i32().unwrap() as Capacity;
-                let mut enemy_drops = vec![];
-                assert!(value["drops"].is_array());
-                for drop in value["drops"].members() {
-                    let enemy_name = drop["enemy"].as_str().unwrap();
-                    let enemy_json = &self.enemy_json[enemy_name];
-                    let drops_json = &enemy_json["drops"];
-                    let count = drop["count"].as_i32().unwrap() as Capacity;
-                    let small_energy_weight = drops_json["smallEnergy"]
-                        .as_f32()
-                        .context(format!("missing smallEnergy for {}", enemy_name))
-                        .unwrap()
-                        / 102.0;
-                    let large_energy_weight = drops_json["bigEnergy"]
-                        .as_f32()
-                        .context(format!("missing bigEnergy for {}", enemy_name))
-                        .unwrap()
-                        / 102.0;
-                    let missile_weight = drops_json["missile"]
-                        .as_f32()
-                        .context(format!("missing missile for {}", enemy_name))
-                        .unwrap()
-                        / 102.0;
-                    let super_weight = drops_json["super"]
-                        .as_f32()
-                        .context(format!("missing super for {}", enemy_name))
-                        .unwrap()
-                        / 102.0;
-                    let power_bomb_weight = drops_json["powerBomb"]
-                        .as_f32()
-                        .context(format!("missing powerBomb for {}", enemy_name))
-                        .unwrap()
-                        / 102.0;
-                    let enemy_drop = EnemyDrop {
-                        small_energy_weight: Float::new(small_energy_weight),
-                        large_energy_weight: Float::new(large_energy_weight),
-                        missile_weight: Float::new(missile_weight),
-                        super_weight: Float::new(super_weight),
-                        power_bomb_weight: Float::new(power_bomb_weight),
-                        count,
-                    };
-                    enemy_drops.push(enemy_drop);
-                }
+                let enemy_drops = self.parse_enemy_drops(&value["drops"]);
                 return Ok(Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops));
             } else if key == "disableEquipment" {
                 return Ok(Requirement::Tech(
@@ -3677,6 +3715,76 @@ impl GameData {
                     .entry((room_id, to_node_id))
                     .or_insert(vec![])
                     .push((link, gmode_regain_mobility.clone().unwrap()))
+            } else if strat_json.has_key("farmCycleDrops") {
+                let enemy_drops = self.parse_enemy_drops(&strat_json["farmCycleDrops"]);
+                let mut has_high_energy: bool = false;
+                let mut has_high_missiles: bool = false;
+                let mut has_high_supers: bool = false;
+                let mut has_high_power_bombs: bool = false;
+                for drop in &enemy_drops {
+                    if drop.power_bomb_weight.get() > 0.25 {
+                        has_high_power_bombs = true;
+                    }
+                    if drop.super_weight.get() > 0.25 {
+                        has_high_supers = true;
+                    }
+                    if (drop.large_energy_weight.get() + drop.small_energy_weight.get()) > 0.25
+                        && drop.missile_weight.get() > 0.0
+                    {
+                        has_high_energy = true;
+                    }
+                    if drop.missile_weight.get() > 0.25
+                        && drop.large_energy_weight.get() + drop.small_energy_weight.get() > 0.0
+                    {
+                        has_high_missiles = true;
+                    }
+                }
+                for full_energy in [false, true] {
+                    for full_missiles in [false, true] {
+                        for full_supers in [false, true] {
+                            for full_power_bombs in [false, true] {
+                                if full_energy && !has_high_energy {
+                                    continue;
+                                }
+                                if full_missiles && !has_high_missiles {
+                                    continue;
+                                }
+                                if full_supers && !has_high_supers {
+                                    continue;
+                                }
+                                if full_power_bombs && !has_high_power_bombs {
+                                    continue;
+                                }
+                                if full_missiles && full_energy {
+                                    continue;
+                                }
+
+                                let mut farm_link = link.clone();
+                                if full_energy {
+                                    farm_link.strat_name.push_str("- Full Energy");
+                                }
+                                if full_missiles {
+                                    farm_link.strat_name.push_str("- Full Missiles");
+                                }
+                                if full_supers {
+                                    farm_link.strat_name.push_str("- Full Supers");
+                                }
+                                if full_power_bombs {
+                                    farm_link.strat_name.push_str("- Full Power Bombs");
+                                }
+                                farm_link.requirement = Requirement::Farm {
+                                    requirement: Box::new(requirement.clone()),
+                                    drops: enemy_drops.clone(),
+                                    full_energy,
+                                    full_missiles,
+                                    full_supers,
+                                    full_power_bombs,
+                                };
+                                self.links.push(farm_link.clone());
+                            }
+                        }
+                    }
+                }
             } else {
                 self.links.push(link.clone());
             }
@@ -4537,13 +4645,6 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_ClimbWithoutLava",
             "requires": ["i_ClimbWithoutLava"],
-        };
-        *game_data
-            .helper_json_map
-            .get_mut("h_EtecoonDoorSpawnFix")
-            .unwrap() = json::object! {
-            "name": "h_EtecoonDoorSpawnFix",
-            "requires": [],
         };
         *game_data
             .helper_json_map

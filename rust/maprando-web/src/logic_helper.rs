@@ -564,14 +564,8 @@ fn get_strat_difficulty(
         }
         let difficulty_idx = preset_data.difficulty_levels.index_by_key[&difficulty.name];
 
-        let local = LocalState {
-            energy_used: 0,
-            reserves_used: 0,
-            missiles_used: 0,
-            supers_used: 0,
-            power_bombs_used: 0,
-            shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
-        };
+        let mut local = LocalState::new();
+        local.shinecharge_frames_remaining = 180 - difficulty.shinecharge_leniency_frames;
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
         if !links_by_ids.contains_key(&key) {
