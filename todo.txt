@@ -10,8 +10,10 @@ v116:
 - restore Kamers and Komas in escape
 - set up x-mode leniency in skill assumptions
 - implement settings upgrade process
-- farming strats: implement new schema
+- DONE?: farming strats: implement new schema
+- migrate existing farmings strats to new schema
 - early filler should be limited to two-way reachable locations?
+- resolve issue with scrolling in spoiler route on mobile
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - adjust etecoon door spawn fix to be more minimal:
   - have the door just be immediately closed, rather than spawning in wrong location.

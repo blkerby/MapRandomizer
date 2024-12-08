@@ -20,8 +20,9 @@ for idx, room in enumerate(room_geometry):
 # map_dir = "maps/v93-tame/"
 # map_dir = "maps/v110c-tame/"
 # map_dir = "maps/v110c-wild/"
-map_dir = "maps/v113-tame/"
+# map_dir = "maps/v113-tame/"
 # map_dir = "maps/v116-tame/"
+map_dir = "maps/v116b-wild/"
 cnt_dict = defaultdict(lambda: defaultdict(lambda: 0))
 flat_cnt_dict = defaultdict(lambda: 0)
 map_filenames = list(os.listdir(map_dir))
