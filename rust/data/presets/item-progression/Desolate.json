@@ -10,23 +10,23 @@
     "item_pool": [
         {
             "item": "Missile",
-            "count": 46
+            "count": 12
         },
         {
             "item": "ETank",
-            "count": 14
+            "count": 3
         },
         {
             "item": "ReserveTank",
-            "count": 4
+            "count": 3
         },
         {
             "item": "Super",
-            "count": 10
+            "count": 6
         },
         {
             "item": "PowerBomb",
-            "count": 10
+            "count": 5
         }
     ],
     "starting_items_preset": "None",
