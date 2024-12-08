@@ -6,10 +6,17 @@ v116:
 - DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
 - DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
 - DONE: implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
-- make phantoon not be in west ocean so frequently.
+- DONE: make phantoon not be in west ocean so frequently.
+- add more tests:
+  - check cycleFrames coverage in "farmCycleDrops" strats, and absence in other strats
+  - check coverage of basic entrance/exit types when their implicit strats are disabled.
+  - check that if some implicit strats are overridden, then all applicable ones are.
 - restore Kamers and Komas in escape
 - set up x-mode leniency in skill assumptions
+- implement canResetRoom requirements (including cycleFrames)
 - implement settings upgrade process
+- check dust torizo right door in outline theme:
+  - https://www.twitch.tv/videos/2320985361?t=0h28m17s
 - DONE?: farming strats: implement new schema
 - migrate existing farmings strats to new schema
 - early filler should be limited to two-way reachable locations?
