@@ -816,7 +816,7 @@
     {
         "name": "Lower Norfair Elevator",
         "room_id": 309,
-        "node_id": 3,
+        "node_id": 4,
         "door_load_node_id": 1,
         "x": 8,
         "y": 10,
@@ -1322,7 +1322,7 @@
     {
         "name": "Main Hall Elevator",
         "room_id": 132,
-        "node_id": 3,
+        "node_id": 4,
         "door_load_node_id": 4,
         "x": 72,
         "y": 42,
