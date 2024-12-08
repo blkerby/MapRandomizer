@@ -837,7 +837,9 @@ pub fn apply_farm_requirement(
             if full_energy {
                 if fill_energy > global.inventory.max_reserves {
                     new_local.reserves_used = 0;
-                    new_local.energy_used = global.inventory.max_energy - 1 - (fill_energy - global.inventory.max_reserves);
+                    new_local.energy_used = global.inventory.max_energy
+                        - 1
+                        - (fill_energy - global.inventory.max_reserves);
                     if new_local.energy_used < 0 {
                         new_local.energy_used = 0;
                     }
@@ -892,7 +894,7 @@ pub fn apply_farm_requirement(
             let mut missiles = new_local.missiles_used as f32;
             let mut supers = new_local.supers_used as f32;
             let mut pbs = new_local.power_bombs_used as f32;
-    
+
             while num_cycles > 0 {
                 let [drop_energy, drop_missiles, drop_supers, drop_pbs] =
                     get_total_enemy_drop_values(
