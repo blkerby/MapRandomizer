@@ -1634,8 +1634,12 @@ impl<'a> Patcher<'a> {
             // Likewise release Kraid camera so it won't be as glitched when entering from the right:
             self.rom.write_n(snes2pc(0xA7A9F4), &vec![0xEA; 4])?; // NOP:NOP:NOP:NOP
 
-            // Fix the door cap X location for the Green Brinstar Main Shaft door to itself left-to-right:
-            self.rom.write_u8(snes2pc(0x838CF2), 0x11)?;
+            // Adjust the door cap location for the Green Brinstar Main Shaft door to itself left-to-right:
+            // In vanilla it spawns a screen to the left of where it "should". We keep it wrong, to retain
+            // the behavior of the door appearing immediately closed, but move the spawn location to be in an
+            // out-of-the-way off-camera location, in the top-right of the room.
+            self.rom.write_u8(snes2pc(0x838CF2), 0x21)?;
+            self.rom.write_u8(snes2pc(0x838CF3), 0x06)?;
         }
 
         if self.randomization.settings.save_animals == SaveAnimals::Yes {

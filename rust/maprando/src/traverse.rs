@@ -728,7 +728,9 @@ pub fn apply_farm_requirement(
     }
 
     let mut start_local = local;
-    start_local.cycle_frames = 0;
+    // An initial cycle_frames of 1 is used to mark this as a farming strat, as this can affect
+    // the processing of some requirements (currently just ResetRoom).
+    start_local.cycle_frames = 1;
     let end_local_result = apply_requirement(
         req,
         global,
@@ -741,11 +743,12 @@ pub fn apply_farm_requirement(
         objectives,
     );
     if let Some(end_local) = end_local_result {
+        assert!(end_local.cycle_frames >= 100);
         // Start with the heat damage multiplier, but adjust it to be closer to 1.0
         // since farming is generally easy/repetitive so you expect it to be
         // doable more efficiently:
         let cycle_multiplier = (difficulty.resource_multiplier + 2.0) / 3.0;
-        let cycle_frames = end_local.cycle_frames as f32 * cycle_multiplier;
+        let cycle_frames = (end_local.cycle_frames - 1) as f32 * cycle_multiplier;
         let cycle_energy = (end_local.energy_used + end_local.reserves_used
             - local.energy_used
             - local.reserves_used) as f32;
@@ -760,8 +763,7 @@ pub fn apply_farm_requirement(
         } else if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT]] {
             patience_frames *= 2.0;
         }
-        let door_frames = 400.0; // This is an approximation, as it can vary by room/door and settings
-        let mut num_cycles = (patience_frames / (cycle_frames + door_frames)) as i32;
+        let mut num_cycles = (patience_frames / cycle_frames).round() as i32;
 
         let mut new_local = local;
         if new_local.farm_baseline_energy_used < new_local.energy_used {
@@ -1812,7 +1814,13 @@ pub fn apply_requirement(
             room_id: _,
             node_id: _,
         } => {
-            // TODO: add requirements here
+            // TODO: add more requirements here
+            let mut new_local = local;
+            if new_local.cycle_frames > 0 {
+                // We assume the it takes 400 frames to go through the door transition, shoot open the door, and return.
+                // The actual time can vary based on room load time and whether fast doors are enabled.
+                new_local.cycle_frames += 400;
+            }
             Some(local)
         }
         Requirement::EscapeMorphLocation => {

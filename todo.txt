@@ -12,20 +12,21 @@ v116:
   - check coverage of basic entrance/exit types when their implicit strats are disabled.
   - check that if some implicit strats are overridden, then all applicable ones are.
 - DONE: restore Kamers and Komas in escape
+- stop continuous writing to SRAM, since this creates issues for SNES mini and other hardware.
 - set up x-mode leniency in skill assumptions
-- implement canResetRoom requirements (including cycleFrames)
 - implement settings upgrade process
-- check dust torizo right door in outline theme:
-  - https://www.twitch.tv/videos/2320985361?t=0h28m17s
+- various mosaic fixes:
+  - pink brin: fix climb escape palettes, do full playtest
+  - outline theme: dust torizo
 - DONE?: farming strats: implement new schema
 - migrate existing farmings strats to new schema
 - early filler should be limited to two-way reachable locations?
 - DONE: resolve issue with scrolling in spoiler route on mobile
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
-- adjust etecoon door spawn fix to be more minimal:
-  - have the door just be immediately closed, rather than spawning in wrong location.
+- DONE: adjust etecoon door spawn fix to be more minimal
 
 TODO:
+- implement additional need for ResetRoom requirements where needed
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
 - have auto-formatting also auto-order object properties by schema order
 - finish pass of adding shinecharge strats?
