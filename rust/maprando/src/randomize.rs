@@ -3120,6 +3120,7 @@ impl<'r> Randomizer<'r> {
         let mut item_types_to_mix: Vec<Item> = vec![Item::Missile, Item::Nothing];
         let mut item_types_to_delay: Vec<Item> = vec![];
         let mut item_types_to_extra_delay: Vec<Item> = vec![];
+        let mut early_filler_slots_remaining = num_bireachable_filler_items_to_select;
 
         for &item in &state.item_precedence {
             if item == Item::Missile
@@ -3130,11 +3131,12 @@ impl<'r> Randomizer<'r> {
             }
             let filler_type = self.filler_priority_map[&item];
             if filler_type == FillerItemPriority::Early
-                && state.items_remaining[item as usize]
-                    == self.initial_items_remaining[item as usize]
+                && !state.global_state.inventory.items[item as usize]
+                && early_filler_slots_remaining > 0
             {
                 item_types_to_prioritize.push(item);
                 item_types_to_mix.push(item);
+                early_filler_slots_remaining -= 1;
             } else if filler_type == FillerItemPriority::Early
                 || filler_type == FillerItemPriority::Yes
                 || (filler_type == FillerItemPriority::Semi
