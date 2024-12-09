@@ -6,7 +6,8 @@ lorom
 
 !bank_84_freespace_start = $84FC40
 !bank_84_freespace_end = $84FCC0
-
+!bank_a1_free_space_start = $a1f600
+!bank_a1_free_space_end = $a1f640
 
 ; Hi-jack code that runs just before the escape starts
 ;org $A9B216
@@ -87,7 +88,7 @@ org $8FDDAA
 
 
 ; Free space in bank $A1
-org $A1F400
+org !bank_a1_free_space_start
 ; Custom enemy population which includes Mother Brain body and brain but not Rinkas (nor Zebetites):
 ; We need these Mother Brain "enemies" to spawn in order for the escape sequence to work, even though
 ; they will not be visible.
@@ -96,7 +97,7 @@ enemy_population:
     dw $EC3F, $0081, $006F, $0000, $2800, $0004, $0000, $0000
     dw $FFFF
     db $00
-warnpc $A1F440
+warnpc !bank_a1_free_space_end
 
 org $A986EE
     JSR body_init

@@ -11,7 +11,7 @@ v116:
   - check cycleFrames coverage in "farmCycleDrops" strats, and absence in other strats
   - check coverage of basic entrance/exit types when their implicit strats are disabled.
   - check that if some implicit strats are overridden, then all applicable ones are.
-- restore Kamers and Komas in escape
+- DONE: restore Kamers and Komas in escape
 - set up x-mode leniency in skill assumptions
 - implement canResetRoom requirements (including cycleFrames)
 - implement settings upgrade process
@@ -20,7 +20,7 @@ v116:
 - DONE?: farming strats: implement new schema
 - migrate existing farmings strats to new schema
 - early filler should be limited to two-way reachable locations?
-- resolve issue with scrolling in spoiler route on mobile
+- DONE: resolve issue with scrolling in spoiler route on mobile
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - adjust etecoon door spawn fix to be more minimal:
   - have the door just be immediately closed, rather than spawning in wrong location.

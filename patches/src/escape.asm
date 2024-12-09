@@ -15,6 +15,8 @@ arch snes.cpu
 !bank_8b_free_space_end = $8BF940
 !bank_8f_free_space_start = $8FF600
 !bank_8f_free_space_end = $8FF700
+!bank_a1_free_space_start = $a1f000  ; careful moving this, as it must match things in patch.rs
+!bank_a1_free_space_end = $a1f400
 !bank_a7_free_space_start = $A7FF82
 !bank_a7_free_space_end = $A7FFC0
 
@@ -410,28 +412,36 @@ remove_enemies:
 
 ;;; room ID, enemy population in bank a1, enemy GFX in bank b4
 enemy_table:
-    dw $a7de,one_elev_list_1,$8aed  ; business center
-    dw $a6a1,$98e4,$8529            ; warehouse (vanilla data)
-    dw $a98d,$bb0e,$8b11            ; croc room (vanilla "croc dead" data)
-    dw $962a,$89DF,$81F3            ; red brin elevator (vanilla data)
-    dw $a322,one_elev_list_1,$863F  ; red tower top
-    dw $94cc,$8B74,$8255            ; forgotten hiway elevator (vanilla data)
-    dw $d30b,one_elev_list_2,$8d85  ; forgotten hiway
-    dw $9e9f,one_elev_list_3,$83b5  ; morph room
-    dw $97b5,$8b61,$824b            ; blue brin elevator (vanilla data)
-    dw $9ad9,one_elev_list_1,$8541  ; green brin shaft
-    dw $9938,$8573,$80d3            ; green brin elevator (vanilla data)
-    dw $af3f,$a544,$873d            ; LN elevator (vanilla data)
-    dw $b236,one_elev_list_4,$893d  ; LN main hall
-    dw $d95e,$de5a,$9028            ; botwoon room (vanilla "botwoon dead" data)
-    dw $a66a,$9081,$8333            ; G4 (G4?) (vanilla data)
-    dw $9dc7,$a0fd,$8663            ; spore spawn (vanilla data)
-    dw $a59f,$9eb5,$85ef            ; kraid room (vanilla data)
-    dw $daae,$e42d,$913e            ; tourian first room (vanilla data, for the elevator)
-;    dw $91f8,$8c0d,$8283            ; landing site (vanilla data, for the ship)
-    dw $9804,$8ed3,$82a3            ; bomb torizo (vanilla data, for the animals)
-    dw $b1e5,acid_chozo,$86b1       ; acid chozo statue (so that the path can be opened)
-    dw $C98E,bowling_chozo,$8C01    ; bowling chozo statue (so that bowling can be done)
+    dw $a7de,one_elev_list_1,$8aed       ; business center
+    dw $a6a1,$98e4,$8529                 ; warehouse (vanilla data)
+    dw $a98d,$bb0e,$8b11                 ; croc room (vanilla "croc dead" data)
+    dw $962a,$89DF,$81F3                 ; red brin elevator (vanilla data)
+    dw $a322,one_elev_list_1,$863F       ; red tower top
+    dw $94cc,$8B74,$8255                 ; forgotten hiway elevator (vanilla data)
+    dw $d30b,one_elev_list_2,$8d85       ; forgotten hiway
+    dw $9e9f,morph_room,$83b5            ; morph room (komas and elevator)
+    dw $9f11,construction_zone,$8377     ; construction zone (komas)
+    dw $9f64,blue_brin_etank,$8389       ; blue brin etank room (komas)
+    dw $9a44,$819B,$8043                 ; final missile bombway (vanilla data, for komas)
+    dw $97b5,$8b61,$824b                 ; blue brin elevator (vanilla data)
+    dw $9ad9,one_elev_list_1,$8541       ; green brin shaft
+    dw $9938,$8573,$80d3                 ; green brin elevator (vanilla data)
+    dw $af3f,$a544,$873d                 ; LN elevator (vanilla data)
+    dw $b236,one_elev_list_4,$893d       ; LN main hall
+    dw $d95e,$de5a,$9028                 ; botwoon room (vanilla "botwoon dead" data)
+    dw $a66a,$9081,$8333                 ; G4 (G4?) (vanilla data)
+    dw $9dc7,$a0fd,$8663                 ; spore spawn (vanilla data)
+    dw $a59f,$9eb5,$85ef                 ; kraid room (vanilla data)
+    dw $daae,$e42d,$913e                 ; tourian first room (vanilla data, for the elevator)
+;    dw $91f8,$8c0d,$8283                 ; landing site (vanilla data, for the ship)
+    dw $9804,$8ed3,$82a3                 ; bomb torizo (vanilla data, for the animals)
+    dw $b1e5,acid_chozo,$86b1            ; acid chozo statue (so that the path can be opened)
+    dw $C98E,bowling_chozo,$8C01         ; bowling chozo statue (so that bowling can be done)
+    dw $adad,double_chamber,$880B        ; double chamber (kamers)
+    dw $aa82,post_croc_farm,$87DF        ; post crocomire farming room (kamer)
+    dw $94fd,east_ocean,$8009            ; east ocean (kamers)
+    dw $ab8f,pcjr,$8953                  ; post crocomire jump room (kamers)
+    dw $cc27,ws_etank,$8B5B              ; wrecked ship etank room (kamers)
     ;; table terminator
     dw $ffff
 
@@ -443,8 +453,33 @@ one_elev_list_2:
     dw $D73F,$0080,$02C0,$0000,$2C00,$0000,$0001,$0018,$ffff
     db $00
 
-one_elev_list_3:
-    dw $D73F,$0580,$02C2,$0000,$2C00,$0000,$0001,$0018,$ffff
+morph_room:
+    ; elevator platform:
+    dw $D73F,$0580,$02C2,$0000,$2C00,$0000,$0001,$0018
+    ; komas (face statues):
+    dw $EA7F,$0548,$0240,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$05B8,$0240,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$0488,$02B8,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$0428,$02B8,$0000,$A000,$0000,$0000,$0000
+    dw $ffff
+    db $00
+
+construction_zone:
+    dw $EA7F,$0048,$0088,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$00B8,$0088,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$00E8,$0116,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$00E8,$0166,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$0018,$0116,$0000,$A000,$0000,$0000,$0000
+    dw $ffff
+    db $00
+
+blue_brin_etank:
+    dw $EA7F,$0038,$0228,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$0038,$02A8,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$02E8,$02B8,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$0268,$0088,$0000,$A000,$0000,$0000,$0000
+    dw $EA7F,$0288,$0088,$0000,$A000,$0000,$0000,$0000
+    dw $FFFF
     db $00
 
 one_elev_list_4:
@@ -460,7 +495,42 @@ bowling_chozo:
 ship_dachora_pop:
     dw $E5FF,$0420,$0488,$0000,$0C00,$0000,$0001,$0000,$FFFF
 
-warnpc $A1F200
+double_chamber:
+    dw $D5FF,$0088,$00A8,$0108,$A800,$0404,$4001,$0020
+    dw $D5FF,$00D0,$00E8,$0008,$A800,$0808,$3001,$0030
+    dw $D5FF,$0110,$00A8,$0108,$A800,$0202,$6001,$0030
+    dw $D5FF,$0178,$00A8,$0108,$A800,$0303,$5001,$0030
+    dw $FFFF
+    db $00
+
+post_croc_farm:
+    dw $D83F,$0158,$0148,$0000,$A800,$0000,$0000,$2800
+    dw $FFFF
+    db $00              
+
+east_ocean:
+    dw $D83F,$04C0,$04F0,$0000,$A000,$0000,$0000,$2800
+    dw $D83F,$03C0,$04F0,$0000,$A000,$0000,$0000,$2800
+    dw $D83F,$02C8,$04F0,$0000,$A000,$0000,$0000,$2800
+    dw $FFFF
+    db $00              
+
+pcjr:
+    dw $D83F,$00B0,$0298,$0000,$A000,$0000,$0000,$2800
+    dw $D83F,$0110,$0298,$0000,$A000,$0000,$0000,$2800
+    dw $D83F,$0170,$0298,$0000,$A000,$0000,$0000,$2800
+    dw $D83F,$01D0,$0298,$0000,$A000,$0000,$0000,$2800
+    dw $FFFF
+    db $00
+
+ws_etank:
+    dw $D83F,$0118,$00A8,$0000,$A800,$0000,$0000,$2000
+    dw $D83F,$0180,$00A8,$0000,$A800,$0000,$0000,$2000
+    dw $D83F,$01F0,$00A8,$0000,$A800,$0000,$0000,$2000
+    dw $FFFF
+    db $00
+
+warnpc !bank_a1_free_space_end
 
 ; Free space in any bank (but the position must agree with what is used in patch.rs)
 org !bank_84_free_space_start

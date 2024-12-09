@@ -8,6 +8,9 @@ lorom
 
 incsrc "constants.asm"
 
+!bank_a1_free_space_start = $a1f400
+!bank_a1_free_space_end = $a1f600
+
 !GameStartState = $7ED914
 !current_save_slot = $7e0952
 !area_explored_mask = $702600
@@ -56,7 +59,7 @@ org $80C4E1
     dw $0000
 
 ;;; CODE in bank A1
-org $a1f210
+org !bank_a1_free_space_start
 
 startup:
     jsl check_new_game 
@@ -225,4 +228,4 @@ gameplay_start:
 .end:
     rtl
 
-warnpc $a1f400
+warnpc !bank_a1_free_space_end
