@@ -11,6 +11,8 @@ v116:
   - check cycleFrames coverage in "farmCycleDrops" strats, and absence in other strats
   - check coverage of basic entrance/exit types when their implicit strats are disabled.
   - check that if some implicit strats are overridden, then all applicable ones are.
+- fix g-mode logic for Mother Brain Room left door.
+- fix canLongCeilingBombJump video
 - DONE: restore Kamers and Komas in escape
 - stop continuous writing to SRAM, since this creates issues for SNES mini and other hardware.
 - set up x-mode leniency in skill assumptions
@@ -20,7 +22,7 @@ v116:
   - outline theme: dust torizo
 - DONE?: farming strats: implement new schema
 - migrate existing farmings strats to new schema
-- early filler should be limited to two-way reachable locations?
+- DONE: early filler should be limited to two-way reachable locations?
 - DONE: resolve issue with scrolling in spoiler route on mobile
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - DONE: adjust etecoon door spawn fix to be more minimal

@@ -419,9 +419,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					for (let i of k.strat_notes) {
 						title += `${i} `;
 					}
-					out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+					if (k.strat_id !== null) {
+						out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+					} else {
+						out += `Strat: <abbr title="${title}">${k.strat_name}</abbr><br>`;
+					}
 				} else {
-					out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
+					if (k.strat_id !== null) {
+						out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
+					} else {
+						out += `Strat: ${k.strat_name}<br>`;
+					}
 				}
 			}
 			if (out != "") {
