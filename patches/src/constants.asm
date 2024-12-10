@@ -24,3 +24,12 @@
 !loadback_ready = $1F7A
 !nmi_timeronly = $1F7C
 !previous_room = $1F7E
+!nmi_counter = $1F80
+!nmi_pause = $1F81
+!nmi_area0 = $1F82
+!nmi_area1 = $1F83
+!nmi_area2 = $1F84
+!nmi_area3 = $1F85
+!nmi_area4 = $1F86
+!nmi_area5 = $1F87
+!nmi_area6 = $1F88
