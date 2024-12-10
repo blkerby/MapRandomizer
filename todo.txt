@@ -12,11 +12,10 @@ v116:
   - check coverage of basic entrance/exit types when their implicit strats are disabled.
   - check that if some implicit strats are overridden, then all applicable ones are.
 - fix g-mode logic for Mother Brain Room left door.
-- fix canLongCeilingBombJump video
+- DONE: fix canLongCeilingBombJump video
 - DONE: restore Kamers and Komas in escape
 - stop continuous writing to SRAM, since this creates issues for SNES mini and other hardware.
-- set up x-mode leniency in skill assumptions
-- implement settings upgrade process
+- DONE?: implement settings upgrade process
 - various mosaic fixes:
   - pink brin: fix climb escape palettes, do full playtest
   - outline theme: dust torizo
@@ -28,6 +27,7 @@ v116:
 - DONE: adjust etecoon door spawn fix to be more minimal
 
 TODO:
+- set up x-mode leniency in skill assumptions
 - implement additional need for ResetRoom requirements where needed
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
 - have auto-formatting also auto-order object properties by schema order

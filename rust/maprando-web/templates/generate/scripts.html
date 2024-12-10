@@ -455,7 +455,8 @@ function applyFullSettingsPreset(preset) {
 }
 
 async function upgradeSettings(settings) {
-    if (settings.version < {{ version_info.version }}) {
+    if (settings.version < {{ version_info.version }} || {{ version_info.dev }}) {
+        console.log("Upgrading settings for " + settings.name);
         let response = await fetch("/upgrade-settings", {
             method: "POST",
             headers: {
@@ -463,25 +464,15 @@ async function upgradeSettings(settings) {
             },
             body: JSON.stringify(settings),
         });
-        let newSettings = await response.json();
-        return newSettings;
+        if (response.status == 200) {
+            let newSettings = await response.json();
+            return newSettings;    
+        } else {
+            let err = await response.text();
+            throw new Error("Failed to upgrade settings: " + err);
+        }
     } else {
         return null;
-    }
-}
-
-async function upgradeCustomPresets(customPresets) {
-    let updated = false;
-    for (var i = 0; i < customPresets.length; i++) {
-        let preset = customPresets[i];
-        let newPreset = await upgradeSettings(preset);
-        if (newPreset !== null) {
-            updated = true;
-            customPresets[i] = newPreset;
-        }
-    }
-    if (updated) {
-        await localforage.setItem("customPresets", customPresets);
     }
 }
 
@@ -498,7 +489,6 @@ async function populateFullPresetOptions() {
     selectEl.appendChild(hrEl);
 
     let customPresets = await getCustomPresets();
-    await upgradeCustomPresets(customPresets);
     if (customPresets.length > 0) {
         for (preset of customPresets) {
             fullPresets[preset.name] = preset;
@@ -523,11 +513,37 @@ async function populateFullPresetOptions() {
     }
 }
 
-function fullSettingsPresetChanged(presetEl) {
+async function getFullSettings(name) {
+    for (let p of fullPresetsArr) {
+        if (p.name == name) {
+            return p;
+        }
+    }
+
+    let customPresets = await getCustomPresets();
+    for (let i = 0; i < customPresets.length; i++) {
+        let p = customPresets[i];
+        if (p.name == name) {
+            let upgradedSettings = await upgradeSettings(p);
+            if (upgradedSettings !== null) {
+                customPresets[i] = upgradedSettings;
+                await localforage.setItem("customPresets", customPresets);
+                return upgradedSettings;
+            } else {
+                return p;
+            }
+        }
+    }
+
+    console.log("preset not found: " + name);
+    return null;
+}
+
+async function fullSettingsPresetChanged(presetEl) {
     let presetName = presetEl.value;
     if (presetName != "") {
-        let preset = fullPresets[presetName];
         try {
+            let preset = await getFullSettings(presetName);
             applyFullSettingsPreset(preset);
         } catch (error) {
             showError(error);
@@ -580,6 +596,7 @@ function applyItemProgressionPreset(preset) {
         let cnt = x.count;
         document.getElementById(`itemPool${item}`).value = cnt;
     }
+    processItemPoolPreset();
     applyRadioValue("startingItemsPreset", preset.starting_items_preset);
     for (x of preset.starting_items) {
         let item = x.item;
@@ -591,6 +608,7 @@ function applyItemProgressionPreset(preset) {
             applyRadioValue(`startingItem${item}`, cnt > 0 ? "Yes" : "No");
         }
     }
+    processStartingItemsPreset();
 
     for (x of preset.key_item_priority) {
         applyRadioValue(`itemPriority${x.item}`, x.priority);
@@ -789,7 +807,12 @@ async function loadSettings() {
     let settings = await localforage.getItem("generateSettings");
 
     if (settings !== null) {
-        let newSettings = await upgradeSettings(settings);
+        let newSettings = null;
+        try {
+            newSettings = await upgradeSettings(settings);
+        } catch (error) {
+            showError(error);
+        }
         if (newSettings !== null) {
             settings = newSettings;
             await localforage.setItem("generateSettings", settings);
@@ -845,6 +868,10 @@ async function getCustomPresets() {
         customPresets = [];
     }
     return customPresets;
+}
+
+async function getPresets() {
+    return fullPresetsArr.concat(await getCustomPresets());
 }
 
 async function saveSettingsPreset(ev) {
@@ -962,12 +989,20 @@ document.getElementById("renamePresetModal").addEventListener('hidden.bs.modal',
 });
 
 async function importPreset() {
-    let fileEl = document.getElementById("importPresetFile");
-    let preset = JSON.parse(await fileEl.files[0].text());
-    let customPresets = await getCustomPresets();
-    customPresets.push(preset);
-    await localforage.setItem("customPresets", customPresets);
-    openManagePresetsModal();
+    try {
+        let fileEl = document.getElementById("importPresetFile");
+        let preset = JSON.parse(await fileEl.files[0].text());
+        let upgradedPreset = await upgradeSettings(preset);
+        if (upgradedPreset !== null) {
+            preset = upgradedPreset;
+        }
+        let customPresets = await getCustomPresets();
+        customPresets.push(preset);
+        await localforage.setItem("customPresets", customPresets);
+        openManagePresetsModal();    
+    } catch (error) {
+        showError(error);
+    }
 }
 
 async function openManagePresetsModal() {

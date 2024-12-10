@@ -32,7 +32,7 @@
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Settings preset:</div>
             <div class="col-7 col-sm-8 col-md-9">
-            {{ settings.name }}
+            {{ settings.name.as_ref().unwrap_or("Custom".to_string()|as_ref) }}
             <a href="data/settings.json" download="settings.json" class="text-decoration-none link-secondary">
                 <i class="bi bi-download ms-2"></i>
             </a>

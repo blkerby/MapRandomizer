@@ -123,7 +123,7 @@ async fn randomize(
         }
     }
     if !validated_preset {
-        settings.name = "Custom".to_string();
+        settings.name = Some("Custom".to_string());
     }
 
     let skill_settings = &settings.skill_assumption_settings;
