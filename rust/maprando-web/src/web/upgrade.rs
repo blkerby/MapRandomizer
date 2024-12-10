@@ -88,7 +88,8 @@ fn upgrade_notable_settings(settings: &mut serde_json::Value, app_data: &AppData
             .context("notable_setting missing room_id field")? as RoomId;
         let notable_id = notable_setting["notable_id"]
             .as_i64()
-            .context("notable_setting missing notable_id field")? as RoomId;
+            .context("notable_setting missing notable_id field")?
+            as RoomId;
         let enabled = notable_setting["enabled"]
             .as_bool()
             .context("notable_setting missing enabled field")?;
@@ -107,7 +108,10 @@ fn upgrade_notable_settings(settings: &mut serde_json::Value, app_data: &AppData
             notable_id: s.notable_id,
             room_name: s.room_name.clone(),
             notable_name: s.notable_name.clone(),
-            enabled: notable_map.get(&(s.room_id, s.notable_id)).map(|x| *x).unwrap_or(false),
+            enabled: notable_map
+                .get(&(s.room_id, s.notable_id))
+                .map(|x| *x)
+                .unwrap_or(false),
         });
     }
     *settings
@@ -140,11 +144,9 @@ fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<Stri
 #[post("/upgrade-settings")]
 async fn upgrade_settings(settings_str: String, app_data: web::Data<AppData>) -> impl Responder {
     match try_upgrade_settings(settings_str, &app_data) {
-        Ok(settings) => {
-            HttpResponse::Ok()
-                .content_type("application/json")
-                .body(settings)
-        }
+        Ok(settings) => HttpResponse::Ok()
+            .content_type("application/json")
+            .body(settings),
         Err(e) => {
             error!("Failed to upgrade settings: {}", e);
             HttpResponse::BadRequest().body(e.to_string())
