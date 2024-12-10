@@ -608,24 +608,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	starticon: {
 		let sr = null, e = null, ri = c.start_location.room_id, ni = c.start_location.node_id, i=-1, x=0, y=0;
 		let n = c.start_location.name;
-		let found = false;
 		for (i in c.all_rooms) {
 			if (ri ==c.all_rooms[i].room_id )
 			{
 				// only used when start location == hub
-				x = c.all_rooms[i].coords[0]*24 +24 + c.start_location.x;
-				y = c.all_rooms[i].coords[1]*24 +24 + c.start_location.y;
+				x = c.all_rooms[i].coords[0]*24 + 24 + Math.floor(c.start_location.x / 16) * 24;
+				y = c.all_rooms[i].coords[1]*24 + 24 + Math.floor(c.start_location.y / 16) * 24;
 				break;
-			}
-		}
-		if (c.hub_obtain_route && c.hub_obtain_route.length>1) {
-			for (let j in c.hub_obtain_route) {
-				let hr = c.hub_obtain_route[j];
-				if (hr.coords) {
-					x = hr.coords[0] *24+24;
-					y = hr.coords[1] *24+24;
-					break;
-				}
 			}
 		}
 		if (n == "Ship") {
@@ -649,8 +638,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		for (i in c.all_items) {
 			let loc = c.all_items[i].location;
 			if (loc.room_id == ri) {
-				let rn = loc.room+": "+loc.node;
-				let lx=loc.coords[0]*24+24, ly = loc.coords[1]*24+24;
+				let os = lookupOffset(loc.room, loc.node);
+				let lx = loc.coords[0]*24+24+Math.round(os[0])*24;
+				let ly = loc.coords[1]*24+24+Math.round(os[1])*24;
 				if (lx == x && ly== y) {
 					if (startitems == 0) {
 						startitems++;
