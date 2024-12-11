@@ -38,52 +38,99 @@ org $a2ab13
     jsl hook_game_end
 
 org !bank_80_free_space_start
+; end of 2nd NMI hook, determine appropriate return
 area_timer:
-    phb
-    phk
+    rep #$30
+    lda !nmi_timeronly
+    bne .from_timeronly
     plb
+    jmp $95fc                     ; restore regs, RTI
+    
+.from_timeronly
+    plb
+    rts                           ; return to timer-only NMI
+
+; update SRAM times and reset RAM counters
+save_to_sram:
+; update SRAM 32-bit stat_timer
+    rep #$30
+    lda !stat_timer
+    clc
+    adc #$00FF
+    sta !stat_timer
+    bcc .no_inc
+    lda !stat_timer+2
+    inc
+    sta !stat_timer+2
+
+.no_inc
+; update SRAM 32-bit pause/area values (contiguous)
+; Y = RAM ptr, X = SRAM ptr
+    ldx #$0000
+    txy
+
+.add_loop
+    lda !nmi_pause, Y
+    and #$00FF                    ; 8-bit update
+    beq .no_inc2                  ; skip update?
+    clc
+    adc !stat_pause_time,x
+    sta !stat_pause_time,x
+    bcc .no_inc2
+    lda !stat_pause_time+2,x
+    inc
+    sta !stat_pause_time+2,x
+.no_inc2
+    inx : inx : inx : inx
+    iny
+    cpy #$0008
+    bne .add_loop
+
+    php
+    sep #$30
+    ldx #$08
+    lda #$00
+
+.clear_ram_ctrs
+    sta !nmi_counter,x
+    dex
+    bpl .clear_ram_ctrs
+
+    plp
+    rts
+
+; increment area-specific RAM byte
+inc_area_ram:
+    lda #$00
     ldx $0998
-    cpx #$001F                    ; pre-game load state?
+    cpx #$1F                      ; pre-game load state?
     beq .pre_game
-    cpx #$0006                    ; pre-game = 0-5
+    cpx #$06                      ; pre-game = 0-5
     bcs .load_area
 .pre_game
-    lda #$0006                    ; area 6 (pre-game)
+    lda #$06                      ; area 6 (pre-game)
     bra .update_area
-    
+
 .load_area
     lda $1f5b
-    cmp #$0006                    ; only areas 0-5 valid
-    bcs .leave_area_timer
-    cpx #$000D                    ; $0D
+    cmp #$06                      ; only areas 0-5 valid
+    bcs .leave_inc
+    cpx #$0D                      ; $0D
     bcc .update_area              ; to
-    cpx #$0012                    ; $11 = pause screen
+    cpx #$12                      ; $11 = pause screen
     bcs .update_area
-    lda #$FFFF                    ; pause timer
+    lda #$FF                      ; pause timer
 
 .update_area
     inc
-    asl
-    asl
     tax
-    lda !stat_pause_time,X
+    lda !nmi_pause,x
     inc
-    sta !stat_pause_time,X
-    bne .leave_area_timer
-    lda !stat_pause_time+2,X
-    inc
-    sta !stat_pause_time+2,X
+    sta !nmi_pause,x
+.leave_inc
+    rts
 
-.leave_area_timer
-    lda !nmi_timeronly            ; check unpause bit
-    beq .not_unpause
-    plb
-    rts                           ; return to timer-only NMI 
-
-.not_unpause
-    plb
-    jmp $95fc                     ; restore regs, rti
-
+; 1st NMI hook
 nmi_timer_hook:
     pha
     phb
@@ -182,15 +229,17 @@ org $808FA3 ;; overwrite unused routine
     ; increment vanilla 16-bit timer (used by message boxes)
     inc $05b8
 inc_skipcount:
-    ; increment 32-bit timer in SRAM:
-    lda !stat_timer
-    inc
-    sta !stat_timer
-    bne .end
-    lda !stat_timer+2
-    inc
-    sta !stat_timer+2
-.end:
+    phb
+    phk
+    plb
+    sep #$30
+    jsr inc_area_ram
+    inc !nmi_counter
+    lda !nmi_counter
+    cmp #$FF
+    bne .leave_hook
+    jsr save_to_sram
+.leave_hook
     jmp area_timer
 
 warnpc $808FC1 ;; next used routine start

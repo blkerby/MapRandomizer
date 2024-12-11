@@ -9,6 +9,8 @@
 arch 65816
 lorom
 
+incsrc "constants.asm"
+
 !bank_82_free_space_start = $82fbb0
 !bank_82_free_space_end = $82fd00
 
@@ -19,7 +21,7 @@ org !bank_82_free_space_start
 room_ptr_hook:
     pha
     lda $79b                ; current room (leaving)
-    sta $1f7e               ; save
+    sta !previous_room      ; save
     cmp #$a59f              ; leaving kraid?
     bne .exit
 
