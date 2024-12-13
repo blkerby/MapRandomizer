@@ -569,7 +569,7 @@ impl<'a> Preprocessor<'a> {
                 src_node_id,
                 dst_room_id,
                 dst_node_id,
-                false,
+                src_room_id == 321,
                 &mut door_links,
             );
             if src_room_id == 321 {
