@@ -3271,7 +3271,7 @@ impl GameData {
             }
         } else {
             ensure!(entrance_json.len() == 1);
-            ToiletCondition::Any  // to cover implicit strats, e.g. "comeInNormally"
+            ToiletCondition::Any // to cover implicit strats, e.g. "comeInNormally"
         };
         let (key, value) = entrance_json.entries().next().unwrap();
         ensure!(value.is_object());
