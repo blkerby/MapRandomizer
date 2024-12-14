@@ -27,10 +27,12 @@ v116:
 - DONE: adjust etecoon door spawn fix to be more minimal
 
 TODO:
+- video site features:
+  - implement text search filter
+  - add download links (including for original AVI) on individual video page
 - move node tile data into sm-json-data
 - expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction
 (when there are air tiles not visible in the initial screen).
-- implement text search filter on video site.
 - add sm-json-data tests:
   - check that if some implicit strats are overridden, then all applicable ones are.
 - migrate existing farmings strats to new schema
