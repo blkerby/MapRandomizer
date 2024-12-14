@@ -39,6 +39,13 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>If an early filler item is placed in a one-way reachable location as a regular filler item and then becomes two-way reachable before the item is placed elsewhere as early filler, this will count as the early filler item instead of placing another.
     </ul>
 <li>Hazard markers are added to the door leading to the top-right of Fast Pillars Setup Room.
+<li>The "Refill energy for escape" option now refills reserves in addition to regular energy.
+<li>The "Enemies cleared during escape" option now retains some more harmless enemies:
+    <ul>
+    <li>Komas: the Blue Brinstar face statues
+    <li>Kamers: the moving platforms in Double Chamber and other rooms
+    </ul>
+<li>After defeating the first phase of Mother Brain, the left doorway becomes solid (in case it was open by entering from the left).
 <li>Improvements to spoiler map:
     <ul>
     <li>The map initially shows "Step 1" and centers on the initial accessible region.
@@ -48,17 +55,14 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The Ship is indicated by an icon. Clicking it shows a logical route for the escape.
     <li>Icon types can be toggled on/off, using the settings button in the top-right.
     </ul>
-<li>Leaving Kraid Room during the boss fight no longer causes graphical corruption of the HUD.
-<li>Leaving a room with too many sprites on screen no longer crashes the game (a vanilla bugfix).
-<li>After defeating the first phase of Mother Brain, the left doorway becomes solid (in case it was open by entering from the left).
-<li>The "Refill energy for escape" option now refills reserves in addition to regular energy.
-<li>The "Enemies cleared during escape" option now retains some more harmless enemies:
+<li>Fixes to "vanilla" bugs:</li>
     <ul>
-    <li>Komas: the Blue Brinstar face statues
-    <li>Kamers: the moving platforms in Double Chamber and other rooms
+    <li>Leaving Kraid Room during the boss fight caused graphical corruption of the HUD.
+    <li>Leaving a room with too many sprites on screen would crash the game (e.g. in Shaktool Room or Kraid Room).
+    <li>A closing door animation could sometimes spawn in the wrong Y position.
     </ul>
 <li>The frequency of SRAM writing is reduced, resolving an issue where save data would be lost on certain platforms.
-<li>The unusual vanilla behavior of the door leading to the top of Etecoon Shaft is partially restored:
+<li>The unusual vanilla behavior of the door when entering the top of Etecoon Shaft is partially restored:
     <ul>
     <li>The door closing animation occurs off-screen, causing the door to be immediately closed on entry.
     </ul>
