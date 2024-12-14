@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release116">Version 116 (2024-12-09)</a>:
+<p><a id="release116">Version 116 (2024-12-14)</a>:
 <ul>
 <li>New item progression preset "Technical" is added:
     <ul>
@@ -23,8 +23,8 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>New tile theme "Pink Brinstar" is available.
 <li>New map pools for both Tame and Wild maps:
     <ul>
-    <li>The size of the pools is increased (to 28733 Tame maps and 38461 Wild maps).
-    <li>Phantoon is significantly less likely to connect to West Ocean.
+    <li>The size of the pools is increased (to 36991 Tame maps and 49134 Wild maps).
+    <li>There is much less bias for Phantoon to connect to large rooms (e.g. West Ocean).
     <li>On Tame maps, West Ocean is much more likely to have a 2-tile room in the Bowling Alley Path space.
     <li>Room connections may show various other differences in their patterns.
     <li>Save station balancing is slightly improved.
@@ -51,12 +51,13 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Leaving Kraid Room during the boss fight no longer causes graphical corruption of the HUD.
 <li>Leaving a room with too many sprites on screen no longer crashes the game (a vanilla bugfix).
 <li>After defeating the first phase of Mother Brain, the left doorway becomes solid (in case it was open by entering from the left).
-<li>The "Refill energy for escape" now refills reserves in addition to regular energy.
+<li>The "Refill energy for escape" option now refills reserves in addition to regular energy.
 <li>The "Enemies cleared during escape" option now retains some more harmless enemies:
     <ul>
     <li>Komas: the Blue Brinstar face statues
     <li>Kamers: the moving platforms in Double Chamber and other rooms
     </ul>
+<li>The frequency of SRAM writing is reduced, resolving an issue where save data would be lost on certain platforms.
 <li>The unusual vanilla behavior of the door leading to the top of Etecoon Shaft is partially restored:
     <ul>
     <li>The door closing animation occurs off-screen, causing the door to be immediately closed on entry.

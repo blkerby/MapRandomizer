@@ -8,25 +8,32 @@ v116:
 - DONE: implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
 - DONE: make phantoon not be in west ocean so frequently.
 - add more tests:
-  - check cycleFrames coverage in "farmCycleDrops" strats, and absence in other strats
-  - check coverage of basic entrance/exit types when their implicit strats are disabled.
-  - check that if some implicit strats are overridden, then all applicable ones are.
-- fix g-mode logic for Mother Brain Room left door.
+  - DONE: check cycleFrames coverage in "farmCycleDrops" strats, and absence in other strats
+  - PENDING: check coverage of basic entrance/exit types when their implicit strats are disabled.
+- DONE: fix g-mode logic for Mother Brain Room left door.
 - DONE: fix canLongCeilingBombJump video
 - DONE: restore Kamers and Komas in escape
-- stop continuous writing to SRAM, since this creates issues for SNES mini and other hardware.
+- DONE: stop continuous writing to SRAM, since this creates issues for SNES mini and other hardware.
 - DONE?: implement settings upgrade process
 - various mosaic fixes:
-  - pink brin: fix climb escape palettes, do full playtest
-  - outline theme: dust torizo
+  - PENDING: pink brin: fix climb escape palettes, do full playtest
+  - PENDING: outline theme: dust torizo
 - DONE?: farming strats: implement new schema
-- migrate existing farmings strats to new schema
+- DONE: check that new farming strats are working
+- classify/approve new videos
 - DONE: early filler should be limited to two-way reachable locations?
 - DONE: resolve issue with scrolling in spoiler route on mobile
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - DONE: adjust etecoon door spawn fix to be more minimal
 
 TODO:
+- move node tile data into sm-json-data
+- expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction
+(when there are air tiles not visible in the initial screen).
+- implement text search filter on video site.
+- add sm-json-data tests:
+  - check that if some implicit strats are overridden, then all applicable ones are.
+- migrate existing farmings strats to new schema
 - set up x-mode leniency in skill assumptions
 - implement additional need for ResetRoom requirements where needed
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
