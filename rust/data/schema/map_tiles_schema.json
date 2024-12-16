@@ -140,7 +140,7 @@
                     "ammoRefill",
                     "doubleRefill",
                     "ship",
-                    "boss"
+                    "event"
                   ],
                   "default": "empty"
                 },
