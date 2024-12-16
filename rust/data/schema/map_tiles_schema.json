@@ -33,6 +33,11 @@
             "type": "boolean",
             "default": false
           },
+          "waterLevel": {
+            "type": ["number", "null"],
+            "description": "Level of the highest point of the water in this room, measured in map tiles from the top of the room.",
+            "default": null
+          },
           "mapTiles": {
             "type": "array",
             "items": {
@@ -130,34 +135,10 @@
                     "energyRefill",
                     "ammoRefill",
                     "doubleRefill",
+                    "ship",
                     "boss"
                   ],
                   "default": "empty"
-                },
-                "liquidType": {
-                  "type": "string",
-                  "enum": [
-                    "none",
-                    "water",
-                    "lava",
-                    "acid"
-                  ],
-                  "default": "none"
-                },
-                "liquidLevel": {
-                  "type": "integer",
-                  "description": "Level of the highest point of the liquid in this tile, measured in pixels from the top of the tile.",
-                  "enum": [
-                    0,
-                    1,
-                    2,
-                    3,
-                    4,
-                    5,
-                    6,
-                    7
-                  ],
-                  "default": 0
                 },
                 "specialType": {
                   "type": "string",

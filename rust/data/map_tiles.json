@@ -39,7 +39,7 @@
             "roomId": 40,
             "roomName": "First Missile Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall"}
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
         },
         {
@@ -175,7 +175,7 @@
             "roomId": 316,
             "roomName": "Green Brinstar Missile Refill",
             "mapTiles": [
-                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "saveStation"}
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "ammoRefill"}
             ]
         },
         {
@@ -577,275 +577,312 @@
             "roomId": 306,
             "roomName": "Blue Brinstar Elevator Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "elevatorEntrance", "interior": "elevatorPlatform"},
+                {"coords": [0, 1], "specialType": "elevator"},
+                {"coords": [0, 2], "specialType": "elevator"},
+                {"coords": [0, 3], "specialType": "elevator"}
             ]
         },
-        {"roomId": 19, "roomName": "Bomb Torizo Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 19,
+            "roomName": "Bomb Torizo Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "item"}
+            ]
+        },
         {
             "roomId": 11,
             "roomName": "Climb",
             "mapTiles": [
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 6], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 8], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 8], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [1, 0], "left": "wall", "right": "passage", "top": "door", "bottom": "empty"},
+                {"coords": [2, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 3], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 4], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 5], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 6], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 7], "left": "wall", "right": "passage", "top": "empty", "bottom": "empty"},
+                {"coords": [2, 7], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
+                {"coords": [0, 8], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 8], "left": "passage", "right": "door", "top": "empty", "bottom": "wall"}
             ]
         },
-        {"roomId": 15, "roomName": "Crateria Map Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 15,
+            "roomName": "Crateria Map Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "mapStation"}]
+            },
         {
             "roomId": 28,
             "roomName": "Crateria Power Bomb Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall"}
             ]
         },
-        {"roomId": 16, "roomName": "Crateria Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 16,
+            "roomName": "Crateria Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "saveStation"}
+            ]
+        },
         {
             "roomId": 29,
             "roomName": "Crateria Super Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 6], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "passage", "interior": "item"},
+                {"coords": [3, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 3], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 4], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 5], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 6], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 7], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 7], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 7], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 7], "left": "empty", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
-        {"roomId": 9, "roomName": "Crateria Tube", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 9,
+            "roomName": "Crateria Tube",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "door", "right": "door", "top": "wall", "bottom": "wall"}
+            ]
+        },
         {
             "roomId": 18,
             "roomName": "Final Missile Bombway",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "qolPassage", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 13,
             "roomName": "Flyway",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 8,
             "roomName": "Landing Site",
             "mapTiles": [
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [7, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [8, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [2, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [6, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [7, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [8, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "empty"},
+                {"coords": [2, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [5, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [6, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [7, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [8, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [8, 1], "left": "empty", "right": "door", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 2], "left": "door", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [2, 2], "left": "passage", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [4, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [5, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [6, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [7, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [8, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [8, 2], "left": "empty", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [2, 3], "left": "wall", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [4, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [5, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [6, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [7, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [8, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [7, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [8, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [8, 3], "left": "empty", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 4], "left": "door", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [2, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [3, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [4, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall", "interior": "ship"},
+                {"coords": [5, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [6, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [7, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [8, 4], "left": "empty", "right": "door", "top": "empty", "bottom": "wall"}
             ]
         },
         {
             "roomId": 10,
             "roomName": "Parlor and Alcatraz",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "passage", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [4, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 2], "left": "door", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 2], "left": "wall", "right": "door", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 3], "left": "door", "right": "door", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 4], "left": "wall", "right": "wall", "top": "empty", "bottom": "door"}
             ]
         },
         {
             "roomId": 12,
             "roomName": "Pit Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "passage"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
+                {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "wall", "interior": "item"}
             ]
         },
         {
             "roomId": 14,
             "roomName": "Pre-Map Flyway",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
-        {"roomId": 17, "roomName": "The Final Missile", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 17,
+            "roomName": "The Final Missile",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "item"}
+            ]
+        },
         {
             "roomId": 33,
             "roomName": "Bowling Alley Path",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 36,
             "roomName": "Crab Maze",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [3, 0], "left": "empty", "right": "wall", "top": "door", "bottom": "empty"},
+                {"coords": [0, 1], "left": "door", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [3, 1], "left": "empty", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
         {
             "roomId": 24,
             "roomName": "Crateria Kihunter Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "passage"},
+                {"coords": [2, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "door"}
             ]
         },
         {
             "roomId": 34,
             "roomName": "East Ocean",
             "mapTiles": [
-                {"coords": [0, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 4], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [1, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [2, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [3, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [4, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [5, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [6, 4], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
+                {"coords": [0, 5], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [2, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [3, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [4, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [5, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [6, 5], "left": "empty", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
-        {"roomId": 305, "roomName": "Forgotten Highway Elbow", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 305,
+            "roomName": "Forgotten Highway Elbow",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "door"}
+            ]
+        },
         {
             "roomId": 37,
             "roomName": "Forgotten Highway Elevator",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "wall", "right": "wall", "top": "door", "bottom": "elevatorEntrance", "interior": "elevatorPlatform"},
+                {"coords": [0, 1], "specialType": "elevator"},
+                {"coords": [0, 2], "specialType": "elevator"},
+                {"coords": [0, 3], "specialType": "elevator"}
             ]
         },
         {
             "roomId": 35,
             "roomName": "Forgotten Highway Kago Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
+                {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 3], "left": "wall", "right": "wall", "top": "empty", "bottom": "door"}
             ]
         },
         {
             "roomId": 25,
             "roomName": "Red Brinstar Elevator Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "wall", "right": "wall", "top": "door", "bottom": "elevatorEntrance", "interior": "elevatorPlatform"},
+                {"coords": [0, 1], "specialType": "elevator"},
+                {"coords": [0, 2], "specialType": "elevator"},
+                {"coords": [0, 3], "specialType": "elevator"}
             ]
         },
         {
             "roomId": 7,
             "roomName": "The Moat",
+            "waterLevel": 1,
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
+                {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
+                {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 1], "left": "empty", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
         {
             "roomId": 32,
             "roomName": "West Ocean",
+            "waterLevel": 5,
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [7, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty", "interior": "hiddenItem"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [6, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [7, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
+                {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "qolWall"},
+                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "qolWall"},
                 {"coords": [5, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [6, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [7, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [7, 1], "left": "empty", "right": "door", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
