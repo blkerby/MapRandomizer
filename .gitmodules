@@ -11,4 +11,4 @@
 	branch = expanded
 [submodule "Mosaic"]
 	path = Mosaic
-	url = https://github.com/blkerby/Mosaic
+	url = https://github.com/amoebaOfDoom/Mosaic
