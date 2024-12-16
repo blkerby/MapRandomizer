@@ -1,0 +1,185 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Room map tile data",
+  "description": "An array of objects, one for each room, containing details about their map tiles",
+  "required": ["$schema", "rooms"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "title": "JSON Schema Path",
+      "description": "A path to the definition of this file's JSON schema."
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "roomId",
+          "roomName",
+          "mapTiles"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "roomId": {
+            "type": "integer",
+            "description": "Room ID from the sm-json-data project"
+          },
+          "roomName": {
+            "type": "string"
+          },
+          "heated": {
+            "type": "boolean",
+            "default": false
+          },
+          "mapTiles": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "coords"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "left",
+                    "right",
+                    "top",
+                    "bottom"
+                  ]
+                },
+                {
+                  "required": [
+                    "specialType"
+                  ]
+                }
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "coords": {
+                  "type": "array",
+                  "minItems": 2,
+                  "maxItems": 2,
+                  "items": {
+                    "type": "integer"
+                  }
+                },
+                "left": {
+                  "type": "string",
+                  "enum": [
+                    "empty",
+                    "qolEmpty",
+                    "passage",
+                    "qolPassage",
+                    "door",
+                    "wall",
+                    "qolWall"
+                  ]
+                },
+                "right": {
+                  "type": "string",
+                  "enum": [
+                    "empty",
+                    "qolEmpty",
+                    "passage",
+                    "qolPassage",
+                    "door",
+                    "wall",
+                    "qolWall"
+                  ]
+                },
+                "top": {
+                  "type": "string",
+                  "enum": [
+                    "empty",
+                    "qolEmpty",
+                    "passage",
+                    "qolPassage",
+                    "door",
+                    "elevatorEntrance",
+                    "sand",
+                    "wall",
+                    "qolWall"
+                  ]
+                },
+                "bottom": {
+                  "type": "string",
+                  "enum": [
+                    "empty",
+                    "qolEmpty",
+                    "passage",
+                    "qolPassage",
+                    "door",
+                    "elevatorEntrance",
+                    "sand",
+                    "wall",
+                    "qolWall"
+                  ]
+                },
+                "interior": {
+                  "type": "string",
+                  "enum": [
+                    "empty",
+                    "item",
+                    "doubleItem",
+                    "hiddenItem",
+                    "elevatorPlatform",
+                    "saveStation",
+                    "mapStation",
+                    "energyRefill",
+                    "ammoRefill",
+                    "doubleRefill",
+                    "boss"
+                  ],
+                  "default": "empty"
+                },
+                "liquidType": {
+                  "type": "string",
+                  "enum": [
+                    "none",
+                    "water",
+                    "lava",
+                    "acid"
+                  ],
+                  "default": "none"
+                },
+                "liquidLevel": {
+                  "type": "integer",
+                  "description": "Level of the highest point of the liquid in this tile, measured in pixels from the top of the tile.",
+                  "enum": [
+                    0,
+                    1,
+                    2,
+                    3,
+                    4,
+                    5,
+                    6,
+                    7
+                  ],
+                  "default": 0
+                },
+                "specialType": {
+                  "type": "string",
+                  "enum": [
+                    "slopeUpFloorLow",
+                    "slopeUpFloorHigh",
+                    "slopeUpCeilingLow",
+                    "slopeUpCeilingHigh",
+                    "slopeDownFloorLow",
+                    "slopeDownFloorHigh",
+                    "slopeDownCeilingLow",
+                    "slopeDownCeilingHigh",
+                    "tube",
+                    "elevator",
+                    "black"
+                  ]
+                }
+              }
+            }
+          }
+        }    
+      }
+    }
+  }
+}

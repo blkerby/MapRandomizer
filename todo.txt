@@ -20,16 +20,14 @@ v116:
   - PENDING: outline theme: dust torizo
 - DONE?: farming strats: implement new schema
 - DONE: check that new farming strats are working
-- classify/approve new videos
+- DONE: classify/approve new videos
 - DONE: early filler should be limited to two-way reachable locations?
 - DONE: resolve issue with scrolling in spoiler route on mobile
 - DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
 - DONE: adjust etecoon door spawn fix to be more minimal
 
 TODO:
-- video site features:
-  - implement text search filter
-  - add download links (including for original AVI) on individual video page
+- refresh mini-map after it is re-enabled after boss fight (croc, any others?)
 - move node tile data into sm-json-data
 - expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction
 (when there are air tiles not visible in the initial screen).
