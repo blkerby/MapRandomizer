@@ -1,34 +1,7 @@
-v116:
-- DONE: "Technical" item progression preset
-- DONE: implement map subsubareas
-- DONE: new map pools
-- DONE: consider adding hazard tape behind Fast Pillars Setup Room top right
-- DONE: implement implicit canHorizontalShinespark for comeInWithSpark, also canMidairShinespark
-- DONE: fix: 1st zebetite destroyable without clearing objectives: http://localhost:8080/logic/room/238/2/2/38
-- DONE: implement useImplicitComeInNormally, useImplicitLeaveNormally, useImplicitComeInWithMockball
-- DONE: make phantoon not be in west ocean so frequently.
-- add more tests:
-  - DONE: check cycleFrames coverage in "farmCycleDrops" strats, and absence in other strats
-  - PENDING: check coverage of basic entrance/exit types when their implicit strats are disabled.
-- DONE: fix g-mode logic for Mother Brain Room left door.
-- DONE: fix canLongCeilingBombJump video
-- DONE: restore Kamers and Komas in escape
-- DONE: stop continuous writing to SRAM, since this creates issues for SNES mini and other hardware.
-- DONE?: implement settings upgrade process
-- various mosaic fixes:
-  - PENDING: pink brin: fix climb escape palettes, do full playtest
-  - PENDING: outline theme: dust torizo
-- DONE?: farming strats: implement new schema
-- DONE: check that new farming strats are working
-- DONE: classify/approve new videos
-- DONE: early filler should be limited to two-way reachable locations?
-- DONE: resolve issue with scrolling in spoiler route on mobile
-- DONE: fix issue from PR #120 with `reserve_hud` overwriting old `escape.asm` code.
-- DONE: adjust etecoon door spawn fix to be more minimal
-
 TODO:
+- 
 - refresh mini-map after it is re-enabled after boss fight (croc, any others?)
-- move node tile data into sm-json-data
+- load node tile data from sm-json-data
 - expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction
 (when there are air tiles not visible in the initial screen).
 - add sm-json-data tests:

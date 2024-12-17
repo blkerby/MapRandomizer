@@ -21,6 +21,9 @@ for path in glob.glob(qol_presets_path + "/*.json"):
     preset = json.load(open(path, "r"))
     qol_presets[preset["preset"]] = preset
 
+version = int(open("rust/maprando-web/src/VERSION", "r").read())
+print("Version:", version)
+
 # Update full-settings presets:
 for path in glob.glob(full_settings_path + "/*.json"):
     settings = json.load(open(path, "r"))
@@ -37,4 +40,5 @@ for path in glob.glob(full_settings_path + "/*.json"):
     if qol_preset_name is not None:
         settings["quality_of_life_settings"] = qol_presets[qol_preset_name]
 
+    settings["version"] = version
     json.dump(settings, open(path, "w"), indent=4)
