@@ -78,6 +78,7 @@
                     "passage",
                     "qolPassage",
                     "door",
+                    "qolDoor",
                     "wall",
                     "qolWall"
                   ]
@@ -90,6 +91,7 @@
                     "passage",
                     "qolPassage",
                     "door",
+                    "qolDoor",
                     "wall",
                     "qolWall"
                   ]
@@ -102,6 +104,7 @@
                     "passage",
                     "qolPassage",
                     "door",
+                    "qolDoor",
                     "elevatorEntrance",
                     "sand",
                     "wall",
@@ -116,6 +119,7 @@
                     "passage",
                     "qolPassage",
                     "door",
+                    "qolDoor",
                     "elevatorEntrance",
                     "sand",
                     "wall",
@@ -136,7 +140,7 @@
                     "ammoRefill",
                     "doubleRefill",
                     "ship",
-                    "boss"
+                    "event"
                   ],
                   "default": "empty"
                 },
