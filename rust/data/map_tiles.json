@@ -23,7 +23,7 @@
                 {"coords": [2, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [2, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 2], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
-                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall", "interior": "item"},
+                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall", "interior": "hiddenItem"},
                 {"coords": [2, 2], "left": "empty", "right": "wall", "top": "passage", "bottom": "wall", "interior": "item"}
             ]
         },
@@ -797,6 +797,7 @@
         {
             "roomId": 34,
             "roomName": "East Ocean",
+            "waterLevel": 5,
             "mapTiles": [
                 {"coords": [0, 4], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -982,7 +983,7 @@
             "roomId": 27,
             "roomName": "Statues Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "qolPassage"},
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "qolPassage", "interior": "event"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "qolEmpty", "bottom": "elevatorEntrance", "interior": "elevatorPlatform"},
                 {"coords": [0, 2], "specialType": "elevator"},
                 {"coords": [0, 3], "specialType": "elevator"},
@@ -1287,6 +1288,7 @@
         {
             "roomId": 210,
             "roomName": "East Sand Hall",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1296,6 +1298,7 @@
         {
             "roomId": 198,
             "roomName": "Oasis",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -1304,6 +1307,7 @@
         {
             "roomId": 220,
             "roomName": "Pants Room",
+            "waterLevel": 2,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1328,16 +1332,25 @@
         {
             "roomId": 223,
             "roomName": "Spring Ball Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 202, "roomName": "West Sand Hall Tunnel", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 202,
+            "roomName": "West Sand Hall Tunnel",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 199,
             "roomName": "West Sand Hall",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1345,10 +1358,18 @@
                 {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 182, "roomName": "Aqueduct Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 182,
+            "roomName": "Aqueduct Save Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 183,
             "roomName": "Aqueduct",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1373,6 +1394,7 @@
         {
             "roomId": 205,
             "roomName": "Below Botwoon Energy Tank",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1383,6 +1405,7 @@
         {
             "roomId": 186,
             "roomName": "Botwoon Energy Tank Room",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1396,6 +1419,7 @@
         {
             "roomId": 184,
             "roomName": "Botwoon Hallway",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1406,6 +1430,7 @@
         {
             "roomId": 204,
             "roomName": "Botwoon Quicksand Room",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -1414,14 +1439,16 @@
         {
             "roomId": 185,
             "roomName": "Botwoon's Room",
+            "waterLevel": 0,
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
         {
             "roomId": 189,
             "roomName": "Colosseum",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1442,6 +1469,7 @@
         {
             "roomId": 175,
             "roomName": "Crab Shaft",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1450,10 +1478,17 @@
                 {"coords": [1, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 190, "roomName": "Draygon Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 190,
+            "roomName": "Draygon Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 193,
             "roomName": "Draygon's Room",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1464,6 +1499,7 @@
         {
             "roomId": 207,
             "roomName": "East Aqueduct Quicksand Room",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -1472,6 +1508,7 @@
         {
             "roomId": 196,
             "roomName": "East Cactus Alley Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1488,6 +1525,7 @@
         {
             "roomId": 208,
             "roomName": "East Sand Hole",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1498,6 +1536,7 @@
         {
             "roomId": 187,
             "roomName": "Halfie Climb Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1508,12 +1547,33 @@
                 {"coords": [4, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 191, "roomName": "Maridia Health Refill Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 188, "roomName": "Maridia Missile Refill Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 194, "roomName": "Space Jump Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 191,
+            "roomName": "Maridia Health Refill Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 188,
+            "roomName": "Maridia Missile Refill Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 194,
+            "roomName": "Space Jump Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 192,
             "roomName": "The Precious Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1534,6 +1594,7 @@
         {
             "roomId": 206,
             "roomName": "West Aqueduct Quicksand Room",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -1542,6 +1603,7 @@
         {
             "roomId": 195,
             "roomName": "West Cactus Alley Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -1550,6 +1612,7 @@
         {
             "roomId": 209,
             "roomName": "West Sand Hole",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1557,9 +1620,29 @@
                 {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 211, "roomName": "Bug Sand Hole", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 213, "roomName": "Butterfly Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 216, "roomName": "Forgotten Highway Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 211,
+            "roomName": "Bug Sand Hole",
+            "waterLevel": 0.625,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 213,
+            "roomName": "Butterfly Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 216,
+            "roomName": "Forgotten Highway Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 217,
             "roomName": "Kassiuz Room",
@@ -1593,7 +1676,14 @@
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 212, "roomName": "Plasma Beach Quicksand Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 212,
+            "roomName": "Plasma Beach Quicksand Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 219,
             "roomName": "Plasma Room",
@@ -1609,6 +1699,7 @@
         {
             "roomId": 197,
             "roomName": "Plasma Spark Room",
+            "waterLevel": 4,
             "mapTiles": [
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1629,10 +1720,17 @@
                 {"coords": [3, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 218, "roomName": "Plasma Tutorial Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 218,
+            "roomName": "Plasma Tutorial Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 179,
             "roomName": "Pseudo Plasma Spark Room",
+            "waterLevel": 2,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1663,6 +1761,7 @@
         {
             "roomId": 181,
             "roomName": "Watering Hole",
+            "waterLevel": 2,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1684,6 +1783,7 @@
         {
             "roomId": 201,
             "roomName": "Crab Hole",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -1692,6 +1792,7 @@
         {
             "roomId": 176,
             "roomName": "Crab Tunnel",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1702,6 +1803,7 @@
         {
             "roomId": 173,
             "roomName": "Fish Tank",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1717,10 +1819,18 @@
                 {"coords": [3, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 171, "roomName": "Glass Tunnel Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 171,
+            "roomName": "Glass Tunnel Save Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 170,
             "roomName": "Glass Tunnel",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1730,6 +1840,7 @@
         {
             "roomId": 172,
             "roomName": "Main Street",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1754,6 +1865,7 @@
         {
             "roomId": 178,
             "roomName": "Mama Turtle Room",
+            "waterLevel": 2,
             "mapTiles": [
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1766,10 +1878,18 @@
                 {"coords": [2, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 203, "roomName": "Maridia Map Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 203,
+            "roomName": "Maridia Map Room",
+            "waterLevel": 0,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 174,
             "roomName": "Mt. Everest",
+            "waterLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1796,6 +1916,7 @@
         {
             "roomId": 177,
             "roomName": "Red Fish Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1803,7 +1924,13 @@
                 {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 169, "roomName": "West Glass Tube Tunnel", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 169,
+            "roomName": "West Glass Tube Tunnel",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 122,
             "roomName": "Crocomire's Room",
@@ -1813,7 +1940,7 @@
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"},
                 {"coords": [6, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [7, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
@@ -1900,8 +2027,21 @@
                 {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 124, "roomName": "Post Crocomire Power Bomb Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 311, "roomName": "Post Crocomire Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 124,
+            "roomName": "Post Crocomire Power Bomb Room",
+            "heated": true,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 311,
+            "roomName": "Post Crocomire Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 125,
             "roomName": "Post Crocomire Shaft",
@@ -1916,6 +2056,7 @@
         {
             "roomId": 119,
             "roomName": "Acid Snakes Tunnel",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1926,12 +2067,19 @@
         {
             "roomId": 100,
             "roomName": "Bat Cave",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 307, "roomName": "Bubble Mountain Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 307,
+            "roomName": "Bubble Mountain Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 97,
             "roomName": "Bubble Mountain",
@@ -1949,6 +2097,7 @@
         {
             "roomId": 90,
             "roomName": "Cathedral Entrance",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1961,6 +2110,7 @@
         {
             "roomId": 91,
             "roomName": "Cathedral",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1973,6 +2123,7 @@
         {
             "roomId": 104,
             "roomName": "Double Chamber",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -1984,7 +2135,13 @@
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 302, "roomName": "Frog Savestation", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 302,
+            "roomName": "Frog Savestation",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 93,
             "roomName": "Frog Speedway",
@@ -2002,6 +2159,7 @@
         {
             "roomId": 98,
             "roomName": "Green Bubbles Missile Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -2010,6 +2168,7 @@
         {
             "roomId": 113,
             "roomName": "Kronic Boost Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2020,6 +2179,7 @@
         {
             "roomId": 115,
             "roomName": "Lava Dive Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2032,11 +2192,25 @@
                 {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 310, "roomName": "Lower Norfair Elevator Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 309, "roomName": "Lower Norfair Elevator", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 310,
+            "roomName": "Lower Norfair Elevator Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 309,
+            "roomName": "Lower Norfair Elevator",
+            "heated": true,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 114,
             "roomName": "Magdollite Tunnel",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2046,16 +2220,31 @@
         {
             "roomId": 99,
             "roomName": "Norfair Reserve Tank Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 308, "roomName": "Nutella Refill", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 96, "roomName": "Purple Farming Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 308,
+            "roomName": "Nutella Refill",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 96,
+            "roomName": "Purple Farming Room",
+            "heated": true,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 95,
             "roomName": "Purple Shaft",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2074,6 +2263,7 @@
         {
             "roomId": 92,
             "roomName": "Rising Tide",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2085,6 +2275,7 @@
         {
             "roomId": 103,
             "roomName": "Single Chamber",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2100,6 +2291,7 @@
         {
             "roomId": 101,
             "roomName": "Speed Booster Hall",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2118,10 +2310,18 @@
                 {"coords": [11, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 102, "roomName": "Speed Booster Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 102,
+            "roomName": "Speed Booster Room",
+            "heated": true,
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 112,
             "roomName": "Spiky Acid Snakes Tunnel",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2132,6 +2332,7 @@
         {
             "roomId": 117,
             "roomName": "Spiky Platforms Tunnel",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2142,6 +2343,7 @@
         {
             "roomId": 94,
             "roomName": "Upper Norfair Farming Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2152,6 +2354,7 @@
         {
             "roomId": 116,
             "roomName": "Volcano Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2160,7 +2363,13 @@
                 {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 105, "roomName": "Wave Beam Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 105,
+            "roomName": "Wave Beam Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 86,
             "roomName": "Business Center",
@@ -2177,6 +2386,7 @@
         {
             "roomId": 121,
             "roomName": "Crocomire Escape",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2188,10 +2398,17 @@
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 303, "roomName": "Crocomire Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 303,
+            "roomName": "Crocomire Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 120,
             "roomName": "Crocomire Speedway",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2218,6 +2435,7 @@
         {
             "roomId": 111,
             "roomName": "Crumble Shaft",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2225,7 +2443,13 @@
                 {"coords": [0, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 89, "roomName": "Hi Jump Boots Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 89,
+            "roomName": "Hi Jump Boots Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 88,
             "roomName": "Hi Jump Energy Tank Room",
@@ -2238,6 +2462,7 @@
         {
             "roomId": 107,
             "roomName": "Ice Beam Acid Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -2259,10 +2484,17 @@
                 {"coords": [3, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 109, "roomName": "Ice Beam Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 109,
+            "roomName": "Ice Beam Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 108,
             "roomName": "Ice Beam Snake Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2273,12 +2505,19 @@
         {
             "roomId": 110,
             "roomName": "Ice Beam Tutorial Room",
+            "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 87, "roomName": "Norfair Map Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 87,
+            "roomName": "Norfair Map Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 232,
             "roomName": "Big Boy Room",
@@ -2305,7 +2544,13 @@
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 237, "roomName": "Lower Tourian Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 237,
+            "roomName": "Lower Tourian Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 226,
             "roomName": "Metroid Room 1",
@@ -2350,7 +2595,7 @@
             "roomId": 238,
             "roomName": "Mother Brain Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
@@ -2451,8 +2696,20 @@
                 {"coords": [0, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 234, "roomName": "Tourian Recharge Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 225, "roomName": "Upper Tourian Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 234,
+            "roomName": "Tourian Recharge Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 225,
+            "roomName": "Upper Tourian Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
         {
             "roomId": 168,
             "roomName": "Assembly Line",
@@ -2498,7 +2755,7 @@
                 {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"},
                 {"coords": [5, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2516,8 +2773,20 @@
                 {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 162, "roomName": "Gravity Suit Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 158, "roomName": "Phantoon's Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
+        {
+            "roomId": 162,
+            "roomName": "Gravity Suit Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 158,
+            "roomName": "Phantoon's Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"}
+            ]
+        },
         {
             "roomId": 165,
             "roomName": "Spiky Death Room",
@@ -2547,6 +2816,7 @@
         {
             "roomId": 167,
             "roomName": "Wrecked Ship Energy Tank Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
@@ -2585,8 +2855,26 @@
                 {"coords": [4, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
             ]
         },
-        {"roomId": 157, "roomName": "Wrecked Ship Map Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 304, "roomName": "Wrecked Ship Save Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]},
-        {"roomId": 159, "roomName": "Wrecked Ship West Super Room", "mapTiles": [{"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}]}
+        {
+            "roomId": 157,
+            "roomName": "Wrecked Ship Map Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 304,
+            "roomName": "Wrecked Ship Save Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        },
+        {
+            "roomId": 159,
+            "roomName": "Wrecked Ship West Super Room",
+            "mapTiles": [
+                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+            ]
+        }
     ]
 }
