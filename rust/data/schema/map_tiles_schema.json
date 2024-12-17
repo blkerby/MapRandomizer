@@ -107,6 +107,7 @@
                     "qolDoor",
                     "elevatorEntrance",
                     "sand",
+                    "qolSand",
                     "wall",
                     "qolWall"
                   ]
@@ -122,6 +123,7 @@
                     "qolDoor",
                     "elevatorEntrance",
                     "sand",
+                    "qolSand",
                     "wall",
                     "qolWall"
                   ]
