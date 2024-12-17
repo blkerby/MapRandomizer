@@ -1,4 +1,4 @@
-FROM rust:1.79.0-bullseye AS build
+FROM rust:1.83.0-bullseye AS build
 
 RUN apt-get update && apt-get install -y zstd
 
