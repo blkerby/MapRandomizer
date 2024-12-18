@@ -639,8 +639,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let loc = c.all_items[i].location;
 			if (loc.room_id == ri) {
 				let os = lookupOffset(loc.room, loc.node);
-				let lx = loc.coords[0]*24+24+Math.round(os[0])*24;
-				let ly = loc.coords[1]*24+24+Math.round(os[1])*24;
+				let lx = loc.coords[0]*24 + 24;
+				let ly = loc.coords[1]*24 + 24;
+				if (os) {
+					lx += Math.round(os[0])*24;
+					ly += Math.round(os[1])*24;
+				}
 				if (lx == x && ly== y) {
 					if (startitems == 0) {
 						startitems++;
