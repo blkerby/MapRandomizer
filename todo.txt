@@ -1,5 +1,5 @@
 TODO:
-- 
+- add heat frames in processing ResetRoom requirement
 - refresh mini-map after it is re-enabled after boss fight (croc, any others?)
 - load node tile data from sm-json-data
 - expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction

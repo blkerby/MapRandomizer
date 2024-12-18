@@ -56,7 +56,8 @@ function moveStart() {
 	let ox = 0;
 	let oy = 0;
 	if (l==1) {
-		ox -=12;
+		// TODO: adjust by only 6 but shift the item over the opposite way as well.
+		ox -= 12;
 	} else if (l==2) {
 		oy += 6;
 	}
@@ -639,8 +640,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let loc = c.all_items[i].location;
 			if (loc.room_id == ri) {
 				let os = lookupOffset(loc.room, loc.node);
-				let lx = loc.coords[0]*24+24+Math.round(os[0])*24;
-				let ly = loc.coords[1]*24+24+Math.round(os[1])*24;
+				let lx = loc.coords[0]*24 + 24;
+				let ly = loc.coords[1]*24 + 24;
+				if (os) {
+					lx += Math.round(os[0])*24;
+					ly += Math.round(os[1])*24;
+				}
 				if (lx == x && ly== y) {
 					if (startitems == 0) {
 						startitems++;
