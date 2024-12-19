@@ -3332,13 +3332,7 @@ impl GameData {
                 }
             }
             "comeInShinecharged" => MainEntranceCondition::ComeInShinecharged {},
-            "comeInShinechargedJumping" => {
-                let frames_required = value["framesRequired"]
-                    .as_i32()
-                    .context("Expecting integer 'framesRequired'")?;
-                req = Requirement::ShineChargeFrames(frames_required as Capacity);
-                MainEntranceCondition::ComeInShinechargedJumping {}
-            }
+            "comeInShinechargedJumping" => MainEntranceCondition::ComeInShinechargedJumping {},
             "comeInWithSpark" => {
                 let node_json = &self.node_json_map[&(room_id, from_node_id)];
                 let door_orientation =
