@@ -3275,7 +3275,7 @@ impl GameData {
         };
         let (key, value) = entrance_json.entries().next().unwrap();
         ensure!(value.is_object());
-        let mut req = Requirement::Free;
+        let req = Requirement::Free;
         let main = match key {
             "comeInNormally" => MainEntranceCondition::ComeInNormally {},
             "comeInRunning" => MainEntranceCondition::ComeInRunning {
