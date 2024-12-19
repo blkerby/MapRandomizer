@@ -2074,7 +2074,9 @@ pub fn traverse(
                                 result.local_states[dst_id][dst_cost_idx] = dst_new_local_state;
                                 result.start_trail_ids[dst_id][dst_cost_idx] = new_trail_id;
                                 result.cost[dst_id][dst_cost_idx] = dst_new_cost_arr[dst_cost_idx];
-                                improved_arr[dst_cost_idx] = true;
+                                if !any_improvement {
+                                    improved_arr[dst_cost_idx] = true;
+                                }
                                 any_improvement = true;
                             }
                         }
