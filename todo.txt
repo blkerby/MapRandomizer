@@ -33,8 +33,7 @@ Rom patching:
   - same thing with spore spawn entering from bottom?
 
 Other:
-- try implementing graph traversal more like dijkstra's algorithm
-  - i.e. use a priority queue to prioritize processing vertices closer to the start, to reduce the amount of reprocessing
+- only show relevant flags (in spoiler route) when they are logically cleared
 - remove dependence on ROM for seed generation
 - maybe overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
   - make it so that customization can use matching version from when the seed was generated
