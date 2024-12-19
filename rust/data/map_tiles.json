@@ -994,16 +994,16 @@
             "roomId": 20,
             "roomName": "Terminator Room",
             "mapTiles": [
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [3, 0], "specialType": "slopeUpCeilingLow"},
+                {"coords": [4, 0], "specialType": "slopeUpCeilingHigh"},
                 {"coords": [5, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 1], "specialType": "slopeUpCeilingLow"},
+                {"coords": [2, 1], "specialType": "slopeUpCeilingLow"},
+                {"coords": [3, 1], "specialType": "slopeUpFloorLow"},
+                {"coords": [4, 1], "specialType": "slopeUpFloorHigh"},
                 {"coords": [0, 2], "left": "door", "right": "empty", "top": "wall", "bottom": "wall", "interior": "item"},
-                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [1, 2], "specialType": "slopeUpFloorLow"},
+                {"coords": [2, 2], "specialType": "slopeUpFloorHigh"}
             ]
         },
         {
@@ -2416,26 +2416,26 @@
             "roomName": "Crocomire Speedway",
             "heated": true,
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [12, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [12, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [7, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [8, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [9, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [10, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [11, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [12, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "specialType": "slopeDownCeilingHigh"},
+                {"coords": [4, 0], "specialType": "slopeDownCeilingLow"},
+                {"coords": [12, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
+                {"coords": [3, 1], "specialType": "slopeDownFloorHigh"},
+                {"coords": [4, 1], "specialType": "slopeDownFloorLow"},
+                {"coords": [5, 1], "specialType": "slopeDownCeilingHigh"},
+                {"coords": [6, 1], "specialType": "slopeDownCeilingLow"},
+                {"coords": [12, 1], "left": "wall", "right": "door", "top": "empty", "bottom": "empty"},
+                {"coords": [4, 2], "specialType": "black"},
+                {"coords": [5, 2], "specialType": "slopeDownFloorHigh"},
+                {"coords": [6, 2], "specialType": "slopeDownFloorLow"},
+                {"coords": [7, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [8, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [9, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [10, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [11, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [12, 2], "left": "passage", "right": "door", "top": "empty", "bottom": "door"}
             ]
         },
         {
@@ -2720,103 +2720,103 @@
             "roomId": 168,
             "roomName": "Assembly Line",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
         },
         {
             "roomId": 160,
             "roomName": "Attic",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [6, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "door"},
+                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [6, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 156,
             "roomName": "Basement",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "door", "bottom": "wall"},
+                {"coords": [3, 0], "left": "empty", "right": "passage", "top": "wall", "bottom": "wall"},
+                {"coords": [4, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 161,
             "roomName": "Bowling Alley",
             "mapTiles": [
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"},
-                {"coords": [5, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [2, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [5, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "passage"},
+                {"coords": [0, 1], "left": "door", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "wall", "bottom": "passage"},
+                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 1], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [4, 1], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "event"},
+                {"coords": [5, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [1, 2], "left": "wall", "right": "passage", "top": "empty", "bottom": "wall"},
+                {"coords": [2, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall", "interior": "hiddenItem"},
+                {"coords": [4, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [5, 2], "left": "empty", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
         {
             "roomId": 166,
             "roomName": "Electric Death Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
+                {"coords": [0, 1], "left": "wall", "right": "door", "top": "passage", "bottom": "empty"},
+                {"coords": [0, 2], "left": "door", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
         {
             "roomId": 162,
             "roomName": "Gravity Suit Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "door", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
         },
         {
             "roomId": 158,
             "roomName": "Phantoon's Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty", "interior": "event"}
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "event"}
             ]
         },
         {
             "roomId": 165,
             "roomName": "Spiky Death Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 164,
             "roomName": "Sponge Bath",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 163,
             "roomName": "Wrecked Ship East Super Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "qolPassage", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "left": "qolEmpty", "right": "wall", "top": "wall", "bottom": "wall"}
             ]
         },
         {
@@ -2824,62 +2824,62 @@
             "roomName": "Wrecked Ship Energy Tank Room",
             "waterLevel": 1,
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
+                {"coords": [2, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
+                {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [2, 1], "left": "empty", "right": "wall", "top": "empty", "bottom": "wall"}
             ]
         },
         {
             "roomId": 154,
             "roomName": "Wrecked Ship Entrance",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
             ]
         },
         {
             "roomId": 155,
             "roomName": "Wrecked Ship Main Shaft",
             "mapTiles": [
-                {"coords": [4, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 1], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 2], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 3], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 4], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [3, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 5], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 6], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [5, 6], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"},
-                {"coords": [4, 7], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [4, 0], "left": "wall", "right": "wall", "top": "door", "bottom": "empty"},
+                {"coords": [4, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [4, 2], "left": "wall", "right": "wall", "top": "passage", "bottom": "empty"},
+                {"coords": [4, 3], "left": "door", "right": "door", "top": "empty", "bottom": "empty"},
+                {"coords": [4, 4], "left": "wall", "right": "door", "top": "empty", "bottom": "empty"},
+                {"coords": [0, 5], "left": "wall", "right": "empty", "top": "wall", "bottom": "wall", "interior": "item"},
+                {"coords": [1, 5], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 5], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [3, 5], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [4, 5], "left": "passage", "right": "wall", "top": "empty", "bottom": "empty"},
+                {"coords": [4, 6], "left": "door", "right": "passage", "top": "empty", "bottom": "passage"},
+                {"coords": [5, 6], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
+                {"coords": [4, 7], "left": "wall", "right": "wall", "top": "empty", "bottom": "door"}
             ]
         },
         {
             "roomId": 157,
             "roomName": "Wrecked Ship Map Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "mapStation"}
             ]
         },
         {
             "roomId": 304,
             "roomName": "Wrecked Ship Save Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "saveStation"}
             ]
         },
         {
             "roomId": 159,
             "roomName": "Wrecked Ship West Super Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "empty", "right": "empty", "top": "empty", "bottom": "empty"}
+                {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
         }
     ]
