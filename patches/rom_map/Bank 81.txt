@@ -1,2 +1,3 @@
 EF20 - F100: saveload.asm
 F100 - F140: map_area.asm
+F140 - F150: vanilla_bugfixes.asm
