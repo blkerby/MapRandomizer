@@ -1,6 +1,6 @@
 ; From https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/vanilla_bugfixes.asm
 ;
-; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada
+; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada, Stag Shot
 
 ;;; Some vanilla bugfixes
 ;;; compile with asar
@@ -216,3 +216,33 @@ special_xray_end:
 ; Documented by PJBoy: https://patrickjohnston.org/bank/B4#fBD97
 org $b4bda3
     bpl $f8 ; was bne $f8
+
+; Fix for offscreen super missile explosion freeze glitch
+; Only seen in Pink Brinstar Hopper Room when against left wall on top of frozen hopper and jump + diagonal-shoot like doing the GGG.
+; See https://discord.com/channels/1053421401354285129/1053434532973510748/1314069283520643113
+;
+; The bug requires a number of conditions:
+;  - diagonal SM shot that reaches velocity to induce read-ahead collision detection (aka SM-link, @ $90B366 / $90B406)
+;  - on same frame: SM not colliding, but SM-link colliding both horiz+vert (@ $90B052)
+;  - this will corrupt the SM-link projectile entry and create a null spritemap ptr
+;
+; This ultimately leads to using $0000 as the size/iterator for the spritemap OAM update (@ $818A4B).
+; Safest patch is to add null ptr check furthest downstream to not interfere with SM-based glitches.
+; 
+; Reported by Eddie, reversed/patch by Stag Shot
+
+!bank_81_free_space_start = $81f140
+!bank_81_free_space_end = $81f150
+
+org $818a51
+    jmp null_ptr_check
+
+org !bank_81_free_space_start
+null_ptr_check:
+    ldy $cb8,x
+    bne .do_oam             ; spritemap ptr null?
+    jmp $8a59               ; skip
+
+.do_oam
+    jmp $8a54               ; process
+warnpc !bank_81_free_space_end
