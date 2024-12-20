@@ -1674,12 +1674,20 @@ pub fn apply_requirement(
                 }
                 if reverse {
                     if new_local.energy_used <= 28 {
+                        if frames == excess_frames {
+                            // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
+                            return Some(new_local);
+                        }
                         new_local.energy_used = 28 + frames - excess_frames;
                     } else {
                         new_local.energy_used += frames;
                     }
                     validate_energy_no_auto_reserve(new_local, global, game_data, difficulty)
                 } else {
+                    if frames == excess_frames && new_local.energy_used >= global.inventory.max_energy - 29 {
+                        // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
+                        return Some(new_local);
+                    }
                     new_local.energy_used += frames - excess_frames + 28;
                     if let Some(mut new_local) =
                         validate_energy_no_auto_reserve(new_local, global, game_data, difficulty)
