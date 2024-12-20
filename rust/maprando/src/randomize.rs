@@ -3883,7 +3883,15 @@ impl<'r> Randomizer<'r> {
                     if let Some(coords) = self.game_data.node_tile_coords.get(&(*room_id, *node_id))
                     {
                         for (x, y) in coords.iter().copied() {
-                            let key = (room_idx, (x, y));
+                            let key = if *room_id == 322 {
+                                // Adjust for East Pants Room being offset by one screen right and down from Pants Room
+                                (room_idx, (x + 1, y + 1))
+                            } else if *room_id == 313 {
+                                // Adjust Homing Geemer Room being offset from West Ocean:
+                                (room_idx, (x + 5, y + 2))
+                            } else {
+                                (room_idx, (x, y))
+                            };
                             if !map_tile_bireachable_step.contains_key(&key) {
                                 map_tile_bireachable_step.insert(key, step);
                             }
@@ -3904,7 +3912,15 @@ impl<'r> Randomizer<'r> {
                     if let Some(coords) = self.game_data.node_tile_coords.get(&(*room_id, *node_id))
                     {
                         for (x, y) in coords.iter().copied() {
-                            let key = (room_idx, (x, y));
+                            let key = if *room_id == 322 {
+                                // Adjust for East Pants Room being offset by one screen right and down from Pants Room
+                                (room_idx, (x + 1, y + 1))
+                            } else if *room_id == 313 {
+                                // Adjust Homing Geemer Room being offset from West Ocean:
+                                (room_idx, (x + 5, y + 2))
+                            } else {
+                                (room_idx, (x, y))
+                            };
                             if !map_tile_reachable_step.contains_key(&key) {
                                 map_tile_reachable_step.insert(key, step);
                             }

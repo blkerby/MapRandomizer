@@ -3939,6 +3939,18 @@ impl GameData {
                 let req = json::object! {"or": JsonValue::Array(req_list)};
                 self.grey_lock_map.insert((room_id, node_id), req);
             }
+
+            let height = node_json["mapTileMask"].len();
+            let width = node_json["mapTileMask"][0].len();
+            let mut coords: Vec<(usize, usize)> = vec![];
+            for y in 0..height {
+                for x in 0..width {
+                    if node_json["mapTileMask"][y][x] == 2 {
+                        coords.push((x, y));
+                    }
+                }
+            }
+            self.node_tile_coords.insert((room_id, node_id), coords);
         }
         let mut node_implicit_door_unlocks: HashMap<NodeId, bool> = HashMap::new();
         for node_json in room_json["nodes"].members() {
@@ -4338,89 +4350,7 @@ impl GameData {
                 "room_id_by_ptr missing entry {:x}",
                 room.rom_address
             ))?;
-            let mut max_x = 0;
-            let mut max_y = 0;
-            let mut tile_set: HashSet<(usize, usize)> = HashSet::new();
-            let mut node_set: HashSet<usize> = HashSet::new();
-            for (node_id, tiles) in &room.node_tiles {
-                self.node_tile_coords
-                    .insert((room_id, *node_id), tiles.clone());
-                let node_max_x = tiles.iter().map(|x| x.0).max().unwrap();
-                let node_max_y = tiles.iter().map(|x| x.1).max().unwrap();
-                if node_max_x > max_x {
-                    max_x = node_max_x;
-                }
-                if node_max_y > max_y {
-                    max_y = node_max_y;
-                }
-                for &tile in tiles {
-                    if room.map[tile.1][tile.0] == 0 && room.name != "Toilet" {
-                        error!(
-                            "Node tile not belonging to map: {}:{}:({}, {})",
-                            room.name, node_id, tile.0, tile.1
-                        );
-                    }
-                    tile_set.insert(tile);
-                }
-
-                if !self.node_json_map.contains_key(&(room_id, *node_id)) {
-                    error!("Invalid node ID in node tiles: {}:{}", room.name, node_id);
-                }
-                node_set.insert(*node_id);
-            }
-            self.room_shape.insert(room_id, (max_x + 1, max_y + 1));
-            for node_json in self.room_json_map[&room_id]["nodes"].members() {
-                let node_id = node_json["id"].as_usize().unwrap();
-                if !node_set.contains(&node_id) {
-                    error!(
-                        "Node ID not covered in node tiles: {}:{}",
-                        room.name, node_id
-                    );
-                }
-            }
-
-            if let Some(twin_rom_address) = room.twin_rom_address {
-                let room_id = self.raw_room_id_by_ptr[&twin_rom_address];
-                let mut node_set: HashSet<usize> = HashSet::new();
-                for (node_id, tiles) in room.twin_node_tiles.as_ref().unwrap() {
-                    self.node_tile_coords
-                        .insert((room_id, *node_id), tiles.clone());
-
-                    for &tile in tiles {
-                        if room.map[tile.1][tile.0] == 0 {
-                            error!(
-                                "Invalid twin node tile: {}:{}:({}, {})",
-                                room.name, node_id, tile.0, tile.1
-                            );
-                        }
-                        tile_set.insert(tile);
-                    }
-                    if !self.node_json_map.contains_key(&(room_id, *node_id)) {
-                        error!(
-                            "Invalid node ID in twin node tiles: {}:{}",
-                            room.name, node_id
-                        );
-                    }
-                    node_set.insert(*node_id);
-                }
-                for node_json in self.room_json_map[&room_id]["nodes"].members() {
-                    let node_id = node_json["id"].as_usize().unwrap();
-                    if !node_set.contains(&node_id) {
-                        error!(
-                            "Node ID not covered in twin node tiles: {}:{}",
-                            room.name, node_id
-                        );
-                    }
-                }
-            }
-
-            for y in 0..room.map.len() {
-                for x in 0..room.map[0].len() {
-                    if room.map[y][x] == 1 && !tile_set.contains(&(x, y)) {
-                        error!("Node tile not covered: {}:({}, {})", room.name, x, y);
-                    }
-                }
-            }
+            self.room_shape.insert(room_id, (room.map[0].len(), room.map.len()));
         }
         self.room_geometry = room_geometry;
         Ok(())
