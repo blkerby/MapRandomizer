@@ -33,6 +33,7 @@ Rom patching:
   - same thing with spore spawn entering from bottom?
 
 Other:
+- load node tile data from sm-json-data
 - only show relevant flags (in spoiler route) when they are logically cleared
 - remove dependence on ROM for seed generation
 - maybe overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
@@ -45,7 +46,6 @@ Other:
   - but how to implement propagation of runway-length/speed info for this?
 - add heat frames in processing ResetRoom requirement
   - implement additional need for ResetRoom requirements where needed
-- load node tile data from sm-json-data
 - expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction
 (when there are air tiles not visible in the initial screen).
 - add sm-json-data tests:
@@ -53,7 +53,6 @@ Other:
 - migrate existing farmings strats to new schema
 - set up x-mode leniency in skill assumptions
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
-- PENDING: have auto-formatting also auto-order object properties by schema order
 - finish pass of adding shinecharge strats?
 - heated elevator: mark with red platform?
 - improve formatting of logic pages to make them easier to read

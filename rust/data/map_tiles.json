@@ -406,7 +406,7 @@
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "passage"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
-                {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
+                {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall", "interior": "item"},
                 {"coords": [1, 1], "left": "empty", "right": "door", "top": "qolEmpty", "bottom": "wall"}
             ]
         },
@@ -1772,7 +1772,7 @@
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "passage"},
-                {"coords": [0, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "wall", "interior": "item"}
+                {"coords": [0, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "wall", "interior": "doubleItem"}
             ]
         },
         {
