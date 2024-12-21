@@ -3,8 +3,8 @@ FA00 - FA80: alternate_door_colors
 FA80 - FA90: fix_water_fx_bug
 FA90 - FBB0: seed_hash_display
 FBB0 - FBF0: fix_kraid_hud
-FBF0 - FC10: vanilla_bugfixes.asm
-FC10 - FD00: [FREE]
+FBF0 - FC30: vanilla_bugfixes.asm
+FC30 - FD00: [FREE]
 FD00 - FD80: item_dots_disappear
 FD80 - FE00: fast_doors
 FE00 - FE80: fast_reload
