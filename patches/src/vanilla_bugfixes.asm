@@ -1,6 +1,6 @@
 ; From https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/vanilla_bugfixes.asm
 ;
-; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada
+; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada, Stag Shot
 
 ;;; Some vanilla bugfixes
 ;;; compile with asar
@@ -216,3 +216,39 @@ special_xray_end:
 ; Documented by PJBoy: https://patrickjohnston.org/bank/B4#fBD97
 org $b4bda3
     bpl $f8 ; was bne $f8
+
+; Fix auto-reserve / pause bug that can leave game in unstable/frozen state
+;
+; This patch will initiate the death sequence if energy reaches 0 outside main gameplay
+; (i.e., entering pause screen) with auto-reserve enabled.
+;
+; (thanks to Benox50 for his initial patch)
+
+!bank_82_free_space_start = $82fbf0
+!bank_82_free_space_end = $82fc10
+
+org $82db80
+    jmp fix_reserve               ; health == 0, auto-reserve enabled, reserve health > 0
+
+org !bank_82_free_space_start
+fix_reserve:
+    lda $998
+    cmp #$0008                    ; main gameplay?
+    bne .check_death
+    lda #$8000                    ; replaced code
+    jmp $db83                     ; resume func
+
+.check_death
+    cmp #$0013                    ; death seq started?
+    bcc .init_death
+    plp                           ; if so, leave func
+    rts
+
+.init_death
+    sep #$20
+    lda #$0f                      ; restore screen to full brightness
+    sta $51
+    rep #$30
+    jmp $db9f                     ; init death seq
+
+warnpc !bank_82_free_space_end
