@@ -75,6 +75,7 @@ fn build_app_data() -> AppData {
     let tech_path = Path::new("data/tech_data.json");
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
+    let map_tiles_path = Path::new("data/map_tiles.json");
     let mosaic_themes = vec![
         ("OuterCrateria", "Outer Crateria"),
         ("InnerCrateria", "Inner Crateria"),
@@ -105,6 +106,7 @@ fn build_app_data() -> AppData {
         title_screen_path,
         reduced_flashing_path,
         strat_videos_path,
+        map_tiles_path,
     )
     .unwrap();
 

@@ -368,6 +368,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let wild_maps_path = Path::new("../maps/v116d-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
+    let map_tiles_path = Path::new("data/map_tiles.json");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -377,6 +378,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         title_screen_path,
         reduced_flashing_path,
         strat_videos_path,
+        map_tiles_path,
     )?;
 
     if !args.output_seeds.is_dir() {

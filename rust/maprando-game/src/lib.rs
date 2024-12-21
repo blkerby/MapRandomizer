@@ -1102,6 +1102,87 @@ pub struct StratVideo {
     pub note: String,
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum MapTileEdge {
+    Empty,
+    QolEmpty,
+    Passage,
+    QolPassage,
+    Door,
+    QolDoor,
+    ElevatorEntrance,
+    Sand,
+    QolSand,
+    Wall,
+    QolWall,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum MapTileInterior {
+    Empty,
+    Item,
+    DoubleItem,
+    HiddenItem,
+    ElevatorPlatformHigh,
+    ElevatorPlatformLow,
+    SaveStation,
+    MapStation,
+    EnergyRefill,
+    AmmoRefill,
+    DoubleRefill,
+    Ship,
+    Event
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum MapTileSpecialType {
+    SlopeUpFloorLow,
+    SlopeUpFloorHigh,
+    SlopeUpCeilingLow,
+    SlopeUpCeilingHigh,
+    SlopeDownFloorLow,
+    SlopeDownFloorHigh,
+    SlopeDownCeilingLow,
+    SlopeDownCeilingHigh,
+    Tube,
+    Elevator,
+    Black
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MapTile {
+    coords: (usize, usize), 
+    left: Option<MapTileEdge>,
+    right: Option<MapTileEdge>,
+    top: Option<MapTileEdge>,
+    bottom: Option<MapTileEdge>,
+    interior: Option<MapTileInterior>,
+    #[serde(default)]
+    heated: bool,
+    water_level: Option<f32>,
+    special_type: Option<MapTileSpecialType>,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MapTileData {
+    room_id: usize,
+    room_name: String,
+    water_level: Option<f32>,
+    #[serde(default)]
+    heated: bool,
+    map_tiles: Vec<MapTile>,
+}
+
+#[derive(Deserialize)]
+struct MapTileDataFile {
+    rooms: Vec<MapTileData>
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -1180,6 +1261,7 @@ pub struct GameData {
     pub title_screen_data: TitleScreenData,
     pub reduced_flashing_patch: GlowPatch,
     pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
+    pub map_tile_data: HashMap<RoomId, MapTileData>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -4436,6 +4518,28 @@ impl GameData {
         Ok(())
     }
 
+    fn load_map_tile_data(&mut self, path: &Path) -> Result<()> {
+        let map_tile_data_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load map tile data at {}", path.display()))?;
+        let map_tile_data_file: MapTileDataFile = serde_json::from_str(&map_tile_data_str)?;
+        self.map_tile_data = map_tile_data_file.rooms.into_iter().map(|x| (x.room_id, x)).collect();
+        for room in self.map_tile_data.values_mut() {
+            for tile in &mut room.map_tiles {
+                tile.heated = room.heated;
+                if let Some(water_level) = room.water_level {
+                    if water_level < tile.coords.1 as f32 {
+                        tile.water_level = Some(0.0);
+                    } else if water_level > (tile.coords.1 + 1) as f32 {
+                        tile.water_level = Some(1.0);
+                    } else {
+                        tile.water_level = Some(water_level.fract());
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -4445,6 +4549,7 @@ impl GameData {
         title_screen_path: &Path,
         reduced_flashing_path: &Path,
         strat_videos_path: &Path,
+        map_tile_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
@@ -4654,6 +4759,7 @@ impl GameData {
         game_data.load_escape_timings(escape_timings_path)?;
         game_data.load_start_locations(start_locations_path)?;
         game_data.load_hub_locations(hub_locations_path)?;
+        game_data.load_map_tile_data(map_tile_path)?;
         game_data.area_names = vec![
             "Crateria",
             "Brinstar",

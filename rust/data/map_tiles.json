@@ -982,6 +982,7 @@
         {
             "roomId": 27,
             "roomName": "Statues Room",
+            "waterLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "qolPassage", "interior": "event"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "qolEmpty", "bottom": "elevatorEntrance", "interior": "elevatorPlatformLow"},

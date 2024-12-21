@@ -217,6 +217,7 @@ fn main() -> Result<()> {
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let strat_videos_path = Path::new("data/strat_videos.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
+    let map_tiles_path = Path::new("data/map_tiles.json");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -226,6 +227,7 @@ fn main() -> Result<()> {
         title_screen_path,
         reduced_flashing_path,
         strat_videos_path,
+        map_tiles_path,
     )?;
 
     let tech_path = Path::new("data/tech_data.json");

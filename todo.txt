@@ -1,3 +1,7 @@
+v117:
+- DONE: load node tile data from sm-json-data
+- render map tiles using map_tiles.json
+
 Rom patching:
 - refresh mini-map after it is re-enabled after boss fight (croc, any others?)
   - currently you have to move to another tile before mini-map reappears
@@ -33,8 +37,6 @@ Rom patching:
   - same thing with spore spawn entering from bottom?
 
 Other:
-- load node tile data from sm-json-data
-- only show relevant flags (in spoiler route) when they are logically cleared
 - remove dependence on ROM for seed generation
 - maybe overhaul how randomization/customization phases work: run customization on client (with Rust WebAssembly?)
   - make it so that customization can use matching version from when the seed was generated
@@ -46,6 +48,7 @@ Other:
   - but how to implement propagation of runway-length/speed info for this?
 - add heat frames in processing ResetRoom requirement
   - implement additional need for ResetRoom requirements where needed
+- figure out how to express the heat-frame requirement to go back through a door
 - expand tech & strat notes on X-ray climbs: indicate when it is safer to only release X-ray while turning around in one direction
 (when there are air tiles not visible in the initial screen).
 - add sm-json-data tests:
