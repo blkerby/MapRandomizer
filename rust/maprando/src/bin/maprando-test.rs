@@ -1,6 +1,6 @@
 use anyhow::{bail, Context, Result};
 use clap::Parser;
-use log::info;
+use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::map_repository::MapRepository;
@@ -13,8 +13,7 @@ use maprando::randomize::{
     Randomizer,
 };
 use maprando::settings::{
-    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings,
-    SkillAssumptionSettings, StartLocationMode,
+    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationMode
 };
 use maprando::spoiler_map;
 use maprando_game::GameData;
@@ -46,6 +45,9 @@ struct Args {
 
     #[arg(long)]
     qol_preset: Option<String>,
+
+    #[arg(long)]
+    customize: bool
 }
 
 // Reduced version of web::AppData for test tool
@@ -56,12 +58,14 @@ struct TestAppData {
     game_data: GameData,
     preset_data: PresetData,
     map_repos: Vec<MapRepository>,
+    base_preset: RandomizerSettings,
     skill_presets: Vec<SkillAssumptionSettings>,
     item_presets: Vec<ItemProgressionSettings>,
     qol_presets: Vec<QualityOfLifeSettings>,
     etank_colors: Vec<(u8, u8, u8)>,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     samus_sprites: Vec<String>,
+    customize: bool,
 }
 
 fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, String)> {
@@ -80,10 +84,7 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     let qol_preset = &app.qol_presets[qol_idx];
     let map_repo = &app.map_repos[repo_idx];
 
-    let mut settings = app.preset_data.default_preset.clone();
-    // Use blue doors since ammo doors will cause failures due to not enough map tiles
-    // (TODO: handle this in a better way.)
-    settings.doors_mode = DoorsMode::Blue;
+    let mut settings = app.base_preset.clone();
     settings.skill_assumption_settings = skill_preset.clone();
     settings.item_progression_settings = item_preset.clone();
     settings.quality_of_life_settings = qol_preset.clone();
@@ -283,38 +284,40 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     info!("Writing output ROM to {}", output_rom_path.display());
     output_rom.save(&output_rom_path)?;
 
-    for custom in 0..5 {
-        let custom_rom_path = Path::join(
-            &app.output_dir,
-            format!("{output_file_prefix}-custom-{}.smc", custom + 1),
-        );
-        output_rom = app.input_rom.clone();
-        let customize_settings = make_random_customization(&app);
-        customize_rom(
-            &mut output_rom,
-            &app.input_rom,
-            &ips_patch,
-            &Some(randomization.map.clone()),
-            &customize_settings,
-            &app.game_data,
-            &app.samus_sprite_categories,
-            &vec![],
-        )?;
-        info!(
-            "Writing customization #{0} to {1}",
-            custom + 1,
-            custom_rom_path.display()
-        );
-        output_rom.save(&custom_rom_path)?;
-        std::fs::write(
-            Path::join(
+    if app.customize {
+        for custom in 0..5 {
+            let custom_rom_path = Path::join(
                 &app.output_dir,
-                format!("{output_file_prefix}-customize-{}.txt", custom + 1),
-            ),
-            format!("{customize_settings:?}"),
-        )?;
+                format!("{output_file_prefix}-custom-{}.smc", custom + 1),
+            );
+            output_rom = app.input_rom.clone();
+            let customize_settings = make_random_customization(&app);
+            customize_rom(
+                &mut output_rom,
+                &app.input_rom,
+                &ips_patch,
+                &Some(randomization.map.clone()),
+                &customize_settings,
+                &app.game_data,
+                &app.samus_sprite_categories,
+                &vec![],
+            )?;
+            info!(
+                "Writing customization #{0} to {1}",
+                custom + 1,
+                custom_rom_path.display()
+            );
+            output_rom.save(&custom_rom_path)?;
+            std::fs::write(
+                Path::join(
+                    &app.output_dir,
+                    format!("{output_file_prefix}-customize-{}.txt", custom + 1),
+                ),
+                format!("{customize_settings:?}"),
+            )?;
+        }
     }
-
+    
     let output_spoiler_log_path = Path::join(
         &app.output_dir,
         format!("{output_file_prefix}-spoiler.json"),
@@ -388,12 +391,21 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
+    let mut base_preset = preset_data.default_preset.clone();
+
+    if let Some(fixed_preset) = &args.preset {
+        let path = format!("data/presets/full-settings/{}.json", fixed_preset);
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to read {}", path.as_str()))?;
+        base_preset = serde_json::from_str(&s)?;
+    }
 
     let mut skill_presets = preset_data.skill_presets.clone();
     // If we are using a locked-in preset, go ahead and remove all the others.
     if let Some(fixed_preset) = &args.skill_preset {
         let path = format!("data/presets/skill-assumptions/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(path)?;
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to read {}", path.as_str()))?;
         let p: SkillAssumptionSettings = serde_json::from_str(&s)?;
         skill_presets = vec![p];
     } else {
@@ -407,16 +419,18 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     // If we are using a locked-in preset, go ahead and remove all the others.
     if let Some(fixed_preset) = &args.item_preset {
         let path = format!("data/presets/item-progression/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(path)?;
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to read {}", path.as_str()))?;
         let p: ItemProgressionSettings = serde_json::from_str(&s)?;
         item_presets = vec![p];
     }
 
     let mut qol_presets = preset_data.quality_of_life_presets.clone();
     // If we are using a locked-in preset, go ahead and remove all the others.
-    if let Some(fixed_preset) = &args.item_preset {
+    if let Some(fixed_preset) = &args.qol_preset {
         let path = format!("data/presets/quality-of-life/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(path)?;
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to read {}", path.as_str()))?;
         let p: QualityOfLifeSettings = serde_json::from_str(&s)?;
         qol_presets = vec![p];
     }
@@ -467,12 +481,14 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
             MapRepository::new("Tame", tame_maps_path)?,
             MapRepository::new("Wild", wild_maps_path)?,
         ],
+        base_preset,
         skill_presets,
         item_presets,
         qol_presets,
         etank_colors,
         samus_sprite_categories,
         samus_sprites,
+        customize: args.customize,
     };
     Ok(app)
 }
@@ -484,13 +500,18 @@ fn main() -> Result<()> {
 
     let args = Args::parse();
     let app_data = build_app_data(&args)?;
-
+    let mut error_vec = vec![];
     for test_cycle in 0..args.test_cycles {
-        perform_test_cycle(&app_data, test_cycle + 1)
-            .with_context(|| "Failed during test cycle {test_cycle + 1}")?;
+        if let Err(e) = perform_test_cycle(&app_data, test_cycle) {
+            error!("Failed during test cycle {test_cycle}: {}", e);
+            error_vec.push((test_cycle, e));
+        }
         if args.attempt_num.is_some() {
             break;
         }
+    }
+    for (test_cycle, e) in error_vec {
+        error!("Failed during test cycle {test_cycle}: {}", e);
     }
 
     Ok(())
