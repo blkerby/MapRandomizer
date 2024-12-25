@@ -157,6 +157,9 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
                 if let Some(new_word) = map_overrides.get(&(map_area, offset as TilemapOffset)) {
                     tilemap_word = *new_word;
                 }
+                if tilemap_word == 0x001F {
+                    continue;
+                }
                 let tile = render_tile(rom, tilemap_word, map_area)?;
                 for y in 0..8 {
                     for x in 0..8 {

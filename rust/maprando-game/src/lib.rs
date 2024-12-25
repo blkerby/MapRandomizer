@@ -1102,25 +1102,45 @@ pub struct StratVideo {
     pub note: String,
 }
 
-#[derive(Deserialize)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-enum MapTileEdge {
+pub enum DoorLockType {
+    Gray,
+    // Ammo doors:
+    Red,
+    Green,
+    Yellow,
+    // Beam doors:
+    Charge,
+    Ice,
+    Wave,
+    Spazer,
+    Plasma,
+}
+
+#[derive(Copy, Clone, Debug, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum MapTileEdge {
+    #[default]
     Empty,
     QolEmpty,
     Passage,
     QolPassage,
     Door,
     QolDoor,
+    Wall,
+    QolWall,
     ElevatorEntrance,
     Sand,
     QolSand,
-    Wall,
-    QolWall,
+    // Extension used at runtime:
+    LockedDoor(DoorLockType)
 }
 
-#[derive(Deserialize)]
+#[derive(Copy, Clone, Debug, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-enum MapTileInterior {
+pub enum MapTileInterior {
+    #[default]
     Empty,
     Item,
     DoubleItem,
@@ -1133,12 +1153,26 @@ enum MapTileInterior {
     AmmoRefill,
     DoubleRefill,
     Ship,
-    Event
+    Event,
+    // Extensions added at runtime:
+    Objective,
+    AmmoItem,
+    MediumItem,
+    MajorItem,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
-enum MapTileSpecialType {
+pub enum Direction {
+    Left,
+    Right,
+    Up,
+    Down,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum MapTileSpecialType {
     SlopeUpFloorLow,
     SlopeUpFloorHigh,
     SlopeUpCeilingLow,
@@ -1149,33 +1183,43 @@ enum MapTileSpecialType {
     SlopeDownCeilingHigh,
     Tube,
     Elevator,
-    Black
+    Black,
+    // Extensions added at runtime:
+    AreaTransition(AreaIdx, Direction)
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
-struct MapTile {
-    coords: (usize, usize), 
-    left: Option<MapTileEdge>,
-    right: Option<MapTileEdge>,
-    top: Option<MapTileEdge>,
-    bottom: Option<MapTileEdge>,
-    interior: Option<MapTileInterior>,
+pub struct MapTile {
+    pub coords: (usize, usize), 
     #[serde(default)]
-    heated: bool,
-    water_level: Option<f32>,
-    special_type: Option<MapTileSpecialType>,
+    pub left: MapTileEdge,
+    #[serde(default)]
+    pub right: MapTileEdge,
+    #[serde(default)]
+    pub top: MapTileEdge,
+    #[serde(default)]
+    pub bottom: MapTileEdge,
+    #[serde(default)]
+    pub interior: MapTileInterior,
+    #[serde(default)]
+    pub heated: bool,
+    pub water_level: Option<f32>,
+    pub special_type: Option<MapTileSpecialType>,
+    // Extensions added at runtime:
+    #[serde(default)]
+    pub faded: bool,
 }
 
-#[derive(Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct MapTileData {
-    room_id: usize,
-    room_name: String,
-    water_level: Option<f32>,
+pub struct MapTileData {
+    pub room_id: usize,
+    pub room_name: String,
+    pub water_level: Option<f32>,
     #[serde(default)]
-    heated: bool,
-    map_tiles: Vec<MapTile>,
+    pub heated: bool,
+    pub map_tiles: Vec<MapTile>,
 }
 
 #[derive(Deserialize)]
@@ -1261,7 +1305,7 @@ pub struct GameData {
     pub title_screen_data: TitleScreenData,
     pub reduced_flashing_patch: GlowPatch,
     pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
-    pub map_tile_data: HashMap<RoomId, MapTileData>,
+    pub map_tile_data: Vec<MapTileData>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -4522,15 +4566,15 @@ impl GameData {
         let map_tile_data_str = std::fs::read_to_string(path)
             .with_context(|| format!("Unable to load map tile data at {}", path.display()))?;
         let map_tile_data_file: MapTileDataFile = serde_json::from_str(&map_tile_data_str)?;
-        self.map_tile_data = map_tile_data_file.rooms.into_iter().map(|x| (x.room_id, x)).collect();
-        for room in self.map_tile_data.values_mut() {
+        self.map_tile_data = map_tile_data_file.rooms;
+        for room in &mut self.map_tile_data {
             for tile in &mut room.map_tiles {
                 tile.heated = room.heated;
                 if let Some(water_level) = room.water_level {
-                    if water_level < tile.coords.1 as f32 {
+                    if (tile.coords.1 as f32) <= water_level - 1.0 {
+                        tile.water_level = None;
+                    } else if (tile.coords.1 as f32) >= water_level {
                         tile.water_level = Some(0.0);
-                    } else if water_level > (tile.coords.1 + 1) as f32 {
-                        tile.water_level = Some(1.0);
                     } else {
                         tile.water_level = Some(water_level.fract());
                     }
