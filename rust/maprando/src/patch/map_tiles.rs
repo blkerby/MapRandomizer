@@ -222,8 +222,9 @@ impl<'a> MapPatcher<'a> {
         } else {
             let free_tile_idx = self.free_tiles[area_idx].pop().context("No more free tiles")?;
             let palette = 0x1800;
-            self.gfx_tile_map.insert((area_idx, data), free_tile_idx | palette);
-            Ok(free_tile_idx)
+            let word = free_tile_idx | palette;
+            self.gfx_tile_map.insert((area_idx, data), word);
+            Ok(word)
         }
     }
 
@@ -234,22 +235,7 @@ impl<'a> MapPatcher<'a> {
                 self.rom.write_u16((area_ptr + i * 2) as usize, 0x001F)?;
             }
         }
-
-        // Write reserved tiles:
-        for area in 0..6 {
-            let data = [
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 0, 0, 0, 0, 0, 0, 0],
-                [0, 0, 0, 0, 0, 0, 0, 0],
-                [1, 0, 1, 0, 1, 0, 1, 0],
-            ];
-            self.gfx_tile_map.insert((area, data), 0x001F);
-        }
-                
+        
         // Index map graphics and write map tilemap by room:
         for ((area_idx, x, y), tile) in self.map_tile_map.clone() {
             let word = self.index_tile(area_idx, tile.clone())?;
@@ -259,11 +245,10 @@ impl<'a> MapPatcher<'a> {
             let base_ptr = self.game_data.area_map_ptrs[area_idx];
             let offset = xy_to_map_offset(local_x, local_y);
             let ptr = (base_ptr + offset) as usize;
-            if tile.special_type == Some(MapTileSpecialType::Black) {
-                println!("black");
-                self.rom.write_u16(ptr, 0x001F)?;
-            } else {
-                self.rom.write_u16(ptr, word as isize)?;
+            self.rom.write_u16(ptr, word as isize)?;
+
+            if let Some(MapTileSpecialType::AreaTransition(_, _)) = tile.special_type {
+                self.transition_tile_coords.push((area_idx, local_x, local_y));
             }
         }
 
@@ -1276,20 +1261,19 @@ impl<'a> MapPatcher<'a> {
                             ];
                         }
                     }
-
-                    // Set up arrows of different colors (one per area):
-                    let area_arrow_colors: Vec<usize> = vec![
-                        11, // Crateria: purple (defined above)
-                        14, // Brinstar: green (defined above)
-                        10, // Norfair: red (defined above)
-                        9,  // Wrecked Ship: yellow (defined above)
-                        8,  // Maridia: blue (defined above)
-                        6,  // Tourian: orange
-                    ];
-
-                    let color_number = area_arrow_colors[area_idx] as u8;
-                    data = data.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
                 }
+                // Set up arrows of different colors (one per area):
+                let area_arrow_colors: Vec<usize> = vec![
+                    11, // Crateria: purple (defined above)
+                    14, // Brinstar: green (defined above)
+                    10, // Norfair: red (defined above)
+                    9,  // Wrecked Ship: yellow (defined above)
+                    8,  // Maridia: blue (defined above)
+                    6,  // Tourian: orange
+                ];
+
+                let color_number = area_arrow_colors[area_idx] as u8;
+                data = data.map(|row| row.map(|c| if c == 3 { color_number } else { c }));
             }
             Some(MapTileSpecialType::Black) => {
                 data = [
@@ -1683,11 +1667,13 @@ impl<'a> MapPatcher<'a> {
         &mut self,
         room_idx: usize,
         door: &RoomGeometryDoor,
+        other_area: usize,
     ) -> Result<()> {
         let dir = &door.direction;
         let room_ptr = self.game_data.room_geometry[room_idx].rom_address;
         let room_id = self.game_data.room_id_by_ptr[&room_ptr];
-        let (area, x, y) = self.get_room_coords(room_id, door.x as isize, door.y as isize);
+        let x = door.x as isize;
+        let y = door.y as isize;
 
         let coords = match dir.as_str() {
             "right" => (x + 1, y),
@@ -1705,7 +1691,7 @@ impl<'a> MapPatcher<'a> {
         };
 
         let mut tile = MapTile::default();
-        tile.special_type = Some(MapTileSpecialType::AreaTransition(area, direction));
+        tile.special_type = Some(MapTileSpecialType::AreaTransition(other_area, direction));
         self.set_room_tile(room_id, coords.0, coords.1, tile);
         Ok(())
     }
@@ -1768,10 +1754,12 @@ impl<'a> MapPatcher<'a> {
                 self.add_door_arrow(
                     src_room_idx,
                     &self.game_data.room_geometry[src_room_idx].doors[src_door_idx],
+                    dst_area,
                 )?;
                 self.add_door_arrow(
                     dst_room_idx,
                     &self.game_data.room_geometry[dst_room_idx].doors[dst_door_idx],
+                    src_area,
                 )?;
             }
         }
@@ -2460,13 +2448,14 @@ impl<'a> MapPatcher<'a> {
         self.indicate_objective_tiles()?;
         if !self.randomization.settings.other_settings.ultra_low_qol {
             self.indicate_locked_doors()?;
+            self.indicate_gray_doors()?;
         }
-        // self.add_cross_area_arrows()?;
-        self.set_initial_map()?;
+        self.add_cross_area_arrows()?;
         self.set_map_activation_behavior()?;
         self.indicate_items()?;
         self.compute_area_bounds()?;
         self.write_map_tiles()?;
+        self.set_initial_map()?;
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
         self.write_hazard_tiles()?;
         self.fix_fx_palettes()?;

@@ -2713,9 +2713,9 @@
         },
         {
             "roomId": 225,
-            "roomName": "Upper Tourian Save Room",
+            "roomName": "Tourian Map Room",
             "mapTiles": [
-                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "saveStation"}
+                {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "mapStation"}
             ]
         },
         {
