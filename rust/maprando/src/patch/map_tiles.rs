@@ -6,7 +6,8 @@ use crate::{
     settings::{DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed},
 };
 use maprando_game::{
-    AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map, MapTile, MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor, RoomGeometryItem, RoomId
+    AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map, MapTile,
+    MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor, RoomGeometryItem, RoomId,
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -32,7 +33,7 @@ pub struct MapPatcher<'a> {
     randomization: &'a Randomization,
     map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
     gfx_tile_map: HashMap<(AreaIdx, [[u8; 8]; 8]), TilemapWord>,
-    free_tiles: Vec<Vec<TilemapWord>>,  // set of free tile indexes, by area
+    free_tiles: Vec<Vec<TilemapWord>>, // set of free tile indexes, by area
     locked_door_state_indices: &'a [usize],
     dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
     transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
@@ -207,20 +208,29 @@ impl<'a> MapPatcher<'a> {
         self.read_tile_4bpp(addr)
     }
 
-    
-
     fn index_tile(&mut self, area_idx: usize, tile: MapTile) -> Result<TilemapWord> {
         let data = self.render_tile(tile)?;
         if self.gfx_tile_map.contains_key(&(area_idx, data)) {
             Ok(self.gfx_tile_map[&(area_idx, data)])
-        } else if self.gfx_tile_map.contains_key(&(area_idx, hflip_tile(data))) {
+        } else if self
+            .gfx_tile_map
+            .contains_key(&(area_idx, hflip_tile(data)))
+        {
             Ok(self.gfx_tile_map[&(area_idx, hflip_tile(data))] | FLIP_X)
-        } else if self.gfx_tile_map.contains_key(&(area_idx, vflip_tile(data))) {
+        } else if self
+            .gfx_tile_map
+            .contains_key(&(area_idx, vflip_tile(data)))
+        {
             Ok(self.gfx_tile_map[&(area_idx, vflip_tile(data))] | FLIP_Y)
-        } else if self.gfx_tile_map.contains_key(&(area_idx, hflip_tile(vflip_tile(data)))) {
+        } else if self
+            .gfx_tile_map
+            .contains_key(&(area_idx, hflip_tile(vflip_tile(data))))
+        {
             Ok(self.gfx_tile_map[&(area_idx, hflip_tile(vflip_tile(data)))] | FLIP_X | FLIP_Y)
         } else {
-            let free_tile_idx = self.free_tiles[area_idx].pop().context("No more free tiles")?;
+            let free_tile_idx = self.free_tiles[area_idx]
+                .pop()
+                .context("No more free tiles")?;
             let palette = 0x1800;
             let word = free_tile_idx | palette;
             self.gfx_tile_map.insert((area_idx, data), word);
@@ -235,20 +245,23 @@ impl<'a> MapPatcher<'a> {
                 self.rom.write_u16((area_ptr + i * 2) as usize, 0x001F)?;
             }
         }
-        
+
         // Index map graphics and write map tilemap by room:
         for ((area_idx, x, y), tile) in self.map_tile_map.clone() {
             let word = self.index_tile(area_idx, tile.clone())?;
             let local_x = x - self.area_offset_x[area_idx];
             let local_y = y - self.area_offset_y[area_idx];
 
-            let base_ptr = self.game_data.area_map_ptrs[area_idx];
-            let offset = xy_to_map_offset(local_x, local_y);
-            let ptr = (base_ptr + offset) as usize;
-            self.rom.write_u16(ptr, word as isize)?;
+            if tile.special_type != Some(MapTileSpecialType::Black) {
+                let base_ptr = self.game_data.area_map_ptrs[area_idx];
+                let offset = xy_to_map_offset(local_x, local_y);
+                let ptr = (base_ptr + offset) as usize;
+                self.rom.write_u16(ptr, word as isize)?;
+            }
 
             if let Some(MapTileSpecialType::AreaTransition(_, _)) = tile.special_type {
-                self.transition_tile_coords.push((area_idx, local_x, local_y));
+                self.transition_tile_coords
+                    .push((area_idx, local_x, local_y));
             }
         }
 
@@ -520,7 +533,7 @@ impl<'a> MapPatcher<'a> {
                     set_wall_pixel(tile, 7, 3);
                 }
             }
-            MapTileEdge::Door => {
+            MapTileEdge::Door | MapTileEdge::QolDoor => {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 2, 3);
@@ -532,17 +545,7 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
             }
-            MapTileEdge::QolDoor => {
-                if !self.randomization.settings.other_settings.ultra_low_qol {
-                    set_wall_pixel(tile, 0, 3);
-                    set_wall_pixel(tile, 1, 3);
-                    set_wall_pixel(tile, 2, 3);
-                    set_wall_pixel(tile, 5, 3);
-                    set_wall_pixel(tile, 6, 3);
-                    set_wall_pixel(tile, 7, 3);
-                }
-            }
-            MapTileEdge::Wall => {
+            MapTileEdge::Wall | MapTileEdge::QolWall => {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 2, 3);
@@ -552,19 +555,7 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
             }
-            MapTileEdge::QolWall => {
-                if !self.randomization.settings.other_settings.ultra_low_qol {
-                    set_wall_pixel(tile, 0, 3);
-                    set_wall_pixel(tile, 1, 3);
-                    set_wall_pixel(tile, 2, 3);
-                    set_wall_pixel(tile, 3, 3);
-                    set_wall_pixel(tile, 4, 3);
-                    set_wall_pixel(tile, 5, 3);
-                    set_wall_pixel(tile, 6, 3);
-                    set_wall_pixel(tile, 7, 3);
-                }
-            }
-            MapTileEdge::Sand => {
+            MapTileEdge::Sand | MapTileEdge::QolSand => {
                 if self.randomization.settings.other_settings.ultra_low_qol {
                     set_wall_pixel(tile, 0, 3);
                     set_wall_pixel(tile, 1, 3);
@@ -575,23 +566,6 @@ impl<'a> MapPatcher<'a> {
                     set_wall_pixel(tile, 6, 3);
                     set_wall_pixel(tile, 7, 3);
                 } else {
-                    if tile_side == TileSide::Bottom {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
-                    } else {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
-                        set_wall_pixel(tile, 2, 3);
-                        set_wall_pixel(tile, 5, 3);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
-                    }
-                }
-            }
-            MapTileEdge::QolSand => {
-                if !self.randomization.settings.other_settings.ultra_low_qol {
                     if tile_side == TileSide::Bottom {
                         set_wall_pixel(tile, 0, 3);
                         set_wall_pixel(tile, 1, 3);
@@ -796,7 +770,6 @@ impl<'a> MapPatcher<'a> {
                 // panic!("Unreplaced HiddenItem");
                 data[3][3] = item_color;
                 data[4][4] = item_color;
-
             }
             MapTileInterior::ElevatorPlatformLow => {
                 // Use white instead of red for elevator platform:
@@ -1126,7 +1099,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         let apply_heat = |d: [[u8; 8]; 8]| {
-            if tile.heated {
+            if tile.heated && !self.randomization.settings.other_settings.ultra_low_qol {
                 d.map(|row| row.map(|c| if c == 1 { 2 } else { c }))
             } else {
                 d
@@ -1134,7 +1107,12 @@ impl<'a> MapPatcher<'a> {
         };
         match tile.special_type {
             Some(MapTileSpecialType::AreaTransition(area_idx, dir)) => {
-                if self.randomization.settings.other_settings.transition_letters {
+                if self
+                    .randomization
+                    .settings
+                    .other_settings
+                    .transition_letters
+                {
                     match area_idx {
                         0 => {
                             data = [
@@ -1147,7 +1125,7 @@ impl<'a> MapPatcher<'a> {
                                 [0, 0, 3, 3, 3, 3, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0],
                             ];
-                        },
+                        }
                         1 => {
                             data = [
                                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -1159,7 +1137,7 @@ impl<'a> MapPatcher<'a> {
                                 [0, 3, 3, 3, 3, 3, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0],
                             ];
-                        },
+                        }
                         2 => {
                             data = [
                                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -1171,7 +1149,7 @@ impl<'a> MapPatcher<'a> {
                                 [0, 3, 3, 0, 0, 0, 3, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0],
                             ];
-                        },
+                        }
                         3 => {
                             data = [
                                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -1183,7 +1161,7 @@ impl<'a> MapPatcher<'a> {
                                 [0, 3, 3, 0, 0, 0, 3, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0],
                             ];
-                        },
+                        }
                         4 => {
                             data = [
                                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -1195,7 +1173,7 @@ impl<'a> MapPatcher<'a> {
                                 [0, 3, 3, 0, 0, 0, 3, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0],
                             ];
-                        },
+                        }
                         5 => {
                             data = [
                                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -1207,8 +1185,8 @@ impl<'a> MapPatcher<'a> {
                                 [0, 0, 0, 3, 3, 0, 0, 0],
                                 [0, 0, 0, 0, 0, 0, 0, 0],
                             ];
-                        },
-                        _ => panic!("Unexpected area {}", area_idx)
+                        }
+                        _ => panic!("Unexpected area {}", area_idx),
                     }
                 } else {
                     match dir {
@@ -1398,16 +1376,18 @@ impl<'a> MapPatcher<'a> {
             None => {}
         }
 
-        if [
-            MapTileInterior::AmmoRefill,
-            MapTileInterior::EnergyRefill,
-            MapTileInterior::DoubleRefill,
-            MapTileInterior::Ship,
-            MapTileInterior::SaveStation,
-            MapTileInterior::MapStation,
-            MapTileInterior::Objective,
-        ]
-        .contains(&tile.interior)
+        if tile.special_type.is_some()
+            || (!self.randomization.settings.other_settings.ultra_low_qol
+                && [
+                    MapTileInterior::AmmoRefill,
+                    MapTileInterior::EnergyRefill,
+                    MapTileInterior::DoubleRefill,
+                    MapTileInterior::Ship,
+                    MapTileInterior::SaveStation,
+                    MapTileInterior::MapStation,
+                    MapTileInterior::Objective,
+                ]
+                .contains(&tile.interior))
         {
             // Skip drawing door & wall edges in special tiles
         } else {
@@ -1885,14 +1865,15 @@ impl<'a> MapPatcher<'a> {
         let base_ptr = 0x83B000;
         let mut data_ptr = base_ptr + 24;
         let interior_priority = [
-                MapTileInterior::Empty,
-                MapTileInterior::ElevatorPlatformLow,
-                MapTileInterior::ElevatorPlatformHigh,
-                MapTileInterior::Item,
-                MapTileInterior::AmmoItem,
-                MapTileInterior::MediumItem,
-                MapTileInterior::MajorItem,
-            ];
+            MapTileInterior::Empty,
+            MapTileInterior::Event,
+            MapTileInterior::ElevatorPlatformLow,
+            MapTileInterior::ElevatorPlatformHigh,
+            MapTileInterior::Item,
+            MapTileInterior::AmmoItem,
+            MapTileInterior::MediumItem,
+            MapTileInterior::MajorItem,
+        ];
         for (area_idx, data) in area_data.iter().enumerate() {
             self.rom.write_u16(
                 snes2pc(base_ptr + area_idx * 2),
@@ -1903,7 +1884,10 @@ impl<'a> MapPatcher<'a> {
             let data_start = data_ptr;
             for &(_, room_id, ref tile) in data {
                 if !interior_priority.contains(&tile.interior) {
-                    panic!("In room_id={room_id}, unexpected dynamic tile interior: {:?}", tile);
+                    panic!(
+                        "In room_id={room_id}, unexpected dynamic tile interior: {:?}",
+                        tile
+                    );
                 }
             }
             for &interior in &interior_priority {
@@ -1916,12 +1900,15 @@ impl<'a> MapPatcher<'a> {
                     self.rom
                         .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
                     let word = self.index_tile(area_idx, tile.clone())?;
-                    
-                    let (_, x, y) = self.get_room_coords(room_id, tile.coords.0 as isize, tile.coords.1 as isize);
+
+                    let (_, x, y) = self.get_room_coords(
+                        room_id,
+                        tile.coords.0 as isize,
+                        tile.coords.1 as isize,
+                    );
                     let local_x = x - self.area_offset_x[area_idx];
                     let local_y = y - self.area_offset_y[area_idx];
                     let offset = xy_to_map_offset(local_x, local_y);
-                    println!("({}, {}) ({}, {})", x, y, local_x, local_y);
                     self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?; // tilemap offset
                     self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?; // tilemap word
                     data_ptr += 6;
@@ -2005,12 +1992,9 @@ impl<'a> MapPatcher<'a> {
             if self.randomization.settings.other_settings.ultra_low_qol {
                 self.set_room_tile(room_id, x, y, tile.clone());
             } else {
-                self.dynamic_tile_data[area].push((
-                    item_idx,
-                    room_id,
-                    tile.clone()
-                ));
-                if self.randomization.settings.other_settings.item_dot_change == ItemDotChange::Fade {
+                self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
+                if self.randomization.settings.other_settings.item_dot_change == ItemDotChange::Fade
+                {
                     if interior == MapTileInterior::MajorItem
                         || (interior == MapTileInterior::MediumItem
                             && orig_tile.interior != MapTileInterior::MajorItem)
@@ -2023,7 +2007,7 @@ impl<'a> MapPatcher<'a> {
                             && orig_tile.interior != MapTileInterior::MajorItem)
                     {
                         tile.faded = true;
-                        self.set_room_tile(room_id, x, y, tile.clone());            
+                        self.set_room_tile(room_id, x, y, tile.clone());
                     }
                 } else {
                     tile.interior = MapTileInterior::Empty;
@@ -2367,7 +2351,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn get_room_coords(& self, room_id: usize, x: isize, y: isize) -> (AreaIdx, isize, isize) {
+    fn get_room_coords(&self, room_id: usize, x: isize, y: isize) -> (AreaIdx, isize, isize) {
         let room_ptr = self.game_data.room_ptr_by_id[&room_id];
         let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
         let area = self.map.area[room_idx];
@@ -2396,7 +2380,12 @@ impl<'a> MapPatcher<'a> {
                 continue;
             }
             for tile in &room.map_tiles {
-                self.set_room_tile(room.room_id, tile.coords.0 as isize, tile.coords.1 as isize, tile.clone());
+                self.set_room_tile(
+                    room.room_id,
+                    tile.coords.0 as isize,
+                    tile.coords.1 as isize,
+                    tile.clone(),
+                );
             }
         }
         // Then draw other rooms on top:
@@ -2405,7 +2394,12 @@ impl<'a> MapPatcher<'a> {
                 continue;
             }
             for tile in &room.map_tiles {
-                self.set_room_tile(room.room_id, tile.coords.0 as isize, tile.coords.1 as isize, tile.clone());
+                self.set_room_tile(
+                    room.room_id,
+                    tile.coords.0 as isize,
+                    tile.coords.1 as isize,
+                    tile.clone(),
+                );
             }
         }
         Ok(())
@@ -2432,7 +2426,6 @@ impl<'a> MapPatcher<'a> {
             let margin_y = (32 - (self.area_max_y[area] - self.area_min_y[area])) / 2 - 1;
             self.area_offset_x[area] = self.area_min_x[area] - margin_x;
             self.area_offset_y[area] = self.area_min_y[area] - margin_y;
-            println!("area {}: min: ({}, {}), max: ({}, {})", area, self.area_min_x[area], self.area_min_y[area], self.area_max_x[area], self.area_max_y[area]);
         }
 
         Ok(())

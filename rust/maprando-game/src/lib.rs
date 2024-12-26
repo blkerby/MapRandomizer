@@ -1134,7 +1134,7 @@ pub enum MapTileEdge {
     Sand,
     QolSand,
     // Extension used at runtime:
-    LockedDoor(DoorLockType)
+    LockedDoor(DoorLockType),
 }
 
 #[derive(Copy, Clone, Debug, Deserialize, Default, PartialEq, Eq)]
@@ -1161,7 +1161,7 @@ pub enum MapTileInterior {
     MajorItem,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum Direction {
     Left,
@@ -1170,7 +1170,7 @@ pub enum Direction {
     Down,
 }
 
-#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum MapTileSpecialType {
     SlopeUpFloorLow,
@@ -1185,13 +1185,13 @@ pub enum MapTileSpecialType {
     Elevator,
     Black,
     // Extensions added at runtime:
-    AreaTransition(AreaIdx, Direction)
+    AreaTransition(AreaIdx, Direction),
 }
 
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MapTile {
-    pub coords: (usize, usize), 
+    pub coords: (usize, usize),
     #[serde(default)]
     pub left: MapTileEdge,
     #[serde(default)]
@@ -1224,7 +1224,7 @@ pub struct MapTileData {
 
 #[derive(Deserialize)]
 struct MapTileDataFile {
-    rooms: Vec<MapTileData>
+    rooms: Vec<MapTileData>,
 }
 
 // TODO: Clean this up, e.g. pull out a separate structure to hold
@@ -4476,7 +4476,8 @@ impl GameData {
                 "room_id_by_ptr missing entry {:x}",
                 room.rom_address
             ))?;
-            self.room_shape.insert(room_id, (room.map[0].len(), room.map.len()));
+            self.room_shape
+                .insert(room_id, (room.map[0].len(), room.map.len()));
         }
         self.room_geometry = room_geometry;
         Ok(())

@@ -395,7 +395,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     // If we are using a locked-in preset, go ahead and remove all the others.
     if let Some(fixed_preset) = &args.skill_preset {
         let path = format!("data/presets/skill-assumptions/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(path)?;
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to load skill preset: {}", path))?;
         let p: SkillAssumptionSettings = serde_json::from_str(&s)?;
         skill_presets = vec![p];
     } else {
@@ -409,16 +410,18 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     // If we are using a locked-in preset, go ahead and remove all the others.
     if let Some(fixed_preset) = &args.item_preset {
         let path = format!("data/presets/item-progression/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(path)?;
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to load item progression preset: {}", path))?;
         let p: ItemProgressionSettings = serde_json::from_str(&s)?;
         item_presets = vec![p];
     }
 
     let mut qol_presets = preset_data.quality_of_life_presets.clone();
     // If we are using a locked-in preset, go ahead and remove all the others.
-    if let Some(fixed_preset) = &args.item_preset {
+    if let Some(fixed_preset) = &args.qol_preset {
         let path = format!("data/presets/quality-of-life/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(path)?;
+        let s = std::fs::read_to_string(&path)
+            .context(format!("Unable to load QoL preset: {}", path))?;
         let p: QualityOfLifeSettings = serde_json::from_str(&s)?;
         qol_presets = vec![p];
     }
