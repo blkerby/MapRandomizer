@@ -250,8 +250,9 @@ async fn randomize(
                 Ok(x) => x,
                 Err(e) => {
                     info!(
-                        "Attempt {attempt_num}/{max_attempts}: Failed to write ROM: {}",
-                        e
+                        "Attempt {attempt_num}/{max_attempts}: Failed to write ROM: {}\n{}",
+                        e,
+                        e.backtrace()
                     );
                     continue;
                 }

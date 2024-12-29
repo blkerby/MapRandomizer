@@ -107,11 +107,7 @@
     <sup>1</sup>This can be done in the following rooms: Pit Room (old Mother Brain room), Baby Kraid Room, Metal Pirates Room,
     and Plasma Room. These are the rooms that involve killing Space Pirates to unlock the doors in the vanilla game.
     Note that in the Pit Room, the 
-    {% if all_items_spawn %}
-    enemies and gray doors
-    {% else %}
-    enemies, gray doors, and item 
-    {% endif %}
+    {% if all_items_spawn +%} enemies and gray doors {%+ else +%} enemies, gray doors, and item {%+ endif %}
     only spawn after Morph and Missiles are collected (regardless of whether Zebes is awake).
     </small>
 </div>

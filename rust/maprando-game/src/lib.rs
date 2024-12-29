@@ -1102,6 +1102,131 @@ pub struct StratVideo {
     pub note: String,
 }
 
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum DoorLockType {
+    Gray,
+    // Ammo doors:
+    Red,
+    Green,
+    Yellow,
+    // Beam doors:
+    Charge,
+    Ice,
+    Wave,
+    Spazer,
+    Plasma,
+}
+
+#[derive(Copy, Clone, Debug, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum MapTileEdge {
+    #[default]
+    Empty,
+    QolEmpty,
+    Passage,
+    QolPassage,
+    Door,
+    QolDoor,
+    Wall,
+    QolWall,
+    ElevatorEntrance,
+    Sand,
+    QolSand,
+    // Extension used at runtime:
+    LockedDoor(DoorLockType),
+}
+
+#[derive(Copy, Clone, Debug, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum MapTileInterior {
+    #[default]
+    Empty,
+    Item,
+    DoubleItem,
+    HiddenItem,
+    ElevatorPlatformHigh,
+    ElevatorPlatformLow,
+    SaveStation,
+    MapStation,
+    EnergyRefill,
+    AmmoRefill,
+    DoubleRefill,
+    Ship,
+    Event,
+    // Extensions added at runtime:
+    Objective,
+    AmmoItem,
+    MediumItem,
+    MajorItem,
+}
+
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum Direction {
+    Left,
+    Right,
+    Up,
+    Down,
+}
+
+#[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum MapTileSpecialType {
+    SlopeUpFloorLow,
+    SlopeUpFloorHigh,
+    SlopeUpCeilingLow,
+    SlopeUpCeilingHigh,
+    SlopeDownFloorLow,
+    SlopeDownFloorHigh,
+    SlopeDownCeilingLow,
+    SlopeDownCeilingHigh,
+    Tube,
+    Elevator,
+    Black,
+    // Extensions added at runtime:
+    AreaTransition(AreaIdx, Direction),
+}
+
+#[derive(Clone, Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct MapTile {
+    pub coords: (usize, usize),
+    #[serde(default)]
+    pub left: MapTileEdge,
+    #[serde(default)]
+    pub right: MapTileEdge,
+    #[serde(default)]
+    pub top: MapTileEdge,
+    #[serde(default)]
+    pub bottom: MapTileEdge,
+    #[serde(default)]
+    pub interior: MapTileInterior,
+    #[serde(default)]
+    pub heated: bool,
+    pub water_level: Option<f32>,
+    pub special_type: Option<MapTileSpecialType>,
+    // Extensions added at runtime:
+    #[serde(default)]
+    pub faded: bool,
+}
+
+#[derive(Clone, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MapTileData {
+    pub room_id: usize,
+    pub room_name: String,
+    pub water_level: Option<f32>,
+    #[serde(default)]
+    pub heated: bool,
+    pub map_tiles: Vec<MapTile>,
+}
+
+#[derive(Deserialize)]
+struct MapTileDataFile {
+    rooms: Vec<MapTileData>,
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -1180,6 +1305,7 @@ pub struct GameData {
     pub title_screen_data: TitleScreenData,
     pub reduced_flashing_patch: GlowPatch,
     pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
+    pub map_tile_data: Vec<MapTileData>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -4350,7 +4476,8 @@ impl GameData {
                 "room_id_by_ptr missing entry {:x}",
                 room.rom_address
             ))?;
-            self.room_shape.insert(room_id, (room.map[0].len(), room.map.len()));
+            self.room_shape
+                .insert(room_id, (room.map[0].len(), room.map.len()));
         }
         self.room_geometry = room_geometry;
         Ok(())
@@ -4436,6 +4563,28 @@ impl GameData {
         Ok(())
     }
 
+    fn load_map_tile_data(&mut self, path: &Path) -> Result<()> {
+        let map_tile_data_str = std::fs::read_to_string(path)
+            .with_context(|| format!("Unable to load map tile data at {}", path.display()))?;
+        let map_tile_data_file: MapTileDataFile = serde_json::from_str(&map_tile_data_str)?;
+        self.map_tile_data = map_tile_data_file.rooms;
+        for room in &mut self.map_tile_data {
+            for tile in &mut room.map_tiles {
+                tile.heated = room.heated;
+                if let Some(water_level) = room.water_level {
+                    if (tile.coords.1 as f32) <= water_level - 1.0 {
+                        tile.water_level = None;
+                    } else if (tile.coords.1 as f32) >= water_level {
+                        tile.water_level = Some(0.0);
+                    } else {
+                        tile.water_level = Some(water_level.fract());
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     pub fn load(
         sm_json_data_path: &Path,
         room_geometry_path: &Path,
@@ -4445,6 +4594,7 @@ impl GameData {
         title_screen_path: &Path,
         reduced_flashing_path: &Path,
         strat_videos_path: &Path,
+        map_tile_path: &Path,
     ) -> Result<GameData> {
         let mut game_data = GameData::default();
         game_data.sm_json_data_path = sm_json_data_path.to_owned();
@@ -4654,6 +4804,7 @@ impl GameData {
         game_data.load_escape_timings(escape_timings_path)?;
         game_data.load_start_locations(start_locations_path)?;
         game_data.load_hub_locations(hub_locations_path)?;
+        game_data.load_map_tile_data(map_tile_path)?;
         game_data.area_names = vec![
             "Crateria",
             "Brinstar",

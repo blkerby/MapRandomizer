@@ -13,7 +13,7 @@ use maprando::randomize::{
     Randomizer,
 };
 use maprando::settings::{
-    AreaAssignment, DoorsMode, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationMode
+    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationMode
 };
 use maprando::spoiler_map;
 use maprando_game::GameData;
@@ -371,6 +371,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let wild_maps_path = Path::new("../maps/v116d-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
+    let map_tiles_path = Path::new("data/map_tiles.json");
     let game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
@@ -380,6 +381,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         title_screen_path,
         reduced_flashing_path,
         strat_videos_path,
+        map_tiles_path,
     )?;
 
     if !args.output_seeds.is_dir() {
@@ -405,7 +407,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     if let Some(fixed_preset) = &args.skill_preset {
         let path = format!("data/presets/skill-assumptions/{}.json", fixed_preset);
         let s = std::fs::read_to_string(&path)
-            .context(format!("Unable to read {}", path.as_str()))?;
+            .context(format!("Unable to load skill preset: {}", path))?;
         let p: SkillAssumptionSettings = serde_json::from_str(&s)?;
         skill_presets = vec![p];
     } else {
@@ -420,7 +422,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     if let Some(fixed_preset) = &args.item_preset {
         let path = format!("data/presets/item-progression/{}.json", fixed_preset);
         let s = std::fs::read_to_string(&path)
-            .context(format!("Unable to read {}", path.as_str()))?;
+            .context(format!("Unable to load item progression preset: {}", path))?;
         let p: ItemProgressionSettings = serde_json::from_str(&s)?;
         item_presets = vec![p];
     }
@@ -430,7 +432,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     if let Some(fixed_preset) = &args.qol_preset {
         let path = format!("data/presets/quality-of-life/{}.json", fixed_preset);
         let s = std::fs::read_to_string(&path)
-            .context(format!("Unable to read {}", path.as_str()))?;
+            .context(format!("Unable to load QoL preset: {}", path))?;
         let p: QualityOfLifeSettings = serde_json::from_str(&s)?;
         qol_presets = vec![p];
     }

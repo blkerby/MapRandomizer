@@ -1110,101 +1110,6 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn write_map_tilemaps(&mut self) -> Result<()> {
-        // Determine upper-left corner of each area:
-        let mut area_map_min_x = [isize::MAX; NUM_AREAS];
-        let mut area_map_max_x = [0; NUM_AREAS];
-        let mut area_map_min_y = [isize::MAX; NUM_AREAS];
-        let mut area_map_max_y = [0; NUM_AREAS];
-        for i in 0..self.map.area.len() {
-            let area = self.map.area[i];
-            let x0 = self.map.rooms[i].0 as isize;
-            let y0 = self.map.rooms[i].1 as isize;
-            let x1 = self.map.rooms[i].0 as isize
-                + self.game_data.room_geometry[i].map[0].len() as isize;
-            let y1 =
-                self.map.rooms[i].1 as isize + self.game_data.room_geometry[i].map.len() as isize;
-            if x0 < area_map_min_x[area] {
-                area_map_min_x[area] = x0;
-            }
-            if x1 > area_map_max_x[area] {
-                area_map_max_x[area] = x1;
-            }
-            if y0 < area_map_min_y[area] {
-                area_map_min_y[area] = y0;
-            }
-            if y1 > area_map_max_y[area] {
-                area_map_max_y[area] = y1;
-            }
-        }
-
-        // Clear all map tilemap data:
-        for area_ptr in &self.game_data.area_map_ptrs {
-            for i in 0..(64 * 32) {
-                self.rom.write_u16((area_ptr + i * 2) as usize, 0x001F)?;
-            }
-        }
-
-        // First write map tilemap for Toilet, which may be partially overwritten later by the intersecting room(s)
-        // TODO: simplify/refactor this
-        let toilet_idx = self.game_data.toilet_room_idx;
-        for y in 0..10 {
-            let new_area = self.map.area[toilet_idx];
-            let new_base_ptr = self.game_data.area_map_ptrs[new_area];
-            let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
-            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2 - 1;
-            let new_base_x =
-                self.map.rooms[toilet_idx].0 as isize - area_map_min_x[new_area] + new_margin_x;
-            let new_base_y =
-                self.map.rooms[toilet_idx].1 as isize - area_map_min_y[new_area] + new_margin_y;
-            assert!(new_base_x >= 2);
-            assert!(new_base_y >= 0);
-
-            let new_x = new_base_x as isize;
-            let new_y = new_base_y + y as isize;
-            let new_offset = xy_to_map_offset(new_x, new_y);
-            let new_ptr = (new_base_ptr + new_offset) as usize;
-            self.rom
-                .write_u16(new_ptr, (0x0C00 | VANILLA_ELEVATOR_TILE) as isize)?;
-        }
-
-        // Write new map tilemap data (and room X & Y map position) by room:
-        for (i, room) in self.game_data.room_geometry.iter().enumerate() {
-            let orig_area = self.orig_rom.read_u8(room.rom_address + 1)? as usize;
-            let orig_base_x = self.orig_rom.read_u8(room.rom_address + 2)?;
-            let orig_base_y = self.orig_rom.read_u8(room.rom_address + 3)?;
-            let orig_base_ptr = self.game_data.area_map_ptrs[orig_area];
-            let new_area = self.map.area[i];
-            let new_base_ptr = self.game_data.area_map_ptrs[new_area];
-            let new_margin_x = (64 - (area_map_max_x[new_area] - area_map_min_x[new_area])) / 2;
-            let new_margin_y = (32 - (area_map_max_y[new_area] - area_map_min_y[new_area])) / 2 - 1;
-            let new_base_x = self.map.rooms[i].0 as isize - area_map_min_x[new_area] + new_margin_x;
-            let new_base_y = self.map.rooms[i].1 as isize - area_map_min_y[new_area] + new_margin_y;
-            assert!(new_base_x >= 2);
-            assert!(new_base_y >= 0);
-            self.rom.write_u8(room.rom_address + 2, new_base_x)?;
-            self.rom.write_u8(room.rom_address + 3, new_base_y)?;
-            for y in 0..room.map.len() {
-                for x in 0..room.map[0].len() {
-                    if room.map[y][x] == 0 {
-                        continue;
-                    }
-                    let orig_x = orig_base_x + x as isize;
-                    let orig_y = orig_base_y + y as isize;
-                    let orig_offset = xy_to_map_offset(orig_x as isize, orig_y as isize);
-                    let orig_ptr = (orig_base_ptr + orig_offset) as usize;
-                    let new_x = new_base_x + x as isize;
-                    let new_y = new_base_y + y as isize;
-                    let new_offset = xy_to_map_offset(new_x, new_y);
-                    let new_ptr = (new_base_ptr + new_offset) as usize;
-                    let data = self.orig_rom.read_u16(orig_ptr)?;
-                    self.rom.write_u16(new_ptr, data)?;
-                }
-            }
-        }
-        Ok(())
-    }
-
     fn fix_twin_rooms(&mut self) -> Result<()> {
         // East Pants Room:
         let pants_room_x = self.rom.read_u8(0x7D646 + 2)?;
@@ -2879,7 +2784,6 @@ pub fn make_rom(
     patcher.set_start_location()?;
     patcher.set_starting_items()?;
     patcher.fix_save_stations()?;
-    patcher.write_map_tilemaps()?;
     patcher.write_map_areas()?;
     patcher.make_map_revealed()?;
     patcher.write_beam_door_tiles()?;
