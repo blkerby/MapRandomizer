@@ -13,7 +13,8 @@ use maprando::randomize::{
     Randomizer,
 };
 use maprando::settings::{
-    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationMode
+    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
+    SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando_game::GameData;
@@ -47,7 +48,7 @@ struct Args {
     qol_preset: Option<String>,
 
     #[arg(long)]
-    customize: bool
+    customize: bool,
 }
 
 // Reduced version of web::AppData for test tool
@@ -317,7 +318,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
             )?;
         }
     }
-    
+
     let output_spoiler_log_path = Path::join(
         &app.output_dir,
         format!("{output_file_prefix}-spoiler.json"),
@@ -397,8 +398,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
 
     if let Some(fixed_preset) = &args.preset {
         let path = format!("data/presets/full-settings/{}.json", fixed_preset);
-        let s = std::fs::read_to_string(&path)
-            .context(format!("Unable to read {}", path.as_str()))?;
+        let s =
+            std::fs::read_to_string(&path).context(format!("Unable to read {}", path.as_str()))?;
         base_preset = serde_json::from_str(&s)?;
     }
 
