@@ -609,6 +609,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	starticon: {
 		let sr = null, e = null, ri = c.start_location.room_id, ni = c.start_location.node_id, i=-1, x=0, y=0;
 		let n = c.start_location.name;
+
+
 		for (i in c.all_rooms) {
 			if (ri ==c.all_rooms[i].room_id )
 			{
@@ -627,10 +629,23 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		} else if (n == "Bomb Torizo Room") {
 			startitems=3;
 		} else if (n == "") {
+			// escape
 			n = "Mother Brain Room";
 			i = 248;
 			x = c.all_rooms[i].coords[0]*24+24;
 			y = c.all_rooms[i].coords[1]*24+24;
+		} else if (n == "Homing Geemer Room") {
+			i = 26;
+			x = c.all_rooms[i].coords[0]*24+24;
+			y = c.all_rooms[i].coords[1]*24+24;
+			x += 120;
+			y += 48;
+		} else if (n == "East Pants Room") {
+			i = 138;
+			x = c.all_rooms[i].coords[0]*24+24;
+			y = c.all_rooms[i].coords[1]*24+24;
+			x += 24;
+			y += 24;
 		}
 
 		sr = c.all_rooms[i];
