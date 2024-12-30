@@ -1,6 +1,6 @@
 ; From https://github.com/theonlydude/RandomMetroidSolver/blob/master/patches/common/src/vanilla_bugfixes.asm
 ;
-; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada
+; Authors: total, PJBoy, strotlog, ouiche, Maddo, NobodyNada, Stag Shot
 
 ;;; Some vanilla bugfixes
 ;;; compile with asar
@@ -216,3 +216,53 @@ special_xray_end:
 ; Documented by PJBoy: https://patrickjohnston.org/bank/B4#fBD97
 org $b4bda3
     bpl $f8 ; was bne $f8
+
+; Fix auto-reserve / pause bug
+;
+; This patch will initiate the death sequence if pause hit with auto-reserve enabled
+; on exact frame that leads to crash.
+;
+; (thanks to Benox50 for his initial patch)
+
+!bank_82_free_space_start = $82fbf0
+!bank_82_free_space_end = $82fc30
+
+org $828cea
+    jsr pause_func                ; pause func
+
+org $82db80
+    jmp fix_reserve               ; health == 0, auto-reserve enabled, reserve health > 0
+
+org !bank_82_free_space_start
+pause_func:
+    lda $998
+    cmp #$001b                    ; game state already set to reserve on crash frame?
+    bne .leave
+    lda #$8000                    ; init death sequence (copied from $82db80)
+    sta $a78
+    lda #$0011
+    jsl $90f084
+    lda #$0013
+    sta $998
+    sep #$20
+    lda #$0f                      ; restore screen brightness
+    sta $51
+    rep #$30
+    rts
+
+.leave
+    inc $998                      ; replaced code
+    rts
+
+fix_reserve:
+    lda $998
+    cmp #$0013                    ; death seq already initiated?
+    bcc .leave_2
+    plp                           ; if so, leave func
+    rts
+
+.leave_2
+    lda #$8000                    ; replaced code
+    jmp $db83
+
+warnpc !bank_82_free_space_end

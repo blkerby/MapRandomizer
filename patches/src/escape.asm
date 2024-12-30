@@ -271,7 +271,7 @@ room_main:
     cmp $09d4
     bcc .reserves_refill_not_finished
     lda $09d4
-    sta $1f64  ; mark refill as complete
+    inc $1f64  ; mark refill as complete
 .reserves_refill_not_finished:
     sta $09d6
     bra .refill_done
