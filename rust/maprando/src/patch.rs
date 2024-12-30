@@ -464,6 +464,7 @@ impl<'a> Patcher<'a> {
             "nothing_item",
             "beam_doors",
             "horizontal_door_fix",
+            "samus_tiles_optim_animated_tiles_fix"
         ];
 
         if self.randomization.settings.other_settings.ultra_low_qol {
