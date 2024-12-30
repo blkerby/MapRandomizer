@@ -12,7 +12,7 @@ use std::path::Path;
 
 use crate::{
     customize::vanilla_music::override_music,
-    patch::map_tiles::{diagonal_flip_tile, VANILLA_ELEVATOR_TILE},
+    patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Objective, Randomization},
     settings::{
         AreaAssignment, ETankRefill, MotherBrainFight, SaveAnimals, StartLocationMode, WallJump,

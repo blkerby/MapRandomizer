@@ -1,5 +1,4 @@
 use hashbrown::{HashMap, HashSet};
-use log::info;
 
 use crate::{
     randomize::{Objective, Randomization},
@@ -1397,21 +1396,6 @@ impl<'a> MapPatcher<'a> {
             self.draw_edge(TileSide::Right, tile.right, &mut data);
         }
         Ok(data)
-    }
-
-    fn make_tile_revealed(&mut self, room_name: &str, x: isize, y: isize) -> Result<()> {
-        let room_idx = self.game_data.room_idx_by_name[room_name];
-        let room = &self.game_data.room_geometry[room_idx];
-        let area = self.map.area[room_idx];
-        let x0 = self.rom.read_u8(room.rom_address + 2)? as isize;
-        let y0 = self.rom.read_u8(room.rom_address + 3)? as isize;
-        let base_ptr = snes2pc(0x829727 + area * 0x100);
-        let (offset, bitmask) = super::xy_to_explored_bit_ptr(x0 + x, y0 + y);
-        let mut data = self.rom.read_u8(base_ptr + offset as usize)? as u8;
-        data |= bitmask;
-        self.rom
-            .write_u8(base_ptr + offset as usize, data as isize)?;
-        Ok(())
     }
 
     fn indicate_obj_tiles(&mut self, objective: &Objective) -> Result<()> {
