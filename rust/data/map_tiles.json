@@ -341,7 +341,7 @@
                 {"coords": [3, 3], "left": "empty", "right": "wall", "top": "empty", "bottom": "empty"},
                 {"coords": [2, 4], "left": "door", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 4], "left": "empty", "right": "door", "top": "empty", "bottom": "empty"},
-                {"coords": [2, 5], "left": "door", "right": "empty", "top": "empty", "bottom": "empty"},
+                {"coords": [2, 5], "left": "wall", "right": "empty", "top": "empty", "bottom": "empty"},
                 {"coords": [3, 5], "left": "empty", "right": "passage", "top": "empty", "bottom": "empty"},
                 {"coords": [4, 5], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
                 {"coords": [2, 6], "left": "wall", "right": "empty", "top": "empty", "bottom": "passage", "interior": "item"},

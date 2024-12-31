@@ -2,6 +2,7 @@ v117:
 - DONE: load node tile data from sm-json-data
 - render map tiles using map_tiles.json
 - look into Kraid Eye Door grapple teleport strats: why [2, 19] is option from one door but not the other?
+- after exhausting all item placement attempts, default to first key item in precedence order instead of last.
 
 Rom patching:
 - refresh mini-map after it is re-enabled after boss fight (croc, any others?)
