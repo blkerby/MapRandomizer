@@ -55,8 +55,8 @@
     <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
         <form id="main-form" class="needs-validation" method="POST" enctype="multipart/form-data" action="/randomize" onchange="saveSettings()"  onsubmit="prepareSubmit(this); return false;">
-            <div class="form-group row">
-                <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+            <div class="form-group row my-3">
+                <div class="col-lg-3 ml-0 mt-1 mb-1align-items-center">
                     {% include "help/preset.html" %}
                     <label for="full_settings_preset">Settings preset</label>
                 </div>
@@ -71,13 +71,12 @@
                 </div>
             </div>
 
-            <div class="container border rounded-3 p-0 mt-3 mb-4 overflow-hidden">
-                <div class="form-group row">
-                    <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
-                        {% include "help/skill.html" %}
-                        <label for="preset">Skill assumptions</label>
-                    </div>
-                    <div class="col-lg-9 mt-0 btn-group overflow-auto" role="group">
+            <div class="form-group row my-3">
+                <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
+                    {% include "help/skill.html" %}
+                    <label for="preset">Skill assumptions</label>
+                </div>
+                <div class="col-lg-9 mt-0 btn-group overflow-auto" role="group">
                     {% for p in preset_data.skill_presets.iter() %}
                     {% let name = p.preset.as_ref().unwrap() %}
                     {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
@@ -92,9 +91,10 @@
                             >
                         <label class="btn btn-outline-primary p-2" for="preset{{+ name_no_space }}">{{+ name }}</label>
                     {% endfor %}
-                    </div>
+                    <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#skillAssumptionsModal">
+                        <i class="bi bi-gear"></i>
+                    </button>    
                 </div>
-                {% include "skill_assumptions.html" %}
             </div>
 
             <div class="container border rounded-3 p-0 my-4">
@@ -316,6 +316,7 @@
         </form>
     </div>
     {% include "../common/save_settings.html" %}
+    {% include "skill_assumptions.html" %}
     {% include "submit_modal.html" %}
     {% include "error_modal.html" %}
     {% include "save_settings_modal.html" %}
