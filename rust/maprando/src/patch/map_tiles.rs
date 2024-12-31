@@ -585,6 +585,8 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
+                set_air_pixel(tile, 0, 3);
+                set_air_pixel(tile, 7, 3);
             }
             MapTileEdge::LockedDoor(lock_type) => {
                 if [Gray, Red, Green, Yellow].contains(&lock_type) {
