@@ -13,7 +13,7 @@
                             <label class="my-2 me-2 mb-2" for="saveSettingsName">Custom preset name</label>
                         </div>
                         <div class="col-lg-9">
-                            <input type="text" id="saveSettingsName" list="saveSettingsDatalist" class="form-control" placeholder="Type a name for your custom preset" autocomplete="off">
+                            <input type="text" id="saveSettingsName" list="saveSettingsDatalist" class="form-control" placeholder="Type a name for your custom preset" autocomplete="off" autofocus>
                             <datalist id="saveSettingsDatalist"></datalist>
                         </div>
                     </div>
@@ -29,4 +29,8 @@
         </div>
     </div>
 </div>
-  
+<script>
+    document.getElementById("saveSettingsModal").addEventListener("shown.bs.modal", event => {
+        document.getElementById("saveSettingsName").focus();
+    });
+</script>

@@ -1007,6 +1007,12 @@ async function importPreset() {
 
 async function openManagePresetsModal() {
     let customPresets = await getCustomPresets();
+
+    if (customPresets.length > 0) {
+        document.getElementById("noCustomPresetsMessage").classList.add("d-none");
+    } else {
+        document.getElementById("noCustomPresetsMessage").classList.remove("d-none");
+    }
     let table = document.getElementById("managePresetsTable");
     table.innerHTML = "";
     for (let preset of customPresets) {
