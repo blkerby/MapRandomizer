@@ -104,7 +104,7 @@
                 {"coords": [1, 1], "left": "empty", "right": "empty", "top": "qolEmpty", "bottom": "wall"},
                 {"coords": [2, 1], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
-                {"coords": [4, 1], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
+                {"coords": [4, 1], "left": "empty", "right": "qolDoor", "top": "wall", "bottom": "wall"}
             ]
         },
         {
