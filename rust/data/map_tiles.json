@@ -226,7 +226,7 @@
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
-                {"coords": [0, 2], "left": "wall", "right": "wall", "top": "empty", "bottom": "door", "interior": "event"}
+                {"coords": [0, 2], "left": "wall", "right": "wall", "top": "qolPassage", "bottom": "door", "interior": "event"}
             ]
         },
         {
@@ -2765,7 +2765,7 @@
                 {"coords": [3, 1], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [4, 1], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "event"},
                 {"coords": [5, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
-                {"coords": [1, 2], "left": "wall", "right": "passage", "top": "empty", "bottom": "wall"},
+                {"coords": [1, 2], "left": "door", "right": "passage", "top": "empty", "bottom": "wall"},
                 {"coords": [2, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [3, 2], "left": "empty", "right": "passage", "top": "wall", "bottom": "wall", "interior": "hiddenItem"},
                 {"coords": [4, 2], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
