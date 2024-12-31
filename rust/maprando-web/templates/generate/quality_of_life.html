@@ -1,322 +1,405 @@
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card m-2">
-            <div class="card-header">Map</div>
-            <div class="card-body">
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/item_markers.html" %}
-                        <label for="preset">Item markers</label>
-                    </div>
-                    <div id="itemMarkers" class="col-lg-6 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersSimple" value="Simple">
-                        <label class="btn btn-outline-primary" for="itemMarkersSimple">Simple</label>
-                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors" value="Majors">
-                        <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
-                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersUniques" value="Uniques">
-                        <label class="btn btn-outline-primary" for="itemMarkersUniques">Uniques</label>
-                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersThreeTiered" value="3-Tiered" checked>
-                        <label class="btn btn-outline-primary" for="itemMarkersThreeTiered">3-Tiered</label>
-                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersFourTiered" value="4-Tiered">
-                        <label class="btn btn-outline-primary" for="itemMarkersFourTiered">4-Tiered</label>
+<div class="modal" id="qualityOfLifeModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered" style="max-width:max(min(90vw, 992px), 576px)">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Quality-of-life options</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        
+            <div class="modal-body p-1" onchange="qualityOfLifeSettingChanged()">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">Map</div>
+                            <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemMarkersModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Item markers</label>
+                                    </div>
+                                    <div id="itemMarkers" class="col-lg-6 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersSimple" value="Simple">
+                                        <label class="btn btn-outline-primary" for="itemMarkersSimple">Simple</label>
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors" value="Majors">
+                                        <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersUniques" value="Uniques">
+                                        <label class="btn btn-outline-primary" for="itemMarkersUniques">Uniques</label>
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersThreeTiered" value="3-Tiered" checked>
+                                        <label class="btn btn-outline-primary" for="itemMarkersThreeTiered">3-Tiered</label>
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersFourTiered" value="4-Tiered">
+                                        <label class="btn btn-outline-primary" for="itemMarkersFourTiered">4-Tiered</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#mapStationsModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Map stations always visible on map</label>
+                                    </div>
+                                    <div id="markMapStations" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
+                                        <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
+                                        <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#roomOutlineModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Room outline revealed on entry</label>
+                                    </div>
+                                    <div id="roomOutlineRevealed" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedNo" value="false">
+                                        <label class="btn btn-outline-primary" for="roomOutlineRevealedNo">No</label>
+                                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="roomOutlineRevealedYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#oppositeAreaModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Opposite area connections revealed by map</label>
+                                    </div>
+                                    <div id="oppositeAreaRevealed" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="oppositeAreaRevealedNo">No</label>
+                                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedYes" value="true">
+                                        <label class="btn btn-outline-primary" for="oppositeAreaRevealedYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/map_stations.html" %}
-                        <label for="preset">Map stations always visible on map</label>
-                    </div>
-                    <div id="markMapStations" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
-                        <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
-                        <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">End game</div>
+                            <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#shortMotherBrainModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Mother Brain fight (phases 2 and 3)</label>
+                                    </div>
+                                    <div id="motherBrainFight" class="col-4 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightVanilla" value="Vanilla">
+                                        <label class="btn btn-outline-primary" for="motherBrainFightVanilla">Vanilla</label>
+                                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightShort" value="Short" checked>
+                                        <label class="btn btn-outline-primary" for="motherBrainFightShort">Short</label>
+                                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightSkip" value="Skip">
+                                        <label class="btn btn-outline-primary" for="motherBrainFightSkip">Skip</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#supersDoubleModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Supers do double damage to Mother Brain</label>
+                                    </div>
+                                    <div id="supersDouble" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
+                                        <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
+                                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#movementItemsModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Hyper Beam gives all movement items</label>
+                                    </div>
+                                    <div id="escapeMovementItems" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsNo" value="false">
+                                        <label class="btn btn-outline-primary" for="escapeMovementItemsNo">No</label>
+                                        <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="escapeMovementItemsYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#escapeRefillModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Refill energy for escape</label>
+                                    </div>
+                                    <div id="escapeRefill" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillNo" value="false">
+                                        <label class="btn btn-outline-primary" for="escapeRefillNo">No</label>
+                                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="escapeRefillYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#enemiesClearedModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Enemies cleared during escape</label>
+                                    </div>
+                                    <div id="escapeEnemiesCleared" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedNo" value="false">
+                                        <label class="btn btn-outline-primary" for="escapeEnemiesClearedNo">No</label>
+                                        <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="escapeEnemiesClearedYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/room_outline.html" %}
-                        <label for="preset">Room outline revealed on entry</label>
-                    </div>
-                    <div id="roomOutlineRevealed" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedNo" value="false">
-                        <label class="btn btn-outline-primary" for="roomOutlineRevealedNo">No</label>
-                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="roomOutlineRevealedYes">Yes</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">Faster transitions</div>
+                            <div class="card-body ps-1 pe-3 py-0">
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastElevatorsModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Fast elevators</label>
+                                    </div>
+                                    <div id="fastElevators" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsNo" value="false">
+                                        <label class="btn btn-outline-primary" for="fastElevatorsNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fastElevatorsYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastDoorsModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Fast doors</label>
+                                    </div>
+                                    <div id="fastDoors" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsNo" value="false">
+                                        <label class="btn btn-outline-primary" for="fastDoorsNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fastDoorsYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastPauseMenuModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Fast pause menu</label>
+                                    </div>
+                                    <div id="fastPauseMenu" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fast_pause_menu" id="fastPauseMenuNo" value="false">
+                                        <label class="btn btn-outline-primary" for="fastPauseMenuNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_pause_menu" id="fastPauseMenuYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fastPauseMenuYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/opposite_area_revealed.html" %}
-                        <label for="preset">Opposite area connections revealed by map</label>
-                    </div>
-                    <div id="oppositeAreaRevealed" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="oppositeAreaRevealedNo">No</label>
-                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedYes" value="true">
-                        <label class="btn btn-outline-primary" for="oppositeAreaRevealedYes">Yes</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">Samus control</div>
+                            <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#respinModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="respin">Respin</label>
+                                    </div>
+                                    <div id="respin" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="respinNo">No</label>
+                                        <input type="radio" class="btn-check" name="respin" id="respinYes" value="true">
+                                        <label class="btn btn-outline-primary" for="respinYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#infiniteSpaceJumpModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="infinite_space_jump">Lenient Space Jump</label>
+                                    </div>
+                                    <div id="infiniteSpaceJump" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpNo">No</label>
+                                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpYes" value="true">
+                                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#momentumConservationModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="momentum_conservation">Momentum conservation</label>
+                                    </div>
+                                    <div id="momentumConservation" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="momentumConservationNo">No</label>
+                                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationYes" value="true">
+                                        <label class="btn btn-outline-primary" for="momentumConservationYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">Tweaks to unintuitive vanilla behavior</div>
+                            <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemsSpawnModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">All items spawn at start of game</label>
+                                    </div>
+                                    <div id="allItemsSpawn" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnNo" value="false">
+                                        <label class="btn btn-outline-primary" for="allItemsSpawnNo">No</label>
+                                        <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="allItemsSpawnYes">Yes</label>
+                                    </div>
+                                </div>    
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#acidChozoModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Acid Chozo usable without Space Jump</label>
+                                    </div>
+                                    <div id="acidChozo" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoNo" value="false">
+                                        <label class="btn btn-outline-primary" for="acidChozoNo">No</label>
+                                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="acidChozoYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#removeClimbLavaModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Lava removed from Climb</label>
+                                    </div>
+                                    <div id="removeClimbLava" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="remove_climb_lava" id="removeClimbLavaNo" value="false">
+                                        <label class="btn btn-outline-primary" for="removeClimbLavaNo">No</label>
+                                        <input type="radio" class="btn-check" name="remove_climb_lava" id="removeClimbLavaYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="removeClimbLavaYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">Other</div>
+                            <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#buffedDropsModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Enemy drops are buffed</label>
+                                    </div>
+                                    <div id="buffedDrops" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsNo" value="false">
+                                        <label class="btn btn-outline-primary" for="buffedDropsNo">No</label>
+                                        <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="buffedDropsYes">Yes</label>
+                                    </div>
+                                </div> 
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#earlySaveModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Guaranteed early save station</label>
+                                    </div>
+                                    <div id="earlySave" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo" value="false">
+                                        <label class="btn btn-outline-primary" for="earlySaveNo">No</label>
+                                        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card m-2">
-            <div class="card-header">End game</div>
-            <div class="card-body">
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/mother_brain_fight.html" %}
-                        <label for="preset">Mother Brain fight (phases 2 and 3)</label>
-                    </div>
-                    <div id="motherBrainFight" class="col-4 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightVanilla" value="Vanilla">
-                        <label class="btn btn-outline-primary" for="motherBrainFightVanilla">Vanilla</label>
-                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightShort" value="Short" checked>
-                        <label class="btn btn-outline-primary" for="motherBrainFightShort">Short</label>
-                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightSkip" value="Skip">
-                        <label class="btn btn-outline-primary" for="motherBrainFightSkip">Skip</label>
-                    </div>
-                </div>
+                                          
+{% include "help/quality/item_markers.html" %}
+{% include "help/quality/map_stations.html" %}
+{% include "help/quality/room_outline.html" %}
+{% include "help/quality/opposite_area_revealed.html" %}
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/supers_double.html" %}
-                        <label for="preset">Supers do double damage to Mother Brain</label>
-                    </div>
-                    <div id="supersDouble" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
-                        <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
-                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
-                    </div>
-                </div>
+{% include "help/quality/mother_brain_fight.html" %}
+{% include "help/quality/supers_double.html" %}
+{% include "help/quality/movement_items.html" %}
+{% include "help/quality/escape_refill.html" %}
+{% include "help/quality/enemies_cleared.html" %}
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/movement_items.html" %}
-                        <label for="preset">Hyper Beam gives all movement items</label>
-                    </div>
-                    <div id="escapeMovementItems" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsNo" value="false">
-                        <label class="btn btn-outline-primary" for="escapeMovementItemsNo">No</label>
-                        <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="escapeMovementItemsYes">Yes</label>
-                    </div>
-                </div>
+{% include "help/quality/fast_elevators.html" %}
+{% include "help/quality/fast_doors.html" %}
+{% include "help/quality/fast_pause_menu.html" %}
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/escape_refill.html" %}
-                        <label for="preset">Refill energy for escape</label>
-                    </div>
-                    <div id="escapeRefill" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillNo" value="false">
-                        <label class="btn btn-outline-primary" for="escapeRefillNo">No</label>
-                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="escapeRefillYes">Yes</label>
-                    </div>
-                </div>
+{% include "help/quality/respin.html" %}
+{% include "help/quality/infinite_space_jump.html" %}
+{% include "help/quality/momentum_conservation.html" %}
 
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/enemies_cleared.html" %}
-                        <label for="preset">Enemies cleared during escape</label>
-                    </div>
-                    <div id="escapeEnemiesCleared" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedNo" value="false">
-                        <label class="btn btn-outline-primary" for="escapeEnemiesClearedNo">No</label>
-                        <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="escapeEnemiesClearedYes">Yes</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "help/quality/items_spawn.html" %}
+{% include "help/quality/acid_chozo.html" %}
+{% include "help/quality/remove_climb_lava.html" %}
 
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card m-2">
-            <div class="card-header">Faster transitions</div>
-            <div class="card-body">
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/fast_elevators.html" %}
-                        <label for="preset">Fast elevators</label>
-                    </div>
-                    <div id="fastElevators" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsNo" value="false">
-                        <label class="btn btn-outline-primary" for="fastElevatorsNo">No</label>
-                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="fastElevatorsYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/fast_doors.html" %}
-                        <label for="preset">Fast doors</label>
-                    </div>
-                    <div id="fastDoors" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsNo" value="false">
-                        <label class="btn btn-outline-primary" for="fastDoorsNo">No</label>
-                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="fastDoorsYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/fast_pause_menu.html" %}
-                        <label for="preset">Fast pause menu</label>
-                    </div>
-                    <div id="fastPauseMenu" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="fast_pause_menu" id="fastPauseMenuNo" value="false">
-                        <label class="btn btn-outline-primary" for="fastPauseMenuNo">No</label>
-                        <input type="radio" class="btn-check" name="fast_pause_menu" id="fastPauseMenuYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="fastPauseMenuYes">Yes</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card m-2">
-            <div class="card-header">Samus control</div>
-            <div class="card-body">
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/respin.html" %}
-                        <label for="respin">Respin</label>
-                    </div>
-                    <div id="respin" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="respinNo">No</label>
-                        <input type="radio" class="btn-check" name="respin" id="respinYes" value="true">
-                        <label class="btn btn-outline-primary" for="respinYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/infinite_space_jump.html" %}
-                        <label for="infinite_space_jump">Lenient Space Jump</label>
-                    </div>
-                    <div id="infiniteSpaceJump" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpNo">No</label>
-                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpYes" value="true">
-                        <label class="btn btn-outline-primary" for="infiniteSpaceJumpYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/momentum_conservation.html" %}
-                        <label for="momentum_conservation">Momentum conservation</label>
-                    </div>
-                    <div id="momentumConservation" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationNo" value="false" checked>
-                        <label class="btn btn-outline-primary" for="momentumConservationNo">No</label>
-                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationYes" value="true">
-                        <label class="btn btn-outline-primary" for="momentumConservationYes">Yes</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card m-2">
-            <div class="card-header">Tweaks to unintuitive vanilla behavior</div>
-            <div class="card-body">
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/items_spawn.html" %}
-                        <label for="preset">All items spawn at start of game</label>
-                    </div>
-                    <div id="allItemsSpawn" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnNo" value="false">
-                        <label class="btn btn-outline-primary" for="allItemsSpawnNo">No</label>
-                        <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="allItemsSpawnYes">Yes</label>
-                    </div>
-                </div>    
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/acid_chozo.html" %}
-                        <label for="preset">Acid Chozo usable without Space Jump</label>
-                    </div>
-                    <div id="acidChozo" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoNo" value="false">
-                        <label class="btn btn-outline-primary" for="acidChozoNo">No</label>
-                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="acidChozoYes">Yes</label>
-                    </div>
-                </div>
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/remove_climb_lava.html" %}
-                        <label for="preset">Lava removed from Climb</label>
-                    </div>
-                    <div id="removeClimbLava" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="remove_climb_lava" id="removeClimbLavaNo" value="false">
-                        <label class="btn btn-outline-primary" for="removeClimbLavaNo">No</label>
-                        <input type="radio" class="btn-check" name="remove_climb_lava" id="removeClimbLavaYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="removeClimbLavaYes">Yes</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card m-2">
-            <div class="card-header">Other</div>
-            <div class="card-body">
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/buffed_drops.html" %}
-                        <label for="preset">Enemy drops are buffed</label>
-                    </div>
-                    <div id="buffedDrops" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsNo" value="false">
-                        <label class="btn btn-outline-primary" for="buffedDropsNo">No</label>
-                        <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="buffedDropsYes">Yes</label>
-                    </div>
-                </div> 
-
-                <div class="form-group row align-items-center">
-                    <div class="col-lg-6 col-xl-5 m-2">
-                        {% include "help/quality/early_save.html" %}
-                        <label for="preset">Guaranteed early save station</label>
-                    </div>
-                    <div id="earlySave" class="col-2 btn-group m-2" role="group">
-                        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo" value="false">
-                        <label class="btn btn-outline-primary" for="earlySaveNo">No</label>
-                        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes" value="true" checked>
-                        <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+{% include "help/quality/buffed_drops.html" %}
+{% include "help/quality/early_save.html" %}

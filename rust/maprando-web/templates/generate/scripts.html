@@ -1069,6 +1069,14 @@ document.getElementById("managePresetsModal").addEventListener('hidden.bs.modal'
     populateFullPresetOptions();
 });
 
+// When a nested modal is closed, reopen its parent:
+document.querySelectorAll('[data-parent-modal]').forEach(element => {
+    const parentModalName = element.dataset.parentModal;
+    element.addEventListener('hidden.bs.modal', event => {
+        new bootstrap.Modal(document.getElementById(parentModalName), {}).show();
+    })
+});
+
 </script>
 {% include "../common/save_load_rom.html" %}
 <script>
