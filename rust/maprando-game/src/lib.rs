@@ -2912,6 +2912,11 @@ impl GameData {
             (170, "f_MaridiaTubeBroken"),
             (222, "f_ShaktoolDoneDigging"),
             (149, "f_UsedAcidChozoStatue"),
+            (226, "f_KilledMetroidRoom1"),
+            (227, "f_KilledMetroidRoom2"),
+            (228, "f_KilledMetroidRoom3"),
+            (229, "f_KilledMetroidRoom4"),
+                    
         ]
         .into_iter()
         .map(|(x, y)| (x, y.to_string()))
