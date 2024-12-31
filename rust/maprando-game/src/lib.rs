@@ -2916,7 +2916,6 @@ impl GameData {
             (227, "f_KilledMetroidRoom2"),
             (228, "f_KilledMetroidRoom3"),
             (229, "f_KilledMetroidRoom4"),
-                    
         ]
         .into_iter()
         .map(|(x, y)| (x, y.to_string()))
