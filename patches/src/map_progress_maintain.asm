@@ -364,33 +364,33 @@ org $829EC6
 ;$82:9EE5 A9 F7 07    LDA #$07F7             ;} $06 = $00:07F7 (map tiles explored)
 ;$82:9EE8 85 06       STA $06    [$7E:0006]  ;/
 
-; Patches below re-enable mini-map immediately upon boss death
+; Patches below re-enable mini-map with boss deaths
+; ridley
+org $8081b1
+    jsl fix_boss
+
 ; croc
 org $a490c4
     jsr fix_minimap
 
 ; dray
-org $a5924d
-    jsl fix_dray : nop : nop
-
-; ridley
-org $a6c544
-    jsl fix_ridley : nop : nop
+org $a592d7
+    jsl fix_boss
 
 ; kraid
-org $a7c3e2
-    jsl fix_kraid : nop : nop
+org $a7c825
+    jsl fix_boss
 
 ; phant
-org $a7d45c
-    jsl fix_phant : nop : nop
+org $a7db7e
+    jsl fix_boss
 
 ; mb
 org $a9b275
     jsl fix_mb : nop : nop
 
 !bank_a4_free_space_start = $a4f6d0
-!bank_a4_free_space_end = $a4f710
+!bank_a4_free_space_end = $a4f6f0
 
 org !bank_a4_free_space_start
 fix_minimap:
@@ -400,28 +400,9 @@ fix_minimap:
     sta !last_samus_map_y
     rts
 
-fix_dray:
+fix_boss:
     jsr fix_minimap
-    lda #$9294                    ; replaced code
-    sta $fa8
-    rtl
-
-fix_ridley:
-    jsr fix_minimap
-    lda #$c551                    ; replaced code
-    sta $fa8
-    rtl
-
-fix_kraid:
-    jsr fix_minimap
-    lda #$0100                    ; replaced code
-    sta $e54
-    rtl
-
-fix_phant:
-    jsr fix_minimap
-    lda #$0001                    ; replaced code
-    sta $1076
+    lda $7ed828,x                 ; replaced code
     rtl
 
 fix_mb:

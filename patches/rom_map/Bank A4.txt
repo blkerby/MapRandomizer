@@ -1,3 +1,3 @@
 0000 - F6C0: used by vanilla game
 F6C0 - F6D0: flashing_placebo (for crocomire)
-F6D0 - F710: map_progress_maintain.asm
+F6D0 - F6F0: map_progress_maintain.asm
