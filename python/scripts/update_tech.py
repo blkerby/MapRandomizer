@@ -31,7 +31,7 @@ raw_tech_data.append({
     "tech_id": 10001,
     "name": "canHyperGateShot",
     "difficulty": "Hard",
-    "video_id": None,
+    "video_id": 3140,
 })
 tech_id_order.append(10001)
 
