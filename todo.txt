@@ -5,10 +5,12 @@ v117:
 - after exhausting all item placement attempts, default to first key item in precedence order instead of last.
 - add more shinecharge and/or temp blue strats
 - add more strats from Incomplete videos
+- check out new Samus sprites
+- rename "Tame" to "Standard"
 
 Rom patching:
-- refresh mini-map after it is re-enabled after boss fight (croc, any others?)
-  - currently you have to move to another tile before mini-map reappears
+- DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
+- fix garbled tiles that show up in door transitions
 - instant unpause QoL option
   - maybe combine with even faster pause transitions (fade-in to pause, fade between pause/equipment, and fade-out of pause)
 - eliminate the gray door that spawns when leaving Mother Brain Room in escape
@@ -39,6 +41,9 @@ Rom patching:
   - energy recharge stations also refill reserve energy
 - make kraid camera act normal when entering from left?
   - same thing with spore spawn entering from bottom?
+
+Logic:
+- PCJR: "Left-Side Shinespark" (and related strats): rename and add "canShinechargeMovementComplex" req
 
 Other:
 - remove dependence on ROM for seed generation

@@ -999,8 +999,13 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": 9.15,
-            "note": "One-tap shinespark"
+            "in_game_time": 15.06,
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 9.15
+              }
+            ]
           },
           {
             "to_door": {
@@ -1036,8 +1041,13 @@
               "door_idx": 4,
               "node_id": 1
             },
-            "in_game_time": 6.24,
-            "note": "One-tap shinespark"
+            "in_game_time": 12.22,
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 6.24
+              }
+            ]
           }
         ]
       },
@@ -1084,7 +1094,7 @@
             "conditions": [
               {
                 "requires": ["can_moonfall"],
-                "in_game_time": 9.54    
+                "in_game_time": 9.54
               }
             ]
           },
@@ -1153,8 +1163,13 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": 15.36,
-            "note": "One-tap shinespark"
+            "in_game_time": 15.08,
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 13.26
+              }
+            ]
           },
           {
             "to_door": {
@@ -1178,8 +1193,13 @@
               "door_idx": 4,
               "node_id": 1
             },
-            "in_game_time": 12.45,
-            "note": "One-tap shinespark"
+            "in_game_time": 12.27,
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 12.08
+              }
+            ]
           }
         ]
       },
@@ -1216,8 +1236,13 @@
               "door_idx": 1,
               "node_id": 3
             },
-            "in_game_time": 11.24,
-            "note": "One-tap shinespark"
+            "in_game_time": 13.33,
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 9.35
+              }
+            ]
           },
           {
             "to_door": {
@@ -1241,8 +1266,13 @@
               "door_idx": 4,
               "node_id": 1
             },
-            "in_game_time": 8.33,
-            "note": "One-tap shinespark"
+            "in_game_time": 11.16,
+            "conditions": [
+              {
+                "requires": ["can_one_tap_shortcharge"],
+                "in_game_time": 7.53
+              }
+            ]
           }
         ]
       },
@@ -3891,7 +3921,7 @@
                 "requires": ["can_reverse_gate"],
                 "in_game_time": 4.59
               }
-            ]  
+            ]
           }
         ]
       },
@@ -3969,7 +3999,7 @@
                 "requires": ["can_reverse_gate"],
                 "in_game_time": 7.59
               }
-            ]  
+            ]
           }
         ]
       },
@@ -4047,7 +4077,7 @@
                 "requires": ["can_reverse_gate"],
                 "in_game_time": 11.18
               }
-            ]  
+            ]
           }
         ]
       },
@@ -4125,7 +4155,7 @@
                 "requires": ["can_reverse_gate"],
                 "in_game_time": 5.53
               }
-            ]  
+            ]
           }
 
         ]
@@ -4205,7 +4235,7 @@
                 "in_game_time": 5.32,
                 "note": "Unmorph-remorph to reset fall speed"
               }
-            ]  
+            ]
           }
         ]
       },
@@ -6316,7 +6346,7 @@
               "y": 2,
               "part_idx": 1,
               "door_idx": 1,
-              "node_id": 2  
+              "node_id": 2
             },
             "in_game_time": 4.04
           }
@@ -10479,7 +10509,7 @@
               "node_id": 1
             },
             "in_game_time": 2.28
-          }  
+          }
         ]
       }
     ]
@@ -13603,7 +13633,7 @@
               "y": 1,
               "part_idx": 0,
               "door_idx": 0,
-              "node_id": 1    
+              "node_id": 1
             },
             "conditions": [
               {
@@ -14554,7 +14584,7 @@
               "y": 0,
               "part_idx": 0,
               "door_idx": 0,
-              "node_id": 1  
+              "node_id": 1
             },
             "in_game_time": 9.17
           }
@@ -14784,7 +14814,7 @@
               "y": 0,
               "part_idx": 0,
               "door_idx": 0,
-              "node_id": 1    
+              "node_id": 1
             },
             "conditions": [
               {
@@ -18691,7 +18721,7 @@
               "y": 1,
               "part_idx": 1,
               "door_idx": 1,
-              "node_id": 2    
+              "node_id": 2
             },
             "conditions": [
               {
@@ -18751,7 +18781,7 @@
               "y": 0,
               "part_idx": 1,
               "door_idx": 1,
-              "node_id": 2    
+              "node_id": 2
             },
             "in_game_time": 3.45
           }
@@ -19499,7 +19529,7 @@
               "y": 0,
               "part_idx": 0,
               "door_idx": 0,
-              "node_id": 1    
+              "node_id": 1
             },
             "conditions": [
               {
