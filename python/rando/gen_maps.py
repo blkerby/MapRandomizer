@@ -259,7 +259,7 @@ for file_i in range(start_index, end_index):
                 M = compute_distance_matrix(A)
 
                 attempts_per_batch = 2 ** 17
-                num_batches = 16
+                num_batches = 64
                 best_areas = None
                 best_cost = float('inf')
                 for _ in range(num_batches):

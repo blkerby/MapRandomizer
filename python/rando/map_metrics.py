@@ -35,11 +35,7 @@ def get_room_edges(map):
 
 
 cnt = 0
-area_crossing_list = []
-balance_cost_list = []
-save_cost_list = []
-refill_cost_list = []
-map_cost_list = []
+summary_list = []
 for filename in os.listdir(args.map_path):
     idx = int(re.split("-|\\.", filename)[0])
     if idx < args.start_index or idx >= args.end_index:
@@ -50,24 +46,18 @@ for filename in os.listdir(args.map_path):
     E = get_room_edges(map)
     area_crossing = sum(1 for (r1, r2) in E if map['area'][r1] != map['area'][r2])
 
-    balance_cost, save_cost, refill_cost, map_cost = rando.balance_utilities.get_balance_costs(map)
-
-    cnt += 1
-    area_crossing_list.append(area_crossing)
-    balance_cost_list.append(balance_cost)
-    save_cost_list.append(save_cost)
-    refill_cost_list.append(refill_cost)
-    map_cost_list.append(map_cost)
+    _, summary = rando.balance_utilities.get_balance_costs(map)
+    summary["area_crossing"] = area_crossing
+    summary_list.append(summary)
 
 
-print("Total maps: {}".format(cnt))
+print("Total maps: {}".format(len(summary_list)))
 
-def print_stats(name, data):
-    print("{}: min={:.3f}, mean={:.3f}, median={:.3f}, max={:.3f}".format(
-        name, np.min(data), np.mean(data), np.median(data), np.max(data)))
+def print_stats(name, data_dict_list):
+    data = [x[name] for x in data_dict_list]
+    print("{:>16}: mean={:.3f}, sd={:.3f}, min={:.3f}, Q1={:.3f}, median={:.3f}, Q3={:.3f}, max={:.3f}".format(
+        name, np.mean(data), np.std(data),
+        np.min(data), np.quantile(data, 0.25), np.median(data), np.quantile(data, 0.75), np.max(data)))
 
-print_stats("Area crossing", area_crossing_list)
-print_stats("Overall balance cost", balance_cost_list)
-print_stats("Save cost", save_cost_list)
-print_stats("Refill cost", refill_cost_list)
-print_stats("Map cost", map_cost_list)
+for key in summary_list[0]:
+    print_stats(key, summary_list)

@@ -135,7 +135,7 @@ session = TrainingSession(envs,
 
 pickle_name = 'models/session-2024-09-18T05:56:26.276400.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk54', 'rb'))
+session = pickle.load(open(pickle_name + '-bk62', 'rb'))
 session.envs = envs
 session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # # # logging.info("Action model: {}".format(action_model))
@@ -252,8 +252,8 @@ state_lr1 = 0.00002
 # lr_cooldown_time = 100
 num_candidates_min0 = 0.5
 num_candidates_max0 = 1.5
-num_candidates_min1 = 47.5
-num_candidates_max1 = 48.5
+num_candidates_min1 = 63.5
+num_candidates_max1 = 64.5
 
 state_weight = 0.0
 
@@ -262,8 +262,8 @@ state_weight = 0.0
 explore_eps_factor = 0.0
 # temperature_min = 0.02
 # temperature_max = 2.0
-save_loss_weight = 0.001
-save_dist_coef = 0.01
+save_loss_weight = 0.00001
+save_dist_coef = 0.002
 # save_dist_coef = 0.0
 
 mc_dist_weight = 0.0002
@@ -277,7 +277,7 @@ graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-balance_coef0 = 0.15
+balance_coef0 = 0.1
 balance_coef1 = balance_coef0
 balance_weight = 20.0
 
@@ -711,7 +711,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk57')
+            # save_session(session, pickle_name + '-bk64')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.replay_buffer.num_files % summary_freq == 0:

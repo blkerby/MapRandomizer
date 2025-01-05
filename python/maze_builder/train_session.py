@@ -308,13 +308,13 @@ class TrainingSession():
         door_connect_cost = 0.0  # TODO: compute this using model predictions
         # balance_cost = torch.sum(torch.sigmoid(preds.door_balance), dim=1)
 
-        # Multiplying by temperature here cancels out the divison by temperature in the caller:
-        # Unlike other score components, we want the balance penalties not to scale with temperature.
-        # (Nevermind, that seems bad.)
-        # balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1) * temperature_valid
+        # Multiplying by temperature here partly cancels out the divison by temperature in the caller:
+        # Unlike other score components, we want the balance penalties not to scale as much with temperature.
+        # balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1) * torch.sqrt(temperature_valid)
         balance_cost = torch.sum(torch.clamp(preds.door_balance, min=-10.0, max=10.0), dim=1)
 
-        save_dist_cost = torch.sum(preds.save_dist, dim=1)
+        # save_dist_cost = torch.sum(preds.save_dist, dim=1)
+        save_dist_cost = torch.sum(torch.square(preds.save_dist), dim=1)
         mc_dist_cost = torch.sum(preds.mc_dist, dim=1)
         expected_valid = expected_valid - door_connect_cost - balance_cost * balance_coef - save_dist_cost * save_dist_coef - preds.graph_diam * graph_diam_coef - mc_dist_cost * mc_dist_coef_valid + pred_toilet_good_logprobs * toilet_good_coef
 
@@ -673,7 +673,8 @@ class TrainingSession():
 
         save_dist_mask = (data.save_distances != 255)
         save_dist_loss = torch.mean(
-            torch.where(save_dist_mask, (preds.save_dist - data.save_distances.to(torch.float)) ** 2,
+            torch.where(save_dist_mask,
+                        (torch.square(preds.save_dist) - torch.square(data.save_distances.to(torch.float))) ** 2,
                         torch.zeros_like(preds.save_dist)))
 
         graph_diam_loss = torch.mean((preds.graph_diam - data.graph_diameter.to(torch.float)) ** 2)
@@ -685,39 +686,39 @@ class TrainingSession():
         loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
         return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
-    def compute_soft_loss(self, raw_preds, raw_targets, balance_weight: float, save_dist_weight: float,
-                          graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
-        preds = self.get_preds(raw_preds)
-        targets = self.get_preds(raw_targets)
-
-        binary_targets_logodds = torch.cat([targets.door_connects, targets.missing_connects], dim=1)
-        binary_targets_probs = torch.sigmoid(binary_targets_logodds)
-        binary_preds_logodds = torch.cat([preds.door_connects, preds.missing_connects], dim=1)
-        # print("train idx: ", num_binary_outputs + num_save_dist_outputs, "num_binary_outputs =", num_binary_outputs, "num_save_dist_outputs =", num_save_dist_outputs)
-
-        binary_loss = \
-            torch.nn.functional.binary_cross_entropy_with_logits(binary_preds_logodds, binary_targets_probs) - \
-            torch.nn.functional.binary_cross_entropy_with_logits(binary_targets_logodds, binary_targets_probs)
-
-        target_door_balance_probs = torch.sigmoid(targets.door_balance)
-        balance_loss = torch.nn.functional.binary_cross_entropy_with_logits(preds.door_balance,
-                                                                            target_door_balance_probs) \
-                       - torch.nn.functional.binary_cross_entropy_with_logits(targets.door_balance,
-                                                                              target_door_balance_probs)
-
-        toilet_target_probs = torch.sigmoid(targets.toilet_good)
-        toilet_loss = \
-            torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good, toilet_target_probs) - \
-            torch.nn.functional.binary_cross_entropy_with_logits(targets.toilet_good, toilet_target_probs)
-
-        save_dist_loss = torch.mean(torch.square(preds.save_dist - targets.save_dist))
-
-        graph_diam_loss = torch.mean(torch.square(preds.graph_diam - targets.graph_diam))
-
-        mc_dist_loss = torch.mean(torch.square(preds.mc_dist - targets.mc_dist))
-
-        loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
-        return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
+    # def compute_soft_loss(self, raw_preds, raw_targets, balance_weight: float, save_dist_weight: float,
+    #                       graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float):
+    #     preds = self.get_preds(raw_preds)
+    #     targets = self.get_preds(raw_targets)
+    #
+    #     binary_targets_logodds = torch.cat([targets.door_connects, targets.missing_connects], dim=1)
+    #     binary_targets_probs = torch.sigmoid(binary_targets_logodds)
+    #     binary_preds_logodds = torch.cat([preds.door_connects, preds.missing_connects], dim=1)
+    #     # print("train idx: ", num_binary_outputs + num_save_dist_outputs, "num_binary_outputs =", num_binary_outputs, "num_save_dist_outputs =", num_save_dist_outputs)
+    #
+    #     binary_loss = \
+    #         torch.nn.functional.binary_cross_entropy_with_logits(binary_preds_logodds, binary_targets_probs) - \
+    #         torch.nn.functional.binary_cross_entropy_with_logits(binary_targets_logodds, binary_targets_probs)
+    #
+    #     target_door_balance_probs = torch.sigmoid(targets.door_balance)
+    #     balance_loss = torch.nn.functional.binary_cross_entropy_with_logits(preds.door_balance,
+    #                                                                         target_door_balance_probs) \
+    #                    - torch.nn.functional.binary_cross_entropy_with_logits(targets.door_balance,
+    #                                                                           target_door_balance_probs)
+    #
+    #     toilet_target_probs = torch.sigmoid(targets.toilet_good)
+    #     toilet_loss = \
+    #         torch.nn.functional.binary_cross_entropy_with_logits(preds.toilet_good, toilet_target_probs) - \
+    #         torch.nn.functional.binary_cross_entropy_with_logits(targets.toilet_good, toilet_target_probs)
+    #
+    #     save_dist_loss = torch.mean(torch.square(preds.save_dist - targets.save_dist))
+    #
+    #     graph_diam_loss = torch.mean(torch.square(preds.graph_diam - targets.graph_diam))
+    #
+    #     mc_dist_loss = torch.mean(torch.square(preds.mc_dist - targets.mc_dist))
+    #
+    #     loss = binary_loss + balance_loss * balance_weight + save_dist_loss * save_dist_weight + graph_diam_loss * graph_diam_weight + mc_dist_loss * mc_dist_weight + toilet_loss * toilet_weight
+    #     return loss, binary_loss.item(), balance_loss.item(), save_dist_loss.item(), graph_diam_loss.item(), mc_dist_loss.item(), toilet_loss.item()
 
     def compute_losses(self, model, data: TrainingData, balance_weight: float, save_dist_weight: float,
                        graph_diam_weight: float, mc_dist_weight: float, toilet_weight: float,

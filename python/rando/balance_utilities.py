@@ -121,6 +121,8 @@ def compute_room_distance_matrix(map):
             door_room_dict[(door_id.exit_ptr, door_id.entrance_ptr)] = i
 
     room_graph = np.full([len(rooms), len(rooms)], 10000, dtype=np.uint16)
+    for i in range(len(rooms)):
+        room_graph[i, i] = 0
     for door in map['doors']:
         src_i = door_room_dict[tuple(door[0])]
         dst_i = door_room_dict[tuple(door[1])]
@@ -197,6 +199,7 @@ def compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway
     min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
     
     save_coverage_cost = np.mean(min_save_dist)
+    max_save_dist = np.max(min_save_dist)
     save_cap_cnt = np.sum(hallway_cap_mask[save_idxs])
     save_dist = dist_matrix[np.array(save_idxs).reshape(1, -1), np.array(save_idxs).reshape(-1, 1)]
     save_neighbors_cnt = np.sum((save_dist == 1) | (save_dist == 2))
@@ -207,12 +210,25 @@ def compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway
 
     area_match = area_vec.reshape(-1, 1) == area_vec.reshape(1, -1)
     area_masked_dist_matrix = np.where(area_match, dist_matrix, np.zeros_like(dist_matrix))
-    map_dist_cost = np.mean(area_masked_dist_matrix[:, map_idxs])
+    map_dist_cost = np.sum(area_masked_dist_matrix[:, map_idxs]) / np.sum(area_match[:, map_idxs].astype(np.float32))
     
     overall_save_cost = 2.0 * save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
     overall_cost = overall_save_cost + 0.5 * overall_refill_cost + 5.0 * map_dist_cost
-    return overall_cost, overall_save_cost, overall_refill_cost, map_dist_cost
+    summary = {
+        "overall": overall_cost,
+        "overall_save": overall_save_cost,
+        "overall_refill": overall_refill_cost,
+        "save_coverage": save_coverage_cost,
+        "save_cap": save_cap_cnt,
+        "save_neighbors": save_neighbors_cnt,
+        "max_save_dist": max_save_dist,
+        "refill_coverage": refill_coverage_cost,
+        "refill_cap": refill_cap_cost,
+        "refill_neighbors": refill_neighbors_cnt,
+        "map_dist": map_dist_cost
+    }
+    return overall_cost, summary
 
 
 def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
