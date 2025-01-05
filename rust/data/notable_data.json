@@ -528,6 +528,22 @@
     "video_id": 1247
   },
   {
+    "room_id": 41,
+    "room_name": "Blue Brinstar Energy Tank Room",
+    "notable_id": 7,
+    "name": "Fast Wall Jump Spark",
+    "difficulty": "Very Hard",
+    "video_id": 2830
+  },
+  {
+    "room_id": 39,
+    "room_name": "Construction Zone",
+    "notable_id": 1,
+    "name": "Ice Moonfall Leave with Stored Fall Speed",
+    "difficulty": "Extreme",
+    "video_id": 2637
+  },
+  {
     "room_id": 46,
     "room_name": "Brinstar Reserve Tank Room",
     "notable_id": 1,
@@ -614,6 +630,14 @@
     "name": "Frozen Beetom Bridge",
     "difficulty": "Expert",
     "video_id": 208
+  },
+  {
+    "room_id": 50,
+    "room_name": "Green Brinstar Beetom Room",
+    "notable_id": 2,
+    "name": "Ice Moonfall Leave with Stored Fall Speed",
+    "difficulty": "Extreme",
+    "video_id": 3038
   },
   {
     "room_id": 44,
@@ -1456,6 +1480,14 @@
     "video_id": 213
   },
   {
+    "room_id": 106,
+    "room_name": "Ice Beam Gate Room",
+    "notable_id": 3,
+    "name": "Mella Wall Ice Clip X-Ray Climb",
+    "difficulty": "Extreme",
+    "video_id": 3093
+  },
+  {
     "room_id": 110,
     "room_name": "Ice Beam Tutorial Room",
     "notable_id": 1,
@@ -1622,6 +1654,14 @@
     "name": "Missiles Only Kill",
     "difficulty": "Insane",
     "video_id": 291
+  },
+  {
+    "room_id": 150,
+    "room_name": "Golden Torizo's Room",
+    "notable_id": 7,
+    "name": "R-Mode Forced Standup Clip",
+    "difficulty": "Insane",
+    "video_id": 2999
   },
   {
     "room_id": 151,
@@ -2830,6 +2870,14 @@
     "name": "SpringFling into Top Right Door",
     "difficulty": "Insane",
     "video_id": 242
+  },
+  {
+    "room_id": 197,
+    "room_name": "Plasma Spark Room",
+    "notable_id": 4,
+    "name": "Insane Frozen Choot Spring Ball Jump",
+    "difficulty": "Insane",
+    "video_id": 73
   },
   {
     "room_id": 214,

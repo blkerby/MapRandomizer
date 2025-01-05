@@ -1358,9 +1358,10 @@ impl GameData {
             "techRequires": [],
             "otherRequires": [],
             "note": [
-                "Can shoot blue & green gates from either side using Hyper Beam during the escape.",
+                "The ability to shoot blue & green gates from either side using Hyper Beam during the escape.",
                 "This is easy to do; this tech just represents knowing it can be done.",
-                "This is based on a randomizer patch applied on all settings (as in the vanilla game it isn't possible to open green gates using Hyper Beam.)"
+                "This is based on a randomizer patch applied on all settings,",
+                "as in the vanilla game it isn't possible to open green gates using Hyper Beam."
             ]
         })?;
         Self::override_can_awaken_zebes_tech_note(&mut full_tech_json)?;

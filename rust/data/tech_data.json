@@ -813,7 +813,7 @@
         "tech_id": 130,
         "name": "canHeroShot",
         "difficulty": "Hard",
-        "video_id": 1061
+        "video_id": 3139
     },
     {
         "tech_id": 131,
@@ -1143,6 +1143,6 @@
         "tech_id": 10001,
         "name": "canHyperGateShot",
         "difficulty": "Hard",
-        "video_id": null
+        "video_id": 3140
     }
 ]
