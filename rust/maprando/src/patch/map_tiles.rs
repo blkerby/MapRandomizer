@@ -761,16 +761,16 @@ impl<'a> MapPatcher<'a> {
                 data[5][4] = item_color;
             }
             MapTileInterior::DoubleItem => {
-                // panic!("Unreplaced DoubleItem");
-                data[2][2] = item_color;
-                data[3][3] = item_color;
-                data[4][4] = item_color;
-                data[5][5] = item_color;
+                panic!("Unreplaced DoubleItem");
+                // data[2][2] = item_color;
+                // data[3][3] = item_color;
+                // data[4][4] = item_color;
+                // data[5][5] = item_color;
             }
             MapTileInterior::HiddenItem => {
-                // panic!("Unreplaced HiddenItem");
-                data[3][3] = item_color;
-                data[4][4] = item_color;
+                panic!("Unreplaced HiddenItem");
+                // data[3][3] = item_color;
+                // data[4][4] = item_color;
             }
             MapTileInterior::ElevatorPlatformLow => {
                 // Use white instead of red for elevator platform:
