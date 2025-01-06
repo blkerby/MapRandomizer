@@ -1,8 +1,9 @@
 $F63A - $F680: unexplore.asm
 $F680 - $F700: complementary_suits.asm
-$F700 - $F800: map_progress_maintain.asm
+$F700 - $F800: free
 $F800 - $F880: momentum_conservation.asm
 $F880 - $F900: walljump_item.asm
 $F900 - $F910: escape_timer.asm
 $F980 - $FA00: respin.asm
 $FA00 - $FC00: map_progress_maintain.asm (list of cross-area tiles to reveal)
+$FC02 - $FD10: map_progress_maintain.asm

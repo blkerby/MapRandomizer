@@ -3,8 +3,8 @@ lorom
 
 !map_station_reveal_type = $90F700  ; 0 = Full reveal,  1 = Partial reveal
 !map_reveal_tile_table = $90FA00  ; must match reference in patch.rs
-!bank_90_freespace_start = $90F702
-!bank_90_freespace_end = $90F800
+!bank_90_freespace_start = $90FC02
+!bank_90_freespace_end = $90FD10
 
 
 incsrc "constants.asm"
@@ -112,6 +112,12 @@ mark_progress:
 ; When map station is activated, fill all map revealed bits for the area:
 activate_map_station_hook:
     LDA #$0001 : STA $0789   ; run hi-jacked instructions (set map flag)
+
+    LDX $1F5B
+    LDA $D908,X
+    STA $700b58,X
+    STA $701558,X
+    STA $700158,X
 
     phb
     pea $9090
