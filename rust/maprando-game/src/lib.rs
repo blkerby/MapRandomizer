@@ -52,6 +52,7 @@ pub const TECH_ID_CAN_HERO_SHOT: TechId = 130;
 pub const TECH_ID_CAN_OFF_SCREEN_SUPER_SHOT: TechId = 126;
 pub const TECH_ID_CAN_BOMB_HORIZONTALLY: TechId = 87;
 pub const TECH_ID_CAN_MOONDANCE: TechId = 26;
+pub const TECH_ID_CAN_EXTENDED_MOONDANCE: TechId = 27;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
@@ -651,6 +652,7 @@ pub enum ExitCondition {
     },
     LeaveWithSpark {
         position: SparkPosition,
+        door_orientation: DoorOrientation,
     },
     LeaveSpinning {
         remote_runway_length: Float,
@@ -3241,6 +3243,7 @@ impl GameData {
     fn parse_exit_condition(
         &self,
         exit_json: &JsonValue,
+        room_id: RoomId,
         strat_json: &JsonValue,
         heated: bool,
         physics: Option<Physics>,
@@ -3268,9 +3271,15 @@ impl GameData {
             "leaveWithTemporaryBlue" => ExitCondition::LeaveWithTemporaryBlue {
                 direction: parse_temporary_blue_direction(value["direction"].as_str())?,
             },
-            "leaveWithSpark" => ExitCondition::LeaveWithSpark {
-                position: parse_spark_position(value["position"].as_str())?,
-            },
+            "leaveWithSpark" => {
+                let node_json = &self.node_json_map[&(room_id, to_node_id)];
+                let door_orientation =
+                    parse_door_orientation(node_json["doorOrientation"].as_str().unwrap())?;
+                ExitCondition::LeaveWithSpark {
+                    position: parse_spark_position(value["position"].as_str())?,
+                    door_orientation,
+                }
+            }
             "leaveSpinning" => {
                 let remote_runway_geometry = parse_runway_geometry(&value["remoteRunway"])?;
                 let remote_runway_effective_length =
@@ -3679,6 +3688,7 @@ impl GameData {
             ensure!(strat_json["exitCondition"].is_object());
             let (e, r) = self.parse_exit_condition(
                 &strat_json["exitCondition"],
+                room_id,
                 strat_json,
                 to_heated,
                 physics,

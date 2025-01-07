@@ -1908,7 +1908,7 @@ impl<'a> Preprocessor<'a> {
             ));
         }
         match exit_condition {
-            ExitCondition::LeaveWithSpark { position } => {
+            ExitCondition::LeaveWithSpark { position, .. } => {
                 if *position == come_in_position
                     || *position == SparkPosition::Any
                     || come_in_position == SparkPosition::Any
