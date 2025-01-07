@@ -179,7 +179,6 @@ startup:
 
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState
-    sta $0998
 .end
     lda !GameStartState
     rtl
