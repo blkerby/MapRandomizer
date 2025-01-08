@@ -7,6 +7,7 @@ v117:
 - add more strats from Incomplete videos
 - check out new Samus sprites
 - rename "Tame" to "Standard"
+- apply Fake Lava patch
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)

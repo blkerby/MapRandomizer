@@ -489,11 +489,7 @@ impl<'a> Patcher<'a> {
             ]);
         }
 
-        let mut new_game = "new_game";
-        if self.randomization.settings.debug {
-            new_game = "new_game_extra";
-        }
-        patches.push(new_game);
+        patches.push("new_game");
 
         if self
             .randomization

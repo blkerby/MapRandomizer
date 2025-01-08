@@ -176,13 +176,13 @@ dw $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, 
    $3C0F, $380B, $380C, $380D, $3832, $3C0F, $3809, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3812, $3812, $A824, $2815, $3816, $381E
 
 ; Use palette 6 (gray/white, same as unexplored tiles) for HUD digits
-org $809DBF : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
-org $809DD3 : dw $3809, $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808
+org $809DBF : dw $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808, $3809
+org $809DD3 : dw $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808, $3809
 
 ; Use palette 7 (instead of 6) when initializing (clearing) FX tilemap:
-org $82E569 : lda #$1C4E   ; was: lda #$184E
-org $80A214 : lda #$1C4E   ; was: lda #$184E
-;org $80A2F7 : dw $1C4E   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
+org $82E569 : lda #$1C0F   ; was: lda #$184E
+org $80A214 : lda #$1C0F   ; was: lda #$184E
+;org $80A2F7 : dw $1C0F   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
 
 ; For message boxes, skip modifying palette 6:
 org $858150 : rep $19 : nop

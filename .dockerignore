@@ -5,3 +5,4 @@ models/
 tmp/
 map-rando-videos/
 map-rando-videos-pgdump/
+asar/CMakeCache.txt
