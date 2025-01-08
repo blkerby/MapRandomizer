@@ -186,22 +186,19 @@ startup:
 
     lda #$0006  ; Start in game state 6 (Loading game data) instead of 0 (Intro) or 5 (File select map)
     sta !GameStartState
+    sta $0998
 .end
     lda !GameStartState
     rtl
 
 ;;; zero flag set if we're starting a new game
 check_new_game:
-    ;; Make sure game mode is 1f
-    lda $7e0998
-    cmp #$001f : bne .end
     ;; check that Game time and frames is equal zero for new game
     ;; (Thanks Smiley and P.JBoy from metconst)
     lda $09DA
     ora $09DC
     ora $09DE
     ora $09E0
-.end:
     rtl
 
 
