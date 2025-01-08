@@ -2648,6 +2648,13 @@
                 "enabled": false
             },
             {
+                "room_id": 51,
+                "notable_id": 7,
+                "room_name": "Etecoon Energy Tank Room",
+                "notable_name": "Wall Ice Clip X-Ray Climb",
+                "enabled": false
+            },
+            {
                 "room_id": 50,
                 "notable_id": 2,
                 "room_name": "Green Brinstar Beetom Room",
@@ -2687,6 +2694,13 @@
                 "notable_id": 7,
                 "room_name": "Big Pink",
                 "notable_name": "Reo Ice Clip With Morph and X-Ray",
+                "enabled": false
+            },
+            {
+                "room_id": 59,
+                "notable_id": 13,
+                "room_name": "Big Pink",
+                "notable_name": "Wall Ice Clip X-Ray Climb",
                 "enabled": false
             },
             {
@@ -3009,6 +3023,13 @@
                 "notable_id": 6,
                 "room_name": "Aqueduct",
                 "notable_name": "Left-Side X-Ray Climb (Upper)",
+                "enabled": false
+            },
+            {
+                "room_id": 204,
+                "notable_id": 1,
+                "room_name": "Botwoon Quicksand Room",
+                "notable_name": "Pass Through Hidden Tunnel",
                 "enabled": false
             },
             {

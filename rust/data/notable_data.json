@@ -624,6 +624,14 @@
     "video_id": 356
   },
   {
+    "room_id": 51,
+    "room_name": "Etecoon Energy Tank Room",
+    "notable_id": 7,
+    "name": "Wall Ice Clip X-Ray Climb",
+    "difficulty": "Extreme",
+    "video_id": 3103
+  },
+  {
     "room_id": 50,
     "room_name": "Green Brinstar Beetom Room",
     "notable_id": 1,
@@ -830,6 +838,14 @@
     "name": "Crystal Flash Standup - Super Block",
     "difficulty": "Very Hard",
     "video_id": 472
+  },
+  {
+    "room_id": 59,
+    "room_name": "Big Pink",
+    "notable_id": 13,
+    "name": "Wall Ice Clip X-Ray Climb",
+    "difficulty": "Extreme",
+    "video_id": 3102
   },
   {
     "room_id": 58,
@@ -2438,6 +2454,14 @@
     "name": "Reverse Shinespark",
     "difficulty": "Very Hard",
     "video_id": 168
+  },
+  {
+    "room_id": 204,
+    "room_name": "Botwoon Quicksand Room",
+    "notable_id": 1,
+    "name": "Pass Through Hidden Tunnel",
+    "difficulty": "Extreme",
+    "video_id": 3138
   },
   {
     "room_id": 185,
