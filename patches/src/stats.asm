@@ -53,10 +53,12 @@ area_timer:
 ; update SRAM times and reset RAM counters
 save_to_sram:
 ; update SRAM 32-bit stat_timer
+    php
     rep #$30
-    lda !stat_timer
+    lda !nmi_counter
+    and #$00FF
     clc
-    adc #$00FF
+    adc !stat_timer
     sta !stat_timer
     bcc .no_inc
     lda !stat_timer+2
@@ -86,7 +88,6 @@ save_to_sram:
     cpy #$0008
     bne .add_loop
 
-    php
     sep #$30
     ldx #$08
     lda #$00
@@ -97,7 +98,7 @@ save_to_sram:
     bpl .clear_ram_ctrs
 
     plp
-    rts
+    rtl
 
 ; increment area-specific RAM byte
 inc_area_ram:
@@ -238,7 +239,7 @@ inc_skipcount:
     lda !nmi_counter
     cmp #$FF
     bne .leave_hook
-    jsr save_to_sram
+    jsl save_to_sram
 .leave_hook
     jmp area_timer
 
@@ -506,6 +507,9 @@ hook_boot:
 hook_game_end:
     JSL $90F084 ; run hi-jacked instruction
     pha
+    
+    ; flush RTA/area timers
+    jsr flush_timers
 
     ; capture the final time:
     lda !stat_timer
@@ -522,6 +526,10 @@ hook_game_end:
 
 collect_item:
     phx
+
+    ; flush RTA/area timers
+    jsr flush_timers
+
     asl
     asl
     tax
@@ -542,6 +550,15 @@ collect_item:
     plx
     rtl
 
+flush_timers:
+    phx
+    phy
+    pha
+    jsl save_to_sram
+    pla
+    ply
+    plx
+    rts
 warnpc !bank_85_free_space_end
 
 org !bank_84_free_space_start

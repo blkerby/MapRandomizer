@@ -4,8 +4,8 @@ D02F - D100: fast_pause_menu.asm
 D100 - D140: fast_doors.asm
 D140 - D200: oob_death.asm
 D200 - D240: vanilla_bugfixes.asm
-D240 - D300: stats.asm
-D300 - D340: [FREE]
+D240 - D310: stats.asm
+D310 - D340: [FREE]
 D340 - DA00: reserve_hud.asm
 DA00 - DD00: msu1.asm
 DD00 - E100: Palette pointer table for Mosaic
