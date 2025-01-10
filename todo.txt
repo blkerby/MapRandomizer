@@ -8,6 +8,8 @@ v117:
 - check out new Samus sprites
 - rename "Tame" to "Standard"
 - apply Fake Lava patch
+- fix logic for Cathedral Entrance start location 
+- Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
