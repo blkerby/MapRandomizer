@@ -123,12 +123,28 @@ fn upgrade_notable_settings(settings: &mut serde_json::Value, app_data: &AppData
     Ok(())
 }
 
+fn upgrade_item_progression_settings(
+    settings: &mut serde_json::Value,
+) -> Result<()> {
+    let item_progression_settings = settings
+        .get_mut("item_progression_settings")
+        .context("missing item_progression_settings")?
+        .as_object_mut()
+        .context("item_progression_settings is not object")?;
+    if !item_progression_settings.contains_key("ammo_collect_fraction") {
+        item_progression_settings.insert("ammo_collect_fraction".to_string(), (0.7).into());
+    }
+
+    Ok(())
+}
+
 fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<String> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
     assign_presets(&mut settings, app_data)?;
     upgrade_tech_settings(&mut settings, app_data)?;
     upgrade_notable_settings(&mut settings, app_data)?;
+    upgrade_item_progression_settings(&mut settings)?;
 
     // Update version field to current version:
     *settings

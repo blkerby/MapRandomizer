@@ -6,12 +6,18 @@ v117:
 - add more shinecharge and/or temp blue strats
 - add more strats from Incomplete videos
 - check out new Samus sprites
-- rename "Tame" to "Standard"
-- apply Fake Lava patch
+- apply Fake Lava patch (resolve conflict with complementary_suits?)
 - fix logic for Cathedral Entrance start location 
 - Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
 - prevent enter keypress from submitting generate form
 - look into moving up PCJR mella ice clip to expert (at least without x-ray)
+- map gen:
+  - measure map "clumpiness"
+  - sanity checks on save balancing
+  - measure save/map/refill distances using asymmetric graph distance
+  - measure graph distances (symmetric and asymmetric)
+  - decide which maps to keep
+  - rename "Tame" to "Standard"
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
@@ -46,6 +52,7 @@ Rom patching:
   - energy recharge stations also refill reserve energy
 - make kraid camera act normal when entering from left?
   - same thing with spore spawn entering from bottom?
+- prevent MB1 death unless objectives cleared
 
 Logic:
 - PCJR: "Left-Side Shinespark" (and related strats): rename and add "canShinechargeMovementComplex" req
