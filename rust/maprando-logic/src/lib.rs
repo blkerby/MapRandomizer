@@ -40,15 +40,24 @@ impl GlobalState {
         match item {
             Item::Missile => {
                 self.inventory.collectible_missile_packs += 1;
-                self.inventory.max_missiles = (ammo_collect_fraction * self.inventory.collectible_missile_packs as f32).round() as Capacity * 5;
+                self.inventory.max_missiles = (ammo_collect_fraction
+                    * self.inventory.collectible_missile_packs as f32)
+                    .round() as Capacity
+                    * 5;
             }
             Item::Super => {
                 self.inventory.collectible_super_packs += 1;
-                self.inventory.max_supers = (ammo_collect_fraction * self.inventory.collectible_super_packs as f32).round() as Capacity * 5;
+                self.inventory.max_supers = (ammo_collect_fraction
+                    * self.inventory.collectible_super_packs as f32)
+                    .round() as Capacity
+                    * 5;
             }
             Item::PowerBomb => {
                 self.inventory.collectible_power_bomb_packs += 1;
-                self.inventory.max_power_bombs = (ammo_collect_fraction * self.inventory.collectible_power_bomb_packs as f32).round() as Capacity * 5;
+                self.inventory.max_power_bombs = (ammo_collect_fraction
+                    * self.inventory.collectible_power_bomb_packs as f32)
+                    .round() as Capacity
+                    * 5;
             }
             Item::ETank => {
                 self.inventory.max_energy += 100;

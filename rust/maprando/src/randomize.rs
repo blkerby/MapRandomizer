@@ -3489,7 +3489,13 @@ impl<'r> Randomizer<'r> {
                 .chain(filler_items.iter())
                 .take(num_unplaced_bireachable),
         ) {
-            new_state.global_state.collect(item, self.game_data, self.settings.item_progression_settings.ammo_collect_fraction);
+            new_state.global_state.collect(
+                item,
+                self.game_data,
+                self.settings
+                    .item_progression_settings
+                    .ammo_collect_fraction,
+            );
         }
 
         self.update_reachability(new_state);
@@ -4344,7 +4350,13 @@ impl<'r> Randomizer<'r> {
         };
         for x in &self.settings.item_progression_settings.starting_items {
             for _ in 0..x.count {
-                global.collect(x.item, self.game_data, self.settings.item_progression_settings.ammo_collect_fraction);
+                global.collect(
+                    x.item,
+                    self.game_data,
+                    self.settings
+                        .item_progression_settings
+                        .ammo_collect_fraction,
+                );
             }
         }
         global
