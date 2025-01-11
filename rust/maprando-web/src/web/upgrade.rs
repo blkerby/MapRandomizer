@@ -123,9 +123,7 @@ fn upgrade_notable_settings(settings: &mut serde_json::Value, app_data: &AppData
     Ok(())
 }
 
-fn upgrade_item_progression_settings(
-    settings: &mut serde_json::Value,
-) -> Result<()> {
+fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result<()> {
     let item_progression_settings = settings
         .get_mut("item_progression_settings")
         .context("missing item_progression_settings")?
