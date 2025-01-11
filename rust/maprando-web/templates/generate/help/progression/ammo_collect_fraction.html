@@ -1,0 +1,76 @@
+<div class="modal" id="ammoCollectFractionModal" tabindex="-1" data-parent-modal="itemProgressionModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5">Ammo collect fraction</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <p>This determines what fraction of logically collectible ammo packs the player may be required to collect. This affects Missiles, Supers, and Power Bombs. It should be set to a value between 0.5 and 1.0. For each type of ammo, the number of packs that are logically collectible is multiplied by this fraction, then rounded to the nearest integer, to determine the amount of packs assumed by the logic to have been collected. </p>
+            
+            <p>Setting this fraction to 1.0 means that everything available is assumed to be collected, which means that in some scenarios the player could be required to sweep the world to collect every available pack. The default value of 0.7 ensures that the player will have more flexibility. The following table shows how the number of available packs of a given type (Missiles, Supers, or Power Bombs) corresponds to the number of packs assumed by the logic to be collected, based on the default of 0.7:</p>
+
+            <div class="row justify-content-center">
+                <div class="col-auto">
+                    <table class="table table-striped table-bordered">
+                        <tr>
+                            <th>Collectible packs</th>
+                            <th>Assumed collected packs</th>
+                        </tr>
+                        <tr><td>0</td><td>0</td></tr>
+                        <tr><td>1</td><td>1</td></tr>
+                        <tr><td>2</td><td>1</td></tr>
+                        <tr><td>3</td><td>2</td></tr>
+                        <tr><td>4</td><td>3</td></tr>
+                        <tr><td>5</td><td>4</td></tr>
+                        <tr><td>6</td><td>4</td></tr>
+                        <tr><td>7</td><td>5</td></tr>
+                        <tr><td>8</td><td>6</td></tr>
+                        <tr><td>9</td><td>6</td></tr>
+                        <tr><td>10</td><td>7</td></tr>
+                        <tr><td>11</td><td>8</td></tr>
+                        <tr><td>12</td><td>8</td></tr>
+                        <tr><td>13</td><td>9</td></tr>
+                        <tr><td>14</td><td>10</td></tr>
+                        <tr><td>15</td><td>10</td></tr>
+                        <tr><td>16</td><td>11</td></tr>
+                        <tr><td>17</td><td>12</td></tr>
+                        <tr><td>18</td><td>13</td></tr>
+                        <tr><td>19</td><td>13</td></tr>
+                        <tr><td>20</td><td>14</td></tr>
+                        <tr><td>21</td><td>15</td></tr>
+                        <tr><td>22</td><td>15</td></tr>
+                        <tr><td>23</td><td>16</td></tr>
+                        <tr><td>24</td><td>17</td></tr>
+                        <tr><td>25</td><td>18</td></tr>
+                        <tr><td>26</td><td>18</td></tr>
+                        <tr><td>27</td><td>19</td></tr>
+                        <tr><td>28</td><td>20</td></tr>
+                        <tr><td>29</td><td>20</td></tr>
+                        <tr><td>30</td><td>21</td></tr>
+                        <tr><td>31</td><td>22</td></tr>
+                        <tr><td>32</td><td>22</td></tr>
+                        <tr><td>33</td><td>23</td></tr>
+                        <tr><td>34</td><td>24</td></tr>
+                        <tr><td>35</td><td>24</td></tr>
+                        <tr><td>36</td><td>25</td></tr>
+                        <tr><td>37</td><td>26</td></tr>
+                        <tr><td>38</td><td>27</td></tr>
+                        <tr><td>39</td><td>27</td></tr>
+                        <tr><td>40</td><td>28</td></tr>
+                        <tr><td>41</td><td>29</td></tr>
+                        <tr><td>42</td><td>29</td></tr>
+                        <tr><td>43</td><td>30</td></tr>
+                        <tr><td>44</td><td>31</td></tr>
+                        <tr><td>45</td><td>32</td></tr>
+                        <tr><td>46</td><td>32</td></tr>
+                        </table>
+                    </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
