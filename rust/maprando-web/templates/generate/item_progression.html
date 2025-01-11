@@ -125,6 +125,19 @@
                     </div>
                 </div>
 
+                <div class="form-group row">
+                    <div class="col-lg-3 m-2">
+                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#ammoCollectFractionModal">
+                            <i class="bi bi-question-circle"></i>
+                        </button>
+                        <label for="ammoCollectFraction">Ammo collect fraction<br>
+                    </div>
+                    <div class="col-lg-2 m-2">
+                        <input type="number" class="form-control" name="ammo_collect_fraction"
+                        id="ammoCollectFraction" value="0.7" min="0.5" max="1.0" step="0.1" onchange="itemProgressionChanged()">
+                    </div>
+                </div>
+
                 <div class="form-group row border rounded-3 m-3 p-0">
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemPoolModal">
@@ -331,6 +344,7 @@
 {% include "help/progression/priority_strength.html" %}
 {% include "help/progression/random_tank.html" %}
 {% include "help/progression/spazer_before_plasma.html" %}
+{% include "help/progression/ammo_collect_fraction.html" %}
 {% include "help/progression/item_pool.html" %}
 {% include "help/progression/stop_item_placement_early.html" %}
 {% include "help/progression/starting_items.html" %}

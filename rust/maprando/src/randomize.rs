@@ -3489,7 +3489,7 @@ impl<'r> Randomizer<'r> {
                 .chain(filler_items.iter())
                 .take(num_unplaced_bireachable),
         ) {
-            new_state.global_state.collect(item, self.game_data);
+            new_state.global_state.collect(item, self.game_data, self.settings.item_progression_settings.ammo_collect_fraction);
         }
 
         self.update_reachability(new_state);
@@ -4334,6 +4334,9 @@ impl<'r> Randomizer<'r> {
                 max_missiles: 0,
                 max_supers: 0,
                 max_power_bombs: 0,
+                collectible_missile_packs: 0,
+                collectible_super_packs: 0,
+                collectible_power_bomb_packs: 0,
             },
             flags: self.get_initial_flag_vec(),
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
@@ -4341,7 +4344,7 @@ impl<'r> Randomizer<'r> {
         };
         for x in &self.settings.item_progression_settings.starting_items {
             for _ in 0..x.count {
-                global.collect(x.item, self.game_data);
+                global.collect(x.item, self.game_data, self.settings.item_progression_settings.ammo_collect_fraction);
             }
         }
         global
@@ -4760,6 +4763,9 @@ pub struct SpoilerStartState {
     max_missiles: Capacity,
     max_supers: Capacity,
     max_power_bombs: Capacity,
+    collectible_missiles: Capacity,
+    collectible_supers: Capacity,
+    collectible_power_bombs: Capacity,
     items: Vec<String>,
     flags: Vec<String>,
 }
@@ -4921,6 +4927,9 @@ impl<'a> Randomizer<'a> {
             max_missiles: global_state.inventory.max_missiles,
             max_supers: global_state.inventory.max_supers,
             max_power_bombs: global_state.inventory.max_power_bombs,
+            collectible_missiles: global_state.inventory.collectible_missile_packs * 5,
+            collectible_supers: global_state.inventory.collectible_super_packs * 5,
+            collectible_power_bombs: global_state.inventory.collectible_power_bomb_packs * 5,
             items: items,
             flags: flags,
         }

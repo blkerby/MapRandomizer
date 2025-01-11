@@ -183,6 +183,7 @@ function buildSettingsObject() {
             "spazer_before_plasma": formData.get("spazer_before_plasma") == "true",
             "item_pool_preset": formData.get("item_pool_preset"),
             "stop_item_placement_early": formData.get("stop_item_placement_early") == "true",
+            "ammo_collect_fraction": parseFloat(formData.get("ammo_collect_fraction")),
             "item_pool": buildItemPool(),
             "starting_items_preset": formData.get("starting_items_preset"),
             "starting_items": buildStartingItems(),
@@ -591,6 +592,7 @@ function applyItemProgressionPreset(preset) {
     applyRadioValue("spazerBeforePlasma", preset.spazer_before_plasma);
     applyRadioValue("itemPoolPreset", preset.item_pool_preset);
     applyRadioValue("stopItemPlacementEarly", preset.stop_item_placement_early);
+    document.getElementById("ammoCollectFraction").value = preset.ammo_collect_fraction;
     for (x of preset.item_pool) {
         let item = x.item;
         let cnt = x.count;

@@ -287,25 +287,34 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 			let ss = c.details[i].start_state;
 			
-			let item_list = document.createElement("div");
-			item_list.className = "item-list";
+			let non_unique_item_list = document.createElement("div");
+			non_unique_item_list.className = "item-list";
 			let s = [ss.max_missiles, ss.max_supers, ss.max_power_bombs, Math.floor(ss.max_energy / 100), ss.max_reserves / 100];
+			let co = [ss.collectible_missiles, ss.collectible_supers, ss.collectible_power_bombs, null, null];
 			let ic = [1, 2, 3, 0, 20];
 			for (let i in s) {
 				if (s[i] > 0) {
-					item_list.appendChild(icon(ic[i]));
+					non_unique_item_list.appendChild(icon(ic[i]));
 					let count = document.createElement("span");
-					count.innerHTML = s[i] + " ";
-					item_list.appendChild(count);
+					if (co[i] !== null) {
+						count.innerHTML = s[i] + " / " + co[i] + " ";
+					} else {
+						count.innerHTML = s[i] + " ";
+					}
+					non_unique_item_list.appendChild(count);
 				}
 			}
+			si.appendChild(non_unique_item_list);
+
+			let unique_item_list = document.createElement("div");
+			unique_item_list.className = "item-list";
 			for (let i of ss.items) {
 				if (i == "Nothing") { continue; }
 				if (!ic.includes(item_plm[i])) {
-					item_list.appendChild(icon(item_plm[i]));
+					unique_item_list.appendChild(icon(item_plm[i]));
 				}
 			}
-			si.appendChild(item_list);
+			si.appendChild(unique_item_list);
 			
 			flagIcons(si, ss.flags);
 

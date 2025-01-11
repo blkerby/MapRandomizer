@@ -7,6 +7,7 @@
     "spazer_before_plasma": true,
     "item_pool_preset": "Full",
     "stop_item_placement_early": false,
+    "ammo_collect_fraction": 1.0,
     "item_pool": [
         {
             "item": "Missile",

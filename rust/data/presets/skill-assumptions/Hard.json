@@ -4,7 +4,7 @@
     "heated_shinespark_tiles": 24,
     "speed_ball_tiles": 35,
     "shinecharge_leniency_frames": 60,
-    "resource_multiplier": 1.5,
+    "resource_multiplier": 1.75,
     "gate_glitch_leniency": 14,
     "door_stuck_leniency": 2,
     "phantoon_proficiency": 0.5,

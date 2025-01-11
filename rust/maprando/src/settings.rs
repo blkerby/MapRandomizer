@@ -65,6 +65,7 @@ pub struct ItemProgressionSettings {
     pub spazer_before_plasma: bool,
     pub item_pool_preset: Option<ItemPoolPreset>,
     pub stop_item_placement_early: bool,
+    pub ammo_collect_fraction: f32,
     pub item_pool: Vec<ItemCount>,
     pub starting_items_preset: Option<StartingItemsPreset>,
     pub starting_items: Vec<ItemCount>,

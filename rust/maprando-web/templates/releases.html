@@ -14,16 +14,22 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release117">Version 117 (2025-01-07)</a>:
+<p><a id="release117">Version 117 (2025-01-10)</a>:
 <ul>
 <li>Fix to vanilla bug where the game would crash if auto-reserves trigger on the same frame as pausing.
     <ul>
     <li>Now Samus death will be triggered instead of the game crashing.
     </ul>
 <li>Minimap is re-enabled at the end of boss fights.
+<li>A new item progression setting "Ammo collection fraction" is added:
+    <ul>
+    <li>On Normal and Tricky item progression, now only 70% of ammo packs are assumed to be collected.
+    <li>This reduces the possibility of needing to backtrack around the world to collect ammo.
+    </ul>
 <li>Logic updates:
     <ul>
-    <li>Many new strats are added for using an ice moonfall to clip down past a door lock.
+    <li>Heat damage multipliers for Hard, Very Hard, and Expert are adjusted to be more lenient.
+    <li>Many new strats are added for using an ice moonfall to clip down past a door lock (Extreme).
     <li>New notable strats:
         <ul>
         <li><a href="/logic/notable/41/7">Blue Brinstar Energy Tank Room: Fast Wall Jump Spark</a> (Very Hard)

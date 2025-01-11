@@ -10,6 +10,8 @@ v117:
 - apply Fake Lava patch
 - fix logic for Cathedral Entrance start location 
 - Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
+- prevent enter keypress from submitting generate form
+- look into moving up PCJR mella ice clip to expert (at least without x-ray)
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
