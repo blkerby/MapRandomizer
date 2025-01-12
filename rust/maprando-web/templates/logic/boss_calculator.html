@@ -248,7 +248,7 @@
                     ref_radio_button.addEventListener("click", function () {
                         function get_tech(tech_settings, tech_id) {
                             for (let s of tech_settings) {
-                                if (s.tech_id == tech_id) {
+                                if (s.id == tech_id) {
                                     return s.enabled;
                                 }
                             }
@@ -258,7 +258,6 @@
                         let techs = presets_json[parseInt(ref_radio_button.value)].tech_settings;
                         can_manage_reserves = get_tech(techs, 18);
                         can_be_very_patient = get_tech(techs, 2);
-
                         updateProficiency();
                         do_boss_check();
                     });
