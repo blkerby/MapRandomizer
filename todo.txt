@@ -18,6 +18,7 @@ v117:
   - measure graph distances (symmetric and asymmetric)
   - decide which maps to keep
   - rename "Tame" to "Standard"
+  - probably handle Toilet differently in Tame pool
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)

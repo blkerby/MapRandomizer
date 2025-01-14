@@ -2101,6 +2101,13 @@
   },
   {
     "room_id": 32,
+    "strat_id": 2,
+    "video_id": 3211,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 32,
     "strat_id": 8,
     "video_id": 2287,
     "created_user": "maddo",
@@ -2297,6 +2304,13 @@
   },
   {
     "room_id": 32,
+    "strat_id": 98,
+    "video_id": 3218,
+    "created_user": "Sam",
+    "note": "Suitless"
+  },
+  {
+    "room_id": 32,
     "strat_id": 102,
     "video_id": 323,
     "created_user": "Osse101",
@@ -2378,6 +2392,27 @@
     "video_id": 2431,
     "created_user": "Sam",
     "note": "Aiming down after jumping"
+  },
+  {
+    "room_id": 32,
+    "strat_id": 128,
+    "video_id": 3219,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 130,
+    "video_id": 3220,
+    "created_user": "Sam",
+    "note": "With Space Jump"
+  },
+  {
+    "room_id": 32,
+    "strat_id": 132,
+    "video_id": 3221,
+    "created_user": "Sam",
+    "note": "With ceiling bomb jump"
   },
   {
     "room_id": 32,
@@ -2948,6 +2983,13 @@
   },
   {
     "room_id": 47,
+    "strat_id": 11,
+    "video_id": 3222,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 47,
     "strat_id": 12,
     "video_id": 2257,
     "created_user": "Sam",
@@ -2983,10 +3025,45 @@
   },
   {
     "room_id": 46,
+    "strat_id": 4,
+    "video_id": 3223,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 46,
+    "strat_id": 5,
+    "video_id": 3224,
+    "created_user": "Sam",
+    "note": "With Spring Ball"
+  },
+  {
+    "room_id": 46,
+    "strat_id": 5,
+    "video_id": 3225,
+    "created_user": "Sam",
+    "note": "With Bombs"
+  },
+  {
+    "room_id": 46,
     "strat_id": 6,
     "video_id": 397,
     "created_user": "Osse101",
-    "note": ""
+    "note": "Single hop"
+  },
+  {
+    "room_id": 46,
+    "strat_id": 6,
+    "video_id": 3227,
+    "created_user": "Sam",
+    "note": "Chain temporary blue from ledge"
+  },
+  {
+    "room_id": 46,
+    "strat_id": 7,
+    "video_id": 3226,
+    "created_user": "Sam",
+    "note": "Chain temporary blue from ledge"
   },
   {
     "room_id": 46,
@@ -3655,6 +3732,20 @@
   },
   {
     "room_id": 54,
+    "strat_id": 19,
+    "video_id": 3230,
+    "created_user": "Sam",
+    "note": "With Bombs"
+  },
+  {
+    "room_id": 54,
+    "strat_id": 19,
+    "video_id": 3231,
+    "created_user": "Sam",
+    "note": "Spring Ball Bomb Jump (Power Bomb)"
+  },
+  {
+    "room_id": 54,
     "strat_id": 31,
     "video_id": 42,
     "created_user": "maddo",
@@ -3718,6 +3809,13 @@
   },
   {
     "room_id": 54,
+    "strat_id": 50,
+    "video_id": 3232,
+    "created_user": "Sam",
+    "note": "Move around to fix the camera."
+  },
+  {
+    "room_id": 54,
     "strat_id": 56,
     "video_id": 98,
     "created_user": "Osse101",
@@ -3728,6 +3826,13 @@
     "strat_id": 57,
     "video_id": 1124,
     "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 54,
+    "strat_id": 66,
+    "video_id": 3233,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -8212,17 +8317,17 @@
   },
   {
     "room_id": 106,
-    "strat_id": 11,
-    "video_id": 2137,
-    "created_user": "Sam",
-    "note": ""
-  },
-  {
-    "room_id": 106,
     "strat_id": 13,
     "video_id": 1601,
     "created_user": "Sam",
     "note": "From top door"
+  },
+  {
+    "room_id": 106,
+    "strat_id": 14,
+    "video_id": 2137,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 106,
@@ -10734,13 +10839,6 @@
     "room_id": 146,
     "strat_id": 73,
     "video_id": 1140,
-    "created_user": "Osse101",
-    "note": ""
-  },
-  {
-    "room_id": 146,
-    "strat_id": 10,
-    "video_id": 546,
     "created_user": "Osse101",
     "note": ""
   },
@@ -13485,6 +13583,13 @@
     "room_id": 177,
     "strat_id": 4,
     "video_id": 1947,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 177,
+    "strat_id": 37,
+    "video_id": 3287,
     "created_user": "Sam",
     "note": ""
   },
