@@ -267,10 +267,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		
 		for (let i = 0; i < 72 * 72; i++) {
-			if (spoileron)
-				img.data[i * 4 + 3] = 0x00; // transparent
-			else
-				img.data[i * 4 + 3] = 0xd8; // mostly opaque
+			img.data[i * 4 + 3] = 0x00; // transparent
 		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
@@ -286,8 +283,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 						} else if (v.map_reachable_step[y][x] < step_limit) {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
 						} else {
-							if (spoileron)
+							if (spoileron) {
+								// bg color
+								for (var i=0;i<3;i++)
+									img.data[addr*4+i] = 0x11;
 								img.data[addr * 4 + 3] = 0xFF;
+							}
 							else
 								img.data[addr * 4 + 3] = 0xD8; // mostly opaque
 						}
