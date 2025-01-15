@@ -545,6 +545,11 @@
             "enabled": false
         },
         {
+            "id": 56,
+            "name": "canGrappleBombHang",
+            "enabled": false
+        },
+        {
             "id": 67,
             "name": "canDoubleSpringBallJumpMidAir",
             "enabled": false
@@ -707,11 +712,6 @@
         {
             "id": 49,
             "name": "canOffScreenMovement",
-            "enabled": false
-        },
-        {
-            "id": 56,
-            "name": "canGrappleBombHang",
             "enabled": false
         },
         {
