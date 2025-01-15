@@ -836,7 +836,7 @@
     "room_name": "Big Pink",
     "notable_id": 12,
     "name": "Crystal Flash Standup - Super Block",
-    "difficulty": "Very Hard",
+    "difficulty": "Hard",
     "video_id": 472
   },
   {
@@ -932,7 +932,7 @@
     "room_name": "Pink Brinstar Power Bomb Room",
     "notable_id": 2,
     "name": "Crystal Flash Clip",
-    "difficulty": "Very Hard",
+    "difficulty": "Hard",
     "video_id": 540
   },
   {
@@ -1612,7 +1612,7 @@
     "room_name": "Post Crocomire Jump Room",
     "notable_id": 8,
     "name": "Mella Ice Clip",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 1075
   },
   {
@@ -1772,8 +1772,8 @@
     "room_name": "Lower Norfair Spring Ball Maze Room",
     "notable_id": 1,
     "name": "Reverse Crystal Flash Clip",
-    "difficulty": "Very Hard",
-    "video_id": 546
+    "difficulty": "Hard",
+    "video_id": 3453
   },
   {
     "room_id": 146,
@@ -2036,7 +2036,7 @@
     "room_name": "Wrecked Ship East Super Room",
     "notable_id": 2,
     "name": "Crystal Flash Clip (Right to Left)",
-    "difficulty": "Very Hard",
+    "difficulty": "Hard",
     "video_id": 568
   },
   {

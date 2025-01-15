@@ -1082,8 +1082,14 @@
     {
         "tech_id": 174,
         "name": "canCrystalFlash",
-        "difficulty": "Very Hard",
+        "difficulty": "Hard",
         "video_id": 935
+    },
+    {
+        "tech_id": 191,
+        "name": "canHeatedCrystalFlash",
+        "difficulty": "Very Hard",
+        "video_id": 3478
     },
     {
         "tech_id": 175,

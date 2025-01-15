@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release117">Version 117 (2025-01-10)</a>:
+<p><a id="release117">Version 117 (2025-01-13)</a>:
 <ul>
 <li>Fix to vanilla bug where the game would crash if auto-reserves trigger on the same frame as pausing.
     <ul>
@@ -23,13 +23,22 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Minimap is re-enabled at the end of boss fights.
 <li>A new item progression setting "Ammo collection fraction" is added:
     <ul>
-    <li>On Normal and Tricky item progression, now only 70% of ammo packs are assumed to be collected.
+    <li>On Normal and Tricky settings, now only 70% of ammo packs are assumed to be collected.
     <li>This reduces the possibility of needing to backtrack around the world to collect ammo.
     </ul>
 <li>Logic updates:
     <ul>
-    <li>Heat damage multipliers for Hard, Very Hard, and Expert are adjusted to be more lenient.
+    <li>Many cross-room shinecharge strats are added in Maridia rooms.
     <li>Many new strats are added for using an ice moonfall to clip down past a door lock (Extreme).
+    <li>Heat damage multipliers for Hard, Very Hard, and Expert are adjusted to be more lenient.
+    <li>New tech:
+        <ul>
+        <li><a href="/logic/tech/191">canHeatedCrystalFlash</a> (Very Hard)
+        </ul>
+    <li>Tech moved to a different difficulty level:
+        <ul>
+        <li><a href="/logic/tech/174">canCrystalFlash</a> is moved from Very Hard to Hard.
+        </ul>
     <li>New notable strats:
         <ul>
         <li><a href="/logic/notable/41/7">Blue Brinstar Energy Tank Room: Fast Wall Jump Spark</a> (Very Hard)
@@ -41,6 +50,14 @@ document.getElementById("navigation-releases").classList.add("active");
         <li><a href="/logic/notable/204/1">Botwoon Quicksand Room: Pass Through Hidden Tunnel</a> (Extreme), previously in Medium
         <li><a href="/logic/notable/150/7">Golden Torizo's Room: R-Mode Forced Standup Clip</a> (Insane)
         <li><a href="/logic/notable/197/4">Plasma Spark Room: Insane Frozen Choot Spring Ball Jump</a> (Insane)
+        </ul>
+    <li>Notable strats moved to a different difficulty level:
+        <ul>
+        <li><a href="/logic/notable/59/2">Big Pink: Crystal Flash Standup - Super Block</a> is moved from Very Hard to Hard.
+        <li><a href="/logic/notable/60/2">Pink Brinstar Power Bomb Room: Crystal Flash Clip</a> is moved from Very Hard to Hard.
+        <li><a href="/logic/notable/146/1">Lower Norfair Spring Ball Maze Room: Reverse Crystal Flash Clip</a> is moved from Very Hard to Hard.
+        <li><a href="/logic/notable/163/2">Wrecked Ship East Super Room: Crystal Flash Clip (Right to Left)</a> is moved from Very Hard to Hard.
+        <li><a href="/logic/notable/127/8">Post Crocomire Jump Room: Mella Ice Clip</a> is moved from Very Hard to Expert.
         </ul>
     </ul>
 </ul>

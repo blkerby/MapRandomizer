@@ -305,6 +305,11 @@
             "enabled": true
         },
         {
+            "id": 174,
+            "name": "canCrystalFlash",
+            "enabled": true
+        },
+        {
             "id": 182,
             "name": "canCameraManip",
             "enabled": true
@@ -485,8 +490,8 @@
             "enabled": false
         },
         {
-            "id": 174,
-            "name": "canCrystalFlash",
+            "id": 191,
+            "name": "canHeatedCrystalFlash",
             "enabled": false
         },
         {
@@ -1007,10 +1012,24 @@
             "enabled": true
         },
         {
+            "room_id": 59,
+            "notable_id": 12,
+            "room_name": "Big Pink",
+            "notable_name": "Crystal Flash Standup - Super Block",
+            "enabled": true
+        },
+        {
             "room_id": 61,
             "notable_id": 2,
             "room_name": "Pink Brinstar Hopper Room",
             "notable_name": "Reverse Gate Glitch",
+            "enabled": true
+        },
+        {
+            "room_id": 60,
+            "notable_id": 2,
+            "room_name": "Pink Brinstar Power Bomb Room",
+            "notable_name": "Crystal Flash Clip",
             "enabled": true
         },
         {
@@ -1060,6 +1079,20 @@
             "notable_id": 4,
             "room_name": "Golden Torizo's Room",
             "notable_name": "Horizontal Bomb Jump",
+            "enabled": true
+        },
+        {
+            "room_id": 146,
+            "notable_id": 1,
+            "room_name": "Lower Norfair Spring Ball Maze Room",
+            "notable_name": "Reverse Crystal Flash Clip",
+            "enabled": true
+        },
+        {
+            "room_id": 163,
+            "notable_id": 2,
+            "room_name": "Wrecked Ship East Super Room",
+            "notable_name": "Crystal Flash Clip (Right to Left)",
             "enabled": true
         },
         {
@@ -1224,13 +1257,6 @@
             "enabled": false
         },
         {
-            "room_id": 59,
-            "notable_id": 12,
-            "room_name": "Big Pink",
-            "notable_name": "Crystal Flash Standup - Super Block",
-            "enabled": false
-        },
-        {
             "room_id": 61,
             "notable_id": 1,
             "room_name": "Pink Brinstar Hopper Room",
@@ -1249,13 +1275,6 @@
             "notable_id": 5,
             "room_name": "Pink Brinstar Hopper Room",
             "notable_name": "Screw and Kago to Ride the Elevator",
-            "enabled": false
-        },
-        {
-            "room_id": 60,
-            "notable_id": 2,
-            "room_name": "Pink Brinstar Power Bomb Room",
-            "notable_name": "Crystal Flash Clip",
             "enabled": false
         },
         {
@@ -1385,13 +1404,6 @@
             "enabled": false
         },
         {
-            "room_id": 127,
-            "notable_id": 8,
-            "room_name": "Post Crocomire Jump Room",
-            "notable_name": "Mella Ice Clip",
-            "enabled": false
-        },
-        {
             "room_id": 150,
             "notable_id": 1,
             "room_name": "Golden Torizo's Room",
@@ -1438,13 +1450,6 @@
             "notable_id": 1,
             "room_name": "Lower Norfair Fireflea Room",
             "notable_name": "Ice Bridge",
-            "enabled": false
-        },
-        {
-            "room_id": 146,
-            "notable_id": 1,
-            "room_name": "Lower Norfair Spring Ball Maze Room",
-            "notable_name": "Reverse Crystal Flash Clip",
             "enabled": false
         },
         {
@@ -1515,13 +1520,6 @@
             "notable_id": 1,
             "room_name": "Sponge Bath",
             "notable_name": "Bull Boost",
-            "enabled": false
-        },
-        {
-            "room_id": 163,
-            "notable_id": 2,
-            "room_name": "Wrecked Ship East Super Room",
-            "notable_name": "Crystal Flash Clip (Right to Left)",
             "enabled": false
         },
         {
@@ -2110,6 +2108,13 @@
             "notable_id": 7,
             "room_name": "Post Crocomire Jump Room",
             "notable_name": "Springwall",
+            "enabled": false
+        },
+        {
+            "room_id": 127,
+            "notable_id": 8,
+            "room_name": "Post Crocomire Jump Room",
+            "notable_name": "Mella Ice Clip",
             "enabled": false
         },
         {
