@@ -21,6 +21,7 @@ a {
 #path-overlay {
 	position: absolute;
 	pointer-events: none;
+	z-index: 2;
 }
 #obscure-overlay {
 	position: absolute;
@@ -29,29 +30,16 @@ a {
 	height: 1728px;
 	image-rendering: pixelated;
 	z-index: 1;
-	pointer-events: none
-}
-#path-overlay {
-	z-index: 3
+	pointer-events: none;
 }
 #overlay {
 	position: absolute;
-	z-index: 2;
-}
-#grid-overlay {
-	position: absolute;
-	pointer-events: none;
-	width: 1776px;
-	image-rendering: pixelated;
-	top: 0;
-	left: 0;
-	z-index: 2;
 }
 .popup, #room-info, #sidebar-info, #sidebar-route, #settings {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
-	z-index: 3;
+	z-index: 2;
 	border: 2px solid #222;
 	border-radius: 2px;
 	padding: 2px;
@@ -113,7 +101,7 @@ a {
 	display: none;
 	z-index: 2;
 }
-.icon:hover + .popup {
+.icon.nospoil:hover + .popup {
 	display: block;
 	width: auto;
 }
@@ -135,7 +123,7 @@ a {
 	margin-left: 1px;
 	margin-right: 1px;
 }
-.icon:hover {
+.icon.nospoil:hover {
 	transform: scale(2);
 	z-index: 2;
 }
@@ -190,11 +178,11 @@ a {
 	image-rendering: pixelated;
 	position: absolute;
 }
-.flag:hover {
+.flag.nospoil:hover {
 	transform: scale(1.5);
 	z-index: 2;
 }
-.flag:hover + .popup {
+.flag.nospoil:hover + .popup {
 	display: block;
 	z-index: 2;
 }
@@ -214,11 +202,11 @@ a {
 	image-rendering: pixelated;
 	position: absolute;
 }
-.ship:hover {
+.ship.nospoil:hover {
 	transform: scale(1.5);
 	z-index: 2;
 }
-.ship:hover + .popup {
+.ship.nospoil:hover + .popup {
 	display: block;
 	z-index: 2;
 }

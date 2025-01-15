@@ -112,6 +112,15 @@ loadForm(document.getElementById("settingsForm"));
 loadForm(document.getElementById("helpForm"));
 if (!document.getElementById("showonce").checked)
 	document.getElementById("msg-wrap").style.display = "flex";
+if (true) {
+	let ctx = document.getElementById("obscure-overlay").getContext("2d");
+	let img = ctx.createImageData(72,72);
+	for (let i = 0; i < 72 * 72; i++) {
+		img.data[i * 4 + 3] = 0xFF;
+	}
+	ctx.putImageData(img,0,0);
+}
+
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	flagtypes["objectives"] = c.objectives;
@@ -220,22 +229,48 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.appendChild(step_div);
 		update_selected();
 	}
-	show_overview();
 	window.gen_obscurity = (sl) => {
 		step_limit = sl;
 		update_selected();
-
-		// generate obscurity overlay
+		let spoileron = true;
+		// generate obscurity+spoiler overlay
 		let ov = document.getElementById("obscure-overlay");
 		let ctx = ov.getContext("2d");
-		let img = ctx.createImageData(72, 72);
+		let img = ctx.createImageData(72,72);
+
+		while (document.getElementsByClassName("nospoil").length > 0)
+			for (let e of document.getElementsByClassName("nospoil"))
+				while (e.classList.contains("nospoil"))
+					e.classList.remove("nospoil");
+
+		if (step_limit === null)
+			sl = c.summary.length;
+
+		for (let i=0;i<sl;i++) {
+			for (let v of c.details[i].items) {
+				let e = document.getElementById(v.location.room+": "+v.location.node);
+				if (e && !e.classList.contains("nospoil"))
+						e.classList.add("nospoil");
+			}
+			for (let v of c.details[i].flags){
+				let e =document.getElementById(v.flag);
+				if (e && !e.classList.contains("nospoil"))
+					e.classList.add("nospoil");
+			}
+		}
 
 		if (step_limit === null) {
 			ctx.putImageData(img, 0, 0);
+			let e = document.getElementById("gunship")
+			e.classList.add("nospoil");
 			return;
 		}
+		
 		for (let i = 0; i < 72 * 72; i++) {
-			img.data[i * 4 + 3] = 0xD8; // mostly opaque
+			if (spoileron)
+				img.data[i * 4 + 3] = 0x00; // transparent
+			else
+				img.data[i * 4 + 3] = 0xd8; // mostly opaque
 		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
@@ -243,11 +278,18 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					if (v.map[y][x] == 1) {
 						let addr = (v.coords[1] + y) * 72 + (v.coords[0] + x);
 						if (v.map_bireachable_step[y][x] < step_limit) {
+							if (v.room == "Landing Site" && x==4 && y==4) {
+								let e = document.getElementById("gunship")
+								e.classList.add("nospoil");
+							}
 							img.data[addr * 4 + 3] = 0x00; // transparent
 						} else if (v.map_reachable_step[y][x] < step_limit) {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
 						} else {
-							img.data[addr * 4 + 3] = 0xD8; // mostly opaque
+							if (spoileron)
+								img.data[addr * 4 + 3] = 0xFF;
+							else
+								img.data[addr * 4 + 3] = 0xD8; // mostly opaque
 						}
 					}
 				}
@@ -255,10 +297,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		ctx.putImageData(img, 0, 0);
 	}
-	if (c.summary.length == 0)
-		gen_obscurity(null);
-	else
-		gen_obscurity(1);
 	
 	let show_item_details = (item_name, loc, i, j) => {
 		if (j !== null) {
@@ -879,7 +917,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("sidebar-info").style.maxHeight = screen.availHeight-32 + "px";
 		}
 	}
-	moveStart();
 
 	// input
 	let page_x = -helmx+document.documentElement.clientWidth/2;
@@ -892,6 +929,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	let odist = -1;
 
 	transfo();
+	moveStart();
+	show_overview();
+	if (c.summary.length == 0)
+		gen_obscurity(null);
+	else
+		gen_obscurity(1);
+
 	function transfo() {
 		document.getElementById("zoom").style.transform =
 		`translate(${page_x}px, ${page_y}px) scale(${scale})`;
@@ -902,8 +946,18 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (x >= 0 && x < 72 && y >= 0 && y < 72) {
 			let tile = map[y * 72 + x];
 			if (tile >= 0) {
-				el.innerText = c.all_rooms[tile].room;
-				el.dataset.roomId = c.all_rooms[tile].room_id;
+				let v = c.all_rooms[tile];
+				let i = y -v.coords[1];
+				let j = x -v.coords[0];
+				if (v.map_reachable_step[i][j] >= step_limit) {
+					if (true) {
+						el.classList.add("hidden")
+						el.innerText = "";
+						return;
+					}
+				}
+				el.innerText = v.room;
+				el.dataset.roomId = v.room_id;
 				el.style.left = ev.offsetX + 16 + "px";
 				el.style.top = ev.offsetY + "px";
 				el.classList.remove("hidden");
