@@ -22,7 +22,7 @@ a {
 #path-overlay {
 	position: absolute;
 	pointer-events: none;
-	z-index: 2;
+	z-index: 3;
 }
 #obscure-overlay {
 	position: absolute;
