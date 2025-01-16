@@ -148,7 +148,6 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
-                        
                         img_vanilla.put_pixel(
                             x1 as u32,
                             y1 as u32,
