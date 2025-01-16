@@ -69,6 +69,8 @@ function toggleitemvis(ev) {
 	moveStart();
 	
 	var e = document.getElementById("f_DefeatedBombTorizo");
+	if (e === null)
+		return;
 	var x= Number(e.style.left.substring(0, e.style.left.length-2));
 	if (ev.target.checked) {
 		e.style.left = x + 6 + "px";
@@ -78,6 +80,8 @@ function toggleitemvis(ev) {
 }
 function toggleflagvis(ev) {
 	var e = document.getElementById("f_DefeatedBombTorizo");
+	if (e === null)
+		return;
 	var eVis = e.style.visibility;
 	togglevis(ev);
 	moveStart();
@@ -232,7 +236,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let img = ctx.createImageData(72,72);
 		let so = document.getElementById("spoiler-overlay");
 		let sctx = so.getContext("2d");
-		
 
 		if (spoileron) {
 			while (document.getElementsByClassName("nospoil").length > 0)
@@ -274,7 +277,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 
-		if (step_limit === null) {
+		if (step_limit === null && c.summary.length !=0) {
 			ctx.putImageData(img, 0, 0);
 			let e = document.getElementById("gunship")
 			e.classList.add("nospoil");
@@ -296,7 +299,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 						let addr = (v.coords[1] + y) * 72 + (v.coords[0] + x);
 						let sx = (v.coords[0] + x+1)*8;
 						let sy = (v.coords[1] + y+1)*8;
-						if (v.map_bireachable_step[y][x] < step_limit) {
+						if (v.map_bireachable_step[y][x] < step_limit || step_limit === null) {
 							if (v.room == "Landing Site" && x==4 && y==4) {
 								let e = document.getElementById("gunship")
 								e.classList.add("nospoil");
@@ -750,8 +753,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		helmx = x;
 		helmy = y;
 		e.style.visibility = document.getElementById("start").checked ? "visible" : "hidden";
-		e.onclick = ev => {
-			hubRoute();
+		if (c.summary.length == 0) {
+			e.onclick = ev => {
+				showEscape();
+			}
+		}
+		else {
+			e.onclick = ev => {
+				hubRoute();
+			}
 		}
 		e.onpointermove = ev => {
 			hideRoom();
@@ -795,7 +805,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		document.getElementById("overlay").appendChild(e);
 	}
 
-	flags: {
+	flags: 
+	if (c.summary.length != 0) {
 		for (i in roomFlags) {
 			e = document.createElement("img");
 			let rf = roomFlags[i];
@@ -955,7 +966,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	moveStart();
 	show_overview();
 	if (c.summary.length == 0)
+	{
 		gen_obscurity(null);
+		showEscape();
+	}
 	else
 		gen_obscurity(1);
 
