@@ -17,6 +17,7 @@ a {
 	image-rendering: pixelated;
 	top: 0;
 	left: 0;
+	visibility: hidden;
 }
 #path-overlay {
 	position: absolute;
@@ -30,6 +31,14 @@ a {
 	height: 1728px;
 	image-rendering: pixelated;
 	z-index: 1;
+	pointer-events: none;
+}
+#spoiler-overlay {
+	position: absolute;
+	width: 1776px;
+	height: 1776px;
+	image-rendering: pixelated;
+	z-index: 2;
 	pointer-events: none;
 }
 #overlay {

@@ -112,14 +112,12 @@ loadForm(document.getElementById("settingsForm"));
 loadForm(document.getElementById("helpForm"));
 if (!document.getElementById("showonce").checked)
 	document.getElementById("msg-wrap").style.display = "flex";
-if (true) {
-	let ctx = document.getElementById("obscure-overlay").getContext("2d");
-	let img = ctx.createImageData(72,72);
-	for (let i = 0; i < 72 * 72; i++) {
-		img.data[i * 4 + 3] = 0xFF;
-	}
-	ctx.putImageData(img,0,0);
-}
+
+let ctx = document.getElementById("spoiler-overlay").getContext("2d");
+let grid = document.getElementById("grid");
+let pat = ctx.createPattern(grid, "repeat");
+ctx.fillStyle = pat;
+ctx.fillRect(0,0,592,592);
 
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
@@ -176,6 +174,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let j = items[item_idx];
 				if (!seen.has(j.item)) {
 					let el = icon(item_plm[j.item]);
+					el.id = j.item;
 					el.className = "ui-icon-hoverable";
 					el.onclick = ev => {
 						show_item_details(j.item, j.location, i, j);
@@ -217,34 +216,50 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("msg-wrap").style.display = "flex";
 			e.stopPropagation();
 		}
-		// help_button.onmouseup = () => {
-		// 	return true;
-		// }
-		// help_button.onclick = () => {
-		// 	return false;
-		// }
 		step_div.appendChild(step_number);
 		step_div.appendChild(help_button);
 
 		si.appendChild(step_div);
-		update_selected();
+		gen_obscurity();
 	}
-	window.gen_obscurity = (sl) => {
+	window.gen_obscurity = (sl=step_limit) => {
 		step_limit = sl;
 		update_selected();
-		let spoileron = true;
+		let spoileron = document.getElementById("spoilers").checked;
 		// generate obscurity+spoiler overlay
 		let ov = document.getElementById("obscure-overlay");
 		let ctx = ov.getContext("2d");
 		let img = ctx.createImageData(72,72);
+		let so = document.getElementById("spoiler-overlay");
+		let sctx = so.getContext("2d");
+		
 
-		while (document.getElementsByClassName("nospoil").length > 0)
-			for (let e of document.getElementsByClassName("nospoil"))
-				while (e.classList.contains("nospoil"))
-					e.classList.remove("nospoil");
+		if (spoileron) {
+			while (document.getElementsByClassName("nospoil").length > 0)
+			{
+				let e_spoils = document.getElementsByClassName("nospoil");
+				for (let e of e_spoils)
+					while (e.classList.contains("nospoil"))
+						e.classList.remove("nospoil");
+			}
+		}
 
-		if (step_limit === null)
+		if (step_limit === null || !spoileron)
 			sl = c.summary.length;
+
+		for (let i = 1;i<c.summary.length;i++) {
+			let stepdiv = document.getElementById(`step-${i}`);
+			if (stepdiv === null)
+				continue;
+			let items = stepdiv.getElementsByClassName("ui-icon-hoverable");
+			for (let e of items)
+			{
+				if (spoileron && i > sl)
+					e.style.backgroundPositionX= `-${item_plm["Hidden"] * 16}px`;
+				else
+					e.style.backgroundPositionX= `-${item_plm[e.id] * 16}px`;
+			}
+		}
 
 		for (let i=0;i<sl;i++) {
 			for (let v of c.details[i].items) {
@@ -265,38 +280,45 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			e.classList.add("nospoil");
 			return;
 		}
-		
+
+		let grid = document.getElementById("grid");
+		let pat = ctx.createPattern(grid, "repeat");
+		sctx.fillStyle = pat;
+		sctx.fillRect(0,0,592,592);
+
 		for (let i = 0; i < 72 * 72; i++) {
-			img.data[i * 4 + 3] = 0x00; // transparent
+			img.data[i * 4 + 3] = 0xd8; // transparent
 		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
 				for (let x = 0; x < v.map[y].length; x++) {
 					if (v.map[y][x] == 1) {
 						let addr = (v.coords[1] + y) * 72 + (v.coords[0] + x);
+						let sx = (v.coords[0] + x+1)*8;
+						let sy = (v.coords[1] + y+1)*8;
 						if (v.map_bireachable_step[y][x] < step_limit) {
 							if (v.room == "Landing Site" && x==4 && y==4) {
 								let e = document.getElementById("gunship")
 								e.classList.add("nospoil");
 							}
 							img.data[addr * 4 + 3] = 0x00; // transparent
+							sctx.clearRect(sx, sy,8,8);
 						} else if (v.map_reachable_step[y][x] < step_limit) {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
+							sctx.clearRect(sx, sy,8,8);
 						} else {
-							if (spoileron) {
-								// bg color
-								for (var i=0;i<3;i++)
-									img.data[addr*4+i] = 0x11;
-								img.data[addr * 4 + 3] = 0xFF;
-							}
-							else
+							if (!spoileron)
+							{
+								sctx.clearRect(sx, sy,8,8);
 								img.data[addr * 4 + 3] = 0xD8; // mostly opaque
+							}
 						}
 					}
 				}
 			}
 		}
 		ctx.putImageData(img, 0, 0);
+		document.getElementById("map").style.visibility = "visible";
 	}
 	
 	let show_item_details = (item_name, loc, i, j) => {

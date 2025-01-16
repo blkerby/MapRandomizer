@@ -96,6 +96,8 @@ let item_plm = {
 	"Morph": 19,
 	"ReserveTank": 20,
 	"WallJump": 21,
+	"None": 22,
+	"Hidden": 23,
 };
 let itemtypes = {
 	"majors": ["Varia",

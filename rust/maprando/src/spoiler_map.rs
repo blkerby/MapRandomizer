@@ -1,6 +1,6 @@
 use anyhow::Result;
 use hashbrown::HashMap;
-use image::{Rgba, RgbaImage};
+use image::{Rgb, RgbImage};
 use std::io::Cursor;
 
 use crate::{
@@ -48,16 +48,15 @@ fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]
     Ok(out)
 }
 
-fn get_rgb(r: isize, g: isize, b: isize) -> Rgba<u8> {
-    Rgba([
+fn get_rgb(r: isize, g: isize, b: isize) -> Rgb<u8> {
+    Rgb([
         (r * 255 / 31) as u8,
         (g * 255 / 31) as u8,
         (b * 255 / 31) as u8,
-        0xFF as u8,
     ])
 }
 
-fn get_color(value: u8, area: usize) -> Rgba<u8> {
+fn get_color(value: u8, area: usize) -> Rgb<u8> {
     let cool_area_color = match area {
         0 => get_rgb(18, 0, 27), // Crateria
         1 => get_rgb(0, 18, 0),  // Brinstar
@@ -118,23 +117,9 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
     let height = (max_tiles + 2) * 8;
-    let mut img_assigned = RgbaImage::new(width, height);
-    let mut img_vanilla = RgbaImage::new(width, height);
-    let grid_val = Rgba([0x29, 0x29, 0x29, 0xFF]);
+    let mut img_assigned = RgbImage::new(width, height);
+    let mut img_vanilla = RgbImage::new(width, height);
     let map_overrides = get_map_overrides(rom)?;
-
-    for y in (7..height).step_by(8) {
-        for x in (0..width).step_by(2) {
-            img_vanilla.put_pixel(x, y, grid_val);
-            img_assigned.put_pixel(x, y, grid_val);
-        }
-    }
-    for x in (0..width).step_by(8) {
-        for y in (1..height).step_by(2) {
-            img_vanilla.put_pixel(x, y, grid_val);
-            img_assigned.put_pixel(x, y, grid_val);
-        }
-    }
 
     for room_idx in 0..map.rooms.len() {
         let room = &game_data.room_geometry[room_idx];
@@ -163,24 +148,17 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
-                        if tile[y][x] != 0 {
-                            /*img_grid.put_pixel(
-                                x1 as u32,
-                                y1 as u32,
-                                Rgba([0x00, 0x00, 0x00, 0x00]),
-                            );*/
                         
-                            img_vanilla.put_pixel(
-                                x1 as u32,
-                                y1 as u32,
-                                get_color(tile[y][x], vanilla_area),
-                            );
-                            img_assigned.put_pixel(
-                                x1 as u32,
-                                y1 as u32,
-                                get_color(tile[y][x], map_area),
-                            );
-                        }
+                        img_vanilla.put_pixel(
+                            x1 as u32,
+                            y1 as u32,
+                            get_color(tile[y][x], vanilla_area),
+                        );
+                        img_assigned.put_pixel(
+                            x1 as u32,
+                            y1 as u32,
+                            get_color(tile[y][x], map_area),
+                        );
                     }
                 }
             }
