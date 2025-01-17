@@ -13,6 +13,8 @@ v117:
 - look into moving up PCJR mella ice clip to expert (at least without x-ray)
 - fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
 - add `easyHeatFrames` logical requirement
+- pull in new videos
+- move canUseSpeedEchoes to VH, look at other Hard tech.
 - map gen:
   - measure map "clumpiness"
   - sanity checks on save balancing
