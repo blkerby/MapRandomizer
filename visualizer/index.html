@@ -8,6 +8,7 @@
     <script src="save_settings.js"></script>
 </head>
 <body>
+    <img src="grid.png" id="grid" style="display: none;">
     <div id="msg-wrap" onclick="this.style.display = 'none';">
         <div class="msg">
             <h1 class="msg-title">Spoiler map info</h1>
@@ -32,7 +33,7 @@
         <svg id="path-overlay" width="1776px" height="1776px"></svg>
         <div id="overlay">
             <canvas id="obscure-overlay" width="72" height="72"></canvas>
-            <img id="grid-overlay" src="../map-grid.png">
+            <canvas id="spoiler-overlay" width="592" height="592"></canvas>
             <div id="room-info"></div>
         </div>
     </div>
@@ -54,6 +55,8 @@
             <label for="minibosses">minibosses</label><br>
             <input type=checkbox class="subflags" id="misc" name="misc" onchange="toggleflagvis(event)" checked>
             <label for="misc">flags</label><br>
+            <input type=checkbox id="spoilers" name="spoilers" onchange="window.gen_obscurity()">
+            <label for="spoilers">spoilers</label><br>
         </form>
     </div>
     <script src="consts.js"></script>

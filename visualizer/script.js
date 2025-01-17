@@ -69,6 +69,8 @@ function toggleitemvis(ev) {
 	moveStart();
 	
 	var e = document.getElementById("f_DefeatedBombTorizo");
+	if (e === null)
+		return;
 	var x= Number(e.style.left.substring(0, e.style.left.length-2));
 	if (ev.target.checked) {
 		e.style.left = x + 6 + "px";
@@ -78,6 +80,8 @@ function toggleitemvis(ev) {
 }
 function toggleflagvis(ev) {
 	var e = document.getElementById("f_DefeatedBombTorizo");
+	if (e === null)
+		return;
 	var eVis = e.style.visibility;
 	togglevis(ev);
 	moveStart();
@@ -112,6 +116,13 @@ loadForm(document.getElementById("settingsForm"));
 loadForm(document.getElementById("helpForm"));
 if (!document.getElementById("showonce").checked)
 	document.getElementById("msg-wrap").style.display = "flex";
+
+let ctx = document.getElementById("spoiler-overlay").getContext("2d");
+let grid = document.getElementById("grid");
+let pat = ctx.createPattern(grid, "repeat");
+ctx.fillStyle = pat;
+ctx.fillRect(0,0,592,592);
+
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	flagtypes["objectives"] = c.objectives;
@@ -167,6 +178,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let j = items[item_idx];
 				if (!seen.has(j.item)) {
 					let el = icon(item_plm[j.item]);
+					el.id = j.item;
 					el.className = "ui-icon-hoverable";
 					el.onclick = ev => {
 						show_item_details(j.item, j.location, i, j);
@@ -208,57 +220,109 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("msg-wrap").style.display = "flex";
 			e.stopPropagation();
 		}
-		// help_button.onmouseup = () => {
-		// 	return true;
-		// }
-		// help_button.onclick = () => {
-		// 	return false;
-		// }
 		step_div.appendChild(step_number);
 		step_div.appendChild(help_button);
 
 		si.appendChild(step_div);
-		update_selected();
+		gen_obscurity();
 	}
-	show_overview();
-	window.gen_obscurity = (sl) => {
+	window.gen_obscurity = (sl=step_limit) => {
 		step_limit = sl;
 		update_selected();
-
-		// generate obscurity overlay
+		let spoileron = document.getElementById("spoilers").checked;
+		// generate obscurity+spoiler overlay
 		let ov = document.getElementById("obscure-overlay");
 		let ctx = ov.getContext("2d");
-		let img = ctx.createImageData(72, 72);
+		let img = ctx.createImageData(72,72);
+		let so = document.getElementById("spoiler-overlay");
+		let sctx = so.getContext("2d");
 
-		if (step_limit === null) {
+		if (spoileron) {
+			while (document.getElementsByClassName("nospoil").length > 0)
+			{
+				let e_spoils = document.getElementsByClassName("nospoil");
+				for (let e of e_spoils)
+					while (e.classList.contains("nospoil"))
+						e.classList.remove("nospoil");
+			}
+		}
+
+		if (step_limit === null || spoileron)
+			sl = c.summary.length;
+
+		for (let i = 1;i<c.summary.length;i++) {
+			let stepdiv = document.getElementById(`step-${i}`);
+			if (stepdiv === null)
+				continue;
+			let items = stepdiv.getElementsByClassName("ui-icon-hoverable");
+			for (let e of items)
+			{
+				if (!spoileron && i > sl)
+					e.style.backgroundPositionX= `-${item_plm["Hidden"] * 16}px`;
+				else
+					e.style.backgroundPositionX= `-${item_plm[e.id] * 16}px`;
+			}
+		}
+
+		for (let i=0;i<sl;i++) {
+			for (let v of c.details[i].items) {
+				let e = document.getElementById(v.location.room+": "+v.location.node);
+				if (e && !e.classList.contains("nospoil"))
+						e.classList.add("nospoil");
+			}
+			for (let v of c.details[i].flags){
+				let e =document.getElementById(v.flag);
+				if (e && !e.classList.contains("nospoil"))
+					e.classList.add("nospoil");
+			}
+		}
+
+		if (step_limit === null && c.summary.length !=0) {
 			ctx.putImageData(img, 0, 0);
+			let e = document.getElementById("gunship")
+			e.classList.add("nospoil");
 			return;
 		}
+
+		let grid = document.getElementById("grid");
+		let pat = ctx.createPattern(grid, "repeat");
+		sctx.fillStyle = pat;
+		sctx.fillRect(0,0,592,592);
+
 		for (let i = 0; i < 72 * 72; i++) {
-			img.data[i * 4 + 3] = 0xD8; // mostly opaque
+			img.data[i * 4 + 3] = 0xd8; // transparent
 		}
 		for (let v of c.all_rooms) {
 			for (let y = 0; y < v.map.length; y++) {
 				for (let x = 0; x < v.map[y].length; x++) {
 					if (v.map[y][x] == 1) {
 						let addr = (v.coords[1] + y) * 72 + (v.coords[0] + x);
-						if (v.map_bireachable_step[y][x] < step_limit) {
+						let sx = (v.coords[0] + x+1)*8;
+						let sy = (v.coords[1] + y+1)*8;
+						if (v.map_bireachable_step[y][x] < step_limit || step_limit === null) {
+							if (v.room == "Landing Site" && x==4 && y==4) {
+								let e = document.getElementById("gunship")
+								e.classList.add("nospoil");
+							}
 							img.data[addr * 4 + 3] = 0x00; // transparent
+							sctx.clearRect(sx, sy,8,8);
 						} else if (v.map_reachable_step[y][x] < step_limit) {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
+							sctx.clearRect(sx, sy,8,8);
 						} else {
-							img.data[addr * 4 + 3] = 0xD8; // mostly opaque
+							if (spoileron)
+							{
+								sctx.clearRect(sx, sy,8,8);
+								img.data[addr * 4 + 3] = 0xD8; // mostly opaque
+							}
 						}
 					}
 				}
 			}
 		}
 		ctx.putImageData(img, 0, 0);
+		document.getElementById("map").style.visibility = "visible";
 	}
-	if (c.summary.length == 0)
-		gen_obscurity(null);
-	else
-		gen_obscurity(1);
 	
 	let show_item_details = (item_name, loc, i, j) => {
 		if (j !== null) {
@@ -689,8 +753,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		helmx = x;
 		helmy = y;
 		e.style.visibility = document.getElementById("start").checked ? "visible" : "hidden";
-		e.onclick = ev => {
-			hubRoute();
+		if (c.summary.length == 0) {
+			e.onclick = ev => {
+				showEscape();
+			}
+		}
+		else {
+			e.onclick = ev => {
+				hubRoute();
+			}
 		}
 		e.onpointermove = ev => {
 			hideRoom();
@@ -734,7 +805,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		document.getElementById("overlay").appendChild(e);
 	}
 
-	flags: {
+	flags: 
+	if (c.summary.length != 0) {
 		for (i in roomFlags) {
 			e = document.createElement("img");
 			let rf = roomFlags[i];
@@ -879,7 +951,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("sidebar-info").style.maxHeight = screen.availHeight-32 + "px";
 		}
 	}
-	moveStart();
 
 	// input
 	let page_x = -helmx+document.documentElement.clientWidth/2;
@@ -892,6 +963,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	let odist = -1;
 
 	transfo();
+	moveStart();
+	show_overview();
+	if (c.summary.length == 0)
+	{
+		gen_obscurity(null);
+		showEscape();
+	}
+	else
+		gen_obscurity(1);
+
 	function transfo() {
 		document.getElementById("zoom").style.transform =
 		`translate(${page_x}px, ${page_y}px) scale(${scale})`;
@@ -902,8 +983,18 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (x >= 0 && x < 72 && y >= 0 && y < 72) {
 			let tile = map[y * 72 + x];
 			if (tile >= 0) {
-				el.innerText = c.all_rooms[tile].room;
-				el.dataset.roomId = c.all_rooms[tile].room_id;
+				let v = c.all_rooms[tile];
+				let i = y -v.coords[1];
+				let j = x -v.coords[0];
+				if (v.map_reachable_step[i][j] >= step_limit) {
+					if (true) {
+						el.classList.add("hidden")
+						el.innerText = "";
+						return;
+					}
+				}
+				el.innerText = v.room;
+				el.dataset.roomId = v.room_id;
 				el.style.left = ev.offsetX + 16 + "px";
 				el.style.top = ev.offsetY + "px";
 				el.classList.remove("hidden");

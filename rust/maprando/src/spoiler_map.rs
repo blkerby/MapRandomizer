@@ -1,6 +1,6 @@
 use anyhow::Result;
 use hashbrown::HashMap;
-use image::{Rgb, RgbImage, Rgba, RgbaImage};
+use image::{Rgb, RgbImage};
 use std::io::Cursor;
 
 use crate::{
@@ -95,7 +95,6 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
 pub struct SpoilerMaps {
     pub assigned: Vec<u8>,
     pub vanilla: Vec<u8>,
-    pub grid: Vec<u8>,
 }
 
 fn get_map_overrides(rom: &Rom) -> Result<HashMap<(AreaIdx, TilemapOffset), TilemapWord>> {
@@ -120,20 +119,7 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
     let height = (max_tiles + 2) * 8;
     let mut img_assigned = RgbImage::new(width, height);
     let mut img_vanilla = RgbImage::new(width, height);
-    let mut img_grid = RgbaImage::new(width, height);
-    let grid_val = Rgba([0x29, 0x29, 0x29, 0xFF]);
     let map_overrides = get_map_overrides(rom)?;
-
-    for y in (7..height).step_by(8) {
-        for x in (0..width).step_by(2) {
-            img_grid.put_pixel(x, y, grid_val);
-        }
-    }
-    for x in (0..width).step_by(8) {
-        for y in (1..height).step_by(2) {
-            img_grid.put_pixel(x, y, grid_val);
-        }
-    }
 
     for room_idx in 0..map.rooms.len() {
         let room = &game_data.room_geometry[room_idx];
@@ -162,13 +148,6 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
-                        if tile[y][x] != 0 {
-                            img_grid.put_pixel(
-                                x1 as u32,
-                                y1 as u32,
-                                Rgba([0x00, 0x00, 0x00, 0x00]),
-                            );
-                        }
                         img_vanilla.put_pixel(
                             x1 as u32,
                             y1 as u32,
@@ -197,14 +176,8 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
         image::ImageOutputFormat::Png,
     )?;
 
-    let mut vec_grid: Vec<u8> = Vec::new();
-    img_grid.write_to(
-        &mut Cursor::new(&mut vec_grid),
-        image::ImageOutputFormat::Png,
-    )?;
     Ok(SpoilerMaps {
         assigned: vec_assigned,
         vanilla: vec_vanilla,
-        grid: vec_grid,
     })
 }

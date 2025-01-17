@@ -271,10 +271,6 @@ pub async fn save_seed(
         &format!("{}/map-vanilla.png", prefix),
         spoiler_maps.vanilla,
     ));
-    files.push(SeedFile::new(
-        &format!("{}/map-grid.png", prefix),
-        spoiler_maps.grid,
-    ));
 
     // Write the spoiler visualizer
     for (filename, data) in &app_data.visualizer_files {
