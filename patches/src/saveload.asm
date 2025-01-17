@@ -3,6 +3,9 @@
 arch snes.cpu
 LoRom
 
+!bank_8f_free_space_start = $8ffe40
+!bank_8f_free_space_end = $8ffe80
+
 !seed_value_0 = $dfff00
 !seed_value_1 = $dfff02
 
@@ -97,3 +100,24 @@ ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM
 	PLY : PLX : PLB : PLP : SEC : RTL
 
     warnpc $81f100
+
+; hook north/south elevatube door ASM to check if it's spawn location before unlocking Samus
+org $8fe301
+    jsr fix_tube
+
+org $8fe310
+    jsr fix_tube
+
+org !bank_8f_free_space_start
+fix_tube:
+    lda $0A44
+    cmp #$E86A                    ; Samus appearance?
+    bne .leave
+    pla                           ; adjust stack
+    rts
+
+.leave
+    lda #$0001                    ; replaced code
+    rts
+
+warnpc !bank_8f_free_space_end
