@@ -247,7 +247,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 
-		if (step_limit === null || !spoileron)
+		if (step_limit === null || spoileron)
 			sl = c.summary.length;
 
 		for (let i = 1;i<c.summary.length;i++) {
@@ -257,7 +257,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let items = stepdiv.getElementsByClassName("ui-icon-hoverable");
 			for (let e of items)
 			{
-				if (spoileron && i > sl)
+				if (!spoileron && i > sl)
 					e.style.backgroundPositionX= `-${item_plm["Hidden"] * 16}px`;
 				else
 					e.style.backgroundPositionX= `-${item_plm[e.id] * 16}px`;
@@ -310,7 +310,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
 							sctx.clearRect(sx, sy,8,8);
 						} else {
-							if (!spoileron)
+							if (spoileron)
 							{
 								sctx.clearRect(sx, sy,8,8);
 								img.data[addr * 4 + 3] = 0xD8; // mostly opaque
