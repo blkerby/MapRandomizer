@@ -135,7 +135,7 @@ session = TrainingSession(envs,
 
 pickle_name = 'models/session-2024-09-18T05:56:26.276400.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk62', 'rb'))
+session = pickle.load(open(pickle_name + '-bk84', 'rb'))
 session.envs = envs
 session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # # # logging.info("Action model: {}".format(action_model))
@@ -233,8 +233,15 @@ session.replay_buffer.episodes_per_file = num_envs * num_devices
 #     #     arity=1,
 #     #     dropout=0.0).to(device)
 #     # session.action_model.action_ff_layers.insert(i, global_ff_layer)
-# session.action_optimizer = torch.optim.Adam(session.action_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
-# session.action_average_parameters = ExponentialAverage(session.action_model.all_param_data(), beta=0.995)
+
+
+# # Set up direct attention layer for output
+# session.state_model.global_query = torch.nn.Parameter(
+#     torch.randn([session.state_model.num_outputs, session.state_model.embedding_width], device=device) / math.sqrt(embedding_width))
+# session.state_model.global_value = torch.nn.Parameter(torch.zeros([session.state_model.num_outputs, session.state_model.embedding_width], device=device))
+#
+# session.state_optimizer = torch.optim.Adam(session.state_model.parameters(), lr=0.00005, betas=(0.9, 0.9), eps=1e-5)
+# session.average_parameters = ExponentialAverage(session.state_model.all_param_data(), beta=0.995)
 
 num_state_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.state_model.parameters())
 num_balance_params = sum(torch.prod(torch.tensor(list(param.shape))) for param in session.balance_model.parameters())
@@ -246,8 +253,8 @@ hist_frac = 1.0
 hist_c = 4.0
 hist_max = 2 ** 23
 batch_size = 2 ** 8
-state_lr0 = 0.00002
-state_lr1 = 0.00002
+state_lr0 = 0.0001
+state_lr1 = state_lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
 num_candidates_min0 = 0.5
@@ -343,7 +350,8 @@ state_ema_alpha1 = 0.0005
 session.average_parameters.beta = 1 - state_ema_alpha0
 
 # layer_norm_param_decay = 0.9998
-layer_norm_param_decay = 0.999
+# layer_norm_param_decay = 0.999
+old_out_param_decay = 0.0
 
 def compute_door_connect_counts(episode_data, only_success: bool, ind=None):
     batch_size = 1024
@@ -646,6 +654,8 @@ for i in range(1000000):
             total_balance_loss += balance_loss
             total_loss_cnt += 1
 
+            session.state_model.state_output_lin2.weight.data *= old_out_param_decay
+
     if session.replay_buffer.num_files % print_freq == 0:
         mean_state_losses = [x / total_loss_cnt for x in total_state_losses]
         mean_balance_loss = total_balance_loss / total_loss_cnt
@@ -674,13 +684,16 @@ for i in range(1000000):
         total_round_cnt = 0
         total_min_door_frac = 0
 
+        global_wt = torch.mean(torch.abs(session.state_model.global_value))
+        old_wt = torch.mean(torch.abs(session.state_model.state_output_lin2.weight))
+
         # buffer_is_pass = session.replay_buffer.episode_data.action[:session.replay_buffer.size, :, 0] == len(
         #     envs[0].rooms) - 1
         # buffer_mean_pass = torch.mean(buffer_is_pass.to(torch.float32))
         # buffer_mean_rooms_missing = buffer_mean_pass * len(rooms)
 
         logging.info(
-            "{}: act={:.4f} ({}), bal={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), ent={:.3f}, save={:.3f}, diam={:.2f}, mc={:.2f}, tube={:.2f}, p={:.3f}, frac={:.2f}".format(
+            "{}: act={:.4f} ({}), bal={:.4f}, cost={:.2f} (min={:d}, frac={:.4f}), ent={:.3f}, save={:.3f}, diam={:.2f}, mc={:.2f}, tube={:.2f}, p={:.3f}, frac={:.2f}, o_wt={:.8f}, g_wt={:.8f}".format(
                 session.replay_buffer.num_files,
                 mean_state_losses[0],
                 ', '.join('{:.4f}'.format(x) for x in mean_state_losses[1:]),
@@ -697,6 +710,8 @@ for i in range(1000000):
                 new_prob,
                 # new_prob0,
                 frac,
+                old_wt,
+                global_wt,
             ))
         total_state_losses = None
         total_action_losses = None
@@ -711,7 +726,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk64')
+            # save_session(session, pickle_name + '-bk84')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.replay_buffer.num_files % summary_freq == 0:

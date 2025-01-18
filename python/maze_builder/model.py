@@ -394,22 +394,10 @@ class RoomTransformerModel(torch.nn.Module):
                 dropout=ff_dropout)
             self.ff_layers.append(ff_layer)
 
-        self.pool_attn_query_door = torch.nn.Parameter(
-            torch.randn([global_attn_heads, global_attn_key_width]) / math.sqrt(embedding_width))
-        self.pool_attn_key_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_key_width, bias=False)
-        self.pool_attn_value_lin = torch.nn.Linear(embedding_width, global_attn_heads * global_attn_value_width, bias=False)
-        self.pool_attn_post_lin = torch.nn.Linear(global_attn_heads * global_attn_value_width, global_width, bias=False)
-        self.pool_layer_norm = torch.nn.LayerNorm(global_width, elementwise_affine=False)
-
-        self.state_ff_layers = torch.nn.ModuleList()
-        for i in range(num_global_layers):
-            self.state_ff_layers.append(FeedforwardLayer(
-                input_width=global_width,
-                hidden_width=global_hidden_width,
-                arity=arity,
-                dropout=global_ff_dropout))
-        self.state_output_lin1 = torch.nn.Linear(self.global_width, global_hidden_width, bias=False)
-        self.state_output_lin2 = torch.nn.Linear(global_hidden_width, num_outputs, bias=False)
+        self.global_query = torch.nn.Parameter(
+            torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
+        self.global_value = torch.nn.Parameter(
+            torch.randn([num_outputs, embedding_width]) / math.sqrt(embedding_width))
 
 
     def forward_multiclass(self, room_mask, room_position_x, room_position_y,
@@ -445,18 +433,11 @@ class RoomTransformerModel(torch.nn.Module):
                 X = self.attn_layers[i](X)
                 X = self.ff_layers[i](X)
 
-            Q = self.pool_attn_query_door.view(1, 1, self.global_attn_heads, self.global_attn_key_width)
-            K = self.pool_attn_key_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_key_width)
-            V = self.pool_attn_value_lin(X).view(n, self.num_tokens, self.global_attn_heads, self.global_attn_value_width)
-            X = compute_cross_attn(Q, K, V).view(n, self.global_attn_heads * self.global_attn_value_width)
-            X = self.pool_attn_post_lin(X)
-            X = self.pool_layer_norm(X)
-
-            for i in range(self.num_global_layers):
-                X = self.state_ff_layers[i](X)
-            X = self.state_output_lin1(X)
-            X = torch.nn.functional.gelu(X)
-            X = self.state_output_lin2(X)
+            # New attention-like layer direct to outputs:
+            raw_global_weight = torch.einsum('bse,ge->bsg', X, self.global_query)
+            global_weight = torch.softmax(raw_global_weight, dim=1)
+            global_value = torch.einsum('bse,ge->bsg', X, self.global_value)
+            X = torch.sum(global_weight * global_value, dim=1)
 
         return X.to(torch.float32)
 

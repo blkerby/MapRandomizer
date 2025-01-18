@@ -46,7 +46,7 @@ def check_filter(data, j, pool):
     is_valid = (
         data.reward[j] == 0 and
         data.toilet_good[j] and
-        save_dist < 5.50 and
+        save_dist < 5.20 and
         data.graph_diameter[j] <= 45
     )
 
@@ -259,7 +259,7 @@ for file_i in range(start_index, end_index):
                 M = compute_distance_matrix(A)
 
                 attempts_per_batch = 2 ** 17
-                num_batches = 64
+                num_batches = 16
                 best_areas = None
                 best_cost = float('inf')
                 for _ in range(num_batches):

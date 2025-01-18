@@ -10,7 +10,7 @@ import os
 # input_rom_path = '/home/kerby/Downloads/Super Metroid (JU) [!].smc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.3-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.5.9-tinystates-ntsc.sfc'
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.6.1-tinystates-ntsc.sfc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.6.4-tinystates-ntsc.sfc'
 # input_rom_path = '/home/kerby/Downloads/Practice-v2.5.1-suits.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v8-66-115673117270825932886574167490559/smmr-v8-66-115673117270825932886574167490559.sfc'
 # input_rom_path = '/home/kerby/Downloads/smmr-v0-30-115673117270825932886574167490559.sfc'
@@ -36,9 +36,10 @@ patches = [
     # 'holes',
     # 'oob_death',
     # 'spinjumprestart',
-    # 'new_game_extra',
     # 'door_hurt',
     "everest_tube",
+    "hyper_beam",
+    "fast_pause_menu",
     # 'complementary_suits',
     # 'complementary_suits_noheat',
     # 'escape',
