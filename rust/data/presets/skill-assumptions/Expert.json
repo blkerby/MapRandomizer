@@ -215,6 +215,11 @@
             "enabled": true
         },
         {
+            "id": 193,
+            "name": "canLongIBJ",
+            "enabled": true
+        },
+        {
             "id": 90,
             "name": "canJumpIntoIBJ",
             "enabled": true
@@ -717,6 +722,11 @@
         {
             "id": 57,
             "name": "canUnmorphGrappleHang",
+            "enabled": false
+        },
+        {
+            "id": 192,
+            "name": "canFrozenEnemyGrappleHang",
             "enabled": false
         },
         {
@@ -3661,7 +3671,7 @@
             "room_id": 187,
             "notable_id": 2,
             "room_name": "Halfie Climb Room",
-            "notable_name": "Top Left Suitless Bombless Leave With Grapple Teleport",
+            "notable_name": "Top Left Suitless Unmorph Leave With Grapple Teleport",
             "enabled": false
         },
         {

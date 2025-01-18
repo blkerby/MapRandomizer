@@ -360,6 +360,12 @@
         "video_id": 766
     },
     {
+        "tech_id": 192,
+        "name": "canFrozenEnemyGrappleHang",
+        "difficulty": "Extreme",
+        "video_id": 3533
+    },
+    {
         "tech_id": 185,
         "name": "canMorphTurnaround",
         "difficulty": "Hard",
@@ -567,6 +573,12 @@
         "tech_id": 89,
         "name": "canIBJ",
         "difficulty": "Medium",
+        "video_id": 3681
+    },
+    {
+        "tech_id": 193,
+        "name": "canLongIBJ",
+        "difficulty": "Hard",
         "video_id": 1037
     },
     {
