@@ -15,6 +15,7 @@ v117:
 - add `easyHeatFrames` logical requirement
 - pull in new videos
 - move canUseSpeedEchoes to VH, look at other Hard tech.
+- fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
 - map gen:
   - measure map "clumpiness"
   - sanity checks on save balancing

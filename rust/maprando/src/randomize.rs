@@ -272,7 +272,7 @@ pub struct Randomizer<'a> {
 struct ItemLocationState {
     pub placed_item: Option<Item>,
     pub collected: bool,
-    pub reachable: bool,
+    pub reachable_step: Option<usize>,
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
     pub difficulty_tier: Option<usize>,
@@ -2960,7 +2960,9 @@ impl<'r> Randomizer<'r> {
 
             for &v in vertex_ids {
                 if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
-                    state.item_location_state[i].reachable = true;
+                    if state.item_location_state[i].reachable_step.is_none() {
+                        state.item_location_state[i].reachable_step = Some(state.step_num);
+                    }
                     if !state.item_location_state[i].bireachable
                         && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
                             .is_some()
@@ -3507,7 +3509,7 @@ impl<'r> Randomizer<'r> {
         let num_reachable = new_state
             .item_location_state
             .iter()
-            .filter(|x| x.reachable)
+            .filter(|x| x.reachable_step.is_some())
             .count();
         let num_one_way_reachable = num_reachable - num_bireachable;
 
@@ -3527,7 +3529,7 @@ impl<'r> Randomizer<'r> {
                 &new_state.item_location_state,
                 &old_state.item_location_state,
             )
-            .any(|(n, o)| n.bireachable && !o.reachable)
+            .any(|(n, o)| n.bireachable && o.reachable_step.is_none())
         };
 
         let is_beatable = self.is_game_beatable(&new_state);
@@ -3561,7 +3563,7 @@ impl<'r> Randomizer<'r> {
         );
 
         let mut new_state_filler: RandomizationState = RandomizationState {
-            step_num: state.step_num,
+            step_num: state.step_num + 1,
             start_location: state.start_location.clone(),
             hub_location: state.hub_location.clone(),
             hub_obtain_route: state.hub_obtain_route.clone(),
@@ -3765,7 +3767,7 @@ impl<'r> Randomizer<'r> {
             } else {
                 if item_location_state.bireachable {
                     unplaced_bireachable.push(i);
-                } else if item_location_state.reachable {
+                } else if item_location_state.reachable_step.is_some() {
                     unplaced_oneway_reachable.push(i);
                 }
             }
@@ -4547,7 +4549,7 @@ impl<'r> Randomizer<'r> {
         let initial_item_location_state = ItemLocationState {
             placed_item: None,
             collected: false,
-            reachable: false,
+            reachable_step: None,
             bireachable: false,
             bireachable_vertex_id: None,
             difficulty_tier: None,
@@ -4632,7 +4634,7 @@ impl<'r> Randomizer<'r> {
             let cnt_reachable = state
                 .item_location_state
                 .iter()
-                .filter(|x| x.reachable)
+                .filter(|x| x.reachable_step.is_some())
                 .count();
             let cnt_bireachable = state
                 .item_location_state
@@ -4703,7 +4705,6 @@ impl<'r> Randomizer<'r> {
                     );
                 }
             }
-            state.step_num += 1;
         }
         self.finish(attempt_num_rando, &mut state);
         self.get_randomization(
@@ -4786,6 +4787,7 @@ pub struct SpoilerStartState {
 pub struct SpoilerItemDetails {
     item: String,
     location: SpoilerLocation,
+    reachable_step: usize,
     difficulty: Option<String>,
     obtain_route: Vec<SpoilerRouteEntry>,
     return_route: Vec<SpoilerRouteEntry>,
@@ -5174,6 +5176,7 @@ impl<'a> Randomizer<'a> {
                 node: item_vertex_info.node_name,
                 coords: item_vertex_info.room_coords,
             },
+            reachable_step: state.item_location_state[item_location_idx].reachable_step.unwrap(),
             difficulty: if let Some(tier) = tier {
                 Some(self.difficulty_tiers[tier].name.clone())
             } else {
