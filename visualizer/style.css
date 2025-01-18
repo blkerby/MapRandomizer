@@ -48,7 +48,7 @@ a {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
-	z-index: 2;
+	z-index: 3;
 	border: 2px solid #222;
 	border-radius: 2px;
 	padding: 2px;
@@ -110,7 +110,7 @@ a {
 	display: none;
 	z-index: 2;
 }
-.icon.nospoil:hover + .popup {
+.icon.spoil:hover + .popup {
 	display: block;
 	width: auto;
 }
@@ -132,7 +132,7 @@ a {
 	margin-left: 1px;
 	margin-right: 1px;
 }
-.icon.nospoil:hover {
+.icon.spoil:hover {
 	transform: scale(2);
 	z-index: 2;
 }
@@ -187,17 +187,18 @@ a {
 	image-rendering: pixelated;
 	position: absolute;
 }
-.flag.nospoil:hover {
+.flag.spoil:hover {
 	transform: scale(1.5);
 	z-index: 2;
 }
-.flag.nospoil:hover + .popup {
+.flag.spoil:hover + .popup {
 	display: block;
 	z-index: 2;
 }
 .start {
 	image-rendering: pixelated;
 	position: absolute;
+	z-index: 2;
 }
 .start:hover {
 	transform: scale(1.5);
@@ -211,11 +212,11 @@ a {
 	image-rendering: pixelated;
 	position: absolute;
 }
-.ship.nospoil:hover {
+.ship.spoil:hover {
 	transform: scale(1.5);
 	z-index: 2;
 }
-.ship.nospoil:hover + .popup {
+.ship.spoil:hover + .popup {
 	display: block;
 	z-index: 2;
 }

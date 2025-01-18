@@ -129,11 +129,21 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	flagtypes["objectives"].push("f_DefeatedMotherBrain");
 	// generate map
 	let map = new Array(72 * 72).fill(-1);
+	let toiletTiles = new Array();
+	let toiletbistep = -1;
+	let toiletstep = -1;
 	for (let i in c.all_rooms) {
 		let v = c.all_rooms[i];
 		for (let y = 0; y < v.map.length; y++) {
 			for (let x = 0; x < v.map[y].length; x++) {
 				if (v.map[y][x] != 0) {
+					if (v.room == "Toilet") {
+						if (toiletbistep < v.map_bireachable_step[y][x])
+							toiletbistep = v.map_bireachable_step[y][x];
+						if (toiletstep < v.map_bireachable_step[y][x])
+							toiletstep = v.map_bireachable_step[y][x];
+						toiletTiles.push((v.coords[1] + y) * 72 + (v.coords[0] + x));
+					}
 					map[(v.coords[1] + y) * 72 + (v.coords[0] + x)] = +i;
 				}
 			}
@@ -237,13 +247,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let so = document.getElementById("spoiler-overlay");
 		let sctx = so.getContext("2d");
 
-		if (spoileron) {
-			while (document.getElementsByClassName("nospoil").length > 0)
+		if (!spoileron) {
+			while (document.getElementsByClassName("spoil").length > 0)
 			{
-				let e_spoils = document.getElementsByClassName("nospoil");
+				let e_spoils = document.getElementsByClassName("spoil");
 				for (let e of e_spoils)
-					while (e.classList.contains("nospoil"))
-						e.classList.remove("nospoil");
+					while (e.classList.contains("spoil"))
+						e.classList.remove("spoil");
 			}
 		}
 
@@ -267,20 +277,20 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		for (let i=0;i<sl;i++) {
 			for (let v of c.details[i].items) {
 				let e = document.getElementById(v.location.room+": "+v.location.node);
-				if (e && !e.classList.contains("nospoil"))
-						e.classList.add("nospoil");
+				if (e && !e.classList.contains("spoil"))
+						e.classList.add("spoil");
 			}
 			for (let v of c.details[i].flags){
 				let e =document.getElementById(v.flag);
-				if (e && !e.classList.contains("nospoil"))
-					e.classList.add("nospoil");
+				if (e && !e.classList.contains("spoil"))
+					e.classList.add("spoil");
 			}
 		}
 
 		if (step_limit === null && c.summary.length !=0) {
 			ctx.putImageData(img, 0, 0);
 			let e = document.getElementById("gunship")
-			e.classList.add("nospoil");
+			e.classList.add("spoil");
 			return;
 		}
 
@@ -293,30 +303,45 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			img.data[i * 4 + 3] = 0xd8; // transparent
 		}
 		for (let v of c.all_rooms) {
+			let explored = 0;
+			let tiles = 0;
+			let tilesExplored = new Array();
 			for (let y = 0; y < v.map.length; y++) {
 				for (let x = 0; x < v.map[y].length; x++) {
 					if (v.map[y][x] == 1) {
+						tiles++;
 						let addr = (v.coords[1] + y) * 72 + (v.coords[0] + x);
 						let sx = (v.coords[0] + x+1)*8;
 						let sy = (v.coords[1] + y+1)*8;
-						if (v.map_bireachable_step[y][x] < step_limit || step_limit === null) {
+						if (v.map_bireachable_step[y][x] < step_limit || step_limit === null
+						   || (toiletTiles.includes(addr) && (toiletbistep < step_limit || toiletstep < step_limit)) ) {
 							if (v.room == "Landing Site" && x==4 && y==4) {
-								let e = document.getElementById("gunship")
-								e.classList.add("nospoil");
+								let e = document.getElementById("gunship");
+								e.classList.add("spoil");
 							}
 							img.data[addr * 4 + 3] = 0x00; // transparent
-							sctx.clearRect(sx, sy,8,8);
+							sctx.clearRect(sx,sy,8,8);
+							explored++;
 						} else if (v.map_reachable_step[y][x] < step_limit) {
 							img.data[addr * 4 + 3] = 0x7F; // semiopaque
-							sctx.clearRect(sx, sy,8,8);
+							sctx.clearRect(sx,sy,8,8);
+							explored++;
 						} else {
-							if (spoileron)
-							{
-								sctx.clearRect(sx, sy,8,8);
+							if (spoileron) {
+								sctx.clearRect(sx,sy,8,8);
 								img.data[addr * 4 + 3] = 0xD8; // mostly opaque
+							}
+							else {
+								tilesExplored.push([sx,sy]);
 							}
 						}
 					}
+				}
+			}
+			if (explored && explored != tiles && !spoileron) {
+				let outline = document.getElementById("outline");
+				for (let s of tilesExplored) {
+					sctx.drawImage(outline, s[0],s[1], 8, 8, s[0], s[1], 8, 8);
 				}
 			}
 		}
