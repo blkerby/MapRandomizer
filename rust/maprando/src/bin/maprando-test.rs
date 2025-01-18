@@ -333,27 +333,27 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     let spoiler_maps =
         spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app.game_data)?;
 
-    let output_spoiler_map_assigned_path = Path::join(
+    let output_spoiler_map_explored_path = Path::join(
         &app.output_dir,
-        format!("{output_file_prefix}-assigned.png"),
+        format!("{output_file_prefix}-explored.png"),
     );
 
     info!(
-        "Writing spoiler map (assigned areas) to {}",
-        output_spoiler_map_assigned_path.display()
+        "Writing spoiler map (explored) to {}",
+        output_spoiler_map_explored_path.display()
     );
-    let spoiler_map_assigned = spoiler_maps.assigned.clone();
-    std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
+    let spoiler_map_explored = spoiler_maps.explored.clone();
+    std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored)?;
 
-    let output_spoiler_map_vanilla_path =
-        Path::join(&app.output_dir, format!("{output_file_prefix}-vanilla.png"));
+    let output_spoiler_map_outline_path =
+        Path::join(&app.output_dir, format!("{output_file_prefix}-outline.png"));
 
     info!(
         "Writing spoiler map (vanilla areas) to {}",
-        output_spoiler_map_vanilla_path.display()
+        output_spoiler_map_outline_path.display()
     );
-    let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
-    std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
+    let spoiler_map_outline = spoiler_maps.outline.clone();
+    std::fs::write(output_spoiler_map_outline_path, spoiler_map_outline)?;
 
     Ok(())
 }

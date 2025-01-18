@@ -264,12 +264,12 @@ pub async fn save_seed(
     let spoiler_maps =
         spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data).unwrap();
     files.push(SeedFile::new(
-        &format!("{}/map-assigned.png", prefix),
-        spoiler_maps.assigned,
+        &format!("{}/map-explored.png", prefix),
+        spoiler_maps.explored,
     ));
     files.push(SeedFile::new(
-        &format!("{}/map-vanilla.png", prefix),
-        spoiler_maps.vanilla,
+        &format!("{}/map-outline.png", prefix),
+        spoiler_maps.outline,
     ));
 
     // Write the spoiler visualizer

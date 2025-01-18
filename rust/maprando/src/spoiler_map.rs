@@ -56,7 +56,7 @@ fn get_rgb(r: isize, g: isize, b: isize) -> Rgb<u8> {
     ])
 }
 
-fn get_color(value: u8, area: usize) -> Rgb<u8> {
+fn get_explored_color(value: u8, area: usize) -> Rgb<u8> {
     let cool_area_color = match area {
         0 => get_rgb(18, 0, 27), // Crateria
         1 => get_rgb(0, 18, 0),  // Brinstar
@@ -92,9 +92,27 @@ fn get_color(value: u8, area: usize) -> Rgb<u8> {
     }
 }
 
+fn get_outline_color(value: u8) -> Rgb<u8> {
+    match value {
+        0 => get_rgb(0, 0, 0),
+        1 => get_rgb(0, 0, 0),
+        2 => get_rgb(0, 0, 0),
+        3 => get_rgb(16, 16, 16), // Wall/passage (grey)
+        4 => get_rgb(0, 0, 0),
+        6 => get_rgb(0, 0, 0),
+        7 => get_rgb(0, 0, 0),
+        8 => get_rgb(0, 0, 0),
+        12 => get_rgb(16, 16, 16), // Door lock shadow, should appear same as wall/passage (grey)
+        13 => get_rgb(0, 0, 0),
+        14 => get_rgb(0, 0, 0),
+        15 => get_rgb(0, 0, 0),
+        _ => panic!("Unexpected color value {}", value),
+    }
+}
+
 pub struct SpoilerMaps {
-    pub assigned: Vec<u8>,
-    pub vanilla: Vec<u8>,
+    pub explored: Vec<u8>,
+    pub outline: Vec<u8>,
 }
 
 fn get_map_overrides(rom: &Rom) -> Result<HashMap<(AreaIdx, TilemapOffset), TilemapWord>> {
@@ -117,15 +135,14 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
     let height = (max_tiles + 2) * 8;
-    let mut img_assigned = RgbImage::new(width, height);
-    let mut img_vanilla = RgbImage::new(width, height);
+    let mut img_explored = RgbImage::new(width, height);
+    let mut img_outline = RgbImage::new(width, height);
     let map_overrides = get_map_overrides(rom)?;
 
     for room_idx in 0..map.rooms.len() {
         let room = &game_data.room_geometry[room_idx];
         let room_ptr = room.rom_address;
         let map_area = map.area[room_idx];
-        let vanilla_area = rom.read_u8(room_ptr + 1)? as usize;
         let area_room_x = rom.read_u8(room_ptr + 2)?;
         let area_room_y = rom.read_u8(room_ptr + 3)?;
         let global_room_x = map.rooms[room_idx].0;
@@ -148,36 +165,32 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;
                         let y1 = (global_room_y + local_y + 1) * 8 + y;
-                        img_vanilla.put_pixel(
+                        img_explored.put_pixel(
                             x1 as u32,
                             y1 as u32,
-                            get_color(tile[y][x], vanilla_area),
+                            get_explored_color(tile[y][x], map_area),
                         );
-                        img_assigned.put_pixel(
-                            x1 as u32,
-                            y1 as u32,
-                            get_color(tile[y][x], map_area),
-                        );
+                        img_outline.put_pixel(x1 as u32, y1 as u32, get_outline_color(tile[y][x]));
                     }
                 }
             }
         }
     }
 
-    let mut vec_assigned: Vec<u8> = Vec::new();
-    img_assigned.write_to(
-        &mut Cursor::new(&mut vec_assigned),
+    let mut vec_explored: Vec<u8> = Vec::new();
+    img_explored.write_to(
+        &mut Cursor::new(&mut vec_explored),
         image::ImageOutputFormat::Png,
     )?;
 
-    let mut vec_vanilla: Vec<u8> = Vec::new();
-    img_vanilla.write_to(
-        &mut Cursor::new(&mut vec_vanilla),
+    let mut vec_outline: Vec<u8> = Vec::new();
+    img_outline.write_to(
+        &mut Cursor::new(&mut vec_outline),
         image::ImageOutputFormat::Png,
     )?;
 
     Ok(SpoilerMaps {
-        assigned: vec_assigned,
-        vanilla: vec_vanilla,
+        explored: vec_explored,
+        outline: vec_outline,
     })
 }

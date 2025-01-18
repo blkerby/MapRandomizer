@@ -52,10 +52,10 @@ struct Args {
     output_spoiler_log: Option<PathBuf>,
 
     #[arg(long)]
-    output_spoiler_map_assigned: Option<PathBuf>,
+    output_spoiler_map_explored: Option<PathBuf>,
 
     #[arg(long)]
-    output_spoiler_map_vanilla: Option<PathBuf>,
+    output_spoiler_map_outline: Option<PathBuf>,
 
     #[arg(long)]
     area_themed_palette: bool,
@@ -299,22 +299,22 @@ fn main() -> Result<()> {
 
     let spoiler_maps = spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &game_data)?;
 
-    if let Some(output_spoiler_map_assigned_path) = &args.output_spoiler_map_assigned {
+    if let Some(output_spoiler_map_explored_path) = &args.output_spoiler_map_explored {
         println!(
-            "Writing spoiler map (assigned areas) to {}",
-            output_spoiler_map_assigned_path.display()
+            "Writing spoiler map (explored) to {}",
+            output_spoiler_map_explored_path.display()
         );
-        let spoiler_map_assigned = spoiler_maps.assigned.clone();
-        std::fs::write(output_spoiler_map_assigned_path, spoiler_map_assigned)?;
+        let spoiler_map_explored = spoiler_maps.explored.clone();
+        std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored)?;
     }
 
-    if let Some(output_spoiler_map_vanilla_path) = &args.output_spoiler_map_vanilla {
+    if let Some(output_spoiler_map_outline_path) = &args.output_spoiler_map_outline {
         println!(
-            "Writing spoiler map (vanilla areas) to {}",
-            output_spoiler_map_vanilla_path.display()
+            "Writing spoiler map (outline) to {}",
+            output_spoiler_map_outline_path.display()
         );
-        let spoiler_map_vanilla = spoiler_maps.vanilla.clone();
-        std::fs::write(output_spoiler_map_vanilla_path, spoiler_map_vanilla)?;
+        let spoiler_map_outline = spoiler_maps.outline.clone();
+        std::fs::write(output_spoiler_map_outline_path, spoiler_map_outline)?;
     }
 
     Ok(())
