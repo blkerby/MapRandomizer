@@ -274,16 +274,31 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 
-		for (let i=0;i<sl;i++) {
-			for (let v of c.details[i].items) {
-				let e = document.getElementById(v.location.room+": "+v.location.node);
-				if (e && !e.classList.contains("spoil"))
+		for (let i=0;i<c.summary.length;i++) {
+			if (i<step_limit) {
+				for (let v of c.details[i].items) {
+					let e = document.getElementById(v.location.room+": "+v.location.node);
+					if (e) {
+						e.style.backgroundPositionX= `-${item_plm[e.classList[0]] * 16}px`;
+						if (!e.classList.contains("spoil"))
+							e.classList.add("spoil");
+					}
+				}
+				for (let v of c.details[i].flags){
+					let e =document.getElementById(v.flag);
+					if (e && !e.classList.contains("spoil"))
 						e.classList.add("spoil");
-			}
-			for (let v of c.details[i].flags){
-				let e =document.getElementById(v.flag);
-				if (e && !e.classList.contains("spoil"))
-					e.classList.add("spoil");
+				}
+			} else {
+				for (let v of c.details[i].items) {
+					let e = document.getElementById(v.location.room+": "+v.location.node);
+					if (e) {
+						if (!spoileron && v.reachable_step > step_limit)
+							e.style.backgroundPositionX= `-${item_plm["Hidden"] * 16}px`;
+						else
+							e.style.backgroundPositionX= `-${item_plm[e.classList[0]] * 16}px`;
+					}
+				}
 			}
 		}
 
@@ -918,9 +933,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				v.location.coords[1] += os[1];
 			}
 			e = document.createElement("div");
-			e.className = "icon";
+			e.className = v.item;
+			e.classList.add("icon");
 			e.classList.add("items");
-			e.classList.add(v.item);
+			
 			e.id = v.location.room+": "+v.location.node;
 
 			let checked = document.getElementById("items").checked;
