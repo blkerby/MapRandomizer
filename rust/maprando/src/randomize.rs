@@ -5176,7 +5176,9 @@ impl<'a> Randomizer<'a> {
                 node: item_vertex_info.node_name,
                 coords: item_vertex_info.room_coords,
             },
-            reachable_step: state.item_location_state[item_location_idx].reachable_step.unwrap(),
+            reachable_step: state.item_location_state[item_location_idx]
+                .reachable_step
+                .unwrap(),
             difficulty: if let Some(tier) = tier {
                 Some(self.difficulty_tiers[tier].name.clone())
             } else {
