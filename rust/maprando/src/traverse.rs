@@ -100,7 +100,11 @@ pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
 
 pub const NUM_COST_METRICS: usize = 2;
 
-fn compute_cost(local: LocalState, inventory: &Inventory, reverse: bool) -> [f32; NUM_COST_METRICS] {
+fn compute_cost(
+    local: LocalState,
+    inventory: &Inventory,
+    reverse: bool,
+) -> [f32; NUM_COST_METRICS] {
     let eps = 1e-15;
     let energy_cost = (local.energy_used as f32) / (inventory.max_energy as f32 + eps);
     let reserve_cost = (local.reserves_used as f32) / (inventory.max_reserves as f32 + eps);
@@ -2070,7 +2074,8 @@ pub fn traverse(
                         locked_door_data,
                         objectives,
                     ) {
-                        let dst_new_cost_arr = compute_cost(dst_new_local_state, &global.inventory, reverse);
+                        let dst_new_cost_arr =
+                            compute_cost(dst_new_local_state, &global.inventory, reverse);
 
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
