@@ -275,7 +275,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 
 		for (let i=0;i<c.summary.length;i++) {
-			if (i<step_limit) {
+			if (i<sl) {
 				for (let v of c.details[i].items) {
 					let e = document.getElementById(v.location.room+": "+v.location.node);
 					if (e) {
@@ -293,7 +293,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				for (let v of c.details[i].items) {
 					let e = document.getElementById(v.location.room+": "+v.location.node);
 					if (e) {
-						if (!spoileron && v.reachable_step > step_limit)
+						if (!spoileron && v.reachable_step > sl)
 							e.style.backgroundPositionX= `-${item_plm["Hidden"] * 16}px`;
 						else
 							e.style.backgroundPositionX= `-${item_plm[e.classList[0]] * 16}px`;
@@ -302,20 +302,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 
-		if (step_limit === null && c.summary.length !=0) {
-			ctx.putImageData(img, 0, 0);
-			let e = document.getElementById("gunship")
-			e.classList.add("spoil");
-			return;
-		}
-
 		let grid = document.getElementById("grid");
 		let pat = ctx.createPattern(grid, "repeat");
 		sctx.fillStyle = pat;
 		sctx.fillRect(0,0,592,592);
-
-		for (let i = 0; i < 72 * 72; i++) {
-			img.data[i * 4 + 3] = 0xd8; // transparent
+		if (step_limit !== null && c.summary.length !=0) {
+			for (let i = 0; i < 72 * 72; i++) {
+				img.data[i * 4 + 3] = 0xd8; // Mostly opaque
+			}
 		}
 		for (let v of c.all_rooms) {
 			let explored = 0;
@@ -361,7 +355,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 		ctx.putImageData(img, 0, 0);
-		document.getElementById("map").style.visibility = "visible";
 	}
 	
 	let show_item_details = (item_name, loc, i, j) => {
@@ -446,8 +439,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 			si.appendChild(item_list);
 		}
-		
-		flagIcons(si, c.summary[i].flags, j);
+
+		if (i !== null)
+			flagIcons(si, c.summary[i].flags, j);
 
 		let item_info = document.createElement("div");
 		let item_difficulty = "";
@@ -949,6 +943,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			e.style.top = v.location.coords[1] * 24 + 24 + 4 + "px";
 			
 
+				
 			e.style.backgroundPositionX = `-${item_plm[v.item] * 16}px`;
 			let i = null;
 			let j = null;
@@ -1013,6 +1008,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 	else
 		gen_obscurity(1);
+	
+	document.getElementById("map").style.visibility = "visible";
 
 	function transfo() {
 		document.getElementById("zoom").style.transform =
