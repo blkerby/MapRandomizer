@@ -100,7 +100,7 @@ pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
 
 pub const NUM_COST_METRICS: usize = 2;
 
-fn compute_cost(local: LocalState, inventory: &Inventory) -> [f32; NUM_COST_METRICS] {
+fn compute_cost(local: LocalState, inventory: &Inventory, reverse: bool) -> [f32; NUM_COST_METRICS] {
     let eps = 1e-15;
     let energy_cost = (local.energy_used as f32) / (inventory.max_energy as f32 + eps);
     let reserve_cost = (local.reserves_used as f32) / (inventory.max_reserves as f32 + eps);
@@ -108,7 +108,10 @@ fn compute_cost(local: LocalState, inventory: &Inventory) -> [f32; NUM_COST_METR
     let supers_cost = (local.supers_used as f32) / (inventory.max_supers as f32 + eps);
     let power_bombs_cost =
         (local.power_bombs_used as f32) / (inventory.max_power_bombs as f32 + eps);
-    let shinecharge_cost = -(local.shinecharge_frames_remaining as f32) / 180.0;
+    let mut shinecharge_cost = -(local.shinecharge_frames_remaining as f32) / 180.0;
+    if reverse {
+        shinecharge_cost = -shinecharge_cost;
+    }
     let cycle_frames_cost = (local.cycle_frames as f32) * 0.0001;
 
     let ammo_sensitive_cost_metric = energy_cost
@@ -1888,7 +1891,7 @@ pub fn apply_requirement(
                     locked_door_data,
                     objectives,
                 ) {
-                    let cost = compute_cost(new_local, &global.inventory);
+                    let cost = compute_cost(new_local, &global.inventory, reverse);
                     // TODO: Maybe do something better than just using the first cost metric.
                     if cost[0] < best_cost[0] {
                         best_cost = cost;
@@ -2024,7 +2027,7 @@ pub fn traverse(
         };
         result.local_states[start_vertex_id] = [init_local; NUM_COST_METRICS];
         result.start_trail_ids[start_vertex_id] = [-1; NUM_COST_METRICS];
-        result.cost[start_vertex_id] = compute_cost(init_local, &global.inventory);
+        result.cost[start_vertex_id] = compute_cost(init_local, &global.inventory, reverse);
         modified_vertices.insert(start_vertex_id, first_metric);
     }
 
@@ -2067,7 +2070,7 @@ pub fn traverse(
                         locked_door_data,
                         objectives,
                     ) {
-                        let dst_new_cost_arr = compute_cost(dst_new_local_state, &global.inventory);
+                        let dst_new_cost_arr = compute_cost(dst_new_local_state, &global.inventory, reverse);
 
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
