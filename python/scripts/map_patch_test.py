@@ -12,6 +12,9 @@ output_rom_path = '/home/kerby/Downloads/prachack-2.6.4.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
+# disable practice hack behavior of moving Samus in misaligned door transitions:
+rom.write_u24(snes2pc(0x82e387), 0xe38ea9)  # LDA #$e38e  (restore vanilla code, to remove practice hack hook)
+
 area_arr = [rom.read_u8(room.rom_address + 1) for room in rooms]
 # orig_map_patcher = MapPatcher(orig_rom, area_arr)
 # orig_text_tile_idxs = list(range(0xE0, 0xFB)) + [0xCF, 0xFE, 0xFF]
@@ -31,8 +34,8 @@ patches = [
     # 'spinjumprestart',
     # 'new_game_extra',
     # 'door_hurt',
-    # "everest_tube",
-    # "fast_pause_menu",
+    "everest_tube",
+    "fast_pause_menu",
     # "buffed_drops"
     # 'complementary_suits',
     # 'complementary_suits_noheat',

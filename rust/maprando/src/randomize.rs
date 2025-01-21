@@ -280,7 +280,7 @@ struct ItemLocationState {
 
 #[derive(Clone)]
 struct FlagLocationState {
-    pub reachable: bool,
+    pub reachable_step: Option<usize>,
     pub reachable_vertex_id: Option<VertexId>,
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
@@ -2977,15 +2977,13 @@ impl<'r> Randomizer<'r> {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
             // vertex can become no longer "bireachable" due to the imperfect cost heuristic used for
             // resource management.)
-            state.flag_location_state[i].reachable = false;
-            state.flag_location_state[i].reachable_vertex_id = None;
             state.flag_location_state[i].bireachable = false;
             state.flag_location_state[i].bireachable_vertex_id = None;
 
             for &v in vertex_ids {
                 if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
-                    if !state.flag_location_state[i].reachable {
-                        state.flag_location_state[i].reachable = true;
+                    if state.flag_location_state[i].reachable_step.is_none() {
+                        state.flag_location_state[i].reachable_step = Some(state.step_num);
                         state.flag_location_state[i].reachable_vertex_id = Some(v);
                     }
                     if !state.flag_location_state[i].bireachable
@@ -3671,7 +3669,7 @@ impl<'r> Randomizer<'r> {
                 if state.global_state.flags[flag_id] {
                     continue;
                 }
-                if state.flag_location_state[i].reachable
+                if state.flag_location_state[i].reachable_step.is_some()
                     && flag_id == self.game_data.mother_brain_defeated_flag_id
                 {
                     // f_DefeatedMotherBrain flag is special in that we only require one-way reachability for it:
@@ -3686,6 +3684,7 @@ impl<'r> Randomizer<'r> {
                         &state,
                         flag_vertex_id,
                         flag_id,
+                        i,
                     ));
                     state.global_state.flags[flag_id] = true;
                 } else if state.flag_location_state[i].bireachable {
@@ -3701,6 +3700,7 @@ impl<'r> Randomizer<'r> {
                         &state,
                         flag_vertex_id,
                         flag_id,
+                        i,
                     ));
                     state.global_state.flags[flag_id] = true;
                 }
@@ -4525,7 +4525,7 @@ impl<'r> Randomizer<'r> {
     fn is_game_beatable(&self, state: &RandomizationState) -> bool {
         for (i, &flag_id) in self.game_data.flag_ids.iter().enumerate() {
             if flag_id == self.game_data.mother_brain_defeated_flag_id
-                && state.flag_location_state[i].reachable
+                && state.flag_location_state[i].reachable_step.is_some()
             {
                 return true;
             }
@@ -4555,7 +4555,7 @@ impl<'r> Randomizer<'r> {
             difficulty_tier: None,
         };
         let initial_flag_location_state = FlagLocationState {
-            reachable: false,
+            reachable_step: None,
             reachable_vertex_id: None,
             bireachable: false,
             bireachable_vertex_id: None,
@@ -4797,6 +4797,7 @@ pub struct SpoilerItemDetails {
 pub struct SpoilerFlagDetails {
     flag: String,
     location: SpoilerLocation,
+    reachable_step: usize,
     obtain_route: Vec<SpoilerRouteEntry>,
     return_route: Vec<SpoilerRouteEntry>,
 }
@@ -5216,6 +5217,7 @@ impl<'a> Randomizer<'a> {
         state: &RandomizationState,
         flag_vertex_id: usize,
         flag_id: FlagId,
+        flag_idx: usize,
     ) -> SpoilerFlagDetails {
         let (obtain_route, return_route) =
             self.get_spoiler_route_birectional(state, flag_vertex_id);
@@ -5230,6 +5232,7 @@ impl<'a> Randomizer<'a> {
                 node: flag_vertex_info.node_name,
                 coords: flag_vertex_info.room_coords,
             },
+            reachable_step: state.flag_location_state[flag_idx].reachable_step.unwrap(),
             obtain_route: obtain_route,
             return_route: return_route,
         }
@@ -5240,6 +5243,7 @@ impl<'a> Randomizer<'a> {
         state: &RandomizationState,
         flag_vertex_id: usize,
         flag_id: FlagId,
+        flag_idx: usize,
     ) -> SpoilerFlagDetails {
         // This is for a one-way reachable flag, used for f_DefeatedMotherBrain:
         let obtain_route = self.get_spoiler_route_one_way(state, flag_vertex_id);
@@ -5254,6 +5258,9 @@ impl<'a> Randomizer<'a> {
                 node: flag_vertex_info.node_name,
                 coords: flag_vertex_info.room_coords,
             },
+            reachable_step: state.flag_location_state[flag_idx]
+                .reachable_step
+                .unwrap(),
             obtain_route: obtain_route,
             return_route: vec![],
         }
