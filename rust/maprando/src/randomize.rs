@@ -5258,9 +5258,7 @@ impl<'a> Randomizer<'a> {
                 node: flag_vertex_info.node_name,
                 coords: flag_vertex_info.room_coords,
             },
-            reachable_step: state.flag_location_state[flag_idx]
-                .reachable_step
-                .unwrap(),
+            reachable_step: state.flag_location_state[flag_idx].reachable_step.unwrap(),
             obtain_route: obtain_route,
             return_route: vec![],
         }
