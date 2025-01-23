@@ -984,19 +984,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let reach_step = j.reachable_step;
 			let step = Number(i);
 			e.onclick = ev => {
-				if (document.getElementById("spoilers").checked || step_limit === null || step_limit > i)
+				if (document.getElementById("spoilers").checked || step_limit === null || step_limit > i) {
 					show_item_details(v.item, v.location, i, j);
-				else if (step_limit >= reach_step) {
-					el.innerText = "Not in logic for current step.";
-					el.style.left = ev.target.style.left + 16 + "px";
-					el.style.top = ev.target.style.top + "px";
-					el.classList.remove("hidden");
 				}
 			};
 			e.onpointermove = ev => {
 				hideRoom();
 				if (!document.getElementById("spoilers").checked && step_limit !== null && step_limit <= step && step_limit >= reach_step) {
-					el.innerText = "Not in logic for current step.";
+					el.innerHTML = `<b>${v.item}</b><br><small>${v.location.room}</small><br>Not in logic on this step`;
 					el.style.left = ev.target.style.left + 16 + "px";
 					el.style.top = ev.target.style.top + "px";
 					el.classList.remove("hidden");
