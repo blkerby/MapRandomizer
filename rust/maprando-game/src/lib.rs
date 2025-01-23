@@ -2253,7 +2253,7 @@ impl GameData {
                 let frames = value
                     .as_i32()
                     .expect(&format!("invalid samusEaterFrames in {}", req_json));
-                return Ok(Requirement::Damage(frames as Capacity / 8));
+                return Ok(Requirement::Damage(frames as Capacity / 10));
             } else if key == "cycleFrames" {
                 let frames = value
                     .as_i32()

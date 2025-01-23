@@ -16,6 +16,9 @@ v117:
 - pull in new videos
 - move canUseSpeedEchoes to VH, look at other Hard tech.
 - fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
+- mosaic:
+  - restore morph tunnel continuation behind morph tunnel transition
+- fix issue with global zeela in dachora room
 - new strats to add:
   - crumble jump of LN escape PB room, leavewithplatform
   - west cac alley CF clip
