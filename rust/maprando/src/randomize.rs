@@ -16,7 +16,19 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
+    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
+    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
+    HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup,
+    MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx,
+    RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey,
+    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
+    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
+    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
+    TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
+    TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -813,9 +825,14 @@ impl<'a> Preprocessor<'a> {
             MainEntranceCondition::ComeInWithGrappleTeleport { block_positions } => {
                 self.get_come_in_with_grapple_teleport_reqs(exit_condition, block_positions)
             }
-            MainEntranceCondition::ComeInWithSamusEaterTeleport { floor_positions, ceiling_positions } => {
-                self.get_come_in_with_samus_eater_teleport_reqs(exit_condition, floor_positions, ceiling_positions)
-            }
+            MainEntranceCondition::ComeInWithSamusEaterTeleport {
+                floor_positions,
+                ceiling_positions,
+            } => self.get_come_in_with_samus_eater_teleport_reqs(
+                exit_condition,
+                floor_positions,
+                ceiling_positions,
+            ),
         }
     }
 
@@ -2317,20 +2334,23 @@ impl<'a> Preprocessor<'a> {
         entrance_ceiling_positions: &[(u16, u16)],
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithSamusEaterTeleport { floor_positions, ceiling_positions } => {
+            ExitCondition::LeaveWithSamusEaterTeleport {
+                floor_positions,
+                ceiling_positions,
+            } => {
                 let entrance_floor_positions_set: HashSet<(u16, u16)> =
                     entrance_floor_positions.iter().copied().collect();
                 let entrance_ceiling_positions_set: HashSet<(u16, u16)> =
                     entrance_ceiling_positions.iter().copied().collect();
                 if floor_positions
                     .iter()
-                    .any(|x| entrance_floor_positions_set.contains(x)) ||
-                    ceiling_positions
-                    .iter()
-                    .any(|x| entrance_ceiling_positions_set.contains(x))
+                    .any(|x| entrance_floor_positions_set.contains(x))
+                    || ceiling_positions
+                        .iter()
+                        .any(|x| entrance_ceiling_positions_set.contains(x))
                 {
                     Some(Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SAMUS_EATER_TELEPORT],
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SAMUS_EATER_TELEPORT],
                     ))
                 } else {
                     None

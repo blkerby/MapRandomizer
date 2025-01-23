@@ -892,7 +892,7 @@ pub enum MainEntranceCondition {
     ComeInWithSamusEaterTeleport {
         floor_positions: Vec<(u16, u16)>,
         ceiling_positions: Vec<(u16, u16)>,
-    }
+    },
 }
 
 fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
