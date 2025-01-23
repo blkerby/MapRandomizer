@@ -331,7 +331,7 @@
     "room_id": 34,
     "room_name": "East Ocean",
     "notable_id": 6,
-    "name": "Space Jump Water Escape with Ice and XRay Standup",
+    "name": "Space Jump Water Escape with Ice and X-Ray",
     "difficulty": "Very Hard",
     "video_id": 330
   },
@@ -339,7 +339,7 @@
     "room_id": 34,
     "room_name": "East Ocean",
     "notable_id": 7,
-    "name": "Space Jump Water Escape with Ice (Left to Right)",
+    "name": "Space Jump Water Escape with Ice",
     "difficulty": "Very Hard",
     "video_id": 499
   },
@@ -347,7 +347,7 @@
     "room_id": 34,
     "room_name": "East Ocean",
     "notable_id": 8,
-    "name": "Space Jump Water Escape (Left to Right)",
+    "name": "Precise Space Jump Water Escape",
     "difficulty": "Extreme",
     "video_id": 413
   },
@@ -859,7 +859,7 @@
     "room_id": 58,
     "room_name": "Dachora Room",
     "notable_id": 2,
-    "name": "Shinespark No Etanks No HiJump",
+    "name": "Tankless Bootless Shinespark",
     "difficulty": "Expert",
     "video_id": 408
   },
@@ -883,7 +883,7 @@
     "room_id": 61,
     "room_name": "Pink Brinstar Hopper Room",
     "notable_id": 1,
-    "name": "Shinespark into the Wall to Ride the Elevator",
+    "name": "Shinespark to Ride the Elevator",
     "difficulty": "Very Hard",
     "video_id": 240
   },
@@ -1771,7 +1771,7 @@
     "room_id": 146,
     "room_name": "Lower Norfair Spring Ball Maze Room",
     "notable_id": 1,
-    "name": "Reverse Crystal Flash Clip",
+    "name": "Crystal Flash Clip",
     "difficulty": "Hard",
     "video_id": 3453
   },
@@ -2035,7 +2035,7 @@
     "room_id": 163,
     "room_name": "Wrecked Ship East Super Room",
     "notable_id": 2,
-    "name": "Crystal Flash Clip (Right to Left)",
+    "name": "Crystal Flash Clip",
     "difficulty": "Hard",
     "video_id": 568
   },
@@ -2043,7 +2043,7 @@
     "room_id": 163,
     "room_name": "Wrecked Ship East Super Room",
     "notable_id": 3,
-    "name": "R-Mode Standup Clip (Right to Left)",
+    "name": "R-Mode Standup Clip",
     "difficulty": "Extreme",
     "video_id": 265
   },
@@ -2856,20 +2856,20 @@
     "video_id": 398
   },
   {
+    "room_id": 217,
+    "room_name": "Kassiuz Room",
+    "notable_id": 1,
+    "name": "Moonfall Spark",
+    "difficulty": "Insane",
+    "video_id": 3748
+  },
+  {
     "room_id": 180,
     "room_name": "Northwest Maridia Bug Room",
     "notable_id": 1,
     "name": "Frozen Menu Bridge",
     "difficulty": "Very Hard",
     "video_id": 214
-  },
-  {
-    "room_id": 180,
-    "room_name": "Northwest Maridia Bug Room",
-    "notable_id": 2,
-    "name": "Spark Out Left HiJumpless",
-    "difficulty": "Expert",
-    "video_id": 215
   },
   {
     "room_id": 197,
@@ -3387,7 +3387,7 @@
     "room_id": 242,
     "room_name": "Tourian Escape Room 4",
     "notable_id": 1,
-    "name": "Reverse Dodge While Climbing",
+    "name": "Dodge While Climbing",
     "difficulty": "Hard",
     "video_id": 547
   },
@@ -3411,7 +3411,7 @@
     "room_id": 242,
     "room_name": "Tourian Escape Room 4",
     "notable_id": 4,
-    "name": "Reverse Bootless Walljumpless Space Jump",
+    "name": "Bootless Walljumpless Space Jump",
     "difficulty": "Very Hard",
     "video_id": 1080
   }

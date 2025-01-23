@@ -820,6 +820,11 @@
             "enabled": false
         },
         {
+            "id": 194,
+            "name": "canSamusEaterTeleport",
+            "enabled": false
+        },
+        {
             "id": 166,
             "name": "canUpwardGModeSetup",
             "enabled": false
@@ -1095,14 +1100,14 @@
             "room_id": 146,
             "notable_id": 1,
             "room_name": "Lower Norfair Spring Ball Maze Room",
-            "notable_name": "Reverse Crystal Flash Clip",
+            "notable_name": "Crystal Flash Clip",
             "enabled": true
         },
         {
             "room_id": 163,
             "notable_id": 2,
             "room_name": "Wrecked Ship East Super Room",
-            "notable_name": "Crystal Flash Clip (Right to Left)",
+            "notable_name": "Crystal Flash Clip",
             "enabled": true
         },
         {
@@ -1172,7 +1177,7 @@
             "room_id": 242,
             "notable_id": 1,
             "room_name": "Tourian Escape Room 4",
-            "notable_name": "Reverse Dodge While Climbing",
+            "notable_name": "Dodge While Climbing",
             "enabled": true
         },
         {
@@ -1207,14 +1212,14 @@
             "room_id": 34,
             "notable_id": 6,
             "room_name": "East Ocean",
-            "notable_name": "Space Jump Water Escape with Ice and XRay Standup",
+            "notable_name": "Space Jump Water Escape with Ice and X-Ray",
             "enabled": false
         },
         {
             "room_id": 34,
             "notable_id": 7,
             "room_name": "East Ocean",
-            "notable_name": "Space Jump Water Escape with Ice (Left to Right)",
+            "notable_name": "Space Jump Water Escape with Ice",
             "enabled": false
         },
         {
@@ -1270,7 +1275,7 @@
             "room_id": 61,
             "notable_id": 1,
             "room_name": "Pink Brinstar Hopper Room",
-            "notable_name": "Shinespark into the Wall to Ride the Elevator",
+            "notable_name": "Shinespark to Ride the Elevator",
             "enabled": false
         },
         {
@@ -1753,7 +1758,7 @@
             "room_id": 242,
             "notable_id": 4,
             "room_name": "Tourian Escape Room 4",
-            "notable_name": "Reverse Bootless Walljumpless Space Jump",
+            "notable_name": "Bootless Walljumpless Space Jump",
             "enabled": false
         },
         {
@@ -1886,7 +1891,7 @@
             "room_id": 58,
             "notable_id": 2,
             "room_name": "Dachora Room",
-            "notable_name": "Shinespark No Etanks No HiJump",
+            "notable_name": "Tankless Bootless Shinespark",
             "enabled": false
         },
         {
@@ -2317,13 +2322,6 @@
             "enabled": false
         },
         {
-            "room_id": 180,
-            "notable_id": 2,
-            "room_name": "Northwest Maridia Bug Room",
-            "notable_name": "Spark Out Left HiJumpless",
-            "enabled": false
-        },
-        {
             "room_id": 322,
             "notable_id": 2,
             "room_name": "East Pants Room",
@@ -2572,7 +2570,7 @@
             "room_id": 34,
             "notable_id": 8,
             "room_name": "East Ocean",
-            "notable_name": "Space Jump Water Escape (Left to Right)",
+            "notable_name": "Precise Space Jump Water Escape",
             "enabled": false
         },
         {
@@ -2950,7 +2948,7 @@
             "room_id": 163,
             "notable_id": 3,
             "room_name": "Wrecked Ship East Super Room",
-            "notable_name": "R-Mode Standup Clip (Right to Left)",
+            "notable_name": "R-Mode Standup Clip",
             "enabled": false
         },
         {
@@ -3686,6 +3684,13 @@
             "notable_id": 5,
             "room_name": "Halfie Climb Room",
             "notable_name": "Very Deep Stuck X-Ray Climb",
+            "enabled": false
+        },
+        {
+            "room_id": 217,
+            "notable_id": 1,
+            "room_name": "Kassiuz Room",
+            "notable_name": "Moonfall Spark",
             "enabled": false
         },
         {

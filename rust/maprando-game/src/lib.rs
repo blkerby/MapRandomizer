@@ -46,6 +46,7 @@ pub const TECH_ID_CAN_ENTER_G_MODE_IMMOBILE: TechId = 163;
 pub const TECH_ID_CAN_ARTIFICIAL_MORPH: TechId = 164;
 pub const TECH_ID_CAN_MOONFALL: TechId = 25;
 pub const TECH_ID_CAN_GRAPPLE_TELEPORT: TechId = 55;
+pub const TECH_ID_CAN_SAMUS_EATER_TELEPORT: TechId = 194;
 pub const TECH_ID_CAN_KAGO: TechId = 107;
 pub const TECH_ID_CAN_SUITLESS_LAVA_DIVE: TechId = 5;
 pub const TECH_ID_CAN_HERO_SHOT: TechId = 130;
@@ -706,6 +707,10 @@ pub enum ExitCondition {
     LeaveWithGrappleTeleport {
         block_positions: Vec<(u16, u16)>,
     },
+    LeaveWithSamusEaterTeleport {
+        floor_positions: Vec<(u16, u16)>,
+        ceiling_positions: Vec<(u16, u16)>,
+    },
 }
 
 fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
@@ -884,6 +889,10 @@ pub enum MainEntranceCondition {
     ComeInWithGrappleTeleport {
         block_positions: Vec<(u16, u16)>,
     },
+    ComeInWithSamusEaterTeleport {
+        floor_positions: Vec<(u16, u16)>,
+        ceiling_positions: Vec<(u16, u16)>,
+    }
 }
 
 fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
@@ -3383,6 +3392,16 @@ impl GameData {
                     .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                     .collect(),
             },
+            "leaveWithSamusEaterTeleport" => ExitCondition::LeaveWithSamusEaterTeleport {
+                floor_positions: value["floorPositions"]
+                    .members()
+                    .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                    .collect(),
+                ceiling_positions: value["ceilingPositions"]
+                    .members()
+                    .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                    .collect(),
+            },
             _ => {
                 bail!(format!("Unrecognized exit condition: {}", key));
             }
@@ -3612,6 +3631,16 @@ impl GameData {
             },
             "comeInWithGrappleTeleport" => MainEntranceCondition::ComeInWithGrappleTeleport {
                 block_positions: value["blockPositions"]
+                    .members()
+                    .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                    .collect(),
+            },
+            "comeInWithSamusEaterTeleport" => MainEntranceCondition::ComeInWithSamusEaterTeleport {
+                floor_positions: value["floorPositions"]
+                    .members()
+                    .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                    .collect(),
+                ceiling_positions: value["ceilingPositions"]
                     .members()
                     .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                     .collect(),

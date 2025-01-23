@@ -1038,6 +1038,12 @@
         "video_id": 985
     },
     {
+        "tech_id": 194,
+        "name": "canSamusEaterTeleport",
+        "difficulty": "Extreme",
+        "video_id": 3809
+    },
+    {
         "tech_id": 165,
         "name": "canDownwardGModeSetup",
         "difficulty": "Insane",
