@@ -293,10 +293,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				for (let v of c.details[i].items) {
 					let e = document.getElementById(v.location.room+": "+v.location.node);
 					if (e) {
-						if (!spoileron && v.reachable_step > sl)
+						if (!spoileron && v.reachable_step > sl){
 							e.style.backgroundPositionX= `-${item_plm["Hidden"] * 16}px`;
-						else
+						}
+						else {
 							e.style.backgroundPositionX= `-${item_plm[e.classList[0]] * 16}px`;
+						}
 					}
 				}
 			}
@@ -849,9 +851,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (f == "f_ZebesAwake")
 				continue;
 
-			for (j in c.all_rooms)
-			{
-				if (i == c.all_rooms[j].room)
+			for (j in c.all_rooms)	{
+				if (c.all_rooms[j].room == i)
 					break;
 			}
 			sr = c.all_rooms[j];
@@ -883,13 +884,37 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				ox += 6;
 			e.style.left = (sr.coords[0]+rf[2])*24+24+ox+"px";
 			e.style.top = (sr.coords[1]+rf[3])*24+24+"px";
-			
 
+			let reach_step = -1;
+			let v = -1;
+			for (v in c.details){
+				for (let vf of c.details[v].flags){
+					if (vf.flag == f){
+						reach_step = Number(vf.reachable_step);
+						break;
+					}
+				}
+				if (reach_step != -1)
+					break;
+			}
 			e.onclick = ev => {
-				showFlag(c.details, f);
+				if (document.getElementById("spoilers").checked || document.getElementById("spoilers").checked || step_limit === null || step_limit > v)
+					showFlag(c.details, f);
+				else if (step_limit >=  reach_step) {
+					el.innerText = "Not in logic for current step.";
+					el.style.left = ev.target.style.left + 16 + "px";
+					el.style.top = ev.target.style.top + "px";
+					el.classList.remove("hidden");
+				}
 			}
 			e.onpointermove = ev => {
 				hideRoom();
+				if (!document.getElementById("spoilers").checked && step_limit !== null && step_limit >= reach_step && step_limit <= Number(v)) {
+					el.innerText = "Not in logic for current step.";
+					el.style.left = ev.target.style.left + 16 + "px";
+					el.style.top = ev.target.style.top + "px";
+					el.classList.remove("hidden");
+				}
 			}
 			document.getElementById("overlay").appendChild(e);
 
@@ -941,8 +966,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				ox -=6;
 			e.style.left = v.location.coords[0] * 24 + 24 + 4 + ox + "px";
 			e.style.top = v.location.coords[1] * 24 + 24 + 4 + "px";
-			
-
 				
 			e.style.backgroundPositionX = `-${item_plm[v.item] * 16}px`;
 			let i = null;
@@ -955,12 +978,24 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 						break;
 					}
 				}
+				if (i !== null)
+					break;
 			}
+			let reach_step = j.reachable_step;
+			let step = Number(i);
 			e.onclick = ev => {
-				show_item_details(v.item, v.location, i, j);
+				if (document.getElementById("spoilers").checked || step_limit === null || step_limit > i) {
+					show_item_details(v.item, v.location, i, j);
+				}
 			};
 			e.onpointermove = ev => {
 				hideRoom();
+				if (!document.getElementById("spoilers").checked && step_limit !== null && step_limit <= step && step_limit >= reach_step) {
+					el.innerHTML = `<b>${v.item}</b><br><small>${v.location.room}</small><br>Not in logic on this step`;
+					el.style.left = ev.target.style.left + 16 + "px";
+					el.style.top = ev.target.style.top + "px";
+					el.classList.remove("hidden");
+				}
 			}
 			document.getElementById("overlay").appendChild(e);
 			e = document.createElement("div");
