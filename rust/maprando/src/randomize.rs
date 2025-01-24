@@ -322,7 +322,7 @@ struct RandomizationState {
     hub_obtain_route: Vec<SpoilerRouteEntry>,
     hub_return_route: Vec<SpoilerRouteEntry>,
     item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
-    save_location_state: Vec<SaveLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
+    save_location_state: Vec<SaveLocationState>,
     item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
     flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
     door_state: Vec<DoorState>,                  // Corresponds to LockedDoorData.locked_doors
@@ -4740,7 +4740,7 @@ impl<'r> Randomizer<'r> {
                 break;
             }
 
-            if state.step_num == 1 && self.settings.quality_of_life_settings.early_save {
+            if state.step_num == 2 && self.settings.quality_of_life_settings.early_save {
                 if !state.save_location_state.iter().any(|x| x.bireachable) {
                     bail!(
                         "[attempt {attempt_num_rando}] Attempt failed: no accessible save location"
