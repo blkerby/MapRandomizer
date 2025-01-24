@@ -981,7 +981,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				if (i !== null)
 					break;
 			}
-			let reach_step = j.reachable_step;
+			let reach_step = j !== null ? j.reachable_step : null;
 			let step = Number(i);
 			e.onclick = ev => {
 				if (document.getElementById("spoilers").checked || step_limit === null || step_limit > i) {
