@@ -2409,7 +2409,7 @@ impl<'a> MapPatcher<'a> {
 
         for area in 0..NUM_AREAS {
             let margin_x = (64 - (self.area_max_x[area] - self.area_min_x[area])) / 2;
-            let margin_y = (32 - (self.area_max_y[area] - self.area_min_y[area])) / 2 - 1;
+            let margin_y = (32 - (self.area_max_y[area] - self.area_min_y[area])) / 2;
             self.area_offset_x[area] = self.area_min_x[area] - margin_x;
             self.area_offset_y[area] = self.area_min_y[area] - margin_y;
         }

@@ -368,8 +368,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    let tame_maps_path = Path::new("../maps/v116d-tame");
-    let wild_maps_path = Path::new("../maps/v116d-wild");
+    let standard_maps_path = Path::new("../maps/v117-standard");
+    let wild_maps_path = Path::new("../maps/v117-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let map_tiles_path = Path::new("data/map_tiles.json");
@@ -481,7 +481,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         preset_data,
         map_repos: vec![
             MapRepository::new("Vanilla", vanilla_map_path)?,
-            MapRepository::new("Tame", tame_maps_path)?,
+            MapRepository::new("Standard", standard_maps_path)?,
             MapRepository::new("Wild", wild_maps_path)?,
         ],
         base_preset,
@@ -514,6 +514,7 @@ fn main() -> Result<()> {
         }
     }
     for (test_cycle, e) in error_vec {
+        // error!("Failed during test cycle {test_cycle}: {}\n{}", e, e.backtrace());
         error!("Failed during test cycle {test_cycle}: {}", e);
     }
 

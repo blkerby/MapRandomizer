@@ -136,6 +136,13 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
     Ok(())
 }
 
+fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
+    if settings["map_layout"].as_str() == Some("Tame") {
+        *settings.get_mut("map_layout").unwrap() = "Standard".into();
+    }
+    Ok(())
+}
+
 fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<String> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
@@ -143,6 +150,7 @@ fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<Stri
     upgrade_tech_settings(&mut settings, app_data)?;
     upgrade_notable_settings(&mut settings, app_data)?;
     upgrade_item_progression_settings(&mut settings)?;
+    upgrade_map_setting(&mut settings)?;
 
     // Update version field to current version:
     *settings

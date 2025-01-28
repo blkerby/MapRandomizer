@@ -4147,7 +4147,7 @@
         "early_save": true
     },
     "objectives_mode": "Bosses",
-    "map_layout": "Tame",
+    "map_layout": "Standard",
     "doors_mode": "Ammo",
     "start_location_mode": "Ship",
     "save_animals": "No",

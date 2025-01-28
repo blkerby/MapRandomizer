@@ -68,8 +68,8 @@ fn build_app_data() -> AppData {
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    let tame_maps_path = Path::new("../maps/v116d-tame");
-    let wild_maps_path = Path::new("../maps/v116d-wild");
+    let standard_maps_path = Path::new("../maps/v117-standard");
+    let wild_maps_path = Path::new("../maps/v117-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let tech_path = Path::new("data/tech_data.json");
@@ -138,8 +138,8 @@ fn build_app_data() -> AppData {
                 MapRepository::new("Vanilla", vanilla_map_path).unwrap(),
             ),
             (
-                "Tame".to_string(),
-                MapRepository::new("Tame", tame_maps_path).unwrap(),
+                "Standard".to_string(),
+                MapRepository::new("Standard", standard_maps_path).unwrap(),
             ),
             (
                 "Wild".to_string(),
