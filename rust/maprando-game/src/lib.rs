@@ -2482,6 +2482,9 @@ impl GameData {
             } else if key == "itemNotCollectedAtNode" {
                 // TODO: implement this
                 return Ok(Requirement::Free);
+            } else if key == "itemCollectedAtNode" {
+                // TODO: implement this
+                return Ok(Requirement::Never);
             } else if key == "autoReserveTrigger" {
                 return Ok(Requirement::ReserveTrigger {
                     min_reserve_energy: value["minReserveEnergy"].as_i32().unwrap_or(1) as Capacity,
