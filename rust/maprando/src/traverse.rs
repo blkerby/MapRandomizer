@@ -1076,7 +1076,9 @@ pub fn apply_requirement(
             if settings.quality_of_life_settings.fast_elevators {
                 apply_heat_frames(188, local, global, game_data, difficulty)
             } else {
-                if !global.inventory.items[Item::Varia as usize] && global.inventory.max_energy < 149 {
+                if !global.inventory.items[Item::Varia as usize]
+                    && global.inventory.max_energy < 149
+                {
                     None
                 } else {
                     apply_heat_frames(436, local, global, game_data, difficulty)
