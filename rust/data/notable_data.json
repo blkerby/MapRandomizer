@@ -492,7 +492,7 @@
     "room_name": "Blue Brinstar Energy Tank Room",
     "notable_id": 2,
     "name": "Ceiling Damage Boost",
-    "difficulty": "Medium",
+    "difficulty": "Hard",
     "video_id": 273
   },
   {
@@ -1180,7 +1180,7 @@
     "room_name": "Bubble Mountain",
     "notable_id": 1,
     "name": "Damage Boost",
-    "difficulty": "Hard",
+    "difficulty": "Very Hard",
     "video_id": 478
   },
   {

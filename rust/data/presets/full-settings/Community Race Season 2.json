@@ -932,13 +932,6 @@
                 "enabled": true
             },
             {
-                "room_id": 41,
-                "notable_id": 2,
-                "room_name": "Blue Brinstar Energy Tank Room",
-                "notable_name": "Ceiling Damage Boost",
-                "enabled": true
-            },
-            {
                 "room_id": 54,
                 "notable_id": 3,
                 "room_name": "Green Hill Zone",
@@ -992,6 +985,13 @@
                 "notable_id": 1,
                 "room_name": "The Moat",
                 "notable_name": "SpringBall Bounce",
+                "enabled": true
+            },
+            {
+                "room_id": 41,
+                "notable_id": 2,
+                "room_name": "Blue Brinstar Energy Tank Room",
+                "notable_name": "Ceiling Damage Boost",
                 "enabled": true
             },
             {
@@ -1055,13 +1055,6 @@
                 "notable_id": 8,
                 "room_name": "Red Tower",
                 "notable_name": "Hero Shot",
-                "enabled": true
-            },
-            {
-                "room_id": 97,
-                "notable_id": 1,
-                "room_name": "Bubble Mountain",
-                "notable_name": "Damage Boost",
                 "enabled": true
             },
             {
@@ -1328,6 +1321,13 @@
                 "notable_id": 2,
                 "room_name": "Warehouse Kihunter Room",
                 "notable_name": "Bottom Spark Out",
+                "enabled": false
+            },
+            {
+                "room_id": 97,
+                "notable_id": 1,
+                "room_name": "Bubble Mountain",
+                "notable_name": "Damage Boost",
                 "enabled": false
             },
             {

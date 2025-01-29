@@ -127,6 +127,13 @@
   },
   {
     "room_id": 11,
+    "strat_id": 54,
+    "video_id": 3176,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 11,
     "strat_id": 55,
     "video_id": 3174,
     "created_user": "Sam",
