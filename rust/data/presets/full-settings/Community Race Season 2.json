@@ -1100,13 +1100,6 @@
                 "enabled": true
             },
             {
-                "room_id": 163,
-                "notable_id": 2,
-                "room_name": "Wrecked Ship East Super Room",
-                "notable_name": "Crystal Flash Clip",
-                "enabled": true
-            },
-            {
                 "room_id": 176,
                 "notable_id": 2,
                 "room_name": "Crab Tunnel",
@@ -1538,6 +1531,13 @@
                 "notable_id": 1,
                 "room_name": "Sponge Bath",
                 "notable_name": "Bull Boost",
+                "enabled": false
+            },
+            {
+                "room_id": 163,
+                "notable_id": 2,
+                "room_name": "Wrecked Ship East Super Room",
+                "notable_name": "Crystal Flash Clip",
                 "enabled": false
             },
             {
