@@ -4820,13 +4820,7 @@ impl GameData {
             .get_mut("h_MainHallElevatorFrames")
             .unwrap() = json::object! {
             "name": "h_MainHallElevatorFrames",
-            "requires": [
-                "i_MainHallElevatorFrames",
-                {"or":[
-                    "h_heatResistant",
-                    {"resourceCapacity": [{"type": "RegularEnergy", "count": 149}]}
-                ]}
-            ],
+            "requires": ["i_MainHallElevatorFrames"],
         };
         *game_data
             .helper_json_map
