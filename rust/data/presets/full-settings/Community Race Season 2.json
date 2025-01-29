@@ -103,11 +103,6 @@
                 "enabled": true
             },
             {
-                "id": 103,
-                "name": "canNeutralDamageBoost",
-                "enabled": true
-            },
-            {
                 "id": 123,
                 "name": "canPseudoScrew",
                 "enabled": true
@@ -238,8 +233,8 @@
                 "enabled": true
             },
             {
-                "id": 104,
-                "name": "canHorizontalDamageBoost",
+                "id": 103,
+                "name": "canNeutralDamageBoost",
                 "enabled": true
             },
             {
@@ -280,11 +275,6 @@
             {
                 "id": 134,
                 "name": "canMidairShinespark",
-                "enabled": true
-            },
-            {
-                "id": 139,
-                "name": "canUseSpeedEchoes",
                 "enabled": true
             },
             {
@@ -383,11 +373,6 @@
                 "enabled": false
             },
             {
-                "id": 52,
-                "name": "canGrappleJump",
-                "enabled": false
-            },
-            {
                 "id": 60,
                 "name": "canFlatleyJump",
                 "enabled": false
@@ -438,6 +423,11 @@
                 "enabled": false
             },
             {
+                "id": 104,
+                "name": "canHorizontalDamageBoost",
+                "enabled": false
+            },
+            {
                 "id": 105,
                 "name": "canManipulateMellas",
                 "enabled": false
@@ -470,6 +460,11 @@
             {
                 "id": 137,
                 "name": "canShinechargeMovementComplex",
+                "enabled": false
+            },
+            {
+                "id": 139,
+                "name": "canUseSpeedEchoes",
                 "enabled": false
             },
             {
@@ -545,6 +540,11 @@
             {
                 "id": 181,
                 "name": "canMomentumConservingMorph",
+                "enabled": false
+            },
+            {
+                "id": 52,
+                "name": "canGrappleJump",
                 "enabled": false
             },
             {
@@ -2696,6 +2696,13 @@
                 "enabled": false
             },
             {
+                "room_id": 57,
+                "notable_id": 2,
+                "room_name": "Spore Spawn Room",
+                "notable_name": "Plasma SBA Kill from Above",
+                "enabled": false
+            },
+            {
                 "room_id": 59,
                 "notable_id": 6,
                 "room_name": "Big Pink",
@@ -3438,6 +3445,13 @@
                 "enabled": false
             },
             {
+                "room_id": 115,
+                "notable_id": 9,
+                "room_name": "Lava Dive Room",
+                "notable_name": "Artificial Morph, Triple Spring Ball Jump",
+                "enabled": false
+            },
+            {
                 "room_id": 121,
                 "notable_id": 2,
                 "room_name": "Crocomire Escape",
@@ -3519,6 +3533,13 @@
                 "notable_id": 3,
                 "room_name": "Fish Tank",
                 "notable_name": "Grapple Teleport into Grapple Jump",
+                "enabled": false
+            },
+            {
+                "room_id": 173,
+                "notable_id": 8,
+                "room_name": "Fish Tank",
+                "notable_name": "Artificial Morph, Double Spring Ball Jump onto Frozen Fish",
                 "enabled": false
             },
             {

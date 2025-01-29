@@ -326,7 +326,7 @@
     {
         "tech_id": 52,
         "name": "canGrappleJump",
-        "difficulty": "Very Hard",
+        "difficulty": "Expert",
         "video_id": 911
     },
     {
@@ -662,13 +662,13 @@
     {
         "tech_id": 103,
         "name": "canNeutralDamageBoost",
-        "difficulty": "Medium",
+        "difficulty": "Hard",
         "video_id": 1041
     },
     {
         "tech_id": 104,
         "name": "canHorizontalDamageBoost",
-        "difficulty": "Hard",
+        "difficulty": "Very Hard",
         "video_id": 1043
     },
     {
@@ -878,7 +878,7 @@
     {
         "tech_id": 139,
         "name": "canUseSpeedEchoes",
-        "difficulty": "Hard",
+        "difficulty": "Very Hard",
         "video_id": 806
     },
     {

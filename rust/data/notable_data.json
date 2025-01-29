@@ -744,6 +744,14 @@
     "video_id": 248
   },
   {
+    "room_id": 57,
+    "room_name": "Spore Spawn Room",
+    "notable_id": 2,
+    "name": "Plasma SBA Kill from Above",
+    "difficulty": "Extreme",
+    "video_id": 4261
+  },
+  {
     "room_id": 59,
     "room_name": "Big Pink",
     "notable_id": 1,
@@ -1350,6 +1358,14 @@
     "name": "HiJumpless Dive",
     "difficulty": "Expert",
     "video_id": 422
+  },
+  {
+    "room_id": 115,
+    "room_name": "Lava Dive Room",
+    "notable_id": 9,
+    "name": "Artificial Morph, Triple Spring Ball Jump",
+    "difficulty": "Insane",
+    "video_id": 4010
   },
   {
     "room_id": 99,
@@ -2168,6 +2184,14 @@
     "video_id": 417
   },
   {
+    "room_id": 173,
+    "room_name": "Fish Tank",
+    "notable_id": 8,
+    "name": "Artificial Morph, Double Spring Ball Jump onto Frozen Fish",
+    "difficulty": "Insane",
+    "video_id": 4022
+  },
+  {
     "room_id": 170,
     "room_name": "Glass Tunnel",
     "notable_id": 1,
@@ -2197,7 +2221,7 @@
     "notable_id": 4,
     "name": "Breaking the Tube Gravity Jump",
     "difficulty": "Ignored",
-    "video_id": null
+    "video_id": 4204
   },
   {
     "room_id": 172,
