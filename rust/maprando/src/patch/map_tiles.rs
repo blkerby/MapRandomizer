@@ -165,6 +165,17 @@ impl<'a> MapPatcher<'a> {
         }
     }
 
+    fn index_fixed_tiles(&mut self) -> Result<()> {
+        for area_idx in 0..NUM_AREAS {
+            let mut tile = MapTile::default();
+            tile.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
+            self.index_tile(area_idx, tile.clone(), Some(0x28))?;
+            tile.heated = true;
+            self.index_tile(area_idx, tile.clone(), Some(0xA8))?;
+        }
+        Ok(())
+    }
+
     fn read_map_tile_2bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
         let base_addr = snes2pc(0x9AB200); // Location of HUD tile GFX in ROM
         let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
@@ -207,7 +218,12 @@ impl<'a> MapPatcher<'a> {
         self.read_tile_4bpp(addr)
     }
 
-    fn index_tile(&mut self, area_idx: usize, tile: MapTile) -> Result<TilemapWord> {
+    fn index_tile(
+        &mut self,
+        area_idx: usize,
+        tile: MapTile,
+        fixed_idx: Option<u16>,
+    ) -> Result<TilemapWord> {
         let data = self.render_tile(tile)?;
         if self.gfx_tile_map.contains_key(&(area_idx, data)) {
             Ok(self.gfx_tile_map[&(area_idx, data)])
@@ -227,11 +243,15 @@ impl<'a> MapPatcher<'a> {
         {
             Ok(self.gfx_tile_map[&(area_idx, hflip_tile(vflip_tile(data)))] | FLIP_X | FLIP_Y)
         } else {
-            let free_tile_idx = self.free_tiles[area_idx]
-                .pop()
-                .context("No more free tiles")?;
+            let tile_idx = if let Some(i) = fixed_idx {
+                i
+            } else {
+                self.free_tiles[area_idx]
+                    .pop()
+                    .context("No more free tiles")?
+            };
             let palette = 0x1800;
-            let word = free_tile_idx | palette;
+            let word = tile_idx | palette;
             self.gfx_tile_map.insert((area_idx, data), word);
             Ok(word)
         }
@@ -247,7 +267,7 @@ impl<'a> MapPatcher<'a> {
 
         // Index map graphics and write map tilemap by room:
         for ((area_idx, x, y), tile) in self.map_tile_map.clone() {
-            let word = self.index_tile(area_idx, tile.clone())?;
+            let word = self.index_tile(area_idx, tile.clone(), None)?;
             let local_x = x - self.area_offset_x[area_idx];
             let local_y = y - self.area_offset_y[area_idx];
 
@@ -267,7 +287,7 @@ impl<'a> MapPatcher<'a> {
         // Index dynamic item/door tile graphics:
         for area_idx in 0..6 {
             for (_, _, tile) in self.dynamic_tile_data[area_idx].clone() {
-                let _ = self.index_tile(area_idx, tile)?;
+                let _ = self.index_tile(area_idx, tile, None)?;
             }
         }
 
@@ -1885,7 +1905,7 @@ impl<'a> MapPatcher<'a> {
                         .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
                     self.rom
                         .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
-                    let word = self.index_tile(area_idx, tile.clone())?;
+                    let word = self.index_tile(area_idx, tile.clone(), None)?;
 
                     let (_, x, y) = self.get_room_coords(
                         room_id,
@@ -2419,6 +2439,7 @@ impl<'a> MapPatcher<'a> {
 
     pub fn apply_patches(&mut self) -> Result<()> {
         self.initialize_tiles()?;
+        self.index_fixed_tiles()?;
         self.fix_pause_palettes()?;
         self.fix_message_boxes()?;
         self.fix_hud_black()?;
