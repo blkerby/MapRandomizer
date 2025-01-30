@@ -28,7 +28,7 @@ v117:
 - DONE: fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
 - pull in new videos
 - DONE: move canUseSpeedEchoes to VH, look at other Hard tech.
-- fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
+- DONE: fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
 - DONE: fix issue with global zeela in dachora room
 - map gen:
   - DONE: decide which maps to keep

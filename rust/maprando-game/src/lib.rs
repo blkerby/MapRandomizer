@@ -2903,9 +2903,9 @@ impl GameData {
         for strat_json in new_room_json["strats"].members_mut() {
             if strat_json["id"].as_usize().is_none() {
                 let from_node_id = strat_json["link"][0].as_usize().unwrap();
-                let to_node_id = strat_json["link"][0].as_usize().unwrap();
+                let to_node_id = strat_json["link"][1].as_usize().unwrap();
                 warn!(
-                    "Skipping strat without ID: {}:{}:{}:{}",
+                    "Strat without ID: {}:{}:{}:{}",
                     room_json["name"],
                     from_node_id,
                     to_node_id,
