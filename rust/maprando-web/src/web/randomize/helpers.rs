@@ -211,7 +211,10 @@ pub async fn save_seed(
     let seed_data_str = serde_json::to_vec_pretty(&seed_data).unwrap();
     files.push(SeedFile::new("seed_data.json", seed_data_str.to_vec()));
 
-    files.push(SeedFile::new("input_settings.json", input_settings.as_bytes().to_owned()));
+    files.push(SeedFile::new(
+        "input_settings.json",
+        input_settings.as_bytes().to_owned(),
+    ));
 
     // Write the ROM patch.
     let patch_ips = create_ips_patch(&vanilla_rom.data, &output_rom.data);

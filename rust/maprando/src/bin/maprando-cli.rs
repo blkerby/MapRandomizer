@@ -37,6 +37,9 @@ struct Args {
     random_seed: Option<usize>,
 
     #[arg(long)]
+    start_location: Option<String>,
+
+    #[arg(long)]
     item_placement_seed: Option<usize>,
 
     #[arg(long)]
@@ -142,7 +145,9 @@ fn get_randomization(
             None => 10000, // Same as maprando-web.
         }
     };
-    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random {
+    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random
+        && game_data.start_locations.len() > 1
+    {
         10
     } else {
         1
@@ -218,7 +223,7 @@ fn main() -> Result<()> {
     let strat_videos_path = Path::new("data/strat_videos.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let map_tiles_path = Path::new("data/map_tiles.json");
-    let game_data = GameData::load(
+    let mut game_data = GameData::load(
         sm_json_data_path,
         room_geometry_path,
         escape_timings_path,
@@ -229,6 +234,15 @@ fn main() -> Result<()> {
         strat_videos_path,
         map_tiles_path,
     )?;
+
+    if let Some(start_location_name) = &args.start_location {
+        game_data.start_locations = game_data
+            .start_locations
+            .iter()
+            .cloned()
+            .filter(|x| &x.name == start_location_name)
+            .collect();
+    }
 
     let tech_path = Path::new("data/tech_data.json");
     let notable_path = Path::new("data/notable_data.json");

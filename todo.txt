@@ -9,6 +9,7 @@ v118:
   - west cac alley CF clip
 - mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
+- add option to select specific start location
 - map gen:
   - measure map "clumpiness"
   - sanity checks on save balancing
@@ -22,7 +23,7 @@ v117:
 - add more strats from Incomplete videos
 - check out new Samus sprites
 - apply Fake Lava patch (resolve conflict with complementary_suits?)
-- fix logic for Cathedral Entrance start location 
+- DONE: fix logic for Cathedral Entrance start location 
 - Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
 - prevent enter keypress from submitting generate form
 - DONE: fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)

@@ -3,7 +3,9 @@ use actix_web::{post, web, HttpResponse, Responder};
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use log::error;
-use maprando::settings::{parse_randomizer_settings, NotableSetting, RandomizerSettings, TechSetting};
+use maprando::settings::{
+    parse_randomizer_settings, NotableSetting, RandomizerSettings, TechSetting,
+};
 use maprando_game::{NotableId, RoomId, TechId};
 
 use super::VERSION;
@@ -151,7 +153,10 @@ fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-pub fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<(String, RandomizerSettings)> {
+pub fn try_upgrade_settings(
+    settings_str: String,
+    app_data: &AppData,
+) -> Result<(String, RandomizerSettings)> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
     assign_presets(&mut settings, app_data)?;

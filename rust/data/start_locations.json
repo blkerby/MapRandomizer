@@ -705,7 +705,7 @@
         "x": 11,
         "y": 22,
         "spicy": true,
-        "requires": ["canHeatRun"]
+        "requires": [{"heatFrames": 260}]
     },
     {
         "name": "Cathedral Left",

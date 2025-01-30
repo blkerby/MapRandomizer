@@ -4607,7 +4607,11 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
-        let num_attempts_start_location = 10;
+        let num_attempts_start_location = if self.game_data.start_locations.len() > 1 {
+            10
+        } else {
+            1
+        };
         let start_location_data = self.determine_start_location(
             attempt_num_rando,
             num_attempts_start_location,
