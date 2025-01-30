@@ -636,7 +636,11 @@ org $A7F892
 
 org !bank_a7_free_space_start
 dachora_hit_top:
+    lda $079B
+    cmp #$91F8
+    bne .skip
     stz $0f78        ; despawn dachora by clearing its enemy ID
+.skip:
     LDA #$003C       ; run hi-jacked instruction
     rts
 
