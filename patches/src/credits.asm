@@ -9,7 +9,7 @@ incsrc "constants.asm"
 !bank_8b_free_space_start = $8bf770
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
-!bank_ce_free_space_end = $ced200
+!bank_ce_free_space_end = $cee000
 !bank_df_free_space_start = $dfd4df
 !bank_df_free_space_end = $dfe200
 !credits_script_address = $dfd91b
@@ -908,7 +908,7 @@ credits:
     !big
     dw "             MADDO              " ;; 130
     dw "             maddo              " ;; 131
-    !yellow
+    !orange
     dw "        MAIN DEVELOPERS         " ;; 132
     !big
     dw "      KYLEB         OSSE101     " ;; 133
@@ -916,7 +916,7 @@ credits:
     dw "          AMOEBAOFDOOM          " ;; 135
     dw "          amoebaofdoom          " ;; 136
 
-    !orange
+    !green
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
     !big
     dw "    KYLEB           OSSE101     " ;; 138
@@ -1059,7 +1059,7 @@ credits:
     dw " tourian            }}.}}.}}.}} " ;; 251
     dw " PAUSE MENU         00.00.00 00 " ;; 252
     dw " pause menu         }}.}}.}}.}} " ;; 253
-    !yellow
+    !orange
     dw "     ADDITIONAL DEVELOPERS      " ;; 254
     !big
     dw "     SELICRE       STAG SHOT    " ;; 255
