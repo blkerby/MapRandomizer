@@ -3645,6 +3645,13 @@
             "enabled": true
         },
         {
+            "room_id": 186,
+            "notable_id": 3,
+            "room_name": "Botwoon Energy Tank Room",
+            "notable_name": "Sand Bomb Boost (Left to Right)",
+            "enabled": true
+        },
+        {
             "room_id": 189,
             "notable_id": 1,
             "room_name": "Colosseum",

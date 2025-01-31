@@ -2464,6 +2464,14 @@
     "video_id": 111
   },
   {
+    "room_id": 186,
+    "room_name": "Botwoon Energy Tank Room",
+    "notable_id": 3,
+    "name": "Sand Bomb Boost (Left to Right)",
+    "difficulty": "Insane",
+    "video_id": 4346
+  },
+  {
     "room_id": 184,
     "room_name": "Botwoon Hallway",
     "notable_id": 1,

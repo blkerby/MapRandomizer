@@ -33,7 +33,7 @@ for path in glob.glob(full_settings_path + "/*.json"):
         settings["skill_assumption_settings"] = skill_presets[skill_preset_name]
 
     item_preset_name = settings["item_progression_settings"]["preset"]
-    if skill_preset_name is not None:
+    if item_preset_name is not None:
         settings["item_progression_settings"] = item_presets[item_preset_name]
 
     qol_preset_name = settings["quality_of_life_settings"]["preset"]
