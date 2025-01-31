@@ -193,6 +193,7 @@ pub fn get_random_seed() -> usize {
 pub async fn save_seed(
     seed_name: &str,
     seed_data: &SeedData,
+    input_settings: &str,
     spoiler_token: &str,
     vanilla_rom: &Rom,
     output_rom: &Rom,
@@ -209,6 +210,11 @@ pub async fn save_seed(
     // so to protect user privacy and the integrity of race ROMs we do not make it public.
     let seed_data_str = serde_json::to_vec_pretty(&seed_data).unwrap();
     files.push(SeedFile::new("seed_data.json", seed_data_str.to_vec()));
+
+    files.push(SeedFile::new(
+        "input_settings.json",
+        input_settings.as_bytes().to_owned(),
+    ));
 
     // Write the ROM patch.
     let patch_ips = create_ips_patch(&vanilla_rom.data, &output_rom.data);

@@ -1,6 +1,6 @@
 mod helpers;
 
-use crate::web::{AppData, VERSION};
+use crate::web::{upgrade::try_upgrade_settings, AppData, VERSION};
 use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
 use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
 use askama::Template;
@@ -12,7 +12,7 @@ use maprando::{
         filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas,
         DifficultyConfig, Randomization, Randomizer,
     },
-    settings::{parse_randomizer_settings, AreaAssignment, RandomizerSettings, StartLocationMode},
+    settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
 };
 use maprando_game::LinksDataGroup;
 use rand::{RngCore, SeedableRng};
@@ -108,8 +108,8 @@ async fn randomize(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
-    let mut settings: RandomizerSettings = match parse_randomizer_settings(&req.settings.0) {
-        Ok(s) => s,
+    let mut settings = match try_upgrade_settings(req.settings.0.to_string(), &app_data) {
+        Ok(s) => s.1,
         Err(e) => {
             return HttpResponse::BadRequest().body(e.to_string());
         }
@@ -358,6 +358,7 @@ async fn randomize(
     save_seed(
         seed_name,
         &seed_data,
+        &req.settings.0,
         &req.spoiler_token.0,
         &rom,
         &output.output_rom,

@@ -3,7 +3,9 @@ use actix_web::{post, web, HttpResponse, Responder};
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use log::error;
-use maprando::settings::{parse_randomizer_settings, NotableSetting, TechSetting};
+use maprando::settings::{
+    parse_randomizer_settings, NotableSetting, RandomizerSettings, TechSetting,
+};
 use maprando_game::{NotableId, RoomId, TechId};
 
 use super::VERSION;
@@ -30,6 +32,14 @@ fn assign_presets(settings: &mut serde_json::Value, app_data: &AppData) -> Resul
         for p in &app_data.preset_data.quality_of_life_presets {
             if p.preset.as_ref() == Some(&preset) {
                 *settings.get_mut("quality_of_life_settings").unwrap() = serde_json::to_value(p)?;
+            }
+        }
+    }
+    if let Some(preset) = settings["name"].as_str() {
+        let preset = preset.to_owned();
+        for p in &app_data.preset_data.full_presets {
+            if p.name.as_ref() == Some(&preset) {
+                *settings = serde_json::to_value(p)?;
             }
         }
     }
@@ -143,7 +153,10 @@ fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<String> {
+pub fn try_upgrade_settings(
+    settings_str: String,
+    app_data: &AppData,
+) -> Result<(String, RandomizerSettings)> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
     assign_presets(&mut settings, app_data)?;
@@ -160,15 +173,16 @@ fn try_upgrade_settings(settings_str: String, app_data: &AppData) -> Result<Stri
     // Validate that the upgraded settings will parse as a RandomizerSettings struct:
     let settings_str = settings.to_string();
     let settings_out = parse_randomizer_settings(&settings_str)?;
-    Ok(serde_json::to_string(&settings_out)?)
+    let settings_out_str = serde_json::to_string(&settings_out)?;
+    Ok((settings_out_str, settings_out))
 }
 
 #[post("/upgrade-settings")]
 async fn upgrade_settings(settings_str: String, app_data: web::Data<AppData>) -> impl Responder {
     match try_upgrade_settings(settings_str, &app_data) {
-        Ok(settings) => HttpResponse::Ok()
+        Ok((settings_str, _)) => HttpResponse::Ok()
             .content_type("application/json")
-            .body(settings),
+            .body(settings_str),
         Err(e) => {
             error!("Failed to upgrade settings: {}", e);
             HttpResponse::BadRequest().body(e.to_string())

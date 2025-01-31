@@ -1,36 +1,40 @@
-v117:
-- DONE: load node tile data from sm-json-data
-- DONE: render map tiles using map_tiles.json
+v118:
+- finish adding shinecharge and temp blue strats
+- add `easyHeatFrames` logical requirement
 - look into Kraid Eye Door grapple teleport strats: why [2, 19] is option from one door but not the other?
 - after exhausting all item placement attempts, default to first key item in precedence order instead of last.
-- add more shinecharge and/or temp blue strats
-- add more strats from Incomplete videos
-- check out new Samus sprites
-- apply Fake Lava patch (resolve conflict with complementary_suits?)
-- fix logic for Cathedral Entrance start location 
-- Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
-- prevent enter keypress from submitting generate form
-- look into moving up PCJR mella ice clip to expert (at least without x-ray)
-- fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
-- add `easyHeatFrames` logical requirement
-- pull in new videos
-- move canUseSpeedEchoes to VH, look at other Hard tech.
-- fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
 - add iframe spike jump remote runways: e.g. East Cac Alley, Bowling Alley, Crateria Supers
-- mosaic:
-  - restore morph tunnel continuation behind morph tunnel transition
-- fix issue with global zeela in dachora room
 - new strats to add:
   - crumble jump of LN escape PB room, leavewithplatform
   - west cac alley CF clip
+- mosaic:
+  - restore morph tunnel continuation behind morph tunnel transition
+- add option to select specific start location
 - map gen:
   - measure map "clumpiness"
   - sanity checks on save balancing
   - measure save/map/refill distances using asymmetric graph distance
   - measure graph distances (symmetric and asymmetric)
-  - decide which maps to keep
-  - rename "Tame" to "Standard"
-  - probably handle Toilet differently in Tame pool
+
+v117:
+- DONE: load node tile data from sm-json-data
+- DONE: render map tiles using map_tiles.json
+- cross-room grapple swings
+- add more strats from Incomplete videos
+- check out new Samus sprites
+- apply Fake Lava patch (resolve conflict with complementary_suits?)
+- DONE: fix logic for Cathedral Entrance start location 
+- Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
+- prevent enter keypress from submitting generate form
+- DONE: fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
+- pull in new videos
+- DONE: move canUseSpeedEchoes to VH, look at other Hard tech.
+- DONE: fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
+- DONE: fix issue with global zeela in dachora room
+- map gen:
+  - DONE: decide which maps to keep
+  - DONE: rename "Tame" to "Standard"
+  - DONE: probably handle Toilet differently in Tame pool
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
@@ -105,8 +109,7 @@ Other:
 - embed some logic data in video site? (e.g. show strat note when uploading/editing)
 - adjust auto-formatting for unlocksDoors
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
-- fix bug where dachora despawns global zeela in Dachora Room.
-  - probably caused by escape.asm: missing ",x" in stz, also check for Landing Site room ID so that it won't affect Dachora Room
+- DONE: fix bug where dachora despawns global zeela in Dachora Room.
 - model energy usage in the escape.
   - can be necessary to ensure beatability of seeds with reduced items and disabled escape refill.
 - add option to reroll seeds with not enough difficult required tricks?
