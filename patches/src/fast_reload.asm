@@ -149,7 +149,7 @@ org !spin_lock_button_combo
     dw $0870
 
 org !reload_button_combo
-    dw $0303  ; L + R + Select + Start  (overridable by the customizer)
+    dw $3030  ; L + R + Select + Start  (overridable by the customizer)
 
 ; Hook setting up game
 org $80a088
@@ -203,7 +203,7 @@ setup_game_2:
     jsl $82e071
     jml $80a0d2
 .quick
-    jml $80a0d9
+    jml $80a0d5
 
 setup_game_3:
     jsl $82be17       ; Stop sounds
