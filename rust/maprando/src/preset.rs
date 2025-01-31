@@ -182,7 +182,7 @@ impl PresetData {
             quality_of_life_presets.push(preset);
         }
 
-        let full_preset_names = ["Default", "Community Race Season 2"];
+        let full_preset_names = ["Default", "Community Race Season 3"];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
         for name in full_preset_names {
