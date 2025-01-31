@@ -15801,9 +15801,23 @@
   {
     "room_id": 186,
     "strat_id": 44,
+    "video_id": 4346,
+    "created_user": "maddo",
+    "note": "Moving forward from crouch, mid-air morph against wall"
+  },
+  {
+    "room_id": 186,
+    "strat_id": 44,
     "video_id": 2978,
     "created_user": "Sam",
-    "note": "Stationary lateral mid-air morph"
+    "note": "Moving forward from stand, stationary lateral mid-air morph"
+  },
+  {
+    "room_id": 186,
+    "strat_id": 100,
+    "video_id": 4343,
+    "created_user": "maddo",
+    "note": ""
   },
   {
     "room_id": 186,
@@ -15853,6 +15867,13 @@
     "video_id": 764,
     "created_user": "Osse101",
     "note": "canSandBombBoost"
+  },
+  {
+    "room_id": 186,
+    "strat_id": 85,
+    "video_id": 4344,
+    "created_user": "maddo",
+    "note": "Power Bomb"
   },
   {
     "room_id": 184,
