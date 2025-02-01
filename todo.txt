@@ -17,6 +17,10 @@ v118:
   - measure graph distances (symmetric and asymmetric)
 - apply Fake Lava patch (resolve conflict with complementary_suits?)
 - add more strats from Incomplete videos
+- add missing Red Tower grapple jump strats:
+  - missed entering from the right
+  - grapple jumping up only to the ledge (probably needs a new node)
+    - shinespark strats could get up that node too, with fewer shinecharge frames
 
 v117:
 - DONE: load node tile data from sm-json-data

@@ -118,6 +118,12 @@ fn compute_cost(
     }
     let cycle_frames_cost = (local.cycle_frames as f32) * 0.0001;
 
+    let energy_sensitive_cost_metric = 100.0 * (energy_cost + reserve_cost)
+        + missiles_cost
+        + supers_cost
+        + power_bombs_cost
+        + shinecharge_cost
+        + cycle_frames_cost;
     let ammo_sensitive_cost_metric = energy_cost
         + reserve_cost
         + 100.0
@@ -126,13 +132,7 @@ fn compute_cost(
                 + power_bombs_cost
                 + shinecharge_cost
                 + cycle_frames_cost);
-    let energy_sensitive_cost_metric = 100.0 * (energy_cost + reserve_cost)
-        + missiles_cost
-        + supers_cost
-        + power_bombs_cost
-        + shinecharge_cost
-        + cycle_frames_cost;
-    [ammo_sensitive_cost_metric, energy_sensitive_cost_metric]
+    [energy_sensitive_cost_metric, ammo_sensitive_cost_metric]
 }
 
 fn validate_energy_no_auto_reserve(
