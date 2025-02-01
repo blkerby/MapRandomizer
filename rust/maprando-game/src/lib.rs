@@ -925,7 +925,7 @@ pub enum MainEntranceCondition {
         min_right_position: Float,
     },
     ComeInWithGrappleSwing {
-        blocks: Vec<GrappleSwingBlock>
+        blocks: Vec<GrappleSwingBlock>,
     },
     ComeInWithGrappleJump {
         position: GrappleJumpPosition,
@@ -3714,7 +3714,7 @@ impl GameData {
                     blocks.push(self.parse_grapple_swing_block(b)?);
                 }
                 MainEntranceCondition::ComeInWithGrappleSwing { blocks }
-            },
+            }
             "comeInWithGrappleJump" => MainEntranceCondition::ComeInWithGrappleJump {
                 position: parse_grapple_jump_position(value["position"].as_str())?,
             },
