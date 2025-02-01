@@ -8,18 +8,7 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    DoorOrientation, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId,
-    NotableIdx, Requirement, RoomId, SparkPosition, StratId, StratVideo, TechId, VertexAction,
-    VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY,
-    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
-    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
-    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
-    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_MOONFALL,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
-    TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK,
-    TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
-    TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
-    TECH_ID_CAN_TEMPORARY_BLUE, TECH_ID_CAN_WALLJUMP,
+    DoorOrientation, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx, Requirement, RoomId, SparkPosition, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TECH_ID_CAN_WALLJUMP
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -292,6 +281,8 @@ fn make_tech_templates<'a>(
                 ("comeInWithStoredFallSpeed", vec![TECH_ID_CAN_MOONFALL]),
                 ("comeInWithGMode", vec![TECH_ID_CAN_ENTER_G_MODE]),
                 ("comeInWithRMode", vec![TECH_ID_CAN_ENTER_R_MODE]),
+                ("comeInWithGrappleSwing", vec![TECH_ID_CAN_PRECISE_GRAPPLE]),
+                ("comeInWithGrappleJump", vec![TECH_ID_CAN_GRAPPLE_JUMP]),
                 (
                     "comeInWithGrappleTeleport",
                     vec![TECH_ID_CAN_GRAPPLE_TELEPORT],
@@ -696,6 +687,16 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 MainEntranceCondition::ComeInWithSpaceJumpBelow { .. } => {}
                 MainEntranceCondition::ComeInWithPlatformBelow { .. } => {}
+                MainEntranceCondition::ComeInWithGrappleSwing { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_PRECISE_GRAPPLE],
+                    ));
+                }
+                MainEntranceCondition::ComeInWithGrappleJump { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_JUMP],
+                    ));
+                }
                 MainEntranceCondition::ComeInWithGrappleTeleport { .. } => {
                     reqs.push(Requirement::Tech(
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT],
@@ -764,6 +765,16 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 ExitCondition::LeaveWithDoorFrameBelow { .. } => {}
                 ExitCondition::LeaveWithPlatformBelow { .. } => {}
+                ExitCondition::LeaveWithGrappleSwing { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_PRECISE_GRAPPLE],
+                    ));
+                }
+                ExitCondition::LeaveWithGrappleJump { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_JUMP],
+                    ));
+                }
                 ExitCondition::LeaveWithGrappleTeleport { .. } => {
                     reqs.push(Requirement::Tech(
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_TELEPORT],

@@ -405,11 +405,6 @@
             "enabled": false
         },
         {
-            "id": 95,
-            "name": "canSandIBJ",
-            "enabled": false
-        },
-        {
             "id": 99,
             "name": "canSpringBallBombJump",
             "enabled": false
@@ -717,6 +712,11 @@
         {
             "id": 49,
             "name": "canOffScreenMovement",
+            "enabled": false
+        },
+        {
+            "id": 195,
+            "name": "canPreciseGrappleJump",
             "enabled": false
         },
         {

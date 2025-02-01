@@ -15,16 +15,16 @@ v118:
   - sanity checks on save balancing
   - measure save/map/refill distances using asymmetric graph distance
   - measure graph distances (symmetric and asymmetric)
+- apply Fake Lava patch (resolve conflict with complementary_suits?)
+- add more strats from Incomplete videos
 
 v117:
 - DONE: load node tile data from sm-json-data
 - DONE: render map tiles using map_tiles.json
 - cross-room grapple swings
-- add more strats from Incomplete videos
 - check out new Samus sprites
-- apply Fake Lava patch (resolve conflict with complementary_suits?)
 - DONE: fix logic for Cathedral Entrance start location 
-- Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
+- DONE: Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
 - prevent enter keypress from submitting generate form
 - DONE: fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
 - pull in new videos

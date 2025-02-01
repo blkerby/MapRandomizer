@@ -330,6 +330,12 @@
         "video_id": 911
     },
     {
+        "tech_id": 195,
+        "name": "canPreciseGrappleJump",
+        "difficulty": "Extreme",
+        "video_id": 4068
+    },
+    {
         "tech_id": 53,
         "name": "canTrickyGrappleJump",
         "difficulty": "Insane",
@@ -610,12 +616,6 @@
         "name": "canDiagonalBombJump",
         "difficulty": "Extreme",
         "video_id": 998
-    },
-    {
-        "tech_id": 95,
-        "name": "canSandIBJ",
-        "difficulty": "Very Hard",
-        "video_id": 955
     },
     {
         "tech_id": 96,

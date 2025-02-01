@@ -45,6 +45,8 @@ pub const TECH_ID_CAN_ENTER_G_MODE: TechId = 162;
 pub const TECH_ID_CAN_ENTER_G_MODE_IMMOBILE: TechId = 163;
 pub const TECH_ID_CAN_ARTIFICIAL_MORPH: TechId = 164;
 pub const TECH_ID_CAN_MOONFALL: TechId = 25;
+pub const TECH_ID_CAN_PRECISE_GRAPPLE: TechId = 51;
+pub const TECH_ID_CAN_GRAPPLE_JUMP: TechId = 52;
 pub const TECH_ID_CAN_GRAPPLE_TELEPORT: TechId = 55;
 pub const TECH_ID_CAN_SAMUS_EATER_TELEPORT: TechId = 194;
 pub const TECH_ID_CAN_KAGO: TechId = 107;
@@ -636,6 +638,27 @@ pub enum BlueOption {
     Any,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub enum GrappleSwingBlockEnvironment {
+    #[default]
+    Air,
+    Water,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct GrappleSwingBlock {
+    position: (Float, Float),
+    environment: GrappleSwingBlockEnvironment,
+    obstructions: Vec<(i32, i32)>,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum GrappleJumpPosition {
+    Left,
+    Right,
+    Any,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum ExitCondition {
     LeaveNormally {},
@@ -704,6 +727,12 @@ pub enum ExitCondition {
         left_position: Float,
         right_position: Float,
     },
+    LeaveWithGrappleSwing {
+        blocks: Vec<GrappleSwingBlock>,
+    },
+    LeaveWithGrappleJump {
+        position: GrappleJumpPosition,
+    },
     LeaveWithGrappleTeleport {
         block_positions: Vec<(u16, u16)>,
     },
@@ -719,6 +748,15 @@ fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
         Some("bottom") => SparkPosition::Bottom,
         None => SparkPosition::Any,
         _ => bail!("Unrecognized spark position: {}", s.unwrap()),
+    })
+}
+
+fn parse_grapple_jump_position(s: Option<&str>) -> Result<GrappleJumpPosition> {
+    Ok(match s {
+        Some("left") => GrappleJumpPosition::Left,
+        Some("right") => GrappleJumpPosition::Right,
+        Some("any") => GrappleJumpPosition::Any,
+        _ => bail!("Unrecognized grapple jump position: {}", s.unwrap()),
     })
 }
 
@@ -885,6 +923,12 @@ pub enum MainEntranceCondition {
         max_height: Float,
         max_left_position: Float,
         min_right_position: Float,
+    },
+    ComeInWithGrappleSwing {
+        blocks: Vec<GrappleSwingBlock>
+    },
+    ComeInWithGrappleJump {
+        position: GrappleJumpPosition,
     },
     ComeInWithGrappleTeleport {
         block_positions: Vec<(u16, u16)>,
@@ -2903,9 +2947,9 @@ impl GameData {
         for strat_json in new_room_json["strats"].members_mut() {
             if strat_json["id"].as_usize().is_none() {
                 let from_node_id = strat_json["link"][0].as_usize().unwrap();
-                let to_node_id = strat_json["link"][1].as_usize().unwrap();
+                let to_node_id = strat_json["link"][0].as_usize().unwrap();
                 warn!(
-                    "Strat without ID: {}:{}:{}:{}",
+                    "Skipping strat without ID: {}:{}:{}:{}",
                     room_json["name"],
                     from_node_id,
                     to_node_id,
@@ -3252,6 +3296,28 @@ impl GameData {
         links
     }
 
+    fn parse_grapple_swing_block(&self, block_json: &JsonValue) -> Result<GrappleSwingBlock> {
+        let mut obstructions: Vec<(i32, i32)> = vec![];
+        for ob in block_json["obstructions"].members() {
+            obstructions.push((ob[0].as_i32().unwrap(), ob[1].as_i32().unwrap()));
+        }
+        Ok(GrappleSwingBlock {
+            position: (
+                Float::new(block_json["position"][0].as_f32().unwrap()),
+                Float::new(block_json["position"][1].as_f32().unwrap()),
+            ),
+            environment: match block_json["environment"].as_str().unwrap_or("air") {
+                "air" => GrappleSwingBlockEnvironment::Air,
+                "water" => GrappleSwingBlockEnvironment::Water,
+                _ => bail!(
+                    "unexpected grapple swing block environment: {}",
+                    block_json["environment"]
+                ),
+            },
+            obstructions,
+        })
+    }
+
     fn parse_exit_condition(
         &self,
         exit_json: &JsonValue,
@@ -3388,6 +3454,16 @@ impl GameData {
                         .as_f32()
                         .context("Expecting number 'rightPosition'")?,
                 ),
+            },
+            "leaveWithGrappleSwing" => {
+                let mut blocks: Vec<GrappleSwingBlock> = vec![];
+                for b in value["blocks"].members() {
+                    blocks.push(self.parse_grapple_swing_block(b)?);
+                }
+                ExitCondition::LeaveWithGrappleSwing { blocks }
+            }
+            "leaveWithGrappleJump" => ExitCondition::LeaveWithGrappleJump {
+                position: parse_grapple_jump_position(value["position"].as_str())?,
             },
             "leaveWithGrappleTeleport" => ExitCondition::LeaveWithGrappleTeleport {
                 block_positions: value["blockPositions"]
@@ -3631,6 +3707,16 @@ impl GameData {
                         .as_f32()
                         .unwrap_or(f32::NEG_INFINITY),
                 ),
+            },
+            "comeInWithGrappleSwing" => {
+                let mut blocks: Vec<GrappleSwingBlock> = vec![];
+                for b in value["blocks"].members() {
+                    blocks.push(self.parse_grapple_swing_block(b)?);
+                }
+                MainEntranceCondition::ComeInWithGrappleSwing { blocks }
+            },
+            "comeInWithGrappleJump" => MainEntranceCondition::ComeInWithGrappleJump {
+                position: parse_grapple_jump_position(value["position"].as_str())?,
             },
             "comeInWithGrappleTeleport" => MainEntranceCondition::ComeInWithGrappleTeleport {
                 block_positions: value["blockPositions"]
