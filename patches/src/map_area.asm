@@ -982,7 +982,7 @@ org $90A7F1
 ; Make slope tile $A8 have the same functionality as $28, to trigger automatically exploring tile above Samus.
 ; (Tile $A8 is used in Crocomire Speedway, the heated version of $28 used in Terminator Room.)
 org $90AAFD
-    AND #$017F   ; was: AND #$01FF
+    AND #$817F   ; was: AND #$01FF
 
 ; Kraid load BG3 from area-specific tiles:
 org $A7C78B : lda #!tiles_2bpp_address
