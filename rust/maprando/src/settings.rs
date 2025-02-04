@@ -267,8 +267,9 @@ pub enum MapStationReveal {
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum SaveAnimals {
     No,
-    Maybe,
+    Optional,
     Yes,
+    Random,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

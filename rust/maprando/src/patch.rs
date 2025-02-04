@@ -1544,7 +1544,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0x838CF3), 0x06)?;
         }
 
-        if self.randomization.settings.save_animals == SaveAnimals::Yes {
+        if self.randomization.save_animals == SaveAnimals::Yes {
             // Change end-game behavior to require saving the animals. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
         }

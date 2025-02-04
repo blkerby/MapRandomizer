@@ -231,13 +231,15 @@
                     {% include "help/variations/save_the_animals.html" %}
                     <label for="save_animals">Save the animals</label>
                 </div>
-                <div id="saveAnimals" class="col-lg-3 btn-group" role="group">
+                <div id="saveAnimals" class="col-lg-4 btn-group" role="group">
                     <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsNo" value="No" onchange="fullSettingsChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="saveAnimalsNo">No</label>
-                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsMaybe" value="Maybe" onchange="fullSettingsChanged()">
-                    <label class="btn btn-outline-primary" for="saveAnimalsMaybe">Maybe</label>
                     <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsYes" value="Yes" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="saveAnimalsYes">Yes</label>
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsOptional" value="Optional" onchange="fullSettingsChanged()">
+                    <label class="btn btn-outline-primary" for="saveAnimalsOptional">Optional</label>
+                    <input type="radio" class="btn-check" name="save_animals" id="saveAnimalsRandom" value="Random" onchange="fullSettingsChanged()">
+                    <label class="btn btn-outline-primary" for="saveAnimalsRandom">Random</label>
                 </div>
             </div>
 

@@ -153,6 +153,13 @@ fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
+fn upgrade_animals_setting(settings: &mut serde_json::Value) -> Result<()> {
+    if settings["save_animals"].as_str() == Some("Maybe") {
+        *settings.get_mut("save_animals").unwrap() = "Optional".into();
+    }
+    Ok(())
+}
+
 pub fn try_upgrade_settings(
     settings_str: String,
     app_data: &AppData,
@@ -164,6 +171,7 @@ pub fn try_upgrade_settings(
     upgrade_notable_settings(&mut settings, app_data)?;
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
+    upgrade_animals_setting(&mut settings)?;
 
     // Update version field to current version:
     *settings

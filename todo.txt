@@ -25,13 +25,14 @@ v118:
 v117:
 - DONE: load node tile data from sm-json-data
 - DONE: render map tiles using map_tiles.json
-- cross-room grapple swings
+- DONE: cross-room grapple swings
 - check out new Samus sprites
 - DONE: fix logic for Cathedral Entrance start location 
 - DONE: Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
 - prevent enter keypress from submitting generate form
 - DONE: fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
 - pull in new videos
+- fix issue with oversized maps
 - DONE: move canUseSpeedEchoes to VH, look at other Hard tech.
 - DONE: fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
 - DONE: fix issue with global zeela in dachora room

@@ -12,7 +12,6 @@ use pathfinding;
 use serde_derive::Deserialize;
 use serde_derive::Serialize;
 
-use crate::randomize::SaveAnimals;
 use crate::settings::RandomizerSettings;
 use maprando_game::{
     DoorPtrPair, EscapeConditionRequirement, GameData, IndexedVec, Map, RoomGeometryDoorIdx,
@@ -278,13 +277,14 @@ pub fn compute_escape_data(
     game_data: &GameData,
     map: &Map,
     settings: &RandomizerSettings,
+    save_animals: bool,
     difficulty: &DifficultyConfig,
 ) -> Result<SpoilerEscape> {
     let graph = get_full_room_door_graph(game_data, map, settings, difficulty);
     let animals_spoiler: Option<Vec<SpoilerEscapeRouteEntry>>;
     let ship_spoiler: Vec<SpoilerEscapeRouteEntry>;
     let base_igt_frames: usize;
-    if settings.save_animals != SaveAnimals::No {
+    if save_animals {
         let animals_path = get_shortest_path(
             graph.mother_brain_vertex_id,
             graph.animals_vertex_id,

@@ -338,6 +338,7 @@ pub struct Randomization {
     pub settings: RandomizerSettings,
     pub difficulty: DifficultyConfig,
     pub objectives: Vec<Objective>,
+    pub save_animals: SaveAnimals,
     pub map: Map,
     pub toilet_intersections: Vec<RoomGeometryRoomIdx>,
     pub locked_door_data: LockedDoorData,
@@ -3530,7 +3531,12 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    fn finish(&self, attempt_num_rando: usize, state: &mut RandomizationState) {
+    fn finish<R: Rng>(
+        &self,
+        attempt_num_rando: usize,
+        state: &mut RandomizationState,
+        rng: &mut R,
+    ) {
         let mut remaining_items: Vec<Item> = Vec::new();
         for item_id in 0..self.game_data.item_isv.keys.len() {
             for _ in 0..state.items_remaining[item_id] {
@@ -3556,6 +3562,7 @@ impl<'r> Randomizer<'r> {
                 "[attempt {attempt_num_rando}] Finishing with {:?}",
                 remaining_items
             );
+            remaining_items.shuffle(rng);
             let mut idx = 0;
             for item_loc_state in &mut state.item_location_state {
                 if item_loc_state.placed_item.is_none() {
@@ -3949,7 +3956,7 @@ impl<'r> Randomizer<'r> {
         out
     }
 
-    fn get_randomization(
+    fn get_randomization<R: Rng>(
         &self,
         state: &RandomizationState,
         spoiler_summaries: Vec<SpoilerSummary>,
@@ -3957,6 +3964,7 @@ impl<'r> Randomizer<'r> {
         mut debug_data_vec: Vec<DebugData>,
         seed: usize,
         display_seed: usize,
+        rng: &mut R,
     ) -> Result<Randomization> {
         // Compute the first step on which each node becomes reachable/bireachable:
         let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -4107,10 +4115,22 @@ impl<'r> Randomizer<'r> {
                 }
             })
             .collect();
+
+        let save_animals = if self.settings.save_animals == SaveAnimals::Random {
+            if rng.gen_bool(0.5) {
+                SaveAnimals::Yes
+            } else {
+                SaveAnimals::No
+            }
+        } else {
+            self.settings.save_animals
+        };
+
         let spoiler_escape = escape_timer::compute_escape_data(
             self.game_data,
             self.map,
             &self.settings,
+            save_animals != SaveAnimals::No,
             &self.difficulty_tiers[0],
         )?;
 
@@ -4148,6 +4168,7 @@ impl<'r> Randomizer<'r> {
             settings: self.settings.clone(),
             difficulty: self.difficulty_tiers[0].clone(),
             objectives: self.objectives.clone(),
+            save_animals,
             map: self.map.clone(),
             toilet_intersections: self.toilet_intersections.clone(),
             locked_door_data: self.locked_door_data.clone(),
@@ -4463,13 +4484,30 @@ impl<'r> Randomizer<'r> {
         global
     }
 
-    pub fn dummy_randomize(&self, seed: usize, display_seed: usize) -> Result<Randomization> {
+    pub fn dummy_randomize<R: Rng>(
+        &self,
+        seed: usize,
+        display_seed: usize,
+        rng: &mut R,
+    ) -> Result<Randomization> {
         // For the "Escape" start location mode, item placement is irrelevant since you start
         // with all items collected.
+
+        let save_animals = if self.settings.save_animals == SaveAnimals::Random {
+            if rng.gen_bool(0.5) {
+                SaveAnimals::Yes
+            } else {
+                SaveAnimals::No
+            }
+        } else {
+            self.settings.save_animals
+        };
+
         let spoiler_escape = escape_timer::compute_escape_data(
             self.game_data,
             self.map,
             &self.settings,
+            save_animals != SaveAnimals::No,
             &self.difficulty_tiers[0],
         )?;
         let spoiler_all_rooms = self
@@ -4605,10 +4643,12 @@ impl<'r> Randomizer<'r> {
             all_items: vec![],
             all_rooms: spoiler_all_rooms,
         };
+
         Ok(Randomization {
             settings,
             difficulty: self.difficulty_tiers[0].clone(),
             objectives: self.objectives.clone(),
+            save_animals,
             map: self.map.clone(),
             toilet_intersections: self.toilet_intersections.clone(),
             locked_door_data: self.locked_door_data.clone(),
@@ -4638,12 +4678,12 @@ impl<'r> Randomizer<'r> {
         seed: usize,
         display_seed: usize,
     ) -> Result<Randomization> {
-        if self.settings.start_location_mode == StartLocationMode::Escape {
-            return self.dummy_randomize(seed, display_seed);
-        }
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+        if self.settings.start_location_mode == StartLocationMode::Escape {
+            return self.dummy_randomize(seed, display_seed, &mut rng);
+        }
         let initial_global_state = self.get_initial_global_state();
         let initial_item_location_state = ItemLocationState {
             placed_item: None,
@@ -4809,7 +4849,7 @@ impl<'r> Randomizer<'r> {
                 }
             }
         }
-        self.finish(attempt_num_rando, &mut state);
+        self.finish(attempt_num_rando, &mut state, &mut rng);
         self.get_randomization(
             &state,
             spoiler_summary_vec,
@@ -4817,6 +4857,7 @@ impl<'r> Randomizer<'r> {
             debug_data_vec,
             seed,
             display_seed,
+            &mut rng,
         )
     }
 }
