@@ -3872,7 +3872,7 @@
         "item_pool": [
             {
                 "item": "Missile",
-                "count": 44
+                "count": 42
             },
             {
                 "item": "ETank",
@@ -3884,7 +3884,7 @@
             },
             {
                 "item": "Super",
-                "count": 12
+                "count": 14
             },
             {
                 "item": "PowerBomb",
@@ -4178,7 +4178,7 @@
     "map_layout": "Standard",
     "doors_mode": "Ammo",
     "start_location_mode": "Random",
-    "save_animals": "Yes",
+    "save_animals": "No",
     "other_settings": {
         "wall_jump": "Vanilla",
         "etank_refill": "Vanilla",
