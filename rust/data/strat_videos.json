@@ -155,6 +155,13 @@
   },
   {
     "room_id": 11,
+    "strat_id": 64,
+    "video_id": 3682,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 11,
     "strat_id": 65,
     "video_id": 3173,
     "created_user": "Sam",
@@ -186,7 +193,7 @@
     "strat_id": 77,
     "video_id": 2193,
     "created_user": "Sam",
-    "note": "Climb 8 screens and visually make Samus stand above the door. For the last X-ray turnaround, face right then keep pressed the X-ray scope input, buffer a jump then perform the X-ray turnaround. If done correctly you'll be standing up and facing left while the jump button is still pressed without a jump occuring. Press right to break the bomb blocks with a spinjump then go left to leave the wall. jump on place to fix the camera if needed. (During the X-ray climb, it is preferable to turnaround only towards the wall to prevent Samus falling from the wall.)"
+    "note": ""
   },
   {
     "room_id": 11,
@@ -659,20 +666,6 @@
   },
   {
     "room_id": 8,
-    "strat_id": 11,
-    "video_id": 3061,
-    "created_user": "Sam",
-    "note": ""
-  },
-  {
-    "room_id": 8,
-    "strat_id": 11,
-    "video_id": 3062,
-    "created_user": "Sam",
-    "note": "Coming in shinecharging"
-  },
-  {
-    "room_id": 8,
     "strat_id": 12,
     "video_id": 2663,
     "created_user": "Sam",
@@ -684,6 +677,20 @@
     "video_id": 3063,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 8,
+    "strat_id": 89,
+    "video_id": 3061,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 8,
+    "strat_id": 89,
+    "video_id": 3062,
+    "created_user": "Sam",
+    "note": "Coming in shinecharging"
   },
   {
     "room_id": 8,
@@ -3011,6 +3018,13 @@
   },
   {
     "room_id": 42,
+    "strat_id": 47,
+    "video_id": 3933,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 42,
     "strat_id": 37,
     "video_id": 731,
     "created_user": "Nito",
@@ -4369,6 +4383,20 @@
   },
   {
     "room_id": 44,
+    "strat_id": 251,
+    "video_id": 4144,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 44,
+    "strat_id": 251,
+    "video_id": 4145,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 44,
     "strat_id": 206,
     "video_id": 2134,
     "created_user": "Sam",
@@ -5615,6 +5643,13 @@
   },
   {
     "room_id": 61,
+    "strat_id": 37,
+    "video_id": 3552,
+    "created_user": "Sam",
+    "note": "Power Bomb"
+  },
+  {
+    "room_id": 61,
     "strat_id": 38,
     "video_id": 80,
     "created_user": "Osse101",
@@ -5629,9 +5664,23 @@
   },
   {
     "room_id": 61,
+    "strat_id": 40,
+    "video_id": 3649,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 61,
     "strat_id": 48,
     "video_id": 241,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 50,
+    "video_id": 3638,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -5643,10 +5692,87 @@
   },
   {
     "room_id": 61,
+    "strat_id": 55,
+    "video_id": 3642,
+    "created_user": "Sam",
+    "note": "Spark from ground"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 56,
+    "video_id": 3643,
+    "created_user": "Sam",
+    "note": "Mid-air spark"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 59,
+    "video_id": 3646,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 60,
+    "video_id": 3645,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 61,
     "strat_id": 61,
     "video_id": 240,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 66,
+    "video_id": 3555,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 67,
+    "video_id": 3553,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 61,
+    "strat_id": 82,
+    "video_id": 3975,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 82,
+    "video_id": 3988,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 83,
+    "video_id": 3997,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 83,
+    "video_id": 4045,
+    "created_user": "maddo",
+    "note": "From Bowling Alley"
+  },
+  {
+    "room_id": 61,
+    "strat_id": 84,
+    "video_id": 4026,
+    "created_user": "maddo",
+    "note": "From Pants Room"
   },
   {
     "room_id": 60,
@@ -5695,6 +5821,13 @@
     "strat_id": 28,
     "video_id": 540,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 60,
+    "strat_id": 29,
+    "video_id": 3557,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -5958,10 +6091,24 @@
   },
   {
     "room_id": 77,
+    "strat_id": 16,
+    "video_id": 3559,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 77,
     "strat_id": 6,
     "video_id": 2522,
     "created_user": "Sam",
     "note": "Super Kill"
+  },
+  {
+    "room_id": 77,
+    "strat_id": 6,
+    "video_id": 4448,
+    "created_user": "maddo",
+    "note": "Weaponless, Damageless"
   },
   {
     "room_id": 77,
@@ -6045,7 +6192,7 @@
     "strat_id": 28,
     "video_id": 1879,
     "created_user": "Sam",
-    "note": "It is possible to do it without supers if you have Morph Ball by following the Zero in the morph tunnel."
+    "note": "2 Supers, Morphless"
   },
   {
     "room_id": 75,
@@ -6056,8 +6203,85 @@
   },
   {
     "room_id": 75,
+    "strat_id": 47,
+    "video_id": 3560,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 75,
+    "strat_id": 100,
+    "video_id": 4077,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 100,
+    "video_id": 4053,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 101,
+    "video_id": 3920,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 101,
+    "video_id": 4117,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 102,
+    "video_id": 4014,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 102,
+    "video_id": 4096,
+    "created_user": "maddo",
+    "note": "From Double Chamber"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 102,
+    "video_id": 4105,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 102,
+    "video_id": 4135,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 75,
+    "strat_id": 50,
+    "video_id": 3561,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 75,
     "strat_id": 56,
     "video_id": 1878,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 75,
+    "strat_id": 80,
+    "video_id": 3562,
     "created_user": "Sam",
     "note": ""
   },
@@ -6301,6 +6525,13 @@
   },
   {
     "room_id": 66,
+    "strat_id": 10,
+    "video_id": 3563,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 66,
     "strat_id": 12,
     "video_id": 782,
     "created_user": "Osse101",
@@ -6378,6 +6609,48 @@
   },
   {
     "room_id": 66,
+    "strat_id": 62,
+    "video_id": 3564,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 123,
+    "video_id": 3921,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 123,
+    "video_id": 4054,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 124,
+    "video_id": 4015,
+    "created_user": "maddo",
+    "note": "From The Moat (not in logic)"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 124,
+    "video_id": 4078,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 124,
+    "video_id": 4118,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 66,
     "strat_id": 77,
     "video_id": 1549,
     "created_user": "Sam",
@@ -6424,6 +6697,13 @@
     "video_id": 2249,
     "created_user": "Sam",
     "note": "Springwall"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 103,
+    "video_id": 4228,
+    "created_user": "maddo",
+    "note": "Without wall jump"
   },
   {
     "room_id": 66,
@@ -6714,6 +6994,13 @@
   },
   {
     "room_id": 81,
+    "strat_id": 8,
+    "video_id": 3565,
+    "created_user": "Sam",
+    "note": "Insane Dodge"
+  },
+  {
+    "room_id": 81,
     "strat_id": 17,
     "video_id": 2884,
     "created_user": "Sam",
@@ -6723,6 +7010,13 @@
     "room_id": 81,
     "strat_id": 19,
     "video_id": 2882,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 81,
+    "strat_id": 30,
+    "video_id": 3566,
     "created_user": "Sam",
     "note": ""
   },
@@ -6815,6 +7109,13 @@
     "strat_id": 23,
     "video_id": 984,
     "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 79,
+    "strat_id": 27,
+    "video_id": 3567,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -7113,6 +7414,55 @@
   },
   {
     "room_id": 97,
+    "strat_id": 208,
+    "video_id": 4162,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 208,
+    "video_id": 4163,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 208,
+    "video_id": 4164,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 209,
+    "video_id": 4165,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 209,
+    "video_id": 4166,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 209,
+    "video_id": 4167,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 209,
+    "video_id": 4168,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 97,
     "strat_id": 33,
     "video_id": 2025,
     "created_user": "Sam",
@@ -7190,9 +7540,72 @@
   },
   {
     "room_id": 97,
+    "strat_id": 210,
+    "video_id": 4169,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 210,
+    "video_id": 4171,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 210,
+    "video_id": 4174,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 211,
+    "video_id": 4175,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 211,
+    "video_id": 4176,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 211,
+    "video_id": 4177,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 211,
+    "video_id": 4178,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 97,
     "strat_id": 179,
     "video_id": 224,
     "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 62,
+    "video_id": 3568,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 205,
+    "video_id": 4272,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -7221,7 +7634,7 @@
     "strat_id": 63,
     "video_id": 2124,
     "created_user": "Sam",
-    "note": "After storing enough vertical speed with either a Moondance or an interrupted enemy stuck Moonfall, place yourself in the middle of the Power Bomb blocks and perform a Moonfall to clip through. Be sure to have enough health to tank the Sova hit after clipping."
+    "note": "With Sova Hit"
   },
   {
     "room_id": 97,
@@ -7269,6 +7682,27 @@
     "room_id": 97,
     "strat_id": 76,
     "video_id": 2027,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 77,
+    "video_id": 3569,
+    "created_user": "Sam",
+    "note": "With Bombs"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 77,
+    "video_id": 3570,
+    "created_user": "Sam",
+    "note": "SpringBall"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 78,
+    "video_id": 3571,
     "created_user": "Sam",
     "note": ""
   },
@@ -7581,6 +8015,20 @@
     "note": ""
   },
   {
+    "room_id": 97,
+    "strat_id": 160,
+    "video_id": 3451,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 163,
+    "video_id": 3452,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
     "room_id": 91,
     "strat_id": 30,
     "video_id": 2031,
@@ -7690,7 +8138,7 @@
     "strat_id": 19,
     "video_id": 2391,
     "created_user": "Sam",
-    "note": "With wall jump"
+    "note": ""
   },
   {
     "room_id": 90,
@@ -7841,6 +8289,62 @@
   },
   {
     "room_id": 104,
+    "strat_id": 87,
+    "video_id": 3923,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, Bootless"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 3924,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, HiJump"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 4017,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 4056,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 4080,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 4106,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 4120,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 87,
+    "video_id": 4137,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 104,
     "strat_id": 84,
     "video_id": 738,
     "created_user": "maddo",
@@ -7904,13 +8408,6 @@
   },
   {
     "room_id": 104,
-    "strat_id": 51,
-    "video_id": 3405,
-    "created_user": "Sam",
-    "note": "Ripper i-frames"
-  },
-  {
-    "room_id": 104,
     "strat_id": 52,
     "video_id": 3408,
     "created_user": "Sam",
@@ -7922,13 +8419,6 @@
     "video_id": 3406,
     "created_user": "Sam",
     "note": ""
-  },
-  {
-    "room_id": 104,
-    "strat_id": 53,
-    "video_id": 3407,
-    "created_user": "Sam",
-    "note": "Ripper i-frames"
   },
   {
     "room_id": 104,
@@ -7946,10 +8436,17 @@
   },
   {
     "room_id": 104,
-    "strat_id": 56,
-    "video_id": 421,
-    "created_user": "Osse101",
-    "note": ""
+    "strat_id": 57,
+    "video_id": 4446,
+    "created_user": "maddo",
+    "note": "Ripper Hit"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 57,
+    "video_id": 4447,
+    "created_user": "maddo",
+    "note": "Spike Hit"
   },
   {
     "room_id": 104,
@@ -7964,6 +8461,20 @@
     "video_id": 350,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 89,
+    "video_id": 3405,
+    "created_user": "Sam",
+    "note": "SpringBall Jump"
+  },
+  {
+    "room_id": 104,
+    "strat_id": 89,
+    "video_id": 3407,
+    "created_user": "Sam",
+    "note": "Damage Boost, HiJump, Wall Jump"
   },
   {
     "room_id": 104,
@@ -8597,6 +9108,13 @@
   },
   {
     "room_id": 118,
+    "strat_id": 4,
+    "video_id": 3472,
+    "created_user": "Sam",
+    "note": "With 1 Super"
+  },
+  {
+    "room_id": 118,
     "strat_id": 14,
     "video_id": 836,
     "created_user": "maddo",
@@ -8702,6 +9220,13 @@
   },
   {
     "room_id": 103,
+    "strat_id": 63,
+    "video_id": 3572,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 103,
     "strat_id": 69,
     "video_id": 888,
     "created_user": "maddo",
@@ -8796,6 +9321,13 @@
     "strat_id": 76,
     "video_id": 881,
     "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 103,
+    "strat_id": 64,
+    "video_id": 3573,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -10375,6 +10907,62 @@
   },
   {
     "room_id": 130,
+    "strat_id": 20,
+    "video_id": 3972,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4009,
+    "created_user": "maddo",
+    "note": "From The Moat (not in logic)"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4064,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4089,
+    "created_user": "maddo",
+    "note": "From Colosseum, Left Side"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4113,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel (not in logic)"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4143,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room (not in logic)"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4245,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, Right Side"
+  },
+  {
+    "room_id": 130,
+    "strat_id": 20,
+    "video_id": 4246,
+    "created_user": "maddo",
+    "note": "From Colosseum, Right Side"
+  },
+  {
+    "room_id": 130,
     "strat_id": 18,
     "video_id": 1392,
     "created_user": "maddo",
@@ -10508,6 +11096,13 @@
   },
   {
     "room_id": 131,
+    "strat_id": 45,
+    "video_id": 3427,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 131,
     "strat_id": 46,
     "video_id": 454,
     "created_user": "NZT",
@@ -10526,6 +11121,13 @@
     "video_id": 780,
     "created_user": "Osse101",
     "note": "canSpringFling"
+  },
+  {
+    "room_id": 131,
+    "strat_id": 48,
+    "video_id": 3425,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 123,
@@ -11026,6 +11628,13 @@
   },
   {
     "room_id": 126,
+    "strat_id": 4,
+    "video_id": 3574,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 126,
     "strat_id": 5,
     "video_id": 2579,
     "created_user": "Sam",
@@ -11145,6 +11754,41 @@
   },
   {
     "room_id": 125,
+    "strat_id": 46,
+    "video_id": 3973,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 125,
+    "strat_id": 46,
+    "video_id": 3987,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 125,
+    "strat_id": 47,
+    "video_id": 3996,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas"
+  },
+  {
+    "room_id": 125,
+    "strat_id": 47,
+    "video_id": 4025,
+    "created_user": "maddo",
+    "note": "From Pants Room, Gravity"
+  },
+  {
+    "room_id": 125,
+    "strat_id": 47,
+    "video_id": 4311,
+    "created_user": "maddo",
+    "note": "From Pants Room, Suitless"
+  },
+  {
+    "room_id": 125,
     "strat_id": 44,
     "video_id": 1413,
     "created_user": "maddo",
@@ -11182,6 +11826,13 @@
     "room_id": 149,
     "strat_id": 43,
     "video_id": 2000,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 149,
+    "strat_id": 44,
+    "video_id": 4335,
     "created_user": "Sam",
     "note": ""
   },
@@ -11512,6 +12163,13 @@
     "strat_id": 4,
     "video_id": 1630,
     "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 5,
+    "video_id": 3428,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -12020,6 +12678,55 @@
   },
   {
     "room_id": 133,
+    "strat_id": 93,
+    "video_id": 4146,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 93,
+    "video_id": 4147,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 93,
+    "video_id": 4149,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 93,
+    "video_id": 4150,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 93,
+    "video_id": 4151,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 94,
+    "video_id": 4148,
+    "created_user": "maddo",
+    "note": "From Moat"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 94,
+    "video_id": 4152,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 133,
     "strat_id": 16,
     "video_id": 2262,
     "created_user": "Sam",
@@ -12272,6 +12979,20 @@
   },
   {
     "room_id": 145,
+    "strat_id": 20,
+    "video_id": 3434,
+    "created_user": "Sam",
+    "note": "Spring Ball"
+  },
+  {
+    "room_id": 145,
+    "strat_id": 20,
+    "video_id": 3435,
+    "created_user": "Sam",
+    "note": "Bombs"
+  },
+  {
+    "room_id": 145,
     "strat_id": 31,
     "video_id": 363,
     "created_user": "Osse101",
@@ -12328,6 +13049,27 @@
   },
   {
     "room_id": 145,
+    "strat_id": 45,
+    "video_id": 3436,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 145,
+    "strat_id": 46,
+    "video_id": 3438,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 145,
+    "strat_id": 47,
+    "video_id": 3437,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 145,
     "strat_id": 48,
     "video_id": 526,
     "created_user": "Osse101",
@@ -12337,6 +13079,13 @@
     "room_id": 145,
     "strat_id": 49,
     "video_id": 2436,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 145,
+    "strat_id": 51,
+    "video_id": 3439,
     "created_user": "Sam",
     "note": ""
   },
@@ -12433,10 +13182,52 @@
   },
   {
     "room_id": 132,
+    "strat_id": 5,
+    "video_id": 3431,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 132,
+    "strat_id": 8,
+    "video_id": 3482,
+    "created_user": "Nito",
+    "note": ""
+  },
+  {
+    "room_id": 132,
     "strat_id": 15,
     "video_id": 2158,
     "created_user": "Sam",
     "note": "Blue Space Jump"
+  },
+  {
+    "room_id": 132,
+    "strat_id": 16,
+    "video_id": 3432,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 132,
+    "strat_id": 19,
+    "video_id": 3433,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 132,
+    "strat_id": 26,
+    "video_id": 3481,
+    "created_user": "Nito",
+    "note": ""
+  },
+  {
+    "room_id": 132,
+    "strat_id": 27,
+    "video_id": 3480,
+    "created_user": "Nito",
+    "note": ""
   },
   {
     "room_id": 139,
@@ -12979,6 +13770,55 @@
   },
   {
     "room_id": 142,
+    "strat_id": 23,
+    "video_id": 3974,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 23,
+    "video_id": 4154,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 23,
+    "video_id": 4155,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 23,
+    "video_id": 4157,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 24,
+    "video_id": 4153,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 24,
+    "video_id": 4158,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 24,
+    "video_id": 4159,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 142,
     "strat_id": 5,
     "video_id": 1984,
     "created_user": "Sam",
@@ -13266,6 +14106,13 @@
   },
   {
     "room_id": 138,
+    "strat_id": 8,
+    "video_id": 3429,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 138,
     "strat_id": 9,
     "video_id": 2225,
     "created_user": "Sam",
@@ -13275,6 +14122,13 @@
     "room_id": 138,
     "strat_id": 32,
     "video_id": 3380,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 138,
+    "strat_id": 34,
+    "video_id": 3430,
     "created_user": "Sam",
     "note": ""
   },
@@ -13373,6 +14227,13 @@
     "room_id": 156,
     "strat_id": 11,
     "video_id": 1802,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 12,
+    "video_id": 4309,
     "created_user": "Sam",
     "note": ""
   },
@@ -13599,6 +14460,13 @@
     "video_id": 2243,
     "created_user": "Sam",
     "note": "Springball Jump when breaking the water line."
+  },
+  {
+    "room_id": 164,
+    "strat_id": 23,
+    "video_id": 3575,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 164,
@@ -13854,6 +14722,13 @@
   },
   {
     "room_id": 155,
+    "strat_id": 91,
+    "video_id": 3479,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 155,
     "strat_id": 97,
     "video_id": 2765,
     "created_user": "Sam",
@@ -13889,6 +14764,41 @@
   },
   {
     "room_id": 200,
+    "strat_id": 66,
+    "video_id": 3926,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 66,
+    "video_id": 4058,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 66,
+    "video_id": 4083,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 66,
+    "video_id": 4122,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 66,
+    "video_id": 4239,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 200,
     "strat_id": 29,
     "video_id": 2576,
     "created_user": "Sam",
@@ -13907,6 +14817,13 @@
     "video_id": 2575,
     "created_user": "Sam",
     "note": "Entering from an always-open adjacent room"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 50,
+    "video_id": 3908,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 200,
@@ -14099,6 +15016,27 @@
   },
   {
     "room_id": 201,
+    "strat_id": 21,
+    "video_id": 4374,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 22,
+    "video_id": 4375,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 23,
+    "video_id": 4377,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
     "strat_id": 24,
     "video_id": 2152,
     "created_user": "Sam",
@@ -14127,6 +15065,41 @@
   },
   {
     "room_id": 201,
+    "strat_id": 29,
+    "video_id": 4383,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 30,
+    "video_id": 4384,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 31,
+    "video_id": 4381,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 32,
+    "video_id": 4380,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 33,
+    "video_id": 4379,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
     "strat_id": 34,
     "video_id": 768,
     "created_user": "Osse101",
@@ -14145,6 +15118,48 @@
     "video_id": 64,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 40,
+    "video_id": 4387,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 41,
+    "video_id": 4386,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 42,
+    "video_id": 4388,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 42,
+    "video_id": 4389,
+    "created_user": "Sam",
+    "note": "Airball"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 43,
+    "video_id": 4385,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 43,
+    "video_id": 4390,
+    "created_user": "Sam",
+    "note": "Airball"
   },
   {
     "room_id": 201,
@@ -14180,6 +15195,69 @@
     "video_id": 3258,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 159,
+    "video_id": 3925,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 159,
+    "video_id": 4057,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 159,
+    "video_id": 4081,
+    "created_user": "maddo",
+    "note": "From Colosseum (Standing Jumps)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 159,
+    "video_id": 4082,
+    "created_user": "maddo",
+    "note": "From Colosseum (Crouch Jumps)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 160,
+    "video_id": 4121,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2 (Arm Pumps)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 161,
+    "video_id": 4018,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 161,
+    "video_id": 4095,
+    "created_user": "maddo",
+    "note": "From Double Chamber (With Sprite Features)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 161,
+    "video_id": 4107,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 161,
+    "video_id": 4138,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
   },
   {
     "room_id": 201,
@@ -14428,6 +15506,13 @@
   },
   {
     "room_id": 201,
+    "strat_id": 84,
+    "video_id": 4391,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
     "strat_id": 85,
     "video_id": 63,
     "created_user": "Osse101",
@@ -14439,6 +15524,20 @@
     "video_id": 1591,
     "created_user": "Sam",
     "note": "Frame-perfect bounce (no unmorph)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 89,
+    "video_id": 4392,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 90,
+    "video_id": 4393,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 201,
@@ -14474,6 +15573,83 @@
     "video_id": 3250,
     "created_user": "maddo",
     "note": "Bootless"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 162,
+    "video_id": 3980,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 162,
+    "video_id": 3989,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 162,
+    "video_id": 4030,
+    "created_user": "maddo",
+    "note": "From Precious Room"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 162,
+    "video_id": 4312,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, HiJump"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 162,
+    "video_id": 4313,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, High Entry"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 162,
+    "video_id": 4314,
+    "created_user": "maddo",
+    "note": "From The Moat (Morphed Wiggle)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 163,
+    "video_id": 4046,
+    "created_user": "maddo",
+    "note": "From Bowling Alley"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 163,
+    "video_id": 4315,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Fireflea Room"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 163,
+    "video_id": 4316,
+    "created_user": "maddo",
+    "note": "From Crateria Super Room"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 92,
+    "video_id": 4395,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 93,
+    "video_id": 4394,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 201,
@@ -14537,6 +15713,13 @@
     "video_id": 3286,
     "created_user": "maddo",
     "note": "Suitless"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 103,
+    "video_id": 4396,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 201,
@@ -14680,6 +15863,20 @@
   },
   {
     "room_id": 173,
+    "strat_id": 6,
+    "video_id": 3485,
+    "created_user": "Nito",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 8,
+    "video_id": 4472,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 173,
     "strat_id": 12,
     "video_id": 388,
     "created_user": "NZT",
@@ -14688,9 +15885,72 @@
   {
     "room_id": 173,
     "strat_id": 103,
+    "video_id": 3928,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 103,
+    "video_id": 4049,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 103,
     "video_id": 4068,
     "created_user": "maddo",
     "note": "From Colosseum"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4006,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4047,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room, Right position"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4091,
+    "created_user": "maddo",
+    "note": "From Double Chamber"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4100,
+    "created_user": "maddo",
+    "note": "From Wrecked Ship Energy Tank Room"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4101,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4114,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 104,
+    "video_id": 4130,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
   },
   {
     "room_id": 173,
@@ -14719,6 +15979,34 @@
     "video_id": 123,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 105,
+    "video_id": 3927,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 105,
+    "video_id": 4048,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 105,
+    "video_id": 4067,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 173,
+    "strat_id": 107,
+    "video_id": 4004,
+    "created_user": "maddo",
+    "note": "From The Moat"
   },
   {
     "room_id": 173,
@@ -14774,6 +16062,13 @@
     "strat_id": 56,
     "video_id": 505,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 59,
+    "video_id": 2507,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -14908,6 +16203,97 @@
     "video_id": 3333,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 3930,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4019,
+    "created_user": "maddo",
+    "note": "From The Moat, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4059,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4060,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4084,
+    "created_user": "maddo",
+    "note": "From Colosseum, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4085,
+    "created_user": "maddo",
+    "note": "From Colosseum, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4098,
+    "created_user": "maddo",
+    "note": "From Double Chamber, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4108,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4109,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4123,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4124,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4139,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 143,
+    "video_id": 4140,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room, Left position"
   },
   {
     "room_id": 170,
@@ -15079,6 +16465,104 @@
   },
   {
     "room_id": 170,
+    "strat_id": 144,
+    "video_id": 3981,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 3982,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 3990,
+    "created_user": "maddo",
+    "note": "From The Moat, Right Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4000,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas, Right Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4001,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas, Left Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4032,
+    "created_user": "maddo",
+    "note": "From Precious Room, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4033,
+    "created_user": "maddo",
+    "note": "From Precious Room, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4039,
+    "created_user": "maddo",
+    "note": "From Bowling Alley, Right position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4040,
+    "created_user": "maddo",
+    "note": "From Bowling Alley, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4276,
+    "created_user": "maddo",
+    "note": "From The Moat, Left Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 144,
+    "video_id": 4277,
+    "created_user": "maddo",
+    "note": "From Moat, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 145,
+    "video_id": 3984,
+    "created_user": "maddo",
+    "note": "From Crateria Super Room"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 145,
+    "video_id": 4278,
+    "created_user": "maddo",
+    "note": "From Crateria Super Room, Right Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 146,
+    "video_id": 4282,
+    "created_user": "maddo",
+    "note": "From Pants Room"
+  },
+  {
+    "room_id": 170,
     "strat_id": 126,
     "video_id": 3335,
     "created_user": "maddo",
@@ -15167,6 +16651,132 @@
     "video_id": 3386,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 170,
+    "strat_id": 147,
+    "video_id": 4251,
+    "created_user": "maddo",
+    "note": "From The Precious Room, Right Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 147,
+    "video_id": 4252,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, Left Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 148,
+    "video_id": 4249,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Fireflea Room"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 149,
+    "video_id": 3985,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 149,
+    "video_id": 4264,
+    "created_user": "maddo",
+    "note": "From The Precious Room"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 3991,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4002,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4034,
+    "created_user": "maddo",
+    "note": "From The Precious Room, Left Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4041,
+    "created_user": "maddo",
+    "note": "From Bowling Alley, Left position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4248,
+    "created_user": "maddo",
+    "note": "From The Moat, Right Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4253,
+    "created_user": "maddo",
+    "note": "From The Moat, Right Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4254,
+    "created_user": "maddo",
+    "note": "From The Moat, Right Position (HiJump)"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4256,
+    "created_user": "maddo",
+    "note": "From Bowling Alley, Right Position (Bootless)"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4257,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas, Right Position (HiJump)"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 150,
+    "video_id": 4382,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas Room, Left Position"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 151,
+    "video_id": 4259,
+    "created_user": "maddo",
+    "note": "From Crateria Super Room (Bootless)"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 152,
+    "video_id": 4024,
+    "created_user": "maddo",
+    "note": "From Pants Room (Suitless)"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 152,
+    "video_id": 4281,
+    "created_user": "maddo",
+    "note": "From Pants Room"
   },
   {
     "room_id": 170,
@@ -15352,6 +16962,27 @@
   },
   {
     "room_id": 172,
+    "strat_id": 190,
+    "video_id": 2308,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 191,
+    "video_id": 4191,
+    "created_user": "maddo",
+    "note": "HiJump"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 192,
+    "video_id": 3913,
+    "created_user": "maddo",
+    "note": "With HiJump"
+  },
+  {
+    "room_id": 172,
     "strat_id": 31,
     "video_id": 3822,
     "created_user": "Sam",
@@ -15464,10 +17095,108 @@
   },
   {
     "room_id": 172,
+    "strat_id": 193,
+    "video_id": 4283,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 194,
+    "video_id": 3994,
+    "created_user": "maddo",
+    "note": "From The Moat, HiJump"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 194,
+    "video_id": 3995,
+    "created_user": "maddo",
+    "note": "From The Moat, Bootless"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 194,
+    "video_id": 4035,
+    "created_user": "maddo",
+    "note": "From Precious Room"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 195,
+    "video_id": 4003,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 195,
+    "video_id": 4043,
+    "created_user": "maddo",
+    "note": "From Bowling Alley"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 195,
+    "video_id": 4286,
+    "created_user": "maddo",
+    "note": "From Crateria Super Room"
+  },
+  {
+    "room_id": 172,
     "strat_id": 55,
     "video_id": 3881,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 196,
+    "video_id": 4284,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, HiJump"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 196,
+    "video_id": 4289,
+    "created_user": "maddo",
+    "note": "From Mt. Everest, Bootless"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 197,
+    "video_id": 4285,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 197,
+    "video_id": 4287,
+    "created_user": "maddo",
+    "note": "From Crateria Super Room, Bootless"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 197,
+    "video_id": 4292,
+    "created_user": "maddo",
+    "note": "From The Precious Room, Bootless"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 197,
+    "video_id": 4293,
+    "created_user": "maddo",
+    "note": "From The Moat, Bootless"
+  },
+  {
+    "room_id": 172,
+    "strat_id": 197,
+    "video_id": 4301,
+    "created_user": "maddo",
+    "note": "From Bowling Alley, Bootless"
   },
   {
     "room_id": 172,
@@ -15572,7 +17301,7 @@
     "strat_id": 107,
     "video_id": 3889,
     "created_user": "Sam",
-    "note": "Suitless with Hi-Jump"
+    "note": "Suitless with HiJump"
   },
   {
     "room_id": 172,
@@ -15947,6 +17676,20 @@
   },
   {
     "room_id": 178,
+    "strat_id": 33,
+    "video_id": 3448,
+    "created_user": "Sam",
+    "note": "With Power Bomb"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 33,
+    "video_id": 3449,
+    "created_user": "Sam",
+    "note": "Insane Jump"
+  },
+  {
+    "room_id": 178,
     "strat_id": 36,
     "video_id": 429,
     "created_user": "Osse101",
@@ -15989,6 +17732,13 @@
   },
   {
     "room_id": 178,
+    "strat_id": 41,
+    "video_id": 3444,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 178,
     "strat_id": 42,
     "video_id": 298,
     "created_user": "Osse101",
@@ -16003,6 +17753,27 @@
   },
   {
     "room_id": 178,
+    "strat_id": 52,
+    "video_id": 3446,
+    "created_user": "Sam",
+    "note": "Without Wall Jump"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 52,
+    "video_id": 3447,
+    "created_user": "Sam",
+    "note": "Wall Jump"
+  },
+  {
+    "room_id": 178,
+    "strat_id": 53,
+    "video_id": 3445,
+    "created_user": "Sam",
+    "note": "Spring Fling"
+  },
+  {
+    "room_id": 178,
     "strat_id": 55,
     "video_id": 978,
     "created_user": "Sinth",
@@ -16014,6 +17785,34 @@
     "video_id": 1631,
     "created_user": "Sam",
     "note": "With Super"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 10,
+    "video_id": 3937,
+    "created_user": "Sam",
+    "note": "Super, HiJump, SpringBall"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 11,
+    "video_id": 3934,
+    "created_user": "Sam",
+    "note": "Suitless, Double Springball"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 11,
+    "video_id": 3935,
+    "created_user": "Sam",
+    "note": "Gravity Jump"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 11,
+    "video_id": 3936,
+    "created_user": "Sam",
+    "note": "Suitless Grapple"
   },
   {
     "room_id": 174,
@@ -16101,6 +17900,13 @@
   },
   {
     "room_id": 174,
+    "strat_id": 46,
+    "video_id": 3947,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 174,
     "strat_id": 52,
     "video_id": 596,
     "created_user": "Sinth",
@@ -16150,6 +17956,13 @@
   },
   {
     "room_id": 174,
+    "strat_id": 65,
+    "video_id": 3948,
+    "created_user": "Sam",
+    "note": "Bombs"
+  },
+  {
+    "room_id": 174,
     "strat_id": 242,
     "video_id": 3086,
     "created_user": "maddo",
@@ -16192,6 +18005,13 @@
   },
   {
     "room_id": 174,
+    "strat_id": 249,
+    "video_id": 3914,
+    "created_user": "maddo",
+    "note": ""
+  },
+  {
+    "room_id": 174,
     "strat_id": 85,
     "video_id": 609,
     "created_user": "Sinth",
@@ -16216,6 +18036,13 @@
     "strat_id": 108,
     "video_id": 289,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 109,
+    "video_id": 3966,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -16283,6 +18110,13 @@
   },
   {
     "room_id": 174,
+    "strat_id": 138,
+    "video_id": 4196,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 174,
     "strat_id": 141,
     "video_id": 2709,
     "created_user": "maddo",
@@ -16294,6 +18128,13 @@
     "video_id": 2710,
     "created_user": "maddo",
     "note": "Pause Buffer, Blind Crab Dodge"
+  },
+  {
+    "room_id": 174,
+    "strat_id": 144,
+    "video_id": 4197,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 174,
@@ -16370,6 +18211,13 @@
     "strat_id": 177,
     "video_id": 2219,
     "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 174,
+    "strat_id": 184,
+    "video_id": 4347,
+    "created_user": "Nito",
     "note": ""
   },
   {
@@ -16458,6 +18306,20 @@
   },
   {
     "room_id": 177,
+    "strat_id": 38,
+    "video_id": 3909,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 177,
+    "strat_id": 38,
+    "video_id": 3915,
+    "created_user": "maddo",
+    "note": "From Aqueduct"
+  },
+  {
+    "room_id": 177,
     "strat_id": 14,
     "video_id": 2757,
     "created_user": "Sam",
@@ -16528,6 +18390,13 @@
   },
   {
     "room_id": 183,
+    "strat_id": 4,
+    "video_id": 3685,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 6,
     "video_id": 2577,
     "created_user": "Sam",
@@ -16542,10 +18411,87 @@
   },
   {
     "room_id": 183,
+    "strat_id": 9,
+    "video_id": 3683,
+    "created_user": "Sam",
+    "note": "HiJump, Wall Jump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 9,
+    "video_id": 3684,
+    "created_user": "Sam",
+    "note": "Gravity Jump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 10,
+    "video_id": 3686,
+    "created_user": "Sam",
+    "note": "IBJ"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 11,
+    "video_id": 3688,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 13,
+    "video_id": 3690,
+    "created_user": "Sam",
+    "note": "Morph and X-Ray"
+  },
+  {
+    "room_id": 183,
     "strat_id": 14,
     "video_id": 2578,
     "created_user": "Sam",
     "note": "Underwater to underwater."
+  },
+  {
+    "room_id": 183,
+    "strat_id": 16,
+    "video_id": 3692,
+    "created_user": "Sam",
+    "note": "Hi-Jump Spring Ball Jump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 17,
+    "video_id": 3691,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 19,
+    "video_id": 3693,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 20,
+    "video_id": 3694,
+    "created_user": "Sam",
+    "note": "Coming in morphed"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 20,
+    "video_id": 3695,
+    "created_user": "Sam",
+    "note": "Coming in shinecharging"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 21,
+    "video_id": 3696,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 183,
@@ -16612,6 +18558,13 @@
   },
   {
     "room_id": 183,
+    "strat_id": 27,
+    "video_id": 3697,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 29,
     "video_id": 1892,
     "created_user": "Sam",
@@ -16654,6 +18607,27 @@
   },
   {
     "room_id": 183,
+    "strat_id": 37,
+    "video_id": 3699,
+    "created_user": "Sam",
+    "note": "Suitless with Hi-Jump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 38,
+    "video_id": 3698,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 39,
+    "video_id": 3700,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 40,
     "video_id": 575,
     "created_user": "NZT",
@@ -16665,6 +18639,27 @@
     "video_id": 577,
     "created_user": "NZT",
     "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 42,
+    "video_id": 3701,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 45,
+    "video_id": 3704,
+    "created_user": "Sam",
+    "note": "HiJump, Wall Jump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 46,
+    "video_id": 3703,
+    "created_user": "Sam",
+    "note": "Gravity, SpringBall"
   },
   {
     "room_id": 183,
@@ -16692,6 +18687,13 @@
     "strat_id": 52,
     "video_id": 578,
     "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 55,
+    "video_id": 3702,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -16728,6 +18730,13 @@
     "video_id": 1889,
     "created_user": "Sam",
     "note": "If Samus is Suitless, you will need additional Energy Tank and Reserve Tank."
+  },
+  {
+    "room_id": 183,
+    "strat_id": 82,
+    "video_id": 3705,
+    "created_user": "Sam",
+    "note": "Morph and X-Ray"
   },
   {
     "room_id": 183,
@@ -16773,6 +18782,20 @@
   },
   {
     "room_id": 183,
+    "strat_id": 90,
+    "video_id": 3707,
+    "created_user": "Sam",
+    "note": "Gravity, IBJ. Note: Bombs aren't needed with a snail climb or Gravity jump."
+  },
+  {
+    "room_id": 183,
+    "strat_id": 141,
+    "video_id": 3706,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 91,
     "video_id": 968,
     "created_user": "maddo",
@@ -16784,6 +18807,13 @@
     "video_id": 1006,
     "created_user": "maddo",
     "note": "canRightSideDoorStuckFromWater"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 92,
+    "video_id": 3709,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 183,
@@ -16808,6 +18838,27 @@
   },
   {
     "room_id": 183,
+    "strat_id": 128,
+    "video_id": 3710,
+    "created_user": "Sam",
+    "note": "Bottom snail, crouch jump"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 128,
+    "video_id": 3711,
+    "created_user": "Sam",
+    "note": "2 snails"
+  },
+  {
+    "room_id": 183,
+    "strat_id": 128,
+    "video_id": 3712,
+    "created_user": "Sam",
+    "note": "Top snail"
+  },
+  {
+    "room_id": 183,
     "strat_id": 129,
     "video_id": 106,
     "created_user": "maddo",
@@ -16819,6 +18870,13 @@
     "video_id": 107,
     "created_user": "Osse101",
     "note": "Align with the wall and tap left to move onto it just enough for a turn-around crouch jump to be possible to reach the transition."
+  },
+  {
+    "room_id": 183,
+    "strat_id": 131,
+    "video_id": 3725,
+    "created_user": "Sam",
+    "note": "Suitless Snail Climb"
   },
   {
     "room_id": 205,
@@ -17648,6 +19706,13 @@
   },
   {
     "room_id": 175,
+    "strat_id": 2,
+    "video_id": 4397,
+    "created_user": "Sam",
+    "note": "Tricky movement"
+  },
+  {
+    "room_id": 175,
     "strat_id": 5,
     "video_id": 2154,
     "created_user": "Sam",
@@ -17701,6 +19766,125 @@
     "video_id": 487,
     "created_user": "Osse101",
     "note": "Left side climb"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 17,
+    "video_id": 4399,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 19,
+    "video_id": 4400,
+    "created_user": "Sam",
+    "note": "HiJump Spring Ball Jump"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 20,
+    "video_id": 4398,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 21,
+    "video_id": 4401,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 22,
+    "video_id": 4402,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 23,
+    "video_id": 4403,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 24,
+    "video_id": 4404,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 25,
+    "video_id": 4405,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 26,
+    "video_id": 4449,
+    "created_user": "Nito",
+    "note": ""
+  },
+  {
+    "room_id": 175,
+    "strat_id": 70,
+    "video_id": 3917,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 70,
+    "video_id": 4050,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 70,
+    "video_id": 4070,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 71,
+    "video_id": 4007,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 71,
+    "video_id": 4092,
+    "created_user": "maddo",
+    "note": "From Double Chamber"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 71,
+    "video_id": 4102,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 71,
+    "video_id": 4115,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 175,
+    "strat_id": 71,
+    "video_id": 4131,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
   },
   {
     "room_id": 175,
@@ -17837,9 +20021,100 @@
   },
   {
     "room_id": 193,
+    "strat_id": 51,
+    "video_id": 4356,
+    "created_user": "Sam",
+    "note": "With turrets intact, Plasma+Charge only"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 15,
+    "video_id": 4368,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 16,
+    "video_id": 4366,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 17,
+    "video_id": 4365,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 18,
+    "video_id": 4364,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
     "strat_id": 19,
     "video_id": 1083,
     "created_user": "NZT",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 20,
+    "video_id": 4369,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 36,
+    "video_id": 4358,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 37,
+    "video_id": 4357,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 38,
+    "video_id": 4359,
+    "created_user": "Sam",
+    "note": "Tricky Dash Jump"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 38,
+    "video_id": 4360,
+    "created_user": "Sam",
+    "note": "Wall Jump"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 39,
+    "video_id": 4361,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 40,
+    "video_id": 4362,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 41,
+    "video_id": 4363,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -17864,11 +20139,74 @@
     "note": "Gravity Jump"
   },
   {
+    "room_id": 193,
+    "strat_id": 53,
+    "video_id": 4052,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room (HiJump)"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 53,
+    "video_id": 4074,
+    "created_user": "maddo",
+    "note": "From Colosseum (HiJump)"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 53,
+    "video_id": 4075,
+    "created_user": "maddo",
+    "note": "From Colosseum (Bootless)"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 54,
+    "video_id": 4104,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 55,
+    "video_id": 4221,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 56,
+    "video_id": 4013,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 56,
+    "video_id": 4094,
+    "created_user": "maddo",
+    "note": "From Double Chamber"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 56,
+    "video_id": 4133,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
     "room_id": 196,
     "strat_id": 3,
     "video_id": 2330,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 196,
+    "strat_id": 3,
+    "video_id": 4266,
+    "created_user": "maddo",
+    "note": "Top Position"
   },
   {
     "room_id": 196,
@@ -17883,6 +20221,27 @@
     "video_id": 4273,
     "created_user": "maddo",
     "note": "HiJump Tricky Dash Jump"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 68,
+    "video_id": 4267,
+    "created_user": "maddo",
+    "note": "HiJump Space Jump"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 68,
+    "video_id": 4268,
+    "created_user": "maddo",
+    "note": "HiJump Wall Jump"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 68,
+    "video_id": 4269,
+    "created_user": "maddo",
+    "note": "Space Jump Wall Jump"
   },
   {
     "room_id": 196,
@@ -17988,6 +20347,69 @@
     "video_id": 2740,
     "created_user": "Sam",
     "note": "With Gravity Jump"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 69,
+    "video_id": 3976,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 69,
+    "video_id": 3986,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 69,
+    "video_id": 4031,
+    "created_user": "maddo",
+    "note": "From Precious Room"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 70,
+    "video_id": 3999,
+    "created_user": "maddo",
+    "note": "From Red Brinstar Firefleas"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 70,
+    "video_id": 4036,
+    "created_user": "maddo",
+    "note": "From Bubble Mountain"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 70,
+    "video_id": 4037,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 70,
+    "video_id": 4038,
+    "created_user": "maddo",
+    "note": "From Bowling Alley"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 71,
+    "video_id": 4023,
+    "created_user": "maddo",
+    "note": "From Pants Room, With Space Jump"
+  },
+  {
+    "room_id": 196,
+    "strat_id": 71,
+    "video_id": 4305,
+    "created_user": "maddo",
+    "note": "From Pants Room, IBJ"
   },
   {
     "room_id": 196,
@@ -18125,13 +20547,6 @@
   {
     "room_id": 208,
     "strat_id": 21,
-    "video_id": 2493,
-    "created_user": "Sam",
-    "note": "HiJump Midair Morph, Break Free"
-  },
-  {
-    "room_id": 208,
-    "strat_id": 21,
     "video_id": 2494,
     "created_user": "Sam",
     "note": "With Bombs and Gravity Suit"
@@ -18142,6 +20557,13 @@
     "video_id": 2620,
     "created_user": "Sam",
     "note": "G-Mode Morph with Gravity Springball jump."
+  },
+  {
+    "room_id": 208,
+    "strat_id": 36,
+    "video_id": 2493,
+    "created_user": "Sam",
+    "note": "Right Side, Break Free"
   },
   {
     "room_id": 208,
@@ -18264,9 +20686,44 @@
   },
   {
     "room_id": 187,
+    "strat_id": 15,
+    "video_id": 4428,
+    "created_user": "Sam",
+    "note": "Wall Jumps"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 15,
+    "video_id": 4429,
+    "created_user": "Sam",
+    "note": "HiJump"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 15,
+    "video_id": 4430,
+    "created_user": "Sam",
+    "note": "Gravity"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 18,
+    "video_id": 4431,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
     "strat_id": 23,
     "video_id": 2563,
     "created_user": "Nito",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 29,
+    "video_id": 4445,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -18299,6 +20756,13 @@
   },
   {
     "room_id": 187,
+    "strat_id": 38,
+    "video_id": 4406,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
     "strat_id": 41,
     "video_id": 1044,
     "created_user": "maddo",
@@ -18310,6 +20774,27 @@
     "video_id": 2897,
     "created_user": "Sam",
     "note": "Kill the Mochtroid as fast as possible or outrun it."
+  },
+  {
+    "room_id": 187,
+    "strat_id": 43,
+    "video_id": 4411,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 44,
+    "video_id": 4408,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 46,
+    "video_id": 4409,
+    "created_user": "Sam",
+    "note": "Tank two Mochtroid hits"
   },
   {
     "room_id": 187,
@@ -18425,10 +20910,136 @@
   },
   {
     "room_id": 187,
+    "strat_id": 62,
+    "video_id": 4407,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 62,
+    "video_id": 4413,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 63,
+    "video_id": 4415,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 64,
+    "video_id": 4414,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 65,
+    "video_id": 4416,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 66,
+    "video_id": 4417,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 67,
+    "video_id": 4418,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 68,
+    "video_id": 4419,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 69,
+    "video_id": 4421,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 70,
+    "video_id": 4420,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 73,
+    "video_id": 4422,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 74,
+    "video_id": 4423,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 75,
+    "video_id": 4424,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 76,
+    "video_id": 4425,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
     "strat_id": 77,
     "video_id": 5,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 78,
+    "video_id": 4427,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 79,
+    "video_id": 4426,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 80,
+    "video_id": 4412,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 82,
+    "video_id": 4410,
+    "created_user": "Sam",
+    "note": "Tank two Mochtroid hits"
   },
   {
     "room_id": 187,
@@ -18499,6 +21110,20 @@
     "video_id": 2667,
     "created_user": "Sam",
     "note": "With Springball and Gravity"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 112,
+    "video_id": 4453,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 187,
+    "strat_id": 112,
+    "video_id": 4454,
+    "created_user": "Sam",
+    "note": "HiJump, SpringBall, Gravity Jump"
   },
   {
     "room_id": 187,
@@ -18732,6 +21357,76 @@
     "note": "The runway does not need to be connected to the door."
   },
   {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 2293,
+    "created_user": "Sam",
+    "note": "From Colosseum, With Precise Swing"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 3916,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4012,
+    "created_user": "maddo",
+    "note": "From The Moat (Precise Wiggles)"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4051,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4071,
+    "created_user": "maddo",
+    "note": "From Colosseum (Precise Wiggles)"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4072,
+    "created_user": "maddo",
+    "note": "From Colosseum (Arm Pumps)"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4103,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel (Arm Pumps)"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4116,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4132,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 192,
+    "strat_id": 38,
+    "video_id": 4214,
+    "created_user": "maddo",
+    "note": "From The Moat (Arm Pumps)"
+  },
+  {
     "room_id": 195,
     "strat_id": 6,
     "video_id": 3157,
@@ -18757,7 +21452,7 @@
     "strat_id": 9,
     "video_id": 2223,
     "created_user": "Sam",
-    "note": "Once Doorstuck, do 2 turnarounds and and kill the bottom Cactus with angle shots. Resume the climb until you're at the second Cactus' height and kill it. Resume the climb until Samus' chest pokes out of the ground and wiggle out to the right."
+    "note": "Hitless"
   },
   {
     "room_id": 195,
@@ -18880,6 +21575,34 @@
   },
   {
     "room_id": 195,
+    "strat_id": 51,
+    "video_id": 3983,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 195,
+    "strat_id": 51,
+    "video_id": 4065,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 195,
+    "strat_id": 51,
+    "video_id": 4090,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 195,
+    "strat_id": 51,
+    "video_id": 4129,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 195,
     "strat_id": 48,
     "video_id": 3667,
     "created_user": "maddo",
@@ -18926,13 +21649,6 @@
     "video_id": 444,
     "created_user": "Osse101",
     "note": ""
-  },
-  {
-    "room_id": 209,
-    "strat_id": 8,
-    "video_id": 2476,
-    "created_user": "Sam",
-    "note": "Precise sandfall bounce"
   },
   {
     "room_id": 209,
@@ -19412,6 +22128,20 @@
   },
   {
     "room_id": 217,
+    "strat_id": 8,
+    "video_id": 3654,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 217,
+    "strat_id": 9,
+    "video_id": 3653,
+    "created_user": "Sam",
+    "note": "Mid-air spark"
+  },
+  {
+    "room_id": 217,
     "strat_id": 12,
     "video_id": 2593,
     "created_user": "Sam",
@@ -19423,6 +22153,90 @@
     "video_id": 702,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 217,
+    "strat_id": 22,
+    "video_id": 3931,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 22,
+    "video_id": 4125,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2 (Short swing, no wiggle)"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 22,
+    "video_id": 4242,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farming Room"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 23,
+    "video_id": 4061,
+    "created_user": "maddo",
+    "note": "Right side, from Grapple Beam Room"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 23,
+    "video_id": 4086,
+    "created_user": "maddo",
+    "note": "From Colosseum (Kago)"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 23,
+    "video_id": 4111,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel (Kago)"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 23,
+    "video_id": 4376,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room (Missile)"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 23,
+    "video_id": 4378,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room (Plasma)"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 24,
+    "video_id": 4241,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 25,
+    "video_id": 4062,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 25,
+    "video_id": 4087,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 217,
+    "strat_id": 25,
+    "video_id": 4099,
+    "created_user": "maddo",
+    "note": "From Double Chamber"
   },
   {
     "room_id": 217,
@@ -19524,6 +22338,55 @@
   },
   {
     "room_id": 215,
+    "strat_id": 50,
+    "video_id": 4063,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 50,
+    "video_id": 4088,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 50,
+    "video_id": 4127,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 50,
+    "video_id": 4243,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 51,
+    "video_id": 4021,
+    "created_user": "maddo",
+    "note": "From The Moat"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 51,
+    "video_id": 4112,
+    "created_user": "maddo",
+    "note": "From Spiky Acid Snakes Tunnel"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 51,
+    "video_id": 4142,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room"
+  },
+  {
+    "room_id": 215,
     "strat_id": 13,
     "video_id": 3761,
     "created_user": "maddo",
@@ -19598,6 +22461,34 @@
     "video_id": 2903,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 215,
+    "strat_id": 52,
+    "video_id": 3992,
+    "created_user": "maddo",
+    "note": "From The Moat, Bootless"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 52,
+    "video_id": 3993,
+    "created_user": "maddo",
+    "note": "From The Moat, HiJump"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 52,
+    "video_id": 4027,
+    "created_user": "maddo",
+    "note": "From Precious Room"
+  },
+  {
+    "room_id": 215,
+    "strat_id": 53,
+    "video_id": 4028,
+    "created_user": "maddo",
+    "note": "From Pants Room (Gravity)"
   },
   {
     "room_id": 215,
@@ -19803,6 +22694,13 @@
     "note": "Damageless"
   },
   {
+    "room_id": 219,
+    "strat_id": 24,
+    "video_id": 4348,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
     "room_id": 197,
     "strat_id": 76,
     "video_id": 715,
@@ -19818,9 +22716,51 @@
   },
   {
     "room_id": 197,
+    "strat_id": 10,
+    "video_id": 4349,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 197,
+    "strat_id": 11,
+    "video_id": 4350,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 197,
+    "strat_id": 18,
+    "video_id": 4351,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 197,
     "strat_id": 19,
     "video_id": 542,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 197,
+    "strat_id": 19,
+    "video_id": 4352,
+    "created_user": "Sam",
+    "note": "Crouch Jump Down Grab"
+  },
+  {
+    "room_id": 197,
+    "strat_id": 21,
+    "video_id": 4353,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 197,
+    "strat_id": 22,
+    "video_id": 4354,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -19944,15 +22884,15 @@
   },
   {
     "room_id": 197,
-    "strat_id": 61,
-    "video_id": 2603,
+    "strat_id": 78,
+    "video_id": 2601,
     "created_user": "Sam",
     "note": ""
   },
   {
     "room_id": 197,
-    "strat_id": 78,
-    "video_id": 2601,
+    "strat_id": 82,
+    "video_id": 2603,
     "created_user": "Sam",
     "note": ""
   },
@@ -20102,6 +23042,13 @@
     "video_id": 46,
     "created_user": "maddo",
     "note": "Insane walljump"
+  },
+  {
+    "room_id": 179,
+    "strat_id": 68,
+    "video_id": 3911,
+    "created_user": "maddo",
+    "note": ""
   },
   {
     "room_id": 179,
@@ -20350,7 +23297,7 @@
   },
   {
     "room_id": 210,
-    "strat_id": 14,
+    "strat_id": 68,
     "video_id": 2498,
     "created_user": "Sam",
     "note": ""
@@ -20504,6 +23451,20 @@
   },
   {
     "room_id": 198,
+    "strat_id": 18,
+    "video_id": 3537,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 198,
+    "strat_id": 19,
+    "video_id": 3541,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 198,
     "strat_id": 21,
     "video_id": 2222,
     "created_user": "Sam",
@@ -20532,6 +23493,34 @@
   },
   {
     "room_id": 198,
+    "strat_id": 40,
+    "video_id": 3536,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 198,
+    "strat_id": 41,
+    "video_id": 3538,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 198,
+    "strat_id": 43,
+    "video_id": 3539,
+    "created_user": "Sam",
+    "note": "Locked Door"
+  },
+  {
+    "room_id": 198,
+    "strat_id": 43,
+    "video_id": 3540,
+    "created_user": "Sam",
+    "note": "Blue door"
+  },
+  {
+    "room_id": 198,
     "strat_id": 45,
     "video_id": 2905,
     "created_user": "Sam",
@@ -20557,6 +23546,27 @@
     "video_id": 3798,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 198,
+    "strat_id": 63,
+    "video_id": 3532,
+    "created_user": "Sam",
+    "note": "Max Height Spring Ball Jump"
+  },
+  {
+    "room_id": 198,
+    "strat_id": 63,
+    "video_id": 3534,
+    "created_user": "Sam",
+    "note": "Hi-Jump and Down Grab"
+  },
+  {
+    "room_id": 198,
+    "strat_id": 63,
+    "video_id": 3535,
+    "created_user": "Sam",
+    "note": "Hi-Jump and Wall Jump"
   },
   {
     "room_id": 220,
@@ -20746,6 +23756,27 @@
     "video_id": 1860,
     "created_user": "Sam",
     "note": "This strat is only viable if Morph Ball is placed at the item spot."
+  },
+  {
+    "room_id": 223,
+    "strat_id": 6,
+    "video_id": 3443,
+    "created_user": "Sam",
+    "note": "Spring Ball"
+  },
+  {
+    "room_id": 223,
+    "strat_id": 8,
+    "video_id": 3440,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 223,
+    "strat_id": 9,
+    "video_id": 3442,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 223,
@@ -21082,6 +24113,13 @@
     "video_id": 250,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 230,
+    "strat_id": 30,
+    "video_id": 3576,
+    "created_user": "Sam",
+    "note": "Two Hits"
   },
   {
     "room_id": 230,
@@ -21971,6 +25009,55 @@
     "video_id": 3014,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 3922,
+    "created_user": "maddo",
+    "note": "From Mt. Everest"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 4016,
+    "created_user": "maddo",
+    "note": "From The Moat (not in logic)"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 4055,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 4079,
+    "created_user": "maddo",
+    "note": "From Colosseum"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 4119,
+    "created_user": "maddo",
+    "note": "From Grapple Tutorial Room 2"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 4136,
+    "created_user": "maddo",
+    "note": "From Post Crocomire Farm Room (not in logic)"
+  },
+  {
+    "room_id": 242,
+    "strat_id": 36,
+    "video_id": 4232,
+    "created_user": "maddo",
+    "note": "From Grapple Beam Room"
   },
   {
     "room_id": 242,
