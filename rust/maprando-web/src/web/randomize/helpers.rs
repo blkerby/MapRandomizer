@@ -128,8 +128,14 @@ impl<'a> SeedHeaderTemplate<'a> {
 
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
-        if self.settings.other_settings.area_assignment == AreaAssignment::Random {
-            game_variations.push("Random area assignment");
+        match self.settings.other_settings.area_assignment {
+            AreaAssignment::Ordered => {
+                game_variations.push("Ordered area assignment");
+            }
+            AreaAssignment::Random => {
+                game_variations.push("Random area assignment");
+            }
+            AreaAssignment::Standard => {}
         }
         if self.settings.other_settings.item_dot_change == ItemDotChange::Disappear {
             game_variations.push("Item dots disappear after collection");

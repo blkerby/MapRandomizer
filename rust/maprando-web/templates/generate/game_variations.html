@@ -29,7 +29,10 @@
         {% include "help/variations/area_assignment.html" %}
         <label for="area_assignment">Area assignment</label>
     </div>
-    <div id="areaAssignment" class="col-3 btn-group my-2" role="group">
+    <div id="areaAssignment" class="col-4 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentOrdered" value="Ordered"
+            checked>
+        <label class="btn btn-outline-primary" for="areaAssignmentOrdered">Ordered</label>
         <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentStandard" value="Standard"
             checked>
         <label class="btn btn-outline-primary" for="areaAssignmentStandard">Standard</label>

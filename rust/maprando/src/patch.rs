@@ -32,7 +32,7 @@ use strum::VariantNames;
 
 use self::map_tiles::write_tile_4bpp;
 
-const NUM_AREAS: usize = 6;
+pub const NUM_AREAS: usize = 6;
 
 type PcAddr = usize; // PC pointer to ROM data
 type AsmPtr = usize; // 16-bit SNES pointer to ASM code in bank 0x8F

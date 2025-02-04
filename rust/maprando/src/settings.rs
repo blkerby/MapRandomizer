@@ -234,6 +234,7 @@ pub enum StartLocationMode {
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum AreaAssignment {
+    Ordered,
     Standard,
     Random,
 }

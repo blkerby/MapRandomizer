@@ -2,6 +2,7 @@ pub mod escape_timer;
 mod run_speed;
 
 use crate::helpers::get_item_priorities;
+use crate::patch::NUM_AREAS;
 use crate::settings::{
     DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength,
     KeyItemPriority, MotherBrainFight, ObjectivesMode, ProgressionRate, RandomizerSettings,
@@ -16,16 +17,16 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair,
-    DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData,
-    GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId, Link,
-    LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
-    RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId, TemporaryBlueDirection,
-    VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT,
-    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
-    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL,
-    TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
+    DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
+    GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
+    ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
+    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId,
+    TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH,
+    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
+    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
+    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
     TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
     TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
@@ -378,6 +379,51 @@ pub fn randomize_map_areas(map: &mut Map, seed: usize) {
 
     let mut area_mapping: Vec<usize> = (0..6).collect();
     area_mapping.shuffle(&mut rng);
+
+    let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
+    for i in 0..6 {
+        subarea_mapping[i].shuffle(&mut rng);
+    }
+
+    let mut subsubarea_mapping: Vec<Vec<Vec<usize>>> = vec![vec![(0..2).collect(); 2]; 6];
+    for i in 0..6 {
+        for j in 0..2 {
+            subsubarea_mapping[i][j].shuffle(&mut rng);
+        }
+    }
+
+    for i in 0..map.area.len() {
+        map.area[i] = area_mapping[map.area[i]];
+        map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
+        map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
+    }
+}
+
+pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+    let mut area_tile_cnt: [isize; NUM_AREAS] = [0; NUM_AREAS];
+    for (room_idx, area) in map.area.iter().copied().enumerate() {
+        for row in &game_data.room_geometry[room_idx].map {
+            for cell in row {
+                if *cell == 1 {
+                    area_tile_cnt[area] += 1;
+                }
+            }
+        }
+    }
+    let mut area_rank: Vec<AreaIdx> = (0..NUM_AREAS).collect();
+    area_rank.sort_by_key(|&i| area_tile_cnt[i]);
+
+    let mut area_mapping: Vec<usize> = vec![0; NUM_AREAS];
+    area_mapping[area_rank[5]] = 2; // Norfair (largest area)
+    area_mapping[area_rank[4]] = 1; // Brinstar
+    area_mapping[area_rank[3]] = 4; // Maridia
+    area_mapping[area_rank[2]] = 0; // Crateria
+    area_mapping[area_rank[1]] = 5; // Tourian
+    area_mapping[area_rank[0]] = 3; // Wrecked Ship
 
     let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
     for i in 0..6 {

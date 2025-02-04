@@ -9,8 +9,8 @@ use log::info;
 use maprando::{
     patch::{make_rom, Rom},
     randomize::{
-        filter_links, get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas,
-        DifficultyConfig, Randomization, Randomizer,
+        filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
+        randomize_map_areas, DifficultyConfig, Randomization, Randomizer,
     },
     settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
 };
@@ -207,8 +207,14 @@ async fn randomize(
         let mut map = app_data.map_repositories[&map_layout]
             .get_map(attempt_num, map_seed, &app_data.game_data)
             .unwrap();
-        if settings.other_settings.area_assignment == AreaAssignment::Random {
-            randomize_map_areas(&mut map, map_seed);
+        match settings.other_settings.area_assignment {
+            AreaAssignment::Ordered => {
+                order_map_areas(&mut map, map_seed, &app_data.game_data);
+            }
+            AreaAssignment::Random => {
+                randomize_map_areas(&mut map, map_seed);
+            }
+            AreaAssignment::Standard => {}
         }
         let objectives = get_objectives(&settings, &mut rng);
         let locked_door_data = randomize_doors(

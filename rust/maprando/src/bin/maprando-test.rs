@@ -9,8 +9,8 @@ use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    get_difficulty_tiers, get_objectives, randomize_doors, randomize_map_areas, Randomization,
-    Randomizer,
+    get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors, randomize_map_areas,
+    Randomization, Randomizer,
 };
 use maprando::settings::{
     AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
@@ -150,8 +150,14 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let mut map = map_repo.get_map(attempt_num, map_seed, game_data)?;
-        if settings.other_settings.area_assignment == AreaAssignment::Random {
-            randomize_map_areas(&mut map, map_seed);
+        match settings.other_settings.area_assignment {
+            AreaAssignment::Ordered => {
+                order_map_areas(&mut map, map_seed, game_data);
+            }
+            AreaAssignment::Random => {
+                randomize_map_areas(&mut map, map_seed);
+            }
+            AreaAssignment::Standard => {}
         }
         let objectives = get_objectives(&settings, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, &settings, &objectives, door_seed);
