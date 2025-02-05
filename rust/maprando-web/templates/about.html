@@ -355,7 +355,7 @@
     <li>The other map station rooms are likewise moved to ensure there is one in each area.
     <li>Save and refill rooms are moved to improve the balance of their distribution.
     </ul>
-    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 40,000 "Standard" maps and 60,000 "Wild" maps. The difference between these two map pools is that for "Standard" maps, one-ways will have relatively short return paths that loop back around; this is implemented by an extra term in the map generation model's scoring of candidate room placements, and also by a filter applied to completed maps during post-processing. </p>
+    The processed maps are then collected and stored off. The randomizer currently uses a pool of approximately 40,000 "Standard" maps and 70,000 "Wild" maps. The difference between these two map pools is that for "Standard" maps, one-ways will have relatively short return paths that loop back around; this is implemented by an extra term in the map generation model's scoring of candidate room placements, and also by a filter applied to completed maps during post-processing. </p>
 
     <p>It took about a year to develop the initial model architecture and training process, including about two months of
     continuous training on a pair of RTX 3080 Ti GPUs. The original model suffered from some quirkiness where it almost 
