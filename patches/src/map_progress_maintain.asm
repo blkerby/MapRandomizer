@@ -165,6 +165,8 @@ activate_map_station_hook:
     sta $702700, x
     ; fully reveal specific tiles that contain area-transition markers,
     ; since those would not show correctly in the partially-revealed palette:
+    ; TODO: look into removing this. It shouldn't be needed anymore, since we switched
+    ; to using the "cross-area reveal" table to cover these same-area reveal as well.
     lda $829727, x
     ora $702000, x
     sta $702000, x
