@@ -1544,9 +1544,37 @@ impl<'a> Patcher<'a> {
             self.rom.write_u8(snes2pc(0x838CF3), 0x06)?;
         }
 
-        if self.randomization.save_animals == SaveAnimals::Yes {
-            // Change end-game behavior to require saving the animals. Address here must match escape.asm:
-            self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
+        match self.randomization.save_animals {
+            SaveAnimals::No => {
+                // Escape typewriter text is left as vanilla: "ESCAPE IMMEDIATELY!"
+            }
+            SaveAnimals::Yes => {
+                // Change end-game behavior to require saving the animals. Address here must match escape.asm:
+                self.rom.write_u16(snes2pc(0xA1F000), 0xFFFF)?;
+
+                // Replace the escape typewriter text: "SAVE THE ANIMALS!"
+                self.rom.write_n(snes2pc(0xA6C4B6), &[
+                    0x53, 0x41, 0x56, 0x45, 0x20, 0x54, 0x48, 0x45, 0x20, 0x41, 0x4E, 0x49, 0x4D, 0x41, 0x4C, 0x53, 0x21, 0x00, 0x00
+                ])?;
+            }
+            SaveAnimals::Optional => {
+                // Replace the escape typewriter text: "THINK OF THE ANIMALS!"
+                let bank_a6_free_space_start = 0xa6febc;
+                let bank_a6_free_space_end = 0xa6ff00;
+                self.rom.write_u16(snes2pc(0xa6c250), (bank_a6_free_space_start & 0xffff) as isize)?;
+                let typewriter_text = vec![
+                    0x01, 0x00, 0x02, 0x00,  // Timer reset value = 2
+                    0x0D ,0x00, 0x05, 0x49,  // VRAM tilemap address = $4905 (BG2 tile (5, 8))
+                    0x54, 0x49, 0x4D, 0x45, 0x20, 0x42, 0x4F, 0x4D, 0x42, 0x20, 0x53, 0x45, 0x54, 0x21, // 'TIME BOMB SET!'
+                    0x0D, 0x00, 0x45, 0x49,  //  VRAM tilemap address = $4945 (BG2 tile (5, Ah))
+                    0x54, 0x4E, 0x49, 0x4E, 0x4B, 0x20, 0x4F, 0x46, 0x20, 0x54, 0x48, 0x45, 0x20, 0x41, 0x4E, 0x49, 0x4D, 0x41, 0x4C, 0x53, 0x21, 0x00, 0x00
+                ];
+                self.rom.write_n(snes2pc(bank_a6_free_space_start), &typewriter_text)?;
+                assert!(bank_a6_free_space_start + typewriter_text.len() <= bank_a6_free_space_end)
+            }
+            SaveAnimals::Random => {
+                panic!("Unexpected SaveAnimals::Random");
+            }
         }
 
         if self
