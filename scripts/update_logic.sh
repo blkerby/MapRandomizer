@@ -1,7 +1,7 @@
 set -e
 cd sm-json-data
 git fetch origin
-git checkout origin/master
+git checkout ${1:-origin/master}
 cd ..
 export PYTHONPATH=python
 python python/scripts/update_tech.py
