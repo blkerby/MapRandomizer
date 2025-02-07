@@ -1,6 +1,6 @@
 {
     "version": 117,
-    "name": "Community Race Season 3",
+    "name": "Community Race Season 3 (Save the animals)",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4178,7 +4178,7 @@
     "map_layout": "Standard",
     "doors_mode": "Ammo",
     "start_location_mode": "Random",
-    "save_animals": "No",
+    "save_animals": "Yes",
     "other_settings": {
         "wall_jump": "Vanilla",
         "etank_refill": "Vanilla",
