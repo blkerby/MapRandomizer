@@ -4789,6 +4789,13 @@
   },
   {
     "room_id": 57,
+    "strat_id": 14,
+    "video_id": 1653,
+    "created_user": "Sam",
+    "note": "Alternate Standing location: Samus' position, crouch state and the direction she's facing are very important."
+  },
+  {
+    "room_id": 57,
     "strat_id": 15,
     "video_id": 4263,
     "created_user": "Osse101",

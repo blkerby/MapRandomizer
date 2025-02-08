@@ -168,11 +168,6 @@
                 "enabled": true
             },
             {
-                "id": 38,
-                "name": "canSpringBallBounce",
-                "enabled": true
-            },
-            {
                 "id": 41,
                 "name": "canMockball",
                 "enabled": true
@@ -340,6 +335,11 @@
             {
                 "id": 35,
                 "name": "can4HighMidAirMorph",
+                "enabled": false
+            },
+            {
+                "id": 38,
+                "name": "canSpringBallBounce",
                 "enabled": false
             },
             {
