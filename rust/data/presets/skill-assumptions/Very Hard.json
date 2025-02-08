@@ -978,13 +978,6 @@
             "enabled": true
         },
         {
-            "room_id": 7,
-            "notable_id": 1,
-            "room_name": "The Moat",
-            "notable_name": "SpringBall Bounce",
-            "enabled": true
-        },
-        {
             "room_id": 41,
             "notable_id": 2,
             "room_name": "Blue Brinstar Energy Tank Room",
@@ -1213,6 +1206,13 @@
             "notable_id": 9,
             "room_name": "East Ocean",
             "notable_name": "Suitless Damage Boost Underwater Pillar",
+            "enabled": true
+        },
+        {
+            "room_id": 7,
+            "notable_id": 1,
+            "room_name": "The Moat",
+            "notable_name": "SpringBall Bounce",
             "enabled": true
         },
         {
