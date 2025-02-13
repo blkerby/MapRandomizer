@@ -388,7 +388,7 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         "mb_barrier_clear",
         "mb_left_entrance",
         "gray_doors",
-        "pause_menu_objectives",  // For the pause menu tileset changes (for green checkmark, etc.)
+        "pause_menu_objectives", // For the pause menu tileset changes (for green checkmark, etc.)
     ];
     patches.push("hud_expansion_opaque");
     for patch_name in patches {
@@ -2785,17 +2785,34 @@ impl<'a> Patcher<'a> {
         for obj in &self.randomization.objectives {
             obj_text.push("".to_string()); // blank line
             let text = match obj {
-                Objective::Kraid => "DEFEAT KRAID",
-                Objective::Phantoon => "DEFEAT PHANTOON",
+                Objective::AcidChozoStatue => "ACTIVATE ACID CHOZO STATUE",
+                Objective::BabyKraidRoom => "CLEAR BABY KRAID ROOM",
+                Objective::BombTorizo => "DEFEAT BOMB TORIZO",
+                Objective::Botwoon => "DEFEAT BOTWOON",
+                Objective::BowlingStatue => "ACTIVATE BOWLING STATUE",
+                Objective::Crocomire => "DEFEAT CROCOMIRE",
                 Objective::Draygon => "DEFEAT DRAYGON",
+                Objective::GoldenTorizo => "DEFEAT GOLDEN TORIZO",
+                Objective::Kraid => "DEFEAT KRAID",
+                Objective::MetalPiratesRoom => "CLEAR METAL PIRATES ROOM",
+                Objective::MetroidRoom1 => "CLEAR METROID ROOM 1",
+                Objective::MetroidRoom2 => "CLEAR METROID ROOM 2",
+                Objective::MetroidRoom3 => "CLEAR METROID ROOM 3",
+                Objective::MetroidRoom4 => "CLEAR METROID ROOM 4",
+                Objective::Phantoon => "DEFEAT PHANTOON",
+                Objective::PitRoom => "CLEAR PIT ROOM",
+                Objective::PlasmaRoom => "CLEAR PLASMA ROOM",
+                Objective::SporeSpawn => "DEFEAT SPORE SPAWN",
                 Objective::Ridley => "DEFEAT RIDLEY",
-                _ => panic!("unhandled objective"),
             };
             obj_text.push(" - ".to_string() + text);
         }
-        if self.randomization.save_animals == SaveAnimals::Yes {
+        if self.randomization.settings.save_animals == SaveAnimals::Yes {
             obj_text.push("".to_string());
-            obj_text.push(" - SAVE THE ANIMALS".to_string());    
+            obj_text.push(" - SAVE THE ANIMALS!".to_string());
+        } else if self.randomization.settings.save_animals == SaveAnimals::Random {
+            obj_text.push("".to_string());
+            obj_text.push(" - SAVE THE ANIMALS?".to_string());
         }
 
         let char_mapping: HashMap<char, i16> = vec![
@@ -2841,7 +2858,9 @@ impl<'a> Patcher<'a> {
             ('-', 0x28DD),
             ('?', 0x28DE),
             ('!', 0x28DF),
-        ].into_iter().collect();
+        ]
+        .into_iter()
+        .collect();
 
         let mut addr = snes2pc(0xB6F200);
         for line in &obj_text {
@@ -2850,16 +2869,16 @@ impl<'a> Patcher<'a> {
                 self.rom.write_u16(addr, tile_word as isize)?;
                 addr += 2;
             }
-            self.rom.write_u16(addr, 0x8000)?;  // line terminator
+            self.rom.write_u16(addr, 0x8000)?; // line terminator
             addr += 2;
         }
 
         // Add empty lines for unused rows:
         for _ in 0..(18 - obj_text.len()) {
-            self.rom.write_u16(addr, 0x8000)?;  // line terminator
+            self.rom.write_u16(addr, 0x8000)?; // line terminator
             addr += 2;
         }
-        
+
         assert!(addr < snes2pc(0xB6F660));
         Ok(())
     }
