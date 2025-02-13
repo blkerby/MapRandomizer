@@ -91,9 +91,13 @@ for idx, asm_path in enumerate(asm_src_files):
     ips_path = f"{OUTPUT_PATH}/{base_filename}.ips"
     
     src_modified_ts = os.path.getmtime(asm_path)
-    ips_modified_ts = os.path.getmtime(ips_path)
+    ips_modified_ts = None
+    try:
+        ips_modified_ts = os.path.getmtime(ips_path)
+    except FileNotFoundError as e:
+        pass
     
-    if src_modified_ts > ips_modified_ts or args.verify:
+    if ips_modified_ts is None or src_modified_ts > ips_modified_ts or args.verify:
         logging.info(f"Assembling {asm_path}")
         changed_bytes = {}
         run_asar(asm_path, 0x00, changed_bytes)

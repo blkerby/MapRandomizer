@@ -40,10 +40,6 @@ org $82910A
 org $82932B
     JSR $A56D
 
-;;; hook map switching to update area-specific tilemap
-org $82941E
-    JSL set_area_tilemap : nop : nop : nop : nop
-
 ;;; update BG2 buttons
 org $82A62D
     JSL set_bg2_equipment_screen : nop : nop
@@ -557,20 +553,6 @@ set_bg2_equipment_screen:
     PLB
     RTL
 
-set_area_tilemap:
-    PHA
-    %queueGfxDMA($E29A00, $0D00, $0020)   ; Q
-    %queueGfxDMA($E29B60, $0DB0, $0040)   ; . /
-    %queueGfxDMA($E29BE0, $0DF0, $0020)   ; !
-    %queueGfxDMA($E2A160, $10B0, $0080)   ; check mark, top of OBJ button
-    %queueGfxDMA($E2A380, $11C0, $0060)   ; bottom of OBJ button
-    PLA
-    CMP #$0007                            ; vanilla code
-    BMI .skip_zero2
-    LDA #$0000
-.skip_zero2
-    RTL
-
 ;;; obj:   left: grey (obj), right: MAP
 ;;; map:   left: OBJ,    right: samus
 ;;; equip: left: map,    right: grey (samus)
@@ -838,33 +820,33 @@ warnpc !bank_B6_free_space_end
 
 ; objective screen tiles
 ; 'Q'
-org $e29a00
+org $b69a00
     db $7C, $00, $C6, $00, $C6, $00, $C6, $00, $DA, $00, $CC, $00, $76, $00, $00, $00
     db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $DA, $FF, $CC, $FF, $76, $FF, $00
 
 ; '.'
-org $e29b60
+org $b69b60
     db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $18, $00, $18, $00, $00, $00
     db $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $18, $FF, $18, $FF, $00
 
 ; '/'
-org $e29b80
+org $b69b80
     db $03, $00, $06, $00, $0C, $00, $18, $00, $30, $00, $60, $00, $C0, $00, $00, $00
     db $FF, $03, $FF, $06, $FF, $0C, $FF, $18, $FF, $30, $FF, $60, $FF, $C0, $FF, $00
 
 ; '!'
-org $e29be0
+org $b69be0
     db $18, $00, $18, $00, $18, $00, $18, $00, $00, $00, $18, $00, $18, $00, $00, $00
     db $FF, $18, $FF, $18, $FF, $18, $FF, $18, $FF, $00, $FF, $18, $FF, $18, $FF, $00
 
 
 ; check mark
-org $e2a160
+org $b6a160
     db $01, $00, $03, $00, $06, $00, $8C, $00, $D8, $00, $70, $00, $20, $00, $00, $00
     db $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
 
 ; top of 'OBJ' button
-org $e2a180
+org $b6a180
     db $00, $FF, $00, $00, $FF, $FF, $FF, $FF, $F8, $F8, $F0, $F0, $F2, $F2, $F2, $F2
     db $FF, $FF, $FF, $FF, $00, $FF, $00, $FF, $07, $F8, $0F, $F0, $0D, $F2, $0D, $F2
     db $00, $FF, $00, $00, $FF, $FF, $FF, $FF, $C1, $C1, $4C, $4C, $4C, $4C, $41, $41
@@ -873,7 +855,7 @@ org $e2a180
     db $FF, $FF, $FF, $FF, $00, $FF, $00, $FF, $0C, $F3, $0C, $F3, $0C, $F3, $0C, $F3
 
 ; bottom of 'OBJ' button
-org $e2a380
+org $b6a380
     db $F2, $F2, $F2, $F2, $F0, $F0, $F8, $F8, $FF, $FF, $00, $FF, $00, $00, $00, $FF
     db $0D, $F2, $0D, $F2, $0F, $F0, $07, $F8, $00, $FF, $FF, $00, $FF, $FF, $FF, $FF
     db $41, $41, $4C, $4C, $4C, $4C, $C1, $C1, $FF, $FF, $00, $FF, $00, $00, $00, $FF

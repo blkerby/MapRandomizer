@@ -388,6 +388,7 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         "mb_barrier_clear",
         "mb_left_entrance",
         "gray_doors",
+        "pause_menu_objectives",  // For the pause menu tileset changes (for green checkmark, etc.)
     ];
     patches.push("hud_expansion_opaque");
     for patch_name in patches {
@@ -465,6 +466,7 @@ impl<'a> Patcher<'a> {
             "beam_doors",
             "horizontal_door_fix",
             "samus_tiles_optim_animated_tiles_fix",
+            "pause_menu_objectives",
         ];
 
         if self.randomization.settings.other_settings.ultra_low_qol {
@@ -539,6 +541,9 @@ impl<'a> Patcher<'a> {
             .fast_pause_menu
         {
             patches.push("fast_pause_menu");
+            self.rom.write_u16(snes2pc(0x82fffc), 0xFFFF)?;
+        } else {
+            self.rom.write_u16(snes2pc(0x82fffc), 0x0000)?;
         }
 
         match self.randomization.settings.other_settings.wall_jump {
@@ -2774,6 +2779,90 @@ impl<'a> Patcher<'a> {
 
         Ok(())
     }
+
+    fn write_objective_data(&mut self) -> Result<()> {
+        let mut obj_text: Vec<String> = vec![];
+        for obj in &self.randomization.objectives {
+            obj_text.push("".to_string()); // blank line
+            let text = match obj {
+                Objective::Kraid => "DEFEAT KRAID",
+                Objective::Phantoon => "DEFEAT PHANTOON",
+                Objective::Draygon => "DEFEAT DRAYGON",
+                Objective::Ridley => "DEFEAT RIDLEY",
+                _ => panic!("unhandled objective"),
+            };
+            obj_text.push(" - ".to_string() + text);
+        }
+        if self.randomization.save_animals == SaveAnimals::Yes {
+            obj_text.push("".to_string());
+            obj_text.push(" - SAVE THE ANIMALS".to_string());    
+        }
+
+        let char_mapping: HashMap<char, i16> = vec![
+            ('0', 0x2800),
+            ('1', 0x2801),
+            ('2', 0x2802),
+            ('3', 0x2803),
+            ('4', 0x2804),
+            ('5', 0x2805),
+            ('6', 0x2806),
+            ('7', 0x2807),
+            ('8', 0x2808),
+            ('9', 0x2809),
+            (' ', 0x280E),
+            ('A', 0x28C0),
+            ('B', 0x28C1),
+            ('C', 0x28C2),
+            ('D', 0x28C3),
+            ('E', 0x28C4),
+            ('F', 0x28C5),
+            ('G', 0x28C6),
+            ('H', 0x28C7),
+            ('I', 0x28C8),
+            ('J', 0x28C9),
+            ('K', 0x28CA),
+            ('L', 0x28CB),
+            ('M', 0x28CC),
+            ('N', 0x28CD),
+            ('O', 0x28CE),
+            ('P', 0x28CF),
+            ('Q', 0x28D0),
+            ('R', 0x28D1),
+            ('S', 0x28D2),
+            ('T', 0x28D3),
+            ('U', 0x28D4),
+            ('V', 0x28D5),
+            ('W', 0x28D6),
+            ('X', 0x28D7),
+            ('Y', 0x28D8),
+            ('Z', 0x28D9),
+            ('.', 0x28DA),
+            ('/', 0x28DC),
+            ('-', 0x28DD),
+            ('?', 0x28DE),
+            ('!', 0x28DF),
+        ].into_iter().collect();
+
+        let mut addr = snes2pc(0xB6F200);
+        for line in &obj_text {
+            for c in line.chars() {
+                let tile_word = char_mapping[&c];
+                self.rom.write_u16(addr, tile_word as isize)?;
+                addr += 2;
+            }
+            self.rom.write_u16(addr, 0x8000)?;  // line terminator
+            addr += 2;
+        }
+
+        // Add empty lines for unused rows:
+        for _ in 0..(18 - obj_text.len()) {
+            self.rom.write_u16(addr, 0x8000)?;  // line terminator
+            addr += 2;
+        }
+        
+        assert!(addr < snes2pc(0xB6F660));
+        Ok(())
+    }
 }
 
 fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
@@ -2846,6 +2935,7 @@ pub fn make_rom(
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
     patcher.write_walljump_item_graphics()?;
+    patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
     if !randomization.settings.other_settings.ultra_low_qol {
