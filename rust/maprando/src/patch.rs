@@ -541,9 +541,7 @@ impl<'a> Patcher<'a> {
             .fast_pause_menu
         {
             patches.push("fast_pause_menu");
-            self.rom.write_u16(snes2pc(0x82fffc), 0xFFFF)?;
-        } else {
-            self.rom.write_u16(snes2pc(0x82fffc), 0x0000)?;
+            self.rom.write_u16(snes2pc(0x82fffc), 0x8000)?;
         }
 
         match self.randomization.settings.other_settings.wall_jump {
@@ -2880,6 +2878,23 @@ impl<'a> Patcher<'a> {
         }
 
         assert!(addr < snes2pc(0xB6F660));
+
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .fast_pause_menu
+        {
+            self.rom.write_u16(
+                snes2pc(0x82fffc),
+                0x8000 | self.randomization.objectives.len() as isize,
+            )?;
+        } else {
+            self.rom.write_u16(
+                snes2pc(0x82fffc),
+                self.randomization.objectives.len() as isize,
+            )?;
+        }
         Ok(())
     }
 }
