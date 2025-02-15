@@ -5,7 +5,7 @@ use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::settings::{
     DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength,
-    KeyItemPriority, MotherBrainFight, ObjectivesMode, ProgressionRate, RandomizerSettings,
+    KeyItemPriority, MotherBrainFight, Objective, ObjectivesMode, ProgressionRate, RandomizerSettings,
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
@@ -50,79 +50,6 @@ use self::escape_timer::SpoilerEscape;
 // difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum Objective {
-    Kraid,
-    Phantoon,
-    Draygon,
-    Ridley,
-    SporeSpawn,
-    Crocomire,
-    Botwoon,
-    GoldenTorizo,
-    MetroidRoom1,
-    MetroidRoom2,
-    MetroidRoom3,
-    MetroidRoom4,
-    BombTorizo,
-    BowlingStatue,
-    AcidChozoStatue,
-    PitRoom,
-    BabyKraidRoom,
-    PlasmaRoom,
-    MetalPiratesRoom,
-}
-
-impl Objective {
-    pub fn get_all() -> &'static [Objective] {
-        use Objective::*;
-        &[
-            Kraid,
-            Phantoon,
-            Draygon,
-            Ridley,
-            SporeSpawn,
-            Crocomire,
-            Botwoon,
-            GoldenTorizo,
-            MetroidRoom1,
-            MetroidRoom2,
-            MetroidRoom3,
-            MetroidRoom4,
-            BombTorizo,
-            BowlingStatue,
-            AcidChozoStatue,
-            PitRoom,
-            BabyKraidRoom,
-            PlasmaRoom,
-            MetalPiratesRoom,
-        ]
-    }
-    pub fn get_flag_name(&self) -> &'static str {
-        use Objective::*;
-        match self {
-            Kraid => "f_DefeatedKraid",
-            Phantoon => "f_DefeatedPhantoon",
-            Draygon => "f_DefeatedDraygon",
-            Ridley => "f_DefeatedRidley",
-            SporeSpawn => "f_DefeatedSporeSpawn",
-            Crocomire => "f_DefeatedCrocomire",
-            Botwoon => "f_DefeatedBotwoon",
-            GoldenTorizo => "f_DefeatedGoldenTorizo",
-            MetroidRoom1 => "f_KilledMetroidRoom1",
-            MetroidRoom2 => "f_KilledMetroidRoom2",
-            MetroidRoom3 => "f_KilledMetroidRoom3",
-            MetroidRoom4 => "f_KilledMetroidRoom4",
-            BombTorizo => "f_DefeatedBombTorizo",
-            BowlingStatue => "f_UsedBowlingStatue",
-            AcidChozoStatue => "f_UsedAcidChozoStatue",
-            PitRoom => "f_ClearedPitRoom",
-            BabyKraidRoom => "f_ClearedBabyKraidRoom",
-            PlasmaRoom => "f_ClearedPlasmaRoom",
-            MetalPiratesRoom => "f_ClearedMetalPiratesRoom",
-        }
-    }
-}
 
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct ItemPriorityGroup {

@@ -13,9 +13,9 @@ use std::path::Path;
 use crate::{
     customize::vanilla_music::override_music,
     patch::map_tiles::diagonal_flip_tile,
-    randomize::{LockedDoor, Objective, Randomization},
+    randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, SaveAnimals, StartLocationMode, WallJump,
+        AreaAssignment, ETankRefill, MotherBrainFight, SaveAnimals, StartLocationMode, WallJump, Objective
     },
 };
 use anyhow::{ensure, Context, Result};

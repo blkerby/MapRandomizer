@@ -10,6 +10,7 @@ pub struct RandomizerSettings {
     pub item_progression_settings: ItemProgressionSettings,
     pub quality_of_life_settings: QualityOfLifeSettings,
     pub objectives_mode: ObjectivesMode,
+    pub objective_settings: ObjectiveSettings,
     pub map_layout: String,
     pub doors_mode: DoorsMode,
     pub start_location_mode: StartLocationMode,
@@ -131,6 +132,100 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub buffed_drops: bool,
     pub early_save: bool,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum Objective {
+    Kraid,
+    Phantoon,
+    Draygon,
+    Ridley,
+    SporeSpawn,
+    Crocomire,
+    Botwoon,
+    GoldenTorizo,
+    MetroidRoom1,
+    MetroidRoom2,
+    MetroidRoom3,
+    MetroidRoom4,
+    BombTorizo,
+    BowlingStatue,
+    AcidChozoStatue,
+    PitRoom,
+    BabyKraidRoom,
+    PlasmaRoom,
+    MetalPiratesRoom,
+}
+
+impl Objective {
+    pub fn get_all() -> &'static [Objective] {
+        use Objective::*;
+        &[
+            Kraid,
+            Phantoon,
+            Draygon,
+            Ridley,
+            SporeSpawn,
+            Crocomire,
+            Botwoon,
+            GoldenTorizo,
+            MetroidRoom1,
+            MetroidRoom2,
+            MetroidRoom3,
+            MetroidRoom4,
+            BombTorizo,
+            BowlingStatue,
+            AcidChozoStatue,
+            PitRoom,
+            BabyKraidRoom,
+            PlasmaRoom,
+            MetalPiratesRoom,
+        ]
+    }
+    pub fn get_flag_name(&self) -> &'static str {
+        use Objective::*;
+        match self {
+            Kraid => "f_DefeatedKraid",
+            Phantoon => "f_DefeatedPhantoon",
+            Draygon => "f_DefeatedDraygon",
+            Ridley => "f_DefeatedRidley",
+            SporeSpawn => "f_DefeatedSporeSpawn",
+            Crocomire => "f_DefeatedCrocomire",
+            Botwoon => "f_DefeatedBotwoon",
+            GoldenTorizo => "f_DefeatedGoldenTorizo",
+            MetroidRoom1 => "f_KilledMetroidRoom1",
+            MetroidRoom2 => "f_KilledMetroidRoom2",
+            MetroidRoom3 => "f_KilledMetroidRoom3",
+            MetroidRoom4 => "f_KilledMetroidRoom4",
+            BombTorizo => "f_DefeatedBombTorizo",
+            BowlingStatue => "f_UsedBowlingStatue",
+            AcidChozoStatue => "f_UsedAcidChozoStatue",
+            PitRoom => "f_ClearedPitRoom",
+            BabyKraidRoom => "f_ClearedBabyKraidRoom",
+            PlasmaRoom => "f_ClearedPlasmaRoom",
+            MetalPiratesRoom => "f_ClearedMetalPiratesRoom",
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum ObjectiveSetting {
+    No,
+    Maybe,
+    Yes
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct ObjectiveOption {
+    pub objective: Objective,
+    pub setting: ObjectiveSetting,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct ObjectiveSettings {
+    pub objective_options: Vec<ObjectiveOption>,
+    pub min_objectives: i32,
+    pub max_objectives: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

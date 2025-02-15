@@ -4175,6 +4175,11 @@
         "early_save": true
     },
     "objectives_mode": "Bosses",
+    "objective_settings": {
+        "objective_options": [],
+        "min_objectives": 0,
+        "max_objectives": 0
+    },
     "map_layout": "Standard",
     "doors_mode": "Ammo",
     "start_location_mode": "Random",

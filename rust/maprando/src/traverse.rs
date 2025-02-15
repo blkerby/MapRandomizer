@@ -3,8 +3,8 @@ use std::cmp::{max, min};
 use hashbrown::HashMap;
 
 use crate::{
-    randomize::{DifficultyConfig, LockedDoor, Objective},
-    settings::{MotherBrainFight, RandomizerSettings, WallJump},
+    randomize::{DifficultyConfig, LockedDoor},
+    settings::{MotherBrainFight, RandomizerSettings, Objective, WallJump},
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
