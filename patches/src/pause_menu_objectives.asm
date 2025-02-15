@@ -1,4 +1,4 @@
-; Objectives pause menu screen based on VARIA Randomizer's patch by theonlydude/flohgh
+; Objectives pause menu screen based on VARIA Randomizer's patch by theonlydude/ouiche
 ;
 ; Simplified the objectives implementation and ported much of the code to reside in bank 85.
 ;
@@ -73,7 +73,9 @@ org $82A61D
 !n_lines = #$0012
 
 !ObjectiveAddrs = $8FEBC0
-!ObjectiveBitmasks = $8FEBC8
+!ObjectiveBitmasks = $8FEBE8
+
+!n_objectives = $82fffc
 
 ;;; character conversion table
 table "tables/pause_menu_objectives_chars.tbl",RTL
@@ -274,7 +276,7 @@ update_objs:
 .draw_obj_text
     INY
     CPY !n_lines
-    BEQ .check_objs
+    BEQ check_objs
     LDX !tmp_tile_offset
     
 .draw_obj_loop
@@ -293,53 +295,55 @@ update_objs:
 .pad_rest_of_line
     JSR pad_0
     BRA .draw_obj_text
+
+;;; pad with 0s until end of line
+pad_0:
+    TXA
+    AND #$003F
+    BEQ .end
+    LDA #$280E : STA.l !BG1_tilemap,x
+    INX : INX
+    BRA pad_0
     
-.check_objs
+.end:
+    INX : INX
+    STX !tmp_tile_offset
+    RTS
+    
+check_objs:
 ;;; check objectives and add check marks
     LDY.w #!line_size*2            ; start of 1st line
-    LDX #$0000                     ; objective counter
+    LDA !n_objectives : AND $7FFF
+    STA !tmp_tile_offset           ; # objectives
+    BEQ .check_animals
+    LDX #$0000
 
 .obj_check_lp
     PHX
-    CPX #$0004                     ; check for extra iteration, only happens when animals saved
-    BEQ .skip_check                ; if so, check off animals saved!
     JSR check_objective
     BEQ .nocheck
-.skip_check
     TYX
 
-.find_check
-    LDA !BG1_tilemap, x
-    CMP !check_char                ; tile to switch?
-    BEQ .checkmark
-    INX : INX
-    CPX #!BG1_tilemap_size         ; end of grid?
-    BCS .leave_eog
-    BRA .find_check
-
-.checkmark
-    LDA #$250B                     ; check mark (green)
-    STA !BG1_tilemap, x
+    JSR find_next_check
+    BMI .eog_exit
 
 .nocheck
     PLX
     INX
-    CPX #$0005                     ; done with primary obj's and animals?
-    BEQ .exit
-    CPX #$0004                     ; finished with primary objectives?
-    BNE .next_obj
-    JSR check_animals              ; if so, check if animals req'd/done
-    BCC .exit
-
-.next_obj
-    TYA
-    CLC
-    ADC.w #!line_size*2
-    TAY
+    CPX !tmp_tile_offset
+    BEQ .check_animals
     BRA .obj_check_lp
 
-.leave_eog
+.eog_exit
     PLX
+    BRA .exit
+
+.check_animals
+    JSR check_animals
+    BCC .exit
+    TYX
+    JSR find_next_check
+
 .exit
     PLB
     RTL
@@ -360,18 +364,22 @@ check_objective: ; X = index
     BIT.b $04
     RTS
 
-;;; pad with 0s until end of line
-pad_0:
-    TXA
-    AND #$003F
-    BEQ .end
-    LDA #$280E : STA.l !BG1_tilemap,x
+find_next_check:
+    LDA !BG1_tilemap, x
+    CMP !check_char                ; tile to switch?
+    BEQ .checkmark
     INX : INX
-    BRA pad_0
+    CPX #!BG1_tilemap_size         ; end of grid?
+    BCS .leave_eog
+    BRA find_next_check
+
+.leave_eog
+    LDA #$FFFF
+    RTS
     
-.end:
-    INX : INX
-    STX !tmp_tile_offset
+.checkmark
+    LDA #$250B                     ; check mark (green)
+    STA !BG1_tilemap, x
     RTS
 
 check_animals:
@@ -381,10 +389,9 @@ check_animals:
     AND $0080                      ; animals saved?
     BEQ .no_animals
     SEC
-    BRA .leave
+    RTS
 .no_animals
     CLC
-.leave
     RTS
 
 ;;; direct DMA of BG1 tilemap to VRAM
@@ -658,7 +665,7 @@ func_objective_screen:
 
 func_map2obj_fading_out:
     %callBank82Func($A56D)         ; Updates the flashing buttons when you change pause screens
-    LDA !fast_pause_menu
+    LDA !fast_pause_menu : AND #$8000
     BNE .fast
     JSL $808924                    ; Handle fading out
     BRA .next
@@ -715,7 +722,7 @@ func_map2obj_load_obj:
 func_map2obj_fading_in:
     LDA !pause_screen_mode_obj
     STA !pause_screen_mode         ; Pause screen mode = objective screen
-    LDA !fast_pause_menu
+    LDA !fast_pause_menu : AND #$8000
     BNE .fast
     JSL $80894D                    ; Handle fading in
     BRA .next
@@ -740,7 +747,7 @@ func_map2obj_fading_in:
 func_obj2map_fading_out:
     ;; fade out to map
     %callBank82Func($A56D)         ; Updates the flashing buttons when you change pause screens
-    LDA !fast_pause_menu
+    LDA !fast_pause_menu : AND #$8000
     BNE .fast
     JSL $808924                    ; Handle fading out
     BRA .next
@@ -839,6 +846,10 @@ org $b69be0
     db $18, $00, $18, $00, $18, $00, $18, $00, $00, $00, $18, $00, $18, $00, $00, $00
     db $FF, $18, $FF, $18, $FF, $18, $FF, $18, $FF, $00, $FF, $18, $FF, $18, $FF, $00
 
+; ':'
+org $b6a0c0
+    db $00, $00, $18, $00, $18, $00, $00, $00, $00, $00, $18, $00, $18, $00, $00, $00
+    db $FF, $00, $FF, $18, $FF, $18, $FF, $00, $FF, $00, $FF, $18, $FF, $18, $FF, $00
 
 ; check mark
 org $b6a160
@@ -862,3 +873,26 @@ org $b6a380
     db $BE, $41, $B3, $4C, $B3, $4C, $3E, $C1, $00, $FF, $FF, $00, $FF, $FF, $FF, $FF
     db $93, $93, $93, $93, $83, $83, $C7, $C7, $FF, $FF, $00, $FF, $00, $00, $00, $FF
     db $6C, $93, $6C, $93, $7C, $83, $38, $C7, $00, $FF, $FF, $00, $FF, $FF, $FF, $FF
+
+; 0-9 top-justified
+org $b6ac00
+db $7C, $00, $C6, $00, $C6, $00, $C6, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
+db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
+db $1C, $00, $3C, $00, $6C, $00, $0C, $00, $0C, $00, $0C, $00, $0C, $00, $00, $00
+db $FF, $1C, $FF, $3C, $FF, $6C, $FF, $0C, $FF, $0C, $FF, $0C, $FF, $0C, $FF, $00
+db $7C, $00, $C6, $00, $06, $00, $7C, $00, $C0, $00, $C0, $00, $FE, $00, $00, $00
+db $FF, $7C, $FF, $C6, $FF, $06, $FF, $7C, $FF, $C0, $FF, $C0, $FF, $FE, $FF, $00
+db $7C, $00, $C6, $00, $06, $00, $1C, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
+db $FF, $7C, $FF, $C6, $FF, $06, $FF, $1C, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
+db $1C, $00, $3C, $00, $6C, $00, $CC, $00, $FE, $00, $0C, $00, $0C, $00, $00, $00
+db $FF, $1C, $FF, $3C, $FF, $6C, $FF, $CC, $FF, $FE, $FF, $0C, $FF, $0C, $FF, $00
+db $FE, $00, $C0, $00, $FC, $00, $06, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
+db $FF, $FE, $FF, $C0, $FF, $FC, $FF, $06, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
+db $7C, $00, $C6, $00, $C0, $00, $FC, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
+db $FF, $7C, $FF, $C6, $FF, $C0, $FF, $FC, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
+db $FE, $00, $06, $00, $0C, $00, $18, $00, $30, $00, $60, $00, $C0, $00, $00, $00
+db $FF, $FE, $FF, $06, $FF, $0C, $FF, $18, $FF, $30, $FF, $60, $FF, $C0, $FF, $00
+db $7C, $00, $C6, $00, $C6, $00, $7C, $00, $C6, $00, $C6, $00, $7C, $00, $00, $00
+db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7C, $FF, $00
+db $7C, $00, $C6, $00, $C6, $00, $7E, $00, $06, $00, $C6, $00, $7C, $00, $00, $00
+db $FF, $7C, $FF, $C6, $FF, $C6, $FF, $7E, $FF, $06, $FF, $C6, $FF, $7C, $FF, $00
