@@ -15,13 +15,13 @@ struct GenerateTemplate<'a> {
     version_info: VersionInfo,
     progression_rates: Vec<&'static str>,
     item_placement_styles: Vec<&'static str>,
-    objective_presets: Vec<&'static str>,
     objective_groups: Vec<ObjectiveGroup>,
     preset_data: &'a PresetData,
     full_presets_json: String,
     skill_presets_json: String,
     item_presets_json: String,
     qol_presets_json: String,
+    objective_presets_json: String,
     item_priorities: Vec<String>,
     item_pool_multiple: Vec<String>,
     starting_items_multiple: Vec<String>,
@@ -121,20 +121,13 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
     let qol_presets_json =
         serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
+    let objective_presets_json =
+        serde_json::to_string(&app_data.preset_data.objective_presets).unwrap();
 
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objective_presets: vec![
-            "None",
-            "Bosses",
-            "Minibosses",
-            "Chozos",
-            "Pirates",
-            "Metroids",
-            "Random",
-        ],
         objective_groups: vec![
             ObjectiveGroup {
                 name: "Bosses".to_string(),
@@ -155,21 +148,20 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
                 ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
             },
             ObjectiveGroup {
-                name: "Chozos".to_string(),
-                objectives: vec![
-                    ("BombTorizo", "Bomb Torizo"),
-                    ("BowlingStatue", "Bowling"),
-                    ("AcidChozoStatue", "Acid Statue"),
-                    ("GoldenTorizo2", "Golden Torizo"),
-                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
-            },
-            ObjectiveGroup {
                 name: "Pirates".to_string(),
                 objectives: vec![
                     ("PitRoom", "Pit Room"),
                     ("BabyKraidRoom", "Baby Kraid"),
                     ("PlasmaRoom", "Plasma Room"),
                     ("MetalPiratesRoom", "Metal Pirates"),
+                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
+            },
+            ObjectiveGroup {
+                name: "Chozos".to_string(),
+                objectives: vec![
+                    ("BombTorizo", "Bomb Torizo"),
+                    ("BowlingStatue", "Bowling"),
+                    ("AcidChozoStatue", "Acid Statue"),
                 ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
             },
             ObjectiveGroup {
@@ -195,6 +187,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         skill_presets_json,
         item_presets_json,
         qol_presets_json,
+        objective_presets_json,
         tech_description: &app_data.game_data.tech_description,
         tech_dependencies_str: &tech_dependencies_strs,
         notable_description: &notable_description,

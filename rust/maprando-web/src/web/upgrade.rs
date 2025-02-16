@@ -35,6 +35,14 @@ fn assign_presets(settings: &mut serde_json::Value, app_data: &AppData) -> Resul
             }
         }
     }
+    if let Some(preset) = settings["objective_settings"]["preset"].as_str() {
+        let preset = preset.to_owned();
+        for p in &app_data.preset_data.objective_presets {
+            if p.preset.as_ref() == Some(&preset) {
+                *settings.get_mut("objective_settings").unwrap() = serde_json::to_value(p)?;
+            }
+        }
+    }
     if let Some(preset) = settings["name"].as_str() {
         let preset = preset.to_owned();
         for p in &app_data.preset_data.full_presets {
@@ -160,12 +168,34 @@ fn upgrade_animals_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
+fn upgrade_objective_settings(settings: &mut serde_json::Value, app_data: &AppData) -> Result<()> {
+    let settings_obj = settings
+        .as_object_mut()
+        .context("expected settings to be object")?;
+
+    if !settings_obj.contains_key("objective_settings") {
+        settings_obj.insert(
+            "objective_settings".to_string(),
+            serde_json::to_value(app_data.preset_data.objective_presets[1].clone()).unwrap(),
+        );
+    }
+    if settings_obj.contains_key("objectives_mode") {
+        *settings_obj
+            .get_mut("objective_settings")
+            .unwrap()
+            .get_mut("preset")
+            .unwrap() = settings_obj["objectives_mode"].as_str().unwrap().into();
+    }
+    Ok(())
+}
+
 pub fn try_upgrade_settings(
     settings_str: String,
     app_data: &AppData,
 ) -> Result<(String, RandomizerSettings)> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
+    upgrade_objective_settings(&mut settings, app_data)?;
     assign_presets(&mut settings, app_data)?;
     upgrade_tech_settings(&mut settings, app_data)?;
     upgrade_notable_settings(&mut settings, app_data)?;

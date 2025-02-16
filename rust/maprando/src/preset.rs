@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use crate::{
     randomize::DifficultyConfig,
     settings::{
-        ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
+        ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings
     },
 };
 
@@ -40,6 +40,7 @@ pub struct PresetData {
     pub skill_presets: Vec<SkillAssumptionSettings>,
     pub item_progression_presets: Vec<ItemProgressionSettings>,
     pub quality_of_life_presets: Vec<QualityOfLifeSettings>,
+    pub objective_presets: Vec<ObjectiveSettings>,
     pub difficulty_tiers: Vec<DifficultyConfig>,
     pub full_presets: Vec<RandomizerSettings>,
     pub default_preset: RandomizerSettings,
@@ -150,6 +151,7 @@ impl PresetData {
                 serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
             let difficulty =
                 DifficultyConfig::new(&preset, game_data, implicit_tech, implicit_notables);
+            assert!(preset.preset == Some(name.to_string()));
             skill_presets.push(preset);
             if name != "Implicit" && name != "Ignored" {
                 difficulty_tiers.push(difficulty);
@@ -167,6 +169,7 @@ impl PresetData {
                 .context(format!("reading from {}", path.display()))?;
             let preset: ItemProgressionSettings =
                 serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
+            assert!(preset.preset == Some(name.to_string()));
             item_progression_presets.push(preset);
         }
 
@@ -179,7 +182,21 @@ impl PresetData {
                 .context(format!("reading from {}", path.display()))?;
             let preset: QualityOfLifeSettings =
                 serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
+            assert!(preset.preset == Some(name.to_string()));
             quality_of_life_presets.push(preset);
+        }
+
+        let objective_preset_names = ["None", "Bosses", "Minibosses", "Chozos", "Pirates", "Metroids", "Random"];
+        let objective_preset_path = presets_path.join("objectives");
+        let mut objective_presets: Vec<ObjectiveSettings> = vec![];
+        for name in objective_preset_names {
+            let path = objective_preset_path.join(format!("{}.json", name));
+            let preset_str = std::fs::read_to_string(path.clone())
+                .context(format!("reading from {}", path.display()))?;
+            let preset: ObjectiveSettings =
+                serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
+            assert!(preset.preset == Some(name.to_string()));
+            objective_presets.push(preset);
         }
 
         let full_preset_names = [
@@ -207,6 +224,7 @@ impl PresetData {
             skill_presets,
             item_progression_presets,
             quality_of_life_presets,
+            objective_presets,
             difficulty_tiers,
             default_preset: full_presets[0].clone(),
             full_presets,

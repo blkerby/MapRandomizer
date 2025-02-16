@@ -21,7 +21,7 @@ use crate::{
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
-use log::info;
+use log::{info, error};
 use maprando_game::{
     DoorPtr, DoorPtrPair, DoorType, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr,
 };
@@ -428,7 +428,8 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
             rom.write_u16(snes2pc(0x8FEBC8) + i * 2, mask)?;
         }
     } else {
-        panic!("Unimplemented objective count != 4")
+        error!("Unimplemented objective count != 4")
+        // TODO: implement this. Allow for testing for now:
     }
     Ok(())
 }

@@ -9,7 +9,6 @@ pub struct RandomizerSettings {
     pub skill_assumption_settings: SkillAssumptionSettings,
     pub item_progression_settings: ItemProgressionSettings,
     pub quality_of_life_settings: QualityOfLifeSettings,
-    pub objectives_mode: ObjectivesMode,
     pub objective_settings: ObjectiveSettings,
     pub map_layout: String,
     pub doors_mode: DoorsMode,
@@ -158,30 +157,6 @@ pub enum Objective {
 }
 
 impl Objective {
-    pub fn get_all() -> &'static [Objective] {
-        use Objective::*;
-        &[
-            Kraid,
-            Phantoon,
-            Draygon,
-            Ridley,
-            SporeSpawn,
-            Crocomire,
-            Botwoon,
-            GoldenTorizo,
-            MetroidRoom1,
-            MetroidRoom2,
-            MetroidRoom3,
-            MetroidRoom4,
-            BombTorizo,
-            BowlingStatue,
-            AcidChozoStatue,
-            PitRoom,
-            BabyKraidRoom,
-            PlasmaRoom,
-            MetalPiratesRoom,
-        ]
-    }
     pub fn get_flag_name(&self) -> &'static str {
         use Objective::*;
         match self {
@@ -223,6 +198,7 @@ pub struct ObjectiveOption {
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct ObjectiveSettings {
+    pub preset: Option<String>,
     pub objective_options: Vec<ObjectiveOption>,
     pub min_objectives: i32,
     pub max_objectives: i32,

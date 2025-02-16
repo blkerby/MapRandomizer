@@ -147,6 +147,22 @@ function tryParseInt(s) {
     }
 }
 
+function buildObjectiveSettings(formData) {
+    var out = {};
+    out.preset = formData.get("objective_preset");
+    out.objective_options = [];
+    out.min_objectives = parseInt(document.getElementById("minimumObjectives").value);
+    out.max_objectives = parseInt(document.getElementById("maximumObjectives").value);
+    for (objOpt of objectivePresetsArr[0].objective_options) {
+        for (v of ["No", "Maybe", "Yes"]) {
+            if (document.getElementById(`objective${objOpt.objective}${v}`).checked) {
+                out.objective_options.push({"objective": objOpt.objective, "setting": v});
+            }
+        }
+    }
+    return out;
+}
+
 function buildSettingsObject() {
     var formData = new FormData(document.getElementById("main-form"));
     let version = {{ version_info.version }};
@@ -213,7 +229,7 @@ function buildSettingsObject() {
             "buffed_drops": formData.get("buffed_drops") == "true",
             "early_save": formData.get("early_save") == "true",
         },
-        "objectives_mode": formData.get("objectives"),
+        "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
         "doors_mode": formData.get("doors"),
         "start_location_mode": formData.get("start_location"),
@@ -433,8 +449,8 @@ function applyFullSettingsPreset(preset) {
     applySkillPreset(preset.skill_assumption_settings);
     applyItemProgressionPreset(preset.item_progression_settings);
     applyQolPreset(preset.quality_of_life_settings);
+    applyObjectivePreset(preset.objective_settings);
 
-    applyRadioValue("objectives", preset.objectives_mode);
     applyRadioValue("mapLayout", preset.map_layout);
     applyRadioValue("doors", preset.doors_mode);
     applyRadioValue("startLocation", preset.start_location_mode);
@@ -563,6 +579,7 @@ function qualityOfLifePresetChanged() {
     }
     fullSettingsChanged();
 }
+
 function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeOff").checked = false;
     document.getElementById("qualityOfLifeLow").checked = false;
@@ -570,6 +587,86 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeHigh").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
+}
+
+function objectivePresetChanged() {
+    for (presetEl of document.getElementsByClassName("objective-preset-button")) {
+        if (presetEl.checked) {
+            let preset = objectivePresets[presetEl.value];
+            applyObjectivePreset(preset);
+            break;
+        }
+    }
+    fullSettingsChanged();
+}
+
+function applyObjectivePreset(preset) {
+    for (presetEl of document.getElementsByClassName("objective-preset-button")) {
+        if (presetEl.value == preset.preset) {
+            presetEl.checked = true;
+            let p = objectivePresets[presetEl.value];
+            if (p !== undefined) {
+                preset = p;
+            }
+        } else {
+            presetEl.checked = false;
+        }
+    }
+    for (let obj_opt of preset.objective_options) {
+        applyRadioValue(`objective${obj_opt.objective}`, obj_opt.setting);        
+    }
+    document.getElementById("minimumObjectives").value = preset.min_objectives;
+    document.getElementById("maximumObjectives").value = preset.max_objectives;
+}
+
+function objectivesChanged() {
+    for (let preset of objectivePresetsArr) {
+        document.getElementById(`objectives${preset.preset}`).checked = false;
+    }
+    var cnt_yes = 0;
+    var cnt_maybe = 0;
+    for (let obj_opt of objectivePresetsArr[0].objective_options) {
+        if (document.getElementById(`objective${obj_opt.objective}Yes`).checked) {
+            cnt_yes += 1;
+        }
+        if (document.getElementById(`objective${obj_opt.objective}Maybe`).checked) {
+            cnt_maybe += 1;
+        }
+    }
+
+    let min_objectives = cnt_yes;
+    let max_objectives = cnt_yes + cnt_maybe;
+    document.getElementById("minimumObjectives").min = min_objectives;
+    document.getElementById("minimumObjectives").max = max_objectives;
+    document.getElementById("maximumObjectives").min = min_objectives;
+    document.getElementById("maximumObjectives").max = max_objectives;
+    if (document.getElementById("minimumObjectives").value < min_objectives) {
+        document.getElementById("minimumObjectives").value = min_objectives;
+    }
+    if (document.getElementById("minimumObjectives").value > max_objectives) {
+        document.getElementById("minimumObjectives").value = max_objectives;
+    }
+    if (document.getElementById("maximumObjectives").value < min_objectives) {
+        document.getElementById("maximumObjectives").value = min_objectives;
+    }
+    if (document.getElementById("maximumObjectives").value > max_objectives) {
+        document.getElementById("maximumObjectives").value = max_objectives;
+    }
+    fullSettingsChanged();
+}
+
+function minimumObjectivesChanged() {
+    if (document.getElementById("minimumObjectives").value > document.getElementById("maximumObjectives").value) {
+        document.getElementById("maximumObjectives").value = document.getElementById("minimumObjectives").value;
+    }
+    objectivesChanged();
+}
+
+function maximumObjectivesChanged() {
+    if (document.getElementById("minimumObjectives").value > document.getElementById("maximumObjectives").value) {
+        document.getElementById("minimumObjectives").value = document.getElementById("maximumObjectives").value;
+    }
+    objectivesChanged();
 }
 
 function applyItemProgressionPreset(preset) {

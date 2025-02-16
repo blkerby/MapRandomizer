@@ -51,6 +51,12 @@
     for (p of qolPresetsArr) {
         qolPresets[p.preset] = p;
     }
+
+    let objectivePresetsArr = {{ objective_presets_json|safe }};
+    let objectivePresets = {};
+    for (p of objectivePresetsArr) {
+        objectivePresets[p.preset] = p;
+    }
     </script>
     <div class="container col-xl-10 col-xxl-8 pb-4">
         <h3 class="mt-3 mb-2">Generate Game</h3>
@@ -167,16 +173,16 @@
                     <label for="objectives">Objectives</label>
                 </div>
                 <div id="objectives" class="col-lg-9 btn-group" role="group">
-                {% for name in objective_presets.iter() %}
-                {% let name_no_space = name.replace(" ", "") %}
-                    <input type="radio" class="btn-check" name="objectives" value="{{+ name }}"
-                        id="objectives{{+ name_no_space }}" autocomplete="off"
-                        onchange="fullSettingsChanged()"
+                {% for preset in preset_data.objective_presets.iter() %}
+                {% let name = preset.preset.as_ref().unwrap() %}
+                    <input type="radio" class="btn-check objective-preset-button" name="objective_preset" value="{{+ name }}"
+                        id="objectives{{+ name }}" autocomplete="off"
+                        onchange="objectivePresetChanged()"
                         {% if loop.index0 == 1 %}
                         checked
                         {% endif %}
                         >
-                    <label class="btn btn-outline-primary p-2" for="objectives{{+ name_no_space }}">{{+ name }}</label>
+                    <label class="btn btn-outline-primary p-2" for="objectives{{+ name }}">{{+ name }}</label>
                 {% endfor %}
                 <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#objectivesModal">
                     <i class="bi bi-gear"></i>

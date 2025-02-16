@@ -20,11 +20,11 @@
                                             <label for="objective{{ name }}">{{ display_name }}</label>
                                         </div>
                                         <div id="objective{{ name }}" class="col-sm-8 btn-group" role="group">
-                                            <input type="radio" class="btn-check" id="objective{{ name }}No" value="No">
+                                            <input type="radio" class="btn-check" id="objective{{ name }}No" value="No" name="objective_{{ name }}" onchange="objectivesChanged()" checked>
                                             <label class="btn btn-outline-primary" for="objective{{ name }}No">No</label>
-                                            <input type="radio" class="btn-check" id="objective{{ name }}Maybe" value="Maybe">
+                                            <input type="radio" class="btn-check" id="objective{{ name }}Maybe" value="Maybe" name="objective_{{ name }}" onchange="objectivesChanged()">
                                             <label class="btn btn-outline-primary" for="objective{{ name }}Maybe">Maybe</label>
-                                            <input type="radio" class="btn-check" id="objective{{ name }}Yes" value="Yes">
+                                            <input type="radio" class="btn-check" id="objective{{ name }}Yes" value="Yes" name="objective_{{ name }}" onchange="objectivesChanged()">
                                             <label class="btn btn-outline-primary" for="objective{{ name }}Yes">Yes</label>
                                         </div>
                                     </div>
@@ -39,13 +39,13 @@
                 <div class="form-group row m-2">
                     <label for="minimumObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Minimum number of objectives</label>
                     <div class="col-sm-2 my-2">
-                        <input type="number" class="form-control" id="minimumObjectives" value="4" min="0" max="19">
+                        <input type="number" class="form-control" id="minimumObjectives" value="4" min="0" max="19" onchange="minimumObjectivesChanged()">
                     </div>
                 </div>
                 <div class="form-group row m-2">
                     <label for="maximumObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Maximum number of objectives</label>
                     <div class="col-sm-2 my-2">
-                        <input type="number" class="form-control" id="maximumObjectives" value="4" min="0" max="19">
+                        <input type="number" class="form-control" id="maximumObjectives" value="4" min="0" max="19" onchange="maximumObjectivesChanged()">
                     </div>
                 </div>
             </div>

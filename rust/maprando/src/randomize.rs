@@ -4,9 +4,7 @@ mod run_speed;
 use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::settings::{
-    DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength,
-    KeyItemPriority, MotherBrainFight, Objective, ObjectivesMode, ProgressionRate, RandomizerSettings,
-    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
+    DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump
 };
 use crate::traverse::{
     apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
@@ -2829,26 +2827,25 @@ pub fn get_difficulty_tiers(
 }
 
 pub fn get_objectives<R: Rng>(settings: &RandomizerSettings, rng: &mut R) -> Vec<Objective> {
-    use Objective::*;
-    match settings.objectives_mode {
-        ObjectivesMode::None => vec![],
-        ObjectivesMode::Bosses => vec![Kraid, Phantoon, Draygon, Ridley],
-        ObjectivesMode::Minibosses => vec![SporeSpawn, Crocomire, Botwoon, GoldenTorizo],
-        ObjectivesMode::Metroids => {
-            vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4]
-        }
-        ObjectivesMode::Chozos => {
-            vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo]
-        }
-        ObjectivesMode::Pirates => {
-            vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom]
-        }
-        ObjectivesMode::Random => {
-            rand::seq::SliceRandom::choose_multiple(Objective::get_all(), rng, 4)
-                .copied()
-                .collect()
+    let obj_settings = &settings.objective_settings;
+    let num_objectives = rng.gen_range(obj_settings.min_objectives..=obj_settings.max_objectives) as usize;
+    let mut random_options: Vec<Objective> = vec![];
+    let mut out = vec![];
+
+    for obj_option in &obj_settings.objective_options {
+        match obj_option.setting {
+            ObjectiveSetting::No => {},
+            ObjectiveSetting::Maybe => {
+                random_options.push(obj_option.objective);
+            },
+            ObjectiveSetting::Yes => {
+                out.push(obj_option.objective);
+            }
         }
     }
+
+    out.extend(random_options.choose_multiple(rng, num_objectives - out.len()));
+    out
 }
 
 impl<'r> Randomizer<'r> {
