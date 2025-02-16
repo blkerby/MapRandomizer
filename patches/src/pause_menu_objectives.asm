@@ -20,6 +20,8 @@ arch 65816
 
 math pri on
 
+incsrc "constants.asm"
+
 !bank_82_free_space_start = $82FF80
 !bank_82_free_space_end = $82FFFC
 
@@ -71,11 +73,6 @@ org $82A61D
 ;;; Pause stuff
 
 !n_lines = #$0012
-
-!ObjectiveAddrs = $8FEBC0
-!ObjectiveBitmasks = $8FEBE8
-
-!n_objectives = $82fffc
 
 ;;; character conversion table
 table "tables/pause_menu_objectives_chars.tbl",RTL
@@ -313,7 +310,7 @@ pad_0:
 check_objs:
 ;;; check objectives and add check marks
     LDY.w #!line_size*2            ; start of 1st line
-    LDA !n_objectives : AND $7FFF
+    LDA !objectives_num : AND $7FFF
     STA !tmp_tile_offset           ; # objectives
     BEQ .check_animals
     LDX #$0000
@@ -355,9 +352,9 @@ check_objective: ; X = index
     TAX
     LDA.w #$007E
     STA.b $02
-    LDA.l !ObjectiveAddrs, X
+    LDA.l !objectives_addrs, X
     STA.b $00
-    LDA.l !ObjectiveBitmasks, X
+    LDA.l !objectives_bitmasks, X
     STA.b $04
     LDA.b [$00]
     PLX
