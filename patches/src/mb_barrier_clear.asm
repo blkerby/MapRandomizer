@@ -4,34 +4,68 @@ lorom
 !bank_84_freespace_start = $84F200
 !bank_84_freespace_end = $84F300
 
-org $83AAD2
-    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
+incsrc "constants.asm"
 
-macro check_objective(i,plm)
-    lda.w #$007E
-    sta.b $02
-    lda.l ObjectiveAddrs+<i>
-    sta.b $00
-    lda.l ObjectiveBitmasks+<i>
-    sta.b $04
-    lda.b [$00]
-    bit.b $04
-    beq ?skip  ; skip clearing if objective not done
-
+macro clear_plm(plm)
     jsl $8483D7
     db <plm>
     db $04
     dw clear_barrier_plm
-?skip:
 endmacro
+
+org $83AAD2
+    dw $EB00  ; Set door ASM for Rinka Room toward Mother Brain
 
 ; Free space in bank $8F
 org $8FEB00
-    ; clear barriers in mother brain room based on main bosses killed:
-    %check_objective(0,$39)
-    %check_objective(2,$38)
-    %check_objective(4,$37)
-    %check_objective(6,$36)
+door_asm_start:
+; 2 potential scenarios for barriers:
+; obj_num <= 4, clear individually from left to right
+; obj_num > 4, maintain all 4 until all obj's cleared
+    lda !objectives_num : and $7FFF
+    cmp #$0005
+    bcc normal_objs               ; <= 4 ?
+
+    ldx #$0000
+    tay
+; iterate through all obj's
+.check_lp
+    jsr check_objective
+    beq motherbrain
+    dey
+    bne .check_lp
+
+; either none or all cleared
+clear_all:
+    ldx #$FFFB
+    bra start_obj_checks
+
+; # obj's - 4
+normal_objs:
+    sec
+    sbc #$0004
+    tax
+
+; starting value of X determines check/clear behavior
+; X = 0 for stock behavior (4 objs)
+; X < 0 will clear until 0, then check (for 0-3 objs)
+; X = -4 will clear all objs
+start_obj_checks:
+    jsr check_objective
+    beq .skip_1
+    %clear_plm($36)
+.skip_1
+    jsr check_objective
+    beq .skip_2
+    %clear_plm($37)
+.skip_2
+    jsr check_objective
+    beq .skip_3
+    %clear_plm($38)
+.skip_3
+    jsr check_objective
+    beq motherbrain
+    %clear_plm($39)
 
 motherbrain:
     lda $7ed82d
@@ -46,42 +80,54 @@ motherbrain:
     jsl remove_spikes
 done:
     rts
+    
+check_objective:
+; X >= 0 obj to check; X < 0 = return obj cleared
+; also increments X
+    phx
+    txa
+    bmi .bypass_check
+    asl
+    tax
+    lda.w #$007E
+    sta.b $02
+    lda.l ObjectiveAddrs, X
+    sta.b $00
+    lda.l ObjectiveBitmasks, X
+    plx
+    inx
+    sta.b $04
+    lda.b [$00]
+    bit.b $04
+    rts
+.bypass_check
+    plx
+    inx
+    lda #$0001
+    rts
 
-warnpc $8FEBC0
-org $8FEBC0
+warnpc !objectives_addrs
+
+org !objectives_addrs
 ObjectiveAddrs:
-    dw $D829, $D82A, $D82B, $D82C
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
 ObjectiveBitmasks:
-    dw $0001, $0001, $0001, $0001
+    dw $0001, $0001, $0001, $0001, $0001
+    dw $0001, $0001, $0001, $0001, $0001
+    dw $0001, $0001, $0001, $0001, $0001
+    dw $0001, $0001, $0001, $0001, $0001
+    dw $0001, $0001, $0001, $0001, $0001
 
 ; OBJECTIVE: None (must match address in patch.rs)
 warnpc $8FECA0
 org $8FECA0
-
-    jsl $8483D7
-    db $39
-    db $04
-    dw clear_barrier_plm
-
-    jsl $8483D7
-    db $38
-    db $04
-    dw clear_barrier_plm
-
-    jsl $8483D7
-    db $37
-    db $04
-    dw clear_barrier_plm
-
-    jsl $8483D7
-    db $36
-    db $04
-    dw clear_barrier_plm
-
-    jmp motherbrain
-
+    jmp clear_all ; this section can be removed once patch.rs is updated
+    
 warnpc $8FED00
-
 
 ; Remove invisible spikes where Mother Brain used to be (common routine used by both the left and right door ASMs)
 org !bank_84_freespace_start

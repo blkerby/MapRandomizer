@@ -33,3 +33,9 @@
 !nmi_area4 = $1F86
 !nmi_area5 = $1F87
 !nmi_area6 = $1F88
+
+; Objectives
+!objectives_max = $0014
+!objectives_num = $82FFFC ; bits 0-15
+!objectives_addrs = $8FEBC0
+!objectives_bitmasks #= !objectives_addrs+(2*!objectives_max)
