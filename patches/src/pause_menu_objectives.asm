@@ -312,34 +312,34 @@ check_objs:
     LDY.w #!line_size*2            ; start of 1st line
     LDA !objectives_num : AND $7FFF
     STA !tmp_tile_offset           ; # objectives
-    BEQ .check_animals
+    BEQ .exit
     LDX #$0000
 
 .obj_check_lp
     PHX
     JSR check_objective
     BEQ .nocheck
+
+    ; find the next check character and mark it green
     TYX
-
     JSR find_next_check
-    BMI .eog_exit
+    LDA #$250B                     ; check mark (green)
+    STA !BG1_tilemap, x        
+    BRA .next
 
-.nocheck
-    PLX
+.nocheck:
+    ; find the next check character and skip marking it
+    TYX                            ; X <- position in tilemap 
+    JSR find_next_check
+
+.next:    
+    INX : INX                      ; advance to next position in tilemap
+    TXY
+    PLX                            ; X <- objective number
     INX
     CPX !tmp_tile_offset
-    BEQ .check_animals
+    BEQ .exit
     BRA .obj_check_lp
-
-.eog_exit
-    PLX
-    BRA .exit
-
-.check_animals
-    JSR check_animals
-    BCC .exit
-    TYX
-    JSR find_next_check
 
 .exit
     PLB
@@ -364,33 +364,12 @@ check_objective: ; X = index
 find_next_check:
     LDA !BG1_tilemap, x
     CMP !check_char                ; tile to switch?
-    BEQ .checkmark
+    BEQ .found
     INX : INX
-    CPX #!BG1_tilemap_size         ; end of grid?
-    BCS .leave_eog
     BRA find_next_check
-
-.leave_eog
-    LDA #$FFFF
+.found:
     RTS
     
-.checkmark
-    LDA #$250B                     ; check mark (green)
-    STA !BG1_tilemap, x
-    RTS
-
-check_animals:
-    LDA $A1F000                    ; save_animals_required_opt (defined in escape.asm)
-    BEQ .no_animals
-    LDA $7ED821
-    AND $0080                      ; animals saved?
-    BEQ .no_animals
-    SEC
-    RTS
-.no_animals
-    CLC
-    RTS
-
 ;;; direct DMA of BG1 tilemap to VRAM
 blit_objs:
     %gfxDMA(!BG1_tilemap, $30a0, !BG1_tilemap_size)

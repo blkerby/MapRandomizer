@@ -22,7 +22,7 @@ use crate::{
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
-use log::{error, info};
+use log::info;
 use maprando_game::{
     DoorPtr, DoorPtrPair, DoorType, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr,
 };
@@ -382,7 +382,7 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Result<()> {
+fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
     let mut patches: Vec<&'static str> = vec![
         "mb_barrier",
@@ -397,32 +397,6 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         apply_ips_patch(rom, &patch_path)?;
     }
 
-    for (i, obj) in randomization.objectives.iter().enumerate() {
-        use Objective::*;
-        let (var, mask) = match obj {
-            Kraid => (0xD829, 1),
-            Ridley => (0xD82A, 1),
-            Phantoon => (0xD82B, 1),
-            Draygon => (0xD82C, 1),
-            SporeSpawn => (0xD829, 2),
-            Crocomire => (0xD82A, 2),
-            Botwoon => (0xD82C, 2),
-            GoldenTorizo => (0xD82A, 4),
-            MetroidRoom1 => (0xD822, 1),
-            MetroidRoom2 => (0xD822, 2),
-            MetroidRoom3 => (0xD822, 4),
-            MetroidRoom4 => (0xD822, 8),
-            BombTorizo => (0xD828, 4),
-            BowlingStatue => (0xD823, 1),
-            AcidChozoStatue => (0xD821, 0x10),
-            PitRoom => (0xD823, 2),
-            BabyKraidRoom => (0xD823, 4),
-            PlasmaRoom => (0xD823, 8),
-            MetalPiratesRoom => (0xD823, 0x10),
-        };
-        rom.write_u16(snes2pc(0x8FEBC0) + i * 2, var)?;
-        rom.write_u16(snes2pc(0x8FEBE8) + i * 2, mask)?;
-    }
     Ok(())
 }
 
@@ -2889,22 +2863,19 @@ impl<'a> Patcher<'a> {
             }
         };
 
+        // (row, col) coordinates of the objective checkmark,
+        // relative to the top-left of the 30x18 space:
+        let mut obj_coords: HashMap<(usize, usize), Objective> = HashMap::new();
+
         if bosses.len() > 0 {
             draw_row("BOSSES:", &mut tile_data, &mut row, &mut row_max, col);
             for obj in bosses {
+                obj_coords.insert((row, col), obj);
                 match obj {
-                    Objective::Kraid => {
-                        draw_row("- KRAID", &mut tile_data, &mut row, &mut row_max, col)
-                    }
-                    Objective::Phantoon => {
-                        draw_row("- PHANTOON", &mut tile_data, &mut row, &mut row_max, col)
-                    }
-                    Objective::Draygon => {
-                        draw_row("- DRAYGON", &mut tile_data, &mut row, &mut row_max, col)
-                    }
-                    Objective::Ridley => {
-                        draw_row("- RIDLEY", &mut tile_data, &mut row, &mut row_max, col)
-                    }
+                    Kraid => draw_row("- KRAID", &mut tile_data, &mut row, &mut row_max, col),
+                    Phantoon => draw_row("- PHANTOON", &mut tile_data, &mut row, &mut row_max, col),
+                    Draygon => draw_row("- DRAYGON", &mut tile_data, &mut row, &mut row_max, col),
+                    Ridley => draw_row("- RIDLEY", &mut tile_data, &mut row, &mut row_max, col),
                     _ => panic!("unexpected objective: {:?}", obj),
                 }
             }
@@ -2914,17 +2885,16 @@ impl<'a> Patcher<'a> {
         if minibosses.len() > 0 {
             draw_row("MINIBOSSES:", &mut tile_data, &mut row, &mut row_max, col);
             for obj in minibosses {
+                obj_coords.insert((row, col), obj);
                 match obj {
-                    Objective::SporeSpawn => {
+                    SporeSpawn => {
                         draw_row("- SPORE SPAWN", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::Crocomire => {
+                    Crocomire => {
                         draw_row("- CROCOMIRE", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::Botwoon => {
-                        draw_row("- BOTWOON", &mut tile_data, &mut row, &mut row_max, col)
-                    }
-                    Objective::GoldenTorizo => {
+                    Botwoon => draw_row("- BOTWOON", &mut tile_data, &mut row, &mut row_max, col),
+                    GoldenTorizo => {
                         draw_row("- GOLD TORIZO", &mut tile_data, &mut row, &mut row_max, col)
                     }
                     _ => panic!("unexpected objective: {:?}", obj),
@@ -2936,17 +2906,18 @@ impl<'a> Patcher<'a> {
         if chozos.len() > 0 {
             draw_row("CHOZOS:", &mut tile_data, &mut row, &mut row_max, col);
             for obj in chozos {
+                obj_coords.insert((row, col), obj);
                 match obj {
-                    Objective::BombTorizo => {
+                    BombTorizo => {
                         draw_row("- BOMB TORIZO", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::BowlingStatue => {
+                    BowlingStatue => {
                         draw_row("- BOWLING", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::AcidChozoStatue => {
+                    AcidChozoStatue => {
                         draw_row("- ACID STATUE", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::GoldenTorizo => {
+                    GoldenTorizo => {
                         draw_row("- GOLD TORIZO", &mut tile_data, &mut row, &mut row_max, col)
                     }
                     _ => panic!("unexpected objective: {:?}", obj),
@@ -2958,17 +2929,18 @@ impl<'a> Patcher<'a> {
         if pirates.len() > 0 {
             draw_row("PIRATES:", &mut tile_data, &mut row, &mut row_max, col);
             for obj in pirates {
+                obj_coords.insert((row, col), obj);
                 match obj {
-                    Objective::PitRoom => {
+                    PitRoom => {
                         draw_row("- PIT ROOM", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::BabyKraidRoom => {
+                    BabyKraidRoom => {
                         draw_row("- BABY KRAID", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::PlasmaRoom => {
+                    PlasmaRoom => {
                         draw_row("- PLASMA", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    Objective::MetalPiratesRoom => {
+                    MetalPiratesRoom => {
                         draw_row("- METAL", &mut tile_data, &mut row, &mut row_max, col)
                     }
                     _ => panic!("unexpected objective: {:?}", obj),
@@ -2983,12 +2955,13 @@ impl<'a> Patcher<'a> {
             draw_row("METROIDS:", &mut tile_data, &mut row, &mut row_max, col);
             let mut i = 0;
             for obj in metroids {
+                obj_coords.insert((row, col + i * 3), obj);
                 tile_data[row][col + i * 3] = char_mapping[&'-'];
                 let num = match obj {
-                    Objective::MetroidRoom1 => '1',
-                    Objective::MetroidRoom2 => '2',
-                    Objective::MetroidRoom3 => '3',
-                    Objective::MetroidRoom4 => '4',
+                    MetroidRoom1 => '1',
+                    MetroidRoom2 => '2',
+                    MetroidRoom3 => '3',
+                    MetroidRoom4 => '4',
                     _ => panic!("unexpected objective: {:?}", obj),
                 };
                 tile_data[row][col + i * 3 + 1] = char_mapping[&num];
@@ -3048,6 +3021,41 @@ impl<'a> Patcher<'a> {
                 self.randomization.objectives.len() as isize,
             )?;
         }
+
+        // Sort the coordinates of objective checkboxes in row-major order, to correspond
+        // with the order that the mb_barrier_clear.asm expects.
+        let mut obj_coords_vec: Vec<(usize, usize)> = obj_coords.keys().copied().collect();
+        assert!(obj_coords_vec.len() == self.randomization.objectives.len());
+        obj_coords_vec.sort();
+        let mut obj_i = 0;
+        for coords in &obj_coords_vec {
+            let obj = obj_coords[coords];
+            let (addr, mask) = match obj {
+                Kraid => (0xD829, 1),
+                Ridley => (0xD82A, 1),
+                Phantoon => (0xD82B, 1),
+                Draygon => (0xD82C, 1),
+                SporeSpawn => (0xD829, 2),
+                Crocomire => (0xD82A, 2),
+                Botwoon => (0xD82C, 2),
+                GoldenTorizo => (0xD82A, 4),
+                MetroidRoom1 => (0xD822, 1),
+                MetroidRoom2 => (0xD822, 2),
+                MetroidRoom3 => (0xD822, 4),
+                MetroidRoom4 => (0xD822, 8),
+                BombTorizo => (0xD828, 4),
+                BowlingStatue => (0xD823, 1),
+                AcidChozoStatue => (0xD821, 0x10),
+                PitRoom => (0xD823, 2),
+                BabyKraidRoom => (0xD823, 4),
+                PlasmaRoom => (0xD823, 8),
+                MetalPiratesRoom => (0xD823, 0x10),
+            };
+            self.rom.write_u16(snes2pc(0x8FEBC0) + obj_i * 2, addr)?;
+            self.rom.write_u16(snes2pc(0x8FEBE8) + obj_i * 2, mask)?;
+            obj_i += 1;
+        }
+
         Ok(())
     }
 }
@@ -3067,7 +3075,7 @@ pub fn make_rom(
     game_data: &GameData,
 ) -> Result<Rom> {
     let mut orig_rom = base_rom.clone();
-    apply_orig_ips_patches(&mut orig_rom, randomization)?;
+    apply_orig_ips_patches(&mut orig_rom)?;
 
     // Remove solid wall that spawns in Tourian Escape Room 1 while coming through right door.
     // Note that this wall spawns in two ways: 1) as a normal PLM which spawns when entering through either door

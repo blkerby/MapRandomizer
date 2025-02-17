@@ -91,9 +91,9 @@ check_objective:
     tax
     lda.w #$007E
     sta.b $02
-    lda.l ObjectiveAddrs, X
+    lda.l !objectives_addrs, X
     sta.b $00
-    lda.l ObjectiveBitmasks, X
+    lda.l !objectives_bitmasks, X
     plx
     inx
     sta.b $04
@@ -107,20 +107,6 @@ check_objective:
     rts
 
 warnpc !objectives_addrs
-
-org !objectives_addrs
-ObjectiveAddrs:
-    dw $0000, $0000, $0000, $0000, $0000
-    dw $0000, $0000, $0000, $0000, $0000
-    dw $0000, $0000, $0000, $0000, $0000
-    dw $0000, $0000, $0000, $0000, $0000
-    dw $0000, $0000, $0000, $0000, $0000
-ObjectiveBitmasks:
-    dw $0001, $0001, $0001, $0001, $0001
-    dw $0001, $0001, $0001, $0001, $0001
-    dw $0001, $0001, $0001, $0001, $0001
-    dw $0001, $0001, $0001, $0001, $0001
-    dw $0001, $0001, $0001, $0001, $0001
 
 ; OBJECTIVE: None (must match address in patch.rs)
 warnpc $8FECA0
