@@ -396,39 +396,31 @@ fn apply_orig_ips_patches(rom: &mut Rom, randomization: &Randomization) -> Resul
         apply_ips_patch(rom, &patch_path)?;
     }
 
-    // Overwrite door ASM for entering Mother Brain room from right, used for clearing objective barriers:
-    if randomization.objectives.len() == 0 {
-        // Check for None objectives
-        rom.write_u16(snes2pc(0x83AAD2), 0xECA0)?;
-    } else if randomization.objectives.len() == 4 {
-        for (i, obj) in randomization.objectives.iter().enumerate() {
-            use Objective::*;
-            let (var, mask) = match obj {
-                Kraid => (0xD829, 1),
-                Ridley => (0xD82A, 1),
-                Phantoon => (0xD82B, 1),
-                Draygon => (0xD82C, 1),
-                SporeSpawn => (0xD829, 2),
-                Crocomire => (0xD82A, 2),
-                Botwoon => (0xD82C, 2),
-                GoldenTorizo => (0xD82A, 4),
-                MetroidRoom1 => (0xD822, 1),
-                MetroidRoom2 => (0xD822, 2),
-                MetroidRoom3 => (0xD822, 4),
-                MetroidRoom4 => (0xD822, 8),
-                BombTorizo => (0xD828, 4),
-                BowlingStatue => (0xD823, 1),
-                AcidChozoStatue => (0xD821, 0x10),
-                PitRoom => (0xD823, 2),
-                BabyKraidRoom => (0xD823, 4),
-                PlasmaRoom => (0xD823, 8),
-                MetalPiratesRoom => (0xD823, 0x10),
-            };
-            rom.write_u16(snes2pc(0x8FEBC0) + i * 2, var)?;
-            rom.write_u16(snes2pc(0x8FEBC8) + i * 2, mask)?;
-        }
-    } else {
-        panic!("Unimplemented objective count != 4")
+    for (i, obj) in randomization.objectives.iter().enumerate() {
+        use Objective::*;
+        let (var, mask) = match obj {
+            Kraid => (0xD829, 1),
+            Ridley => (0xD82A, 1),
+            Phantoon => (0xD82B, 1),
+            Draygon => (0xD82C, 1),
+            SporeSpawn => (0xD829, 2),
+            Crocomire => (0xD82A, 2),
+            Botwoon => (0xD82C, 2),
+            GoldenTorizo => (0xD82A, 4),
+            MetroidRoom1 => (0xD822, 1),
+            MetroidRoom2 => (0xD822, 2),
+            MetroidRoom3 => (0xD822, 4),
+            MetroidRoom4 => (0xD822, 8),
+            BombTorizo => (0xD828, 4),
+            BowlingStatue => (0xD823, 1),
+            AcidChozoStatue => (0xD821, 0x10),
+            PitRoom => (0xD823, 2),
+            BabyKraidRoom => (0xD823, 4),
+            PlasmaRoom => (0xD823, 8),
+            MetalPiratesRoom => (0xD823, 0x10),
+        };
+        rom.write_u16(snes2pc(0x8FEBC0) + i * 2, var)?;
+        rom.write_u16(snes2pc(0x8FEBE8) + i * 2, mask)?;
     }
     Ok(())
 }
