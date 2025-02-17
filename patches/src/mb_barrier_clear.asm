@@ -19,12 +19,10 @@ org $83AAD2
 ; Free space in bank $8F
 org $8FEB00
 door_asm_start:
-; 3 potential scenarios for barriers:
-; obj_num < 4, clear from left to right
-; obj_num = 4, stock behavior
+; 2 potential scenarios for barriers:
+; obj_num <= 4, clear individually from left to right
 ; obj_num > 4, maintain all 4 until all obj's cleared
     lda !objectives_num : and $7FFF
-    beq clear_all                 ; None ?
     cmp #$0005
     bcc normal_objs               ; <= 4 ?
 
@@ -112,13 +110,13 @@ warnpc !objectives_addrs
 
 org !objectives_addrs
 ObjectiveAddrs:
-    dw $D829, $D82A, $D82B, $D82C, $D82D
-    dw $D82E, $D82F, $D830, $D831, $D832
-    dw $D833, $D834, $D835, $D836, $D837
-    dw $D838, $D839, $D83A, $D83B, $D83C
-    dw $D83D, $D83E, $D83F, $D840, $D841
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
+    dw $0000, $0000, $0000, $0000, $0000
 ObjectiveBitmasks:
-    dw $0001, $0001, $0001, $0001, $0002
+    dw $0001, $0001, $0001, $0001, $0001
     dw $0001, $0001, $0001, $0001, $0001
     dw $0001, $0001, $0001, $0001, $0001
     dw $0001, $0001, $0001, $0001, $0001
