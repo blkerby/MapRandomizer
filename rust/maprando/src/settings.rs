@@ -187,7 +187,7 @@ impl Objective {
 pub enum ObjectiveSetting {
     No,
     Maybe,
-    Yes
+    Yes,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

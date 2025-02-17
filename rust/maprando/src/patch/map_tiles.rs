@@ -2,7 +2,9 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     randomize::Randomization,
-    settings::{DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective},
+    settings::{
+        DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective,
+    },
 };
 use maprando_game::{
     AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map, MapTile,

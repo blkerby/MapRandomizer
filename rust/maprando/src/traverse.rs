@@ -4,7 +4,7 @@ use hashbrown::HashMap;
 
 use crate::{
     randomize::{DifficultyConfig, LockedDoor},
-    settings::{MotherBrainFight, RandomizerSettings, Objective, WallJump},
+    settings::{MotherBrainFight, Objective, RandomizerSettings, WallJump},
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,

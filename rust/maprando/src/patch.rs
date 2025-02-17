@@ -2931,15 +2931,11 @@ impl<'a> Patcher<'a> {
             for obj in pirates {
                 obj_coords.insert((row, col), obj);
                 match obj {
-                    PitRoom => {
-                        draw_row("- PIT ROOM", &mut tile_data, &mut row, &mut row_max, col)
-                    }
+                    PitRoom => draw_row("- PIT ROOM", &mut tile_data, &mut row, &mut row_max, col),
                     BabyKraidRoom => {
                         draw_row("- BABY KRAID", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    PlasmaRoom => {
-                        draw_row("- PLASMA", &mut tile_data, &mut row, &mut row_max, col)
-                    }
+                    PlasmaRoom => draw_row("- PLASMA", &mut tile_data, &mut row, &mut row_max, col),
                     MetalPiratesRoom => {
                         draw_row("- METAL", &mut tile_data, &mut row, &mut row_max, col)
                     }

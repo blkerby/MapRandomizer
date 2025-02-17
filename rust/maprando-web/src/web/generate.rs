@@ -6,7 +6,7 @@ use maprando_game::{NotableId, RoomId, TechId};
 
 struct ObjectiveGroup {
     name: String,
-    objectives: Vec<(String, String)>,  // (internal name, display name)
+    objectives: Vec<(String, String)>, // (internal name, display name)
 }
 
 #[derive(Template)]
@@ -136,7 +136,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
                     ("Phantoon", "Phantoon"),
                     ("Draygon", "Draygon"),
                     ("Ridley", "Ridley"),
-                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
+                ]
+                .into_iter()
+                .map(|(x, y)| (x.to_string(), y.to_string()))
+                .collect(),
             },
             ObjectiveGroup {
                 name: "Minibosses".to_string(),
@@ -145,7 +148,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
                     ("Crocomire", "Crocomire"),
                     ("Botwoon", "Botwoon"),
                     ("GoldenTorizo", "Golden Torizo"),
-                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
+                ]
+                .into_iter()
+                .map(|(x, y)| (x.to_string(), y.to_string()))
+                .collect(),
             },
             ObjectiveGroup {
                 name: "Pirates".to_string(),
@@ -154,7 +160,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
                     ("BabyKraidRoom", "Baby Kraid"),
                     ("PlasmaRoom", "Plasma Room"),
                     ("MetalPiratesRoom", "Metal Pirates"),
-                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
+                ]
+                .into_iter()
+                .map(|(x, y)| (x.to_string(), y.to_string()))
+                .collect(),
             },
             ObjectiveGroup {
                 name: "Chozos".to_string(),
@@ -162,7 +171,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
                     ("BombTorizo", "Bomb Torizo"),
                     ("BowlingStatue", "Bowling"),
                     ("AcidChozoStatue", "Acid Statue"),
-                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
+                ]
+                .into_iter()
+                .map(|(x, y)| (x.to_string(), y.to_string()))
+                .collect(),
             },
             ObjectiveGroup {
                 name: "Metroids".to_string(),
@@ -171,7 +183,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
                     ("MetroidRoom2", "Metroids 2"),
                     ("MetroidRoom3", "Metroids 3"),
                     ("MetroidRoom4", "Metroids 4"),
-                ].into_iter().map(|(x, y)| (x.to_string(), y.to_string())).collect()
+                ]
+                .into_iter()
+                .map(|(x, y)| (x.to_string(), y.to_string()))
+                .collect(),
             },
         ],
         item_pool_multiple,

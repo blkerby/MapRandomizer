@@ -9,7 +9,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     randomize::DifficultyConfig,
     settings::{
-        ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings
+        ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings, RandomizerSettings,
+        SkillAssumptionSettings,
     },
 };
 
@@ -186,7 +187,15 @@ impl PresetData {
             quality_of_life_presets.push(preset);
         }
 
-        let objective_preset_names = ["None", "Bosses", "Minibosses", "Chozos", "Pirates", "Metroids", "Random"];
+        let objective_preset_names = [
+            "None",
+            "Bosses",
+            "Minibosses",
+            "Chozos",
+            "Pirates",
+            "Metroids",
+            "Random",
+        ];
         let objective_preset_path = presets_path.join("objectives");
         let mut objective_presets: Vec<ObjectiveSettings> = vec![];
         for name in objective_preset_names {

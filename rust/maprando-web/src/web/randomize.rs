@@ -334,7 +334,12 @@ async fn randomize(
         respin: qol_settings.respin,
         infinite_space_jump: qol_settings.infinite_space_jump,
         momentum_conservation: qol_settings.momentum_conservation,
-        objectives: output.randomization.objectives.iter().map(|x| to_variant_name(x).unwrap().to_string()).collect(),
+        objectives: output
+            .randomization
+            .objectives
+            .iter()
+            .map(|x| to_variant_name(x).unwrap().to_string())
+            .collect(),
         doors: to_variant_name(&settings.doors_mode).unwrap().to_string(),
         start_location_mode: to_variant_name(&settings.start_location_mode)
             .unwrap()
