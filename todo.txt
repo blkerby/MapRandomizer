@@ -1,4 +1,5 @@
 v118:
+- include "objectives" details on seed page.
 - finish adding shinecharge and temp blue strats
 - add `easyHeatFrames` logical requirement
 - look into Kraid Eye Door grapple teleport strats: why [2, 19] is option from one door but not the other?

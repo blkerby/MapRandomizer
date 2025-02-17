@@ -218,15 +218,23 @@ fn apply_gate_glitch_leniency(
     }
 }
 
-fn is_objective_complete(
+fn is_mother_brain_barrier_clear(
     global: &GlobalState,
     _difficulty: &DifficultyConfig,
     objectives: &[Objective],
     game_data: &GameData,
     obj_id: usize,
 ) -> bool {
-    // TODO: What to do when obj_id is out of bounds?
-    if let Some(obj) = objectives.get(obj_id) {
+    if objectives.len() > 4 {
+        for obj in objectives {
+            let flag_name = obj.get_flag_name();
+            let flag_idx = game_data.flag_isv.index_by_key[flag_name];
+            if !global.flags[flag_idx] {
+                return false;
+            }
+        }
+        true
+    } else if let Some(obj) = objectives.get(obj_id) {
         let flag_name = obj.get_flag_name();
         let flag_idx = game_data.flag_isv.index_by_key[flag_name];
         global.flags[flag_idx]
@@ -1025,8 +1033,8 @@ pub fn apply_requirement(
             // guarded by "canRiskPermanentLossOfAccess" if there is not an alternative strat with the flag set.
             Some(local)
         }
-        Requirement::Objective(obj_id) => {
-            if is_objective_complete(global, difficulty, objectives, game_data, *obj_id) {
+        Requirement::MotherBrainBarrierClear(obj_id) => {
+            if is_mother_brain_barrier_clear(global, difficulty, objectives, game_data, *obj_id) {
                 Some(local)
             } else {
                 None

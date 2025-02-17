@@ -200,7 +200,7 @@ pub enum Requirement {
     Item(ItemId),
     Flag(FlagId),
     NotFlag(FlagId),
-    Objective(usize),
+    MotherBrainBarrierClear(usize),
     Walljump,
     ShineCharge {
         used_tiles: Float,
@@ -1999,14 +1999,14 @@ impl GameData {
                     green: true,
                     heated: true,
                 });
-            } else if value == "i_Objective1Complete" {
-                return Ok(Requirement::Objective(0));
-            } else if value == "i_Objective2Complete" {
-                return Ok(Requirement::Objective(1));
-            } else if value == "i_Objective3Complete" {
-                return Ok(Requirement::Objective(2));
-            } else if value == "i_Objective4Complete" {
-                return Ok(Requirement::Objective(3));
+            } else if value == "i_MotherBrainBarrier1Clear" {
+                return Ok(Requirement::MotherBrainBarrierClear(0));
+            } else if value == "i_MotherBrainBarrier2Clear" {
+                return Ok(Requirement::MotherBrainBarrierClear(1));
+            } else if value == "i_MotherBrainBarrier3Clear" {
+                return Ok(Requirement::MotherBrainBarrierClear(2));
+            } else if value == "i_MotherBrainBarrier4Clear" {
+                return Ok(Requirement::MotherBrainBarrierClear(3));
             } else if value == "i_LowerNorfairElevatorDownwardFrames" {
                 return Ok(Requirement::LowerNorfairElevatorDownFrames);
             } else if value == "i_LowerNorfairElevatorUpwardFrames" {
@@ -2763,10 +2763,10 @@ impl GameData {
             if x["id"] == 38
                 || (x["link"][0].as_i32().unwrap() == 2 && x["link"][1].as_i32().unwrap() != 2)
             {
-                x["requires"].push("i_Objective1Complete").unwrap();
-                x["requires"].push("i_Objective2Complete").unwrap();
-                x["requires"].push("i_Objective3Complete").unwrap();
-                x["requires"].push("i_Objective4Complete").unwrap();
+                x["requires"].push("i_MotherBrainBarrier1Clear").unwrap();
+                x["requires"].push("i_MotherBrainBarrier2Clear").unwrap();
+                x["requires"].push("i_MotherBrainBarrier3Clear").unwrap();
+                x["requires"].push("i_MotherBrainBarrier4Clear").unwrap();
             }
         }
 
@@ -2787,10 +2787,10 @@ impl GameData {
                 x["exitCondition"]["leaveWithRunway"]["openEnd"] = JsonValue::Number(0.into());
 
                 let obj_conditions = [
-                    "i_Objective1Complete",
-                    "i_Objective2Complete",
-                    "i_Objective3Complete",
-                    "i_Objective4Complete",
+                    "i_MotherBrainBarrier1Clear",
+                    "i_MotherBrainBarrier2Clear",
+                    "i_MotherBrainBarrier3Clear",
+                    "i_MotherBrainBarrier4Clear",
                 ];
                 for num_objectives_complete in 1..=4 {
                     let mut strat = x.clone();
@@ -2805,12 +2805,12 @@ impl GameData {
                     strat["id"] = JsonValue::Number((10000 + num_objectives_complete).into());
                     if num_objectives_complete == 1 {
                         strat["name"] = JsonValue::String(format!(
-                            "{}, 1 Objective Complete",
+                            "{}, 1 Barrier Cleared",
                             x["name"].as_str().unwrap()
                         ));
                     } else {
                         strat["name"] = JsonValue::String(format!(
-                            "{}, {} Objectives Complete",
+                            "{}, {} Barriers Cleared",
                             x["name"].as_str().unwrap(),
                             num_objectives_complete
                         ));
