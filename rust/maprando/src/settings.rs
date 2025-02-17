@@ -133,7 +133,7 @@ pub struct QualityOfLifeSettings {
     pub early_save: bool,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
 pub enum Objective {
     Kraid,
     Phantoon,

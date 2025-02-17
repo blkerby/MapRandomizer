@@ -15,13 +15,14 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, SaveAnimals, StartLocationMode, WallJump, Objective
+        AreaAssignment, ETankRefill, MotherBrainFight, Objective, SaveAnimals, StartLocationMode,
+        WallJump,
     },
 };
 use anyhow::{ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
-use log::{info, error};
+use log::{error, info};
 use maprando_game::{
     DoorPtr, DoorPtrPair, DoorType, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr,
 };
@@ -2780,38 +2781,40 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_objective_data(&mut self) -> Result<()> {
-        let mut obj_text: Vec<String> = vec![];
-        for obj in &self.randomization.objectives {
-            obj_text.push("".to_string()); // blank line
-            let text = match obj {
-                Objective::AcidChozoStatue => "ACTIVATE ACID CHOZO STATUE",
-                Objective::BabyKraidRoom => "CLEAR BABY KRAID ROOM",
-                Objective::BombTorizo => "DEFEAT BOMB TORIZO",
-                Objective::Botwoon => "DEFEAT BOTWOON",
-                Objective::BowlingStatue => "ACTIVATE BOWLING STATUE",
-                Objective::Crocomire => "DEFEAT CROCOMIRE",
-                Objective::Draygon => "DEFEAT DRAYGON",
-                Objective::GoldenTorizo => "DEFEAT GOLDEN TORIZO",
-                Objective::Kraid => "DEFEAT KRAID",
-                Objective::MetalPiratesRoom => "CLEAR METAL PIRATES ROOM",
-                Objective::MetroidRoom1 => "CLEAR METROID ROOM 1",
-                Objective::MetroidRoom2 => "CLEAR METROID ROOM 2",
-                Objective::MetroidRoom3 => "CLEAR METROID ROOM 3",
-                Objective::MetroidRoom4 => "CLEAR METROID ROOM 4",
-                Objective::Phantoon => "DEFEAT PHANTOON",
-                Objective::PitRoom => "CLEAR PIT ROOM",
-                Objective::PlasmaRoom => "CLEAR PLASMA ROOM",
-                Objective::SporeSpawn => "DEFEAT SPORE SPAWN",
-                Objective::Ridley => "DEFEAT RIDLEY",
-            };
-            obj_text.push(" - ".to_string() + text);
-        }
-        if self.randomization.settings.save_animals == SaveAnimals::Yes {
-            obj_text.push("".to_string());
-            obj_text.push(" - SAVE THE ANIMALS!".to_string());
-        } else if self.randomization.settings.save_animals == SaveAnimals::Random {
-            obj_text.push("".to_string());
-            obj_text.push(" - SAVE THE ANIMALS?".to_string());
+        use Objective::*;
+        let obj_set: HashSet<Objective> = self.randomization.objectives.iter().copied().collect();
+        let bosses: Vec<Objective> = vec![Kraid, Phantoon, Draygon, Ridley]
+            .into_iter()
+            .filter(|x| obj_set.contains(x))
+            .collect();
+        let mut minibosses: Vec<Objective> = vec![SporeSpawn, Crocomire, Botwoon, GoldenTorizo]
+            .into_iter()
+            .filter(|x| obj_set.contains(x))
+            .collect();
+        let mut chozos: Vec<Objective> =
+            vec![BombTorizo, BowlingStatue, AcidChozoStatue, GoldenTorizo]
+                .into_iter()
+                .filter(|x| obj_set.contains(x))
+                .collect();
+        let pirates: Vec<Objective> = vec![PitRoom, BabyKraidRoom, PlasmaRoom, MetalPiratesRoom]
+            .into_iter()
+            .filter(|x| obj_set.contains(x))
+            .collect();
+        let metroids: Vec<Objective> = vec![MetroidRoom1, MetroidRoom2, MetroidRoom3, MetroidRoom4]
+            .into_iter()
+            .filter(|x| obj_set.contains(x))
+            .collect();
+
+        // Show Golden Torizo under Miniboss if there are other Miniboss objectives; otherwise put it under Chozos:
+        if obj_set.contains(&Objective::GoldenTorizo) {
+            if minibosses.len() == 1 {
+                minibosses = vec![];
+            } else {
+                chozos = chozos
+                    .into_iter()
+                    .filter(|x| x != &Objective::GoldenTorizo)
+                    .collect();
+            }
         }
 
         let char_mapping: HashMap<char, i16> = vec![
@@ -2857,23 +2860,181 @@ impl<'a> Patcher<'a> {
             ('-', 0x28DD),
             ('?', 0x28DE),
             ('!', 0x28DF),
+            (':', 0x2906),
         ]
         .into_iter()
         .collect();
 
-        let mut addr = snes2pc(0xB6F200);
-        for line in &obj_text {
-            for c in line.chars() {
-                let tile_word = char_mapping[&c];
-                self.rom.write_u16(addr, tile_word as isize)?;
-                addr += 2;
+        let mut tile_data = [[char_mapping[&' ']; 30]; 18];
+        let mut col = 1;
+        let mut row = 1;
+        let mut row_max = 1;
+
+        let draw_row = |s: &str,
+                        tile_data: &mut [[i16; 30]; 18],
+                        row: &mut usize,
+                        row_max: &mut usize,
+                        col: usize| {
+            for (i, c) in s.chars().enumerate() {
+                tile_data[*row][col + i] = *char_mapping
+                    .get(&c)
+                    .context(format!("Unexpected character '{}'", c))
+                    .unwrap();
             }
-            self.rom.write_u16(addr, 0x8000)?; // line terminator
-            addr += 2;
+            *row += 1;
+            if *row > *row_max {
+                *row_max = *row;
+            }
+        };
+
+        let advance_pos = |row: &mut usize, row_max: &mut usize, col: &mut usize| {
+            *row += 1;
+            if *row > *row_max {
+                *row_max = *row;
+            }
+            if *row >= 12 {
+                *row = 1;
+                *col += 15;
+            }
+        };
+
+        if bosses.len() > 0 {
+            draw_row("BOSSES:", &mut tile_data, &mut row, &mut row_max, col);
+            for obj in bosses {
+                match obj {
+                    Objective::Kraid => {
+                        draw_row("- KRAID", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::Phantoon => {
+                        draw_row("- PHANTOON", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::Draygon => {
+                        draw_row("- DRAYGON", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::Ridley => {
+                        draw_row("- RIDLEY", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    _ => panic!("unexpected objective: {:?}", obj),
+                }
+            }
+            advance_pos(&mut row, &mut row_max, &mut col);
         }
 
-        // Add empty lines for unused rows:
-        for _ in 0..(18 - obj_text.len()) {
+        if minibosses.len() > 0 {
+            draw_row("MINIBOSSES:", &mut tile_data, &mut row, &mut row_max, col);
+            for obj in minibosses {
+                match obj {
+                    Objective::SporeSpawn => {
+                        draw_row("- SPORE SPAWN", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::Crocomire => {
+                        draw_row("- CROCOMIRE", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::Botwoon => {
+                        draw_row("- BOTWOON", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::GoldenTorizo => {
+                        draw_row("- GOLD TORIZO", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    _ => panic!("unexpected objective: {:?}", obj),
+                }
+            }
+            advance_pos(&mut row, &mut row_max, &mut col);
+        }
+
+        if chozos.len() > 0 {
+            draw_row("CHOZOS:", &mut tile_data, &mut row, &mut row_max, col);
+            for obj in chozos {
+                match obj {
+                    Objective::BombTorizo => {
+                        draw_row("- BOMB TORIZO", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::BowlingStatue => {
+                        draw_row("- BOWLING", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::AcidChozoStatue => {
+                        draw_row("- ACID STATUE", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::GoldenTorizo => {
+                        draw_row("- GOLD TORIZO", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    _ => panic!("unexpected objective: {:?}", obj),
+                }
+            }
+            advance_pos(&mut row, &mut row_max, &mut col);
+        }
+
+        if pirates.len() > 0 {
+            draw_row("PIRATES:", &mut tile_data, &mut row, &mut row_max, col);
+            for obj in pirates {
+                match obj {
+                    Objective::PitRoom => {
+                        draw_row("- PIT ROOM", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::BabyKraidRoom => {
+                        draw_row("- BABY KRAID", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::PlasmaRoom => {
+                        draw_row("- PLASMA", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    Objective::MetalPiratesRoom => {
+                        draw_row("- METAL", &mut tile_data, &mut row, &mut row_max, col)
+                    }
+                    _ => panic!("unexpected objective: {:?}", obj),
+                }
+            }
+            advance_pos(&mut row, &mut row_max, &mut col);
+        }
+
+        if metroids.len() > 0 {
+            row = row_max;
+            col = 1;
+            draw_row("METROIDS:", &mut tile_data, &mut row, &mut row_max, col);
+            let mut i = 0;
+            for obj in metroids {
+                tile_data[row][col + i * 3] = char_mapping[&'-'];
+                let num = match obj {
+                    Objective::MetroidRoom1 => '1',
+                    Objective::MetroidRoom2 => '2',
+                    Objective::MetroidRoom3 => '3',
+                    Objective::MetroidRoom4 => '4',
+                    _ => panic!("unexpected objective: {:?}", obj),
+                };
+                tile_data[row][col + i * 3 + 1] = char_mapping[&num];
+                i += 1;
+            }
+            row += 1;
+            advance_pos(&mut row, &mut row_max, &mut col);
+        }
+
+        if self.randomization.settings.save_animals == SaveAnimals::Yes {
+            row = row_max;
+            col = 1;
+            draw_row(
+                "SAVE THE ANIMALS!",
+                &mut tile_data,
+                &mut row,
+                &mut row_max,
+                col,
+            );
+        } else if self.randomization.settings.save_animals == SaveAnimals::Random {
+            row = row_max;
+            col = 1;
+            draw_row(
+                "SAVE THE ANIMALS?",
+                &mut tile_data,
+                &mut row,
+                &mut row_max,
+                col,
+            );
+        }
+
+        let mut addr = snes2pc(0xB6F200);
+        for row in 0..18 {
+            for &c in &tile_data[row] {
+                self.rom.write_u16(addr, c as isize)?;
+                addr += 2;
+            }
             self.rom.write_u16(addr, 0x8000)?; // line terminator
             addr += 2;
         }
