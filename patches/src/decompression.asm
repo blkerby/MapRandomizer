@@ -619,9 +619,10 @@ UploadFXptr:
     LDX $0330
     LDA #$0840 : STA $D0,x
     LDA #$8A00 : STA $D3,x
-    LDA $1964 : STA $D2,x
+    LDA $1964  : STA $D2,x
     LDA #$5BE0 : STA $D5,x
-    TXA : CLC : ADC #$0007 : STA $0330
+    TXA : CLC : ADC #$0007
+    STA $0330
 +
     RTL
 
