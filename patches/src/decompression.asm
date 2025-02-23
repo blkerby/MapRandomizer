@@ -38,8 +38,8 @@
 !bank_80_free_space_start = $80E2A0
 !bank_80_free_space_end = $80E380
 
-!bank_89_free_space_start = $89C000
-!bank_89_free_space_end = $89C040
+!bank_89_free_space_start = $89B0C0
+!bank_89_free_space_end = $89B100
 
 ;also uses one unused RAM variable
 ;if another patch also uses this RAM variable, find yourself a different one
