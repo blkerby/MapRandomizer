@@ -1,1 +1,2 @@
 $9100 - $9200: walljump boot graphics
+$C000 - $C040: decompression.asm
