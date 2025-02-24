@@ -18,6 +18,7 @@
     "all_items_spawn": false,
     "acid_chozo": false,
     "remove_climb_lava": false,
+    "reserve_backward_transfer": false,
     "buffed_drops": false,
     "early_save": false
 }

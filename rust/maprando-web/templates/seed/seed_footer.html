@@ -59,6 +59,9 @@
         Repeat to cycle through previous saves.
         <li>Press L + R + Up + X to activate Spin Lock, temporarily preventing up/down inputs from breaking spin.
         Pressing shot will cancel this mode.
+        {% if settings.quality_of_life_settings.reserve_backward_transfer %}
+        <li>Set reserves to Manual and hold B + Up in the pause equipment screen to transfer energy to reserve tanks.
+        {% endif %}
         </ul>
         {% endif %}
         <h6>Map info</h6>

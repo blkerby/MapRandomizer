@@ -551,6 +551,10 @@ impl<'a> Patcher<'a> {
             patches.push("momentum_conservation");
         }
 
+        if self.randomization.settings.quality_of_life_settings.reserve_backward_transfer {
+            patches.push("reserve_backward_fill");
+        }
+
         if self
             .randomization
             .settings
