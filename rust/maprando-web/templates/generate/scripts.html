@@ -153,6 +153,7 @@ function buildObjectiveSettings(formData) {
     out.objective_options = [];
     out.min_objectives = parseInt(document.getElementById("minimumObjectives").value);
     out.max_objectives = parseInt(document.getElementById("maximumObjectives").value);
+    out.objective_screen = formData.get("objective_screen");
     for (objOpt of objectivePresetsArr[0].objective_options) {
         for (v of ["No", "Maybe", "Yes"]) {
             if (document.getElementById(`objective${objOpt.objective}${v}`).checked) {
@@ -442,6 +443,7 @@ function applyQolPreset(preset) {
     applyRadioValue("acidChozo", preset.acid_chozo);
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
     applyRadioValue("etankRefill", preset.etank_refill);
+    applyRadioValue("energyStationReserves", preset.energy_station_reserves);
     applyRadioValue("reserveBackwardTransfer", preset.reserve_backward_transfer);
     applyRadioValue("buffedDrops", preset.buffed_drops);
     applyRadioValue("earlySave", preset.early_save);
@@ -619,6 +621,7 @@ function applyObjectivePreset(preset) {
     }
     document.getElementById("minimumObjectives").value = preset.min_objectives;
     document.getElementById("maximumObjectives").value = preset.max_objectives;
+    document.getElementById("objectiveScreen").value = preset.objective_screen;
 }
 
 function objectivesChanged() {

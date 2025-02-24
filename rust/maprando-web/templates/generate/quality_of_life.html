@@ -355,6 +355,21 @@
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#energyStationReservesModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Energy stations refill reserves</label>
+                                    </div>
+                                    <div id="energyStationReserves" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="energy_station_reserves" id="energyStationReservesNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="energyStationReservesNo">No</label>
+                                        <input type="radio" class="btn-check" name="energy_station_reserves" id="energyStationReservesYes" value="true">
+                                        <label class="btn btn-outline-primary" for="energyStationReservesYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#reserveBackwardTransferModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -442,6 +457,7 @@
 {% include "help/quality/acid_chozo.html" %}
 {% include "help/quality/remove_climb_lava.html" %}
 
+{% include "help/quality/energy_station_reserves.html" %}
 {% include "help/quality/etank_refill.html" %}
 {% include "help/quality/reserve_backward_transfer.html" %}
 

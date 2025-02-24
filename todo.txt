@@ -1,7 +1,7 @@
 v118:
 - include "objectives" details on seed page.
-- make objective page optional.
-- add QoL for energy station refilling reserves.
+- account for reserve backward transfer QoL in logic.
+- add side platform strats.
 - finish adding shinecharge and temp blue strats
 - add `easyHeatFrames` logical requirement
 - look into Kraid Eye Door grapple teleport strats: why [2, 19] is option from one door but not the other?

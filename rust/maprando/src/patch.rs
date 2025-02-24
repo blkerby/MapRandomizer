@@ -15,8 +15,7 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, Objective, SaveAnimals, StartLocationMode,
-        WallJump,
+        AreaAssignment, ETankRefill, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump
     },
 };
 use anyhow::{ensure, Context, Result};
@@ -382,16 +381,24 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn apply_orig_ips_patches(rom: &mut Rom) -> Result<()> {
+fn apply_orig_ips_patches(rom: &mut Rom, settings: &RandomizerSettings) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
     let mut patches: Vec<&'static str> = vec![
         "mb_barrier",
         "mb_barrier_clear",
         "mb_left_entrance",
         "gray_doors",
-        "pause_menu_objectives", // For the pause menu tileset changes (for green checkmark, etc.)
     ];
     patches.push("hud_expansion_opaque");
+
+    match settings.objective_settings.objective_screen {
+        ObjectiveScreen::Disabled => {}
+        ObjectiveScreen::Enabled => {
+            // For the pause menu tileset changes (for green checkmark, etc.)
+            patches.push("pause_menu_objectives");
+        }
+    }
+
     for patch_name in patches {
         let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
         apply_ips_patch(rom, &patch_path)?;
@@ -433,7 +440,6 @@ impl<'a> Patcher<'a> {
             "beam_doors",
             "horizontal_door_fix",
             "samus_tiles_optim_animated_tiles_fix",
-            "pause_menu_objectives",
         ];
 
         if self.randomization.settings.other_settings.ultra_low_qol {
@@ -536,6 +542,24 @@ impl<'a> Patcher<'a> {
         if self
             .randomization
             .settings
+            .quality_of_life_settings
+            .energy_station_reserves
+        {
+            patches.push("energy_station_reserves");
+        }
+
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .reserve_backward_transfer
+        {
+            patches.push("reserve_backward_fill");
+        }
+
+        if self
+            .randomization
+            .settings
             .other_settings
             .energy_free_shinesparks
         {
@@ -560,15 +584,6 @@ impl<'a> Patcher<'a> {
             .randomization
             .settings
             .quality_of_life_settings
-            .reserve_backward_transfer
-        {
-            patches.push("reserve_backward_fill");
-        }
-
-        if self
-            .randomization
-            .settings
-            .quality_of_life_settings
             .buffed_drops
         {
             patches.push("buffed_drops");
@@ -586,6 +601,13 @@ impl<'a> Patcher<'a> {
             == MotherBrainFight::Skip
         {
             patches.push("fix_hyper_slowlock");
+        }
+
+        match self.randomization.settings.objective_settings.objective_screen {
+            ObjectiveScreen::Disabled => {}
+            ObjectiveScreen::Enabled => {
+                patches.push("pause_menu_objectives");
+            }
         }
 
         for patch_name in patches {
@@ -3085,7 +3107,7 @@ pub fn make_rom(
     game_data: &GameData,
 ) -> Result<Rom> {
     let mut orig_rom = base_rom.clone();
-    apply_orig_ips_patches(&mut orig_rom)?;
+    apply_orig_ips_patches(&mut orig_rom, &randomization.settings)?;
 
     // Remove solid wall that spawns in Tourian Escape Room 1 while coming through right door.
     // Note that this wall spawns in two ways: 1) as a normal PLM which spawns when entering through either door

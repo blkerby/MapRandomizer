@@ -6,7 +6,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
         
-            <div class="modal-body px-3 py-2">
+            <div class="modal-body px-4 py-2">
                 {% for obj_group_pair in objective_groups.chunks(2) %}
                 <div class="row">
                     {% for obj_group in obj_group_pair %}
@@ -15,7 +15,7 @@
                             <div class="card-header">{{ obj_group.name }}</div>
                             <div class="card-body px-1 py-2">
                                 {% for (name, display_name) in obj_group.objectives.iter() %}
-                                    <div class="form-group row m-2">
+                                    <div class="form-group row my-2 mx-1">
                                         <div class="col-sm-4 mt-1 mb-1 align-items-center text-end">
                                             <label for="objective{{ name }}">{{ display_name }}</label>
                                         </div>
@@ -36,16 +36,25 @@
                 </div>
                 {% endfor %}
 
-                <div class="form-group row m-2">
+                <div class="form-group row my-2">
                     <label for="minimumObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Minimum number of objectives</label>
                     <div class="col-sm-2 my-2">
                         <input type="number" class="form-control" id="minimumObjectives" value="4" min="0" max="19" onchange="minimumObjectivesChanged()">
                     </div>
                 </div>
-                <div class="form-group row m-2">
+                <div class="form-group row my-2">
                     <label for="maximumObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Maximum number of objectives</label>
                     <div class="col-sm-2 my-2">
                         <input type="number" class="form-control" id="maximumObjectives" value="4" min="0" max="19" onchange="maximumObjectivesChanged()">
+                    </div>
+                </div>
+                <div class="form-group row my-2">
+                    <label for="minimumObjectives" class="col-sm-6 col-lg-4 mb-1 mt-1 col-form-label">Pause menu objective screen</label>
+                    <div id="objectiveScreen" class="col-sm-3 mb-1 mt-1 btn-group" role="group">
+                        <input type="radio" class="btn-check" id="objectiveScreenDisabled" value="Disabled" name="objective_screen" onchange="objectivesChanged()">
+                        <label class="btn btn-outline-primary" for="objectiveScreenDisabled">Disabled</label>
+                        <input type="radio" class="btn-check" id="objectiveScreenEnabled" value="Enabled" name="objective_screen" onchange="objectivesChanged()" checked>
+                        <label class="btn btn-outline-primary" for="objectiveScreenEnabled">Enabled</label>
                     </div>
                 </div>
             </div>
