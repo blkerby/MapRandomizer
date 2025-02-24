@@ -518,7 +518,7 @@ impl<'a> Patcher<'a> {
             }
         }
 
-        match self.randomization.settings.other_settings.etank_refill {
+        match self.randomization.settings.quality_of_life_settings.etank_refill {
             ETankRefill::Disabled => {
                 patches.push("etank_refill_disabled");
             }

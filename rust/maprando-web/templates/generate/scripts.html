@@ -226,6 +226,7 @@ function buildSettingsObject() {
             "all_items_spawn": formData.get("all_items_spawn") == "true",
             "acid_chozo": formData.get("acid_chozo") == "true",
             "remove_climb_lava": formData.get("remove_climb_lava") == "true",
+            "etank_refill": formData.get("etank_refill"),
             "reserve_backward_transfer": formData.get("reserve_backward_transfer") == "true",
             "buffed_drops": formData.get("buffed_drops") == "true",
             "early_save": formData.get("early_save") == "true",
@@ -237,7 +238,6 @@ function buildSettingsObject() {
         "save_animals": formData.get("save_animals"),
         "other_settings": {
             "wall_jump": formData.get("wall_jump"),
-            "etank_refill": formData.get("etank_refill"),
             "area_assignment": formData.get("area_assignment"),
             "item_dot_change": formData.get("item_dot_change"),
             "transition_letters": formData.get("transition_letters") == "true",
@@ -441,6 +441,7 @@ function applyQolPreset(preset) {
     applyRadioValue("allItemsSpawn", preset.all_items_spawn);
     applyRadioValue("acidChozo", preset.acid_chozo);
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
+    applyRadioValue("etankRefill", preset.etank_refill);
     applyRadioValue("reserveBackwardTransfer", preset.reserve_backward_transfer);
     applyRadioValue("buffedDrops", preset.buffed_drops);
     applyRadioValue("earlySave", preset.early_save);
@@ -460,7 +461,6 @@ function applyFullSettingsPreset(preset) {
 
     let other = preset.other_settings;
     applyRadioValue("wallJump", other.wall_jump);
-    applyRadioValue("etankRefill", other.etank_refill);
     applyRadioValue("areaAssignment", other.area_assignment);
     applyRadioValue("itemDotChange", other.item_dot_change);
     applyRadioValue("transitionLetters", other.transition_letters);
@@ -879,8 +879,6 @@ function checkOtherOptions() {
         return;
     }
     if (document.getElementById("wallJumpCollectible").checked ||
-        document.getElementById("etankRefillDisabled").checked ||
-        document.getElementById("etankRefillFull").checked ||
         document.getElementById("energyFreeShinesparksYes").checked ||
         document.getElementById("areaAssignmentRandom").checked ||
         document.getElementById("itemDotChangeDisappear").checked ||

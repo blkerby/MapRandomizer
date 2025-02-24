@@ -64,7 +64,6 @@ struct SeedData {
     early_save: bool,
     area_assignment: String,
     wall_jump: String,
-    etank_refill: String,
     maps_revealed: String,
     vanilla_map: bool,
     ultra_low_qol: bool,
@@ -351,9 +350,6 @@ async fn randomize(
             .unwrap()
             .to_string(),
         wall_jump: to_variant_name(&other_settings.wall_jump)
-            .unwrap()
-            .to_string(),
-        etank_refill: to_variant_name(&other_settings.etank_refill)
             .unwrap()
             .to_string(),
         maps_revealed: to_variant_name(&other_settings.maps_revealed)

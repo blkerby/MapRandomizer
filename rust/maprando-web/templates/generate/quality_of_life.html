@@ -334,8 +334,25 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card m-2">
-                            <div class="card-header">Other</div>
+                            <div class="card-header">Energy and reserves</div>
                             <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#etankRefillModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">E-Tank energy refill</label>
+                                    </div>
+                                    <div id="etankRefill" class="col-4 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillDisabled" value="Disabled">
+                                        <label class="btn btn-outline-primary" for="etankRefillDisabled">Disabled</label>
+                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillVanilla" value="Vanilla" checked>
+                                        <label class="btn btn-outline-primary" for="etankRefillVanilla">Vanilla</label>
+                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillFull" value="Full">
+                                        <label class="btn btn-outline-primary" for="etankRefillFull">Full</label>
+                                    </div>
+                                </div>
+
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#reserveBackwardTransferModal">
@@ -349,8 +366,17 @@
                                         <input type="radio" class="btn-check" name="reserve_backward_transfer" id="reserveBackwardTransferYes" value="true">
                                         <label class="btn btn-outline-primary" for="reserveBackwardTransferYes">Yes</label>
                                     </div>
-                                </div> 
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="card m-2">
+                            <div class="card-header">Other</div>
+                            <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#buffedDropsModal">
@@ -416,6 +442,8 @@
 {% include "help/quality/acid_chozo.html" %}
 {% include "help/quality/remove_climb_lava.html" %}
 
+{% include "help/quality/etank_refill.html" %}
 {% include "help/quality/reserve_backward_transfer.html" %}
+
 {% include "help/quality/buffed_drops.html" %}
 {% include "help/quality/early_save.html" %}

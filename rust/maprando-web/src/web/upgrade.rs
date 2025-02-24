@@ -155,11 +155,15 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
 }
 
 fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
+    let etank_refill = settings["other_settings"]["etank_refill"].as_str().unwrap_or("Vanilla".into()).to_string();
     let qol_settings = settings
         .get_mut("quality_of_life_settings")
         .context("missing quality_of_life_settings")?
         .as_object_mut()
         .context("quality_of_life_settings is not object")?;
+    if !qol_settings.contains_key("etank_refill") {
+        qol_settings.insert("etank_refill".to_string(), etank_refill.into());
+    }
     if !qol_settings.contains_key("reserve_backward_transfer") {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
     }
