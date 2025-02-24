@@ -154,6 +154,19 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
     Ok(())
 }
 
+fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
+    let qol_settings = settings
+        .get_mut("quality_of_life_settings")
+        .context("missing quality_of_life_settings")?
+        .as_object_mut()
+        .context("quality_of_life_settings is not object")?;
+    if !qol_settings.contains_key("reserve_backward_transfer") {
+        qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
+    }
+
+    Ok(())
+}
+
 fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
     if settings["map_layout"].as_str() == Some("Tame") {
         *settings.get_mut("map_layout").unwrap() = "Standard".into();
@@ -200,6 +213,7 @@ pub fn try_upgrade_settings(
     upgrade_tech_settings(&mut settings, app_data)?;
     upgrade_notable_settings(&mut settings, app_data)?;
     upgrade_item_progression_settings(&mut settings)?;
+    upgrade_qol_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;
 
