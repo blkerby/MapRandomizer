@@ -155,7 +155,10 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
 }
 
 fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
-    let etank_refill = settings["other_settings"]["etank_refill"].as_str().unwrap_or("Vanilla".into()).to_string();
+    let etank_refill = settings["other_settings"]["etank_refill"]
+        .as_str()
+        .unwrap_or("Vanilla".into())
+        .to_string();
     let qol_settings = settings
         .get_mut("quality_of_life_settings")
         .context("missing quality_of_life_settings")?

@@ -425,7 +425,8 @@ pub fn render_seed(
             ETankRefill::Disabled => "Disabled",
             ETankRefill::Vanilla => "Vanilla",
             ETankRefill::Full => "Full",
-        }.to_string(),
+        }
+        .to_string(),
         doors: seed_data.doors.clone(),
         start_location_mode: seed_data.start_location_mode.clone(),
         map_layout: seed_data.map_layout.clone(),
