@@ -129,6 +129,7 @@ pub struct QualityOfLifeSettings {
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
     // Other:
+    pub reserve_backward_transfer: bool,
     pub buffed_drops: bool,
     pub early_save: bool,
 }

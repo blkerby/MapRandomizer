@@ -555,6 +555,15 @@ impl<'a> Patcher<'a> {
             .randomization
             .settings
             .quality_of_life_settings
+            .reserve_backward_transfer
+        {
+            patches.push("reserve_backward_fill");
+        }
+
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
             .buffed_drops
         {
             patches.push("buffed_drops");

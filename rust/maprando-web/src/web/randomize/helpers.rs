@@ -189,6 +189,7 @@ pub struct SeedFooterTemplate {
     all_items_spawn: bool,
     supers_double: bool,
     ultra_low_qol: bool,
+    settings: RandomizerSettings,
 }
 
 pub fn get_random_seed() -> usize {
@@ -444,6 +445,7 @@ pub fn render_seed(
         all_items_spawn: seed_data.all_items_spawn,
         supers_double: seed_data.supers_double,
         ultra_low_qol: seed_data.ultra_low_qol,
+        settings: seed_data.settings.clone(),
     };
     let seed_footer_html = seed_footer_template.render()?;
     Ok((seed_header_html, seed_footer_html))
