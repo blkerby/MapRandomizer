@@ -10,8 +10,7 @@
 ;   the corresponding word value in the .tbl before writing to ROM
 ; - Line count is 18 and must all be defined (even if blank)
 ;
-; The first occurrence of !check_char (defined below) will be converted to a check mark
-; once the objective is completed.
+; !check_char is reserved for objective checkmark locations.
 ;
 ; Stag Shot
 
@@ -26,7 +25,7 @@ incsrc "constants.asm"
 !bank_82_free_space_end = $82FFFC
 
 !bank_85_free_space_start = $859B20
-!bank_85_free_space_end = $85A050
+!bank_85_free_space_end = $859FF0
 
 !bank_B6_free_space_start = $B6F200
 !bank_B6_free_space_end = $B6F660
@@ -40,7 +39,7 @@ org $82910A
     
 ;;; simplify unpausing
 org $82932B
-    JSR $A56D
+    JSL display_unpause : nop : nop : nop
 
 ;;; update BG2 buttons
 org $82A62D
@@ -457,6 +456,31 @@ check_l_r_pressed:
 .end
     PLP
     JML $82A59A
+
+;;; unpause
+display_unpause:
+    LDA !pause_screen_mode
+    CMP !pause_screen_mode_equip
+    BEQ .equip
+    CMP !pause_screen_mode_obj
+    BEQ .objective
+; map
+    JSL $82BB30               ; Display map elevator destinations
+    JSL $82B672               ; Draw map icons
+    %callBank82Func($B9C8)    ; Draw Samus indicator
+    BRA .objective
+.equip:
+    %callBank82Func($B267)    ; Draw item selector
+    %callBank82Func($B2A2)    ; Display reserve tank amount
+.objective:
+    %callBank82Func($A56D)    ; Updates the flashing buttons when you change pause screens
+    LDA !fast_pause_menu : AND #$8000
+    BNE .fast
+    JSL $808924               ; Handle fading out
+    RTL
+.fast
+    JSL fast_fadeout
+    RTL
 
 ;;; buttons addresses in BG2
 !left_button_top     = $7E364A
