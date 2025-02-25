@@ -299,7 +299,7 @@ OddCheck:;if VRAM destination is odd, write first byte, then do transfer
     JSR IncrementBank
     +
     STA $802119
-    DEC $18 : REP #$20 : INC $22 : INC $32
+    DEC $70 : DEC $18 : REP #$20 : INC $22 : INC $32
     DEY : BEQ +
     ++
     PLP : CLC : RTS
@@ -340,7 +340,7 @@ End:
     ; DEC $18 : INC $22
     ; REP #$20
     ; ++
-    TYA : STA $35
+    LDA $70 : STA $35
     LDA #$80 : STA $33
     ;INC $34
     +
