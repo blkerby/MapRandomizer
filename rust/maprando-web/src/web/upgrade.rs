@@ -206,7 +206,11 @@ fn upgrade_objective_settings(settings: &mut serde_json::Value, app_data: &AppDa
             .get_mut("preset")
             .unwrap() = settings_obj["objectives_mode"].as_str().unwrap().into();
     }
-    if !settings_obj["objective_settings"].as_object().unwrap().contains_key("objective_screen") {
+    if !settings_obj["objective_settings"]
+        .as_object()
+        .unwrap()
+        .contains_key("objective_screen")
+    {
         settings_obj
             .get_mut("objective_settings")
             .unwrap()

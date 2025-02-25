@@ -203,7 +203,7 @@ pub struct ObjectiveOption {
 #[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
 pub enum ObjectiveScreen {
     Disabled,
-    Enabled
+    Enabled,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

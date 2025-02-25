@@ -1469,7 +1469,9 @@ pub fn apply_requirement(
             let mut new_local = local;
             new_local.energy_used = 0;
             new_local.farm_baseline_energy_used = 0;
-            if settings.quality_of_life_settings.energy_station_reserves {
+            if settings.quality_of_life_settings.energy_station_reserves
+                || settings.quality_of_life_settings.reserve_backward_transfer
+            {
                 new_local.reserves_used = 0;
                 new_local.farm_baseline_reserves_used = 0;
             }

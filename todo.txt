@@ -25,27 +25,9 @@ v118:
   - grapple jumping up only to the ledge (probably needs a new node)
     - shinespark strats could get up that node too, with fewer shinecharge frames
 
-v117:
-- DONE: load node tile data from sm-json-data
-- DONE: render map tiles using map_tiles.json
-- DONE: cross-room grapple swings
-- check out new Samus sprites
-- DONE: fix logic for Cathedral Entrance start location 
-- DONE: Needs a canTrickyJump?: https://dev.maprando.com/logic/room/172/8/3/130
-- prevent enter keypress from submitting generate form
-- DONE: fix above-Samus tiles not being revealed in sloped rooms (Terminator, Croc Speedway)
-- pull in new videos
-- fix issue with oversized maps
-- DONE: move canUseSpeedEchoes to VH, look at other Hard tech.
-- DONE: fix issue with notable settings not matching selected preset: https://discord.com/channels/1053421401354285129/1079847747307446413/1330204371623084093
-- DONE: fix issue with global zeela in dachora room
-- map gen:
-  - DONE: decide which maps to keep
-  - DONE: rename "Tame" to "Standard"
-  - DONE: probably handle Toilet differently in Tame pool
-
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
+- draw door frame in front of hazard markers, for doors that don't have a door shell.
 - fix garbled tiles that show up in door transitions
 - instant unpause QoL option
   - maybe combine with even faster pause transitions (fade-in to pause, fade between pause/equipment, and fade-out of pause)

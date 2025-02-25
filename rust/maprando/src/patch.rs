@@ -15,7 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump
+        AreaAssignment, ETankRefill, MotherBrainFight, Objective, ObjectiveScreen,
+        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{ensure, Context, Result};
@@ -603,7 +604,12 @@ impl<'a> Patcher<'a> {
             patches.push("fix_hyper_slowlock");
         }
 
-        match self.randomization.settings.objective_settings.objective_screen {
+        match self
+            .randomization
+            .settings
+            .objective_settings
+            .objective_screen
+        {
             ObjectiveScreen::Disabled => {}
             ObjectiveScreen::Enabled => {
                 patches.push("pause_menu_objectives");
