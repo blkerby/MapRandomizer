@@ -22,5 +22,6 @@
         {"objective": "MetroidRoom4", "setting": "Maybe"}
     ],
     "min_objectives": 4,
-    "max_objectives": 4
+    "max_objectives": 4,
+    "objective_screen": "Enabled"
 }

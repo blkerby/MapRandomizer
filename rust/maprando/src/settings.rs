@@ -128,8 +128,11 @@ pub struct QualityOfLifeSettings {
     pub all_items_spawn: bool,
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
-    // Other:
+    // Energy and reserves
+    pub etank_refill: ETankRefill,
+    pub energy_station_reserves: bool,
     pub reserve_backward_transfer: bool,
+    // Other:
     pub buffed_drops: bool,
     pub early_save: bool,
 }
@@ -197,18 +200,24 @@ pub struct ObjectiveOption {
     pub setting: ObjectiveSetting,
 }
 
+#[derive(Serialize, Deserialize, Clone, PartialEq, Debug)]
+pub enum ObjectiveScreen {
+    Disabled,
+    Enabled,
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct ObjectiveSettings {
     pub preset: Option<String>,
     pub objective_options: Vec<ObjectiveOption>,
     pub min_objectives: i32,
     pub max_objectives: i32,
+    pub objective_screen: ObjectiveScreen,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct OtherSettings {
     pub wall_jump: WallJump,
-    pub etank_refill: ETankRefill,
     pub area_assignment: AreaAssignment,
     pub item_dot_change: ItemDotChange,
     pub transition_letters: bool,

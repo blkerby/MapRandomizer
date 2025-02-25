@@ -269,6 +269,7 @@ pub enum Requirement {
     ClimbWithoutLava,
     AmmoStationRefill,
     AmmoStationRefillAll,
+    EnergyStationRefill,
     RegularEnergyDrain(Capacity),
     ReserveEnergyDrain(Capacity),
     LowerNorfairElevatorDownFrames,
@@ -1977,6 +1978,8 @@ impl GameData {
                 return Ok(Requirement::AmmoStationRefill);
             } else if value == "i_ammoRefillAll" {
                 return Ok(Requirement::AmmoStationRefillAll);
+            } else if value == "i_energyStationRefill" {
+                return Ok(Requirement::EnergyStationRefill);
             } else if value == "i_SupersDoubleDamageMotherBrain" {
                 return Ok(Requirement::SupersDoubleDamageMotherBrain);
             } else if value == "i_BlueGateGlitchLeniency" {
@@ -4874,6 +4877,14 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_MissileRefillStationAllAmmo",
             "requires": ["i_ammoRefillAll"],
+        };
+        // Energy station refill
+        *game_data
+            .helper_json_map
+            .get_mut("h_useEnergyRefillStation")
+            .unwrap() = json::object! {
+            "name": "h_useEnergyRefillStation",
+            "requires": ["i_energyStationRefill"],
         };
 
         // Wall on right side of Tourian Escape Room 1 does not spawn in the randomizer:

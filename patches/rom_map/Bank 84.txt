@@ -10,7 +10,8 @@ $F4A0 - $F500: vertical_door_fix.asm
 $F500 - $F580: itemsounds.asm
 $F580 - $F590: mb_left_entrance.asm
 $F590 - $F5A0: horizontal_door_fix.asm
-$F5A0 - $F700: [FREE]
+$F5A0 - $F5C0: energy_station_reserves.asm
+$F5C0 - $F700: [FREE]
 $F700 - $F730: nothing_item.asm
 $F730 - $F800: stats.asm
 $F800 - $F900: hazard_markers

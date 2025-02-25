@@ -1,3 +1,50 @@
+<div class="accordion mt-2 mb-3">
+{% for (difficulty_idx, difficulty_name) in preset_data.difficulty_levels.keys.iter().enumerate()  %}
+    {% if difficulty_name == "Implicit" || difficulty_name == "Ignored" %}
+    {% continue %}
+    {% endif %}
+    {% let name_no_space = difficulty_name.replace(" ", "") %}
+    <div class="accordion-item my-0 p-0">
+        <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{+ name_no_space }}Tech">
+            {{+ difficulty_name +}} ({{+ self.percent_enabled(difficulty_name) }}%)
+        </button>
+        </h2>
+        <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse p-2">
+            <div class="container">
+                {% let difficulty_tech = preset_data.tech_by_difficulty[difficulty_name] %}
+                {% for tech_id in difficulty_tech %}
+                    {% let tech_data = preset_data.tech_data_map[tech_id] %}
+                    <div class="row">
+                        <div class="col-11 col-lg-10">
+                            {{+ tech_data.name }}:
+                        </div>
+                        <div class="col-1 col-lg-2">
+                            {% if enabled_tech.contains(tech_data.tech_id) %}Yes{% else %}No{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                {% if preset_data.notables_by_difficulty[difficulty_name].len() > 0|as_ref %}
+                <hr class="my-2">
+                {% endif %}
+                {% let difficulty_notables = preset_data.notables_by_difficulty[difficulty_name] %}
+                {% for id_pair in difficulty_notables %}
+                    {% let notable_data = preset_data.notable_data_map[id_pair] %}
+                    <div class="row">
+                        <div class="col-11 col-lg-10">
+                            {{ notable_data.room_name +}}: {{+ notable_data.name }}
+                        </div>
+                        <div class="col-1 col-lg-2">
+                            {% if enabled_notables.contains((id_pair.0, id_pair.1)) %}Yes{% else %}No{% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+</div>
+
 <div class="row">
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Shinecharge tiles:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8">{{+ difficulty.shine_charge_tiles }}</div>
@@ -45,51 +92,4 @@
 <div class="row">
     <div class="col-7 col-sm-6 col-md-5 col-lg-4">Mother Brain proficiency:</div>
     <div class="col-5 col-sm-6 col-md-7 col-lg-8">{{+ difficulty.mother_brain_proficiency }}</div>
-</div>
-
-<div class="accordion mt-3">
-{% for (difficulty_idx, difficulty_name) in preset_data.difficulty_levels.keys.iter().enumerate()  %}
-    {% if difficulty_name == "Implicit" || difficulty_name == "Ignored" %}
-    {% continue %}
-    {% endif %}
-    {% let name_no_space = difficulty_name.replace(" ", "") %}
-    <div class="accordion-item my-0 p-0">
-        <h2 class="accordion-header">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{+ name_no_space }}Tech">
-            {{+ difficulty_name +}} ({{+ self.percent_enabled(difficulty_name) }}%)
-        </button>
-        </h2>
-        <div id="collapse{{+ name_no_space }}Tech" class="accordion-collapse collapse p-2">
-            <div class="container">
-                {% let difficulty_tech = preset_data.tech_by_difficulty[difficulty_name] %}
-                {% for tech_id in difficulty_tech %}
-                    {% let tech_data = preset_data.tech_data_map[tech_id] %}
-                    <div class="row">
-                        <div class="col-11 col-lg-10">
-                            {{+ tech_data.name }}:
-                        </div>
-                        <div class="col-1 col-lg-2">
-                            {% if enabled_tech.contains(tech_data.tech_id) %}Yes{% else %}No{% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-                {% if preset_data.notables_by_difficulty[difficulty_name].len() > 0|as_ref %}
-                <hr class="my-2">
-                {% endif %}
-                {% let difficulty_notables = preset_data.notables_by_difficulty[difficulty_name] %}
-                {% for id_pair in difficulty_notables %}
-                    {% let notable_data = preset_data.notable_data_map[id_pair] %}
-                    <div class="row">
-                        <div class="col-11 col-lg-10">
-                            {{ notable_data.room_name +}}: {{+ notable_data.name }}
-                        </div>
-                        <div class="col-1 col-lg-2">
-                            {% if enabled_notables.contains((id_pair.0, id_pair.1)) %}Yes{% else %}No{% endif %}
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
-{% endfor %}
 </div>

@@ -56,6 +56,7 @@ pub struct SeedHeaderTemplate<'a> {
     respin: bool,
     infinite_space_jump: bool,
     momentum_conservation: bool,
+    etank_refill: String,
     doors: String,
     start_location_mode: String,
     map_layout: String,
@@ -148,15 +149,6 @@ impl<'a> SeedHeaderTemplate<'a> {
         match self.settings.other_settings.wall_jump {
             WallJump::Collectible => {
                 game_variations.push("Collectible wall jump");
-            }
-            _ => {}
-        }
-        match self.settings.other_settings.etank_refill {
-            ETankRefill::Disabled => {
-                game_variations.push("E-Tank refill disabled");
-            }
-            ETankRefill::Full => {
-                game_variations.push("E-Tanks refill reserves");
             }
             _ => {}
         }
@@ -429,6 +421,12 @@ pub fn render_seed(
         respin: seed_data.respin,
         infinite_space_jump: seed_data.infinite_space_jump,
         momentum_conservation: seed_data.momentum_conservation,
+        etank_refill: match seed_data.settings.quality_of_life_settings.etank_refill {
+            ETankRefill::Disabled => "Disabled",
+            ETankRefill::Vanilla => "Vanilla",
+            ETankRefill::Full => "Full",
+        }
+        .to_string(),
         doors: seed_data.doors.clone(),
         start_location_mode: seed_data.start_location_mode.clone(),
         map_layout: seed_data.map_layout.clone(),

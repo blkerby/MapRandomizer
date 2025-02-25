@@ -1,5 +1,5 @@
 {
-    "version": 117,
+    "version": 118,
     "name": "Community Race Season 3 (Save the animals)",
     "skill_assumption_settings": {
         "preset": "Hard",
@@ -4171,6 +4171,8 @@
         "all_items_spawn": true,
         "acid_chozo": true,
         "remove_climb_lava": true,
+        "energy_station_reserves": true,
+        "etank_refill": "Full",
         "reserve_backward_transfer": true,
         "buffed_drops": true,
         "early_save": true
@@ -4178,28 +4180,86 @@
     "objective_settings": {
         "preset": "Bosses",
         "objective_options": [
-            {"objective": "Kraid", "setting": "Yes"},
-            {"objective": "Phantoon", "setting": "Yes"},
-            {"objective": "Draygon", "setting": "Yes"},
-            {"objective": "Ridley", "setting": "Yes"},
-            {"objective": "SporeSpawn", "setting": "No"},
-            {"objective": "Crocomire", "setting": "No"},
-            {"objective": "Botwoon", "setting": "No"},
-            {"objective": "GoldenTorizo", "setting": "No"},
-            {"objective": "BombTorizo", "setting": "No"},
-            {"objective": "BowlingStatue", "setting": "No"},
-            {"objective": "AcidChozoStatue", "setting": "No"},
-            {"objective": "PitRoom", "setting": "No"},
-            {"objective": "BabyKraidRoom", "setting": "No"},
-            {"objective": "PlasmaRoom", "setting": "No"},
-            {"objective": "MetalPiratesRoom", "setting": "No"},
-            {"objective": "MetroidRoom1", "setting": "No"},
-            {"objective": "MetroidRoom2", "setting": "No"},
-            {"objective": "MetroidRoom3", "setting": "No"},
-            {"objective": "MetroidRoom4", "setting": "No"}
+            {
+                "objective": "Kraid",
+                "setting": "Yes"
+            },
+            {
+                "objective": "Phantoon",
+                "setting": "Yes"
+            },
+            {
+                "objective": "Draygon",
+                "setting": "Yes"
+            },
+            {
+                "objective": "Ridley",
+                "setting": "Yes"
+            },
+            {
+                "objective": "SporeSpawn",
+                "setting": "No"
+            },
+            {
+                "objective": "Crocomire",
+                "setting": "No"
+            },
+            {
+                "objective": "Botwoon",
+                "setting": "No"
+            },
+            {
+                "objective": "GoldenTorizo",
+                "setting": "No"
+            },
+            {
+                "objective": "BombTorizo",
+                "setting": "No"
+            },
+            {
+                "objective": "BowlingStatue",
+                "setting": "No"
+            },
+            {
+                "objective": "AcidChozoStatue",
+                "setting": "No"
+            },
+            {
+                "objective": "PitRoom",
+                "setting": "No"
+            },
+            {
+                "objective": "BabyKraidRoom",
+                "setting": "No"
+            },
+            {
+                "objective": "PlasmaRoom",
+                "setting": "No"
+            },
+            {
+                "objective": "MetalPiratesRoom",
+                "setting": "No"
+            },
+            {
+                "objective": "MetroidRoom1",
+                "setting": "No"
+            },
+            {
+                "objective": "MetroidRoom2",
+                "setting": "No"
+            },
+            {
+                "objective": "MetroidRoom3",
+                "setting": "No"
+            },
+            {
+                "objective": "MetroidRoom4",
+                "setting": "No"
+            }
         ],
         "min_objectives": 4,
-        "max_objectives": 4
+        "max_objectives": 4,
+        "objective_screen": "Enabled"
     },
     "map_layout": "Standard",
     "doors_mode": "Ammo",
