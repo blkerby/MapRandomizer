@@ -495,10 +495,13 @@ draw_samus_indicator:
 .skip:
     rts
 
+org $82F9D4
+    and #$7FF8      ; was #$FFF8, but we want to clear high bit to ensure positive num
+
 horizontal_scroll_hook:
     ; round BG1 scroll X to a multiple of 8, to make grid lines consistently align with tiles:
     sbc #$0080   ; run hi-jacked instruction
-    and #$FFF8
+    and #$7FF8
     rts
 
 load_tileset_palette_hook:
