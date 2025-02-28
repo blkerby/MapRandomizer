@@ -462,6 +462,7 @@ impl<'a> Patcher<'a> {
                 "oob_death",
                 "vertical_door_fix",
                 "spin_lock",
+                "fix_transition_bad_tiles",
             ]);
         }
 
