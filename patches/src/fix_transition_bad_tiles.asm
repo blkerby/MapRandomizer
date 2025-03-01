@@ -1,9 +1,9 @@
+!bank_82_free_space_start = $82FC30
+!bank_82_free_space_end = $82FC50
 !bank_85_free_space_start = $85A100
 !bank_85_free_space_end = $85A180
 
-;!bad_tiles_ram_addr = $7E2000
-;!bad_tiles_ram_bank = $7E
-!bad_tiles_ram_addr = $710000
+!bad_tiles_ram_addr = $714000
 !bad_tiles_ram_bank = $0071
 !bad_tiles_vram_addr = $0000
 !bad_tiles_word_size = $0200
@@ -14,30 +14,48 @@
 org $82E2FA
     jsl hook_pre_scrolling
 
-; because we want them to remain black for the entire duration of scrolling.
-; When the tileset loads during scrolling, do not overwrite the "bad" tiles,
+; Because we want them to remain black for the entire duration of scrolling,
+; when the tileset loads during scrolling, do not overwrite the "bad" tiles:
 org $82E446
     jsr $E039
-    dw $0000+!bad_tiles_bytes_size
-    db !bad_tiles_ram_bank
+    dw $2000+!bad_tiles_bytes_size
+    db $7E
     dw !bad_tiles_word_size
     dw $2000-!bad_tiles_bytes_size
 
     jsr $E039
-    dw $2000
-    db !bad_tiles_ram_bank
+    dw $4000
+    db $7E
     dw $1000
     dw $2000
 
     jsr $E039
-    dw $4000
-    db !bad_tiles_ram_bank
+    dw $6000
+    db $7E
     dw $2000
     dw $1000
+
+    jsr hook_tileset_load
 
 ; After scrolling ends but before fade-in begins, load the new "bad" tiles:
 org $82E52E
     jsl hook_post_scrolling
+
+org !bank_82_free_space_start
+hook_tileset_load:
+    ; Copy the new tileset's "bad" tiles from $7E2000-$7E2400 to $704000-$704400.
+    ; This is to avoid them getting overwritten (e.g. in boss rooms) before the
+    ; door transition has finished.
+    ldx #!bad_tiles_bytes_size-2
+.copy_loop:
+    lda $7E2000,x
+    sta !bad_tiles_ram_addr,x
+    dex
+    dex
+    bpl .copy_loop
+    lda $07B3  ; run hi-jacked instruction
+    rts
+warnpc !bank_82_free_space_end
 
 org !bank_85_free_space_start
 hook_pre_scrolling:

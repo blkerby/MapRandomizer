@@ -128,8 +128,7 @@ load_hazard_tilemap:
 reload_hazard_tiles:
     ; run-hijacked instruction (decompress room tiles)
     jsl $80B0FF
-    ;dl $7E2000
-    dl $710000
+    dl $7E2000
 
     ; Copy hazard tiles from $E98000-$E98100 to $7E6F00
     ldx #$00FE
