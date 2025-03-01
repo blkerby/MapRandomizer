@@ -11,7 +11,7 @@
 
 ; Add hook for after fade-out but before scrolling begins,
 ; to zero out the "bad" tiles to make them appear black.
-org $82E2FA
+org $82E2E0
     jsl hook_pre_scrolling
 
 ; Because we want them to remain black for the entire duration of scrolling,
@@ -38,7 +38,8 @@ org $82E446
     jsr hook_tileset_load
 
 ; After scrolling ends but before fade-in begins, load the new "bad" tiles:
-org $82E52E
+; org $82E52E
+org $82E737
     jsl hook_post_scrolling
 
 org !bank_82_free_space_start
@@ -59,7 +60,12 @@ warnpc !bank_82_free_space_end
 
 org !bank_85_free_space_start
 hook_pre_scrolling:
-    ; zero out the "bad" tiles in RAM, to appear black during the transition.
+    ; check if fade-out is complete:
+    lda $7EC400
+    cmp #$000D
+    bne .skip
+
+    ; Fade-out is done. Zero out the "bad" tiles in RAM, to appear black during the transition.
     ldx #!bad_tiles_bytes_size-2
     lda #$0000
 .clear_loop:
@@ -71,13 +77,19 @@ hook_pre_scrolling:
     ; copy blacked-out "bad" tiles to VRAM
     jsr transfer_bad_tiles
 
-    ; run hi-jacked instruction:
-    jsl $8882AC
+.skip:
+    jsl $A08EB6  ; run hi-jacked instruction
     rtl
 
 hook_post_scrolling:
-    sta $7EC188  ; run hi-jacked instruction
+    ; check if fade-in is just beginning:
+    lda $7EC400
+    cmp #$0001
+    bne .skip
+
     jsr transfer_bad_tiles
+.skip:
+    jsl $878064  ; run hi-jacked instruction
     rtl
 
 transfer_bad_tiles:
