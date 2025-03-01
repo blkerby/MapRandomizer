@@ -1,1 +1,3 @@
 $9100 - $9200: walljump boot graphics
+$AF60 - $B0C0: Area FX.asm
+$B0C0 - $B100: decompression.asm
