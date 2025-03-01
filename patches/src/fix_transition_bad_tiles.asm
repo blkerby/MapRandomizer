@@ -1,8 +1,10 @@
 !bank_85_free_space_start = $85A100
 !bank_85_free_space_end = $85A180
 
-!bad_tiles_ram_addr = $7E2000
-!bad_tiles_ram_bank = $7E
+;!bad_tiles_ram_addr = $7E2000
+;!bad_tiles_ram_bank = $7E
+!bad_tiles_ram_addr = $710000
+!bad_tiles_ram_bank = $0071
 !bad_tiles_vram_addr = $0000
 !bad_tiles_word_size = $0200
 !bad_tiles_bytes_size = (!bad_tiles_word_size*2)
@@ -12,14 +14,26 @@
 org $82E2FA
     jsl hook_pre_scrolling
 
-; When the tileset loads during scrolling, do not overwrite the "bad" tiles,
 ; because we want them to remain black for the entire duration of scrolling.
+; When the tileset loads during scrolling, do not overwrite the "bad" tiles,
 org $82E446
     jsr $E039
-    dw $2000+!bad_tiles_bytes_size
-    db $7E
+    dw $0000+!bad_tiles_bytes_size
+    db !bad_tiles_ram_bank
     dw !bad_tiles_word_size
     dw $2000-!bad_tiles_bytes_size
+
+    jsr $E039
+    dw $2000
+    db !bad_tiles_ram_bank
+    dw $1000
+    dw $2000
+
+    jsr $E039
+    dw $4000
+    db !bad_tiles_ram_bank
+    dw $2000
+    dw $1000
 
 ; After scrolling ends but before fade-in begins, load the new "bad" tiles:
 org $82E52E
@@ -59,7 +73,7 @@ transfer_bad_tiles:
     STA $D0,x
     INX
     INX
-    LDA #$007E
+    LDA #!bad_tiles_ram_bank
     STA $D0,x
     INX
     LDA #!bad_tiles_vram_addr

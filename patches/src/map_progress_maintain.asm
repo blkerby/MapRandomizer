@@ -9,9 +9,9 @@ lorom
 
 incsrc "constants.asm"
 
-; In the game header, expand SRAM from 8 KB to 16 KB.
+; In the game header, expand SRAM from 8 KB to 64 KB.
 org $80FFD8
-    db 4
+    db 6
 
 ; Modify SRAM size check to work for the new SRAM size.
 ; We just check that the SRAM can remember the incrementing sequence. 

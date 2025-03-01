@@ -8,7 +8,7 @@ for path in sorted(os.listdir(tilesets_path)):
         x = tile_data[i] | (tile_data[i + 1] << 8)
         pal = (x >> 10) & 7
         c = x & 0x3ff
-        if pal <= 1 and c < 640:
+        if pal <= 1 and c < 640 and c > 32:
             if c not in bad_tiles:
                 bad_tiles[c] = set()
             bad_tiles[c].add(i // 8)
