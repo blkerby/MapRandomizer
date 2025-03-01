@@ -39,7 +39,7 @@
 !bank_80_free_space_end = $80E380
 
 !bank_89_free_space_start = $89B0C0
-!bank_89_free_space_end = $89B100
+!bank_89_free_space_end = $89B110
 
 ;also uses one unused RAM variable
 ;if another patch also uses this RAM variable, find yourself a different one
@@ -277,10 +277,12 @@ Option4567:
     BRA --
 namespace off    
 }
+
 IncrementBank:
     LDX #$8000
     PHA : PHB : PLA : INC : STA $34 : PHA : PLB : PLA
     RTS
+
 {;decompression to VRAM
 VRAMdecomp:
 print "vram: $",pc
@@ -465,8 +467,9 @@ Option4567:
     BRA -
 namespace off
 }
+
 print PC
-;warnpc $80B437
+;warnpc $80B271
 
 ;unused block of code so we don't use freespace in bank $82 :)
 ;preserves the settings and destination of used channel variables
@@ -567,6 +570,9 @@ org $82E4C1
     JSL $82E139
     JSL $90AD22
     JSL $91DEE6
+    JSR $E8EB  
+    JSL $A08A1E
+    JSL $A08A9E
     PLP
     PEA $8F00 : PLB : PLB 
 ; ---here we're making it so library backgrounds commands get executed before other stuff during room load
@@ -579,19 +585,18 @@ org $82E4C1
     LDX $0000,y : INY #2 : JSR ($E5C7,x) : BCC  -
 +
     JSL $82EB6C
-    JSL $89AB82
-    JSR $E8EB  
-    JSL $A08A1E
-    JSL $A08A9E
-    JSR $E566 
+    JSL AB82_vram_door_update
+    JSR $E566
     LDA #$8A00 : STA $05C1 
     LDA $1964 : BEQ + 
     STA $05C0
     LDA #$5BE0 : STA $05BE 
     LDA #$0840 : STA $05C3 
     LDA #$8000 : TSB $05BC
-    - BIT $05BC : BMI -
+- 
+    BIT $05BC : BMI -
 +
+
 warnpc $82E524
 
 org $82E97C
@@ -631,5 +636,13 @@ fx_hook:
     LDX $1966
     LDA $0009,X
     RTS
+
+;wait for door VRAM update for Area FX
+AB82_vram_door_update:
+    JSL $89AB82
+    LDA #$8000 : TSB $05BC
+- 
+    BIT $05BC : BMI -
+    RTL
 
 warnpc !bank_89_free_space_end
