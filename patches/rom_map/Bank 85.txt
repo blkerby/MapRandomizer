@@ -6,3 +6,4 @@ $9980 - $9B00: stats.asm
 $9B00 - $9B20: fix_hyper_slowlock.asm
 $9B20 - $A050: pause_menu_objectives.asm
 $A050 - $A100: reserve_backward_fill.asm
+$A100 - $A180: fix_transition_bad_tiles.asm

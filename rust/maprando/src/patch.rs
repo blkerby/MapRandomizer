@@ -463,6 +463,7 @@ impl<'a> Patcher<'a> {
                 "vertical_door_fix",
                 "spin_lock",
                 "fix_transition_bad_tiles",
+                "fast_room_load",
             ]);
         }
 
