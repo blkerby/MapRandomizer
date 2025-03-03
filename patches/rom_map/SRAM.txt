@@ -21,7 +21,10 @@
 ---------- expanded SRAM: ----------
 2000-2600: Map revealed bits (map_progress_maintain.asm)
 2600-2602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)
-2602-2700: Free space
+2602-2700: [FREE]
 2700-2D00: Map partially revealed bits (map_progress_maintain.asm)
-2D00-3000: Free space
+2D00-3000: [FREE]
 3000-4000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
+4000-4400: Temporary tileset graphics (fix_transition_bad_tiles.asm)
+4400-4800: (reserved in case we expand the temporary tileset graphics)
+4800-8000: [FREE]

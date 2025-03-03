@@ -11,7 +11,7 @@
 	branch = expanded
 [submodule "Mosaic"]
 	path = Mosaic
-	url = https://github.com/amoebaOfDoom/Mosaic
+	url = https://github.com/blkerby/Mosaic
 [submodule "asar"]
 	path = asar
 	url = https://github.com/RPGHacker/asar.git
