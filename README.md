@@ -14,7 +14,7 @@ If you are interested in contributing, feel free to reach out on the [Discord](h
 
 If you are running on macOS, you will need to do the following.
 1. [Clone the repository](?tab=readme-ov-file#clone-the-repository) and ensure all submodules are initialized and checked out.
-2. Install thw following dependencies:
+2. Install the following dependencies:
 * `wget` ([brew](https://formulae.brew.sh/formula/wget) | [web](https://www.gnu.org/software/wget/))
 * `rust` ([brew](https://formulae.brew.sh/formula/rust) | [web](https://www.rust-lang.org/))
 * `rustup` ([brew](https://formulae.brew.sh/formula/rustup) | [web](https://rustup.rs/))
