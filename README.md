@@ -32,7 +32,7 @@ rustup default stable
 ```
 5. Follow the instructions for [Run the web service using Cargo](?tab=readme-ov-file#run-the-web-service-using-cargo).
 <br />
-*Note: Docker does not work at the moment.*
+_Note: Docker does not work at the moment._
 
 
 ### Using Windows
