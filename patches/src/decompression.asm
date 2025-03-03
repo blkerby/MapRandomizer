@@ -35,8 +35,10 @@
 ;unfortunately now requires a bit of freespace in bank $80 
 ;if any other patch you're using conflicts, feel free to repoint
 
+incsrc "constants.asm"
+
 !bank_80_free_space_start = $80E2A0
-!bank_80_free_space_end = $80E380
+!bank_80_free_space_end = $80E3A0
 
 !bank_89_free_space_start = $89B0C0
 !bank_89_free_space_end = $89B110
@@ -74,11 +76,6 @@ org $828D1A
 
 org $80A15F
     JSR restoreDMA_unpause : NOP
-
-;switch 2 calls during start gameplay
-org $80A0E5
-    JSL $82E97C
-    JSL $89AB82
 
 org $82E7A8
     JSL VRAMdecomp
@@ -465,8 +462,9 @@ Option4567:
 namespace off
 }
 
+; We don't care if we overwrite some of the "failed NTSC/PAL check" tilemap.
 print PC
-;warnpc $80B271
+warnpc $80BC37
 
 org $82E617
     JSR preserveDMA_library_background
@@ -561,6 +559,21 @@ ResetDp:
 restoreDMA_unpause:
     JSL $82E97C  ; run hi-jacked instruction
     JSL UploadFXptr
+
+    ; in case fast pause menu QoL is disabled, 
+    ; add artificial lag to unpause black screen, to compensate for the accelerated decompression
+    LDA !unpause_black_screen_lag_frames
+    TAX
+.loop:
+    BEQ restoreDMA_registers
+    LDA !nmi_counter
+.wait_frame:
+    CMP !nmi_counter  ; wait for frame counter to change
+    BEQ .wait_frame
+    LDA !nmi_counter
+    DEX
+    BRA .loop
+
     ; fall through to below
 restoreDMA_registers:
     ;restore some DMA registers that could have been overwritten
