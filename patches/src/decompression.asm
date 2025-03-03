@@ -70,10 +70,10 @@ return2:
 
 ;HDMA channels aren't preserved during unpause, but since decomp uses DMA 2/3, those now need to be preserved
 org $828D1A
-    JSR preserveDMA
+    JSR preserveDMA_pause
 
 org $80A15F
-    JSR restoreDMA : NOP
+    JSR restoreDMA_unpause : NOP
 
 ;switch 2 calls during start gameplay
 org $80A0E5
@@ -468,18 +468,32 @@ namespace off
 print PC
 ;warnpc $80B271
 
+org $82E617
+    JSR preserveDMA_library_background
+
+org $82E62B
+    JSL restoreDMA_library_background
+
 ;unused block of code so we don't use freespace in bank $82 :)
 ;preserves the settings and destination of used channel variables
 org $82B5E8
-preserveDMA:
-    JSR $8DBD
+preserveDMA_pause:
+    JSR $8DBD  ; run hi-jacked instruction. fall through to below:
+
+preserveDMAregisters:
+    PHA
     LDA $4320 : STA $7EF600
     LDA $4330 : STA $7EF602
     LDA $4324 : STA $7EF606
     LDA $4334 : STA $7EF604
     LDA $4370 : STA $7EF608
     LDA $4374 : STA $7EF60A
+    PLA
     RTS
+
+preserveDMA_library_background:
+    LDA $0000,y  ; run hi-jacked instruction
+    BRA preserveDMAregisters
 
 warnpc $82B62B
 
@@ -544,10 +558,12 @@ setDp:
     LDA $4211 : JMP return
 ResetDp:
     PLD : STX $4207 : JMP return2
-;restore some DMA registers that could have been overwritten
-restoreDMA:
-    JSL $82E97C
+restoreDMA_unpause:
+    JSL $82E97C  ; run hi-jacked instruction
     JSL UploadFXptr
+    ; fall through to below
+restoreDMA_registers:
+    ;restore some DMA registers that could have been overwritten
     LDA $7EF600 : STA $4320
     LDA $7EF602 : STA $4330
     LDA $7EF606 : STA $4324
@@ -556,6 +572,10 @@ restoreDMA:
     LDA $7EF60A : STA $4374
     RTS
 
+restoreDMA_library_background:
+    JSL $80B119  ; run hi-jacked instruction
+    JSR restoreDMA_registers
+    RTL
 warnpc !bank_80_free_space_end
 
 org $82E97C
