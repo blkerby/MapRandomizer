@@ -22,7 +22,10 @@ MANIFEST_PATH = "patches/patch_manifest.json"
 
 ignored_overlap_patterns = ["hyper_beam", "ultra_low_"]
 
-old_manifest = json.loads(open(MANIFEST_PATH, "r").read())
+try:
+    old_manifest = json.loads(open(MANIFEST_PATH, "r").read())
+except FileNotFoundError:
+    old_manifest = {}
 
 asm_src_files = []
 asm_src_files.extend(glob.glob("patches/src/*.asm"))
@@ -97,7 +100,7 @@ for idx, asm_path in enumerate(asm_src_files):
     except FileNotFoundError as e:
         pass
     
-    if ips_modified_ts is None or src_modified_ts > ips_modified_ts or args.verify:
+    if base_filename not in old_manifest or ips_modified_ts is None or src_modified_ts > ips_modified_ts or args.verify:
         logging.info(f"Assembling {asm_path}")
         changed_bytes = {}
         run_asar(asm_path, 0x00, changed_bytes)

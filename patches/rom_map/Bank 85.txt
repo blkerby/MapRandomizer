@@ -4,5 +4,6 @@ $9800 - $9880: spin_lock.asm
 $9880 - $9980: fast_reload.asm
 $9980 - $9B00: stats.asm
 $9B00 - $9B20: fix_hyper_slowlock.asm
-$9B20 - $A050: pause_menu_objectives.asm
+$9B20 - $9FF0: pause_menu_objectives.asm
+$9FF0 - $A050: [FREE]
 $A050 - $A100: reserve_backward_fill.asm
