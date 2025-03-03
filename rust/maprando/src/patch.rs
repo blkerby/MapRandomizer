@@ -517,7 +517,7 @@ impl<'a> Patcher<'a> {
         {
             patches.push("fast_pause_menu");
             self.rom.write_u16(snes2pc(0x82fffc), 0x8000)?;
-            self.rom.write_u16(snes2pc(0xdfff07), 0)?;  // no artificial lag in unpause black screen
+            self.rom.write_u16(snes2pc(0xdfff07), 0)?; // no artificial lag in unpause black screen
         } else {
             // With fast pause menu QoL disabled, use 6 artificial lag frames during unpause black screen,
             // to make it approximately align with vanilla, compensating for the optimized decompression
