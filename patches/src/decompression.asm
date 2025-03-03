@@ -35,25 +35,17 @@
 ;unfortunately now requires a bit of freespace in bank $80 
 ;if any other patch you're using conflicts, feel free to repoint
 
+incsrc "constants.asm"
+
 !bank_80_free_space_start = $80E2A0
 !bank_80_free_space_end = $80E380
 
 !bank_89_free_space_start = $89B0C0
 !bank_89_free_space_end = $89B110
 
-;also uses one unused RAM variable
-;if another patch also uses this RAM variable, find yourself a different one
-!DecompFlag = $9B
-
 lorom
 
 ;;; hooks
-
-org $8095A7
-    JMP checkIfInLoading
-
-org $8095FC
-    JMP checkstack
 
 ;change bottom of HUD hcounter, since IRQ does more work
 org $8096A5
@@ -122,12 +114,18 @@ namespace DEFAULT
 Start:
     PHP : PHB : PHD
     JSR setup;prepare settings
-    BRA NextByte
+    JMP NextByte
 
 End:
     PLD
-    STZ !DecompFlag
-    PLB : PLP : RTL
+    PLB
+
+    ; Restore NMI to its normal mode (i.e., leave timer-only mode).
+    ; This is a Map Rando specific thing. In other contexts, enabling NMI would be the thing to do here.
+    LDA #$00
+    STA !nmi_timeronly
+
+    PLP : RTL
 
     Option0:;this one is here so one of the commands doesn't need a JMP to go back to the start (ugly, but saves those extra 3 cycles)
     REP #$20
@@ -189,11 +187,8 @@ BRANCH_THETA:
     +
 -    
     STA $80211B
-    edgecase1:
     STA $80211B
     BRA transfer
-super_rare_edgecase3:
-    XBA : BRA rare_return
 BRANCH_IOTA:
     LDA $0000,x : XBA : INX : BNE +
     JSR IncrementBank
@@ -202,13 +197,10 @@ BRANCH_IOTA:
     JSR IncrementBank
     +
     ;X = 2: Copy the next two bytes, one at a time, for the next Y bytes.
-    rare_return:
     STA $80211B
-    edgecase2:
     XBA
-    edgecase3:
     STA $80211B;place word to repeatedly copy in multiplication register
-    transfer:
+transfer:
     STY $25;set size
     LDA #$01 : STA $80211C
     LDA #$04 : STA $80420B;initiate DMA
@@ -292,7 +284,7 @@ namespace VRAM
     ;overwrite some settings from "setup", since we're writing to the VRAM port now
     LDA #$18 : STA $31
     LDA #$01 : STA $30
-    BRA NextByte
+    JMP NextByte
     
 OddCheck:;if VRAM destination is odd, write first byte, then do transfer
     PHP : SEP #$20
@@ -310,8 +302,12 @@ OddCheck:;if VRAM destination is odd, write first byte, then do transfer
 
 End:
     PLD
-    STZ !DecompFlag
-    PLB : PLP : RTL
+    PLB
+
+    LDA #$00
+    STA !nmi_timeronly
+
+    PLP : RTL
 
     Option0:;this one is here so one of the commands doesn't need a JMP to go back to the start (ugly, but saves those extra 3 cycles)
     REP #$20
@@ -494,7 +490,12 @@ org !bank_80_free_space_start
  ;other channels are used as temp variables
 setup:
     SEP #$20
-    LDA #$01 : STA !DecompFlag
+
+    ; Set NMI to timer-only mode (to avoid NMI interfering with PPU registers):
+    ; This is a Map Rando specific thing. In other contexts, disabling NMI would be the thing to do here.
+    LDA #$01
+    STA !nmi_timeronly
+
     TDC
     LDX $47
     STZ $85 : STZ $420C;disable HDMA channels
@@ -516,32 +517,6 @@ setup:
     CLC
     RTS
 
-;if decompression is busy, don't handle HDMA queue (this would overwrite the DMA channels we're using)
-checkIfInLoading:
-    JSR $91EE
-    LDX !DecompFlag : BNE +
-    JMP $95AA
-    +
-    JMP $95C0
-
-;hyper-rare edge case where NMI interrupts a write to a write-twice register        
-checkstack:
-    LDA $0D,s
-    CMP.w #DEFAULT_edgecase1 : BEQ +
-    CMP.w #DEFAULT_edgecase2 : BEQ +
-    CMP.w #DEFAULT_edgecase3 : BEQ ++
-    BRA +++
-+
-    LDA.w #DEFAULT_rare_return : STA $0D,s : BRA +++
-++
-    LDA.w #DEFAULT_super_rare_edgecase3 : STA $0D,s
-
-+++
-    ;INC $05B8 ; handled by stats.asm
-    PLY
-    PLX
-    PLA
-    JMP $95FF
 
 ;IRQ also preserves DP
 setDp:
