@@ -52,9 +52,6 @@ lorom
 org $8095A7
     JMP checkIfInLoading
 
-org $8095FC
-    JMP checkstack
-
 ;change bottom of HUD hcounter, since IRQ does more work
 org $8096A5
     LDX #$0078
@@ -519,29 +516,26 @@ setup:
 ;if decompression is busy, don't handle HDMA queue (this would overwrite the DMA channels we're using)
 checkIfInLoading:
     JSR $91EE
-    LDX !DecompFlag : BNE +
+    LDX !DecompFlag : BNE .check_stack
     JMP $95AA
-    +
-    JMP $95C0
 
-;hyper-rare edge case where NMI interrupts a write to a write-twice register        
-checkstack:
+;hyper-rare edge case where NMI interrupts a write to a write-twice register
+.check_stack
     LDA $0D,s
+    AND #$00FF
+    CMP #$0080 ; confirm bank 80
+    BNE +++
+    LDA $0B,s
     CMP.w #DEFAULT_edgecase1 : BEQ +
     CMP.w #DEFAULT_edgecase2 : BEQ +
     CMP.w #DEFAULT_edgecase3 : BEQ ++
     BRA +++
 +
-    LDA.w #DEFAULT_rare_return : STA $0D,s : BRA +++
+    LDA.w #DEFAULT_rare_return : STA $0B,s : BRA +++
 ++
-    LDA.w #DEFAULT_super_rare_edgecase3 : STA $0D,s
-
+    LDA.w #DEFAULT_super_rare_edgecase3 : STA $0B,s
 +++
-    ;INC $05B8 ; handled by stats.asm
-    PLY
-    PLX
-    PLA
-    JMP $95FF
+    JMP $95C0
 
 ;IRQ also preserves DP
 setDp:
@@ -563,41 +557,6 @@ restoreDMA:
     RTS
 
 warnpc !bank_80_free_space_end
-
-;bank 82 stuff 
-org $82E4C1
-    JSL $90AC8D
-    JSL $82E139
-    JSL $90AD22
-    JSL $91DEE6
-    JSR $E8EB  
-    JSL $A08A1E
-    JSL $A08A9E
-    PLP
-    PEA $8F00 : PLB : PLB 
-; ---here we're making it so library backgrounds commands get executed before other stuff during room load
-; because decompression might happen
-; doesn't use any freespace :)
-    LDX $07BB  
-    LDY $0016,x
-    BPL +
--
-    LDX $0000,y : INY #2 : JSR ($E5C7,x) : BCC  -
-+
-    JSL $82EB6C
-    JSL AB82_vram_door_update
-    JSR $E566
-    LDA #$8A00 : STA $05C1 
-    LDA $1964 : BEQ + 
-    STA $05C0
-    LDA #$5BE0 : STA $05BE 
-    LDA #$0840 : STA $05C3 
-    LDA #$8000 : TSB $05BC
-- 
-    BIT $05BC : BMI -
-+
-
-warnpc $82E524
 
 org $82E97C
     PHP : PHB : REP #$30
@@ -636,13 +595,5 @@ fx_hook:
     LDX $1966
     LDA $0009,X
     RTS
-
-;wait for door VRAM update for Area FX
-AB82_vram_door_update:
-    JSL $89AB82
-    LDA #$8000 : TSB $05BC
-- 
-    BIT $05BC : BMI -
-    RTL
 
 warnpc !bank_89_free_space_end
