@@ -1,0 +1,10 @@
+[package]
+name = "simple-compress"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+maprando = { path = "../maprando" }
+clap = { version = "4.1.1", features = ["derive"] }
+anyhow = { version = "1.0.68", features = ["backtrace"] }
+itertools = { version = "0.14.0" }

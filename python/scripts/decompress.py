@@ -6,7 +6,7 @@ def romRead(rom, n=1):
     return int.from_bytes(rom.read(n), 'little')
 
 
-def decompress(rom, addr=None):
+def decompress(rom, addr, block_type_cnts, block_type_sizes):
     if addr is not None:
         rom.seek(addr)
     decompressed = array.array('B')
@@ -23,6 +23,8 @@ def decompress(rom, addr=None):
             type = byte >> 2 & 7
         # print("{}: len={} type={} size={}".format(rom.tell(), len(decompressed), type, size))
 
+        block_type_cnts[type] += 1
+        block_type_sizes[type] += size
         if type == 0:
             decompressed.fromfile(rom, size)
         elif type == 1:
@@ -33,9 +35,8 @@ def decompress(rom, addr=None):
             if size & 1:
                 decompressed.append(byte)
         elif type == 3:
-            # Not handling 8-bit overflow (byte + size > 256)
             byte = romRead(rom)
-            decompressed.extend(range(byte, byte + size))
+            decompressed.extend([x % 256 for x in range(byte, byte + size)])
         elif type == 4:
             offset = romRead(rom, 2)
             for i in range(offset, offset + size):
@@ -53,3 +54,24 @@ def decompress(rom, addr=None):
             for i in range(offset, offset + size):
                 decompressed.append(decompressed[i] ^ 0xFF)
     return decompressed
+
+
+import os
+path = "compressed_data/"
+files = os.listdir(path)
+filename = files[0]
+
+block_type_cnts = {i: 0 for i in range(8)}
+block_type_sizes = {i: 0 for i in range(8)}
+for filename in files:
+    data = open(path + filename, 'rb').read()
+    file = open(path + filename, 'rb')
+    out = decompress(file, 0, block_type_cnts, block_type_sizes)
+    print(len(data), len(out))
+    print("cnt:", block_type_cnts)
+    print("size:", block_type_sizes)
+
+avg_size = {i: block_type_sizes[i] / block_type_cnts[i] for i in range(8)}
+total_size = sum(block_type_sizes.values())
+frac = {i: block_type_sizes[i] / total_size for i in range(8)}
+print(frac)

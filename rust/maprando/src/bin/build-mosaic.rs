@@ -22,6 +22,8 @@ use std::process::Command;
 struct Args {
     #[arg(long)]
     compressor: PathBuf,
+    #[arg(long, default_value="../compressed_data")]
+    compressed_data_cache_dir: PathBuf,
     #[arg(long)]
     input_rom: PathBuf,
 }
@@ -1347,7 +1349,7 @@ fn main() -> Result<()> {
         room_ptr_map,
         bgdata_map: HashMap::new(),
         fx_door_map: HashMap::new(),
-        compressed_data_cache_dir: Path::new("../compressed_data").to_owned(),
+        compressed_data_cache_dir: args.compressed_data_cache_dir.to_owned(),
         compressor_path: args.compressor.clone(),
         tmp_dir: Path::new("../tmp").to_owned(),
         mosaic_dir: Path::new("../Mosaic").to_owned(),

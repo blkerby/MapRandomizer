@@ -205,6 +205,7 @@ BRANCH_IOTA:
     transfer:
     STY $25;set size
     LDA #$01 : STA $80211C
+print "x=2 transfer", pc
     LDA #$04 : STA $80420B;initiate DMA
     REP #$20
     LDA $22 : STA $802181;update destination address
