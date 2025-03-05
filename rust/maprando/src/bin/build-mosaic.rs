@@ -101,30 +101,42 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
     let height = state_xml.level_data.height;
     let width = state_xml.level_data.width;
     let num_tiles = height * width * 256;
-    let level_data_size = if state_xml.layer2_type == Layer2Type::Layer2 {
-        2 + num_tiles * 5
-    } else {
-        2 + num_tiles * 3
-    };
-    let mut level_data = vec![0u8; level_data_size];
-    level_data[0] = ((num_tiles * 2) & 0xFF) as u8;
-    level_data[1] = ((num_tiles * 2) >> 8) as u8;
+    let mut level_data: Vec<u8> = vec![];
+    level_data.push(((num_tiles * 2) & 0xFF) as u8);
+    level_data.push(((num_tiles * 2) >> 8) as u8);
+    let layer1_fill_word = 0x8000;
+    let layer2_fill_word = 0x0000;
+    let bts_fill_byte = 0x00;
+
+    for _ in 0..0x3200 {
+        level_data.push((layer1_fill_word & 0xFF) as u8);
+        level_data.push((layer1_fill_word >> 8) as u8);
+    }
     extract_all_screen_words(
         &state_xml.level_data.layer_1.screen,
         &mut level_data[2..],
         width,
         height,
     );
+
+    for _ in 0..0x3200 {
+        level_data.push(bts_fill_byte);
+    }
     extract_all_screen_bytes(
         &state_xml.level_data.bts.screen,
-        &mut level_data[2 + num_tiles * 2..],
+        &mut level_data[0x6402..],
         width,
         height,
     );
+
     if state_xml.layer2_type == Layer2Type::Layer2 {
+        for _ in 0..num_tiles {
+            level_data.push((layer2_fill_word & 0xFF) as u8);
+            level_data.push((layer2_fill_word >> 8) as u8);
+        }    
         extract_all_screen_words(
             &state_xml.level_data.layer_2.screen,
-            &mut level_data[2 + num_tiles * 3..],
+            &mut level_data[0x9602..],
             width,
             height,
         );

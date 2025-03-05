@@ -54,6 +54,7 @@ pub fn apply_retiling(
         "Area Palettes",
         "Area Palette Glows",
         "Bowling",
+        "in_place_level_data",
     ];
     for name in &patch_names {
         let patch_path_str = format!("../patches/ips/{}.ips", name);
