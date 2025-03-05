@@ -5126,6 +5126,8 @@ impl<'a> Randomizer<'a> {
 
                 let mut relevant_flag_idxs = vec![];
                 extract_relevant_flags(&link.requirement, &mut relevant_flag_idxs);
+                relevant_flag_idxs.sort();
+                relevant_flag_idxs.dedup();
                 let mut relevant_flags = vec![];
                 for flag_idx in relevant_flag_idxs {
                     let flag_name = self.game_data.flag_isv.keys[flag_idx].clone();

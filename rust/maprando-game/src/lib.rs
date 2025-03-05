@@ -401,6 +401,42 @@ impl Requirement {
             }
         }
     }
+
+    pub fn print_pretty(&self, indent: usize, game_data: &GameData) {
+        let spaces = " ".repeat(indent);
+        print!("{}", spaces);
+        match self {
+            &Requirement::Tech(tech_idx) => {
+                let tech_id = game_data.tech_isv.keys[tech_idx];
+                print!("Tech({})", game_data.tech_names[&tech_id]);
+            }
+            &Requirement::Item(item_idx) => {
+                print!("Item({})", game_data.item_isv.keys[item_idx]);
+            }
+            &Requirement::Flag(flag_idx) => {
+                print!("Flag({})", game_data.flag_isv.keys[flag_idx]);
+            }
+            Requirement::And(reqs) => {
+                println!("And(");
+                for r in reqs {
+                    r.print_pretty(indent + 2, game_data);
+                    println!(",");
+                }
+                print!("{})", spaces)
+            },
+            Requirement::Or(reqs) => {
+                println!("Or(");
+                for r in reqs {
+                    r.print_pretty(indent + 2, game_data);
+                    println!(",");
+                }
+                print!("{})", spaces)
+            }
+            other => {
+                print!("{:?}", other);
+            }
+        }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -3832,7 +3868,7 @@ impl GameData {
             };
 
         for from_obstacles_bitmask in 0..(1 << num_obstacles) {
-            if entrance_condition.is_some() && from_obstacles_bitmask != 0 {
+            if (entrance_condition.is_some() || gmode_regain_mobility.is_some()) && from_obstacles_bitmask != 0 {
                 continue;
             }
             ensure!(strat_json["requires"].is_array());
