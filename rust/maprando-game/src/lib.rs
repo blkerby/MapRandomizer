@@ -423,7 +423,7 @@ impl Requirement {
                     println!(",");
                 }
                 print!("{})", spaces)
-            },
+            }
             Requirement::Or(reqs) => {
                 println!("Or(");
                 for r in reqs {
@@ -3868,7 +3868,9 @@ impl GameData {
             };
 
         for from_obstacles_bitmask in 0..(1 << num_obstacles) {
-            if (entrance_condition.is_some() || gmode_regain_mobility.is_some()) && from_obstacles_bitmask != 0 {
+            if (entrance_condition.is_some() || gmode_regain_mobility.is_some())
+                && from_obstacles_bitmask != 0
+            {
                 continue;
             }
             ensure!(strat_json["requires"].is_array());
