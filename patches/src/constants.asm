@@ -39,3 +39,8 @@
 !objectives_num = $82FFFC ; bits 0-15
 !objectives_addrs = $8FEBC0
 !objectives_bitmasks #= !objectives_addrs+(2*!objectives_max)
+
+; Settings:
+; number of frames of artificial lag to add to the pause menu black screen
+; (to compensate for VRAM decompression being faster): 
+!unpause_black_screen_lag_frames = $dfff07

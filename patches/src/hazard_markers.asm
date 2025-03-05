@@ -12,8 +12,8 @@ lorom
 !hazard_tilemap_size = #$0020
 
 ; hook initial load and unpause
-org $82E7BB
-    jsl load_hazard_tiles
+org $82E7BF
+    jsl load_hazard_tiles : nop
 
 org $82E845
     jsl load_hazard_tilemap_initial_hook
@@ -73,8 +73,6 @@ left_hazard_transition_plm:
     dw $B3D0, left_hazard_transition_inst
 
 load_hazard_tiles:
-    jsl $80B271  ; run hi-jacked instruction (Decompress [tileset tiles pointer] to VRAM $0000)
-
     ; Load hazard tiles
     LDA #$0080
     STA $2115  ; video port control
@@ -104,6 +102,9 @@ load_hazard_tiles:
     sta $4315 ; transfer size = $100 bytes
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1    
+
+    lda $7c7   ; replaced code
+    sta $48
 
     rtl
 

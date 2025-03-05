@@ -1,6 +1,9 @@
 v118:
 - include "objectives" details on seed page.
 - account for reserve backward transfer QoL in logic.
+- fix scrolling sky corruption, which got worse with the faster decompression
+- move crateria tube tiles to CRE
+- blue brinstar theme
 - add side platform strats.
 - finish adding shinecharge and temp blue strats
 - add `easyHeatFrames` logical requirement
@@ -27,6 +30,7 @@ v118:
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
+- investigate crash in Mt. Everest: https://discord.com/channels/1053421401354285129/1053434532973510748/1346322314094055504
 - draw door frame in front of hazard markers, for doors that don't have a door shell.
 - fix garbled tiles that show up in door transitions
 - instant unpause QoL option
