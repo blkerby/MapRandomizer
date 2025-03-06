@@ -186,6 +186,11 @@ impl PresetData {
             "Default",
             "Community Race Season 3 (No animals)",
             "Community Race Season 3 (Save the animals)",
+            "Multicategory Tournament - No Objectives",
+            "Multicategory Tournament - Metroids Objectives, No MotherBrain 2",
+            "Multicategory Tournament - Double Suit",
+            "Multicategory Tournament - Gravity, 9 ETanks, 1 Reserve",
+            "Multicategory Tournament - Varia, HiJump, Spring, Grapple, Ice",
         ];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
