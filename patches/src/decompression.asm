@@ -38,7 +38,7 @@
 incsrc "constants.asm"
 
 !bank_80_free_space_start = $80E2A0
-!bank_80_free_space_end = $80E3A0
+!bank_80_free_space_end = $80E3C0
 
 !bank_89_free_space_start = $89B0C0
 !bank_89_free_space_end = $89B110
@@ -48,6 +48,61 @@ incsrc "constants.asm"
 !DecompFlag = $9B
 
 lorom
+
+macro setup()
+ ;DP RAM is relocated to the DMA channels because faster cycles
+ ;channel 2 is used to write a repeating word/byte
+ ;direction is B->A, so the A address ($23-$24) becomes the destination address
+ ;channel 3 is for direct copy, so A->b, with B being the WRAM port
+ ;other channels are used as temp variables
+setup:
+    SEP #$20
+    LDA #$01 : STA !DecompFlag
+
+    STZ $85 : STZ $420C  ; disable HDMA channels
+    LDX $47  ; X <- source address (compressed data)
+
+    ; Direct Page register D <- #$4300
+    TDC : LDA #$43 : XBA : TCD
+
+    ; save 16-bit register values $43xx
+    REP #$20
+    PEI ($08)
+    PEI ($0A)
+    PEI ($18)
+    PEI ($20)
+    PEI ($22)
+    PEI ($24)
+    PEI ($30)
+    PEI ($32)
+    PEI ($34)
+    PEI ($42)
+    PEI ($50)
+    PEI ($5A)
+    PEI ($62)
+    PEI ($64)
+    PEI ($70)
+    PEI ($72)
+    PEI ($74)
+    SEP #$20
+
+    STZ $5B
+    LDA $004C : STA $2181 : STA $42 : STA $22
+    LDA $004D : STA $2182 : STA $43 : STA $23
+    LDA $004E : STA $2183 : STA $64 : STA $24 : STA $73 : STA $74;$73/$74 are the argumants for the MVN
+    LDA $0049 : STA $34
+    ;channel 2/3 settings
+    LDA #$34 : STA $21
+    LDA #$81 : STA $20
+    LDA #$80 : STA $31
+    LDA #$00 : STA $30
+    
+    LDA #$54 : STA $72;write the MVN
+    LDA #$60 : STA $75;write the RTS for the MVN
+    LDA $0049 : PHA : PLB
+    CLC
+endmacro
+
 
 ;;; hooks
 
@@ -70,12 +125,8 @@ org $809883
     JMP ResetDp
 return2:
 
-;HDMA channels aren't preserved during unpause, but since decomp uses DMA 2/3, those now need to be preserved
-org $828D1A
-    JSR preserveDMA_pause
-
 org $80A15F
-    JSR restoreDMA_unpause : NOP
+    JSR unpause_hook : NOP
 
 org $82E7A8
     JSL VRAMdecomp
@@ -115,13 +166,11 @@ org $80B119; : Later JSL start if 4C (target address) is specified
 namespace DEFAULT
 Start:
     PHP : PHB : PHD
-    JSR setup;prepare settings
+    %setup()
     BRA NextByte
 
 End:
-    PLD
-    STZ !DecompFlag
-    PLB : PLP : RTL
+    JMP cleanup
 
     Option0:;this one is here so one of the commands doesn't need a JMP to go back to the start (ugly, but saves those extra 3 cycles)
     REP #$20
@@ -282,7 +331,7 @@ VRAMdecomp:
 print "vram: $",pc
 namespace VRAM    
     PHP : PHB : PHD : REP #$10
-    JSR setup
+    %setup()
     ;overwrite some settings from "setup", since we're writing to the VRAM port now
     LDA #$18 : STA $31
     LDA #$01 : STA $30
@@ -303,9 +352,7 @@ OddCheck:;if VRAM destination is odd, write first byte, then do transfer
     PLP : SEC : RTS    
 
 End:
-    PLD
-    STZ !DecompFlag
-    PLB : PLP : RTL
+    JMP cleanup
 
     Option0:;this one is here so one of the commands doesn't need a JMP to go back to the start (ugly, but saves those extra 3 cycles)
     REP #$20
@@ -466,64 +513,34 @@ namespace off
 print PC
 warnpc $80BC37
 
-org $82E617
-    JSR preserveDMA_library_background
-
-org $82E62B
-    JSL restoreDMA_library_background
-
-;unused block of code so we don't use freespace in bank $82 :)
-;preserves the settings and destination of used channel variables
-org $82B5E8
-preserveDMA_pause:
-    JSR $8DBD  ; run hi-jacked instruction. fall through to below:
-
-preserveDMAregisters:
-    PHA
-    LDA $4320 : STA $7EF600
-    LDA $4330 : STA $7EF602
-    LDA $4324 : STA $7EF606
-    LDA $4334 : STA $7EF604
-    LDA $4370 : STA $7EF608
-    LDA $4374 : STA $7EF60A
-    PLA
-    RTS
-
-preserveDMA_library_background:
-    LDA $0000,y  ; run hi-jacked instruction
-    BRA preserveDMAregisters
-
-warnpc $82B62B
-
 org !bank_80_free_space_start
- ;DP RAM is relocated to the DMA channels because faster cycles
- ;channel 2 is used to write a repeating word/byte
- ;direction is B->A, so the A address ($23-$24) becomes the destination address
- ;channel 3 is for direct copy, so A->b, with B being the WRAM port
- ;other channels are used as temp variables
-setup:
+
+cleanup:
+    ;restore some DMA registers that could have been overwritten
+    REP #$20
+    PLA : STA $74
+    PLA : STA $72
+    PLA : STA $70
+    PLA : STA $64
+    PLA : STA $62
+    PLA : STA $5A
+    PLA : STA $50
+    PLA : STA $42
+    PLA : STA $34
+    PLA : STA $32
+    PLA : STA $30
+    PLA : STA $24
+    PLA : STA $22
+    PLA : STA $20
+    PLA : STA $18
+    PLA : STA $0A
+    PLA : STA $08
     SEP #$20
-    LDA #$01 : STA !DecompFlag
-    TDC
-    LDX $47
-    STZ $85 : STZ $420C;disable HDMA channels
-    LDA #$43 : XBA : TCD
-    STZ $5B
-    LDA $004C : STA $2181 : STA $42 : STA $22
-    LDA $004D : STA $2182 : STA $43 : STA $23
-    LDA $004E : STA $2183 : STA $64 : STA $24 : STA $73 : STA $74;$73/$74 are the argumants for the MVN
-    LDA $0049 : STA $34
-    ;channel 2/3 settings
-    LDA #$34 : STA $21
-    LDA #$81 : STA $20
-    LDA #$80 : STA $31
-    LDA #$00 : STA $30
-    
-    LDA #$54 : STA $72;write the MVN
-    LDA #$60 : STA $75;write the RTS for the MVN
-    LDA $0049 : PHA : PLB
-    CLC
-    RTS
+
+    PLD
+    STZ !DecompFlag
+    PLB : PLP : RTL
+
 
 ;if decompression is busy, don't handle HDMA queue (this would overwrite the DMA channels we're using)
 checkIfInLoading:
@@ -556,16 +573,15 @@ setDp:
     LDA $4211 : JMP return
 ResetDp:
     PLD : STX $4207 : JMP return2
-restoreDMA_unpause:
+unpause_hook:
     JSL $82E97C  ; run hi-jacked instruction
-    JSL UploadFXptr
 
     ; in case fast pause menu QoL is disabled, 
     ; add artificial lag to unpause black screen, to compensate for the accelerated decompression
     LDA !unpause_black_screen_lag_frames
     TAX
 .loop:
-    BEQ restoreDMA_registers
+    BNE .done
     LDA !nmi_counter
 .wait_frame:
     CMP !nmi_counter  ; wait for frame counter to change
@@ -573,39 +589,10 @@ restoreDMA_unpause:
     LDA !nmi_counter
     DEX
     BRA .loop
-
-    ; fall through to below
-restoreDMA_registers:
-    ;restore some DMA registers that could have been overwritten
-    LDA $7EF600 : STA $4320
-    LDA $7EF602 : STA $4330
-    LDA $7EF606 : STA $4324
-    LDA $7EF604 : STA $4334
-    LDA $7EF608 : STA $4370
-    LDA $7EF60A : STA $4374
+.done:
     RTS
 
-restoreDMA_library_background:
-    JSL $80B119  ; run hi-jacked instruction
-    JSR restoreDMA_registers
-    RTL
 warnpc !bank_80_free_space_end
-
-org $82E97C
-    PHP : PHB : REP #$30
-    JSL $80A29C
-    PEA $8F00 : PLB : PLB
-    LDX $07BB  
-    LDY $0016,x
-    BPL +
--
-    LDX $0000,y : INY #2 : JSR (commands,x) : BCC  -
-+
-    PLB : PLP : RTL
-commands:
-DW $E9E5, $E9F9, $EA2D, $EA4E, $EA66, $EA56, $EA5E, $E9E7
-
-warnpc $82E9E5
 
 org !bank_89_free_space_start
 ;change this to use VRAM write table to ensure it happens during blanking
@@ -630,3 +617,4 @@ fx_hook:
     RTS
 
 warnpc !bank_89_free_space_end
+
