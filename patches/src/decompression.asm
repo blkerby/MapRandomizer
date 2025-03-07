@@ -113,7 +113,15 @@ org $8095A7
 org $8096A5
     LDX #$0078
 
+;change top of HUD hcounter, since IRQ does more work
+org $8096CF
+    LDX #$0078
+
+; same for draygon-specific IRQ commands:
 org $80972F
+    LDX #$0078
+
+org $809754
     LDX #$0078
 
 ;some hijacks

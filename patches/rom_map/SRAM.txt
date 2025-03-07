@@ -27,4 +27,6 @@
 3000-4000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
 4000-4400: Temporary tileset graphics (fix_transition_bad_tiles.asm)
 4400-4800: (reserved in case we expand the temporary tileset graphics)
-4800-8000: [FREE]
+4800-5000: [FREE]
+5000-5800: pause_menu_objectives (backup of objective screen)
+5800-8000: [FREE]
