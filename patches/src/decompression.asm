@@ -134,13 +134,13 @@ org $82E7A8
 org $82E7BB
     JSL VRAMdecomp
 
-org $89AC2E
-    BEQ skip_fx_ptr                ; adjust stock branch for JSL hook @ 89AC34
-
-org $89AC34
-    JSL UploadFXTilemap : NOP #2
-skip_fx_ptr:
-    JSR fx_hook                    ; replaced code above
+;org $89AC2E
+;    BEQ skip_fx_ptr                ; adjust stock branch for JSL hook @ 89AC34
+;
+;org $89AC34
+;    JSL UploadFXTilemap : NOP #2
+;skip_fx_ptr:
+;    JSR fx_hook                    ; replaced code above
 
 ;;; new decompression func
 
@@ -594,27 +594,31 @@ unpause_hook:
 
 warnpc !bank_80_free_space_end
 
-org !bank_89_free_space_start
-;change this to use VRAM write table to ensure it happens during blanking
-UploadFXTilemap:
-    LDA $ABF0,y : STA $1964
-UploadFXptr:
-    LDA $1964 : BEQ + : STA $4312 
-    LDX $0330
-    LDA #$0840 : STA $D0,x
-    LDA #$8A00 : STA $D3,x
-    LDA $1964  : STA $D2,x
-    LDA #$5BE0 : STA $D5,x
-    TXA : CLC : ADC #$0007
-    STA $0330
-+
-    RTL
+;org !bank_89_free_space_start
+;;change this to use VRAM write table to ensure it happens during blanking
+;UploadFXTilemap:
+;    LDA $ABF0,y : STA $1964
+;UploadFXptr:
+;    LDA $1964 : BEQ + : STA $4312 
+;    LDX $0330
+;    LDA #$0840 : STA $D0,x
+;    LDA #$8A00 : STA $D3,x
+;    LDA $1964  : STA $D2,x
+;    LDA #$5BE0 : STA $D5,x
+;    TXA : CLC : ADC #$0007
+;    STA $0330
+;+
+;    RTL
+;
+;;replaced code at $89AC34 by the JSL
+;fx_hook:
+;    LDX $1966
+;    LDA $0009,X
+;    RTS
+;
+;warnpc !bank_89_free_space_end
 
-;replaced code at $89AC34 by the JSL
-fx_hook:
-    LDX $1966
-    LDA $0009,X
-    RTS
-
-warnpc !bank_89_free_space_end
-
+;org $82E984
+;    BRA skip_load_fx_tilemap
+;org $82E9B9
+;skip_load_fx_tilemap:
