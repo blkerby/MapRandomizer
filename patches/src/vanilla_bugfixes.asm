@@ -10,6 +10,9 @@ lorom
 
 !bank_80_free_space_start = $80D200
 !bank_80_free_space_end = $80D240
+!bank_86_free_space_start = $86F4B0
+!bank_86_free_space_end = $86F4D0
+
 !item_plm_start = #$DF89
 !item_plm_end = #$F100
 
@@ -266,3 +269,32 @@ fix_reserve:
     jmp $db83
 
 warnpc !bank_82_free_space_end
+
+; Fix for powamp projectile bug
+;
+; Rare hardlock can occur if powamp killed using contact damage and errant projectiles are spawned 
+; with coords 0,0. These projectiles can potentially collide OOB with uninitialized RAM leading to 
+; the hardlock. Fix is to delete projectiles spawned with 0,0 enemy coords.
+;
+; Characterized by somerando
+
+org $86d252
+    jsr powamp_fix          ; AI initialization hook
+    
+org !bank_86_free_space_start
+powamp_fix:
+    pha
+    bne .no_fix             ; x = 0?
+    lda $f7e,x
+    bne .no_fix             ; y = 0?
+    lda #$d218
+    sta $1b47,y             ; Enemy projectile instruction list pointer = $D218 (delete)
+    lda #$0001
+    sta $1b8f,y
+
+.no_fix
+    pla
+    sta $1a4b,y             ; replaced code
+    rts
+
+warnpc !bank_86_free_space_end
