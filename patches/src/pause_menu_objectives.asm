@@ -687,7 +687,7 @@ func_map2obj_fading_out:
     LDA #$7ff
     LDX #$3800
     LDY #$5000
-    MVN $7E, $7E
+    MVN $7E, $70
 
 .end:
     RTL
@@ -769,7 +769,7 @@ func_obj2map_fading_out:
     LDA #$7FF
     LDX #$5000
     LDY #$3800
-    MVN $7E, $7E
+    MVN $70, $7E
 
 .end:
     RTL
