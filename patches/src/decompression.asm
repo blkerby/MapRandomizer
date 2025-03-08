@@ -109,20 +109,30 @@ endmacro
 org $8095A7
     JMP checkIfInLoading
 
-;change bottom of HUD hcounter, since IRQ does more work
-org $8096A5
-    LDX #$0078
+; Change the top-of-HUD IRQ to run as early as possible during vblank (after NMI):
+; Normally this IRQ fires during scanline 0, but if decompression is doing a large
+; DMA transfer, then the IRQ could be delayed, resulting in artifacts showing at the
+; top of the HUD. By running it earlier the IRQ will finish before vblank ends.
+; We set it to run on scanline $E2 (226), which is one scanline after NMI triggers.
+; If NMI is still in progress (as normally expected), the IRQ will fire immediately
+; after NMI returns, or after the completion of any DMA transfer that was
+; interrupted by NMI.
+org $8096CC : LDY #$00E2  ; main gameplay
+org $809713 : LDY #$00E2  ; start of door transition
+org $809751 : LDY #$00E2  ; Draygon's Room
+org $8097B4 : LDY #$00E2  ; vertical door transition
+org $80981D : LDY #$00E2  ; horizontal door transition
 
-;change top of HUD hcounter, since IRQ does more work
-org $8096CF
-    LDX #$0078
-
-; same for draygon-specific IRQ commands:
-org $80972F
-    LDX #$0078
-
-org $809754
-    LDX #$0078
+; Change the bottom-of-HUD IRQ to run slightly earlier (32 dots), to account for the extra few
+; cycles spent saving and setting the Direct Page register:
+; It is also possible for this IRQ to be delayed due to a large DMA transfer during
+; decompression, but if that happens, it only results in some black scanlines below
+; the HUD, which shouldn't be too noticeable since the room is already faded to black.
+org $8096A5 : LDX #$0078  ; main gameplay
+org $8096ED : LDX #$0078  ; start of door transition
+org $80972F : LDX #$0078  ; Draygon's Room
+org $80976D : LDX #$0078  ; vertical door transition
+org $8097D6 : LDX #$0078  ; horizontal door transition
 
 ;some hijacks
 org $809876
