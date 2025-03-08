@@ -637,7 +637,6 @@ impl MosaicPatchBuilder {
         src_width: usize,
         src_layer_2: &[u8],
     ) {
-        let dst_size = dst_level_data[0] as usize + ((dst_level_data[1] as usize) << 8);
         for y in 0..16 {
             for x in 0..16 {
                 let src_x = src_screen_x * 16 + x;
@@ -646,11 +645,14 @@ impl MosaicPatchBuilder {
                 let dst_x = dst_screen_x * 16 + x;
                 let dst_y = dst_screen_y * 16 + y;
                 let dst_i = dst_y * dst_width * 16 + dst_x;
+                // Layer1:
                 dst_level_data[2 + dst_i * 2] = src_level_data[2 + src_i * 2];
                 dst_level_data[2 + dst_i * 2 + 1] = (dst_level_data[2 + dst_i * 2 + 1] & 0xF0)
                     | (src_level_data[2 + src_i * 2 + 1] & 0x0F);
-                dst_level_data[2 + 3 * dst_size / 2 + dst_i * 2] = src_layer_2[src_i * 2];
-                dst_level_data[2 + 3 * dst_size / 2 + dst_i * 2 + 1] = src_layer_2[src_i * 2 + 1];
+                // We skip touching BTS, leaving it unchanged.
+                // Layer2:
+                dst_level_data[0x9602 + dst_i * 2] = src_layer_2[src_i * 2];
+                dst_level_data[0x9602 + dst_i * 2 + 1] = src_layer_2[src_i * 2 + 1];
             }
         }
     }
@@ -680,7 +682,7 @@ impl MosaicPatchBuilder {
     ) -> Vec<u8> {
         let size = level_data[0] as usize + ((level_data[1] as usize) << 8);
         if state_xml.layer2_type == Layer2Type::Layer2 {
-            let mut out = level_data[(2 + size * 3 / 2)..(2 + size * 5 / 2)].to_vec();
+            let mut out = level_data[0x9602..].to_vec();
             if state_xml.layer1_2 == 0x91C9 {
                 // Scrolling sky BG: replicate first column of screens
                 for sy in 0..room_height {

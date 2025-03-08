@@ -27,6 +27,10 @@ v118:
   - missed entering from the right
   - grapple jumping up only to the ledge (probably needs a new node)
     - shinespark strats could get up that node too, with fewer shinecharge frames
+- fix spoiler map bug:
+  - non-existent (?) HiJump boots shown: https://maprando.com/seed/7wT9dbFrm/data/visualizer/index.html
+- chaining temp blue after bouncing through should be extreme:
+  - maprando.com/logic/room/59/13/4/134
 
 Rom patching:
 - DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)

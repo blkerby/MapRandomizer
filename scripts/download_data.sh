@@ -14,9 +14,9 @@ rm ${pool}.tgz
 done
 
 # Download the Mosaic patches
-export MOSAIC_COMMIT_ID=$(cat ../MOSAIC_COMMIT_ID)
-wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/Mosaic/Mosaic-${MOSAIC_COMMIT_ID}.tar.zstd
-unzstd Mosaic-${MOSAIC_COMMIT_ID}.tar.zstd
+export MOSAIC_BUILD_ID=$(cat ../MOSAIC_BUILD_ID)
+wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/Mosaic/Mosaic-${MOSAIC_BUILD_ID}.tar.zstd
+unzstd Mosaic-${MOSAIC_BUILD_ID}.tar.zstd
 mkdir -p ../patches/mosaic
-tar xf Mosaic-${MOSAIC_COMMIT_ID}.tar --directory ../patches/mosaic
-rm Mosaic-${MOSAIC_COMMIT_ID}.tar Mosaic-${MOSAIC_COMMIT_ID}.tar.zstd
+tar xf Mosaic-${MOSAIC_BUILD_ID}.tar --directory ../patches/mosaic
+rm Mosaic-${MOSAIC_BUILD_ID}.tar Mosaic-${MOSAIC_BUILD_ID}.tar.zstd
