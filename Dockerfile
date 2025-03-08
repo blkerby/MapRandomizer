@@ -28,7 +28,7 @@ RUN rm /rust/src/*.rs
 # Download the map datasets and Mosaic patches
 WORKDIR /
 COPY /scripts /scripts
-COPY /MOSAIC_COMMIT_ID /MOSAIC_COMMIT_ID
+COPY /MOSAIC_BUILD_ID /MOSAIC_BUILD_ID
 RUN bash /scripts/download_data.sh
 
 # Now copy over the source code and build the real binary

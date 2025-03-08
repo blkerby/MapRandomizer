@@ -133,7 +133,7 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
         for _ in 0..num_tiles {
             level_data.push((layer2_fill_word & 0xFF) as u8);
             level_data.push((layer2_fill_word >> 8) as u8);
-        }    
+        }
         extract_all_screen_words(
             &state_xml.level_data.layer_2.screen,
             &mut level_data[0x9602..],
