@@ -904,15 +904,16 @@ org $B6F034 : dw !unexplored_light_gray
 org $B6F036 : dw $7FFF
 
 ; Patch tile data for button letters. Changing the palettes to 3:
+; This takes into account the changes to the tileset from hud_expansion_opaque.asm.
 org $858426            
-    dw $2CE0, ; A
-       $2CE1, ; B
-       $2CF7, ; X
-       $2CF8, ; Y
-       $2CD0, ; Select
-       $2CEB, ; L
-       $2CF1, ; R
-       $2C4E  ; Blank
+    dw $2CC0, ; A
+       $2CC1, ; B
+       $2CD7, ; X
+       $2CD8, ; Y
+       $2CFA, ; Select
+       $2CCB, ; L
+       $2CD1, ; R
+       $2C0F  ; Blank
 
 ; Phantoon power-on palette:
 ;org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-tanks (instead of black)

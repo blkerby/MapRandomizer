@@ -435,16 +435,17 @@ org $829580
 org $82E569
     LDA #$180F ; 184E
 
-; Message box button text table
-org $858426
-    DW $28C0 ;$28E0, ; A
-    DW $3CC1 ;$3CE1, ; B
-    DW $2CD7 ;$2CF7, ; X
-    DW $2CD8 ;$38F8, ; Y
-    DW $38FA ;$38D0, ; Select
-    DW $2CCB ;$38EB, ; L
-    DW $2CD1 ;$38F1, ; R
-    DW $280F ;$284E  ; Blank
+; Skipping this, since it is overwritten in map_area.asm:
+; ; Message box button text table
+; org $858426
+;     DW $28C0 ;$28E0, ; A
+;     DW $3CC1 ;$3CE1, ; B
+;     DW $2CD7 ;$2CF7, ; X
+;     DW $2CD8 ;$38F8, ; Y
+;     DW $38FA ;$38D0, ; Select
+;     DW $2CCB ;$38EB, ; L
+;     DW $2CD1 ;$38F1, ; R
+;     DW $280F ;$284E  ; Blank
 
 ; Digit tilemap on HUD because the numbers are moved
 org $809DBF
