@@ -59,6 +59,9 @@
         Repeat to cycle through previous saves.
         <li>Press L + R + Up + X to activate Spin Lock, temporarily preventing up/down inputs from breaking spin.
         Pressing shot will cancel this mode.
+        {% if settings.quality_of_life_settings.disableable_etanks %}
+        <li>Press Select + X in the pause equipment screen to disable E-Tanks (one at a time). Press Select + Y to re-enable them.
+        {% endif %}
         {% if settings.quality_of_life_settings.reserve_backward_transfer %}
         <li>Set reserves to Manual and hold B + Up in the pause equipment screen to transfer energy to reserve tanks.
         {% endif %}

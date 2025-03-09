@@ -139,7 +139,11 @@ impl<'a> MapPatcher<'a> {
         .into_iter()
         .collect();
 
-        if randomization.settings.quality_of_life_settings.disableable_etanks {
+        if randomization
+            .settings
+            .quality_of_life_settings
+            .disableable_etanks
+        {
             // Reserve tile $2F for disabled ETank
             reserved_tiles.insert(0x2F);
         }
@@ -2468,7 +2472,12 @@ impl<'a> MapPatcher<'a> {
         self.fix_message_boxes()?;
         self.fix_hud_black()?;
         self.darken_hud_grid()?;
-        if self.randomization.settings.quality_of_life_settings.disableable_etanks {
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .disableable_etanks
+        {
             self.write_disabled_etank_tile()?;
         }
         self.apply_room_tiles()?;
