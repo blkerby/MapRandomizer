@@ -8,7 +8,7 @@ org $82AE8E
 
 ; update reserve refill code to set the counter value to maximum (#$FFFF) rather than
 ; to the current amount in reserves. This prevents the refill from abruptly stopping
-; if switching back and forth between forward an reverse fill.
+; if switching back and forth between forward and reverse fill.
 org $82AF5E
     lda #$FFFF
     sta $0757

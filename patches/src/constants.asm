@@ -18,6 +18,9 @@
 ; Local stats (stored to normal RAM that goes into save files)
 !stat_item_collection_times = $7efe06  ; must match address in patch.rs
 
+; Additional save data:
+!num_disabled_etanks = $09EC
+
 !spin_lock_enabled = $1F70
 !last_samus_map_x = $1F72
 !last_samus_map_y = $1F74

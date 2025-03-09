@@ -560,6 +560,15 @@ impl<'a> Patcher<'a> {
             .randomization
             .settings
             .quality_of_life_settings
+            .disableable_etanks
+        {
+            patches.push("disableable_etanks");
+        }
+
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
             .reserve_backward_transfer
         {
             patches.push("reserve_backward_fill");

@@ -131,6 +131,7 @@ pub struct QualityOfLifeSettings {
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
+    pub disableable_etanks: bool,
     pub reserve_backward_transfer: bool,
     // Other:
     pub buffed_drops: bool,

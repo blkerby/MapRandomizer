@@ -122,7 +122,7 @@ impl<'a> MapPatcher<'a> {
         randomization: &'a Randomization,
         locked_door_state_indices: &'a [usize],
     ) -> Self {
-        let reserved_tiles: HashSet<TilemapWord> = vec![
+        let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD: (skipping "%", which is unused)
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D, 0x0E,
             0x0F, 0x1C, 0x1D, 0x1E, 0x1F,
@@ -138,6 +138,11 @@ impl<'a> MapPatcher<'a> {
         ]
         .into_iter()
         .collect();
+
+        if randomization.settings.quality_of_life_settings.disableable_etanks {
+            // Reserve tile $2F for disabled ETank
+            reserved_tiles.insert(0x2F);
+        }
 
         let mut free_tiles: Vec<TilemapWord> = Vec::new();
         for word in 0..224 {
@@ -2146,6 +2151,23 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn write_disabled_etank_tile(&mut self) -> Result<()> {
+        self.write_tile_2bpp(
+            0x2F,
+            [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 1, 1, 1, 1, 1, 1, 0],
+                [0, 1, 0, 0, 0, 0, 1, 0],
+                [0, 1, 0, 0, 0, 0, 1, 0],
+                [0, 1, 0, 0, 0, 0, 1, 0],
+                [0, 1, 0, 0, 0, 0, 1, 0],
+                [0, 1, 1, 1, 1, 1, 1, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ],
+        )?;
+        Ok(())
+    }
+
     fn fix_fx_palettes(&mut self) -> Result<()> {
         // use palette 7 for FX (water, lava, etc.) instead of palette 6
         for addr in (snes2pc(0x8A8000)..snes2pc(0x8AB180)).step_by(2) {
@@ -2446,6 +2468,9 @@ impl<'a> MapPatcher<'a> {
         self.fix_message_boxes()?;
         self.fix_hud_black()?;
         self.darken_hud_grid()?;
+        if self.randomization.settings.quality_of_life_settings.disableable_etanks {
+            self.write_disabled_etank_tile()?;
+        }
         self.apply_room_tiles()?;
         self.indicate_objective_tiles()?;
         if !self.randomization.settings.other_settings.ultra_low_qol {

@@ -13,3 +13,4 @@ E100 - E180: area_palette.asm
 E180 - E200: samus_dma_fix.asm
 E200 - E2A0: samus_tiles_optim_animated_tiles_fix.asm
 E2A0 - E3C0: decompression.asm
+E3C0 - E440: disable_etanks.asm
