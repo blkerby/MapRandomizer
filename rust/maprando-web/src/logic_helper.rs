@@ -8,18 +8,7 @@ use maprando::{
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    DoorOrientation, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId,
-    NotableIdx, Requirement, RoomId, SparkPosition, StratId, StratVideo, TechId, VertexAction,
-    VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY,
-    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
-    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
-    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE,
-    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
-    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SKIP_DOOR_LOCK,
-    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
-    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TECH_ID_CAN_WALLJUMP,
+    DoorOrientation, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId, NotableIdx, Requirement, RoomId, SparkPosition, StratId, StratVideo, TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TECH_ID_CAN_WALLJUMP
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
@@ -303,6 +292,7 @@ fn make_tech_templates<'a>(
                     vec![TECH_ID_CAN_SAMUS_EATER_TELEPORT],
                 ),
                 ("comeInWithWallJumpBelow", vec![TECH_ID_CAN_WALLJUMP]),
+                ("comeInWithSidePlatform", vec![TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP]),
             ];
 
             for (entrance_name, tech_ids) in entrance_condition_techs {
@@ -357,12 +347,24 @@ fn make_tech_templates<'a>(
                     }
                 }
             }
+            if strat_json["entranceCondition"].has_key("comeInWithSidePlatformJump") {
+                for p in strat_json["entranceCondition"]["comeInWithSidePlatformJump"]["platforms"].members() {
+                    if p.has_key("requires") {
+                        for req in p["requires"].members() {
+                            extract_tech_rec(req, &mut tech_set, game_data);
+                        }        
+                    }
+                }
+            }
 
             if strat_json["entranceCondition"].has_key("comeInWithGMode") {
                 if strat_json["entranceCondition"]["comeInWithGMode"]["morphed"].as_bool()
                     == Some(true)
                 {
                     tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ARTIFICIAL_MORPH]);
+                }
+                if game_data.get_room_heated(room_json, from_node_id).unwrap() {
+                    tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]);
                 }
             }
 
@@ -384,6 +386,7 @@ fn make_tech_templates<'a>(
                     "leaveWithSamusEaterTeleport",
                     vec![TECH_ID_CAN_SAMUS_EATER_TELEPORT],
                 ),
+                ("leaveWithSidePlatform", vec![TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP]),
             ];
 
             for (exit_name, tech_ids) in exit_condition_techs {
@@ -407,6 +410,11 @@ fn make_tech_templates<'a>(
                             game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK],
                         );
                     }
+                }
+            }
+            if strat_json["exitCondition"].has_key("leaveWithGModeSetup") {
+                if game_data.get_room_heated(room_json, to_node_id).unwrap() {
+                    tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]);
                 }
             }
 
@@ -698,6 +706,14 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 MainEntranceCondition::ComeInWithSpaceJumpBelow { .. } => {}
                 MainEntranceCondition::ComeInWithPlatformBelow { .. } => {}
+                MainEntranceCondition::ComeInWithSidePlatform { platforms } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
+                    ));
+                    for p in platforms {
+                        reqs.push(p.requirement.clone());
+                    }
+                }
                 MainEntranceCondition::ComeInWithGrappleSwing { .. } => {
                     reqs.push(Requirement::Tech(
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_PRECISE_GRAPPLE],
@@ -776,6 +792,11 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 ExitCondition::LeaveWithDoorFrameBelow { .. } => {}
                 ExitCondition::LeaveWithPlatformBelow { .. } => {}
+                ExitCondition::LeaveWithSidePlatform { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
+                    ));
+                }
                 ExitCondition::LeaveWithGrappleSwing { .. } => {
                     reqs.push(Requirement::Tech(
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_PRECISE_GRAPPLE],

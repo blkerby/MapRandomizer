@@ -208,6 +208,11 @@
                 "enabled": false
             },
             {
+                "id": 197,
+                "name": "canSidePlatformCrossRoomJump",
+                "enabled": false
+            },
+            {
                 "id": 193,
                 "name": "canLongIBJ",
                 "enabled": false
@@ -873,6 +878,11 @@
                 "enabled": false
             },
             {
+                "id": 196,
+                "name": "canInsaneMidAirMorph",
+                "enabled": false
+            },
+            {
                 "id": 53,
                 "name": "canTrickyGrappleJump",
                 "enabled": false
@@ -900,6 +910,11 @@
             {
                 "id": 148,
                 "name": "canLongChainTemporaryBlue",
+                "enabled": false
+            },
+            {
+                "id": 198,
+                "name": "canHeatedGMode",
                 "enabled": false
             },
             {

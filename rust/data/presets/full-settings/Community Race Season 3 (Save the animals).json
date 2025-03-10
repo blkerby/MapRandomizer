@@ -208,6 +208,11 @@
                 "enabled": true
             },
             {
+                "id": 197,
+                "name": "canSidePlatformCrossRoomJump",
+                "enabled": true
+            },
+            {
                 "id": 193,
                 "name": "canLongIBJ",
                 "enabled": true
@@ -873,6 +878,11 @@
                 "enabled": false
             },
             {
+                "id": 196,
+                "name": "canInsaneMidAirMorph",
+                "enabled": false
+            },
+            {
                 "id": 53,
                 "name": "canTrickyGrappleJump",
                 "enabled": false
@@ -900,6 +910,11 @@
             {
                 "id": 148,
                 "name": "canLongChainTemporaryBlue",
+                "enabled": false
+            },
+            {
+                "id": 198,
+                "name": "canHeatedGMode",
                 "enabled": false
             },
             {
@@ -4174,7 +4189,7 @@
         "energy_station_reserves": true,
         "etank_refill": "Full",
         "disableable_etanks": true,
-        "reserve_backward_transfer": true,
+        "reserve_backward_transfer": false,
         "buffed_drops": true,
         "early_save": true
     },

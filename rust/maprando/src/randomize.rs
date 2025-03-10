@@ -17,20 +17,7 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
-    DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
-    GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
-    ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
-    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SparkPosition, StartLocation, TechId,
-    TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH,
-    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
-    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
-    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
-    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
-    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
-    TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
-    TECH_ID_CAN_TEMPORARY_BLUE,
+    self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -766,6 +753,7 @@ impl<'a> Preprocessor<'a> {
                 mode,
                 morphed,
                 mobility,
+                heated,
             } => self.get_come_in_with_g_mode_reqs(
                 exit_condition,
                 entrance_room_id,
@@ -773,6 +761,7 @@ impl<'a> Preprocessor<'a> {
                 *mode,
                 *morphed,
                 *mobility,
+                *heated,
                 is_toilet,
             ),
             MainEntranceCondition::ComeInWithStoredFallSpeed {
@@ -796,6 +785,9 @@ impl<'a> Preprocessor<'a> {
                 max_left_position.get(),
                 min_right_position.get(),
             ),
+            MainEntranceCondition::ComeInWithSidePlatform { platforms } => {
+                self.get_come_in_with_side_platform_reqs(exit_condition, platforms)
+            }
             MainEntranceCondition::ComeInWithGrappleSwing { blocks } => {
                 self.get_come_in_with_grapple_swing_reqs(exit_condition, blocks)
             }
@@ -2125,6 +2117,7 @@ impl<'a> Preprocessor<'a> {
         mut mode: GModeMode,
         entrance_morphed: bool,
         mobility: GModeMobility,
+        entrance_heated: bool,
         is_toilet: bool,
     ) -> Option<Requirement> {
         if is_toilet {
@@ -2147,7 +2140,7 @@ impl<'a> Preprocessor<'a> {
             .get(&(entrance_room_id, entrance_node_id))
             .unwrap_or(&empty_vec);
         match exit_condition {
-            ExitCondition::LeaveWithGModeSetup { knockback } => {
+            ExitCondition::LeaveWithGModeSetup { knockback, heated } => {
                 if mode == GModeMode::Indirect {
                     return None;
                 }
@@ -2161,6 +2154,12 @@ impl<'a> Preprocessor<'a> {
                             self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ARTIFICIAL_MORPH],
                         ),
                         Requirement::Item(Item::Morph as ItemId),
+                    ]));
+                }
+                if *heated || entrance_heated {
+                    reqs.push(Requirement::make_or(vec![
+                        Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]),
+                        Requirement::Item(Item::Varia as ItemId),
                     ]));
                 }
                 reqs.push(Requirement::Item(Item::XRayScope as ItemId));
@@ -2277,6 +2276,49 @@ impl<'a> Preprocessor<'a> {
                 return Some(Requirement::make_and(reqs_and_vec));
             }
             _ => None,
+        }
+    }
+
+    fn get_come_in_with_side_platform_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        platforms: &[SidePlatformEntrance],
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithSidePlatform { effective_length, height, obstruction } => {
+                let effective_length = effective_length.get();
+                let height = height.get();
+                let mut reqs_or_vec = vec![];
+                for p in platforms {
+                    let mut reqs = vec![];
+                    if effective_length < p.min_tiles.get() {
+                        continue;
+                    }
+                    if height < p.min_height.get() || height > p.max_height.get() {
+                        continue;
+                    }
+                    if !p.obstructions.contains(obstruction) {
+                        continue;
+                    }
+                    if p.speed_booster == Some(true) {
+                        reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                    }
+                    if p.speed_booster == Some(false) {
+                        reqs.push(Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+                        ));
+                    }
+                    reqs.push(p.requirement.clone());
+                    reqs_or_vec.push(Requirement::make_and(reqs));
+                }
+                Some(
+                    Requirement::make_and(vec![
+                        Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]),
+                        Requirement::make_or(reqs_or_vec),
+                    ])
+                )
+            }
+            _ => None
         }
     }
 

@@ -44,6 +44,7 @@ pub const TECH_ID_CAN_ENTER_R_MODE: TechId = 161;
 pub const TECH_ID_CAN_ENTER_G_MODE: TechId = 162;
 pub const TECH_ID_CAN_ENTER_G_MODE_IMMOBILE: TechId = 163;
 pub const TECH_ID_CAN_ARTIFICIAL_MORPH: TechId = 164;
+pub const TECH_ID_CAN_HEATED_G_MODE: TechId = 198;
 pub const TECH_ID_CAN_MOONFALL: TechId = 25;
 pub const TECH_ID_CAN_PRECISE_GRAPPLE: TechId = 51;
 pub const TECH_ID_CAN_GRAPPLE_JUMP: TechId = 52;
@@ -57,6 +58,7 @@ pub const TECH_ID_CAN_BOMB_HORIZONTALLY: TechId = 87;
 pub const TECH_ID_CAN_MOONDANCE: TechId = 26;
 pub const TECH_ID_CAN_EXTENDED_MOONDANCE: TechId = 27;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
+pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -748,6 +750,7 @@ pub enum ExitCondition {
     },
     LeaveWithGModeSetup {
         knockback: bool,
+        heated: bool,
     },
     LeaveWithGMode {
         morphed: bool,
@@ -763,6 +766,11 @@ pub enum ExitCondition {
         height: Float,
         left_position: Float,
         right_position: Float,
+    },
+    LeaveWithSidePlatform {
+        effective_length: Float,
+        height: Float,
+        obstruction: (u16, u16),
     },
     LeaveWithGrappleSwing {
         blocks: Vec<GrappleSwingBlock>,
@@ -860,6 +868,17 @@ pub enum BounceMovementType {
     Any,
 }
 
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct SidePlatformEntrance {
+    pub min_tiles: Float,
+    pub speed_booster: Option<bool>,
+    pub min_height: Float,
+    pub max_height: Float,
+    pub obstructions: Vec<(u16, u16)>,
+    pub requirement: Requirement,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum MainEntranceCondition {
     ComeInNormally {},
@@ -947,6 +966,7 @@ pub enum MainEntranceCondition {
         mode: GModeMode,
         morphed: bool,
         mobility: GModeMobility,
+        heated: bool,
     },
     ComeInWithStoredFallSpeed {
         fall_speed_in_tiles: i32,
@@ -960,6 +980,9 @@ pub enum MainEntranceCondition {
         max_height: Float,
         max_left_position: Float,
         min_right_position: Float,
+    },
+    ComeInWithSidePlatform {
+        platforms: Vec<SidePlatformEntrance>,
     },
     ComeInWithGrappleSwing {
         blocks: Vec<GrappleSwingBlock>,
@@ -3302,7 +3325,7 @@ impl GameData {
             .to_string());
     }
 
-    fn get_room_heated(&self, room_json: &JsonValue, node_id: NodeId) -> Result<bool> {
+    pub fn get_room_heated(&self, room_json: &JsonValue, node_id: NodeId) -> Result<bool> {
         if !room_json.has_key("roomEnvironments") {
             // TODO: add roomEnvironments to Toilet Bowl so we don't need to skip this here
             return Ok(false);
@@ -3458,6 +3481,7 @@ impl GameData {
             }
             "leaveWithGModeSetup" => ExitCondition::LeaveWithGModeSetup {
                 knockback: value["knockback"].as_bool().unwrap_or(true),
+                heated,
             },
             "leaveWithGMode" => ExitCondition::LeaveWithGMode {
                 morphed: value["morphed"]
@@ -3494,6 +3518,24 @@ impl GameData {
                         .context("Expecting number 'rightPosition'")?,
                 ),
             },
+            "leaveWithSidePlatform" => {
+                let runway_geometry = parse_runway_geometry(&value["runway"])?;
+                let runway_effective_length =
+                    compute_runway_effective_length(&runway_geometry);
+
+                ExitCondition::LeaveWithSidePlatform { 
+                    effective_length: Float::new(runway_effective_length),
+                    height: Float::new(
+                        value["height"]
+                            .as_f32()
+                            .context("Expecting number 'height'")?,
+                    ),
+                    obstruction: (
+                        value["obstruction"][0].as_u16().unwrap(),
+                        value["obstruction"][1].as_u16().unwrap(),
+                    )
+                }
+            },
             "leaveWithGrappleSwing" => {
                 let mut blocks: Vec<GrappleSwingBlock> = vec![];
                 for b in value["blocks"].members() {
@@ -3528,7 +3570,7 @@ impl GameData {
     }
 
     fn parse_entrance_condition(
-        &self,
+        &mut self,
         entrance_json: &JsonValue,
         room_id: RoomId,
         from_node_id: NodeId,
@@ -3720,6 +3762,7 @@ impl GameData {
                     mode,
                     morphed,
                     mobility,
+                    heated,
                 }
             }
             "comeInWithStoredFallSpeed" => MainEntranceCondition::ComeInWithStoredFallSpeed {
@@ -3746,6 +3789,43 @@ impl GameData {
                         .as_f32()
                         .unwrap_or(f32::NEG_INFINITY),
                 ),
+            },
+            "comeInWithSidePlatform" => {
+                let mut platforms: Vec<SidePlatformEntrance> = vec![];
+
+                for p in value["platforms"].members() {
+                    platforms.push(SidePlatformEntrance {
+                        min_height: Float::new(
+                            p["minHeight"]
+                                .as_f32()
+                                .context("Expecting number 'minHeight'")?,
+                        ),
+                        max_height: Float::new(
+                            p["maxHeight"]
+                                .as_f32()
+                                .context("Expecting number 'maxHeight'")?,
+                        ),
+                        min_tiles: Float::new(
+                            p["minTiles"]
+                                .as_f32()
+                                .context("Expecting number 'minHeight'")?,
+                        ),
+                        speed_booster: p["speedBooster"].as_bool(),
+                        obstructions: p["obstructions"]
+                            .members()
+                            .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
+                            .collect(),
+                        requirement: if p.has_key("requires") {
+                            let reqs_json: Vec<JsonValue> = value["requires"].members().cloned().collect();
+                            Requirement::make_and(
+                                self.parse_requires_list(&reqs_json, &RequirementContext::default())?
+                            )
+                        } else {
+                            Requirement::Free
+                        }
+                    });
+                }
+                MainEntranceCondition::ComeInWithSidePlatform { platforms }
             },
             "comeInWithGrappleSwing" => {
                 let mut blocks: Vec<GrappleSwingBlock> = vec![];
@@ -4291,6 +4371,7 @@ impl GameData {
                                 mode: GModeMode::Direct,
                                 morphed,
                                 mobility: GModeMobility::Any,
+                                heated: self.get_room_heated(room_json, node_id)?,
                             },
                         })],
                     });

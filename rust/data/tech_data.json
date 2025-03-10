@@ -216,6 +216,12 @@
         "video_id": 907
     },
     {
+        "tech_id": 196,
+        "name": "canInsaneMidAirMorph",
+        "difficulty": "Insane",
+        "video_id": 2631
+    },
+    {
         "tech_id": 36,
         "name": "canRJump",
         "difficulty": "Expert",
@@ -483,7 +489,7 @@
         "tech_id": 75,
         "name": "canCWJ",
         "difficulty": "Expert",
-        "video_id": 722
+        "video_id": 4739
     },
     {
         "tech_id": 76,
@@ -550,6 +556,12 @@
         "name": "canJumpIntoRespawningBlock",
         "difficulty": "Very Hard",
         "video_id": 774
+    },
+    {
+        "tech_id": 197,
+        "name": "canSidePlatformCrossRoomJump",
+        "difficulty": "Hard",
+        "video_id": 5100
     },
     {
         "tech_id": 85,
@@ -1024,6 +1036,12 @@
         "name": "canEnterGMode",
         "difficulty": "Extreme",
         "video_id": 982
+    },
+    {
+        "tech_id": 198,
+        "name": "canHeatedGMode",
+        "difficulty": "Insane",
+        "video_id": 4719
     },
     {
         "tech_id": 163,
