@@ -263,6 +263,9 @@ fn make_tech_templates<'a>(
             if strat_json.has_key("gModeRegainMobility") {
                 tech_set
                     .insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE_IMMOBILE]);
+                if game_data.get_room_heated(room_json, from_node_id).unwrap() {
+                    tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]);
+                }
             }
             let entrance_condition_techs = vec![
                 ("comeInShinecharged", vec![TECH_ID_CAN_SHINECHARGE_MOVEMENT]),
@@ -611,6 +614,31 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
     let mut reqs: Vec<Requirement> = vec![];
     let from_vertex_key = &game_data.vertex_isv.keys[link.from_vertex_id];
     let to_vertex_key = &game_data.vertex_isv.keys[link.to_vertex_id];
+
+    // TODO: handle gModeRegainMobility in some cleaner way:
+    for (l, _) in game_data
+        .node_gmode_regain_mobility
+        .get(&(from_vertex_key.room_id, from_vertex_key.node_id))
+        .unwrap_or(&vec![])
+    {
+        if l.strat_id.is_some() && l.strat_id == link.strat_id {
+            reqs.push(Requirement::Tech(
+                game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE_IMMOBILE],
+            ));
+            if game_data
+                .get_room_heated(
+                    &game_data.room_json_map[&from_vertex_key.room_id],
+                    from_vertex_key.node_id,
+                )
+                .unwrap()
+            {
+                reqs.push(Requirement::Tech(
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE],
+                ));
+            }
+        }
+    }
+
     for action in &from_vertex_key.actions {
         if let VertexAction::Enter(entrance_condition) = action {
             match &entrance_condition.main {
