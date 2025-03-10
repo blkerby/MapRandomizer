@@ -868,7 +868,6 @@ pub enum BounceMovementType {
     Any,
 }
 
-
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SidePlatformEntrance {
     pub min_tiles: Float,
@@ -3520,10 +3519,9 @@ impl GameData {
             },
             "leaveWithSidePlatform" => {
                 let runway_geometry = parse_runway_geometry(&value["runway"])?;
-                let runway_effective_length =
-                    compute_runway_effective_length(&runway_geometry);
+                let runway_effective_length = compute_runway_effective_length(&runway_geometry);
 
-                ExitCondition::LeaveWithSidePlatform { 
+                ExitCondition::LeaveWithSidePlatform {
                     effective_length: Float::new(runway_effective_length),
                     height: Float::new(
                         value["height"]
@@ -3533,9 +3531,9 @@ impl GameData {
                     obstruction: (
                         value["obstruction"][0].as_u16().unwrap(),
                         value["obstruction"][1].as_u16().unwrap(),
-                    )
+                    ),
                 }
-            },
+            }
             "leaveWithGrappleSwing" => {
                 let mut blocks: Vec<GrappleSwingBlock> = vec![];
                 for b in value["blocks"].members() {
@@ -3816,17 +3814,21 @@ impl GameData {
                             .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                             .collect(),
                         requirement: if p.has_key("requires") {
-                            let reqs_json: Vec<JsonValue> = value["requires"].members().cloned().collect();
+                            let reqs_json: Vec<JsonValue> =
+                                value["requires"].members().cloned().collect();
                             Requirement::make_and(
-                                self.parse_requires_list(&reqs_json, &RequirementContext::default())?
+                                self.parse_requires_list(
+                                    &reqs_json,
+                                    &RequirementContext::default(),
+                                )?,
                             )
                         } else {
                             Requirement::Free
-                        }
+                        },
                     });
                 }
                 MainEntranceCondition::ComeInWithSidePlatform { platforms }
-            },
+            }
             "comeInWithGrappleSwing" => {
                 let mut blocks: Vec<GrappleSwingBlock> = vec![];
                 for b in value["blocks"].members() {

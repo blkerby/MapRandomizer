@@ -17,7 +17,21 @@ use anyhow::{bail, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
-    self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation, DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility, GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SparkPosition, StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE
+    self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
+    DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
+    GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
+    ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
+    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SparkPosition,
+    StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey,
+    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP,
+    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
+    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL,
+    TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
+    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
+    TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
+    TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -2158,7 +2172,9 @@ impl<'a> Preprocessor<'a> {
                 }
                 if *heated || entrance_heated {
                     reqs.push(Requirement::make_or(vec![
-                        Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]),
+                        Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE],
+                        ),
                         Requirement::Item(Item::Varia as ItemId),
                     ]));
                 }
@@ -2285,7 +2301,11 @@ impl<'a> Preprocessor<'a> {
         platforms: &[SidePlatformEntrance],
     ) -> Option<Requirement> {
         match exit_condition {
-            ExitCondition::LeaveWithSidePlatform { effective_length, height, obstruction } => {
+            ExitCondition::LeaveWithSidePlatform {
+                effective_length,
+                height,
+                obstruction,
+            } => {
                 let effective_length = effective_length.get();
                 let height = height.get();
                 let mut reqs_or_vec = vec![];
@@ -2311,14 +2331,14 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(p.requirement.clone());
                     reqs_or_vec.push(Requirement::make_and(reqs));
                 }
-                Some(
-                    Requirement::make_and(vec![
-                        Requirement::Tech(self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]),
-                        Requirement::make_or(reqs_or_vec),
-                    ])
-                )
+                Some(Requirement::make_and(vec![
+                    Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+                    ),
+                    Requirement::make_or(reqs_or_vec),
+                ]))
             }
-            _ => None
+            _ => None,
         }
     }
 
