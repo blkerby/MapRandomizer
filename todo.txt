@@ -33,10 +33,7 @@ v118:
   - maprando.com/logic/room/59/13/4/134
 
 Rom patching:
-- DONE: refresh mini-map after it is re-enabled after boss fight (croc, any others?)
-- investigate crash in Mt. Everest: https://discord.com/channels/1053421401354285129/1053434532973510748/1346322314094055504
 - draw door frame in front of hazard markers, for doors that don't have a door shell.
-- fix garbled tiles that show up in door transitions
 - instant unpause QoL option
   - maybe combine with even faster pause transitions (fade-in to pause, fade between pause/equipment, and fade-out of pause)
 - eliminate the gray door that spawns when leaving Mother Brain Room in escape
@@ -45,26 +42,18 @@ Rom patching:
   - currently the glass tunnel can look messed up when destroyed from below.
 - investigate momentum conservation: 
   - eddie says first-frame jump loses momentum: https://www.twitch.tv/videos/2317357753?t=2h17m11s
-- look into faster decompression:
-  - decompressor: https://github.com/tewtal/SHVC-LZSA2/blob/main/src/asar/lzsa2.asm
-  - compressor: https://github.com/emmanuel-marty/lzsa
 - prevent empty tiles (grid lines only) from showing as explored on mini-map?
   - e.g. in Green Brin Firefleas Room, or when x-ray climbing rooms like Dachora, Crateria Supers
 - fix g4 start location problem: https://discord.com/channels/1053421401354285129/1053434532973510748/1230346387628101643
 - fix OOB when leaving Kraid Room from right during fight
 - clear SRAM more fully when saved seed does not match:
   - save slot position is being retained, so cursor might start on slots 2 or 3 initially
-- fix crash when pausing on frame when auto reserve triggers
-  - just cause death instead 
-  - This patch may be relevant: https://metroidconstruction.com/resource.php?id=418
 - look into possible quicksave/load patch (like save states but not emulator-dependent)
   - could work better with music: continue playing same song or start from beginning if different
   - could retain game timer shown in credits
   - could retain map progress
   - could expire when using a save station
      - prevent accidental quickloads from losing lots of progress
-- possible QoL option in Max:
-  - energy recharge stations also refill reserve energy
 - make kraid camera act normal when entering from left?
   - same thing with spore spawn entering from bottom?
 - prevent MB1 death unless objectives cleared

@@ -347,183 +347,56 @@ IncrementBank:
 {;decompression to VRAM
 VRAMdecomp:
 print "vram: $",pc
-namespace VRAM    
-    PHP : PHB : PHD : REP #$10
-    %setup()
-    ;overwrite some settings from "setup", since we're writing to the VRAM port now
-    LDA #$18 : STA $31
-    LDA #$01 : STA $30
-    BRA NextByte
+namespace VRAM
+    ; $47-$49: source address
+    ; $2116: destination VRAM address
+    php
+
+    ; make a backup of $7f0000-$7f5000 to SRAM $710000-$715000:
+    lda $0998
+    cmp #$0006
+    beq .skip_backup  ; skip making backup of level data (bank $7f) if starting game (vs. unpausing)
+    ldx #$0000
+    ldy #$0000
+    lda #$4FFF
+    phb
+    mvn $71, $7f
+    plb
+.skip_backup:
+ 
+    ; decompress to RAM at $7f0000:
+    lda #$0000
+    sta $4C
+    lda #$7f00
+    sta $4D
+    jsl DEFAULT_Start
+
+    ; DMA the decompressed output from RAM to VRAM:
+    lda #$1801
+    sta $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address    
+    lda #$0000 ; source address
+    sta $4312
+    lda #$007F ; source bank = $7F
+    sta $4314
+    stx $4315  ; transfer size = final destination address at end of decompression (X)
+    lda #$0002
+    sta $420B  ; perform DMA transfer on channel 1
+
+    ; restore backup of $7f0000-$7f5000 from SRAM $710000-$715000:
+    lda $0998
+    cmp #$0006
+    beq .skip_restore  ; skip restoring backup of level data (bank $7f) if starting game (vs. unpausing)
+    ldx #$0000
+    ldy #$0000
+    lda #$4FFF
+    phb
+    mvn $7f, $71
+    plb
+.skip_restore:
     
-OddCheck:;if VRAM destination is odd, write first byte, then do transfer
-    PHP : SEP #$20
-    LSR : BCC ++
-    LDA $0000,x : INX : BNE +
-    JSR IncrementBank
-    +
-    STA $802119
-    DEC $70 : DEC $18 : REP #$20 : INC $22 : INC $32
-    DEY : BEQ +
-    ++
-    PLP : CLC : RTS
-    +
-    PLP : SEC : RTS    
+    plp
+    rtl
 
-End:
-    JMP cleanup
-
-    Option0:;this one is here so one of the commands doesn't need a JMP to go back to the start (ugly, but saves those extra 3 cycles)
-    REP #$20
-
-    LDA $22 : JSR OddCheck : BCS start
-    ; : LSR : BCC ++
-    ; LDA $0000,x : INX : BNE +
-    ; JSR IncrementBank
-    ; +
-    ; STA $802119;write first byte if VRAM destination is odd
-    ; DEY : BEQ start
-    ; DEC $18 : INC $22
-    ; ++
-    STX $32;address
-    STY $35;size
-    TXA : CLC : ADC $18 : ORA #$8000 : TAX : BCC +
-    AND #$7FFF : STA $70;size of data in next bank
-    TYA : SEC : SBC $70 : STA $35 : TAY;size of data in current bank
-    SEP #$20
-    LDA #$08 : STA $80420B
-    PHX : JSR IncrementBank
-    TYA : JSR OddCheck : PLX : BCS start
-    ; LDA $0000,x : INX : BNE +
-    ; JSR IncrementBank
-    ; +
-    ; STA $802119;write first byte if VRAM destination is odd
-    ; DEY : BEQ start
-    ; DEC $18 : INC $22
-    ; REP #$20
-    ; ++
-    LDA $70 : STA $35
-    LDA #$80 : STA $33
-    ;INC $34
-    +
-    SEP #$20
-    +
-    LDA #$08 : STA $80420B
-start:
-    REP #$20
-    LDA $22 : CLC : ADC $18 : STA $22;update destination address
-    SEP #$20
-    
-NextByte:
-    LDA $0000,x : INX : BNE +
-    JSR IncrementBank
-    +
-    STA $08
-    CMP #$FF : BEQ End
-    CMP #$E0 : BCC ++
-    ASL #3 : AND #$E0 : STA $0A
-    LDA $08 : AND #$03 : XBA
-
-    LDA $0000,x : INX : BNE +
-    JSR IncrementBank
-    +
-    BRA +++
-++
-    AND #$E0 : STA $0A
-    TDC : XBA
-    LDA $08 : AND #$1F
-+++
-    TAY : INY : STY $18
-    LDA $0A
-
-    BMI Option4567
-
-    BNE +
-    JMP Option0 : +
-    CMP #$20 : BEQ BRANCH_THETA
-    CMP #$40 : BEQ BRANCH_IOTA
-
-;X = 3: Store an ascending number (starting with the value of the next byte) Y times.
-    LDA $0000,x : INX : BNE +
-    JSR IncrementBank
-    +
-    PHA
-    LDA $22 : LSR : PLA : BCS +
--
-    
-    STA $802118
-    INC 
-    DEY : BEQ ++
-    +
-    STA $802119
-    INC : DEY : BNE -
-    BNE -
-    ++
-    JMP start
-BRANCH_THETA:
-    ;X = 1: Copy the next byte Y times.
-    LDA $0000,x : XBA : LDA $0000,x : INX : BNE +
-    JSR IncrementBank
-    +
--    
-    BRA transfer
-BRANCH_IOTA:;X = 2: Copy the next two bytes, one at a time, for the next Y bytes.
-    LDA $0000,x : XBA : INX : BNE +
-    JSR IncrementBank
-    +
-    LDA $0000,x : XBA : INX : BNE +
-    JSR IncrementBank
-    +
-    transfer:
-    PHA
-    LDA $22 : LSR : PLA : BCS +
--
-    STA $802118 : XBA : DEY : BEQ ++
-    +
-    STA $802119 : XBA : DEY : BNE -
-++
-    JMP start
-Option4567:
-    CMP #$C0
-    AND #$20    ;X = 4: Copy Y bytes starting from a given address in the decompressed data.
-    STA $5A : BCS +++      ;X = 5: Copy and invert (EOR #$FF) Y bytes starting from a given address in the decompressed data.
-    ;X = 6 or 7 branch
-    LDA $0000,x : XBA : INX : BNE +
-    JSR IncrementBank
-    +
-    LDA $0000,x : XBA : INX : BNE +
-    JSR IncrementBank
-    +
-    REP #$21
-    ADC $42 : STA $62;add starting offset(where we're decompressing to)
--
-    REP #$20
-    ;    
-    LDA $62 : INC $62 : LSR : STA $802116
-    LDA $002139 : LDA $002139
-    BCC ++ : XBA : ++
-    SEP #$20
-    PHA : LDA $5A : BEQ ++ : PLA : EOR #$FF : PHA : ++
-    REP #$20 : LDA $22 : INC $22 : LSR : BCS ++
-    STA $002116 : SEP #$20 : PLA
-    STA $802118 : DEY : BNE -
-    JMP NextByte
-    ++
-    STA $002116 : SEP #$20 : PLA
-    STA $802119 : DEY : BNE -
-    ++++
-    JMP NextByte
-+++
-    ;X = 6: Copy Y bytes starting from a given number of bytes ago in the decompressed data.
-    ;X = 7: Copy and invert (EOR #$FF) Y bytes starting from a given number of bytes ago in the decompressed data.
-    TDC : XBA
-    LDA $0000,x : INX : BNE +
-    JSR IncrementBank
-    +
-    REP #$20
-    STA $62
-    LDA $22 : SBC $62 : STA $62
-
-    BRA -
 namespace off
 }
 
@@ -534,6 +407,8 @@ warnpc $80BC37
 org !bank_80_free_space_start
 
 cleanup:
+    LDX $22  ; X <- final destination address (used in decompression to VRAM, to determine output size)
+
     ;restore some DMA registers that could have been overwritten
     REP #$20
     PLA : STA $74
@@ -599,7 +474,7 @@ unpause_hook:
     LDA !unpause_black_screen_lag_frames
     TAX
 .loop:
-    BNE .done
+    BEQ .done
     LDA !nmi_counter
 .wait_frame:
     CMP !nmi_counter  ; wait for frame counter to change
@@ -611,32 +486,3 @@ unpause_hook:
     RTS
 
 warnpc !bank_80_free_space_end
-
-;org !bank_89_free_space_start
-;;change this to use VRAM write table to ensure it happens during blanking
-;UploadFXTilemap:
-;    LDA $ABF0,y : STA $1964
-;UploadFXptr:
-;    LDA $1964 : BEQ + : STA $4312 
-;    LDX $0330
-;    LDA #$0840 : STA $D0,x
-;    LDA #$8A00 : STA $D3,x
-;    LDA $1964  : STA $D2,x
-;    LDA #$5BE0 : STA $D5,x
-;    TXA : CLC : ADC #$0007
-;    STA $0330
-;+
-;    RTL
-;
-;;replaced code at $89AC34 by the JSL
-;fx_hook:
-;    LDX $1966
-;    LDA $0009,X
-;    RTS
-;
-;warnpc !bank_89_free_space_end
-
-;org $82E984
-;    BRA skip_load_fx_tilemap
-;org $82E9B9
-;skip_load_fx_tilemap:

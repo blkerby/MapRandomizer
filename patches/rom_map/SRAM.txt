@@ -1,32 +1,33 @@
-0000-0010: ?
-0010-0A10: Save slot 1
-0A10-1410: Save slot 2
-1410-1E10: Save slot 3
-1E10-1E14: RTA timer
-1E14-1E16: Saves counter
-1E16-1E18: Deaths counter
-1E18-1E1A: Quick reloads counter
-1E1A-1E1C: Quick loadbacks counter
-1E1C-1E1E: Resets counter
-1E1E-1E22: Final time
-1E22-1E26: Pause time
-1E26-1E2A: Area 0 time
-1E2A-1E2E: Area 1 time
-1E2E-1E32: Area 2 time
-1E32-1E36: Area 3 time
-1E36-1E3A: Area 4 time
-1E3A-1E3E: Area 5 time
-1E3E-1E42: Area 6 time (pre-game)
-1FE0-2000: Save slot selection, etc.
+$700000-700010: ?
+$700010-700A10: Save slot 1
+$700A10-701410: Save slot 2
+$701410-701E10: Save slot 3
+$701E10-701E14: RTA timer
+$701E14-701E16: Saves counter
+$701E16-701E18: Deaths counter
+$701E18-701E1A: Quick reloads counter
+$701E1A-701E1C: Quick loadbacks counter
+$701E1C-701E1E: Resets counter
+$701E1E-701E22: Final time
+$701E22-701E26: Pause time
+$701E26-701E2A: Area 0 time
+$701E2A-701E2E: Area 1 time
+$701E2E-701E32: Area 2 time
+$701E32-701E36: Area 3 time
+$701E36-701E3A: Area 4 time
+$701E3A-701E3E: Area 5 time
+$701E3E-701E42: Area 6 time (pre-game)
+$701FE0-702000: Save slot selection, etc.
 ---------- expanded SRAM: ----------
-2000-2600: Map revealed bits (map_progress_maintain.asm)
-2600-2602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)
-2602-2700: [FREE]
-2700-2D00: Map partially revealed bits (map_progress_maintain.asm)
-2D00-3000: [FREE]
-3000-4000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
-4000-4400: Temporary tileset graphics (fix_transition_bad_tiles.asm)
-4400-4800: (reserved in case we expand the temporary tileset graphics)
-4800-5000: [FREE]
-5000-5800: pause_menu_objectives (backup of objective screen)
-5800-8000: [FREE]
+$702000-702600: Map revealed bits (map_progress_maintain.asm)
+$702600-702602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)
+$702602-702700: [FREE]
+$702700-702D00: Map partially revealed bits (map_progress_maintain.asm)
+$702D00-703000: [FREE]
+$703000-704000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
+$704000-704400: Temporary tileset graphics (fix_transition_bad_tiles.asm)
+$704400-704800: (reserved in case we expand the temporary tileset graphics)
+$704800-705000: [FREE]
+$705000-705800: pause_menu_objectives (backup of objective screen)
+$705800-708000: [FREE]
+$710000-718000: scratch space for decompression to VRAM (decompression.asm)
