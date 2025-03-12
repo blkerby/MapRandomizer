@@ -143,7 +143,7 @@ org $809883
     JMP ResetDp
 return2:
 
-org $80A15F
+org $80A15B
     JSR unpause_hook : NOP
 
 org $82E7A8
@@ -347,24 +347,12 @@ IncrementBank:
 {;decompression to VRAM
 VRAMdecomp:
 print "vram: $",pc
-namespace VRAM
     ; $47-$49: source address
     ; $2116: destination VRAM address
     php
 
-    ; make a backup of $7f0000-$7f5000 to SRAM $710000-$715000:
-    lda $0998
-    cmp #$0006
-    beq .skip_backup  ; skip making backup of level data (bank $7f) if starting game (vs. unpausing)
-    ldx #$0000
-    ldy #$0000
-    lda #$4FFF
-    phb
-    mvn $71, $7f
-    plb
-.skip_backup:
- 
     ; decompress to RAM at $7f0000:
+    ; this will overwrite the level data, so it will have to be reloaded later if needed.
     lda #$0000
     sta $4C
     lda #$7f00
@@ -381,23 +369,26 @@ namespace VRAM
     stx $4315  ; transfer size = final destination address at end of decompression (X)
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1
-
-    ; restore backup of $7f0000-$7f5000 from SRAM $710000-$715000:
-    lda $0998
-    cmp #$0006
-    beq .skip_restore  ; skip restoring backup of level data (bank $7f) if starting game (vs. unpausing)
-    ldx #$0000
-    ldy #$0000
-    lda #$4FFF
-    phb
-    mvn $7f, $71
-    plb
-.skip_restore:
     
     plp
     rtl
 
-namespace off
+reload_level_data:
+    ; reload the level data since it got clobbered above
+    lda $0998
+    cmp #$0006
+    beq .skip  ; skip reloading if starting game (vs. unpausing), since it wasn't yet loaded anyway
+
+    lda $07BE
+    sta $48    
+    lda $07BD  
+    sta $47    
+    jsl $80B0FF
+    db $00, $00, $7F
+
+.skip:
+    rtl
+
 }
 
 ; We don't care if we overwrite some of the "failed NTSC/PAL check" tilemap.
@@ -467,11 +458,21 @@ setDp:
 ResetDp:
     PLD : STX $4207 : JMP return2
 unpause_hook:
-    JSL $82E97C  ; run hi-jacked instruction
+    LDA !nmi_counter
+    STA $0E
+    JSL $82E783  ; run hi-jacked instruction (reload tileset graphics)
+    JSL reload_level_data
 
-    ; in case fast pause menu QoL is disabled, 
-    ; add artificial lag to unpause black screen, to compensate for the accelerated decompression
+    LDA !nmi_counter
+    SEC
+    SBC $0E
+    AND #$00FF
+    STA $0E
     LDA !unpause_black_screen_lag_frames
+    SBC $0E
+    BMI .done
+
+    ; add artificial lag to unpause black screen, to compensate for the accelerated decompression
     TAX
 .loop:
     BEQ .done

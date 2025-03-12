@@ -29,5 +29,3 @@ $704000-704400: Temporary tileset graphics (fix_transition_bad_tiles.asm)
 $704400-704800: (reserved in case we expand the temporary tileset graphics)
 $704800-705000: [FREE]
 $705000-705800: pause_menu_objectives (backup of objective screen)
-$705800-708000: [FREE]
-$710000-718000: scratch space for decompression to VRAM (decompression.asm)

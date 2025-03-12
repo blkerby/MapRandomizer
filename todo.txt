@@ -1,4 +1,5 @@
 v118:
+- handle "minExtraRunSpeed" in "leaveWithRunway"
 - include "objectives" details on seed page.
 - account for reserve backward transfer QoL in logic.
 - fix scrolling sky corruption, which got worse with the faster decompression
