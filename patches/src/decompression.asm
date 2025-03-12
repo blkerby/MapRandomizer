@@ -143,7 +143,7 @@ org $809883
     JMP ResetDp
 return2:
 
-org $80A15F
+org $80A15B
     JSR unpause_hook : NOP
 
 org $82E7A8
@@ -151,14 +151,6 @@ org $82E7A8
 
 org $82E7BB
     JSL VRAMdecomp
-
-;org $89AC2E
-;    BEQ skip_fx_ptr                ; adjust stock branch for JSL hook @ 89AC34
-;
-;org $89AC34
-;    JSL UploadFXTilemap : NOP #2
-;skip_fx_ptr:
-;    JSR fx_hook                    ; replaced code above
 
 ;;; new decompression func
 
@@ -347,57 +339,36 @@ IncrementBank:
 {;decompression to VRAM
 VRAMdecomp:
 print "vram: $",pc
-namespace VRAM
     ; $47-$49: source address
     ; $2116: destination VRAM address
     php
 
-    ; make a backup of $7f0000-$7f5000 to SRAM $710000-$715000:
-    lda $0998
-    cmp #$0006
-    beq .skip_backup  ; skip making backup of level data (bank $7f) if starting game (vs. unpausing)
-    ldx #$0000
-    ldy #$0000
-    lda #$4FFF
-    phb
-    mvn $71, $7f
-    plb
-.skip_backup:
- 
-    ; decompress to RAM at $7f0000:
+    ; decompress to RAM at $7e3000:
+    ; during start game or reload, this space is free.
+    ; but during unpause, it may overwrite stuff, which would need to be saved and restored.
     lda #$0000
     sta $4C
-    lda #$7f00
+    lda #$7E30
     sta $4D
     jsl DEFAULT_Start
 
     ; DMA the decompressed output from RAM to VRAM:
     lda #$1801
     sta $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address    
-    lda #$0000 ; source address
+    lda #$3000 ; source address
     sta $4312
-    lda #$007F ; source bank = $7F
+    lda #$007E ; source bank = $7E
     sta $4314
-    stx $4315  ; transfer size = final destination address at end of decompression (X)
+    txa
+    sec
+    sbc #$3000
+    sta $4315  ; transfer size = final destination address at end of decompression (X) - $2000
     lda #$0002
     sta $420B  ; perform DMA transfer on channel 1
-
-    ; restore backup of $7f0000-$7f5000 from SRAM $710000-$715000:
-    lda $0998
-    cmp #$0006
-    beq .skip_restore  ; skip restoring backup of level data (bank $7f) if starting game (vs. unpausing)
-    ldx #$0000
-    ldy #$0000
-    lda #$4FFF
-    phb
-    mvn $7f, $71
-    plb
-.skip_restore:
     
     plp
     rtl
 
-namespace off
 }
 
 ; We don't care if we overwrite some of the "failed NTSC/PAL check" tilemap.
@@ -466,23 +437,82 @@ setDp:
     LDA $4211 : JMP return
 ResetDp:
     PLD : STX $4207 : JMP return2
+print "unpause_hook: ", pc
 unpause_hook:
-    JSL $82E97C  ; run hi-jacked instruction
+    ; measure the current value of frame counter
+    lda !nmi_counter
+    sta $0E
 
-    ; in case fast pause menu QoL is disabled, 
-    ; add artificial lag to unpause black screen, to compensate for the accelerated decompression
-    LDA !unpause_black_screen_lag_frames
-    TAX
+    phb
+
+    ; backup RAM in the range $7E5000-$7E5400 to SRAM $704000
+    ldx #$5000
+    ldy #$4000
+    lda #$03FF
+    mvn $70, $7e
+ 
+    ; backup RAM in the range $7E7000-$7EA000 to SRAM $704400
+    ldx #$7000
+    ldy #$4400
+    lda #$2FFF
+    mvn $70, $7e
+    
+    plb
+
+    jsl $82E783  ; run hi-jacked instruction (reload tileset graphics)
+    phb
+
+    ; restore RAM in the range $7E5000-$7E5400 from SRAM $704000
+    ldx #$4000
+    ldy #$5000
+    lda #$03FF
+    mvn $7e, $70
+
+    ; restore RAM in the range $7E7000-$7EA000 from SRAM $704400
+    ldx #$4400
+    ldy #$7000
+    lda #$2FFF
+    mvn $7e, $70
+
+    plb
+
+    ; reload tile table, since part of it may have been overwritten:
+    lda #$B900             ;\
+    sta $48                ;|
+    lda #$A09D             ;|
+    sta $47                ;} Decompress CRE tile table to $7E:A000
+    jsl $80B0FF            ;|
+    db $00, $A0, $7E       ;/
+    lda $07C1              ;\
+    sta $48                ;|
+    lda $07C0              ;|
+    sta $47                ;} Decompress [tileset tile table pointer] to $7E:A800
+    jsl $80B0FF            ;|
+    db $00, $A8, $7e       ;/
+
+    ; compare current value of frame counter with previously measured value,
+    ; to determine how many frames to lag (to make the unpause black screen a consistent length).
+    lda !nmi_counter
+    sec
+    sbc $0E
+    and #$00FF
+    sta $0E
+    lda !unpause_black_screen_lag_frames
+    sbc $0E
+    bmi .done
+
+    ; wait the for the given amount of frames to elapse
+    tax
 .loop:
-    BEQ .done
-    LDA !nmi_counter
+    beq .done
+    lda !nmi_counter
 .wait_frame:
-    CMP !nmi_counter  ; wait for frame counter to change
-    BEQ .wait_frame
-    LDA !nmi_counter
-    DEX
-    BRA .loop
+    cmp !nmi_counter  ; wait for frame counter to change
+    beq .wait_frame
+    lda !nmi_counter
+    dex
+    bra .loop
 .done:
-    RTS
+    rts
 
 warnpc !bank_80_free_space_end
