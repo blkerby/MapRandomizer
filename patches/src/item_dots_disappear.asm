@@ -67,8 +67,8 @@ warnpc !bank_82_freespace_end
 org $83B600
 
 unpause_hook:
-    jsl update_tilemap
     jsl $80A149  ; run hi-jacked instruction
+    jsl update_tilemap
     rtl
 
 message_box_hook:

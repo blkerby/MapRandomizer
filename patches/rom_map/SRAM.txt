@@ -27,5 +27,5 @@ $702D00-703000: [FREE]
 $703000-704000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
 $704000-704400: Temporary tileset graphics, used only during door transition (fix_transition_bad_tiles.asm)
 $704400-704800: (reserved in case we expand the temporary tileset graphics)
-$704000-707400: backup of RAM $7E5000-$7E5400 and $7E7000-$7EA000, used only during unpause (decompression.asm)
+$703000-707400: backup of RAM $7E5000-$7E5400 and $7E7000-$7EB000, used only during unpause (decompression.asm)
 $707400-708000: [FREE]

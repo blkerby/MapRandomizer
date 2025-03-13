@@ -445,16 +445,16 @@ unpause_hook:
 
     phb
 
-    ; backup RAM in the range $7E5000-$7E5400 to SRAM $704000
+    ; backup RAM in the range $7E5000-$7E5400 to SRAM $703000
     ldx #$5000
-    ldy #$4000
+    ldy #$3000
     lda #$03FF
     mvn $70, $7e
  
-    ; backup RAM in the range $7E7000-$7EA000 to SRAM $704400
+    ; backup RAM in the range $7E7000-$7EB000 to SRAM $703400
     ldx #$7000
-    ldy #$4400
-    lda #$2FFF
+    ldy #$3400
+    lda #$3FFF
     mvn $70, $7e
     
     plb
@@ -462,33 +462,19 @@ unpause_hook:
     jsl $82E783  ; run hi-jacked instruction (reload tileset graphics)
     phb
 
-    ; restore RAM in the range $7E5000-$7E5400 from SRAM $704000
-    ldx #$4000
+    ; restore RAM in the range $7E5000-$7E5400 from SRAM $703000
+    ldx #$3000
     ldy #$5000
     lda #$03FF
     mvn $7e, $70
 
-    ; restore RAM in the range $7E7000-$7EA000 from SRAM $704400
-    ldx #$4400
+    ; restore RAM in the range $7E7000-$7EB000 from SRAM $703400
+    ldx #$3400
     ldy #$7000
-    lda #$2FFF
+    lda #$3FFF
     mvn $7e, $70
 
     plb
-
-    ; reload tile table, since part of it may have been overwritten:
-    lda #$B900             ;\
-    sta $48                ;|
-    lda #$A09D             ;|
-    sta $47                ;} Decompress CRE tile table to $7E:A000
-    jsl $80B0FF            ;|
-    db $00, $A0, $7E       ;/
-    lda $07C1              ;\
-    sta $48                ;|
-    lda $07C0              ;|
-    sta $47                ;} Decompress [tileset tile table pointer] to $7E:A800
-    jsl $80B0FF            ;|
-    db $00, $A8, $7e       ;/
 
     ; compare current value of frame counter with previously measured value,
     ; to determine how many frames to lag (to make the unpause black screen a consistent length).
