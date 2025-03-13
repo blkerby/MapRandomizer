@@ -79,6 +79,7 @@ fn build_app_data() -> AppData {
     let mosaic_themes = vec![
         ("OuterCrateria", "Outer Crateria"),
         ("InnerCrateria", "Inner Crateria"),
+        ("BlueBrinstar", "Blue Brinstar"),
         ("GreenBrinstar", "Green Brinstar"),
         ("PinkBrinstar", "Pink Brinstar"),
         ("RedBrinstar", "Red Brinstar"),
