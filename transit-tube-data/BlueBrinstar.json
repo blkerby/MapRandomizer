@@ -1,0 +1,368 @@
+[
+    {
+        "name": "Amphitheatre", 
+        "x": [0, 1, 2, 3],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Below Spazer",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Beta Power Bomb Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Bowling Alley",
+        "x": [2, 3, 4],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Bubble Mountain",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Bat Cave",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Cathedral Entrance",
+        "x": [1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Cathedral",
+        "x": [0, 1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Construction Zone",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Crab Hole", 
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "The Moat",
+        "x": [0, 1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Crocomire Escape",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Crumble Shaft",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Double Chamber",
+        "x": [0, 1, 2, 3],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "The Precious Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Early Supers Room",
+        "x": [0, 1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "East Ocean", 
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Electric Death Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Etecoon Energy Tank Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Fast Pillars Setup Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Fish Tank",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Grapple Beam Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Post Crocomire Jump Room",
+        "x": [0, 1, 2, 3],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Grapple Tutorial Room 2",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Ice Beam Snake Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Kraid Eye Door Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Warehouse Entrance",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Kronic Boost Room",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Landing Site",
+        "x": [3, 5],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Lava Dive Room",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Lower Norfair Spring Ball Maze Room",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Aqueduct",
+        "x": [2, 4, 5],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Metroid Room 2",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Mickey Mouse Room",
+        "x": [3],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Northwest Maridia Bug Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Pants Room",
+        "x": [0, 1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Parlor And Alcatraz",
+        "x": [3],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Pink Brinstar Hopper Room",
+        "x": [0, 1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Pink Brinstar Power Bomb Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Plasma Room",
+        "x": [0, 1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Kassiuz Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Post Crocomire Farming Room",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Pseudo Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Mt. Everest",
+        "x": [3, 5],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Red Kihunter Shaft",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Rinka Shaft",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Screw Attack Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Single Chamber",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "The Worst Room In The Game",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Three Musketeers' Room",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "x": [0, 1, 2, 3, 4, 5],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Seaweed Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "x": [0, 1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Mama Turtle Room",
+        "x": [1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Volcano Room",
+        "x": [2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Wasteland",
+        "x": [1],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Watering Hole",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "West Cactus Alley Room",
+        "x": [0],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "West Ocean",
+        "x": [0, 1, 2, 5],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "x": [1, 2],
+        "top": "Blue Brinstar",
+        "bottom": "Blue Brinstar"
+    }
+]

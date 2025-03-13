@@ -102,7 +102,8 @@ pub fn apply_retiling(
                     };
                     match (area, sub_area, sub_sub_area) {
                         (0, 0, _) => "OuterCrateria",
-                        (0, 1, _) => "InnerCrateria",
+                        (0, 1, 0) => "InnerCrateria",
+                        (0, 1, 1) => "BlueBrinstar",
                         (1, 0, 0) => "GreenBrinstar",
                         (1, 0, 1) => "PinkBrinstar",
                         (1, 1, _) => "RedBrinstar",
