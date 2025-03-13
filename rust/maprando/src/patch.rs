@@ -523,13 +523,13 @@ impl<'a> Patcher<'a> {
             // so there doesn't actually end up being any artificial lag added.
             // But this is here so that, in case the unpause gets any faster later for some reason,
             // it won't shorten the black screen any further.
-            self.rom.write_u16(snes2pc(0xdfff07), 18)?;
+            self.rom.write_u16(snes2pc(0xdfff07), 19)?;
         } else {
-            // With fast pause menu QoL disabled, target 39 lag frames during the part of the
+            // With fast pause menu QoL disabled, target 40 lag frames during the part of the
             // unpause black screen where the tileset is being loaded. This makes it approximately
             // align with vanilla, compensating for the optimized decompression which would otherwise
             // make it faster.
-            self.rom.write_u16(snes2pc(0xdfff07), 39)?;
+            self.rom.write_u16(snes2pc(0xdfff07), 40)?;
         }
 
         match self.randomization.settings.other_settings.wall_jump {
