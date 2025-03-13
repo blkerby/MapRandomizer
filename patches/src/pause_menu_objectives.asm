@@ -246,6 +246,14 @@ func_pause_index_obj2map_fading_out:
     JSL func_obj2map_fading_out
     RTS
 
+draw_samus_indicator:
+    lda $1F62       ; backup of initial area
+    cmp $1F5B 
+    bne .skip       ; check if area shown is the same area as samus
+    jsr $B9C8       ; if so, draw the indicator showing where samus is.
+.skip:
+    rts
+
 print "82 end: ", PC
 warnpc !bank_82_free_space_end
 
@@ -467,7 +475,7 @@ display_unpause:
 ; map
     JSL $82BB30               ; Display map elevator destinations
     JSL $82B672               ; Draw map icons
-    %callBank82Func($B9C8)    ; Draw Samus indicator
+    %callBank82Func(draw_samus_indicator)    ; Draw Samus indicator if area matches
     BRA .objective
 .equip:
     %callBank82Func($B267)    ; Draw item selector
