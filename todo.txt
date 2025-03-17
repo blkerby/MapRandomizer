@@ -1,4 +1,5 @@
 v118:
+- handle "detailNote" in tech and strats.
 - handle "minExtraRunSpeed" in "leaveWithRunway"
 - include "objectives" details on seed page.
 - account for reserve backward transfer QoL in logic.

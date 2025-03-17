@@ -205,11 +205,6 @@
             "enabled": true
         },
         {
-            "id": 197,
-            "name": "canSidePlatformCrossRoomJump",
-            "enabled": true
-        },
-        {
             "id": 193,
             "name": "canLongIBJ",
             "enabled": true
@@ -402,6 +397,11 @@
         {
             "id": 84,
             "name": "canJumpIntoRespawningBlock",
+            "enabled": true
+        },
+        {
+            "id": 197,
+            "name": "canSidePlatformCrossRoomJump",
             "enabled": true
         },
         {
@@ -2347,14 +2347,14 @@
             "room_id": 210,
             "notable_id": 1,
             "room_name": "East Sand Hall",
-            "notable_name": "Cross-Room Speed Jump",
+            "notable_name": "Cross-Room Speed Jump over Evirs",
             "enabled": false
         },
         {
             "room_id": 210,
             "notable_id": 2,
             "room_name": "East Sand Hall",
-            "notable_name": "Cross-Room SpringBall Jump",
+            "notable_name": "Cross-Room Spring Ball Jump",
             "enabled": false
         },
         {
@@ -2383,6 +2383,13 @@
             "notable_id": 10,
             "room_name": "East Sand Hall",
             "notable_name": "Spring Ball HiJump",
+            "enabled": false
+        },
+        {
+            "room_id": 210,
+            "notable_id": 12,
+            "room_name": "East Sand Hall",
+            "notable_name": "Cross-Room Blue Speed Jump (Right to Left)",
             "enabled": false
         },
         {
@@ -2859,6 +2866,13 @@
             "notable_id": 3,
             "room_name": "Ice Beam Gate Room",
             "notable_name": "Mella Wall Ice Clip X-Ray Climb",
+            "enabled": false
+        },
+        {
+            "room_id": 106,
+            "notable_id": 4,
+            "room_name": "Ice Beam Gate Room",
+            "notable_name": "Anti-Short Charge Hero Shot",
             "enabled": false
         },
         {
@@ -3754,7 +3768,7 @@
             "room_id": 198,
             "notable_id": 2,
             "room_name": "Oasis",
-            "notable_name": "Cross Room Jump with Screw Attack and Speed through the Top Door",
+            "notable_name": "Cross Room Jump Through Top Door",
             "enabled": false
         },
         {

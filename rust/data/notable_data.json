@@ -1520,6 +1520,14 @@
     "video_id": 3093
   },
   {
+    "room_id": 106,
+    "room_name": "Ice Beam Gate Room",
+    "notable_id": 4,
+    "name": "Anti-Short Charge Hero Shot",
+    "difficulty": "Extreme",
+    "video_id": 5508
+  },
+  {
     "room_id": 110,
     "room_name": "Ice Beam Tutorial Room",
     "notable_id": 1,
@@ -2979,7 +2987,7 @@
     "room_id": 210,
     "room_name": "East Sand Hall",
     "notable_id": 1,
-    "name": "Cross-Room Speed Jump",
+    "name": "Cross-Room Speed Jump over Evirs",
     "difficulty": "Expert",
     "video_id": 67
   },
@@ -2987,7 +2995,7 @@
     "room_id": 210,
     "room_name": "East Sand Hall",
     "notable_id": 2,
-    "name": "Cross-Room SpringBall Jump",
+    "name": "Cross-Room Spring Ball Jump",
     "difficulty": "Expert",
     "video_id": 201
   },
@@ -3064,6 +3072,14 @@
     "video_id": 416
   },
   {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 12,
+    "name": "Cross-Room Blue Speed Jump (Right to Left)",
+    "difficulty": "Expert",
+    "video_id": 5642
+  },
+  {
     "room_id": 198,
     "room_name": "Oasis",
     "notable_id": 1,
@@ -3075,7 +3091,7 @@
     "room_id": 198,
     "room_name": "Oasis",
     "notable_id": 2,
-    "name": "Cross Room Jump with Screw Attack and Speed through the Top Door",
+    "name": "Cross Room Jump Through Top Door",
     "difficulty": "Insane",
     "video_id": 301
   },
