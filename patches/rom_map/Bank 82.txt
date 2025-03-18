@@ -8,7 +8,8 @@ FC30 - FC50: fix_transition_bad_tiles.asm
 FC50 - FD00: [FREE]
 FD00 - FD80: item_dots_disappear.asm
 FD80 - FE00: fast_doors.asm
-FE00 - FE80: fast_reload.asm
+FE00 - FE70: [FREE]
+FE70 - FE80: fast_reload.asm
 FE80 - FF00: zebes_asleep_music.asm
 FF00 - FF10: reserve_hud.asm
 FF10 - FF30: escape.asm
