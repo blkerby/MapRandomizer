@@ -32,12 +32,12 @@ deathhook:
 
     jsl $82be17       ; Stop sounds
     jsl load_save_slot
-    jsl $80858C          ; load map
+    jsl $80858C       ; load map
 
     ; In case we're on an elevator ride, reset this state so that Samus will have control after the reload:
     stz $0E18
 
-    lda #$0006        
+    lda #$0006
     sta $0998         ; Goto game mode 6 (load game)
     plp
     rts
@@ -97,7 +97,6 @@ hook_main:
     plb
     php
     rep #$30
-    pha
 
     ; Disable quick reload during the Samus fanfare at the start of the game (or when loading game from menu)
     lda $0A44
@@ -130,18 +129,15 @@ hook_main:
     and !reload_button_combo   ; L + R + Select + Start
     bne .reset   ; Reset only if at least one of the inputs is newly pressed
 .noreset
-    pla
     plp
     rtl
 .reset:
-    pla
     plp
     stz $0727    ; Reset pause menu index
     stz $0797    ; Reset door transition flag
     pea $f70e    ; $82f70e = rtl
     jml !deathhook82
 
-print PC
 warnpc !bank_85_free_space_end
 
 org !spin_lock_button_combo
@@ -167,8 +163,7 @@ org $91e164
     jsl setup_samus : nop : nop
 
 org $82E309
-    jsl hook_door_transition
-    nop : nop
+    jsl hook_door_transition : nop : nop
 
 ; Free space somewhere for hooked code
 org !freespacea0
