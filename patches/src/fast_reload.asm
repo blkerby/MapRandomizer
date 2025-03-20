@@ -125,6 +125,13 @@ hook_main:
     cmp !reload_button_combo
     bne .noreset ; If any of the inputs are not currently held, then do not reset.
 
+    ; Only check new press with gamestates 7 & 8
+    lda $0998
+    cmp #$0007
+    beq .check_newpress
+    cmp #$0008
+    bne .reset
+.check_newpress
     lda $8F      ; Newly pressed controller 1 input
     and !reload_button_combo   ; L + R + Select + Start
     bne .reset   ; Reset only if at least one of the inputs is newly pressed
