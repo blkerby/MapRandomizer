@@ -2,6 +2,7 @@ v118:
 - handle "detailNote" in tech and strats.
 - handle "minExtraRunSpeed" in "leaveWithRunway"
 - include "objectives" details on seed page.
+- finish refining stutter water shinecharges.
 - account for reserve backward transfer QoL in logic.
 - fix scrolling sky corruption, which got worse with the faster decompression
 - move crateria tube tiles to CRE
@@ -62,6 +63,8 @@ Rom patching:
 
 Logic:
 - PCJR: "Left-Side Shinespark" (and related strats): rename and add "canShinechargeMovementComplex" req
+- X-Ray climb from "strange positions" using G-mode:
+  - example in Big Pink by bobbob: https://vimeo.com/623738489
 
 Other:
 - remove dependence on ROM for seed generation
