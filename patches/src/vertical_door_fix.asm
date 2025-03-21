@@ -1,3 +1,5 @@
+; No longer directly used in the randomizer, as it is superceded by (and would conflict with) load_plms_early.asm.
+;
 ; Originally from https://forum.metroidconstruction.com/index.php/topic,145.msg73993.html#msg73993
 
 ; From PJ: (https://patrickjohnston.org/bank/82#fE4A9)

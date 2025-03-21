@@ -460,7 +460,7 @@ impl<'a> Patcher<'a> {
                 "escape_autosave",
                 "boss_exit",
                 "oob_death",
-                "vertical_door_fix",
+                "load_plms_early",
                 "spin_lock",
                 "fix_transition_bad_tiles",
             ]);
@@ -2255,6 +2255,20 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn apply_statues_room_fix(&mut self) -> Result<()> {
+        // See `load_plms_early.asm` for why this is necessary.
+        let room_ptr = 0x7A66A;
+        // Spawn PLM to clear access to Tourian elevator at (6, Ch):
+        self.extra_setup_asm
+            .entry(room_ptr)
+            .or_insert(vec![])
+            .extend(vec![
+                0x22, 0xD7, 0x83, 0x84, // JSL $8483D7
+                0x06, 0x0C, 0x77, 0xB7, // dx 06, 0C, B777
+            ]);
+        Ok(())
+    }
+
     fn apply_hazard_markers(&mut self) -> Result<()> {
         let mut door_ptr_pairs = vec![
             (Some(0x1A42C), Some(0x1A474)), // Mt. Everest (top)
@@ -3194,6 +3208,7 @@ pub fn make_rom(
     patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
+    patcher.apply_statues_room_fix()?;
     if !randomization.settings.other_settings.ultra_low_qol {
         patcher.apply_hazard_markers()?;
     }
