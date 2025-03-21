@@ -10,7 +10,7 @@
 !bank_82_free_space_start = $82FE00
 !bank_82_free_space_end = $82FE40
 !bank_8f_free_space_start = $8FFE50
-!bank_8f_free_space_end = $8FFE70
+!bank_8f_free_space_end = $8FFE80
 
 ; install a hook early in the door transition, just after level data and tile table are loaded and scrolling is set up:
 ;org $82E387
@@ -66,9 +66,23 @@ room_setup_hook:
 warnpc !bank_82_free_space_end
 
 org !bank_8f_free_space_start
+; check if the setup ASM (in register A) is one whose execution should be delayed
+; until the middle of scrolling (after loading the tilesets, etc.)
+check_delayed:
+    CMP #$91C9
+    BEQ .done
+    CMP #$C11B
+.done:
+    RTS
+
 setup_asm_hook:
-    CMP #$91C9     ; skip if it's scrolling sky setup ASM
-    BEQ .skip
+    JSR check_delayed
+    BNE .run_setup
+    LDA $0998
+.check_state:
+    CMP #$000B
+    BEQ .skip      ; if in door transition state, skip running special setup ASM (such as scrolling sky)
+.run_setup:
     JSR ($0018,x)  ; Execute (room setup ASM)
 .skip:
     RTS
@@ -76,7 +90,7 @@ setup_asm_hook:
 setup_asm_wrapper:
     LDX $07BB
     LDA $0018,x
-    CMP #$91C9     ; skip if it's not scrolling sky setup ASM
+    JSR check_delayed
     BNE .skip
     JSR ($0018,x)  ; Execute (room setup ASM)
 .skip:

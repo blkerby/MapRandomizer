@@ -9,6 +9,5 @@ F800-F900:  Used by `escape_autosave` patch
 F900-FE00:  Used for tileset table & pointers for area-themed palettes
 FE00-FE40:  Toilet PLMs
 FE40-FE50:  saveload.asm
-FE50-FE70:  load_plms_early.asm
-FE70-FE80:  [FREE]
+FE50-FE80:  load_plms_early.asm
 FE80-FF00:  hazard_markers.asm

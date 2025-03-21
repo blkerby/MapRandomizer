@@ -79,7 +79,7 @@ function roomThemingChanged() {
         document.getElementById("tileTheme").value = "none";
     }
     if (document.getElementById("roomThemingTiling").checked) {
-        document.getElementById("roomPalettesAreaThemed").checked = true;
+        document.getElementById("roomPalettesVanilla").checked = true;
         document.getElementById("tileTheme").value = "area_themed";
     }
 }
