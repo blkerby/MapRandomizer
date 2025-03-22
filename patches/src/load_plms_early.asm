@@ -13,9 +13,8 @@
 !bank_8f_free_space_end = $8FFE80
 
 ; install a hook early in the door transition, just after level data and tile table are loaded and scrolling is set up:
-;org $82E387
-org $82E3B9
-    JSR room_setup_hook
+org $80A3A6
+    JML room_setup_hook : nop
 
 ; skip room setup later in the transition:
 org $82E4B1
@@ -53,6 +52,8 @@ org $8FE89D
 
 org !bank_82_free_space_start
 room_setup_hook:
+    LDA $0925    ; Door transition frame counter
+    BNE .not_1st_pass
     JSL $868016  ; Clear enemy projectiles
     JSL $878016  ; Clear animated tiles objects
     JSL $8DC4D8  ; Clear palette FX objects
@@ -61,7 +62,10 @@ room_setup_hook:
     JSR $E8EB    ; Spawn door closing PLM
     JSL $8485B4  ; PLM handler
     LDA #$E3C0   ; run hi-jacked instruction
-    RTS
+
+.not_1st_pass
+    PEA $A3DE
+    JML $80A37B  ; replaced code equivalent (JSR $A37B / BRA $A3DF)
 
 warnpc !bank_82_free_space_end
 
