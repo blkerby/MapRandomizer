@@ -46,6 +46,12 @@ org $82E53C
 org $8FE89D
     JSR setup_asm_hook
 
+; When reloading CRE tiles, skip the last 2 rows, which are reserved for item PLMs.
+; Since item PLMs may now run before CRE tiles are reloaded, we want to avoid overwriting
+; the graphics that they load.
+org $82E486
+    dw $1C00
+
 org !bank_82_free_space_start
 spawn_closing_wrapper:
     JSR $E8EB    
@@ -86,8 +92,8 @@ early_plm_handler:
     DEX             ;\
     DEX             ;} X -= 2
     BPL .loop       ; If [X] >= 0: go to LOOP
-    PLB
 .done:
+    PLB
     RTS
 
     ; late PLM handling: process PLMs late, after the end of scrolling, like vanilla does.
@@ -113,8 +119,8 @@ late_plm_handler:
     DEX             ;\
     DEX             ;} X -= 2
     BPL .loop       ; If [X] >= 0: go to LOOP
-    PLB
 .done:
+    PLB
     RTL
 
 is_delayed_plm:
@@ -125,6 +131,8 @@ is_delayed_plm:
     CMP #$B7BB      ; Kraid spike floor (spawned during enemy initialization)
     BEQ .done
     CMP #$B7B7      ; Kraid ceiling (spawned during enemy initialization)
+    BEQ .done
+    CMP #$DB44      ; Set Metroids cleared states when required (needs to happen after enemy initialization)
 .done:
     RTS
 warnpc !bank_80_free_space_end
