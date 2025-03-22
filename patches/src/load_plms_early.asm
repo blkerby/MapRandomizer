@@ -7,14 +7,18 @@
 ; Since room setup and door ASM can spawn PLMs (particularly in the randomizer), we also move this
 ; (and some other room initialization) up to earlier in the transition as well.
 
+!bank_80_free_space_start = $80E440
+!bank_80_free_space_end = $80E460
 !bank_82_free_space_start = $82FE00
 !bank_82_free_space_end = $82FE40
 !bank_8f_free_space_start = $8FFE50
 !bank_8f_free_space_end = $8FFE80
 
 ; install a hook early in the door transition, just after level data and tile table are loaded and scrolling is set up:
-org $80A3A6
-    JML room_setup_hook : nop
+org $80AD61 : JSR room_setup_hook  ; right door
+org $80AD8B : JSR room_setup_hook  ; left door
+org $80ADB5 : JSR room_setup_hook  ; down door
+org $80ADE8 : JSR room_setup_hook  ; up door
 
 ; skip room setup later in the transition:
 org $82E4B1
@@ -51,23 +55,23 @@ org $8FE89D
     JSR setup_asm_hook
 
 org !bank_82_free_space_start
+spawn_closing_wrapper:
+    JSR $E8EB    
+    RTL
+warnpc !bank_82_free_space_end
+
+org !bank_80_free_space_start
 room_setup_hook:
-    LDA $0925    ; Door transition frame counter
-    BNE .not_1st_pass
+    JSR $AE29    ; run hi-jacked instruction: Update BG scroll offsets
     JSL $868016  ; Clear enemy projectiles
     JSL $878016  ; Clear animated tiles objects
     JSL $8DC4D8  ; Clear palette FX objects
     JSL $8483C3  ; Clear PLMs
     JSL $82EB6C  ; Create PLMs, execute door ASM, room setup ASM and set elevator status
-    JSR $E8EB    ; Spawn door closing PLM
+    JSL spawn_closing_wrapper  ; Spawn door closing PLM
     JSL $8485B4  ; PLM handler
-    LDA #$E3C0   ; run hi-jacked instruction
-
-.not_1st_pass
-    PEA $A3DE
-    JML $80A37B  ; replaced code equivalent (JSR $A37B / BRA $A3DF)
-
-warnpc !bank_82_free_space_end
+    RTS
+warnpc !bank_80_free_space_end
 
 org !bank_8f_free_space_start
 ; check if the setup ASM (in register A) is one whose execution should be delayed
