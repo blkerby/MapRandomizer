@@ -130,7 +130,7 @@ update_beam_gfx_8_tile:
     ; queue transfer of 8 tiles (256 bytes) to VRAM:
     LDA #$0100      ; size = #$0100 bytes
     STA $00
-    LDA #$2600      ; VRAM destination = $2600
+    LDA #$2700      ; VRAM destination = $2700
     STA $02
     BRA update_beam_gfx
 
@@ -140,7 +140,7 @@ update_beam_gfx_4_tile:
     ; queue transfer of 4 tiles (128 bytes) to VRAM:
     LDA #$0080      ; size = #$0080 bytes
     STA $00
-    LDA #$2620      ; VRAM destination = $2620
+    LDA #$2720      ; VRAM destination = $2720
     STA $02 
     BRA update_beam_gfx
 
