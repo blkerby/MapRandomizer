@@ -33,7 +33,7 @@ org $82E446
     dw $6000
     db $7E
     dw $2000
-    dw $1000
+    dw $0E00  ; Skip last row, to avoid overwriting beam door tiles and hazard markers.
 
     jsr hook_tileset_load
 

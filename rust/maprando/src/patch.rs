@@ -2623,7 +2623,7 @@ impl<'a> Patcher<'a> {
         // when entering the room. The 16x16 tilemaps stay constant while the underlying 8x8 tiles get updated for the
         // idle animation and door opening.
         use beam_doors_tiles::*;
-        let beam_door_gfx_idx = 0x260; // 0x260 through 0x267
+        let beam_door_gfx_idx = 0x270; // 0x270 through 0x277
         let beam_palettes = vec![
             1, // Charge
             3, // Ice
@@ -2759,7 +2759,7 @@ impl<'a> Patcher<'a> {
         }
 
         // Idle beam door animation (8x8 tiles): 4 tiles per frame, 4 frame loop:
-        // These get copied into VRAM at $2620-$2660:
+        // These get copied into VRAM at $2720-$2760:
         for beam_idx in 0..5 {
             // horizontal orientation:
             let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x420;
@@ -2783,7 +2783,7 @@ impl<'a> Patcher<'a> {
         }
 
         // Opening beam door animation (8x8 tiles): 8 tiles per frame, 3 frame animation:
-        // These get copied into VRAM at $2600-$2680:
+        // These get copied into VRAM at $2700-$2780:
         for beam_idx in 0..5 {
             // horizontal orientation:
             let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x20;
