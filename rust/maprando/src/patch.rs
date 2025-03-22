@@ -902,46 +902,6 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn block_escape_return(
-        &mut self,
-        extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
-    ) -> Result<()> {
-        // For testing, using Landing Site bottom left door
-        // let mother_brain_left_door_pair = (Some(0x18916), Some(0x1896A));
-        let mother_brain_left_door_pair = (Some(0x1AA8C), Some(0x1AAE0));
-
-        // Finding the matching door on the map:
-        let mut other_door_pair = (None, None);
-        for door in &self.randomization.map.doors {
-            if door.1 == mother_brain_left_door_pair {
-                other_door_pair = door.0;
-                break;
-            }
-        }
-
-        // Get x & y position of door (which we will turn gray during escape).
-        let screen_x = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 6)? as u8;
-        let screen_y = self.orig_rom.read_u8(other_door_pair.1.unwrap() + 7)? as u8;
-        let entrance_x = screen_x * 16 + 14;
-        let entrance_y = screen_y * 16 + 6;
-
-        let asm: Vec<u8> = vec![
-            0xA9, 0x0E, 0x00, // LDA #$000E   (Escape flag)
-            0x22, 0x33, 0x82, 0x80, // JSL $808233  (Check if flag is set)
-            0x90, 0x0A, // BCC $0A  (Skip spawning gray door if not in escape)
-            0x22, 0x80, 0xF3, 0x84, // JSL $84F380  (Spawn hard-coded PLM with room argument)
-            entrance_x, entrance_y, 0x42, 0xC8, 0x00,
-            0x10, // PLM type 0xC8CA (gray door), argument 0x1000 (always closed)
-        ];
-
-        extra_door_asm
-            .entry(mother_brain_left_door_pair.0.unwrap())
-            .or_default()
-            .extend(asm);
-
-        Ok(())
-    }
-
     fn clamp_samus_position(
         &mut self,
         extra_door_asm: &mut HashMap<DoorPtr, Vec<u8>>,
@@ -1026,7 +986,6 @@ impl<'a> Patcher<'a> {
         }
         self.auto_explore_elevators(&mut extra_door_asm)?;
         self.auto_reveal_arrows(&mut extra_door_asm)?;
-        self.block_escape_return(&mut extra_door_asm)?;
         self.clamp_samus_position(&mut extra_door_asm)?;
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
