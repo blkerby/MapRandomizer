@@ -184,6 +184,8 @@ setup_music:
 
 setup_game_1:
     jsl $82be17       ; Stop sounds
+    lda #$0000
+    sta $7EC400       ; clear palette change numerator, in case of reload during fade-in/fade-out
     lda #$ffff
     sta !loadback_ready   ; Set the state that allows loading back to previous save.
     lda !QUICK_RELOAD
@@ -192,6 +194,7 @@ setup_game_1:
     sta $05f5
     jml $80a09b
 .quick
+    stz $05F5       ; Enable sounds (in case they are disabled due to reloading during door transition)
     jsl $80835d
     jsl $80985f
     jsl $82e76b
