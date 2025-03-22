@@ -10,7 +10,7 @@
 !bank_80_free_space_start = $80E440
 !bank_80_free_space_end = $80E500
 !bank_82_free_space_start = $82FE00
-!bank_82_free_space_end = $82FE40
+!bank_82_free_space_end = $82FE70
 !bank_84_free_space_start = $84EFD3
 !bank_84_free_space_end = $84EFD7
 !bank_8f_free_space_start = $8FFE50
@@ -54,14 +54,34 @@ org $82E462
 
 ; When reloading CRE tiles, skip the last 2 rows, which are reserved for item PLMs.
 ; Since item PLMs may now run before CRE tiles are reloaded, we want to avoid overwriting
-; the graphics that they load.
-org $82E486
-    dw $1C00
+; the graphics that they load. The exception is Kraid's Room which has no items but
+; loads an extra-large tileset:
+org $82E47E
+    LDA $079B
+    JSR load_cre_hook
+    NOP : NOP : NOP : NOP
 
 org !bank_82_free_space_start
 spawn_closing_wrapper:
     JSR $E8EB    
     RTL
+
+load_cre_hook:
+    ; A = [$079F] (room pointer)
+    CMP #$A59F  ; is this Kraid's Room
+    BEQ .extra_large_tileset
+
+    ; Ordinary-sized tileset. Skip loading the last 2 rows (to avoid clobbering item PLM grpahics).
+    JSR $E039
+    db $00, $80, $7E, $00, $30, $00, $1C
+    RTS
+
+.extra_large_tileset:
+    ; Extra-large tileset. Load the whole thing.
+    JSR $E039
+    db $00, $80, $7E, $00, $30, $00, $20
+    RTS
+
 warnpc !bank_82_free_space_end
 
 org !bank_80_free_space_start
