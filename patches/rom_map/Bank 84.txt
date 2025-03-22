@@ -1,4 +1,5 @@
-$EFD3 - $F000: [FREE]
+$EFD3 - $EFD7: load_plms_early.asm
+$EFD7 - $F000: [FREE]
 $F000 - $F0FF: walljump_item.asm
 $F100 - $F1FF: missile_refill_all.asm
 $F200 - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)

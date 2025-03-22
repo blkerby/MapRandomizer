@@ -8,9 +8,11 @@
 ; (and some other room initialization) up to earlier in the transition as well.
 
 !bank_80_free_space_start = $80E440
-!bank_80_free_space_end = $80E460
+!bank_80_free_space_end = $80E500
 !bank_82_free_space_start = $82FE00
 !bank_82_free_space_end = $82FE40
+!bank_84_free_space_start = $84EFD3
+!bank_84_free_space_end = $84EFD7
 !bank_8f_free_space_start = $8FFE50
 !bank_8f_free_space_end = $8FFE80
 
@@ -37,17 +39,7 @@ org $82E4C9
 
 org $82E53C
     ; replaces JSL $8485B4  ; PLM handler
-    BRA skip_plm_handler
-org $82E540
-skip_plm_handler:
-
-; In Statues Room FX setup, skip spawning PLM to clear blocks:
-; Since we now run the PLM handler before FX are loaded, it would be too late to spawn the PLM here.
-; Instead we change it to be spawned using extra setup ASM (which now runs earlier), in patch.rs.
-org $88DB8A
-    BRA skip_statues_clear
-org $88DBA2
-skip_statues_clear:
+    JSL late_plm_handler
 
 ; hook code that runs regular setup ASM (not including extra setup ASM),
 ; to skip scrolling sky ASM (we delay it until after scrolling starts, since it takes so long).
@@ -69,22 +61,82 @@ room_setup_hook:
     JSL $8483C3  ; Clear PLMs
     JSL $82EB6C  ; Create PLMs, execute door ASM, room setup ASM and set elevator status
     JSL spawn_closing_wrapper  ; Spawn door closing PLM
-    JSL $8485B4  ; PLM handler
+    
+    ; early PLM handling: process PLMs before scrolling starts, with the exception of certain PLMs that
+    ; must be processed later (e.g. because they depend on FX already being set up).
+    ; this does something similar to function $8485B4, just skipping the exceptions.
+early_plm_handler:
+    PHB
+    PEA $8484
+    PLB
+    PLB             ;} DB = $84
+    BIT $1C23       ;\
+    BPL .done       ;} If PLMs not enabled: return
+    STZ $1C25       ; PLM draw tilemap index = 0
+    LDX #$004E      ; X = 4Eh (PLM index)
+.loop:
+    STX $1C27       ; PLM index = [X]
+    LDA $1C37,x     ;\
+    BEQ .skip       ;} If [PLM ID] != 0:
+    JSR is_delayed_plm
+    BEQ .skip
+    JSL process_plm_wrapper
+    LDX $1C27       ; X = [PLM index]
+.skip:
+    DEX             ;\
+    DEX             ;} X -= 2
+    BPL .loop       ; If [X] >= 0: go to LOOP
+    PLB
+.done:
+    RTS
+
+    ; late PLM handling: process PLMs late, after the end of scrolling, like vanilla does.
+    ; this only handles exceptional PLMs that were skipped during early handling.
+late_plm_handler:
+    PHB
+    PEA $8484
+    PLB
+    PLB             ;} DB = $84
+    BIT $1C23       ;\
+    BPL .done       ;} If PLMs not enabled: return
+    STZ $1C25       ; PLM draw tilemap index = 0
+    LDX #$004E      ; X = 4Eh (PLM index)
+.loop:
+    STX $1C27       ; PLM index = [X]
+    LDA $1C37,x     ;\
+    BEQ .skip       ;} If [PLM ID] != 0:
+    JSR is_delayed_plm
+    BNE .skip
+    JSL process_plm_wrapper
+    LDX $1C27       ; X = [PLM index]
+.skip:
+    DEX             ;\
+    DEX             ;} X -= 2
+    BPL .loop       ; If [X] >= 0: go to LOOP
+    PLB
+.done:
+    RTL
+
+is_delayed_plm:
+    CMP #$D70C      ; Glass Tunnel PLM
+    BEQ .done
+    CMP #$B777      ; Statues Room PLM to clear blocks
+.done:
     RTS
 warnpc !bank_80_free_space_end
 
 org !bank_8f_free_space_start
 ; check if the setup ASM (in register A) is one whose execution should be delayed
 ; until the middle of scrolling (after loading the tilesets, etc.)
-check_delayed:
-    CMP #$91C9
+check_delayed_setup_asm:
+    CMP #$91C9   ; scrolling sky
     BEQ .done
-    CMP #$C11B
+    CMP #$C11B   ; load glass tube tiles
 .done:
     RTS
 
 setup_asm_hook:
-    JSR check_delayed
+    JSR check_delayed_setup_asm
     BNE .run_setup
     LDA $0998
 .check_state:
@@ -98,10 +150,16 @@ setup_asm_hook:
 setup_asm_wrapper:
     LDX $07BB
     LDA $0018,x
-    JSR check_delayed
+    JSR check_delayed_setup_asm
     BNE .skip
     JSR ($0018,x)  ; Execute (room setup ASM)
 .skip:
     RTL
 
 warnpc !bank_8f_free_space_end
+
+org !bank_84_free_space_start
+process_plm_wrapper:
+    JSR $85DA       ; Process PLM
+    RTL
+warnpc !bank_84_free_space_end
