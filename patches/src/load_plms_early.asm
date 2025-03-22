@@ -118,9 +118,13 @@ late_plm_handler:
     RTL
 
 is_delayed_plm:
-    CMP #$D70C      ; Glass Tunnel PLM
+    CMP #$D70C      ; Glass Tunnel PLM (overwrites FX setup)
     BEQ .done
-    CMP #$B777      ; Statues Room PLM to clear blocks
+    CMP #$B777      ; Statues Room PLM to clear blocks (spawned during FX setup)
+    BEQ .done
+    CMP #$B7BB      ; Kraid spike floor (spawned during enemy initialization)
+    BEQ .done
+    CMP #$B7B7      ; Kraid ceiling (spawned during enemy initialization)
 .done:
     RTS
 warnpc !bank_80_free_space_end
