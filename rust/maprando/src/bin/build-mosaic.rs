@@ -288,6 +288,8 @@ impl MosaicPatchBuilder {
         let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
         let gfx8x8_bytes = std::fs::read(&gfx8x8_path)
             .with_context(|| format!("Unable to load CRE 8x8 gfx at {}", gfx8x8_path.display()))?;
+        // Truncate CRE tileset to exclude bottom 2 rows (used for item PLMs):
+        let gfx8x8_bytes = gfx8x8_bytes[..11264].to_vec();
         let compressed_gfx8x8 = self.get_compressed_data(&gfx8x8_bytes)?;
         let gfx8x8_addr = self.main_allocator.allocate(compressed_gfx8x8.len())?;
         new_rom.write_n(gfx8x8_addr, &compressed_gfx8x8)?;
@@ -342,8 +344,13 @@ impl MosaicPatchBuilder {
             let compressed_pal = self.get_compressed_data(&palette_bytes)?;
 
             let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-            let gfx8x8_bytes = std::fs::read(&gfx8x8_path)
+            let mut gfx8x8_bytes = std::fs::read(&gfx8x8_path)
                 .with_context(|| format!("Unable to read 8x8 gfx at {}", gfx8x8_path.display()))?;
+            if gfx8x8_bytes.len() == 20480 {
+                // For standard-size SCE tilesets, truncate them to remove the bottom row,
+                // reserved for randomizer use (beam doors and hazard tiles).
+                gfx8x8_bytes = gfx8x8_bytes[..19968].to_vec();
+            }
             let compressed_gfx8x8 = self.get_compressed_data(&gfx8x8_bytes)?;
 
             let gfx16x16_path = tileset_path.join("16x16tiles.ttb");

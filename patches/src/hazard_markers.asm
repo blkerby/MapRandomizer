@@ -92,8 +92,8 @@ load_hazard_tiles:
     ; Load beam door tiles
     lda #$00EA
     sta $4314  ; Set source bank to $EA
-    lda #$2600
-    sta $2116  ; VRAM (destination) address = $2600
+    lda #$2700
+    sta $2116  ; VRAM (destination) address = $2700
     lda $1F78
     clc
     adc #$0020
