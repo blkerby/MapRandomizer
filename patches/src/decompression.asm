@@ -37,6 +37,10 @@
 
 incsrc "constants.asm"
 
+!bank_7e_free_space_start = $7EF4B0
+!bank_7e_free_space_end = $7EF4E0
+!dma_register_backup = !bank_7e_free_space_start
+
 !bank_80_free_space_start = $80E2A0
 !bank_80_free_space_end = $80E3C0
 
@@ -67,23 +71,23 @@ setup:
 
     ; save 16-bit register values $43xx
     REP #$20
-    PEI ($08)
-    PEI ($0A)
-    PEI ($18)
-    PEI ($20)
-    PEI ($22)
-    PEI ($24)
-    PEI ($30)
-    PEI ($32)
-    PEI ($34)
-    PEI ($42)
-    PEI ($50)
-    PEI ($5A)
-    PEI ($62)
-    PEI ($64)
-    PEI ($70)
-    PEI ($72)
-    PEI ($74)
+    LDA $08 : STA !dma_register_backup+$00
+    LDA $0A : STA !dma_register_backup+$02
+    LDA $18 : STA !dma_register_backup+$04
+    LDA $20 : STA !dma_register_backup+$06
+    LDA $22 : STA !dma_register_backup+$08
+    LDA $24 : STA !dma_register_backup+$0A
+    LDA $30 : STA !dma_register_backup+$0C
+    LDA $32 : STA !dma_register_backup+$0E
+    LDA $34 : STA !dma_register_backup+$10
+    LDA $42 : STA !dma_register_backup+$12
+    LDA $50 : STA !dma_register_backup+$14
+    LDA $5A : STA !dma_register_backup+$16
+    LDA $62 : STA !dma_register_backup+$18
+    LDA $64 : STA !dma_register_backup+$1A
+    LDA $70 : STA !dma_register_backup+$1C
+    LDA $72 : STA !dma_register_backup+$1E
+    LDA $74 : STA !dma_register_backup+$20
     SEP #$20
 
     STZ $5B
@@ -382,23 +386,23 @@ cleanup:
 
     ;restore some DMA registers that could have been overwritten
     REP #$20
-    PLA : STA $74
-    PLA : STA $72
-    PLA : STA $70
-    PLA : STA $64
-    PLA : STA $62
-    PLA : STA $5A
-    PLA : STA $50
-    PLA : STA $42
-    PLA : STA $34
-    PLA : STA $32
-    PLA : STA $30
-    PLA : STA $24
-    PLA : STA $22
-    PLA : STA $20
-    PLA : STA $18
-    PLA : STA $0A
-    PLA : STA $08
+    LDA !dma_register_backup+$00 : STA $08
+    LDA !dma_register_backup+$02 : STA $0A
+    LDA !dma_register_backup+$04 : STA $18
+    LDA !dma_register_backup+$06 : STA $20
+    LDA !dma_register_backup+$08 : STA $22
+    LDA !dma_register_backup+$0A : STA $24
+    LDA !dma_register_backup+$0C : STA $30
+    LDA !dma_register_backup+$0E : STA $32
+    LDA !dma_register_backup+$10 : STA $34
+    LDA !dma_register_backup+$12 : STA $42
+    LDA !dma_register_backup+$14 : STA $50
+    LDA !dma_register_backup+$16 : STA $5A
+    LDA !dma_register_backup+$18 : STA $62
+    LDA !dma_register_backup+$1A : STA $64
+    LDA !dma_register_backup+$1C : STA $70
+    LDA !dma_register_backup+$1E : STA $72
+    LDA !dma_register_backup+$20 : STA $74    
     SEP #$20
 
     PLD

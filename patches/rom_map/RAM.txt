@@ -33,6 +33,8 @@ $7ED823: randomizer-specific event flags:
   $0010: metal pirates room door unlocked
 $7ed86c: bomb_torizo.asm
 $7EF4A0-$7EF4AF: temp storage for special tile (reserve_hud.asm)
+$7EF4B0-$7EFEE0: backup of DMA registers in decompression.asm
+$7EF4E0-$7EFE00: [FREE]
 $7EFE00: map area (copy of $1F5B to be saved to SRAM)
 $7EFE02: map area explored mask
 $7EFE04: copy of $1F5D (to be saved to SRAM for escape autosave)
