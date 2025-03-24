@@ -972,6 +972,12 @@
         "video_id": 966
     },
     {
+        "tech_id": 199,
+        "name": "canPreciseStutterWaterShineCharge",
+        "difficulty": "Expert",
+        "video_id": 2214
+    },
+    {
         "tech_id": 152,
         "name": "canXRayWaitForIFrames",
         "difficulty": "Hard",
@@ -1036,6 +1042,12 @@
         "name": "canEnterGMode",
         "difficulty": "Extreme",
         "video_id": 982
+    },
+    {
+        "tech_id": 200,
+        "name": "canTrickyGMode",
+        "difficulty": "Insane",
+        "video_id": null
     },
     {
         "tech_id": 198,

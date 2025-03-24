@@ -54,6 +54,7 @@ pub fn apply_retiling(
         "Area Palettes",
         "Area Palette Glows",
         "Bowling",
+        "Item Loading",
         "in_place_level_data",
     ];
     for name in &patch_names {

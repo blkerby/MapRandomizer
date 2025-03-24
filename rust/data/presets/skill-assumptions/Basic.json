@@ -650,6 +650,11 @@
             "enabled": false
         },
         {
+            "id": 199,
+            "name": "canPreciseStutterWaterShineCharge",
+            "enabled": false
+        },
+        {
             "id": 156,
             "name": "canXRayClimb",
             "enabled": false
@@ -907,6 +912,11 @@
         {
             "id": 148,
             "name": "canLongChainTemporaryBlue",
+            "enabled": false
+        },
+        {
+            "id": 200,
+            "name": "canTrickyGMode",
             "enabled": false
         },
         {
@@ -3440,13 +3450,6 @@
             "notable_id": 4,
             "room_name": "Dachora Room",
             "notable_name": "G-Mode Setup - Lure the Zeela Down Below",
-            "enabled": false
-        },
-        {
-            "room_id": 66,
-            "notable_id": 4,
-            "room_name": "Red Tower",
-            "notable_name": "Door Frame Extended Moondance",
             "enabled": false
         },
         {
