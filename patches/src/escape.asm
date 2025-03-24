@@ -7,8 +7,8 @@
 lorom
 arch snes.cpu
 
-!bank_82_free_space_start = $82FF10
-!bank_82_free_space_end = $82FF30
+!bank_82_free_space_start = $82FCD0
+!bank_82_free_space_end = $82FD00
 !bank_84_free_space_start = $84F380
 !bank_84_free_space_end = $84F480
 !bank_8b_free_space_start = $8BF900
@@ -660,21 +660,32 @@ item_bits:
 
 warnpc !bank_8b_free_space_end
 
-org $82DFFA
+org $82E026
     jsr enemy_gfx_load_hook
 
 org !bank_82_free_space_start
 enemy_gfx_load_hook:
-    pha
-    %checkEscape() : bcc .skip
+    %checkEscape() : bcc .leave
+    lda $05be           ; VRAM target address
+    asl
+    pha                 ; save VRAM target address * 2
+    clc
+    adc $05c3           ; size
+    bcs .overflow
+    cmp #$fc00
+    bcc .skip
+.overflow               ; would overwrite VRAM $fc00
     pla
-    cmp #$1C00
-    bcc .done
-    pea $1C00  ; Clamp VRAM update size to $1C00 to prevent overwriting timer graphics
-.skip:
+    sta $05c3           ; temp var
+    lda #$fc00
+    sec
+    sbc $05c3           ; clamp write size
+    sta $05c3           ; save VRAM write size
+    bra .leave
+.skip
     pla
-.done:
-    sta $05C3  ; run hi-jacked instruction (set VRAM update size)
+.leave
+    lda #$8000          ; replaced code
     rts
-warnpc !bank_82_free_space_end
 
+warnpc !bank_82_free_space_end
