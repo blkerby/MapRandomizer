@@ -145,7 +145,7 @@ hook_main:
     lda #$0000
     sta $7EC400  ; clear palette change numerator, in case of reload during fade-in/fade-out
     stz $05F5    ; enable sounds
-    pea $f70e    ; $82f70e = rtl
+    pea $f70d    ; $82f70e = rtl
     jml !deathhook82
 
 warnpc !bank_85_free_space_end
