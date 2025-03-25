@@ -10,6 +10,24 @@ If you are interested in contributing, feel free to reach out on the [Discord](h
 - Run the web service using Cargo
 - Run the CLI using Cargo
 
+### Using macOS
+
+If you are running on macOS, you will need to do the following.
+1. [Clone the repository](#clone-the-repository) and ensure all submodules are initialized and checked out.
+2. Install the following dependencies:
+* [`wget`](https://www.gnu.org/software/wget/)
+* [`rustup`](https://rustup.rs/)
+3. Ensure that Rust is in your `PATH` variable.
+```sh
+export PATH=$HOME/rustup/bin:$PATH
+```
+4. After installing `rustup`, run the following to ensure you are using the latest stable version of Rust.
+```sh
+rustup default stable
+```
+5. Follow the instructions for [Run the web service using Cargo](#run-the-web-service-using-cargo). _Note: Docker does not work at the moment._
+
+
 ### Using Windows
 
 If you are running on Windows, be sure to enable symlinks in Git before cloning the repository:
