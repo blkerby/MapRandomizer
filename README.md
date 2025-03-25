@@ -15,18 +15,13 @@ If you are interested in contributing, feel free to reach out on the [Discord](h
 If you are running on macOS, you will need to do the following.
 1. [Clone the repository](#clone-the-repository) and ensure all submodules are initialized and checked out.
 2. Install the following dependencies:
-* `wget` ([brew](https://formulae.brew.sh/formula/wget) | [web](https://www.gnu.org/software/wget/))
-* `rust` ([brew](https://formulae.brew.sh/formula/rust) | [web](https://www.rust-lang.org/))
-* `rustup` ([brew](https://formulae.brew.sh/formula/rustup) | [web](https://rustup.rs/))
+* [`wget`](https://www.gnu.org/software/wget/)
+* [`rustup`](https://rustup.rs/)
 3. Ensure that Rust is in your `PATH` variable.
 ```sh
-# Homebrew
-export PATH="$(brew --prefix rustup)/bin:$PATH"
-
-# Other
 export PATH=$HOME/rustup/bin:$PATH
 ```
-4. After installing `rust` and `rustup`, run the following to ensure you are using the latest stable version of Rust.
+4. After installing `rustup`, run the following to ensure you are using the latest stable version of Rust.
 ```sh
 rustup default stable
 ```
