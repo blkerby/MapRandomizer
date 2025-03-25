@@ -3,8 +3,8 @@
 !bank_85_free_space_start = $85A100
 !bank_85_free_space_end = $85A180
 
-!bad_tiles_ram_addr = $714000
-!bad_tiles_ram_bank = $0071
+!bad_tiles_ram_addr = $704000
+!bad_tiles_ram_bank = $0070
 !bad_tiles_vram_addr = $0000
 !bad_tiles_word_size = $0200
 !bad_tiles_bytes_size = (!bad_tiles_word_size*2)
