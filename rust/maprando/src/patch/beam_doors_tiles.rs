@@ -24,26 +24,6 @@ pub const top_bracket_tile1: [[u8; 8]; 8] = [
     [b, b, b, b, b, b, b, b],
     [0, 0, 0, 0, 0, 0, 0, 0],
 ];
-pub const bottom_bracket_tile6: [[u8; 8]; 8] = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [b, b, b, b, b, b, b, b],
-    [7, 6, 4, w, w, 4, 6, 7],
-    [b, b, b, b, b, b, b, b],
-    [7, 6, 4, w, w, 4, 6, 7],
-    [7, 6, 5, 4, 4, 5, 6, 7],
-    [b, 7, 6, 5, 5, 6, 7, b],
-    [b, 7, 6, 6, 6, 6, 7, b],
-];
-pub const bottom_bracket_tile7: [[u8; 8]; 8] = [
-    [0, b, b, b, b, b, b, 0],
-    [0, 7, 6, 5, 5, 6, 7, 0],
-    [b, 7, 6, 6, 5, 6, 7, 0],
-    [7, 7, 6, 6, 6, 6, 7, 0],
-    [7, 6, 6, 7, 6, 6, 7, 0],
-    [7, 7, 7, 7, 7, 7, b, 0],
-    [7, 7, b, 7, 7, b, 0, 0],
-    [b, b, b, b, b, 0, 0, 0],
-];
 //opening animation:
 pub const top_bracket_tile0_opening_frame1: [[u8; 8]; 8] = [
     [b, b, b, b, b, 0, 0, 0],
@@ -64,26 +44,6 @@ pub const top_bracket_tile1_opening_frame1: [[u8; 8]; 8] = [
     [b, b, b, b, b, b, b, b],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-];
-pub const bottom_bracket_tile6_opening_frame1: [[u8; 8]; 8] = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [b, b, b, b, b, b, b, b],
-    [7, 6, 4, w, w, 4, 6, 7],
-    [b, b, b, b, b, b, b, b],
-    [7, 6, 4, 4, w, 4, 6, 7],
-    [7, 6, 5, 4, 4, 5, 6, 7],
-    [b, 7, 6, 5, 5, 6, 7, b],
-];
-pub const bottom_bracket_tile7_opening_frame1: [[u8; 8]; 8] = [
-    [b, 7, 6, 6, 6, 6, 7, b],
-    [0, b, b, b, b, b, b, 0],
-    [b, 7, 6, 6, 5, 6, 7, 0],
-    [7, 7, 6, 6, 6, 6, 7, 0],
-    [7, 6, 6, 7, 6, 6, 7, 0],
-    [7, 7, 7, 7, 7, 7, b, 0],
-    [7, 7, b, 7, 7, b, 0, 0],
-    [b, b, b, b, b, 0, 0, 0],
 ];
 //frame 2:
 pub const top_bracket_tile0_opening_frame2: [[u8; 8]; 8] = [
@@ -106,26 +66,6 @@ pub const top_bracket_tile1_opening_frame2: [[u8; 8]; 8] = [
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
 ];
-pub const bottom_bracket_tile6_opening_frame2: [[u8; 8]; 8] = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [b, b, b, b, b, b, b, 0],
-    [6, 4, w, w, 4, 6, 7, 0],
-    [b, b, b, b, b, b, b, 0],
-    [6, 4, 4, w, 4, 6, 7, 0],
-    [6, 5, 4, 4, 5, 6, 7, 0],
-];
-pub const bottom_bracket_tile7_opening_frame2: [[u8; 8]; 8] = [
-    [7, 6, 6, 5, 6, 7, b, 0],
-    [7, 7, 6, 6, 6, 7, b, 0],
-    [b, b, b, b, b, b, 0, 0],
-    [7, 6, 6, 6, 6, 7, 0, 0],
-    [6, 6, 7, 6, 6, 7, 0, 0],
-    [7, 7, 7, 7, 7, b, 0, 0],
-    [7, b, 7, 7, b, 0, 0, 0],
-    [b, b, b, b, 0, 0, 0, 0],
-];
 //frame 3:
 pub const top_bracket_tile0_opening_frame3: [[u8; 8]; 8] = [
     [b, 0, 0, 0, 0, 0, 0, 0],
@@ -146,26 +86,6 @@ pub const top_bracket_tile1_opening_frame3: [[u8; 8]; 8] = [
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-];
-pub const bottom_bracket_tile6_opening_frame3: [[u8; 8]; 8] = [
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0],
-    [b, b, b, b, 0, 0, 0, 0],
-    [w, 4, 6, 7, 0, 0, 0, 0],
-    [b, b, b, b, 0, 0, 0, 0],
-    [w, 4, 6, 7, 0, 0, 0, 0],
-    [4, 5, 6, 7, 0, 0, 0, 0],
-];
-pub const bottom_bracket_tile7_opening_frame3: [[u8; 8]; 8] = [
-    [5, 6, 7, b, 0, 0, 0, 0],
-    [6, 6, 7, b, 0, 0, 0, 0],
-    [b, b, b, 0, 0, 0, 0, 0],
-    [6, 6, 7, 0, 0, 0, 0, 0],
-    [6, 6, 7, 0, 0, 0, 0, 0],
-    [7, 7, b, 0, 0, 0, 0, 0],
-    [7, b, 0, 0, 0, 0, 0, 0],
-    [b, 0, 0, 0, 0, 0, 0, 0],
 ];
 //Charge Beam Door, row 0 of the palettes
 //frame 0:
@@ -1340,7 +1260,7 @@ pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 4]; 4]; 5] = [
         ],
     ],
 ];
-pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 8]; 5] = [
+pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 6]; 5] = [
     [
         [
             top_bracket_tile0,
@@ -1377,18 +1297,6 @@ pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 8]; 5] = [
             charge_tile5_opening_frame1,
             charge_tile5_opening_frame2,
             clear_tile,
-        ],
-        [
-            bottom_bracket_tile6,
-            bottom_bracket_tile6_opening_frame1,
-            bottom_bracket_tile6_opening_frame2,
-            bottom_bracket_tile6_opening_frame3,
-        ],
-        [
-            bottom_bracket_tile7,
-            bottom_bracket_tile7_opening_frame1,
-            bottom_bracket_tile7_opening_frame2,
-            bottom_bracket_tile7_opening_frame3,
         ],
     ],
     [
@@ -1428,18 +1336,6 @@ pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 8]; 5] = [
             ice_tile5_opening_frame2,
             clear_tile,
         ],
-        [
-            bottom_bracket_tile6,
-            bottom_bracket_tile6_opening_frame1,
-            bottom_bracket_tile6_opening_frame2,
-            bottom_bracket_tile6_opening_frame3,
-        ],
-        [
-            bottom_bracket_tile7,
-            bottom_bracket_tile7_opening_frame1,
-            bottom_bracket_tile7_opening_frame2,
-            bottom_bracket_tile7_opening_frame3,
-        ],
     ],
     [
         [
@@ -1477,18 +1373,6 @@ pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 8]; 5] = [
             wave_tile5_opening_frame1,
             wave_tile5_opening_frame2,
             clear_tile,
-        ],
-        [
-            bottom_bracket_tile6,
-            bottom_bracket_tile6_opening_frame1,
-            bottom_bracket_tile6_opening_frame2,
-            bottom_bracket_tile6_opening_frame3,
-        ],
-        [
-            bottom_bracket_tile7,
-            bottom_bracket_tile7_opening_frame1,
-            bottom_bracket_tile7_opening_frame2,
-            bottom_bracket_tile7_opening_frame3,
         ],
     ],
     [
@@ -1528,18 +1412,6 @@ pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 8]; 5] = [
             spazer_tile5_opening_frame2,
             clear_tile,
         ],
-        [
-            bottom_bracket_tile6,
-            bottom_bracket_tile6_opening_frame1,
-            bottom_bracket_tile6_opening_frame2,
-            bottom_bracket_tile6_opening_frame3,
-        ],
-        [
-            bottom_bracket_tile7,
-            bottom_bracket_tile7_opening_frame1,
-            bottom_bracket_tile7_opening_frame2,
-            bottom_bracket_tile7_opening_frame3,
-        ],
     ],
     [
         [
@@ -1577,18 +1449,6 @@ pub const opening_beam_tiles: [[[[[u8; 8]; 8]; 4]; 8]; 5] = [
             plasma_tile5_opening_frame1,
             plasma_tile5_opening_frame2,
             clear_tile,
-        ],
-        [
-            bottom_bracket_tile6,
-            bottom_bracket_tile6_opening_frame1,
-            bottom_bracket_tile6_opening_frame2,
-            bottom_bracket_tile6_opening_frame3,
-        ],
-        [
-            bottom_bracket_tile7,
-            bottom_bracket_tile7_opening_frame1,
-            bottom_bracket_tile7_opening_frame2,
-            bottom_bracket_tile7_opening_frame3,
         ],
     ],
 ];

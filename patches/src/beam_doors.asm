@@ -31,15 +31,15 @@ lorom
 
 ; 6-tiles GFX source offsets, the full door height including the brackets:
 ; These offsets are added to the base offset in !gfx_src_base_addr, in bank EA
-!gfx_initial = $0020
-!gfx_opening_1 = $0120
-!gfx_opening_2 = $0220
-!gfx_opening_3 = $0320
+!gfx_initial = $0018
+!gfx_opening_1 = $00D8
+!gfx_opening_2 = $0198
+!gfx_opening_3 = $0258
 ; 4-tile GFX, only the beam-specific GFX in the center:
-!gfx_idle_0 = $0420
-!gfx_idle_1 = $04A0
-!gfx_idle_2 = $0520
-!gfx_idle_3 = $05A0
+!gfx_idle_0 = $0318
+!gfx_idle_1 = $0398
+!gfx_idle_2 = $0418
+!gfx_idle_3 = $0498
 
 
 org !bank_84_free_space_start
@@ -102,7 +102,7 @@ set_timer:
 
 
 update_beam_gfx:
-    ; queue transfer of 8 tiles (256 bytes) to VRAM:
+    ; queue transfer of tiles to VRAM:
     PHX
     LDX $0330       ; get VRAM write table stack pointer
     LDA $00         ; size = [$00]
@@ -140,7 +140,6 @@ update_beam_gfx_6_tile:
     BRA update_beam_gfx
 
 ; input: [Y] = source address offset for GFX data (4 tiles = 128 bytes) in bank EA
-print pc
 update_beam_gfx_4_tile:
     ; queue transfer of 4 tiles (128 bytes) to VRAM:
     LDA #$0080      ; size = #$0080 bytes
