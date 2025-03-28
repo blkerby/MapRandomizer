@@ -164,6 +164,16 @@ is_delayed_plm:
     CMP #$FCC8      ; Beam door down
     BEQ .done
     CMP #$FCCC      ; Beam door up
+    BEQ .done
+
+    ; Closing blue door PLMs are delayed, because we need them to overwrite the beam door PLM when the door is already unlocked
+    CMP #$C8BE
+    BEQ .done
+    CMP #$C8BA
+    BEQ .done
+    CMP #$C8C6
+    BEQ .done
+    CMP #$C8C2
 .done:
     RTS
 warnpc !bank_80_free_space_end
