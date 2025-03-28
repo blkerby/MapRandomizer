@@ -2271,14 +2271,6 @@ impl<'a> Patcher<'a> {
             (Some(0x1A618), Some(0x1A564)), // Bug Sand Hole (right)
             (Some(0x198EE), Some(0x1992A)), // Fast Pillars Setup Room (top right)
             (Some(0x1986A), Some(0x196F6)), // Main Hall (top),
-            // temporary for testing:
-            (Some(0x191B6), Some(0x191CE)), // Kraid Eye Door Room
-            (Some(0x18CA6), Some(0x18C0A)), // Green Brinstar Main Shaft
-            (Some(0x1A990), Some(0x19222)), // Tourian First Room
-            (Some(0x18EB6), Some(0x18B9E)), // Morph Ball Room
-            (Some(0x190BA), Some(0x18B02)), // Caterpillar Room
-            (Some(0x1A594), Some(0x18A5A)), // Maridia Elevator Room
-            (Some(0x192EE), Some(0x19246)), // Business Center
         ];
         if self.randomization.settings.other_settings.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
