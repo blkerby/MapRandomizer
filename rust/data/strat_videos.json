@@ -435,6 +435,13 @@
   },
   {
     "room_id": 29,
+    "strat_id": 5,
+    "video_id": 5568,
+    "created_user": "Sam",
+    "note": "SpringFling (3 spike hits)"
+  },
+  {
+    "room_id": 29,
     "strat_id": 7,
     "video_id": 600,
     "created_user": "NZT",
@@ -586,6 +593,13 @@
     "video_id": 4859,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 30,
+    "video_id": 5528,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 29,
@@ -757,6 +771,13 @@
   },
   {
     "room_id": 18,
+    "strat_id": 12,
+    "video_id": 5334,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 18,
     "strat_id": 19,
     "video_id": 621,
     "created_user": "maddo",
@@ -796,6 +817,13 @@
     "video_id": 1771,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 13,
+    "strat_id": 13,
+    "video_id": 5446,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 13,
@@ -908,6 +936,13 @@
     "video_id": 131,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 8,
+    "strat_id": 34,
+    "video_id": 5393,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
   },
   {
     "room_id": 8,
@@ -1121,6 +1156,13 @@
   },
   {
     "room_id": 10,
+    "strat_id": 14,
+    "video_id": 5530,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 10,
     "strat_id": 138,
     "video_id": 3850,
     "created_user": "maddo",
@@ -1216,6 +1258,13 @@
     "video_id": 4759,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 26,
+    "video_id": 5529,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 10,
@@ -1317,6 +1366,20 @@
   },
   {
     "room_id": 10,
+    "strat_id": 38,
+    "video_id": 5690,
+    "created_user": "Sam",
+    "note": "From Moat"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 39,
+    "video_id": 5335,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 10,
     "strat_id": 43,
     "video_id": 3467,
     "created_user": "Sam",
@@ -1370,6 +1433,13 @@
     "video_id": 1554,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 51,
+    "video_id": 5338,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 10,
@@ -1489,6 +1559,20 @@
     "video_id": 4760,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 72,
+    "video_id": 5691,
+    "created_user": "Sam",
+    "note": "From Moat"
+  },
+  {
+    "room_id": 10,
+    "strat_id": 73,
+    "video_id": 5337,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 10,
@@ -1890,6 +1974,13 @@
     "note": ""
   },
   {
+    "room_id": 12,
+    "strat_id": 27,
+    "video_id": 5578,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
     "room_id": 14,
     "strat_id": 8,
     "video_id": 1769,
@@ -1909,6 +2000,13 @@
     "video_id": 5276,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 14,
+    "strat_id": 13,
+    "video_id": 5447,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 14,
@@ -1944,6 +2042,13 @@
     "video_id": 1556,
     "created_user": "Sam",
     "note": "After teleporting, the camera will not follow Samus."
+  },
+  {
+    "room_id": 31,
+    "strat_id": 25,
+    "video_id": 5339,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 31,
@@ -2080,6 +2185,13 @@
   },
   {
     "room_id": 30,
+    "strat_id": 34,
+    "video_id": 5340,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 30,
     "strat_id": 47,
     "video_id": 393,
     "created_user": "maddo",
@@ -2154,6 +2266,13 @@
     "video_id": 2129,
     "created_user": "Sam",
     "note": "Climb until the camera fully shows Samus standing at the bottom of the screen. Clear the shot blocks and wiggle out to the left. (If you need to perform a Frozen Beetom X-Ray Climb, clear the blocks with angle shots). Fix the camera by shooting the floor shot block and jumping down."
+  },
+  {
+    "room_id": 21,
+    "strat_id": 20,
+    "video_id": 5531,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 21,
@@ -3180,35 +3299,42 @@
   {
     "room_id": 32,
     "strat_id": 56,
-    "video_id": 3216,
+    "video_id": 5755,
     "created_user": "Sam",
-    "note": "Jump Into IBJ"
+    "note": ""
   },
   {
     "room_id": 32,
     "strat_id": 57,
-    "video_id": 3214,
+    "video_id": 5754,
     "created_user": "Sam",
     "note": ""
   },
   {
     "room_id": 32,
     "strat_id": 59,
-    "video_id": 3217,
+    "video_id": 5756,
     "created_user": "Sam",
     "note": ""
   },
   {
     "room_id": 32,
+    "strat_id": 59,
+    "video_id": 5758,
+    "created_user": "Sam",
+    "note": "Diagonal spark (Touch Transition)"
+  },
+  {
+    "room_id": 32,
     "strat_id": 60,
-    "video_id": 3213,
+    "video_id": 5752,
     "created_user": "Sam",
     "note": ""
   },
   {
     "room_id": 32,
     "strat_id": 61,
-    "video_id": 3215,
+    "video_id": 5753,
     "created_user": "Sam",
     "note": ""
   },
@@ -3872,6 +3998,13 @@
   },
   {
     "room_id": 39,
+    "strat_id": 9,
+    "video_id": 5533,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 39,
     "strat_id": 47,
     "video_id": 616,
     "created_user": "maddo",
@@ -3897,6 +4030,13 @@
     "video_id": 2637,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 39,
+    "strat_id": 27,
+    "video_id": 5772,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 39,
@@ -3932,6 +4072,13 @@
     "video_id": 614,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 39,
+    "strat_id": 34,
+    "video_id": 5532,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 39,
@@ -4016,6 +4163,13 @@
     "video_id": 2934,
     "created_user": "Sam",
     "note": "Kill all the Hoppers as far left as possible to avoid touching the Bomb blocks. Roll back and forth to put the door on and off camera to overload PLMs. If required, drop a Power Bomb against the Power Bomb wall and leave G-Mode after laying it to open the way."
+  },
+  {
+    "room_id": 38,
+    "strat_id": 34,
+    "video_id": 5387,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
   },
   {
     "room_id": 38,
@@ -4121,6 +4275,13 @@
     "video_id": 1582,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 47,
+    "strat_id": 15,
+    "video_id": 5341,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 47,
@@ -4285,6 +4446,27 @@
   },
   {
     "room_id": 45,
+    "strat_id": 20,
+    "video_id": 5534,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 45,
+    "strat_id": 22,
+    "video_id": 5511,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 45,
+    "strat_id": 22,
+    "video_id": 5773,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 45,
     "strat_id": 41,
     "video_id": 620,
     "created_user": "maddo",
@@ -4369,6 +4551,20 @@
   },
   {
     "room_id": 51,
+    "strat_id": 19,
+    "video_id": 5512,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 51,
+    "strat_id": 19,
+    "video_id": 5774,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 51,
     "strat_id": 74,
     "video_id": 626,
     "created_user": "maddo",
@@ -4415,6 +4611,13 @@
     "video_id": 1155,
     "created_user": "maddo",
     "note": "Without X-Ray"
+  },
+  {
+    "room_id": 51,
+    "strat_id": 30,
+    "video_id": 5535,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 51,
@@ -4474,6 +4677,13 @@
   },
   {
     "room_id": 51,
+    "strat_id": 39,
+    "video_id": 5343,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 51,
     "strat_id": 78,
     "video_id": 3103,
     "created_user": "maddo",
@@ -4485,6 +4695,20 @@
     "video_id": 2486,
     "created_user": "Sam",
     "note": "Beetom platform"
+  },
+  {
+    "room_id": 51,
+    "strat_id": 43,
+    "video_id": 5513,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 51,
+    "strat_id": 43,
+    "video_id": 5775,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 51,
@@ -4579,6 +4803,13 @@
   },
   {
     "room_id": 50,
+    "strat_id": 24,
+    "video_id": 5536,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 50,
     "strat_id": 47,
     "video_id": 2698,
     "created_user": "Sam",
@@ -4625,6 +4856,13 @@
     "video_id": 1206,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 49,
+    "strat_id": 14,
+    "video_id": 5776,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 44,
@@ -5227,6 +5465,13 @@
     "video_id": 3232,
     "created_user": "Sam",
     "note": "Move around to fix the camera."
+  },
+  {
+    "room_id": 54,
+    "strat_id": 51,
+    "video_id": 5345,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 54,
@@ -6105,6 +6350,13 @@
   },
   {
     "room_id": 58,
+    "strat_id": 18,
+    "video_id": 5329,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 58,
     "strat_id": 21,
     "video_id": 2568,
     "created_user": "Nito",
@@ -6175,6 +6427,13 @@
   },
   {
     "room_id": 58,
+    "strat_id": 35,
+    "video_id": 5331,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 58,
     "strat_id": 40,
     "video_id": 3828,
     "created_user": "Sam",
@@ -6193,6 +6452,13 @@
     "video_id": 1551,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 58,
+    "strat_id": 45,
+    "video_id": 5348,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 58,
@@ -6832,6 +7098,13 @@
     "note": ""
   },
   {
+    "room_id": 63,
+    "strat_id": 8,
+    "video_id": 5537,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
     "room_id": 65,
     "strat_id": 11,
     "video_id": 1857,
@@ -7456,6 +7729,13 @@
   },
   {
     "room_id": 67,
+    "strat_id": 28,
+    "video_id": 5445,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 67,
     "strat_id": 31,
     "video_id": 103,
     "created_user": "Osse101",
@@ -7638,6 +7918,13 @@
   },
   {
     "room_id": 66,
+    "strat_id": 31,
+    "video_id": 5541,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 66,
     "strat_id": 36,
     "video_id": 84,
     "created_user": "Osse101",
@@ -7670,6 +7957,20 @@
     "video_id": 1950,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 45,
+    "video_id": 5540,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 66,
+    "strat_id": 57,
+    "video_id": 5538,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 66,
@@ -7925,10 +8226,24 @@
   },
   {
     "room_id": 83,
+    "strat_id": 23,
+    "video_id": 5514,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 83,
     "strat_id": 30,
     "video_id": 1617,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 83,
+    "strat_id": 36,
+    "video_id": 5515,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
   },
   {
     "room_id": 83,
@@ -7964,6 +8279,20 @@
     "video_id": 3073,
     "created_user": "Sam",
     "note": "Quick Kill with 4 Supers."
+  },
+  {
+    "room_id": 84,
+    "strat_id": 11,
+    "video_id": 5777,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 84,
+    "strat_id": 12,
+    "video_id": 5510,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
   },
   {
     "room_id": 80,
@@ -8013,6 +8342,13 @@
     "video_id": 1028,
     "created_user": "maddo",
     "note": "canTwoTileSqueeze"
+  },
+  {
+    "room_id": 78,
+    "strat_id": 22,
+    "video_id": 5349,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 78,
@@ -8275,6 +8611,20 @@
   },
   {
     "room_id": 119,
+    "strat_id": 6,
+    "video_id": 5444,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 119,
+    "strat_id": 29,
+    "video_id": 5303,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 119,
     "strat_id": 44,
     "video_id": 2040,
     "created_user": "Sam",
@@ -8338,6 +8688,13 @@
   },
   {
     "room_id": 100,
+    "strat_id": 24,
+    "video_id": 5542,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 100,
     "strat_id": 28,
     "video_id": 2458,
     "created_user": "maddo",
@@ -8398,6 +8755,13 @@
     "video_id": 150,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 100,
+    "strat_id": 25,
+    "video_id": 5517,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
   },
   {
     "room_id": 100,
@@ -9000,6 +9364,13 @@
     "video_id": 5267,
     "created_user": "Sam",
     "note": "X-Ray, Morph"
+  },
+  {
+    "room_id": 97,
+    "strat_id": 95,
+    "video_id": 5778,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 97,
@@ -9815,10 +10186,24 @@
   },
   {
     "room_id": 302,
+    "strat_id": 6,
+    "video_id": 5552,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 302,
     "strat_id": 20,
     "video_id": 807,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 302,
+    "strat_id": 13,
+    "video_id": 5442,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 302,
@@ -9878,6 +10263,13 @@
   },
   {
     "room_id": 93,
+    "strat_id": 18,
+    "video_id": 5386,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 93,
     "strat_id": 20,
     "video_id": 507,
     "created_user": "Osse101",
@@ -9896,6 +10288,13 @@
     "video_id": 1579,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 93,
+    "strat_id": 24,
+    "video_id": 5385,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 93,
@@ -9938,6 +10337,13 @@
     "video_id": 818,
     "created_user": "maddo",
     "note": "Without X-Ray"
+  },
+  {
+    "room_id": 98,
+    "strat_id": 6,
+    "video_id": 5351,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 98,
@@ -10060,6 +10466,20 @@
   },
   {
     "room_id": 113,
+    "strat_id": 28,
+    "video_id": 5518,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 113,
+    "strat_id": 28,
+    "video_id": 5780,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 113,
     "strat_id": 54,
     "video_id": 2048,
     "created_user": "Sam",
@@ -10141,6 +10561,13 @@
     "video_id": 1575,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 6,
+    "video_id": 5352,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 115,
@@ -10249,6 +10676,13 @@
   },
   {
     "room_id": 309,
+    "strat_id": 7,
+    "video_id": 5543,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 309,
     "strat_id": 44,
     "video_id": 822,
     "created_user": "maddo",
@@ -10260,6 +10694,13 @@
     "video_id": 823,
     "created_user": "maddo",
     "note": "With X-Ray"
+  },
+  {
+    "room_id": 309,
+    "strat_id": 21,
+    "video_id": 5443,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 309,
@@ -10316,6 +10757,13 @@
     "video_id": 767,
     "created_user": "Osse101",
     "note": "canFarmWhileShooting"
+  },
+  {
+    "room_id": 114,
+    "strat_id": 19,
+    "video_id": 5354,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 114,
@@ -10403,10 +10851,24 @@
   },
   {
     "room_id": 308,
+    "strat_id": 7,
+    "video_id": 5544,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 308,
     "strat_id": 23,
     "video_id": 828,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 308,
+    "strat_id": 15,
+    "video_id": 5441,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 308,
@@ -10533,6 +10995,13 @@
     "video_id": 1577,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 92,
+    "strat_id": 21,
+    "video_id": 5355,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 92,
@@ -10774,6 +11243,13 @@
   },
   {
     "room_id": 103,
+    "strat_id": 48,
+    "video_id": 5356,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 103,
     "strat_id": 58,
     "video_id": 5126,
     "created_user": "Sam",
@@ -10806,6 +11282,13 @@
     "video_id": 1067,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 101,
+    "strat_id": 20,
+    "video_id": 5357,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 101,
@@ -10871,6 +11354,13 @@
     "note": ""
   },
   {
+    "room_id": 112,
+    "strat_id": 32,
+    "video_id": 5439,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
     "room_id": 117,
     "strat_id": 23,
     "video_id": 5493,
@@ -10883,6 +11373,13 @@
     "video_id": 1572,
     "created_user": "Sam",
     "note": "After teleporting, do not do large swings or you will hit the spikes."
+  },
+  {
+    "room_id": 117,
+    "strat_id": 17,
+    "video_id": 5358,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 117,
@@ -10918,6 +11415,20 @@
     "video_id": 4583,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 23,
+    "video_id": 5519,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 94,
+    "strat_id": 23,
+    "video_id": 5781,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 94,
@@ -11114,6 +11625,13 @@
     "video_id": 1567,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 7,
+    "video_id": 5359,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 121,
@@ -11415,6 +11933,13 @@
     "video_id": 1303,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 120,
+    "strat_id": 20,
+    "video_id": 5361,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 120,
@@ -11803,6 +12328,13 @@
   },
   {
     "room_id": 88,
+    "strat_id": 15,
+    "video_id": 5520,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 88,
     "strat_id": 22,
     "video_id": 2057,
     "created_user": "Sam",
@@ -11877,6 +12409,13 @@
     "video_id": 899,
     "created_user": "maddo",
     "note": "canHeatRun"
+  },
+  {
+    "room_id": 107,
+    "strat_id": 14,
+    "video_id": 5438,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 107,
@@ -12370,6 +12909,13 @@
   },
   {
     "room_id": 110,
+    "strat_id": 14,
+    "video_id": 5362,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 110,
     "strat_id": 22,
     "video_id": 5178,
     "created_user": "Sam",
@@ -12633,6 +13179,13 @@
     "video_id": 1350,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 129,
+    "strat_id": 7,
+    "video_id": 5591,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 129,
@@ -12979,6 +13532,13 @@
   },
   {
     "room_id": 131,
+    "strat_id": 26,
+    "video_id": 5363,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 131,
     "strat_id": 33,
     "video_id": 2686,
     "created_user": "Sam",
@@ -13095,6 +13655,13 @@
     "video_id": 1400,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 123,
+    "strat_id": 22,
+    "video_id": 5604,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 123,
@@ -13630,6 +14197,13 @@
   },
   {
     "room_id": 126,
+    "strat_id": 1,
+    "video_id": 4741,
+    "created_user": "Sam",
+    "note": "Leave Shinecharged"
+  },
+  {
+    "room_id": 126,
     "strat_id": 2,
     "video_id": 1786,
     "created_user": "Sam",
@@ -13725,6 +14299,13 @@
     "video_id": 2676,
     "created_user": "Sam",
     "note": "With Supers"
+  },
+  {
+    "room_id": 125,
+    "strat_id": 12,
+    "video_id": 5364,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 125,
@@ -14043,6 +14624,13 @@
   },
   {
     "room_id": 153,
+    "strat_id": 9,
+    "video_id": 5365,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 153,
     "strat_id": 27,
     "video_id": 2001,
     "created_user": "Sam",
@@ -14075,6 +14663,13 @@
     "video_id": 1557,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 13,
+    "video_id": 5367,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 150,
@@ -14337,6 +14932,13 @@
   },
   {
     "room_id": 151,
+    "strat_id": 11,
+    "video_id": 5389,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
+  },
+  {
+    "room_id": 151,
     "strat_id": 90,
     "video_id": 1487,
     "created_user": "maddo",
@@ -14481,6 +15083,13 @@
     "video_id": 554,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 36,
+    "video_id": 5388,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
   },
   {
     "room_id": 151,
@@ -14719,6 +15328,13 @@
     "video_id": 2406,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 7,
+    "video_id": 5521,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
   },
   {
     "room_id": 136,
@@ -14981,6 +15597,13 @@
   },
   {
     "room_id": 133,
+    "strat_id": 31,
+    "video_id": 5782,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 133,
     "strat_id": 82,
     "video_id": 1709,
     "created_user": "maddo",
@@ -15016,6 +15639,13 @@
   },
   {
     "room_id": 133,
+    "strat_id": 45,
+    "video_id": 5783,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 133,
     "strat_id": 85,
     "video_id": 1710,
     "created_user": "maddo",
@@ -15041,6 +15671,13 @@
     "video_id": 1713,
     "created_user": "maddo",
     "note": "Spin-jump Entry"
+  },
+  {
+    "room_id": 133,
+    "strat_id": 48,
+    "video_id": 5390,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
   },
   {
     "room_id": 133,
@@ -15132,6 +15769,13 @@
     "video_id": 2015,
     "created_user": "Sam",
     "note": "With Supers"
+  },
+  {
+    "room_id": 141,
+    "strat_id": 12,
+    "video_id": 5368,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 141,
@@ -15387,6 +16031,13 @@
   },
   {
     "room_id": 146,
+    "strat_id": 12,
+    "video_id": 5370,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 146,
     "strat_id": 18,
     "video_id": 2317,
     "created_user": "Sam",
@@ -15471,6 +16122,13 @@
   },
   {
     "room_id": 132,
+    "strat_id": 9,
+    "video_id": 5391,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
+  },
+  {
+    "room_id": 132,
     "strat_id": 15,
     "video_id": 2158,
     "created_user": "Sam",
@@ -15545,6 +16203,13 @@
     "video_id": 1826,
     "created_user": "maddo",
     "note": "Hitbox Pirates, Open Door First"
+  },
+  {
+    "room_id": 139,
+    "strat_id": 12,
+    "video_id": 5373,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 139,
@@ -15814,6 +16479,13 @@
   },
   {
     "room_id": 134,
+    "strat_id": 23,
+    "video_id": 5374,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 134,
     "strat_id": 31,
     "video_id": 2279,
     "created_user": "maddo",
@@ -15912,6 +16584,13 @@
   },
   {
     "room_id": 140,
+    "strat_id": 14,
+    "video_id": 5372,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 140,
     "strat_id": 48,
     "video_id": 2008,
     "created_user": "Sam",
@@ -15930,6 +16609,13 @@
     "video_id": 929,
     "created_user": "maddo",
     "note": "canAutoCancelWeapon"
+  },
+  {
+    "room_id": 137,
+    "strat_id": 6,
+    "video_id": 5545,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 137,
@@ -15979,6 +16665,13 @@
     "video_id": 1562,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 137,
+    "strat_id": 20,
+    "video_id": 5375,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 137,
@@ -16521,6 +17214,13 @@
   },
   {
     "room_id": 138,
+    "strat_id": 5,
+    "video_id": 5546,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 138,
     "strat_id": 8,
     "video_id": 3429,
     "created_user": "Sam",
@@ -16630,6 +17330,13 @@
     "video_id": 2096,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 160,
+    "strat_id": 25,
+    "video_id": 5333,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 160,
@@ -16773,6 +17480,13 @@
   },
   {
     "room_id": 156,
+    "strat_id": 36,
+    "video_id": 5376,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 156,
     "strat_id": 40,
     "video_id": 965,
     "created_user": "maddo",
@@ -16910,6 +17624,27 @@
     "video_id": 2856,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 162,
+    "strat_id": 10,
+    "video_id": 5547,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 162,
+    "strat_id": 20,
+    "video_id": 5436,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 162,
+    "strat_id": 20,
+    "video_id": 5437,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 158,
@@ -17050,6 +17785,13 @@
     "video_id": 4565,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 53,
+    "video_id": 5434,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 164,
@@ -17197,6 +17939,13 @@
     "video_id": 2237,
     "created_user": "Sam",
     "note": " Swing until Samus' bonks against the ceiling to maximize her speed and release Grapple at the correct time on her way upward. Catch the leftmost Grapple block with a precise angle shot."
+  },
+  {
+    "room_id": 154,
+    "strat_id": 11,
+    "video_id": 5435,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 155,
@@ -17613,6 +18362,13 @@
   },
   {
     "room_id": 200,
+    "strat_id": 22,
+    "video_id": 5523,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 200,
     "strat_id": 29,
     "video_id": 2576,
     "created_user": "Sam",
@@ -17631,6 +18387,20 @@
     "video_id": 2575,
     "created_user": "Sam",
     "note": "Entering from an always-open adjacent room"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 36,
+    "video_id": 5522,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 200,
+    "strat_id": 36,
+    "video_id": 5784,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 200,
@@ -18145,6 +18915,13 @@
   },
   {
     "room_id": 201,
+    "strat_id": 57,
+    "video_id": 5548,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 201,
     "strat_id": 123,
     "video_id": 688,
     "created_user": "maddo",
@@ -18254,6 +19031,20 @@
     "video_id": 3277,
     "created_user": "maddo",
     "note": "Suitless"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 70,
+    "video_id": 5525,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 73,
+    "video_id": 5786,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 201,
@@ -18537,6 +19328,20 @@
   },
   {
     "room_id": 201,
+    "strat_id": 104,
+    "video_id": 5524,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 201,
+    "strat_id": 107,
+    "video_id": 5785,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 201,
     "strat_id": 127,
     "video_id": 674,
     "created_user": "maddo",
@@ -18660,6 +19465,13 @@
     "video_id": 1628,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 176,
+    "strat_id": 17,
+    "video_id": 5377,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 176,
@@ -18838,6 +19650,13 @@
   },
   {
     "room_id": 173,
+    "strat_id": 25,
+    "video_id": 5549,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 173,
     "strat_id": 26,
     "video_id": 123,
     "created_user": "Osse101",
@@ -18891,6 +19710,13 @@
     "video_id": 1687,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 29,
+    "video_id": 5392,
+    "created_user": "Sam",
+    "note": "From Halfie Climb"
   },
   {
     "room_id": 173,
@@ -18981,6 +19807,13 @@
     "strat_id": 56,
     "video_id": 505,
     "created_user": "Osse101",
+    "note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 113,
+    "video_id": 5602,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -19297,6 +20130,20 @@
     "video_id": 2670,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 170,
+    "strat_id": 19,
+    "video_id": 5526,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 170,
+    "strat_id": 19,
+    "video_id": 5787,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 170,
@@ -21896,6 +22743,20 @@
     "note": "Mid-Air Morph Into Tunnel"
   },
   {
+    "room_id": 169,
+    "strat_id": 7,
+    "video_id": 5550,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 169,
+    "strat_id": 17,
+    "video_id": 5433,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
     "room_id": 183,
     "strat_id": 3,
     "video_id": 1618,
@@ -22636,6 +23497,13 @@
     "video_id": 1585,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 62,
+    "video_id": 5378,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 186,
@@ -23689,6 +24557,13 @@
   },
   {
     "room_id": 175,
+    "strat_id": 55,
+    "video_id": 5143,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 175,
     "strat_id": 60,
     "video_id": 2207,
     "created_user": "Sam",
@@ -23721,6 +24596,20 @@
     "video_id": 1022,
     "created_user": "kyleb",
     "note": "canCrouchJump"
+  },
+  {
+    "room_id": 190,
+    "strat_id": 7,
+    "video_id": 5551,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 190,
+    "strat_id": 15,
+    "video_id": 5440,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 193,
@@ -23961,6 +24850,20 @@
     "note": "From Post Crocomire Farm Room"
   },
   {
+    "room_id": 193,
+    "strat_id": 24,
+    "video_id": 5527,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Top Position)"
+  },
+  {
+    "room_id": 193,
+    "strat_id": 24,
+    "video_id": 5788,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
     "room_id": 196,
     "strat_id": 3,
     "video_id": 2330,
@@ -24029,6 +24932,13 @@
     "video_id": 1550,
     "created_user": "Sam",
     "note": "After teleporting, press up to avoid the cactus' spike when the camera scrolls to your position."
+  },
+  {
+    "room_id": 196,
+    "strat_id": 10,
+    "video_id": 5379,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 196,
@@ -25670,6 +26580,13 @@
   },
   {
     "room_id": 195,
+    "strat_id": 27,
+    "video_id": 5789,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 195,
     "strat_id": 48,
     "video_id": 3667,
     "created_user": "maddo",
@@ -25926,6 +26843,13 @@
     "video_id": 4528,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 211,
+    "strat_id": 17,
+    "video_id": 5553,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 211,
@@ -26244,6 +27168,13 @@
   },
   {
     "room_id": 213,
+    "strat_id": 14,
+    "video_id": 5554,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 213,
     "strat_id": 37,
     "video_id": 3730,
     "created_user": "maddo",
@@ -26297,6 +27228,13 @@
     "video_id": 2582,
     "created_user": "Sam",
     "note": "Sandfall bounce"
+  },
+  {
+    "room_id": 213,
+    "strat_id": 25,
+    "video_id": 5430,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 213,
@@ -26783,6 +27721,13 @@
   },
   {
     "room_id": 180,
+    "strat_id": 9,
+    "video_id": 5380,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 180,
     "strat_id": 17,
     "video_id": 1948,
     "created_user": "Sam",
@@ -27022,6 +27967,13 @@
   {
     "room_id": 197,
     "strat_id": 25,
+    "video_id": 5065,
+    "created_user": "Sam",
+    "note": "With Springball Bomb Boosts"
+  },
+  {
+    "room_id": 197,
+    "strat_id": 25,
     "video_id": 5066,
     "created_user": "Sam",
     "note": "Gravity IBJ"
@@ -27168,6 +28120,13 @@
   },
   {
     "room_id": 197,
+    "strat_id": 62,
+    "video_id": 5062,
+    "created_user": "Sam",
+    "note": "HiJump, SpringBall Bomb Boost"
+  },
+  {
+    "room_id": 197,
     "strat_id": 78,
     "video_id": 2601,
     "created_user": "Sam",
@@ -27203,10 +28162,24 @@
   },
   {
     "room_id": 218,
+    "strat_id": 13,
+    "video_id": 5555,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 218,
     "strat_id": 33,
     "video_id": 3781,
     "created_user": "maddo",
     "note": ""
+  },
+  {
+    "room_id": 218,
+    "strat_id": 26,
+    "video_id": 5429,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 218,
@@ -27235,6 +28208,13 @@
     "video_id": 2174,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 179,
+    "strat_id": 13,
+    "video_id": 5058,
+    "created_user": "Sam",
+    "note": "Double SpringBall Jump, Remote Acquire"
   },
   {
     "room_id": 179,
@@ -27479,6 +28459,13 @@
     "strat_id": 30,
     "video_id": 2454,
     "created_user": "kyleb",
+    "note": ""
+  },
+  {
+    "room_id": 214,
+    "strat_id": 33,
+    "video_id": 5381,
+    "created_user": "Sam",
     "note": ""
   },
   {
@@ -27924,13 +28911,6 @@
   },
   {
     "room_id": 198,
-    "strat_id": 18,
-    "video_id": 3537,
-    "created_user": "Sam",
-    "note": ""
-  },
-  {
-    "room_id": 198,
     "strat_id": 19,
     "video_id": 3541,
     "created_user": "Sam",
@@ -27996,13 +28976,6 @@
     "room_id": 198,
     "strat_id": 40,
     "video_id": 3536,
-    "created_user": "Sam",
-    "note": ""
-  },
-  {
-    "room_id": 198,
-    "strat_id": 41,
-    "video_id": 3538,
     "created_user": "Sam",
     "note": ""
   },
@@ -28096,6 +29069,20 @@
     "video_id": 5585,
     "created_user": "Sam",
     "note": "Gravity, Screw Attack"
+  },
+  {
+    "room_id": 198,
+    "strat_id": 41,
+    "video_id": 3538,
+    "created_user": "Sam",
+    "note": ""
+  },
+  {
+    "room_id": 198,
+    "strat_id": 18,
+    "video_id": 3537,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 220,
@@ -28236,6 +29223,13 @@
     "video_id": 290,
     "created_user": "Osse101",
     "note": ""
+  },
+  {
+    "room_id": 222,
+    "strat_id": 15,
+    "video_id": 5382,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 222,
@@ -28505,6 +29499,13 @@
   },
   {
     "room_id": 199,
+    "strat_id": 45,
+    "video_id": 5468,
+    "created_user": "Sam",
+    "note": "Spring Fling"
+  },
+  {
+    "room_id": 199,
     "strat_id": 46,
     "video_id": 563,
     "created_user": "Osse101",
@@ -28568,6 +29569,13 @@
   },
   {
     "room_id": 202,
+    "strat_id": 12,
+    "video_id": 5556,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 202,
     "strat_id": 33,
     "video_id": 3806,
     "created_user": "maddo",
@@ -28579,6 +29587,13 @@
     "video_id": 3807,
     "created_user": "maddo",
     "note": "Tricky jump"
+  },
+  {
+    "room_id": 202,
+    "strat_id": 25,
+    "video_id": 5432,
+    "created_user": "Sam",
+    "note": "From Colosseum"
   },
   {
     "room_id": 202,
@@ -28838,6 +29853,20 @@
     "video_id": 2797,
     "created_user": "Sam",
     "note": "Coming in Blue Space Jumping"
+  },
+  {
+    "room_id": 226,
+    "strat_id": 31,
+    "video_id": 5384,
+    "created_user": "Sam",
+    "note": "From Moat"
+  },
+  {
+    "room_id": 226,
+    "strat_id": 32,
+    "video_id": 5383,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
   },
   {
     "room_id": 226,
@@ -29219,6 +30248,13 @@
   },
   {
     "room_id": 228,
+    "strat_id": 36,
+    "video_id": 5428,
+    "created_user": "Sam",
+    "note": "From Colosseum (Top Position)"
+  },
+  {
+    "room_id": 228,
     "strat_id": 43,
     "video_id": 13,
     "created_user": "maddo",
@@ -29408,6 +30444,20 @@
   },
   {
     "room_id": 238,
+    "strat_id": 6,
+    "video_id": 5557,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
+  },
+  {
+    "room_id": 238,
+    "strat_id": 6,
+    "video_id": 5559,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position), Morphless Setup"
+  },
+  {
+    "room_id": 238,
     "strat_id": 9,
     "video_id": 1699,
     "created_user": "Sam",
@@ -29569,6 +30619,13 @@
   },
   {
     "room_id": 233,
+    "strat_id": 8,
+    "video_id": 5790,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
+    "room_id": 233,
     "strat_id": 11,
     "video_id": 1136,
     "created_user": "maddo",
@@ -29594,6 +30651,13 @@
     "video_id": 1734,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 233,
+    "strat_id": 40,
+    "video_id": 5791,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
   },
   {
     "room_id": 239,
@@ -29624,6 +30688,13 @@
     "note": ""
   },
   {
+    "room_id": 241,
+    "strat_id": 23,
+    "video_id": 5771,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Middle Position)"
+  },
+  {
     "room_id": 242,
     "strat_id": 6,
     "video_id": 3075,
@@ -29636,6 +30707,13 @@
     "video_id": 3076,
     "created_user": "Sam",
     "note": ""
+  },
+  {
+    "room_id": 242,
+    "strat_id": 10,
+    "video_id": 5558,
+    "created_user": "Sam",
+    "note": "From Halfie Climb (Bottom Position)"
   },
   {
     "room_id": 242,
