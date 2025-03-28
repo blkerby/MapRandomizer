@@ -2378,8 +2378,8 @@ impl<'a> MapPatcher<'a> {
         let elev_bottom_tile1_idx = 0x2E8;
 
         for elev in [false, true] {
-            let base_addr = if elev { 
-                snes2pc(0xE98280) 
+            let base_addr = if elev {
+                snes2pc(0xE98280)
             } else {
                 snes2pc(0xE98100)
             };
@@ -2405,10 +2405,8 @@ impl<'a> MapPatcher<'a> {
 
             if elev {
                 // Top-left of elevator hazard:
-                self.rom
-                    .write_u16(base_addr + 16, blank_tile_idx)?; // top-left quarter (palette 0)
-                self.rom
-                    .write_u16(base_addr + 18, blank_tile_idx)?; // top-right quarter (palette 0)
+                self.rom.write_u16(base_addr + 16, blank_tile_idx)?; // top-left quarter (palette 0)
+                self.rom.write_u16(base_addr + 18, blank_tile_idx)?; // top-right quarter (palette 0)
                 self.rom
                     .write_u16(base_addr + 20, elev_top_tile1_idx | 0xE000)?; // bottom-left quarter (palette 0, X+Y flip)
                 self.rom
@@ -2421,8 +2419,7 @@ impl<'a> MapPatcher<'a> {
                     .write_u16(base_addr + 26, elev_hazard_tile2_idx | 0x2000)?; // top-right quarter (palette 0)
                 self.rom
                     .write_u16(base_addr + 28, elev_bottom_tile1_idx | 0xE000)?; // bottom-left quarter (palette 0, X+Y flip)
-                self.rom
-                    .write_u16(base_addr + 30, blank_tile_idx)?; // bottom-right quarter (palette 0)
+                self.rom.write_u16(base_addr + 30, blank_tile_idx)?; // bottom-right quarter (palette 0)
             } else {
                 // Left fourth of door going down:
                 self.rom

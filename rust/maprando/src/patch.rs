@@ -2190,12 +2190,12 @@ impl<'a> Patcher<'a> {
                     (Some(0x18B02), Some(0x190BA)) => {
                         // Red Brinstar Elevator Room
                         tile_y = 12;
-                        plm_id = 0xF814;  // has scroll PLM on right side
+                        plm_id = 0xF814; // has scroll PLM on right side
                     }
                     (Some(0x18A5A), Some(0x1A594)) => {
                         // Forgotten Highway Elevator Room
                         tile_y = 12;
-                        plm_id = 0xF814;  // has scroll PLM on right side
+                        plm_id = 0xF814; // has scroll PLM on right side
                     }
                     (Some(0x19246), Some(0x192EE)) => {
                         // Warehouse Entrance
@@ -2205,9 +2205,9 @@ impl<'a> Patcher<'a> {
                     (Some(0x196F6), Some(0x1986A)) => {
                         // Lower Norfair Elevator Room
                         tile_y = 10;
-                        plm_id = 0xF814;  // has scroll PLM on right side
+                        plm_id = 0xF814; // has scroll PLM on right side
                     }
-                    _ => bail!("unexpected elevator top: {:?}", other_door_ptr_pair)
+                    _ => bail!("unexpected elevator top: {:?}", other_door_ptr_pair),
                 }
             } else {
                 if door.offset == Some(0) {
@@ -2216,7 +2216,7 @@ impl<'a> Patcher<'a> {
                     plm_id = 0xF804;
                 }
                 tile_x = door.x * 16 + 6;
-                tile_y = door.y * 16 + 15 - door.offset.unwrap_or(0);    
+                tile_y = door.y * 16 + 15 - door.offset.unwrap_or(0);
             }
         } else {
             panic!(
@@ -2756,7 +2756,7 @@ impl<'a> Patcher<'a> {
                 }
             }
         }
-        
+
         // Idle beam door animation (8x8 tiles): 4 tiles per frame, 4 frame loop
         // One frame is shared with the opening/closing animation, so is not written again.
         for beam_idx in 0..5 {

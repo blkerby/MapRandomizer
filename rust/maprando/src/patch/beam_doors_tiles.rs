@@ -1152,48 +1152,16 @@ pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 3]; 4]; 5] = [
         ],
     ],
     [
-        [
-            ice_tile2_frame1,
-            ice_tile2_frame2,
-            ice_tile2_frame3,
-        ],
-        [
-            ice_tile3_frame1,
-            ice_tile3_frame2,
-            ice_tile3_frame3,
-        ],
-        [
-            ice_tile4_frame1,
-            ice_tile4_frame2,
-            ice_tile4_frame3,
-        ],
-        [
-            ice_tile5_frame1,
-            ice_tile5_frame2,
-            ice_tile5_frame3,
-        ],
+        [ice_tile2_frame1, ice_tile2_frame2, ice_tile2_frame3],
+        [ice_tile3_frame1, ice_tile3_frame2, ice_tile3_frame3],
+        [ice_tile4_frame1, ice_tile4_frame2, ice_tile4_frame3],
+        [ice_tile5_frame1, ice_tile5_frame2, ice_tile5_frame3],
     ],
     [
-        [
-            wave_tile2_frame1,
-            wave_tile2_frame2,
-            wave_tile2_frame3,
-        ],
-        [
-            wave_tile3_frame1,
-            wave_tile3_frame2,
-            wave_tile3_frame3,
-        ],
-        [
-            wave_tile4_frame1,
-            wave_tile4_frame2,
-            wave_tile4_frame3,
-        ],
-        [
-            wave_tile5_frame1,
-            wave_tile5_frame2,
-            wave_tile5_frame3,
-        ],
+        [wave_tile2_frame1, wave_tile2_frame2, wave_tile2_frame3],
+        [wave_tile3_frame1, wave_tile3_frame2, wave_tile3_frame3],
+        [wave_tile4_frame1, wave_tile4_frame2, wave_tile4_frame3],
+        [wave_tile5_frame1, wave_tile5_frame2, wave_tile5_frame3],
     ],
     [
         [

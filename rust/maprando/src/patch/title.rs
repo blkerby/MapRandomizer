@@ -12,7 +12,7 @@ use slice_of_array::prelude::*;
 pub struct TitlePatcher<'a> {
     rom: &'a mut Rom,
     pub next_free_space_pc: usize,
-    pub end_free_space_pc: usize
+    pub end_free_space_pc: usize,
 }
 
 fn rgb_to_u16(rgb: (u8, u8, u8)) -> u16 {
