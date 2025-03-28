@@ -4,7 +4,7 @@ use crate::patch::compress::compress;
 use maprando_game::{read_image, IndexedVec};
 
 use super::{decompress::decompress, pc2snes, snes2pc, PcAddr, Rom};
-use anyhow::{ensure, Result};
+use anyhow::{bail, ensure, Result};
 use hashbrown::HashMap;
 use ndarray::{concatenate, Array2, Array3, Axis};
 use slice_of_array::prelude::*;
@@ -12,6 +12,7 @@ use slice_of_array::prelude::*;
 pub struct TitlePatcher<'a> {
     rom: &'a mut Rom,
     pub next_free_space_pc: usize,
+    pub end_free_space_pc: usize
 }
 
 fn rgb_to_u16(rgb: (u8, u8, u8)) -> u16 {
@@ -129,6 +130,7 @@ impl<'a> TitlePatcher<'a> {
         Self {
             rom,
             next_free_space_pc: snes2pc(0xE98400),
+            end_free_space_pc: snes2pc(0xEA8000),
         }
     }
 
@@ -136,6 +138,9 @@ impl<'a> TitlePatcher<'a> {
         let free_space = self.next_free_space_pc;
         self.rom.write_n(free_space, data)?;
         self.next_free_space_pc += data.len();
+        if self.next_free_space_pc > self.end_free_space_pc {
+            bail!("Not enough free space for title screen data");
+        }
         Ok(free_space)
     }
 

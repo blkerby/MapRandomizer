@@ -19,7 +19,7 @@ use crate::{
         RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
-use anyhow::{ensure, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use ips;
 use log::info;
@@ -2168,13 +2168,56 @@ impl<'a> Patcher<'a> {
             tile_x = door.x * 16;
             tile_y = door.y * 16 + 6;
         } else if door.direction == "down" {
-            if door.offset == Some(0) {
-                plm_id = 0xF808; // hazard marking overlaid on transition tiles
+            if door.subtype == "elevator" {
+                // Elevator hazard (into Main Hall):
+                tile_x = door.x * 16 + 7;
+                match other_door_ptr_pair {
+                    (Some(0x18C0A), Some(0x18CA6)) => {
+                        // Green Brinstar Elevator Room:
+                        tile_y = 10;
+                        plm_id = 0xF810;
+                    }
+                    (Some(0x19222), Some(0x1A990)) => {
+                        // Statues Room:
+                        tile_y = 27;
+                        plm_id = 0xF810;
+                    }
+                    (Some(0x18B9E), Some(0x18EB6)) => {
+                        // Blue Brinstar Elevator Room
+                        tile_y = 10;
+                        plm_id = 0xF810;
+                    }
+                    (Some(0x18B02), Some(0x190BA)) => {
+                        // Red Brinstar Elevator Room
+                        tile_y = 12;
+                        plm_id = 0xF814;  // has scroll PLM on right side
+                    }
+                    (Some(0x18A5A), Some(0x1A594)) => {
+                        // Forgotten Highway Elevator Room
+                        tile_y = 12;
+                        plm_id = 0xF814;  // has scroll PLM on right side
+                    }
+                    (Some(0x19246), Some(0x192EE)) => {
+                        // Warehouse Entrance
+                        tile_y = 10;
+                        plm_id = 0xF810;
+                    }
+                    (Some(0x196F6), Some(0x1986A)) => {
+                        // Lower Norfair Elevator Room
+                        tile_y = 10;
+                        plm_id = 0xF814;  // has scroll PLM on right side
+                    }
+                    _ => bail!("unexpected elevator top: {:?}", other_door_ptr_pair)
+                }
             } else {
-                plm_id = 0xF804;
+                if door.offset == Some(0) {
+                    plm_id = 0xF808; // hazard marking overlaid on transition tiles
+                } else {
+                    plm_id = 0xF804;
+                }
+                tile_x = door.x * 16 + 6;
+                tile_y = door.y * 16 + 15 - door.offset.unwrap_or(0);    
             }
-            tile_x = door.x * 16 + 6;
-            tile_y = door.y * 16 + 15 - door.offset.unwrap_or(0);
         } else {
             panic!(
                 "Unsupported door direction for hazard marker: {}",
@@ -2227,6 +2270,15 @@ impl<'a> Patcher<'a> {
             (Some(0x1A630), Some(0x1A5C4)), // Bug Sand Hole (left)
             (Some(0x1A618), Some(0x1A564)), // Bug Sand Hole (right)
             (Some(0x198EE), Some(0x1992A)), // Fast Pillars Setup Room (top right)
+            (Some(0x1986A), Some(0x196F6)), // Main Hall (top),
+            // temporary for testing:
+            (Some(0x191B6), Some(0x191CE)), // Kraid Eye Door Room
+            (Some(0x18CA6), Some(0x18C0A)), // Green Brinstar Main Shaft
+            (Some(0x1A990), Some(0x19222)), // Tourian First Room
+            (Some(0x18EB6), Some(0x18B9E)), // Morph Ball Room
+            (Some(0x190BA), Some(0x18B02)), // Caterpillar Room
+            (Some(0x1A594), Some(0x18A5A)), // Maridia Elevator Room
+            (Some(0x192EE), Some(0x19246)), // Business Center
         ];
         if self.randomization.settings.other_settings.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
@@ -2582,7 +2634,7 @@ impl<'a> Patcher<'a> {
         // when entering the room. The 16x16 tilemaps stay constant while the underlying 8x8 tiles get updated for the
         // idle animation and door opening.
         use beam_doors_tiles::*;
-        let beam_door_gfx_idx = 0x270; // 0x270 through 0x277
+        let beam_door_gfx_idx = 0x2D2; // 0x2D2 through 0x2D9
         let beam_palettes = vec![
             1, // Charge
             3, // Ice

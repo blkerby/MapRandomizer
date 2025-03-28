@@ -1,4 +1,6 @@
 v118:
+- handle comeInWithSidePlatform environment
+- add main hall elevator hazard marker
 - add/associate video for canTrickyGMode.
 - fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - handle "detailNote" in tech and strats.

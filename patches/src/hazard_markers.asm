@@ -1,5 +1,7 @@
 lorom
 
+incsrc "constants.asm"
+
 !bank_84_free_space_start = $84F800   ; must match address in patch.rs
 !bank_84_free_space_end = $84F900
 !bank_8f_free_space_start = $8FFE80
@@ -8,7 +10,6 @@ lorom
 !bank_b8_free_space_start = $B88000
 !bank_b8_free_space_end = $B88100
 
-!hazard_tilemap_start = $E98280
 !hazard_tilemap_size = #$0020
 
 ; hook initial load and unpause
@@ -20,9 +21,9 @@ org $82E845
     rep 3 : nop
 
 ; hook door transition
-org $82E42E
+org $82EB20
     jsl reload_hazard_tiles
-    rep 3 : nop
+    nop : nop
 
 ; hook extra setup ASM to run right before normal setup ASM
 ; (careful: escape.asm hijacks the instruction after this)
@@ -72,23 +73,13 @@ down_hazard_transition_plm:
 left_hazard_transition_plm:
     dw $B3D0, left_hazard_transition_inst
 
-load_hazard_tiles:
-    ; Load hazard tiles
-    LDA #$0080
-    STA $2115  ; video port control
-    lda #$1801
-    STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
-    lda #$00E9
-    sta $4314  ; Set source bank to $E9
-    LDA #$2780
-    STA $2116  ; VRAM (destination) address = $2780
-    lda #$8000 
-    sta $4312  ; source address = $8000
-    lda #$0100
-    sta $4315 ; transfer size = $100 bytes
-    lda #$0002
-    sta $420B  ; perform DMA transfer on channel 1
+elevator_hazard_plm:
+    dw $B3D0, elevator_hazard_inst
 
+elevator_hazard_with_scroll_plm:
+    dw $B3D0, elevator_hazard_with_scroll_inst
+
+load_hazard_tiles:
     ; Load beam door tiles
     lda #$00EA
     sta $4314  ; Set source bank to $EA
@@ -113,35 +104,31 @@ load_hazard_tilemap_initial_hook:
     dl $7EA000
 ; falls through to below:
 load_hazard_tilemap:
-    ldy !hazard_tilemap_size
-    ldx #$0000
-.loop:
-    lda !hazard_tilemap_start, x
-    sta $7EA700, x
-    inx
-    inx
-    dey
-    dey
-    bne .loop
+    lda $079B
+    cmp #$A59F  ; is this Kraid Room?
+    bne .skip
 
+    ; The Kraid Room SCE tileset overwrites the CRE, including hazard tiles. So we have to manually
+    ; point the tilemap to a different copy of the hazard tiles.
+    lda #$227C
+    sta $7EA700
+    lda #$227D
+    sta $7EA704
+    lda #$227E
+    sta $7EA708
+    lda #$227F
+    sta $7EA70C
+
+.skip:
     rtl
 
 reload_hazard_tiles:
-    ; run-hijacked instruction (decompress room tiles)
-    jsl $80B0FF
-    dl $7E2000
-
-    ; Copy hazard tiles from $E98000-$E98100 to $7E6F00
-    ldx #$00FE
--
-    lda $E98000,x
-    sta $7E6F00,x
-    dex
-    dex
-    bpl -
-
     ; Copy hazard tilemap (definition of 16 x 16 tiles from 8 x 8 tiles)
     jsl load_hazard_tilemap
+
+    ; run-hijacked instructions
+    ldx $07BB
+    ldy $000E,x
 
     rtl
 
@@ -172,5 +159,25 @@ down_hazard_transition_inst:
 
 down_hazard_transition_draw:
     dw $0004, $90E2, $90E3, $94E3, $94E2, $0000
+
+elevator_hazard_inst:
+    dw $0001, elevator_hazard_draw
+    dw $86BC
+
+elevator_hazard_draw:
+    dw $0002, $90E4, $94E4
+    db $00, $01
+    dw $0002, $00E5, $04E5
+    dw $0000
+
+elevator_hazard_with_scroll_inst:
+    dw $0001, elevator_hazard_with_scroll_draw
+    dw $86BC
+
+elevator_hazard_with_scroll_draw:
+    dw $0002, $90E4, $94E4
+    db $00, $01
+    dw $0002, $00E5, $34E5  ; use special air block type, to preserve scroll PLM
+    dw $0000
 
 warnpc !bank_84_free_space_end

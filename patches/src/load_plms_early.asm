@@ -46,12 +46,6 @@ org $82E53C
 org $8FE89D
     JSR setup_asm_hook
 
-; When reloading SCE tiles, skip the last row, which are reserved for beam doors and hazard tiles.
-; Since beam doors are loaded during setup ASM which happens before the tileset is loaded, we want to avoid overwriting
-; the graphics that they load.
-org $82E462
-    dw $0E00
-
 ; When reloading CRE tiles in door transition, skip the last 2 rows, which are reserved for item PLMs.
 ; Since item PLMs may now run before CRE tiles are reloaded, we want to avoid overwriting
 ; the graphics that they load. The exception is Kraid's Room which has no items but

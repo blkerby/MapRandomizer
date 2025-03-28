@@ -1,4 +1,6 @@
-8000-8280: hazard tiles (hazard_markers.asm)
-8280-8300: hazard tilemap
+8000-8100: hazard tiles for horizontal doors + vertical doors (hazard_markers.asm)
+8100-8180: hazard tilemaps for horizontal doors + vertical doors (hazard_markers.asm)
+8180-8280: hazard tiles for horizontal doors + elevators (hazard_markers.asm)
+8280-8300: hazard tilemaps for horizontal doors + elevators (hazard_markers.asm)
 8300-8400: hazard_makers.asm
 8400-FFFF: title screen graphics

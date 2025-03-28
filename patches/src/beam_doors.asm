@@ -15,16 +15,21 @@ lorom
 ; (0=Charge, 1=Ice, 2=Wave, 3=Spazer, 4=Plasma)
 !beam_type = $1F76
 
-!beam_tilemap_size = #$0020
-!beam_tilemap_start = $7EA720
+!beam_tilemap_size = #$0018
+!beam_tilemap_start = $7EA730
+!tilemap_num0 = $00E6
+!tilemap_num1 = $00E7
+!tilemap_num2 = $00E8
 
 ; Bank containing beam tilemaps and graphics
 !gfx_src_bank = #$00EA
 ; Low RAM location containing base address in bank EA. This varies depending on the
 ; type of beam door in the room.
 !gfx_src_base_addr = $1F78  
+!gfx_dst_tile = $02D2
+!gfx_dst_vram_addr = !gfx_dst_tile*$10
 
-; 8-tiles GFX source offsets, the full door height including the brackets:
+; 6-tiles GFX source offsets, the full door height including the brackets:
 ; These offsets are added to the base offset in !gfx_src_base_addr, in bank EA
 !gfx_initial = $0020
 !gfx_opening_1 = $0120
@@ -126,11 +131,11 @@ update_beam_gfx:
 
 ; input: [Y] = source address offset for GFX data (8 tiles = 256 bytes) in bank EA
 print pc
-update_beam_gfx_8_tile:
-    ; queue transfer of 8 tiles (256 bytes) to VRAM:
-    LDA #$0100      ; size = #$0100 bytes
+update_beam_gfx_6_tile:
+    ; queue transfer of 8 tiles (192 bytes) to VRAM:
+    LDA #$00C0      ; size = #$00C0 bytes
     STA $00
-    LDA #$2700      ; VRAM destination = $2700
+    LDA #!gfx_dst_vram_addr   ; VRAM destination
     STA $02
     BRA update_beam_gfx
 
@@ -140,7 +145,7 @@ update_beam_gfx_4_tile:
     ; queue transfer of 4 tiles (128 bytes) to VRAM:
     LDA #$0080      ; size = #$0080 bytes
     STA $00
-    LDA #$2720      ; VRAM destination = $2720
+    LDA #!gfx_dst_vram_addr+$20  ; VRAM destination
     STA $02 
     BRA update_beam_gfx
 
@@ -157,22 +162,22 @@ animate_loop_inst:
 
 right_inst_closing:
     dw $0002, $A677
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0002, right_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     db $08
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw $0002, right_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw set_timer, $0002
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, right_draw_shootable
 
 right_inst:
     dw $8A72, $C4B1          ; Go to $C4B1 if the room argument door is set
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, right_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
@@ -182,33 +187,33 @@ right_inst:
 .unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw $0004, right_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw set_timer, $0004
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0004, right_draw_half_open
     dw $0001, $A677
     dw $86BC                 ; Delete
 
 left_inst_closing:
     dw $0002, $A683
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0002, left_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     db $08
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw $0002, left_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw set_timer, $0002
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, left_draw_shootable
 
 left_inst:
     dw $8A72, $C4E2          ; Go to $C4E2 if the room argument door is set
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, left_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
@@ -218,33 +223,33 @@ left_inst:
 .unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw $0004, left_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw set_timer, $0004
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0004, left_draw_half_open
     dw $0001, $A683
     dw $86BC                 ; Delete
 
 up_inst_closing:
     dw $0002, $A69B
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0002, up_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     db $08
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw $0002, up_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw set_timer, $0002
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, up_draw_shootable
 
 up_inst:
     dw $8A72, $C544          ; Go to $C544 if the room argument door is set
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0002, up_draw_shootable
     dw $0001, up_draw_shootable   ; Draw a second time to ensure it shows correctly in Red Brinstar Elevator Room and Forgotten Highway
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
@@ -255,33 +260,33 @@ up_inst:
 .unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw $0004, up_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw set_timer, $0004
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0004, up_draw_half_open
     dw $0001, $A69B
     dw $86BC                 ; Delete
 
 down_inst_closing:
     dw $0002, $A68F
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0002, down_draw_half_open
     dw $8C19                 ; Queue sound 8, sound library 3, max queued sounds allowed = 6 (door closed)
     db $08
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw $0002, down_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw set_timer, $0002
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, down_draw_shootable
 
 down_inst:
     dw $8A72, $C513          ; Go to $C513 if the room argument door is set
     dw $8A24, .open          ; Link instruction = .open
     dw $86C1, check_shot     ; Pre-instruction = go to link instruction if shot with correct beam
-    dw update_beam_gfx_8_tile, !gfx_initial
+    dw update_beam_gfx_6_tile, !gfx_initial
     dw $0001, down_draw_shootable
     dw $8724, animate_loop_inst   ; Go to animate_loop_inst
 .open:
@@ -291,11 +296,11 @@ down_inst:
 .unlocked:
     dw $8C19                 ; Queue sound 7, sound library 3, max queued sounds allowed = 6 (door opened)
     db $07        
-    dw update_beam_gfx_8_tile, !gfx_opening_1
+    dw update_beam_gfx_6_tile, !gfx_opening_1
     dw $0004, down_draw_solid
-    dw update_beam_gfx_8_tile, !gfx_opening_2
+    dw update_beam_gfx_6_tile, !gfx_opening_2
     dw set_timer, $0004
-    dw update_beam_gfx_8_tile, !gfx_opening_3
+    dw update_beam_gfx_6_tile, !gfx_opening_3
     dw $0004, down_draw_half_open
     dw $0001, $A68F
     dw $86BC                 ; Delete
@@ -339,51 +344,51 @@ beam_mask:
     dw $0010, $0002, $0001, $0004, $0008   ; Charge, Ice, Wave, Spazer, Plasma
 
 right_draw_shootable:
-    dw $8004, $C4E4, $D4E5, $D4E6, $D4E7
+    dw $8004, !tilemap_num0+$C400, !tilemap_num1+$D400, !tilemap_num2+$D400, !tilemap_num0+$DC00
     dw $0000
 
 right_draw_solid:
-    dw $8004, $84E4, $84E5, $84E6, $84E7
+    dw $8004, !tilemap_num0+$8400, !tilemap_num1+$8400, !tilemap_num2+$8400, !tilemap_num0+$8C00
     dw $0000
 
 right_draw_half_open:
-    dw $8004, $84E4, $04E5, $04E6, $84E7
+    dw $8004, !tilemap_num0+$8400, !tilemap_num1+$0400, !tilemap_num2+$0400, !tilemap_num0+$8C00
     dw $0000
 
 left_draw_shootable:
-    dw $8004, $C0E4, $D0E5, $D0E6, $D0E7   ; shootable blocks
+    dw $8004, !tilemap_num0+$C000, !tilemap_num1+$D000, !tilemap_num2+$D000, !tilemap_num0+$D800   ; shootable blocks
     dw $0000
 
 left_draw_solid:
-    dw $8004, $80E4, $80E5, $80E6, $80E7   ; solid blocks
+    dw $8004, !tilemap_num0+$8000, !tilemap_num1+$8000, !tilemap_num2+$8000, !tilemap_num0+$8800   ; solid blocks
     dw $0000
 
 left_draw_half_open:
-    dw $8004, $80E4, $00E5, $00E6, $80E7   ; inner blocks air, outer blocks solid
+    dw $8004, !tilemap_num0+$8000, !tilemap_num1+$0000, !tilemap_num2+$0000, !tilemap_num0+$8800   ; inner blocks air, outer blocks solid
     dw $0000
 
 up_draw_shootable:
-    dw $0004, $C0E4, $50E5, $50E6, $50E7
+    dw $0004, !tilemap_num0+$C000, !tilemap_num1+$5000, !tilemap_num2+$5000, !tilemap_num0+$5400
     dw $0000
 
 up_draw_solid:
-    dw $0004, $80E4, $80E5, $80E6, $80E7
+    dw $0004, !tilemap_num0+$8000, !tilemap_num1+$8000, !tilemap_num2+$8000, !tilemap_num0+$8400
     dw $0000
 
 up_draw_half_open:
-    dw $0004, $80E4, $00E5, $00E6, $80E7
+    dw $0004, !tilemap_num0+$8000, !tilemap_num1+$0000, !tilemap_num2+$0000, !tilemap_num0+$8400
     dw $0000
 
 down_draw_shootable:
-    dw $0004, $C8E4, $58E5, $58E6, $58E7
+    dw $0004, !tilemap_num0+$C800, !tilemap_num1+$5800, !tilemap_num2+$5800, !tilemap_num0+$5C00
     dw $0000
 
 down_draw_solid:
-    dw $0004, $88E4, $88E5, $88E6, $88E7
+    dw $0004, !tilemap_num0+$8800, !tilemap_num1+$8800, !tilemap_num2+$8800, !tilemap_num0+$8C00
     dw $0000
 
 down_draw_half_open:
-    dw $0004, $88E4, $08E5, $08E6, $88E7
+    dw $0004, !tilemap_num0+$8800, !tilemap_num1+$0800, !tilemap_num2+$0800, !tilemap_num0+$8C00
     dw $0000
 
 print pc 

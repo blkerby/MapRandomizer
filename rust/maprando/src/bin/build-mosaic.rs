@@ -344,13 +344,8 @@ impl MosaicPatchBuilder {
             let compressed_pal = self.get_compressed_data(&palette_bytes)?;
 
             let gfx8x8_path = tileset_path.join("8x8tiles.gfx");
-            let mut gfx8x8_bytes = std::fs::read(&gfx8x8_path)
+            let gfx8x8_bytes = std::fs::read(&gfx8x8_path)
                 .with_context(|| format!("Unable to read 8x8 gfx at {}", gfx8x8_path.display()))?;
-            if gfx8x8_bytes.len() == 20480 {
-                // For standard-size SCE tilesets, truncate them to remove the bottom row,
-                // reserved for randomizer use (beam doors and hazard tiles).
-                gfx8x8_bytes = gfx8x8_bytes[..19968].to_vec();
-            }
             let compressed_gfx8x8 = self.get_compressed_data(&gfx8x8_bytes)?;
 
             let gfx16x16_path = tileset_path.join("16x16tiles.ttb");

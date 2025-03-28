@@ -2312,6 +2312,26 @@ impl<'a> MapPatcher<'a> {
             [b, 1, 1, 1, b, b, b, 1],
             [b, b, 1, 1, 1, b, b, b],
         ];
+        let hazard_elev_tile0: [[u8; 8]; 8] = [
+            [7, 0, 7, 3, 7, 7, 7, 7],
+            [0, 0, 7, 7, 7, 3, 15, 15],
+            [0, 0, 7, 15, 3, 3, 2, 15],
+            [0, 0, 7, 15, 3, 3, 2, 2],
+            [0, 0, 7, 15, 15, 3, 2, 2],
+            [0, 0, 7, 7, 7, 15, 2, 2],
+            [7, 0, 7, 7, 6, 7, 15, 2],
+            [1, 7, 7, 0, 7, 5, 7, 7],
+        ];
+        let hazard_elev_tile1: [[u8; 8]; 8] = [
+            [7, 7, 7, 7, 6, 6, 5, 5],
+            [15, 15, 2, 1, 1, 1, 15, 15],
+            [15, 15, 15, 1, 1, 1, 1, 15],
+            [15, 15, 15, 15, 1, 1, 1, 1],
+            [2, 15, 15, 15, 15, 1, 1, 1],
+            [2, 2, 15, 15, 15, 15, 1, 1],
+            [2, 2, 2, 15, 15, 15, 15, 1],
+            [7, 7, 6, 6, 6, 5, 5, 5],
+        ];
 
         // Write 8x8 tiles:
         let base_addr = snes2pc(0xE98000);
@@ -2324,8 +2344,16 @@ impl<'a> MapPatcher<'a> {
         self.write_tile_4bpp(base_addr + 0xC0, diagonal_flip_tile(hazard_tile3))?;
         self.write_tile_4bpp(base_addr + 0xE0, diagonal_flip_tile(hazard_tile4))?;
 
+        // Write 8x8 tiles for rooms with elevator hazard (leading to Main Hall).
+        // In this case, the vertical door hazard tiles are replaced with elevator hazard tiles.
+        self.write_tile_4bpp(base_addr + 0x180, hazard_tile1)?;
+        self.write_tile_4bpp(base_addr + 0x1A0, hazard_tile2)?;
+        self.write_tile_4bpp(base_addr + 0x1C0, hazard_tile3)?;
+        self.write_tile_4bpp(base_addr + 0x1E0, hazard_tile4)?;
+        self.write_tile_4bpp(base_addr + 0x200, hazard_elev_tile0)?;
+        self.write_tile_4bpp(base_addr + 0x220, hazard_elev_tile1)?;
+
         // Write 16x16 tiles (tilemap):
-        let base_addr = snes2pc(0xE98280);
         let hazard_tile1_idx = 0x278;
         let hazard_tile2_idx = 0x279;
         let hazard_tile3_idx = 0x27a;
@@ -2342,45 +2370,81 @@ impl<'a> MapPatcher<'a> {
         let flip_door_frame2_idx = 0x366;
         let flip_door_frame3_idx = 0x365;
         let flip_door_frame4_idx = 0x364;
+        let elev_hazard_tile1_idx = 0x27c;
+        let elev_hazard_tile2_idx = 0x27d;
+        let blank_tile_idx = 0x338;
+        let elev_top_tile1_idx = 0x2F7;
+        let elev_top_tile2_idx = 0x2F6;
+        let elev_bottom_tile1_idx = 0x2E8;
 
-        // Top fourth of door going right:
-        self.rom.write_u16(base_addr, hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 2, door_frame1_idx | 0x2400)?; // top-right quarter (palette 1)
-        self.rom
-            .write_u16(base_addr + 4, hazard_tile2_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 6, door_frame2_idx | 0x2400)?; // top-right quarter (palette 1)
+        for elev in [false, true] {
+            let base_addr = if elev { 
+                snes2pc(0xE98280) 
+            } else {
+                snes2pc(0xE98100)
+            };
 
-        // Second-from top fourth of door going right:
-        self.rom
-            .write_u16(base_addr + 8, hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 10, door_frame3_idx | 0x2400)?; // top-right quarter (palette 1)
-        self.rom
-            .write_u16(base_addr + 12, hazard_tile4_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 14, door_frame4_idx | 0x2400)?; // top-right quarter (palette 1)
+            // Top fourth of door going right:
+            self.rom.write_u16(base_addr, hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
+            self.rom
+                .write_u16(base_addr + 2, door_frame1_idx | 0x2400)?; // top-right quarter (palette 1)
+            self.rom
+                .write_u16(base_addr + 4, hazard_tile2_idx | 0x2000)?; // bottom-left quarter (palette 0)
+            self.rom
+                .write_u16(base_addr + 6, door_frame2_idx | 0x2400)?; // bottom-right quarter (palette 1)
 
-        // Left fourth of door going down:
-        self.rom
-            .write_u16(base_addr + 16, flip_hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 18, flip_hazard_tile2_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 20, flip_door_frame1_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
-        self.rom
-            .write_u16(base_addr + 22, flip_door_frame2_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
+            // Second-from top fourth of door going right:
+            self.rom
+                .write_u16(base_addr + 8, hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
+            self.rom
+                .write_u16(base_addr + 10, door_frame3_idx | 0x2400)?; // top-right quarter (palette 1)
+            self.rom
+                .write_u16(base_addr + 12, hazard_tile4_idx | 0x2000)?; // bottom-left quarter (palette 0)
+            self.rom
+                .write_u16(base_addr + 14, door_frame4_idx | 0x2400)?; // bottom-right quarter (palette 1)
 
-        // Second-from left fourth of door going down:
-        self.rom
-            .write_u16(base_addr + 24, flip_hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 26, flip_hazard_tile4_idx | 0x2000)?; // top-left quarter (palette 0)
-        self.rom
-            .write_u16(base_addr + 28, flip_door_frame3_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
-        self.rom
-            .write_u16(base_addr + 30, flip_door_frame4_idx | 0x6400)?; // top-right quarter (palette 1, X flip)
+            if elev {
+                // Top-left of elevator hazard:
+                self.rom
+                    .write_u16(base_addr + 16, blank_tile_idx)?; // top-left quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 18, blank_tile_idx)?; // top-right quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 20, elev_top_tile1_idx | 0xE000)?; // bottom-left quarter (palette 0, X+Y flip)
+                self.rom
+                    .write_u16(base_addr + 22, elev_top_tile2_idx | 0xE000)?; // bottom-right quarter (palette 0, X+Y flip)
+
+                // Bottom-left of elevator hazard:
+                self.rom
+                    .write_u16(base_addr + 24, elev_hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 26, elev_hazard_tile2_idx | 0x2000)?; // top-right quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 28, elev_bottom_tile1_idx | 0xE000)?; // bottom-left quarter (palette 0, X+Y flip)
+                self.rom
+                    .write_u16(base_addr + 30, blank_tile_idx)?; // bottom-right quarter (palette 0)
+            } else {
+                // Left fourth of door going down:
+                self.rom
+                    .write_u16(base_addr + 16, flip_hazard_tile1_idx | 0x2000)?; // top-left quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 18, flip_hazard_tile2_idx | 0x2000)?; // top-right quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 20, flip_door_frame1_idx | 0x6400)?; // bottom-left quarter (palette 1, X flip)
+                self.rom
+                    .write_u16(base_addr + 22, flip_door_frame2_idx | 0x6400)?; // bottom-right quarter (palette 1, X flip)
+
+                // Second-from left fourth of door going down:
+                self.rom
+                    .write_u16(base_addr + 24, flip_hazard_tile3_idx | 0x2000)?; // top-left quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 26, flip_hazard_tile4_idx | 0x2000)?; // top-right quarter (palette 0)
+                self.rom
+                    .write_u16(base_addr + 28, flip_door_frame3_idx | 0x6400)?; // bottom-left quarter (palette 1, X flip)
+                self.rom
+                    .write_u16(base_addr + 30, flip_door_frame4_idx | 0x6400)?; // bottom-right quarter (palette 1, X flip)
+            }
+        }
 
         Ok(())
     }

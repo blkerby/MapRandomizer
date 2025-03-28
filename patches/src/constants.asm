@@ -21,6 +21,7 @@
 ; Additional save data:
 !num_disabled_etanks = $09EC
 
+; Randomizer-specific game state:
 !spin_lock_enabled = $1F70
 !last_samus_map_x = $1F72
 !last_samus_map_y = $1F74
