@@ -1,6 +1,10 @@
 v118:
+- see if reloading CRE is actually necessary with Crocomire
+- DONE: look into pause fade-in speed (currently asymmetric with fade-out)
+- switch around palettes, to make acid FX fade, and improve item colors
+- partial reveal door next to two-door save/refill rooms
 - handle comeInWithSidePlatform environment
-- add main hall elevator hazard marker
+- DONE: add main hall elevator hazard marker
 - add/associate video for canTrickyGMode.
 - fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - handle "detailNote" in tech and strats.
@@ -8,8 +12,8 @@ v118:
 - include "objectives" details on seed page.
 - finish refining stutter water shinecharges.
 - account for reserve backward transfer QoL in logic.
-- fix scrolling sky corruption, which got worse with the faster decompression
-- move crateria tube tiles to CRE
+- DONE: fix scrolling sky corruption, which got worse with the faster decompression
+- DONE: move crateria tube tiles to CRE
 - DONE: blue brinstar theme
 - add side platform strats.
 - finish adding shinecharge and temp blue strats

@@ -635,6 +635,7 @@ impl<'a> Patcher<'a> {
         {
             ObjectiveScreen::Disabled => {}
             ObjectiveScreen::Enabled => {
+                // It's important that this comes after "fast_pause_menu" since it overwrites a hook
                 patches.push("pause_menu_objectives");
             }
         }

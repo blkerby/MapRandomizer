@@ -27,6 +27,14 @@ org $82A50F
 org $82A5BA
     lda $008F
 
+; Fast fade in entering pause menu
+org $8290CF
+    jsl fast_fadein
+
+; Fast fade out exiting pause menu
+org $82932E
+    jsl fast_fadeout
+
 ; Fast fade out map -> equipment
 org $82916A
     jsl fast_fadeout
