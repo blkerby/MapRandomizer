@@ -153,6 +153,17 @@ is_delayed_plm:
     CMP #$B7B7      ; Kraid ceiling (spawned during enemy initialization)
     BEQ .done
     CMP #$DB44      ; Set Metroids cleared states when required (needs to happen after enemy initialization)
+    BEQ .done
+
+    ; Beam door PLMS are delayed, because their graphics could be overwritten if CRE is reloaded,
+    ; or if neighboring rooms have different beam doors.
+    CMP #$FCC0      ; Beam door right
+    BEQ .done
+    CMP #$FCC4      ; Beam door left
+    BEQ .done
+    CMP #$FCC8      ; Beam door down
+    BEQ .done
+    CMP #$FCCC      ; Beam door up
 .done:
     RTS
 warnpc !bank_80_free_space_end

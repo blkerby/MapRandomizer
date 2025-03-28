@@ -2344,9 +2344,9 @@ impl<'a> Patcher<'a> {
                 ]);
             if let DoorType::Beam(beam) = locked_door.door_type {
                 let gfx_base_addr = if door.direction == "right" || door.direction == "left" {
-                    (2 * (beam as usize)) * 0x518
+                    (2 * (beam as usize)) * 0x498
                 } else {
-                    (2 * (beam as usize) + 1) * 0x518
+                    (2 * (beam as usize) + 1) * 0x498
                 } + 0xEA8000;
                 self.extra_setup_asm
                     .get_mut(&room_ptr)
@@ -2643,7 +2643,7 @@ impl<'a> Patcher<'a> {
             1, // Plasma
         ];
         let free_space_addr = snes2pc(0xEA8000);
-        let gfx_size = 0x518; // Size of graphics + tilemaps per combination of beam type and orientation
+        let gfx_size = 0x498; // Size of graphics + tilemaps per combination of beam type and orientation
 
         // Tilemap (16x16 tiles) indexed by orientation (0=horizontal, 1=vertical), then beam (0..5):
         // each address points to data for four 16x16 tiles, half of which is standard door frame and half of which is beam stuff
@@ -2741,31 +2741,7 @@ impl<'a> Patcher<'a> {
             )?; // beam door tile 5
         }
 
-        // Idle beam door animation (8x8 tiles): 4 tiles per frame, 4 frame loop:
-        // These get copied into VRAM at $2720-$2760:
-        for beam_idx in 0..5 {
-            // horizontal orientation:
-            let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x318;
-            for frame in 0..4 {
-                for tile_idx in 0..4 {
-                    let addr = gfx_ptr + frame * 0x80 + tile_idx * 0x20;
-                    let tile = idle_beam_tiles[beam_idx][tile_idx][frame];
-                    write_tile_4bpp(self.rom, addr, tile)?;
-                }
-            }
-
-            // vertical orientation:
-            let gfx_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size + 0x318;
-            for frame in 0..4 {
-                for tile_idx in 0..4 {
-                    let addr = gfx_ptr + frame * 0x80 + tile_idx * 0x20;
-                    let tile = diagonal_flip_tile(idle_beam_tiles[beam_idx][tile_idx][frame]);
-                    write_tile_4bpp(self.rom, addr, tile)?;
-                }
-            }
-        }
-
-        // Opening beam door animation (8x8 tiles): 6 tiles per frame, 3 frame animation:
+        // Opening/closing beam door animation (8x8 tiles): 6 tiles per frame, 4 frame animation:
         for beam_idx in 0..5 {
             // horizontal orientation:
             let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x18;
@@ -2784,6 +2760,30 @@ impl<'a> Patcher<'a> {
                     // horizontal orientation:
                     let addr = gfx_ptr + frame * 0xC0 + tile_idx * 0x20;
                     let tile = diagonal_flip_tile(opening_beam_tiles[beam_idx][tile_idx][frame]);
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                }
+            }
+        }
+        
+        // Idle beam door animation (8x8 tiles): 4 tiles per frame, 4 frame loop
+        // One frame is shared with the opening/closing animation, so is not written again.
+        for beam_idx in 0..5 {
+            // horizontal orientation:
+            let gfx_ptr = free_space_addr + beam_idx * 2 * gfx_size + 0x318;
+            for frame in 0..3 {
+                for tile_idx in 0..4 {
+                    let addr = gfx_ptr + frame * 0x80 + tile_idx * 0x20;
+                    let tile = idle_beam_tiles[beam_idx][tile_idx][frame];
+                    write_tile_4bpp(self.rom, addr, tile)?;
+                }
+            }
+
+            // vertical orientation:
+            let gfx_ptr = free_space_addr + (beam_idx * 2 + 1) * gfx_size + 0x318;
+            for frame in 0..3 {
+                for tile_idx in 0..4 {
+                    let addr = gfx_ptr + frame * 0x80 + tile_idx * 0x20;
+                    let tile = diagonal_flip_tile(idle_beam_tiles[beam_idx][tile_idx][frame]);
                     write_tile_4bpp(self.rom, addr, tile)?;
                 }
             }

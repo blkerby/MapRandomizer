@@ -12,10 +12,6 @@ incsrc "constants.asm"
 
 !hazard_tilemap_size = #$0020
 
-; hook initial load and unpause
-org $82E7BF
-    jsl load_hazard_tiles : nop
-
 org $82E845
     jsl load_hazard_tilemap_initial_hook
     rep 3 : nop
@@ -78,26 +74,6 @@ elevator_hazard_plm:
 
 elevator_hazard_with_scroll_plm:
     dw $B3D0, elevator_hazard_with_scroll_inst
-
-load_hazard_tiles:
-    ; Load beam door tiles
-    lda #$00EA
-    sta $4314  ; Set source bank to $EA
-    lda #$2700
-    sta $2116  ; VRAM (destination) address = $2700
-    lda $1F78
-    clc
-    adc #$0020
-    sta $4312  ; source address = [$1F78] + $0020
-    lda #$0100
-    sta $4315 ; transfer size = $100 bytes
-    lda #$0002
-    sta $420B  ; perform DMA transfer on channel 1    
-
-    lda $7c7   ; replaced code
-    sta $48
-
-    rtl
 
 load_hazard_tilemap_initial_hook:
     JSL $80B0FF  ; run hi-jacked instruction (Decompress CRE tile table to $7E:A000)

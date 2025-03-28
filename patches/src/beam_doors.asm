@@ -36,11 +36,14 @@ lorom
 !gfx_opening_2 = $0198
 !gfx_opening_3 = $0258
 ; 4-tile GFX, only the beam-specific GFX in the center:
-!gfx_idle_0 = $0318
-!gfx_idle_1 = $0398
-!gfx_idle_2 = $0418
-!gfx_idle_3 = $0498
+!gfx_idle_0 = !gfx_initial+$0040
+!gfx_idle_1 = $0318
+!gfx_idle_2 = $0398
+!gfx_idle_3 = $0418
 
+; hook initial load and unpause
+org $82E7BF
+    jsl unpause_reload : nop
 
 org !bank_84_free_space_start
 
@@ -89,7 +92,6 @@ load_beam_tiles:
     plb
     rtl
 
-print pc
 set_timer:
     LDA $0000,y
     STA $7EDE1C,x   ; PLM instruction timer = [Y]
@@ -328,7 +330,6 @@ check_shot:
     stz $1D77,x    ; clear PLM shot status
     rts
 
-print "hit: ", pc
 .hit:
     lda $7EDEBC,x          ;\
     sta $1D27,x            ;} PLM instruction list pointer = [PLM link instruction]
@@ -338,6 +339,25 @@ print "hit: ", pc
 
 .done:
     rts
+
+unpause_reload:
+    lda #$00EA
+    sta $4314  ; Set source bank to $EA
+    lda #!gfx_dst_vram_addr
+    sta $2116  ; VRAM (destination) address
+    lda $1F78
+    clc
+    adc #$0018
+    sta $4312  ; source address = [$1F78] + $0018
+    lda #$00C0
+    sta $4315  ; transfer size = $C0 bytes
+    lda #$0002
+    sta $420B  ; perform DMA transfer on channel 1    
+
+    lda $7c7   ; replaced code
+    sta $48
+
+    rtl
 
 beam_mask:
     dw $0010, $0002, $0001, $0004, $0008   ; Charge, Ice, Wave, Spazer, Plasma

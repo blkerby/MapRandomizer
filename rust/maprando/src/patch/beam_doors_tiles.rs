@@ -1128,28 +1128,24 @@ pub const clear_tile: [[u8; 8]; 8] = [
 ];
 
 // Arrays of tiles:
-pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 4]; 4]; 5] = [
+pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 3]; 4]; 5] = [
     [
         [
-            charge_tile2_frame0,
             charge_tile2_frame1,
             charge_tile2_frame2,
             charge_tile2_frame3,
         ],
         [
-            charge_tile3_frame0,
             charge_tile3_frame1,
             charge_tile3_frame2,
             charge_tile3_frame3,
         ],
         [
-            charge_tile4_frame0,
             charge_tile4_frame1,
             charge_tile4_frame2,
             charge_tile4_frame3,
         ],
         [
-            charge_tile5_frame0,
             charge_tile5_frame1,
             charge_tile5_frame2,
             charge_tile5_frame3,
@@ -1157,25 +1153,21 @@ pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 4]; 4]; 5] = [
     ],
     [
         [
-            ice_tile2_frame0,
             ice_tile2_frame1,
             ice_tile2_frame2,
             ice_tile2_frame3,
         ],
         [
-            ice_tile3_frame0,
             ice_tile3_frame1,
             ice_tile3_frame2,
             ice_tile3_frame3,
         ],
         [
-            ice_tile4_frame0,
             ice_tile4_frame1,
             ice_tile4_frame2,
             ice_tile4_frame3,
         ],
         [
-            ice_tile5_frame0,
             ice_tile5_frame1,
             ice_tile5_frame2,
             ice_tile5_frame3,
@@ -1183,25 +1175,21 @@ pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 4]; 4]; 5] = [
     ],
     [
         [
-            wave_tile2_frame0,
             wave_tile2_frame1,
             wave_tile2_frame2,
             wave_tile2_frame3,
         ],
         [
-            wave_tile3_frame0,
             wave_tile3_frame1,
             wave_tile3_frame2,
             wave_tile3_frame3,
         ],
         [
-            wave_tile4_frame0,
             wave_tile4_frame1,
             wave_tile4_frame2,
             wave_tile4_frame3,
         ],
         [
-            wave_tile5_frame0,
             wave_tile5_frame1,
             wave_tile5_frame2,
             wave_tile5_frame3,
@@ -1209,25 +1197,21 @@ pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 4]; 4]; 5] = [
     ],
     [
         [
-            spazer_tile2_frame0,
             spazer_tile2_frame1,
             spazer_tile2_frame2,
             spazer_tile2_frame3,
         ],
         [
-            spazer_tile3_frame0,
             spazer_tile3_frame1,
             spazer_tile3_frame2,
             spazer_tile3_frame3,
         ],
         [
-            spazer_tile4_frame0,
             spazer_tile4_frame1,
             spazer_tile4_frame2,
             spazer_tile4_frame3,
         ],
         [
-            spazer_tile5_frame0,
             spazer_tile5_frame1,
             spazer_tile5_frame2,
             spazer_tile5_frame3,
@@ -1235,25 +1219,21 @@ pub const idle_beam_tiles: [[[[[u8; 8]; 8]; 4]; 4]; 5] = [
     ],
     [
         [
-            plasma_tile2_frame0,
             plasma_tile2_frame1,
             plasma_tile2_frame2,
             plasma_tile2_frame3,
         ],
         [
-            plasma_tile3_frame0,
             plasma_tile3_frame1,
             plasma_tile3_frame2,
             plasma_tile3_frame3,
         ],
         [
-            plasma_tile4_frame0,
             plasma_tile4_frame1,
             plasma_tile4_frame2,
             plasma_tile4_frame3,
         ],
         [
-            plasma_tile5_frame0,
             plasma_tile5_frame1,
             plasma_tile5_frame2,
             plasma_tile5_frame3,

@@ -1,1 +1,2 @@
-8000-BD40: doors tilemaps and graphics
+8000-ADF0: beam door tilemaps and graphics
+ADF0-FFFF: [FREE]
