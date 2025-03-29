@@ -78,6 +78,8 @@ struct TechTemplate<'a> {
     tech_id: TechId,
     tech_name: String,
     tech_note: String,
+    tech_detail_note: String,
+    tech_dev_note: String,
     tech_dependencies: String,
     tech_difficulty_idx: usize,
     tech_difficulty_name: String,
@@ -467,7 +469,7 @@ fn make_tech_templates<'a>(
     let mut tech_templates: Vec<TechTemplate<'a>> = vec![];
     for (tech_idx, tech_ids) in tech_strat_ids.iter().enumerate() {
         let tech_id = game_data.tech_isv.keys[tech_idx].clone();
-        let tech_note = game_data.tech_description[&tech_id].clone();
+        let tech_json = &game_data.tech_json_map[&tech_id];
         let tech_dependency_names: Vec<String> = game_data.tech_dependencies[&tech_id]
             .iter()
             .map(|tech_id| {
@@ -501,11 +503,10 @@ fn make_tech_templates<'a>(
             version_info: version_info.clone(),
             preset_data,
             tech_id,
-            tech_name: game_data.tech_json_map[&tech_id]["name"]
-                .as_str()
-                .unwrap()
-                .to_string(),
-            tech_note,
+            tech_name: tech_json["name"].as_str().unwrap().to_string(),
+            tech_note: game_data.parse_note(&tech_json["note"]).join(" "),
+            tech_detail_note: game_data.parse_note(&tech_json["detailNote"]).join(" "),
+            tech_dev_note: game_data.parse_note(&tech_json["devNote"]).join(" "),
             tech_dependencies,
             tech_difficulty_idx: difficulty_idx,
             tech_difficulty_name: difficulty_name,

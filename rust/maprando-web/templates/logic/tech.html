@@ -60,8 +60,14 @@ document.getElementById("navigation-logic").classList.add("active");
         </div>
         <div class="col-sm-8 col-md-9 col-lg-10 p-3">
             <p>{{+ tech_note }}</p>
+            {% if tech_detail_note.len() > 0 %}
+                <p>{{+ tech_detail_note }}</p>
+            {% endif %}
             {% if tech_dependencies.len() > 0 %}
                 <p><i>Dependencies: {{+ tech_dependencies }}</i></p>
+            {% endif %}
+            {% if tech_dev_note.len() > 0 %}
+                <p class="d-none dev-note">Dev note: {{+ tech_dev_note }}</p>
             {% endif %}
         </div>
     </div>
@@ -84,6 +90,9 @@ document.getElementById("navigation-logic").classList.add("active");
                 >
             <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ difficulty }}</label>
         {% endfor %}
+            <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#logicSettingsModal">
+                <i class="bi bi-gear"></i>
+            </button>
         </div>
     </div>
     </form>
@@ -113,11 +122,26 @@ document.getElementById("navigation-logic").classList.add("active");
     </table>
 </div>
 {% include "../common/save_settings.html" %}
+{% include "logic_settings_modal.html" %}
 <script>
 function presetChanged() {
     updateSelect();
     saveForm(document.getElementById("filterForm"));
 }
+
+function devNotesSettingChanged() {
+    let showDevNotes = document.getElementById("showDevNotesYes").checked;
+    var els = document.getElementsByClassName("dev-note");
+    for (let el of els) {
+        if (showDevNotes) {
+            el.classList.remove("d-none");
+        } else {
+            el.classList.add("d-none");
+        }
+    }
+    saveForm(document.getElementById("logicPageSettingsForm"));
+}
+
 function getDifficultyFilter() {
     var elems = document.getElementsByClassName("difficulty-filter");
     for (var i = 0; i < elems.length; i++) {
@@ -148,6 +172,7 @@ function updateSelect() {
 }
 loadForm(document.getElementById("filterForm"));
 updateSelect();
+devNotesSettingChanged();
 </script>
 </body>
 </html>
