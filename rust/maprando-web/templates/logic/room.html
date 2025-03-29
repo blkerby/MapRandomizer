@@ -192,12 +192,18 @@ function devNotesSettingChanged() {
     saveForm(document.getElementById("logicPageSettingsForm"));
 }
 
+function difficultyFilterBehaviorChanged() {
+    updateSelect();
+    saveForm(document.getElementById("logicPageSettingsForm"));
+}
+
 function updateSelect() {
     var rows = document.getElementsByClassName("strat-row");
     var selectedFromNode = document.getElementById("fromNode").value;
     var selectedToNode = document.getElementById("toNode").value;
     var validFromSet = new Set();
     var validToSet = new Set();
+    var exactDifficulty = document.getElementById("difficultyFilterBehaviorExact").checked;
     var difficultyFilter = getDifficultyFilter();
 
     // Show/hide the matching set of Strats:
@@ -205,7 +211,11 @@ function updateSelect() {
     for (var i = 0; i < rows.length; i++) {
         var row = rows.item(i);
         // Include Ignored strats (difficulty 9) when Beyond (8) is selected:
-        var validDifficulty = difficultyFilter == 8 || (row.getAttribute("data-difficulty") <= difficultyFilter);
+        if (exactDifficulty) {
+            var validDifficulty = Math.min(8, row.getAttribute("data-difficulty")) == difficultyFilter;
+        } else {
+            var validDifficulty = Math.min(8, row.getAttribute("data-difficulty")) <= difficultyFilter;
+        }
         var rowFromNode = row.getAttribute("data-from-node");
         var rowToNode = row.getAttribute("data-to-node");
         var validFrom = (selectedFromNode == "any" || rowFromNode == selectedFromNode);

@@ -6,9 +6,20 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
         
-            <div class="modal-body">
+            <div class="modal-body p-0">
                 <form id="logicPageSettingsForm">
-                    <div class="row form-group">
+                    <div class="row form-group m-3">
+                        <div class="col-lg-4 align-items-center">
+                            <label class="my-2 me-2 mb-2" for="difficultyFilterBehavior">Difficulty filter behavior</label>
+                        </div>
+                        <div id="difficultyFilterBehavior" class="col-lg-3 btn-group">
+                            <input type="radio" class="btn-check" name="difficulty_filter_behavior" id="difficultyFilterBehaviorMaximum" value="Maximum" onchange="difficultyFilterBehaviorChanged()" checked=true>
+                            <label class="btn btn-outline-primary" for="difficultyFilterBehaviorMaximum">Maximum</label>
+                            <input type="radio" class="btn-check" name="difficulty_filter_behavior" id="difficultyFilterBehaviorExact" value="Exact" onchange="difficultyFilterBehaviorChanged()">
+                            <label class="btn btn-outline-primary" for="difficultyFilterBehaviorExact">Exact</label>
+                        </div>
+                    </div>
+                    <div class="row form-group m-3">
                         <div class="col-lg-4 align-items-center">
                             <label class="my-2 me-2 mb-2" for="showDevNotes">Show development notes</label>
                         </div>
