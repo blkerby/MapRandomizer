@@ -83,6 +83,9 @@ document.getElementById("navigation-logic").classList.add("active");
                 >
             <label class="btn btn-outline-secondary p-2" for="preset{{+ loop.index0 }}">{{+ difficulty }}</label>
         {% endfor %}
+            <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#logicSettingsModal">
+                <i class="bi bi-gear"></i>
+            </button>
         </div>
     </div>
     </form>
@@ -112,6 +115,7 @@ document.getElementById("navigation-logic").classList.add("active");
     </table>
 </div>
 {% include "../common/save_settings.html" %}
+{% include "logic_settings_modal.html" %}
 <script>
 function presetChanged() {
     updateSelect();
@@ -126,8 +130,29 @@ function getDifficultyFilter() {
     }
     return -1;
 }
+
+
+function devNotesSettingChanged() {
+    let showDevNotes = document.getElementById("showDevNotesYes").checked;
+    var els = document.getElementsByClassName("dev-note");
+    for (let el of els) {
+        if (showDevNotes) {
+            el.classList.remove("d-none");
+        } else {
+            el.classList.add("d-none");
+        }
+    }
+    saveForm(document.getElementById("logicPageSettingsForm"));
+}
+
+function difficultyFilterBehaviorChanged() {
+    updateSelect();
+    saveForm(document.getElementById("logicPageSettingsForm"));
+}
+
 function updateSelect() {
     var rows = document.getElementsByClassName("strat-row");
+    var exactDifficulty = document.getElementById("difficultyFilterBehaviorExact").checked;
     var difficultyFilter = getDifficultyFilter();
 
     // Show/hide the matching set of Strats:
@@ -135,7 +160,11 @@ function updateSelect() {
     for (var i = 0; i < rows.length; i++) {
         var row = rows.item(i);
         // Include Ignored (9) strats when Beyond (8) is selected:
-        var validDifficulty = difficultyFilter == 8 || (row.getAttribute("data-difficulty") <= difficultyFilter);
+        if (exactDifficulty) {
+            var validDifficulty = Math.min(8, row.getAttribute("data-difficulty")) == difficultyFilter;
+        } else {
+            var validDifficulty = Math.min(8, row.getAttribute("data-difficulty")) <= difficultyFilter;
+        }
         if (validDifficulty) {
             row.classList.remove("d-none");
             cnt += 1;
@@ -147,6 +176,7 @@ function updateSelect() {
 }
 loadForm(document.getElementById("filterForm"));
 updateSelect();
+devNotesSettingChanged();
 </script>
 </body>
 </html>
