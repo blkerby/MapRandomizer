@@ -74,6 +74,8 @@ SupportedStates:
     dw #$0016  ; Death sequence, pre-flashing
     dw #$0017  ; Death sequence, flashing
     dw #$0018  ; Death sequence, explosion white out
+    dw #$001b  ; Reserve tanks auto.
+    dw #$0027  ; Ending and credits. Cinematic. (reboot only)
     dw #$ffff
 
 hook_main:
@@ -85,7 +87,7 @@ hook_main:
 .next_check
     lda SupportedStates,X
     bmi .leave
-    cmp $0998   
+    cmp $0998
     beq .check
     inx : inx
     bra .next_check
@@ -93,7 +95,7 @@ hook_main:
     plb
     rtl
 
-.check:
+.check
     plb
     php
     rep #$30
@@ -140,6 +142,19 @@ hook_main:
     rtl
 .reset:
     plp
+    lda #$0027
+    cmp $0998    ; in credits?
+    bne .no_reboot
+
+    ; direct APU write to stop music
+    lda #$0000
+    sta $00
+    sta $02
+    jsl $808024
+
+    jml $80841c ; reboot
+    
+.no_reboot
     stz $0727    ; Reset pause menu index
     stz $0797    ; Reset door transition flag
     lda #$0000
