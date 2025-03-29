@@ -1,9 +1,10 @@
 v118:
 - investigate audio-related lag after quick reload
 - see if reloading CRE is actually necessary with Crocomire
+- decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
 - DONE: look into pause fade-in speed (currently asymmetric with fade-out)
 - switch around palettes, to make acid FX fade, and improve item colors
-- partial reveal door next to two-door save/refill rooms
+- DONE: partial reveal door next to two-door save/refill rooms
 - handle comeInWithSidePlatform environment
 - DONE: add main hall elevator hazard marker
 - add/associate video for canTrickyGMode.
