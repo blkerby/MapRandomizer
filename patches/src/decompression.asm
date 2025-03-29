@@ -67,7 +67,7 @@ setup:
     LDX $47  ; X <- source address (compressed data)
 
     ; Direct Page register D <- #$4300
-    TDC : LDA #$43 : XBA : TCD
+    LDA #$43 : XBA : LDA #$00 : TCD
 
     ; save 16-bit register values $43xx
     REP #$20
@@ -221,7 +221,7 @@ NextByte:
     BRA +++
 ++
     AND #$E0 : STA $0A
-    TDC : XBA
+    LDA #$00 : XBA
     LDA $08 : AND #$1F
 +++
     TAY : INY : STY $18
@@ -321,7 +321,7 @@ Option4567:
     ;X = 6: Copy Y bytes starting from a given number of bytes ago in the decompressed data.
     ;X = 7: Copy and invert (EOR #$FF) Y bytes starting from a given number of bytes ago in the decompressed data.
 
-    TDC : XBA
+    LDA #$00 : XBA
 
     LDA $0000,x : INX : BNE +
     JSR IncrementBank
