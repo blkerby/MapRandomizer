@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release118">Version 118 (2025-03-28)</a>:
+<p><a id="release118">Version 118 (2025-03-29)</a>:
 <ul>
 <li>New tile theme "Blue Brinstar" is available.
 <li>Customization of the amount and types of objectives is now available.
@@ -50,6 +50,13 @@ document.getElementById("navigation-releases").classList.add("active");
     </ul>
 <li>Quick reload (L + R + Select + Start) can be used in the pause menu and in door transitions.
 <li>A hazard marker is shown on the elevator leading down into Main Hall.
+<li>When the "Room outline" option is enabled, save/refill rooms with two doors are shown more clearly.
+    <ul>
+    <li>Even if only explored from one side, the door on the other side will be visible in the pause map.
+    <li>This is done by revealing one column of pixels in the neighboring tile.
+    <li>This applies to Frog Savestation, Nutella Refill, and Draygon Save Room.
+    <li>As with other "Room outline" quality-of-life effects, this change does not affect the mini-map.
+    </ul>
 <li>Logic updates:
     <ul>
     <li>New tech:
