@@ -60,11 +60,17 @@
             {% if strat.note.len() > 0 %}
                 <p>{{+ strat.note }}</p>
             {% endif %}
+            {% if strat.note.len() > 0 %}
+                <p>{{+ strat.detail_note }}</p>
+            {% endif %}
         </div>
     </div>
 {% else %}
     {% if strat.note.len() > 0 %}
         <p>{{+ strat.note }}</p>
+    {% endif %}
+    {% if strat.note.len() > 0 %}
+        <p>{{+ strat.detail_note }}</p>
     {% endif %}
 {% endif %}
 
@@ -92,4 +98,8 @@
 {% if strat.unlocks_doors.as_ref().is_some() %}
     <p class="mb-0">Unlocks doors:</p>
     <pre>{{+ strat.unlocks_doors.as_ref().unwrap() }}</pre>
+{% endif %}
+
+{% if strat.dev_note.len() > 0 %}
+<p class="d-none dev-note">Dev note: {{+ strat.dev_note }}</p>
 {% endif %}

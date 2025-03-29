@@ -41,6 +41,8 @@ struct RoomStrat {
     to_node_id: usize,
     to_node_name: String,
     note: String,
+    detail_note: String,
+    dev_note: String,
     entrance_condition: Option<String>,
     requires: String, // new-line separated requirements
     exit_condition: Option<String>,
@@ -1055,6 +1057,8 @@ fn make_room_template<'a>(
             to_node_id,
             to_node_name: node_name_map[&to_node_id].clone(),
             note: game_data.parse_note(&strat_json["note"]).join(" "),
+            detail_note: game_data.parse_note(&strat_json["detailNote"]).join(" "),
+            dev_note: game_data.parse_note(&strat_json["devNote"]).join(" "),
             entrance_condition,
             requires: make_requires(&strat_json["requires"]),
             unlocks_doors,

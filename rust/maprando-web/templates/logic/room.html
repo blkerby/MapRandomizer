@@ -58,6 +58,9 @@ document.getElementById("navigation-logic").classList.add("active");
                 >
             <label class="btn btn-outline-secondary p-2" for="preset{{+ i }}">{{+ difficulty }}</label>
         {% endfor %}
+            <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#logicSettingsModal">
+                <i class="bi bi-gear"></i>
+            </button>
         </div>
     </div>
     </form>
@@ -149,6 +152,7 @@ document.getElementById("navigation-logic").classList.add("active");
     </div>
 </div>
 {% include "../common/save_settings.html" %}
+{% include "logic_settings_modal.html" %}
 <script>
 function presetChanged() {
     updateSelect();
@@ -173,6 +177,19 @@ function swapNodes() {
     
     updateSelect();
 }
+
+function devNotesSettingChanged() {
+    let showDevNotes = document.getElementById("showDevNotesYes").checked;
+    var els = document.getElementsByClassName("dev-note");
+    for (let el of els) {
+        if (showDevNotes) {
+            el.classList.remove("d-none");
+        } else {
+            el.classList.add("d-none");
+        }
+    }
+}
+
 function updateSelect() {
     var rows = document.getElementsByClassName("strat-row");
     var selectedFromNode = document.getElementById("fromNode").value;
@@ -229,6 +246,7 @@ function updateSelect() {
 }
 loadForm(document.getElementById("filterForm"));
 updateSelect();
+devNotesSettingChanged();
 </script>
 </body>
 </html>
