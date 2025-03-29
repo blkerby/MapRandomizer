@@ -1,0 +1,30 @@
+<div class="modal" id="logicSettingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Logic page settings</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        
+            <div class="modal-body">
+                <form id="logicPageSettingsForm">
+                    <div class="row form-group">
+                        <div class="col-lg-4 align-items-center">
+                            <label class="my-2 me-2 mb-2" for="showDevNotes">Show development notes</label>
+                        </div>
+                        <div id="showDevNotes" class="col-lg-3 btn-group">
+                            <input type="radio" class="btn-check" name="show_dev_notes" id="showDevNotesNo" value=false onchange="devNotesSettingChanged()" checked=true>
+                            <label class="btn btn-outline-primary" for="showDevNotesNo">No</label>
+                            <input type="radio" class="btn-check" name="show_dev_notes" id="showDevNotesYes" value=true onchange="devNotesSettingChanged()">
+                            <label class="btn btn-outline-primary" for="showDevNotesYes">Yes</label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+  

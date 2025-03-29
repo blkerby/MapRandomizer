@@ -153,6 +153,7 @@ document.getElementById("navigation-logic").classList.add("active");
 </div>
 {% include "../common/save_settings.html" %}
 {% include "logic_settings_modal.html" %}
+
 <script>
 function presetChanged() {
     updateSelect();
@@ -188,6 +189,7 @@ function devNotesSettingChanged() {
             el.classList.add("d-none");
         }
     }
+    saveForm(document.getElementById("logicPageSettingsForm"));
 }
 
 function updateSelect() {
@@ -245,6 +247,7 @@ function updateSelect() {
     }
 }
 loadForm(document.getElementById("filterForm"));
+loadForm(document.getElementById("logicPageSettingsForm"));
 updateSelect();
 devNotesSettingChanged();
 </script>

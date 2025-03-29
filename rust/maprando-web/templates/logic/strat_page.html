@@ -75,5 +75,24 @@ document.getElementById("navigation-logic").classList.add("active");
     </table>
     </div>
 </div>
+{% include "../common/save_settings.html" %}
+{% include "logic_settings_modal.html" %}
+<script>
+    function devNotesSettingChanged() {
+        let showDevNotes = document.getElementById("showDevNotesYes").checked;
+        var els = document.getElementsByClassName("dev-note");
+        for (let el of els) {
+            if (showDevNotes) {
+                el.classList.remove("d-none");
+            } else {
+                el.classList.add("d-none");
+            }
+        }
+        saveForm(document.getElementById("logicPageSettingsForm"));
+    }
+    
+    loadForm(document.getElementById("logicPageSettingsForm"));
+    devNotesSettingChanged();        
+</script>
 </body>
 </html>
