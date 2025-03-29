@@ -24,6 +24,7 @@ org $8086B8 : STA $700000, x
 org $8086C4 : LDX #$3FFE
 org $8086D2 : LDX #$3FFE
 
+
 org $848CA6
     jsl activate_map_station_hook
     nop : nop

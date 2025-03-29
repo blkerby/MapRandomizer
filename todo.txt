@@ -1,4 +1,5 @@
 v118:
+- investigate audio-related lag after quick reload
 - see if reloading CRE is actually necessary with Crocomire
 - DONE: look into pause fade-in speed (currently asymmetric with fade-out)
 - switch around palettes, to make acid FX fade, and improve item colors

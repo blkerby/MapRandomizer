@@ -126,6 +126,7 @@ impl<'a> MapPatcher<'a> {
             // Used on HUD: (skipping "%", which is unused)
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D, 0x0E,
             0x0F, 0x1C, 0x1D, 0x1E, 0x1F,
+            0x20, // reserved for partially revealed door tile, next to 2-sided save/refill rooms
             0x28, // slope tile that triggers tile above Samus to be marked explored
             0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A, 0x3B,
             // Max ammo display digits: (removed in favor of normal digit graphics)
@@ -183,6 +184,18 @@ impl<'a> MapPatcher<'a> {
             self.index_tile(area_idx, tile.clone(), Some(0x28))?;
             tile.heated = true;
             self.index_tile(area_idx, tile.clone(), Some(0xA8))?;
+
+            let data = [
+                [3, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0],
+                [4, 0, 0, 0, 0, 0, 0, 0],
+                [4, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0],
+                [3, 0, 0, 0, 0, 0, 0, 0],
+            ];
+            self.write_map_tile_4bpp_area(0x20, data, area_idx)?;
         }
         Ok(())
     }
@@ -369,6 +382,10 @@ impl<'a> MapPatcher<'a> {
         data: [[u8; 8]; 8],
         area_idx: usize,
     ) -> Result<()> {
+        if idx == 0x20 && data[1][1] != 0 {
+            println!("write: idx={}, area={}, {:?}", idx, area_idx, data);
+            bail!("err");
+        }
         let base_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000); // Location of pause-menu tile GFX in ROM
         for y in 0..8 {
             let addr = base_addr + idx * 32 + y * 2;
@@ -1859,6 +1876,67 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn setup_special_door_reveal(&mut self) -> Result<()> {
+        // If save/refill rooms with 2 doors, a common problem is that players enter it and leave,
+        // and then when looking at the map later, don't remember that there's another room behind it.
+        // To avoid this, when entering on of these rooms, we do a "partial reveal" on just the door
+        // of the neighboring rooms.
+        let room_ids = vec![
+            302, // Frog Savestation
+            190, // Draygon Save Room
+            308, // Nutella Refill
+        ];
+        let mut table_addr = snes2pc(0x85A180);
+        let partial_revealed_bits_base = 0x2700;
+        let tilemap_base = 0x4000;
+        let palette = 0x0800;
+        let left_door_tile_idx = 0x20;
+
+        for room_id in room_ids {
+            let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            let room = &self.game_data.room_geometry[room_idx];
+            let area = self.map.area[room_idx] as isize;
+            let room_x = self.rom.read_u8(room.rom_address + 2)?;
+            let room_y = self.rom.read_u8(room.rom_address + 3)?;
+
+            let (trigger_offset, trigger_bitmask) = xy_to_explored_bit_ptr(room_x, room_y);
+            let trigger_addr = partial_revealed_bits_base + 0x100 * area + trigger_offset;
+            let (left_offset, left_bitmask) = xy_to_explored_bit_ptr(room_x - 1, room_y);
+            let left_revealed_addr = partial_revealed_bits_base + 0x100 * area + left_offset;
+            let left_tilemap_offset = xy_to_map_offset(room_x - 1, room_y);
+            let (right_offset, right_bitmask) = xy_to_explored_bit_ptr(room_x + 1, room_y);
+            let right_revealed_addr = partial_revealed_bits_base + 0x100 * area + right_offset;
+            let right_tilemap_offset = xy_to_map_offset(room_x + 1, room_y);
+
+            self.rom.write_u16(table_addr, area)?;
+            self.rom.write_u16(table_addr + 2, trigger_addr)?;
+            self.rom
+                .write_u16(table_addr + 4, trigger_bitmask as isize)?;
+            self.rom.write_u16(table_addr + 6, left_revealed_addr)?;
+            self.rom.write_u16(table_addr + 8, left_bitmask as isize)?;
+            self.rom
+                .write_u16(table_addr + 10, tilemap_base + left_tilemap_offset)?;
+            self.rom
+                .write_u16(table_addr + 12, left_door_tile_idx | palette | 0x4000)?; // 0x4000: horizontal flip
+            table_addr += 14;
+
+            self.rom.write_u16(table_addr, area)?;
+            self.rom.write_u16(table_addr + 2, trigger_addr)?;
+            self.rom
+                .write_u16(table_addr + 4, trigger_bitmask as isize)?;
+            self.rom.write_u16(table_addr + 6, right_revealed_addr)?;
+            self.rom.write_u16(table_addr + 8, right_bitmask as isize)?;
+            self.rom
+                .write_u16(table_addr + 10, tilemap_base + right_tilemap_offset)?;
+            self.rom
+                .write_u16(table_addr + 12, left_door_tile_idx | palette)?;
+            table_addr += 14;
+        }
+        self.rom.write_u16(snes2pc(table_addr), 0xFFFF)?;
+        Ok(())
+    }
+
     fn set_map_activation_behavior(&mut self) -> Result<()> {
         match self
             .randomization
@@ -2065,7 +2143,7 @@ impl<'a> MapPatcher<'a> {
     fn fix_hud_black(&mut self) -> Result<()> {
         let mut tiles_to_change = vec![];
         tiles_to_change.extend(0..0x0F); // HUD digits, "ENERG"
-        tiles_to_change.extend(0x10..0x30); // minimap dotted grid lines (skipping 0x0F = blank tile)
+        tiles_to_change.extend(0x1C..0x20);
         tiles_to_change.push(0x32); // "Y" of ENERGY
         tiles_to_change.push(0x4D); // Save station tile
         tiles_to_change.extend([0x33, 0x46, 0x47, 0x48]); // AUTO
@@ -2553,6 +2631,14 @@ impl<'a> MapPatcher<'a> {
         self.compute_area_bounds()?;
         self.write_map_tiles()?;
         self.set_initial_map()?;
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .room_outline_revealed
+        {
+            self.setup_special_door_reveal()?;
+        }
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
         self.write_hazard_tiles()?;
         self.fix_fx_palettes()?;

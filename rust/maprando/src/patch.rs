@@ -221,7 +221,7 @@ pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
     }
 }
 
-fn xy_to_explored_bit_ptr(x: isize, y: isize) -> (isize, u8) {
+pub fn xy_to_explored_bit_ptr(x: isize, y: isize) -> (isize, u8) {
     let y1 = y + 1;
     let offset_in_bits = if x < 32 {
         y1 * 32 + x
@@ -638,6 +638,15 @@ impl<'a> Patcher<'a> {
                 // It's important that this comes after "fast_pause_menu" since it overwrites a hook
                 patches.push("pause_menu_objectives");
             }
+        }
+
+        if self
+            .randomization
+            .settings
+            .quality_of_life_settings
+            .room_outline_revealed
+        {
+            patches.push("special_door_reveal");
         }
 
         for patch_name in patches {

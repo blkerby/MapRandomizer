@@ -38,6 +38,9 @@
 !nmi_area5 = $1F87
 !nmi_area6 = $1F88
 
+; Additional map data:
+!special_door_reveal_table = $85A100
+
 ; Objectives
 !objectives_max = $0014
 !objectives_num = $82FFFC ; bits 0-15
