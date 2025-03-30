@@ -1933,7 +1933,7 @@ impl<'a> MapPatcher<'a> {
                 .write_u16(table_addr + 12, left_door_tile_idx | palette)?;
             table_addr += 14;
         }
-        self.rom.write_u16(snes2pc(table_addr), 0xFFFF)?;
+        self.rom.write_u16(table_addr, 0xFFFF)?;
         Ok(())
     }
 
