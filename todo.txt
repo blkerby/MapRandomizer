@@ -9,7 +9,7 @@ v118:
 - handle comeInWithSidePlatform environment
 - DONE: add main hall elevator hazard marker
 - add/associate video for canTrickyGMode.
-- fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
+- DONE: fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - DONE: handle "detailNote" in tech and strats.
 - handle "minExtraRunSpeed" in "leaveWithRunway"
 - include "objectives" details on seed page.

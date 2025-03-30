@@ -414,7 +414,7 @@ async function prepareSubmit(form) {
 }
 
 function applyQolPreset(preset) {
-    for (presetEl of document.getElementsByClassName("qol-preset-button")) {
+    for (var presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.value == preset.preset) {
             presetEl.checked = true;
             let p = qolPresets[presetEl.value];
@@ -577,12 +577,19 @@ async function fullSettingsPresetChanged(presetEl) {
 }
 
 function qualityOfLifePresetChanged() {
-    for (presetEl of document.getElementsByClassName("qol-preset-button")) {
+    var isOff = false;
+    for (var presetEl of document.getElementsByClassName("qol-preset-button")) {
+        console.log(presetEl.value, presetEl.checked);
         if (presetEl.checked) {
             let preset = qolPresets[presetEl.value];
+            if (presetEl.value == "Off") {
+                isOff = true;
+            }
             applyQolPreset(preset);
-            break;
         }
+    }
+    if (!isOff) {
+        document.getElementById("ultraLowQoLNo").checked = true;
     }
     fullSettingsChanged();
 }
