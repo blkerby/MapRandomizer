@@ -73,18 +73,18 @@ setup:
 
     ; save 16-bit register values $43xx
     REP #$20
-    LDA $06 : STA !dma_register_backup+$00
-    LDA $08 : STA !dma_register_backup+$02
-    LDA $18 : STA !dma_register_backup+$04
-    LDA $20 : STA !dma_register_backup+$06
-    LDA $22 : STA !dma_register_backup+$08
-    LDA $24 : STA !dma_register_backup+$0A
-    LDA $30 : STA !dma_register_backup+$0C
-    LDA $32 : STA !dma_register_backup+$0E
-    LDA $34 : STA !dma_register_backup+$10
-    LDA $42 : STA !dma_register_backup+$12
-    LDA $50 : STA !dma_register_backup+$14
-    LDA $52 : STA !dma_register_backup+$16
+    LDA $08 : STA !dma_register_backup+$00
+    LDA $18 : STA !dma_register_backup+$02
+    LDA $20 : STA !dma_register_backup+$04
+    LDA $22 : STA !dma_register_backup+$06
+    LDA $24 : STA !dma_register_backup+$08
+    LDA $30 : STA !dma_register_backup+$0A
+    LDA $32 : STA !dma_register_backup+$0C
+    LDA $34 : STA !dma_register_backup+$0E
+    LDA $42 : STA !dma_register_backup+$10
+    LDA $50 : STA !dma_register_backup+$12
+    LDA $52 : STA !dma_register_backup+$14
+    LDA $54 : STA !dma_register_backup+$16
     LDA $62 : STA !dma_register_backup+$18
     LDA $64 : STA !dma_register_backup+$1A
     LDA $70 : STA !dma_register_backup+$1C
@@ -214,19 +214,19 @@ NextByte:
     STA $08
     CMP #$FF : BEQ End
     CMP #$E0 : BCC ++
-    ASL #3 : AND #$E0 : STA $06
+    ASL #3 : AND #$E0 : STA $54
     LDA $08 : AND #$03 : XBA
     LDA $0000,x : INX : BNE +
     JSR IncrementBank
     +
     BRA +++
 ++
-    AND #$E0 : STA $06
+    AND #$E0 : STA $54
     TDC : XBA
     LDA $08 : AND #$1F
 +++
     TAY : INY : STY $18
-    LDA $06
+    LDA $54
     BMI Option4567
     BNE +
     JMP Option0 : +
@@ -387,18 +387,18 @@ cleanup:
 
     ;restore some DMA registers that could have been overwritten
     REP #$20
-    LDA !dma_register_backup+$00 : STA $06
-    LDA !dma_register_backup+$02 : STA $08
-    LDA !dma_register_backup+$04 : STA $18
-    LDA !dma_register_backup+$06 : STA $20
-    LDA !dma_register_backup+$08 : STA $22
-    LDA !dma_register_backup+$0A : STA $24
-    LDA !dma_register_backup+$0C : STA $30
-    LDA !dma_register_backup+$0E : STA $32
-    LDA !dma_register_backup+$10 : STA $34
-    LDA !dma_register_backup+$12 : STA $42
-    LDA !dma_register_backup+$14 : STA $50
-    LDA !dma_register_backup+$16 : STA $52
+    LDA !dma_register_backup+$00 : STA $08
+    LDA !dma_register_backup+$02 : STA $18
+    LDA !dma_register_backup+$04 : STA $20
+    LDA !dma_register_backup+$06 : STA $22
+    LDA !dma_register_backup+$08 : STA $24
+    LDA !dma_register_backup+$0A : STA $30
+    LDA !dma_register_backup+$0C : STA $32
+    LDA !dma_register_backup+$0E : STA $34
+    LDA !dma_register_backup+$10 : STA $42
+    LDA !dma_register_backup+$12 : STA $50
+    LDA !dma_register_backup+$14 : STA $52
+    LDA !dma_register_backup+$16 : STA $54
     LDA !dma_register_backup+$18 : STA $62
     LDA !dma_register_backup+$1A : STA $64
     LDA !dma_register_backup+$1C : STA $70
