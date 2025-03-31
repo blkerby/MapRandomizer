@@ -35,6 +35,8 @@
 ;unfortunately now requires a bit of freespace in bank $80 
 ;if any other patch you're using conflicts, feel free to repoint
 
+; compatibility note for SNES Mini: DMA registers $43xA are prone to corruption, should not be used for temp storage
+
 incsrc "constants.asm"
 
 !bank_7e_free_space_start = $7EF4B0
@@ -72,17 +74,17 @@ setup:
     ; save 16-bit register values $43xx
     REP #$20
     LDA $08 : STA !dma_register_backup+$00
-    LDA $0A : STA !dma_register_backup+$02
-    LDA $18 : STA !dma_register_backup+$04
-    LDA $20 : STA !dma_register_backup+$06
-    LDA $22 : STA !dma_register_backup+$08
-    LDA $24 : STA !dma_register_backup+$0A
-    LDA $30 : STA !dma_register_backup+$0C
-    LDA $32 : STA !dma_register_backup+$0E
-    LDA $34 : STA !dma_register_backup+$10
-    LDA $42 : STA !dma_register_backup+$12
-    LDA $50 : STA !dma_register_backup+$14
-    LDA $5A : STA !dma_register_backup+$16
+    LDA $18 : STA !dma_register_backup+$02
+    LDA $20 : STA !dma_register_backup+$04
+    LDA $22 : STA !dma_register_backup+$06
+    LDA $24 : STA !dma_register_backup+$08
+    LDA $30 : STA !dma_register_backup+$0A
+    LDA $32 : STA !dma_register_backup+$0C
+    LDA $34 : STA !dma_register_backup+$0E
+    LDA $42 : STA !dma_register_backup+$10
+    LDA $50 : STA !dma_register_backup+$12
+    LDA $52 : STA !dma_register_backup+$14
+    LDA $54 : STA !dma_register_backup+$16
     LDA $62 : STA !dma_register_backup+$18
     LDA $64 : STA !dma_register_backup+$1A
     LDA $70 : STA !dma_register_backup+$1C
@@ -90,7 +92,6 @@ setup:
     LDA $74 : STA !dma_register_backup+$20
     SEP #$20
 
-    STZ $5B
     LDA $004C : STA $2181 : STA $42 : STA $22
     LDA $004D : STA $2182 : STA $43 : STA $23
     LDA $004E : STA $2183 : STA $64 : STA $24 : STA $73 : STA $74;$73/$74 are the argumants for the MVN
@@ -213,19 +214,19 @@ NextByte:
     STA $08
     CMP #$FF : BEQ End
     CMP #$E0 : BCC ++
-    ASL #3 : AND #$E0 : STA $0A
+    ASL #3 : AND #$E0 : STA $54
     LDA $08 : AND #$03 : XBA
     LDA $0000,x : INX : BNE +
     JSR IncrementBank
     +
     BRA +++
 ++
-    AND #$E0 : STA $0A
+    AND #$E0 : STA $54
     TDC : XBA
     LDA $08 : AND #$1F
 +++
     TAY : INY : STY $18
-    LDA $0A
+    LDA $54
     BMI Option4567
     BNE +
     JMP Option0 : +
@@ -277,8 +278,8 @@ BRANCH_IOTA:
 Option4567:
     CMP #$C0
     AND #$20    ;X = 4: Copy Y bytes starting from a given address in the decompressed data.
-    STA $5A;4F      ;X = 5: Copy and invert (EOR #$FF) Y bytes starting from a given address in the decompressed data.
-    BCS +++    ;X = 6 or 7 branch
+    STA $52     ;X = 5: Copy and invert (EOR #$FF) Y bytes starting from a given address in the decompressed data.
+    BCS +++     ;X = 6 or 7 branch
     LDA $0000,x : XBA : INX : BNE +
     JSR IncrementBank
     +
@@ -289,7 +290,7 @@ Option4567:
     ADC $42 : STA $62;add starting offset(where we're decompressing to)
 --
     SEP #$20
-    LDA $5A
+    LDA $52
     BNE +    ;Inverted
 -
     ;the non-inverted dictionnary copy uses MVN for speed
@@ -387,17 +388,17 @@ cleanup:
     ;restore some DMA registers that could have been overwritten
     REP #$20
     LDA !dma_register_backup+$00 : STA $08
-    LDA !dma_register_backup+$02 : STA $0A
-    LDA !dma_register_backup+$04 : STA $18
-    LDA !dma_register_backup+$06 : STA $20
-    LDA !dma_register_backup+$08 : STA $22
-    LDA !dma_register_backup+$0A : STA $24
-    LDA !dma_register_backup+$0C : STA $30
-    LDA !dma_register_backup+$0E : STA $32
-    LDA !dma_register_backup+$10 : STA $34
-    LDA !dma_register_backup+$12 : STA $42
-    LDA !dma_register_backup+$14 : STA $50
-    LDA !dma_register_backup+$16 : STA $5A
+    LDA !dma_register_backup+$02 : STA $18
+    LDA !dma_register_backup+$04 : STA $20
+    LDA !dma_register_backup+$06 : STA $22
+    LDA !dma_register_backup+$08 : STA $24
+    LDA !dma_register_backup+$0A : STA $30
+    LDA !dma_register_backup+$0C : STA $32
+    LDA !dma_register_backup+$0E : STA $34
+    LDA !dma_register_backup+$10 : STA $42
+    LDA !dma_register_backup+$12 : STA $50
+    LDA !dma_register_backup+$14 : STA $52
+    LDA !dma_register_backup+$16 : STA $54
     LDA !dma_register_backup+$18 : STA $62
     LDA !dma_register_backup+$1A : STA $64
     LDA !dma_register_backup+$1C : STA $70
