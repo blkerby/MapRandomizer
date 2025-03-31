@@ -1340,6 +1340,7 @@ fn main() -> Result<()> {
         "MechaTourian",
         "MetroidHabitat",
         "Outline",
+        "Invisible",
     ]
     .into_iter()
     .map(|x| x.to_string())
