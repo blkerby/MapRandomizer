@@ -1934,6 +1934,8 @@ impl<'a> MapPatcher<'a> {
             table_addr += 14;
         }
         self.rom.write_u16(table_addr, 0xFFFF)?;
+        table_addr += 2;
+        assert!(table_addr <= snes2pc(0x85A1D6));
         Ok(())
     }
 
