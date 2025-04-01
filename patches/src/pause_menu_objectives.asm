@@ -221,7 +221,7 @@ ret_long:
 
 new_pause_index_func_list: ; expanded pause index func list
 dw $9120, $9142, $9156, $91AB, $9231, $9186, $91D7, $9200 ; stock 0-7
-dw $9156, $F816, $9200 ; map_area.asm 8-0A
+dw $9156, $F70F, $9200 ; map_area.asm 8-0A
 dw func_pause_index_objective_screen, func_pause_index_map2obj_fading_out, func_pause_index_map2obj_load_obj ; 0B-0D
 dw func_pause_index_map2obj_fading_in, func_pause_index_obj2map_fading_out, $91D7, $9200 ; 0E-11
 

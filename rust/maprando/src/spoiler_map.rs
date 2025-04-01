@@ -6,31 +6,11 @@ use std::io::Cursor;
 use crate::{
     patch::map_tiles::TILE_GFX_ADDR_4BPP,
     patch::{
-        map_tiles::{TilemapOffset, TilemapWord},
+        map_tiles::{read_tile_4bpp, TilemapOffset, TilemapWord},
         snes2pc, xy_to_map_offset, Rom,
     },
 };
 use maprando_game::{AreaIdx, GameData, Map};
-
-fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
-    let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
-    for y in 0..8 {
-        let addr = base_addr + idx * 32 + y * 2;
-        let data_0 = rom.read_u8(addr)?;
-        let data_1 = rom.read_u8(addr + 1)?;
-        let data_2 = rom.read_u8(addr + 16)?;
-        let data_3 = rom.read_u8(addr + 17)?;
-        for x in 0..8 {
-            let bit_0 = (data_0 >> (7 - x)) & 1;
-            let bit_1 = (data_1 >> (7 - x)) & 1;
-            let bit_2 = (data_2 >> (7 - x)) & 1;
-            let bit_3 = (data_3 >> (7 - x)) & 1;
-            let c = bit_0 | (bit_1 << 1) | (bit_2 << 2) | (bit_3 << 3);
-            out[y][x] = c as u8;
-        }
-    }
-    Ok(out)
-}
 
 fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]; 8]> {
     let idx = (tilemap_word & 0x3FF) as usize;

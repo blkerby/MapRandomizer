@@ -99,6 +99,26 @@ pub fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
     out
 }
 
+pub fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8]; 8]> {
+    let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
+    for y in 0..8 {
+        let addr = base_addr + idx * 32 + y * 2;
+        let data_0 = rom.read_u8(addr)?;
+        let data_1 = rom.read_u8(addr + 1)?;
+        let data_2 = rom.read_u8(addr + 16)?;
+        let data_3 = rom.read_u8(addr + 17)?;
+        for x in 0..8 {
+            let bit_0 = (data_0 >> (7 - x)) & 1;
+            let bit_1 = (data_1 >> (7 - x)) & 1;
+            let bit_2 = (data_2 >> (7 - x)) & 1;
+            let bit_3 = (data_3 >> (7 - x)) & 1;
+            let c = bit_0 | (bit_1 << 1) | (bit_2 << 2) | (bit_3 << 3);
+            out[y][x] = c as u8;
+        }
+    }
+    Ok(out)
+}
+
 pub fn write_tile_4bpp(rom: &mut Rom, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
     for y in 0..8 {
         let addr = base_addr + y * 2;
@@ -274,7 +294,7 @@ impl<'a> MapPatcher<'a> {
                     .pop()
                     .context("No more free tiles")?
             };
-            let palette = 0x1800;
+            let palette = 0x1C00;
             let word = tile_idx | palette;
             self.gfx_tile_map.insert((area_idx, data), word);
             Ok(word)
@@ -1739,7 +1759,7 @@ impl<'a> MapPatcher<'a> {
             self.rom
                 .write_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize), color as isize)?;
             self.rom
-                .write_u16(snes2pc(0xB6F000) + 2 * (0x60 + i as usize), color as isize)?;
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x70 + i as usize), color as isize)?;
         }
 
         // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
@@ -1780,6 +1800,32 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn fix_equipment_graphics(&mut self) -> Result<()> {
+        // For equipment screen graphics using 4bpp palette 1, move white color 14 to color 15.
+        let equip_tile_idxs = vec![
+            0x119, 0x11A, 0x11B,
+            0x173, 0x174, 0x178, 0x184, 0x185, 0x195, 0x196, 0x197, 0x19D,
+
+            0x1E3, 0x1E4, 0x1E5, 0x1E6, 0x1E7,
+
+
+            0x17C, 0x17D, 0x17E, 0x17F, 
+            0x1A0, 0x1A1, 0x1ED, 0x1EE, 0x1FE,
+        ];
+        for idx in equip_tile_idxs {
+            let mut data = read_tile_4bpp(self.rom, snes2pc(0xB68000), idx)?;
+            for y in 0..8 {
+                for x in 0..8 {
+                    if data[y][x] == 14 {
+                        data[y][x] = 15;
+                    }
+                }
+            }
+            write_tile_4bpp(self.rom, snes2pc(0xB68000) + idx * 32, data)?;
+        }
+        Ok(())
+    }
+
     fn fix_pause_palettes(&mut self) -> Result<()> {
         // Much of the static content in the pause menu uses palette 2. We change these to use palette 4 instead,
         // since palette 2 is used for explored map tiles. This allows us to use more colors in palette 2
@@ -1807,7 +1853,6 @@ impl<'a> MapPatcher<'a> {
             }
             self.rom.write_u16(addr, word)?;
         }
-
         Ok(())
     }
 
@@ -2252,17 +2297,6 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn fix_fx_palettes(&mut self) -> Result<()> {
-        // use palette 7 for FX (water, lava, etc.) instead of palette 6
-        for addr in (snes2pc(0x8A8000)..snes2pc(0x8AB180)).step_by(2) {
-            let word = self.rom.read_u16(addr)?;
-            if word & 0x1C00 == 0x1800 {
-                self.rom.write_u16(addr, word | 0x1C00)?;
-            }
-        }
-        Ok(())
-    }
-
     fn initialize_tiles(&mut self) -> Result<()> {
         // copy original tile GFX into each area-specific copy
         for area_idx in 0..6 {
@@ -2345,6 +2379,8 @@ impl<'a> MapPatcher<'a> {
         self.substitute_colors(6, vec![0, 1, 2, 3], vec![(9, 13)])?;
         // Morph: keep pink color, dark blue -> dark area color
         self.substitute_colors(7, vec![0, 1, 2, 3, 4, 5, 6, 7], vec![(9, 13), (13, 9)])?;
+        // Plasma: black color 15 -> 8
+        self.substitute_colors(14, vec![1, 5], vec![(15, 8)])?;
         Ok(())
     }
 
@@ -2607,6 +2643,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     pub fn apply_patches(&mut self) -> Result<()> {
+        self.fix_equipment_graphics()?;
         self.initialize_tiles()?;
         self.index_fixed_tiles()?;
         self.fix_pause_palettes()?;
@@ -2643,7 +2680,6 @@ impl<'a> MapPatcher<'a> {
         }
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
         self.write_hazard_tiles()?;
-        self.fix_fx_palettes()?;
         self.fix_kraid()?;
         self.fix_item_colors()?;
 

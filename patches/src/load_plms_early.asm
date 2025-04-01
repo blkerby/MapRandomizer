@@ -152,6 +152,8 @@ is_delayed_plm:
     BEQ .done
     CMP #$B7B7      ; Kraid ceiling (spawned during enemy initialization)
     BEQ .done
+    CMP #$B797      ; Botwoon wall (spawned during enemy initialization)
+    BEQ .done
     CMP #$DB44      ; Set Metroids cleared states when required (needs to happen after enemy initialization)
     BEQ .done
 

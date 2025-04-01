@@ -142,9 +142,9 @@ org $82E7C9
 org $82E1F7
     jsr palette_clear_hook
 
-; Don't preserve palette 7 color 1 (used for FX), let it fade to black:
-org $82E21E
-    nop : nop : nop  ; was: STA $C23A
+;; Don't preserve palette 7 color 1 (used for FX), let it fade to black:
+;org $82E21E
+;    nop : nop : nop  ; was: STA $C23A
 
 ;org $82E464
 ;org $82E55F
@@ -167,22 +167,22 @@ org $809BDC
     LDX #$2C31     ; was: LDX #$2831
 
 
-; Use palette 6 (gray/white, same as unexplored tiles) for fixed HUD (e.g. "ENERGY"),
-; For blank tiles, use palette 7, which has an opaque black (color 3).
+; Use palette 7 (gray/white, same as unexplored tiles) for fixed HUD (e.g. "ENERGY"),
+; For blank tiles, use palette 3, which has an opaque black (color 3).
 org $80988B
-dw $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $381D, $381D, $381D, $381D, $381D, $381C,
-   $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3812, $3812, $3823, $3812, $3812, $381E,
-   $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $2822, $2822, $2823, $2813, $3814, $381E,
-   $3C0F, $380B, $380C, $380D, $3832, $3C0F, $3809, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3C0F, $3812, $3812, $A824, $2815, $3816, $381E
+dw $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $3C1D, $3C1D, $3C1D, $3C1D, $3C1D, $3C1C,
+   $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $3C12, $3C12, $3C23, $3C12, $3C12, $3C1E,
+   $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $2822, $2822, $2823, $2813, $3C14, $3C1E,
+   $0C0F, $3C0B, $3C0C, $3C0D, $3C32, $0C0F, $3C09, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $0C0F, $3C12, $3C12, $A824, $2815, $3C16, $3C1E
 
-; Use palette 6 (gray/white, same as unexplored tiles) for HUD digits
-org $809DBF : dw $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808, $3809
-org $809DD3 : dw $3800, $3801, $3802, $3803, $3804, $3805, $3806, $3807, $3808, $3809
+; Use palette 7 (gray/white, same as unexplored tiles) for HUD digits
+org $809DBF : dw $3C00, $3C01, $3C02, $3C03, $3C04, $3C05, $3C06, $3C07, $3C08, $3C09
+org $809DD3 : dw $3C00, $3C01, $3C02, $3C03, $3C04, $3C05, $3C06, $3C07, $3C08, $3C09
 
-; Use palette 7 (instead of 6) when initializing (clearing) FX tilemap:
-org $82E569 : lda #$1C0F   ; was: lda #$184E
-org $80A214 : lda #$1C0F   ; was: lda #$184E
-;org $80A2F7 : dw $1C0F   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
+;; Use palette 7 (instead of 6) when initializing (clearing) FX tilemap:
+;org $82E569 : lda #$1C0F   ; was: lda #$184E
+;org $80A214 : lda #$1C0F   ; was: lda #$184E
+;;org $80A2F7 : dw $1C0F   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
 
 ; For message boxes, skip modifying palette 6:
 org $858150 : rep $19 : nop
@@ -193,24 +193,24 @@ org $80998B
         $2047, $2048,
         $A033, $A046
 
-; Use palette 6 for empty auto reserve
+; Use palette 7 for empty auto reserve
 org $809997             
-dw $3833, $3846,
-   $3847, $3848,
-   $B833, $B846
+dw $3C33, $3C46,
+   $3C47, $3C48,
+   $BC33, $BC46
 
-; Use palette 7 for palette blends (FX: water, lava, etc.)
-org $89AB62 : STA $7EC03A   ; was: STA $7EC032
-org $89AB6A : STA $7EC03C   ; was: STA $7EC034
-org $89AB72 : nop : nop : nop : nop   ; was: STA $7EC036
-;org $89AB72 : STA $7EC03E   ; was: STA $7EC036
-org $89AB7B : nop : nop : nop : nop   ; was: STA $7EC036
-
-org $89AC05 : STA $7EC23A   ; was: STA $7EC232
-org $89AC0D : STA $7EC23C   ; was: STA $7EC234
-org $89AC15 : nop : nop : nop : nop   ; was: STA $7EC236
-;org $89AC15 : STA $7EC23E   ; was: STA $7EC236
-org $89AC1E : nop : nop : nop : nop   ; was: STA $7EC236
+;; Use palette 7 for palette blends (FX: water, lava, etc.)
+;org $89AB62 : STA $7EC03A   ; was: STA $7EC032
+;org $89AB6A : STA $7EC03C   ; was: STA $7EC034
+;org $89AB72 : nop : nop : nop : nop   ; was: STA $7EC036
+;;org $89AB72 : STA $7EC03E   ; was: STA $7EC036
+;org $89AB7B : nop : nop : nop : nop   ; was: STA $7EC036
+;
+;org $89AC05 : STA $7EC23A   ; was: STA $7EC232
+;org $89AC0D : STA $7EC23C   ; was: STA $7EC234
+;org $89AC15 : nop : nop : nop : nop   ; was: STA $7EC236
+;;org $89AC15 : STA $7EC23E   ; was: STA $7EC236
+;org $89AC1E : nop : nop : nop : nop   ; was: STA $7EC236
 
 org $82920B
     jsr fix_map_palette
@@ -221,24 +221,73 @@ org $829237
 ;;; Put new code in free space at end of bank $82:
 org !bank_82_freespace_start
 
+; This function must come first, in order to be at the address expected in pause_menu_objectives.asm
+switch_map_area:
+    lda !map_switch_direction
+    beq .next
+    jsr prev_area
+    jmp .update
+.next:
+    jsr next_area
+.update:
+    jsr update_pause_map_palette
+    jsl load_bg1_2_tiles
+	jsl $80858C     ;load explored bits for area
+	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area (TODO: remove this, should be unnecessary now.)
+    jsl $8293C3		;update area label and construct new area map
+
+    lda $1F5B
+    cmp !backup_area
+    beq .orig_area
+    jsr simple_scroll_setup  ; for map in different area, set scrolls without using samus position
+    bra .done
+.orig_area:
+    jsl $829028     ;set map scroll boundaries and screen starting position like vanilla, using samus position
+.done:
+
+    LDA #$0000             ;\
+    STA $0723             ;} Screen fade delay = 0
+
+    inc $0727
+    rts
+
 ; when switching from equipment screen to map screen, restore certain palette colors
 fix_map_palette:
-    ; flashing reserve tank arrow color (used on map screen for tourian arrows)
+    ; palette 2:
+    lda $B6F05C
+    sta $7EC05C
+    lda $B6F05E
+    sta $7EC05E
+
+    ; palette 3:
+    lda $B6F06E
+    sta $7EC06E
+    lda $B6F07A
+    sta $7EC07A
+
+    ; palette 6:
     lda $B6F0CC
     sta $7EC0CC
     lda $B6F0D6
     sta $7EC0D6
-
-    ; green door color:
-    lda $B6F05C
-    sta $7EC05C
-    ; pink door color:
     lda $B6F0CE
     sta $7EC0CE
-    ; gray door color:
     lda $B6F0DE
     sta $7EC0DE
-    sta $7EC05E
+
+    ; palette 7:
+    lda $B6F0E2
+    sta $7EC0E2
+    lda $B6F0E4
+    sta $7EC0E4
+    lda $B6F0E6
+    sta $7EC0E6
+    lda $B6F0EC
+    sta $7EC0EC
+    lda $B6F0F6
+    sta $7EC0F6
+    lda $B6F0FA
+    sta $7EC0FA
 
     ; Partially revealed tiles: black color for item dots, door locks
     lda #$0000
@@ -265,6 +314,20 @@ fix_equipment_palette:
     sta $7EC07A
     lda #$5EF7
     sta $7EC06E
+
+    ; Palette 7 (unexplored map colors):
+    lda #$7FFF
+    sta $7EC0E2
+    lda #$4A52
+    sta $7EC0E4
+    sta $7EC0F6
+    lda #$318C
+    sta $7EC0E6
+    sta $7EC0EC
+    lda #$7FFF
+    sta $7EC0FA
+    lda #$6318
+    sta $7EC0FC
 
     lda #$0001 ; run hi-jacked instruction
     rts
@@ -356,62 +419,22 @@ check_start_select:
     jsr $A5B7      ; run hi-jacked code (handle pause screen start button)
     rts
 
-
-switch_map_area:
-    lda !map_switch_direction
-    beq .next
-    jsr prev_area
-    jmp .update
-.next:
-    jsr next_area
-.update:
-    jsr update_pause_map_palette
-    jsl load_bg1_2_tiles
-	jsl $80858C     ;load explored bits for area
-	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area (TODO: remove this, should be unnecessary now.)
-    jsl $8293C3		;update area label and construct new area map
-
-    lda $1F5B
-    cmp !backup_area
-    beq .orig_area
-    jsr simple_scroll_setup  ; for map in different area, set scrolls without using samus position
-    bra .done
-.orig_area:
-    jsl $829028     ;set map scroll boundaries and screen starting position like vanilla, using samus position
-.done:
-
-    LDA #$0000             ;\
-    STA $0723             ;} Screen fade delay = 0
-
-    inc $0727
-    rts
-
 update_pause_map_palette:
     lda $1F5B
     asl
     tax
-;    lda area_palettes_unexplored, x
 
-;    ; Set unexplored color to gray: palette 3, color 1
-;    lda !unexplored_gray
-;    sta $7EC062
-
-    ; Set unexplored gray color: palette 6, color 1
+    ; Set unexplored gray color: palette 7, color 1
     lda !unexplored_gray
-    sta $7EC0C2
+    sta $7EC0E2
 
-    ; Set unexplored light gray color: palette 6, color 2
+    ; Set unexplored light gray color: palette 7, color 2
     lda !unexplored_light_gray
-    sta $7EC0C4
+    sta $7EC0E4
 
-    ; Set unexplored white color: palette 6, color 3
+    ; Set unexplored white color: palette 7, color 3
     lda #$FFFF
-    sta $7EC0C6
-
-;    ; Set color 3 to black (instead of red)
-;    lda #$0000
-;    sta $7EC066
-;    sta $7EC046
+    sta $7EC0E6
 
     ; Set explored color based on area: palette 2, color 1
     lda area_palettes_explored, x
@@ -425,19 +448,7 @@ update_pause_map_palette:
     lda #$7FFF
     sta $7EC046
 
-;    lda !backup_area
-;    cmp $1F5B
-;    bne .skip_hud_color
-;    lda area_palettes_explored, x
-;    sta $7EC012  ; set the current area HUD color
-
     rts
-
-;remove_samus_hud_indicator:
-;    ; Remove HUD Samus indicator
-;    lda $7EC042
-;    sta $7EC03A
-
 
 area_palettes_explored:
     dw $6c12  ; Crateria
@@ -512,17 +523,17 @@ load_tileset_palette_hook:
     rts
 
 palette_clear_hook:
-    lda $C016  ; preserve unexplored white color (2bpp palette 2, color 3)
+    lda $C016  ; preserve explored white color (2bpp palette 2, color 3)
     sta $C216
 
-    lda $C032  ; preserve unexplored gray color (2bpp palette 6, color 1)
-    sta $C232
+    lda $C03A  ; preserve unexplored gray color (2bpp palette 6, color 1)
+    sta $C23A
 
-    lda $C034  ; preserve unexplored light gray color (2bpp palette 6, color 2)
-    sta $C234
+    lda $C03C  ; preserve unexplored light gray color (2bpp palette 6, color 2)
+    sta $C23C
 
-    lda $C036  ; preserve unexplored white color (2bpp palette 6, color 2)
-    sta $C236
+    lda $C03E  ; preserve unexplored white color (2bpp palette 6, color 2)
+    sta $C23E
 
     ; Preserve full Auto reserve color, PB door, Samus HUD indicator, etc.: palette 0, color 1-3
     lda $C002
@@ -531,15 +542,6 @@ palette_clear_hook:
     sta $C204
     lda $C006
     sta $C206
-
-;    lda $C03A  ; preserve pink color for full E-tank energy squares (2-bit palette 7, color 1)
-;    sta $C23A
-
-;    lda $C03C  ; preserve white color for full E-tank energy squares (2-bit palette 7, color 2)
-;    sta $C23C
-
-;    lda $C03C  ; preserve off-white color in Samus indicator (2-bit palette 7, color 1)
-;    sta $C23C
 
     lda $C014  ; run hi-jacked instruction
     rts
@@ -558,20 +560,14 @@ load_target_palette:
     lda $7EC016  ; explored white: palette 2, color 3
     sta $7EC216
 
-    ; FX palette: target palette 6, colors 1-2 -> copy to palette 7, colors 1-2
-    lda $7EC032
-    sta $7EC23A
-    lda $7EC034
-    sta $7EC23C
-
     lda !unexplored_gray
-    sta $7EC232
+    sta $7EC23A
 
     lda !unexplored_light_gray
-    sta $7EC234
+    sta $7EC23C
 
     lda #$7FFF
-    sta $7EC236
+    sta $7EC23E
 
     rts
 
@@ -591,17 +587,17 @@ set_hud_map_colors:
     asl
     tax
 
-    ; Set unexplored gray: palette 6, color 1
+    ; Set unexplored gray: palette 7, color 1
     lda !unexplored_gray
-    sta $7EC032
+    sta $7EC03A
 
-    ; Set unexplored light gray: palette 6, color 2
+    ; Set unexplored light gray: palette 7, color 2
     lda !unexplored_light_gray
-    sta $7EC034
+    sta $7EC03C
 
-    ; Set unexplored white: palette 6, color 3
+    ; Set unexplored white: palette 7, color 3
     lda #$7FFF
-    sta $7EC036
+    sta $7EC03E
 
     ; Set explored color based on area: palette 2, color 1
     lda.l area_palettes_explored, x
@@ -623,22 +619,6 @@ set_hud_map_colors:
     ; Set palette 3, color 2 to white color for full E-tank energy squares
     lda #$7FFF
     sta $7EC01C
-
-;    ; water FX: palette 3, color 1 & 2 
-;    lda #$0421
-;    STA $7EC03A
-;;    lda #$1084
-;    lda #$0C63
-;    STA $7EC03C
-
-;    ; Set unexplored color 3 to pink color for full E-tank energy squares (used for black in vanilla)
-;    sta $7EC01E
-
-;    ; Set Samus marker to solid white instead of orange/red (palette 7, colors 1-2)
-;    lda #$7FFF
-;    sta $7EC03A
-;    lda #$6318
-;    sta $7EC03C
 
     rts
 
@@ -844,10 +824,10 @@ reload_map_hook:
 
     ; clear HUD minimap
     LDX #$0000             ;|
-    lda #$381f
+    lda #$3C1F
 .clear_minimap_loop:
     STA $7EC63C,x          ;|
-    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 2C1Fh
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C1Fh
     STA $7EC6BC,x          ;|
     INX                    ;|
     INX                    ;|
@@ -888,20 +868,17 @@ warnpc !bank_e8_freespace_end
 org $82DFB9
     jsl reload_map_hook
 
-;; Pause menu: Pink color for full E-tank energy squares in HUD (palette 3, color 1)
-;org $B6F01A : dw $48FB
-;
-;; Pause menu: White color for full E-tank energy squares in HUD (palette 3, color 2)
-;org $B6F01C : dw $7FFF
+; Unexplored gray: palette 7, color 1
+org $B6F03A : dw !unexplored_gray  ; 2bpp palette
+org $B6F0E2 : dw !unexplored_gray  ; 2bpp palette
 
-; Unexplored gray: palette 6, color 1
-org $B6F032 : dw !unexplored_gray
+; Unexplored light gray: 2bpp palette 7, color 2
+org $B6F03C : dw !unexplored_light_gray  ; 2bpp palette
+org $B6F0E4 : dw !unexplored_light_gray  ; 2bpp palette
 
-; Unexplored light gray: palette 6, color 2
-org $B6F034 : dw !unexplored_light_gray
-
-; Unexplored white: palette 6, color 3
-org $B6F036 : dw $7FFF
+; Unexplored white: 2bpp palette 7, color 3
+org $B6F03E : dw $7FFF  ; 2bpp palette
+org $B6F0E6 : dw $7FFF  ; 2bpp palette
 
 ; Patch tile data for button letters. Changing the palettes to 3:
 ; This takes into account the changes to the tileset from hud_expansion_opaque.asm.
@@ -920,7 +897,7 @@ org $858426
 ;org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
 org $A7CA7B : dw #$48FB            ; 2bpp palette 3, color 1: pink color for E-tanks
-org $A7CA97 : dw #$7FFF            ; 2bpp palette 6, color 3: white color for HUD text/digits
+;org $A7CA97 : dw #$7FFF            ; 2bpp palette 6, color 3: white color for HUD text/digits
 
 ; Skip loading BG3 tiles initially. They will be loaded later, once the map area is determined.
 org $8282F4
@@ -976,9 +953,9 @@ org !etank_color : dw $48FB  ; default pink E-tank color
 ;    RTS
 ;warnpc !bank_81_freespace_end
 
-; Use palette 6 instead of 3 when mini-map is disabled (during boss fights)
+; Use palette 7 instead of 3 when mini-map is disabled (during boss fights)
 org $90A7F1
-    ORA #$3800   ; was: ORA #$2C00
+    ORA #$3C00   ; was: ORA #$2C00
 
 ; Make slope tile $A8 have the same functionality as $28, to trigger automatically exploring tile above Samus.
 ; (Tile $A8 is used in Crocomire Speedway, the heated version of $28 used in Terminator Room.)

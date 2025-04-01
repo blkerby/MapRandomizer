@@ -293,8 +293,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
 .BRANCH_PARTIAL_REVEALED_MAP_TILE:
     REP #$30
     LDA [$00],y            ;\
-    AND #$EFFF             ; Use palette 3 (instead of 6)
-    ORA #$0400             ; 
+    AND #$EFFF             ; Use palette 3 (instead of 7)
     STA [$03],y            ;/
     BRA .BRANCH_NEXT     ; Go to BRANCH_NEXT
 
@@ -302,8 +301,8 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     ROL $26
     ROL $28
     REP #$30
-    LDA [$00],y            ;\ Use palette 2 (instead of 6)
-    AND #$EFFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~1000h
+    LDA [$00],y            ;\ Use palette 2 (instead of 7)
+    AND #$EBFF             ;} [$03] + [Y] = [[$00] + [Y]] & ~1400h
     STA [$03],y            ;/
     BRA .BRANCH_NEXT     ; Go to BRANCH_NEXT
 
@@ -324,10 +323,10 @@ org $90A9C1
     ; PC should now be exactly $90A9D0:
     print "$90A9D0 =? ", pc
 
-; use palette 6 for unexplored tile in HUD minimap
-org $90AAB4 : ORA #$3800  ; row 0, was: ORA #$2C00
-org $90AADB : ORA #$3800  ; row 1, was: ORA #$2C00
-org $90AB18 : ORA #$3800  ; row 2, was: ORA #$2C00
+; use palette 7 for unexplored tile in HUD minimap
+org $90AAB4 : ORA #$3C00  ; row 0, was: ORA #$2C00
+org $90AADB : ORA #$3C00  ; row 1, was: ORA #$2C00
+org $90AB18 : ORA #$3C00  ; row 2, was: ORA #$2C00
 
 ; Patch HUD mini-map drawing to use map revealed bits instead of map data bits
 ; Vanilla logic: tile is non-blank if map station obtained AND map data bit is set

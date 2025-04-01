@@ -1,5 +1,6 @@
 v118:
 - snes mini compatibility with fast decompression
+- investigate top-of-HUD flicker: https://www.twitch.tv/karterfreak/clip/FaintTenuousRadicchioPanicVis-EAYYiqzZqSiB-BtZ
 - investigate audio-related lag after quick reload
 - see if reloading CRE is actually necessary with Crocomire
 - decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
