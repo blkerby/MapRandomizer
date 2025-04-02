@@ -13,8 +13,7 @@ lorom
 !bank_86_free_space_start = $86F4B0
 !bank_86_free_space_end = $86F4D0
 
-!item_plm_start = #$DF89
-!item_plm_end = #$F100
+incsrc "constants.asm"
 
 ; Fix the crash that occurs when you kill an eye door whilst a eye door projectile is alive
 ; See the comments in the bank logs for $86:B6B9 for details on the bug
