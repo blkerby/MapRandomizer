@@ -1525,6 +1525,20 @@ pub fn apply_requirement(
                 Some(new_local)
             }
         }
+        Requirement::MissileDrain(count) => {
+            if reverse {
+                if local.missiles_used > *count {
+                    None
+                } else {
+                    Some(local)
+                }
+            } else {
+                let mut new_local = local;
+                new_local.missiles_used =
+                    Capacity::max(local.missiles_used, global.inventory.max_missiles - count);
+                Some(new_local)
+            }
+        }
         Requirement::ReserveTrigger {
             min_reserve_energy,
             max_reserve_energy,

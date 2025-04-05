@@ -1,8 +1,9 @@
 v118:
+- fix BG color in Warehouse Entrance
 - snes mini compatibility with fast decompression
 - investigate audio-related lag after quick reload
 - see if reloading CRE is actually necessary with Crocomire
-- decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
+- DONE: decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
 - DONE: look into pause fade-in speed (currently asymmetric with fade-out)
 - switch around palettes, to make acid FX fade, and improve item colors
 - DONE: partial reveal door next to two-door save/refill rooms
@@ -41,6 +42,7 @@ v118:
   - non-existent (?) HiJump boots shown: https://maprando.com/seed/7wT9dbFrm/data/visualizer/index.html
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
+- missing remote runway strats in pink brinstar hopper room left side
 
 Rom patching:
 - draw door frame in front of hazard markers, for doors that don't have a door shell.

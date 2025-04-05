@@ -274,6 +274,7 @@ pub enum Requirement {
     EnergyStationRefill,
     RegularEnergyDrain(Capacity),
     ReserveEnergyDrain(Capacity),
+    MissileDrain(Capacity),
     LowerNorfairElevatorDownFrames,
     LowerNorfairElevatorUpFrames,
     MainHallElevatorFrames,
@@ -2187,6 +2188,8 @@ impl GameData {
                         reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
                     } else if resource_type == "ReserveEnergy" {
                         reqs.push(Requirement::ReserveEnergyDrain(count as Capacity));
+                    } else if resource_type == "Missile" {
+                        reqs.push(Requirement::MissileDrain(count as Capacity));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
