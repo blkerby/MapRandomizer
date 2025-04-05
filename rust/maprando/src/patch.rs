@@ -1683,13 +1683,10 @@ impl<'a> Patcher<'a> {
     }
 
     fn setup_reload_cre(&mut self) -> Result<()> {
-        // Find the rooms connected to Kraid and Crocomire and set them to reload CRE, to prevent graphical glitches.
-        // Not sure if this is necessary for Crocomire. The vanilla game does it but we skip it since it doesn't seem to be a problem.
+        // Find the rooms connected to Kraid and set them to reload CRE, to prevent graphical glitches.
         let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
             (Some(0x191DA), Some(0x19252)), // Kraid right door
             (Some(0x191CE), Some(0x191B6)), // Kraid left door
-                                            // (Some(0x193DE), Some(0x19432)), // Crocomire left door
-                                            // (Some(0x193EA), Some(0x193D2)), // Crocomire top door
         ]
         .into();
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {

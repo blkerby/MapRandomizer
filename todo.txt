@@ -2,14 +2,13 @@ v118:
 - fix BG color in Warehouse Entrance
 - snes mini compatibility with fast decompression
 - investigate audio-related lag after quick reload
-- see if reloading CRE is actually necessary with Crocomire
 - DONE: decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
 - DONE: look into pause fade-in speed (currently asymmetric with fade-out)
 - switch around palettes, to make acid FX fade, and improve item colors
 - DONE: partial reveal door next to two-door save/refill rooms
-- handle comeInWithSidePlatform environment
+- DONE: handle comeInWithSidePlatform environment
 - DONE: add main hall elevator hazard marker
-- add/associate video for canTrickyGMode.
+- DONE: add/associate video for canTrickyGMode.
 - DONE: fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - DONE: handle "detailNote" in tech and strats.
 - handle "minExtraRunSpeed" in "leaveWithRunway"

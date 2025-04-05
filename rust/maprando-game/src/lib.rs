@@ -772,6 +772,7 @@ pub enum ExitCondition {
         effective_length: Float,
         height: Float,
         obstruction: (u16, u16),
+        environment: SidePlatformEnvironment,
     },
     LeaveWithGrappleSwing {
         blocks: Vec<GrappleSwingBlock>,
@@ -869,6 +870,14 @@ pub enum BounceMovementType {
     Any,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub enum SidePlatformEnvironment {
+    #[default]
+    Any,
+    Air,
+    Water,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SidePlatformEntrance {
     pub min_tiles: Float,
@@ -876,6 +885,7 @@ pub struct SidePlatformEntrance {
     pub min_height: Float,
     pub max_height: Float,
     pub obstructions: Vec<(u16, u16)>,
+    pub environment: SidePlatformEnvironment,
     pub requirement: Requirement,
 }
 
@@ -3535,6 +3545,14 @@ impl GameData {
                         value["obstruction"][0].as_u16().unwrap(),
                         value["obstruction"][1].as_u16().unwrap(),
                     ),
+                    environment: match physics {
+                        Some(Physics::Water) => SidePlatformEnvironment::Water,
+                        Some(Physics::Air) => SidePlatformEnvironment::Air,
+                        _ => bail!(
+                            "unexpected door physics in leaveWithSidePlatform: {:?}",
+                            physics
+                        ),
+                    },
                 }
             }
             "leaveWithGrappleSwing" => {
@@ -3816,6 +3834,14 @@ impl GameData {
                             .members()
                             .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                             .collect(),
+                        environment: match p["environment"].as_str().unwrap_or("any") {
+                            "air" => SidePlatformEnvironment::Air,
+                            "water" => SidePlatformEnvironment::Water,
+                            "any" => SidePlatformEnvironment::Any,
+                            _ => {
+                                bail!("unexpected side platform environment: {}", p["environment"])
+                            }
+                        },
                         requirement: if p.has_key("requires") {
                             let reqs_json: Vec<JsonValue> =
                                 value["requires"].members().cloned().collect();

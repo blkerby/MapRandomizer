@@ -21,13 +21,13 @@ use maprando_game::{
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
     GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
     ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
-    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SparkPosition,
-    StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey,
-    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
-    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP,
-    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
-    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL,
-    TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance,
+    SidePlatformEnvironment, SparkPosition, StartLocation, TechId, TemporaryBlueDirection,
+    VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT,
+    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
+    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
+    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
+    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
     TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
     TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
@@ -2305,12 +2305,19 @@ impl<'a> Preprocessor<'a> {
                 effective_length,
                 height,
                 obstruction,
+                environment,
             } => {
                 let effective_length = effective_length.get();
                 let height = height.get();
                 let mut reqs_or_vec = vec![];
                 for p in platforms {
                     let mut reqs = vec![];
+                    if &p.environment != environment
+                        && p.environment != SidePlatformEnvironment::Any
+                        && environment != &SidePlatformEnvironment::Any
+                    {
+                        continue;
+                    }
                     if effective_length < p.min_tiles.get() {
                         continue;
                     }
