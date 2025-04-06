@@ -2,12 +2,8 @@ use crate::web::{AppData, PresetData, VersionInfo};
 use actix_web::{get, web, HttpResponse, Responder};
 use askama::Template;
 use hashbrown::HashMap;
+use maprando::settings::{get_objective_groups, ObjectiveGroup};
 use maprando_game::{NotableId, RoomId, TechId};
-
-struct ObjectiveGroup {
-    name: String,
-    objectives: Vec<(String, String)>, // (internal name, display name)
-}
 
 #[derive(Template)]
 #[template(path = "generate/main.html")]
@@ -128,67 +124,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objective_groups: vec![
-            ObjectiveGroup {
-                name: "Bosses".to_string(),
-                objectives: vec![
-                    ("Kraid", "Kraid"),
-                    ("Phantoon", "Phantoon"),
-                    ("Draygon", "Draygon"),
-                    ("Ridley", "Ridley"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Minibosses".to_string(),
-                objectives: vec![
-                    ("SporeSpawn", "Spore Spawn"),
-                    ("Crocomire", "Crocomire"),
-                    ("Botwoon", "Botwoon"),
-                    ("GoldenTorizo", "Golden Torizo"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Pirates".to_string(),
-                objectives: vec![
-                    ("PitRoom", "Pit Room"),
-                    ("BabyKraidRoom", "Baby Kraid"),
-                    ("PlasmaRoom", "Plasma Room"),
-                    ("MetalPiratesRoom", "Metal Pirates"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Chozos".to_string(),
-                objectives: vec![
-                    ("BombTorizo", "Bomb Torizo"),
-                    ("BowlingStatue", "Bowling"),
-                    ("AcidChozoStatue", "Acid Statue"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Metroids".to_string(),
-                objectives: vec![
-                    ("MetroidRoom1", "Metroids 1"),
-                    ("MetroidRoom2", "Metroids 2"),
-                    ("MetroidRoom3", "Metroids 3"),
-                    ("MetroidRoom4", "Metroids 4"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-        ],
+        objective_groups: get_objective_groups(),
         item_pool_multiple,
         starting_items_multiple,
         starting_items_single,

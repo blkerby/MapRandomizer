@@ -12,7 +12,7 @@ v118:
 - DONE: fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - DONE: handle "detailNote" in tech and strats.
 - DONE: handle "minExtraRunSpeed" in "leaveWithRunway"
-- include "objectives" details on seed page.
+- DONE: include "objectives" details on seed page.
 - finish refining stutter water shinecharges.
 - DONE: fix scrolling sky corruption, which got worse with the faster decompression
 - DONE: move crateria tube tiles to CRE
