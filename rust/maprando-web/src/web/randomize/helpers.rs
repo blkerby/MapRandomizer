@@ -11,7 +11,8 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
     seed_repository::{Seed, SeedFile},
     settings::{
-        get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange, RandomizerSettings, WallJump
+        get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
+        ItemDotChange, RandomizerSettings, WallJump,
     },
     spoiler_map,
 };
@@ -341,8 +342,11 @@ pub fn render_seed(
         get_enabled_tech(&seed_data.difficulty.tech, &app_data.game_data);
     let enabled_notables: HashSet<(RoomId, NotableId)> =
         get_enabled_notables(&seed_data.difficulty.notables, &app_data.game_data);
-    let objective_names: HashMap<String, String> =
-        get_objective_groups().iter().map(|x| x.objectives.clone()).flatten().collect();
+    let objective_names: HashMap<String, String> = get_objective_groups()
+        .iter()
+        .map(|x| x.objectives.clone())
+        .flatten()
+        .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version_info: app_data.version_info.clone(),
