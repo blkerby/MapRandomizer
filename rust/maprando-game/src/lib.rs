@@ -4678,7 +4678,10 @@ impl GameData {
         let mut start_location_id_map: HashMap<(usize, usize), usize> = HashMap::new();
         for (i, loc) in start_locations.iter_mut().enumerate() {
             if start_location_id_map.contains_key(&(loc.room_id, loc.node_id)) {
-                bail!("Non-unique (room_id, node_id) for start location: {:?}", loc);
+                bail!(
+                    "Non-unique (room_id, node_id) for start location: {:?}",
+                    loc
+                );
             }
             start_location_id_map.insert((loc.room_id, loc.node_id), i);
             if loc.requires.is_none() {

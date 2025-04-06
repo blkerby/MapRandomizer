@@ -388,7 +388,7 @@ pub enum StartLocationMode {
     Ship,
     Random,
     Escape,
-    Custom
+    Custom,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

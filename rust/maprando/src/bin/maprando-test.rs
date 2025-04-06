@@ -123,7 +123,8 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
     rng = rand::rngs::StdRng::from_seed(rng_seed);
 
     let max_attempts = 10000;
-    let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random {
+    let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
+    {
         10
     } else {
         1

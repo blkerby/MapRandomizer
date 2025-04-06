@@ -4369,13 +4369,19 @@ impl<'r> Randomizer<'r> {
         for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {}", i);
             let start_loc_idx = match self.settings.start_location_settings.mode {
-                StartLocationMode::Random => {
-                    rng.gen_range(0..self.game_data.start_locations.len())
-                }
+                StartLocationMode::Random => rng.gen_range(0..self.game_data.start_locations.len()),
                 StartLocationMode::Custom => {
                     let mut idx: Option<usize> = None;
-                    let room_id = self.settings.start_location_settings.room_id.context("expected room_id")?;
-                    let node_id = self.settings.start_location_settings.node_id.context("expected node_id")?;
+                    let room_id = self
+                        .settings
+                        .start_location_settings
+                        .room_id
+                        .context("expected room_id")?;
+                    let node_id = self
+                        .settings
+                        .start_location_settings
+                        .node_id
+                        .context("expected node_id")?;
                     for (j, loc) in self.game_data.start_locations.iter().enumerate() {
                         if loc.room_id == room_id && loc.node_id == node_id {
                             idx = Some(j);
@@ -4387,7 +4393,10 @@ impl<'r> Randomizer<'r> {
                     }
                     idx.unwrap()
                 }
-                _ => panic!("Unexpected start location mode: {:?}", self.settings.start_location_settings.mode)
+                _ => panic!(
+                    "Unexpected start location mode: {:?}",
+                    self.settings.start_location_settings.mode
+                ),
             };
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
 
