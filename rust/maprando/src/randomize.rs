@@ -839,12 +839,16 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
             } => {
                 let effective_length = effective_length.get();
                 if effective_length < min_tiles {
+                    return None;
+                }
+                if get_extra_run_speed_tiles(min_extra_run_speed.get()) > max_tiles {
                     return None;
                 }
                 let mut reqs: Vec<Requirement> = vec![];
@@ -1031,12 +1035,13 @@ impl<'a> Preprocessor<'a> {
         mut runway_length: f32,
         min_tiles: f32,
         runway_heated: bool,
-        min_extra_run_speed: f32,
-        max_extra_run_speed: f32,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1057,11 +1062,11 @@ impl<'a> Preprocessor<'a> {
 
                 if !self.add_run_speed_reqs(
                     combined_runway_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated || runway_heated,
-                    min_extra_run_speed,
-                    max_extra_run_speed,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
                     &mut reqs,
                 ) {
                     return None;
@@ -1097,13 +1102,14 @@ impl<'a> Preprocessor<'a> {
         min_tiles: f32,
         runway_heated: bool,
     ) -> Option<Requirement> {
-        // TODO: Remove min_tiles here, after strats have been correctly split off using "comeInGettingBlueSpeed".
+        // TODO: Remove min_tiles here, after strats have been correctly split off using "comeInGettingBlueSpeed"?
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,
                 physics,
                 from_exit_node,
+                ..
             } => {
                 let mut effective_length = effective_length.get();
                 if effective_length < min_tiles {
@@ -1152,6 +1158,7 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1180,7 +1187,7 @@ impl<'a> Preprocessor<'a> {
                 let shortcharge_length = combined_runway_length - midair_length;
                 if !self.add_run_speed_reqs(
                     shortcharge_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated,
                     final_min_extra_run_speed,
@@ -1283,6 +1290,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1298,6 +1306,9 @@ impl<'a> Preprocessor<'a> {
                 let max_tiles = get_extra_run_speed_tiles(entrance_max_extra_run_speed);
 
                 if min_tiles > effective_length - unusable_tiles {
+                    return None;
+                }
+                if min_extra_run_speed.get() > entrance_max_extra_run_speed {
                     return None;
                 }
 
@@ -1360,6 +1371,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1369,7 +1381,7 @@ impl<'a> Preprocessor<'a> {
 
                 if !self.add_run_speed_reqs(
                     effective_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated,
                     entrance_min_extra_run_speed,
@@ -1454,6 +1466,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1577,6 +1590,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1719,6 +1733,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1728,7 +1743,7 @@ impl<'a> Preprocessor<'a> {
 
                 if !self.add_run_speed_reqs(
                     effective_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated,
                     entrance_min_extra_run_speed,
@@ -1776,6 +1791,7 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1818,6 +1834,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1855,6 +1872,7 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1927,6 +1945,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1975,6 +1994,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -2018,6 +2038,7 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,

@@ -704,6 +704,7 @@ pub enum ExitCondition {
     LeaveNormally {},
     LeaveWithRunway {
         effective_length: Float,
+        min_extra_run_speed: Float,
         heated: bool,
         physics: Option<Physics>,
         from_exit_node: bool,
@@ -3414,6 +3415,7 @@ impl GameData {
                 let runway_effective_length = compute_runway_effective_length(&runway_geometry);
                 ExitCondition::LeaveWithRunway {
                     effective_length: Float::new(runway_effective_length),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
                     heated,
                     physics,
                     from_exit_node: from_node_id == to_node_id,

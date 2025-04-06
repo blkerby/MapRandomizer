@@ -11,7 +11,7 @@ v118:
 - DONE: add/associate video for canTrickyGMode.
 - DONE: fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - DONE: handle "detailNote" in tech and strats.
-- handle "minExtraRunSpeed" in "leaveWithRunway"
+- DONE: handle "minExtraRunSpeed" in "leaveWithRunway"
 - include "objectives" details on seed page.
 - finish refining stutter water shinecharges.
 - DONE: fix scrolling sky corruption, which got worse with the faster decompression
@@ -42,6 +42,7 @@ v118:
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
 - missing remote runway strats in pink brinstar hopper room left side
+- add new samus sprites
 
 Rom patching:
 - draw door frame in front of hazard markers, for doors that don't have a door shell.
