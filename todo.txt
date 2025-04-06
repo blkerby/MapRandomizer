@@ -1,4 +1,8 @@
 v118:
+- add option to select specific start location
+  - DONE: handle in settings upgrade
+  - DONE: show in seed header
+  - organize by area
 - fix BG color in Warehouse Entrance
 - snes mini compatibility with fast decompression
 - investigate audio-related lag after quick reload
@@ -25,7 +29,6 @@ v118:
   - west cac alley CF clip
 - mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
-- add option to select specific start location
 - map gen:
   - measure map "clumpiness"
   - sanity checks on save balancing
@@ -37,7 +40,7 @@ v118:
   - missed entering from the right
   - grapple jumping up only to the ledge (probably needs a new node)
     - shinespark strats could get up that node too, with fewer shinecharge frames
-- fix spoiler map bug:
+- DONE: fix spoiler map bug:
   - non-existent (?) HiJump boots shown: https://maprando.com/seed/7wT9dbFrm/data/visualizer/index.html
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134

@@ -4296,7 +4296,9 @@
     },
     "map_layout": "Standard",
     "doors_mode": "Ammo",
-    "start_location_mode": "Ship",
+    "start_location_settings": {
+        "mode": "Ship"
+    },
     "save_animals": "No",
     "other_settings": {
         "wall_jump": "Vanilla",

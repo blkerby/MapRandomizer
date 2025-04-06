@@ -164,6 +164,25 @@ function buildObjectiveSettings(formData) {
     return out;
 }
 
+function buildStartLocationSettings(formData) {
+    var out = {
+        "mode": formData.get("start_location"),
+        "room_id": null,
+        "node_id": null,
+    };
+    for (let opt of document.querySelectorAll("#customStartLocation option")) {
+        if (opt.value == "unspecified") {
+            continue;
+        }
+        if (opt.selected) {
+            out["mode"] = "Custom";
+            out["room_id"] = parseInt(opt.getAttribute("data-room-id"));
+            out["node_id"] = parseInt(opt.getAttribute("data-node-id"));
+        }
+    }
+    return out;
+}
+
 function buildSettingsObject() {
     var formData = new FormData(document.getElementById("main-form"));
     let version = {{ version_info.version }};
@@ -237,7 +256,7 @@ function buildSettingsObject() {
         "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
         "doors_mode": formData.get("doors"),
-        "start_location_mode": formData.get("start_location"),
+        "start_location_settings": buildStartLocationSettings(formData),
         "save_animals": formData.get("save_animals"),
         "other_settings": {
             "wall_jump": formData.get("wall_jump"),
@@ -452,6 +471,22 @@ function applyQolPreset(preset) {
     applyRadioValue("earlySave", preset.early_save);
 }
 
+function applyStartLocationSettings(preset) {
+    applyRadioValue("startLocation", preset.mode);
+    if (preset.mode == "Custom") {
+        for (let opt of document.querySelectorAll("#customStartLocation option")) {
+            let roomId = parseInt(opt.getAttribute("data-room-id"));
+            let nodeId = parseInt(opt.getAttribute("data-node-id"));
+            if (roomId == preset.room_id && nodeId == preset.node_id) {
+                opt.selected = true;
+            }
+        }    
+    } else {
+        // select the first/default option for custom start location:
+        document.querySelector("#customStartLocation option").selected = true;
+    }
+}
+
 function applyFullSettingsPreset(preset) {
     document.getElementById("fullSettingsPreset").value = preset.name;
     applySkillPreset(preset.skill_assumption_settings);
@@ -461,7 +496,7 @@ function applyFullSettingsPreset(preset) {
 
     applyRadioValue("mapLayout", preset.map_layout);
     applyRadioValue("doors", preset.doors_mode);
-    applyRadioValue("startLocation", preset.start_location_mode);
+    applyStartLocationSettings(preset.start_location_settings);
     applyRadioValue("saveAnimals", preset.save_animals);
 
     let other = preset.other_settings;
@@ -682,6 +717,16 @@ function maximumObjectivesChanged() {
         document.getElementById("minimumObjectives").value = document.getElementById("maximumObjectives").value;
     }
     objectivesChanged();
+}
+
+function startLocationPresetChanged() {
+    document.getElementById("customStartLocation").value = "unspecified";
+}
+
+function customStartLocationChanged() {
+    document.getElementById("startLocationShip").checked = false;
+    document.getElementById("startLocationRandom").checked = false;
+    document.getElementById("startLocationEscape").checked = false;
 }
 
 function applyItemProgressionPreset(preset) {

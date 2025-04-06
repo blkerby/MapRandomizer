@@ -2072,7 +2072,7 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, starting_supers)?;
         self.rom
             .write_u16(initial_max_power_bombs, starting_powerbombs)?;
-        if self.randomization.settings.start_location_mode == StartLocationMode::Escape
+        if self.randomization.settings.start_location_settings.mode == StartLocationMode::Escape
             && self
                 .randomization
                 .settings
@@ -2100,7 +2100,7 @@ impl<'a> Patcher<'a> {
         let initial_load_station_addr = snes2pc(0xB5FE02);
         let initial_boss_bits = snes2pc(0xB5FE0C);
 
-        if self.randomization.settings.start_location_mode == StartLocationMode::Escape {
+        if self.randomization.settings.start_location_settings.mode == StartLocationMode::Escape {
             // Use Tourian load station 2, set up in escape_autosave.asm
             self.rom.write_u16(initial_area_addr, 5)?;
             self.rom.write_u16(initial_load_station_addr, 2)?;

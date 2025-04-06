@@ -12,7 +12,7 @@ pub struct RandomizerSettings {
     pub objective_settings: ObjectiveSettings,
     pub map_layout: String,
     pub doors_mode: DoorsMode,
-    pub start_location_mode: StartLocationMode,
+    pub start_location_settings: StartLocationSettings,
     pub save_animals: SaveAnimals,
     pub other_settings: OtherSettings,
     #[serde(default)]
@@ -286,6 +286,13 @@ pub fn get_objective_groups() -> Vec<ObjectiveGroup> {
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct StartLocationSettings {
+    pub mode: StartLocationMode,
+    pub room_id: Option<usize>,
+    pub node_id: Option<usize>,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct OtherSettings {
     pub wall_jump: WallJump,
     pub area_assignment: AreaAssignment,
@@ -381,6 +388,7 @@ pub enum StartLocationMode {
     Ship,
     Random,
     Escape,
+    Custom
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

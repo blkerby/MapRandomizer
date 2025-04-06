@@ -226,12 +226,15 @@
                     <label for="start_location">Start location</label>
                 </div>
                 <div id="startLocation" class="col-lg-4 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="start_location" id="startLocationShip" value="Ship" onchange="fullSettingsChanged()" checked=true>
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationShip" value="Ship" onchange="startLocationPresetChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="startLocationShip">Ship</label>
-                    <input type="radio" class="btn-check" name="start_location" id="startLocationRandom" value="Random" onchange="fullSettingsChanged()">
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationRandom" value="Random" onchange="startLocationPresetChanged()">
                     <label class="btn btn-outline-primary" for="startLocationRandom">Random</label>
-                    <input type="radio" class="btn-check" name="start_location" id="startLocationEscape" value="Escape" onchange="fullSettingsChanged()">
+                    <input type="radio" class="btn-check" name="start_location" id="startLocationEscape" value="Escape" onchange="startLocationPresetChanged()">
                     <label class="btn btn-outline-primary" for="startLocationEscape">Escape</label>
+                    <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#customStartLocationModal">
+                        <i class="bi bi-gear"></i>
+                    </button>
                 </div>
             </div>
 
@@ -307,6 +310,7 @@
             {% include "item_progression.html" %}
             {% include "quality_of_life.html" %}
             {% include "objectives.html" %}
+            {% include "start_location.html" %}
         </form>
     </div>
     {% include "../common/save_settings.html" %}

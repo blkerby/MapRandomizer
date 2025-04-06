@@ -173,7 +173,8 @@ async fn randomize(
     );
     let map_layout = settings.map_layout.clone();
     let max_attempts = 2000;
-    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random {
+    let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
+    {
         10
     } else {
         1
@@ -340,9 +341,13 @@ async fn randomize(
             .map(|x| to_variant_name(x).unwrap().to_string())
             .collect(),
         doors: to_variant_name(&settings.doors_mode).unwrap().to_string(),
-        start_location_mode: to_variant_name(&settings.start_location_mode)
-            .unwrap()
-            .to_string(),
+        start_location_mode: if settings.start_location_settings.mode == StartLocationMode::Custom {
+            output.randomization.start_location.name.clone()
+        } else {
+            to_variant_name(&settings.start_location_settings.mode)
+                .unwrap()
+                .to_string()
+        },
         map_layout: settings.map_layout.clone(),
         save_animals: to_variant_name(&settings.save_animals).unwrap().to_string(),
         early_save: qol_settings.early_save,

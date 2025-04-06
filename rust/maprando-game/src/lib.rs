@@ -85,6 +85,7 @@ pub type RoomId = usize; // Room ID from sm-json-data
 pub type RoomPtr = usize; // Room pointer (PC address of room header)
 pub type RoomStateIdx = usize; // Room state index
 pub type NodeId = usize; // Node ID from sm-json-data (only unique within a room)
+pub type StartLocationId = usize; // Index into GameData.start_locations
 pub type NodePtr = usize; // nodeAddress from sm-json-data: for items this is the PC address of PLM, for doors it is PC address of door data
 pub type StratId = usize; // Strat ID from sm-json-data (only unique within a room)
 pub type NotableId = usize; // Notable ID from sm-json-data (only unique within a room)
@@ -1421,6 +1422,7 @@ pub struct GameData {
     pub tech_dependencies: HashMap<TechId, Vec<TechId>>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
+    pub start_location_id_map: HashMap<(RoomId, NodeId), StartLocationId>,
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
     pub speed_ball_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
@@ -4673,7 +4675,12 @@ impl GameData {
         let start_locations_str = std::fs::read_to_string(path)
             .with_context(|| format!("Unable to load start locations at {}", path.display()))?;
         let mut start_locations: Vec<StartLocation> = serde_json::from_str(&start_locations_str)?;
-        for loc in &mut start_locations {
+        let mut start_location_id_map: HashMap<(usize, usize), usize> = HashMap::new();
+        for (i, loc) in start_locations.iter_mut().enumerate() {
+            if start_location_id_map.contains_key(&(loc.room_id, loc.node_id)) {
+                bail!("Non-unique (room_id, node_id) for start location: {:?}", loc);
+            }
+            start_location_id_map.insert((loc.room_id, loc.node_id), i);
             if loc.requires.is_none() {
                 loc.requires_parsed = Some(Requirement::Free);
             } else {
@@ -4698,6 +4705,7 @@ impl GameData {
             }
         }
         self.start_locations = start_locations;
+        self.start_location_id_map = start_location_id_map;
         Ok(())
     }
 

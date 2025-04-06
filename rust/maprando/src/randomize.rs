@@ -13,7 +13,7 @@ use crate::traverse::{
     get_spoiler_route, traverse, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
     NUM_COST_METRICS,
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
@@ -4345,7 +4345,7 @@ impl<'r> Randomizer<'r> {
         num_attempts: usize,
         rng: &mut R,
     ) -> Result<StartLocationData> {
-        if self.settings.start_location_mode == StartLocationMode::Ship {
+        if self.settings.start_location_settings.mode == StartLocationMode::Ship {
             let mut ship_start = StartLocation::default();
             ship_start.name = "Ship".to_string();
             ship_start.room_id = 8;
@@ -4368,7 +4368,27 @@ impl<'r> Randomizer<'r> {
         }
         for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {}", i);
-            let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
+            let start_loc_idx = match self.settings.start_location_settings.mode {
+                StartLocationMode::Random => {
+                    rng.gen_range(0..self.game_data.start_locations.len())
+                }
+                StartLocationMode::Custom => {
+                    let mut idx: Option<usize> = None;
+                    let room_id = self.settings.start_location_settings.room_id.context("expected room_id")?;
+                    let node_id = self.settings.start_location_settings.node_id.context("expected node_id")?;
+                    for (j, loc) in self.game_data.start_locations.iter().enumerate() {
+                        if loc.room_id == room_id && loc.node_id == node_id {
+                            idx = Some(j);
+                            break;
+                        }
+                    }
+                    if idx.is_none() {
+                        bail!("Unknown start location ({}, {})", room_id, node_id);
+                    }
+                    idx.unwrap()
+                }
+                _ => panic!("Unexpected start location mode: {:?}", self.settings.start_location_settings.mode)
+            };
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
 
             info!("[attempt {attempt_num_rando}] start: {:?}", start_loc);
@@ -4743,7 +4763,7 @@ impl<'r> Randomizer<'r> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-        if self.settings.start_location_mode == StartLocationMode::Escape {
+        if self.settings.start_location_settings.mode == StartLocationMode::Escape {
             return self.dummy_randomize(seed, display_seed, &mut rng);
         }
         let initial_global_state = self.get_initial_global_state();
@@ -4766,7 +4786,9 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
-        let num_attempts_start_location = if self.game_data.start_locations.len() > 1 {
+        let num_attempts_start_location = if self.game_data.start_locations.len() > 1
+            && self.settings.start_location_settings.mode != StartLocationMode::Custom
+        {
             10
         } else {
             1

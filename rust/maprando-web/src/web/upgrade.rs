@@ -2,7 +2,7 @@ use crate::web::AppData;
 use actix_web::{post, web, HttpResponse, Responder};
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
-use log::error;
+use log::{error, info};
 use maprando::settings::{
     parse_randomizer_settings, NotableSetting, RandomizerSettings, TechSetting,
 };
@@ -187,6 +187,26 @@ fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
+fn upgrade_start_location_setings(settings: &mut serde_json::Value) -> Result<()> {
+    info!("checking start location");
+    if !settings
+        .as_object()
+        .unwrap()
+        .contains_key("start_location_settings")
+    {
+        let start_location_mode: String = settings["start_location_mode"].as_str().unwrap().into();
+        settings.as_object_mut().unwrap().insert(
+            "start_location_settings".to_string(),
+            serde_json::Value::Object(
+                vec![("mode".to_string(), start_location_mode.into())]
+                    .into_iter()
+                    .collect(),
+            ),
+        );
+    }
+    Ok(())
+}
+
 fn upgrade_animals_setting(settings: &mut serde_json::Value) -> Result<()> {
     if settings["save_animals"].as_str() == Some("Maybe") {
         *settings.get_mut("save_animals").unwrap() = "Optional".into();
@@ -240,6 +260,7 @@ pub fn try_upgrade_settings(
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_qol_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
+    upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;
 
     // Update version field to current version:

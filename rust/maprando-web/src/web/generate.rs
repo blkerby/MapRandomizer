@@ -3,7 +3,7 @@ use actix_web::{get, web, HttpResponse, Responder};
 use askama::Template;
 use hashbrown::HashMap;
 use maprando::settings::{get_objective_groups, ObjectiveGroup};
-use maprando_game::{NotableId, RoomId, TechId};
+use maprando_game::{NotableId, RoomId, StartLocation, TechId};
 
 #[derive(Template)]
 #[template(path = "generate/main.html")]
@@ -29,6 +29,7 @@ struct GenerateTemplate<'a> {
     tech_strat_counts: &'a HashMap<TechId, usize>,
     notable_strat_counts: &'a HashMap<(RoomId, NotableId), usize>,
     video_storage_url: &'a str,
+    start_locations: &'a [StartLocation],
 }
 
 #[get("/generate")]
@@ -145,6 +146,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         notable_strat_counts: &app_data.logic_data.notable_strat_counts,
         video_storage_url: &app_data.video_storage_url,
+        start_locations: &app_data.game_data.start_locations,
     };
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
