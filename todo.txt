@@ -1,8 +1,9 @@
 v118:
-- add option to select specific start location
+- DONE: add option to select specific start location
   - DONE: handle in settings upgrade
   - DONE: show in seed header
-  - organize by area
+  - DONE: organize by area
+  - DONE: update help/info
 - fix BG color in Warehouse Entrance
 - snes mini compatibility with fast decompression
 - investigate audio-related lag after quick reload

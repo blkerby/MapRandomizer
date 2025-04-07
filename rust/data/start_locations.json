@@ -108,7 +108,7 @@
         "y": 13
     },
     {
-        "name": "Landing Site Gauntlet Entrance",
+        "name": "Landing Site Top Left",
         "room_id": 8,
         "node_id": 1,
         "x": 29.5,
@@ -131,7 +131,7 @@
         "y": 9
     },
     {
-        "name": "Alcatraz",
+        "name": "Parlor Alcatraz",
         "room_id": 10,
         "node_id": 5,
         "x": 57,

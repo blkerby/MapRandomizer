@@ -237,7 +237,6 @@ fn make_tech_templates<'a>(
     room_templates: &[RoomTemplate<'a>],
     preset_data: &'a PresetData,
     _global: &GlobalState,
-    area_order: &[String],
     video_storage_url: &str,
     version_info: &VersionInfo,
 ) -> Vec<TechTemplate<'a>> {
@@ -492,7 +491,7 @@ fn make_tech_templates<'a>(
         }
         strats.sort_by_key(|s| {
             (
-                area_order.iter().position(|a| a == &s.area).unwrap(),
+                game_data.area_order.iter().position(|a| a == &s.area).unwrap(),
                 s.room_name.clone(),
                 s.from_node_id,
                 s.to_node_id,
@@ -525,7 +524,6 @@ fn make_notable_templates<'a>(
     room_templates: &[RoomTemplate<'a>],
     preset_data: &'a PresetData,
     _global: &GlobalState,
-    area_order: &[String],
     video_storage_url: &str,
     version_info: &VersionInfo,
 ) -> Vec<NotableTemplate<'a>> {
@@ -583,7 +581,7 @@ fn make_notable_templates<'a>(
         }
         strats.sort_by_key(|s| {
             (
-                area_order.iter().position(|a| a == &s.area).unwrap(),
+                game_data.area_order.iter().position(|a| a == &s.area).unwrap(),
                 s.room_name.clone(),
                 s.from_node_id,
                 s.to_node_id,
@@ -969,16 +967,7 @@ fn make_room_template<'a>(
         node_name_map.insert(node_id, node_name.to_string());
         nodes.push((node_id, node_name.to_string()));
     }
-    let area = room_json["area"].as_str().unwrap().to_string();
-    let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
-    let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
-    let full_area = if sub_sub_area != "" {
-        format!("{} {} {}", sub_sub_area, sub_area, area)
-    } else if sub_area != "" && sub_area != "Main" {
-        format!("{} {}", sub_area, area)
-    } else {
-        area
-    };
+    let full_area = game_data.room_full_area[&room_id].clone();
 
     for strat_json in room_json["strats"].members() {
         if !strat_json["id"].is_number() {
@@ -1119,31 +1108,6 @@ impl LogicData {
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
 
-        let area_order: Vec<String> = vec![
-            "Central Crateria",
-            "West Crateria",
-            "East Crateria",
-            "Blue Brinstar",
-            "Green Brinstar",
-            "Pink Brinstar",
-            "Red Brinstar",
-            "Kraid Brinstar",
-            "East Upper Norfair",
-            "West Upper Norfair",
-            "Crocomire Upper Norfair",
-            "West Lower Norfair",
-            "East Lower Norfair",
-            "Wrecked Ship",
-            "Outer Maridia",
-            "Pink Inner Maridia",
-            "Yellow Inner Maridia",
-            "Green Inner Maridia",
-            "Tourian",
-        ]
-        .into_iter()
-        .map(|x| x.to_string())
-        .collect();
-
         let items = vec![true; game_data.item_isv.keys.len()];
         let weapon_mask = game_data.get_weapon_mask(&items);
         let global = GlobalState {
@@ -1229,7 +1193,6 @@ impl LogicData {
             &room_templates,
             preset_data,
             &global,
-            &area_order,
             video_storage_url,
             version_info,
         );
@@ -1253,7 +1216,6 @@ impl LogicData {
             &room_templates,
             preset_data,
             &global,
-            &area_order,
             video_storage_url,
             version_info,
         );
@@ -1285,7 +1247,7 @@ impl LogicData {
             rooms: &room_templates,
             tech: &tech_templates,
             _notables: &notable_templates,
-            area_order: &area_order,
+            area_order: &game_data.area_order,
             tech_difficulties: preset_data.difficulty_levels.keys.clone(),
         };
         out.index_html = index_template.render().unwrap();

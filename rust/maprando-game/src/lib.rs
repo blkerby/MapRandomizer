@@ -1383,6 +1383,7 @@ pub struct GameData {
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
+    pub room_full_area: HashMap<RoomId, String>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
     pub reverse_node_ptr_map: HashMap<NodePtr, (RoomId, NodeId)>,
@@ -1434,6 +1435,7 @@ pub struct GameData {
     pub reduced_flashing_patch: GlowPatch,
     pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
     pub map_tile_data: Vec<MapTileData>,
+    pub area_order: Vec<String>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -4287,10 +4289,23 @@ impl GameData {
         Ok(())
     }
 
+    fn get_full_area(&self, room_json: &JsonValue) -> String {
+        let area = room_json["area"].as_str().unwrap().to_string();
+        let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
+        let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
+        let full_area = if sub_sub_area != "" {
+            format!("{} {} {}", sub_sub_area, sub_area, area)
+        } else if sub_area != "" && sub_area != "Main" {
+            format!("{} {}", sub_area, area)
+        } else {
+            area
+        };
+        full_area
+    }    
+
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
-
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
         self.raw_room_id_by_ptr.insert(room_ptr, room_id);
@@ -4302,6 +4317,7 @@ impl GameData {
             self.room_id_by_ptr.insert(room_ptr, room_id);
         }
         self.room_ptr_by_id.insert(room_id, room_ptr);
+        self.room_full_area.insert(room_id, self.get_full_area(room_json));
 
         // Process obstacles:
         let obstacles_idx_map: HashMap<String, usize> = if room_json.has_key("obstacles") {
@@ -4904,6 +4920,31 @@ impl GameData {
         game_data.load_items_and_flags()?;
         game_data.load_tech()?;
         game_data.load_helpers()?;
+
+        game_data.area_order = vec![
+            "Central Crateria",
+            "West Crateria",
+            "East Crateria",
+            "Blue Brinstar",
+            "Green Brinstar",
+            "Pink Brinstar",
+            "Red Brinstar",
+            "Kraid Brinstar",
+            "East Upper Norfair",
+            "West Upper Norfair",
+            "Crocomire Upper Norfair",
+            "West Lower Norfair",
+            "East Lower Norfair",
+            "Wrecked Ship",
+            "Outer Maridia",
+            "Pink Inner Maridia",
+            "Yellow Inner Maridia",
+            "Green Inner Maridia",
+            "Tourian",
+        ]
+        .into_iter()
+        .map(|x| x.to_string())
+        .collect();
 
         // Patch the h_heatProof and h_heatResistant to take into account the complementary suit
         // patch, where only Varia (and not Gravity) provides heat protection:

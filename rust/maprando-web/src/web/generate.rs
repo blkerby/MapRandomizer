@@ -29,7 +29,7 @@ struct GenerateTemplate<'a> {
     tech_strat_counts: &'a HashMap<TechId, usize>,
     notable_strat_counts: &'a HashMap<(RoomId, NotableId), usize>,
     video_storage_url: &'a str,
-    start_locations: &'a [StartLocation],
+    start_locations_by_area: Vec<(String, Vec<StartLocation>)>,
 }
 
 #[get("/generate")]
@@ -121,6 +121,33 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     let objective_presets_json =
         serde_json::to_string(&app_data.preset_data.objective_presets).unwrap();
 
+    let mut start_locations_by_area: Vec<(String, Vec<StartLocation>)> = app_data
+        .game_data
+        .area_order
+        .iter()
+        .map(|x| (x.clone(), vec![]))
+        .collect();
+    let area_order_idx: HashMap<String, usize> = app_data
+        .game_data
+        .area_order
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (x.clone(), i))
+        .collect();
+    for loc in &app_data.game_data.start_locations {
+        let full_area = app_data.game_data.room_full_area[&loc.room_id].clone();
+        let full_area_idx = area_order_idx[&full_area];
+        start_locations_by_area[full_area_idx].1.push(loc.clone());
+    }
+    for i in 0..start_locations_by_area.len() {
+        start_locations_by_area[i].1.sort_by_key(|x| {
+            (
+                app_data.game_data.room_json_map[&x.room_id]["name"].as_str().unwrap().to_string(),
+                x.name.clone(),
+            )
+        });
+    }
+
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
@@ -146,7 +173,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         notable_strat_counts: &app_data.logic_data.notable_strat_counts,
         video_storage_url: &app_data.video_storage_url,
-        start_locations: &app_data.game_data.start_locations,
+        start_locations_by_area,
     };
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
