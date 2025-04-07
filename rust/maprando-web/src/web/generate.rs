@@ -142,7 +142,10 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     for i in 0..start_locations_by_area.len() {
         start_locations_by_area[i].1.sort_by_key(|x| {
             (
-                app_data.game_data.room_json_map[&x.room_id]["name"].as_str().unwrap().to_string(),
+                app_data.game_data.room_json_map[&x.room_id]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
                 x.name.clone(),
             )
         });

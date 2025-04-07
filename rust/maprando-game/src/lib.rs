@@ -4301,7 +4301,7 @@ impl GameData {
             area
         };
         full_area
-    }    
+    }
 
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
@@ -4317,7 +4317,8 @@ impl GameData {
             self.room_id_by_ptr.insert(room_ptr, room_id);
         }
         self.room_ptr_by_id.insert(room_id, room_ptr);
-        self.room_full_area.insert(room_id, self.get_full_area(room_json));
+        self.room_full_area
+            .insert(room_id, self.get_full_area(room_json));
 
         // Process obstacles:
         let obstacles_idx_map: HashMap<String, usize> = if room_json.has_key("obstacles") {

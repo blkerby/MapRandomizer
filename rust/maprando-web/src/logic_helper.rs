@@ -491,7 +491,11 @@ fn make_tech_templates<'a>(
         }
         strats.sort_by_key(|s| {
             (
-                game_data.area_order.iter().position(|a| a == &s.area).unwrap(),
+                game_data
+                    .area_order
+                    .iter()
+                    .position(|a| a == &s.area)
+                    .unwrap(),
                 s.room_name.clone(),
                 s.from_node_id,
                 s.to_node_id,
@@ -581,7 +585,11 @@ fn make_notable_templates<'a>(
         }
         strats.sort_by_key(|s| {
             (
-                game_data.area_order.iter().position(|a| a == &s.area).unwrap(),
+                game_data
+                    .area_order
+                    .iter()
+                    .position(|a| a == &s.area)
+                    .unwrap(),
                 s.room_name.clone(),
                 s.from_node_id,
                 s.to_node_id,
