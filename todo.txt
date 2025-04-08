@@ -1,4 +1,7 @@
 v118:
+- override "h_fullEnemyDamageReduction"
+- handle PowerBombPeriphery correctly in enemyKill logic
+- handle PowerBombBlast multiplier correctly in enemyKill logic (e.g. for Metroids)
 - DONE: add option to select specific start location
   - DONE: handle in settings upgrade
   - DONE: show in seed header
