@@ -2448,9 +2448,9 @@ impl<'a> Patcher<'a> {
                 // JSR mb_door_asm
                 0x20,
                 (mb_door_asm & 0xFF) as u8,
-                (mb_door_asm >> 8) as u8, 
+                (mb_door_asm >> 8) as u8,
             ]);
-        Ok(())        
+        Ok(())
     }
 
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
