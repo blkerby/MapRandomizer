@@ -1,4 +1,6 @@
 v118:
+- load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
+- prevent MB1 death unless objectives cleared
 - override "h_fullEnemyDamageReduction"
 - handle PowerBombPeriphery correctly in enemyKill logic
 - handle PowerBombBlast multiplier correctly in enemyKill logic (e.g. for Metroids)
@@ -49,13 +51,13 @@ v118:
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
 - missing remote runway strats in pink brinstar hopper room left side
-- add new samus sprites
+- DONE: add new samus sprites
 
 Rom patching:
 - draw door frame in front of hazard markers, for doors that don't have a door shell.
 - instant unpause QoL option
   - maybe combine with even faster pause transitions (fade-in to pause, fade between pause/equipment, and fade-out of pause)
-- eliminate the gray door that spawns when leaving Mother Brain Room in escape
+- DONE: eliminate the gray door that spawns when leaving Mother Brain Room in escape
   - instead, allow re-entering Mother Brain Room from left and having it look like it does at the start of the escape sequence
 - Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
   - currently the glass tunnel can look messed up when destroyed from below.
@@ -75,7 +77,6 @@ Rom patching:
      - prevent accidental quickloads from losing lots of progress
 - make kraid camera act normal when entering from left?
   - same thing with spore spawn entering from bottom?
-- prevent MB1 death unless objectives cleared
 
 Logic:
 - PCJR: "Left-Side Shinespark" (and related strats): rename and add "canShinechargeMovementComplex" req
