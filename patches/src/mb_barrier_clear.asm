@@ -16,6 +16,11 @@ macro clear_plm(plm)
     dw clear_barrier_plm
 endmacro
 
+; Hook the code that checks whether to trigger post-MB1 cutscene:
+; (based on glass being broken, MB1 health at zero, etc.)
+org $A987E4
+    jsl mb1_trigger_hook
+
 ; Free space in bank $B8
 org !bank_b8_free_space_start
 ; This must be placed at the start of the free space, to match the location expected in patch.rs
@@ -23,7 +28,7 @@ door_asm_start:
 ; 2 potential scenarios for barriers:
 ; obj_num <= 4, clear individually from left to right
 ; obj_num > 4, maintain all 4 until all obj's cleared
-    lda !objectives_num : and $7FFF
+    lda !objectives_num : and #$7FFF
     cmp #$0005
     bcc normal_objs               ; <= 4 ?
 
@@ -96,6 +101,29 @@ check_objective:
     lda #$0001
     rts
 
+; returns: carry set if conditions to trigger MB1 cutscene are satisfied
+; (glass broken and all objectives complete)
+mb1_trigger_hook:
+    jsl $808233  ; run hi-jacked code: check if glass is broken
+    bcc .done
+
+    lda !objectives_num : and #$7FFF
+    beq .all_obj_cleared
+
+    ldx #$0000
+    tay
+.check_lp:
+    jsr check_objective
+    beq .obj_not_cleared
+    dey
+    bne .check_lp
+.all_obj_cleared:
+    sec
+    rtl
+.obj_not_cleared:
+    clc
+.done:
+    rtl
 warnpc !bank_b8_free_space_end
 
 org !bank_84_free_space_start
