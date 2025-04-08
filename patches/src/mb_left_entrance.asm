@@ -4,44 +4,51 @@ lorom
 !bank_84_free_space_start = $84f580
 !bank_84_free_space_end = $84f590
 !bank_8f_free_space_start = $8fff00
-!bank_8f_free_space_end = $8fff90
+!bank_8f_free_space_end = $8fffa0
+
+org $83AAD2
+    dw mb_right_door  ; Set door ASM for Rinka Shaft toward Mother Brain
 
 org $83AAEA
-    dw $EE00  ; Set door ASM for Tourian Escape Room 1 toward Mother Brain
+    dw mb_left_door  ; Set door ASM for Tourian Escape Room 1 toward Mother Brain
 
 org $83AAE3
     db $00    ; Set door direction = $00  (to make door not close behind Samus)
 
-; Custom door ASM for Tourian Escape Room 1 toward Mother Brain
-org $8FEE00
-    jmp.w !bank_8f_free_space_start&$00ffff
-
 org !bank_8f_free_space_start
+mb_right_door:
+    lda #$000e
+    jsl $808233
+    bcs clear_room_plms   ; if escape, clear PLMs
+    rts
+
 mb_left_door:
     lda #$000e
     jsl $808233
-    bcs .clear_room        ; if escape, clear PLMs
-    bra .done
+    bcs clear_room        ; if escape, clear PLMs
+    bra done
 
-.clear_room
+clear_room:
     lda $7ECD20            ; set scroll limit
     and #$00FF
     sta $7ECD20
+    ; Fall through to below:
 
+clear_room_plms:
     ldy #$000E
     ldx #plm_data
 
 .next_plm
     jsl $84846a
     dey
-    beq .done
+    beq done
     txa
     clc
     adc #$0006
     tax
     bra .next_plm
 
-.done
+done:
     jsl $8483D7            ;\
     db  $00, $06           ;|
     dw  $B677              ;} Spawn Mother Brain's room escape door

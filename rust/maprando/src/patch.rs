@@ -2439,12 +2439,26 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn apply_mother_brain_setup_asm(&mut self) -> Result<()> {
+        let mb_door_asm = 0xB88100;
+        self.extra_setup_asm
+            .entry(0x7DD58)
+            .or_insert(vec![])
+            .extend(vec![
+                // JSR mb_door_asm
+                0x20,
+                (mb_door_asm & 0xFF) as u8,
+                (mb_door_asm >> 8) as u8, 
+            ]);
+        Ok(())        
+    }
+
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
         // remove unused pointer from Bomb Torizo room (Zebes ablaze state), to avoid misinterpreting it as an
         // extra setup ASM pointer.
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
-        let mut next_addr = snes2pc(0xB88200);
+        let mut next_addr = snes2pc(0xB88300);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -2457,7 +2471,7 @@ impl<'a> Patcher<'a> {
             }
         }
         println!("extra setup ASM end: {:x}", next_addr);
-        assert!(next_addr <= snes2pc(0xB8FFFF));
+        assert!(next_addr <= snes2pc(0xB8E000));
 
         Ok(())
     }
@@ -3186,6 +3200,7 @@ pub fn make_rom(
         patcher.apply_all_room_outlines()?;
     }
     patcher.apply_toilet_data()?;
+    patcher.apply_mother_brain_setup_asm()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }

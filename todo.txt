@@ -1,5 +1,6 @@
 v118:
-- load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
+- remove vanilla music on vanilla map
+- DONE: load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
 - prevent MB1 death unless objectives cleared
 - override "h_fullEnemyDamageReduction"
 - handle PowerBombPeriphery correctly in enemyKill logic
