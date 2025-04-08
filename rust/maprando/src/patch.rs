@@ -15,7 +15,7 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, Objective, ObjectiveScreen,
+        ETankRefill, MotherBrainFight, Objective, ObjectiveScreen,
         RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
