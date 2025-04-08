@@ -3170,11 +3170,7 @@ pub fn make_rom(
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
     patcher.remove_non_blue_doors()?;
-    if randomization.settings.map_layout != "Vanilla"
-        || randomization.settings.other_settings.area_assignment == AreaAssignment::Random
-    {
-        patcher.use_area_based_music()?;
-    }
+    patcher.use_area_based_music()?;
     patcher.setup_door_specific_fx()?;
     if !randomization.settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
