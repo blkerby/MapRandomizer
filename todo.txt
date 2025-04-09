@@ -1,4 +1,5 @@
 v118:
+- handle wallJumpAvoid on strats and notables.
 - DONE: remove vanilla music on vanilla map
 - DONE: load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
 - DONE: prevent MB1 death unless objectives cleared
