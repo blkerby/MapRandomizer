@@ -3,7 +3,7 @@ use crate::web::{AppData, VersionInfo};
 use actix_web::HttpRequest;
 use anyhow::{bail, Result};
 use askama::Template;
-use hashbrown::HashSet;
+use hashbrown::{HashMap, HashSet};
 use maprando::{
     helpers::get_item_priorities,
     patch::{ips_write::create_ips_patch, Rom},
@@ -11,8 +11,8 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, ItemDotChange,
-        RandomizerSettings, WallJump,
+        get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
+        ItemDotChange, RandomizerSettings, WallJump,
     },
     spoiler_map,
 };
@@ -29,6 +29,7 @@ pub struct SeedHeaderTemplate<'a> {
     version_info: VersionInfo,
     settings: &'a RandomizerSettings,
     item_priority_groups: Vec<ItemPriorityGroup>,
+    objective_names: HashMap<String, String>,
     race_mode: bool,
     preset: String,
     item_progression_preset: String,
@@ -341,6 +342,11 @@ pub fn render_seed(
         get_enabled_tech(&seed_data.difficulty.tech, &app_data.game_data);
     let enabled_notables: HashSet<(RoomId, NotableId)> =
         get_enabled_notables(&seed_data.difficulty.notables, &app_data.game_data);
+    let objective_names: HashMap<String, String> = get_objective_groups()
+        .iter()
+        .map(|x| x.objectives.clone())
+        .flatten()
+        .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),
         version_info: app_data.version_info.clone(),
@@ -352,6 +358,7 @@ pub fn render_seed(
                 .item_progression_settings
                 .key_item_priority,
         ),
+        objective_names,
         race_mode: seed_data.race_mode,
         timestamp: seed_data.timestamp,
         preset: seed_data.preset.clone().unwrap_or("Custom".to_string()),

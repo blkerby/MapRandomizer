@@ -467,7 +467,7 @@
     "room_id": 32,
     "room_name": "West Ocean",
     "notable_id": 12,
-    "name": "G-mode Overload PLMs by PBing Missile Item",
+    "name": "G-mode Overload PLMs by Power Bombing Morph Maze Item",
     "difficulty": "Extreme",
     "video_id": 375
   },
@@ -2141,7 +2141,7 @@
     "notable_id": 1,
     "name": "Top Left Direct Jump",
     "difficulty": "Very Hard",
-    "video_id": 206
+    "video_id": 679
   },
   {
     "room_id": 173,
@@ -3414,6 +3414,14 @@
     "name": "Ice Zebetite Skip",
     "difficulty": "Hard",
     "video_id": 1092
+  },
+  {
+    "room_id": 238,
+    "room_name": "Mother Brain Room",
+    "notable_id": 5,
+    "name": "Moondance Clip",
+    "difficulty": "Insane",
+    "video_id": 6000
   },
   {
     "room_id": 233,

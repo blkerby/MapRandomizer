@@ -47,6 +47,11 @@
 !objectives_addrs = $8FEBC0
 !objectives_bitmasks #= !objectives_addrs+(2*!objectives_max)
 
+; range of item PLMs in bank 84
+!item_plm_start = #$DF89
+!item_plm_end = #$F100
+
+
 ; Settings:
 ; target number of frames for the pause menu black screen to lag
 ; (to compensate for VRAM decompression being faster): 

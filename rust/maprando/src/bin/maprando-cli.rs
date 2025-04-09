@@ -145,7 +145,7 @@ fn get_randomization(
             None => 10000, // Same as maprando-web.
         }
     };
-    let max_attempts_per_map = if settings.start_location_mode == StartLocationMode::Random
+    let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
         && game_data.start_locations.len() > 1
     {
         10

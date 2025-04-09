@@ -76,15 +76,15 @@
 
 {% if let Some(entrance_condition) = strat.entrance_condition %}
     <p class="mb-0">Entrance condition:</p>
-    <pre>{{+ entrance_condition }}</pre>
+    <pre class="overflow-scroll" style="max-width:1100px">{{+ entrance_condition }}</pre>
 {% endif %}
 {% if strat.requires.len() > 0 %}
     <p class="mb-0">Requires:</p>
-    <pre>{{+ strat.requires }}</pre>
+    <pre class="overflow-scroll" style="max-width:1100px">{{+ strat.requires }}</pre>
 {% endif %}
 {% if let Some(exit_condition) = strat.exit_condition %}
     <p class="mb-0">Exit condition:</p>
-    <pre>{{+ exit_condition }}</pre>
+    <pre class="overflow-scroll" style="max-width:1100px">{{+ exit_condition }}</pre>
 {% endif %}
 {% if strat.clears_obstacles.len() > 0 %}
     <p>Clears obstacles: {{+ strat.clears_obstacles.join(", ") }}</p>
@@ -97,7 +97,7 @@
 {% endif %}
 {% if strat.unlocks_doors.as_ref().is_some() %}
     <p class="mb-0">Unlocks doors:</p>
-    <pre>{{+ strat.unlocks_doors.as_ref().unwrap() }}</pre>
+    <pre class="overflow-scroll" style="max-width:1100px">{{+ strat.unlocks_doors.as_ref().unwrap() }}</pre>
 {% endif %}
 
 {% if strat.dev_note.len() > 0 %}

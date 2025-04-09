@@ -85,6 +85,7 @@ pub type RoomId = usize; // Room ID from sm-json-data
 pub type RoomPtr = usize; // Room pointer (PC address of room header)
 pub type RoomStateIdx = usize; // Room state index
 pub type NodeId = usize; // Node ID from sm-json-data (only unique within a room)
+pub type StartLocationId = usize; // Index into GameData.start_locations
 pub type NodePtr = usize; // nodeAddress from sm-json-data: for items this is the PC address of PLM, for doors it is PC address of door data
 pub type StratId = usize; // Strat ID from sm-json-data (only unique within a room)
 pub type NotableId = usize; // Notable ID from sm-json-data (only unique within a room)
@@ -203,6 +204,7 @@ pub enum Requirement {
     Flag(FlagId),
     NotFlag(FlagId),
     MotherBrainBarrierClear(usize),
+    DisableableETank,
     Walljump,
     ShineCharge {
         used_tiles: Float,
@@ -274,6 +276,7 @@ pub enum Requirement {
     EnergyStationRefill,
     RegularEnergyDrain(Capacity),
     ReserveEnergyDrain(Capacity),
+    MissileDrain(Capacity),
     LowerNorfairElevatorDownFrames,
     LowerNorfairElevatorUpFrames,
     MainHallElevatorFrames,
@@ -703,6 +706,7 @@ pub enum ExitCondition {
     LeaveNormally {},
     LeaveWithRunway {
         effective_length: Float,
+        min_extra_run_speed: Float,
         heated: bool,
         physics: Option<Physics>,
         from_exit_node: bool,
@@ -771,6 +775,7 @@ pub enum ExitCondition {
         effective_length: Float,
         height: Float,
         obstruction: (u16, u16),
+        environment: SidePlatformEnvironment,
     },
     LeaveWithGrappleSwing {
         blocks: Vec<GrappleSwingBlock>,
@@ -868,6 +873,14 @@ pub enum BounceMovementType {
     Any,
 }
 
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+pub enum SidePlatformEnvironment {
+    #[default]
+    Any,
+    Air,
+    Water,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct SidePlatformEntrance {
     pub min_tiles: Float,
@@ -875,6 +888,7 @@ pub struct SidePlatformEntrance {
     pub min_height: Float,
     pub max_height: Float,
     pub obstructions: Vec<(u16, u16)>,
+    pub environment: SidePlatformEnvironment,
     pub requirement: Requirement,
 }
 
@@ -1356,6 +1370,7 @@ pub struct GameData {
     pub flag_isv: IndexedVec<String>,
     pub item_isv: IndexedVec<String>,
     weapon_isv: IndexedVec<String>,
+    weapon_categories: HashMap<String, Vec<String>>, // map from weapon category to specific weapons with that category
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     enemy_json: HashMap<String, JsonValue>,
@@ -1370,6 +1385,7 @@ pub struct GameData {
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
+    pub room_full_area: HashMap<RoomId, String>,
     pub node_json_map: HashMap<(RoomId, NodeId), JsonValue>,
     pub node_spawn_at_map: HashMap<(RoomId, NodeId), NodeId>,
     pub reverse_node_ptr_map: HashMap<NodePtr, (RoomId, NodeId)>,
@@ -1409,6 +1425,7 @@ pub struct GameData {
     pub tech_dependencies: HashMap<TechId, Vec<TechId>>,
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
+    pub start_location_id_map: HashMap<(RoomId, NodeId), StartLocationId>,
     pub hub_locations: Vec<HubLocation>,
     pub heat_run_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
     pub speed_ball_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
@@ -1420,6 +1437,7 @@ pub struct GameData {
     pub reduced_flashing_patch: GlowPatch,
     pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
     pub map_tile_data: Vec<MapTileData>,
+    pub area_order: Vec<String>,
 }
 
 impl<T: Hash + Eq> IndexedVec<T> {
@@ -1681,12 +1699,23 @@ impl GameData {
         ensure!(weapons_json["weapons"].is_array());
         for weapon_json in weapons_json["weapons"].members() {
             let name = weapon_json["name"].as_str().unwrap();
-            if weapon_json["situational"].as_bool().unwrap() {
-                continue;
-            }
             self.weapon_json_map
                 .insert(name.to_string(), weapon_json.clone());
             self.weapon_isv.add(name);
+            let mut categories: Vec<String> = weapon_json["categories"]
+                .members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect();
+            categories.push(name.to_string());
+            for category in categories {
+                if !self.weapon_categories.contains_key(&category) {
+                    self.weapon_categories.insert(category.clone(), vec![]);
+                }
+                self.weapon_categories
+                    .get_mut(&category)
+                    .unwrap()
+                    .push(name.to_string());
+            }
         }
 
         self.non_ammo_weapon_mask = 0;
@@ -1712,10 +1741,9 @@ impl GameData {
                     self.enemy_attack_damage
                         .insert((enemy_name.to_string(), attack_name.to_string()), damage);
                 }
-                self.enemy_vulnerabilities.insert(
-                    enemy_name.to_string(),
-                    self.get_enemy_vulnerabilities(enemy_json)?,
-                );
+                let vul = self.get_enemy_vulnerabilities(enemy_json)?;
+                self.enemy_vulnerabilities
+                    .insert(enemy_name.to_string(), vul);
                 self.enemy_json
                     .insert(enemy_name.to_string(), enemy_json.clone());
             }
@@ -1725,7 +1753,15 @@ impl GameData {
 
     fn get_enemy_damage_multiplier(&self, enemy_json: &JsonValue, weapon_name: &str) -> f32 {
         for multiplier in enemy_json["damageMultipliers"].members() {
-            if multiplier["weapon"] == weapon_name {
+            let category = multiplier["weapon"].as_str().unwrap();
+            if !self.weapon_categories.contains_key(category) {
+                error!(
+                    "Weapon category '{}' not found, in enemy JSON: {}",
+                    category,
+                    enemy_json.pretty(2)
+                );
+            }
+            if self.weapon_categories[category].contains(&weapon_name.to_string()) {
                 return multiplier["value"].as_f32().unwrap();
             }
         }
@@ -1762,6 +1798,9 @@ impl GameData {
         'weapon: for (i, weapon_name) in self.weapon_isv.keys.iter().enumerate() {
             let weapon_json = &self.weapon_json_map[weapon_name];
             if invul.contains(weapon_name) {
+                continue;
+            }
+            if weapon_json["situational"].as_bool().unwrap() {
                 continue;
             }
             ensure!(weapon_json["categories"].is_array());
@@ -2170,6 +2209,23 @@ impl GameData {
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
                 }
+            } else if key == "resourceMaxCapacity" {
+                ensure!(value.members().len() == 1);
+                let value0 = value.members().next().unwrap();
+                let resource_type = value0["type"]
+                    .as_str()
+                    .expect(&format!("missing/invalid resource type in {}", req_json));
+                let count = value0["count"]
+                    .as_i32()
+                    .expect(&format!("missing/invalid resource count in {}", req_json));
+                if resource_type == "RegularEnergy" {
+                    return Ok(Requirement::make_and(vec![
+                        Requirement::DisableableETank,
+                        Requirement::RegularEnergyDrain(count as Capacity),
+                    ]));
+                } else {
+                    bail!("Unexpected resource type in {}", req_json);
+                }
             } else if key == "resourceAtMost" {
                 let mut reqs: Vec<Requirement> = vec![];
                 for r in value.members() {
@@ -2187,6 +2243,8 @@ impl GameData {
                         reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
                     } else if resource_type == "ReserveEnergy" {
                         reqs.push(Requirement::ReserveEnergyDrain(count as Capacity));
+                    } else if resource_type == "Missile" {
+                        reqs.push(Requirement::MissileDrain(count as Capacity));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
@@ -2472,14 +2530,8 @@ impl GameData {
                     ensure!(value["explicitWeapons"].is_array());
                     let mut weapon_mask = 0;
                     for weapon_name in value["explicitWeapons"].members() {
-                        if self
-                            .weapon_isv
-                            .index_by_key
-                            .contains_key(weapon_name.as_str().unwrap())
-                        {
-                            weapon_mask |=
-                                1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()];
-                        }
+                        weapon_mask |=
+                            1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()];
                     }
                     weapon_mask
                 } else {
@@ -2488,14 +2540,8 @@ impl GameData {
                 if value.has_key("excludedWeapons") {
                     ensure!(value["excludedWeapons"].is_array());
                     for weapon_name in value["excludedWeapons"].members() {
-                        if self
-                            .weapon_isv
-                            .index_by_key
-                            .contains_key(weapon_name.as_str().unwrap())
-                        {
-                            allowed_weapons &=
-                                !(1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()]);
-                        }
+                        allowed_weapons &=
+                            !(1 << self.weapon_isv.index_by_key[weapon_name.as_str().unwrap()]);
                     }
                 }
                 let mut reqs: Vec<Requirement> = Vec::new();
@@ -2509,7 +2555,14 @@ impl GameData {
                         vul.super_damage = 0;
                     }
                     if allowed_weapons & (1 << self.weapon_isv.index_by_key["PowerBomb"]) == 0 {
-                        vul.power_bomb_damage = 0;
+                        if allowed_weapons
+                            & (1 << self.weapon_isv.index_by_key["PowerBombPeriphery"])
+                            == 0
+                        {
+                            vul.power_bomb_damage = 0;
+                        } else {
+                            vul.power_bomb_damage /= 2;
+                        }
                     }
                     reqs.push(Requirement::EnemyKill {
                         count: *count as Capacity,
@@ -3401,6 +3454,7 @@ impl GameData {
                 let runway_effective_length = compute_runway_effective_length(&runway_geometry);
                 ExitCondition::LeaveWithRunway {
                     effective_length: Float::new(runway_effective_length),
+                    min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
                     heated,
                     physics,
                     from_exit_node: from_node_id == to_node_id,
@@ -3532,6 +3586,14 @@ impl GameData {
                         value["obstruction"][0].as_u16().unwrap(),
                         value["obstruction"][1].as_u16().unwrap(),
                     ),
+                    environment: match physics {
+                        Some(Physics::Water) => SidePlatformEnvironment::Water,
+                        Some(Physics::Air) => SidePlatformEnvironment::Air,
+                        _ => bail!(
+                            "unexpected door physics in leaveWithSidePlatform: {:?}",
+                            physics
+                        ),
+                    },
                 }
             }
             "leaveWithGrappleSwing" => {
@@ -3813,6 +3875,14 @@ impl GameData {
                             .members()
                             .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                             .collect(),
+                        environment: match p["environment"].as_str().unwrap_or("any") {
+                            "air" => SidePlatformEnvironment::Air,
+                            "water" => SidePlatformEnvironment::Water,
+                            "any" => SidePlatformEnvironment::Any,
+                            _ => {
+                                bail!("unexpected side platform environment: {}", p["environment"])
+                            }
+                        },
                         requirement: if p.has_key("requires") {
                             let reqs_json: Vec<JsonValue> =
                                 value["requires"].members().cloned().collect();
@@ -4254,10 +4324,23 @@ impl GameData {
         Ok(())
     }
 
+    fn get_full_area(&self, room_json: &JsonValue) -> String {
+        let area = room_json["area"].as_str().unwrap().to_string();
+        let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
+        let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
+        let full_area = if sub_sub_area != "" {
+            format!("{} {} {}", sub_sub_area, sub_area, area)
+        } else if sub_area != "" && sub_area != "Main" {
+            format!("{} {}", sub_area, area)
+        } else {
+            area
+        };
+        full_area
+    }
+
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
         let room_id = room_json["id"].as_usize().unwrap();
         self.room_json_map.insert(room_id, room_json.clone());
-
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
         self.raw_room_id_by_ptr.insert(room_ptr, room_id);
@@ -4269,6 +4352,8 @@ impl GameData {
             self.room_id_by_ptr.insert(room_ptr, room_id);
         }
         self.room_ptr_by_id.insert(room_id, room_ptr);
+        self.room_full_area
+            .insert(room_id, self.get_full_area(room_json));
 
         // Process obstacles:
         let obstacles_idx_map: HashMap<String, usize> = if room_json.has_key("obstacles") {
@@ -4603,26 +4688,34 @@ impl GameData {
         Ok(())
     }
 
-    pub fn get_weapon_mask(&self, items: &[bool]) -> WeaponMask {
+    pub fn get_weapon_mask(&self, items: &[bool], tech: &[bool]) -> WeaponMask {
         let mut weapon_mask = 0;
-        let implicit_item_requires: HashSet<String> =
-            vec!["PowerBeam", "canUseGrapple", "canSpecialBeamAttack"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect();
+        let implicit_requires: HashSet<String> = vec!["PowerBeam"]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect();
         // TODO: possibly make this more efficient. We could avoid dealing with strings
         // and just use a pre-computed item bitmask per weapon. But not sure yet if it matters.
         'weapon: for (i, weapon_name) in self.weapon_isv.keys.iter().enumerate() {
             let weapon = &self.weapon_json_map[weapon_name];
             assert!(weapon["useRequires"].is_array());
-            for item_name_json in weapon["useRequires"].members() {
-                let item_name = item_name_json.as_str().unwrap();
-                if implicit_item_requires.contains(item_name) {
+            for req_json in weapon["useRequires"].members() {
+                let req_name = req_json.as_str().unwrap();
+                if implicit_requires.contains(req_name) {
                     continue;
                 }
-                let item_idx = self.item_isv.index_by_key[item_name];
-                if !items[item_idx] {
-                    continue 'weapon;
+                if self.item_isv.index_by_key.contains_key(req_name) {
+                    let item_idx = self.item_isv.index_by_key[req_name];
+                    if !items[item_idx] {
+                        continue 'weapon;
+                    }
+                } else if self.tech_id_by_name.contains_key(req_name) {
+                    let tech_idx = self.tech_isv.index_by_key[&self.tech_id_by_name[req_name]];
+                    if !tech[tech_idx] {
+                        continue 'weapon;
+                    }
+                } else {
+                    panic!("Unrecognized weapon requirement: {}", req_name);
                 }
             }
             weapon_mask |= 1 << i;
@@ -4642,7 +4735,15 @@ impl GameData {
         let start_locations_str = std::fs::read_to_string(path)
             .with_context(|| format!("Unable to load start locations at {}", path.display()))?;
         let mut start_locations: Vec<StartLocation> = serde_json::from_str(&start_locations_str)?;
-        for loc in &mut start_locations {
+        let mut start_location_id_map: HashMap<(usize, usize), usize> = HashMap::new();
+        for (i, loc) in start_locations.iter_mut().enumerate() {
+            if start_location_id_map.contains_key(&(loc.room_id, loc.node_id)) {
+                bail!(
+                    "Non-unique (room_id, node_id) for start location: {:?}",
+                    loc
+                );
+            }
+            start_location_id_map.insert((loc.room_id, loc.node_id), i);
             if loc.requires.is_none() {
                 loc.requires_parsed = Some(Requirement::Free);
             } else {
@@ -4667,6 +4768,7 @@ impl GameData {
             }
         }
         self.start_locations = start_locations;
+        self.start_location_id_map = start_location_id_map;
         Ok(())
     }
 
@@ -4863,6 +4965,31 @@ impl GameData {
         game_data.load_tech()?;
         game_data.load_helpers()?;
 
+        game_data.area_order = vec![
+            "Central Crateria",
+            "West Crateria",
+            "East Crateria",
+            "Blue Brinstar",
+            "Green Brinstar",
+            "Pink Brinstar",
+            "Red Brinstar",
+            "Kraid Brinstar",
+            "East Upper Norfair",
+            "West Upper Norfair",
+            "Crocomire Upper Norfair",
+            "West Lower Norfair",
+            "East Lower Norfair",
+            "Wrecked Ship",
+            "Outer Maridia",
+            "Pink Inner Maridia",
+            "Yellow Inner Maridia",
+            "Green Inner Maridia",
+            "Tourian",
+        ]
+        .into_iter()
+        .map(|x| x.to_string())
+        .collect();
+
         // Patch the h_heatProof and h_heatResistant to take into account the complementary suit
         // patch, where only Varia (and not Gravity) provides heat protection:
         *game_data.helper_json_map.get_mut("h_heatProof").unwrap() = json::object! {
@@ -4881,6 +5008,15 @@ impl GameData {
             "name": "h_lavaProof",
             "requires": ["Varia", "Gravity"],
         };
+        // Both Varia and Gravity are required to provide full enemy damage reduction:
+        *game_data
+            .helper_json_map
+            .get_mut("h_fullEnemyDamageReduction")
+            .unwrap() = json::object! {
+            "name": "h_fullEnemyDamageReduction",
+            "requires": ["Varia", "Gravity"],
+        };
+
         // Gate glitch leniency
         *game_data
             .helper_json_map

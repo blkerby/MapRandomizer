@@ -55,7 +55,7 @@ fn run_scenario(
         }
     }
 
-    let weapon_mask = game_data.get_weapon_mask(&items);
+    let weapon_mask = game_data.get_weapon_mask(&items, &difficulty.tech);
     let global_state = GlobalState {
         inventory: Inventory {
             items: items,

@@ -1,0 +1,26 @@
+{% for obj_option in settings.objective_settings.objective_options %}
+<div class="row">
+    {% if obj_option.setting != maprando::settings::ObjectiveSetting::No %}
+        <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">{{ 
+            objective_names[format!("{:?}", obj_option.objective)|as_ref]
+        }}:</div>
+        <div class="col-4 col-sm-3">{{
+            format!("{:?}", obj_option.setting)
+        }}</div>
+    {% endif %}
+</div>
+{% endfor %}
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Minimum number of objectives:</div>
+    <div class="col-4 col-sm-3">{{ settings.objective_settings.min_objectives}}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Maximum number of objectives:</div>
+    <div class="col-4 col-sm-3">{{ settings.objective_settings.max_objectives}}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Pause menu objective screen:</div>
+    <div class="col-4 col-sm-3">
+        {{ format!("{:?}", settings.objective_settings.objective_screen) }}
+    </div>
+</div>

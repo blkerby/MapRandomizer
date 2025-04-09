@@ -1,2 +1,3 @@
 0000-0100: hazard_markers.asm
-0100-end: extra setup ASM
+0100-E000: extra setup ASM
+E000-FFFF: hud_expansion_opaque.asm

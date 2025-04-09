@@ -1,0 +1,34 @@
+<div class="modal" id="customStartLocationModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered" style="max-width:max(min(90vw, 992px), 576px)">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Start location</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        
+            <div class="modal-body px-4 py-2">
+                <div class="form-group row my-2">
+                    <label for="customStartLocation" class="col-sm-4 col-lg-3 mb-1 mt-1 col-form-label">Custom start location</label>
+                    <div class="col-sm-8 col-lg-9 my-2">
+                        <select id="customStartLocation" class="form-select" onchange="customStartLocationChanged();">
+                            <option value="unspecified" selected>Select a specific location to start at</option>
+                            {% for (area, loc_vec) in start_locations_by_area %}
+                                <optgroup label="{{ area }}">
+                                {% for loc in loc_vec %}
+                                    <option data-room-id="{{ loc.room_id }}" data-node-id="{{ loc.node_id }}">
+                                        {{ loc.name }}
+                                    </option>
+                                {% endfor %}
+                                </optgroup>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

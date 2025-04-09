@@ -2637,7 +2637,7 @@
             "room_id": 32,
             "notable_id": 12,
             "room_name": "West Ocean",
-            "notable_name": "G-mode Overload PLMs by PBing Missile Item",
+            "notable_name": "G-mode Overload PLMs by Power Bombing Morph Maze Item",
             "enabled": false
         },
         {
@@ -3800,6 +3800,13 @@
             "notable_id": 2,
             "room_name": "Metroid Room 1",
             "notable_name": "Acid Skip CWJ",
+            "enabled": false
+        },
+        {
+            "room_id": 238,
+            "notable_id": 5,
+            "room_name": "Mother Brain Room",
+            "notable_name": "Moondance Clip",
             "enabled": false
         },
         {

@@ -288,6 +288,8 @@ fix_map_palette:
     sta $7EC0F6
     lda $B6F0FA
     sta $7EC0FA
+    lda $B6F0FC
+    sta $7EC0FC
 
     ; Partially revealed tiles: black color for item dots, door locks
     lda #$0000

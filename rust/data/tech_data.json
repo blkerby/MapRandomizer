@@ -477,7 +477,7 @@
         "tech_id": 73,
         "name": "canTrickyDashJump",
         "difficulty": "Expert",
-        "video_id": 950
+        "video_id": 433
     },
     {
         "tech_id": 74,
@@ -1047,7 +1047,7 @@
         "tech_id": 200,
         "name": "canTrickyGMode",
         "difficulty": "Insane",
-        "video_id": null
+        "video_id": 5749
     },
     {
         "tech_id": 198,

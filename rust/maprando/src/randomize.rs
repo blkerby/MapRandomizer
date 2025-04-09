@@ -13,7 +13,7 @@ use crate::traverse::{
     get_spoiler_route, traverse, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
     NUM_COST_METRICS,
 };
-use anyhow::{bail, Result};
+use anyhow::{bail, Context, Result};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
@@ -21,13 +21,13 @@ use maprando_game::{
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
     GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
     ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
-    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SparkPosition,
-    StartLocation, TechId, TemporaryBlueDirection, VertexId, VertexKey,
-    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
-    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP,
-    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
-    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL,
-    TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance,
+    SidePlatformEnvironment, SparkPosition, StartLocation, TechId, TemporaryBlueDirection,
+    VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT,
+    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
+    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
+    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
+    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
     TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
     TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
@@ -839,12 +839,16 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
             } => {
                 let effective_length = effective_length.get();
                 if effective_length < min_tiles {
+                    return None;
+                }
+                if get_extra_run_speed_tiles(min_extra_run_speed.get()) > max_tiles {
                     return None;
                 }
                 let mut reqs: Vec<Requirement> = vec![];
@@ -1031,12 +1035,13 @@ impl<'a> Preprocessor<'a> {
         mut runway_length: f32,
         min_tiles: f32,
         runway_heated: bool,
-        min_extra_run_speed: f32,
-        max_extra_run_speed: f32,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1057,11 +1062,11 @@ impl<'a> Preprocessor<'a> {
 
                 if !self.add_run_speed_reqs(
                     combined_runway_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated || runway_heated,
-                    min_extra_run_speed,
-                    max_extra_run_speed,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
                     &mut reqs,
                 ) {
                     return None;
@@ -1097,13 +1102,14 @@ impl<'a> Preprocessor<'a> {
         min_tiles: f32,
         runway_heated: bool,
     ) -> Option<Requirement> {
-        // TODO: Remove min_tiles here, after strats have been correctly split off using "comeInGettingBlueSpeed".
+        // TODO: Remove min_tiles here, after strats have been correctly split off using "comeInGettingBlueSpeed"?
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 heated,
                 physics,
                 from_exit_node,
+                ..
             } => {
                 let mut effective_length = effective_length.get();
                 if effective_length < min_tiles {
@@ -1152,6 +1158,7 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1180,7 +1187,7 @@ impl<'a> Preprocessor<'a> {
                 let shortcharge_length = combined_runway_length - midair_length;
                 if !self.add_run_speed_reqs(
                     shortcharge_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated,
                     final_min_extra_run_speed,
@@ -1283,6 +1290,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1298,6 +1306,9 @@ impl<'a> Preprocessor<'a> {
                 let max_tiles = get_extra_run_speed_tiles(entrance_max_extra_run_speed);
 
                 if min_tiles > effective_length - unusable_tiles {
+                    return None;
+                }
+                if min_extra_run_speed.get() > entrance_max_extra_run_speed {
                     return None;
                 }
 
@@ -1360,6 +1371,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1369,7 +1381,7 @@ impl<'a> Preprocessor<'a> {
 
                 if !self.add_run_speed_reqs(
                     effective_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated,
                     entrance_min_extra_run_speed,
@@ -1454,6 +1466,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1577,6 +1590,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1719,6 +1733,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed,
                 heated,
                 physics,
                 from_exit_node,
@@ -1728,7 +1743,7 @@ impl<'a> Preprocessor<'a> {
 
                 if !self.add_run_speed_reqs(
                     effective_length,
-                    0.0,
+                    min_extra_run_speed.get(),
                     7.0,
                     *heated,
                     entrance_min_extra_run_speed,
@@ -1776,6 +1791,7 @@ impl<'a> Preprocessor<'a> {
             ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1818,6 +1834,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1855,6 +1872,7 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1927,6 +1945,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -1975,6 +1994,7 @@ impl<'a> Preprocessor<'a> {
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -2018,6 +2038,7 @@ impl<'a> Preprocessor<'a> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
                 effective_length,
+                min_extra_run_speed: _,
                 heated,
                 physics,
                 from_exit_node,
@@ -2305,12 +2326,19 @@ impl<'a> Preprocessor<'a> {
                 effective_length,
                 height,
                 obstruction,
+                environment,
             } => {
                 let effective_length = effective_length.get();
                 let height = height.get();
                 let mut reqs_or_vec = vec![];
                 for p in platforms {
                     let mut reqs = vec![];
+                    if &p.environment != environment
+                        && p.environment != SidePlatformEnvironment::Any
+                        && environment != &SidePlatformEnvironment::Any
+                    {
+                        continue;
+                    }
                     if effective_length < p.min_tiles.get() {
                         continue;
                     }
@@ -3587,7 +3615,7 @@ impl<'r> Randomizer<'r> {
                 remaining_items
             );
             for item_loc_state in &mut state.item_location_state {
-                if item_loc_state.placed_item.is_none() || !item_loc_state.bireachable {
+                if item_loc_state.placed_item.is_none() {
                     item_loc_state.placed_item = Some(Item::Nothing);
                 }
             }
@@ -3635,6 +3663,7 @@ impl<'r> Randomizer<'r> {
                 self.settings
                     .item_progression_settings
                     .ammo_collect_fraction,
+                &self.difficulty_tiers[0].tech,
             );
         }
 
@@ -4317,7 +4346,7 @@ impl<'r> Randomizer<'r> {
         num_attempts: usize,
         rng: &mut R,
     ) -> Result<StartLocationData> {
-        if self.settings.start_location_mode == StartLocationMode::Ship {
+        if self.settings.start_location_settings.mode == StartLocationMode::Ship {
             let mut ship_start = StartLocation::default();
             ship_start.name = "Ship".to_string();
             ship_start.room_id = 8;
@@ -4340,7 +4369,36 @@ impl<'r> Randomizer<'r> {
         }
         for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {}", i);
-            let start_loc_idx = rng.gen_range(0..self.game_data.start_locations.len());
+            let start_loc_idx = match self.settings.start_location_settings.mode {
+                StartLocationMode::Random => rng.gen_range(0..self.game_data.start_locations.len()),
+                StartLocationMode::Custom => {
+                    let mut idx: Option<usize> = None;
+                    let room_id = self
+                        .settings
+                        .start_location_settings
+                        .room_id
+                        .context("expected room_id")?;
+                    let node_id = self
+                        .settings
+                        .start_location_settings
+                        .node_id
+                        .context("expected node_id")?;
+                    for (j, loc) in self.game_data.start_locations.iter().enumerate() {
+                        if loc.room_id == room_id && loc.node_id == node_id {
+                            idx = Some(j);
+                            break;
+                        }
+                    }
+                    if idx.is_none() {
+                        bail!("Unknown start location ({}, {})", room_id, node_id);
+                    }
+                    idx.unwrap()
+                }
+                _ => panic!(
+                    "Unexpected start location mode: {:?}",
+                    self.settings.start_location_settings.mode
+                ),
+            };
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
 
             info!("[attempt {attempt_num_rando}] start: {:?}", start_loc);
@@ -4487,7 +4545,9 @@ impl<'r> Randomizer<'r> {
 
     fn get_initial_global_state(&self) -> GlobalState {
         let items = vec![false; self.game_data.item_isv.keys.len()];
-        let weapon_mask = self.game_data.get_weapon_mask(&items);
+        let weapon_mask = self
+            .game_data
+            .get_weapon_mask(&items, &self.difficulty_tiers[0].tech);
         let mut global = GlobalState {
             inventory: Inventory {
                 items: items,
@@ -4512,6 +4572,7 @@ impl<'r> Randomizer<'r> {
                     self.settings
                         .item_progression_settings
                         .ammo_collect_fraction,
+                    &self.difficulty_tiers[0].tech,
                 );
             }
         }
@@ -4715,7 +4776,7 @@ impl<'r> Randomizer<'r> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-        if self.settings.start_location_mode == StartLocationMode::Escape {
+        if self.settings.start_location_settings.mode == StartLocationMode::Escape {
             return self.dummy_randomize(seed, display_seed, &mut rng);
         }
         let initial_global_state = self.get_initial_global_state();
@@ -4738,7 +4799,9 @@ impl<'r> Randomizer<'r> {
             bireachable: false,
             bireachable_vertex_id: None,
         };
-        let num_attempts_start_location = if self.game_data.start_locations.len() > 1 {
+        let num_attempts_start_location = if self.game_data.start_locations.len() > 1
+            && self.settings.start_location_settings.mode != StartLocationMode::Custom
+        {
             10
         } else {
             1

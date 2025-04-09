@@ -317,7 +317,7 @@ pad_0:
 check_objs:
 ;;; check objectives and add check marks
     LDY.w #!line_size*2            ; start of 1st line
-    LDA !objectives_num : AND $7FFF
+    LDA !objectives_num : AND #$7FFF
     STA !tmp_tile_offset           ; # objectives
     BEQ .exit
     LDX #$0000

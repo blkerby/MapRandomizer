@@ -1,19 +1,31 @@
 v118:
+- handle wallJumpAvoid on strats and notables.
+- DONE: remove vanilla music on vanilla map
+- DONE: load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
+- DONE: prevent MB1 death unless objectives cleared
+- DONE: override "h_fullEnemyDamageReduction"
+- DONE: handle PowerBombPeriphery correctly in enemyKill logic
+- DONE: handle PowerBombBlast multiplier correctly in enemyKill logic (e.g. for Metroids)
+- DONE: add option to select specific start location
+  - DONE: handle in settings upgrade
+  - DONE: show in seed header
+  - DONE: organize by area
+  - DONE: update help/info
+- fix BG color in Warehouse Entrance
 - snes mini compatibility with fast decompression
 - investigate top-of-HUD flicker: https://www.twitch.tv/karterfreak/clip/FaintTenuousRadicchioPanicVis-EAYYiqzZqSiB-BtZ
 - investigate audio-related lag after quick reload
-- see if reloading CRE is actually necessary with Crocomire
-- decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
+- DONE: decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
 - DONE: look into pause fade-in speed (currently asymmetric with fade-out)
 - switch around palettes, to make acid FX fade, and improve item colors
 - DONE: partial reveal door next to two-door save/refill rooms
-- handle comeInWithSidePlatform environment
+- DONE: handle comeInWithSidePlatform environment
 - DONE: add main hall elevator hazard marker
-- add/associate video for canTrickyGMode.
+- DONE: add/associate video for canTrickyGMode.
 - DONE: fix ultra-low QoL: when selecting QoL preset other than Off, disable ultra-low QoL.
 - DONE: handle "detailNote" in tech and strats.
-- handle "minExtraRunSpeed" in "leaveWithRunway"
-- include "objectives" details on seed page.
+- DONE: handle "minExtraRunSpeed" in "leaveWithRunway"
+- DONE: include "objectives" details on seed page.
 - finish refining stutter water shinecharges.
 - DONE: fix scrolling sky corruption, which got worse with the faster decompression
 - DONE: move crateria tube tiles to CRE
@@ -26,7 +38,6 @@ v118:
   - west cac alley CF clip
 - mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
-- add option to select specific start location
 - map gen:
   - measure map "clumpiness"
   - sanity checks on save balancing
@@ -38,16 +49,18 @@ v118:
   - missed entering from the right
   - grapple jumping up only to the ledge (probably needs a new node)
     - shinespark strats could get up that node too, with fewer shinecharge frames
-- fix spoiler map bug:
+- DONE: fix spoiler map bug:
   - non-existent (?) HiJump boots shown: https://maprando.com/seed/7wT9dbFrm/data/visualizer/index.html
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
+- missing remote runway strats in pink brinstar hopper room left side
+- DONE: add new samus sprites
 
 Rom patching:
 - draw door frame in front of hazard markers, for doors that don't have a door shell.
 - instant unpause QoL option
   - maybe combine with even faster pause transitions (fade-in to pause, fade between pause/equipment, and fade-out of pause)
-- eliminate the gray door that spawns when leaving Mother Brain Room in escape
+- DONE: eliminate the gray door that spawns when leaving Mother Brain Room in escape
   - instead, allow re-entering Mother Brain Room from left and having it look like it does at the start of the escape sequence
 - Fix glass tunnel PLM drawing: https://github.com/amoebaOfDoom/subversion/blob/master/Project/ASM/PLM%20draw%20fix.asm
   - currently the glass tunnel can look messed up when destroyed from below.
@@ -67,7 +80,6 @@ Rom patching:
      - prevent accidental quickloads from losing lots of progress
 - make kraid camera act normal when entering from left?
   - same thing with spore spawn entering from bottom?
-- prevent MB1 death unless objectives cleared
 
 Logic:
 - PCJR: "Left-Side Shinespark" (and related strats): rename and add "canShinechargeMovementComplex" req

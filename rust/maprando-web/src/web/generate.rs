@@ -2,12 +2,8 @@ use crate::web::{AppData, PresetData, VersionInfo};
 use actix_web::{get, web, HttpResponse, Responder};
 use askama::Template;
 use hashbrown::HashMap;
-use maprando_game::{NotableId, RoomId, TechId};
-
-struct ObjectiveGroup {
-    name: String,
-    objectives: Vec<(String, String)>, // (internal name, display name)
-}
+use maprando::settings::{get_objective_groups, ObjectiveGroup};
+use maprando_game::{NotableId, RoomId, StartLocation, TechId};
 
 #[derive(Template)]
 #[template(path = "generate/main.html")]
@@ -33,6 +29,7 @@ struct GenerateTemplate<'a> {
     tech_strat_counts: &'a HashMap<TechId, usize>,
     notable_strat_counts: &'a HashMap<(RoomId, NotableId), usize>,
     video_storage_url: &'a str,
+    start_locations_by_area: Vec<(String, Vec<StartLocation>)>,
 }
 
 #[get("/generate")]
@@ -124,71 +121,41 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     let objective_presets_json =
         serde_json::to_string(&app_data.preset_data.objective_presets).unwrap();
 
+    let mut start_locations_by_area: Vec<(String, Vec<StartLocation>)> = app_data
+        .game_data
+        .area_order
+        .iter()
+        .map(|x| (x.clone(), vec![]))
+        .collect();
+    let area_order_idx: HashMap<String, usize> = app_data
+        .game_data
+        .area_order
+        .iter()
+        .enumerate()
+        .map(|(i, x)| (x.clone(), i))
+        .collect();
+    for loc in &app_data.game_data.start_locations {
+        let full_area = app_data.game_data.room_full_area[&loc.room_id].clone();
+        let full_area_idx = area_order_idx[&full_area];
+        start_locations_by_area[full_area_idx].1.push(loc.clone());
+    }
+    for i in 0..start_locations_by_area.len() {
+        start_locations_by_area[i].1.sort_by_key(|x| {
+            (
+                app_data.game_data.room_json_map[&x.room_id]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string(),
+                x.name.clone(),
+            )
+        });
+    }
+
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced"],
-        objective_groups: vec![
-            ObjectiveGroup {
-                name: "Bosses".to_string(),
-                objectives: vec![
-                    ("Kraid", "Kraid"),
-                    ("Phantoon", "Phantoon"),
-                    ("Draygon", "Draygon"),
-                    ("Ridley", "Ridley"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Minibosses".to_string(),
-                objectives: vec![
-                    ("SporeSpawn", "Spore Spawn"),
-                    ("Crocomire", "Crocomire"),
-                    ("Botwoon", "Botwoon"),
-                    ("GoldenTorizo", "Golden Torizo"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Pirates".to_string(),
-                objectives: vec![
-                    ("PitRoom", "Pit Room"),
-                    ("BabyKraidRoom", "Baby Kraid"),
-                    ("PlasmaRoom", "Plasma Room"),
-                    ("MetalPiratesRoom", "Metal Pirates"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Chozos".to_string(),
-                objectives: vec![
-                    ("BombTorizo", "Bomb Torizo"),
-                    ("BowlingStatue", "Bowling"),
-                    ("AcidChozoStatue", "Acid Statue"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-            ObjectiveGroup {
-                name: "Metroids".to_string(),
-                objectives: vec![
-                    ("MetroidRoom1", "Metroids 1"),
-                    ("MetroidRoom2", "Metroids 2"),
-                    ("MetroidRoom3", "Metroids 3"),
-                    ("MetroidRoom4", "Metroids 4"),
-                ]
-                .into_iter()
-                .map(|(x, y)| (x.to_string(), y.to_string()))
-                .collect(),
-            },
-        ],
+        objective_groups: get_objective_groups(),
         item_pool_multiple,
         starting_items_multiple,
         starting_items_single,
@@ -209,6 +176,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         tech_strat_counts: &app_data.logic_data.tech_strat_counts,
         notable_strat_counts: &app_data.logic_data.notable_strat_counts,
         video_storage_url: &app_data.video_storage_url,
+        start_locations_by_area,
     };
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")

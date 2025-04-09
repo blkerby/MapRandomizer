@@ -8,7 +8,7 @@
 ; (and some other room initialization) up to earlier in the transition as well.
 
 !bank_80_free_space_start = $80E440
-!bank_80_free_space_end = $80E500
+!bank_80_free_space_end = $80E540
 !bank_82_free_space_start = $82FE00
 !bank_82_free_space_end = $82FE70
 !bank_84_free_space_start = $84EFD3
@@ -144,6 +144,22 @@ late_plm_handler:
     RTL
 
 is_delayed_plm:
+    ; Delay loading item PLMs that are out in the open (not in Chozo ball or hidden in scenery)
+    ; This is because they don't look great during scrolling, with only some of their colors faded:
+    ; It's important for Chozo balls to load early, since otherwise the Chozo ball would be visible
+    ; during scrolling even if the item were already collected (due to how the randomizer does not
+    ; fade the orange palette that they use).
+	CMP #$EED7
+	BCC .is_not_open_item
+	CMP #$EF2B
+	BCS .is_not_open_item
+.is_open_item:
+    LDA #$0000      ; set zero flag
+    RTS
+.is_not_open_item:
+
+    CMP #$F000      ; wall jump boots item PLM
+    BEQ .done
     CMP #$D70C      ; Glass Tunnel PLM (overwrites FX setup)
     BEQ .done
     CMP #$B777      ; Statues Room PLM to clear blocks (spawned during FX setup)

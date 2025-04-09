@@ -24032,13 +24032,6 @@
   },
   {
     "room_id": 189,
-    "strat_id": 51,
-    "video_id": 2923,
-    "created_user": "Sam",
-    "note": ""
-  },
-  {
-    "room_id": 189,
     "strat_id": 52,
     "video_id": 2895,
     "created_user": "Sam",
@@ -24134,6 +24127,13 @@
     "video_id": 3631,
     "created_user": "maddo",
     "note": "Gravity Jump"
+  },
+  {
+    "room_id": 189,
+    "strat_id": 104,
+    "video_id": 2923,
+    "created_user": "Sam",
+    "note": ""
   },
   {
     "room_id": 189,

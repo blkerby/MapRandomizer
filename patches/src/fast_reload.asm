@@ -146,10 +146,13 @@ hook_main:
     cmp $0998    ; in credits?
     bne .no_reboot
 
+    ; stop MSU
+    stz $2006
+    stz $2007
+        
     ; direct APU write to stop music
-    lda #$0000
-    sta $00
-    sta $02
+    stz $00
+    stz $02
     jsl $808024
 
     jml $80841c ; reboot

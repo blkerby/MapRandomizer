@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, Objective, ObjectiveScreen,
-        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
+        ETankRefill, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals,
+        StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -1683,13 +1683,10 @@ impl<'a> Patcher<'a> {
     }
 
     fn setup_reload_cre(&mut self) -> Result<()> {
-        // Find the rooms connected to Kraid and Crocomire and set them to reload CRE, to prevent graphical glitches.
-        // Not sure if this is necessary for Crocomire. The vanilla game does it but we skip it since it doesn't seem to be a problem.
+        // Find the rooms connected to Kraid and set them to reload CRE, to prevent graphical glitches.
         let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
             (Some(0x191DA), Some(0x19252)), // Kraid right door
             (Some(0x191CE), Some(0x191B6)), // Kraid left door
-                                            // (Some(0x193DE), Some(0x19432)), // Crocomire left door
-                                            // (Some(0x193EA), Some(0x193D2)), // Crocomire top door
         ]
         .into();
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
@@ -2075,7 +2072,7 @@ impl<'a> Patcher<'a> {
         self.rom.write_u16(initial_max_supers, starting_supers)?;
         self.rom
             .write_u16(initial_max_power_bombs, starting_powerbombs)?;
-        if self.randomization.settings.start_location_mode == StartLocationMode::Escape
+        if self.randomization.settings.start_location_settings.mode == StartLocationMode::Escape
             && self
                 .randomization
                 .settings
@@ -2103,7 +2100,7 @@ impl<'a> Patcher<'a> {
         let initial_load_station_addr = snes2pc(0xB5FE02);
         let initial_boss_bits = snes2pc(0xB5FE0C);
 
-        if self.randomization.settings.start_location_mode == StartLocationMode::Escape {
+        if self.randomization.settings.start_location_settings.mode == StartLocationMode::Escape {
             // Use Tourian load station 2, set up in escape_autosave.asm
             self.rom.write_u16(initial_area_addr, 5)?;
             self.rom.write_u16(initial_load_station_addr, 2)?;
@@ -2442,12 +2439,26 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
+    fn apply_mother_brain_setup_asm(&mut self) -> Result<()> {
+        let mb_door_asm = 0xB88100;
+        self.extra_setup_asm
+            .entry(0x7DD58)
+            .or_insert(vec![])
+            .extend(vec![
+                // JSR mb_door_asm
+                0x20,
+                (mb_door_asm & 0xFF) as u8,
+                (mb_door_asm >> 8) as u8,
+            ]);
+        Ok(())
+    }
+
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
         // remove unused pointer from Bomb Torizo room (Zebes ablaze state), to avoid misinterpreting it as an
         // extra setup ASM pointer.
         self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
 
-        let mut next_addr = snes2pc(0xB88200);
+        let mut next_addr = snes2pc(0xB88300);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -2460,7 +2471,7 @@ impl<'a> Patcher<'a> {
             }
         }
         println!("extra setup ASM end: {:x}", next_addr);
-        assert!(next_addr <= snes2pc(0xB8FFFF));
+        assert!(next_addr <= snes2pc(0xB8E000));
 
         Ok(())
     }
@@ -3159,11 +3170,7 @@ pub fn make_rom(
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
     patcher.remove_non_blue_doors()?;
-    if randomization.settings.map_layout != "Vanilla"
-        || randomization.settings.other_settings.area_assignment == AreaAssignment::Random
-    {
-        patcher.use_area_based_music()?;
-    }
+    patcher.use_area_based_music()?;
     patcher.setup_door_specific_fx()?;
     if !randomization.settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
@@ -3189,6 +3196,7 @@ pub fn make_rom(
         patcher.apply_all_room_outlines()?;
     }
     patcher.apply_toilet_data()?;
+    patcher.apply_mother_brain_setup_asm()?;
     patcher.apply_extra_setup_asm()?;
     Ok(rom)
 }
