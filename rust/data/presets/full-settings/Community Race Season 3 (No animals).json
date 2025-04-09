@@ -3806,6 +3806,13 @@
                 "enabled": false
             },
             {
+                "room_id": 238,
+                "notable_id": 5,
+                "room_name": "Mother Brain Room",
+                "notable_name": "Moondance Clip",
+                "enabled": false
+            },
+            {
                 "room_id": 233,
                 "notable_id": 1,
                 "room_name": "Seaweed Room",
