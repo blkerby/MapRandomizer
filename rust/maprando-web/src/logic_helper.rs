@@ -1117,7 +1117,8 @@ impl LogicData {
         let mut room_templates: Vec<RoomTemplate> = vec![];
 
         let items = vec![true; game_data.item_isv.keys.len()];
-        let weapon_mask = game_data.get_weapon_mask(&items);
+        let tech = vec![true; game_data.tech_isv.keys.len()];
+        let weapon_mask = game_data.get_weapon_mask(&items, &tech);
         let global = GlobalState {
             inventory: Inventory {
                 items: items,

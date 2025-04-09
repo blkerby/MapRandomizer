@@ -3663,6 +3663,7 @@ impl<'r> Randomizer<'r> {
                 self.settings
                     .item_progression_settings
                     .ammo_collect_fraction,
+                &self.difficulty_tiers[0].tech,
             );
         }
 
@@ -4544,7 +4545,7 @@ impl<'r> Randomizer<'r> {
 
     fn get_initial_global_state(&self) -> GlobalState {
         let items = vec![false; self.game_data.item_isv.keys.len()];
-        let weapon_mask = self.game_data.get_weapon_mask(&items);
+        let weapon_mask = self.game_data.get_weapon_mask(&items, &self.difficulty_tiers[0].tech);
         let mut global = GlobalState {
             inventory: Inventory {
                 items: items,
@@ -4569,6 +4570,7 @@ impl<'r> Randomizer<'r> {
                     self.settings
                         .item_progression_settings
                         .ammo_collect_fraction,
+                    &self.difficulty_tiers[0].tech,
                 );
             }
         }
