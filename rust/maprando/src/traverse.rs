@@ -32,6 +32,7 @@ fn apply_enemy_kill_requirement(
     }
 
     let mut hp = vul.hp; // HP per enemy
+    let mut missiles_used = 0;
 
     // Next use Missiles:
     if vul.missile_damage > 0 {
@@ -44,10 +45,10 @@ fn apply_enemy_kill_requirement(
             ),
         );
         hp -= missiles_to_use_per_enemy * vul.missile_damage as Capacity;
-        local.missiles_used += missiles_to_use_per_enemy * count;
+        missiles_used += missiles_to_use_per_enemy * count;
     }
 
-    // Then use Supers (some overkill is possible, where we could have used fewer Missiles, but we ignore that):
+    // Then use Supers:
     if vul.super_damage > 0 {
         let supers_available = global.inventory.max_supers - local.supers_used;
         let supers_to_use_per_enemy = max(
@@ -75,6 +76,14 @@ fn apply_enemy_kill_requirement(
         // Power bombs hit all enemies in the group, so we do not multiply by the count.
         local.power_bombs_used += pbs_to_use;
     }
+
+
+    // If the enemy would be overkilled, refund some of the missile shots, if applicable:
+    if vul.missile_damage > 0 {
+        let missiles_overkill = -hp / vul.missile_damage;
+        missiles_used = max(0, missiles_used - missiles_overkill * count);
+    }
+    local.missiles_used += missiles_used;
 
     if hp <= 0 {
         Some(local)
@@ -1039,6 +1048,11 @@ pub fn apply_requirement(
             } else {
                 None
             }
+        }
+        Requirement::DisableableETank => if settings.quality_of_life_settings.disableable_etanks {
+            Some(local)
+        } else {
+            None
         }
         Requirement::Walljump => match settings.other_settings.wall_jump {
             WallJump::Vanilla => {

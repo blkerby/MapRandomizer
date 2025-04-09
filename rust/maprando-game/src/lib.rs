@@ -204,6 +204,7 @@ pub enum Requirement {
     Flag(FlagId),
     NotFlag(FlagId),
     MotherBrainBarrierClear(usize),
+    DisableableETank,
     Walljump,
     ShineCharge {
         used_tiles: Float,
@@ -2194,6 +2195,23 @@ impl GameData {
                     return Ok(Requirement::RegularEnergyCapacity(count as Capacity));
                 } else if resource_type == "ReserveEnergy" {
                     return Ok(Requirement::ReserveEnergyCapacity(count as Capacity));
+                } else {
+                    bail!("Unexpected resource type in {}", req_json);
+                }
+            } else if key == "resourceMaxCapacity" {
+                ensure!(value.members().len() == 1);
+                let value0 = value.members().next().unwrap();
+                let resource_type = value0["type"]
+                    .as_str()
+                    .expect(&format!("missing/invalid resource type in {}", req_json));
+                let count = value0["count"]
+                    .as_i32()
+                    .expect(&format!("missing/invalid resource count in {}", req_json));
+                if resource_type == "RegularEnergy" {
+                    return Ok(Requirement::make_and(vec![
+                        Requirement::DisableableETank,
+                        Requirement::RegularEnergyDrain(count as Capacity)
+                    ]));
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
                 }
