@@ -35,7 +35,13 @@ impl GlobalState {
         }
     }
 
-    pub fn collect(&mut self, item: Item, game_data: &GameData, ammo_collect_fraction: f32, tech: &[bool]) {
+    pub fn collect(
+        &mut self,
+        item: Item,
+        game_data: &GameData,
+        ammo_collect_fraction: f32,
+        tech: &[bool],
+    ) {
         self.inventory.items[item as usize] = true;
         match item {
             Item::Missile => {

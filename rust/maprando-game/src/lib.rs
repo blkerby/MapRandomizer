@@ -1370,7 +1370,7 @@ pub struct GameData {
     pub flag_isv: IndexedVec<String>,
     pub item_isv: IndexedVec<String>,
     weapon_isv: IndexedVec<String>,
-    weapon_categories: HashMap<String, Vec<String>>,  // map from weapon category to specific weapons with that category
+    weapon_categories: HashMap<String, Vec<String>>, // map from weapon category to specific weapons with that category
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     enemy_json: HashMap<String, JsonValue>,
@@ -1702,13 +1702,19 @@ impl GameData {
             self.weapon_json_map
                 .insert(name.to_string(), weapon_json.clone());
             self.weapon_isv.add(name);
-            let mut categories: Vec<String> = weapon_json["categories"].members().map(|x| x.as_str().unwrap().to_string()).collect();
+            let mut categories: Vec<String> = weapon_json["categories"]
+                .members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect();
             categories.push(name.to_string());
-            for category in categories  {
+            for category in categories {
                 if !self.weapon_categories.contains_key(&category) {
                     self.weapon_categories.insert(category.clone(), vec![]);
                 }
-                self.weapon_categories.get_mut(&category).unwrap().push(name.to_string());
+                self.weapon_categories
+                    .get_mut(&category)
+                    .unwrap()
+                    .push(name.to_string());
             }
         }
 
@@ -1736,7 +1742,8 @@ impl GameData {
                         .insert((enemy_name.to_string(), attack_name.to_string()), damage);
                 }
                 let vul = self.get_enemy_vulnerabilities(enemy_json)?;
-                self.enemy_vulnerabilities.insert(enemy_name.to_string(), vul);
+                self.enemy_vulnerabilities
+                    .insert(enemy_name.to_string(), vul);
                 self.enemy_json
                     .insert(enemy_name.to_string(), enemy_json.clone());
             }
@@ -1748,7 +1755,11 @@ impl GameData {
         for multiplier in enemy_json["damageMultipliers"].members() {
             let category = multiplier["weapon"].as_str().unwrap();
             if !self.weapon_categories.contains_key(category) {
-                error!("Weapon category '{}' not found, in enemy JSON: {}", category, enemy_json.pretty(2));
+                error!(
+                    "Weapon category '{}' not found, in enemy JSON: {}",
+                    category,
+                    enemy_json.pretty(2)
+                );
             }
             if self.weapon_categories[category].contains(&weapon_name.to_string()) {
                 return multiplier["value"].as_f32().unwrap();
@@ -2210,7 +2221,7 @@ impl GameData {
                 if resource_type == "RegularEnergy" {
                     return Ok(Requirement::make_and(vec![
                         Requirement::DisableableETank,
-                        Requirement::RegularEnergyDrain(count as Capacity)
+                        Requirement::RegularEnergyDrain(count as Capacity),
                     ]));
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
@@ -2544,7 +2555,10 @@ impl GameData {
                         vul.super_damage = 0;
                     }
                     if allowed_weapons & (1 << self.weapon_isv.index_by_key["PowerBomb"]) == 0 {
-                        if allowed_weapons & (1 << self.weapon_isv.index_by_key["PowerBombPeriphery"]) == 0 {
+                        if allowed_weapons
+                            & (1 << self.weapon_isv.index_by_key["PowerBombPeriphery"])
+                            == 0
+                        {
                             vul.power_bomb_damage = 0;
                         } else {
                             vul.power_bomb_damage /= 2;
@@ -4676,11 +4690,10 @@ impl GameData {
 
     pub fn get_weapon_mask(&self, items: &[bool], tech: &[bool]) -> WeaponMask {
         let mut weapon_mask = 0;
-        let implicit_requires: HashSet<String> =
-            vec!["PowerBeam"]
-                .into_iter()
-                .map(|x| x.to_string())
-                .collect();
+        let implicit_requires: HashSet<String> = vec!["PowerBeam"]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect();
         // TODO: possibly make this more efficient. We could avoid dealing with strings
         // and just use a pre-computed item bitmask per weapon. But not sure yet if it matters.
         'weapon: for (i, weapon_name) in self.weapon_isv.keys.iter().enumerate() {
@@ -4996,11 +5009,14 @@ impl GameData {
             "requires": ["Varia", "Gravity"],
         };
         // Both Varia and Gravity are required to provide full enemy damage reduction:
-        *game_data.helper_json_map.get_mut("h_fullEnemyDamageReduction").unwrap() = json::object! {
+        *game_data
+            .helper_json_map
+            .get_mut("h_fullEnemyDamageReduction")
+            .unwrap() = json::object! {
             "name": "h_fullEnemyDamageReduction",
             "requires": ["Varia", "Gravity"],
         };
-        
+
         // Gate glitch leniency
         *game_data
             .helper_json_map

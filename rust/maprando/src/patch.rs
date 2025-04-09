@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        ETankRefill, MotherBrainFight, Objective, ObjectiveScreen,
-        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
+        ETankRefill, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals,
+        StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};

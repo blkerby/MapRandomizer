@@ -77,7 +77,6 @@ fn apply_enemy_kill_requirement(
         local.power_bombs_used += pbs_to_use;
     }
 
-
     // If the enemy would be overkilled, refund some of the missile shots, if applicable:
     if vul.missile_damage > 0 {
         let missiles_overkill = -hp / vul.missile_damage;
@@ -1049,10 +1048,12 @@ pub fn apply_requirement(
                 None
             }
         }
-        Requirement::DisableableETank => if settings.quality_of_life_settings.disableable_etanks {
-            Some(local)
-        } else {
-            None
+        Requirement::DisableableETank => {
+            if settings.quality_of_life_settings.disableable_etanks {
+                Some(local)
+            } else {
+                None
+            }
         }
         Requirement::Walljump => match settings.other_settings.wall_jump {
             WallJump::Vanilla => {
