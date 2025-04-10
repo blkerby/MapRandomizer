@@ -728,9 +728,9 @@ impl MosaicPatchBuilder {
                     (true, false, false) => 0x33B ^ 0x400,
                     // Tube tiles in other tilesets:
                     (false, true, true) => 0xEE,
-                    (false, true, false) => 0xEF,
+                    (false, true, false) => 0xF0,
                     (false, false, true) => 0xF1,
-                    (false, false, false) => 0xF2,
+                    (false, false, false) => 0xF3,
                 };
                 let vflip = if y == 15 { 0x08 } else { 0x00 };
                 (layer2[i * 2], layer2[i * 2 + 1]) =
