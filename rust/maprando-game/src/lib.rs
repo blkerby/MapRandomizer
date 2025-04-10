@@ -289,6 +289,10 @@ pub enum Requirement {
     HeatedDoorStuckLeniency {
         heat_frames: Capacity,
     },
+    XModeSpikeHitLeniency {},
+    XModeThornHitLeniency {},
+    BombIntoCrystalFlashClipLeniency {},
+    JumpIntoCrystalFlashClipLeniency {},
     ReserveTrigger {
         min_reserve_energy: Capacity,
         max_reserve_energy: Capacity,
@@ -2099,6 +2103,14 @@ impl GameData {
                     green: true,
                     heated: true,
                 });
+            } else if value == "i_BombIntoCrystalFlashClipLeniency" {
+                return Ok(Requirement::BombIntoCrystalFlashClipLeniency {});
+            } else if value == "i_JumpIntoCrystalFlashClipLeniency" {
+                return Ok(Requirement::JumpIntoCrystalFlashClipLeniency {});
+            } else if value == "i_XModeSpikeHitLeniency" {
+                return Ok(Requirement::XModeSpikeHitLeniency {});
+            } else if value == "i_XModeThornHitLeniency" {
+                return Ok(Requirement::XModeThornHitLeniency {});
             } else if value == "i_MotherBrainBarrier1Clear" {
                 return Ok(Requirement::MotherBrainBarrierClear(0));
             } else if value == "i_MotherBrainBarrier2Clear" {
@@ -5045,6 +5057,34 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_HeatedGreenGateGlitchLeniency",
             "requires": ["i_HeatedGreenGateGlitchLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_BombIntoCrystalFlashClipLeniency")
+            .unwrap() = json::object! {
+            "name": "h_BombIntoCrystalFlashClipLeniency",
+            "requires": ["i_BombIntoCrystalFlashClipLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_JumpIntoCrystalFlashClipLeniency")
+            .unwrap() = json::object! {
+            "name": "h_JumpIntoCrystalFlashClipLeniency",
+            "requires": ["i_JumpIntoCrystalFlashClipLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_XModeSpikeHitLeniency")
+            .unwrap() = json::object! {
+            "name": "h_XModeSpikeHitLeniency",
+            "requires": ["i_XModeSpikeHitLeniency"],
+        };
+        *game_data
+            .helper_json_map
+            .get_mut("h_XModeThornHitLeniency")
+            .unwrap() = json::object! {
+            "name": "h_XModeThornHitLeniency",
+            "requires": ["i_XModeThornHitLeniency"],
         };
 
         // Other:

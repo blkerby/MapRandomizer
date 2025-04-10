@@ -62,6 +62,9 @@ function applySkillPreset(preset) {
     document.getElementById("resourceMultiplier").value = preset.resource_multiplier;
     document.getElementById("gateGlitchLeniency").value = preset.gate_glitch_leniency;
     document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
+    document.getElementById("spikeXModeLeniency").value = preset.spike_xmode_leniency;
+    document.getElementById("bombIntoCFLeniency").value = preset.bomb_into_cf_leniency;
+    document.getElementById("jumpIntoCFLeniency").value = preset.jump_into_cf_leniency;
     document.getElementById("phantoonProficiency").value = preset.phantoon_proficiency;
     document.getElementById("draygonProficiency").value = preset.draygon_proficiency;
     document.getElementById("ridleyProficiency").value = preset.ridley_proficiency;
@@ -201,6 +204,9 @@ function buildSettingsObject() {
             "resource_multiplier": parseFloat(formData.get("resource_multiplier")),
             "gate_glitch_leniency": parseFloat(formData.get("gate_glitch_leniency")),
             "door_stuck_leniency": parseFloat(formData.get("door_stuck_leniency")),
+            "spike_xmode_leniency": parseFloat(formData.get("spike_xmode_leniency")),
+            "bomb_into_cf_leniency": parseFloat(formData.get("bomb_into_cf_leniency")),
+            "jump_into_cf_leniency": parseFloat(formData.get("jump_into_cf_leniency")),
             "phantoon_proficiency": parseFloat(formData.get("phantoon_proficiency")),
             "draygon_proficiency": parseFloat(formData.get("draygon_proficiency")),
             "ridley_proficiency": parseFloat(formData.get("ridley_proficiency")),

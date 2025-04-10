@@ -1240,6 +1240,26 @@ pub fn apply_requirement(
                 Some(local)
             }
         }
+        Requirement::BombIntoCrystalFlashClipLeniency {} => {
+            let mut new_local = local;
+            new_local.power_bombs_used += difficulty.bomb_into_cf_leniency;
+            validate_power_bombs(new_local, global)
+        }
+        Requirement::JumpIntoCrystalFlashClipLeniency {} => {
+            let mut new_local = local;
+            new_local.power_bombs_used += difficulty.jump_into_cf_leniency;
+            validate_power_bombs(new_local, global)
+        }
+        Requirement::XModeSpikeHitLeniency {} => {
+            let mut new_local = local;
+            new_local.energy_used += difficulty.spike_xmode_leniency * 60 / suit_damage_factor(&global.inventory);
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
+        }
+        Requirement::XModeThornHitLeniency {} => {
+            let mut new_local = local;
+            new_local.energy_used += difficulty.spike_xmode_leniency * 15 / suit_damage_factor(&global.inventory);
+            validate_energy(new_local, &global.inventory, can_manage_reserves)
+        }
         Requirement::MissilesAvailable(count) => {
             apply_missiles_available_req(local, global, *count, reverse)
         }

@@ -21,6 +21,39 @@
                 </div>        
 
                 <div class="card m-3">
+                    <div class="card-header">General leniency </div>
+                    <div class="card-body my-0 p-0">
+                        <div class="form-group row m-2">
+                            <label for="resourceMultiplier" class="col-sm-6 col-form-label">Heat damage multiplier<br>
+                                <small>(Leniency factor on energy used in heated rooms, lava, etc.)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="number" class="form-control" name="resource_multiplier" id="resourceMultiplier"
+                                    value="3.0" min="1.0" max="10.0" step="any" onchange="techChanged()">
+                            </div>
+                        </div>
+                        <div class="form-group row m-2">
+                            <label for="escapeTimerMultiplier" class="col-sm-6 col-form-label">Escape timer multiplier<br>
+                                <small>(Leniency factor on escape timer)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="escape_timer_multiplier"
+                                    id="escapeTimerMultiplier" value="3.0" onchange="techChanged()">
+                            </div>
+                        </div>
+                        <div class="form-group row m-2">
+                            <label for="gateGlitchLeniency" class="col-sm-6 col-form-label">Gate glitch leniency<br>
+                                <small>(Expected failed attempts to get a gate glitch)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="gate_glitch_leniency" id="gateGlitchLeniency"
+                                    value="14" onchange="techChanged()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card m-3">
                     <div class="card-header">Shinecharge leniency</div>
                     <div class="card-body my-0 p-0">
 
@@ -63,47 +96,6 @@
                     </div>
                 </div>
 
-                <div class="card m-3">
-                    <div class="card-header">Other Leniency </div>
-                    <div class="card-body my-0 p-0">
-                        <div class="form-group row m-2">
-                            <label for="resourceMultiplier" class="col-sm-6 col-form-label">Heat damage multiplier<br>
-                                <small>(Leniency factor on energy used in heated rooms, lava, etc.)</small>
-                            </label>
-                            <div class="col-sm-2 my-2">
-                                <input type="number" class="form-control" name="resource_multiplier" id="resourceMultiplier"
-                                    value="3.0" min="1.0" max="10.0" step="any" onchange="techChanged()">
-                            </div>
-                        </div>
-                        <div class="form-group row m-2">
-                            <label for="escapeTimerMultiplier" class="col-sm-6 col-form-label">Escape timer multiplier<br>
-                                <small>(Leniency factor on escape timer)</small>
-                            </label>
-                            <div class="col-sm-2 my-2">
-                                <input type="text" class="form-control" name="escape_timer_multiplier"
-                                    id="escapeTimerMultiplier" value="3.0" onchange="techChanged()">
-                            </div>
-                        </div>
-                        <div class="form-group row m-2">
-                            <label for="gateGlitchLeniency" class="col-sm-6 col-form-label">Gate glitch leniency<br>
-                                <small>(Expected failed attempts to get a gate glitch)</small>
-                            </label>
-                            <div class="col-sm-2 my-2">
-                                <input type="text" class="form-control" name="gate_glitch_leniency" id="gateGlitchLeniency"
-                                    value="14" onchange="techChanged()">
-                            </div>
-                        </div>
-                        <div class="form-group row m-2">
-                            <label for="doorStuckLeniency" class="col-sm-6 col-form-label">Door stuck leniency<br>
-                                <small>(Expected failed attempts to get door stuck for X-ray climbing)</small>
-                            </label>
-                            <div class="col-sm-2 my-2">
-                                <input type="text" class="form-control" name="door_stuck_leniency" id="doorStuckLeniency"
-                                    value="2" onchange="techChanged()">
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="card m-3">
                     <div class="card-header">Boss proficiency</div>
                     <div class="card-body my-0 p-0">
@@ -150,6 +142,48 @@
                             <div class="col-sm-2 my-2">
                                 <input type="text" class="form-control" name="mother_brain_proficiency"
                                     id="motherBrainProficiency" value="0.0" onchange="techChanged()">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card m-3">
+                    <div class="card-header">Advanced tech leniency </div>
+                    <div class="card-body my-0 p-0">
+                        <div class="form-group row m-2">
+                            <label for="doorStuckLeniency" class="col-sm-6 col-form-label">Door stuck leniency<br>
+                                <small>(Expected failed attempts to get door stuck for X-ray climbing)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="door_stuck_leniency" id="doorStuckLeniency"
+                                    value="2" onchange="techChanged()">
+                            </div>
+                        </div>
+                        <div class="form-group row m-2">
+                            <label for="bombIntoCFLeniency" class="col-sm-6 col-form-label">Bomb into Crystal Flash leniency<br>
+                                <small>(Expected failed attempts to get a bomb-into-CF clip)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="bomb_into_cf_leniency" id="bombIntoCFLeniency"
+                                    value="5" onchange="techChanged()">
+                            </div>
+                        </div>
+                        <div class="form-group row m-2">
+                            <label for="jumpIntoCFLeniency" class="col-sm-6 col-form-label">Jump into Crystal Flash leniency<br>
+                                <small>(Expected failed attempts to get a jump-into-CF clip)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="jump_into_cf_leniency" id="jumpIntoCFLeniency"
+                                    value="9" onchange="techChanged()">
+                            </div>
+                        </div>
+                        <div class="form-group row m-2">
+                            <label for="spikeXModeLeniency" class="col-sm-6 col-form-label">Spike X-Mode setup leniency<br>
+                                <small>(Expected failed attempts to get spike X-mode)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="spike_xmode_leniency" id="spikeXModeLeniency"
+                                    value="2" onchange="techChanged()">
                             </div>
                         </div>
                     </div>
