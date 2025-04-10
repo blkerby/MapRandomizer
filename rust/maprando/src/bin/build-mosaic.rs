@@ -1144,6 +1144,12 @@ impl MosaicPatchBuilder {
                             // Set BG scroll rate to 100%
                             new_rom.write_u8(toilet_state_ptr + 13, 0x00 as isize)?;
 
+                            // Setup ASM:
+                            // Copy from middle room if it's the type that loads special tiles (for Crab Hole, etc.)
+                            if middle_state_xml.layer1_2 == 0xC11B {
+                                new_rom.write_u16(toilet_state_ptr + 24, middle_state_xml.layer1_2 as isize)?;
+                            }
+
                             // Write FX:
                             new_rom.write_u16(
                                 toilet_state_ptr + 6,

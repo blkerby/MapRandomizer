@@ -268,7 +268,7 @@ fn main() -> Result<()> {
         reserve_hud_style: true,
         vanilla_screw_attack_animation: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
-        tile_theme: maprando::customize::TileTheme::Constant("OuterCrateria".to_string()),
+        tile_theme: maprando::customize::TileTheme::Vanilla,
         door_theme: maprando::customize::DoorTheme::Vanilla,
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
