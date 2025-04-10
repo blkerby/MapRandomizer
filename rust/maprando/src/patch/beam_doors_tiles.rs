@@ -2,7 +2,7 @@
 
 // Beam door graphics:
 // top bracket and bottom brackets, row 1 of the palettes
-const b: u8 = 15; // black
+const b: u8 = 8; // black
 const w: u8 = 12; // white
 pub const top_bracket_tile0: [[u8; 8]; 8] = [
     [b, b, b, b, b, 0, 0, 0],

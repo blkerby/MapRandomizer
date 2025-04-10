@@ -1,5 +1,8 @@
 v118:
-- apply correct setup ASM if Toilet intersects room with glass tube tiles
+- DONE: fix beam door black color
+- check why speed booster chozo orb visible during scrolling
+- DONE: apply correct setup ASM if Toilet intersects room with glass tube tiles
+- add X-mode leniency setting
 - handle wallJumpAvoid on strats and notables.
 - DONE: remove vanilla music on vanilla map
 - DONE: load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
