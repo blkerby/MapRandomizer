@@ -1259,7 +1259,7 @@ pub fn apply_requirement(
         Requirement::XModeThornHitLeniency {} => {
             let mut new_local = local;
             new_local.energy_used +=
-                difficulty.spike_xmode_leniency * 15 / suit_damage_factor(&global.inventory);
+                difficulty.spike_xmode_leniency * 16 / suit_damage_factor(&global.inventory);
             validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::MissilesAvailable(count) => {
