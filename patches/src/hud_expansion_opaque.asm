@@ -1,5 +1,7 @@
 lorom
 
+!bank_80_free_space_start = $80E540
+!bank_80_free_space_end = $80E580
 !bank_85_free_space_start = $859643
 !bank_85_free_space_end = $8596B0
 
@@ -229,43 +231,45 @@ org $80A0ED
     ; add an injection to run the transition DMA at gameplay load
     JSR TransitionDMA_CalculateLayer2XPos ; A2F9
 
-; clear layer 3
-; This is rewritten to make it free up some space for the next function
-org $80A29C
-    PHP
-    LDX #$0002
-ClearLayer3_Loop:
-    REP #$20
-    LDA #$5880
-    STA $2116 ; DMA VRAM address
-    LDA.w ClearLayer3_DMA_Params,X
-    STA $4310 ; DMA Parameter/VRAM Address
-    LDA.w ClearLayer3_WRAM_Address,X
-    STA $4312 ; DMA WRAM Address
-    LDA #$0080
-    STA $4314 ; DMA WRAM Bank
-    LDA #$0780
-    STA $4315 ; DMA Bytes
-    SEP #$20
-    LDA.w ClearLayer3_VRAM_Inc_Value,X
-    STA $2115 ; VRAM Adress Increment Value
-    LDA #$02
-    STA $420B ; Start DMA
-    DEX
-    DEX
-    BPL ClearLayer3_Loop
-    PLP
-    RTL
+;; clear layer 3
+;; This is rewritten to make it free up some space for the next function
+;org $80A29C
+;    PHP
+;    LDX #$0002
+;ClearLayer3_Loop:
+;    REP #$20
+;    LDA #$5880
+;    STA $2116 ; DMA VRAM address
+;    LDA.w ClearLayer3_DMA_Params,X
+;    STA $4310 ; DMA Parameter/VRAM Address
+;    LDA.w ClearLayer3_WRAM_Address,X
+;    STA $4312 ; DMA WRAM Address
+;    LDA #$0080
+;    STA $4314 ; DMA WRAM Bank
+;    LDA #$0780
+;    STA $4315 ; DMA Bytes
+;    SEP #$20
+;    LDA.w ClearLayer3_VRAM_Inc_Value,X
+;    STA $2115 ; VRAM Adress Increment Value
+;    LDA #$02
+;    STA $420B ; Start DMA
+;    DEX
+;    DEX
+;    BPL ClearLayer3_Loop
+;    PLP
+;    RTL
+;
+;ClearLayer3_DMA_Params:
+;    DW $1908, $1808
+;ClearLayer3_WRAM_Address:
+;    DW #ClearLayer3_ClearTile+1, #ClearLayer3_ClearTile+0
+;ClearLayer3_VRAM_Inc_Value:
+;    DW $0080, $0000
+;ClearLayer3_ClearTile:
+;    DW $180F    ; palette 6
 
-ClearLayer3_DMA_Params:
-    DW $1908, $1808
-ClearLayer3_WRAM_Address:
-    DW #ClearLayer3_ClearTile+1, #ClearLayer3_ClearTile+0
-ClearLayer3_VRAM_Inc_Value:
-    DW $0080, $0000
-ClearLayer3_ClearTile:
-    DW $180F    ; palette 6
 
+org !bank_80_free_space_start
 ; Added function
 TransitionDMA_CalculateLayer2XPos:
     ; New entry point into 'Calculate layer 2 X position'
@@ -276,8 +280,10 @@ TransitionDMA_CalculateLayer2XPos:
     SEP #$60
     JSR ExecuteTransitionDMAWithoutBlank
     PLP
+    RTS
 
-warnpc $80A2F9 : padbyte $FF : pad $80A2F9
+warnpc !bank_80_free_space_end
+;warnpc $80A2F9 : padbyte $FF : pad $80A2F9
 
 
 ;---------------------------------------

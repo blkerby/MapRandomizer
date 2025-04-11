@@ -2637,7 +2637,21 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn update_acid_palette(&mut self) -> Result<()> {
+        // use palette 6 for acid FX instead of palette 0, so that it can properly fade
+        // through transitions (since in the randomizer palette 0 does not fade, as it's
+        // used for the reserve HUD).
+        for addr in (snes2pc(0x8A8840)..snes2pc(0x8A9080)).step_by(2) {
+            let word = self.rom.read_u16(addr)?;
+            if word & 0x1C00 == 0x0000 {
+                self.rom.write_u16(addr, word | 0x1800)?;
+            }
+        }
+        Ok(())
+    }
+
     pub fn apply_patches(&mut self) -> Result<()> {
+        self.update_acid_palette()?;
         self.fix_equipment_graphics()?;
         self.initialize_tiles()?;
         self.index_fixed_tiles()?;

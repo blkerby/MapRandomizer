@@ -20,6 +20,9 @@ ROM_PATH = TMP_PATH + "/rom.sfc"
 OUTPUT_PATH = "patches/ips"
 MANIFEST_PATH = "patches/patch_manifest.json"
 
+excluded_files = [
+    "Mosaic/Projects/Base/ASM/Acid Tilemap.asm"
+]
 ignored_overlap_patterns = ["hyper_beam", "ultra_low_"]
 
 try:
@@ -27,9 +30,12 @@ try:
 except FileNotFoundError:
     old_manifest = {}
 
+
+
 asm_src_files = []
 asm_src_files.extend(glob.glob("patches/src/*.asm"))
 asm_src_files.extend(glob.glob("Mosaic/Projects/Base/ASM/*.asm"))
+asm_src_files = [x for x in asm_src_files if x not in excluded_files]
 
 os.makedirs(TMP_PATH, exist_ok=True)
 
