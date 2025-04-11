@@ -584,7 +584,12 @@ impl MosaicPatchBuilder {
 
                 // Write FX:
                 if pc2snes(room_ptr) & 0xFFFF == 0xDD58 {
-                    // Skip for Mother Brain Room, which has special FX not in the FX list.
+                    // Mother Brain Room has special a FX not in the FX list, for lowering the acid after MB1 fight.
+                    // Instead of replacing the whole FX header, patch the existing ones to use the correct
+                    // palette blend for the acid:
+                    new_rom.write_u8(snes2pc(0x83A0B3), 8)?;
+                    new_rom.write_u8(snes2pc(0x83A0C3), 8)?;
+                    new_rom.write_u8(snes2pc(0x83A0D3), 8)?;
                 } else {
                     new_rom.write_n(fx_data_addr, &fx_data_vec[i])?;
                     new_rom.write_u16(state_ptr + 6, (pc2snes(fx_data_addr) & 0xFFFF) as isize)?;
