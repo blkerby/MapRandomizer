@@ -280,6 +280,7 @@ TransitionDMA_CalculateLayer2XPos:
     SEP #$60
     JSR ExecuteTransitionDMAWithoutBlank
     PLP
+    JSR $A2F9  ; run hi-jacked instruction
     RTS
 
 warnpc !bank_80_free_space_end
