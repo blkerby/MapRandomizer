@@ -727,10 +727,10 @@ impl MosaicPatchBuilder {
                 let i = (screen_y * 16 + y) * room_width * 16 + screen_x * 16 + 7;
                 let tile: u16 = match (maridia_style_tube, priority, y == 0 || y == 15) {
                     // Tube tiles specific to East Maridia (as in vanilla):
-                    (true, true, true) => 0x3B2,
+                    (true, true, true) => 0x3B4,
                     (true, true, false) => 0x3AB ^ 0x400,
                     (true, false, true) => 0x33D,
-                    (true, false, false) => 0x33B ^ 0x400,
+                    (true, false, false) => 0x33A ^ 0x400,
                     // Tube tiles in other tilesets:
                     (false, true, true) => 0xEE,
                     (false, true, false) => 0xF0,
