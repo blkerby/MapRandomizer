@@ -2296,7 +2296,7 @@ impl<'a> Patcher<'a> {
         let mut next_state_index: usize = 0;
         let mut state_idxs: Vec<usize> = vec![];
 
-        for _door in &self.randomization.locked_door_data.locked_doors {
+        for _door in &self.randomization.locked_doors {
             while reserved_state_indexes.contains(&next_state_index) {
                 next_state_index += 1;
             }
@@ -2310,7 +2310,6 @@ impl<'a> Patcher<'a> {
         self.assign_locked_door_states();
         for (i, door) in self
             .randomization
-            .locked_door_data
             .locked_doors
             .iter()
             .enumerate()

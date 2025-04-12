@@ -1592,7 +1592,6 @@ impl<'a> MapPatcher<'a> {
     fn indicate_locked_doors(&mut self) -> Result<()> {
         for (i, locked_door) in self
             .randomization
-            .locked_door_data
             .locked_doors
             .iter()
             .enumerate()
