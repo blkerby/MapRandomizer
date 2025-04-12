@@ -3,7 +3,7 @@ use hashbrown::{HashMap, HashSet};
 use crate::{
     randomize::Randomization,
     settings::{
-        DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective,
+        DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective, RandomizerSettings,
     },
 };
 use maprando_game::{
@@ -31,6 +31,7 @@ pub struct MapPatcher<'a> {
     rom: &'a mut Rom,
     game_data: &'a GameData,
     map: &'a Map,
+    settings: &'a RandomizerSettings,
     randomization: &'a Randomization,
     map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
     gfx_tile_map: HashMap<(AreaIdx, [[u8; 8]; 8]), TilemapWord>,
@@ -139,6 +140,7 @@ impl<'a> MapPatcher<'a> {
         rom: &'a mut Rom,
         game_data: &'a GameData,
         map: &'a Map,
+        settings: &'a RandomizerSettings,
         randomization: &'a Randomization,
         locked_door_state_indices: &'a [usize],
     ) -> Self {
@@ -160,8 +162,7 @@ impl<'a> MapPatcher<'a> {
         .into_iter()
         .collect();
 
-        if randomization
-            .settings
+        if settings
             .quality_of_life_settings
             .disableable_etanks
         {
@@ -181,6 +182,7 @@ impl<'a> MapPatcher<'a> {
             rom,
             game_data,
             map,
+            settings,
             randomization,
             map_tile_map: HashMap::new(),
             gfx_tile_map: HashMap::new(),
@@ -569,7 +571,7 @@ impl<'a> MapPatcher<'a> {
         match edge {
             MapTileEdge::Empty => {}
             MapTileEdge::QolEmpty => {
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     set_wall_pixel(tile, 0, 3);
                     set_wall_pixel(tile, 1, 3);
                     set_wall_pixel(tile, 2, 3);
@@ -583,7 +585,7 @@ impl<'a> MapPatcher<'a> {
             MapTileEdge::Passage => {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     set_wall_pixel(tile, 2, 3);
                     set_wall_pixel(tile, 3, 3);
                     set_wall_pixel(tile, 4, 3);
@@ -593,7 +595,7 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 7, 3);
             }
             MapTileEdge::QolPassage => {
-                if !self.randomization.settings.other_settings.ultra_low_qol {
+                if !self.settings.other_settings.ultra_low_qol {
                     set_wall_pixel(tile, 0, 3);
                     set_wall_pixel(tile, 1, 3);
                     set_wall_pixel(tile, 6, 3);
@@ -604,7 +606,7 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 2, 3);
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     set_wall_pixel(tile, 3, 3);
                     set_wall_pixel(tile, 4, 3);
                 }
@@ -623,7 +625,7 @@ impl<'a> MapPatcher<'a> {
                 set_wall_pixel(tile, 7, 3);
             }
             MapTileEdge::Sand | MapTileEdge::QolSand => {
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     set_wall_pixel(tile, 0, 3);
                     set_wall_pixel(tile, 1, 3);
                     set_wall_pixel(tile, 2, 3);
@@ -665,7 +667,7 @@ impl<'a> MapPatcher<'a> {
                         DoorLockType::Yellow => 6,
                         _ => panic!("Internal error"),
                     };
-                    match self.randomization.settings.other_settings.door_locks_size {
+                    match self.settings.other_settings.door_locks_size {
                         DoorLocksSize::Small => {
                             set_wall_pixel(tile, 0, 3);
                             set_wall_pixel(tile, 1, 3);
@@ -708,7 +710,7 @@ impl<'a> MapPatcher<'a> {
                         Plasma => 14,
                         _ => panic!("Internal error"),
                     };
-                    match self.randomization.settings.other_settings.door_locks_size {
+                    match self.settings.other_settings.door_locks_size {
                         DoorLocksSize::Small => {
                             set_wall_pixel(tile, 0, 3);
                             set_wall_pixel(tile, 1, 3);
@@ -746,7 +748,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn render_tile(&mut self, tile: MapTile) -> Result<[[u8; 8]; 8]> {
-        let bg_color = if tile.heated && !self.randomization.settings.other_settings.ultra_low_qol {
+        let bg_color = if tile.heated && !self.settings.other_settings.ultra_low_qol {
             2
         } else {
             1
@@ -759,7 +761,7 @@ impl<'a> MapPatcher<'a> {
             (bg_color, bg_color)
         };
         if let Some(water_level) = tile.water_level {
-            if !self.randomization.settings.other_settings.ultra_low_qol {
+            if !self.settings.other_settings.ultra_low_qol {
                 let level = (water_level * 8.0).floor() as isize;
                 for y in level..8 {
                     for x in 0..8 {
@@ -896,7 +898,7 @@ impl<'a> MapPatcher<'a> {
                 );
             }
             MapTileInterior::EnergyRefill => {
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     data[3][3] = item_color;
                     data[3][4] = item_color;
                     data[4][3] = item_color;
@@ -955,7 +957,7 @@ impl<'a> MapPatcher<'a> {
                 }
             }
             MapTileInterior::AmmoRefill => {
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     data[3][3] = item_color;
                     data[3][4] = item_color;
                     data[4][3] = item_color;
@@ -1012,7 +1014,7 @@ impl<'a> MapPatcher<'a> {
                 }
             }
             MapTileInterior::DoubleRefill | MapTileInterior::Ship => {
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     data[3][3] = item_color;
                     data[3][4] = item_color;
                     data[4][3] = item_color;
@@ -1111,7 +1113,7 @@ impl<'a> MapPatcher<'a> {
                 );
             }
             MapTileInterior::MapStation => {
-                if self.randomization.settings.other_settings.ultra_low_qol {
+                if self.settings.other_settings.ultra_low_qol {
                     data[3][3] = item_color;
                     data[3][4] = item_color;
                     data[4][3] = item_color;
@@ -1168,7 +1170,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         let apply_heat = |d: [[u8; 8]; 8]| {
-            if tile.heated && !self.randomization.settings.other_settings.ultra_low_qol {
+            if tile.heated && !self.settings.other_settings.ultra_low_qol {
                 d.map(|row| row.map(|c| if c == 1 { 2 } else { c }))
             } else {
                 d
@@ -1177,7 +1179,6 @@ impl<'a> MapPatcher<'a> {
         match tile.special_type {
             Some(MapTileSpecialType::AreaTransition(area_idx, dir)) => {
                 if self
-                    .randomization
                     .settings
                     .other_settings
                     .transition_letters
@@ -1446,7 +1447,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         if tile.special_type.is_some()
-            || (!self.randomization.settings.other_settings.ultra_low_qol
+            || (!self.settings.other_settings.ultra_low_qol
                 && [
                     MapTileInterior::AmmoRefill,
                     MapTileInterior::EnergyRefill,
@@ -1638,7 +1639,6 @@ impl<'a> MapPatcher<'a> {
     fn indicate_locked_doors(&mut self) -> Result<()> {
         for (i, locked_door) in self
             .randomization
-            .locked_door_data
             .locked_doors
             .iter()
             .enumerate()
@@ -1855,7 +1855,7 @@ impl<'a> MapPatcher<'a> {
         let revealed_addr = snes2pc(0xB5F000);
         let partially_revealed_addr = snes2pc(0xB5F800);
         let area_seen_addr = snes2pc(0xB5F600);
-        match self.randomization.settings.other_settings.maps_revealed {
+        match self.settings.other_settings.maps_revealed {
             MapsRevealed::Full => {
                 self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?; // whole map revealed bits: true
                 self.rom
@@ -1886,7 +1886,6 @@ impl<'a> MapPatcher<'a> {
         }
 
         if self
-            .randomization
             .settings
             .quality_of_life_settings
             .mark_map_stations
@@ -1981,7 +1980,6 @@ impl<'a> MapPatcher<'a> {
 
     fn set_map_activation_behavior(&mut self) -> Result<()> {
         match self
-            .randomization
             .settings
             .other_settings
             .map_station_reveal
@@ -2059,7 +2057,6 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_items(&mut self) -> Result<()> {
         let markers = self
-            .randomization
             .settings
             .quality_of_life_settings
             .item_markers;
@@ -2126,11 +2123,11 @@ impl<'a> MapPatcher<'a> {
                 }
             };
             tile.interior = interior.clone();
-            if self.randomization.settings.other_settings.ultra_low_qol {
+            if self.settings.other_settings.ultra_low_qol {
                 self.set_room_tile(room_id, x, y, tile.clone());
             } else {
                 self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                if self.randomization.settings.other_settings.item_dot_change == ItemDotChange::Fade
+                if self.settings.other_settings.item_dot_change == ItemDotChange::Fade
                 {
                     if interior == MapTileInterior::MajorItem
                         || (interior == MapTileInterior::MediumItem
@@ -2660,7 +2657,6 @@ impl<'a> MapPatcher<'a> {
         self.fix_hud_black()?;
         self.darken_hud_grid()?;
         if self
-            .randomization
             .settings
             .quality_of_life_settings
             .disableable_etanks
@@ -2669,7 +2665,7 @@ impl<'a> MapPatcher<'a> {
         }
         self.apply_room_tiles()?;
         self.indicate_objective_tiles()?;
-        if !self.randomization.settings.other_settings.ultra_low_qol {
+        if !self.settings.other_settings.ultra_low_qol {
             self.indicate_locked_doors()?;
             self.indicate_gray_doors()?;
         }
@@ -2680,7 +2676,6 @@ impl<'a> MapPatcher<'a> {
         self.write_map_tiles()?;
         self.set_initial_map()?;
         if self
-            .randomization
             .settings
             .quality_of_life_settings
             .room_outline_revealed

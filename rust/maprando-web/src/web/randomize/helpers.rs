@@ -8,7 +8,7 @@ use maprando::{
     helpers::get_item_priorities,
     patch::{ips_write::create_ips_patch, Rom},
     preset::PresetData,
-    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
     seed_repository::{Seed, SeedFile},
     settings::{
         get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
@@ -196,7 +196,9 @@ pub async fn save_seed(
     spoiler_token: &str,
     vanilla_rom: &Rom,
     output_rom: &Rom,
+    settings: &RandomizerSettings,
     randomization: &Randomization,
+    spoiler_log: &SpoilerLog,
     app_data: &AppData,
 ) -> Result<()> {
     if check_seed_exists(seed_name, app_data).await {
@@ -255,11 +257,19 @@ pub async fn save_seed(
     let mut buf = Vec::new();
     let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
     let mut ser = serde_json::Serializer::with_formatter(&mut buf, formatter);
-    randomization.settings.serialize(&mut ser).unwrap();
+    settings.serialize(&mut ser).unwrap();
     files.push(SeedFile::new("public/settings.json", buf));
 
+    // Write the Randomization struct:
+    files.push(SeedFile::new(
+        "randomization.json",
+        serde_json::to_string(&randomization)?
+            .as_bytes()
+            .to_vec(),
+    ));
+
     // Write the spoiler log
-    let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
+    let spoiler_bytes = serde_json::to_vec_pretty(&spoiler_log).unwrap();
     files.push(SeedFile::new(
         &format!("{}/spoiler.json", prefix),
         spoiler_bytes,

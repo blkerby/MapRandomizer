@@ -12,7 +12,8 @@ use maprando::{
         CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
         TileTheme,
     },
-    patch::Rom,
+    patch::{make_rom, Rom},
+    randomize::Randomization, settings::RandomizerSettings,
 };
 use maprando_game::Map;
 
@@ -75,7 +76,7 @@ async fn customize_seed(
     app_data: web::Data<AppData>,
 ) -> impl Responder {
     let seed_name = &info.0;
-    let patch_ips = app_data
+    let mut patch_ips = app_data
         .seed_repository
         .get_file(seed_name, "patch.ips")
         .await
@@ -104,6 +105,28 @@ async fn customize_seed(
         Some(serde_json::from_slice(&map_data_bytes).unwrap())
     };
 
+    let settings_bytes = app_data
+        .seed_repository
+        .get_file(seed_name, "public/settings.json")
+        .await
+        .unwrap_or(vec![]);
+    let settings: Option<RandomizerSettings> = if settings_bytes.len() == 0 {
+        None
+    } else {
+        Some(serde_json::from_slice(&settings_bytes).unwrap())
+    };
+
+    let randomization_bytes = app_data
+        .seed_repository
+        .get_file(seed_name, "randomization.json")
+        .await
+        .unwrap_or(vec![]);
+    let randomization: Option<Randomization> = if randomization_bytes.len() == 0 {
+        None
+    } else {
+        Some(serde_json::from_slice(&randomization_bytes).unwrap())
+    };
+
     let ultra_low_qol = seed_data["ultra_low_qol"].as_bool().unwrap_or(false);
 
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
@@ -112,7 +135,7 @@ async fn customize_seed(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
-    let settings = CustomizeSettings {
+    let customize_settings = CustomizeSettings {
         samus_sprite: if ultra_low_qol
             && req.samus_sprite.0 == "samus_vanilla"
             && req.vanilla_screw_attack_animation.0
@@ -181,13 +204,28 @@ async fn customize_seed(
             moonwalk: req.moonwalk.0,
         },
     };
-    info!("CustomizeSettings: {:?}", settings);
+
+    if settings.is_some() && randomization.is_some() {
+        info!("Patching ROM");
+        match make_rom(&rom, settings.as_ref().unwrap(), randomization.as_ref().unwrap(), &app_data.game_data) {
+            Ok(r) => {
+                rom = r;
+                patch_ips = vec![];
+            }
+            Err(err) => {
+                return HttpResponse::InternalServerError()
+                .body(format!("Error patching ROM: {:?}", err))
+            }
+        }
+    }
+
+    info!("CustomizeSettings: {:?}", customize_settings);
     match customize_rom(
         &mut rom,
         &orig_rom,
         &patch_ips,
         &map,
-        &settings,
+        &customize_settings,
         &app_data.game_data,
         &app_data.samus_sprite_categories,
         &app_data.mosaic_themes,

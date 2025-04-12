@@ -10,7 +10,7 @@ use maprando::patch::Rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
     get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors, randomize_map_areas,
-    Randomization, Randomizer,
+    Randomization, Randomizer, SpoilerLog,
 };
 use maprando::settings::{
     AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
@@ -69,7 +69,7 @@ struct TestAppData {
     customize: bool,
 }
 
-fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, String)> {
+fn get_randomization(app: &TestAppData, seed: u64) -> Result<(RandomizerSettings, Randomization, SpoilerLog, String)> {
     let game_data = &app.game_data;
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
@@ -177,8 +177,8 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
             let item_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
             info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}");
             match randomizer.randomize(attempt_num, item_seed, 1) {
-                Ok(randomization) => {
-                    return Ok((randomization, output_file_prefix));
+                Ok((randomization, spoiler_log)) => {
+                    return Ok((settings, randomization, spoiler_log, output_file_prefix));
                 }
                 Err(e) => {
                     info!(
@@ -248,10 +248,10 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     info!("Test cycle {cycle_count} Start: seed={}", seed);
 
     // Perform randomization (map selection & item placement):
-    let (randomization, output_file_prefix) = get_randomization(&app, seed)?;
+    let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(&app, seed)?;
 
     // Generate the patched ROM:
-    let game_rom = make_rom(&app.input_rom, &randomization, &app.game_data)?;
+    let game_rom = make_rom(&app.input_rom, &settings, &randomization, &app.game_data)?;
     let ips_patch = create_ips_patch(&app.input_rom.data, &game_rom.data);
 
     let mut output_rom = app.input_rom.clone();
@@ -334,7 +334,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         "Writing spoiler log to {}",
         output_spoiler_log_path.display()
     );
-    let spoiler_str = serde_json::to_string_pretty(&randomization.spoiler_log)?;
+    let spoiler_str = serde_json::to_string_pretty(&spoiler_log)?;
     std::fs::write(output_spoiler_log_path, spoiler_str)?;
 
     let spoiler_maps =

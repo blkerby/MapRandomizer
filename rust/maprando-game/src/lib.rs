@@ -175,7 +175,7 @@ pub struct EnemyDrop {
     pub count: Capacity,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BeamType {
     Charge,
     Ice,
@@ -184,7 +184,7 @@ pub enum BeamType {
     Plasma,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DoorType {
     Blue,
     Red,
@@ -552,7 +552,7 @@ pub struct EscapeTimingRoom {
     pub timings: Vec<EscapeTimingGroup>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct StartLocation {
     pub name: String,
     pub room_id: usize,
@@ -564,7 +564,7 @@ pub struct StartLocation {
     pub note: Option<Vec<String>>,
     pub camera_offset_x: Option<f32>,
     pub camera_offset_y: Option<f32>,
-    #[serde(skip_deserializing)]
+    #[serde(skip_serializing, skip_deserializing)]
     pub requires_parsed: Option<Requirement>,
 }
 

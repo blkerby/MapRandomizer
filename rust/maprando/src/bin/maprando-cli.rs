@@ -8,7 +8,7 @@ use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer,
+    get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer, SpoilerLog,
 };
 use maprando::settings::{RandomizerSettings, StartLocationMode};
 use maprando::spoiler_map;
@@ -96,7 +96,7 @@ fn get_randomization(
     settings: &RandomizerSettings,
     game_data: &GameData,
     preset_data: &PresetData,
-) -> Result<Randomization> {
+) -> Result<(Randomization, SpoilerLog)> {
     let implicit_tech = &preset_data.tech_by_difficulty["Implicit"];
     let implicit_notables = &preset_data.notables_by_difficulty["Implicit"];
     let difficulty_tiers = get_difficulty_tiers(
@@ -251,13 +251,13 @@ fn main() -> Result<()> {
     let settings = get_settings(&args, &preset_data)?;
 
     // Perform randomization (map selection & item placement):
-    let randomization = get_randomization(&args, &settings, &game_data, &preset_data)?;
+    let (randomization, spoiler_log) = get_randomization(&args, &settings, &game_data, &preset_data)?;
 
     // Generate the patched ROM:
     let orig_rom = Rom::load(&args.input_rom)?;
     let mut input_rom = orig_rom.clone();
     input_rom.data.resize(0x400000, 0);
-    let game_rom = make_rom(&input_rom, &randomization, &game_data)?;
+    let game_rom = make_rom(&input_rom, &settings, &randomization, &game_data)?;
     let ips_patch = create_ips_patch(&input_rom.data, &game_rom.data);
 
     let mut output_rom = input_rom.clone();
@@ -307,7 +307,7 @@ fn main() -> Result<()> {
             "Writing spoiler log to {}",
             output_spoiler_log_path.display()
         );
-        let spoiler_str = serde_json::to_string_pretty(&randomization.spoiler_log)?;
+        let spoiler_str = serde_json::to_string_pretty(&spoiler_log)?;
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
