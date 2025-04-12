@@ -252,7 +252,7 @@ async fn randomize(
                     continue;
                 }
             };
-            let output_rom_result = make_rom(&rom, &randomization, &app_data.game_data);
+            let output_rom_result = make_rom(&rom, &settings, &randomization, &app_data.game_data);
             let output_rom = match output_rom_result {
                 Ok(x) => x,
                 Err(e) => {
@@ -370,6 +370,7 @@ async fn randomize(
         &req.spoiler_token.0,
         &rom,
         &output.output_rom,
+        &settings,
         &output.randomization,
         &output.spoiler_log,
         &app_data,
