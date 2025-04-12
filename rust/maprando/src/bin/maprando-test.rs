@@ -69,7 +69,7 @@ struct TestAppData {
     customize: bool,
 }
 
-fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, SpoilerLog, String)> {
+fn get_randomization(app: &TestAppData, seed: u64) -> Result<(RandomizerSettings, Randomization, SpoilerLog, String)> {
     let game_data = &app.game_data;
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
@@ -178,7 +178,7 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Spo
             info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}");
             match randomizer.randomize(attempt_num, item_seed, 1) {
                 Ok((randomization, spoiler_log)) => {
-                    return Ok((randomization, spoiler_log, output_file_prefix));
+                    return Ok((settings, randomization, spoiler_log, output_file_prefix));
                 }
                 Err(e) => {
                     info!(
@@ -248,10 +248,10 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     info!("Test cycle {cycle_count} Start: seed={}", seed);
 
     // Perform randomization (map selection & item placement):
-    let (randomization, spoiler_log, output_file_prefix) = get_randomization(&app, seed)?;
+    let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(&app, seed)?;
 
     // Generate the patched ROM:
-    let game_rom = make_rom(&app.input_rom, &randomization, &app.game_data)?;
+    let game_rom = make_rom(&app.input_rom, &settings, &randomization, &app.game_data)?;
     let ips_patch = create_ips_patch(&app.input_rom.data, &game_rom.data);
 
     let mut output_rom = app.input_rom.clone();

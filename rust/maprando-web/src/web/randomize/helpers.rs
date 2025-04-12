@@ -196,6 +196,7 @@ pub async fn save_seed(
     spoiler_token: &str,
     vanilla_rom: &Rom,
     output_rom: &Rom,
+    settings: &RandomizerSettings,
     randomization: &Randomization,
     spoiler_log: &SpoilerLog,
     app_data: &AppData,
@@ -256,7 +257,7 @@ pub async fn save_seed(
     let mut buf = Vec::new();
     let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
     let mut ser = serde_json::Serializer::with_formatter(&mut buf, formatter);
-    randomization.settings.serialize(&mut ser).unwrap();
+    settings.serialize(&mut ser).unwrap();
     files.push(SeedFile::new("public/settings.json", buf));
 
     // Write the spoiler log

@@ -292,8 +292,6 @@ pub struct EssentialSpoilerData {
 }
 
 pub struct Randomization {
-    pub settings: RandomizerSettings,
-    pub difficulty: DifficultyConfig,
     pub objectives: Vec<Objective>,
     pub save_animals: SaveAnimals,
     pub map: Map,
@@ -302,7 +300,6 @@ pub struct Randomization {
     pub item_placement: Vec<Item>,
     pub start_location: StartLocation,
     pub escape_time_seconds: f32,
-    // pub spoiler_log: SpoilerLog,
     pub essential_spoiler_data: EssentialSpoilerData,
     pub seed: usize,
     pub display_seed: usize,
@@ -4333,8 +4330,6 @@ impl<'r> Randomizer<'r> {
         };
 
         let randomization = Randomization {
-            settings: self.settings.clone(),
-            difficulty: self.difficulty_tiers[0].clone(),
             objectives: self.objectives.clone(),
             save_animals,
             map: self.map.clone(),
@@ -4847,8 +4842,6 @@ impl<'r> Randomizer<'r> {
         };
 
         let randomization = Randomization {
-            settings,
-            difficulty: self.difficulty_tiers[0].clone(),
             objectives: self.objectives.clone(),
             save_animals,
             map: self.map.clone(),
