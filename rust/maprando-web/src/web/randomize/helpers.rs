@@ -260,6 +260,14 @@ pub async fn save_seed(
     settings.serialize(&mut ser).unwrap();
     files.push(SeedFile::new("public/settings.json", buf));
 
+    // Write the Randomization struct:
+    files.push(SeedFile::new(
+        "randomization.json",
+        serde_json::to_string(&randomization)?
+            .as_bytes()
+            .to_vec(),
+    ));
+
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&spoiler_log).unwrap();
     files.push(SeedFile::new(

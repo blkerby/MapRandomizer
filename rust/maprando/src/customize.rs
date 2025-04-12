@@ -336,9 +336,11 @@ pub fn customize_rom(
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
     rom.resize(0x400000);
-    let patch = ips::Patch::parse(seed_patch).unwrap();
-    for hunk in patch.hunks() {
-        rom.write_n(hunk.offset(), hunk.payload())?;
+    if seed_patch.len() > 0 {
+        let patch = ips::Patch::parse(seed_patch).unwrap();
+        for hunk in patch.hunks() {
+            rom.write_n(hunk.offset(), hunk.payload())?;
+        }
     }
 
     remove_mother_brain_flashing(rom)?;

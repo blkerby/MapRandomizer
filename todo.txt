@@ -1,4 +1,6 @@
 v118:
+- fix disabled tank color
+- fix color on one samus tile on equipment screen
 - DONE: fix beam door black color
 - check why speed booster chozo orb visible during scrolling
 - DONE: apply correct setup ASM if Toilet intersects room with glass tube tiles

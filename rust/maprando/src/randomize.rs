@@ -252,7 +252,7 @@ struct DebugData {
     reverse: TraverseResult,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct LockedDoor {
     pub src_ptr_pair: DoorPtrPair,
     pub dst_ptr_pair: DoorPtrPair,
@@ -281,16 +281,19 @@ struct RandomizationState {
 }
 
 // Info about an item used during ROM patching, to show info in the credits
+#[derive(Serialize, Deserialize)]
 pub struct EssentialItemSpoilerInfo {
     pub item: Item,
     pub step: Option<usize>,
     pub area: Option<String>,
 }
 // Spoiler data that is used during ROM patching (e.g. to show info in the credits)
+#[derive(Serialize, Deserialize)]
 pub struct EssentialSpoilerData {
     pub item_spoiler_info: Vec<EssentialItemSpoilerInfo>,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct Randomization {
     pub objectives: Vec<Objective>,
     pub save_animals: SaveAnimals,
