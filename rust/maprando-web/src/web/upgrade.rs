@@ -141,6 +141,25 @@ fn upgrade_notable_settings(settings: &mut serde_json::Value, app_data: &AppData
     Ok(())
 }
 
+fn upgrade_other_skill_settings(settings: &mut serde_json::Value) -> Result<()> {
+    let skill_assumption_settings = settings
+        .get_mut("skill_assumption_settings")
+        .context("missing skill_assumption_settings")?
+        .as_object_mut()
+        .context("skill_assumption_settings is not object")?;
+    if !skill_assumption_settings.contains_key("bomb_into_cf_leniency") {
+        skill_assumption_settings.insert("bomb_into_cf_leniency".to_string(), 5.into());
+    }
+    if !skill_assumption_settings.contains_key("jump_into_cf_leniency") {
+        skill_assumption_settings.insert("jump_into_cf_leniency".to_string(), 9.into());
+    }
+    if !skill_assumption_settings.contains_key("spike_xmode_leniency") {
+        skill_assumption_settings.insert("spike_xmode_leniency".to_string(), 2.into());
+    }
+
+    Ok(())
+}
+
 fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result<()> {
     let item_progression_settings = settings
         .get_mut("item_progression_settings")
@@ -257,6 +276,7 @@ pub fn try_upgrade_settings(
     assign_presets(&mut settings, app_data)?;
     upgrade_tech_settings(&mut settings, app_data)?;
     upgrade_notable_settings(&mut settings, app_data)?;
+    upgrade_other_skill_settings(&mut settings)?;
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_qol_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
