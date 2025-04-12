@@ -13,7 +13,8 @@ use maprando::{
         TileTheme,
     },
     patch::{make_rom, Rom},
-    randomize::Randomization, settings::RandomizerSettings,
+    randomize::Randomization,
+    settings::RandomizerSettings,
 };
 use maprando_game::Map;
 
@@ -207,14 +208,19 @@ async fn customize_seed(
 
     if settings.is_some() && randomization.is_some() {
         info!("Patching ROM");
-        match make_rom(&rom, settings.as_ref().unwrap(), randomization.as_ref().unwrap(), &app_data.game_data) {
+        match make_rom(
+            &rom,
+            settings.as_ref().unwrap(),
+            randomization.as_ref().unwrap(),
+            &app_data.game_data,
+        ) {
             Ok(r) => {
                 rom = r;
                 patch_ips = vec![];
             }
             Err(err) => {
                 return HttpResponse::InternalServerError()
-                .body(format!("Error patching ROM: {:?}", err))
+                    .body(format!("Error patching ROM: {:?}", err))
             }
         }
     }

@@ -4050,7 +4050,11 @@ impl<'r> Randomizer<'r> {
         out
     }
 
-    fn get_essential_spoiler_data(&self, settings: &RandomizerSettings, spoiler_log: &SpoilerLog) -> EssentialSpoilerData {
+    fn get_essential_spoiler_data(
+        &self,
+        settings: &RandomizerSettings,
+        spoiler_log: &SpoilerLog,
+    ) -> EssentialSpoilerData {
         let mut item_spoiler_info: Vec<EssentialItemSpoilerInfo> = vec![];
         let mut items_set: HashSet<Item> = HashSet::new();
 
@@ -4071,13 +4075,11 @@ impl<'r> Randomizer<'r> {
             for item_info in step_summary.items.iter() {
                 let item = Item::try_from(item_info.item.as_str()).unwrap();
                 if !items_set.contains(&item) {
-                    item_spoiler_info.push(
-                        EssentialItemSpoilerInfo {
-                            item,
-                            step: Some(step + 1),
-                            area: Some(item_info.location.area.clone())
-                        }
-                    );
+                    item_spoiler_info.push(EssentialItemSpoilerInfo {
+                        item,
+                        step: Some(step + 1),
+                        area: Some(item_info.location.area.clone()),
+                    });
                     items_set.insert(item);
                 }
             }
@@ -4119,9 +4121,7 @@ impl<'r> Randomizer<'r> {
             }
         }
 
-        EssentialSpoilerData {
-            item_spoiler_info,
-        }
+        EssentialSpoilerData { item_spoiler_info }
     }
 
     fn get_randomization<R: Rng>(

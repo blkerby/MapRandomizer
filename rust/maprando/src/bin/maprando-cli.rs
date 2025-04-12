@@ -251,7 +251,8 @@ fn main() -> Result<()> {
     let settings = get_settings(&args, &preset_data)?;
 
     // Perform randomization (map selection & item placement):
-    let (randomization, spoiler_log) = get_randomization(&args, &settings, &game_data, &preset_data)?;
+    let (randomization, spoiler_log) =
+        get_randomization(&args, &settings, &game_data, &preset_data)?;
 
     // Generate the patched ROM:
     let orig_rom = Rom::load(&args.input_rom)?;
