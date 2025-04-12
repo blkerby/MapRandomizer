@@ -1711,7 +1711,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn customize_escape_timer(&mut self) -> Result<()> {
-        let escape_time = self.randomization.spoiler_log.escape.final_time_seconds as isize;
+        let escape_time = self.randomization.escape_time_seconds as isize;
         let minutes = escape_time / 60;
         let seconds = escape_time % 60;
         self.rom
@@ -1895,72 +1895,28 @@ impl<'a> Patcher<'a> {
             .enumerate()
             .map(|(i, x)| (x.0.clone(), i))
             .collect();
-        let mut items_set: HashSet<String> = HashSet::new();
 
-        // Show starting items at the top:
-        for x in &self
-            .randomization
-            .settings
-            .item_progression_settings
-            .starting_items
-        {
-            if x.count > 0 {
-                let raw_name = Item::VARIANTS[x.item as usize].to_string();
-                let item_name = item_display_name_map[&raw_name].clone();
-                self.write_item_credits(items_set.len(), None, &item_name, None, "starting item")?;
-                items_set.insert(raw_name.clone());
-            }
-        }
-
-        // Show collectible items in the middle:
-        for (step, step_summary) in self.randomization.spoiler_log.summary.iter().enumerate() {
-            for item_info in step_summary.items.iter() {
-                if !items_set.contains(&item_info.item) {
-                    let item_name = item_display_name_map[&item_info.item].clone();
-                    let item_idx = item_name_index[&item_info.item];
-                    self.write_item_credits(
-                        items_set.len(),
-                        Some(step + 1),
-                        &item_name,
-                        Some(item_idx),
-                        &item_info.location.area,
-                    )?;
-                    items_set.insert(item_info.item.clone());
+        for (idx, item_info) in self.randomization.essential_spoiler_data.item_spoiler_info.iter().enumerate() {
+            let raw_name = Item::VARIANTS[item_info.item as usize].to_string();
+            let item_name = item_display_name_map[&raw_name].clone();
+            let item_idx = item_name_index[&raw_name];
+            match item_info.step {
+                Some(0) => {
+                    self.write_item_credits(idx, None, &item_name, None, "starting item")?;
+                }
+                Some(_) => {
+                    self.write_item_credits(idx, item_info.step, &item_name, Some(item_idx), item_info.area.as_ref().unwrap())?;
+                }
+                None => {
+                    if let Some(area) = item_info.area.as_ref() {
+                        // Placed but logically uncollectable item:
+                        self.write_item_credits(idx, None, &item_name, Some(item_idx), area)?;
+                    } else {
+                        self.write_item_credits(idx, None, &item_name, None, "not placed")?;
+                    }
                 }
             }
-        }
 
-        // Show logically uncollectible items:
-        for loc in &self.randomization.spoiler_log.all_items {
-            if loc.item == "Nothing" {
-                continue;
-            }
-            if !items_set.contains(&loc.item) {
-                let item_name = item_display_name_map[&loc.item].clone();
-                let item_idx = item_name_index[&loc.item];
-                self.write_item_credits(
-                    items_set.len(),
-                    None,
-                    &item_name,
-                    Some(item_idx),
-                    &loc.location.area,
-                )?;
-                items_set.insert(loc.item.clone());
-            }
-        }
-
-        // Show unplaced items at the bottom:
-        for (name, display_name) in &item_name_pairs {
-            if self.randomization.settings.other_settings.wall_jump != WallJump::Collectible
-                && name == "WallJump"
-            {
-                // Don't show "WallJump" item unless using Collectible mode.
-                continue;
-            }
-            if !items_set.contains(name) {
-                self.write_item_credits(items_set.len(), None, &display_name, None, "not placed")?;
-                items_set.insert(name.clone());
-            }
         }
         Ok(())
     }
