@@ -112,7 +112,7 @@ async fn customize_seed(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
-    let settings = CustomizeSettings {
+    let customize_settings = CustomizeSettings {
         samus_sprite: if ultra_low_qol
             && req.samus_sprite.0 == "samus_vanilla"
             && req.vanilla_screw_attack_animation.0
@@ -181,13 +181,14 @@ async fn customize_seed(
             moonwalk: req.moonwalk.0,
         },
     };
-    info!("CustomizeSettings: {:?}", settings);
+
+    info!("CustomizeSettings: {:?}", customize_settings);
     match customize_rom(
         &mut rom,
         &orig_rom,
         &patch_ips,
         &map,
-        &settings,
+        &customize_settings,
         &app_data.game_data,
         &app_data.samus_sprite_categories,
         &app_data.mosaic_themes,
