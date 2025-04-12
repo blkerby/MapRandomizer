@@ -10,7 +10,7 @@ use maprando::{
     patch::{make_rom, Rom},
     randomize::{
         filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
-        randomize_map_areas, DifficultyConfig, Randomization, Randomizer,
+        randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
     },
     settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
 };
@@ -190,6 +190,7 @@ async fn randomize(
         door_randomization_seed: usize,
         item_placement_seed: usize,
         randomization: Randomization,
+        spoiler_log: SpoilerLog,
         output_rom: Rom,
     }
 
@@ -241,7 +242,7 @@ async fn randomize(
             info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
             let randomization_result =
                 randomizer.randomize(attempt_num, item_placement_seed, display_seed);
-            let randomization = match randomization_result {
+            let (randomization, spoiler_log) = match randomization_result {
                 Ok(x) => x,
                 Err(e) => {
                     info!(
@@ -272,6 +273,7 @@ async fn randomize(
                 door_randomization_seed,
                 item_placement_seed,
                 randomization,
+                spoiler_log,
                 output_rom,
             });
             break 'attempts;
@@ -373,6 +375,7 @@ async fn randomize(
         &rom,
         &output.output_rom,
         &output.randomization,
+        &output.spoiler_log,
         &app_data,
     )
     .await

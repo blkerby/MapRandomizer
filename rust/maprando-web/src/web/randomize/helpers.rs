@@ -8,7 +8,7 @@ use maprando::{
     helpers::get_item_priorities,
     patch::{ips_write::create_ips_patch, Rom},
     preset::PresetData,
-    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
     seed_repository::{Seed, SeedFile},
     settings::{
         get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
@@ -197,6 +197,7 @@ pub async fn save_seed(
     vanilla_rom: &Rom,
     output_rom: &Rom,
     randomization: &Randomization,
+    spoiler_log: &SpoilerLog,
     app_data: &AppData,
 ) -> Result<()> {
     if check_seed_exists(seed_name, app_data).await {
@@ -259,7 +260,7 @@ pub async fn save_seed(
     files.push(SeedFile::new("public/settings.json", buf));
 
     // Write the spoiler log
-    let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
+    let spoiler_bytes = serde_json::to_vec_pretty(&spoiler_log).unwrap();
     files.push(SeedFile::new(
         &format!("{}/spoiler.json", prefix),
         spoiler_bytes,
