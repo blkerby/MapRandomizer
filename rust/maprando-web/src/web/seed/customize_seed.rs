@@ -1,4 +1,4 @@
-use crate::web::AppData;
+use crate::web::{upgrade::try_upgrade_settings, AppData};
 use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
 use actix_web::{
     http::header::{ContentDisposition, DispositionParam, DispositionType},
@@ -114,7 +114,12 @@ async fn customize_seed(
     let settings: Option<RandomizerSettings> = if settings_bytes.len() == 0 {
         None
     } else {
-        Some(serde_json::from_slice(&settings_bytes).unwrap())
+        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data) {
+            Ok(s) => Some(s.1),
+            Err(e) => {
+                return HttpResponse::InternalServerError().body(e.to_string());
+            }
+        }
     };
 
     let randomization_bytes = app_data
