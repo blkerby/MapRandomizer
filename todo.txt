@@ -1,10 +1,10 @@
 v118:
-- fix disabled tank color
-- fix color on one samus tile on equipment screen
+- DONE: fix disabled tank color
+- DONE: fix color on one samus tile on equipment screen
 - DONE: fix beam door black color
-- check why speed booster chozo orb visible during scrolling
+- DONE: check why speed booster chozo orb visible during scrolling
 - DONE: apply correct setup ASM if Toilet intersects room with glass tube tiles
-- add X-mode leniency setting and CF clip leniency
+- DONE: add X-mode leniency setting and CF clip leniency
 - handle wallJumpAvoid on strats and notables.
 - DONE: remove vanilla music on vanilla map
 - DONE: load barrier-clearing PLMs in Mother Brain setup ASM instead of door ASM
@@ -19,6 +19,7 @@ v118:
   - DONE: update help/info
 - fix BG color in Warehouse Entrance
 - snes mini compatibility with fast decompression
+- investigate game-start crash reported by HisBeardNis
 - investigate top-of-HUD flicker: https://www.twitch.tv/karterfreak/clip/FaintTenuousRadicchioPanicVis-EAYYiqzZqSiB-BtZ
 - investigate audio-related lag after quick reload
 - DONE: decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
