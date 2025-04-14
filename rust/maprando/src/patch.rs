@@ -15,7 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Objective, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, MotherBrainFight, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump
+        AreaAssignment, ETankRefill, ItemCount, MotherBrainFight, RandomizerSettings, SaveAnimals,
+        StartLocationMode, WallJump,
     },
 };
 use anyhow::{ensure, Context, Result};
@@ -492,18 +493,11 @@ impl<'a> Patcher<'a> {
 
         patches.push("new_game");
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .all_items_spawn
-        {
+        if self.settings.quality_of_life_settings.all_items_spawn {
             patches.push("all_items_spawn");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .escape_movement_items
+        if self.settings.quality_of_life_settings.escape_movement_items
             || self
                 .settings
                 .item_progression_settings
@@ -512,27 +506,15 @@ impl<'a> Patcher<'a> {
             patches.push("escape_items");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .fast_elevators
-        {
+        if self.settings.quality_of_life_settings.fast_elevators {
             patches.push("elevators_speed");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .fast_doors
-        {
+        if self.settings.quality_of_life_settings.fast_doors {
             patches.push("fast_doors");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .fast_pause_menu
-        {
+        if self.settings.quality_of_life_settings.fast_pause_menu {
             patches.push("fast_pause_menu");
         }
 
@@ -543,11 +525,7 @@ impl<'a> Patcher<'a> {
             }
         }
 
-        match self
-            .settings
-            .other_settings
-            .etank_refill
-        {
+        match self.settings.other_settings.etank_refill {
             ETankRefill::Disabled => {
                 patches.push("etank_refill_disabled");
             }
@@ -557,12 +535,7 @@ impl<'a> Patcher<'a> {
             }
         }
 
-
-        if self
-            .settings
-            .other_settings
-            .energy_free_shinesparks
-        {
+        if self.settings.other_settings.energy_free_shinesparks {
             patches.push("energy_free_shinesparks");
         }
 
@@ -571,19 +544,11 @@ impl<'a> Patcher<'a> {
             // patches.push("spinjumprestart");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .momentum_conservation
-        {
+        if self.settings.quality_of_life_settings.momentum_conservation {
             patches.push("momentum_conservation");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .buffed_drops
-        {
+        if self.settings.quality_of_life_settings.buffed_drops {
             patches.push("buffed_drops");
         }
 
@@ -591,12 +556,7 @@ impl<'a> Patcher<'a> {
             patches.push("zebes_asleep_music");
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .mother_brain_fight
-            == MotherBrainFight::Skip
-        {
+        if self.settings.quality_of_life_settings.mother_brain_fight == MotherBrainFight::Skip {
             patches.push("fix_hyper_slowlock");
         }
 
@@ -1352,20 +1312,12 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_mother_brain_fight_patches(&mut self) -> Result<()> {
-        if self
-            .settings
-            .quality_of_life_settings
-            .supers_double
-        {
+        if self.settings.quality_of_life_settings.supers_double {
             // Make Supers do double damage to Mother Brain:
             self.rom.write_u8(snes2pc(0xB4F1D5), 0x84)?;
         }
 
-        match self
-            .settings
-            .quality_of_life_settings
-            .mother_brain_fight
-        {
+        match self.settings.quality_of_life_settings.mother_brain_fight {
             MotherBrainFight::Vanilla => {
                 // See fast_mother_brain_fight.asm patch for baseline changes to speed up cutscenes.
             }
@@ -1400,10 +1352,7 @@ impl<'a> Patcher<'a> {
                     &[0x20, 0x00, 0xFD], // JSR 0xFD00  (must match address in fast_mother_brain_cutscene.asm)
                 )?;
 
-                if self
-                    .settings
-                    .quality_of_life_settings
-                    .escape_movement_items
+                if self.settings.quality_of_life_settings.escape_movement_items
                     || self
                         .settings
                         .item_progression_settings
@@ -1433,11 +1382,7 @@ impl<'a> Patcher<'a> {
                 self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
                 self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which wouldn't have an effect here except for a delay)
 
-                if self
-                    .settings
-                    .quality_of_life_settings
-                    .escape_movement_items
-                {
+                if self.settings.quality_of_life_settings.escape_movement_items {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }
@@ -1469,41 +1414,25 @@ impl<'a> Patcher<'a> {
         // Remove fake gray door that gets drawn in Phantoon's Room:
         self.rom.write_n(snes2pc(0xA7D4E5), &vec![0xEA; 8])?;
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .all_items_spawn
-        {
+        if self.settings.quality_of_life_settings.all_items_spawn {
             // Copy the item in Pit Room to the Zebes-asleep state.
             // For this we overwrite the PLM slot for the gray door at the left of the room (which we would get rid of anyway).
             let plm_data = self.rom.read_n(0x783EE, 6)?.to_vec();
             self.rom.write_n(0x783C8, &plm_data)?;
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .acid_chozo
-        {
+        if self.settings.quality_of_life_settings.acid_chozo {
             // Remove Space Jump check
             self.rom.write_n(snes2pc(0x84D195), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .remove_climb_lava
-        {
+        if self.settings.quality_of_life_settings.remove_climb_lava {
             // Replace the Tourian Escape Room 4 door with the value 0xFFFF which does not match any door,
             // effectively disabling the door-specific FX for this room.
             self.rom.write_u16(snes2pc(0x838060), 0xFFFF)?;
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .infinite_space_jump
-        {
+        if self.settings.quality_of_life_settings.infinite_space_jump {
             // self.rom.write_n(0x82493, &[0x80, 0x0D])?;  // BRA $0D  (Infinite Space Jump)
             // self.rom.write_n(snes2pc(0x90A493), &[0xEA, 0xEA])?; // NOP : NOP  (old Lenient Space Jump)
 
@@ -1586,11 +1515,7 @@ impl<'a> Patcher<'a> {
             self.rom.write_u16(snes2pc(0xA1f004), 0xFFFF)?;
         }
 
-        if !self
-            .settings
-            .quality_of_life_settings
-            .escape_refill
-        {
+        if !self.settings.quality_of_life_settings.escape_refill {
             // Disable the energy refill at the start of the escape. Address here must match escape.asm:
             self.rom.write_u16(snes2pc(0xA1F002), 0x0001)?;
         }
@@ -1820,27 +1745,9 @@ impl<'a> Patcher<'a> {
 
     fn apply_credits(&mut self) -> Result<()> {
         // Write randomizer settings to credits tilemap
-        self.write_preset(
-            224,
-            self.settings
-                .skill_assumption_settings
-                .preset
-                .clone(),
-        )?;
-        self.write_preset(
-            226,
-            self.settings
-                .item_progression_settings
-                .preset
-                .clone(),
-        )?;
-        self.write_preset(
-            228,
-            self.settings
-                .quality_of_life_settings
-                .preset
-                .clone(),
-        )?;
+        self.write_preset(224, self.settings.skill_assumption_settings.preset.clone())?;
+        self.write_preset(226, self.settings.item_progression_settings.preset.clone())?;
+        self.write_preset(228, self.settings.quality_of_life_settings.preset.clone())?;
 
         // Write item locations in credits tilemap
         let item_name_pairs: Vec<(String, String)> = [
@@ -1878,7 +1785,13 @@ impl<'a> Patcher<'a> {
             .map(|(i, x)| (x.0.clone(), i))
             .collect();
 
-        for (idx, item_info) in self.randomization.essential_spoiler_data.item_spoiler_info.iter().enumerate() {
+        for (idx, item_info) in self
+            .randomization
+            .essential_spoiler_data
+            .item_spoiler_info
+            .iter()
+            .enumerate()
+        {
             let raw_name = Item::VARIANTS[item_info.item as usize].to_string();
             let item_name = item_display_name_map[&raw_name].clone();
             let item_idx = item_name_index[&raw_name];
@@ -1887,7 +1800,13 @@ impl<'a> Patcher<'a> {
                     self.write_item_credits(idx, None, &item_name, None, "starting item")?;
                 }
                 Some(_) => {
-                    self.write_item_credits(idx, item_info.step, &item_name, Some(item_idx), item_info.area.as_ref().unwrap())?;
+                    self.write_item_credits(
+                        idx,
+                        item_info.step,
+                        &item_name,
+                        Some(item_idx),
+                        item_info.area.as_ref().unwrap(),
+                    )?;
                 }
                 None => {
                     if let Some(area) = item_info.area.as_ref() {
@@ -1898,7 +1817,6 @@ impl<'a> Patcher<'a> {
                     }
                 }
             }
-
         }
         Ok(())
     }
@@ -1953,11 +1871,105 @@ impl<'a> Patcher<'a> {
         ]
         .into_iter()
         .collect();
-        for x in &self
-            .settings
-            .item_progression_settings
-            .starting_items
-        {
+
+        let starting_items = if self.settings.start_location_mode == StartLocationMode::Escape {
+            // Override starting items if starting in the escape:
+            vec![
+                ItemCount {
+                    item: Item::ETank,
+                    count: 14,
+                },
+                ItemCount {
+                    item: Item::Missile,
+                    count: 46,
+                },
+                ItemCount {
+                    item: Item::Super,
+                    count: 10,
+                },
+                ItemCount {
+                    item: Item::PowerBomb,
+                    count: 10,
+                },
+                ItemCount {
+                    item: Item::Bombs,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Charge,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Ice,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::HiJump,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::SpeedBooster,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Wave,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Spazer,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::SpringBall,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Varia,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Gravity,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::XRayScope,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Plasma,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Grapple,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::SpaceJump,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::ScrewAttack,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::Morph,
+                    count: 1,
+                },
+                ItemCount {
+                    item: Item::ReserveTank,
+                    count: 4,
+                },
+            ]
+            .into_iter()
+            .collect()
+        } else {
+            self.settings
+                .item_progression_settings
+                .starting_items
+                .clone()
+        };
+
+        for x in &starting_items {
             if x.count == 0 {
                 continue;
             }
@@ -2009,11 +2021,7 @@ impl<'a> Patcher<'a> {
         self.rom
             .write_u16(initial_max_power_bombs, starting_powerbombs)?;
         if self.settings.start_location_mode == StartLocationMode::Escape
-            && self
-                .settings
-                .quality_of_life_settings
-                .mother_brain_fight
-                != MotherBrainFight::Skip
+            && self.settings.quality_of_life_settings.mother_brain_fight != MotherBrainFight::Skip
         {
             self.rom.write_u16(initial_missiles, 0)?;
             self.rom.write_u16(initial_supers, 0)?;
@@ -2308,12 +2316,7 @@ impl<'a> Patcher<'a> {
 
     fn apply_locked_doors(&mut self) -> Result<()> {
         self.assign_locked_door_states();
-        for (i, door) in self
-            .randomization
-            .locked_doors
-            .iter()
-            .enumerate()
-        {
+        for (i, door) in self.randomization.locked_doors.iter().enumerate() {
             let mut door = *door;
             if door.door_type == DoorType::Gray {
                 // Skipping gray doors since they are already handled elsewhere.
@@ -2788,10 +2791,7 @@ pub fn make_rom(
     if !settings.other_settings.ultra_low_qol {
         patcher.apply_hazard_markers()?;
     }
-    if settings
-        .quality_of_life_settings
-        .room_outline_revealed
-    {
+    if settings.quality_of_life_settings.room_outline_revealed {
         patcher.apply_all_room_outlines()?;
     }
     patcher.apply_toilet_data()?;

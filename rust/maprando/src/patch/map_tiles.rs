@@ -2,7 +2,10 @@ use hashbrown::{HashMap, HashSet};
 
 use crate::{
     randomize::{Objective, Randomization},
-    settings::{DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, RandomizerSettings},
+    settings::{
+        DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed,
+        RandomizerSettings,
+    },
 };
 use maprando_game::{
     AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map, MapTile,
@@ -1131,11 +1134,7 @@ impl<'a> MapPatcher<'a> {
         };
         match tile.special_type {
             Some(MapTileSpecialType::AreaTransition(area_idx, dir)) => {
-                if self
-                    .settings
-                    .other_settings
-                    .transition_letters
-                {
+                if self.settings.other_settings.transition_letters {
                     match area_idx {
                         0 => {
                             data = [
@@ -1590,12 +1589,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_locked_doors(&mut self) -> Result<()> {
-        for (i, locked_door) in self
-            .randomization
-            .locked_doors
-            .iter()
-            .enumerate()
-        {
+        for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
             let mut ptr_pairs = vec![locked_door.src_ptr_pair];
             if locked_door.bidirectional {
                 ptr_pairs.push(locked_door.dst_ptr_pair);
@@ -1818,11 +1812,7 @@ impl<'a> MapPatcher<'a> {
             }
         }
 
-        if self
-            .settings
-            .quality_of_life_settings
-            .mark_map_stations
-        {
+        if self.settings.quality_of_life_settings.mark_map_stations {
             for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
                 if !room.name.contains(" Map Room") {
                     continue;
@@ -1849,11 +1839,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn set_map_activation_behavior(&mut self) -> Result<()> {
-        match self
-            .settings
-            .other_settings
-            .map_station_reveal
-        {
+        match self.settings.other_settings.map_station_reveal {
             MapStationReveal::Partial => {
                 self.rom.write_u16(snes2pc(0x90F700), 0xFFFF)?;
             }
@@ -1926,10 +1912,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_items(&mut self) -> Result<()> {
-        let markers = self
-            .settings
-            .quality_of_life_settings
-            .item_markers;
+        let markers = self.settings.quality_of_life_settings.item_markers;
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
             if room_id == 19
@@ -1997,8 +1980,7 @@ impl<'a> MapPatcher<'a> {
                 self.set_room_tile(room_id, x, y, tile.clone());
             } else {
                 self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                if self.settings.other_settings.item_dot_change == ItemDotChange::Fade
-                {
+                if self.settings.other_settings.item_dot_change == ItemDotChange::Fade {
                     if interior == MapTileInterior::MajorItem
                         || (interior == MapTileInterior::MediumItem
                             && orig_tile.interior != MapTileInterior::MajorItem)

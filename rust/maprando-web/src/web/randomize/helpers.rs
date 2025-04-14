@@ -270,9 +270,7 @@ pub async fn save_seed(
     // Write the Randomization struct:
     files.push(SeedFile::new(
         "randomization.json",
-        serde_json::to_string(&randomization)?
-            .as_bytes()
-            .to_vec(),
+        serde_json::to_string(&randomization)?.as_bytes().to_vec(),
     ));
 
     // Write the spoiler log

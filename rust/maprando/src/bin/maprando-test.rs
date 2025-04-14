@@ -69,7 +69,10 @@ struct TestAppData {
     customize: bool,
 }
 
-fn get_randomization(app: &TestAppData, seed: u64) -> Result<(RandomizerSettings, Randomization, SpoilerLog, String)> {
+fn get_randomization(
+    app: &TestAppData,
+    seed: u64,
+) -> Result<(RandomizerSettings, Randomization, SpoilerLog, String)> {
     let game_data = &app.game_data;
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
