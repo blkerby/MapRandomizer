@@ -4,9 +4,9 @@ mod run_speed;
 use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::settings::{
-    DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength,
-    KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate,
-    RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
+    DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
+    MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings,
+    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
     apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
@@ -4735,95 +4735,6 @@ impl<'r> Randomizer<'r> {
             })
             .collect();
 
-        let mut settings = self.settings.clone();
-        settings.item_progression_settings.starting_items = vec![
-            ItemCount {
-                item: Item::ETank,
-                count: 14,
-            },
-            ItemCount {
-                item: Item::Missile,
-                count: 46,
-            },
-            ItemCount {
-                item: Item::Super,
-                count: 10,
-            },
-            ItemCount {
-                item: Item::PowerBomb,
-                count: 10,
-            },
-            ItemCount {
-                item: Item::Bombs,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Charge,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Ice,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::HiJump,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::SpeedBooster,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Wave,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Spazer,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::SpringBall,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Varia,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Gravity,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::XRayScope,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Plasma,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Grapple,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::SpaceJump,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::ScrewAttack,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Morph,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::ReserveTank,
-                count: 4,
-            },
-        ]
-        .into_iter()
-        .collect();
         let spoiler_log = SpoilerLog {
             item_priority: vec![],
             summary: vec![],

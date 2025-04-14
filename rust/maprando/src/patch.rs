@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        ETankRefill, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals,
-        StartLocationMode, WallJump,
+        ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings,
+        SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -1849,7 +1849,105 @@ impl<'a> Patcher<'a> {
         ]
         .into_iter()
         .collect();
-        for x in &self.settings.item_progression_settings.starting_items {
+
+        let starting_items =
+            if self.settings.start_location_settings.mode == StartLocationMode::Escape {
+                vec![
+                    ItemCount {
+                        item: Item::ETank,
+                        count: 14,
+                    },
+                    ItemCount {
+                        item: Item::Missile,
+                        count: 46,
+                    },
+                    ItemCount {
+                        item: Item::Super,
+                        count: 10,
+                    },
+                    ItemCount {
+                        item: Item::PowerBomb,
+                        count: 10,
+                    },
+                    ItemCount {
+                        item: Item::Bombs,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Charge,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Ice,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::HiJump,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::SpeedBooster,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Wave,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Spazer,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::SpringBall,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Varia,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Gravity,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::XRayScope,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Plasma,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Grapple,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::SpaceJump,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::ScrewAttack,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::Morph,
+                        count: 1,
+                    },
+                    ItemCount {
+                        item: Item::ReserveTank,
+                        count: 4,
+                    },
+                ]
+                .into_iter()
+                .collect()
+            } else {
+                self.settings
+                    .item_progression_settings
+                    .starting_items
+                    .clone()
+            };
+
+        for x in &starting_items {
             if x.count == 0 {
                 continue;
             }
