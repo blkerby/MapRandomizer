@@ -8,7 +8,6 @@ use anyhow::{bail, Result};
 use std::cmp::min;
 use std::path::Path;
 
-use crate::customize::vanilla_music::override_music;
 use crate::patch::glowpatch_writer::write_glowpatch;
 use crate::patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom};
 use maprando_game::{GameData, Map};
@@ -69,7 +68,6 @@ impl Allocator {
 
 #[derive(Debug)]
 pub enum MusicSettings {
-    Vanilla,
     AreaThemed,
     Disabled,
 }
@@ -390,10 +388,6 @@ pub fn customize_rom(
         }
     }
     match settings.music {
-        MusicSettings::Vanilla => {
-            // This option is removed from the website but still supported here in case we decide to bring it back later.
-            override_music(rom)?;
-        }
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {
             // We could call `override_music` here to restore the vanilla tracks: this would restore the correct sound effects

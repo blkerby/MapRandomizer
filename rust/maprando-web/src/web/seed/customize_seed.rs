@@ -180,7 +180,6 @@ async fn customize_seed(
             ),
         },
         music: match req.music.0.as_str() {
-            "vanilla" => MusicSettings::Vanilla,
             "area" => MusicSettings::AreaThemed,
             "disabled" => MusicSettings::Disabled,
             _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
