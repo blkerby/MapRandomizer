@@ -198,6 +198,12 @@ impl Rom {
     }
 }
 
+#[derive(Default)]
+pub struct ExtraRoomData {
+    pub map_area: u8,
+    pub extra_setup_asm: u16,
+}
+
 pub struct Patcher<'a> {
     pub orig_rom: &'a mut Rom,
     pub rom: &'a mut Rom,
@@ -211,6 +217,7 @@ pub struct Patcher<'a> {
     pub nothing_item_bitmask: [u8; 0x40],
     // per-area vec of (addr, bitmask) of cross-area tiles to reveal when map is activated:
     pub map_reveal_bitmasks: Vec<Vec<(u16, u16)>>,
+    pub extra_room_data: HashMap<RoomPtr, ExtraRoomData>,
 }
 
 pub fn xy_to_map_offset(x: isize, y: isize) -> isize {
@@ -1060,42 +1067,18 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_map_areas(&mut self) -> Result<()> {
-        let mut room_index_area_hashmaps: Vec<HashMap<usize, usize>> =
-            vec![HashMap::new(); NUM_AREAS];
         for (i, room) in self.game_data.room_geometry.iter().enumerate() {
-            let room_index = self.orig_rom.read_u8(room.rom_address)? as usize;
-            let orig_room_area = self.orig_rom.read_u8(room.rom_address + 1)? as usize;
-            assert!(!room_index_area_hashmaps[orig_room_area].contains_key(&room_index));
-            let new_area = self.map.area[i];
-            room_index_area_hashmaps[orig_room_area].insert(room_index, new_area);
-        }
-
-        // Handle twin rooms:
-        let pants_room_idx = self.game_data.room_idx_by_name["Pants Room"];
-        room_index_area_hashmaps[4].insert(0x25, self.map.area[pants_room_idx]); // Set East Pants Room to same area as Pants Room
-        let west_ocean_room_idx = self.game_data.room_idx_by_name["West Ocean"];
-        room_index_area_hashmaps[0].insert(0x11, self.map.area[west_ocean_room_idx]); // Set Homing Geemer Room to same area as West Ocean
-
-        // Write the information about each room's map area to some free space in bank 0x8F
-        // which will be read by the `map_area` patch.
-        let area_data_base_ptr = snes2pc(0x8FE99B);
-        let mut area_data_ptr_pc = area_data_base_ptr + 2 * NUM_AREAS;
-        for area in 0..NUM_AREAS {
-            // Write pointer to the start of the table for the given area:
-            let area_data_ptr_snes = (area_data_ptr_pc & 0x7FFF) | 0x8000;
-            self.rom
-                .write_u16(area_data_base_ptr + 2 * area, area_data_ptr_snes as isize)?;
-
-            // Write the table contents:
-            for (&room_index, &new_area) in &room_index_area_hashmaps[area] {
-                self.rom
-                    .write_u8(area_data_ptr_pc + room_index, new_area as isize)?;
+            self.extra_room_data
+                .get_mut(&room.rom_address)
+                .unwrap()
+                .map_area = self.map.area[i] as u8;
+            if let Some(twin_rom_address) = room.twin_rom_address {
+                self.extra_room_data
+                    .get_mut(&twin_rom_address)
+                    .unwrap()
+                    .map_area = self.map.area[i] as u8;
             }
-
-            // Advance the pointer keeping track of the next available free space:
-            area_data_ptr_pc += room_index_area_hashmaps[area].keys().max().unwrap() + 1;
         }
-        assert!(area_data_ptr_pc <= snes2pc(0x8FEB00));
         Ok(())
     }
 
@@ -2369,21 +2352,17 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
-        // remove unused pointer from Bomb Torizo room (Zebes ablaze state), to avoid misinterpreting it as an
-        // extra setup ASM pointer.
-        self.rom.write_u16(snes2pc(0x8f985f), 0x0000)?;
-
-        let mut next_addr = snes2pc(0xB88300);
+        let mut next_addr = snes2pc(0xB88100);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
-            for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
-                let mut asm = asm.clone();
-                asm.push(0x60); // RTS
-                self.rom.write_n(next_addr, &asm)?;
-                self.rom
-                    .write_u16(state_ptr + 16, (pc2snes(next_addr) & 0xFFFF) as isize)?;
-                next_addr += asm.len();
-            }
+            let mut asm = asm.clone();
+            asm.push(0x60); // RTS
+            self.rom.write_n(next_addr, &asm)?;
+            self.extra_room_data
+                .get_mut(&room_ptr)
+                .unwrap()
+                .extra_setup_asm = (pc2snes(next_addr) & 0xFFFF) as u16;
+            next_addr += asm.len();
         }
         println!("extra setup ASM end: {:x}", next_addr);
         assert!(next_addr <= snes2pc(0xB8E000));
@@ -2717,6 +2696,35 @@ impl<'a> Patcher<'a> {
             }
         }
 
+        Ok(())
+    }
+
+    fn init_extra_room_data(&mut self) -> Result<()> {
+        for &room_ptr in self.game_data.raw_room_id_by_ptr.keys() {
+            self.extra_room_data
+                .insert(room_ptr, ExtraRoomData::default());
+        }
+        Ok(())
+    }
+
+    fn write_extra_room_data(&mut self) -> Result<()> {
+        let mut next_addr = snes2pc(0xB88100);
+        let end_addr = snes2pc(0xB89000);
+        for (&room_ptr, data) in &self.extra_room_data {
+            let addr = next_addr;
+            next_addr += 3;
+            // Write "extra room data", which is basically an extension of the room header:
+            self.rom.write_u8(addr, data.map_area as isize)?;
+            self.rom
+                .write_u16(addr + 1, data.extra_setup_asm as isize)?;
+            // Point to the room header extension using the "unused pointer"/"special X-ray" field.
+            // Within a room, every room state points to the same extension.
+            for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
+                self.rom
+                    .write_u16(state_ptr + 16, (pc2snes(addr) & 0xFFFF) as isize)?;
+            }
+        }
+        assert!(next_addr <= end_addr);
         Ok(())
     }
 
@@ -3068,8 +3076,10 @@ pub fn make_rom(
         locked_door_state_indices: vec![],
         nothing_item_bitmask: [0; 0x40],
         map_reveal_bitmasks: vec![vec![]; NUM_AREAS],
+        extra_room_data: HashMap::new(),
     };
     patcher.apply_ips_patches()?;
+    patcher.init_extra_room_data()?;
     patcher.place_items()?;
     patcher.set_start_location()?;
     patcher.set_starting_items()?;
@@ -3106,5 +3116,6 @@ pub fn make_rom(
     patcher.apply_toilet_data()?;
     patcher.apply_mother_brain_setup_asm()?;
     patcher.apply_extra_setup_asm()?;
+    patcher.write_extra_room_data()?;
     Ok(rom)
 }

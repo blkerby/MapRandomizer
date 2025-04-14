@@ -1,3 +1,7 @@
-0000-0100: hazard_markers.asm
-0100-E000: extra setup ASM
+8000-8100: hazard_markers.asm
+8100-9000: extra room data (pointed to by "unused/special x-ray" pointer in room header)
+  - each record has following structure:
+    - 1 byte: map area
+    - 2 bytes: extra setup ASM (in bank B8)
+9000-E000: extra setup ASM
 E000-FFFF: hud_expansion_opaque.asm

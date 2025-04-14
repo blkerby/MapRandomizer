@@ -30,8 +30,10 @@ org !bank_b8_free_space_start
 
 run_extra_setup_asm:
     ; get extra setup ASM pointer to run in bank B5 (using pointer in room state almost completely unused by vanilla, only for X-ray override in BT Room in escape)
-    LDX $07BB
-    LDA $0010,x
+    ldx $07bb      ; x <- room state pointer
+    lda $8F0010,x
+    tax            ; x <- extra room data pointer
+    lda $B80001,x  ; a <- [extra room data pointer + 1]
     beq .skip
     sta $1F68         ; write setup ASM pointer temporarily to $1F68, so we can jump to it with JSR. (Is there a less awkward way to do this?)
     ldx #$0000
@@ -39,8 +41,8 @@ run_extra_setup_asm:
 
 .skip:
     ; run hi-jacked instructions
-    LDX $07BB
-    LDA $0018,x
+    ldx $07BB
+    lda $0018,x
     rtl
 
 warnpc !bank_b8_free_space_end

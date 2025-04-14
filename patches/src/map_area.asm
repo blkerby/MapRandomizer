@@ -101,11 +101,9 @@ org $8FC90C  ; Tourian first room gives area map (TODO: change this)
 org $84B19C  ; At map station, check if current area map already collected
     ldx $1F5B
 
-;;; Hijack code that loads area from room header
-org $82DE80
-    jsl load_area
-    jmp $DE89
-warnpc $82DE89
+;;; Hijack code that loads room state, in order to populate map area
+org $82DEF7
+    jsr load_area
 
 ;org $828D08
 ;org $828D4B
@@ -336,22 +334,13 @@ fix_equipment_palette:
 
 ;;; X = room header pointer
 load_area:
-    phx
     phy
 
-    ;;; Load the original area number into $079F
-    lda $0001,x
-    and #$00FF
-    sta $079F
-
     ;;; Load the new area number (for use in map) into $1F5B
-    asl
-    tay
-    lda $E99B, y
-    clc
-    adc $079D
-    tay
-    lda $0000, y   ; new/map room area = [[$8F:E99B + (original area) * 2] + room index]
+    ldx $07bb      ; x <- room state pointer
+    lda $8F0010,x
+    tax            ; x <- extra room data pointer
+    lda $B80000,x  ; a <- [extra room data pointer]
     and #$00FF
     sta $1F5B
 
@@ -361,10 +350,9 @@ load_area:
     ora !area_explored_mask    ; combine with area explored mask
     sta !area_explored_mask    ; update area explored mask
 
-    lda $1F5B
     ply
-    plx
-    rtl
+    ldx $07bb      ; run hi-jacked instruction: x <- room state pointer
+    rts
 
 
 PauseRoutineIndex:

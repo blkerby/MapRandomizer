@@ -1412,6 +1412,7 @@ pub struct GameData {
     pub links: Vec<Link>,
     pub base_links_data: LinksDataGroup,
     pub room_geometry: Vec<RoomGeometry>,
+    pub room_ptrs: Vec<RoomPtr>,
     pub room_and_door_idxs_by_door_ptr_pair:
         HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
@@ -4355,6 +4356,7 @@ impl GameData {
         self.room_json_map.insert(room_id, room_json.clone());
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+        self.room_ptrs.push(room_ptr);
         self.raw_room_id_by_ptr.insert(room_ptr, room_id);
         if room_ptr == 0x7D69A {
             room_ptr = 0x7D646; // Treat East Pants Room as part of Pants Room
