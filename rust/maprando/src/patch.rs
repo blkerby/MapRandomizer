@@ -2338,21 +2338,21 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_mother_brain_setup_asm(&mut self) -> Result<()> {
-        let mb_door_asm = 0xB88100;
+        let mb_setup_asm = 0xB88100;
         self.extra_setup_asm
             .entry(0x7DD58)
             .or_insert(vec![])
             .extend(vec![
-                // JSR mb_door_asm
+                // JSR mb_setup_asm
                 0x20,
-                (mb_door_asm & 0xFF) as u8,
-                (mb_door_asm >> 8) as u8,
+                (mb_setup_asm & 0xFF) as u8,
+                (mb_setup_asm >> 8) as u8,
             ]);
         Ok(())
     }
 
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
-        let mut next_addr = snes2pc(0xB88100);
+        let mut next_addr = snes2pc(0xB88300);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             let mut asm = asm.clone();

@@ -165,6 +165,8 @@ impl<'a> MapPatcher<'a> {
             0xFC, 0xFD, 0xFE, 0xFF,
             // Colon (used on objective screen)
             0x106,
+            // Green checkmark (used on objective screen)
+            0x10B,
             // OBJ button at bottom-left of pause screen
             0x10C, 0x10D, 0x10E, 0x11C, 0x11D, 0x11E,
             // Vanilla buttons at bottom-center of pause screen
