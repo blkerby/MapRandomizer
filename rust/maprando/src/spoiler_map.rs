@@ -12,11 +12,11 @@ use crate::{
 };
 use maprando_game::{AreaIdx, GameData, Map};
 
-fn render_tile(rom: &Rom, tilemap_word: u16, map_area: usize) -> Result<[[u8; 8]; 8]> {
+fn render_tile(rom: &Rom, tilemap_word: u16) -> Result<[[u8; 8]; 8]> {
     let idx = (tilemap_word & 0x3FF) as usize;
     let x_flip = tilemap_word & 0x4000 != 0;
     let y_flip = tilemap_word & 0x8000 != 0;
-    let tile = read_tile_4bpp(rom, snes2pc(TILE_GFX_ADDR_4BPP + map_area * 0x10000), idx)?;
+    let tile = read_tile_4bpp(rom, snes2pc(TILE_GFX_ADDR_4BPP), idx)?;
     let mut out = [[0u8; 8]; 8];
     for y in 0..8 {
         for x in 0..8 {
@@ -140,7 +140,7 @@ pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<Spo
                 if let Some(new_word) = map_overrides.get(&(map_area, offset as TilemapOffset)) {
                     tilemap_word = *new_word;
                 }
-                let tile = render_tile(rom, tilemap_word, map_area)?;
+                let tile = render_tile(rom, tilemap_word)?;
                 for y in 0..8 {
                     for x in 0..8 {
                         let x1 = (global_room_x + local_x + 1) * 8 + x;

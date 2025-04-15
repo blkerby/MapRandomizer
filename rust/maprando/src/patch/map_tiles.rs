@@ -35,8 +35,8 @@ pub struct MapPatcher<'a> {
     settings: &'a RandomizerSettings,
     randomization: &'a Randomization,
     map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
-    gfx_tile_map: HashMap<(AreaIdx, [[u8; 8]; 8]), TilemapWord>,
-    free_tiles: Vec<Vec<TilemapWord>>, // set of free tile indexes, by area
+    gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
+    free_tiles: Vec<TilemapWord>, // set of free tile indexes
     locked_door_state_indices: &'a [usize],
     dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
     transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
@@ -51,7 +51,7 @@ pub struct MapPatcher<'a> {
 pub const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
 pub const ELEVATOR_TILE: TilemapWord = 0x12; // Index of elevator tile with TR's map patch
 pub const TILE_GFX_ADDR_4BPP: usize = 0xE28000; // Where to store area-specific tile graphics (must agree with map_area.asm)
-pub const TILE_GFX_ADDR_2BPP: usize = 0xE2C000; // Where to store area-specific tile graphics (must agree with map_area.asm)
+pub const TILE_GFX_ADDR_2BPP: usize = 0xE38000; // Where to store area-specific tile graphics (must agree with map_area.asm)
 
 const FLIP_X: TilemapWord = 0x4000;
 const FLIP_Y: TilemapWord = 0x8000;
@@ -159,6 +159,21 @@ impl<'a> MapPatcher<'a> {
             // Message box letters and punctuation (skipping unused ones: "Q", "->", "'", "-", "!")
             0xC0, 0xC1, 0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xC8, 0xC9, 0xCA, 0xCB, 0xCC, 0xCD,
             0xCE, 0xCF, 0xD1, 0xD2, 0xD3, 0xD4, 0xD5, 0xD6, 0xD7, 0xD8, 0xD9, 0xDA, 0xDD, 0xDE,
+            // Vanilla buttons at the bottom left and right of the pause screen
+            0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED,
+            0xEE, 0xEF, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB,
+            0xFC, 0xFD, 0xFE, 0xFF,
+            // Colon (used on objective screen)
+            0x106,
+            // OBJ button at bottom-left of pause screen
+            0x10C, 0x10D, 0x10E, 0x11C, 0x11D, 0x11E,
+            // Vanilla buttons at bottom-center of pause screen
+            0x290, 0x291, 0x292,
+            0x2A0, 0x2A1, 0x2A2, 0x2A3,
+            0x2B0, 0x2B1, 0x2B2, 0x2B3, 0x2B8, 
+            0x2C0, 0x2C1, 0x2C2, 0x2C3, 
+            // Sprite tiles
+            0x23C, 0x23D, 0x243, 0x251, 0x29D, 0x29E, 0x2AF
         ]
         .into_iter()
         .collect();
@@ -169,12 +184,13 @@ impl<'a> MapPatcher<'a> {
         }
 
         let mut free_tiles: Vec<TilemapWord> = Vec::new();
-        for word in 0..224 {
+        for word in 0..768 {
             if !reserved_tiles.contains(&word) {
                 free_tiles.push(word);
             }
         }
         free_tiles.reverse();
+        println!("total available tiles: {}", free_tiles.len());
 
         MapPatcher {
             rom,
@@ -184,7 +200,7 @@ impl<'a> MapPatcher<'a> {
             randomization,
             map_tile_map: HashMap::new(),
             gfx_tile_map: HashMap::new(),
-            free_tiles: vec![free_tiles.clone(); 6],
+            free_tiles: free_tiles,
             locked_door_state_indices,
             dynamic_tile_data: vec![vec![]; 6],
             transition_tile_coords: vec![],
@@ -198,29 +214,27 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn index_fixed_tiles(&mut self) -> Result<()> {
-        for area_idx in 0..NUM_AREAS {
-            let mut tile = MapTile::default();
-            tile.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
-            self.index_tile(area_idx, tile.clone(), Some(0x28))?;
-            tile.heated = true;
-            self.index_tile(area_idx, tile.clone(), Some(0xA8))?;
+        let mut tile = MapTile::default();
+        tile.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
+        self.index_tile(tile.clone(), Some(0x28))?;
+        tile.heated = true;
+        self.index_tile(tile.clone(), Some(0xA8))?;
 
-            let data = [
-                [3, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0],
-                [4, 0, 0, 0, 0, 0, 0, 0],
-                [4, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0],
-                [3, 0, 0, 0, 0, 0, 0, 0],
-            ];
-            self.write_map_tile_4bpp_area(0x20, data, area_idx)?;
-        }
+        let data = [
+            [3, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 0, 0, 0, 0],
+            [4, 0, 0, 0, 0, 0, 0, 0],
+            [4, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 0, 0, 0, 0],
+        ];
+        self.write_map_tile_4bpp(0x20, data)?;
         Ok(())
     }
 
-    fn read_map_tile_2bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
+    fn read_hud_tile_2bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
         let base_addr = snes2pc(0x9AB200); // Location of HUD tile GFX in ROM
         let mut out: [[u8; 8]; 8] = [[0; 8]; 8];
         for y in 0..8 {
@@ -257,46 +271,37 @@ impl<'a> MapPatcher<'a> {
         Ok(out)
     }
 
-    fn read_map_tile_4bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
+    fn _read_map_tile_4bpp(&self, idx: usize) -> Result<[[u8; 8]; 8]> {
         let addr = snes2pc(0xB68000) + idx * 32;
         self.read_tile_4bpp(addr)
     }
 
     fn index_tile(
         &mut self,
-        area_idx: usize,
         tile: MapTile,
         fixed_idx: Option<u16>,
     ) -> Result<TilemapWord> {
         let data = self.render_tile(tile)?;
-        if self.gfx_tile_map.contains_key(&(area_idx, data)) {
-            Ok(self.gfx_tile_map[&(area_idx, data)])
+        if self.gfx_tile_map.contains_key(&data) {
+            Ok(self.gfx_tile_map[&data])
+        } else if self.gfx_tile_map.contains_key(&hflip_tile(data)) {
+            Ok(self.gfx_tile_map[&hflip_tile(data)] | FLIP_X)
+        } else if self.gfx_tile_map.contains_key(&vflip_tile(data)) {
+            Ok(self.gfx_tile_map[&vflip_tile(data)] | FLIP_Y)
         } else if self
             .gfx_tile_map
-            .contains_key(&(area_idx, hflip_tile(data)))
+            .contains_key(&hflip_tile(vflip_tile(data)))
         {
-            Ok(self.gfx_tile_map[&(area_idx, hflip_tile(data))] | FLIP_X)
-        } else if self
-            .gfx_tile_map
-            .contains_key(&(area_idx, vflip_tile(data)))
-        {
-            Ok(self.gfx_tile_map[&(area_idx, vflip_tile(data))] | FLIP_Y)
-        } else if self
-            .gfx_tile_map
-            .contains_key(&(area_idx, hflip_tile(vflip_tile(data))))
-        {
-            Ok(self.gfx_tile_map[&(area_idx, hflip_tile(vflip_tile(data)))] | FLIP_X | FLIP_Y)
+            Ok(self.gfx_tile_map[&hflip_tile(vflip_tile(data))] | FLIP_X | FLIP_Y)
         } else {
             let tile_idx = if let Some(i) = fixed_idx {
                 i
             } else {
-                self.free_tiles[area_idx]
-                    .pop()
-                    .context("No more free tiles")?
+                self.free_tiles.pop().context("No more free tiles")?
             };
             let palette = 0x1C00;
             let word = tile_idx | palette;
-            self.gfx_tile_map.insert((area_idx, data), word);
+            self.gfx_tile_map.insert(data, word);
             Ok(word)
         }
     }
@@ -311,7 +316,7 @@ impl<'a> MapPatcher<'a> {
 
         // Index map graphics and write map tilemap by room:
         for ((area_idx, x, y), tile) in self.map_tile_map.clone() {
-            let word = self.index_tile(area_idx, tile.clone(), None)?;
+            let word = self.index_tile(tile.clone(), None)?;
             let local_x = x - self.area_offset_x[area_idx];
             let local_y = y - self.area_offset_y[area_idx];
 
@@ -331,15 +336,31 @@ impl<'a> MapPatcher<'a> {
         // Index dynamic item/door tile graphics:
         for area_idx in 0..6 {
             for (_, _, tile) in self.dynamic_tile_data[area_idx].clone() {
-                let _ = self.index_tile(area_idx, tile, None)?;
+                let _ = self.index_tile(tile, None)?;
             }
         }
 
         // Write map tile graphics:
-        for ((area_idx, data), word) in self.gfx_tile_map.clone() {
+        for (data, word) in self.gfx_tile_map.clone() {
             let idx = (word & 0x3FF) as usize;
-            self.write_tile_2bpp_area(idx, data, Some(area_idx))?;
-            self.write_map_tile_4bpp_area(idx, data, area_idx)?;
+            self.write_map_tile_2bpp(idx, data)?;
+            self.write_map_tile_4bpp(idx, data)?;
+        }
+
+        for &idx in &self.free_tiles.clone() {
+            // Placeholder for unused tiles:
+            let data = [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 0, 0, 0, 0, 3, 0],
+                [0, 0, 3, 0, 0, 3, 0, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 0, 3, 3, 0, 0, 0],
+                [0, 0, 3, 0, 0, 3, 0, 0],
+                [0, 3, 0, 0, 0, 0, 3, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+            ];
+            self.write_map_tile_2bpp(idx as usize, data)?;
+            self.write_map_tile_4bpp(idx as usize, data)?;
         }
 
         // Write room map offsets:
@@ -351,19 +372,13 @@ impl<'a> MapPatcher<'a> {
             self.rom.write_u8(room.rom_address + 3, room_y)?;
         }
 
+        println!("free tiles={}", self.free_tiles.len());
+
         Ok(())
     }
 
-    fn write_tile_2bpp_area(
-        &mut self,
-        idx: usize,
-        mut data: [[u8; 8]; 8],
-        area_idx: Option<usize>,
-    ) -> Result<()> {
-        let base_addr = match area_idx {
-            Some(area) => snes2pc(TILE_GFX_ADDR_2BPP + area * 0x10000), // New HUD tile GFX in ROM
-            None => snes2pc(0x9AB200), // Standard BG3 tiles (used during Kraid)
-        };
+    fn write_tile_2bpp(&mut self, base_addr: usize, idx: usize, mut data: [[u8; 8]; 8]) -> Result<()> {
+        // snes2pc(0x9AB200), // Standard BG3 tiles (used during Kraid)
         for y in 0..8 {
             for x in 0..8 {
                 if data[y][x] == 4 || data[y][x] == 12 {
@@ -384,29 +399,22 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_tile_2bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
-        self.write_tile_2bpp_area(idx, data, None)?;
-        for area_idx in 0..6 {
-            self.write_tile_2bpp_area(idx, data, Some(area_idx))?;
-        }
-        Ok(())
+    fn write_map_tile_2bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
+        let base_addr = snes2pc(TILE_GFX_ADDR_2BPP);
+        self.write_tile_2bpp(base_addr, idx, data)
+    }
+
+    fn write_hud_tile_2bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
+        let base_addr = snes2pc(0x9AB200);  // Standard BG3 tiles
+        self.write_tile_2bpp(base_addr, idx, data)
     }
 
     fn write_tile_4bpp(&mut self, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
         write_tile_4bpp(&mut self.rom, base_addr, data)
     }
 
-    fn write_map_tile_4bpp_area(
-        &mut self,
-        idx: usize,
-        data: [[u8; 8]; 8],
-        area_idx: usize,
-    ) -> Result<()> {
-        if idx == 0x20 && data[1][1] != 0 {
-            println!("write: idx={}, area={}, {:?}", idx, area_idx, data);
-            bail!("err");
-        }
-        let base_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000); // Location of pause-menu tile GFX in ROM
+    fn write_map_tile_4bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
+        let base_addr = snes2pc(TILE_GFX_ADDR_4BPP); // Location of pause-menu tile GFX in ROM
         for y in 0..8 {
             let addr = base_addr + idx * 32 + y * 2;
             let data_0: u8 = (0..8).map(|x| (data[y][x] & 1) << (7 - x)).sum();
@@ -417,13 +425,6 @@ impl<'a> MapPatcher<'a> {
             self.rom.write_u8(addr + 1, data_1 as isize)?;
             self.rom.write_u8(addr + 16, data_2 as isize)?;
             self.rom.write_u8(addr + 17, data_3 as isize)?;
-        }
-        Ok(())
-    }
-
-    fn write_map_tile_4bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
-        for area_idx in 0..6 {
-            self.write_map_tile_4bpp_area(idx, data, area_idx)?;
         }
         Ok(())
     }
@@ -2015,7 +2016,7 @@ impl<'a> MapPatcher<'a> {
                         .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
                     self.rom
                         .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
-                    let word = self.index_tile(area_idx, tile.clone(), None)?;
+                    let word = self.index_tile(tile.clone(), None)?;
 
                     let (_, x, y) = self.get_room_coords(
                         room_id,
@@ -2132,7 +2133,7 @@ impl<'a> MapPatcher<'a> {
     fn fix_message_boxes(&mut self) -> Result<()> {
         // Fix message boxes GFX: use white letters (color 2) instead of dark gray (color 1)
         for idx in 0xC0..0x100 {
-            let mut data = self.read_map_tile_2bpp(idx)?;
+            let mut data = self.read_hud_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
                     if data[y][x] == 1 {
@@ -2140,7 +2141,7 @@ impl<'a> MapPatcher<'a> {
                     }
                 }
             }
-            self.write_tile_2bpp(idx, data)?;
+            self.write_hud_tile_2bpp(idx, data)?;
         }
 
         // Fix message boxes tilemaps: use palette 3 instead of 2, 6, or 7
@@ -2161,13 +2162,12 @@ impl<'a> MapPatcher<'a> {
         tiles_to_change.extend(0..0x0F); // HUD digits, "ENERG"
         tiles_to_change.extend(0x1C..0x20);
         tiles_to_change.push(0x32); // "Y" of ENERGY
-        tiles_to_change.push(0x4D); // Save station tile
         tiles_to_change.extend([0x33, 0x46, 0x47, 0x48]); // AUTO
 
         // Use color 0 instead of color 3 for black in HUD map tiles:
         // Also use color 3 instead of color 2 for white
         for idx in tiles_to_change {
-            let mut tile = self.read_map_tile_2bpp(idx)?;
+            let mut tile = self.read_hud_tile_2bpp(idx)?;
             for y in 0..8 {
                 for x in 0..8 {
                     if tile[y][x] == 3 {
@@ -2177,24 +2177,14 @@ impl<'a> MapPatcher<'a> {
                     }
                 }
             }
-            self.write_tile_2bpp(idx, tile)?;
-
-            let mut tile = self.read_map_tile_4bpp(idx)?;
-            for y in 0..8 {
-                for x in 0..8 {
-                    if tile[y][x] == 2 {
-                        tile[y][x] = 3;
-                    }
-                }
-            }
-            self.write_map_tile_4bpp(idx, tile)?;
+            self.write_hud_tile_2bpp(idx, tile)?;
         }
         Ok(())
     }
 
     fn darken_hud_grid(&mut self) -> Result<()> {
         // In HUD tiles, replace the white dotted grid lines with dark gray ones.
-        self.write_tile_2bpp(
+        self.write_hud_tile_2bpp(
             0x1C,
             [
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2207,7 +2197,7 @@ impl<'a> MapPatcher<'a> {
                 [1, 0, 0, 0, 0, 0, 0, 0],
             ],
         )?;
-        self.write_tile_2bpp(
+        self.write_hud_tile_2bpp(
             0x1D,
             [
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2220,7 +2210,7 @@ impl<'a> MapPatcher<'a> {
                 [1, 0, 1, 0, 1, 0, 1, 0],
             ],
         )?;
-        self.write_tile_2bpp(
+        self.write_hud_tile_2bpp(
             0x1E,
             [
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2233,7 +2223,7 @@ impl<'a> MapPatcher<'a> {
                 [1, 0, 0, 0, 0, 0, 0, 0],
             ],
         )?;
-        self.write_tile_2bpp(
+        self.write_hud_tile_2bpp(
             0x1F,
             [
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2250,7 +2240,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn write_disabled_etank_tile(&mut self) -> Result<()> {
-        self.write_tile_2bpp(
+        self.write_hud_tile_2bpp(
             0x2F,
             [
                 [0, 0, 0, 0, 0, 0, 0, 0],
@@ -2267,23 +2257,12 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn initialize_tiles(&mut self) -> Result<()> {
-        // copy original tile GFX into each area-specific copy
-        for area_idx in 0..6 {
-            // 2bpp tiles (for HUD minimap)
-            let src_addr = snes2pc(0x9AB200);
-            let dst_addr = snes2pc(TILE_GFX_ADDR_2BPP + area_idx * 0x10000);
-            for i in (0..0x1000).step_by(2) {
-                let word = self.rom.read_u16(src_addr + i)?;
-                self.rom.write_u16(dst_addr + i, word)?;
-            }
-
-            // 4bpp tiles (for HUD minimap)
-            let src_addr = snes2pc(0xB68000);
-            let dst_addr = snes2pc(TILE_GFX_ADDR_4BPP + area_idx * 0x10000);
-            for i in (0..0x4000).step_by(2) {
-                let word = self.rom.read_u16(src_addr + i)?;
-                self.rom.write_u16(dst_addr + i, word)?;
-            }
+        // copy original pause menu tile GFX into map tile GFX
+        let src_addr = snes2pc(0xB68000);
+        let dst_addr = snes2pc(TILE_GFX_ADDR_4BPP);
+        for i in (0..0x6000).step_by(2) {
+            let word = self.rom.read_u16(src_addr + i)?;
+            self.rom.write_u16(dst_addr + i, word)?;
         }
         Ok(())
     }

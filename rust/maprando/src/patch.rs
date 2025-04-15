@@ -2708,7 +2708,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_extra_room_data(&mut self) -> Result<()> {
-        let mut next_addr = snes2pc(0xB88100);
+        let mut next_addr = snes2pc(0xB88300);
         let end_addr = snes2pc(0xB89000);
         for (&room_ptr, data) in &self.extra_room_data {
             let addr = next_addr;
