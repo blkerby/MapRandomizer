@@ -6,10 +6,12 @@ lorom
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82F800
 !bank_85_freespace_start = $85A280
-!bank_85_freespace_end = $85A700
+!bank_85_freespace_end = $85A800
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A7FFE0
+
+incsrc "constants.asm"
 
 !tiles_2bpp_address = $B200
 !tiles_2bpp_bank = $009A
@@ -792,44 +794,119 @@ load_bg3_tiles_kraid:
     plp
     rtl
 
+hud_minimap_tile_addresses:
+    dw $C63C, $C63E, $C640, $C642, $C644
+    dw $C67C, $C67E, $C680, $C682, $C684
+    dw $C6BC, $C6BE, $C6C0, $C6C2, $C6C4
+    dw $0000
 
 load_bg3_tiles_door_transition:
     php
 
-    lda #!tiles_2bpp_address
-    sta $05C0
-    sep #$30
-    lda.b #!tiles_2bpp_bank
-    sta $05C2
-    rep #$30
+    ; copy the 15 currently visible HUD mini-map tiles to tiles $20-$2E (VRAM $4100)
+    ldx #$0000
+    ldy #$2000
     
-    ; destination = $4000
-    lda #$4000
-    sta $05BE
+save_hud_gfx_loop:
+    lda.l hud_minimap_tile_addresses,x
+    beq .done
+    phx
+    tax
+    lda $7E0000,x          ; A <- tilemap word from HUD mini-map
+    and #$03FF             ; A <- within-room tile number
+    sec
+    sbc #$0050             ; A <- within-room tile number - $50
+    asl
+    clc
+    adc !room_map_tile_gfx
+    tax
+    lda $E40000,x          ; A <- global tile number
+    asl : asl : asl : asl
+    clc
+    adc #$8000
+    tax  ; X = source address (in bank $E3) = $8000 + $10 * global tile number
+    
+    ; transfer 16 bytes (a single map tile) from bank $E3 to bank $7E
+    phb
+    lda #$000F
+    mvn $7E,$E3
+    plb
+    plx
 
-    ; size = $1000
-    lda #$1000
-    STA $05C3
+    inx : inx
+    bra save_hud_gfx_loop
+.done:
 
-    LDA #$8000             ;\
-    TSB $05BC              ;} Flag door transition VRAM update
+    LDX $0330       ;\
+    LDA #$00F0      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$2000      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $7E:2000..20F0 to VRAM $4100
+    LDA #$007E      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$4100      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
 
-.spin:
-    LDA $05BC  ;\
-    BMI .spin  ;} Wait for door transition VRAM update
+    ldx #$0000
+    lda #$0020
+    sta $00         ; $00 <- destination tile number
+save_hud_tilemap_loop:
+    lda.l hud_minimap_tile_addresses,x
+    beq .done
+    phx
+    tax
+    lda $7E0000,x   ; A <- tilemap word from HUD mini-map
+    and #$FC00
+    ora $00         ; replace tile number with tile in $20-$2E
+    sta $7E0000,x
 
+    lda $00
+    inc
+    sta $00
+    plx
+    inx : inx
+    bra save_hud_tilemap_loop
+.done:
+
+
+    LDX $0330    ;\
+    LDA #$00C0   ;|
+    STA $D0,x    ;|
+    INX          ;|
+    INX          ;|
+    LDA #$C608   ;|
+    STA $D0,x    ;|
+    INX          ;|
+    INX          ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
+    LDA #$007E   ;|
+    STA $D0,x    ;|
+    INX          ;|
+    LDA #$5820   ;|
+    STA $D0,x    ;|
+    INX          ;|
+    INX          ;|
+    STX $0330    ;/
 
     ldx $07BB      ; x <- room state pointer
     lda $8F0010,x
     tax            ; x <- extra room data pointer
     lda $B80003,x
     sta $00        ; $00 <- room map tile graphics pointer (in bank $E4)
+    sta !room_map_tile_gfx
     lda $B80005,x
     sta $02        ; $02 <- room map tilemap pointer (in bank $E4)
 
-    ; transfer room map tile graphics to $7E:2000
+    ; transfer room map tile graphics to $7E:2100
     ldx $00
-    ldy #$2000
+    ldy #$2100
 gfx_transfer_loop:
     phx
     lda $E40000,x
@@ -857,10 +934,10 @@ gfx_transfer_loop:
     STA $D0,x       ;|
     INX             ;|
     INX             ;|
-    LDA #$2000      ;|
+    LDA #$2100      ;|
     STA $D0,x       ;|
     INX             ;|
-    INX             ;} Queue transfer of $7E:2000..2400 to VRAM $4280
+    INX             ;} Queue transfer of $7E:2100..2500 to VRAM $4280
     LDA #$007E      ;|
     STA $D0,x       ;|
     INX             ;|
