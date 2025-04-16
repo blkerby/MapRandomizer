@@ -90,7 +90,12 @@ setup:
     LDA $70 : STA !dma_register_backup+$1C
     LDA $72 : STA !dma_register_backup+$1E
     LDA $74 : STA !dma_register_backup+$20
+
     SEP #$20
+
+    ;save HDMA bank for channels 2/3 (mini fix)
+    LDA $27 : STA !dma_register_backup+$22
+    LDA $37 : STA !dma_register_backup+$23
 
     LDA $004C : STA $2181 : STA $42 : STA $22
     LDA $004D : STA $2182 : STA $43 : STA $23
@@ -384,27 +389,38 @@ org !bank_80_free_space_start
 
 cleanup:
     LDX $22  ; X <- final destination address (used in decompression to VRAM, to determine output size)
+    PHX
 
     ;restore some DMA registers that could have been overwritten
     REP #$20
-    LDA !dma_register_backup+$00 : STA $08
-    LDA !dma_register_backup+$02 : STA $18
-    LDA !dma_register_backup+$04 : STA $20
-    LDA !dma_register_backup+$06 : STA $22
-    LDA !dma_register_backup+$08 : STA $24
-    LDA !dma_register_backup+$0A : STA $30
-    LDA !dma_register_backup+$0C : STA $32
-    LDA !dma_register_backup+$0E : STA $34
-    LDA !dma_register_backup+$10 : STA $42
-    LDA !dma_register_backup+$12 : STA $50
-    LDA !dma_register_backup+$14 : STA $52
-    LDA !dma_register_backup+$16 : STA $54
-    LDA !dma_register_backup+$18 : STA $62
-    LDA !dma_register_backup+$1A : STA $64
-    LDA !dma_register_backup+$1C : STA $70
-    LDA !dma_register_backup+$1E : STA $72
-    LDA !dma_register_backup+$20 : STA $74    
+    PHB
+    PHK
+    PLB
+    LDX #$0000
+    TXY
+.restore_lp
+    LDA restore_table, Y
+    AND #$00FF
+    BEQ skip_tbl
+    PHY
+    TAY
+    LDA !dma_register_backup, X
+    STA $4300,Y
+    PLY
+    INY
+    INX : INX
+    bra .restore_lp
+
+restore_table: ; null-terminated
+    db $08, $18, $20, $22, $24, $30, $32, $34, $42, $50, $52, $54, $62, $64, $70, $72, $74, $00
+
+skip_tbl:
+    PLB
+    PLX
     SEP #$20
+
+    LDA !dma_register_backup+$22 : STA $27
+    LDA !dma_register_backup+$23 : STA $37
 
     PLD
     STZ !DecompFlag
