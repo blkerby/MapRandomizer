@@ -33,8 +33,8 @@ org $90AA8A
 org $80A0D9
     jsl update_tilemap  ; no hi-jack needed since the replaced instruction does nothing
 
-org $829370
-    jsl unpause_hook
+;org $829370
+;    jsl unpause_hook
 
 org $82DFC2
     jsl reload_map_hook

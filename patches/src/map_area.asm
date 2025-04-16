@@ -113,8 +113,9 @@ org $82DEF7
 org $828D44
     jsr pause_start_hook_wrapper
 
-org $82936A
-    jsr pause_end_hook
+; org $82936A
+org $80A15F
+    jsl pause_end_hook
 
 org $829130 : jsr draw_samus_indicator
 org $82915A : jsr draw_samus_indicator
@@ -252,8 +253,9 @@ pause_end_hook:
     lda !backup_area
     sta $1F5B  ; restore map area
     jsl $80858C ; restore map explored bits
+    jsl load_bg3_map_tilemap_wrapper
     jsr $A2BE  ; run hi-jacked instruction
-    rts
+    rtl
 
 check_start_select:
     php
@@ -761,8 +763,10 @@ load_bg3_tiles:
     sep #$30
     lda #$02
     sta $420B  ; perform DMA transfer on channel 1
-    
     plp
+
+    jsr load_bg3_map_tiles
+    jsr load_bg3_map_tilemap
     rtl
 
 load_bg3_tiles_kraid:
@@ -895,14 +899,22 @@ save_hud_tilemap_loop:
     INX          ;|
     STX $0330    ;/
 
+    jsr load_bg3_map_tiles
+    jsr load_bg3_map_tilemap
+
+    ; run hi-jacked instructions:
+    plp
+    lda $0791
+    and #$0003 
+    rtl
+
+load_bg3_map_tiles:
     ldx $07BB      ; x <- room state pointer
     lda $8F0010,x
     tax            ; x <- extra room data pointer
     lda $B80003,x
     sta $00        ; $00 <- room map tile graphics pointer (in bank $E4)
     sta !room_map_tile_gfx
-    lda $B80005,x
-    sta $02        ; $02 <- room map tilemap pointer (in bank $E4)
 
     ; transfer room map tile graphics to $7E:2100
     ldx $00
@@ -946,6 +958,19 @@ gfx_transfer_loop:
     INX             ;|
     INX             ;|
     STX $0330       ;/
+
+    rts
+
+load_bg3_map_tilemap_wrapper:
+    jsr load_bg3_map_tilemap
+    rtl
+
+load_bg3_map_tilemap:
+    ldx $07BB      ; x <- room state pointer
+    lda $8F0010,x
+    tax            ; x <- extra room data pointer
+    lda $B80005,x
+    sta $02        ; $02 <- room map tilemap pointer (in bank $E4)
 
     ; load room map tilemap
     lda $07A3
@@ -1009,21 +1034,7 @@ tilemap_transfer_col_loop:
     cmp $06
     bne tilemap_transfer_row_loop
 
-    ;lda $1F5B
-    ;lda $05F7
-    ;sta $09c6
-
-    ; update HUD minimap
-    ; jsl $90A91B
-    ;lda #$0001
-    ;sta $05F7
-    ;jsl $809B44
-
-    plp
-    ; run hi-jacked instructions:
-    lda $0791
-    and #$0003 
-    rtl
+    rts
 
 reload_map_hook:
     phx
@@ -1064,6 +1075,11 @@ reload_map_hook:
     STX $0330       ;/
 
 .skip:
+    lda !nmi_timeronly
+    beq +
+    jsl $808C83     ; if NMI is not active (only timer-only mode), then process VRAM writes
++
+
     plx
     LDA $830002,x  ; run hi-jacked instruction
     rtl
