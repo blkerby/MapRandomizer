@@ -1014,7 +1014,7 @@ tilemap_transfer_col_loop:
     asl : asl : asl : asl : asl
     clc
     adc $08
-    adc #$07E0
+    adc #$03E0
     asl          ; A <- (row index * 32 + col index - 32) * 2 + 0x800
     bra .transfer_word
 
