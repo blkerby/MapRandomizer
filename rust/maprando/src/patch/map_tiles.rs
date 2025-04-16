@@ -10,6 +10,7 @@ use crate::{
 use maprando_game::{
     AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map, MapTile,
     MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor, RoomGeometryItem, RoomId,
+    RoomPtr,
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -29,23 +30,25 @@ enum TileSide {
 const NUM_AREAS: usize = 6;
 
 pub struct MapPatcher<'a> {
-    rom: &'a mut Rom,
-    game_data: &'a GameData,
-    map: &'a Map,
-    settings: &'a RandomizerSettings,
-    randomization: &'a Randomization,
-    map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
-    gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
-    free_tiles: Vec<TilemapWord>, // set of free tile indexes
-    locked_door_state_indices: &'a [usize],
-    dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
-    transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
-    area_min_x: [isize; NUM_AREAS],
-    area_max_x: [isize; NUM_AREAS],
-    area_min_y: [isize; NUM_AREAS],
-    area_max_y: [isize; NUM_AREAS],
-    area_offset_x: [isize; NUM_AREAS],
-    area_offset_y: [isize; NUM_AREAS],
+    pub rom: &'a mut Rom,
+    pub game_data: &'a GameData,
+    pub map: &'a Map,
+    pub settings: &'a RandomizerSettings,
+    pub randomization: &'a Randomization,
+    pub map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
+    pub gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
+    pub free_tiles: Vec<TilemapWord>, // set of free tile indexes
+    pub locked_door_state_indices: &'a [usize],
+    pub dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
+    pub transition_tile_coords: Vec<(AreaIdx, isize, isize)>,
+    pub area_min_x: [isize; NUM_AREAS],
+    pub area_max_x: [isize; NUM_AREAS],
+    pub area_min_y: [isize; NUM_AREAS],
+    pub area_max_y: [isize; NUM_AREAS],
+    pub area_offset_x: [isize; NUM_AREAS],
+    pub area_offset_y: [isize; NUM_AREAS],
+    pub room_map_gfx: HashMap<RoomPtr, Vec<TilemapWord>>,
+    pub room_map_tilemap: HashMap<RoomPtr, Vec<TilemapWord>>,
 }
 
 pub const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
@@ -162,20 +165,14 @@ impl<'a> MapPatcher<'a> {
             // Vanilla buttons at the bottom left and right of the pause screen
             0xE0, 0xE1, 0xE2, 0xE3, 0xE4, 0xE5, 0xE6, 0xE7, 0xE8, 0xE9, 0xEA, 0xEB, 0xEC, 0xED,
             0xEE, 0xEF, 0xF0, 0xF1, 0xF2, 0xF3, 0xF4, 0xF5, 0xF6, 0xF7, 0xF8, 0xF9, 0xFA, 0xFB,
-            0xFC, 0xFD, 0xFE, 0xFF,
-            // Colon (used on objective screen)
-            0x106,
-            // Green checkmark (used on objective screen)
-            0x10B,
-            // OBJ button at bottom-left of pause screen
+            0xFC, 0xFD, 0xFE, 0xFF,  // Colon (used on objective screen)
+            0x106, // Green checkmark (used on objective screen)
+            0x10B, // OBJ button at bottom-left of pause screen
             0x10C, 0x10D, 0x10E, 0x11C, 0x11D, 0x11E,
             // Vanilla buttons at bottom-center of pause screen
-            0x290, 0x291, 0x292,
-            0x2A0, 0x2A1, 0x2A2, 0x2A3,
-            0x2B0, 0x2B1, 0x2B2, 0x2B3, 0x2B8, 
-            0x2C0, 0x2C1, 0x2C2, 0x2C3, 
-            // Sprite tiles
-            0x23C, 0x23D, 0x243, 0x251, 0x29D, 0x29E, 0x2AF
+            0x290, 0x291, 0x292, 0x2A0, 0x2A1, 0x2A2, 0x2A3, 0x2B0, 0x2B1, 0x2B2, 0x2B3, 0x2B8,
+            0x2C0, 0x2C1, 0x2C2, 0x2C3, // Sprite tiles
+            0x23C, 0x23D, 0x243, 0x251, 0x29D, 0x29E, 0x2AF,
         ]
         .into_iter()
         .collect();
@@ -212,6 +209,8 @@ impl<'a> MapPatcher<'a> {
             area_max_y: [0; NUM_AREAS],
             area_offset_x: [0; NUM_AREAS],
             area_offset_y: [0; NUM_AREAS],
+            room_map_gfx: HashMap::new(),
+            room_map_tilemap: HashMap::new(),
         }
     }
 
@@ -278,11 +277,7 @@ impl<'a> MapPatcher<'a> {
         self.read_tile_4bpp(addr)
     }
 
-    fn index_tile(
-        &mut self,
-        tile: MapTile,
-        fixed_idx: Option<u16>,
-    ) -> Result<TilemapWord> {
+    fn index_tile(&mut self, tile: MapTile, fixed_idx: Option<u16>) -> Result<TilemapWord> {
         let data = self.render_tile(tile)?;
         if self.gfx_tile_map.contains_key(&data) {
             Ok(self.gfx_tile_map[&data])
@@ -372,14 +367,105 @@ impl<'a> MapPatcher<'a> {
             let room_y = self.map.rooms[room_idx].1 as isize - self.area_offset_y[area];
             self.rom.write_u8(room.rom_address + 2, room_x)?;
             self.rom.write_u8(room.rom_address + 3, room_y)?;
-        }
 
+            if let Some(twin_address) = room.twin_rom_address {
+                match twin_address {
+                    0x7D69A => {
+                        // East Pants Room:
+                        self.rom.write_u8(twin_address + 2, room_x + 1)?;
+                        self.rom.write_u8(twin_address + 3, room_y + 1)?;
+                    }
+                    0x7968F => {
+                        // Homing Geemer Room:
+                        self.rom.write_u8(twin_address + 2, room_x + 5)?;
+                        self.rom.write_u8(twin_address + 3, room_y + 2)?;
+                    }
+                    _ => bail!("Unrecognized twin_address: {}", twin_address),
+                }
+            }
+        }
         println!("free tiles={}", self.free_tiles.len());
+        Ok(())
+    }
+
+    fn find_tile(
+        data: [[u8; 8]; 8],
+        gfx_tile_map: &HashMap<[[u8; 8]; 8], TilemapWord>,
+    ) -> Option<TilemapWord> {
+        if gfx_tile_map.contains_key(&data) {
+            Some(gfx_tile_map[&data])
+        } else if gfx_tile_map.contains_key(&hflip_tile(data)) {
+            Some(gfx_tile_map[&hflip_tile(data)] | FLIP_X)
+        } else if gfx_tile_map.contains_key(&vflip_tile(data)) {
+            Some(gfx_tile_map[&vflip_tile(data)] | FLIP_Y)
+        } else if gfx_tile_map.contains_key(&hflip_tile(vflip_tile(data))) {
+            Some(gfx_tile_map[&hflip_tile(vflip_tile(data))] | FLIP_X | FLIP_Y)
+        } else {
+            None
+        }
+    }
+
+    fn create_room_map_tilemaps(&mut self) -> Result<()> {
+        for &room_ptr in &self.game_data.room_ptrs {
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
+            let room = &self.game_data.room_geometry[room_idx];
+            let room_width = self.rom.read_u8(room.rom_address + 4)?;
+            let room_height = self.rom.read_u8(room.rom_address + 5)?;
+
+            let mut gfx_tiles: Vec<TilemapWord> = vec![];
+            let mut gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord> = HashMap::new();
+            let mut next_tile = 0x50; // Starting tile number where map tiles are written in BG3
+            let mut tilemap: Vec<TilemapWord> = vec![];
+            let empty_tile = [
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 0, 0, 0, 0, 0, 0],
+                [0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 0, 1, 0, 1, 0, 1, 0],
+            ];
+            for y in -1..room_height + 1 {
+                for x in -2..room_width + 2 {
+                    let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+                    let tile = self.map_tile_map.get(&(area, x1, y1));
+                    let data: [[u8; 8]; 8] = if let Some(x) = tile {
+                        self.render_tile(x.clone())?
+                    } else {
+                        empty_tile
+                    };
+                    match Self::find_tile(data, &gfx_tile_map) {
+                        Some(t) => {
+                            tilemap.push(t);
+                        }
+                        None => {
+                            tilemap.push(next_tile);
+                            if let Some(t) = Self::find_tile(data, &self.gfx_tile_map) {
+                                gfx_tiles.push(t & 0x03FF);
+                                gfx_tile_map.insert(data, next_tile);
+                                next_tile += 1;
+                            } else {
+                                panic!("Tile not found: {:?}", data);    
+                            }
+                        }
+                    }
+                }
+            }
+            self.room_map_gfx.insert(room_ptr, gfx_tiles);
+            self.room_map_tilemap.insert(room_ptr, tilemap);
+        }
 
         Ok(())
     }
 
-    fn write_tile_2bpp(&mut self, base_addr: usize, idx: usize, mut data: [[u8; 8]; 8]) -> Result<()> {
+    fn write_tile_2bpp(
+        &mut self,
+        base_addr: usize,
+        idx: usize,
+        mut data: [[u8; 8]; 8],
+    ) -> Result<()> {
         // snes2pc(0x9AB200), // Standard BG3 tiles (used during Kraid)
         for y in 0..8 {
             for x in 0..8 {
@@ -407,7 +493,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn write_hud_tile_2bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
-        let base_addr = snes2pc(0x9AB200);  // Standard BG3 tiles
+        let base_addr = snes2pc(0x9AB200); // Standard BG3 tiles
         self.write_tile_2bpp(base_addr, idx, data)
     }
 
@@ -2633,6 +2719,7 @@ impl<'a> MapPatcher<'a> {
             self.setup_special_door_reveal()?;
         }
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
+        self.create_room_map_tilemaps()?;
         self.write_hazard_tiles()?;
         self.fix_kraid()?;
         self.fix_item_colors()?;

@@ -796,7 +796,14 @@ load_bg3_tiles_kraid:
 load_bg3_tiles_door_transition:
     php
 
-    ; source = $E2C000 + map area * $10000
+    ldx $07BB      ; x <- room state pointer
+    lda $8F0010,x
+    tax            ; x <- extra room data pointer
+    lda $B80003,x
+    sta $00        ; $00 <- room map tile graphics pointer (in bank $E3)
+    lda $B80005,x
+    sta $02        ; $02 <- room map tilemap pointer (in bank $E3)
+
     lda #!tiles_2bpp_address
     sta $05C0
     sep #$30
@@ -830,6 +837,9 @@ load_bg3_tiles_door_transition:
     ;jsl $809B44
 
     plp
+    ; run hi-jacked instructions:
+    lda $0791
+    and #$0003 
     rtl
 
 reload_map_hook:
@@ -927,9 +937,9 @@ org $828063
 ; Patch door transition code to always reload BG3 tiles, based on map area:
 org $82E46A : beq $1c
 org $82E472 : beq $14
-org $82E488
+org $82E492
     jsl load_bg3_tiles_door_transition
-    rep 6 : nop
+    nop : nop
 
 ; Patch pause menu start to load BG1/2 tiles based on map area:
 org $828E75
