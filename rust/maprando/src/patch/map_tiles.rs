@@ -37,6 +37,7 @@ pub struct MapPatcher<'a> {
     pub randomization: &'a Randomization,
     pub map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
     pub gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
+    pub gfx_tile_reverse_map: HashMap<TilemapWord, [[u8; 8]; 8]>,
     pub free_tiles: Vec<TilemapWord>, // set of free tile indexes
     pub locked_door_state_indices: &'a [usize],
     pub dynamic_tile_data: Vec<Vec<(ItemIdx, RoomId, MapTile)>>,
@@ -199,6 +200,7 @@ impl<'a> MapPatcher<'a> {
             randomization,
             map_tile_map: HashMap::new(),
             gfx_tile_map: HashMap::new(),
+            gfx_tile_reverse_map: HashMap::new(),
             free_tiles: free_tiles,
             locked_door_state_indices,
             dynamic_tile_data: vec![vec![]; 6],
@@ -299,6 +301,7 @@ impl<'a> MapPatcher<'a> {
             let palette = 0x1C00;
             let word = tile_idx | palette;
             self.gfx_tile_map.insert(data, word);
+            self.gfx_tile_reverse_map.insert(word & 0x3FF, data);
             Ok(word)
         }
     }
@@ -436,20 +439,21 @@ impl<'a> MapPatcher<'a> {
                     } else {
                         empty_tile
                     };
-                    match Self::find_tile(data, &gfx_tile_map) {
-                        Some(t) => {
-                            tilemap.push(t);
+                    if Self::find_tile(data, &gfx_tile_map).is_none() {
+                        if let Some(t) = Self::find_tile(data, &self.gfx_tile_map) {
+                            let idx = t & 0x3FF;
+                            gfx_tiles.push(idx);
+                            gfx_tile_map.insert(self.gfx_tile_reverse_map[&idx], next_tile);
+                            next_tile += 1;
+                        } else {
+                            panic!("Tile not found in global map tileset: {:?}", data);    
                         }
-                        None => {
-                            tilemap.push(next_tile);
-                            if let Some(t) = Self::find_tile(data, &self.gfx_tile_map) {
-                                gfx_tiles.push(t & 0x03FF);
-                                gfx_tile_map.insert(data, next_tile);
-                                next_tile += 1;
-                            } else {
-                                panic!("Tile not found: {:?}", data);    
-                            }
-                        }
+                    }
+
+                    if let Some(t) = Self::find_tile(data, &gfx_tile_map) {
+                        tilemap.push(t);
+                    } else {
+                        panic!("Tile not found in room map tileset: {:?}", data);
                     }
                 }
             }
@@ -466,7 +470,6 @@ impl<'a> MapPatcher<'a> {
         idx: usize,
         mut data: [[u8; 8]; 8],
     ) -> Result<()> {
-        // snes2pc(0x9AB200), // Standard BG3 tiles (used during Kraid)
         for y in 0..8 {
             for x in 0..8 {
                 if data[y][x] == 4 || data[y][x] == 12 {

@@ -796,14 +796,6 @@ load_bg3_tiles_kraid:
 load_bg3_tiles_door_transition:
     php
 
-    ldx $07BB      ; x <- room state pointer
-    lda $8F0010,x
-    tax            ; x <- extra room data pointer
-    lda $B80003,x
-    sta $00        ; $00 <- room map tile graphics pointer (in bank $E3)
-    lda $B80005,x
-    sta $02        ; $02 <- room map tilemap pointer (in bank $E3)
-
     lda #!tiles_2bpp_address
     sta $05C0
     sep #$30
@@ -825,6 +817,120 @@ load_bg3_tiles_door_transition:
 .spin:
     LDA $05BC  ;\
     BMI .spin  ;} Wait for door transition VRAM update
+
+
+    ldx $07BB      ; x <- room state pointer
+    lda $8F0010,x
+    tax            ; x <- extra room data pointer
+    lda $B80003,x
+    sta $00        ; $00 <- room map tile graphics pointer (in bank $E4)
+    lda $B80005,x
+    sta $02        ; $02 <- room map tilemap pointer (in bank $E4)
+
+    ; transfer room map tile graphics to $7E:2000
+    ldx $00
+    ldy #$2000
+gfx_transfer_loop:
+    phx
+    lda $E40000,x
+    beq .done
+    asl : asl : asl : asl
+    clc
+    adc #$8000
+    tax
+
+    ; transfer 16 bytes (a single map tile) from bank $E3 to bank $7E
+    phb
+    lda #$000F
+    mvn $7E,$E3
+    plb
+
+    plx
+    inx : inx
+    bra gfx_transfer_loop
+.done:
+    plx
+
+    ; load room map tile graphics to VRAM:
+    LDX $0330       ;\
+    LDA #$0400      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$2000      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $7E:2000..2400 to VRAM $4280
+    LDA #$007E      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$4280      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
+
+    ; load room map tilemap
+    lda $07A3
+    sec
+    sbc #$0001
+    sta $04        ; $04 <- current tilemap row index = room y coordinate - 1
+    clc
+    adc $07AB
+    adc #$0002
+    sta $06        ; $06 <- end tilemap row index = current tilemap row index + room height + 2
+
+tilemap_transfer_row_loop:
+    lda $07A1
+    sec
+    sbc #$0002
+    sta $08        ; $08 <- current tilemap column index = room x coordinate - 1
+    clc
+    adc $07A9
+    adc #$0004
+    sta $0A        ; $0A <- end tilemap col index = current tilemap col index + room width + 4
+
+tilemap_transfer_col_loop:
+    lda $08
+    cmp #$0020
+    bcs .second_page
+
+    lda $04
+    asl : asl : asl : asl : asl
+    clc
+    adc $08
+    asl      ; A <- (row index * 32 + col index) * 2
+    bra .transfer_word
+
+.second_page:
+    lda $04
+    asl : asl : asl : asl : asl
+    clc
+    adc $08
+    adc #$07E0
+    asl          ; A <- (row index * 32 + col index - 32) * 2 + 0x800
+    bra .transfer_word
+
+.transfer_word:
+    tay    
+    ldx $02
+    lda $E40000,x
+    inx : inx
+    stx $02
+    tyx
+    sta $703040,x
+
+    lda $08
+    inc
+    sta $08
+    cmp $0A
+    bne tilemap_transfer_col_loop
+
+    lda $04
+    inc
+    sta $04
+    cmp $06
+    bne tilemap_transfer_row_loop
 
     ;lda $1F5B
     ;lda $05F7

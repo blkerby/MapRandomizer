@@ -1085,21 +1085,25 @@ impl<'a> Patcher<'a> {
         );
         map_patcher.apply_patches()?;
 
-        let mut next_addr = 0xE3C000;
+        let mut next_addr = 0xE48000;
         for &room_ptr in &self.game_data.room_ptrs {
             self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles = (next_addr & 0xFFFF) as u16;
-            println!("gfx: {}", map_patcher.room_map_gfx[&room_ptr].len());
             for &x in &map_patcher.room_map_gfx[&room_ptr] {
                 map_patcher.rom.write_u16(snes2pc(next_addr), x as isize)?;
                 next_addr += 2;
             }
+
+            // Write terminator to mark end of tile graphics
+            map_patcher.rom.write_u16(snes2pc(next_addr), 0)?;
+            next_addr += 2;
+
             self.extra_room_data.get_mut(&room_ptr).unwrap().map_tilemap = (next_addr & 0xFFFF) as u16;
             for &x in &map_patcher.room_map_tilemap[&room_ptr] {
                 map_patcher.rom.write_u16(snes2pc(next_addr), x as isize)?;
                 next_addr += 2;
             }
         }
-        assert!(next_addr <= 0xE40000);
+        assert!(next_addr <= 0xE50000);
 
         Ok(())
     }
@@ -2361,7 +2365,7 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
-        let mut next_addr = snes2pc(0xB88300);
+        let mut next_addr = snes2pc(0xB89000);
 
         for (&room_ptr, asm) in &self.extra_setup_asm {
             let mut asm = asm.clone();
@@ -2727,7 +2731,7 @@ impl<'a> Patcher<'a> {
             self.rom
                 .write_u16(addr + 1, data.extra_setup_asm as isize)?;
             self.rom.write_u16(addr + 3, data.map_tiles as isize)?;
-            self.rom.write_u16(addr + 3, data.map_tilemap as isize)?;
+            self.rom.write_u16(addr + 5, data.map_tilemap as isize)?;
             // Point to the room header extension using the "unused pointer"/"special X-ray" field.
             // Within a room, every room state points to the same extension.
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
