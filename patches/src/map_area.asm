@@ -254,7 +254,7 @@ pause_end_hook:
     sta $1F5B  ; restore map area
     jsl $80858C ; restore map explored bits
     jsl load_bg3_map_tilemap_wrapper
-    jsr $A2BE  ; run hi-jacked instruction
+    jsl $82E97C  ; run hi-jacked instruction
     rtl
 
 check_start_select:
@@ -959,6 +959,11 @@ gfx_transfer_loop:
     INX             ;|
     STX $0330       ;/
 
+    lda !nmi_timeronly
+    beq +
+    jsl $808C83     ; if NMI is not active (only timer-only mode), then process VRAM writes
++
+
     rts
 
 load_bg3_map_tilemap_wrapper:
@@ -1036,53 +1041,7 @@ tilemap_transfer_col_loop:
 
     rts
 
-reload_map_hook:
-    phx
 
-    LDA $830002,x  ; run hi-jacked instruction
-    BIT #$0040
-    beq .skip
-
-    ; clear HUD minimap
-    LDX #$0000             ;|
-    lda #$3C1F
-.clear_minimap_loop:
-    STA $7EC63C,x          ;|
-    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C1Fh
-    STA $7EC6BC,x          ;|
-    INX                    ;|
-    INX                    ;|
-    CPX #$000A             ;|
-    BMI .clear_minimap_loop
-
-    ; update VRAM for HUD
-    LDX $0330       ;\
-    LDA #$00C0      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;|
-    LDA #$C608      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
-    LDA #$007E      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    LDA #$5820      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;|
-    STX $0330       ;/
-
-.skip:
-    lda !nmi_timeronly
-    beq +
-    jsl $808C83     ; if NMI is not active (only timer-only mode), then process VRAM writes
-+
-
-    plx
-    LDA $830002,x  ; run hi-jacked instruction
-    rtl
 
 start_game_hook:
     jsl load_bg3_tiles
@@ -1091,8 +1050,10 @@ start_game_hook:
 
 warnpc !bank_85_freespace_end
 
-org $82DFB9
-    jsl reload_map_hook
+; Skip reloading map when crossing area transitions,
+; as the map reload is now handled the same way with all transitions.
+org $82DFB6
+    rts
 
 ; Unexplored gray: palette 7, color 1
 org $B6F03A : dw !unexplored_gray  ; 2bpp palette
@@ -1129,18 +1090,18 @@ org $A7CA7B : dw #$48FB            ; 2bpp palette 3, color 1: pink color for E-t
 org $8282F4
     rep 17 : nop
 
-; hook start of game to load correct BG3 tiles based on area:
+; hook start of game to load correct BG3 tiles based on room:
 org $828063
     jsl start_game_hook
 
-; Patch door transition code to always reload BG3 tiles, based on map area:
+; Patch door transition code to reload BG3 tiles based on room:
 org $82E46A : beq $1c
 org $82E472 : beq $14
 org $82E492
     jsl load_bg3_tiles_door_transition
     nop : nop
 
-; Patch pause menu start to load BG1/2 tiles based on map area:
+; Patch pause menu start to load BG1/2 tiles, including the expanded set of map tiles:
 org $828E75
     ; Load 4bpp tiles for the area into VRAM:
     php
