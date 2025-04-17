@@ -479,7 +479,9 @@ impl<'a> MapPatcher<'a> {
                     for (item_idx, tile) in dynamic_tiles_by_coords.get(&(area, x1, y1)).unwrap_or(&empty_vec) {
                         let data = self.render_tile(tile.clone())?;
                         let word = add_tile(data);
-                        let offset = xy_to_map_offset(x1, y1) as TilemapOffset;
+                        let local_x = x1 - self.area_offset_x[area];
+                        let local_y = y1 - self.area_offset_y[area];
+                        let offset = xy_to_map_offset(local_x, local_y) as TilemapOffset;
                         dynamic_tile_data.push((*item_idx, offset, word));
                     }
                 }

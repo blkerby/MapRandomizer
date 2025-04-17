@@ -1,1 +1,1 @@
-8000-FFFF: room map tile graphics listings and tilemaps
+8000-FFFF: room map tile graphics listings and tilemaps, and dynamic tile data

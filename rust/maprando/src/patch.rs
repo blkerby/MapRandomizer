@@ -1109,6 +1109,10 @@ impl<'a> Patcher<'a> {
             }
 
             self.extra_room_data.get_mut(&room_ptr).unwrap().dynamic_tiles = (next_addr & 0xFFFF) as u16;
+            // Write count of dynamic tile records:
+            println!("{:x} {:x} {}", room_ptr, next_addr, map_patcher.room_map_dynamic_tiles[&room_ptr].len());
+            map_patcher.rom.write_u16(snes2pc(next_addr), map_patcher.room_map_dynamic_tiles[&room_ptr].len() as isize)?;
+            next_addr += 2;
             for &(item_idx, offset, word) in &map_patcher.room_map_dynamic_tiles[&room_ptr] {
                 map_patcher.rom
                     .write_u8(snes2pc(next_addr), (item_idx as isize) >> 3)?; // item byte index
@@ -1120,10 +1124,6 @@ impl<'a> Patcher<'a> {
                     .write_u16(snes2pc(next_addr + 4), word as isize)?; // tilemap word to write, once item bit is set
                 next_addr += 6;
             }
-
-            // Write terminator to mark end of dynamic tiles
-            map_patcher.rom.write_u16(snes2pc(next_addr), 0)?;
-            next_addr += 2;
         }
         assert!(next_addr <= 0xE50000);
 
@@ -2747,7 +2747,7 @@ impl<'a> Patcher<'a> {
         let end_addr = snes2pc(0xB89000);
         for (&room_ptr, data) in &self.extra_room_data {
             let addr = next_addr;
-            next_addr += 7;
+            next_addr += 9;
             // Write "extra room data", which is basically an extension of the room header:
             self.rom.write_u8(addr, data.map_area as isize)?;
             self.rom

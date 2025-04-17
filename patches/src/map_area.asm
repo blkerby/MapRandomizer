@@ -5,7 +5,7 @@ lorom
 !bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82F800
-!bank_85_freespace_start = $85A280
+!bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear
 !bank_85_freespace_end = $85A800
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
@@ -366,6 +366,12 @@ print pc
 warnpc !bank_82_freespace_end
 
 org !bank_85_freespace_start
+
+; this function must go first, to match the reference in item_dots_disappear.asm
+load_bg3_map_tilemap_wrapper:
+    jsr load_bg3_map_tilemap
+    rtl
+
 ;;; X = room header pointer
 load_area:
     phy
@@ -965,10 +971,6 @@ gfx_transfer_loop:
 +
 
     rts
-
-load_bg3_map_tilemap_wrapper:
-    jsr load_bg3_map_tilemap
-    rtl
 
 load_bg3_map_tilemap:
     ldx $07BB      ; x <- room state pointer
