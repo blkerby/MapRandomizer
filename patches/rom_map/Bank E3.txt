@@ -1,0 +1,3 @@
+8000-B000: HUD map tile graphics (2bpp)
+B000-C000: reserved in case we want to expand the amount of map tiles
+C000-FFFF: [FREE]

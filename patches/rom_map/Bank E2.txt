@@ -1,0 +1,2 @@
+8000-E000: pause menu map tile graphics (4bpp)
+E000-FFFF: reserved in case we want to expand the amount of map tiles

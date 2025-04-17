@@ -12,7 +12,7 @@ lorom
 incsrc "constants.asm"
 
 !bank_82_free_space_start = $82fbb0
-!bank_82_free_space_end = $82fd00
+!bank_82_free_space_end = $82fbf0
 
 org $82de1d
     jsr room_ptr_hook

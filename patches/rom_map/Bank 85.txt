@@ -9,3 +9,4 @@ $9FF0 - $A050: [FREE]
 $A050 - $A100: reserve_backward_fill.asm
 $A100 - $A180: fix_transition_bad_tiles.asm
 $A180 - $A280: special_door_reveal.asm
+$A280 - $A800: map_area.asm

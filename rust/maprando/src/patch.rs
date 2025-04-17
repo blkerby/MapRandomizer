@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings,
-        SaveAnimals, StartLocationMode, WallJump,
+        AreaAssignment, ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
+        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -200,8 +200,19 @@ impl Rom {
 
 #[derive(Default)]
 pub struct ExtraRoomData {
-    pub map_area: u8,
-    pub extra_setup_asm: u16,
+    pub map_area: u8,         // area number of the map area assigned to the room (0-5)
+    pub extra_setup_asm: u16, // pointer to room's extra setup ASM (in bank B8), or $0000 if inapplicable.
+    // pointer to a zero-terminated sequence of words, in bank $E3, giving indexes of map tiles to load into BG3 tiles
+    pub map_tiles: u16,
+    // pointer to (W + 4) * (H + 2) words, in bank $E3, giving tilemap data (referencing the tiles in
+    // `map_tiles`) which will get copied into the area tilemap at $703000
+    pub map_tilemap: u16,
+    // pointer to a zero-terminated sequence of 6-byte records:
+    // - byte: item byte index (relative to $7ED870)
+    // - byte: item bitmask applied to the referenced byte
+    // - word: tilemap offset to modify (relative to $703000)
+    // - word: tilemap value to write
+    pub dynamic_tiles: u16,
 }
 
 pub struct Patcher<'a> {
@@ -1052,20 +1063,6 @@ impl<'a> Patcher<'a> {
         Ok(())
     }
 
-    fn fix_twin_rooms(&mut self) -> Result<()> {
-        // East Pants Room:
-        let pants_room_x = self.rom.read_u8(0x7D646 + 2)?;
-        let pants_room_y = self.rom.read_u8(0x7D646 + 3)?;
-        self.rom.write_u8(0x7D69A + 2, pants_room_x + 1)?;
-        self.rom.write_u8(0x7D69A + 3, pants_room_y + 1)?;
-        // Homing Geemer Room:
-        let west_ocean_x = self.rom.read_u8(0x793FE + 2)?;
-        let west_ocean_y = self.rom.read_u8(0x793FE + 3)?;
-        self.rom.write_u8(0x7968F + 2, west_ocean_x + 5)?;
-        self.rom.write_u8(0x7968F + 3, west_ocean_y + 2)?;
-        Ok(())
-    }
-
     fn write_map_areas(&mut self) -> Result<()> {
         for (i, room) in self.game_data.room_geometry.iter().enumerate() {
             self.extra_room_data
@@ -1083,15 +1080,63 @@ impl<'a> Patcher<'a> {
     }
 
     fn apply_map_tile_patches(&mut self) -> Result<()> {
-        map_tiles::MapPatcher::new(
+        let mut map_patcher = map_tiles::MapPatcher::new(
             &mut self.rom,
             self.game_data,
             self.map,
             self.settings,
             self.randomization,
             &self.locked_door_state_indices,
-        )
-        .apply_patches()?;
+        );
+        map_patcher.apply_patches()?;
+
+        let mut next_addr = 0xE48000;
+        for &room_ptr in &self.game_data.room_ptrs {
+            self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles =
+                (next_addr & 0xFFFF) as u16;
+            for &x in &map_patcher.room_map_gfx[&room_ptr] {
+                map_patcher.rom.write_u16(snes2pc(next_addr), x as isize)?;
+                next_addr += 2;
+            }
+
+            // Write terminator to mark end of tile graphics
+            map_patcher.rom.write_u16(snes2pc(next_addr), 0)?;
+            next_addr += 2;
+
+            self.extra_room_data.get_mut(&room_ptr).unwrap().map_tilemap =
+                (next_addr & 0xFFFF) as u16;
+            for &x in &map_patcher.room_map_tilemap[&room_ptr] {
+                map_patcher.rom.write_u16(snes2pc(next_addr), x as isize)?;
+                next_addr += 2;
+            }
+
+            self.extra_room_data
+                .get_mut(&room_ptr)
+                .unwrap()
+                .dynamic_tiles = (next_addr & 0xFFFF) as u16;
+            map_patcher.rom.write_u16(
+                snes2pc(next_addr),
+                map_patcher.room_map_dynamic_tiles[&room_ptr].len() as isize,
+            )?;
+            next_addr += 2;
+            for &(item_idx, offset, word) in &map_patcher.room_map_dynamic_tiles[&room_ptr] {
+                map_patcher
+                    .rom
+                    .write_u8(snes2pc(next_addr), (item_idx as isize) >> 3)?; // item byte index
+                map_patcher
+                    .rom
+                    .write_u8(snes2pc(next_addr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
+                map_patcher
+                    .rom
+                    .write_u16(snes2pc(next_addr + 2), offset as isize)?; // tilemap offset
+                map_patcher
+                    .rom
+                    .write_u16(snes2pc(next_addr + 4), word as isize)?; // tilemap word to write, once item bit is set
+                next_addr += 6;
+            }
+        }
+        assert!(next_addr <= 0xE50000);
+
         Ok(())
     }
 
@@ -1163,10 +1208,6 @@ impl<'a> Patcher<'a> {
     }
 
     fn use_area_based_music(&mut self) -> Result<()> {
-        // Start by applying vanilla music (since even for tracks that we don't change below, we need
-        // to make sure they apply concrete tracks instead of "no change" like the vanilla game has):
-        override_music(&mut self.rom)?;
-
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 0x050C, // Return to Crateria (ASM can replace with intro track or storm track)
@@ -2712,11 +2753,14 @@ impl<'a> Patcher<'a> {
         let end_addr = snes2pc(0xB89000);
         for (&room_ptr, data) in &self.extra_room_data {
             let addr = next_addr;
-            next_addr += 3;
+            next_addr += 9;
             // Write "extra room data", which is basically an extension of the room header:
             self.rom.write_u8(addr, data.map_area as isize)?;
             self.rom
                 .write_u16(addr + 1, data.extra_setup_asm as isize)?;
+            self.rom.write_u16(addr + 3, data.map_tiles as isize)?;
+            self.rom.write_u16(addr + 5, data.map_tilemap as isize)?;
+            self.rom.write_u16(addr + 7, data.dynamic_tiles as isize)?;
             // Point to the room header extension using the "unused pointer"/"special X-ray" field.
             // Within a room, every room state points to the same extension.
             for (_, state_ptr) in get_room_state_ptrs(&self.rom, room_ptr)? {
@@ -3092,12 +3136,16 @@ pub fn make_rom(
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
     patcher.remove_non_blue_doors()?;
-    patcher.use_area_based_music()?;
+    override_music(&mut patcher.rom)?;
+    if settings.map_layout != "Vanilla"
+        || settings.other_settings.area_assignment == AreaAssignment::Random
+    {
+        patcher.use_area_based_music()?;
+    }
     patcher.setup_door_specific_fx()?;
     if !settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
     }
-    patcher.fix_twin_rooms()?;
     patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;

@@ -11,6 +11,8 @@ use crate::patch::snes2pc;
 use crate::patch::Rom;
 
 pub fn override_music(rom: &mut Rom) -> Result<()> {
+    // Apply vanilla music (since even for tracks that we don't change below, we need
+    // to make sure they apply concrete tracks instead of "no change" like the vanilla game has):
     let song_overrides = vec![
         // Crateria
         (0x9217, 0x06, 0x05), // room $91F8 - Landing Site - state: Zebes not awake
