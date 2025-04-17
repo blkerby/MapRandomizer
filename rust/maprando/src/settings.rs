@@ -139,6 +139,7 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub buffed_drops: bool,
     pub early_save: bool,
+    pub fanfares: Fanfares,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
@@ -360,6 +361,13 @@ pub enum ItemMarkers {
     ThreeTiered,
     #[serde(rename = "4-Tiered")]
     FourTiered,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum Fanfares {
+    Vanilla,
+    Trimmed,
+    Off,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
