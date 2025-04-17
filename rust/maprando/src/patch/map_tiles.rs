@@ -50,6 +50,7 @@ pub struct MapPatcher<'a> {
     pub area_offset_y: [isize; NUM_AREAS],
     pub room_map_gfx: HashMap<RoomPtr, Vec<TilemapWord>>,
     pub room_map_tilemap: HashMap<RoomPtr, Vec<TilemapWord>>,
+    pub room_map_dynamic_tiles: HashMap<RoomPtr, Vec<(ItemIdx, TilemapOffset, TilemapWord)>>,
 }
 
 pub const VANILLA_ELEVATOR_TILE: TilemapWord = 0xCE; // Index of elevator tile in vanilla game
@@ -213,6 +214,7 @@ impl<'a> MapPatcher<'a> {
             area_offset_y: [0; NUM_AREAS],
             room_map_gfx: HashMap::new(),
             room_map_tilemap: HashMap::new(),
+            room_map_dynamic_tiles: HashMap::new(),
         }
     }
 
@@ -409,6 +411,21 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn create_room_map_tilemaps(&mut self) -> Result<()> {
+        let mut dynamic_tiles_by_coords: HashMap<(AreaIdx, isize, isize), Vec<(ItemIdx, MapTile)>> =
+            HashMap::new();
+        for data in &self.dynamic_tile_data {
+            for (item_idx, room_id, map_tile) in data.iter().cloned() {
+                let coords = self.get_room_coords(room_id, map_tile.coords.0 as isize, map_tile.coords.1 as isize);
+                if !dynamic_tiles_by_coords.contains_key(&coords) {
+                    dynamic_tiles_by_coords.insert(coords, vec![]);
+                }
+                dynamic_tiles_by_coords
+                    .get_mut(&coords)
+                    .unwrap()
+                    .push((item_idx, map_tile));
+            }
+        }
+
         for &room_ptr in &self.game_data.room_ptrs {
             let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
             let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
@@ -430,6 +447,22 @@ impl<'a> MapPatcher<'a> {
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 0, 1, 0, 1, 0, 1, 0],
             ];
+
+            let mut add_tile = |data| -> TilemapWord {
+                if Self::find_tile(data, &gfx_tile_map).is_none() {
+                    if let Some(t) = Self::find_tile(data, &self.gfx_tile_map) {
+                        let idx = t & 0x3FF;
+                        gfx_tiles.push(idx);
+                        gfx_tile_map.insert(self.gfx_tile_reverse_map[&idx], next_tile);
+                        next_tile += 1;
+                    } else {
+                        panic!("Tile not found in global map tileset: {:?}", data);
+                    }
+                }
+                Self::find_tile(data, &gfx_tile_map).unwrap()
+            };
+            let mut dynamic_tile_data: Vec<(ItemIdx, TilemapOffset, TilemapWord)> = vec![];
+
             for y in -1..room_height + 1 {
                 for x in -2..room_width + 2 {
                     let (area, x1, y1) = self.get_room_coords(room_id, x, y);
@@ -439,26 +472,23 @@ impl<'a> MapPatcher<'a> {
                     } else {
                         empty_tile
                     };
-                    if Self::find_tile(data, &gfx_tile_map).is_none() {
-                        if let Some(t) = Self::find_tile(data, &self.gfx_tile_map) {
-                            let idx = t & 0x3FF;
-                            gfx_tiles.push(idx);
-                            gfx_tile_map.insert(self.gfx_tile_reverse_map[&idx], next_tile);
-                            next_tile += 1;
-                        } else {
-                            panic!("Tile not found in global map tileset: {:?}", data);    
-                        }
-                    }
+                    let word = add_tile(data);
+                    tilemap.push(word);
 
-                    if let Some(t) = Self::find_tile(data, &gfx_tile_map) {
-                        tilemap.push(t);
-                    } else {
-                        panic!("Tile not found in room map tileset: {:?}", data);
+                    let empty_vec = vec![];
+                    for (item_idx, tile) in dynamic_tiles_by_coords.get(&(area, x1, y1)).unwrap_or(&empty_vec) {
+                        let data = self.render_tile(tile.clone())?;
+                        let word = add_tile(data);
+                        let offset = xy_to_map_offset(x1, y1) as TilemapOffset;
+                        dynamic_tile_data.push((*item_idx, offset, word));
                     }
                 }
             }
+
             self.room_map_gfx.insert(room_ptr, gfx_tiles);
             self.room_map_tilemap.insert(room_ptr, tilemap);
+            self.room_map_dynamic_tiles
+                .insert(room_ptr, dynamic_tile_data);
         }
 
         Ok(())
@@ -837,7 +867,7 @@ impl<'a> MapPatcher<'a> {
         }
     }
 
-    fn render_tile(&mut self, tile: MapTile) -> Result<[[u8; 8]; 8]> {
+    fn render_tile(&self, tile: MapTile) -> Result<[[u8; 8]; 8]> {
         let bg_color = if tile.heated && !self.settings.other_settings.ultra_low_qol {
             2
         } else {
@@ -2065,13 +2095,7 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn write_dynamic_tile_data(
-        &mut self,
-        area_data: &[Vec<(ItemIdx, RoomId, MapTile)>],
-    ) -> Result<()> {
-        // Write per-area item listings, to be used by the patch `item_dots_disappear.asm`.
-        let base_ptr = 0x83B000;
-        let mut data_ptr = base_ptr + 24;
+    fn sort_dynamic_tile_data(&mut self) -> Result<()> {
         let interior_priority = [
             MapTileInterior::Empty,
             MapTileInterior::Event,
@@ -2082,6 +2106,30 @@ impl<'a> MapPatcher<'a> {
             MapTileInterior::MediumItem,
             MapTileInterior::MajorItem,
         ];
+        for data in self.dynamic_tile_data.iter_mut() {
+            for (_, room_id, ref tile) in &*data {
+                if !interior_priority.contains(&tile.interior) {
+                    panic!(
+                        "In room_id={room_id}, unexpected dynamic tile interior: {:?}",
+                        tile
+                    );
+                }
+            }
+
+            data.sort_by_key(|(_, _, tile)| {
+                interior_priority.iter().position(|&y| y == tile.interior)
+            });
+        }
+        Ok(())
+    }
+
+    fn write_dynamic_tile_data(
+        &mut self,
+        area_data: &[Vec<(ItemIdx, RoomId, MapTile)>],
+    ) -> Result<()> {
+        // Write per-area item listings, to be used by the patch `item_dots_disappear.asm`.
+        let base_ptr = 0x83B000;
+        let mut data_ptr = base_ptr + 24;
         for (area_idx, data) in area_data.iter().enumerate() {
             self.rom.write_u16(
                 snes2pc(base_ptr + area_idx * 2),
@@ -2090,37 +2138,21 @@ impl<'a> MapPatcher<'a> {
             self.rom
                 .write_u16(snes2pc(base_ptr + 12 + area_idx * 2), data.len() as isize)?;
             let data_start = data_ptr;
-            for &(_, room_id, ref tile) in data {
-                if !interior_priority.contains(&tile.interior) {
-                    panic!(
-                        "In room_id={room_id}, unexpected dynamic tile interior: {:?}",
-                        tile
-                    );
-                }
-            }
-            for &interior in &interior_priority {
-                for &(item_idx, room_id, ref tile) in data {
-                    if tile.interior != interior {
-                        continue;
-                    }
-                    self.rom
-                        .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
-                    self.rom
-                        .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
-                    let word = self.index_tile(tile.clone(), None)?;
+            for &(item_idx, room_id, ref tile) in data {
+                self.rom
+                    .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
+                self.rom
+                    .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
+                let word = self.index_tile(tile.clone(), None)?;
 
-                    let (_, x, y) = self.get_room_coords(
-                        room_id,
-                        tile.coords.0 as isize,
-                        tile.coords.1 as isize,
-                    );
-                    let local_x = x - self.area_offset_x[area_idx];
-                    let local_y = y - self.area_offset_y[area_idx];
-                    let offset = xy_to_map_offset(local_x, local_y);
-                    self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?; // tilemap offset
-                    self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?; // tilemap word
-                    data_ptr += 6;
-                }
+                let (_, x, y) =
+                    self.get_room_coords(room_id, tile.coords.0 as isize, tile.coords.1 as isize);
+                let local_x = x - self.area_offset_x[area_idx];
+                let local_y = y - self.area_offset_y[area_idx];
+                let offset = xy_to_map_offset(local_x, local_y);
+                self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?; // tilemap offset
+                self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?; // tilemap word
+                data_ptr += 6;
             }
             assert_eq!(data_ptr, data_start + 6 * data.len());
         }
@@ -2721,6 +2753,7 @@ impl<'a> MapPatcher<'a> {
         if self.settings.quality_of_life_settings.room_outline_revealed {
             self.setup_special_door_reveal()?;
         }
+        self.sort_dynamic_tile_data()?;
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
         self.create_room_map_tilemaps()?;
         self.write_hazard_tiles()?;
