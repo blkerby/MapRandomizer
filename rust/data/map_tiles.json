@@ -11,6 +11,7 @@
         {
             "roomId": 42,
             "roomName": "Blue Brinstar Boulder Room",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -439,6 +440,7 @@
         {
             "roomId": 65,
             "roomName": "Waterway Energy Tank Room",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "wall", "interior": "item"},
                 {"coords": [1, 0], "left": "passage", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -461,6 +463,7 @@
         {
             "roomId": 69,
             "roomName": "Bat Room",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -469,6 +472,7 @@
         {
             "roomId": 70,
             "roomName": "Below Spazer",
+            "waterLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -764,6 +768,7 @@
         {
             "roomId": 33,
             "roomName": "Bowling Alley Path",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -772,6 +777,7 @@
         {
             "roomId": 36,
             "roomName": "Crab Maze",
+            "waterLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1323,6 +1329,7 @@
         {
             "roomId": 222,
             "roomName": "Shaktool Room",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "passage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1663,6 +1670,7 @@
         {
             "roomId": 215,
             "roomName": "Maridia Elevator Room",
+            "waterLevel": 5.625,
             "mapTiles": [
                 {"coords": [0, 0], "specialType": "elevator"},
                 {"coords": [0, 1], "specialType": "elevator"},
@@ -1675,6 +1683,7 @@
         {
             "roomId": 180,
             "roomName": "Northwest Maridia Bug Room",
+            "waterLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
@@ -1755,6 +1764,7 @@
         {
             "roomId": 214,
             "roomName": "Thread The Needle Room",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1964,6 +1974,7 @@
         {
             "roomId": 129,
             "roomName": "Grapple Tutorial Room 1",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -2775,6 +2786,7 @@
         {
             "roomId": 166,
             "roomName": "Electric Death Room",
+            "waterLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "door", "top": "passage", "bottom": "empty"},
@@ -2798,6 +2810,7 @@
         {
             "roomId": 165,
             "roomName": "Spiky Death Room",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -2806,6 +2819,7 @@
         {
             "roomId": 164,
             "roomName": "Sponge Bath",
+            "waterLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
