@@ -1043,19 +1043,51 @@ tilemap_transfer_col_loop:
 
     rts
 
-
-
 start_game_hook:
     jsl load_bg3_tiles
     jsl $809A79  ; run hi-jacked instruction
     rtl
 
+area_cross_hook:
+    jsl $80858C  ; run hi-jacked instruction
+
+    ; clear HUD minimap during area transitions
+    LDX #$0000             ;|
+    lda #$3C50
+.clear_minimap_loop:
+    STA $7EC63C,x          ;|
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C50h
+    STA $7EC6BC,x          ;|
+    INX                    ;|
+    INX                    ;|
+    CPX #$000A             ;|
+    BMI .clear_minimap_loop
+
+    ; update VRAM for HUD
+    LDX $0330       ;\
+    LDA #$00C0      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$C608      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
+    LDA #$007E      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$5820      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
+    
+    rtl
+
 warnpc !bank_85_freespace_end
 
-; Skip reloading map when crossing area transitions,
-; as the map reload is now handled the same way with all transitions.
-org $82DFB6
-    rts
+org $82DFC2
+    jsl area_cross_hook
 
 ; Unexplored gray: palette 7, color 1
 org $B6F03A : dw !unexplored_gray  ; 2bpp palette

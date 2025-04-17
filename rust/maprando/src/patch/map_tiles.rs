@@ -415,7 +415,11 @@ impl<'a> MapPatcher<'a> {
             HashMap::new();
         for data in &self.dynamic_tile_data {
             for (item_idx, room_id, map_tile) in data.iter().cloned() {
-                let coords = self.get_room_coords(room_id, map_tile.coords.0 as isize, map_tile.coords.1 as isize);
+                let coords = self.get_room_coords(
+                    room_id,
+                    map_tile.coords.0 as isize,
+                    map_tile.coords.1 as isize,
+                );
                 if !dynamic_tiles_by_coords.contains_key(&coords) {
                     dynamic_tiles_by_coords.insert(coords, vec![]);
                 }
@@ -461,6 +465,7 @@ impl<'a> MapPatcher<'a> {
                 }
                 Self::find_tile(data, &gfx_tile_map).unwrap()
             };
+            add_tile(empty_tile); // Done first to ensure this is always present at position 0x50.
             let mut dynamic_tile_data: Vec<(ItemIdx, TilemapOffset, TilemapWord)> = vec![];
 
             for y in -1..room_height + 1 {
@@ -476,7 +481,10 @@ impl<'a> MapPatcher<'a> {
                     tilemap.push(word);
 
                     let empty_vec = vec![];
-                    for (item_idx, tile) in dynamic_tiles_by_coords.get(&(area, x1, y1)).unwrap_or(&empty_vec) {
+                    for (item_idx, tile) in dynamic_tiles_by_coords
+                        .get(&(area, x1, y1))
+                        .unwrap_or(&empty_vec)
+                    {
                         let data = self.render_tile(tile.clone())?;
                         let word = add_tile(data);
                         let local_x = x1 - self.area_offset_x[area];

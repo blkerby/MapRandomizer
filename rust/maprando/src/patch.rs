@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings,
-        SaveAnimals, StartLocationMode, WallJump,
+        AreaAssignment, ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
+        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -200,8 +200,8 @@ impl Rom {
 
 #[derive(Default)]
 pub struct ExtraRoomData {
-    pub map_area: u8,          // area number of the map area assigned to the room (0-5)
-    pub extra_setup_asm: u16,  // pointer to room's extra setup ASM (in bank B8), or $0000 if inapplicable.
+    pub map_area: u8,         // area number of the map area assigned to the room (0-5)
+    pub extra_setup_asm: u16, // pointer to room's extra setup ASM (in bank B8), or $0000 if inapplicable.
     // pointer to a zero-terminated sequence of words, in bank $E3, giving indexes of map tiles to load into BG3 tiles
     pub map_tiles: u16,
     // pointer to (W + 4) * (H + 2) words, in bank $E3, giving tilemap data (referencing the tiles in
@@ -1092,7 +1092,8 @@ impl<'a> Patcher<'a> {
 
         let mut next_addr = 0xE48000;
         for &room_ptr in &self.game_data.room_ptrs {
-            self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles = (next_addr & 0xFFFF) as u16;
+            self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles =
+                (next_addr & 0xFFFF) as u16;
             for &x in &map_patcher.room_map_gfx[&room_ptr] {
                 map_patcher.rom.write_u16(snes2pc(next_addr), x as isize)?;
                 next_addr += 2;
@@ -1102,25 +1103,34 @@ impl<'a> Patcher<'a> {
             map_patcher.rom.write_u16(snes2pc(next_addr), 0)?;
             next_addr += 2;
 
-            self.extra_room_data.get_mut(&room_ptr).unwrap().map_tilemap = (next_addr & 0xFFFF) as u16;
+            self.extra_room_data.get_mut(&room_ptr).unwrap().map_tilemap =
+                (next_addr & 0xFFFF) as u16;
             for &x in &map_patcher.room_map_tilemap[&room_ptr] {
                 map_patcher.rom.write_u16(snes2pc(next_addr), x as isize)?;
                 next_addr += 2;
             }
 
-            self.extra_room_data.get_mut(&room_ptr).unwrap().dynamic_tiles = (next_addr & 0xFFFF) as u16;
-            // Write count of dynamic tile records:
-            println!("{:x} {:x} {}", room_ptr, next_addr, map_patcher.room_map_dynamic_tiles[&room_ptr].len());
-            map_patcher.rom.write_u16(snes2pc(next_addr), map_patcher.room_map_dynamic_tiles[&room_ptr].len() as isize)?;
+            self.extra_room_data
+                .get_mut(&room_ptr)
+                .unwrap()
+                .dynamic_tiles = (next_addr & 0xFFFF) as u16;
+            map_patcher.rom.write_u16(
+                snes2pc(next_addr),
+                map_patcher.room_map_dynamic_tiles[&room_ptr].len() as isize,
+            )?;
             next_addr += 2;
             for &(item_idx, offset, word) in &map_patcher.room_map_dynamic_tiles[&room_ptr] {
-                map_patcher.rom
+                map_patcher
+                    .rom
                     .write_u8(snes2pc(next_addr), (item_idx as isize) >> 3)?; // item byte index
-                map_patcher.rom
+                map_patcher
+                    .rom
                     .write_u8(snes2pc(next_addr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
-                map_patcher.rom
+                map_patcher
+                    .rom
                     .write_u16(snes2pc(next_addr + 2), offset as isize)?; // tilemap offset
-                map_patcher.rom
+                map_patcher
+                    .rom
                     .write_u16(snes2pc(next_addr + 4), word as isize)?; // tilemap word to write, once item bit is set
                 next_addr += 6;
             }
@@ -1198,10 +1208,6 @@ impl<'a> Patcher<'a> {
     }
 
     fn use_area_based_music(&mut self) -> Result<()> {
-        // Start by applying vanilla music (since even for tracks that we don't change below, we need
-        // to make sure they apply concrete tracks instead of "no change" like the vanilla game has):
-        override_music(&mut self.rom)?;
-
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 0x050C, // Return to Crateria (ASM can replace with intro track or storm track)
@@ -3130,7 +3136,12 @@ pub fn make_rom(
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
     patcher.remove_non_blue_doors()?;
-    patcher.use_area_based_music()?;
+    override_music(&mut patcher.rom)?;
+    if settings.map_layout != "Vanilla"
+        || settings.other_settings.area_assignment == AreaAssignment::Random
+    {
+        patcher.use_area_based_music()?;
+    }
     patcher.setup_door_specific_fx()?;
     if !settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
