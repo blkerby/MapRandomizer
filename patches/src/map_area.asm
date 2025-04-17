@@ -6,7 +6,7 @@ lorom
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82F800
 !bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear
-!bank_85_freespace_end = $85A800
+!bank_85_freespace_end = $85A880
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A7FFE0
@@ -116,6 +116,10 @@ org $828D44
 ; org $82936A
 org $80A15F
     jsl pause_end_hook
+
+; hook library background load in Kraid Room:
+org $82E641
+    jsl kraid_room_load_hook
 
 org $829130 : jsr draw_samus_indicator
 org $82915A : jsr draw_samus_indicator
@@ -250,11 +254,13 @@ pause_start_hook_wrapper:
     rts
 
 pause_end_hook:
+    jsl $82E97C  ; run hi-jacked instruction (load library background)
     lda !backup_area
     sta $1F5B  ; restore map area
     jsl $80858C ; restore map explored bits
+    jsl load_bg3_map_tiles_wrapper
     jsl load_bg3_map_tilemap_wrapper
-    jsl $82E97C  ; run hi-jacked instruction
+    jsl set_hud_map_colors_wrapper
     rtl
 
 check_start_select:
@@ -372,6 +378,44 @@ load_bg3_map_tilemap_wrapper:
     jsr load_bg3_map_tilemap
     rtl
 
+load_bg3_map_tiles_wrapper:
+    jsr load_bg3_map_tiles
+    rtl
+
+clear_hud_minimap:
+    ; clear HUD minimap during area transitions
+    LDX #$0000             ;|
+    lda #$3C50
+.clear_minimap_loop:
+    STA $7EC63C,x          ;|
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C50h
+    STA $7EC6BC,x          ;|
+    INX                    ;|
+    INX                    ;|
+    CPX #$000A             ;|
+    BMI .clear_minimap_loop
+
+    ; update VRAM for HUD
+    LDX $0330       ;\
+    LDA #$00C0      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$C608      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
+    LDA #$007E      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$5820      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
+    
+    rtl
+
 ;;; X = room header pointer
 load_area:
     phy
@@ -404,6 +448,7 @@ pause_start_hook:
     sta !backup_area  ; back up map area
     jsr set_hud_map_colors
     jsr update_pause_map_palette
+    jsl load_bg3_map_tiles_wrapper
     ;jsr remove_samus_hud_indicator
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
@@ -668,6 +713,9 @@ samus_minimap_flash_hook:
 
     rtl
 
+set_hud_map_colors_wrapper:
+    jsr set_hud_map_colors
+    rtl
 
 set_hud_map_colors:
     ; Set colors for HUD map:
@@ -790,7 +838,6 @@ load_bg3_tiles_kraid:
     lda #!tiles_2bpp_address ; source address
     sta $4312
 
-    ; Set source bank to $E2 + map area:
     lda #!tiles_2bpp_bank ; source bank
     sta $4314
 
@@ -802,6 +849,8 @@ load_bg3_tiles_kraid:
     sta $420B  ; perform DMA transfer on channel 1
     
     plp
+    jsr load_bg3_map_tiles
+    jsr load_bg3_map_tilemap
     rtl
 
 hud_minimap_tile_addresses:
@@ -810,9 +859,7 @@ hud_minimap_tile_addresses:
     dw $C6BC, $C6BE, $C6C0, $C6C2, $C6C4
     dw $0000
 
-load_bg3_tiles_door_transition:
-    php
-
+save_hud_tiles:
     ; copy the 15 currently visible HUD mini-map tiles to tiles $20-$2E (VRAM $4100)
     ldx #$0000
     ldy #$2000
@@ -886,7 +933,6 @@ save_hud_tilemap_loop:
     bra save_hud_tilemap_loop
 .done:
 
-
     LDX $0330    ;\
     LDA #$00C0   ;|
     STA $D0,x    ;|
@@ -905,6 +951,12 @@ save_hud_tilemap_loop:
     INX          ;|
     STX $0330    ;/
 
+    rts
+
+load_bg3_tiles_door_transition:
+    php
+
+    jsr save_hud_tiles
     jsr load_bg3_map_tiles
     jsr load_bg3_map_tilemap
 
@@ -915,6 +967,11 @@ save_hud_tilemap_loop:
     rtl
 
 load_bg3_map_tiles:
+    phx
+    phy
+    php
+
+    rep #$30
     ldx $07BB      ; x <- room state pointer
     lda $8F0010,x
     tax            ; x <- extra room data pointer
@@ -947,32 +1004,54 @@ gfx_transfer_loop:
     plx
 
     ; load room map tile graphics to VRAM:
-    LDX $0330       ;\
-    LDA #$0400      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;|
-    LDA #$2100      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;} Queue transfer of $7E:2100..2500 to VRAM $4280
-    LDA #$007E      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    LDA #$4280      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;|
-    STX $0330       ;/
+    LDX $0330
+    LDA #$0400
+    STA $D0,x
+    INX
+    INX
+    LDA #$2100
+    STA $D0,x
+    INX
+    INX
+    LDA #$007E
+    STA $D0,x
+    INX
+    LDA $079B
+    CMP #$A59F      ; Is this Kraid Room?
+    BNE +
+    LDA $0998
+    CMP #$000D      ; Is the pause screen loading?
+    BEQ +
+    CMP #$000E      ; Is the pause screen loading?
+    BEQ +
+    CMP #$000F      ; Is it in pause screen?
+    BEQ +
+    ; For Kraid's Room gameplay (not paused), load tiles into $2280 instead.
+    LDA #$2280
+    BRA ++
++
+    LDA #$4280
+++
+    STA $D0,x
+    INX
+    INX
+    STX $0330
 
     lda !nmi_timeronly
     beq +
     jsl $808C83     ; if NMI is not active (only timer-only mode), then process VRAM writes
 +
 
+    plp
+    ply
+    plx
     rts
 
 load_bg3_map_tilemap:
+    php
+    phx
+    phy
+
     ldx $07BB      ; x <- room state pointer
     lda $8F0010,x
     tax            ; x <- extra room data pointer
@@ -1041,6 +1120,9 @@ tilemap_transfer_col_loop:
     cmp $06
     bne tilemap_transfer_row_loop
 
+    ply
+    plx
+    plp
     rts
 
 start_game_hook:
@@ -1050,38 +1132,15 @@ start_game_hook:
 
 area_cross_hook:
     jsl $80858C  ; run hi-jacked instruction
+    jsl clear_hud_minimap
+    rtl
 
-    ; clear HUD minimap during area transitions
-    LDX #$0000             ;|
-    lda #$3C50
-.clear_minimap_loop:
-    STA $7EC63C,x          ;|
-    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C50h
-    STA $7EC6BC,x          ;|
-    INX                    ;|
-    INX                    ;|
-    CPX #$000A             ;|
-    BMI .clear_minimap_loop
-
-    ; update VRAM for HUD
-    LDX $0330       ;\
-    LDA #$00C0      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;|
-    LDA #$C608      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;} Queue transfer of $7E:C608..C7 to VRAM $5820..7F (HUD tilemap)
-    LDA #$007E      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    LDA #$5820      ;|
-    STA $D0,x       ;|
-    INX             ;|
-    INX             ;|
-    STX $0330       ;/
-    
+kraid_room_load_hook:
+    jsl clear_hud_minimap
+    jsr load_bg3_map_tiles
+    ; run hi-jacked instructions
+    sep #$20
+    lda #$02
     rtl
 
 warnpc !bank_85_freespace_end
@@ -1163,6 +1222,25 @@ org $828E75
     lda #$02
     sta $420B  ; perform DMA transfer on channel 1
 
+    lda $0998
+    cmp #$0D
+    bne .skip_load_bg3  ; only load BG3 tiles when first entering pause menu, not when switching screens
+
+    ; VRAM $4000..47FF = [$9A:B200..C1FF] (standard BG3 tiles)
+    LDA #$00
+    STA $2116
+    LDA #$40
+    STA $2117
+    LDA #$80
+    STA $2115
+    JSL $8091A9
+    db $01, $01, $18, $00, $B2, $9A, $00, $10
+    LDA #$02
+    STA $420B
+
+    jsl load_bg3_map_tiles_wrapper
+
+.skip_load_bg3
     plp
     rtl
 warnpc $828EDA
@@ -1205,26 +1283,14 @@ org $90A7F1
 org $90AAFD
     AND #$817F   ; was: AND #$01FF
 
-; Kraid load BG3 from area-specific tiles:
-org $A7C78B : lda #!tiles_2bpp_address
-org $A7C790 : jsr get_area_bg3_bank
-org $A7C7B1 : lda #!tiles_2bpp_address+$400
-org $A7C7B6 : jsr get_area_bg3_bank
-org $A7C7D7 : lda #!tiles_2bpp_address+$800
-org $A7C7DC : jsr get_area_bg3_bank
-org $A7C7FD : lda #!tiles_2bpp_address+$C00
-org $A7C802 : jsr get_area_bg3_bank
-
-org $A7C23A
-    jsl load_bg3_tiles_kraid
-    rep 13 : nop
-
-org !bank_a7_freespace_start
-get_area_bg3_bank:
-    ; Bank = $E2 + map area
-    lda #$00E2
-    clc
-    adc $1F5B  ; Map area
-    rts
+;; Kraid load BG3 from area-specific tiles:
+;org $A7C78B : lda #!tiles_2bpp_address
+;org $A7C790 : jsr get_area_bg3_bank
+;org $A7C7B1 : lda #!tiles_2bpp_address+$400
+;org $A7C7B6 : jsr get_area_bg3_bank
+;org $A7C7D7 : lda #!tiles_2bpp_address+$800
+;org $A7C7DC : jsr get_area_bg3_bank
+;org $A7C7FD : lda #!tiles_2bpp_address+$C00
+;org $A7C802 : jsr get_area_bg3_bank
 
 warnpc !bank_a7_freespace_end

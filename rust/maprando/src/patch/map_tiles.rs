@@ -2401,25 +2401,10 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn fix_kraid(&mut self) -> Result<()> {
-        // Fix Kraid to copy BG3 tiles from area-specific location:
-        let mut kraid_map_area: Option<isize> = None;
-        for (i, room) in self.game_data.room_geometry.iter().enumerate() {
-            if room.name == "Kraid Room" {
-                kraid_map_area = Some(self.randomization.map.area[i] as isize);
-            }
-        }
         // Kraid alive:
-        self.rom.write_u24(
-            snes2pc(0x8FB817),
-            TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000,
-        )?;
         self.rom.write_u16(snes2pc(0x8FB81C), 0x0C00)?; // avoid overwriting hazard tiles with (unneeded) message box tiles
 
         // Kraid dead:
-        self.rom.write_u24(
-            snes2pc(0x8FB842),
-            TILE_GFX_ADDR_2BPP as isize + kraid_map_area.unwrap() * 0x10000,
-        )?;
         self.rom.write_u16(snes2pc(0x8FB847), 0x0C00)?; // avoid overwriting hazard tiles with (unneeded) message box tiles
         Ok(())
     }
