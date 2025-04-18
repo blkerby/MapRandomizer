@@ -1138,7 +1138,7 @@ tilemap_transfer_col_loop:
 
 start_game_hook:
     jsl load_bg3_tiles
-    jsl $809A79  ; run hi-jacked instruction
+    lda $7EC180,x
     rtl
 
 area_cross_hook:
@@ -1219,7 +1219,7 @@ org $8282F4
     rep 17 : nop
 
 ; hook start of game to load correct BG3 tiles based on room:
-org $828063
+org $828074
     jsl start_game_hook
 
 ; Patch door transition code to reload BG3 tiles based on room:

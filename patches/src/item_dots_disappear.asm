@@ -26,9 +26,8 @@ warnpc $90AA8A
 org $90AA8A
 .setup:
 
-; update tilemap when loading game:
-org $80A0D9
-    jsl update_hud_tilemap  ; no hi-jack needed since the replaced instruction does nothing
+org $828078
+    jsl start_game_hook
 
 org $829370
     jsl unpause_hook
@@ -69,6 +68,11 @@ warnpc !bank_82_freespace_end
 
 ; Free space in any bank:
 org $83B600
+
+start_game_hook:
+    sta $7EC380,x  ; run hi-jacked instruction
+    jsl update_hud_tilemap
+    rtl
 
 unpause_hook:
     jsl $80A149  ; run hi-jacked instruction
