@@ -5,7 +5,7 @@ lorom
 !bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82F800
-!bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear
+!bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear.asm and fix_kraid_hud.asm
 !bank_85_freespace_end = $85A880
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
@@ -378,6 +378,9 @@ load_bg3_map_tilemap_wrapper:
     jsr load_bg3_map_tilemap
     rtl
 
+warnpc $85A290
+org $85A290
+; must match the reference in fix_kraid_hud.asm
 load_bg3_map_tiles_wrapper:
     jsr load_bg3_map_tiles
     rtl
@@ -860,9 +863,10 @@ hud_minimap_tile_addresses:
     dw $0000
 
 save_hud_tiles:
-    ; copy the 15 currently visible HUD mini-map tiles to tiles $20-$2E (VRAM $4100)
+    ; copy the 15 currently visible HUD mini-map tiles to tiles $20-$2E (VRAM $4100),
+    ; via temporary SRAM $702D00-$702DF0
     ldx #$0000
-    ldy #$2000
+    ldy #$2D00
     
 save_hud_gfx_loop:
     lda.l hud_minimap_tile_addresses,x
@@ -883,10 +887,10 @@ save_hud_gfx_loop:
     adc #$8000
     tax  ; X = source address (in bank $E3) = $8000 + $10 * global tile number
     
-    ; transfer 16 bytes (a single map tile) from bank $E3 to bank $7E
+    ; transfer 16 bytes (a single map tile) from bank $E3 to bank $70
     phb
     lda #$000F
-    mvn $7E,$E3
+    mvn $70,$E3
     plb
     plx
 
@@ -899,11 +903,11 @@ save_hud_gfx_loop:
     STA $D0,x       ;|
     INX             ;|
     INX             ;|
-    LDA #$2000      ;|
+    LDA #$2D00      ;|
     STA $D0,x       ;|
     INX             ;|
-    INX             ;} Queue transfer of $7E:2000..20F0 to VRAM $4100
-    LDA #$007E      ;|
+    INX             ;} Queue transfer of $70:2D00..2DF0 to VRAM $4100
+    LDA #$0070      ;|
     STA $D0,x       ;|
     INX             ;|
     LDA #$4100      ;|
@@ -979,9 +983,9 @@ load_bg3_map_tiles:
     sta $00        ; $00 <- room map tile graphics pointer (in bank $E4)
     sta !room_map_tile_gfx
 
-    ; transfer room map tile graphics to $7E:2100
+    ; transfer room map tile graphics to $70:7400
     ldx $00
-    ldy #$2100
+    ldy #$7400
 gfx_transfer_loop:
     phx
     lda $E40000,x
@@ -994,7 +998,7 @@ gfx_transfer_loop:
     ; transfer 16 bytes (a single map tile) from bank $E3 to bank $7E
     phb
     lda #$000F
-    mvn $7E,$E3
+    mvn $70,$E3
     plb
 
     plx
@@ -1009,11 +1013,11 @@ gfx_transfer_loop:
     STA $D0,x
     INX
     INX
-    LDA #$2100
+    LDA #$7400
     STA $D0,x
     INX
     INX
-    LDA #$007E
+    LDA #$0070
     STA $D0,x
     INX
     LDA $079B
@@ -1025,6 +1029,9 @@ gfx_transfer_loop:
     CMP #$000E      ; Is the pause screen loading?
     BEQ +
     CMP #$000F      ; Is it in pause screen?
+    BEQ +
+    LDA $099C
+    CMP #$E2F7      ; Are we leaving Kraid Room?
     BEQ +
     ; For Kraid's Room gameplay (not paused), load tiles into $2280 instead.
     LDA #$2280
@@ -1136,8 +1143,32 @@ area_cross_hook:
     rtl
 
 kraid_room_load_hook:
-    jsl clear_hud_minimap
     jsr load_bg3_map_tiles
+
+    pha
+    phx
+    ; load current HUD mini-map tiles to VRAM $2100:
+    LDX $0330       ;\
+    LDA #$00F0      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    LDA #$2D00      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;} Queue transfer of $70:2D00..2DF0 to VRAM $2100
+    LDA #$0070      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    LDA #$2100      ;|
+    STA $D0,x       ;|
+    INX             ;|
+    INX             ;|
+    STX $0330       ;/
+    
+    plx
+    pla
+
     ; run hi-jacked instructions
     sep #$20
     lda #$02
