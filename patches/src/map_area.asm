@@ -875,6 +875,10 @@ save_hud_gfx_loop:
     tax
     lda $7E0000,x          ; A <- tilemap word from HUD mini-map
     and #$03FF             ; A <- within-room tile number
+    cmp #$001f             ; replace empty tile $001F with $0050  (this could be done more elegantly)
+    bne .not_empty
+    lda #$0050
+.not_empty:
     sec
     sbc #$0050             ; A <- within-room tile number - $50
     asl
