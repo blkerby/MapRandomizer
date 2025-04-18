@@ -1011,9 +1011,16 @@ gfx_transfer_loop:
 .done:
     plx
 
+    ; If NMI is enabled (not timer-only mode), wait for it.
+    ; This avoids the VRAM write getting missed in case NMI triggers in the middle of the code below.
+    lda !nmi_timeronly
+    bne +
+    jsl $808338
++
+
     ; load room map tile graphics to VRAM:
     LDX $0330
-    LDA #$0400
+    LDA #$0500
     STA $D0,x
     INX
     INX
