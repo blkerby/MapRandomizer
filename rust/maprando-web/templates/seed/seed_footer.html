@@ -16,7 +16,7 @@
     </div>
 </div>
 {% if race_mode == RaceMode::MapOnly %}
-    <div class="row">
+    <div id="viewPartialMapDiv" class="row" style="display:none">
         <div class="col-sm-6 mx-auto text-center m-2">
             <a class="btn btn-success" href="data/map-explored.png"><p class="m-2">View partial spoiler map</p></a>
         </div>
@@ -41,6 +41,9 @@
     if (window.unlockedTimestampString === "") {
         if (localStorage["spoilerToken"].startsWith(window.spoilerTokenPrefix)) {
             document.getElementById("unlockForm").style.display = "flex";
+            {% if race_mode == RaceMode::MapOnly %}
+                document.getElementById("viewPartialMapDiv").style.display = "flex";
+            {% endif %}
         }
     } else {
         document.getElementById("viewSpoilerDiv").style.display = "flex";
