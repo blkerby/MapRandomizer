@@ -57,6 +57,7 @@ pub struct SeedHeaderTemplate<'a> {
     respin: bool,
     infinite_space_jump: bool,
     momentum_conservation: bool,
+    fanfares: String,
     etank_refill: String,
     doors: String,
     start_location_mode: String,
@@ -436,6 +437,7 @@ pub fn render_seed(
         respin: seed_data.respin,
         infinite_space_jump: seed_data.infinite_space_jump,
         momentum_conservation: seed_data.momentum_conservation,
+        fanfares: seed_data.fanfares.clone(),
         etank_refill: match seed_data.settings.quality_of_life_settings.etank_refill {
             ETankRefill::Disabled => "Disabled",
             ETankRefill::Vanilla => "Vanilla",

@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
-        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
+        AreaAssignment, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
+        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -467,7 +467,6 @@ impl<'a> Patcher<'a> {
         } else {
             patches.extend([
                 "vanilla_bugfixes",
-                "itemsounds",
                 "missile_refill_all",
                 "decompression",
                 "aim_anything",
@@ -574,6 +573,17 @@ impl<'a> Patcher<'a> {
 
         if self.settings.quality_of_life_settings.momentum_conservation {
             patches.push("momentum_conservation");
+        }
+
+        match self.settings.quality_of_life_settings.fanfares {
+            Fanfares::Vanilla => {}
+            Fanfares::Trimmed => {
+                // reduce fanfare dialogue box duration (240 frames)
+                self.rom.write_u16(snes2pc(0x858491), 0xF0)?;
+            }
+            Fanfares::Off => {
+                patches.push("itemsounds");
+            }
         }
 
         if self.settings.quality_of_life_settings.buffed_drops {

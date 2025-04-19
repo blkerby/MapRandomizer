@@ -4210,6 +4210,7 @@
         "respin": false,
         "infinite_space_jump": false,
         "momentum_conservation": false,
+        "fanfares": "Off",
         "all_items_spawn": true,
         "acid_chozo": true,
         "remove_climb_lava": true,

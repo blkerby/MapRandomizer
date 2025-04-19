@@ -282,9 +282,14 @@ org $858089
 	BRA $02
 org $848BF2
 NORMAL:
+	; (note: walljump_item.asm checks this byte to confirm this patch is applied)
 	JSR CLIPSET
 
 org !bank_84_free_space_start
+MISCFX:
+	JSR SETFX
+	JSL $80914D
+	RTS
 CLIPCHECK:
 	LDA $05D7
 	CMP #$0002
@@ -310,10 +315,6 @@ SOUNDFX:
 SPECIALFX:
 	JSR SETFX
 	JSL $8090CB
-	RTS
-MISCFX:
-	JSR SETFX
-	JSL $80914D
 	RTS
 SETFX:
 	LDA #$0002
