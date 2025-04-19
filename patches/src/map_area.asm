@@ -398,10 +398,10 @@ load_bg3_map_tiles_wrapper:
 clear_hud_minimap:
     ; clear HUD minimap during area transitions
     LDX #$0000             ;|
-    lda #$3C50
+    lda #$3C1F
 .clear_minimap_loop:
     STA $7EC63C,x          ;|
-    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C50h
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C1Fh
     STA $7EC6BC,x          ;|
     INX                    ;|
     INX                    ;|

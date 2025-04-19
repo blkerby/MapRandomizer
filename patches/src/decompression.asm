@@ -138,11 +138,11 @@ org $80981D : LDY #$00E2  ; horizontal door transition
 ; It is also possible for this IRQ to be delayed due to a large DMA transfer during
 ; decompression, but if that happens, it only results in some black scanlines below
 ; the HUD, which shouldn't be too noticeable since the room is already faded to black.
-org $8096A5 : LDX #$0078  ; main gameplay
-org $8096ED : LDX #$0078  ; start of door transition
-org $80972F : LDX #$0078  ; Draygon's Room
-org $80976D : LDX #$0078  ; vertical door transition
-org $8097D6 : LDX #$0078  ; horizontal door transition
+org $8096A5 : LDX #$0073  ; main gameplay
+org $8096ED : LDX #$0073  ; start of door transition
+org $80972F : LDX #$0073  ; Draygon's Room
+org $80976D : LDX #$0073  ; vertical door transition
+org $8097D6 : LDX #$0073  ; horizontal door transition
 
 ;some hijacks
 org $809876
