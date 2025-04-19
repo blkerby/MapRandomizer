@@ -119,6 +119,12 @@ endmacro
 org $8095A7
     JMP checkIfInLoading
 
+
+; Use an optimized version of the main gameplay end-of-HUD IRQ, to reduce the amount
+; of graphical artifacts when many HDMA are active (e.g. during Power Bomb explosion
+; in rooms with scrolling sky)
+org $80961C : dw main_irq_optimized
+
 ; Change the top-of-HUD IRQ to run as early as possible during vblank (after NMI):
 ; Normally this IRQ fires during scanline 0, but if decompression is doing a large
 ; DMA transfer, then the IRQ could be delayed, resulting in artifacts showing at the
@@ -138,7 +144,7 @@ org $80981D : LDY #$00E2  ; horizontal door transition
 ; It is also possible for this IRQ to be delayed due to a large DMA transfer during
 ; decompression, but if that happens, it only results in some black scanlines below
 ; the HUD, which shouldn't be too noticeable since the room is already faded to black.
-org $8096A5 : LDX #$0073  ; main gameplay
+org $8096A5 : LDX #$005F  ; main gameplay
 org $8096ED : LDX #$0073  ; start of door transition
 org $80972F : LDX #$0073  ; Draygon's Room
 org $80976D : LDX #$0073  ; vertical door transition
@@ -380,6 +386,22 @@ print "vram: $",pc
     rtl
 
 }
+
+main_irq_optimized:
+    sep #$30
+    lda $5B
+    tax
+    lda $6A
+    tay
+    lda $73
+    xba
+    lda $70
+    rep #$20
+    sta $2130
+    stx $2109
+    sty $212C
+    rep #$10
+    jmp $96C1
 
 ; We don't care if we overwrite some of the "failed NTSC/PAL check" tilemap.
 print PC
