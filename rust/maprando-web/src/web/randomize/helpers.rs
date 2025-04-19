@@ -12,7 +12,7 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     settings::{
         get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
-        ItemDotChange, RandomizerSettings, WallJump, RaceMode,
+        ItemDotChange, RaceMode, RandomizerSettings, WallJump,
     },
     spoiler_map,
 };
@@ -237,7 +237,7 @@ pub async fn save_seed(
     } else {
         "public"
     };
-    
+
     let prefix_map = if seed_data.race_mode.map_locked() {
         "locked"
     } else {

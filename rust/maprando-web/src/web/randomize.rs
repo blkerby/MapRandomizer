@@ -12,7 +12,7 @@ use maprando::{
         filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
         randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
     },
-    settings::{AreaAssignment, RandomizerSettings, StartLocationMode, RaceMode},
+    settings::{AreaAssignment, RaceMode, RandomizerSettings, StartLocationMode},
 };
 use maprando_game::LinksDataGroup;
 use rand::{RngCore, SeedableRng};
