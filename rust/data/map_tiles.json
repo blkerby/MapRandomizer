@@ -621,6 +621,7 @@
         {
             "roomId": 28,
             "roomName": "Crateria Power Bomb Room",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "item"}
@@ -636,6 +637,7 @@
         {
             "roomId": 29,
             "roomName": "Crateria Super Room",
+            "acidLevel": 7.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -921,6 +923,7 @@
         {
             "roomId": 31,
             "roomName": "Gauntlet Energy Tank Room",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -933,6 +936,7 @@
         {
             "roomId": 30,
             "roomName": "Gauntlet Entrance",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "qolPassage", "top": "wall", "bottom": "wall"},
@@ -1951,6 +1955,7 @@
         {
             "roomId": 122,
             "roomName": "Crocomire's Room",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2015,6 +2020,7 @@
         {
             "roomId": 127,
             "roomName": "Post Crocomire Jump Room",
+            "acidLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2039,6 +2045,7 @@
         {
             "roomId": 126,
             "roomName": "Post Crocomire Missile Room",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2573,6 +2580,7 @@
         {
             "roomId": 226,
             "roomName": "Metroid Room 1",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2593,6 +2601,7 @@
         {
             "roomId": 228,
             "roomName": "Metroid Room 3",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2613,6 +2622,7 @@
         {
             "roomId": 238,
             "roomName": "Mother Brain Room",
+            "acidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall", "interior": "event"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2674,6 +2684,7 @@
         {
             "roomId": 242,
             "roomName": "Tourian Escape Room 4",
+            "acidLevel": 5.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2708,6 +2719,7 @@
         {
             "roomId": 224,
             "roomName": "Tourian First Room",
+            "acidLevel": 3.625,
             "mapTiles": [
                 {"coords": [0, 0], "specialType": "elevator"},
                 {"coords": [0, 1], "specialType": "elevator"},

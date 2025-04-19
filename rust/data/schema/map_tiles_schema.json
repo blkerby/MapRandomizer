@@ -38,6 +38,11 @@
             "description": "Level of the highest point of the water in this room, measured in map tiles from the top of the room.",
             "default": null
           },
+          "acidLevel": {
+            "type": ["number", "null"],
+            "description": "Level of the highest point of the acid in this room, measured in map tiles from the top of the room.",
+            "default": null
+          },
           "mapTiles": {
             "type": "array",
             "items": {
