@@ -249,6 +249,7 @@ function buildSettingsObject() {
             "respin": formData.get("respin") == "true",
             "infinite_space_jump": formData.get("infinite_space_jump") == "true",
             "momentum_conservation": formData.get("momentum_conservation") == "true",
+            "fanfares": formData.get("fanfares"),
             "all_items_spawn": formData.get("all_items_spawn") == "true",
             "acid_chozo": formData.get("acid_chozo") == "true",
             "remove_climb_lava": formData.get("remove_climb_lava") == "true",
@@ -463,6 +464,7 @@ function applyQolPreset(preset) {
     applyRadioValue("fastElevators", preset.fast_elevators);
     applyRadioValue("fastDoors", preset.fast_doors);
     applyRadioValue("fastPauseMenu", preset.fast_pause_menu);
+    applyRadioValue("fanfares", preset.fanfares);
     applyRadioValue("respin", preset.respin);
     applyRadioValue("infiniteSpaceJump", preset.infinite_space_jump);
     applyRadioValue("momentumConservation", preset.momentum_conservation);

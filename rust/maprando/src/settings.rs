@@ -123,6 +123,7 @@ pub struct QualityOfLifeSettings {
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,
+    pub fanfares: Fanfares,
     // Samus control
     pub respin: bool,
     pub infinite_space_jump: bool,
@@ -139,7 +140,6 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub buffed_drops: bool,
     pub early_save: bool,
-    pub fanfares: Fanfares,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
