@@ -4321,7 +4321,7 @@
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,
         "ultra_low_qol": false,
-        "race_mode": false,
+        "race_mode": "No",
         "random_seed": null
     }
 }

@@ -295,6 +295,21 @@ pub struct StartLocationSettings {
     pub node_id: Option<usize>,
 }
 
+#[derive(Serialize, Deserialize, Copy, Clone, PartialEq)]
+pub enum RaceMode {
+    Yes,
+    MapOnly,
+    No,
+}
+impl RaceMode {
+    pub fn locked(&self) -> bool {
+        *self != RaceMode::No
+    }
+    pub fn map_locked(&self) -> bool {
+        *self != RaceMode::No && *self != RaceMode::MapOnly
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct OtherSettings {
     pub wall_jump: WallJump,
@@ -306,7 +321,7 @@ pub struct OtherSettings {
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub ultra_low_qol: bool,
-    pub race_mode: bool,
+    pub race_mode: RaceMode,
     pub random_seed: Option<usize>,
 }
 
