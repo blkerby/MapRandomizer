@@ -1281,14 +1281,4 @@ org $90AAFD
     AND #$83FE   ; was: AND #$01FF
     CMP #$0010
 
-;; Kraid load BG3 from area-specific tiles:
-;org $A7C78B : lda #!tiles_2bpp_address
-;org $A7C790 : jsr get_area_bg3_bank
-;org $A7C7B1 : lda #!tiles_2bpp_address+$400
-;org $A7C7B6 : jsr get_area_bg3_bank
-;org $A7C7D7 : lda #!tiles_2bpp_address+$800
-;org $A7C7DC : jsr get_area_bg3_bank
-;org $A7C7FD : lda #!tiles_2bpp_address+$C00
-;org $A7C802 : jsr get_area_bg3_bank
-
 warnpc !bank_a7_freespace_end
