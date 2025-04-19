@@ -825,10 +825,6 @@ save_hud_gfx_loop:
     tax
     lda $7E0000,x          ; A <- tilemap word from HUD mini-map
     and #$03FF             ; A <- within-room tile number
-    cmp #$001f             ; replace empty tile $001F with $0050  (this could be done more elegantly)
-    bne .not_empty
-    lda #$0050
-.not_empty:
     sec
     sbc #$0050             ; A <- within-room tile number - $50
     asl
@@ -870,10 +866,6 @@ save_hud_gfx_loop:
     INX             ;|
     STX $0330       ;/
 
-    jsl $808338     ; Wait for NMI
-    jsl $808338     ; Wait for NMI
-    jsl $808338     ; Wait for NMI
-
     ldx #$0000
     lda #$0020
     sta $00         ; $00 <- destination tile number
@@ -882,11 +874,18 @@ save_hud_tilemap_loop:
     beq .done
     phx
     tax
+
+    lda $7E0000,x   ; A <- tilemap word from HUD mini-map
+    and #$03FF
+    cmp #$0050
+    bcc .invariant  ; Skip modifying tiles with tile number <= $50
+
     lda $7E0000,x   ; A <- tilemap word from HUD mini-map
     and #$FC00
     ora $00         ; replace tile number with tile in $20-$2E
     sta $7E0000,x
 
+.invariant:
     lda $00
     inc
     sta $00
@@ -1275,10 +1274,12 @@ org !etank_color : dw $48FB  ; default pink E-tank color
 org $90A7F1
     ORA #$3C00   ; was: ORA #$2C00
 
-; Make slope tile $A8 have the same functionality as $28, to trigger automatically exploring tile above Samus.
-; (Tile $A8 is used in Crocomire Speedway, the heated version of $28 used in Terminator Room.)
+; Make slope tiles $10 and $11 have the functionality that tile $28 does in vanilla,
+; to trigger automatically exploring tile above Samus.
+; (Tile $11 is used in Crocomire Speedway, the heated version of $10 used in Terminator Room.)
 org $90AAFD
-    AND #$817F   ; was: AND #$01FF
+    AND #$83FE   ; was: AND #$01FF
+    CMP #$0010
 
 ;; Kraid load BG3 from area-specific tiles:
 ;org $A7C78B : lda #!tiles_2bpp_address

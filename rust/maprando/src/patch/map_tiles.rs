@@ -153,10 +153,11 @@ impl<'a> MapPatcher<'a> {
         let mut reserved_tiles: HashSet<TilemapWord> = vec![
             // Used on HUD: (skipping "%", which is unused)
             0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0B, 0x0C, 0x0D, 0x0E,
-            0x0F, 0x1C, 0x1D, 0x1E, 0x1F,
-            0x20, // reserved for partially revealed door tile, next to 2-sided save/refill rooms
-            0x28, // slope tile that triggers tile above Samus to be marked explored
-            0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A, 0x3B,
+            0x0F, 0x10, // slope tile that triggers tile above Samus to be marked explored
+            0x11, // heated slope tile that triggers tile above Samus to be marked explored
+            0x12, // reserved for partially revealed door tile, next to 2-sided save/refill rooms
+            0x1C, 0x1D, 0x1E, 0x1F, 0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x38, 0x39, 0x3A,
+            0x3B,
             // Max ammo display digits: (removed in favor of normal digit graphics)
             // 0x3C, 0x3D, 0x3E, 0x3F, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45,
             0x46, 0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D,
@@ -222,9 +223,11 @@ impl<'a> MapPatcher<'a> {
     fn index_fixed_tiles(&mut self) -> Result<()> {
         let mut tile = MapTile::default();
         tile.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
-        self.index_tile(tile.clone(), Some(0x28))?;
+        self.index_tile(tile.clone(), Some(0x10))?;
+        self.write_hud_tile_2bpp(0x10, self.render_tile(tile.clone())?)?;
         tile.heated = true;
-        self.index_tile(tile.clone(), Some(0xA8))?;
+        self.index_tile(tile.clone(), Some(0x11))?;
+        self.write_hud_tile_2bpp(0x11, self.render_tile(tile.clone())?)?;
 
         let data = [
             [3, 0, 0, 0, 0, 0, 0, 0],
@@ -236,7 +239,8 @@ impl<'a> MapPatcher<'a> {
             [3, 0, 0, 0, 0, 0, 0, 0],
             [3, 0, 0, 0, 0, 0, 0, 0],
         ];
-        self.write_map_tile_4bpp(0x20, data)?;
+        self.write_map_tile_4bpp(0x12, data)?;
+        self.write_hud_tile_2bpp(0x12, data)?;
         Ok(())
     }
 
@@ -450,6 +454,12 @@ impl<'a> MapPatcher<'a> {
                 [0, 0, 0, 0, 0, 0, 0, 0],
                 [1, 0, 1, 0, 1, 0, 1, 0],
             ];
+            gfx_tile_map.insert(empty_tile, 0x001F);
+            let mut slope = MapTile::default();
+            slope.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
+            gfx_tile_map.insert(self.render_tile(slope.clone())?, 0x10);
+            slope.heated = true;
+            gfx_tile_map.insert(self.render_tile(slope)?, 0x11);
 
             let mut add_tile = |data| -> TilemapWord {
                 if Self::find_tile(data, &gfx_tile_map).is_none() {
@@ -464,7 +474,6 @@ impl<'a> MapPatcher<'a> {
                 }
                 Self::find_tile(data, &gfx_tile_map).unwrap()
             };
-            add_tile(empty_tile); // Done first to ensure this is always present at position 0x50.
             let mut dynamic_tile_data: Vec<(ItemIdx, TilemapOffset, TilemapWord)> = vec![];
 
             for y in -1..room_height + 1 {
@@ -492,14 +501,6 @@ impl<'a> MapPatcher<'a> {
                         dynamic_tile_data.push((*item_idx, offset, word));
                     }
                 }
-            }
-
-            if room_ptr == 0x7968F {
-                print!("Homing Geemer ({}): ", room_id);
-                for x in &tilemap {
-                    print!("{:x} ", x);
-                }
-                println!("");
             }
 
             self.room_map_gfx.insert(room_ptr, gfx_tiles);
@@ -2053,7 +2054,7 @@ impl<'a> MapPatcher<'a> {
         let partial_revealed_bits_base = 0x2700;
         let tilemap_base = 0x4000;
         let palette = 0x0800;
-        let left_door_tile_idx = 0x20;
+        let left_door_tile_idx = 0x12;
 
         for room_id in room_ids {
             let room_ptr = self.game_data.room_ptr_by_id[&room_id];
