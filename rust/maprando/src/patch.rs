@@ -576,16 +576,12 @@ impl<'a> Patcher<'a> {
         }
         
         match self.settings.quality_of_life_settings.fanfares {
-            Fanfares::Vanilla => {
-                println!("Fanfares: Vanilla");
-            }
+            Fanfares::Vanilla => {}
             Fanfares::Trimmed => {
-                // fanfare dialogue box duration
-                println!("Fanfares: Trimmed");
-                self.rom.write_u16(snes2pc(0x858491), 0x100)?;
+                // reduce fanfare dialogue box duration (240 frames)
+                self.rom.write_u16(snes2pc(0x858491), 0xF0)?;
             }
             Fanfares::Off => {
-                println!("Fanfares: Off");
                 patches.push("itemsounds");
             }
         }
