@@ -4,7 +4,7 @@ lorom
 !bank_81_freespace_start = $81F100  ; TODO: remove this (not being used at the moment)
 !bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
-!bank_82_freespace_end = $82F800
+!bank_82_freespace_end = $82F810
 !bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear.asm and fix_kraid_hud.asm
 !bank_85_freespace_end = $85A880
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
@@ -104,6 +104,11 @@ org $8FC90C  ; Tourian first room gives area map (TODO: change this)
 org $84B19C  ; At map station, check if current area map already collected
     ldx $1F5B
 
+org $82E488
+    bra +    ; skip reloading BG3 tiles in door transition
+org $82E492
++
+
 ;;; Hijack code that loads room state, in order to populate map area
 org $82DEF7
     jsr load_area_wrapper
@@ -118,8 +123,9 @@ org $80A15F
     jsl pause_end_hook
 
 ; hook library background load in Kraid Room:
-org $82E641
+org $82E63E
     jsl kraid_room_load_hook
+    nop
 
 org $829130 : jsr draw_samus_indicator
 org $82915A : jsr draw_samus_indicator
@@ -244,6 +250,10 @@ load_equipment_screen_wrapper:
 load_area_wrapper:
     jsl load_area
     rts
+
+vram_transfer_wrapper:
+    jsr $E5EB
+    rtl
 
 PauseRoutineIndex:
 	DW $9120, $9142, $9156, $91AB, $9231, $9186, $91D7, $9200	;same as $9110
@@ -796,66 +806,6 @@ simple_scroll_setup:
 
     RTS
 
-load_bg3_tiles:
-    php
-
-    rep #$30
-    LDA #$0080
-    STA $2115  ; video port control
-    LDA #$4000
-    STA $2116  ; VRAM (destination) address = $4000
-
-    lda #$1801
-    STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
-    
-    lda #!tiles_2bpp_address ; source address
-    sta $4312
-
-    lda #!tiles_2bpp_bank  ; source bank
-    sta $4314
-
-    lda #$E00
-    sta $4315 ; transfer size = $E00 bytes
-
-    sep #$30
-    lda #$02
-    sta $420B  ; perform DMA transfer on channel 1
-    plp
-
-    jsr load_bg3_map_tiles
-    jsr load_bg3_map_tilemap
-    rtl
-
-load_bg3_tiles_kraid:
-    php
-
-    rep #$30
-    LDA #$0080
-    STA $2115  ; video port control
-    LDA #$2000
-    STA $2116  ; VRAM (destination) address = $2000
-
-    lda #$1801
-    STA $4310  ; DMA control: DMA transfer from CPU to VRAM, incrementing CPU address
-    
-    lda #!tiles_2bpp_address ; source address
-    sta $4312
-
-    lda #!tiles_2bpp_bank ; source bank
-    sta $4314
-
-    lda #$0C00
-    sta $4315 ; transfer size = $0C00 bytes
-
-    sep #$30
-    lda #$02
-    sta $420B  ; perform DMA transfer on channel 1
-    
-    plp
-    jsr load_bg3_map_tiles
-    jsr load_bg3_map_tilemap
-    rtl
-
 hud_minimap_tile_addresses:
     dw $C63C, $C63E, $C640, $C642, $C644
     dw $C67C, $C67E, $C680, $C682, $C684
@@ -920,6 +870,10 @@ save_hud_gfx_loop:
     INX             ;|
     STX $0330       ;/
 
+    jsl $808338     ; Wait for NMI
+    jsl $808338     ; Wait for NMI
+    jsl $808338     ; Wait for NMI
+
     ldx #$0000
     lda #$0020
     sta $00         ; $00 <- destination tile number
@@ -964,7 +918,11 @@ save_hud_tilemap_loop:
 load_bg3_tiles_door_transition:
     php
 
+    ; Wait for NMI, to avoid VRAM writes sometimes getting lost,
+    ; which could happen if NMI interrupts the code that queues up a write.
+    jsl $808338
     jsr save_hud_tiles
+    jsl $808338
     jsr load_bg3_map_tiles
     jsr load_bg3_map_tilemap
 
@@ -1011,13 +969,6 @@ gfx_transfer_loop:
 .done:
     plx
 
-    ; If NMI is enabled (not timer-only mode), wait for it.
-    ; This avoids the VRAM write getting missed in case NMI triggers in the middle of the code below.
-    lda !nmi_timeronly
-    bne +
-    jsl $808338
-+
-
     ; load room map tile graphics to VRAM:
     LDX $0330
     LDA #$0500
@@ -1054,11 +1005,6 @@ gfx_transfer_loop:
     INX
     INX
     STX $0330
-
-    lda !nmi_timeronly
-    beq +
-    jsl $808C83     ; if NMI is not active (only timer-only mode), then process VRAM writes
-+
 
     plp
     ply
@@ -1144,8 +1090,12 @@ tilemap_transfer_col_loop:
     rts
 
 start_game_hook:
-    jsl load_bg3_tiles
-    lda $7EC180,x
+    jsl load_bg3_map_tiles_wrapper
+    jsl load_bg3_map_tilemap_wrapper
+    
+    ; run hi-jacked instructions
+    ldy #$0020
+    ldx #$0000
     rtl
 
 area_cross_hook:
@@ -1154,7 +1104,13 @@ area_cross_hook:
     rtl
 
 kraid_room_load_hook:
-    jsr load_bg3_map_tiles
+    ; wait for NMI, to ensure the vanilla BG3 VRAM transfer
+    ; happens atomically with the update to the HUD mini-map
+    phy
+    jsl $808338
+    ply
+
+    jsl vram_transfer_wrapper
 
     pha
     phx
@@ -1176,13 +1132,14 @@ kraid_room_load_hook:
     INX             ;|
     INX             ;|
     STX $0330       ;/
-    
+
+    jsr load_bg3_map_tiles    
+
     plx
     pla
 
-    ; run hi-jacked instructions
+    ; run hi-jacked instruction:
     sep #$20
-    lda #$02
     rtl
 
 warnpc !bank_85_freespace_end
@@ -1221,13 +1178,10 @@ org $858426
 org $A7CA7B : dw #$48FB            ; 2bpp palette 3, color 1: pink color for E-tanks
 ;org $A7CA97 : dw #$7FFF            ; 2bpp palette 6, color 3: white color for HUD text/digits
 
-; Skip loading BG3 tiles initially. They will be loaded later, once the map area is determined.
-org $8282F4
-    rep 17 : nop
-
 ; hook start of game to load correct BG3 tiles based on room:
-org $828074
+org $82806E
     jsl start_game_hook
+    nop : nop
 
 ; Patch door transition code to reload BG3 tiles based on room:
 org $82E46A : beq $1c
@@ -1268,7 +1222,8 @@ org $828E75
     cmp #$0D
     bne .skip_load_bg3  ; only load BG3 tiles when first entering pause menu, not when switching screens
 
-    ; VRAM $4000..47FF = [$9A:B200..C1FF] (standard BG3 tiles)
+    ; load reduced set of BG3 tiles, to avoid overwriting FX tiles:
+    ; VRAM $4000..4600 = [$9A:B200..] (standard BG3 tiles)
     LDA #$00
     STA $2116
     LDA #$40
@@ -1276,7 +1231,7 @@ org $828E75
     LDA #$80
     STA $2115
     JSL $8091A9
-    db $01, $01, $18, $00, $B2, $9A, $00, $10
+    db $01, $01, $18, $00, $B2, $9A, $00, $0C
     LDA #$02
     STA $420B
 

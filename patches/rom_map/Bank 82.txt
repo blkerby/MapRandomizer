@@ -1,5 +1,5 @@
-F70F - F800: map_area.asm
-F800 - FA00: [FREE]
+F70F - F810: map_area.asm
+F810 - FA00: [FREE]
 FA00 - FA80: alternate_door_colors.asm
 FA80 - FA90: fix_water_fx_bug.asm
 FA90 - FBB0: seed_hash_display.asm

@@ -432,11 +432,9 @@ impl<'a> MapPatcher<'a> {
         }
 
         for &room_ptr in &self.game_data.room_ptrs {
-            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
             let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
-            let room = &self.game_data.room_geometry[room_idx];
-            let room_width = self.rom.read_u8(room.rom_address + 4)?;
-            let room_height = self.rom.read_u8(room.rom_address + 5)?;
+            let room_width = self.rom.read_u8(room_ptr + 4)?;
+            let room_height = self.rom.read_u8(room_ptr + 5)?;
 
             let mut gfx_tiles: Vec<TilemapWord> = vec![];
             let mut gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord> = HashMap::new();
@@ -494,6 +492,14 @@ impl<'a> MapPatcher<'a> {
                         dynamic_tile_data.push((*item_idx, offset, word));
                     }
                 }
+            }
+
+            if room_ptr == 0x7968F {
+                print!("Homing Geemer ({}): ", room_id);
+                for x in &tilemap {
+                    print!("{:x} ", x);
+                }
+                println!("");
             }
 
             self.room_map_gfx.insert(room_ptr, gfx_tiles);
@@ -2149,17 +2155,15 @@ impl<'a> MapPatcher<'a> {
             self.rom
                 .write_u16(snes2pc(base_ptr + 12 + area_idx * 2), data.len() as isize)?;
             let data_start = data_ptr;
-            for &(item_idx, room_id, ref tile) in data {
+            for &(item_idx, _room_id, ref tile) in data {
                 self.rom
                     .write_u8(snes2pc(data_ptr), (item_idx as isize) >> 3)?; // item byte index
                 self.rom
                     .write_u8(snes2pc(data_ptr + 1), 1 << ((item_idx as isize) & 7))?; // item bitmask
                 let word = self.index_tile(tile.clone(), None)?;
 
-                let (_, x, y) =
-                    self.get_room_coords(room_id, tile.coords.0 as isize, tile.coords.1 as isize);
-                let local_x = x - self.area_offset_x[area_idx];
-                let local_y = y - self.area_offset_y[area_idx];
+                let local_x = tile.coords.0 as isize - self.area_offset_x[area_idx];
+                let local_y = tile.coords.1 as isize - self.area_offset_y[area_idx];
                 let offset = xy_to_map_offset(local_x, local_y);
                 self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?; // tilemap offset
                 self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?; // tilemap word
@@ -2633,22 +2637,29 @@ impl<'a> MapPatcher<'a> {
         let room_ptr = self.game_data.room_ptr_by_id[&room_id];
         let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
         let area = self.map.area[room_idx];
-        let room_coords = self.map.rooms[room_idx];
+        let mut room_coords = self.map.rooms[room_idx];
+        if room_id == 313 {
+            // Homing Geemer Room
+            room_coords = (room_coords.0 + 5, room_coords.1 + 2);
+        } else if room_id == 322 {
+            // East Pants Room
+            room_coords = (room_coords.0 + 1, room_coords.1 + 1);
+        }
         let x = room_coords.0 as isize + x;
         let y = room_coords.1 as isize + y;
         (area, x, y)
     }
 
     fn get_room_tile(&mut self, room_id: usize, x: isize, y: isize) -> &mut MapTile {
-        let (area, x, y) = self.get_room_coords(room_id, x, y);
-        self.map_tile_map.get_mut(&(area, x, y)).unwrap()
+        let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+        self.map_tile_map.get_mut(&(area, x1, y1)).unwrap()
     }
 
     fn set_room_tile(&mut self, room_id: usize, x: isize, y: isize, mut tile: MapTile) {
-        tile.coords.0 = x as usize;
-        tile.coords.1 = y as usize;
-        let (area, x, y) = self.get_room_coords(room_id, x, y);
-        self.map_tile_map.insert((area, x, y), tile);
+        let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+        tile.coords.0 = x1 as usize;
+        tile.coords.1 = y1 as usize;
+        self.map_tile_map.insert((area, x1, y1), tile);
     }
 
     fn apply_room_tiles(&mut self) -> Result<()> {
