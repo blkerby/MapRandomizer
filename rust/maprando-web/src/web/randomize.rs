@@ -12,7 +12,7 @@ use maprando::{
         filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
         randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
     },
-    settings::{AreaAssignment, RandomizerSettings, StartLocationMode, Fanfares},
+    settings::{AreaAssignment, Fanfares, RandomizerSettings, StartLocationMode},
 };
 use maprando_game::LinksDataGroup;
 use rand::{RngCore, SeedableRng};
@@ -294,7 +294,7 @@ async fn randomize(
         Ok(n) => n.as_millis() as usize,
         Err(_) => panic!("SystemTime before UNIX EPOCH!"),
     };
-    
+
     let seed_data = SeedData {
         version: VERSION,
         timestamp,
@@ -338,9 +338,7 @@ async fn randomize(
         respin: qol_settings.respin,
         infinite_space_jump: qol_settings.infinite_space_jump,
         momentum_conservation: qol_settings.momentum_conservation,
-        fanfares: to_variant_name(&qol_settings.fanfares)
-            .unwrap()
-            .to_string(),
+        fanfares: to_variant_name(&qol_settings.fanfares).unwrap().to_string(),
         objectives: output
             .randomization
             .objectives

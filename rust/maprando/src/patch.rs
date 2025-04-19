@@ -15,8 +15,8 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
-        RandomizerSettings, SaveAnimals, StartLocationMode, WallJump, Fanfares,
+        AreaAssignment, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
+        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
 use anyhow::{bail, ensure, Context, Result};
@@ -574,7 +574,7 @@ impl<'a> Patcher<'a> {
         if self.settings.quality_of_life_settings.momentum_conservation {
             patches.push("momentum_conservation");
         }
-        
+
         match self.settings.quality_of_life_settings.fanfares {
             Fanfares::Vanilla => {}
             Fanfares::Trimmed => {
