@@ -233,6 +233,18 @@ fn upgrade_animals_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
+fn upgrade_race_mode_setting(settings: &mut serde_json::Value) -> Result<()> {
+    let other_settings = &mut settings["other_settings"];
+    if let Some(c) = other_settings["race_mode"].as_bool() {
+        if c {
+            *other_settings.get_mut("race_mode").unwrap() = "Yes".into();
+        } else {
+            *other_settings.get_mut("race_mode").unwrap() = "No".into();
+        }
+    }
+    Ok(())
+}
+
 fn upgrade_objective_settings(settings: &mut serde_json::Value, app_data: &AppData) -> Result<()> {
     let settings_obj = settings
         .as_object_mut()
@@ -282,6 +294,7 @@ pub fn try_upgrade_settings(
     upgrade_map_setting(&mut settings)?;
     upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;
+    upgrade_race_mode_setting(&mut settings)?;
 
     // Update version field to current version:
     *settings

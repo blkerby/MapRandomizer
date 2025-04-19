@@ -12,7 +12,7 @@ use maprando::{
         filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
         randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
     },
-    settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
+    settings::{AreaAssignment, RandomizerSettings, StartLocationMode, RaceMode},
 };
 use maprando_game::LinksDataGroup;
 use rand::{RngCore, SeedableRng};
@@ -32,7 +32,7 @@ struct SeedData {
     item_placement_seed: usize,
     settings: RandomizerSettings,
     // TODO: get rid of all the redundant stuff below:
-    race_mode: bool,
+    race_mode: RaceMode,
     preset: Option<String>,
     item_progression_preset: Option<String>,
     difficulty: DifficultyConfig,
@@ -130,12 +130,12 @@ async fn randomize(
     let qol_settings = &settings.quality_of_life_settings;
     let other_settings = &settings.other_settings;
     let race_mode = settings.other_settings.race_mode;
-    let random_seed = if settings.other_settings.random_seed.is_none() || race_mode {
+    let random_seed = if settings.other_settings.random_seed.is_none() || race_mode.locked() {
         get_random_seed()
     } else {
         settings.other_settings.random_seed.unwrap()
     };
-    let display_seed = if race_mode {
+    let display_seed = if race_mode.locked() {
         get_random_seed()
     } else {
         random_seed

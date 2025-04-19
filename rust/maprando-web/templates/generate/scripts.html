@@ -274,7 +274,7 @@ function buildSettingsObject() {
             "map_station_reveal": formData.get("map_station_reveal"),
             "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
             "ultra_low_qol": formData.get("ultra_low_qol") == "true",
-            "race_mode": formData.get("race_mode") == "true",
+            "race_mode": formData.get("race_mode"),
             "random_seed": tryParseInt(formData.get("random_seed")),
         }
     };

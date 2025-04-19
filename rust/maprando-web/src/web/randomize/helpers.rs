@@ -12,7 +12,7 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     settings::{
         get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
-        ItemDotChange, RandomizerSettings, WallJump,
+        ItemDotChange, RandomizerSettings, WallJump, RaceMode,
     },
     spoiler_map,
 };
@@ -30,7 +30,7 @@ pub struct SeedHeaderTemplate<'a> {
     settings: &'a RandomizerSettings,
     item_priority_groups: Vec<ItemPriorityGroup>,
     objective_names: HashMap<String, String>,
-    race_mode: bool,
+    race_mode: RaceMode,
     preset: String,
     item_progression_preset: String,
     progression_rate: String,
@@ -178,7 +178,7 @@ impl<'a> SeedHeaderTemplate<'a> {
 #[derive(Template)]
 #[template(path = "seed/seed_footer.html")]
 pub struct SeedFooterTemplate {
-    race_mode: bool,
+    race_mode: RaceMode,
     all_items_spawn: bool,
     supers_double: bool,
     ultra_low_qol: bool,
@@ -232,13 +232,19 @@ pub async fn save_seed(
         seed_footer_html.into_bytes(),
     ));
 
-    let prefix = if seed_data.race_mode {
+    let prefix = if seed_data.race_mode.locked() {
+        "locked"
+    } else {
+        "public"
+    };
+    
+    let prefix_map = if seed_data.race_mode.map_locked() {
         "locked"
     } else {
         "public"
     };
 
-    if seed_data.race_mode {
+    if seed_data.race_mode.locked() {
         files.push(SeedFile::new(
             "spoiler_token.txt",
             spoiler_token.as_bytes().to_vec(),
@@ -277,11 +283,11 @@ pub async fn save_seed(
     let spoiler_maps =
         spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data).unwrap();
     files.push(SeedFile::new(
-        &format!("{}/map-explored.png", prefix),
+        &format!("{}/map-explored.png", prefix_map),
         spoiler_maps.explored,
     ));
     files.push(SeedFile::new(
-        &format!("{}/map-outline.png", prefix),
+        &format!("{}/map-outline.png", prefix_map),
         spoiler_maps.outline,
     ));
 
