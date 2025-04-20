@@ -123,6 +123,7 @@ pub struct QualityOfLifeSettings {
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,
+    pub fanfares: Fanfares,
     // Samus control
     pub respin: bool,
     pub infinite_space_jump: bool,
@@ -360,6 +361,13 @@ pub enum ItemMarkers {
     ThreeTiered,
     #[serde(rename = "4-Tiered")]
     FourTiered,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum Fanfares {
+    Vanilla,
+    Trimmed,
+    Off,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

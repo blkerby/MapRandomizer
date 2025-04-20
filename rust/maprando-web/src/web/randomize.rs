@@ -56,6 +56,7 @@ struct SeedData {
     respin: bool,
     infinite_space_jump: bool,
     momentum_conservation: bool,
+    fanfares: String,
     objectives: Vec<String>,
     doors: String,
     start_location_mode: String,
@@ -293,6 +294,7 @@ async fn randomize(
         Ok(n) => n.as_millis() as usize,
         Err(_) => panic!("SystemTime before UNIX EPOCH!"),
     };
+
     let seed_data = SeedData {
         version: VERSION,
         timestamp,
@@ -336,6 +338,7 @@ async fn randomize(
         respin: qol_settings.respin,
         infinite_space_jump: qol_settings.infinite_space_jump,
         momentum_conservation: qol_settings.momentum_conservation,
+        fanfares: to_variant_name(&qol_settings.fanfares).unwrap().to_string(),
         objectives: output
             .randomization
             .objectives
