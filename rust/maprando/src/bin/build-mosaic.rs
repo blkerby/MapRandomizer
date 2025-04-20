@@ -1318,13 +1318,8 @@ fn main() -> Result<()> {
         // Skipping rest of bank CE: used by credits data
         (snes2pc(0xE08000), snes2pc(0xE10000)),
         (snes2pc(0xE18000), snes2pc(0xE20000)),
-        // Skipping lower part of banks E2-E6: used for per-area BG3 and pause menu graphics
-        (snes2pc(0xE2D000), snes2pc(0xE30000)),
-        (snes2pc(0xE3D000), snes2pc(0xE40000)),
-        (snes2pc(0xE4D000), snes2pc(0xE50000)),
-        (snes2pc(0xE5D000), snes2pc(0xE60000)),
-        (snes2pc(0xE6D000), snes2pc(0xE70000)),
-        (snes2pc(0xE7D000), snes2pc(0xE80000)),
+        // Skipping bank E2, E3, and E4: used for map tile graphics
+        (snes2pc(0xE58000), snes2pc(0xE80000)),
         // Skipping bank E9, used for hazard markers and title screen graphics
         // Skipping bank EA, used for beam door graphics
         (snes2pc(0xEB8000), snes2pc(0xF80000)),

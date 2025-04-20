@@ -37,6 +37,7 @@
 !nmi_area4 = $1F86
 !nmi_area5 = $1F87
 !nmi_area6 = $1F88
+!room_map_tile_gfx = $7EF500
 
 ; Additional map data:
 !special_door_reveal_table = $85A100
@@ -50,7 +51,6 @@
 ; range of item PLMs in bank 84
 !item_plm_start = #$DF89
 !item_plm_end = #$F100
-
 
 ; Settings:
 ; target number of frames for the pause menu black screen to lag

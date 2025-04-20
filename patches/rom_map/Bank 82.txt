@@ -1,4 +1,5 @@
-F70F - FA00: map_area.asm
+F70F - F810: map_area.asm
+F810 - FA00: [FREE]
 FA00 - FA80: alternate_door_colors.asm
 FA80 - FA90: fix_water_fx_bug.asm
 FA90 - FBB0: seed_hash_display.asm
@@ -12,8 +13,8 @@ FD80 - FE00: fast_doors.asm
 FE00 - FE70: load_plms_early.asm
 FE70 - FE80: fast_reload.asm
 FE80 - FF00: zebes_asleep_music.asm
-FF00 - FF10: reserve_hud.asm
-FF10 - FF30: [FREE]
+FF00 - FF20: reserve_hud.asm
+FF20 - FF30: [FREE]
 FF30 - FF80: reserve_hud.asm
 FF80 - FFFC: pause_menu_objectives.asm
 FFFC - FFFE: objectives/fast_pause_menu

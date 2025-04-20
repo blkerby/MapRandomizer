@@ -12,7 +12,7 @@ lorom
 incsrc "constants.asm"
 
 !bank_82_free_space_start = $82fbb0
-!bank_82_free_space_end = $82fd00
+!bank_82_free_space_end = $82fbf0
 
 org $82de1d
     jsr room_ptr_hook
@@ -29,13 +29,15 @@ room_ptr_hook:
     php
     rep #$30
     ldx $0330
-    lda #$1000                         : sta $00d0,x ; Number of bytes
-    lda $1f5b : clc : adc #$00e2 : xba : sta $00d3,x ; Map area (high)
-    lda #$c000                         : sta $00d2,x ; Source address (low)
-    lda #$4000                         : sta $00d5,x ; Destination in Vram
-    txa : clc : adc #$0007             : sta $0330   ; Update the stack pointer
+    lda #$0800                  : sta $00d0,x ; Number of bytes
+    lda #$9a00                  : sta $00d3,x ; Source bank
+    lda #$b200                  : sta $00d2,x ; Source address
+    lda #$4000                  : sta $00d5,x ; Destination in Vram
+    txa : clc : adc #$0007      : sta $0330   ; Update the stack pointer
     plp
     plx
+
+    jsl $85A290             ; load_bg3_map_tiles_wrapper (map_area.asm)
 
 .exit
     pla
