@@ -15,3 +15,6 @@
 [submodule "asar"]
 	path = asar
 	url = https://github.com/RPGHacker/asar.git
+[submodule "rust/lznint"]
+	path = rust/lznint
+	url = git@github.com:blkerby/lznint.git

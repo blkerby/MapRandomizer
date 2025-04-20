@@ -18,7 +18,9 @@ echo Mosaic commit: $MOSAIC_COMMIT_ID
 echo Mosaic build ID: $MOSAIC_BUILD_ID
 
 cd rust
-cargo run --release --bin build-mosaic --  --compressor ~/bin/AmoebaCompress --input-rom ../roms/vanilla.sfc
+# cargo run --release --bin build-mosaic --  --compressor ~/bin/AmoebaCompress --input-rom ../roms/vanilla.sfc
+# using compressor by NobodyNada, with tweaks to help give faster decompression
+cargo run --release --bin build-mosaic -- --input-rom ../roms/vanilla.sfc
 cd ..
 
 cd patches/mosaic
