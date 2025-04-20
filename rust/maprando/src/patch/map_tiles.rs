@@ -420,11 +420,10 @@ impl<'a> MapPatcher<'a> {
             HashMap::new();
         for data in &self.dynamic_tile_data {
             for (item_idx, room_id, map_tile) in data.iter().cloned() {
-                let coords = self.get_room_coords(
-                    room_id,
-                    map_tile.coords.0 as isize,
-                    map_tile.coords.1 as isize,
-                );
+                let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+                let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+                let area = self.map.area[room_idx];
+                let coords = (area, map_tile.coords.0 as isize, map_tile.coords.1 as isize);
                 if !dynamic_tiles_by_coords.contains_key(&coords) {
                     dynamic_tiles_by_coords.insert(coords, vec![]);
                 }

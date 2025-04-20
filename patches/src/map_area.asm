@@ -398,10 +398,10 @@ load_bg3_map_tiles_wrapper:
 clear_hud_minimap:
     ; clear HUD minimap during area transitions
     LDX #$0000             ;|
-    lda #$3C50
+    lda #$3C1F
 .clear_minimap_loop:
     STA $7EC63C,x          ;|
-    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C50h
+    STA $7EC67C,x          ;} HUD tilemap (1Ah..1Eh, 1..3) = 3C1Fh
     STA $7EC6BC,x          ;|
     INX                    ;|
     INX                    ;|
@@ -1280,15 +1280,5 @@ org $90A7F1
 org $90AAFD
     AND #$83FE   ; was: AND #$01FF
     CMP #$0010
-
-;; Kraid load BG3 from area-specific tiles:
-;org $A7C78B : lda #!tiles_2bpp_address
-;org $A7C790 : jsr get_area_bg3_bank
-;org $A7C7B1 : lda #!tiles_2bpp_address+$400
-;org $A7C7B6 : jsr get_area_bg3_bank
-;org $A7C7D7 : lda #!tiles_2bpp_address+$800
-;org $A7C7DC : jsr get_area_bg3_bank
-;org $A7C7FD : lda #!tiles_2bpp_address+$C00
-;org $A7C802 : jsr get_area_bg3_bank
 
 warnpc !bank_a7_freespace_end
