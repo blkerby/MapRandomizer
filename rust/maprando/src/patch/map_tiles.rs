@@ -8,8 +8,9 @@ use crate::{
     },
 };
 use maprando_game::{
-    AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map, MapTile,
-    MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor, RoomGeometryItem, RoomId,
+    AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map,
+    MapLiquidType, MapTile, MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor,
+    RoomGeometryItem, RoomId,
 };
 
 use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
@@ -753,20 +754,20 @@ impl<'a> MapPatcher<'a> {
         };
         let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
-        let liquid_colors = if tile.water_level.is_some() {
-            (0, 1)
-        } else {
-            (bg_color, bg_color)
+        let liquid_colors = match tile.liquid_type {
+            MapLiquidType::None => (bg_color, bg_color),
+            MapLiquidType::Water => (0, 1),
+            MapLiquidType::Acid => (bg_color, 2),
         };
-        if let Some(water_level) = tile.water_level {
+        if let Some(liquid_level) = tile.liquid_level {
             if !self.settings.other_settings.ultra_low_qol {
-                let level = (water_level * 8.0).floor() as isize;
+                let level = (liquid_level * 8.0).floor() as isize;
                 for y in level..8 {
                     for x in 0..8 {
                         if (x + y) % 2 == 0 {
-                            data[y as usize][x as usize] = 0;
+                            data[y as usize][x as usize] = liquid_colors.0;
                         } else {
-                            data[y as usize][x as usize] = 1;
+                            data[y as usize][x as usize] = liquid_colors.1;
                         }
                     }
                 }
