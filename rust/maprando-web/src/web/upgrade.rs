@@ -183,6 +183,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
         .context("missing quality_of_life_settings")?
         .as_object_mut()
         .context("quality_of_life_settings is not object")?;
+    if !qol_settings.contains_key("fanfares") {
+        qol_settings.insert("fanfares".to_string(), "Off".into());
+    }
     if !qol_settings.contains_key("etank_refill") {
         qol_settings.insert("etank_refill".to_string(), etank_refill.into());
     }
