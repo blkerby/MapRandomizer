@@ -1293,6 +1293,16 @@ pub enum MapTileInterior {
     MajorItem,
 }
 
+impl MapTileInterior {
+    pub fn is_item(&self) -> bool {
+        use MapTileInterior::*;
+        match self {
+            Item | DoubleItem | HiddenItem | AmmoItem | MediumItem | MajorItem => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum Direction {
@@ -4957,7 +4967,6 @@ impl GameData {
         for room in &mut self.map_tile_data {
             for tile in &mut room.map_tiles {
                 tile.heated = room.heated;
-                tile.liquid_type = room.liquid_type;
                 if let Some(liquid_level) = room.liquid_level {
                     if (tile.coords.1 as f32) <= liquid_level - 1.0 {
                         tile.liquid_level = None;
@@ -4966,6 +4975,9 @@ impl GameData {
                     } else {
                         tile.liquid_level = Some(liquid_level.fract());
                     }
+                }
+                if tile.liquid_level.is_some() {
+                    tile.liquid_type = room.liquid_type;
                 }
             }
         }

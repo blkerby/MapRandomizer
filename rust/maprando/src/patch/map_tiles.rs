@@ -909,6 +909,15 @@ impl<'a> MapPatcher<'a> {
                         }
                     }
                 }
+
+                // if liquid_level > 0.5 && tile.interior.is_item() {
+                //     // For shallow liquid, improve contrast around items:
+                //     for y in 2..6 {
+                //         for x in 2..6 {
+                //             data[y][x] = bg_color;
+                //         }
+                //     }
+                // }
             }
         };
 
