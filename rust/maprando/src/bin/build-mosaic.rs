@@ -158,7 +158,7 @@ impl MosaicPatchBuilder {
                     .arg(format!("-o={}", output_path.to_str().unwrap()))
                     .status()
                     .context("error running compressor")?;
-                return Ok(std::fs::read(output_path)?);    
+                return Ok(std::fs::read(output_path)?);
             } else {
                 let output = lznint::compress(data);
                 std::fs::write(&output_path, output.clone())?;
