@@ -11,7 +11,8 @@
         {
             "roomId": 42,
             "roomName": "Blue Brinstar Boulder Room",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -440,7 +441,8 @@
         {
             "roomId": 65,
             "roomName": "Waterway Energy Tank Room",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "wall", "interior": "item"},
                 {"coords": [1, 0], "left": "passage", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -463,7 +465,8 @@
         {
             "roomId": 69,
             "roomName": "Bat Room",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -472,7 +475,8 @@
         {
             "roomId": 70,
             "roomName": "Below Spazer",
-            "waterLevel": 1.625,
+            "liquidType": "water",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -621,6 +625,8 @@
         {
             "roomId": 28,
             "roomName": "Crateria Power Bomb Room",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "item"}
@@ -636,6 +642,8 @@
         {
             "roomId": 29,
             "roomName": "Crateria Super Room",
+            "liquidType": "acid",
+            "liquidLevel": 7.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -768,7 +776,8 @@
         {
             "roomId": 33,
             "roomName": "Bowling Alley Path",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -777,7 +786,8 @@
         {
             "roomId": 36,
             "roomName": "Crab Maze",
-            "waterLevel": 1.625,
+            "liquidType": "water",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -803,7 +813,8 @@
         {
             "roomId": 34,
             "roomName": "East Ocean",
-            "waterLevel": 5,
+            "liquidType": "water",
+            "liquidLevel": 5,
             "mapTiles": [
                 {"coords": [0, 4], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 4], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -861,7 +872,8 @@
         {
             "roomId": 7,
             "roomName": "The Moat",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -872,7 +884,8 @@
         {
             "roomId": 32,
             "roomName": "West Ocean",
-            "waterLevel": 5,
+            "liquidType": "water",
+            "liquidLevel": 5,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty", "interior": "hiddenItem"},
@@ -921,6 +934,8 @@
         {
             "roomId": 31,
             "roomName": "Gauntlet Energy Tank Room",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -933,6 +948,8 @@
         {
             "roomId": 30,
             "roomName": "Gauntlet Entrance",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "qolPassage", "top": "wall", "bottom": "wall"},
@@ -988,7 +1005,8 @@
         {
             "roomId": 27,
             "roomName": "Statues Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "qolPassage", "interior": "event"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "qolEmpty", "bottom": "elevatorEntrance", "interior": "elevatorPlatformLow"},
@@ -1295,7 +1313,8 @@
         {
             "roomId": 210,
             "roomName": "East Sand Hall",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "sand", "bottom": "wall"},
@@ -1305,7 +1324,8 @@
         {
             "roomId": 198,
             "roomName": "Oasis",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "wall", "top": "door", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "door", "top": "passage", "bottom": "wall"}
@@ -1314,7 +1334,8 @@
         {
             "roomId": 220,
             "roomName": "Pants Room",
-            "waterLevel": 2,
+            "liquidType": "water",
+            "liquidLevel": 2,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "empty"},
@@ -1329,7 +1350,8 @@
         {
             "roomId": 222,
             "roomName": "Shaktool Room",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "passage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1340,7 +1362,8 @@
         {
             "roomId": 223,
             "roomName": "Spring Ball Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
@@ -1350,7 +1373,8 @@
         {
             "roomId": 202,
             "roomName": "West Sand Hall Tunnel",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "door", "top": "wall", "bottom": "wall"}
             ]
@@ -1358,7 +1382,8 @@
         {
             "roomId": 199,
             "roomName": "West Sand Hall",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1369,7 +1394,8 @@
         {
             "roomId": 182,
             "roomName": "Aqueduct Save Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "saveStation"}
             ]
@@ -1377,7 +1403,8 @@
         {
             "roomId": 183,
             "roomName": "Aqueduct",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "door", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1402,7 +1429,8 @@
         {
             "roomId": 205,
             "roomName": "Below Botwoon Energy Tank",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1413,7 +1441,8 @@
         {
             "roomId": 186,
             "roomName": "Botwoon Energy Tank Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1427,7 +1456,8 @@
         {
             "roomId": 184,
             "roomName": "Botwoon Hallway",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "door"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1438,7 +1468,8 @@
         {
             "roomId": 204,
             "roomName": "Botwoon Quicksand Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "qolSand", "bottom": "qolSand"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "qolSand", "bottom": "qolSand"}
@@ -1447,7 +1478,8 @@
         {
             "roomId": 185,
             "roomName": "Botwoon's Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "passage", "top": "wall", "bottom": "wall", "interior": "event"},
                 {"coords": [1, 0], "left": "qolEmpty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -1456,7 +1488,8 @@
         {
             "roomId": 189,
             "roomName": "Colosseum",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1477,7 +1510,8 @@
         {
             "roomId": 175,
             "roomName": "Crab Shaft",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "wall", "top": "door", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
@@ -1496,7 +1530,8 @@
         {
             "roomId": 193,
             "roomName": "Draygon's Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -1507,7 +1542,8 @@
         {
             "roomId": 207,
             "roomName": "East Aqueduct Quicksand Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "wall", "top": "qolSand", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "qolSand"}
@@ -1516,7 +1552,8 @@
         {
             "roomId": 196,
             "roomName": "East Cactus Alley Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1533,7 +1570,8 @@
         {
             "roomId": 208,
             "roomName": "East Sand Hole",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "sand", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "empty"},
@@ -1544,7 +1582,8 @@
         {
             "roomId": 187,
             "roomName": "Halfie Climb Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "wall", "top": "empty", "bottom": "empty"},
@@ -1565,7 +1604,8 @@
         {
             "roomId": 188,
             "roomName": "Maridia Missile Refill Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "ammoRefill"}
             ]
@@ -1573,7 +1613,8 @@
         {
             "roomId": 194,
             "roomName": "Space Jump Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
@@ -1581,7 +1622,8 @@
         {
             "roomId": 192,
             "roomName": "The Precious Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "passage"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "hiddenItem"},
@@ -1608,7 +1650,8 @@
         {
             "roomId": 206,
             "roomName": "West Aqueduct Quicksand Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "wall", "top": "qolSand", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "qolSand"}
@@ -1617,7 +1660,8 @@
         {
             "roomId": 195,
             "roomName": "West Cactus Alley Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "wall", "top": "empty", "bottom": "wall"}
@@ -1626,7 +1670,8 @@
         {
             "roomId": 209,
             "roomName": "West Sand Hole",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "doubleItem"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "sand", "bottom": "empty"},
@@ -1637,7 +1682,8 @@
         {
             "roomId": 211,
             "roomName": "Bug Sand Hole",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "door", "top": "wall", "bottom": "sand"}
             ]
@@ -1645,7 +1691,8 @@
         {
             "roomId": 213,
             "roomName": "Butterfly Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "door", "top": "sand", "bottom": "wall"}
             ]
@@ -1670,7 +1717,8 @@
         {
             "roomId": 215,
             "roomName": "Maridia Elevator Room",
-            "waterLevel": 5.625,
+            "liquidType": "water",
+            "liquidLevel": 5.625,
             "mapTiles": [
                 {"coords": [0, 0], "specialType": "elevator"},
                 {"coords": [0, 1], "specialType": "elevator"},
@@ -1683,7 +1731,8 @@
         {
             "roomId": 180,
             "roomName": "Northwest Maridia Bug Room",
-            "waterLevel": 1.625,
+            "liquidType": "water",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "empty", "top": "empty", "bottom": "wall"},
@@ -1695,7 +1744,8 @@
         {
             "roomId": 212,
             "roomName": "Plasma Beach Quicksand Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "wall", "top": "qolSand", "bottom": "qolSand"}
             ]
@@ -1715,7 +1765,8 @@
         {
             "roomId": 197,
             "roomName": "Plasma Spark Room",
-            "waterLevel": 4,
+            "liquidType": "water",
+            "liquidLevel": 4,
             "mapTiles": [
                 {"coords": [1, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [2, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "empty"},
@@ -1746,7 +1797,8 @@
         {
             "roomId": 179,
             "roomName": "Pseudo Plasma Spark Room",
-            "waterLevel": 2,
+            "liquidType": "water",
+            "liquidLevel": 2,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1764,7 +1816,8 @@
         {
             "roomId": 214,
             "roomName": "Thread The Needle Room",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1778,7 +1831,8 @@
         {
             "roomId": 181,
             "roomName": "Watering Hole",
-            "waterLevel": 2,
+            "liquidType": "water",
+            "liquidLevel": 2,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"},
@@ -1800,7 +1854,8 @@
         {
             "roomId": 201,
             "roomName": "Crab Hole",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "door", "top": "wall", "bottom": "passage"},
                 {"coords": [0, 1], "left": "door", "right": "door", "top": "empty", "bottom": "wall"}
@@ -1809,7 +1864,8 @@
         {
             "roomId": 176,
             "roomName": "Crab Tunnel",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1820,7 +1876,8 @@
         {
             "roomId": 173,
             "roomName": "Fish Tank",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "door", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1839,7 +1896,8 @@
         {
             "roomId": 171,
             "roomName": "Glass Tunnel Save Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "saveStation"}
             ]
@@ -1847,7 +1905,8 @@
         {
             "roomId": 170,
             "roomName": "Glass Tunnel",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "wall", "top": "door", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "door", "top": "passage", "bottom": "passage"},
@@ -1857,7 +1916,8 @@
         {
             "roomId": 172,
             "roomName": "Main Street",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -1882,7 +1942,8 @@
         {
             "roomId": 178,
             "roomName": "Mama Turtle Room",
-            "waterLevel": 2,
+            "liquidType": "water",
+            "liquidLevel": 2,
             "mapTiles": [
                 {"coords": [1, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
                 {"coords": [2, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "empty"},
@@ -1898,7 +1959,8 @@
         {
             "roomId": 203,
             "roomName": "Maridia Map Room",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "mapStation"}
             ]
@@ -1906,7 +1968,8 @@
         {
             "roomId": 174,
             "roomName": "Mt. Everest",
-            "waterLevel": 0,
+            "liquidType": "water",
+            "liquidLevel": 0,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1933,7 +1996,8 @@
         {
             "roomId": 177,
             "roomName": "Red Fish Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1951,6 +2015,8 @@
         {
             "roomId": 122,
             "roomName": "Crocomire's Room",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1974,7 +2040,8 @@
         {
             "roomId": 129,
             "roomName": "Grapple Tutorial Room 1",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -1992,7 +2059,8 @@
         {
             "roomId": 131,
             "roomName": "Grapple Tutorial Room 3",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2015,6 +2083,8 @@
         {
             "roomId": 127,
             "roomName": "Post Crocomire Jump Room",
+            "liquidType": "acid",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2039,6 +2109,8 @@
         {
             "roomId": 126,
             "roomName": "Post Crocomire Missile Room",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2573,6 +2645,8 @@
         {
             "roomId": 226,
             "roomName": "Metroid Room 1",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2593,6 +2667,8 @@
         {
             "roomId": 228,
             "roomName": "Metroid Room 3",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2613,6 +2689,8 @@
         {
             "roomId": 238,
             "roomName": "Mother Brain Room",
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall", "interior": "event"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2674,6 +2752,8 @@
         {
             "roomId": 242,
             "roomName": "Tourian Escape Room 4",
+            "liquidType": "acid",
+            "liquidLevel": 5.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2708,6 +2788,8 @@
         {
             "roomId": 224,
             "roomName": "Tourian First Room",
+            "liquidType": "acid",
+            "liquidLevel": 3.625,
             "mapTiles": [
                 {"coords": [0, 0], "specialType": "elevator"},
                 {"coords": [0, 1], "specialType": "elevator"},
@@ -2786,7 +2868,8 @@
         {
             "roomId": 166,
             "roomName": "Electric Death Room",
-            "waterLevel": 2.625,
+            "liquidType": "water",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "door", "top": "passage", "bottom": "empty"},
@@ -2810,7 +2893,8 @@
         {
             "roomId": 165,
             "roomName": "Spiky Death Room",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -2819,7 +2903,8 @@
         {
             "roomId": 164,
             "roomName": "Sponge Bath",
-            "waterLevel": 0.625,
+            "liquidType": "water",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -2838,7 +2923,8 @@
         {
             "roomId": 167,
             "roomName": "Wrecked Ship Energy Tank Room",
-            "waterLevel": 1,
+            "liquidType": "water",
+            "liquidLevel": 1,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},

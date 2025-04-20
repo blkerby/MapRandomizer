@@ -1320,6 +1320,15 @@ pub enum MapTileSpecialType {
     AreaTransition(AreaIdx, Direction),
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum MapLiquidType {
+    #[default]
+    None,
+    Water,
+    Acid,
+}
+
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MapTile {
@@ -1336,7 +1345,9 @@ pub struct MapTile {
     pub interior: MapTileInterior,
     #[serde(default)]
     pub heated: bool,
-    pub water_level: Option<f32>,
+    #[serde(default)]
+    pub liquid_type: MapLiquidType,
+    pub liquid_level: Option<f32>,
     pub special_type: Option<MapTileSpecialType>,
     // Extensions added at runtime:
     #[serde(default)]
@@ -1348,7 +1359,9 @@ pub struct MapTile {
 pub struct MapTileData {
     pub room_id: usize,
     pub room_name: String,
-    pub water_level: Option<f32>,
+    #[serde(default)]
+    pub liquid_type: MapLiquidType,
+    pub liquid_level: Option<f32>,
     #[serde(default)]
     pub heated: bool,
     pub map_tiles: Vec<MapTile>,
@@ -4944,13 +4957,14 @@ impl GameData {
         for room in &mut self.map_tile_data {
             for tile in &mut room.map_tiles {
                 tile.heated = room.heated;
-                if let Some(water_level) = room.water_level {
-                    if (tile.coords.1 as f32) <= water_level - 1.0 {
-                        tile.water_level = None;
-                    } else if (tile.coords.1 as f32) >= water_level {
-                        tile.water_level = Some(0.0);
+                tile.liquid_type = room.liquid_type;
+                if let Some(liquid_level) = room.liquid_level {
+                    if (tile.coords.1 as f32) <= liquid_level - 1.0 {
+                        tile.liquid_level = None;
+                    } else if (tile.coords.1 as f32) >= liquid_level {
+                        tile.liquid_level = Some(0.0);
                     } else {
-                        tile.water_level = Some(water_level.fract());
+                        tile.liquid_level = Some(liquid_level.fract());
                     }
                 }
             }
