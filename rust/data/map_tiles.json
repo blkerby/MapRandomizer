@@ -2296,6 +2296,8 @@
             "roomId": 113,
             "roomName": "Kronic Boost Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [1, 0], "left": "door", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2307,6 +2309,8 @@
             "roomId": 115,
             "roomName": "Lava Dive Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},

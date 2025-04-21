@@ -471,20 +471,31 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
     };
     let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
-    let liquid_colors = match tile.liquid_type {
-        MapLiquidType::None => (bg_color, bg_color),
-        MapLiquidType::Water => (4, 1),
-        MapLiquidType::Acid => (bg_color, 2),
+    let liquid_colors = match (tile.liquid_type, tile.heated) {
+        (MapLiquidType::None, _) => (bg_color, bg_color),
+        (MapLiquidType::Water, false) => (4, 1),
+        (MapLiquidType::Lava, true) => (1, 2),
+        (MapLiquidType::Acid, false) => (1, 2),
+        (MapLiquidType::Acid, true) => (2, 1),
+        _ => panic!("unexpected liquid type"),
     };
     if let Some(liquid_level) = tile.liquid_level {
         if !settings.other_settings.ultra_low_qol {
             let level = (liquid_level * 8.0).floor() as isize;
             for y in level..8 {
                 for x in 0..8 {
-                    if (x + y) % 2 == 0 {
-                        data[y as usize][x as usize] = liquid_colors.0;
+                    if tile.liquid_type == MapLiquidType::Acid {
+                        if x % 2 == 0 && (y + x / 2) % 2 == 0 {
+                            data[y as usize][x as usize] = liquid_colors.1;
+                        } else {
+                            data[y as usize][x as usize] = liquid_colors.0;
+                        }
                     } else {
-                        data[y as usize][x as usize] = liquid_colors.1;
+                        if (x + y) % 2 == 0 {
+                            data[y as usize][x as usize] = liquid_colors.0;
+                        } else {
+                            data[y as usize][x as usize] = liquid_colors.1;
+                        }
                     }
                 }
             }
@@ -521,15 +532,19 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
             data[2][3] = item_color;
             data[2][4] = item_color;
             data[3][2] = item_color;
-            data[3][3] = liquid_colors.0;
-            data[3][4] = liquid_colors.0;
             data[3][5] = item_color;
             data[4][2] = item_color;
-            data[4][3] = liquid_colors.0;
-            data[4][4] = liquid_colors.0;
             data[4][5] = item_color;
             data[5][3] = item_color;
             data[5][4] = item_color;
+            if let Some(liquid_level) = tile.liquid_level {
+                if liquid_level < 0.5 {
+                    data[3][3] = liquid_colors.0;
+                    data[3][4] = liquid_colors.0;
+                    data[4][3] = liquid_colors.0;
+                    data[4][4] = liquid_colors.0;
+                }
+            }
         }
         MapTileInterior::AmmoItem => {
             data[2][2] = item_color;

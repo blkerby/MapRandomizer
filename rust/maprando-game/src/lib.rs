@@ -1330,12 +1330,13 @@ pub enum MapTileSpecialType {
     AreaTransition(AreaIdx, Direction),
 }
 
-#[derive(Clone, Copy, Debug, Deserialize, Default)]
+#[derive(Clone, Copy, Debug, Deserialize, Default, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum MapLiquidType {
     #[default]
     None,
     Water,
+    Lava,
     Acid,
 }
 
