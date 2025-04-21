@@ -283,29 +283,6 @@
                 </div>
             </div>
 
-            <div class="modal" id="inputRomModal" tabindex="-1">
-                <div class="modal-dialog modal-lg">
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h1 class="modal-title fs-5">Input ROM</h1>
-                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Please provide a vanilla Super Metroid ROM: NTSC, USA/JU version, unheadered.</p>
-
-                        <input class="col-lg-9 form-control-file my-3" type="file" id="inputRom" name="rom"
-                        onchange="saveROM(this)">
-
-                        <p id="romInvalid" class="d-none text-danger">
-                            The selected ROM is invalid. Please try again with a correct ROM.
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                      <input type="submit" class="btn btn-primary" data-bs-dismiss="modal" value="Generate Game">
-                    </div>
-                  </div>
-                </div>
-            </div>
             {% include "skill_assumptions.html" %}
             {% include "item_progression.html" %}
             {% include "quality_of_life.html" %}

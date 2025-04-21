@@ -374,32 +374,11 @@ function buildFillerItems() {
 
 let submitModal = new bootstrap.Modal('#submitModal', {})
 let errorModal = new bootstrap.Modal('#errorModal', {})
-let inputRomModal = new bootstrap.Modal('#inputRomModal', {});
 let saveSettingsModal = new bootstrap.Modal('#saveSettingsModal', {})
 let managePresetsModal = new bootstrap.Modal('#managePresetsModal', {})
 let deletePresetModal = new bootstrap.Modal('#deletePresetModal', {})
 let renamePresetModal = new bootstrap.Modal('#renamePresetModal', {})
 async function prepareSubmit(form) {
-    let romEl = document.getElementById("inputRom");
-    if (romEl.value == "") {
-        inputRomModal.show();
-        return;
-    }
-
-    let romData = await localforage.getItem('vanillaRomData');
-    let hashBuffer = await window.crypto.subtle.digest("SHA-256", romData);
-    const hashArray = Array.from(new Uint8Array(hashBuffer)); // convert buffer to byte array
-    const hashHex = hashArray
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join(""); // convert bytes to hex string
-    if (hashHex != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72") {
-        console.log("ROM hash: " + hashHex);
-        inputRomModal.show();
-        document.getElementById("romInvalid").classList.remove("d-none");
-        return;
-    }
-    document.getElementById("romInvalid").classList.add("d-none");
-
     // updateTechJSON();
     // updateStratJSON();
     // updateItemPoolJSON();"
@@ -413,7 +392,6 @@ async function prepareSubmit(form) {
     let formData = new FormData();
     formData.append("spoiler_token", document.getElementById("spoilerToken").value);
     formData.append("settings", JSON.stringify(settings));
-    formData.append("rom", romEl.files[0]);
     let errorEl = document.getElementById("errorMsg");
     let response;
     try {
@@ -1247,12 +1225,10 @@ document.querySelectorAll('[data-parent-modal]').forEach(element => {
         new bootstrap.Modal(document.getElementById(parentModalName), {}).show();
     })
 });
-
 </script>
-{% include "../common/save_load_rom.html" %}
+<script src="/static/localforage.js"></script>
 <script>
 //loadForm(document.getElementById("main-form"));
-loadROM(document.getElementById("inputRom"));
 loadSettings();
 initializeSpoilerToken();
 window.addEventListener('pageshow', (event) => {
