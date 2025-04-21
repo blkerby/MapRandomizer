@@ -41,7 +41,7 @@
           "liquidType": {
             "type": ["string", "null"],
             "description": "Type of liquid in this room.",
-            "enum": ["water", "acid"],
+            "enum": ["water", "laval", "acid"],
             "default": null
           },
           "mapTiles": {
