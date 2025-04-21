@@ -1,13 +1,11 @@
 mod helpers;
 
 use crate::web::{upgrade::try_upgrade_settings, AppData, VERSION};
-use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
+use actix_easy_multipart::{text::Text, MultipartForm};
 use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
-use askama::Template;
 use helpers::*;
 use log::info;
 use maprando::{
-    patch::Rom,
     randomize::{
         filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
         randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
@@ -70,17 +68,8 @@ struct SeedData {
     ultra_low_qol: bool,
 }
 
-#[derive(Template)]
-#[template(path = "errors/missing_input_rom.html")]
-struct MissingInputRomTemplate {}
-
-#[derive(Template)]
-#[template(path = "errors/invalid_rom.html")]
-struct InvalidRomTemplate {}
-
 #[derive(MultipartForm)]
 struct RandomizeRequest {
-    rom: Bytes,
     spoiler_token: Text<String>,
     settings: Text<String>,
 }
@@ -96,18 +85,6 @@ async fn randomize(
     http_req: HttpRequest,
     app_data: web::Data<AppData>,
 ) -> impl Responder {
-    let rom = Rom::new(req.rom.data.to_vec());
-
-    if rom.data.len() == 0 {
-        return HttpResponse::BadRequest().body(MissingInputRomTemplate {}.render().unwrap());
-    }
-
-    let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
-    info!("Rom digest: {rom_digest}");
-    if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
-        return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
-    }
-
     let mut settings = match try_upgrade_settings(req.settings.0.to_string(), &app_data) {
         Ok(s) => s.1,
         Err(e) => {
