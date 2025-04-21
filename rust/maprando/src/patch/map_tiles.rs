@@ -2280,6 +2280,7 @@ impl<'a> MapPatcher<'a> {
                 tile.interior = MapTileInterior::Item;
                 self.set_room_tile(room_id, x, y, tile.clone());
             } else {
+                tile.interior = get_item_interior(item, self.settings);
                 self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
                 if self.settings.other_settings.item_dot_change == ItemDotChange::Fade {
                     tile.interior = apply_item_interior(orig_tile, item, self.settings);
