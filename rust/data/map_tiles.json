@@ -1035,6 +1035,8 @@
             "roomId": 136,
             "roomName": "Amphitheatre",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [1, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1071,6 +1073,8 @@
             "roomId": 147,
             "roomName": "Lower Norfair Escape Power Bomb Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "door", "bottom": "wall", "interior": "item"}
             ]
@@ -1079,6 +1083,8 @@
             "roomId": 141,
             "roomName": "Lower Norfair Farming Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1119,6 +1125,8 @@
             "roomId": 132,
             "roomName": "Main Hall",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [4, 0], "specialType": "elevator"},
                 {"coords": [4, 1], "specialType": "elevator"},
@@ -1161,6 +1169,8 @@
             "roomId": 134,
             "roomName": "Pillar Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "qolPassage", "top": "wall", "bottom": "wall"},
@@ -1172,6 +1182,8 @@
             "roomId": 140,
             "roomName": "Plowerhouse Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1203,6 +1215,8 @@
             "roomId": 143,
             "roomName": "Ridley Tank Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "wall", "interior": "hiddenItem"}
             ]
@@ -1211,6 +1225,8 @@
             "roomId": 142,
             "roomName": "Ridley's Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "wall", "top": "empty", "bottom": "wall"}
@@ -1233,6 +1249,8 @@
             "roomId": 148,
             "roomName": "Three Musketeers' Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [1, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
@@ -1246,6 +1264,8 @@
             "roomId": 138,
             "roomName": "Wasteland",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "wall", "interior": "item"},
                 {"coords": [1, 0], "left": "passage", "right": "empty", "top": "wall", "bottom": "passage"},
@@ -1261,6 +1281,8 @@
             "roomId": 149,
             "roomName": "Acid Statue Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "event"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -1275,6 +1297,8 @@
             "roomId": 153,
             "roomName": "Fast Ripper Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -1304,6 +1328,8 @@
             "roomId": 151,
             "roomName": "Screw Attack Room",
             "heated": true,
+            "liquidType": "acid",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "wall", "right": "door", "top": "empty", "bottom": "passage"},
@@ -2148,6 +2174,8 @@
             "roomId": 119,
             "roomName": "Acid Snakes Tunnel",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2159,6 +2187,8 @@
             "roomId": 100,
             "roomName": "Bat Cave",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "wall", "top": "empty", "bottom": "wall"}
@@ -2189,6 +2219,8 @@
             "roomId": 90,
             "roomName": "Cathedral Entrance",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2202,6 +2234,8 @@
             "roomId": 91,
             "roomName": "Cathedral",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2251,6 +2285,8 @@
             "roomId": 98,
             "roomName": "Green Bubbles Missile Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "passage", "right": "door", "top": "wall", "bottom": "wall", "interior": "item"}
@@ -2302,6 +2338,8 @@
             "roomId": 114,
             "roomName": "Magdollite Tunnel",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2312,6 +2350,8 @@
             "roomId": 99,
             "roomName": "Norfair Reserve Tank Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "wall", "interior": "doubleItem"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -2355,6 +2395,8 @@
             "roomId": 92,
             "roomName": "Rising Tide",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2383,6 +2425,8 @@
             "roomId": 101,
             "roomName": "Speed Booster Hall",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2405,6 +2449,8 @@
             "roomId": 102,
             "roomName": "Speed Booster Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
@@ -2413,6 +2459,8 @@
             "roomId": 112,
             "roomName": "Spiky Acid Snakes Tunnel",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2424,6 +2472,8 @@
             "roomId": 117,
             "roomName": "Spiky Platforms Tunnel",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
@@ -2435,6 +2485,8 @@
             "roomId": 94,
             "roomName": "Upper Norfair Farming Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -2446,6 +2498,8 @@
             "roomId": 116,
             "roomName": "Volcano Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [2, 0], "left": "door", "right": "wall", "top": "wall", "bottom": "empty"},
                 {"coords": [2, 1], "left": "wall", "right": "wall", "top": "empty", "bottom": "empty"},
@@ -2478,6 +2532,8 @@
             "roomId": 121,
             "roomName": "Crocomire Escape",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 1.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2554,6 +2610,8 @@
             "roomId": 107,
             "roomName": "Ice Beam Acid Room",
             "heated": true,
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "wall"}
@@ -2585,6 +2643,8 @@
         {
             "roomId": 108,
             "roomName": "Ice Beam Snake Room",
+            "liquidType": "lava",
+            "liquidLevel": 2.625,
             "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
@@ -2596,6 +2656,8 @@
         {
             "roomId": 110,
             "roomName": "Ice Beam Tutorial Room",
+            "liquidType": "lava",
+            "liquidLevel": 0.625,
             "heated": true,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "qolPassage", "top": "wall", "bottom": "wall"},
