@@ -1,42 +1,23 @@
 use anyhow::Result;
 use hashbrown::HashMap;
-use image::{Rgb, RgbImage};
+use image::{Rgba, RgbaImage};
 use std::io::Cursor;
 
 use crate::{
-    patch::map_tiles::TILE_GFX_ADDR_4BPP,
-    patch::{
-        map_tiles::{read_tile_4bpp, TilemapOffset, TilemapWord},
-        snes2pc, xy_to_map_offset, Rom,
-    },
+    patch::map_tiles::{apply_door_lock, apply_item_interior, get_gray_doors, get_objective_tiles, render_tile}, randomize::Randomization, settings::RandomizerSettings
 };
-use maprando_game::{AreaIdx, GameData, Map};
+use maprando_game::{Direction, DoorLockType, GameData, ItemPtr, MapTile, MapTileEdge, MapTileInterior, MapTileSpecialType};
 
-fn render_tile(rom: &Rom, tilemap_word: u16) -> Result<[[u8; 8]; 8]> {
-    let idx = (tilemap_word & 0x3FF) as usize;
-    let x_flip = tilemap_word & 0x4000 != 0;
-    let y_flip = tilemap_word & 0x8000 != 0;
-    let tile = read_tile_4bpp(rom, snes2pc(TILE_GFX_ADDR_4BPP), idx)?;
-    let mut out = [[0u8; 8]; 8];
-    for y in 0..8 {
-        for x in 0..8 {
-            let x1 = if !x_flip { x } else { 7 - x };
-            let y1 = if !y_flip { y } else { 7 - y };
-            out[y][x] = tile[y1][x1];
-        }
-    }
-    Ok(out)
-}
-
-fn get_rgb(r: isize, g: isize, b: isize) -> Rgb<u8> {
-    Rgb([
+fn get_rgb(r: isize, g: isize, b: isize) -> Rgba<u8> {
+    Rgba([
         (r * 255 / 31) as u8,
         (g * 255 / 31) as u8,
         (b * 255 / 31) as u8,
+        255 as u8,
     ])
 }
 
-fn get_explored_color(value: u8, area: usize) -> Rgb<u8> {
+fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
     let cool_area_color = match area {
         0 => get_rgb(18, 0, 27), // Crateria
         1 => get_rgb(0, 18, 0),  // Brinstar
@@ -72,7 +53,7 @@ fn get_explored_color(value: u8, area: usize) -> Rgb<u8> {
     }
 }
 
-fn get_outline_color(value: u8) -> Rgb<u8> {
+fn get_outline_color(value: u8) -> Rgba<u8> {
     match value {
         0 => get_rgb(0, 0, 0),
         1 => get_rgb(0, 0, 0),
@@ -95,63 +76,134 @@ pub struct SpoilerMaps {
     pub outline: Vec<u8>,
 }
 
-fn get_map_overrides(rom: &Rom) -> Result<HashMap<(AreaIdx, TilemapOffset), TilemapWord>> {
-    let mut out = HashMap::new();
-    let base_ptr_pc = snes2pc(0x83B000);
-    for area_idx in 0..6 {
-        let data_ptr_snes = rom.read_u16(base_ptr_pc + 2 * area_idx)?;
-        let data_ptr_pc = snes2pc(0x830000 + data_ptr_snes as usize);
-        let size = rom.read_u16(base_ptr_pc + 12 + 2 * area_idx)? as usize;
-        for i in 0..size {
-            let offset = rom.read_u16(data_ptr_pc + 6 * i + 2)?;
-            let word = rom.read_u16(data_ptr_pc + 6 * i + 4)?;
-            out.insert((area_idx, offset as TilemapOffset), word as TilemapWord);
-        }
-    }
-    Ok(out)
-}
-
-pub fn get_spoiler_map(rom: &Rom, map: &Map, game_data: &GameData) -> Result<SpoilerMaps> {
+pub fn get_spoiler_map(randomization: &Randomization, game_data: &GameData, settings: &RandomizerSettings) -> Result<SpoilerMaps> {
+    let map = &randomization.map;
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
     let height = (max_tiles + 2) * 8;
-    let mut img_explored = RgbImage::new(width, height);
-    let mut img_outline = RgbImage::new(width, height);
-    let map_overrides = get_map_overrides(rom)?;
+    let mut tiles: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
 
-    for room_idx in 0..map.rooms.len() {
-        let room = &game_data.room_geometry[room_idx];
-        let room_ptr = room.rom_address;
-        let map_area = map.area[room_idx];
-        let area_room_x = rom.read_u8(room_ptr + 2)?;
-        let area_room_y = rom.read_u8(room_ptr + 3)?;
-        let global_room_x = map.rooms[room_idx].0;
-        let global_room_y = map.rooms[room_idx].1;
-        for (local_y, row) in room.map.iter().enumerate() {
-            for (local_x, &cell) in row.iter().enumerate() {
-                if cell == 0 && room_idx != game_data.toilet_room_idx {
-                    continue;
-                }
-                let cell_x = area_room_x + local_x as isize;
-                let cell_y = area_room_y + local_y as isize;
-                let offset = xy_to_map_offset(cell_x, cell_y);
-                let cell_ptr = game_data.area_map_ptrs[map_area] + offset;
-                let mut tilemap_word = rom.read_u16(cell_ptr as usize)? as u16;
-                if let Some(new_word) = map_overrides.get(&(map_area, offset as TilemapOffset)) {
-                    tilemap_word = *new_word;
-                }
-                let tile = render_tile(rom, tilemap_word)?;
-                for y in 0..8 {
-                    for x in 0..8 {
-                        let x1 = (global_room_x + local_x + 1) * 8 + x;
-                        let y1 = (global_room_y + local_y + 1) * 8 + y;
-                        img_explored.put_pixel(
-                            x1 as u32,
-                            y1 as u32,
-                            get_explored_color(tile[y][x], map_area),
-                        );
-                        img_outline.put_pixel(x1 as u32, y1 as u32, get_outline_color(tile[y][x]));
+    // Create the base form of the room tiles
+    for room in &game_data.map_tile_data {
+        let room_id = room.room_id;
+        let room_ptr = game_data.room_ptr_by_id[&room_id];
+        let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        let room_x = map.rooms[room_idx].0;
+        let room_y = map.rooms[room_idx].1;
+        let area = map.area[room_idx];
+        for tile in &room.map_tiles {
+            let x = room_x + tile.coords.0;
+            let y = room_y + tile.coords.1;
+            if tile.special_type == Some(MapTileSpecialType::Black) {
+                continue;
+            }
+            if tiles[y][x].area.is_none() || tiles[y][x].special_type == Some(MapTileSpecialType::Tube) {
+                tiles[y][x] = tile.clone();
+                tiles[y][x].area = Some(area);    
+            }
+        }
+    }
+
+    // Add item dots:
+    let mut item_coords: HashMap<ItemPtr, (usize, usize)> = HashMap::new();
+    for room in &game_data.room_geometry {
+        for item in &room.items {
+            item_coords.insert(item.addr, (item.x, item.y));
+        }
+    }
+    for (i, &item) in randomization.item_placement.iter().enumerate() {
+        let (room_id, node_id) = game_data.item_locations[i];
+        let item_ptr = game_data.node_ptr_map[&(room_id, node_id)];
+        let (item_x, item_y) = item_coords[&item_ptr];
+        let room_ptr = game_data.room_ptr_by_id[&room_id];
+        let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        let room_x = map.rooms[room_idx].0;
+        let room_y = map.rooms[room_idx].1;
+        let x = room_x + item_x;
+        let y = room_y + item_y;
+        tiles[y][x].interior = apply_item_interior(tiles[y][x].clone(), item, settings);
+    }
+
+    // Add door locks:
+    for locked_door in randomization.locked_doors.iter() {
+        let mut ptr_pairs = vec![locked_door.src_ptr_pair];
+        if locked_door.bidirectional {
+            ptr_pairs.push(locked_door.dst_ptr_pair);
+        }
+        for ptr_pair in ptr_pairs {
+            let (room_idx, door_idx) =
+                game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+            let room_geom = &game_data.room_geometry[room_idx];
+            let door = &room_geom.doors[door_idx];
+            let room_x = map.rooms[room_idx].0;
+            let room_y = map.rooms[room_idx].1;
+            let x = room_x + door.x;
+            let y = room_y + door.y;
+            tiles[y][x] = apply_door_lock(&tiles[y][x], locked_door, door);
+        }
+    }
+
+    // Add gray doors:
+    let gray_door = MapTileEdge::LockedDoor(DoorLockType::Gray);
+    for (room_id, door_x, door_y, dir) in get_gray_doors() {
+        let room_ptr = game_data.room_ptr_by_id[&room_id];
+        let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        let room_x = map.rooms[room_idx].0;
+        let room_y = map.rooms[room_idx].1;
+        let x = room_x + door_x as usize;
+        let y = room_y + door_y as usize;
+        let mut tile = tiles[y][x].clone();
+        match dir {
+            Direction::Left => {
+                tile.left = gray_door;
+            }
+            Direction::Right => {
+                tile.right = gray_door;
+            }
+            Direction::Up => {
+                tile.top = gray_door;
+            }
+            Direction::Down => {
+                tile.bottom = gray_door;
+            }
+        }
+        tiles[y][x] = tile;
+    }
+
+    // Add objectives:
+    for (room_id, tile_x, tile_y) in get_objective_tiles(&randomization.objectives) {
+        let room_ptr = game_data.room_ptr_by_id[&room_id];
+        let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        let room_x = map.rooms[room_idx].0;
+        let room_y = map.rooms[room_idx].1;
+        let x = room_x + tile_x as usize;
+        let y = room_y + tile_y as usize;
+        tiles[y][x].interior = MapTileInterior::Objective;
+    }
+
+    // Render the map tiles into image (one in explored form, and one in partially revealed/outline form):
+    let mut img_explored = RgbaImage::new(width as u32, height as u32);
+    let mut img_outline = RgbaImage::new(width as u32, height as u32);
+    for y in 0..height {
+        for x in 0..width {
+            let tile = &tiles[y][x];
+            if tile.area.is_none() {
+                continue;
+            }
+            let data = render_tile(tile.clone(), settings)?;
+            for py in 0..8 {
+                for px in 0..8 {
+                    if data[py][px] == 0 {
+                        continue;
                     }
+                    let x1 = (x + 1) * 8 + px;
+                    let y1 = (y + 1) * 8 + py;
+                    img_explored.put_pixel(
+                        x1 as u32,
+                        y1 as u32,
+                        get_explored_color(data[py][px], tile.area.unwrap()),
+                    );
+                    img_outline.put_pixel(x1 as u32, y1 as u32, get_outline_color(data[py][px]));
                 }
             }
         }

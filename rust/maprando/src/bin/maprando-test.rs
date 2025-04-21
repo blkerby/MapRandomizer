@@ -340,7 +340,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     std::fs::write(output_spoiler_log_path, spoiler_str)?;
 
     let spoiler_maps =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app.game_data)?;
+        spoiler_map::get_spoiler_map(&randomization, &app.game_data, &settings)?;
 
     let output_spoiler_map_explored_path = Path::join(
         &app.output_dir,

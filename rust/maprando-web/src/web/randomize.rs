@@ -7,7 +7,7 @@ use askama::Template;
 use helpers::*;
 use log::info;
 use maprando::{
-    patch::{make_rom, Rom},
+    patch::Rom,
     randomize::{
         filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
         randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
@@ -192,7 +192,6 @@ async fn randomize(
         item_placement_seed: usize,
         randomization: Randomization,
         spoiler_log: SpoilerLog,
-        output_rom: Rom,
     }
 
     let time_start_attempts = Instant::now();
@@ -253,18 +252,6 @@ async fn randomize(
                     continue;
                 }
             };
-            let output_rom_result = make_rom(&rom, &settings, &randomization, &app_data.game_data);
-            let output_rom = match output_rom_result {
-                Ok(x) => x,
-                Err(e) => {
-                    info!(
-                        "Attempt {attempt_num}/{max_attempts}: Failed to write ROM: {}\n{}",
-                        e,
-                        e.backtrace()
-                    );
-                    continue;
-                }
-            };
             info!(
                 "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
                 randomization.display_seed,
@@ -275,7 +262,6 @@ async fn randomize(
                 item_placement_seed,
                 randomization,
                 spoiler_log,
-                output_rom,
             });
             break 'attempts;
         }
@@ -375,8 +361,6 @@ async fn randomize(
         &seed_data,
         &req.settings.0,
         &req.spoiler_token.0,
-        &rom,
-        &output.output_rom,
         &settings,
         &output.randomization,
         &output.spoiler_log,

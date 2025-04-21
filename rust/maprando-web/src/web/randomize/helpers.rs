@@ -6,7 +6,6 @@ use askama::Template;
 use hashbrown::{HashMap, HashSet};
 use maprando::{
     helpers::get_item_priorities,
-    patch::{ips_write::create_ips_patch, Rom},
     preset::PresetData,
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
     seed_repository::{Seed, SeedFile},
@@ -195,8 +194,6 @@ pub async fn save_seed(
     seed_data: &SeedData,
     input_settings: &str,
     spoiler_token: &str,
-    vanilla_rom: &Rom,
-    output_rom: &Rom,
     settings: &RandomizerSettings,
     randomization: &Randomization,
     spoiler_log: &SpoilerLog,
@@ -217,10 +214,6 @@ pub async fn save_seed(
         "input_settings.json",
         input_settings.as_bytes().to_owned(),
     ));
-
-    // Write the ROM patch.
-    let patch_ips = create_ips_patch(&vanilla_rom.data, &output_rom.data);
-    files.push(SeedFile::new("patch.ips", patch_ips));
 
     // Write the seed header HTML and footer HTML
     let (seed_header_html, seed_footer_html) = render_seed(seed_name, seed_data, app_data)?;
@@ -276,7 +269,7 @@ pub async fn save_seed(
 
     // Write the spoiler maps
     let spoiler_maps =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data).unwrap();
+        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, settings).unwrap();
     files.push(SeedFile::new(
         &format!("{}/map-explored.png", prefix),
         spoiler_maps.explored,

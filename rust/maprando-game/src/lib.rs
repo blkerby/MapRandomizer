@@ -1343,6 +1343,7 @@ pub enum MapLiquidType {
 #[serde(rename_all = "camelCase")]
 pub struct MapTile {
     pub coords: (usize, usize),
+    pub area: Option<usize>,
     #[serde(default)]
     pub left: MapTileEdge,
     #[serde(default)]
