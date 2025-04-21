@@ -77,11 +77,6 @@ async fn customize_seed(
     app_data: web::Data<AppData>,
 ) -> impl Responder {
     let seed_name = &info.0;
-    let mut patch_ips = app_data
-        .seed_repository
-        .get_file(seed_name, "patch.ips")
-        .await
-        .unwrap();
     let orig_rom = Rom::new(req.rom.data.to_vec());
     let mut rom = orig_rom.clone();
 
@@ -220,20 +215,20 @@ async fn customize_seed(
         ) {
             Ok(r) => {
                 rom = r;
-                patch_ips = vec![];
             }
             Err(err) => {
                 return HttpResponse::InternalServerError()
                     .body(format!("Error patching ROM: {:?}", err))
             }
         }
+    } else {
+        return HttpResponse::InternalServerError().body(format!("Seed incompatible with current customizer"));
     }
 
     info!("CustomizeSettings: {:?}", customize_settings);
     match customize_rom(
         &mut rom,
         &orig_rom,
-        &patch_ips,
         &map,
         &customize_settings,
         &app_data.game_data,

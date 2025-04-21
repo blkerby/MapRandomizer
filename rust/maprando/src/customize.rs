@@ -326,7 +326,6 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
 pub fn customize_rom(
     rom: &mut Rom,
     orig_rom: &Rom,
-    seed_patch: &[u8],
     map: &Option<Map>,
     settings: &CustomizeSettings,
     game_data: &GameData,
@@ -334,12 +333,6 @@ pub fn customize_rom(
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
     rom.resize(0x400000);
-    if seed_patch.len() > 0 {
-        let patch = ips::Patch::parse(seed_patch).unwrap();
-        for hunk in patch.hunks() {
-            rom.write_n(hunk.offset(), hunk.payload())?;
-        }
-    }
 
     remove_mother_brain_flashing(rom)?;
     apply_retiling(

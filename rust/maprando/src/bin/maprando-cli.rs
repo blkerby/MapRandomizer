@@ -3,7 +3,6 @@ use clap::Parser;
 use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
-use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
@@ -258,10 +257,7 @@ fn main() -> Result<()> {
     let orig_rom = Rom::load(&args.input_rom)?;
     let mut input_rom = orig_rom.clone();
     input_rom.data.resize(0x400000, 0);
-    let game_rom = make_rom(&input_rom, &settings, &randomization, &game_data)?;
-    let ips_patch = create_ips_patch(&input_rom.data, &game_rom.data);
-
-    let mut output_rom = input_rom.clone();
+    let mut output_rom = make_rom(&input_rom, &settings, &randomization, &game_data)?;
     let customize_settings = CustomizeSettings {
         samus_sprite: Some("samus_vanilla".to_string()),
         // samus_sprite: None,
@@ -281,7 +277,6 @@ fn main() -> Result<()> {
     customize_rom(
         &mut output_rom,
         &orig_rom,
-        &ips_patch,
         &Some(randomization.map.clone()),
         &customize_settings,
         &game_data,

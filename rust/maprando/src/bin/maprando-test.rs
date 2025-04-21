@@ -4,7 +4,6 @@ use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::map_repository::MapRepository;
-use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
@@ -254,9 +253,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
 
     // Generate the patched ROM:
     let game_rom = make_rom(&app.input_rom, &settings, &randomization, &app.game_data)?;
-    let ips_patch = create_ips_patch(&app.input_rom.data, &game_rom.data);
-
-    let mut output_rom = app.input_rom.clone();
+    let mut output_rom = game_rom.clone();
     let basic_customize_settings = CustomizeSettings {
         samus_sprite: None,
         etank_color: None,
@@ -274,7 +271,6 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     customize_rom(
         &mut output_rom,
         &app.input_rom,
-        &ips_patch,
         &Some(randomization.map.clone()),
         &basic_customize_settings,
         &app.game_data,
@@ -300,12 +296,11 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
                 &app.output_dir,
                 format!("{output_file_prefix}-custom-{}.smc", custom + 1),
             );
-            output_rom = app.input_rom.clone();
+            output_rom = game_rom.clone();
             let customize_settings = make_random_customization(&app);
             customize_rom(
                 &mut output_rom,
                 &app.input_rom,
-                &ips_patch,
                 &Some(randomization.map.clone()),
                 &customize_settings,
                 &app.game_data,
