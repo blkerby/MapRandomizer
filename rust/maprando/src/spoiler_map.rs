@@ -4,9 +4,16 @@ use image::{Rgba, RgbaImage};
 use std::io::Cursor;
 
 use crate::{
-    patch::map_tiles::{apply_door_lock, apply_item_interior, get_gray_doors, get_objective_tiles, render_tile}, randomize::Randomization, settings::RandomizerSettings
+    patch::map_tiles::{
+        apply_door_lock, apply_item_interior, get_gray_doors, get_objective_tiles, render_tile,
+    },
+    randomize::Randomization,
+    settings::RandomizerSettings,
 };
-use maprando_game::{Direction, DoorLockType, GameData, ItemPtr, MapTile, MapTileEdge, MapTileInterior, MapTileSpecialType};
+use maprando_game::{
+    Direction, DoorLockType, GameData, ItemPtr, MapTile, MapTileEdge, MapTileInterior,
+    MapTileSpecialType,
+};
 
 fn get_rgb(r: isize, g: isize, b: isize) -> Rgba<u8> {
     Rgba([
@@ -76,7 +83,11 @@ pub struct SpoilerMaps {
     pub outline: Vec<u8>,
 }
 
-pub fn get_spoiler_map(randomization: &Randomization, game_data: &GameData, settings: &RandomizerSettings) -> Result<SpoilerMaps> {
+pub fn get_spoiler_map(
+    randomization: &Randomization,
+    game_data: &GameData,
+    settings: &RandomizerSettings,
+) -> Result<SpoilerMaps> {
     let map = &randomization.map;
     let max_tiles = 72;
     let width = (max_tiles + 2) * 8;
@@ -97,9 +108,11 @@ pub fn get_spoiler_map(randomization: &Randomization, game_data: &GameData, sett
             if tile.special_type == Some(MapTileSpecialType::Black) {
                 continue;
             }
-            if tiles[y][x].area.is_none() || tiles[y][x].special_type == Some(MapTileSpecialType::Tube) {
+            if tiles[y][x].area.is_none()
+                || tiles[y][x].special_type == Some(MapTileSpecialType::Tube)
+            {
                 tiles[y][x] = tile.clone();
-                tiles[y][x].area = Some(area);    
+                tiles[y][x].area = Some(area);
             }
         }
     }
@@ -131,8 +144,7 @@ pub fn get_spoiler_map(randomization: &Randomization, game_data: &GameData, sett
             ptr_pairs.push(locked_door.dst_ptr_pair);
         }
         for ptr_pair in ptr_pairs {
-            let (room_idx, door_idx) =
-                game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+            let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
             let room_geom = &game_data.room_geometry[room_idx];
             let door = &room_geom.doors[door_idx];
             let room_x = map.rooms[room_idx].0;

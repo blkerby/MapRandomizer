@@ -141,7 +141,12 @@ pub fn write_tile_4bpp(rom: &mut Rom, base_addr: usize, data: [[u8; 8]; 8]) -> R
     Ok(())
 }
 
-fn draw_edge(tile_side: TileSide, edge: MapTileEdge, tile: &mut [[u8; 8]; 8], settings: &RandomizerSettings) {
+fn draw_edge(
+    tile_side: TileSide,
+    edge: MapTileEdge,
+    tile: &mut [[u8; 8]; 8],
+    settings: &RandomizerSettings,
+) {
     let wall_coords = match tile_side {
         TileSide::Top => [
             (0, 0),
@@ -1226,19 +1231,27 @@ pub fn get_item_interior(item: Item, settings: &RandomizerSettings) -> MapTileIn
     }
 }
 
-pub fn apply_item_interior(tile: MapTile, item: Item, settings: &RandomizerSettings) -> MapTileInterior {
+pub fn apply_item_interior(
+    tile: MapTile,
+    item: Item,
+    settings: &RandomizerSettings,
+) -> MapTileInterior {
     let item_interior = get_item_interior(item, settings);
-    use MapTileInterior::{Item, AmmoItem, MediumItem, MajorItem};
+    use MapTileInterior::{AmmoItem, Item, MajorItem, MediumItem};
     match (tile.interior, item_interior) {
         (MajorItem, _) | (_, MajorItem) => MajorItem,
         (MediumItem, _) | (_, MediumItem) => MediumItem,
         (AmmoItem, _) | (_, AmmoItem) => AmmoItem,
         (Item, _) | (_, Item) => Item,
-        _ => panic!("unexpected item interior")
+        _ => panic!("unexpected item interior"),
     }
 }
 
-pub fn apply_door_lock(tile: &MapTile, locked_door: &LockedDoor, door: &RoomGeometryDoor) -> MapTile {
+pub fn apply_door_lock(
+    tile: &MapTile,
+    locked_door: &LockedDoor,
+    door: &RoomGeometryDoor,
+) -> MapTile {
     let lock_type = match locked_door.door_type {
         DoorType::Blue => panic!("unexpected blue door lock"),
         DoorType::Gray => panic!("unexpected gray door lock"),
@@ -1274,23 +1287,29 @@ pub fn apply_door_lock(tile: &MapTile, locked_door: &LockedDoor, door: &RoomGeom
 }
 
 pub fn get_gray_doors() -> Vec<(RoomId, isize, isize, Direction)> {
-    use Direction::{Left, Right, Up, Down};
+    use Direction::{Down, Left, Right, Up};
     vec![
         // Pirate rooms:
-        (12, 0, 0, Left), (12, 2, 0, Right), // Pit Room
-        (82, 0, 0, Left), (82, 5, 0, Right), // Baby Kraid Room
+        (12, 0, 0, Left),
+        (12, 2, 0, Right), // Pit Room
+        (82, 0, 0, Left),
+        (82, 5, 0, Right), // Baby Kraid Room
         (219, 0, 0, Left), // Plasma Room
-        (139, 0, 0, Left), (139, 2, 0, Right), // Metal Pirates Room
+        (139, 0, 0, Left),
+        (139, 2, 0, Right), // Metal Pirates Room
         // Boss rooms:
-        (84, 0, 1, Left), (84, 1, 1, Right), // Kraid Room
+        (84, 0, 1, Left),
+        (84, 1, 1, Right), // Kraid Room
         (158, 0, 0, Left), // Phantoon's Room
-        (193, 0, 1, Left), (193, 1, 0, Right), // Draygon's Room
-        (142, 0, 0, Right), (142, 0, 1, Left), // Ridley's Room
+        (193, 0, 1, Left),
+        (193, 1, 0, Right), // Draygon's Room
+        (142, 0, 0, Right),
+        (142, 0, 1, Left), // Ridley's Room
         // Miniboss rooms:
-        (19, 0, 0, Left), // Bomb Torizo Room
-        (57, 0, 2, Down), // Spore Spawn Room
-        (122, 3, 0, Up), // Crocomire's Room
-        (185, 0, 0, Left), // Botwoon's Room
+        (19, 0, 0, Left),   // Bomb Torizo Room
+        (57, 0, 2, Down),   // Spore Spawn Room
+        (122, 3, 0, Up),    // Crocomire's Room
+        (185, 0, 0, Left),  // Botwoon's Room
         (150, 1, 1, Right), // Golden Torizo's Room
     ]
 }

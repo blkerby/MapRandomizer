@@ -222,7 +222,8 @@ async fn customize_seed(
             }
         }
     } else {
-        return HttpResponse::InternalServerError().body(format!("Seed incompatible with current customizer"));
+        return HttpResponse::InternalServerError()
+            .body(format!("Seed incompatible with current customizer"));
     }
 
     info!("CustomizeSettings: {:?}", customize_settings);
