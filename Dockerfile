@@ -21,6 +21,9 @@ COPY rust/maprando-logic/Cargo.toml /rust/maprando-logic/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando-logic/src/bin/dummy-logic.rs
 COPY rust/maprando-wasm/Cargo.toml /rust/maprando-wasm/Cargo.toml
 COPY rust/maprando/src/bin/dummy.rs /rust/maprando-wasm/src/bin/dummy-wasm.rs
+COPY rust/lznint/Cargo.toml /rust/lznint/Cargo.toml
+COPY rust/maprando/src/bin/dummy.rs /rust/lznint/src/bin/dummy-lznint.rs
+
 RUN mkdir -p /rust/maprando-wasm/src && touch /rust/maprando-wasm/src/lib.rs
 RUN cargo build --release
 RUN rm /rust/src/*.rs

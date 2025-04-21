@@ -119,19 +119,22 @@ endmacro
 org $8095A7
     JMP checkIfInLoading
 
-; Change the top-of-HUD IRQ to run as early as possible during vblank (after NMI):
+; Change the top-of-HUD IRQ to run earlier, starting during vblank (after NMI):
 ; Normally this IRQ fires during scanline 0, but if decompression is doing a large
 ; DMA transfer, then the IRQ could be delayed, resulting in artifacts showing at the
-; top of the HUD. By running it earlier the IRQ will finish before vblank ends.
-; We set it to run on scanline $E2 (226), which is one scanline after NMI triggers.
-; If NMI is still in progress (as normally expected), the IRQ will fire immediately
+; top of the HUD. By running it earlier the IRQ will usually finish before vblank ends,
+; and always before scanline 8 where a visible artifact could occur.
+; For game states when decompression may be happening, we set it to run on scanline 
+; $FF (255). If NMI is somehow still in progress, the IRQ should fire immediately
 ; after NMI returns, or after the completion of any DMA transfer that was
-; interrupted by NMI.
-org $8096CC : LDY #$00E2  ; main gameplay
-org $809713 : LDY #$00E2  ; start of door transition
-org $809751 : LDY #$00E2  ; Draygon's Room
-org $8097B4 : LDY #$00E2  ; vertical door transition
-org $80981D : LDY #$00E2  ; horizontal door transition
+; interrupted by NMI. We saw compatibility issues on 3DS (Snes9x 1.51), which is
+; why we set it to a relatively late scanline so that NMI should no longer still be
+; in progress.
+; org $8096CC : LDY #$00FF  ; main gameplay (no need to modify this, since decompression does not happen in this state)
+org $809713 : LDY #$00FF  ; start of door transition
+; org $809751 : LDY #$00FF  ; Draygon's Room (no need to modify this, since decompression does not happen in this state)
+org $8097B4 : LDY #$00FF  ; vertical door transition
+org $80981D : LDY #$00FF  ; horizontal door transition
 
 ; Change the bottom-of-HUD IRQ to run slightly earlier (32 dots), to account for the extra few
 ; cycles spent saving and setting the Direct Page register:
