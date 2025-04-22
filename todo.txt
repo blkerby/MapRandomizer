@@ -1,5 +1,5 @@
 v118:
-- rework map tiles (global pause tileset, and room-local mini-map tilesets)
+- DONE: rework map tiles (global pause tileset, and room-local mini-map tilesets)
 - resolve door transition flickering (use VRAM transfers during vblank instead of forced blank)
 - fix sand hole start locations.
 - check MB logic: 2+4 shouldn't be in logic without r-mode?
@@ -22,13 +22,13 @@ v118:
   - DONE: organize by area
   - DONE: update help/info
 - fix BG color in Warehouse Entrance
-- snes mini compatibility with fast decompression
-- investigate game-start crash reported by HisBeardNis
+- DONE: snes mini compatibility with fast decompression
+- DONE: investigate game-start crash reported by HisBeardNis
 - investigate top-of-HUD flicker: https://www.twitch.tv/karterfreak/clip/FaintTenuousRadicchioPanicVis-EAYYiqzZqSiB-BtZ
 - investigate audio-related lag after quick reload
 - DONE: decide whether or not to leave item PLMs (other than chozo orbs) as early-loading
 - DONE: look into pause fade-in speed (currently asymmetric with fade-out)
-- switch around palettes, to make acid FX fade, and improve item colors
+- DONE: switch around palettes, to make acid FX fade, and improve item colors
 - DONE: partial reveal door next to two-door save/refill rooms
 - DONE: handle comeInWithSidePlatform environment
 - DONE: add main hall elevator hazard marker

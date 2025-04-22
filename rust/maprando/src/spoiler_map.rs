@@ -110,7 +110,10 @@ pub fn get_spoiler_map(
             }
             if tiles[y][x].area.is_none()
                 || tiles[y][x].special_type == Some(MapTileSpecialType::Tube)
+                || tiles[y][x].special_type == Some(MapTileSpecialType::Elevator)
             {
+                // Allow other tiles to take priority (draw on top of) tube and elevator tiles,
+                // because of the Toilet, and also Tourian elevator on vanilla map.
                 tiles[y][x] = tile.clone();
                 tiles[y][x].area = Some(area);
             }
