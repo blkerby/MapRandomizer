@@ -85,7 +85,7 @@ async fn randomize(
     http_req: HttpRequest,
     app_data: web::Data<AppData>,
 ) -> impl Responder {
-    let mut settings = match try_upgrade_settings(req.settings.0.to_string(), &app_data) {
+    let mut settings = match try_upgrade_settings(req.settings.0.to_string(), &app_data, true) {
         Ok(s) => s.1,
         Err(e) => {
             return HttpResponse::BadRequest().body(e.to_string());

@@ -109,7 +109,7 @@ async fn customize_seed(
     let settings: Option<RandomizerSettings> = if settings_bytes.len() == 0 {
         None
     } else {
-        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data) {
+        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data, false) {
             Ok(s) => Some(s.1),
             Err(e) => {
                 return HttpResponse::InternalServerError().body(e.to_string());

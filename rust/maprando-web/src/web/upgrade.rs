@@ -2,7 +2,7 @@ use crate::web::AppData;
 use actix_web::{post, web, HttpResponse, Responder};
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
-use log::{error, info};
+use log::error;
 use maprando::settings::{
     parse_randomizer_settings, NotableSetting, RandomizerSettings, TechSetting,
 };
@@ -210,7 +210,6 @@ fn upgrade_map_setting(settings: &mut serde_json::Value) -> Result<()> {
 }
 
 fn upgrade_start_location_setings(settings: &mut serde_json::Value) -> Result<()> {
-    info!("checking start location");
     if !settings
         .as_object()
         .unwrap()
@@ -272,11 +271,14 @@ fn upgrade_objective_settings(settings: &mut serde_json::Value, app_data: &AppDa
 pub fn try_upgrade_settings(
     settings_str: String,
     app_data: &AppData,
+    apply_presets: bool,
 ) -> Result<(String, RandomizerSettings)> {
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
     upgrade_objective_settings(&mut settings, app_data)?;
-    assign_presets(&mut settings, app_data)?;
+    if apply_presets {
+        assign_presets(&mut settings, app_data)?;
+    }
     upgrade_tech_settings(&mut settings, app_data)?;
     upgrade_notable_settings(&mut settings, app_data)?;
     upgrade_other_skill_settings(&mut settings)?;
@@ -300,7 +302,7 @@ pub fn try_upgrade_settings(
 
 #[post("/upgrade-settings")]
 async fn upgrade_settings(settings_str: String, app_data: web::Data<AppData>) -> impl Responder {
-    match try_upgrade_settings(settings_str, &app_data) {
+    match try_upgrade_settings(settings_str, &app_data, true) {
         Ok((settings_str, _)) => HttpResponse::Ok()
             .content_type("application/json")
             .body(settings_str),
