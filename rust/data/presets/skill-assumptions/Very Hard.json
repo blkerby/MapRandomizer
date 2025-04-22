@@ -1195,13 +1195,6 @@
             "enabled": true
         },
         {
-            "room_id": 30,
-            "notable_id": 3,
-            "room_name": "Gauntlet Entrance",
-            "notable_name": "Shinecharge Under Yapping Maw",
-            "enabled": true
-        },
-        {
             "room_id": 34,
             "notable_id": 6,
             "room_name": "East Ocean",
@@ -1248,13 +1241,6 @@
             "notable_id": 7,
             "room_name": "Blue Brinstar Energy Tank Room",
             "notable_name": "Fast Wall Jump Spark",
-            "enabled": true
-        },
-        {
-            "room_id": 51,
-            "notable_id": 1,
-            "room_name": "Etecoon Energy Tank Room",
-            "notable_name": "Beetom Tricky Dodge",
             "enabled": true
         },
         {
@@ -1468,24 +1454,10 @@
             "enabled": true
         },
         {
-            "room_id": 137,
-            "notable_id": 1,
-            "room_name": "Red Kihunter Shaft",
-            "notable_name": "KiHunter Dodge",
-            "enabled": true
-        },
-        {
             "room_id": 142,
             "notable_id": 1,
             "room_name": "Ridley's Room",
             "notable_name": "Ridley without Heat Protection",
-            "enabled": true
-        },
-        {
-            "room_id": 135,
-            "notable_id": 1,
-            "room_name": "The Worst Room In The Game",
-            "notable_name": "New Route with HiJump, Speed, and PowerBombs",
             "enabled": true
         },
         {
@@ -1755,6 +1727,13 @@
             "enabled": false
         },
         {
+            "room_id": 30,
+            "notable_id": 3,
+            "room_name": "Gauntlet Entrance",
+            "notable_name": "Shinecharge Under Yapping Maw",
+            "enabled": false
+        },
+        {
             "room_id": 34,
             "notable_id": 4,
             "room_name": "East Ocean",
@@ -1780,6 +1759,13 @@
             "notable_id": 8,
             "room_name": "West Ocean",
             "notable_name": "Shinespark, Morph Tunnel Rush",
+            "enabled": false
+        },
+        {
+            "room_id": 51,
+            "notable_id": 1,
+            "room_name": "Etecoon Energy Tank Room",
+            "notable_name": "Beetom Tricky Dodge",
             "enabled": false
         },
         {
@@ -2071,9 +2057,23 @@
         },
         {
             "room_id": 137,
+            "notable_id": 1,
+            "room_name": "Red Kihunter Shaft",
+            "notable_name": "KiHunter Dodge",
+            "enabled": false
+        },
+        {
+            "room_id": 137,
             "notable_id": 2,
             "room_name": "Red Kihunter Shaft",
             "notable_name": "Kihunter Manipulation from Middle Door",
+            "enabled": false
+        },
+        {
+            "room_id": 135,
+            "notable_id": 1,
+            "room_name": "The Worst Room In The Game",
+            "notable_name": "New Route with HiJump, Speed, and PowerBombs",
             "enabled": false
         },
         {

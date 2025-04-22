@@ -196,7 +196,7 @@
     "room_name": "Gauntlet Entrance",
     "notable_id": 3,
     "name": "Shinecharge Under Yapping Maw",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 315
   },
   {
@@ -508,7 +508,7 @@
     "room_name": "Etecoon Energy Tank Room",
     "notable_id": 1,
     "name": "Beetom Tricky Dodge",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 502
   },
   {
@@ -1716,7 +1716,7 @@
     "room_name": "Red Kihunter Shaft",
     "notable_id": 1,
     "name": "KiHunter Dodge",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 520
   },
   {
@@ -1748,7 +1748,7 @@
     "room_name": "The Worst Room In The Game",
     "notable_id": 1,
     "name": "New Route with HiJump, Speed, and PowerBombs",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 565
   },
   {
