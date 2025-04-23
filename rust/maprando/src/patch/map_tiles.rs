@@ -485,7 +485,8 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
             for y in level..8 {
                 for x in 0..8 {
                     if tile.liquid_type == MapLiquidType::Acid {
-                        if x % 2 == 0 && (y + x / 2) % 2 == 0 {
+                        let offsets = [3, 9, 1, 3, 9, 0, 2, 9];
+                        if x % 4 == offsets[y as usize] {
                             data[y as usize][x as usize] = liquid_colors.1;
                         } else {
                             data[y as usize][x as usize] = liquid_colors.0;
