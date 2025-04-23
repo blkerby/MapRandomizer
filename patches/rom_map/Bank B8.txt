@@ -1,5 +1,6 @@
 8000-8100: hazard_markers.asm
 8100-8300: mb_barrier_clear.asm
+
 8300-9000: extra room data (pointed to by "unused/special x-ray" pointer in room header)
   - each record has following structure:
     - 1 byte: map area

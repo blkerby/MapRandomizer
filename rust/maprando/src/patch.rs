@@ -460,6 +460,7 @@ impl<'a> Patcher<'a> {
             "beam_doors",
             "horizontal_door_fix",
             "samus_tiles_optim_animated_tiles_fix",
+            "sand_clamp",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -892,41 +893,17 @@ impl<'a> Patcher<'a> {
         for (door_pair, min_position, max_position) in sand_entrances {
             let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
 
-            // Note: we don't bother with adjusting subpixels.
             let asm = vec![
-                // Check if Samus X position is less than min_position, and if so set it to min_position:
-                0xA9,
+                0xA2,
                 (min_position & 0xFF) as u8,
-                (min_position >> 8) as u8, // LDA #min_position
-                0xCD,
-                0xF6,
-                0x0A, // CMP $0AF6
-                0x90,
-                0x06, // BCC .no_clamp_min
-                0x8D,
-                0xF6,
-                0x0A, // STA $0AF6
-                0x8D,
-                0x10,
-                0x0B, // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
-                // .no_clamp_min:
-
-                // Check if Samus X position is greater than max_position, and if so set it to max_position:
-                0xA9,
+                (min_position >> 8) as u8, // LDX #min_position
+                0xA0,
                 (max_position & 0xFF) as u8,
-                (max_position >> 8) as u8, // LDA #max_position
-                0xCD,
-                0xF6,
-                0x0A, // CMP $0AF6
+                (max_position >> 8) as u8, // LDY #max_position
+                0x22,
                 0xB0,
-                0x06, // BCS .no_clamp_max
-                0x8D,
-                0xF6,
-                0x0A, // STA $0AF6
-                0x8D,
-                0x10,
-                0x0B, // STA $0B10  ; also set samus previous X position (to prevent camera glitching)
-                      // .no_clamp_max:
+                0xA9,
+                0x85,  // JSL $85A9B0 (sand_clamp.asm)
             ];
 
             extra_door_asm

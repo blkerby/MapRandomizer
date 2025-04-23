@@ -1,8 +1,8 @@
 v118:
 - DONE: rework map tiles (global pause tileset, and room-local mini-map tilesets)
 - resolve door transition flickering (use VRAM transfers during vblank instead of forced blank)
-- fix sand hole start locations.
-- check MB logic: 2+4 shouldn't be in logic without r-mode?
+- DONE: fix sand hole start locations.
+- DONE: check MB logic: 2+4 shouldn't be in logic without r-mode?
 - DONE: fix disabled tank color
 - DONE: fix color on one samus tile on equipment screen
 - DONE: fix beam door black color
