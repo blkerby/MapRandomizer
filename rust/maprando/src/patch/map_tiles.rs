@@ -502,7 +502,7 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
                             }
                         }
                         MapLiquidType::Acid => {
-                            let offsets = [3, 9, 1, 3, 9, 0, 2, 9];
+                            let offsets = [9, 0, 2, 9, 9, 0, 2, 9];
                             if x % 4 == offsets[y as usize] {
                                 data[y as usize][x as usize] = liquid_colors.1;
                             } else {
