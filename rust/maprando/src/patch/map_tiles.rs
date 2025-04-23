@@ -514,7 +514,11 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
                 }
             }
 
-            if tile.faded && tile.interior.is_item() && (tile.liquid_type == MapLiquidType::Lava || tile.liquid_type == MapLiquidType::Acid) {
+            if tile.faded
+                && tile.interior.is_item()
+                && (tile.liquid_type == MapLiquidType::Lava
+                    || tile.liquid_type == MapLiquidType::Acid)
+            {
                 // Improve contrast around faded items:
                 for y in 1..7 {
                     for x in 1..7 {
