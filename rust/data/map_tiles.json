@@ -1687,7 +1687,7 @@
             "roomId": 195,
             "roomName": "West Cactus Alley Room",
             "liquidType": "water",
-            "liquidLevel": 0.625,
+            "liquidLevel": 0.75,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "door", "top": "wall", "bottom": "empty"},
                 {"coords": [0, 1], "left": "door", "right": "wall", "top": "empty", "bottom": "wall"}
