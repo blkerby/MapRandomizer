@@ -873,7 +873,7 @@
             "roomId": 7,
             "roomName": "The Moat",
             "liquidType": "water",
-            "liquidLevel": 0.625,
+            "liquidLevel": 0.75,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
@@ -1597,7 +1597,7 @@
             "roomId": 208,
             "roomName": "East Sand Hole",
             "liquidType": "water",
-            "liquidLevel": 0.625,
+            "liquidLevel": 0.75,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "sand", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "empty"},
@@ -1697,7 +1697,7 @@
             "roomId": 209,
             "roomName": "West Sand Hole",
             "liquidType": "water",
-            "liquidLevel": 0.625,
+            "liquidLevel": 0.75,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "doubleItem"},
                 {"coords": [1, 0], "left": "empty", "right": "wall", "top": "sand", "bottom": "empty"},
@@ -2086,7 +2086,7 @@
             "roomId": 131,
             "roomName": "Grapple Tutorial Room 3",
             "liquidType": "water",
-            "liquidLevel": 0.625,
+            "liquidLevel": 0.75,
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -2986,7 +2986,7 @@
             "roomId": 167,
             "roomName": "Wrecked Ship Energy Tank Room",
             "liquidType": "water",
-            "liquidLevel": 0.625,
+            "liquidLevel": 0.75,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "item"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
