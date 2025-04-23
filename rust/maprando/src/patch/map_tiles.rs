@@ -474,7 +474,7 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
     let liquid_colors = match (tile.liquid_type, tile.heated) {
         (MapLiquidType::None, _) => (bg_color, bg_color),
         (MapLiquidType::Water, false) => (4, 1),
-        (MapLiquidType::Lava, true) => (1, 2),
+        (MapLiquidType::Lava, true) => (2, 1),
         (MapLiquidType::Acid, false) => (1, 2),
         (MapLiquidType::Acid, true) => (2, 1),
         _ => panic!("unexpected liquid type"),
@@ -484,19 +484,32 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
             let level = (liquid_level * 8.0).floor() as isize;
             for y in level..8 {
                 for x in 0..8 {
-                    if tile.liquid_type == MapLiquidType::Acid {
-                        let offsets = [3, 9, 1, 3, 9, 0, 2, 9];
-                        if x % 4 == offsets[y as usize] {
-                            data[y as usize][x as usize] = liquid_colors.1;
-                        } else {
-                            data[y as usize][x as usize] = liquid_colors.0;
+                    match tile.liquid_type {
+                        MapLiquidType::Water => {
+                            if (x + y) % 2 == 0 {
+                                data[y as usize][x as usize] = liquid_colors.0;
+                            } else {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            }
                         }
-                    } else {
-                        if (x + y) % 2 == 0 {
-                            data[y as usize][x as usize] = liquid_colors.0;
-                        } else {
-                            data[y as usize][x as usize] = liquid_colors.1;
+                        MapLiquidType::Lava => {
+                            if (x % 2 == 0 && y % 2 == 0)
+                                || (x % 2 == 1 && y % 2 == 1 && (x / 2 + y / 2) % 2 == 0)
+                            {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            } else {
+                                data[y as usize][x as usize] = liquid_colors.0;
+                            }
                         }
+                        MapLiquidType::Acid => {
+                            let offsets = [3, 9, 1, 3, 9, 0, 2, 9];
+                            if x % 4 == offsets[y as usize] {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            } else {
+                                data[y as usize][x as usize] = liquid_colors.0;
+                            }
+                        }
+                        MapLiquidType::None => bail!("unexpected liquid type None"),
                     }
                 }
             }
