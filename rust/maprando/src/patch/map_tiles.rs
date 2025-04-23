@@ -514,14 +514,14 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
                 }
             }
 
-            // if liquid_level > 0.5 && tile.interior.is_item() {
-            //     // For shallow liquid, improve contrast around items:
-            //     for y in 2..6 {
-            //         for x in 2..6 {
-            //             data[y][x] = bg_color;
-            //         }
-            //     }
-            // }
+            if tile.faded && tile.interior.is_item() && (tile.liquid_type == MapLiquidType::Lava || tile.liquid_type == MapLiquidType::Acid) {
+                // Improve contrast around faded items:
+                for y in 1..7 {
+                    for x in 1..7 {
+                        data[y][x] = bg_color;
+                    }
+                }
+            }
         }
     };
 
