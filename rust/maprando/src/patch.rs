@@ -903,7 +903,7 @@ impl<'a> Patcher<'a> {
                 0x22,
                 0xB0,
                 0xA9,
-                0x85,  // JSL $85A9B0 (sand_clamp.asm)
+                0x85, // JSL $85A9B0 (sand_clamp.asm)
             ];
 
             extra_door_asm
