@@ -11,6 +11,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging.INFO)
 # to be able to detect which bytes are affected.
 
 parser = argparse.ArgumentParser('build_ips', 'Build IPS files')
+parser.add_argument('--rebuild', action=argparse.BooleanOptionalAction)
 parser.add_argument('--verify', action=argparse.BooleanOptionalAction)
 parser.add_argument('--assembler-path', type=str, default="asar")
 args = parser.parse_args()
@@ -18,19 +19,11 @@ args = parser.parse_args()
 TMP_PATH = "tmp"
 ROM_PATH = TMP_PATH + "/rom.sfc"
 OUTPUT_PATH = "patches/ips"
-MANIFEST_PATH = "patches/patch_manifest.json"
 
 excluded_files = [
     "Mosaic/Projects/Base/ASM/Acid Tilemap.asm"
 ]
 ignored_overlap_patterns = ["hyper_beam", "ultra_low_"]
-
-try:
-    old_manifest = json.loads(open(MANIFEST_PATH, "r").read())
-except FileNotFoundError:
-    old_manifest = {}
-
-
 
 asm_src_files = []
 asm_src_files.extend(glob.glob("patches/src/*.asm"))
@@ -94,7 +87,23 @@ def write_ips_patch(ips_path, changed_byte_dict, chunks):
         file.write(data)
     file.write("EOF".encode());
 
-new_manifest = {}
+
+def read_ips_patch_chunks(ips_path):
+    file = open(ips_path, 'rb')
+    assert file.read(5) == "PATCH".encode()
+    chunks = []
+    while True:
+        start_bytes = file.read(3)
+        if start_bytes == "EOF".encode():
+            break
+        start = int.from_bytes(start_bytes, byteorder="big")
+        size = int.from_bytes(file.read(2), byteorder="big")
+        file.read(size)
+        chunks.append((start, start + size))
+    return chunks
+
+
+chunks_dict = {}
 for idx, asm_path in enumerate(asm_src_files):
     base_filename = os.path.splitext(os.path.basename(asm_path))[0]
     ips_path = f"{OUTPUT_PATH}/{base_filename}.ips"
@@ -106,15 +115,12 @@ for idx, asm_path in enumerate(asm_src_files):
     except FileNotFoundError as e:
         pass
     
-    if base_filename not in old_manifest or ips_modified_ts is None or src_modified_ts > ips_modified_ts or args.verify:
+    if ips_modified_ts is None or src_modified_ts > ips_modified_ts or args.rebuild or args.verify:
         logging.info(f"Assembling {asm_path}")
         changed_bytes = {}
         run_asar(asm_path, 0x00, changed_bytes)
         run_asar(asm_path, 0xff, changed_bytes)
         chunks = get_chunks(changed_bytes)
-
-        # Update the manifest:
-        new_manifest[base_filename] = chunks
 
         # Write the IPS file:
         if args.verify:
@@ -127,15 +133,13 @@ for idx, asm_path in enumerate(asm_src_files):
         else:
             write_ips_patch(ips_path, changed_bytes, chunks)
     else:
-        new_manifest[base_filename] = old_manifest[base_filename]
+        chunks = read_ips_patch_chunks(ips_path)
+    chunks_dict[base_filename] = chunks
 
-if new_manifest != old_manifest:
-    logging.info(f"Updating {MANIFEST_PATH}")
-    json.dump(new_manifest, open(MANIFEST_PATH, "w"))
-    
+
 # Check for overlap/conflicts between patches:
-for filename, chunks in new_manifest.items():
-    for other_filename, other_chunks in new_manifest.items():
+for filename, chunks in chunks_dict.items():
+    for other_filename, other_chunks in chunks_dict.items():
         if filename == other_filename:
             continue
         ignored = False
@@ -150,4 +154,3 @@ for filename, chunks in new_manifest.items():
                 overlap_end = min(chunk[1], other_chunk[1])
                 if overlap_start < overlap_end:
                     logging.info(f"Overlap between {filename} and {other_filename}: {pc2snes(overlap_start):06X} - {pc2snes(overlap_end):06X}")
-
