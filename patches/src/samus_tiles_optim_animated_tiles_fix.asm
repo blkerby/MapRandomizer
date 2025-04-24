@@ -65,68 +65,58 @@ transfer_samus_tiles:
     LDX #$80 : STX $2115 ; VRAM address increment mode = 16-bit access
     LDA #$1801 : STA $4310 ; DMA 1 control / target = 16-bit VRAM data write
     LDX #$02 ; X = 2
-    LDA $0721 : BPL ++ ; If Samus bottom half tiles flagged for transfer:
+
+    LDA $0721 : BPL .skip2 ; If Samus bottom half tiles flagged for transfer:
     STA $3C ; $3C = [Samus bottom half tiles definition]
     LDA #$6080 : STA $2116 ; VRAM address = $6080
     LDA [$3C] : STA $4312 ; DMA 1 source address = [[$3C]]
     TXY : LDA [$3C],y : STA $4314
     INY : LDA [$3C],y ; DMA 1 size = [[$3C] + 3]
-    JSR hook_samus_dma_bottom_part_1
+    BEQ .skip1
+    CMP #$0300
+    BCC .uncapped1
+    LDA #$0300   ; transfer a maximum of $300 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped1:
+    STA $4315
     STX $420B ; Enable DMA 1
-    INY : INY : LDA [$3C],y : BEQ ++ ; If [[$3C] + 5] != 0:
-    JSR hook_samus_dma_bottom_part_2 ; DMA 1 size = [[$3C] + 5]
+.skip1:
+
+    INY : INY : LDA [$3C],y : BEQ .skip2 ; If [[$3C] + 5] != 0:
+    CMP #$0100
+    BCC .uncapped2
+    LDA #$0100   ; transfer a maximum of $100 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped2:
+    STA $4315
     LDA #$6180 : STA $2116 ; VRAM address = $6180
     STX $420B ; Enable DMA 1
-++
-    LDA $071F : BPL + ; If Samus top half tiles flagged for transfer:
+.skip2:
+    
+    LDA $071F : BPL .skip4 ; If Samus top half tiles flagged for transfer:
     STA $3C ; $3C = [Samus top half tiles definition]
     LDA #$6000 : STA $2116 ; VRAM address = $6000
     LDA [$3C] : STA $4312 ; DMA 1 source address = [[$3C]]
     TXY : LDA [$3C],y : STA $4314
     INY : LDA [$3C],y ; DMA 1 size = [[$3C] + 3]
-    JSR hook_samus_dma_top_part_1
+    BEQ .skip3
+    CMP #$0400
+    BCC .uncapped3
+    LDA #$0400   ; transfer a maximum of $400 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped3:
+    STA $4315
     STX $420B ; Enable DMA 1
-    INY : INY : LDA [$3C],y : BEQ + ; If [[$3C] + 5] != 0:
-    JSR hook_samus_dma_top_part_2 ; DMA 1 size = [[$3C] + 5]
+.skip3:
+
+    INY : INY : LDA [$3C],y : BEQ .skip4 ; If [[$3C] + 5] != 0:
+    CMP #$0200
+    BCC .uncapped4
+    LDA #$0200   ; transfer a maximum of $200 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped4:
+    STA $4315
     LDA #$6100 : STA $2116 ; VRAM address = $6100
     STX $420B ; Enable DMA 1
-+
+.skip4:
+
     RTS
-
-; bounds check Samus DMA writes (formerly samus_dma_fix.asm)
-hook_samus_dma_top_part_1:
-    bne .non_zero
-    inc             ; transfer a minimum of 1 byte, since 0 would be interpreted as $10000
-    bra hook_end
-.non_zero:
-    cmp #$0400      ; transfer a maximum of $400 bytes, to stay inside the VRAM space reserved for Samus.
-    bcc hook_end
-    lda #$0400
-hook_end:
-    sta $4315       ; run hi-jacked instruction
-    rts
-
-hook_samus_dma_top_part_2:
-    cmp #$0200      ; transfer a maximum of $200 bytes, to stay inside the VRAM space reserved for Samus.
-    bcc hook_end
-    lda #$0200
-    bra hook_end
-
-hook_samus_dma_bottom_part_1:
-    bne .non_zero
-    inc             ; transfer a minimum of 1 byte, since 0 would be interpreted as $10000
-    bra hook_end
-.non_zero:
-    cmp #$0300      ; transfer a maximum of $300 bytes, to stay inside the VRAM space reserved for Samus.
-    bcc hook_end
-    lda #$0300
-    bra hook_end
-    
-hook_samus_dma_bottom_part_2:
-    cmp #$0100      ; transfer a maximum of $100 bytes, to stay inside the VRAM space reserved for Samus.
-    bcc hook_end
-    lda #$0100
-    bra hook_end
 
 ResetStuff:
     STZ $071F : STZ $0721 ; Samus tiles definitions = 0, clear Samus tiles transfer flags
