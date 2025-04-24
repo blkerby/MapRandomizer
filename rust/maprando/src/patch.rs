@@ -461,6 +461,7 @@ impl<'a> Patcher<'a> {
             "horizontal_door_fix",
             "samus_tiles_optim_animated_tiles_fix",
             "sand_clamp",
+            "fix_transition_flicker",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
