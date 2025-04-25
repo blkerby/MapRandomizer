@@ -3818,7 +3818,8 @@ impl<'r> Randomizer<'r> {
             {
                 selected_key_items = new_selected_key_items;
             } else {
-                if self.settings.item_progression_settings.progression_rate == ProgressionRate::Slow {
+                if self.settings.item_progression_settings.progression_rate == ProgressionRate::Slow
+                {
                     info!("[attempt {attempt_num_rando}] Continuing with last-ditch effort after exhausting key item placement attempts");
                 } else {
                     bail!("[attempt {attempt_num_rando}] Failing after exhausting key item placement attempts");
