@@ -3743,7 +3743,7 @@ impl<'r> Randomizer<'r> {
         num_unplaced_bireachable: usize,
         num_unplaced_oneway_reachable: usize,
         rng: &mut R,
-    ) -> (SelectItemsOutput, RandomizationState) {
+    ) -> Result<(SelectItemsOutput, RandomizationState)> {
         let (num_key_items_to_select, num_filler_items_to_select) = self.determine_item_split(
             state,
             num_unplaced_bireachable,
@@ -3810,7 +3810,7 @@ impl<'r> Randomizer<'r> {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
                 };
-                return (selection, new_state);
+                return Ok((selection, new_state));
             }
 
             if let Some(new_selected_key_items) =
@@ -3818,7 +3818,11 @@ impl<'r> Randomizer<'r> {
             {
                 selected_key_items = new_selected_key_items;
             } else {
-                info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
+                if self.settings.item_progression_settings.progression_rate == ProgressionRate::Slow {
+                    info!("[attempt {attempt_num_rando}] Continuing with last-ditch effort after exhausting key item placement attempts");
+                } else {
+                    bail!("[attempt {attempt_num_rando}] Failing after exhausting key item placement attempts");
+                }
                 if self
                     .settings
                     .item_progression_settings
@@ -3846,7 +3850,7 @@ impl<'r> Randomizer<'r> {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
                 };
-                return (selection, new_state);
+                return Ok((selection, new_state));
             }
             attempt_num += 1;
         }
@@ -3857,7 +3861,7 @@ impl<'r> Randomizer<'r> {
         attempt_num_rando: usize,
         state: &mut RandomizationState,
         rng: &mut R,
-    ) -> (SpoilerSummary, SpoilerDetails, bool) {
+    ) -> Result<(SpoilerSummary, SpoilerDetails, bool)> {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
@@ -3951,7 +3955,7 @@ impl<'r> Randomizer<'r> {
                 spoiler_door_details,
             );
             state.previous_debug_data = state.debug_data.clone();
-            return (spoiler_summary, spoiler_details, true);
+            return Ok((spoiler_summary, spoiler_details, true));
         }
 
         let mut placed_uncollected_bireachable_loc: Vec<ItemLocationId> = Vec::new();
@@ -3981,7 +3985,7 @@ impl<'r> Randomizer<'r> {
             unplaced_bireachable.len(),
             unplaced_oneway_reachable.len(),
             rng,
-        );
+        )?;
         new_state.previous_debug_data = state.debug_data.clone();
         new_state.key_visited_vertices = state.key_visited_vertices.clone();
 
@@ -4025,7 +4029,7 @@ impl<'r> Randomizer<'r> {
             spoiler_door_details,
         );
         *state = new_state;
-        (spoiler_summary, spoiler_details, false)
+        Ok((spoiler_summary, spoiler_details, false))
     }
 
     fn get_seed_name(&self, seed: usize) -> String {
@@ -4876,7 +4880,7 @@ impl<'r> Randomizer<'r> {
                 self.rerandomize_tank_precedence(&mut state.item_precedence, &mut rng);
             }
             let (spoiler_summary, spoiler_details, is_early_stop) =
-                self.step(attempt_num_rando, &mut state, &mut rng);
+                self.step(attempt_num_rando, &mut state, &mut rng)?;
             let cnt_collected = state
                 .item_location_state
                 .iter()
