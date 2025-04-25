@@ -1036,7 +1036,7 @@
             "roomName": "Amphitheatre",
             "heated": true,
             "liquidType": "acid",
-            "liquidLevel": 0.625,
+            "liquidLevel": 4.625,
             "mapTiles": [
                 {"coords": [1, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty"},
                 {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "empty"},
@@ -1282,7 +1282,7 @@
             "roomName": "Acid Statue Room",
             "heated": true,
             "liquidType": "acid",
-            "liquidLevel": 0.625,
+            "liquidLevel": 2.625,
             "mapTiles": [
                 {"coords": [0, 0], "left": "wall", "right": "empty", "top": "wall", "bottom": "empty", "interior": "event"},
                 {"coords": [1, 0], "left": "empty", "right": "door", "top": "wall", "bottom": "empty"},
