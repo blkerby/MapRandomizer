@@ -6,10 +6,12 @@
 !deathhook82 = $82DDC7 ;$82 used for death hook (game state $19)
 
 ;free space: make sure it doesnt override anything you have
-!bank_85_free_space_start = $859880
-!bank_85_free_space_end = $859980
+!bank_80_free_space_start = $80d310
+!bank_80_free_space_end = $80d330
 !bank_82_free_space_start = $82FE70
 !bank_82_free_space_end = $82FE80
+!bank_85_free_space_start = $859880
+!bank_85_free_space_end = $859980
 
 !spin_lock_button_combo = $82FE7C   ; This should be inside free space, and also consistent with reference in customize.rs
 !reload_button_combo = $82FE7E   ; This should be inside free space, and also consistent with reference in customize.rs
@@ -350,3 +352,28 @@ hook_ship_save:
 
 warnpc $A18000
 
+; load game room pointer hook
+org $80c45e
+    jsr hook_room
+
+org !bank_80_free_space_start
+hook_room:
+    cmp #$A98D  ; crocomire spawn?
+    bne .leave
+; clear 7e2000-3000 to avoid layer 2 corruption
+    pha
+    phx
+    ldx #$0000
+    lda #$0338
+.clr_lp
+    sta $7E2000,x
+    inx : inx
+    cpx #$1000
+    bmi .clr_lp
+    plx
+    pla
+.leave
+    sta $079B  ; replaced code
+    rts
+
+warnpc !bank_80_free_space_end
