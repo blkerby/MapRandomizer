@@ -508,7 +508,9 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
             if tile.faded
                 && tile.interior.is_item()
                 && (tile.liquid_type == MapLiquidType::Lava
-                    || tile.liquid_type == MapLiquidType::Acid)
+                    || tile.liquid_type == MapLiquidType::Acid
+                    || (tile.liquid_type == MapLiquidType::Water
+                        && tile.liquid_level.unwrap() > 0.5))
             {
                 // Improve contrast around faded items:
                 match tile.interior {
@@ -1501,8 +1503,8 @@ impl<'a> MapPatcher<'a> {
             // Vanilla buttons at bottom-center of pause screen
             0x290, 0x291, 0x292, 0x2A0, 0x2A1, 0x2A2, 0x2A3, 0x2B0, 0x2B1, 0x2B2, 0x2B3, 0x2B8,
             0x2C0, 0x2C1, 0x2C2, 0x2C3, // Sprite tiles:
-            0x23C, 0x23D, 0x243, 0x251, 0x29D, 0x29E, 0x2AF, 0x2B4, 0x2B5, 0x2B6, 0x2C4, 0x2C5,
-            0x2C6, 0x2C7,
+            0x228, 0x229, 0x22A, 0x22E, 0x23C, 0x23D, 0x243, 0x251, 0x29D, 0x29E, 0x2AF, 0x2B4,
+            0x2B5, 0x2B6, 0x2C4, 0x2C5, 0x2C6, 0x2C7,
         ]
         .into_iter()
         .collect();
