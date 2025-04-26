@@ -130,22 +130,27 @@ org $8095A7
 ; interrupted by NMI. We saw compatibility issues on 3DS (Snes9x 1.51), which is
 ; why we set it to a relatively late scanline so that NMI should no longer still be
 ; in progress.
-; org $8096CC : LDY #$00FF  ; main gameplay (no need to modify this, since decompression does not happen in this state)
-org $809713 : LDY #$00FF  ; start of door transition
-; org $809751 : LDY #$00FF  ; Draygon's Room (no need to modify this, since decompression does not happen in this state)
-org $8097B4 : LDY #$00FF  ; vertical door transition
-org $80981D : LDY #$00FF  ; horizontal door transition
+;
+; For main gameplay states (where decompression is not happening), we adjust the timing
+; by a smaller amount (37 dots), to account for the extra few cycles spent saving and
+; setting the Direct Page register.
+;
+org $8096CF : LDX #$0073  ; main gameplay (h-counter target = $73 = 115)
+org $809713 : LDY #$00FF  ; start of door transition (v-counter target = $FF = 255)
+org $809754 : LDX #$0073  ; Draygon's Room (h-counter target = $73 = 115)
+org $8097B4 : LDY #$00FF  ; vertical door transition (v-counter target = $FF = 255)
+org $80981D : LDY #$00FF  ; horizontal door transition (v-counter target = $FF = 255)
 
-; Change the bottom-of-HUD IRQ to run slightly earlier (32 dots), to account for the extra few
+; Change the bottom-of-HUD IRQ to run slightly earlier (37 dots), to account for the extra few
 ; cycles spent saving and setting the Direct Page register:
 ; It is also possible for this IRQ to be delayed due to a large DMA transfer during
 ; decompression, but if that happens, it only results in some black scanlines below
 ; the HUD, which shouldn't be too noticeable since the room is already faded to black.
-org $8096A5 : LDX #$0073  ; main gameplay
-org $8096ED : LDX #$0073  ; start of door transition
-org $80972F : LDX #$0073  ; Draygon's Room
-org $80976D : LDX #$0073  ; vertical door transition
-org $8097D6 : LDX #$0073  ; horizontal door transition
+org $8096A5 : LDX #$0073  ; main gameplay (h-counter target = $73 = 115)
+org $8096ED : LDX #$0073  ; start of door transition (h-counter target = $73 = 115)
+org $80972F : LDX #$0073  ; Draygon's Room (h-counter target = $73 = 115)
+org $80976D : LDX #$0073  ; vertical door transition (h-counter target = $73 = 115)
+org $8097D6 : LDX #$0073  ; horizontal door transition (h-counter target = $73 = 115)
 
 ;some hijacks
 org $809876
