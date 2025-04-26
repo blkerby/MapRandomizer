@@ -494,24 +494,11 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
                         }
                         MapLiquidType::Lava => {
                             data[y as usize][x as usize] = liquid_colors.1;
-                            // if (x % 2 == 0 && y % 2 == 0)
-                            //     || (x % 2 == 1 && y % 2 == 1 && (x / 2 + y / 2) % 2 == 0)
-                            // {
-                            //     data[y as usize][x as usize] = liquid_colors.1;
-                            // } else {
-                            //     data[y as usize][x as usize] = liquid_colors.0;
-                            // }
                         }
                         MapLiquidType::Acid => {
                             if (x + y) % 2 == 0 {
                                 data[y as usize][x as usize] = liquid_colors.1;
                             }
-                            // let offsets = [9, 0, 2, 9, 9, 0, 2, 9];
-                            // if x % 4 == offsets[y as usize] {
-                            //     data[y as usize][x as usize] = liquid_colors.1;
-                            // } else {
-                            //     data[y as usize][x as usize] = liquid_colors.0;
-                            // }
                         }
                         MapLiquidType::None => bail!("unexpected liquid type None"),
                     }
@@ -524,47 +511,21 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
                     || tile.liquid_type == MapLiquidType::Acid)
             {
                 // Improve contrast around faded items:
-                // for y in 2..6 {
-                //     for x in 2..6 {
-                //         data[y][x] = bg_color;
-                //     }
-                // }
                 match tile.interior {
                     MapTileInterior::Item => {
-                        // horizontally/vertically adjacent:
-                        data[5][3] = bg_color;
-                        data[5][4] = bg_color;
-                        // diagonal:
-                        data[5][2] = bg_color;
-                        data[5][5] = bg_color;
+                        for y in 2..6 {
+                            for x in 2..6 {
+                                data[y][x] = bg_color;
+                            }
+                        }
                     }
-                    MapTileInterior::AmmoItem => {
-                        // horizontally/vertically adjacent:
-                        data[5][1] = bg_color;
-                        data[5][3] = bg_color;
-                        data[5][4] = bg_color;
-                        data[5][6] = bg_color;
-                        data[6][2] = bg_color;
-                        data[6][5] = bg_color;
-                        // diagonal:
-                        data[6][1] = bg_color;
-                        data[6][3] = bg_color;
-                        data[6][4] = bg_color;
-                        data[6][6] = bg_color;
+                    _ => {
+                        for y in 1..7 {
+                            for x in 1..7 {
+                                data[y][x] = bg_color;
+                            }
+                        }
                     }
-                    MapTileInterior::MediumItem | MapTileInterior::MajorItem => {
-                        // horizontally/vertically adjacent:
-                        data[5][2] = bg_color;
-                        data[5][5] = bg_color;
-                        data[6][3] = bg_color;
-                        data[6][4] = bg_color;
-                        // diagonal:
-                        data[5][1] = bg_color;
-                        data[5][6] = bg_color;
-                        data[6][2] = bg_color;
-                        data[6][5] = bg_color;
-                    }
-                    _ => panic!("Unexpected item interior: {:?}", tile.interior)
                 }
             }
         }
