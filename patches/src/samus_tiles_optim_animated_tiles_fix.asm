@@ -12,8 +12,8 @@
 arch 65816
 lorom
 
-!bank_80_free_space_start = $80e540
-!bank_80_free_space_end = $80e620
+!bank_80_free_space_start = $80e580
+!bank_80_free_space_end = $80e660
 
 org $8095A1
     JSR transfer_samus_tiles ; overwrite call to original transfer tiles routine to our own
