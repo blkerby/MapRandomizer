@@ -1585,9 +1585,14 @@ impl<'a> Patcher<'a> {
 
     fn setup_reload_cre(&mut self) -> Result<()> {
         // Find the rooms connected to Kraid and set them to reload CRE, to prevent graphical glitches.
+        // We also do this for Dachora Room, since CRE graphics can get corrupted here by using X-ray
+        // far off-camera (e.g. after going down through the Speed blocks in G-mode).
         let reload_cre_door_pairs: HashSet<DoorPtrPair> = [
             (Some(0x191DA), Some(0x19252)), // Kraid right door
             (Some(0x191CE), Some(0x191B6)), // Kraid left door
+            (Some(0x18DA2), Some(0x18CE2)), // Dachora Room top-left door
+            (Some(0x18DBA), Some(0x18F6A)), // Dachora Room bottom-left door
+            (Some(0x18DAE), Some(0x18DD2)), // Dachora Room top-right door
         ]
         .into();
         for (src_pair, dst_pair, _bidirectional) in &self.map.doors {
