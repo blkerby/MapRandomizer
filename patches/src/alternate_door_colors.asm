@@ -14,7 +14,7 @@
 org $82E7D0
     jmp hook_load_tileset
 
-org $82E492
+org $82E4A5
     jsr hook_door_transition
 
 org $828D2C
@@ -28,8 +28,8 @@ hook_load_tileset:
     rtl
 
 hook_door_transition:
+    sta $099C
     jsr update_palette
-    lda $0791   ; run hi-jacked instruction
     rts
 
 hook_pause:
