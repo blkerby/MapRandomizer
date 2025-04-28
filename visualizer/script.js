@@ -1059,12 +1059,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let v = c.all_rooms[tile];
 				let i = y -v.coords[1];
 				let j = x -v.coords[0];
-				if (v.map_reachable_step[i][j] >= step_limit) {
-					if (true) {
-						el.classList.add("hidden")
-						el.innerText = "";
-						return;
-					}
+				if (step_limit != null && v.map_reachable_step[i][j] >= step_limit) {
+					el.classList.add("hidden");
+					el.innerText = "";
+					return;
 				}
 				el.innerText = v.room;
 				el.dataset.roomId = v.room_id;
