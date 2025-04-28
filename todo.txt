@@ -3,6 +3,7 @@ v119:
   - missing remote runway strats in pink brinstar hopper room left side
 
 v118:
+- add QoL for limiting starting map reveal to visited area
 - implement comeInBlueSpaceJumping
 - handle wallJumpAvoid on strats and notables.
 - fix BG color in Warehouse Entrance
