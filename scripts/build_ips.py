@@ -21,7 +21,8 @@ ROM_PATH = TMP_PATH + "/rom.sfc"
 OUTPUT_PATH = "patches/ips"
 
 excluded_files = [
-    "Mosaic/Projects/Base/ASM/Acid Tilemap.asm"
+    "Mosaic/Projects/Base/ASM/Acid Tilemap.asm",
+    "Mosaic/Projects/Base/ASM/Area Map Debug.asm",
 ]
 ignored_overlap_patterns = ["hyper_beam", "ultra_low_"]
 
@@ -109,19 +110,36 @@ def check_range(filename, other_filename, overlap_start, overlap_end):
             return True
     return False
 
-# whitelist of known overlapping patches
+# whitelist of intended overlapping patches
 whitelist_dict = {
-    'etank_refill_full'     : [['etank_refill_disabled', 0x848972, 0x848975]],
-    'map_area'              : [['hud_expansion_opaque', 0x809DBF, 0x809DE7],['item_dots_disappear', 0x90AA73, 0x90AA7B],
-                               ['Area Map Debug', 0x82DEF7, 0x82DEFA]],
-    'fast_pause_menu'       : [['pause_menu_objectives', 0x82932E, 0x829332]],
-    'map_progress_maintain' : [['map_area', 0x829440, 0x829443], ['map_area', 0x829475, 0x829478],
-                               ['map_area', 0x829ED5, 0x829ED8], ['item_dots_disappear', 0x82945C, 0x82945F]],
-    'pause_menu_objectives' : [['map_area', 0x82910A, 0x82910D], ['hud_expansion_opaque', 0xB69A00, 0xB6AD40]],
-    'hud_expansion_opaque'  : [['max_ammo_display_fast', 0x858851, 0x858A93], ['max_ammo_display_fast', 0x9AB542, 0x9AB6C0],
-                               ['Area Palettes', 0x82E569, 0x82E56C]]
+    'etank_refill_full': [
+        ['etank_refill_disabled', 0x848972, 0x848975]
+    ],
+    'map_area': [
+        ['hud_expansion_opaque', 0x809DBF, 0x809DE7],
+        ['item_dots_disappear', 0x90AA73, 0x90AA7B],
+    ],
+    'fast_pause_menu': [
+        ['pause_menu_objectives', 0x82932E, 0x829332]
+    ],
+    'map_progress_maintain': [
+        ['map_area', 0x829440, 0x829443],
+        ['map_area', 0x829475, 0x829478],
+        ['map_area', 0x829ED5, 0x829ED8],
+        ['item_dots_disappear', 0x82945C, 0x82945F]
+    ],
+    'pause_menu_objectives': [
+        ['map_area', 0x82910A, 0x82910D],
+        ['hud_expansion_opaque', 0xB69A00, 0xB6AD40]
+    ],
+    'hud_expansion_opaque': [
+        ['max_ammo_display_fast', 0x858851, 0x858A93],
+        ['max_ammo_display_fast', 0x9AB542, 0x9AB6C0],
+        ['Area Palettes', 0x82E569, 0x82E56C]
+    ]
 }
 
+failed = False
 chunks_dict = {}
 for idx, asm_path in enumerate(asm_src_files):
     base_filename = os.path.splitext(os.path.basename(asm_path))[0]
@@ -147,8 +165,8 @@ for idx, asm_path in enumerate(asm_src_files):
             write_ips_patch(ips_path, changed_bytes, chunks)
             patch_after = open(ips_path, "rb").read()
             if patch_before != patch_after:
-                logging.info("IPS patch is out-of-date: " + base_filename)
-                os._exit(1)
+                logging.error("🔴 IPS patch is out-of-date: " + base_filename)
+                failed = True
         else:
             write_ips_patch(ips_path, changed_bytes, chunks)
     else:
@@ -172,14 +190,14 @@ for filename, chunks in chunks_dict.items():
                 overlap_start = max(chunk[0], other_chunk[0])
                 overlap_end = min(chunk[1], other_chunk[1])
                 if overlap_start < overlap_end:
-                    logging.info(f"Overlap between {filename} and {other_filename}: {pc2snes(overlap_start):06X} - {pc2snes(overlap_end):06X}")
                     ignored = False
                     if filename in whitelist_dict:
                         ignored = check_range(filename, other_filename, overlap_start, overlap_end)
                     if ignored is False and other_filename in whitelist_dict:
                         ignored = check_range(other_filename, filename, overlap_start, overlap_end)
-                    if ignored is True:
-                        logging.info("Whitelisted.")
-                    else:
-                        logging.info("Unrecognized patch overlap. Aborting.")
-                        exit()
+                    if not ignored:
+                        logging.error(f"🔴 Overlap between {filename} and {other_filename}: {pc2snes(overlap_start):06X} - {pc2snes(overlap_end):06X}")
+                        failed = True
+
+if failed:
+    os._exit(1)
