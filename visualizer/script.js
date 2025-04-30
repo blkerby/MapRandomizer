@@ -381,7 +381,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				step_limit = c.details[i].step;
 			let title = document.createElement("div");
 			title.className = "sidebar-title";
-			title.innerHTML = `STEP ${step_limit}`;
+			title.innerHTML = `STEP ${c.details[i].step}`;
 			si.appendChild(title);
 		}
 
@@ -847,10 +847,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			{
 				if (step_limit != null &&  reach_step > step_limit)
 				{
-					let e = document.getElementById(`step-${reach_step}`);
+					let e = document.getElementById(`step-${step_limit}`);
 					e.style.backgroundColor = "red";
 					setTimeout(clr => {
-						document.getElementById(`step-${reach_step}`).style.backgroundColor = "";
+						document.getElementById(`step-${step_limit}`).style.backgroundColor = "";
 					}, 1000);
 					return;
 				}
