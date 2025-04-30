@@ -652,7 +652,7 @@ function applyObjectivePreset(preset) {
     }
     document.getElementById("minimumObjectives").value = preset.min_objectives;
     document.getElementById("maximumObjectives").value = preset.max_objectives;
-    document.getElementById("objectiveScreen").value = preset.objective_screen;
+    applyRadioValue("objectiveScreen", preset.objective_screen);
 }
 
 function objectivesChanged() {
