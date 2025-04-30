@@ -160,14 +160,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 	}
 	let show_overview = () => {
+		document.getElementById("path-overlay").innerHTML = ""
 		let si = document.getElementById("sidebar-info");
 		si.innerHTML = "";
+		
 		let seen = new Set();
 		for (let i in c.summary) {
 			let step_div = document.createElement("div");
 			step_div.id = `step-${c.summary[i].step}`;
 			step_div.className = "step-panel";
 			step_div.onclick = () => {
+				document.getElementById("path-overlay").innerHTML = "";
 				gen_obscurity(c.summary[i].step);
 			}
 
@@ -192,12 +195,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					el.className = "ui-icon-hoverable";
 					el.onclick = ev => {
 						show_item_details(j.item, j.location, i, j);
+						ev.stopPropagation();
 					}
 					step_div.appendChild(el);
 
 					if (first) {
-						step_div.ondblclick = () => {
+						step_div.ondblclick = ev => {
 							show_item_details(j.item, j.location, i, j);
+							ev.stopPropagation();
 						}
 					}
 					first = false;
@@ -217,7 +222,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		step_div = document.createElement("div");
 		step_div.id = `step-null`;
 		step_div.className = "step-panel";
-		step_div.onclick = () => gen_obscurity(null);
+		step_div.onclick = () => {
+			document.getElementById("path-overlay").innerHTML = "";
+			gen_obscurity(null);
+		}
 
 		step_number = document.createElement("span");
 		step_number.className = "step-whole-map";
@@ -359,7 +367,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		ctx.putImageData(img, 0, 0);
 	}
 	
-	let show_item_details = (item_name, loc, i, j) => {
+	let show_item_details = (item_name, loc, i, j, mapitem = false) => {
 		if (j !== null) {
 			document.getElementById("path-overlay").innerHTML = ""
 			showRoute(j.return_route, "yellow");
@@ -369,7 +377,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.scrollTop = 0;
 		si.innerHTML = "";
 		if (j !== null) {
-			step_limit = c.details[i].step;
+			if (mapitem && c.details[i].step > step_limit)
+				step_limit = c.details[i].step;
 			let title = document.createElement("div");
 			title.className = "sidebar-title";
 			title.innerHTML = `STEP ${step_limit}`;
@@ -600,12 +609,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			p.appendChild(e);
 		}
 	}
-	function showFlag(details, flagName) {
+	function showFlag(details, flagName, mapflag=false) {
 		for (let stepNum in details) {
 			let stepData = details[stepNum];
 			for (let flagData of stepData.flags) {
 				if (flagData.flag == flagName) {
-					show_item_details(flagName, flagData.location, stepNum, flagData);
+					show_item_details(flagName, flagData.location, stepNum, flagData, mapflag);
 				}
 			}
 		}
@@ -657,8 +666,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		// escape mode
 		if (c.summary.length ==0)
 			return;
-
-		gen_obscurity(1);
 
 		if (c.hub_obtain_route.length == 0)
 			return;
@@ -824,10 +831,38 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e.style.top = y+"px";
 		e.style.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
 		e.onclick = ev => {
+			let reach_step = -1;
+			let v = -1;
+			for (v in c.details){
+				for (let vf of c.details[v].flags){
+					if (vf.flag == "f_DefeatedMotherBrain"){
+						reach_step = Number(vf.reachable_step);
+						break;
+					}
+				}
+				if (reach_step != -1)
+					break;
+			}
+			if (!document.getElementById("spoilers").checked)
+			{
+				if (step_limit != null &&  reach_step > step_limit)
+				{
+					let e = document.getElementById(`step-${reach_step}`);
+					e.style.backgroundColor = "red";
+					setTimeout(clr => {
+						document.getElementById(`step-${reach_step}`).style.backgroundColor = "";
+					}, 1000);
+					return;
+				}
+			}	
+			else
+				step_limit = null;
+			
 			document.getElementById("path-overlay").innerHTML = ""
 			show_overview();
+			update_selected();
 			showEscape();
-			gen_obscurity(null);
+			gen_obscurity();
 		}
 		e.onpointermove = ev => {
 			hideRoom();
@@ -899,7 +934,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 			e.onclick = ev => {
 				if (document.getElementById("spoilers").checked || document.getElementById("spoilers").checked || step_limit === null || step_limit > v)
-					showFlag(c.details, f);
+					showFlag(c.details, f, true);
 				else if (step_limit >=  reach_step) {
 					el.innerText = "Not in logic for current step.";
 					el.style.left = ev.target.style.left + 16 + "px";
@@ -985,7 +1020,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let step = Number(i);
 			e.onclick = ev => {
 				if (document.getElementById("spoilers").checked || step_limit === null || step_limit > i) {
-					show_item_details(v.item, v.location, i, j);
+					show_item_details(v.item, v.location, i, j, true);
 				}
 			};
 			e.onpointermove = ev => {
@@ -1082,6 +1117,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (!dragged) {
 			// deselect
 			show_overview();
+			update_selected();
 			document.getElementById("path-overlay").innerHTML = ""
 		}
 	}
