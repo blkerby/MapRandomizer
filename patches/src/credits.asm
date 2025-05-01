@@ -56,6 +56,10 @@ org $8b9a19
 org $8be0d1
     jsl copy
 
+;; Hijack just before final screen to restore credits tilemap
+org $8bf600
+    jsr restore_credits
+
 org !bank_8b_free_space_start
 
 ;; set scroll speed routine (!speed instruction in credits script)
@@ -115,11 +119,22 @@ patch4:
     sta $19fb
     jml $8b9a1f
 
-;; Copy custom credits tilemap data from ROM to $7f2000,x
 copy:
+;; Credits overflow causes beam corruption on final screen
+;; Back up 7f4000-5000 to SRAM 703000-4000
     pha
     phx
     ldx #$0000
+    phx
+.bkp_lp
+    lda $7f4000, x
+    sta $703000, x
+    inx : inx
+    cpx #$1000
+    bmi .bkp_lp
+
+;; Copy custom credits tilemap data from ROM to $7f2000,x
+    plx
 -
     lda.l credits, x
     cmp #$0000
@@ -151,6 +166,19 @@ copy:
     pla
     jsl $8b95ce
     rtl
+
+; restore original credits tilemap to vram for final screen
+restore_credits:
+    sta $1b3d,x ; replaced code
+    phx
+    ldx $0330
+    lda #$1000                         : sta $00d0,x ; Number of bytes
+    lda #$7000                         : sta $00d3,x 
+    lda #$3000                         : sta $00d2,x ; Source address = $703000
+    lda #$0000                         : sta $00d5,x ; Destination in Vram
+    txa : clc : adc #$0007             : sta $0330   ; Update the stack pointer
+    plx
+    rts
 
 warnpc !bank_8b_free_space_end
 
