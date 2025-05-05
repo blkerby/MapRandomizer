@@ -1,17 +1,18 @@
 v119:
 - finish adding temp blue strats and remote runway setups/applications
   - missing remote runway strats in pink brinstar hopper room left side
+- add QoL for limiting starting map reveal to visited area
+  - maybe other map reveal options for specific types of tile
+- handle wallJumpAvoid on strats and notables.
 
 v118:
-- add QoL for limiting starting map reveal to visited area
 - implement comeInBlueSpaceJumping
-- handle wallJumpAvoid on strats and notables.
 - fix BG color in Warehouse Entrance
 - finish refining stutter water shinecharges.
 - add side platform strats.
 - mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
-- apply Fake Lava patch (resolve conflict with complementary_suits?)
+- DONE: apply Fake Lava patch (resolve conflict with complementary_suits?)
 - add more strats from Incomplete videos
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
