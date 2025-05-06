@@ -1312,6 +1312,22 @@
     "video_id": 312
   },
   {
+    "room_id": 121,
+    "room_name": "Crocomire Escape",
+    "notable_id": 6,
+    "name": "Ceiling Mockball Spring Fling",
+    "difficulty": "Extreme",
+    "video_id": 6228
+  },
+  {
+    "room_id": 121,
+    "room_name": "Crocomire Escape",
+    "notable_id": 7,
+    "name": "Spring Ball Jump into Damage Boost",
+    "difficulty": "Extreme",
+    "video_id": 6229
+  },
+  {
     "room_id": 120,
     "room_name": "Crocomire Speedway",
     "notable_id": 1,
