@@ -335,7 +335,7 @@
         "y": 13,
         "requires": [
             "canSuitlessMaridia",
-            "h_canCrouchJumpDownGrab"
+            "h_crouchJumpDownGrab"
         ]
     },
     {
@@ -1335,7 +1335,7 @@
         "node_id": 2,
         "x": 56,
         "y": 21,
-        "requires": ["canHeatRun", {"heatFrames": 160}, {"or": ["canWalljump", "h_canCrouchJumpDownGrab"]}]
+        "requires": ["canHeatRun", {"heatFrames": 160}, {"or": ["canWalljump", "h_crouchJumpDownGrab"]}]
     },
     {
         "name": "Pillar Room Right",
@@ -2028,7 +2028,7 @@
         "node_id": 2,
         "x": 44.5,
         "y": 45,
-        "requires": [{"or": ["canWalljump", "h_canCrouchJumpDownGrab"]}]
+        "requires": [{"or": ["canWalljump", "h_crouchJumpDownGrab"]}]
     },
     {
         "name": "Tourian Eye Door Room",
@@ -2337,7 +2337,7 @@
             {"heatFrames": 60},
             {"or": [
                 "canWalljump",
-                "h_canCrouchJumpDownGrab"
+                "h_crouchJumpDownGrab"
             ]}
         ],
         "camera_offset_y": -8

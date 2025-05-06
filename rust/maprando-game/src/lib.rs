@@ -951,6 +951,10 @@ pub enum MainEntranceCondition {
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
     },
+    ComeInBlueSpaceJumping {
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
+    },
     ComeInWithMockball {
         speed_booster: Option<bool>,
         adjacent_min_tiles: Float,
@@ -3802,6 +3806,10 @@ impl GameData {
                 min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
                 max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
+            "comeInBlueSpaceJumping" => MainEntranceCondition::ComeInBlueSpaceJumping {
+                min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
+            },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 speed_booster: value["speedBooster"].as_bool(),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
@@ -5123,7 +5131,7 @@ impl GameData {
             .get_mut("h_allItemsSpawned")
             .unwrap() = json::object! {
             "name": "h_allItemsSpawned",
-            "requires": ["f_allItemsSpawn"]  // internal flag "f_AllItemsSpawn" gets set at start if QoL option enabled
+            "requires": ["f_AllItemsSpawn"]  // internal flag "f_AllItemsSpawn" gets set at start if QoL option enabled
         };
         *game_data
             .helper_json_map

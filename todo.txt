@@ -6,8 +6,8 @@ v119:
 - handle wallJumpAvoid on strats and notables.
 
 v118:
-- implement comeInBlueSpaceJumping
-- fix BG color in Warehouse Entrance
+- DONE: implement comeInBlueSpaceJumping
+- DONE: fix BG color in Warehouse Entrance
 - finish refining stutter water shinecharges.
 - add side platform strats.
 - mosaic:

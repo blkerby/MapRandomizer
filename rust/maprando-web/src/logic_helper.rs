@@ -731,6 +731,7 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 MainEntranceCondition::ComeInSpinning { .. } => {}
                 MainEntranceCondition::ComeInBlueSpinning { .. } => {}
+                MainEntranceCondition::ComeInBlueSpaceJumping { .. } => {}
                 MainEntranceCondition::ComeInWithStoredFallSpeed {
                     fall_speed_in_tiles,
                 } => {

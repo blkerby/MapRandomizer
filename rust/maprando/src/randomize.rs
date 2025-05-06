@@ -751,6 +751,14 @@ impl<'a> Preprocessor<'a> {
                 min_extra_run_speed.get(),
                 max_extra_run_speed.get(),
             ),
+            MainEntranceCondition::ComeInBlueSpaceJumping {
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => self.get_come_in_blue_space_jumping_reqs(
+                exit_condition,
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
+            ),
             MainEntranceCondition::ComeInWithMockball {
                 speed_booster,
                 adjacent_min_tiles,
@@ -1448,6 +1456,45 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_blue_space_jumping_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveSpaceJumping {
+                remote_runway_length,
+                blue,
+                heated,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => {
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    remote_runway_length.get(),
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs,
+                ) {
+                    return None;
+                }
+                if *blue == BlueOption::No {
+                    return None;
+                }
+                Some(Requirement::make_shinecharge(
+                    remote_runway_length.get(),
+                    *heated,
+                ))
             }
             _ => None,
         }
