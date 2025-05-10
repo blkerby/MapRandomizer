@@ -217,7 +217,7 @@ pub struct Randomizer<'a> {
 }
 
 #[derive(Clone)]
-struct ItemLocationState {
+pub struct ItemLocationState {
     pub placed_item: Option<Item>,
     pub collected: bool,
     pub reachable_step: Option<usize>,
@@ -227,7 +227,7 @@ struct ItemLocationState {
 }
 
 #[derive(Clone)]
-struct FlagLocationState {
+pub struct FlagLocationState {
     pub reachable_step: Option<usize>,
     pub reachable_vertex_id: Option<VertexId>,
     pub bireachable: bool,
@@ -235,21 +235,21 @@ struct FlagLocationState {
 }
 
 #[derive(Clone)]
-struct DoorState {
+pub struct DoorState {
     pub bireachable: bool,
     pub bireachable_vertex_id: Option<VertexId>,
 }
 
 #[derive(Clone)]
-struct SaveLocationState {
+pub struct SaveLocationState {
     pub bireachable: bool,
 }
 
 #[derive(Clone)]
-struct DebugData {
-    global_state: GlobalState,
-    forward: TraverseResult,
-    reverse: TraverseResult,
+pub struct DebugData {
+    pub global_state: GlobalState,
+    pub forward: TraverseResult,
+    pub reverse: TraverseResult,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize)]
@@ -262,22 +262,22 @@ pub struct LockedDoor {
 
 #[derive(Clone)]
 // State that changes over the course of item placement attempts
-struct RandomizationState {
-    step_num: usize,
-    start_location: StartLocation,
-    hub_location: HubLocation,
-    hub_obtain_route: Vec<SpoilerRouteEntry>,
-    hub_return_route: Vec<SpoilerRouteEntry>,
-    item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
-    save_location_state: Vec<SaveLocationState>,
-    item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
-    flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
-    door_state: Vec<DoorState>,                  // Corresponds to LockedDoorData.locked_doors
-    items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
-    global_state: GlobalState,
-    debug_data: Option<DebugData>,
-    previous_debug_data: Option<DebugData>,
-    key_visited_vertices: HashSet<usize>,
+pub struct RandomizationState {
+    pub step_num: usize,
+    pub start_location: StartLocation,
+    pub hub_location: HubLocation,
+    pub hub_obtain_route: Vec<SpoilerRouteEntry>,
+    pub hub_return_route: Vec<SpoilerRouteEntry>,
+    pub item_precedence: Vec<Item>, // An ordering of the 21 distinct item names. The game will prioritize placing key items earlier in the list.
+    pub save_location_state: Vec<SaveLocationState>,
+    pub item_location_state: Vec<ItemLocationState>, // Corresponds to GameData.item_locations (one record for each of 100 item locations)
+    pub flag_location_state: Vec<FlagLocationState>, // Corresponds to GameData.flag_locations
+    pub door_state: Vec<DoorState>,                  // Corresponds to LockedDoorData.locked_doors
+    pub items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
+    pub global_state: GlobalState,
+    pub debug_data: Option<DebugData>,
+    pub previous_debug_data: Option<DebugData>,
+    pub key_visited_vertices: HashSet<usize>,
 }
 
 // Info about an item used during ROM patching, to show info in the credits
@@ -3153,7 +3153,7 @@ impl<'r> Randomizer<'r> {
         flag_vec
     }
 
-    fn update_reachability(&self, state: &mut RandomizationState) {
+    pub fn update_reachability(&self, state: &mut RandomizationState) {
         let num_vertices = self.game_data.vertex_isv.keys.len();
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
             room_id: state.hub_location.room_id,
@@ -4176,7 +4176,7 @@ impl<'r> Randomizer<'r> {
         EssentialSpoilerData { item_spoiler_info }
     }
 
-    fn get_randomization<R: Rng>(
+    pub fn get_randomization<R: Rng>(
         &self,
         state: &RandomizationState,
         spoiler_summaries: Vec<SpoilerSummary>,
@@ -5031,32 +5031,32 @@ impl<'r> Randomizer<'r> {
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct SpoilerRouteEntry {
-    area: String,
-    room: String,
-    node: String,
-    room_id: usize,
-    short_room: String,
-    from_node_id: usize,
-    to_node_id: usize,
-    obstacles_bitmask: usize,
+    pub area: String,
+    pub room: String,
+    pub node: String,
+    pub room_id: usize,
+    pub short_room: String,
+    pub from_node_id: usize,
+    pub to_node_id: usize,
+    pub obstacles_bitmask: usize,
     #[serde(skip_serializing_if = "Option::is_none")]
-    coords: Option<(usize, usize)>,
-    strat_name: String,
-    strat_id: Option<usize>,
+    pub coords: Option<(usize, usize)>,
+    pub strat_name: String,
+    pub strat_id: Option<usize>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    strat_notes: Vec<String>,
+    pub strat_notes: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    energy_used: Option<Capacity>,
+    pub energy_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    reserves_used: Option<Capacity>,
+    pub reserves_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    missiles_used: Option<Capacity>,
+    pub missiles_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    supers_used: Option<Capacity>,
+    pub supers_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    power_bombs_used: Option<Capacity>,
+    pub power_bombs_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    relevant_flags: Vec<String>,
+    pub relevant_flags: Vec<String>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -5094,21 +5094,21 @@ pub struct SpoilerStartState {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerItemDetails {
-    item: String,
-    location: SpoilerLocation,
-    reachable_step: usize,
-    difficulty: Option<String>,
-    obtain_route: Vec<SpoilerRouteEntry>,
-    return_route: Vec<SpoilerRouteEntry>,
+    pub item: String,
+    pub location: SpoilerLocation,
+    pub reachable_step: usize,
+    pub difficulty: Option<String>,
+    pub obtain_route: Vec<SpoilerRouteEntry>,
+    pub return_route: Vec<SpoilerRouteEntry>,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerFlagDetails {
-    flag: String,
-    location: SpoilerLocation,
-    reachable_step: usize,
-    obtain_route: Vec<SpoilerRouteEntry>,
-    return_route: Vec<SpoilerRouteEntry>,
+    pub flag: String,
+    pub location: SpoilerLocation,
+    pub reachable_step: usize,
+    pub obtain_route: Vec<SpoilerRouteEntry>,
+    pub return_route: Vec<SpoilerRouteEntry>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -5121,11 +5121,11 @@ pub struct SpoilerDoorDetails {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerDetails {
-    step: usize,
-    start_state: SpoilerStartState,
-    flags: Vec<SpoilerFlagDetails>,
-    doors: Vec<SpoilerDoorDetails>,
-    items: Vec<SpoilerItemDetails>,
+    pub step: usize,
+    pub start_state: SpoilerStartState,
+    pub flags: Vec<SpoilerFlagDetails>,
+    pub doors: Vec<SpoilerDoorDetails>,
+    pub items: Vec<SpoilerItemDetails>,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -5136,13 +5136,13 @@ pub struct SpoilerItemLoc {
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerRoomLoc {
     // here temporarily, most likely, since these can be baked into the web UI
-    room_id: usize,
-    room: String,
-    short_name: String,
-    map: Vec<Vec<u8>>,
-    map_reachable_step: Vec<Vec<u8>>,
-    map_bireachable_step: Vec<Vec<u8>>,
-    coords: (usize, usize),
+    pub room_id: usize,
+    pub room: String,
+    pub short_name: String,
+    pub map: Vec<Vec<u8>>,
+    pub map_reachable_step: Vec<Vec<u8>>,
+    pub map_bireachable_step: Vec<Vec<u8>>,
+    pub coords: (usize, usize),
 }
 
 #[derive(Serialize, Deserialize)]
@@ -5259,7 +5259,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_route(
+    pub fn get_spoiler_route(
         &self,
         global_state: &GlobalState,
         mut local_state: LocalState,
@@ -5523,7 +5523,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_flag_details(
+    pub fn get_spoiler_flag_details(
         &self,
         state: &RandomizationState,
         flag_vertex_id: usize,
@@ -5549,7 +5549,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_flag_details_one_way(
+    pub fn get_spoiler_flag_details_one_way(
         &self,
         state: &RandomizationState,
         flag_vertex_id: usize,
@@ -5593,7 +5593,7 @@ impl<'a> Randomizer<'a> {
         .to_string()
     }
 
-    fn get_spoiler_door_details(
+    pub fn get_spoiler_door_details(
         &self,
         state: &RandomizationState,
         unlock_vertex_id: usize,
@@ -5627,7 +5627,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_flag_summary(
+    pub fn get_spoiler_flag_summary(
         &self,
         _state: &RandomizationState,
         _flag_vertex_id: usize,
@@ -5638,7 +5638,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_door_summary(
+    pub fn get_spoiler_door_summary(
         &self,
         _unlock_vertex_id: usize,
         locked_door_idx: usize,
@@ -5667,7 +5667,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_details(
+    pub fn get_spoiler_details(
         &self,
         orig_global_state: &GlobalState, // Global state before acquiring new flags
         state: &RandomizationState,      // State after acquiring new flags but not new items
@@ -5700,7 +5700,7 @@ impl<'a> Randomizer<'a> {
         }
     }
 
-    fn get_spoiler_summary(
+    pub fn get_spoiler_summary(
         &self,
         _orig_global_state: &GlobalState, // Global state before acquiring new flags
         state: &RandomizationState,       // State after acquiring new flags but not new items
