@@ -4,13 +4,12 @@ use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::map_repository::MapRepository;
-use maprando::patch::ips_write::create_ips_patch;
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
     get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors, randomize_map_areas,
-    Randomization, Randomizer,
+    Randomization, Randomizer, SpoilerLog,
 };
 use maprando::settings::{
     AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
@@ -69,7 +68,10 @@ struct TestAppData {
     customize: bool,
 }
 
-fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, String)> {
+fn get_randomization(
+    app: &TestAppData,
+    seed: u64,
+) -> Result<(RandomizerSettings, Randomization, SpoilerLog, String)> {
     let game_data = &app.game_data;
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
@@ -177,8 +179,8 @@ fn get_randomization(app: &TestAppData, seed: u64) -> Result<(Randomization, Str
             let item_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
             info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}");
             match randomizer.randomize(attempt_num, item_seed, 1) {
-                Ok(randomization) => {
-                    return Ok((randomization, output_file_prefix));
+                Ok((randomization, spoiler_log)) => {
+                    return Ok((settings, randomization, spoiler_log, output_file_prefix));
                 }
                 Err(e) => {
                     info!(
@@ -221,10 +223,9 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,
         door_theme: maprando::customize::DoorTheme::Vanilla,
-        music: match (bits & 0x04 != 0, bits & 0x08 != 0) {
-            (true, true) => MusicSettings::Vanilla,
-            (true, false) => MusicSettings::Disabled,
-            (false, _) => MusicSettings::AreaThemed,
+        music: match bits & 0x04 != 0 {
+            true => MusicSettings::Disabled,
+            false => MusicSettings::AreaThemed,
         },
         disable_beeping: bits & 0x10 != 0,
         shaking: match (bits & 0x20 != 0, bits & 0x40 != 0) {
@@ -248,13 +249,11 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     info!("Test cycle {cycle_count} Start: seed={}", seed);
 
     // Perform randomization (map selection & item placement):
-    let (randomization, output_file_prefix) = get_randomization(&app, seed)?;
+    let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(&app, seed)?;
 
     // Generate the patched ROM:
-    let game_rom = make_rom(&app.input_rom, &randomization, &app.game_data)?;
-    let ips_patch = create_ips_patch(&app.input_rom.data, &game_rom.data);
-
-    let mut output_rom = app.input_rom.clone();
+    let game_rom = make_rom(&app.input_rom, &settings, &randomization, &app.game_data)?;
+    let mut output_rom = game_rom.clone();
     let basic_customize_settings = CustomizeSettings {
         samus_sprite: None,
         etank_color: None,
@@ -272,7 +271,6 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     customize_rom(
         &mut output_rom,
         &app.input_rom,
-        &ips_patch,
         &Some(randomization.map.clone()),
         &basic_customize_settings,
         &app.game_data,
@@ -298,12 +296,11 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
                 &app.output_dir,
                 format!("{output_file_prefix}-custom-{}.smc", custom + 1),
             );
-            output_rom = app.input_rom.clone();
+            output_rom = game_rom.clone();
             let customize_settings = make_random_customization(&app);
             customize_rom(
                 &mut output_rom,
                 &app.input_rom,
-                &ips_patch,
                 &Some(randomization.map.clone()),
                 &customize_settings,
                 &app.game_data,
@@ -334,11 +331,10 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         "Writing spoiler log to {}",
         output_spoiler_log_path.display()
     );
-    let spoiler_str = serde_json::to_string_pretty(&randomization.spoiler_log)?;
+    let spoiler_str = serde_json::to_string_pretty(&spoiler_log)?;
     std::fs::write(output_spoiler_log_path, spoiler_str)?;
 
-    let spoiler_maps =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app.game_data)?;
+    let spoiler_maps = spoiler_map::get_spoiler_map(&randomization, &app.game_data, &settings)?;
 
     let output_spoiler_map_explored_path = Path::join(
         &app.output_dir,

@@ -175,7 +175,7 @@ pub struct EnemyDrop {
     pub count: Capacity,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BeamType {
     Charge,
     Ice,
@@ -184,7 +184,7 @@ pub enum BeamType {
     Plasma,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DoorType {
     Blue,
     Red,
@@ -552,7 +552,7 @@ pub struct EscapeTimingRoom {
     pub timings: Vec<EscapeTimingGroup>,
 }
 
-#[derive(Deserialize, Debug, Clone, Default)]
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct StartLocation {
     pub name: String,
     pub room_id: usize,
@@ -564,7 +564,7 @@ pub struct StartLocation {
     pub note: Option<Vec<String>>,
     pub camera_offset_x: Option<f32>,
     pub camera_offset_y: Option<f32>,
-    #[serde(skip_deserializing)]
+    #[serde(skip_serializing, skip_deserializing)]
     pub requires_parsed: Option<Requirement>,
 }
 
@@ -951,6 +951,10 @@ pub enum MainEntranceCondition {
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
     },
+    ComeInBlueSpaceJumping {
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
+    },
     ComeInWithMockball {
         speed_booster: Option<bool>,
         adjacent_min_tiles: Float,
@@ -1293,6 +1297,16 @@ pub enum MapTileInterior {
     MajorItem,
 }
 
+impl MapTileInterior {
+    pub fn is_item(&self) -> bool {
+        use MapTileInterior::*;
+        match self {
+            Item | DoubleItem | HiddenItem | AmmoItem | MediumItem | MajorItem => true,
+            _ => false,
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub enum Direction {
@@ -1320,10 +1334,21 @@ pub enum MapTileSpecialType {
     AreaTransition(AreaIdx, Direction),
 }
 
+#[derive(Clone, Copy, Debug, Deserialize, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum MapLiquidType {
+    #[default]
+    None,
+    Water,
+    Lava,
+    Acid,
+}
+
 #[derive(Clone, Debug, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct MapTile {
     pub coords: (usize, usize),
+    pub area: Option<usize>,
     #[serde(default)]
     pub left: MapTileEdge,
     #[serde(default)]
@@ -1336,7 +1361,9 @@ pub struct MapTile {
     pub interior: MapTileInterior,
     #[serde(default)]
     pub heated: bool,
-    pub water_level: Option<f32>,
+    #[serde(default)]
+    pub liquid_type: MapLiquidType,
+    pub liquid_level: Option<f32>,
     pub special_type: Option<MapTileSpecialType>,
     // Extensions added at runtime:
     #[serde(default)]
@@ -1348,7 +1375,9 @@ pub struct MapTile {
 pub struct MapTileData {
     pub room_id: usize,
     pub room_name: String,
-    pub water_level: Option<f32>,
+    #[serde(default)]
+    pub liquid_type: MapLiquidType,
+    pub liquid_level: Option<f32>,
     #[serde(default)]
     pub heated: bool,
     pub map_tiles: Vec<MapTile>,
@@ -1412,6 +1441,7 @@ pub struct GameData {
     pub links: Vec<Link>,
     pub base_links_data: LinksDataGroup,
     pub room_geometry: Vec<RoomGeometry>,
+    pub room_ptrs: Vec<RoomPtr>,
     pub room_and_door_idxs_by_door_ptr_pair:
         HashMap<DoorPtrPair, (RoomGeometryRoomIdx, RoomGeometryDoorIdx)>,
     pub room_ptr_by_id: HashMap<RoomId, RoomPtr>,
@@ -2083,29 +2113,29 @@ impl GameData {
                 return Ok(Requirement::EnergyStationRefill);
             } else if value == "i_SupersDoubleDamageMotherBrain" {
                 return Ok(Requirement::SupersDoubleDamageMotherBrain);
-            } else if value == "i_BlueGateGlitchLeniency" {
+            } else if value == "i_blueGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: false,
                     heated: false,
                 });
-            } else if value == "i_GreenGateGlitchLeniency" {
+            } else if value == "i_greenGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: true,
                     heated: false,
                 });
-            } else if value == "i_HeatedBlueGateGlitchLeniency" {
+            } else if value == "i_heatedBlueGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: false,
                     heated: true,
                 });
-            } else if value == "i_HeatedGreenGateGlitchLeniency" {
+            } else if value == "i_heatedGreenGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: true,
                     heated: true,
                 });
-            } else if value == "i_BombIntoCrystalFlashClipLeniency" {
+            } else if value == "i_bombIntoCrystalFlashClipLeniency" {
                 return Ok(Requirement::BombIntoCrystalFlashClipLeniency {});
-            } else if value == "i_JumpIntoCrystalFlashClipLeniency" {
+            } else if value == "i_jumpIntoCrystalFlashClipLeniency" {
                 return Ok(Requirement::JumpIntoCrystalFlashClipLeniency {});
             } else if value == "i_XModeSpikeHitLeniency" {
                 return Ok(Requirement::XModeSpikeHitLeniency {});
@@ -3776,6 +3806,10 @@ impl GameData {
                 min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
                 max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
+            "comeInBlueSpaceJumping" => MainEntranceCondition::ComeInBlueSpaceJumping {
+                min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
+            },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 speed_booster: value["speedBooster"].as_bool(),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
@@ -4355,6 +4389,7 @@ impl GameData {
         self.room_json_map.insert(room_id, room_json.clone());
         let mut room_ptr =
             parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+        self.room_ptrs.push(room_ptr);
         self.raw_room_id_by_ptr.insert(room_ptr, room_id);
         if room_ptr == 0x7D69A {
             room_ptr = 0x7D646; // Treat East Pants Room as part of Pants Room
@@ -4942,14 +4977,17 @@ impl GameData {
         for room in &mut self.map_tile_data {
             for tile in &mut room.map_tiles {
                 tile.heated = room.heated;
-                if let Some(water_level) = room.water_level {
-                    if (tile.coords.1 as f32) <= water_level - 1.0 {
-                        tile.water_level = None;
-                    } else if (tile.coords.1 as f32) >= water_level {
-                        tile.water_level = Some(0.0);
+                if let Some(liquid_level) = room.liquid_level {
+                    if (tile.coords.1 as f32) <= liquid_level - 1.0 {
+                        tile.liquid_level = None;
+                    } else if (tile.coords.1 as f32) >= liquid_level {
+                        tile.liquid_level = Some(0.0);
                     } else {
-                        tile.water_level = Some(water_level.fract());
+                        tile.liquid_level = Some(liquid_level.fract());
                     }
+                }
+                if tile.liquid_level.is_some() {
+                    tile.liquid_type = room.liquid_type;
                 }
             }
         }
@@ -5032,45 +5070,45 @@ impl GameData {
         // Gate glitch leniency
         *game_data
             .helper_json_map
-            .get_mut("h_BlueGateGlitchLeniency")
+            .get_mut("h_blueGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_BlueGateGlitchLeniency",
-            "requires": ["i_BlueGateGlitchLeniency"],
+            "name": "h_blueGateGlitchLeniency",
+            "requires": ["i_blueGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_GreenGateGlitchLeniency")
+            .get_mut("h_greenGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_GreenGateGlitchLeniency",
-            "requires": ["i_GreenGateGlitchLeniency"],
+            "name": "h_greenGateGlitchLeniency",
+            "requires": ["i_greenGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_HeatedBlueGateGlitchLeniency")
+            .get_mut("h_heatedBlueGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_HeatedBlueGateGlitchLeniency",
-            "requires": ["i_HeatedBlueGateGlitchLeniency"],
+            "name": "h_heatedBlueGateGlitchLeniency",
+            "requires": ["i_heatedBlueGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_HeatedGreenGateGlitchLeniency")
+            .get_mut("h_heatedGreenGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_HeatedGreenGateGlitchLeniency",
-            "requires": ["i_HeatedGreenGateGlitchLeniency"],
+            "name": "h_heatedGreenGateGlitchLeniency",
+            "requires": ["i_heatedGreenGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_BombIntoCrystalFlashClipLeniency")
+            .get_mut("h_bombIntoCrystalFlashClipLeniency")
             .unwrap() = json::object! {
-            "name": "h_BombIntoCrystalFlashClipLeniency",
-            "requires": ["i_BombIntoCrystalFlashClipLeniency"],
+            "name": "h_bombIntoCrystalFlashClipLeniency",
+            "requires": ["i_bombIntoCrystalFlashClipLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_JumpIntoCrystalFlashClipLeniency")
+            .get_mut("h_jumpIntoCrystalFlashClipLeniency")
             .unwrap() = json::object! {
-            "name": "h_JumpIntoCrystalFlashClipLeniency",
-            "requires": ["i_JumpIntoCrystalFlashClipLeniency"],
+            "name": "h_jumpIntoCrystalFlashClipLeniency",
+            "requires": ["i_jumpIntoCrystalFlashClipLeniency"],
         };
         *game_data
             .helper_json_map
@@ -5090,9 +5128,9 @@ impl GameData {
         // Other:
         *game_data
             .helper_json_map
-            .get_mut("h_AllItemsSpawned")
+            .get_mut("h_allItemsSpawned")
             .unwrap() = json::object! {
-            "name": "h_AllItemsSpawned",
+            "name": "h_allItemsSpawned",
             "requires": ["f_AllItemsSpawn"]  // internal flag "f_AllItemsSpawn" gets set at start if QoL option enabled
         };
         *game_data
@@ -5104,16 +5142,16 @@ impl GameData {
         };
         *game_data
             .helper_json_map
-            .get_mut("h_canActivateBombTorizo")
+            .get_mut("h_activateBombTorizo")
             .unwrap() = json::object! {
-            "name": "h_canActivateBombTorizo",
+            "name": "h_activateBombTorizo",
             "requires": [],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_canActivateAcidChozo")
+            .get_mut("h_activateAcidChozo")
             .unwrap() = json::object! {
-            "name": "h_canActivateAcidChozo",
+            "name": "h_activateAcidChozo",
             "requires": [{
                 "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
             }],
@@ -5187,9 +5225,9 @@ impl GameData {
         // Wall on right side of Tourian Escape Room 1 does not spawn in the randomizer:
         *game_data
             .helper_json_map
-            .get_mut("h_AccessTourianEscape1RightDoor")
+            .get_mut("h_openTourianEscape1RightDoor")
             .unwrap() = json::object! {
-            "name": "h_AccessTourianEscape1RightDoor",
+            "name": "h_openTourianEscape1RightDoor",
             "requires": [],
         };
 

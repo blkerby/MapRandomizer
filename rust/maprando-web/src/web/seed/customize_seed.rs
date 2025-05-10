@@ -1,4 +1,4 @@
-use crate::web::AppData;
+use crate::web::{upgrade::try_upgrade_settings, AppData};
 use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
 use actix_web::{
     http::header::{ContentDisposition, DispositionParam, DispositionType},
@@ -12,7 +12,9 @@ use maprando::{
         CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
         TileTheme,
     },
-    patch::Rom,
+    patch::{make_rom, Rom},
+    randomize::Randomization,
+    settings::RandomizerSettings,
 };
 use maprando_game::Map;
 
@@ -75,11 +77,6 @@ async fn customize_seed(
     app_data: web::Data<AppData>,
 ) -> impl Responder {
     let seed_name = &info.0;
-    let patch_ips = app_data
-        .seed_repository
-        .get_file(seed_name, "patch.ips")
-        .await
-        .unwrap();
     let orig_rom = Rom::new(req.rom.data.to_vec());
     let mut rom = orig_rom.clone();
 
@@ -104,6 +101,33 @@ async fn customize_seed(
         Some(serde_json::from_slice(&map_data_bytes).unwrap())
     };
 
+    let settings_bytes = app_data
+        .seed_repository
+        .get_file(seed_name, "public/settings.json")
+        .await
+        .unwrap_or(vec![]);
+    let settings: Option<RandomizerSettings> = if settings_bytes.len() == 0 {
+        None
+    } else {
+        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data, false) {
+            Ok(s) => Some(s.1),
+            Err(e) => {
+                return HttpResponse::InternalServerError().body(e.to_string());
+            }
+        }
+    };
+
+    let randomization_bytes = app_data
+        .seed_repository
+        .get_file(seed_name, "randomization.json")
+        .await
+        .unwrap_or(vec![]);
+    let randomization: Option<Randomization> = if randomization_bytes.len() == 0 {
+        None
+    } else {
+        Some(serde_json::from_slice(&randomization_bytes).unwrap())
+    };
+
     let ultra_low_qol = seed_data["ultra_low_qol"].as_bool().unwrap_or(false);
 
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
@@ -112,7 +136,7 @@ async fn customize_seed(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
-    let settings = CustomizeSettings {
+    let customize_settings = CustomizeSettings {
         samus_sprite: if ultra_low_qol
             && req.samus_sprite.0 == "samus_vanilla"
             && req.vanilla_screw_attack_animation.0
@@ -151,7 +175,6 @@ async fn customize_seed(
             ),
         },
         music: match req.music.0.as_str() {
-            "vanilla" => MusicSettings::Vanilla,
             "area" => MusicSettings::AreaThemed,
             "disabled" => MusicSettings::Disabled,
             _ => panic!("Unexpected music option: {}", req.music.0.as_str()),
@@ -181,13 +204,34 @@ async fn customize_seed(
             moonwalk: req.moonwalk.0,
         },
     };
-    info!("CustomizeSettings: {:?}", settings);
+
+    if settings.is_some() && randomization.is_some() {
+        info!("Patching ROM");
+        match make_rom(
+            &rom,
+            settings.as_ref().unwrap(),
+            randomization.as_ref().unwrap(),
+            &app_data.game_data,
+        ) {
+            Ok(r) => {
+                rom = r;
+            }
+            Err(err) => {
+                return HttpResponse::InternalServerError()
+                    .body(format!("Error patching ROM: {:?}", err))
+            }
+        }
+    } else {
+        return HttpResponse::InternalServerError()
+            .body(format!("Seed incompatible with current customizer"));
+    }
+
+    info!("CustomizeSettings: {:?}", customize_settings);
     match customize_rom(
         &mut rom,
         &orig_rom,
-        &patch_ips,
         &map,
-        &settings,
+        &customize_settings,
         &app_data.game_data,
         &app_data.samus_sprite_categories,
         &app_data.mosaic_themes,

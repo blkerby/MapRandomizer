@@ -10,9 +10,6 @@ lorom
 
 incsrc "constants.asm"
 
-;org $8293E2
-;    jsr load_pause_map_hook
-
 org $82945C
     jsr transfer_pause_tilemap_hook
 
@@ -29,15 +26,14 @@ warnpc $90AA8A
 org $90AA8A
 .setup:
 
-; update tilemap when loading game:
-org $80A0D9
-    jsl update_tilemap  ; no hi-jack needed since the replaced instruction does nothing
+org $828078
+    jsl start_game_hook
 
 org $829370
     jsl unpause_hook
 
-org $82DFC2
-    jsl reload_map_hook
+org $82E498
+    jsr door_transition_hook
 
 org $85846D
     jsl message_box_hook   ; reload map after message boxes (e.g. after item collect or map station activation)
@@ -50,7 +46,7 @@ org $848AB8
 org !bank_82_freespace_start
 
 transfer_pause_tilemap_hook:
-    jsl update_tilemap  ; update tilemap with collected item dots
+    jsl update_pause_tilemap  ; update tilemap with collected item dots
 
     ; Set source tilemap to $703000 for further processing
     lda #$3000
@@ -61,40 +57,98 @@ transfer_pause_tilemap_hook:
     lda #$4000  ; run hi-jacked instruction
     rts
 
+door_transition_hook:
+    pha
+    jsl update_hud_tilemap
+    pla
+    cmp #$0003      ; run hi-jacked instruction
+    rts
+
 warnpc !bank_82_freespace_end
 
 ; Free space in any bank:
 org $83B600
 
+start_game_hook:
+    sta $7EC380,x  ; run hi-jacked instruction
+    jsl update_hud_tilemap
+    rtl
+
 unpause_hook:
     jsl $80A149  ; run hi-jacked instruction
-    jsl update_tilemap
+    jsl update_hud_tilemap
     rtl
 
 message_box_hook:
-    jsl update_tilemap
-    lda #$0000
-    sta !last_samus_map_y  ; clear Samus map Y coordinate, to force mini-map to be redrawn
+    jsl update_hud_tilemap
     
     ; run hi-jacked instructions:
     sep #$20
     lda $1C1F
     rtl
 
-reload_map_hook:
-    jsl $80858C  ; run hi-jacked instruction (load map explored bits)
-    jsl update_tilemap
-    
-    rtl
-
 door_unlocked_hook:
     sta $7ED8B0,x ; run hi-jacked instruction (store new door unlocked bit)
-    lda #$0000
-    sta !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
-    jsl update_tilemap
+    jsl update_hud_tilemap
     rtl
 
-update_tilemap:
+update_hud_tilemap:
+    php
+    phx
+    phy
+
+    jsl $85A280    ; load_bg3_map_tilemap_wrapper (map_area.asm)
+
+    ldx $07BB      ; x <- room state pointer
+    lda $8F0010,x
+    tax            ; x <- extra room data pointer
+    lda $B80007,x
+    tax            ; x <- pointer to dynamic tile data (list of 6-byte records) in bank $E4
+
+    ; $03 <- $703000  (destination tilemap)
+    lda #$3000
+    sta $03
+    lda #$0070
+    sta $05
+
+    lda $E40000,x
+    sta $06        ; $06 <- loop counter: size of list
+    beq .done      ; if there are no dynamic tiles for this room, then we're done
+    inx : inx
+
+.item_loop:
+    lda #$0000
+    sep #$20
+    lda $E40000, x
+    phx
+    tax
+    lda $7ED870, x
+    plx
+    and $E40001, x
+    bne .skip  ; item is collected, so skip overwriting tile
+
+    rep #$20
+    lda $E40002, x  ; A <- tilemap offset
+    tay
+    lda $E40004, x  ; A <- tilemap word
+    sta [$03], y
+
+.skip:
+    rep #$20
+    inx : inx : inx : inx : inx : inx
+    dec $06
+    bne .item_loop
+
+.done:
+    rep #$20
+    lda #$0000
+    sta !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
+    ply
+    plx
+    plp
+    rtl
+
+update_pause_tilemap:
     php
     phx
     phy

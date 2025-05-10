@@ -462,12 +462,6 @@ pub fn apply_mother_brain_2_requirement(
     can_be_very_patient: bool,
     r_mode: bool,
 ) -> Option<LocalState> {
-    if inventory.max_energy < 199 && !r_mode {
-        // Need at least one ETank to survive rainbow beam, except in R-mode (where energy requirements are handled elsewhere
-        // in the strat logic)
-        return None;
-    }
-
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
     let charge_damage = get_charge_damage(&inventory);
@@ -548,8 +542,16 @@ pub fn apply_mother_brain_2_requirement(
         // Account for Rainbow beam damage:
         if inventory.items[Item::Varia as usize] {
             local.energy_used += 300;
+            if inventory.max_energy < 151 {
+                // With Varia, we need at least one ETank to survive rainbow beam.
+                return None;
+            }
         } else {
             local.energy_used += 600;
+            if inventory.max_energy < 301 {
+                // Without Varia, we need at least three ETanks to survive rainbow beam.
+                return None;
+            }
         }
     }
     // Overflow safeguard - bail here if Samus takes calamitous damage.

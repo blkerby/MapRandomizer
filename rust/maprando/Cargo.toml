@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 maprando-game = { path = "../maprando-game" }
 maprando-logic = { path = "../maprando-logic" }
+lznint = { path = "../lznint" }
 json = "0.12.4"
 hashbrown = "0.14.5"
 glob = "0.3.1"

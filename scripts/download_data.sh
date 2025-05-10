@@ -16,7 +16,7 @@ done
 # Download the Mosaic patches
 export MOSAIC_BUILD_ID=$(cat ../MOSAIC_BUILD_ID)
 wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/Mosaic/Mosaic-${MOSAIC_BUILD_ID}.tar.zstd
-unzstd Mosaic-${MOSAIC_BUILD_ID}.tar.zstd
+zstd -d Mosaic-${MOSAIC_BUILD_ID}.tar.zstd -o Mosaic-${MOSAIC_BUILD_ID}.tar
 mkdir -p ../patches/mosaic
 tar xf Mosaic-${MOSAIC_BUILD_ID}.tar --directory ../patches/mosaic
 rm Mosaic-${MOSAIC_BUILD_ID}.tar Mosaic-${MOSAIC_BUILD_ID}.tar.zstd

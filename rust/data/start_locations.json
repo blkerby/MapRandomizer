@@ -335,7 +335,7 @@
         "y": 13,
         "requires": [
             "canSuitlessMaridia",
-            "h_canCrouchJumpDownGrab"
+            "h_crouchJumpDownGrab"
         ]
     },
     {
@@ -1335,7 +1335,7 @@
         "node_id": 2,
         "x": 56,
         "y": 21,
-        "requires": ["canHeatRun", {"heatFrames": 160}, {"or": ["canWalljump", "h_canCrouchJumpDownGrab"]}]
+        "requires": ["canHeatRun", {"heatFrames": 160}, {"or": ["canWalljump", "h_crouchJumpDownGrab"]}]
     },
     {
         "name": "Pillar Room Right",
@@ -1708,7 +1708,7 @@
         "name": "East Sand Hole",
         "room_id": 208,
         "node_id": 2,
-        "door_load_node_id": 2,
+        "door_load_node_id": 1,
         "x": 25,
         "y": 11
     },
@@ -2028,7 +2028,7 @@
         "node_id": 2,
         "x": 44.5,
         "y": 45,
-        "requires": [{"or": ["canWalljump", "h_canCrouchJumpDownGrab"]}]
+        "requires": [{"or": ["canWalljump", "h_crouchJumpDownGrab"]}]
     },
     {
         "name": "Tourian Eye Door Room",
@@ -2337,7 +2337,7 @@
             {"heatFrames": 60},
             {"or": [
                 "canWalljump",
-                "h_canCrouchJumpDownGrab"
+                "h_crouchJumpDownGrab"
             ]}
         ],
         "camera_offset_y": -8
@@ -2406,7 +2406,7 @@
         "name": "West Sand Hole",
         "room_id": 209,
         "node_id": 2,
-        "door_load_node_id": 2,
+        "door_load_node_id": 1,
         "x": 17,
         "y": 12,
         "camera_offset_x": -6,

@@ -8,7 +8,6 @@ use anyhow::{bail, Result};
 use std::cmp::min;
 use std::path::Path;
 
-use crate::customize::vanilla_music::override_music;
 use crate::patch::glowpatch_writer::write_glowpatch;
 use crate::patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom};
 use maprando_game::{GameData, Map};
@@ -69,7 +68,6 @@ impl Allocator {
 
 #[derive(Debug)]
 pub enum MusicSettings {
-    Vanilla,
     AreaThemed,
     Disabled,
 }
@@ -184,10 +182,6 @@ fn apply_custom_samus_sprite(
             // you have Space Jump even if you don't:
             rom.write_u16(snes2pc(0x9B93FE), 0)?;
         }
-
-        // Fix issue with large DMA writes that could otherwise crash the game, e.g. during glitched grapple hanging:
-        // (Eventually this should get fixed upstream in SpriteSomething, and then we can remove this.)
-        apply_ips_patch(rom, Path::new("../patches/ips/samus_dma_fix.ips"))?;
     }
 
     // Patch credits to give credit to the sprite author:
@@ -328,7 +322,6 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
 pub fn customize_rom(
     rom: &mut Rom,
     orig_rom: &Rom,
-    seed_patch: &[u8],
     map: &Option<Map>,
     settings: &CustomizeSettings,
     game_data: &GameData,
@@ -336,10 +329,6 @@ pub fn customize_rom(
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
     rom.resize(0x400000);
-    let patch = ips::Patch::parse(seed_patch).unwrap();
-    for hunk in patch.hunks() {
-        rom.write_n(hunk.offset(), hunk.payload())?;
-    }
 
     remove_mother_brain_flashing(rom)?;
     apply_retiling(
@@ -378,20 +367,8 @@ pub fn customize_rom(
     }
     if settings.reserve_hud_style {
         apply_ips_patch(rom, Path::new("../patches/ips/reserve_hud.ips"))?;
-        // Make used reserve tiles empty, for when they appear when transitioning to and from Kraid's room
-        // Since the current IPS creation tool doesn't include settings these addresses to zero, it has to be done here instead
-        // TODO: this may no longer be necessary with the new method of building IPS with build_ips.py
-        for i in 0..6 {
-            rom.write_n(snes2pc(0xE20000 + (0x10000 * i) + 0xC330), &[0x00; 0x10])?;
-            rom.write_n(snes2pc(0xE20000 + (0x10000 * i) + 0xC460), &[0x00; 0x10])?;
-            rom.write_n(snes2pc(0xE20000 + (0x10000 * i) + 0xC4C0), &[0x00; 0x20])?;
-        }
     }
     match settings.music {
-        MusicSettings::Vanilla => {
-            // This option is removed from the website but still supported here in case we decide to bring it back later.
-            override_music(rom)?;
-        }
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {
             // We could call `override_music` here to restore the vanilla tracks: this would restore the correct sound effects

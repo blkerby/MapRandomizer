@@ -4,9 +4,9 @@ mod run_speed;
 use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::settings::{
-    DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle, ItemPriorityStrength,
-    KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate,
-    RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
+    DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
+    MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings,
+    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
     apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
@@ -252,7 +252,7 @@ pub struct DebugData {
     pub reverse: TraverseResult,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Serialize, Deserialize)]
 pub struct LockedDoor {
     pub src_ptr_pair: DoorPtrPair,
     pub dst_ptr_pair: DoorPtrPair,
@@ -280,17 +280,30 @@ pub struct RandomizationState {
     pub key_visited_vertices: HashSet<usize>,
 }
 
+// Info about an item used during ROM patching, to show info in the credits
+#[derive(Serialize, Deserialize)]
+pub struct EssentialItemSpoilerInfo {
+    pub item: Item,
+    pub step: Option<usize>,
+    pub area: Option<String>,
+}
+// Spoiler data that is used during ROM patching (e.g. to show info in the credits)
+#[derive(Serialize, Deserialize)]
+pub struct EssentialSpoilerData {
+    pub item_spoiler_info: Vec<EssentialItemSpoilerInfo>,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct Randomization {
-    pub settings: RandomizerSettings,
-    pub difficulty: DifficultyConfig,
     pub objectives: Vec<Objective>,
     pub save_animals: SaveAnimals,
     pub map: Map,
     pub toilet_intersections: Vec<RoomGeometryRoomIdx>,
-    pub locked_door_data: LockedDoorData,
+    pub locked_doors: Vec<LockedDoor>,
     pub item_placement: Vec<Item>,
     pub start_location: StartLocation,
-    pub spoiler_log: SpoilerLog,
+    pub escape_time_seconds: f32,
+    pub essential_spoiler_data: EssentialSpoilerData,
     pub seed: usize,
     pub display_seed: usize,
     pub seed_name: String,
@@ -735,6 +748,14 @@ impl<'a> Preprocessor<'a> {
             } => self.get_come_in_blue_spinning_reqs(
                 exit_condition,
                 unusable_tiles.get(),
+                min_extra_run_speed.get(),
+                max_extra_run_speed.get(),
+            ),
+            MainEntranceCondition::ComeInBlueSpaceJumping {
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => self.get_come_in_blue_space_jumping_reqs(
+                exit_condition,
                 min_extra_run_speed.get(),
                 max_extra_run_speed.get(),
             ),
@@ -1435,6 +1456,45 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(Requirement::HeatFrames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
+            }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_blue_space_jumping_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+        entrance_min_extra_run_speed: f32,
+        entrance_max_extra_run_speed: f32,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveSpaceJumping {
+                remote_runway_length,
+                blue,
+                heated,
+                min_extra_run_speed,
+                max_extra_run_speed,
+            } => {
+                let mut reqs: Vec<Requirement> = vec![];
+
+                if !self.add_run_speed_reqs(
+                    remote_runway_length.get(),
+                    min_extra_run_speed.get(),
+                    max_extra_run_speed.get(),
+                    *heated,
+                    entrance_min_extra_run_speed,
+                    entrance_max_extra_run_speed,
+                    &mut reqs,
+                ) {
+                    return None;
+                }
+                if *blue == BlueOption::No {
+                    return None;
+                }
+                Some(Requirement::make_shinecharge(
+                    remote_runway_length.get(),
+                    *heated,
+                ))
             }
             _ => None,
         }
@@ -3730,7 +3790,7 @@ impl<'r> Randomizer<'r> {
         num_unplaced_bireachable: usize,
         num_unplaced_oneway_reachable: usize,
         rng: &mut R,
-    ) -> (SelectItemsOutput, RandomizationState) {
+    ) -> Result<(SelectItemsOutput, RandomizationState)> {
         let (num_key_items_to_select, num_filler_items_to_select) = self.determine_item_split(
             state,
             num_unplaced_bireachable,
@@ -3797,7 +3857,7 @@ impl<'r> Randomizer<'r> {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
                 };
-                return (selection, new_state);
+                return Ok((selection, new_state));
             }
 
             if let Some(new_selected_key_items) =
@@ -3805,7 +3865,12 @@ impl<'r> Randomizer<'r> {
             {
                 selected_key_items = new_selected_key_items;
             } else {
-                info!("[attempt {attempt_num_rando}] Exhausted key item placement attempts");
+                if self.settings.item_progression_settings.progression_rate == ProgressionRate::Slow
+                {
+                    info!("[attempt {attempt_num_rando}] Continuing with last-ditch effort after exhausting key item placement attempts");
+                } else {
+                    bail!("[attempt {attempt_num_rando}] Failing after exhausting key item placement attempts");
+                }
                 if self
                     .settings
                     .item_progression_settings
@@ -3833,7 +3898,7 @@ impl<'r> Randomizer<'r> {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
                 };
-                return (selection, new_state);
+                return Ok((selection, new_state));
             }
             attempt_num += 1;
         }
@@ -3844,7 +3909,7 @@ impl<'r> Randomizer<'r> {
         attempt_num_rando: usize,
         state: &mut RandomizationState,
         rng: &mut R,
-    ) -> (SpoilerSummary, SpoilerDetails, bool) {
+    ) -> Result<(SpoilerSummary, SpoilerDetails, bool)> {
         let orig_global_state = state.global_state.clone();
         let mut spoiler_flag_summaries: Vec<SpoilerFlagSummary> = Vec::new();
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
@@ -3938,7 +4003,7 @@ impl<'r> Randomizer<'r> {
                 spoiler_door_details,
             );
             state.previous_debug_data = state.debug_data.clone();
-            return (spoiler_summary, spoiler_details, true);
+            return Ok((spoiler_summary, spoiler_details, true));
         }
 
         let mut placed_uncollected_bireachable_loc: Vec<ItemLocationId> = Vec::new();
@@ -3968,7 +4033,7 @@ impl<'r> Randomizer<'r> {
             unplaced_bireachable.len(),
             unplaced_oneway_reachable.len(),
             rng,
-        );
+        )?;
         new_state.previous_debug_data = state.debug_data.clone();
         new_state.key_visited_vertices = state.key_visited_vertices.clone();
 
@@ -4012,7 +4077,7 @@ impl<'r> Randomizer<'r> {
             spoiler_door_details,
         );
         *state = new_state;
-        (spoiler_summary, spoiler_details, false)
+        Ok((spoiler_summary, spoiler_details, false))
     }
 
     fn get_seed_name(&self, seed: usize) -> String {
@@ -4037,6 +4102,154 @@ impl<'r> Randomizer<'r> {
         out
     }
 
+    fn get_essential_spoiler_data(
+        &self,
+        settings: &RandomizerSettings,
+        spoiler_log: &SpoilerLog,
+    ) -> EssentialSpoilerData {
+        let mut item_spoiler_info: Vec<EssentialItemSpoilerInfo> = vec![];
+        let mut items_set: HashSet<Item> = HashSet::new();
+
+        // Include starting items first, as "step 0":
+        for x in &settings.item_progression_settings.starting_items {
+            if x.count > 0 {
+                item_spoiler_info.push(EssentialItemSpoilerInfo {
+                    item: x.item,
+                    step: Some(0),
+                    area: None,
+                });
+                items_set.insert(x.item);
+            }
+        }
+
+        // Include collectible items in the middle:
+        for (step, step_summary) in spoiler_log.summary.iter().enumerate() {
+            for item_info in step_summary.items.iter() {
+                let item = Item::try_from(item_info.item.as_str()).unwrap();
+                if !items_set.contains(&item) {
+                    item_spoiler_info.push(EssentialItemSpoilerInfo {
+                        item,
+                        step: Some(step + 1),
+                        area: Some(item_info.location.area.clone()),
+                    });
+                    items_set.insert(item);
+                }
+            }
+        }
+
+        // Include logically uncollectible items:
+        for loc in &spoiler_log.all_items {
+            if loc.item == "Nothing" {
+                continue;
+            }
+            let item = Item::try_from(loc.item.as_str()).unwrap();
+            if !items_set.contains(&item) {
+                item_spoiler_info.push(EssentialItemSpoilerInfo {
+                    item,
+                    step: None,
+                    area: Some(loc.location.area.clone()),
+                });
+                items_set.insert(item);
+            }
+        }
+
+        // Include unplaced items at the end:
+        for &name in Item::VARIANTS {
+            if name == "Nothing" {
+                continue;
+            }
+            if settings.other_settings.wall_jump != WallJump::Collectible && name == "WallJump" {
+                // Don't show "WallJump" item unless using Collectible mode.
+                continue;
+            }
+            let item = Item::try_from(name).unwrap();
+            if !items_set.contains(&item) {
+                item_spoiler_info.push(EssentialItemSpoilerInfo {
+                    item,
+                    step: None,
+                    area: None,
+                });
+                items_set.insert(item);
+            }
+        }
+
+        EssentialSpoilerData { item_spoiler_info }
+    }
+
+    pub fn get_essential_spoiler_data(
+        &self,
+        settings: &RandomizerSettings,
+        spoiler_log: &SpoilerLog,
+    ) -> EssentialSpoilerData {
+        let mut item_spoiler_info: Vec<EssentialItemSpoilerInfo> = vec![];
+        let mut items_set: HashSet<Item> = HashSet::new();
+
+        // Include starting items first, as "step 0":
+        for x in &settings.item_progression_settings.starting_items {
+            if x.count > 0 {
+                item_spoiler_info.push(EssentialItemSpoilerInfo {
+                    item: x.item,
+                    step: Some(0),
+                    area: None,
+                });
+                items_set.insert(x.item);
+            }
+        }
+
+        // Include collectible items in the middle:
+        for (step, step_summary) in spoiler_log.summary.iter().enumerate() {
+            for item_info in step_summary.items.iter() {
+                let item = Item::try_from(item_info.item.as_str()).unwrap();
+                if !items_set.contains(&item) {
+                    item_spoiler_info.push(EssentialItemSpoilerInfo {
+                        item,
+                        step: Some(step + 1),
+                        area: Some(item_info.location.area.clone()),
+                    });
+                    items_set.insert(item);
+                }
+            }
+        }
+
+        // Include logically uncollectible items:
+        for loc in &spoiler_log.all_items {
+            if loc.item == "Nothing" {
+                continue;
+            }
+            let item = Item::try_from(loc.item.as_str()).unwrap();
+            if !items_set.contains(&item) {
+                item_spoiler_info.push(EssentialItemSpoilerInfo {
+                    item,
+                    step: None,
+                    area: Some(loc.location.area.clone()),
+                });
+                items_set.insert(item);
+            }
+        }
+
+        // Include unplaced items at the end:
+        for &name in Item::VARIANTS {
+            if name == "Nothing" {
+                continue;
+            }
+            if settings.other_settings.wall_jump != WallJump::Collectible && name == "WallJump" {
+                // Don't show "WallJump" item unless using Collectible mode.
+                continue;
+            }
+            let item = Item::try_from(name).unwrap();
+            if !items_set.contains(&item) {
+                item_spoiler_info.push(EssentialItemSpoilerInfo {
+                    item,
+                    step: None,
+                    area: None,
+                });
+                items_set.insert(item);
+            }
+        }
+
+        EssentialSpoilerData { item_spoiler_info }
+    }
+
     pub fn get_randomization<R: Rng>(
         &self,
         state: &RandomizationState,
@@ -4046,7 +4259,7 @@ impl<'r> Randomizer<'r> {
         seed: usize,
         display_seed: usize,
         rng: &mut R,
-    ) -> Result<Randomization> {
+    ) -> Result<(Randomization, SpoilerLog)> {
         // Compute the first step on which each node becomes reachable/bireachable:
         let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
         let mut node_bireachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -4245,21 +4458,21 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
         };
 
-        Ok(Randomization {
-            settings: self.settings.clone(),
-            difficulty: self.difficulty_tiers[0].clone(),
+        let randomization = Randomization {
             objectives: self.objectives.clone(),
             save_animals,
             map: self.map.clone(),
             toilet_intersections: self.toilet_intersections.clone(),
-            locked_door_data: self.locked_door_data.clone(),
+            locked_doors: self.locked_door_data.locked_doors.clone(),
             item_placement,
-            spoiler_log,
+            escape_time_seconds: spoiler_log.escape.final_time_seconds,
+            essential_spoiler_data: self.get_essential_spoiler_data(self.settings, &spoiler_log),
             seed,
             display_seed,
             seed_name: self.get_seed_name(seed),
             start_location: state.start_location.clone(),
-        })
+        };
+        Ok((randomization, spoiler_log))
     }
 
     fn get_item_precedence<R: Rng>(
@@ -4602,7 +4815,7 @@ impl<'r> Randomizer<'r> {
         seed: usize,
         display_seed: usize,
         rng: &mut R,
-    ) -> Result<Randomization> {
+    ) -> Result<(Randomization, SpoilerLog)> {
         // For the "Escape" start location mode, item placement is irrelevant since you start
         // with all items collected.
 
@@ -4648,95 +4861,6 @@ impl<'r> Randomizer<'r> {
             })
             .collect();
 
-        let mut settings = self.settings.clone();
-        settings.item_progression_settings.starting_items = vec![
-            ItemCount {
-                item: Item::ETank,
-                count: 14,
-            },
-            ItemCount {
-                item: Item::Missile,
-                count: 46,
-            },
-            ItemCount {
-                item: Item::Super,
-                count: 10,
-            },
-            ItemCount {
-                item: Item::PowerBomb,
-                count: 10,
-            },
-            ItemCount {
-                item: Item::Bombs,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Charge,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Ice,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::HiJump,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::SpeedBooster,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Wave,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Spazer,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::SpringBall,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Varia,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Gravity,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::XRayScope,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Plasma,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Grapple,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::SpaceJump,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::ScrewAttack,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::Morph,
-                count: 1,
-            },
-            ItemCount {
-                item: Item::ReserveTank,
-                count: 4,
-            },
-        ]
-        .into_iter()
-        .collect();
         let spoiler_log = SpoilerLog {
             item_priority: vec![],
             summary: vec![],
@@ -4757,21 +4881,21 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
         };
 
-        Ok(Randomization {
-            settings,
-            difficulty: self.difficulty_tiers[0].clone(),
+        let randomization = Randomization {
             objectives: self.objectives.clone(),
             save_animals,
             map: self.map.clone(),
             toilet_intersections: self.toilet_intersections.clone(),
-            locked_door_data: self.locked_door_data.clone(),
+            locked_doors: self.locked_door_data.locked_doors.clone(),
             item_placement: vec![Item::Nothing; 100],
-            spoiler_log,
+            escape_time_seconds: spoiler_log.escape.final_time_seconds,
+            essential_spoiler_data: self.get_essential_spoiler_data(self.settings, &spoiler_log),
             seed,
             seed_name: self.get_seed_name(seed),
             display_seed,
             start_location: StartLocation::default(),
-        })
+        };
+        Ok((randomization, spoiler_log))
     }
 
     fn is_game_beatable(&self, state: &RandomizationState) -> bool {
@@ -4790,7 +4914,7 @@ impl<'r> Randomizer<'r> {
         attempt_num_rando: usize,
         seed: usize,
         display_seed: usize,
-    ) -> Result<Randomization> {
+    ) -> Result<(Randomization, SpoilerLog)> {
         let mut rng_seed = [0u8; 32];
         rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
         let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -4878,7 +5002,7 @@ impl<'r> Randomizer<'r> {
                 self.rerandomize_tank_precedence(&mut state.item_precedence, &mut rng);
             }
             let (spoiler_summary, spoiler_details, is_early_stop) =
-                self.step(attempt_num_rando, &mut state, &mut rng);
+                self.step(attempt_num_rando, &mut state, &mut rng)?;
             let cnt_collected = state
                 .item_location_state
                 .iter()

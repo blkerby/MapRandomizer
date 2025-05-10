@@ -23,9 +23,11 @@ $702000-702600: Map revealed bits (map_progress_maintain.asm)
 $702600-702602: Area explored bitmask, determines if an area map can show in pause map with Select (map_area.asm)
 $702602-702700: [FREE]
 $702700-702D00: Map partially revealed bits (map_progress_maintain.asm)
-$702D00-703000: [FREE]
+$702D00-702E00: HUD current minimap tile graphics (map_area.asm)
+$702E00-703000: [FREE]
 $703000-704000: Temporary tilemap for applying dynamic item dot changes (in both pause menu map and HUD mini-map)
 $704000-704400: Temporary tileset graphics, used only during door transition (fix_transition_bad_tiles.asm)
 $704400-704800: (reserved in case we expand the temporary tileset graphics)
 $703000-707400: backup of RAM $7E5000-$7E5400 and $7E7000-$7EB000, used only during unpause (decompression.asm)
-$707400-708000: [FREE]
+$707400-707800: room map tile graphics (map_area.asm)
+$707800-708000: [FREE]

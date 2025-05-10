@@ -6,9 +6,8 @@ use askama::Template;
 use hashbrown::{HashMap, HashSet};
 use maprando::{
     helpers::get_item_priorities,
-    patch::{ips_write::create_ips_patch, Rom},
     preset::PresetData,
-    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
     seed_repository::{Seed, SeedFile},
     settings::{
         get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
@@ -57,6 +56,7 @@ pub struct SeedHeaderTemplate<'a> {
     respin: bool,
     infinite_space_jump: bool,
     momentum_conservation: bool,
+    fanfares: String,
     etank_refill: String,
     doors: String,
     start_location_mode: String,
@@ -194,9 +194,9 @@ pub async fn save_seed(
     seed_data: &SeedData,
     input_settings: &str,
     spoiler_token: &str,
-    vanilla_rom: &Rom,
-    output_rom: &Rom,
+    settings: &RandomizerSettings,
     randomization: &Randomization,
+    spoiler_log: &SpoilerLog,
     app_data: &AppData,
 ) -> Result<()> {
     if check_seed_exists(seed_name, app_data).await {
@@ -214,10 +214,6 @@ pub async fn save_seed(
         "input_settings.json",
         input_settings.as_bytes().to_owned(),
     ));
-
-    // Write the ROM patch.
-    let patch_ips = create_ips_patch(&vanilla_rom.data, &output_rom.data);
-    files.push(SeedFile::new("patch.ips", patch_ips));
 
     // Write the seed header HTML and footer HTML
     let (seed_header_html, seed_footer_html) = render_seed(seed_name, seed_data, app_data)?;
@@ -255,11 +251,17 @@ pub async fn save_seed(
     let mut buf = Vec::new();
     let formatter = serde_json::ser::PrettyFormatter::with_indent(b"    ");
     let mut ser = serde_json::Serializer::with_formatter(&mut buf, formatter);
-    randomization.settings.serialize(&mut ser).unwrap();
+    settings.serialize(&mut ser).unwrap();
     files.push(SeedFile::new("public/settings.json", buf));
 
+    // Write the Randomization struct:
+    files.push(SeedFile::new(
+        "randomization.json",
+        serde_json::to_string(&randomization)?.as_bytes().to_vec(),
+    ));
+
     // Write the spoiler log
-    let spoiler_bytes = serde_json::to_vec_pretty(&randomization.spoiler_log).unwrap();
+    let spoiler_bytes = serde_json::to_vec_pretty(&spoiler_log).unwrap();
     files.push(SeedFile::new(
         &format!("{}/spoiler.json", prefix),
         spoiler_bytes,
@@ -267,7 +269,7 @@ pub async fn save_seed(
 
     // Write the spoiler maps
     let spoiler_maps =
-        spoiler_map::get_spoiler_map(&output_rom, &randomization.map, &app_data.game_data).unwrap();
+        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, settings).unwrap();
     files.push(SeedFile::new(
         &format!("{}/map-explored.png", prefix),
         spoiler_maps.explored,
@@ -428,6 +430,7 @@ pub fn render_seed(
         respin: seed_data.respin,
         infinite_space_jump: seed_data.infinite_space_jump,
         momentum_conservation: seed_data.momentum_conservation,
+        fanfares: seed_data.fanfares.clone(),
         etank_refill: match seed_data.settings.quality_of_life_settings.etank_refill {
             ETankRefill::Disabled => "Disabled",
             ETankRefill::Vanilla => "Vanilla",

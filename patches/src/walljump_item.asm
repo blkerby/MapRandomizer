@@ -91,9 +91,25 @@ inst_sce:
     dw $8724, .start
 
 
-; from itemsounds.asm:
 MISCFX:
-	LDA #$0002
+    ; check if itemsounds.asm is applied
+    LDA $848BF2
+    CMP #$00A9
+    BNE MISCFX_itemsounds
+    ; fallthrough
+    
+NORMAL_QUEUE_MUSIC_ROUTINE:
+    INY
+    PHY
+        ; points to byte with value 2 (item fanfare)
+        ldy #MISCFX_itemsounds+1
+        JSR $8BDD ; normal queue music routine
+    PLY
+    RTS
+
+; from itemsounds.asm:
+MISCFX_itemsounds:
+	LDA #$0002 ; (punned; see above)
 	STA $05D7
 	LDA $0000,y
 	INY
@@ -102,25 +118,7 @@ MISCFX:
 
 ; from stats.asm:
 collect_item:
-    phx
-    asl
-    asl
-    tax
-
-    ; check if we have already collected one of this type of item (do not overwrite the collection time in this case):
-    lda !stat_item_collection_times, x
-    bne .skip
-    lda !stat_item_collection_times+2, x
-    bne .skip
-
-    ; record the collection time
-    lda !stat_timer
-    sta !stat_item_collection_times, x
-    lda !stat_timer+2
-    sta !stat_item_collection_times+2, x
-
-.skip:
-    plx
+    jsl collect_item_85
     rts
 
 collect_WallJump:
@@ -184,6 +182,27 @@ msg:
     dw $000E, $000E, $000E, $000E, $000E, $000E, $2C0F, $2C0F, $2CD6, $2CC0, $2CCB, $2CCB, $2CDD, $2CC9, $2CD4, $2CCC, $2CCF, $2C0F, $2CC1, $2CCE, $2CCE, $2CD3, $2CD2, $2C0F, $2C0F, $000E, $000E, $000E, $000E, $000E, $000E, $000E
 
 msg_end:
+
+collect_item_85:
+    phx
+    asl
+    asl
+    tax
+
+    ; check if we have already collected one of this type of item (do not overwrite the collection time in this case):
+    lda !stat_item_collection_times, x
+    bne .skip
+    lda !stat_item_collection_times+2, x
+    bne .skip
+
+    ; record the collection time
+    lda !stat_timer
+    sta !stat_item_collection_times, x
+    lda !stat_timer+2
+    sta !stat_item_collection_times+2, x
+.skip:
+    plx
+    rtl
 
 warnpc !bank_85_free_space_end
 

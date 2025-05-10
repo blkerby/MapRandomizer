@@ -1,4 +1,4 @@
-$9643 - $96B0: hud_expansion_opaque.asm
+$9643 - $96B0: [FREE]
 $96B0 - $9800: walljump_item.asm
 $9800 - $9880: spin_lock.asm
 $9880 - $9980: fast_reload.asm
@@ -9,3 +9,6 @@ $9FF0 - $A050: [FREE]
 $A050 - $A100: reserve_backward_fill.asm
 $A100 - $A180: fix_transition_bad_tiles.asm
 $A180 - $A280: special_door_reveal.asm
+$A280 - $A880: map_area.asm
+$A8B0 - $A9B0: hud_expansion_opaque.asm
+$A9B0 - $AA00: sand_clamp.asm

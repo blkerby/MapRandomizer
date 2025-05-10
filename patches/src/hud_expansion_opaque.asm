@@ -2,8 +2,8 @@ lorom
 
 !bank_80_free_space_start = $80E540
 !bank_80_free_space_end = $80E580
-!bank_85_free_space_start = $859643
-!bank_85_free_space_end = $8596B0
+!bank_85_free_space_start = $85A8B0
+!bank_85_free_space_end = $85A9B0
 
 ; Set this to the relative path between the assembler and this file (eg. ROMProject/ASM)
 ; If the assembler is in the same directory, then leave it as '.'
@@ -350,6 +350,27 @@ ClearLayer3_SetBank:
     LDA #$01
     STA $420B ; start DMA (channel 0)
 ClearLayer3_Return:
+
+    ; transfer message-box letters to VRAM, since these
+    ; could have gotten overwritten by Kraid Room.
+    rep #$20
+    LDA #$4600
+    STA $2116  ; VRAM (destination) address = $4600
+
+    lda #$BE00 ; source address = $BE00
+    sta $4302
+
+    ; Set source bank to $9A:
+    lda #$009A
+    sta $4304
+
+    lda #$0200
+    sta $4305 ; transfer size = $0200 bytes
+
+    sep #$20
+    lda #$01
+    sta $420B  ; perform DMA transfer on channel 1
+
     JSR $81F3 ; displaced code
     RTS
 

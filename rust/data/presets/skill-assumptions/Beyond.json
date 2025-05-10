@@ -1048,13 +1048,6 @@
             "enabled": true
         },
         {
-            "room_id": 59,
-            "notable_id": 12,
-            "room_name": "Big Pink",
-            "notable_name": "Crystal Flash Standup - Super Block",
-            "enabled": true
-        },
-        {
             "room_id": 61,
             "notable_id": 2,
             "room_name": "Pink Brinstar Hopper Room",
@@ -1202,20 +1195,6 @@
             "enabled": true
         },
         {
-            "room_id": 8,
-            "notable_id": 4,
-            "room_name": "Landing Site",
-            "notable_name": "Blue Space Jump (Bottom)",
-            "enabled": true
-        },
-        {
-            "room_id": 30,
-            "notable_id": 3,
-            "room_name": "Gauntlet Entrance",
-            "notable_name": "Shinecharge Under Yapping Maw",
-            "enabled": true
-        },
-        {
             "room_id": 34,
             "notable_id": 6,
             "room_name": "East Ocean",
@@ -1234,13 +1213,6 @@
             "notable_id": 9,
             "room_name": "East Ocean",
             "notable_name": "Suitless Damage Boost Underwater Pillar",
-            "enabled": true
-        },
-        {
-            "room_id": 7,
-            "notable_id": 1,
-            "room_name": "The Moat",
-            "notable_name": "SpringBall Bounce",
             "enabled": true
         },
         {
@@ -1269,20 +1241,6 @@
             "notable_id": 7,
             "room_name": "Blue Brinstar Energy Tank Room",
             "notable_name": "Fast Wall Jump Spark",
-            "enabled": true
-        },
-        {
-            "room_id": 46,
-            "notable_id": 1,
-            "room_name": "Brinstar Reserve Tank Room",
-            "notable_name": "Hole-in-One",
-            "enabled": true
-        },
-        {
-            "room_id": 51,
-            "notable_id": 1,
-            "room_name": "Etecoon Energy Tank Room",
-            "notable_name": "Beetom Tricky Dodge",
             "enabled": true
         },
         {
@@ -1331,14 +1289,7 @@
             "room_id": 66,
             "notable_id": 9,
             "room_name": "Red Tower",
-            "notable_name": "Climb with Space Jump",
-            "enabled": true
-        },
-        {
-            "room_id": 81,
-            "notable_id": 2,
-            "room_name": "Warehouse Kihunter Room",
-            "notable_name": "Bottom Spark Out",
+            "notable_name": "Fast Climb with Space Jump",
             "enabled": true
         },
         {
@@ -1482,13 +1433,6 @@
             "enabled": true
         },
         {
-            "room_id": 145,
-            "notable_id": 1,
-            "room_name": "Lower Norfair Fireflea Room",
-            "notable_name": "Ice Bridge",
-            "enabled": true
-        },
-        {
             "room_id": 146,
             "notable_id": 2,
             "room_name": "Lower Norfair Spring Ball Maze Room",
@@ -1510,24 +1454,10 @@
             "enabled": true
         },
         {
-            "room_id": 137,
-            "notable_id": 1,
-            "room_name": "Red Kihunter Shaft",
-            "notable_name": "KiHunter Dodge",
-            "enabled": true
-        },
-        {
             "room_id": 142,
             "notable_id": 1,
             "room_name": "Ridley's Room",
             "notable_name": "Ridley without Heat Protection",
-            "enabled": true
-        },
-        {
-            "room_id": 135,
-            "notable_id": 1,
-            "room_name": "The Worst Room In The Game",
-            "notable_name": "New Route with HiJump, Speed, and PowerBombs",
             "enabled": true
         },
         {
@@ -1644,13 +1574,6 @@
         },
         {
             "room_id": 193,
-            "notable_id": 2,
-            "room_name": "Draygon's Room",
-            "notable_name": "Shinespark out the Right with a Gravity Jump",
-            "enabled": true
-        },
-        {
-            "room_id": 193,
             "notable_id": 3,
             "room_name": "Draygon's Room",
             "notable_name": "Suitless Fight",
@@ -1702,7 +1625,7 @@
             "room_id": 213,
             "notable_id": 1,
             "room_name": "Butterfly Room",
-            "notable_name": "Careful Jump",
+            "notable_name": "Doorway Jump or Precise Jump",
             "enabled": true
         },
         {
@@ -1797,24 +1720,17 @@
             "enabled": true
         },
         {
-            "room_id": 8,
-            "notable_id": 2,
-            "room_name": "Landing Site",
-            "notable_name": "Blue Space Jump (Top)",
-            "enabled": true
-        },
-        {
-            "room_id": 10,
-            "notable_id": 6,
-            "room_name": "Parlor and Alcatraz",
-            "notable_name": "Carry Shinecharge From Right to Bottom",
-            "enabled": true
-        },
-        {
             "room_id": 30,
             "notable_id": 1,
             "room_name": "Gauntlet Entrance",
             "notable_name": "Blue SpaceJump",
+            "enabled": true
+        },
+        {
+            "room_id": 30,
+            "notable_id": 3,
+            "room_name": "Gauntlet Entrance",
+            "notable_name": "Shinecharge Under Yapping Maw",
             "enabled": true
         },
         {
@@ -1846,17 +1762,10 @@
             "enabled": true
         },
         {
-            "room_id": 32,
-            "notable_id": 10,
-            "room_name": "West Ocean",
-            "notable_name": "Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door",
-            "enabled": true
-        },
-        {
-            "room_id": 32,
-            "notable_id": 11,
-            "room_name": "West Ocean",
-            "notable_name": "Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door",
+            "room_id": 51,
+            "notable_id": 1,
+            "room_name": "Etecoon Energy Tank Room",
+            "notable_name": "Beetom Tricky Dodge",
             "enabled": true
         },
         {
@@ -1891,7 +1800,7 @@
             "room_id": 59,
             "notable_id": 1,
             "room_name": "Big Pink",
-            "notable_name": "Speedball into Raised Bomb Blocks",
+            "notable_name": "Break Raised Bomb Blocks with Blue Speed",
             "enabled": true
         },
         {
@@ -1938,13 +1847,6 @@
         },
         {
             "room_id": 67,
-            "notable_id": 3,
-            "room_name": "Red Brinstar Fireflea Room",
-            "notable_name": "X-Ray Access Ice Bridge",
-            "enabled": true
-        },
-        {
-            "room_id": 67,
             "notable_id": 4,
             "room_name": "Red Brinstar Fireflea Room",
             "notable_name": "X-Ray Access Damage Boost",
@@ -1980,20 +1882,6 @@
         },
         {
             "room_id": 81,
-            "notable_id": 1,
-            "room_name": "Warehouse Kihunter Room",
-            "notable_name": "Tunnel Charge",
-            "enabled": true
-        },
-        {
-            "room_id": 81,
-            "notable_id": 3,
-            "room_name": "Warehouse Kihunter Room",
-            "notable_name": "Bottom Leave Shinecharged",
-            "enabled": true
-        },
-        {
-            "room_id": 81,
             "notable_id": 4,
             "room_name": "Warehouse Kihunter Room",
             "notable_name": "Speedball",
@@ -2004,13 +1892,6 @@
             "notable_id": 2,
             "room_name": "Cathedral Entrance",
             "notable_name": "Sova Boost",
-            "enabled": true
-        },
-        {
-            "room_id": 90,
-            "notable_id": 5,
-            "room_name": "Cathedral Entrance",
-            "notable_name": "Speedjump (Right to Left)",
             "enabled": true
         },
         {
@@ -2119,13 +2000,6 @@
             "enabled": true
         },
         {
-            "room_id": 123,
-            "notable_id": 1,
-            "room_name": "Post Crocomire Farming Room",
-            "notable_name": "Speedy Jump",
-            "enabled": true
-        },
-        {
             "room_id": 127,
             "notable_id": 1,
             "room_name": "Post Crocomire Jump Room",
@@ -2183,9 +2057,23 @@
         },
         {
             "room_id": 137,
+            "notable_id": 1,
+            "room_name": "Red Kihunter Shaft",
+            "notable_name": "KiHunter Dodge",
+            "enabled": true
+        },
+        {
+            "room_id": 137,
             "notable_id": 2,
             "room_name": "Red Kihunter Shaft",
             "notable_name": "Kihunter Manipulation from Middle Door",
+            "enabled": true
+        },
+        {
+            "room_id": 135,
+            "notable_id": 1,
+            "room_name": "The Worst Room In The Game",
+            "notable_name": "New Route with HiJump, Speed, and PowerBombs",
             "enabled": true
         },
         {
@@ -2323,13 +2211,6 @@
         },
         {
             "room_id": 196,
-            "notable_id": 3,
-            "room_name": "East Cactus Alley Room",
-            "notable_name": "Cross Room Jump with Spring Ball, Bomb Boost",
-            "enabled": true
-        },
-        {
-            "room_id": 196,
             "notable_id": 6,
             "room_name": "East Cactus Alley Room",
             "notable_name": "Bomb Jump Water Escape",
@@ -2340,13 +2221,6 @@
             "notable_id": 1,
             "room_name": "West Sand Hole",
             "notable_name": "Suitless Wall Jump Break Free",
-            "enabled": true
-        },
-        {
-            "room_id": 209,
-            "notable_id": 2,
-            "room_name": "West Sand Hole",
-            "notable_name": "Suitless Bootless IBJ",
             "enabled": true
         },
         {
@@ -2525,13 +2399,6 @@
             "enabled": true
         },
         {
-            "room_id": 18,
-            "notable_id": 1,
-            "room_name": "Final Missile Bombway",
-            "notable_name": "Shinespark",
-            "enabled": true
-        },
-        {
             "room_id": 8,
             "notable_id": 5,
             "room_name": "Landing Site",
@@ -2662,13 +2529,6 @@
             "notable_id": 1,
             "room_name": "Construction Zone",
             "notable_name": "Ice Moonfall Leave with Stored Fall Speed",
-            "enabled": true
-        },
-        {
-            "room_id": 45,
-            "notable_id": 1,
-            "room_name": "Early Supers Room",
-            "notable_name": "Leave With Spark To The Left",
             "enabled": true
         },
         {
@@ -2875,6 +2735,20 @@
             "enabled": true
         },
         {
+            "room_id": 121,
+            "notable_id": 6,
+            "room_name": "Crocomire Escape",
+            "notable_name": "Ceiling Mockball Spring Fling",
+            "enabled": true
+        },
+        {
+            "room_id": 121,
+            "notable_id": 7,
+            "room_name": "Crocomire Escape",
+            "notable_name": "Spring Ball Jump into Damage Boost",
+            "enabled": true
+        },
+        {
             "room_id": 106,
             "notable_id": 3,
             "room_name": "Ice Beam Gate Room",
@@ -2945,13 +2819,6 @@
             "enabled": true
         },
         {
-            "room_id": 144,
-            "notable_id": 4,
-            "room_name": "Mickey Mouse Room",
-            "notable_name": "Crumble Jump IBJ",
-            "enabled": true
-        },
-        {
             "room_id": 137,
             "notable_id": 3,
             "room_name": "Red Kihunter Shaft",
@@ -3019,13 +2886,6 @@
             "notable_id": 4,
             "room_name": "Crab Hole",
             "notable_name": "Ice Clip",
-            "enabled": true
-        },
-        {
-            "room_id": 173,
-            "notable_id": 7,
-            "room_name": "Fish Tank",
-            "notable_name": "Insane Naked Jump Over Pirate (Left to Right)",
             "enabled": true
         },
         {
@@ -3621,13 +3481,6 @@
             "notable_id": 3,
             "room_name": "Mt. Everest",
             "notable_name": "Right Crab Climb with Only 1 Super",
-            "enabled": true
-        },
-        {
-            "room_id": 174,
-            "notable_id": 4,
-            "room_name": "Mt. Everest",
-            "notable_name": "Top Left Shinecharge",
             "enabled": true
         },
         {

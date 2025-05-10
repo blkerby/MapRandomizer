@@ -80,14 +80,6 @@
     "video_id": 282
   },
   {
-    "room_id": 18,
-    "room_name": "Final Missile Bombway",
-    "notable_id": 1,
-    "name": "Shinespark",
-    "difficulty": "Extreme",
-    "video_id": 205
-  },
-  {
     "room_id": 8,
     "room_name": "Landing Site",
     "notable_id": 1,
@@ -98,26 +90,10 @@
   {
     "room_id": 8,
     "room_name": "Landing Site",
-    "notable_id": 2,
-    "name": "Blue Space Jump (Top)",
-    "difficulty": "Expert",
-    "video_id": 425
-  },
-  {
-    "room_id": 8,
-    "room_name": "Landing Site",
     "notable_id": 3,
     "name": "Big Jump Leave With Temporary Blue",
     "difficulty": "Insane",
     "video_id": 131
-  },
-  {
-    "room_id": 8,
-    "room_name": "Landing Site",
-    "notable_id": 4,
-    "name": "Blue Space Jump (Bottom)",
-    "difficulty": "Very Hard",
-    "video_id": 522
   },
   {
     "room_id": 8,
@@ -166,14 +142,6 @@
     "name": "Alcatraz Escape Double Damage Boost",
     "difficulty": "Insane",
     "video_id": 54
-  },
-  {
-    "room_id": 10,
-    "room_name": "Parlor and Alcatraz",
-    "notable_id": 6,
-    "name": "Carry Shinecharge From Right to Bottom",
-    "difficulty": "Expert",
-    "video_id": 237
   },
   {
     "room_id": 10,
@@ -228,7 +196,7 @@
     "room_name": "Gauntlet Entrance",
     "notable_id": 3,
     "name": "Shinecharge Under Yapping Maw",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 315
   },
   {
@@ -362,14 +330,6 @@
   {
     "room_id": 7,
     "room_name": "The Moat",
-    "notable_id": 1,
-    "name": "SpringBall Bounce",
-    "difficulty": "Very Hard",
-    "video_id": 530
-  },
-  {
-    "room_id": 7,
-    "room_name": "The Moat",
     "notable_id": 2,
     "name": "Leave With Grapple Teleport",
     "difficulty": "Extreme",
@@ -446,22 +406,6 @@
     "name": "Enemy Stuck Moonfall Super Block Clip",
     "difficulty": "Insane",
     "video_id": 260
-  },
-  {
-    "room_id": 32,
-    "room_name": "West Ocean",
-    "notable_id": 10,
-    "name": "Ocean Floor Shinecharge, Fast Wallclimb to Gravity Door",
-    "difficulty": "Expert",
-    "video_id": 321
-  },
-  {
-    "room_id": 32,
-    "room_name": "West Ocean",
-    "notable_id": 11,
-    "name": "Ocean Floor Shinecharge, Fast Spacejump Wallclimb to Gravity Door",
-    "difficulty": "Expert",
-    "video_id": 320
   },
   {
     "room_id": 32,
@@ -544,22 +488,6 @@
     "video_id": 2637
   },
   {
-    "room_id": 46,
-    "room_name": "Brinstar Reserve Tank Room",
-    "notable_id": 1,
-    "name": "Hole-in-One",
-    "difficulty": "Very Hard",
-    "video_id": 477
-  },
-  {
-    "room_id": 45,
-    "room_name": "Early Supers Room",
-    "notable_id": 1,
-    "name": "Leave With Spark To The Left",
-    "difficulty": "Extreme",
-    "video_id": 199
-  },
-  {
     "room_id": 45,
     "room_name": "Early Supers Room",
     "notable_id": 2,
@@ -580,7 +508,7 @@
     "room_name": "Etecoon Energy Tank Room",
     "notable_id": 1,
     "name": "Beetom Tricky Dodge",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 502
   },
   {
@@ -755,7 +683,7 @@
     "room_id": 59,
     "room_name": "Big Pink",
     "notable_id": 1,
-    "name": "Speedball into Raised Bomb Blocks",
+    "name": "Break Raised Bomb Blocks with Blue Speed",
     "difficulty": "Expert",
     "video_id": 391
   },
@@ -838,14 +766,6 @@
     "name": "Off Screen Super Block",
     "difficulty": "Hard",
     "video_id": 473
-  },
-  {
-    "room_id": 59,
-    "room_name": "Big Pink",
-    "notable_id": 12,
-    "name": "Crystal Flash Standup - Super Block",
-    "difficulty": "Hard",
-    "video_id": 472
   },
   {
     "room_id": 59,
@@ -1018,14 +938,6 @@
   {
     "room_id": 67,
     "room_name": "Red Brinstar Fireflea Room",
-    "notable_id": 3,
-    "name": "X-Ray Access Ice Bridge",
-    "difficulty": "Expert",
-    "video_id": 1104
-  },
-  {
-    "room_id": 67,
-    "room_name": "Red Brinstar Fireflea Room",
     "notable_id": 4,
     "name": "X-Ray Access Damage Boost",
     "difficulty": "Expert",
@@ -1107,7 +1019,7 @@
     "room_id": 66,
     "room_name": "Red Tower",
     "notable_id": 9,
-    "name": "Climb with Space Jump",
+    "name": "Fast Climb with Space Jump",
     "difficulty": "Very Hard",
     "video_id": 244
   },
@@ -1126,30 +1038,6 @@
     "name": "Arm Pump Jump",
     "difficulty": "Extreme",
     "video_id": 86
-  },
-  {
-    "room_id": 81,
-    "room_name": "Warehouse Kihunter Room",
-    "notable_id": 1,
-    "name": "Tunnel Charge",
-    "difficulty": "Expert",
-    "video_id": 319
-  },
-  {
-    "room_id": 81,
-    "room_name": "Warehouse Kihunter Room",
-    "notable_id": 2,
-    "name": "Bottom Spark Out",
-    "difficulty": "Very Hard",
-    "video_id": 318
-  },
-  {
-    "room_id": 81,
-    "room_name": "Warehouse Kihunter Room",
-    "notable_id": 3,
-    "name": "Bottom Leave Shinecharged",
-    "difficulty": "Expert",
-    "video_id": 255
   },
   {
     "room_id": 81,
@@ -1222,14 +1110,6 @@
     "name": "Sova Morph Only Boost",
     "difficulty": "Extreme",
     "video_id": 1108
-  },
-  {
-    "room_id": 90,
-    "room_name": "Cathedral Entrance",
-    "notable_id": 5,
-    "name": "Speedjump (Right to Left)",
-    "difficulty": "Expert",
-    "video_id": 402
   },
   {
     "room_id": 90,
@@ -1432,6 +1312,22 @@
     "video_id": 312
   },
   {
+    "room_id": 121,
+    "room_name": "Crocomire Escape",
+    "notable_id": 6,
+    "name": "Ceiling Mockball Spring Fling",
+    "difficulty": "Extreme",
+    "video_id": 6228
+  },
+  {
+    "room_id": 121,
+    "room_name": "Crocomire Escape",
+    "notable_id": 7,
+    "name": "Spring Ball Jump into Damage Boost",
+    "difficulty": "Extreme",
+    "video_id": 6229
+  },
+  {
     "room_id": 120,
     "room_name": "Crocomire Speedway",
     "notable_id": 1,
@@ -1550,14 +1446,6 @@
     "name": "Double Gamet Boost",
     "difficulty": "Expert",
     "video_id": 420
-  },
-  {
-    "room_id": 123,
-    "room_name": "Post Crocomire Farming Room",
-    "notable_id": 1,
-    "name": "Speedy Jump",
-    "difficulty": "Expert",
-    "video_id": 433
   },
   {
     "room_id": 123,
@@ -1762,14 +1650,6 @@
   {
     "room_id": 145,
     "room_name": "Lower Norfair Fireflea Room",
-    "notable_id": 1,
-    "name": "Ice Bridge",
-    "difficulty": "Very Hard",
-    "video_id": 524
-  },
-  {
-    "room_id": 145,
-    "room_name": "Lower Norfair Fireflea Room",
     "notable_id": 2,
     "name": "G-Mode Morph Blind Top to Bottom",
     "difficulty": "Extreme",
@@ -1832,14 +1712,6 @@
     "video_id": 529
   },
   {
-    "room_id": 144,
-    "room_name": "Mickey Mouse Room",
-    "notable_id": 4,
-    "name": "Crumble Jump IBJ",
-    "difficulty": "Extreme",
-    "video_id": 1109
-  },
-  {
     "room_id": 134,
     "room_name": "Pillar Room",
     "notable_id": 1,
@@ -1860,7 +1732,7 @@
     "room_name": "Red Kihunter Shaft",
     "notable_id": 1,
     "name": "KiHunter Dodge",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 520
   },
   {
@@ -1892,7 +1764,7 @@
     "room_name": "The Worst Room In The Game",
     "notable_id": 1,
     "name": "New Route with HiJump, Speed, and PowerBombs",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 565
   },
   {
@@ -2178,14 +2050,6 @@
   {
     "room_id": 173,
     "room_name": "Fish Tank",
-    "notable_id": 7,
-    "name": "Insane Naked Jump Over Pirate (Left to Right)",
-    "difficulty": "Extreme",
-    "video_id": 417
-  },
-  {
-    "room_id": 173,
-    "room_name": "Fish Tank",
     "notable_id": 8,
     "name": "Artificial Morph, Double Spring Ball Jump onto Frozen Fish",
     "difficulty": "Insane",
@@ -2302,14 +2166,6 @@
     "name": "Right Crab Climb with Only 1 Super",
     "difficulty": "Insane",
     "video_id": 299
-  },
-  {
-    "room_id": 174,
-    "room_name": "Mt. Everest",
-    "notable_id": 4,
-    "name": "Top Left Shinecharge",
-    "difficulty": "Insane",
-    "video_id": 220
   },
   {
     "room_id": 174,
@@ -2666,14 +2522,6 @@
   {
     "room_id": 193,
     "room_name": "Draygon's Room",
-    "notable_id": 2,
-    "name": "Shinespark out the Right with a Gravity Jump",
-    "difficulty": "Very Hard",
-    "video_id": 198
-  },
-  {
-    "room_id": 193,
-    "room_name": "Draygon's Room",
     "notable_id": 3,
     "name": "Suitless Fight",
     "difficulty": "Very Hard",
@@ -2718,14 +2566,6 @@
     "name": "Cross Room Jump with IBJ",
     "difficulty": "Expert",
     "video_id": 411
-  },
-  {
-    "room_id": 196,
-    "room_name": "East Cactus Alley Room",
-    "notable_id": 3,
-    "name": "Cross Room Jump with Spring Ball, Bomb Boost",
-    "difficulty": "Expert",
-    "video_id": 412
   },
   {
     "room_id": 196,
@@ -2840,14 +2680,6 @@
     "video_id": 444
   },
   {
-    "room_id": 209,
-    "room_name": "West Sand Hole",
-    "notable_id": 2,
-    "name": "Suitless Bootless IBJ",
-    "difficulty": "Expert",
-    "video_id": 443
-  },
-  {
     "room_id": 211,
     "room_name": "Bug Sand Hole",
     "notable_id": 1,
@@ -2875,7 +2707,7 @@
     "room_id": 213,
     "room_name": "Butterfly Room",
     "notable_id": 1,
-    "name": "Careful Jump",
+    "name": "Doorway Jump or Precise Jump",
     "difficulty": "Very Hard",
     "video_id": 482
   },

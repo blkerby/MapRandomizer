@@ -1,6 +1,5 @@
 0000-E99B:  Used by vanilla game for Room headers, PLM sets, door & setup ASMs, etc.
-E99B-EB00:  Data used by `map_area` patch
-EB00-EE00:  [FREE]
+E99B-EE00:  [FREE]
 EE00-EE10:  mb_left_entrance.asm
 EE10-F600:  Used for custom door ASMs
 F600-F700:  Used by `escape` patch

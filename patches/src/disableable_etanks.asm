@@ -17,7 +17,7 @@ hook_draw_tanks:
     sta $16
 .loop:
     ldx $9CCE,y
-    lda #$382F
+    lda #$3C2F
     sta $7EC608,x
     iny
     iny

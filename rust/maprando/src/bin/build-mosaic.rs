@@ -21,7 +21,7 @@ use std::process::Command;
 #[derive(Parser)]
 struct Args {
     #[arg(long)]
-    compressor: PathBuf,
+    compressor: Option<PathBuf>,
     #[arg(long)]
     input_rom: PathBuf,
 }
@@ -49,7 +49,7 @@ struct MosaicPatchBuilder {
     source_suffix_tree: SuffixTree,
     room_ptr_map: HashMap<(usize, usize), usize>,
     compressed_data_cache_dir: PathBuf,
-    compressor_path: PathBuf,
+    compressor_path: Option<PathBuf>,
     tmp_dir: PathBuf,
     mosaic_dir: PathBuf,
     output_patches_dir: PathBuf,
@@ -149,16 +149,24 @@ impl MosaicPatchBuilder {
         let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &data);
         let output_path = self.compressed_data_cache_dir.join(digest);
         if !output_path.exists() {
-            let tmp_path = self.tmp_dir.join("tmpfile");
-            std::fs::write(&tmp_path, data)?;
-            Command::new(&self.compressor_path)
-                .arg("-c")
-                .arg(format!("-f={}", tmp_path.to_str().unwrap()))
-                .arg(format!("-o={}", output_path.to_str().unwrap()))
-                .status()
-                .context("error running compressor")?;
+            if let Some(compressor_path) = &self.compressor_path {
+                let tmp_path = self.tmp_dir.join("tmpfile");
+                std::fs::write(&tmp_path, data)?;
+                Command::new(&compressor_path)
+                    .arg("-c")
+                    .arg(format!("-f={}", tmp_path.to_str().unwrap()))
+                    .arg(format!("-o={}", output_path.to_str().unwrap()))
+                    .status()
+                    .context("error running compressor")?;
+                return Ok(std::fs::read(output_path)?);
+            } else {
+                let output = lznint::compress(data);
+                std::fs::write(&output_path, output.clone())?;
+                return Ok(output);
+            }
+        } else {
+            return Ok(std::fs::read(output_path)?);
         }
-        return Ok(std::fs::read(output_path)?);
     }
 
     fn get_fx_data(&self, state_xml: &smart_xml::RoomState, default_only: bool) -> Vec<u8> {
@@ -1318,13 +1326,8 @@ fn main() -> Result<()> {
         // Skipping rest of bank CE: used by credits data
         (snes2pc(0xE08000), snes2pc(0xE10000)),
         (snes2pc(0xE18000), snes2pc(0xE20000)),
-        // Skipping lower part of banks E2-E6: used for per-area BG3 and pause menu graphics
-        (snes2pc(0xE2D000), snes2pc(0xE30000)),
-        (snes2pc(0xE3D000), snes2pc(0xE40000)),
-        (snes2pc(0xE4D000), snes2pc(0xE50000)),
-        (snes2pc(0xE5D000), snes2pc(0xE60000)),
-        (snes2pc(0xE6D000), snes2pc(0xE70000)),
-        (snes2pc(0xE7D000), snes2pc(0xE80000)),
+        // Skipping bank E2, E3, and E4: used for map tile graphics
+        (snes2pc(0xE58000), snes2pc(0xE80000)),
         // Skipping bank E9, used for hazard markers and title screen graphics
         // Skipping bank EA, used for beam door graphics
         (snes2pc(0xEB8000), snes2pc(0xF80000)),
@@ -1337,6 +1340,12 @@ fn main() -> Result<()> {
         (snes2pc(0x83A0D4), snes2pc(0x83A18A)),
         (snes2pc(0x83F000), snes2pc(0x840000)),
     ]);
+
+    info!(
+        "Initial state: main alloc {:?}, FX alloc {:?}",
+        main_allocator.get_stats(),
+        fx_allocator.get_stats()
+    );
 
     let project_names: Vec<String> = vec![
         "Base",

@@ -7,7 +7,7 @@ $F300 - $F380: escape_items.asm
 $F380 - $F480: escape.asm
 $F480 - $F490: etank_refill_full.asm
 $F490 - $F4A0: reserve_hud.asm
-$F4A0 - $F500: vertical_door_fix.asm
+$F4A0 - $F500: [FREE]
 $F500 - $F580: itemsounds.asm
 $F580 - $F590: mb_left_entrance.asm
 $F590 - $F5A0: horizontal_door_fix.asm

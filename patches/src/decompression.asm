@@ -90,7 +90,12 @@ setup:
     LDA $70 : STA !dma_register_backup+$1C
     LDA $72 : STA !dma_register_backup+$1E
     LDA $74 : STA !dma_register_backup+$20
+
     SEP #$20
+
+    ;save HDMA bank for channels 2/3 (mini fix)
+    LDA $27 : STA !dma_register_backup+$22
+    LDA $37 : STA !dma_register_backup+$23
 
     LDA $004C : STA $2181 : STA $42 : STA $22
     LDA $004D : STA $2182 : STA $43 : STA $23
@@ -114,30 +119,38 @@ endmacro
 org $8095A7
     JMP checkIfInLoading
 
-; Change the top-of-HUD IRQ to run as early as possible during vblank (after NMI):
+; Change the top-of-HUD IRQ to run earlier, starting during vblank (after NMI):
 ; Normally this IRQ fires during scanline 0, but if decompression is doing a large
 ; DMA transfer, then the IRQ could be delayed, resulting in artifacts showing at the
-; top of the HUD. By running it earlier the IRQ will finish before vblank ends.
-; We set it to run on scanline $E2 (226), which is one scanline after NMI triggers.
-; If NMI is still in progress (as normally expected), the IRQ will fire immediately
+; top of the HUD. By running it earlier the IRQ will usually finish before vblank ends,
+; and always before scanline 8 where a visible artifact could occur.
+; For game states when decompression may be happening, we set it to run on scanline 
+; $FF (255). If NMI is somehow still in progress, the IRQ should fire immediately
 ; after NMI returns, or after the completion of any DMA transfer that was
-; interrupted by NMI.
-org $8096CC : LDY #$00E2  ; main gameplay
-org $809713 : LDY #$00E2  ; start of door transition
-org $809751 : LDY #$00E2  ; Draygon's Room
-org $8097B4 : LDY #$00E2  ; vertical door transition
-org $80981D : LDY #$00E2  ; horizontal door transition
+; interrupted by NMI. We saw compatibility issues on 3DS (Snes9x 1.51), which is
+; why we set it to a relatively late scanline so that NMI should no longer still be
+; in progress.
+;
+; For main gameplay states (where decompression is not happening), we adjust the timing
+; by a smaller amount (37 dots), to account for the extra few cycles spent saving and
+; setting the Direct Page register.
+;
+org $8096CF : LDX #$0073  ; main gameplay (h-counter target = $73 = 115)
+org $809713 : LDY #$00FF  ; start of door transition (v-counter target = $FF = 255)
+org $809754 : LDX #$0073  ; Draygon's Room (h-counter target = $73 = 115)
+org $8097B4 : LDY #$00FF  ; vertical door transition (v-counter target = $FF = 255)
+org $80981D : LDY #$00FF  ; horizontal door transition (v-counter target = $FF = 255)
 
-; Change the bottom-of-HUD IRQ to run slightly earlier (32 dots), to account for the extra few
+; Change the bottom-of-HUD IRQ to run slightly earlier (37 dots), to account for the extra few
 ; cycles spent saving and setting the Direct Page register:
 ; It is also possible for this IRQ to be delayed due to a large DMA transfer during
 ; decompression, but if that happens, it only results in some black scanlines below
 ; the HUD, which shouldn't be too noticeable since the room is already faded to black.
-org $8096A5 : LDX #$0078  ; main gameplay
-org $8096ED : LDX #$0078  ; start of door transition
-org $80972F : LDX #$0078  ; Draygon's Room
-org $80976D : LDX #$0078  ; vertical door transition
-org $8097D6 : LDX #$0078  ; horizontal door transition
+org $8096A5 : LDX #$0073  ; main gameplay (h-counter target = $73 = 115)
+org $8096ED : LDX #$0073  ; start of door transition (h-counter target = $73 = 115)
+org $80972F : LDX #$0073  ; Draygon's Room (h-counter target = $73 = 115)
+org $80976D : LDX #$0073  ; vertical door transition (h-counter target = $73 = 115)
+org $8097D6 : LDX #$0073  ; horizontal door transition (h-counter target = $73 = 115)
 
 ;some hijacks
 org $809876
@@ -384,27 +397,38 @@ org !bank_80_free_space_start
 
 cleanup:
     LDX $22  ; X <- final destination address (used in decompression to VRAM, to determine output size)
+    PHX
 
     ;restore some DMA registers that could have been overwritten
     REP #$20
-    LDA !dma_register_backup+$00 : STA $08
-    LDA !dma_register_backup+$02 : STA $18
-    LDA !dma_register_backup+$04 : STA $20
-    LDA !dma_register_backup+$06 : STA $22
-    LDA !dma_register_backup+$08 : STA $24
-    LDA !dma_register_backup+$0A : STA $30
-    LDA !dma_register_backup+$0C : STA $32
-    LDA !dma_register_backup+$0E : STA $34
-    LDA !dma_register_backup+$10 : STA $42
-    LDA !dma_register_backup+$12 : STA $50
-    LDA !dma_register_backup+$14 : STA $52
-    LDA !dma_register_backup+$16 : STA $54
-    LDA !dma_register_backup+$18 : STA $62
-    LDA !dma_register_backup+$1A : STA $64
-    LDA !dma_register_backup+$1C : STA $70
-    LDA !dma_register_backup+$1E : STA $72
-    LDA !dma_register_backup+$20 : STA $74    
+    PHB
+    PHK
+    PLB
+    LDX #$0000
+    TXY
+.restore_lp
+    LDA restore_table, Y
+    AND #$00FF
+    BEQ skip_tbl
+    PHY
+    TAY
+    LDA !dma_register_backup, X
+    STA $4300,Y
+    PLY
+    INY
+    INX : INX
+    bra .restore_lp
+
+restore_table: ; null-terminated
+    db $08, $18, $20, $22, $24, $30, $32, $34, $42, $50, $52, $54, $62, $64, $70, $72, $74, $00
+
+skip_tbl:
+    PLB
+    PLX
     SEP #$20
+
+    LDA !dma_register_backup+$22 : STA $27
+    LDA !dma_register_backup+$23 : STA $37
 
     PLD
     STZ !DecompFlag

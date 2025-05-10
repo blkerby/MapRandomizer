@@ -33,9 +33,15 @@
             "type": "boolean",
             "default": false
           },
-          "waterLevel": {
+          "liquidLevel": {
             "type": ["number", "null"],
-            "description": "Level of the highest point of the water in this room, measured in map tiles from the top of the room.",
+            "description": "Level of the highest point of the liquid in this room, measured in map tiles from the top of the room.",
+            "default": null
+          },
+          "liquidType": {
+            "type": ["string", "null"],
+            "description": "Type of liquid in this room.",
+            "enum": ["water", "lava", "acid"],
             "default": null
           },
           "mapTiles": {

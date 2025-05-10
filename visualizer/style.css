@@ -18,6 +18,8 @@ a {
 	top: 0;
 	left: 0;
 	visibility: hidden;
+	background-image: url("grid.png");
+	background-size: 24px 24px;
 }
 #path-overlay {
 	position: absolute;

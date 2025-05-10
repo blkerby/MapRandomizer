@@ -12,8 +12,8 @@
 arch 65816
 lorom
 
-!bank_80_free_space_start = $80e200
-!bank_80_free_space_end = $80e2a0
+!bank_80_free_space_start = $80e580
+!bank_80_free_space_end = $80e660
 
 org $8095A1
     JSR transfer_samus_tiles ; overwrite call to original transfer tiles routine to our own
@@ -44,7 +44,7 @@ process_animated_tiles:
     LDX #$0A ; X = Ah (animated tiles object index)
     LDY #$02 ; Y = 2
 -
-    LDA $1EF5,x : BEQ ++ : LDA $1F25,x : BEQ ++ ; If [animated tiles object ID and src addr] != 0:
+    LDA $1EF5,x : BEQ ++ ; If [animated tiles object ID] != 0:
     LDA $1F25,x : BPL ++ ; If animated tiles object tiles flagged for transfer:
     STA $4312 ; DMA 1 source address = $87:0000 + [animated tiles object source address]
     ; DMA 1 control / target = 16-bit VRAM write (set by $809376)
@@ -65,30 +65,57 @@ transfer_samus_tiles:
     LDX #$80 : STX $2115 ; VRAM address increment mode = 16-bit access
     LDA #$1801 : STA $4310 ; DMA 1 control / target = 16-bit VRAM data write
     LDX #$02 ; X = 2
-    LDA $0721 : BPL ++ ; If Samus bottom half tiles flagged for transfer:
+
+    LDA $0721 : BPL .skip2 ; If Samus bottom half tiles flagged for transfer:
     STA $3C ; $3C = [Samus bottom half tiles definition]
     LDA #$6080 : STA $2116 ; VRAM address = $6080
     LDA [$3C] : STA $4312 ; DMA 1 source address = [[$3C]]
     TXY : LDA [$3C],y : STA $4314
-    INY : LDA [$3C],y : STA $4315 ; DMA 1 size = [[$3C] + 3]
+    INY : LDA [$3C],y ; DMA 1 size = [[$3C] + 3]
+    BEQ .skip1
+    CMP #$0300
+    BCC .uncapped1
+    LDA #$0300   ; transfer a maximum of $300 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped1:
+    STA $4315
     STX $420B ; Enable DMA 1
-    INY : INY : LDA [$3C],y : BEQ ++ ; If [[$3C] + 5] != 0:
-    STA $4315 ; DMA 1 size = [[$3C] + 5]
+.skip1:
+
+    INY : INY : LDA [$3C],y : BEQ .skip2 ; If [[$3C] + 5] != 0:
+    CMP #$0100
+    BCC .uncapped2
+    LDA #$0100   ; transfer a maximum of $100 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped2:
+    STA $4315
     LDA #$6180 : STA $2116 ; VRAM address = $6180
     STX $420B ; Enable DMA 1
-++
-    LDA $071F : BPL + ; If Samus top half tiles flagged for transfer:
+.skip2:
+    
+    LDA $071F : BPL .skip4 ; If Samus top half tiles flagged for transfer:
     STA $3C ; $3C = [Samus top half tiles definition]
     LDA #$6000 : STA $2116 ; VRAM address = $6000
     LDA [$3C] : STA $4312 ; DMA 1 source address = [[$3C]]
     TXY : LDA [$3C],y : STA $4314
-    INY : LDA [$3C],y : STA $4315 ; DMA 1 size = [[$3C] + 3]
+    INY : LDA [$3C],y ; DMA 1 size = [[$3C] + 3]
+    BEQ .skip3
+    CMP #$0400
+    BCC .uncapped3
+    LDA #$0400   ; transfer a maximum of $400 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped3:
+    STA $4315
     STX $420B ; Enable DMA 1
-    INY : INY : LDA [$3C],y : BEQ + ; If [[$3C] + 5] != 0:
-    STA $4315 ; DMA 1 size = [[$3C] + 5]
+.skip3:
+
+    INY : INY : LDA [$3C],y : BEQ .skip4 ; If [[$3C] + 5] != 0:
+    CMP #$0200
+    BCC .uncapped4
+    LDA #$0200   ; transfer a maximum of $200 bytes, to stay inside the VRAM space reserved for Samus.
+.uncapped4:
+    STA $4315
     LDA #$6100 : STA $2116 ; VRAM address = $6100
     STX $420B ; Enable DMA 1
-+
+.skip4:
+
     RTS
 
 ResetStuff:
