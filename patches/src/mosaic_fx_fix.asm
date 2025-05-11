@@ -1,6 +1,7 @@
 ; Disables some fx (splashes, dust) when using area tile mode and the fx wouldn't match.
 ; For instance, don't show water splashes when walking around if in norfair.
 
+; TODO: support scrambled tileset mode (i.e. don't base this off of map_area $1F5B)
 ; TODO: force landing dust enabled in all of norfair, wrecked ship
 ; TODO: force landing dust enabled in tourian metroid habitat theme
 ; TODO: force water splashes enabled in all of maridia
