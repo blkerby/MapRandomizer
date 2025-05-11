@@ -1,2 +1,3 @@
 EF20 - F100: saveload.asm
 F100 - F140: map_area.asm
+F140 - F1C0: mosaic_fx_fix.asm
