@@ -139,7 +139,7 @@ pub fn apply_retiling(
         };
         theme_name_map.insert(room_ptr, theme_name);
     }
-    
+
     if *theme == TileTheme::AreaThemed {
         apply_ips_patch(rom, Path::new("../patches/ips/mosaic_fx_fix.ips"))?;
     }
