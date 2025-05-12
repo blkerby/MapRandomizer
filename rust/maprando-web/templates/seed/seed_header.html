@@ -10,7 +10,7 @@
             <div class="col-5 col-sm-4 col-md-3">Created:</div>
             <div class="col-7 col-sm-8 col-md-9" id="createdTimestamp"></div>
         </div>
-        {% if race_mode %}
+        {% if race_mode.locked() %}
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Spoiler unlocked:</div>
             <div class="col-7 col-sm-8 col-md-9" id="unlockedTimestamp"></div>
@@ -23,7 +23,7 @@
             {% if version_info.dev +%} (DEV){% endif %}
             </div>
         </div>
-        {% if !race_mode %}
+        {% if !race_mode.locked() %}
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Random seed:</div>
             <div class="col-7 col-sm-8 col-md-9">{{+ random_seed }}</div>

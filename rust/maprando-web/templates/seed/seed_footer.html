@@ -15,8 +15,14 @@
         </ul>
     </div>
 </div>
-
-{% if race_mode %}
+{% if race_mode == RaceMode::MapOnly %}
+    <div id="viewPartialMapDiv" class="row" style="display:none">
+        <div class="col-sm-6 mx-auto text-center m-2">
+            <a class="btn btn-success" href="data/map-explored.png"><p class="m-2">View partial spoiler map</p></a>
+        </div>
+    </div>
+{% endif %}
+{% if race_mode.locked() %}
     <div class="row">
         <form id="unlockForm" method="POST" action="unlock" style="display:none;">
             <input type="hidden" id="spoilerToken" name="spoiler_token">
@@ -31,11 +37,14 @@
         </div>
     </div>
     <script>
-    document.getElementById("spoilerToken").value = localStorage["spoilerToken"];
+    document.getElementById("spoilerToken").value = localStorage["spoilerToken"] ?? "";
     if (window.unlockedTimestampString === "") {
-        if (localStorage["spoilerToken"].startsWith(window.spoilerTokenPrefix)) {
+        if (localStorage["spoilerToken"]?.startsWith(window.spoilerTokenPrefix)) {
             document.getElementById("unlockForm").style.display = "flex";
         }
+        {% if race_mode == RaceMode::MapOnly %}
+            document.getElementById("viewPartialMapDiv").style.display = "flex";
+        {% endif %}
     } else {
         document.getElementById("viewSpoilerDiv").style.display = "flex";
     }
@@ -118,7 +127,7 @@
     </small>
 </div>
 
-{% if race_mode %}
+{% if race_mode.locked() %}
 <div id="footnote-spoiler" style="display:none;">
     <a>
     <small>
