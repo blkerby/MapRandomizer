@@ -10,6 +10,7 @@ use std::path::Path;
 
 use crate::patch::glowpatch_writer::write_glowpatch;
 use crate::patch::{apply_ips_patch, snes2pc, write_credits_big_char, Rom};
+use crate::settings::{DoorLocksSize, ItemDotChange};
 use maprando_game::{GameData, Map};
 use mosaic::MosaicTheme;
 use retiling::apply_retiling;
@@ -152,6 +153,9 @@ pub struct CustomizeSettings {
     pub shaking: ShakingSetting,
     pub flashing: FlashingSetting,
     pub controller_config: ControllerConfig,
+    pub override_item_dot_change: Option<ItemDotChange>,
+    pub override_transition_letters: Option<bool>,
+    pub override_door_locks_size: Option<DoorLocksSize>,
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {

@@ -238,6 +238,9 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
             false => maprando::customize::FlashingSetting::Vanilla,
         },
         controller_config: ControllerConfig::default(),
+        override_item_dot_change: None,
+        override_transition_letters: None,
+        override_door_locks_size: None,
     };
 
     cust
@@ -267,6 +270,9 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
+        override_item_dot_change: None,
+        override_transition_letters: None,
+        override_door_locks_size: None,
     };
     customize_rom(
         &mut output_rom,

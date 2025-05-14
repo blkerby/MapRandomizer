@@ -14,7 +14,7 @@ use maprando::{
     },
     patch::{make_rom, Rom},
     randomize::Randomization,
-    settings::RandomizerSettings,
+    settings::{DoorLocksSize, ItemDotChange, RandomizerSettings},
 };
 use maprando_game::Map;
 
@@ -68,6 +68,9 @@ struct CustomizeRequest {
     quick_reload_select: Option<Text<String>>,
     quick_reload_start: Option<Text<String>>,
     moonwalk: Text<bool>,
+    override_item_dot_change: Text<String>,
+    override_transition_letters: Text<String>,
+    override_door_locks_size: Text<String>,
 }
 
 #[post("/{name}/customize")]
@@ -202,6 +205,33 @@ async fn customize_seed(
             spin_lock_buttons: get_spin_lock_buttons(&req),
             quick_reload_buttons: get_quick_reload_buttons(&req),
             moonwalk: req.moonwalk.0,
+        },
+        override_item_dot_change: match req.override_item_dot_change.0.as_str() {
+            "Unchanged" => None,
+            "Fade" => Some(ItemDotChange::Fade),
+            "Disappear" => Some(ItemDotChange::Disappear),
+            _ => panic!(
+                "Unexpected override item dot change option: {}",
+                req.override_item_dot_change.0.as_str()
+            ),
+        },
+        override_transition_letters: match req.override_transition_letters.0.as_str() {
+            "Unchanged" => None,
+            "Arrows" => Some(false),
+            "Letters" => Some(true),
+            _ => panic!(
+                "Unexpected override transition letters option: {}",
+                req.override_transition_letters.0.as_str()
+            ),
+        },
+        override_door_locks_size: match req.override_door_locks_size.0.as_str() {
+            "Unchanged" => None,
+            "Small" => Some(DoorLocksSize::Small),
+            "Large" => Some(DoorLocksSize::Large),
+            _ => panic!(
+                "Unexpected override door locks size option: {}",
+                req.override_door_locks_size.0.as_str()
+            ),
         },
     };
 
