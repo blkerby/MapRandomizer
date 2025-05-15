@@ -2,6 +2,8 @@ use anyhow::Result;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
+use crate::customize::CustomizeSettings;
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct RandomizerSettings {
     pub version: usize,
@@ -17,6 +19,31 @@ pub struct RandomizerSettings {
     pub other_settings: OtherSettings,
     #[serde(default)]
     pub debug: bool,
+}
+impl RandomizerSettings {
+    pub fn apply_overrides(&mut self, customize_settings: &CustomizeSettings) {
+        match customize_settings.override_item_dot_change {
+            Some(ItemDotChange::Fade) => self.other_settings.item_dot_change = ItemDotChange::Fade,
+            Some(ItemDotChange::Disappear) => {
+                self.other_settings.item_dot_change = ItemDotChange::Disappear
+            }
+            None => {}
+        }
+        match customize_settings.override_transition_letters {
+            Some(false) => self.other_settings.transition_letters = false,
+            Some(true) => self.other_settings.transition_letters = true,
+            None => {}
+        }
+        match customize_settings.override_door_locks_size {
+            Some(DoorLocksSize::Small) => {
+                self.other_settings.door_locks_size = DoorLocksSize::Small
+            }
+            Some(DoorLocksSize::Large) => {
+                self.other_settings.door_locks_size = DoorLocksSize::Large
+            }
+            None => {}
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

@@ -235,14 +235,10 @@ async fn customize_seed(
         },
     };
 
-    if settings.is_some() && randomization.is_some() {
+    if let Some((mut settings, randomization)) = settings.zip(randomization) {
+        settings.apply_overrides(&customize_settings);
         info!("Patching ROM");
-        match make_rom(
-            &rom,
-            settings.as_ref().unwrap(),
-            randomization.as_ref().unwrap(),
-            &app_data.game_data,
-        ) {
+        match make_rom(&rom, &settings, &randomization, &app_data.game_data) {
             Ok(r) => {
                 rom = r;
             }
