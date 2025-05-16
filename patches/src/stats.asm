@@ -33,9 +33,9 @@ org $90E0F2
 org $808455
     jsl hook_boot
 
-; Capture final time when entering ship to leave the planet
-org $a2ab13
-    jsl hook_game_end
+; Hook Samus forward pose entering ship
+org $a2aa24
+    jsl hook_samus_enter_ship : nop : nop : nop
 
 org !bank_80_free_space_start
 ; end of 2nd NMI hook, determine appropriate return
@@ -504,10 +504,14 @@ hook_boot:
     JSL $8B9146 ; run hi-jacked instruction
     rtl
 
-hook_game_end:
-    JSL $90F084 ; run hi-jacked instruction
-    pha
+hook_samus_enter_ship:
+    lda #$001a  ; replaced instructions
+    jsl $90f084 ;
     
+    lda #$000E
+    jsl $808233
+    bcc .end_hook ; escape?
+
     ; flush RTA/area timers
     jsr flush_timers
 
@@ -520,8 +524,7 @@ hook_game_end:
     ; set area to -1 so timers stop
     lda #$FFFF
     sta $1f5b
-
-    pla
+.end_hook
     rtl
 
 collect_item:
