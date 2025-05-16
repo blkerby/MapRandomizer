@@ -58,6 +58,10 @@ org $80C4E1
     dw $0040
     dw $0000
 
+;;; Initialize game start from options menu
+org $82edd3
+    jsl clear_timers : nop : nop
+
 ;;; CODE in bank A1
 org !bank_a1_free_space_start
 
@@ -161,13 +165,6 @@ startup:
     sta !stat_reloads
     sta !stat_loadbacks
     sta !stat_resets
-    sta !nmi_counter
-    ldx #$0020
-.clear_timers:
-    sta !stat_pause_time-2, x
-    dex
-    dex
-    bne .clear_timers
 
     ; Copy initial revealed tiles from B5:F000 (e.g. to set map station tiles to revealed)
     ldx #$0600
@@ -227,6 +224,19 @@ gameplay_start:
     sta $079f
 
 .end:
+    rtl
+
+clear_timers:
+    sta !nmi_counter
+    ldx #$0020
+.clear_timers:
+    sta !stat_pause_time-2, x
+    dex
+    dex
+    bne .clear_timers
+
+    lda #$000c ; replaced code
+    sta $0de2  ;
     rtl
 
 warnpc !bank_a1_free_space_end
