@@ -1,4 +1,4 @@
-use crate::web::{AppData, VersionInfo};
+use crate::web::{upgrade::try_upgrade_settings, AppData, VersionInfo};
 use actix_web::{
     get,
     http::header::{self, CacheControl, CacheDirective},
@@ -6,7 +6,10 @@ use actix_web::{
 };
 use askama::Template;
 use log::error;
-use maprando::customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory};
+use maprando::{
+    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
+    settings::RandomizerSettings,
+};
 
 #[derive(Template)]
 #[template(path = "errors/seed_not_found.html")]
@@ -23,6 +26,7 @@ struct CustomizeSeedTemplate {
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     etank_colors: Vec<Vec<String>>,
     mosaic_themes: Vec<MosaicTheme>,
+    race_mode: bool,
 }
 
 #[get("/{name}")]
@@ -50,6 +54,27 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
             .seed_repository
             .get_file(seed_name, "spoiler_token.txt"),
     );
+
+    // Perhaps it would be better to move the generation of the customize seed template's HTML to
+    // the save_seed function, to match how the seed header and footer templates' HTMLs are
+    // generated. That way, the HTML can be generated while the randomizer settings are still
+    // accessible, which would prevent needing to load the settings again here to implement setting
+    // overriding.
+    let settings_bytes = app_data
+        .seed_repository
+        .get_file(seed_name, "public/settings.json")
+        .await
+        .unwrap_or(vec![]);
+    let settings: Option<RandomizerSettings> = if settings_bytes.len() == 0 {
+        None
+    } else {
+        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data, false) {
+            Ok(s) => Some(s.1),
+            Err(e) => {
+                return HttpResponse::InternalServerError().body(e.to_string());
+            }
+        }
+    };
     let spoiler_token = String::from_utf8(spoiler_token.unwrap_or(vec![])).unwrap();
     let spoiler_token_prefix = if spoiler_token.is_empty() {
         "".to_string()
@@ -68,6 +93,7 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 samus_sprite_categories: app_data.samus_sprite_categories.clone(),
                 etank_colors: app_data.etank_colors.clone(),
                 mosaic_themes: app_data.mosaic_themes.clone(),
+                race_mode: settings.is_none_or(|settings| settings.other_settings.race_mode),
             };
             // We use a no-cache directive to prevent problems when we change the JavaScript.
             // Probably better would be to properly version the JS and control cache that way.
