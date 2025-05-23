@@ -309,9 +309,11 @@ down_inst:
 print pc 
 check_shot:
     lda $1D77,x
-    beq .done      ; Return if not shot
+    beq .done      ; Return if not shot/bombed
+    and #$0F00
+    bne .no_hit    ; Abort if projectile bit set (avoid wave beam 0x1 conflict with bombs)
 
-    phx    
+    phx
     lda !beam_type
     asl
     tax
@@ -319,23 +321,17 @@ check_shot:
     sta $0E        ; $0E = mask associated with beam type
     plx
 
-    lda $1d77,x
+    lda $1D77,x
     and $0E
     bne .hit       ; check if projectile beam matches door type
     jsr $F900      ; check for hyper shot in escape (`escape_hyper_door_check` in escape.asm)
     bcs .hit
 
-    lda #$0057     ;
-    jsl $8090CB    ;} Queue sound 57h, sound library 2, max queued sounds allowed = 6 (shot door/gate with dud shot)
-    stz $1D77,x    ; clear PLM shot status
-    rts
+.no_hit
+    jmp $BD74      ; Queue sound 57h, sound library 2, max queued sounds allowed = 6 (shot door/gate with dud shot), clear PLM shot status, rts
 
 .hit:
-    lda $7EDEBC,x          ;\
-    sta $1D27,x            ;} PLM instruction list pointer = [PLM link instruction]
-    lda #$0001             ;\
-    sta $7EDE1C,x          ;} PLM instruction timer = 1
-    stz $1D77,x            ; clear PLM shot status
+    jmp $BD14      ; PLM instruction list pointer = [PLM link instruction], PLM instruction timer = 1, clear PLM shot status, rts
 
 .done:
     rts
