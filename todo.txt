@@ -38,8 +38,11 @@ Planned work to prioritize (v119?):
 v118:
 - DONE: implement comeInBlueSpaceJumping
 - DONE: fix BG color in Warehouse Entrance
+- fix issue with bombs opening wave beam doors.
+- fix wall jump boots palette
+- fix issue with vanilla item fanfare + fast save
 - finish refining stutter water shinecharges.
-- add side platform strats.
+- DONE: add side platform strats.
 - mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
 - DONE: apply Fake Lava patch (resolve conflict with complementary_suits?)
