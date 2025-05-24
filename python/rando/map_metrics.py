@@ -1,6 +1,7 @@
 # TODO: Clean up this whole thing (it's a mess right now). Split stuff up into modules in some reasonable way.
 import numpy as np
 import random
+import collections
 import rando.balance_utilities
 from logic.rooms.all_rooms import rooms
 import json
@@ -46,8 +47,11 @@ for filename in os.listdir(args.map_path):
     E = get_room_edges(map)
     area_crossing = sum(1 for (r1, r2) in E if map['area'][r1] != map['area'][r2])
 
+    area_cnts = collections.Counter(map['area'])
+
     _, summary = rando.balance_utilities.get_balance_costs(map)
     summary["area_crossing"] = area_crossing
+    summary["smallest_area"] = min(area_cnts.values())
     summary_list.append(summary)
 
 

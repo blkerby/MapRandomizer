@@ -74,8 +74,8 @@ ind = torch.nonzero(
     (data.reward == 0) &
     # (S < 4.05) &
     (data.graph_diameter <= 45) &
-    (data.mc_dist_coef > 0.0) &
-    # (data.mc_dist_coef == 0.0) &
+    # (data.mc_dist_coef > 0.0) &
+    (data.mc_dist_coef == 0.0) &
     data.toilet_good
 )
 

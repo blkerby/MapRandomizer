@@ -135,7 +135,7 @@ session = TrainingSession(envs,
 
 pickle_name = 'models/session-2024-09-18T05:56:26.276400.pkl'
 # session = pickle.load(open(pickle_name, 'rb'))
-session = pickle.load(open(pickle_name + '-bk84', 'rb'))
+session = pickle.load(open(pickle_name + '-bk95', 'rb'))
 session.envs = envs
 session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # # # logging.info("Action model: {}".format(action_model))
@@ -205,10 +205,10 @@ session.replay_buffer.episodes_per_file = num_envs * num_devices
 # # ind = torch.nonzero(session.replay_buffer.episode_data.reward == 0)
 
 
-#
-#
-# # Add new Transformer layers
-# new_layer_idxs = list(range(1, len(session.action_model.attn_layers) + 1))
+
+
+# Add new Transformer layers
+# new_layer_idxs = list(range(1, len(session.state_model.attn_layers) + 1))
 # logging.info("Inserting new layers at positions {}".format(new_layer_idxs))
 # for i in reversed(new_layer_idxs):
 #     attn_layer = GroupedQueryAttentionLayer(
@@ -219,21 +219,21 @@ session.replay_buffer.episodes_per_file = num_envs * num_devices
 #         num_groups=head_groups,
 #         dropout=0.0).to(device)
 #     attn_layer.post.weight.data.zero_()
-#     session.action_model.attn_layers.insert(i, attn_layer)
+#     session.state_model.attn_layers.insert(i, attn_layer)
 #     ff_layer = FeedforwardLayer(
 #         input_width=embedding_width,
 #         hidden_width=hidden_width,
 #         arity=1,
 #         dropout=0.0).to(device)
 #     ff_layer.lin2.weight.data.zero_()
-#     session.action_model.ff_layers.insert(i, ff_layer)
+#     session.state_model.ff_layers.insert(i, ff_layer)
 #     # global_ff_layer = FeedforwardLayer(
 #     #     input_width=global_embedding_width,
 #     #     hidden_width=global_hidden_width,
 #     #     arity=1,
 #     #     dropout=0.0).to(device)
 #     # session.action_model.action_ff_layers.insert(i, global_ff_layer)
-
+#
 
 # # Set up direct attention layer for output
 # session.state_model.global_query = torch.nn.Parameter(
@@ -253,7 +253,7 @@ hist_frac = 1.0
 hist_c = 4.0
 hist_max = 2 ** 23
 batch_size = 2 ** 8
-state_lr0 = 0.0001
+state_lr0 = 0.00002
 state_lr1 = state_lr0
 # lr_warmup_time = 16
 # lr_cooldown_time = 100
@@ -273,7 +273,7 @@ save_loss_weight = 0.00001
 save_dist_coef = 0.002
 # save_dist_coef = 0.0
 
-mc_dist_weight = 0.0002
+mc_dist_weight = 0.002
 mc_dist_coef_tame = 0.2
 mc_dist_coef_wild = 0.0
 
@@ -284,7 +284,7 @@ graph_diam_weight = 0.00002
 graph_diam_coef = 0.2
 # graph_diam_coef = 0.0
 
-balance_coef0 = 0.1
+balance_coef0 = 0.20
 balance_coef1 = balance_coef0
 balance_weight = 20.0
 
@@ -293,7 +293,7 @@ balance_weight = 20.0
 
 temperature_min0 = 10.0
 temperature_max0 = 100.0
-temperature_min1 = 0.01
+temperature_min1 = 0.03
 temperature_max1 = 10.0
 # temperature_min0 = 0.01
 # temperature_max0 = 10.0
@@ -337,14 +337,14 @@ total_mc_distances = 0.0
 total_toilet_good = 0.0
 total_cycle_cost = 0.0
 save_freq = 256
-summary_freq = 512
+summary_freq = 1024
 session.decay_amount = 0.01
 # session.decay_amount = 0.2
 session.state_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.state_optimizer.param_groups[0]['eps'] = 1e-5
 session.balance_optimizer.param_groups[0]['betas'] = (0.95, 0.95)
 session.balance_optimizer.param_groups[0]['eps'] = 1e-5
-session.balance_optimizer.param_groups[0]['lr'] = 0.00001
+session.balance_optimizer.param_groups[0]['lr'] = 0.0001
 state_ema_alpha0 = 0.1
 state_ema_alpha1 = 0.0005
 session.average_parameters.beta = 1 - state_ema_alpha0
@@ -549,7 +549,7 @@ for i in range(1000000):
     temp_num_min = int(num_envs * temperature_frac_min)
     temp_num_higher = num_envs - temp_num_min
     temp_frac_min = torch.zeros([temp_num_min], dtype=torch.float32)
-    temp_frac_higher = torch.arange(0, temp_num_higher, dtype=torch.float32) / (temp_num_higher - 1)
+    temp_frac_higher = (torch.arange(0, temp_num_higher, dtype=torch.float32) + torch.rand([temp_num_higher], dtype=torch.float32)) / temp_num_higher
     temp_frac = torch.cat([temp_frac_min, temp_frac_higher])
 
     temperature = temperature_min * (temperature_max / temperature_min) ** temp_frac
@@ -726,7 +726,7 @@ for i in range(1000000):
             # episode_data = session.replay_buffer.episode_data
             # session.replay_buffer.episode_data = None
             save_session(session, pickle_name)
-            # save_session(session, pickle_name + '-bk84')
+            # save_session(session, pickle_name + '-bk100')
             # session.replay_buffer.resize(2 ** 22)
             # pickle.dump(session, open(pickle_name + '-small-52', 'wb'))
     if session.replay_buffer.num_files % summary_freq == 0:
@@ -820,7 +820,7 @@ for i in range(1000000):
             # display_counts(counts1, 10, False)
             # display_counts(counts, 10, True)
 
-        last_file_num = max(0, session.replay_buffer.num_files - 128 * summary_freq)
+        last_file_num = max(0, session.replay_buffer.num_files - 64 * summary_freq)
         file_num_list = list(range(last_file_num, session.replay_buffer.num_files))
         episode_data, _ = session.replay_buffer.read_files(file_num_list)
 

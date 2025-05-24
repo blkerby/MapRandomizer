@@ -124,7 +124,7 @@ def get_base_map(data, j):
     }
     return map
 
-def get_room_edges(map):
+def get_room_edges(map, include_toilet_edge: bool):
     door_room_dict = {}
     for i, room in enumerate(rooms):
         for door in room.door_ids:
@@ -135,8 +135,9 @@ def get_room_edges(map):
         src_room_id = door_room_dict[tuple(conn[0])]
         dst_room_id = door_room_dict[tuple(conn[1])]
         edges_list.append((src_room_id, dst_room_id))
-    for i in map['toilet_intersections']:
-        edges_list.append((toilet_idx, i))
+    if include_toilet_edge:
+        for i in map['toilet_intersections']:
+            edges_list.append((toilet_idx, i))
     return torch.tensor(edges_list)
 
 def get_room_adjacency_matrix(edges):
@@ -146,10 +147,9 @@ def get_room_adjacency_matrix(edges):
     return A
 
 def compute_distance_matrix(A):
-    A = A.to(torch.int16)
     n = A.shape[0]
     M = torch.where(torch.eye(n, device=device) == 1, torch.zeros_like(A, device=device),
-                 torch.where(A > 0, torch.full_like(A, 1, device=device), torch.full_like(A, 0xff, device=device)))
+                 torch.where(A > 0, A, torch.full_like(A, float('inf'), device=device)))
     for i in range(8):
         M1 = torch.transpose(M, 0, 1).view(n, n, 1)
         M2 = M.view(n, 1, n)
@@ -158,33 +158,41 @@ def compute_distance_matrix(A):
     return M
 
 @torch.compile
-def partition_areas(M, E, x_min, y_min, x_max, y_max, toilet_intersection, num_areas, num_attempts):
+def partition_areas(M, E, x_min, y_min, x_max, y_max, toilet_intersection, max_cross_count, num_areas, num_attempts):
     n = M.shape[0]
     centers = torch.randint(0, n, [num_attempts, num_areas], device=device, dtype=torch.int64)
     areas = torch.argmin(M[centers, :], dim=1)
     max_val = 0x7FFF
     valid = torch.full([num_attempts], True, device=device)
+    min_area_size = torch.full([num_attempts], 0x7fff, device=device)
     for a in range(num_areas):
         area_x_min = torch.amin(torch.where(areas == a, x_min.view(1, -1), torch.full([1, n], max_val, dtype=torch.int16, device=device)), dim=1)
         area_y_min = torch.amin(torch.where(areas == a, y_min.view(1, -1), torch.full([1, n], max_val, dtype=torch.int16, device=device)), dim=1)
         area_x_max = torch.amax(torch.where(areas == a, x_max.view(1, -1), torch.full([1, n], 0, dtype=torch.int16, device=device)), dim=1)
         area_y_max = torch.amax(torch.where(areas == a, y_max.view(1, -1), torch.full([1, n], 0, dtype=torch.int16, device=device)), dim=1)
-        area_room_cnt = torch.sum((areas == a).to(torch.int16), dim=1)
+        area_room_cnt = torch.sum((areas == a).to(torch.float32), dim=1)
         valid = valid & (area_x_max - area_x_min <= 58)
-        valid = valid & (area_y_max - area_y_min <= 28)
-        valid = valid & (area_room_cnt >= 11)
-        valid = valid & (area_room_cnt <= 70)
+        valid = valid & (area_y_max - area_y_min <= 27)
+        valid = valid & (area_room_cnt >= 11.0)
+        valid = valid & (area_room_cnt <= 70.0)
+        min_area_size = torch.minimum(min_area_size, area_room_cnt)
+
+    cross_cnt = torch.sum((areas[:, E[:, 0]] != areas[:, E[:, 1]]).to(torch.float), axis=1)
 
     valid = valid & (areas[:, toilet_idx] == areas[:, toilet_intersection])
+    if max_cross_count is not None:
+        valid = valid & (cross_cnt <= max_cross_count)
 
     valid_i = torch.nonzero(valid)[:, 0]
     areas_valid = areas[valid_i, :]
-    cross_cnt = torch.sum((areas_valid[:, E[:, 0]] != areas_valid[:, E[:, 1]]).to(torch.int64), axis=1)
-    if cross_cnt.shape[0] == 0:
+    cross_cnt_valid = cross_cnt[valid_i]
+    min_area_size_valid = min_area_size[valid_i]
+    if cross_cnt_valid.shape[0] == 0:
         return None, None
     else:
-        best_i = torch.argmin(cross_cnt)
-        return areas_valid[best_i, :], cross_cnt[best_i]
+        score = cross_cnt_valid - min_area_size_valid * 0.01
+        best_i = torch.argmin(score)
+        return areas_valid[best_i, :], score[best_i]
 
 def partition_subareas(M, num_subareas, num_attempts):
     n = M.shape[0]
@@ -236,6 +244,12 @@ def rerank_areas(map):
     map['area'] = [area_mapping[a] for a in old_areas]
 
 
+include_toilet_edge = (args.pool == "wild")
+max_cross_count = 9 if args.pool == "tame" else None
+edge_rand = 0.0
+attempts_per_batch = 2 ** 17
+num_batches = 16
+
 torch.random.manual_seed(0)
 os.makedirs(args.output_path, exist_ok=True)
 file_set = set(os.listdir(data_path))
@@ -254,17 +268,24 @@ for file_i in range(start_index, end_index):
                 y_min = torch.tensor([p[1] for p in map['rooms']], device=device)
                 x_max = torch.tensor([p[0] + rooms[i].width for i, p in enumerate(map['rooms'])], device=device)
                 y_max = torch.tensor([p[1] + rooms[i].height for i, p in enumerate(map['rooms'])], device=device)
-                E = get_room_edges(map)
+                E = get_room_edges(map, include_toilet_edge=include_toilet_edge)
                 A = get_room_adjacency_matrix(E)
                 M = compute_distance_matrix(A)
 
-                attempts_per_batch = 2 ** 17
-                num_batches = 16
                 best_areas = None
                 best_cost = float('inf')
                 for _ in range(num_batches):
-                    areas, cost = partition_areas(M, E, x_min, y_min, x_max, y_max,
-                                                  torch.tensor(map['toilet_intersections'][0], dtype=torch.int64, device=device),
+                    if edge_rand > 0.0:
+                        W = torch.tril(torch.exp(torch.randn_like(A) * edge_rand))
+                        W = W + W.t()
+                        A1 = A * W
+                        M1 = compute_distance_matrix(A1)
+                    else:
+                        M1 = M
+                    areas, cost = partition_areas(M1, E, x_min, y_min, x_max, y_max,
+                                                  torch.tensor(map['toilet_intersections'][0],
+                                                               dtype=torch.int64, device=device),
+                                                  max_cross_count=max_cross_count,
                                                   num_areas=6, num_attempts=attempts_per_batch)
                     if cost is not None and cost < best_cost:
                         best_cost = cost
@@ -272,7 +293,7 @@ for file_i in range(start_index, end_index):
                 if best_areas is None:
                     logging.error("Failed area assignment")
                     continue
-                logging.info("Area crossings: {}".format(best_cost))
+                logging.info("Cost: {}".format(best_cost))
                 areas = best_areas
                 areas = (areas - areas[1] + 6) % 6   # Ensure Landing Site is in Crateria
                 map['area'] = areas.tolist()
