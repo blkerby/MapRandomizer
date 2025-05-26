@@ -38,7 +38,9 @@ Planned work to prioritize (v119?):
 v118:
 - DONE: implement comeInBlueSpaceJumping
 - DONE: fix BG color in Warehouse Entrance
-- fix issue with bombs opening wave beam doors.
+- DONE: fix issue with bombs opening wave beam doors.
+- DONE: fix issue reported by Loptr: area transition markers not appearing in pause map next to 2-sided save/refill
+  - https://discord.com/channels/1053421401354285129/1053434532973510748/1376607030764372049
 - fix wall jump boots palette
 - fix issue with vanilla item fanfare + fast save
 - finish refining stutter water shinecharges.
