@@ -1864,6 +1864,15 @@ impl GameData {
         for category_json in helpers_json["helperCategories"].members() {
             ensure!(category_json["helpers"].is_array());
             for helper in category_json["helpers"].members() {
+                if self
+                    .helper_json_map
+                    .contains_key(helper["name"].as_str().unwrap())
+                {
+                    bail!(
+                        "Duplicate helper definition: {}",
+                        helper["name"].as_str().unwrap()
+                    );
+                }
                 self.helper_json_map
                     .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
             }
