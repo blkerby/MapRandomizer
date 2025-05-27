@@ -733,7 +733,7 @@ impl<'a> Patcher<'a> {
                 // We want to write an explored bit to the current area's map, so we have to write it to
                 // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
                 // on the next map reload).
-                let addr = 0x07F7 + offset;
+                let addr = 0x07F7 + area_offset;
                 asm.extend([0xAD, (addr & 0xFF) as u8, (addr >> 8) as u8]); // LDA {addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8D, (addr & 0xFF) as u8, (addr >> 8) as u8]); // STA {addr}
@@ -741,7 +741,7 @@ impl<'a> Patcher<'a> {
                 // We want to write an explored bit to a different area's map, so we have to write it to
                 // the main explored bits at 0x7ECD52 (which will get copied over to 0x07F7 on the map reload
                 // when entering the different area).
-                let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
+                let addr = 0xCD52 + offset;
                 asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]);
