@@ -14,8 +14,8 @@ use maprando_game::{
     TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
     TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
     TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
-    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
-    TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
+    TECH_ID_CAN_HEAT_RUN, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
+    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
     TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK,
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
@@ -192,21 +192,28 @@ fn extract_tech_rec(req: &JsonValue, tech: &mut HashSet<usize>, game_data: &Game
         }
     } else if req.is_object() && req.len() == 1 {
         let (key, value) = req.entries().next().unwrap();
-        if key == "and" || key == "or" {
-            for x in value.members() {
-                extract_tech_rec(x, tech, game_data);
+        match key {
+            "and" | "or" => {
+                for x in value.members() {
+                    extract_tech_rec(x, tech, game_data);
+                }
             }
-        } else if key == "tech" {
-            extract_tech_rec(value, tech, game_data);
-        } else if key == "shinespark" {
-            tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINESPARK]);
-        } else if key == "comeInWithRMode" {
-            tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE]);
-        } else if key == "comeInWithGMode" {
-            tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE]);
-            if value["artificialMorph"].as_bool().unwrap() {
-                tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_ARTIFICIAL_MORPH]);
+            "tech" => {
+                extract_tech_rec(value, tech, game_data);
             }
+            "shinespark" => {
+                tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINESPARK]);
+            }
+            "heatFrames" | "heatFramesWithEnergyDrops" => {
+                tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEAT_RUN]);
+            }
+            "speedBall" => {
+                tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPEEDBALL]);
+            }
+            "disableEquipment" => {
+                tech.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]);
+            }
+            _ => {}
         }
     }
 }
