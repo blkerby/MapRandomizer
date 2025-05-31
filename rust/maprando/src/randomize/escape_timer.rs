@@ -40,8 +40,8 @@ pub struct RoomDoorGraph {
 pub struct SpoilerEscapeRouteNode {
     room: String,
     node: String,
-    x: usize,
-    y: usize,
+    pub x: usize,
+    pub y: usize,
 }
 
 #[derive(Serialize, Deserialize)]

@@ -1,4 +1,3 @@
-from rando.sm_json_data import SMJsonData
 from logic.rooms.all_rooms import rooms
 from maze_builder.types import Direction
 import copy
@@ -42,6 +41,7 @@ def permute_small_rooms(map, src_room_index, dst_room_index):
         new_map['rooms'][src_i] = map['rooms'][dst_i]
         new_map['area'][src_i] = map['area'][dst_i]
         new_map['subarea'][src_i] = map['subarea'][dst_i]
+        new_map['subsubarea'][src_i] = map['subsubarea'][dst_i]
         for j in range(len(src_room.door_ids)):
             src_door_id = src_room.door_ids[j]
             dst_door_id = dst_room.door_ids[j]
@@ -121,6 +121,8 @@ def compute_room_distance_matrix(map):
             door_room_dict[(door_id.exit_ptr, door_id.entrance_ptr)] = i
 
     room_graph = np.full([len(rooms), len(rooms)], 10000, dtype=np.uint16)
+    for i in range(len(rooms)):
+        room_graph[i, i] = 0
     for door in map['doors']:
         src_i = door_room_dict[tuple(door[0])]
         dst_i = door_room_dict[tuple(door[1])]
@@ -161,6 +163,14 @@ def make_ship_in_crateria(map):
     map['area'] = [(area - ship_area + num_areas) % num_areas for area in map['area']]
     return map
 
+def get_neighbor_degree(dist_matrix):
+    n = dist_matrix.shape[0]
+    dist_matrix = dist_matrix.copy()
+    dist_matrix[np.arange(n), np.arange(n)] = 127
+    degree = np.sum(dist_matrix == 1, axis=1)
+    neighbor = np.argmin(dist_matrix, axis=1)
+    return degree[neighbor]
+
 
 def compute_hallway_cap_mask(dist_matrix):
     n = dist_matrix.shape[0]
@@ -173,7 +183,7 @@ def compute_hallway_cap_mask(dist_matrix):
     return hallway_cap_mask
 
 
-def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
+def compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
     # For each room, find the distance (measured by number of door transitions) to the nearest save and to the
     # nearest refill. Then average these distances to get an overall cost which we will try to minimize.
 
@@ -189,6 +199,7 @@ def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_
     min_refill_dist = np.min(dist_matrix[:len(rooms), refill_idxs], axis=1)
     
     save_coverage_cost = np.mean(min_save_dist)
+    max_save_dist = np.max(min_save_dist)
     save_cap_cnt = np.sum(hallway_cap_mask[save_idxs])
     save_dist = dist_matrix[np.array(save_idxs).reshape(1, -1), np.array(save_idxs).reshape(-1, 1)]
     save_neighbors_cnt = np.sum((save_dist == 1) | (save_dist == 2))
@@ -199,12 +210,29 @@ def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_
 
     area_match = area_vec.reshape(-1, 1) == area_vec.reshape(1, -1)
     area_masked_dist_matrix = np.where(area_match, dist_matrix, np.zeros_like(dist_matrix))
-    map_dist_cost = np.mean(area_masked_dist_matrix[:, map_idxs])
+    map_dist_cost = np.sum(area_masked_dist_matrix[:, map_idxs]) / np.sum(area_match[:, map_idxs].astype(np.float32))
     
     overall_save_cost = 2.0 * save_coverage_cost + 0.1 * save_cap_cnt + 0.3 * save_neighbors_cnt
     overall_refill_cost = refill_coverage_cost + 0.1 * refill_cap_cost + 0.2 * refill_neighbors_cnt
-    overall_cost = overall_save_cost + overall_refill_cost + 20.0 * map_dist_cost
-    return overall_cost
+    overall_cost = overall_save_cost + 0.5 * overall_refill_cost + 5.0 * map_dist_cost
+    summary = {
+        "overall": overall_cost,
+        "overall_save": overall_save_cost,
+        "overall_refill": overall_refill_cost,
+        "save_coverage": save_coverage_cost,
+        "save_cap": save_cap_cnt,
+        "save_neighbors": save_neighbors_cnt,
+        "max_save_dist": max_save_dist,
+        "refill_coverage": refill_coverage_cost,
+        "refill_cap": refill_cap_cost,
+        "refill_neighbors": refill_neighbors_cnt,
+        "map_dist": map_dist_cost
+    }
+    return overall_cost, summary
+
+
+def compute_balance_cost(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec):
+    return compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec)[0]
 
 
 def get_room_indexes_by_doortype():
@@ -238,6 +266,35 @@ def get_room_indexes_by_doortype():
             other_indexes_by_doortype[doortype].append(i)
     return save_indexes_by_doortype, refill_indexes_by_doortype, map_indexes_by_doortype, other_indexes_by_doortype
 
+
+def get_balance_costs(map):
+    save_indexes_by_doortype, refill_indexes_by_doortype, map_indexes_by_doortype, other_indexes_by_doortype = get_room_indexes_by_doortype()
+    all_indexes_by_doortype = [save_idxs + refill_idxs + map_idxs + other_idxs
+                               for save_idxs, refill_idxs, map_idxs, other_idxs in
+                               zip(save_indexes_by_doortype, refill_indexes_by_doortype,
+                                   map_indexes_by_doortype, other_indexes_by_doortype)]
+    num_saves_by_doortype = [len(idxs) for idxs in save_indexes_by_doortype]
+    num_refills_by_doortype = [len(idxs) for idxs in refill_indexes_by_doortype]
+    num_maps_by_doortype = [len(idxs) for idxs in map_indexes_by_doortype]
+    num_other_by_doortype = [len(idxs) for idxs in other_indexes_by_doortype]
+    dist_matrix = compute_room_distance_matrix(map)
+    hallway_cap_mask = compute_hallway_cap_mask(dist_matrix)
+    area_vec = compute_area_vec(map)
+
+    def compute_balance_cost_for_indexes(idxs_by_doortype):
+        save_idxs = [idx for doortype in range(3)
+                     for idx in idxs_by_doortype[doortype][:num_saves_by_doortype[doortype]]]
+        refill_idxs = [idx for doortype in range(3)
+                       for idx in idxs_by_doortype[doortype][num_saves_by_doortype[doortype]:(
+                    num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype])]]
+        map_idxs = [idx for doortype in range(3)
+                    for idx in idxs_by_doortype[doortype][
+                               (num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]):(
+                                       num_saves_by_doortype[doortype] + num_refills_by_doortype[doortype]
+                                       + num_maps_by_doortype[doortype])]]
+        return compute_balance_costs(save_idxs, refill_idxs, map_idxs, dist_matrix, hallway_cap_mask, area_vec)
+
+    return compute_balance_cost_for_indexes(all_indexes_by_doortype)
 
 def redistribute_saves_and_refills(map, num_steps):
     # Move Save Rooms around to try to minimize the average distance of each room to a save, subject to constraints
@@ -325,8 +382,10 @@ def place_phantoon_and_friends(map):
     dist = compute_room_distance_matrix(map)
     left_ids = []
     left_areas = []
+    left_degrees = []
     right_ids = []
     right_areas = []
+    neighbor_degrees = get_neighbor_degree(dist)
     for i, room in enumerate(rooms):
         if room.width != 1 or room.height != 1 or len(room.door_ids) != 1:
             continue
@@ -334,6 +393,7 @@ def place_phantoon_and_friends(map):
         if room.door_ids[0].direction == Direction.LEFT:
             left_ids.append(i)
             left_areas.append(area)
+            left_degrees.append(neighbor_degrees[i])
         elif room.door_ids[0].direction == Direction.RIGHT:
             right_ids.append(i)
             right_areas.append(area)
@@ -343,6 +403,7 @@ def place_phantoon_and_friends(map):
             continue
     left_ids = np.array(left_ids)
     left_areas = np.array(left_areas)
+    left_degrees = np.array(left_degrees)
     right_ids = np.array(right_ids)
     dist_left_right = dist[left_ids, :][:, right_ids]
 
@@ -361,7 +422,15 @@ def place_phantoon_and_friends(map):
         logging.info("Failed to place Phantoon's Room")
         return None
 
-    new_phantoon_idx = np.random.choice(list(eligible_phantoon_idxs))
+    eligible_degrees = left_degrees[eligible_phantoon_idxs]
+    print("Eligible Phantoon neighbor degrees: {}", eligible_degrees)
+
+    # Prefer placing Phantoon's Room next to a room with fewest possible doors, for better variety, since
+    # rooms with few doors otherwise tend to be underrepresented. In particular this cuts back on placements of
+    # Phantoon next to West Ocean, which used to be comically frequent.
+    min_degree = np.min(eligible_degrees)
+    best_eligible_phantoon_idxs = eligible_phantoon_idxs[np.where(eligible_degrees == min_degree)[0]]
+    new_phantoon_idx = np.random.choice(list(best_eligible_phantoon_idxs))
 
     # Randomly select a candidate for Wrecked Ship Map Room:
     eligible_ws_map_idxs = np.where(dist_left_right[new_phantoon_idx, :] <= 2)[0]

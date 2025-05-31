@@ -123,6 +123,11 @@ document.getElementById("navigation-logic").classList.add("active");
                     opacity: 0;
                 }
                 </style>
+                <style id="dev-note-style">
+                    .dev-note {
+                        display: none;
+                    }
+                </style>            
                 <table class="table table-hover mb-0">
                 <tbody>
                 {% for strat in strats %}
@@ -181,13 +186,11 @@ function swapNodes() {
 
 function devNotesSettingChanged() {
     let showDevNotes = document.getElementById("showDevNotesYes").checked;
-    var els = document.getElementsByClassName("dev-note");
-    for (let el of els) {
-        if (showDevNotes) {
-            el.classList.remove("d-none");
-        } else {
-            el.classList.add("d-none");
-        }
+    let style = document.getElementById("dev-note-style");
+    if (showDevNotes) {
+        style.innerHTML = ".non-dev-note { display: none }";
+    } else {
+        style.innerHTML = ".dev-note { display: none }";
     }
     saveForm(document.getElementById("logicPageSettingsForm"));
 }

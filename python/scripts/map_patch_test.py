@@ -32,7 +32,6 @@ patches = [
     # 'holes',
     # 'oob_death',
     # 'spinjumprestart',
-    # 'new_game_extra',
     # 'door_hurt',
     "everest_tube",
     "fast_pause_menu",

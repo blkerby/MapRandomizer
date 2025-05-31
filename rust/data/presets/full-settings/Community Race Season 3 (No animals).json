@@ -2738,6 +2738,20 @@
                 "enabled": false
             },
             {
+                "room_id": 121,
+                "notable_id": 6,
+                "room_name": "Crocomire Escape",
+                "notable_name": "Ceiling Mockball Spring Fling",
+                "enabled": false
+            },
+            {
+                "room_id": 121,
+                "notable_id": 7,
+                "room_name": "Crocomire Escape",
+                "notable_name": "Spring Ball Jump into Damage Boost",
+                "enabled": false
+            },
+            {
                 "room_id": 106,
                 "notable_id": 3,
                 "room_name": "Ice Beam Gate Room",

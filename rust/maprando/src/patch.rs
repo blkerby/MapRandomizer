@@ -461,6 +461,7 @@ impl<'a> Patcher<'a> {
             "horizontal_door_fix",
             "samus_tiles_optim_animated_tiles_fix",
             "sand_clamp",
+            "transition_reveal",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -699,13 +700,32 @@ impl<'a> Patcher<'a> {
         asm: &mut Vec<u8>,
         explore: bool,
     ) -> Result<()> {
-        let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+        let (area_offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+        let offset = area_offset + (tile_area as isize) * 0x100;
+        let map_reveal_func = 0x8FEDC0;
 
-        // Mark as revealed (which will persist after deaths/reloads):
-        let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
-        asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
-        asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-        asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+        // LDX #{offset}
+        asm.extend([0xA2, (offset & 0xFF) as u8, (offset >> 8) as u8]);
+        // LDA #{bitmask}
+        asm.extend([0xA9, bitmask, 0x00]);
+        // JSR reveal_tile
+        asm.extend([
+            0x20,
+            (map_reveal_func & 0xFF) as u8,
+            (map_reveal_func >> 8) as u8,
+        ]);
+
+        // // // Mark as partially revealed (which will persist after deaths/reloads):
+        // // let addr = 0x2700 + (tile_area as isize) * 0x100 + offset;
+        // // asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+        // // asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+        // // asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+
+        // // Mark as revealed (which will persist after deaths/reloads):
+        // let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
+        // asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+        // asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+        // asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
 
         // Mark as explored (for elevators. Not needed for area transition arrows/letters except in ultra-low QoL mode):
         if explore {
@@ -713,7 +733,7 @@ impl<'a> Patcher<'a> {
                 // We want to write an explored bit to the current area's map, so we have to write it to
                 // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
                 // on the next map reload).
-                let addr = 0x07F7 + offset;
+                let addr = 0x07F7 + area_offset;
                 asm.extend([0xAD, (addr & 0xFF) as u8, (addr >> 8) as u8]); // LDA {addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8D, (addr & 0xFF) as u8, (addr >> 8) as u8]); // STA {addr}
@@ -721,7 +741,7 @@ impl<'a> Patcher<'a> {
                 // We want to write an explored bit to a different area's map, so we have to write it to
                 // the main explored bits at 0x7ECD52 (which will get copied over to 0x07F7 on the map reload
                 // when entering the different area).
-                let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
+                let addr = 0xCD52 + offset;
                 asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]);
@@ -947,6 +967,11 @@ impl<'a> Patcher<'a> {
             // Reserve 3 bytes for the JMP instruction to the original ASM (if applicable, or RTS otherwise):
             door_asm_free_space += asm.len() + 3;
         }
+        info!(
+            "door_asm_free_space used: {:x}/{:x}",
+            door_asm_free_space - 0xEE10,
+            0xF600 - 0xEE10
+        );
         assert!(door_asm_free_space <= 0xF600);
         Ok(extra_door_asm_map)
     }

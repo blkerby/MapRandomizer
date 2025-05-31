@@ -951,6 +951,10 @@ pub enum MainEntranceCondition {
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
     },
+    ComeInBlueSpaceJumping {
+        min_extra_run_speed: Float,
+        max_extra_run_speed: Float,
+    },
     ComeInWithMockball {
         speed_booster: Option<bool>,
         adjacent_min_tiles: Float,
@@ -1232,6 +1236,7 @@ pub struct StratVideo {
     pub video_id: usize,
     pub created_user: String,
     pub note: String,
+    pub dev_note: String,
 }
 
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]
@@ -1860,6 +1865,15 @@ impl GameData {
         for category_json in helpers_json["helperCategories"].members() {
             ensure!(category_json["helpers"].is_array());
             for helper in category_json["helpers"].members() {
+                if self
+                    .helper_json_map
+                    .contains_key(helper["name"].as_str().unwrap())
+                {
+                    bail!(
+                        "Duplicate helper definition: {}",
+                        helper["name"].as_str().unwrap()
+                    );
+                }
                 self.helper_json_map
                     .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
             }
@@ -2109,29 +2123,29 @@ impl GameData {
                 return Ok(Requirement::EnergyStationRefill);
             } else if value == "i_SupersDoubleDamageMotherBrain" {
                 return Ok(Requirement::SupersDoubleDamageMotherBrain);
-            } else if value == "i_BlueGateGlitchLeniency" {
+            } else if value == "i_blueGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: false,
                     heated: false,
                 });
-            } else if value == "i_GreenGateGlitchLeniency" {
+            } else if value == "i_greenGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: true,
                     heated: false,
                 });
-            } else if value == "i_HeatedBlueGateGlitchLeniency" {
+            } else if value == "i_heatedBlueGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: false,
                     heated: true,
                 });
-            } else if value == "i_HeatedGreenGateGlitchLeniency" {
+            } else if value == "i_heatedGreenGateGlitchLeniency" {
                 return Ok(Requirement::GateGlitchLeniency {
                     green: true,
                     heated: true,
                 });
-            } else if value == "i_BombIntoCrystalFlashClipLeniency" {
+            } else if value == "i_bombIntoCrystalFlashClipLeniency" {
                 return Ok(Requirement::BombIntoCrystalFlashClipLeniency {});
-            } else if value == "i_JumpIntoCrystalFlashClipLeniency" {
+            } else if value == "i_jumpIntoCrystalFlashClipLeniency" {
                 return Ok(Requirement::JumpIntoCrystalFlashClipLeniency {});
             } else if value == "i_XModeSpikeHitLeniency" {
                 return Ok(Requirement::XModeSpikeHitLeniency {});
@@ -3802,6 +3816,10 @@ impl GameData {
                 min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
                 max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
+            "comeInBlueSpaceJumping" => MainEntranceCondition::ComeInBlueSpaceJumping {
+                min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
+                max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
+            },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
                 speed_booster: value["speedBooster"].as_bool(),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
@@ -5062,45 +5080,45 @@ impl GameData {
         // Gate glitch leniency
         *game_data
             .helper_json_map
-            .get_mut("h_BlueGateGlitchLeniency")
+            .get_mut("h_blueGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_BlueGateGlitchLeniency",
-            "requires": ["i_BlueGateGlitchLeniency"],
+            "name": "h_blueGateGlitchLeniency",
+            "requires": ["i_blueGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_GreenGateGlitchLeniency")
+            .get_mut("h_greenGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_GreenGateGlitchLeniency",
-            "requires": ["i_GreenGateGlitchLeniency"],
+            "name": "h_greenGateGlitchLeniency",
+            "requires": ["i_greenGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_HeatedBlueGateGlitchLeniency")
+            .get_mut("h_heatedBlueGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_HeatedBlueGateGlitchLeniency",
-            "requires": ["i_HeatedBlueGateGlitchLeniency"],
+            "name": "h_heatedBlueGateGlitchLeniency",
+            "requires": ["i_heatedBlueGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_HeatedGreenGateGlitchLeniency")
+            .get_mut("h_heatedGreenGateGlitchLeniency")
             .unwrap() = json::object! {
-            "name": "h_HeatedGreenGateGlitchLeniency",
-            "requires": ["i_HeatedGreenGateGlitchLeniency"],
+            "name": "h_heatedGreenGateGlitchLeniency",
+            "requires": ["i_heatedGreenGateGlitchLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_BombIntoCrystalFlashClipLeniency")
+            .get_mut("h_bombIntoCrystalFlashClipLeniency")
             .unwrap() = json::object! {
-            "name": "h_BombIntoCrystalFlashClipLeniency",
-            "requires": ["i_BombIntoCrystalFlashClipLeniency"],
+            "name": "h_bombIntoCrystalFlashClipLeniency",
+            "requires": ["i_bombIntoCrystalFlashClipLeniency"],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_JumpIntoCrystalFlashClipLeniency")
+            .get_mut("h_jumpIntoCrystalFlashClipLeniency")
             .unwrap() = json::object! {
-            "name": "h_JumpIntoCrystalFlashClipLeniency",
-            "requires": ["i_JumpIntoCrystalFlashClipLeniency"],
+            "name": "h_jumpIntoCrystalFlashClipLeniency",
+            "requires": ["i_jumpIntoCrystalFlashClipLeniency"],
         };
         *game_data
             .helper_json_map
@@ -5120,9 +5138,9 @@ impl GameData {
         // Other:
         *game_data
             .helper_json_map
-            .get_mut("h_AllItemsSpawned")
+            .get_mut("h_allItemsSpawned")
             .unwrap() = json::object! {
-            "name": "h_AllItemsSpawned",
+            "name": "h_allItemsSpawned",
             "requires": ["f_AllItemsSpawn"]  // internal flag "f_AllItemsSpawn" gets set at start if QoL option enabled
         };
         *game_data
@@ -5134,16 +5152,16 @@ impl GameData {
         };
         *game_data
             .helper_json_map
-            .get_mut("h_canActivateBombTorizo")
+            .get_mut("h_activateBombTorizo")
             .unwrap() = json::object! {
-            "name": "h_canActivateBombTorizo",
+            "name": "h_activateBombTorizo",
             "requires": [],
         };
         *game_data
             .helper_json_map
-            .get_mut("h_canActivateAcidChozo")
+            .get_mut("h_activateAcidChozo")
             .unwrap() = json::object! {
-            "name": "h_canActivateAcidChozo",
+            "name": "h_activateAcidChozo",
             "requires": [{
                 "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
             }],
@@ -5217,9 +5235,9 @@ impl GameData {
         // Wall on right side of Tourian Escape Room 1 does not spawn in the randomizer:
         *game_data
             .helper_json_map
-            .get_mut("h_AccessTourianEscape1RightDoor")
+            .get_mut("h_openTourianEscape1RightDoor")
             .unwrap() = json::object! {
-            "name": "h_AccessTourianEscape1RightDoor",
+            "name": "h_openTourianEscape1RightDoor",
             "requires": [],
         };
 

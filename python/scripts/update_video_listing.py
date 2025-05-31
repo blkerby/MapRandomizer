@@ -21,7 +21,8 @@ for video in videos_list:
         "strat_id": video["strat_id"],
         "video_id": video["id"],
         "created_user": user_dict[video["created_user_id"]],
-        "note": video["note"]
+        "note": video["note"],
+        "dev_note": video["dev_note"]
     })
 
 json.dump(output_list, open(output_path, "w"), indent=2)

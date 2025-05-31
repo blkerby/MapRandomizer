@@ -44,9 +44,9 @@
         {% for (button, button_display) in all_buttons.iter() %}
             {% let checked %}{% if ["L", "R", "Start", "Select"].contains(button) %}{% let checked = "checked" %}{% else %}{% let checked = "" %}{% endif %}
             <input type="checkbox" class="btn-check" id="quickReload{{+ button }}" name="quick_reload_{{+ button.to_lowercase() }}" {{+ checked }}>
-            {% if button == "X"|as_ref %}
+            {% if button == &"X" %}
             <label class="btn btn-outline-primary me-1" for="quickReload{{+ button }}">{{+ button_display }}</label>
-            {% else if button == "Right"|as_ref %}
+            {% else if button == &"Right" %}
             <label class="btn btn-outline-primary ms-1" for="quickReload{{+ button }}">{{+ button_display }}</label>
             {% else %}
             <label class="btn btn-outline-primary mx-1" for="quickReload{{+ button }}">{{+ button_display }}</label>

@@ -58,7 +58,7 @@ pub fn get_shortcharge_min_extra_run_speed(shortcharge_tile_skill: f32) -> f32 {
     let table: Vec<(i32, i32)> = vec![
         (11, 0x07),
         (12, 0x0B),
-        (13, 0x10),
+        (13, 0x0F),
         (14, 0x12),
         (15, 0x16),
         (16, 0x1B),
