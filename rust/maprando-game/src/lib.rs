@@ -1236,6 +1236,7 @@ pub struct StratVideo {
     pub video_id: usize,
     pub created_user: String,
     pub note: String,
+    pub dev_note: String,
 }
 
 #[derive(Copy, Clone, Debug, Deserialize, PartialEq, Eq)]

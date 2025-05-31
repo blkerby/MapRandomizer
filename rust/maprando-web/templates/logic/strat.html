@@ -27,13 +27,24 @@
         <div class="text-center col-sm-4 col-md-3 col-lg-2">
             {% let video = videos.unwrap()[0] %}
             {% let video_id = video.video_id %}
-            {% let video_storage_url = video_storage_url|as_ref %}
+            {% let video_storage_url = &video_storage_url %}
             {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
             {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
             {% let mp4_url = format!("{}/mp4/{}.mp4", video_storage_url, video_id) %}
+            {% let note = video.note|escape %}
+            {% let dev_note = video.dev_note|escape %}
+            {% let full_note %}
+            {% if video.note != "" && video.dev_note != "" %}
+            {% let full_note = format!("{}<p class='dev-note'>Dev note: {}</p>", note, dev_note) %}
+            {% else if video.dev_note != "" %} 
+            {% let full_note = format!("<p class='dev-note'>Dev note: {}</p>", dev_note) %}
+            {% else %}
+            {% let full_note = format!("{}", note) %}
+            {% endif %}
+
             <div>
                 <a href="#" id="video-a-{{ strat.room_id }}-{{ strat.strat_id }}" onclick='startVideo("{{ mp4_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
-                <img class="png-tech" id="video-png-{{ strat.room_id }}-{{ strat.strat_id }}" loading="lazy" src="{{ png_url }}" style="width:128px;height:128px;">
+                <img class="png-tech" id="video-png-{{ strat.room_id }}-{{ strat.strat_id }}" loading="lazy" src="{{ png_url }}" style="width:128px;height:128px;" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" data-bs-title="{{ full_note }}">
                 <img class="gif-tech" id="video-webp-{{ strat.room_id }}-{{ strat.strat_id }}" loading="lazy" src="{{ webp_url }}" style="width:128px;height:128px;">
                 </a>
             </div>
@@ -49,9 +60,19 @@
                 {% let checked = "" %}
                 {% endif %}
                 <input type="radio" class="btn-check" name="video-{{ strat.room_id }}-{{ strat.strat_id }}" id="video-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" autocomplete="off"
-                onclick="selectVideo({{ strat.room_id }}, {{ strat.strat_id }}, {{ video.video_id }})" {{ checked }}>
-                <label class="btn btn-outline-secondary" for="video-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" 
-                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-title="{{ video.note }}">{{ i + 1 }}</label>
+                onclick="selectVideo({{ strat.room_id }}, {{ strat.strat_id }}, {{ video.video_id }}, {{ i }})" {{ checked }}>
+                {% let note = video.note|escape %}
+                {% let dev_note = video.dev_note|escape %}
+                {% let full_note %}
+                {% if video.note != "" && video.dev_note != "" %}
+                {% let full_note = format!("{}<p class='dev-note'>Dev note: {}</p>", note, dev_note) %}
+                {% else if video.dev_note != "" %} 
+                {% let full_note = format!("<p class='dev-note'>Dev note: {}</p>", dev_note) %}
+                {% else %}
+                {% let full_note = format!("{}", note) %}
+                {% endif %}
+                <label id="video-label-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" class="btn btn-outline-secondary" for="video-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" 
+                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-title="{{ full_note }}">{{ i + 1 }}</label>
                 {% endfor %}
             </div>
             {% endif %}
@@ -101,5 +122,5 @@
 {% endif %}
 
 {% if strat.dev_note.len() > 0 %}
-<p class="d-none dev-note">Dev note: {{+ strat.dev_note }}</p>
+<p class="dev-note">Dev note: {{+ strat.dev_note }}</p>
 {% endif %}

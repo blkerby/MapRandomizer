@@ -2,7 +2,7 @@
 <div class="row">
     {% if obj_option.setting != maprando::settings::ObjectiveSetting::No %}
         <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">{{ 
-            objective_names[format!("{:?}", obj_option.objective)|as_ref]
+            objective_names[&format!("{:?}", obj_option.objective)]
         }}:</div>
         <div class="col-4 col-sm-3">{{
             format!("{:?}", obj_option.setting)

@@ -61,7 +61,7 @@
     video.load();
     video.play();
   }
-  function selectVideo(roomId, stratId, videoId) {
+  function selectVideo(roomId, stratId, videoId, idx) {
     let aEl = document.getElementById(`video-a-${roomId}-${stratId}`);
     let pngEl = document.getElementById(`video-png-${roomId}-${stratId}`);
     let webpEl = document.getElementById(`video-webp-${roomId}-${stratId}`);
@@ -73,6 +73,18 @@
     aEl.onclick = function() { startVideo(mp4Url) };
     pngEl.src = pngUrl;
     webpEl.src = webpUrl;
+
+    var tooltipEl = document.getElementById(`video-label-${roomId}-${stratId}-${idx}`);
+    var tooltipHtml = tooltipEl.getAttribute("data-bs-title");
+    pngEl.setAttribute("data-bs-title", tooltipHtml);
+    if (tooltipHtml == "") {
+      let inst = bootstrap.Tooltip.getInstance(pngEl);
+      if (inst != null) {
+        inst.disable();
+      }
+    } else {
+      new bootstrap.Tooltip(pngEl);
+    }
   }
   function initTooltips() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
