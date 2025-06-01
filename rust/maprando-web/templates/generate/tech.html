@@ -90,6 +90,72 @@
                     {% endfor %}
                 </div>
             </div>
+            <div class="card">
+                {% if preset_data.notables_by_difficulty[difficulty_name].len() > &0 %}
+                <div class="card-header">
+                    Notable strats
+                </div>
+                {% endif %}
+                <div class="card-body my-0 p-0">
+                    {% let difficulty_notables = preset_data.notables_by_difficulty[difficulty_name] %}
+                    {% for id_pair in difficulty_notables %}
+                    {% let room_id = id_pair.0 %}
+                    {% let notable_id = id_pair.1 %}
+                    {% let notable_data = preset_data.notable_data_map[id_pair] %}
+                    {% let notable_name = &notable_data.name %}
+                    {% let room_name = &notable_data.room_name %}
+                    {% let combo_id = format!("{}-{}", room_id, notable_id) %}
+                        <hr class="m-0">
+                        <div class="row m-0 p-3 tech-row">
+                            <div class="text-center col-sm-4 col-md-3 col-lg-2">
+                                {% if notable_data.video_id.is_some() %}
+                                {% let video_id = notable_data.video_id.unwrap() %}
+                                {% let video_storage_url = video_storage_url %}
+                                {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
+                                {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
+                                {% let mp4_url = format!("{}/mp4/{}.mp4", video_storage_url, video_id) %}
+                                <a href="#" onclick='startVideo("{{ mp4_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+                                <img class="png-tech" loading="lazy" src="{{ png_url }}" style="width:128px;height:128px;">
+                                <img class="gif-tech" loading="lazy" src="{{ webp_url }}" style="width:128px;height:128px;">
+                                </a>
+                                {% endif %}
+                            </div>
+                            <div class="col-sm-8 col-md-9 col-lg-10">
+                                <div class="container mx-0 my-0">
+                                    <div class="row">
+                                        <div class="col-lg-10 mx-0 my-1">
+                                            <label for="strat-{{ combo_id }}">
+                                            <b>{{ room_name +}}: {{+ notable_name }}</b>
+                                            </label>
+                                        </div>
+                                        <div class="col-lg-2 btn-group my-0" role="group" onchange="techChanged()">
+                                            <input type="radio" class="btn-check" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-No" value="false" checked=true>
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-No">No</label>
+                                            <input type="radio" class="btn-check strat-input tier-input-{{+ name_no_space }}" name="strat-{{ combo_id }}" id="strat-{{ combo_id }}-Yes" value="true" data-room-name="{{ room_name }}" data-notable-name="{{ notable_name }}">
+                                            <label class="btn btn-outline-primary m-0 p-1" for="strat-{{ combo_id }}-Yes">Yes</label>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-sm-12 my-1">
+                                            {% let desc = notable_description[id_pair] %}
+                                            {{ desc }}
+                                        </div>
+                                    </div>
+                                    <p class="mt-3"><a href="/logic/notable/{{ room_id }}/{{ notable_id }}" onclick="setDifficulty('{{+ difficulty_idx }}');">
+                                        {% let cnt = notable_strat_counts[id_pair] %}
+                                        {% let strat_pluralization -%}
+                                        {% if cnt == &&1 %}
+                                          {% let strat_pluralization = "strat" %}
+                                        {% else %}
+                                          {% let strat_pluralization = "strats" %}
+                                        {% endif %}
+                                        {{+ cnt +}} {{+ strat_pluralization }}
+                                    </a></p>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>

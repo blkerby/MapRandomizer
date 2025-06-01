@@ -1,4 +1,3 @@
-use askama::filters;
 use askama::Template;
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
