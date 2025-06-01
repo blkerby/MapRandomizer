@@ -136,6 +136,9 @@ whitelist_dict = {
         ['max_ammo_display_fast', 0x858851, 0x858A93],
         ['max_ammo_display_fast', 0x9AB542, 0x9AB6C0],
         ['Area Palettes', 0x82E569, 0x82E56C]
+    ],
+    'fast_saves': [
+        ['itemsounds', 0x858089, 0x85808B]
     ]
 }
 

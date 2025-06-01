@@ -1,5 +1,9 @@
 lorom
 
+; Don't stop sounds when message box appears:
+org $858089
+	BRA $02
+
 ; Skip save confirmation message box:
 org $848CF6
     nop : nop : nop : nop   ;$84:8CF6 22 80 80 85 JSL $858080[$85:8080]  ;} Display save confirmation message box
