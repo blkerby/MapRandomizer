@@ -930,17 +930,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			e.onclick = ev => {
 				if (document.getElementById("spoilers").checked || document.getElementById("spoilers").checked || step_limit === null || step_limit > v)
 					showFlag(c.details, f, true);
-				else if (step_limit >=  reach_step) {
-					el.innerText = "Not in logic for current step.";
-					el.style.left = ev.target.style.left + 16 + "px";
-					el.style.top = ev.target.style.top + "px";
-					el.classList.remove("hidden");
-				}
 			}
 			e.onpointermove = ev => {
 				hideRoom();
 				if (!document.getElementById("spoilers").checked && step_limit !== null && step_limit >= reach_step && step_limit <= Number(v)) {
-					el.innerText = "Not in logic for current step.";
+					el.innerHTML = `<b>${rf[1]}</b><br><small>${sr.room}</small><br>Not in logic for current step.`;
 					el.style.left = ev.target.style.left + 16 + "px";
 					el.style.top = ev.target.style.top + "px";
 					el.classList.remove("hidden");
