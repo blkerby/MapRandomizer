@@ -194,7 +194,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					el.id = j.item;
 					el.className = "ui-icon-hoverable";
 					el.onclick = ev => {
-						show_item_details(j.item, j.location, i, j);
+						if (el.style.backgroundPositionX== `-${item_plm["Hidden"] * 16}px`)
+							gen_obscurity(Number(i)+1);
+						else
+							show_item_details(j.item, j.location, i, j);
 						ev.stopPropagation();
 					}
 					step_div.appendChild(el);
@@ -832,7 +835,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		e.style.visibility = document.getElementById("ship").checked ? "visible" : "hidden";
 		e.onclick = ev => {
 			let reach_step = -1;
-			let v = -1;
 			for (v in c.details){
 				for (let vf of c.details[v].flags){
 					if (vf.flag == "f_DefeatedMotherBrain"){
@@ -840,23 +842,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 						break;
 					}
 				}
-				if (reach_step != -1)
-					break;
 			}
-			if (!document.getElementById("spoilers").checked)
+			if (!document.getElementById("spoilers").checked && step_limit != null &&  reach_step > step_limit)
 			{
-				if (step_limit != null &&  reach_step > step_limit)
-				{
-					let e = document.getElementById(`step-${step_limit}`);
-					e.style.backgroundColor = "red";
-					setTimeout(clr => {
-						document.getElementById(`step-${step_limit}`).style.backgroundColor = "";
-					}, 1000);
-					return;
-				}
-			}	
-			else
-				step_limit = null;
+				document.getElementById("shipspoiler").style.display = "block"
+				
+				setTimeout(fn => {document.getElementById("shipspoiler").style.display = "none";}, 1000)
+				return;
+			}
+
+			step_limit = null;
 			
 			document.getElementById("path-overlay").innerHTML = ""
 			show_overview();
@@ -870,7 +865,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		document.getElementById("overlay").appendChild(e);
 		e = document.createElement("div");
 		e.className = "popup";
-		e.innerHTML = `<b>Ship</b><br><small>${sr.room}</small><br>`;
+		e.innerHTML = `<b>Ship</b><br><small>${sr.room}</small><br><div id="shipspoiler" style="display:none"><small>Escape not in logic on this step</small></div>`;
 		e.style.left = x + 48 +"px";
 		e.style.top = y + "px";
 		document.getElementById("overlay").appendChild(e);
