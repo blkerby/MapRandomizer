@@ -33,6 +33,11 @@ document.getElementById("ship").onchange = ev => {
 document.getElementById("start").onchange = ev => {
 	document.getElementById("helm").style.visibility = ev.target.checked ? "visible" : "hidden";
 }
+document.getElementById("sidebar-info").onmousemove = ev => {
+	let el = document.getElementById("room-info");
+	el.classList.add("hidden");
+	el.innerText = "";
+}
 
 let startitems = 0;
 let startbase = {x:0,y:0};
@@ -173,6 +178,42 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				document.getElementById("path-overlay").innerHTML = "";
 				gen_obscurity(c.summary[i].step);
 			}
+			step_div.onmousemove = () => {
+				let supp_div = document.getElementById("sidebar-supp-item");
+				supp_div.style.display = "none";
+				supp_div.innerHTML = "";
+				
+				if (!document.getElementById("spoilers").checked && step_limit < Number(i)+1)
+					return;
+
+				supp_div.style.left = si.offsetWidth+20+"px";
+				supp_div.style.top = i * 24 +18+ "px";
+				let items = c.details[i].items;
+				let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
+				let seen = new Set();
+				let added_item = false;
+				for (item_idx of sortedItemIdxs)
+				{
+					let j = items[item_idx];
+					if (seen.has(j.item))
+					{
+						let el = icon(item_plm[j.item]);
+						el.id = j.item;
+						el.onclick = ev => {
+							show_item_details(j.item, j.location, i, j);
+							supp_div.style.display = "none";
+							ev.stopPropagation();
+						}
+						supp_div.appendChild(el);
+						added_item = true;
+					}
+					else
+						seen.add(j.item);
+				}
+				if (added_item)
+					supp_div.style.display = "block";
+			}
+
 
 			let step_number = document.createElement("span");
 			step_number.className = "step-number";
@@ -1175,6 +1216,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		up(ev);
 	}
 	m.onpointermove = ev => {
+		document.getElementById("sidebar-supp-item").style.display = "none";
 		ev.preventDefault();
 		if (evCache.length == 2) {
 			if (ev.button == 0)
