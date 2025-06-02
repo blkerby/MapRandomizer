@@ -397,6 +397,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			si.appendChild(previous_header);
 
 			let ss = c.details[i].start_state;
+			flagIcons(si, ss.flags);
 			
 			let non_unique_item_list = document.createElement("div");
 			non_unique_item_list.className = "item-list";
@@ -427,13 +428,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 			si.appendChild(unique_item_list);
 			
-			flagIcons(si, ss.flags);
 
 			let collectible_header = document.createElement("div");
 			collectible_header.className = "category";
 			collectible_header.innerHTML = "COLLECTIBLE ON THIS STEP";
 			si.appendChild(collectible_header);
 
+			if (i !== null)
+				flagIcons(si, c.summary[i].flags, j);
 
 			item_list = document.createElement("div");
 			item_list.className = "item-list";
@@ -454,8 +456,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			si.appendChild(item_list);
 		}
 
-		if (i !== null)
-			flagIcons(si, c.summary[i].flags, j);
 
 		let item_info = document.createElement("div");
 		let item_difficulty = "";
