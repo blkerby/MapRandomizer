@@ -186,7 +186,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				if (!document.getElementById("spoilers").checked && step_limit < Number(i)+1)
 					return;
 
-				supp_div.style.left = si.offsetWidth+18+"px";
+				supp_div.style.left = si.offsetWidth+16+"px";
 				supp_div.style.top = i * 24 +18+ "px";
 				let items = c.details[i].items;
 				let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
@@ -199,6 +199,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					{
 						let el = icon(item_plm[j.item]);
 						el.id = j.item;
+						el.className = "ui-icon-hoverable";
 						el.onclick = ev => {
 							show_item_details(j.item, j.location, i, j);
 							supp_div.style.display = "none";
