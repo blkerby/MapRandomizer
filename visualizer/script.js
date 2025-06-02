@@ -935,8 +935,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				hideRoom();
 				if (!document.getElementById("spoilers").checked && step_limit !== null && step_limit >= reach_step && step_limit <= Number(v)) {
 					el.innerHTML = `<b>${rf[1]}</b><br><small>${sr.room}</small><br>Not in logic for current step.`;
-					el.style.left = ev.target.style.left + 16 + "px";
-					el.style.top = ev.target.style.top + "px";
+					el.style.left = Number(ev.target.style.left.substring(0,ev.target.style.left.length-2))+16+"px";
+					el.style.top = ev.target.style.top;
 					el.classList.remove("hidden");
 				}
 			}
@@ -1016,8 +1016,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				hideRoom();
 				if (!document.getElementById("spoilers").checked && step_limit !== null && step_limit <= step && step_limit >= reach_step) {
 					el.innerHTML = `<b>${v.item}</b><br><small>${v.location.room}</small><br>Not in logic on this step`;
-					el.style.left = ev.target.style.left + 16 + "px";
-					el.style.top = ev.target.style.top + "px";
+					el.style.left = Number(ev.target.style.left.substring(0,ev.target.style.left.length-2))+16+"px";
+					el.style.top = ev.target.style.top;
 					el.classList.remove("hidden");
 				}
 			}
