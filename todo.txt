@@ -34,6 +34,8 @@ Planned work to prioritize (v119?):
   - Populate wallJumpAvoid throughout the logic (strats and notables)
   - Finish checking flash suit logic
   - Maybe make some progress migrating farm strats (to use `farmCycleDrops`)
+- mosaic:
+  - restore morph tunnel continuation behind morph tunnel transition
 
 v118:
 - DONE: implement comeInBlueSpaceJumping
@@ -45,11 +47,10 @@ v118:
 - DONE: fix logic page "canHeatRun"
 - DONE: fix wall jump boots palette
 - DONE: fix issue with vanilla item fanfare + fast save
-- fix load checksum issue with random seed 0
+- implement ridleyKill logical requirement.
+- DONE: fix load checksum issue with random seed 0
 - finish refining stutter water shinecharges.
 - DONE: add side platform strats.
-- mosaic:
-  - restore morph tunnel continuation behind morph tunnel transition
 - DONE: apply Fake Lava patch (resolve conflict with complementary_suits?)
 - add more strats from Incomplete videos
 - chaining temp blue after bouncing through should be extreme:

@@ -578,7 +578,14 @@ impl<'a> Patcher<'a> {
         }
 
         match self.settings.quality_of_life_settings.fanfares {
-            Fanfares::Vanilla => {}
+            Fanfares::Vanilla => {
+                if !self.settings.other_settings.ultra_low_qol {
+                    // This is needed only if fast saves are enabled
+                    // (which is currently always except with ultra-low QoL)
+                    // It's important that it be applied after `fast_saves`` since it overrides the same hook point.
+                    patches.push("vanilla_fanfare_stop_sounds");
+                }
+            }
             Fanfares::Trimmed => {
                 // reduce fanfare dialogue box duration (240 frames)
                 self.rom.write_u16(snes2pc(0x858491), 0xF0)?;

@@ -138,7 +138,12 @@ whitelist_dict = {
         ['Area Palettes', 0x82E569, 0x82E56C]
     ],
     'fast_saves': [
-        ['itemsounds', 0x858089, 0x85808B]
+        ['itemsounds', 0x858089, 0x85808B],
+        ['vanilla_fanfare_stop_sounds', 0x858089, 0x85808B],
+    ],
+    'vanilla_fanfare_stop_sounds': [
+        ['itemsounds', 0x858089, 0x85808B],
+        ['fast_saves', 0x858089, 0x85808B],
     ]
 }
 
