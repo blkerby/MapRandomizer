@@ -186,7 +186,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				if (!document.getElementById("spoilers").checked && step_limit < Number(i)+1)
 					return;
 
-				supp_div.style.left = si.offsetWidth+20+"px";
+				supp_div.style.left = si.offsetWidth+18+"px";
 				supp_div.style.top = i * 24 +18+ "px";
 				let items = c.details[i].items;
 				let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
