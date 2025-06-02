@@ -45,6 +45,7 @@ v118:
 - DONE: fix logic page "canHeatRun"
 - DONE: fix wall jump boots palette
 - DONE: fix issue with vanilla item fanfare + fast save
+- fix load checksum issue with random seed 0
 - finish refining stutter water shinecharges.
 - DONE: add side platform strats.
 - mosaic:
@@ -53,7 +54,7 @@ v118:
 - add more strats from Incomplete videos
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
-- add new samus sprites
+- DONE: add new samus sprites
 - DONE: rework map tiles (global pause tileset, and room-local mini-map tilesets)
 - DONE: investigate unnecessary scroll bars showing up in Chrome in logic pages.
 - DONE: fix sand hole start locations.
