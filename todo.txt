@@ -55,6 +55,7 @@ v118:
 - add more strats from Incomplete videos
 - chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
+- fix spoiler map issue when clicking item on later step with "spoilers" enabled.
 - DONE: add new samus sprites
 - DONE: rework map tiles (global pause tileset, and room-local mini-map tilesets)
 - DONE: investigate unnecessary scroll bars showing up in Chrome in logic pages.
