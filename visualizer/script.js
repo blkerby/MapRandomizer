@@ -380,7 +380,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.scrollTop = 0;
 		si.innerHTML = "";
 		if (j !== null) {
-			if (mapitem && c.details[i].step > step_limit)
+			if (!mapitem)
+				step_limit = c.details[i].step;
+			else if (c.details[i].step > step_limit)
 				step_limit = c.details[i].step;
 			let title = document.createElement("div");
 			title.className = "sidebar-title";
