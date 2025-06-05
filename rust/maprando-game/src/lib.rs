@@ -3198,7 +3198,7 @@ impl GameData {
                 && node_type == "door"
                 && (node_json["doorOrientation"] == "left"
                     || node_json["doorOrientation"] == "right")
-                && node_json["useImplicitComeInWithMockball"].as_bool() == Some(false)
+                && node_json["useImplicitComeInWithMockball"].as_bool() != Some(false)
             {
                 let heated = self.get_room_heated(room_json, node_id)?;
                 let req = if heated {

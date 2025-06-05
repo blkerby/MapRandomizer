@@ -48,14 +48,15 @@ v118:
 - DONE: fix wall jump boots palette
 - DONE: fix issue with vanilla item fanfare + fast save
 - implement ridleyKill logical requirement.
+- fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
 - DONE: fix load checksum issue with random seed 0
 - finish refining stutter water shinecharges.
 - DONE: add side platform strats.
 - DONE: apply Fake Lava patch (resolve conflict with complementary_suits?)
 - add more strats from Incomplete videos
-- chaining temp blue after bouncing through should be extreme:
+- DONE: chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
-- fix spoiler map issue when clicking item on later step with "spoilers" enabled.
+- DONE: fix spoiler map issue when clicking item on later step with "spoilers" enabled.
 - DONE: add new samus sprites
 - DONE: rework map tiles (global pause tileset, and room-local mini-map tilesets)
 - DONE: investigate unnecessary scroll bars showing up in Chrome in logic pages.
