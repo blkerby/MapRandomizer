@@ -49,6 +49,9 @@ v118:
 - DONE: fix issue with vanilla item fanfare + fast save
 - implement ridleyKill logical requirement.
 - fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
+- mosaic:
+  - toilet appearing in botwoon hallway (LN theme)
+  - fireflea brightness
 - DONE: fix load checksum issue with random seed 0
 - finish refining stutter water shinecharges.
 - DONE: add side platform strats.
