@@ -2642,8 +2642,7 @@ impl GameData {
                     ),
                 };
                 return Ok(Requirement::RidleyFight {
-                    can_be_patient_tech_idx: self.tech_isv.index_by_key
-                        [&TECH_ID_CAN_BE_PATIENT],
+                    can_be_patient_tech_idx: self.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT],
                     can_be_very_patient_tech_idx: self.tech_isv.index_by_key
                         [&TECH_ID_CAN_BE_VERY_PATIENT],
                     can_be_extremely_patient_tech_idx: self.tech_isv.index_by_key
