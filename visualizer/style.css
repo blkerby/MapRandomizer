@@ -153,6 +153,9 @@ a {
 .ui-icon-hoverable.selected {
 	transform: scale(1.5);
 }
+.item-count {
+	margin-right: 2px
+}
 .button {
 	background-color: #36f;
 	border-radius: 2px;

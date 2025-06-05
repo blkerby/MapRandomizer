@@ -176,6 +176,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		supp_div.appendChild(ic);
 		ic = document.createElement("span");
 		ic.innerHTML = count;
+		ic.classList.add("item-count");
 		supp_div.appendChild(ic);
 		if (added_item)
 			return;
@@ -200,7 +201,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let items = c.details[step].items;
 		let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
 		let seen = new Set();
-		let non_uniques = ["ETank", "Missile", "ReserveTank","PowerBomb","Super"];
+		let non_unique_counts = {
+			"ETank": 1,
+			"ReserveTank": 1,
+			"Missile": 5,
+			"PowerBomb": 5,
+			"Super": 5
+		};
 		let last = null;
 		let added_item = false;
 		let count = 0;
@@ -212,7 +219,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		for (item_idx of sortedItemIdxs)
 		{
 			let j = items[item_idx];
-			if (!non_uniques.includes(j.item))
+			if (!non_unique_counts.hasOwnProperty(j.item))
 				continue;
 			if (last != null && last.item != j.item && count > 0)
 			{
@@ -221,7 +228,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				count = 0;
 			}
 			if (seen.has(j.item))
-				count++;
+				count += non_unique_counts[j.item];
 			else
 				seen.add(j.item);
 			last = j;
