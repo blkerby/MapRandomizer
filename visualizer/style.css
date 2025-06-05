@@ -69,7 +69,7 @@ a {
 #sidebar-supp-item {
 	position: fixed;
 	max-height: 600px;
-	overflow-y: auto;
+	overflow: none;
 	pointer-events: auto;
 	user-select: text;
 	display: none;

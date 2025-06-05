@@ -164,6 +164,76 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById(`step-${step_limit}`).classList.add("selected");
 		}
 	}
+	function addSuppItem(item,step, count, added_item)
+	{
+		let supp_div = document.getElementById("sidebar-supp-item");
+		let ic = icon(item_plm[item.item]);
+		ic.className = "ui-icon-hoverable";
+		ic.id = item.item;
+		ic.onclick = ev => {
+			show_item_details(item.item, item.location, step, item);
+		}
+		supp_div.appendChild(ic);
+		ic = document.createElement("span");
+		ic.innerHTML = count;
+		supp_div.appendChild(ic);
+		if (added_item)
+			return;
+
+		let dblitem = item;
+		supp_div.ondblclick = ev => {
+			show_item_details(dblitem.item, dblitem.location, step, dblitem);
+			ev.stopPropagation();
+		}
+	}
+	function suppItems(step) {
+		let supp_div = document.getElementById("sidebar-supp-item");
+		let si = document.getElementById("sidebar-info");
+		supp_div.style.display = "none";
+		supp_div.innerHTML = "";
+		
+		if (!document.getElementById("spoilers").checked && step_limit < Number(step)+1)
+			return;
+
+		supp_div.style.left = si.offsetWidth+16+"px";
+		supp_div.style.top = step * 24 +18+ "px";
+		let items = c.details[step].items;
+		let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
+		let seen = new Set();
+		let non_uniques = ["ETank", "Missile", "ReserveTank","PowerBomb","Super"];
+		let last = null;
+		let added_item = false;
+		let count = 0;
+		
+		let ss = c.details[step].start_state.items;
+		for (j of ss)
+			seen.add(j);
+		
+		for (item_idx of sortedItemIdxs)
+		{
+			let j = items[item_idx];
+			if (!non_uniques.includes(j.item))
+				continue;
+			if (last != null && last.item != j.item && count > 0)
+			{
+				addSuppItem(last,step, count, added_item);
+				added_item = true;
+				count = 0;
+			}
+			if (seen.has(j.item))
+				count++;
+			else
+				seen.add(j.item);
+			last = j;
+		}
+		if (count != 0)
+		{
+			addSuppItem(last,step, count, added_item);
+			added_item = true;
+		}
+		if (added_item)
+			supp_div.style.display = "block";
+	}
 	let show_overview = () => {
 		document.getElementById("path-overlay").innerHTML = ""
 		let si = document.getElementById("sidebar-info");
@@ -177,42 +247,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			step_div.onclick = () => {
 				document.getElementById("path-overlay").innerHTML = "";
 				gen_obscurity(c.summary[i].step);
+				suppItems(i);
 			}
 			step_div.onmousemove = () => {
-				let supp_div = document.getElementById("sidebar-supp-item");
-				supp_div.style.display = "none";
-				supp_div.innerHTML = "";
-				
-				if (!document.getElementById("spoilers").checked && step_limit < Number(i)+1)
-					return;
-
-				supp_div.style.left = si.offsetWidth+16+"px";
-				supp_div.style.top = i * 24 +18+ "px";
-				let items = c.details[i].items;
-				let sortedItemIdxs = Array.from(items.keys()).sort((a, b) => item_rank[items[a].item] - item_rank[items[b].item]);
-				let seen = new Set();
-				let added_item = false;
-				for (item_idx of sortedItemIdxs)
-				{
-					let j = items[item_idx];
-					if (seen.has(j.item))
-					{
-						let el = icon(item_plm[j.item]);
-						el.id = j.item;
-						el.className = "ui-icon-hoverable";
-						el.onclick = ev => {
-							show_item_details(j.item, j.location, i, j);
-							supp_div.style.display = "none";
-							ev.stopPropagation();
-						}
-						supp_div.appendChild(el);
-						added_item = true;
-					}
-					else
-						seen.add(j.item);
-				}
-				if (added_item)
-					supp_div.style.display = "block";
+				suppItems(i);
 			}
 
 
@@ -237,7 +275,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					el.className = "ui-icon-hoverable";
 					el.onclick = ev => {
 						if (el.style.backgroundPositionX== `-${item_plm["Hidden"] * 16}px`)
+						{
 							gen_obscurity(Number(i)+1);
+							suppItems(Number(i));
+						}
 						else
 							show_item_details(j.item, j.location, i, j);
 						ev.stopPropagation();
@@ -417,6 +458,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("path-overlay").innerHTML = ""
 			showRoute(j.return_route, "yellow");
 			showRoute(j.obtain_route);
+			document.getElementById("sidebar-supp-item").style.display = "none";
 		}
 		let si = document.getElementById("sidebar-info");
 		si.scrollTop = 0;
