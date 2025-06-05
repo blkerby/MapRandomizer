@@ -24,6 +24,38 @@
     "dev_note": "Caveat: The logic expects leaving shinecharged rather than with a spark. Logically, leaving with a spark is weaker than leaving shinecharged so there would be no reason to add it as a separate strat. Even if Shine Tune InfoHUD is used for the shortcharge, ideally it should be switched to Shinespark Timer InfoHUD during the transition in order to be able to see the frames remaining."
   },
   {
+    "room_id": 19,
+    "strat_id": 18,
+    "video_id": 6517,
+    "created_user": "Sam",
+    "note": "With 2 Supers",
+    "dev_note": ""
+  },
+  {
+    "room_id": 19,
+    "strat_id": 18,
+    "video_id": 6518,
+    "created_user": "Sam",
+    "note": "With 5 Missiles and Morph",
+    "dev_note": ""
+  },
+  {
+    "room_id": 19,
+    "strat_id": 18,
+    "video_id": 6519,
+    "created_user": "Sam",
+    "note": "Damageless with nothing",
+    "dev_note": ""
+  },
+  {
+    "room_id": 19,
+    "strat_id": 21,
+    "video_id": 6516,
+    "created_user": "Sam",
+    "note": "To East Cactus Alley, with Speed Booster and Hi-Jump",
+    "dev_note": ""
+  },
+  {
     "room_id": 11,
     "strat_id": 6,
     "video_id": 4642,
@@ -945,6 +977,14 @@
   },
   {
     "room_id": 13,
+    "strat_id": 7,
+    "video_id": 6521,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 13,
     "strat_id": 8,
     "video_id": 2528,
     "created_user": "maddo",
@@ -981,6 +1021,14 @@
     "video_id": 5446,
     "created_user": "Sam",
     "note": "From Colosseum (Top Position)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 13,
+    "strat_id": 22,
+    "video_id": 6520,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -5385,6 +5433,14 @@
   },
   {
     "room_id": 38,
+    "strat_id": 2,
+    "video_id": 6528,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 38,
     "strat_id": 7,
     "video_id": 2931,
     "created_user": "Sam",
@@ -5417,10 +5473,42 @@
   },
   {
     "room_id": 38,
+    "strat_id": 13,
+    "video_id": 6525,
+    "created_user": "Sam",
+    "note": "Sparking from the ground",
+    "dev_note": ""
+  },
+  {
+    "room_id": 38,
+    "strat_id": 14,
+    "video_id": 6522,
+    "created_user": "Sam",
+    "note": "Charge Plasma",
+    "dev_note": ""
+  },
+  {
+    "room_id": 38,
+    "strat_id": 14,
+    "video_id": 6523,
+    "created_user": "Sam",
+    "note": "Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 38,
     "strat_id": 17,
     "video_id": 2936,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 38,
+    "strat_id": 72,
+    "video_id": 6529,
+    "created_user": "Sam",
+    "note": "Ceiling mockball, to Double Chamber",
     "dev_note": ""
   },
   {
@@ -11889,6 +11977,14 @@
   },
   {
     "room_id": 79,
+    "strat_id": 35,
+    "video_id": 648,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 79,
     "strat_id": 25,
     "video_id": 5417,
     "created_user": "Sam",
@@ -17369,6 +17465,14 @@
   },
   {
     "room_id": 106,
+    "strat_id": 49,
+    "video_id": 6552,
+    "created_user": "Sam",
+    "note": "With Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
     "strat_id": 55,
     "video_id": 2387,
     "created_user": "Sam",
@@ -20509,6 +20613,14 @@
     "video_id": 6050,
     "created_user": "Sam",
     "note": "Springwall",
+    "dev_note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 119,
+    "video_id": 6539,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -23680,6 +23792,14 @@
     "dev_note": ""
   },
   {
+    "room_id": 143,
+    "strat_id": 5,
+    "video_id": 6515,
+    "created_user": "Sam",
+    "note": "To Fish Tank, with Speed Booster and Hi-Jump",
+    "dev_note": ""
+  },
+  {
     "room_id": 135,
     "strat_id": 66,
     "video_id": 3122,
@@ -24202,18 +24322,18 @@
   {
     "room_id": 138,
     "strat_id": 84,
-    "video_id": 1684,
-    "created_user": "Sam",
-    "note": "With Spring Ball",
+    "video_id": 6551,
+    "created_user": "Osse101",
+    "note": "Chain Temporary Blue",
     "dev_note": ""
   },
   {
     "room_id": 138,
     "strat_id": 84,
-    "video_id": 6375,
+    "video_id": 1684,
     "created_user": "Sam",
-    "note": "",
-    "dev_note": "Caveat: this is slower than logically expected. It would help to use a controller shortcut to update the timer at the start and end of the strat, to be able to measure the heat frames."
+    "note": "With Spring Ball",
+    "dev_note": ""
   },
   {
     "room_id": 138,
@@ -24230,6 +24350,30 @@
     "created_user": "Sam",
     "note": "Phantoon Killed. The ceiling spark can be annoying",
     "dev_note": "Caveat: this is leaving with a shinespark, while logically it should go through the door with frames remaining, to be able to use a shinespark in the next room."
+  },
+  {
+    "room_id": 160,
+    "strat_id": 3,
+    "video_id": 6563,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "FIXME: this video is a good execution. The frames in logic don't really look possible? Maybe it was originally tested with power on + Screw Attack?"
+  },
+  {
+    "room_id": 160,
+    "strat_id": 4,
+    "video_id": 6564,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "FIXME: tighten the shinecharge frames in logic."
+  },
+  {
+    "room_id": 160,
+    "strat_id": 16,
+    "video_id": 6565,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 160,
@@ -24305,6 +24449,14 @@
   },
   {
     "room_id": 160,
+    "strat_id": 44,
+    "video_id": 6566,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 160,
     "strat_id": 54,
     "video_id": 1808,
     "created_user": "Sam",
@@ -24337,6 +24489,22 @@
   },
   {
     "room_id": 156,
+    "strat_id": 4,
+    "video_id": 6571,
+    "created_user": "Sam",
+    "note": "Power On",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 9,
+    "video_id": 6572,
+    "created_user": "Sam",
+    "note": "Power On",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
     "strat_id": 11,
     "video_id": 1802,
     "created_user": "Sam",
@@ -24347,6 +24515,22 @@
     "room_id": 156,
     "strat_id": 12,
     "video_id": 4309,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 52,
+    "video_id": 6569,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 53,
+    "video_id": 6568,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -24389,6 +24573,30 @@
     "video_id": 1679,
     "created_user": "Sam",
     "note": "With X-Ray and Morph",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 18,
+    "video_id": 6573,
+    "created_user": "Sam",
+    "note": "Power On",
+    "dev_note": "Caveat: this uses more shinecharge frames than logically expected. Tips that can help here: 1) jump sooner, while you're running up the stairs, and 2) break spin by pressing angle down, to expand Samus' hitbox to touch the transition sooner. With Speed Booster, there's a dropoff in Samus' jump height that happens after running more than 2.75 tiles (extra run speed $1.2), so by jumping before you reach that point the jump will be significantly higher/faster."
+  },
+  {
+    "room_id": 156,
+    "strat_id": 19,
+    "video_id": 6574,
+    "created_user": "Sam",
+    "note": "Power On",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 20,
+    "video_id": 6575,
+    "created_user": "Sam",
+    "note": "Power On",
     "dev_note": ""
   },
   {
@@ -24505,6 +24713,14 @@
   },
   {
     "room_id": 156,
+    "strat_id": 48,
+    "video_id": 6570,
+    "created_user": "Sam",
+    "note": "Power On",
+    "dev_note": "Caveat: A \"Power Off\" video for this strat would be more useful since that's the case where it's logically useful. With power on, you can push the workrobot out of the way and gain the shinecharge right in front of the tunnel, which is covered by the \"Leave Shinecharged\" strat which is in a lower difficulty than this \"Leave With Spark\" strat."
+  },
+  {
+    "room_id": 156,
     "strat_id": 51,
     "video_id": 1803,
     "created_user": "Sam",
@@ -24540,6 +24756,22 @@
     "strat_id": 13,
     "video_id": 6486,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 161,
+    "strat_id": 22,
+    "video_id": 6531,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 161,
+    "strat_id": 58,
+    "video_id": 6533,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -24897,6 +25129,62 @@
   },
   {
     "room_id": 164,
+    "strat_id": 30,
+    "video_id": 6560,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 31,
+    "video_id": 6559,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 34,
+    "video_id": 6534,
+    "created_user": "Sam",
+    "note": "Power off, Speedball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 34,
+    "video_id": 6535,
+    "created_user": "Sam",
+    "note": "Gravity, Speedball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 38,
+    "video_id": 6536,
+    "created_user": "Sam",
+    "note": "Power off",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 38,
+    "video_id": 6537,
+    "created_user": "Sam",
+    "note": "Gravity",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 39,
+    "video_id": 6538,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
     "strat_id": 61,
     "video_id": 4565,
     "created_user": "Sam",
@@ -25061,6 +25349,14 @@
     "video_id": 2238,
     "created_user": "Sam",
     "note": "Swing until Samus' bonks against the ceiling to maximize her speed and release Grapple at the correct time on her way upward. Catch the rightmost Grapple block with a precise angle shot.",
+    "dev_note": ""
+  },
+  {
+    "room_id": 167,
+    "strat_id": 15,
+    "video_id": 6530,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -34281,6 +34577,14 @@
   },
   {
     "room_id": 196,
+    "strat_id": 8,
+    "video_id": 6562,
+    "created_user": "Sam",
+    "note": "With Underwater Bomb Boosts",
+    "dev_note": ""
+  },
+  {
+    "room_id": 196,
     "strat_id": 9,
     "video_id": 1550,
     "created_user": "Sam",
@@ -42459,6 +42763,22 @@
     "room_id": 242,
     "strat_id": 26,
     "video_id": 5877,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 224,
+    "strat_id": 1,
+    "video_id": 6510,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 224,
+    "strat_id": 3,
+    "video_id": 6509,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""

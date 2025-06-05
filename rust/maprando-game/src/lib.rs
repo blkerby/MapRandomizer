@@ -194,6 +194,13 @@ pub enum DoorType {
     Beam(BeamType),
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum RidleyStuck {
+    None,
+    Top,
+    Bottom,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Requirement {
     Free,
@@ -307,7 +314,12 @@ pub enum Requirement {
         can_be_very_patient_tech_idx: usize,
     },
     RidleyFight {
+        can_be_patient_tech_idx: usize,
         can_be_very_patient_tech_idx: usize,
+        can_be_extremely_patient_tech_idx: usize,
+        power_bombs: bool,
+        g_mode: bool,
+        stuck: RidleyStuck,
     },
     BotwoonFight {
         second_phase: bool,
@@ -2552,11 +2564,6 @@ impl GameData {
                         can_be_very_patient_tech_idx: self.tech_isv.index_by_key
                             [&TECH_ID_CAN_BE_VERY_PATIENT],
                     });
-                } else if enemy_set.contains("Ridley") {
-                    return Ok(Requirement::RidleyFight {
-                        can_be_very_patient_tech_idx: self.tech_isv.index_by_key
-                            [&TECH_ID_CAN_BE_VERY_PATIENT],
-                    });
                 } else if enemy_set.contains("Botwoon 1") {
                     return Ok(Requirement::BotwoonFight {
                         second_phase: false,
@@ -2622,6 +2629,29 @@ impl GameData {
                     });
                 }
                 return Ok(Requirement::make_and(reqs));
+            } else if key == "ridleyKill" {
+                let power_bombs = value["powerBombs"].as_bool().unwrap_or(false);
+                let g_mode = value["gMode"].as_bool().unwrap_or(false);
+                let stuck = match value["stuck"].as_str() {
+                    None => RidleyStuck::None,
+                    Some("top") => RidleyStuck::Top,
+                    Some("bottom") => RidleyStuck::Bottom,
+                    _ => panic!(
+                        "unexpected ridleyFight `stuck` value: {}",
+                        value["stuck"].as_str().unwrap()
+                    ),
+                };
+                return Ok(Requirement::RidleyFight {
+                    can_be_patient_tech_idx: self.tech_isv.index_by_key
+                        [&TECH_ID_CAN_BE_PATIENT],
+                    can_be_very_patient_tech_idx: self.tech_isv.index_by_key
+                        [&TECH_ID_CAN_BE_VERY_PATIENT],
+                    can_be_extremely_patient_tech_idx: self.tech_isv.index_by_key
+                        [&TECH_ID_CAN_BE_EXTREMELY_PATIENT],
+                    power_bombs,
+                    g_mode,
+                    stuck,
+                });
             } else if key == "previousNode" {
                 // Currently this is used only in the Early Supers quick crumble and Mission Impossible strats and is
                 // redundant in both cases, so we treat it as free.

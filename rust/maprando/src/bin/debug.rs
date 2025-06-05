@@ -6,7 +6,9 @@ use maprando::{
     settings::RandomizerSettings,
     traverse::{apply_requirement, LockedDoorData},
 };
-use maprando_game::{Capacity, GameData, Item, Requirement, TECH_ID_CAN_BE_VERY_PATIENT};
+use maprando_game::{
+    Capacity, GameData, Item, Requirement, RidleyStuck, TECH_ID_CAN_BE_EXTREMELY_PATIENT, TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT
+};
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
 use std::path::Path;
@@ -84,10 +86,33 @@ fn run_scenario(
 
     let objectives = get_objectives(&settings, &mut rng);
     difficulty.draygon_proficiency = proficiency;
+    difficulty.ridley_proficiency = proficiency;
+    difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] = patience;
+    difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_EXTREMELY_PATIENT]] = patience;
+    // let new_local_state_opt = apply_requirement(
+    //     &Requirement::DraygonFight {
+    //         can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key
+    //             [&TECH_ID_CAN_BE_VERY_PATIENT],
+    //     },
+    //     &global_state,
+    //     local_state,
+    //     false,
+    //     settings,
+    //     &difficulty,
+    //     game_data,
+    //     &locked_door_data,
+    //     &objectives,
+    // );
     let new_local_state_opt = apply_requirement(
-        &Requirement::DraygonFight {
+        &Requirement::RidleyFight {
+            can_be_patient_tech_idx: game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT],
             can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key
                 [&TECH_ID_CAN_BE_VERY_PATIENT],
+            can_be_extremely_patient_tech_idx: game_data.tech_isv.index_by_key
+                [&TECH_ID_CAN_BE_EXTREMELY_PATIENT],
+            power_bombs: true,
+            g_mode: false,
+            stuck: RidleyStuck::None,
         },
         &global_state,
         local_state,
@@ -109,6 +134,10 @@ fn run_scenario(
 }
 
 fn main() -> Result<()> {
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format_timestamp_millis()
+        .init();
+
     let sm_json_data_path = Path::new("../sm-json-data");
     let room_geometry_path = Path::new("../room_geometry.json");
     let escape_timings_path = Path::new("data/escape_timings.json");
@@ -140,9 +169,9 @@ fn main() -> Result<()> {
     let difficulty = preset_data.difficulty_tiers.last().unwrap();
 
     let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
-    let missile_counts = vec![20];
+    let missile_counts = vec![60];
     let super_counts = vec![0];
-    let item_loadouts = vec![vec!["M"]];
+    let item_loadouts = vec![vec!["M", "V", "C"]];
 
     for &proficiency in &proficiencies {
         for &missile_cnt in &missile_counts {

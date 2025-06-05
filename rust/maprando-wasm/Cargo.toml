@@ -12,3 +12,5 @@ maprando-logic = { path = "../maprando-logic" }
 console_error_panic_hook = "0.1.7"
 wasm-bindgen = "0.2.92"
 serde-wasm-bindgen = "0.6.5"
+log = "0.4.17"
+wasm-logger = "0.2.0"

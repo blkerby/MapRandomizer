@@ -129,7 +129,9 @@
         ];
 
         let can_manage_reserves = false;
+        let can_be_patient = false;
         let can_be_very_patient = false;
+        let can_be_extremely_patient = false;
         let supers_double = true;
 
         window.addEventListener("load", function () {
@@ -208,7 +210,7 @@
                         local = can_defeat_draygon(inventory, local, proficiency, can_manage_reserves, can_be_very_patient);
                     }
                     else if (selected_boss == "Ridley") {
-                        local = can_defeat_ridley(inventory, local, proficiency, can_manage_reserves, can_be_very_patient);
+                        local = can_defeat_ridley(inventory, local, proficiency, can_manage_reserves, can_be_patient, can_be_very_patient, can_be_extremely_patient);
                     }
                     else if (selected_boss == "Botwoon") {
                         local = can_defeat_botwoon(inventory, local, proficiency, false, can_manage_reserves);
@@ -257,7 +259,9 @@
 
                         let techs = presets_json[parseInt(ref_radio_button.value)].tech_settings;
                         can_manage_reserves = get_tech(techs, 18);
+                        can_be_patient = get_tech(techs, 1);
                         can_be_very_patient = get_tech(techs, 2);
+                        can_be_extremely_patient = get_tech(techs, 3);
                         updateProficiency();
                         do_boss_check();
                     });
