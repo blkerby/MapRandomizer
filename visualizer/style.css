@@ -46,7 +46,7 @@ a {
 #overlay {
 	position: absolute;
 }
-.popup, #room-info, #sidebar-info, #sidebar-route, #settings {
+.popup, #room-info, #sidebar-info, #sidebar-route, #settings, #sidebar-supp-item {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
@@ -65,6 +65,14 @@ a {
 	top: 16px;
 	left: 16px;
 	user-select: text;
+}
+#sidebar-supp-item {
+	position: fixed;
+	max-height: 600px;
+	overflow: none;
+	pointer-events: auto;
+	user-select: text;
+	display: none;
 }
 .sidebar-title {
 	font-size: x-large;
@@ -144,6 +152,9 @@ a {
 }
 .ui-icon-hoverable.selected {
 	transform: scale(1.5);
+}
+.item-count {
+	margin-right: 2px
 }
 .button {
 	background-color: #36f;
