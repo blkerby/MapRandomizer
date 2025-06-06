@@ -13,6 +13,7 @@
 <meta property="og:image:type" content="image/png">
 <meta property="og:image" content="{{ png_url }}">
 {% endif %}
+<link rel="stylesheet" href="/static/logic_style.css">
 </head>
 <body>
 {% include "../common/navbar.html" %}
@@ -24,32 +25,11 @@ document.getElementById("navigation-logic").classList.add("active");
 
 <div class="container col-xl-10 col-xxl-8 pb-4">
     <h3 class="my-2">{{ room_name +}}: {{+ notable_name +}} ({{+ notable_difficulty_name }})</h3>
-    <style>
-    html[data-bs-theme=dark] .notable-row:hover {
-        background-color: #2b3035;
-    }
-    html[data-bs-theme=light] .notable-row:hover {
-        background-color: #f4f5f6;
-    }
-    .png-tech {
-        position: absolute;
-    }
-    .notable-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:not(:hover) .gif-tech {
-        opacity: 0;
-    }
-    </style>
     <style id="dev-note-style">
         .dev-note {
             display: none;
         }
     </style>
-
     <div class="row notable-row">
         <div class="text-center col-sm-4 col-md-3 col-lg-2 p-3">
             {% let notable_name = &notable_name %}

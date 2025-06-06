@@ -6,6 +6,7 @@
         <video id="video" width=100% controls style="image-rendering: pixelated;">
           <source id="videoSource">
         </video>
+        <div id="video-note"></div>
       </div>
     </div>
   </div>
@@ -61,6 +62,13 @@
     video.load();
     video.play();
   }
+  function startVideoByIds(mp4Url, roomId, stratId) {
+    console.log("startVideoByIds: ", mp4Url, roomId, stratId);
+    var tooltipEl = document.getElementById(`video-png-${roomId}-${stratId}`);
+    var videoNoteHtml = tooltipEl.getAttribute("data-bs-title");
+    document.getElementById("video-note").innerHTML = videoNoteHtml;
+    startVideo(mp4Url);
+  }
   function selectVideo(roomId, stratId, videoId, idx) {
     let aEl = document.getElementById(`video-a-${roomId}-${stratId}`);
     let pngEl = document.getElementById(`video-png-${roomId}-${stratId}`);
@@ -70,7 +78,7 @@
     let pngUrl = `{{ video_storage_url }}/png/${videoId}.png`;
     let webpUrl = `{{ video_storage_url }}/webp/${videoId}.webp`;
 
-    aEl.onclick = function() { startVideo(mp4Url) };
+    aEl.onclick = function() { startVideoByIds(mp4Url, roomId, stratId, idx) };
     pngEl.src = pngUrl;
     webpEl.src = webpUrl;
 

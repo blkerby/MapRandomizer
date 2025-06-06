@@ -14,6 +14,7 @@
 <meta property="og:image:type" content="image/png">
 <meta property="og:image" content="{{ png_url }}">
 {% endif %}
+<link rel="stylesheet" href="/static/logic_style.css">
 </head>
 <body>
 {% include "../common/navbar.html" %}
@@ -44,23 +45,6 @@ document.getElementById("navigation-logic").classList.add("active");
             <img src="/{{+ room_diagram_path }}">
         </div>
     </div>
-    <style>
-    html[data-bs-theme=dark] .table {
-        --bs-table-hover-bg: #2b3035;
-    }
-    html[data-bs-theme=light] .table {
-        --bs-table-hover-bg: #f4f5f6;
-    }
-    .png-tech {
-        position: absolute;
-    }
-    .strat-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:not(:hover) .gif-tech {
-        opacity: 0;
-    }
-    </style>
     <style id="dev-note-style">
         .dev-note {
             display: none;

@@ -52,9 +52,9 @@ v118:
 - fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
 - mosaic:
   - toilet appearing in botwoon hallway (LN theme)
-  - fireflea brightness
-- show video author in tooltip hover
-- troubleshoot spoiler map steps near item: https://dev.maprando.com/seed/fds5QWvbJ/data/visualizer/index.html
+  - DONE: fireflea brightness
+- DONE: show collectsItems in logic page
+- DONE: show video author in tooltip hover
 - DONE: fix load checksum issue with random seed 0
 - finish refining stutter water shinecharges.
 - DONE: add side platform strats.

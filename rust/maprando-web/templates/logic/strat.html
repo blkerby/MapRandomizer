@@ -33,17 +33,19 @@
             {% let mp4_url = format!("{}/mp4/{}.mp4", video_storage_url, video_id) %}
             {% let note = video.note|escape %}
             {% let dev_note = video.dev_note|escape %}
-            {% let full_note %}
+            {% let created_user = video.created_user|escape %}
+            {% let note0 %}
             {% if video.note != "" && video.dev_note != "" %}
-            {% let full_note = format!("{}<p class='dev-note'>Dev note: {}</p>", note, dev_note) %}
+            {% let note0 = format!("{}<p class='dev-note'>Dev note: {}</p>", note, dev_note) %}
             {% else if video.dev_note != "" %} 
-            {% let full_note = format!("<p class='dev-note'>Dev note: {}</p>", dev_note) %}
+            {% let note0 = format!("<p class='dev-note'>Dev note: {}</p>", dev_note) %}
             {% else %}
-            {% let full_note = format!("{}", note) %}
+            {% let note0 = format!("{}", note) %}
             {% endif %}
+            {% let full_note = format!("{}<p class='video-attribution'>Video by {}</p>", note0, created_user) %}
 
             <div>
-                <a href="#" id="video-a-{{ strat.room_id }}-{{ strat.strat_id }}" onclick='startVideo("{{ mp4_url }}")' data-bs-toggle="modal" data-bs-target="#videoModal">
+                <a href="#" id="video-a-{{ strat.room_id }}-{{ strat.strat_id }}" onclick='startVideoByIds("{{ mp4_url }}", {{ strat.room_id }}, {{ strat.strat_id }}, 0)' data-bs-toggle="modal" data-bs-target="#videoModal">
                 <img class="png-tech" id="video-png-{{ strat.room_id }}-{{ strat.strat_id }}" loading="lazy" src="{{ png_url }}" style="width:128px;height:128px;" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-html="true" data-bs-title="{{ full_note }}">
                 <img class="gif-tech" id="video-webp-{{ strat.room_id }}-{{ strat.strat_id }}" loading="lazy" src="{{ webp_url }}" style="width:128px;height:128px;">
                 </a>
@@ -63,14 +65,15 @@
                 onclick="selectVideo({{ strat.room_id }}, {{ strat.strat_id }}, {{ video.video_id }}, {{ i }})" {{ checked }}>
                 {% let note = video.note|escape %}
                 {% let dev_note = video.dev_note|escape %}
-                {% let full_note %}
+                {% let note0 %}
                 {% if video.note != "" && video.dev_note != "" %}
-                {% let full_note = format!("{}<p class='dev-note'>Dev note: {}</p>", note, dev_note) %}
+                {% let note0 = format!("{}<p class='dev-note'>Dev note: {}</p>", note, dev_note) %}
                 {% else if video.dev_note != "" %} 
-                {% let full_note = format!("<p class='dev-note'>Dev note: {}</p>", dev_note) %}
+                {% let note0 = format!("<p class='dev-note'>Dev note: {}</p>", dev_note) %}
                 {% else %}
-                {% let full_note = format!("{}", note) %}
+                {% let note0 = format!("{}", note) %}
                 {% endif %}
+                {% let full_note = format!("{}<p class='video-attribution'>Video by {}</p>", note0, created_user) %}
                 <label id="video-label-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" class="btn btn-outline-secondary" for="video-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" 
                 data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-title="{{ full_note }}">{{ i + 1 }}</label>
                 {% endfor %}
@@ -112,6 +115,9 @@
 {% endif %}
 {% if strat.resets_obstacles.len() > 0 %}
     <p>Resets obstacles: {{+ strat.resets_obstacles.join(", ") }}</p>
+{% endif %}
+{% if strat.collects_items.len() > 0 %}
+    <p>Collects items: {{+ strat.collects_items.join(", ") }}</p>
 {% endif %}
 {% if strat.bypasses_door_shell %}
     <p>Bypasses door shell: true</p>
