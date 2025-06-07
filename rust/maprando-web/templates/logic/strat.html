@@ -75,7 +75,7 @@
                 {% endif %}
                 {% let full_note = format!("{}<p class='video-attribution'>Video by {}</p>", note0, created_user) %}
                 <label id="video-label-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" class="btn btn-outline-secondary" for="video-{{ strat.room_id }}-{{ strat.strat_id }}-{{ i }}" 
-                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-html="true" data-bs-title="{{ full_note }}">{{ i + 1 }}</label>
+                data-bs-toggle="tooltip" data-bs-placement="bottom" data-bs-custom-class="video-selector" data-bs-html="true" data-bs-title="{{ full_note }}">{{ i + 1 }}</label>
                 {% endfor %}
             </div>
             {% endif %}

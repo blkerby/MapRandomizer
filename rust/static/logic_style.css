@@ -17,3 +17,6 @@ html[data-bs-theme=light] .table {
     margin-bottom: 0;
     font-size: smaller;
 }
+.video-selector .video-attribution {
+    display: none;
+}
