@@ -1,1 +1,13 @@
-This message should only be accessible when it is not race mode.
+<div class="form-group row my-3">
+    <div class="col-md-4">
+    <label class="col-form-label" for="override_mark_map_stations">{% include "help/override_mark_map_stations.html" %}Override Map stations always visible on map</label>
+    </div>
+    <div class="col-md-8 col-lg-6 btn-group p-0" role="group">
+        <input type="radio" class="btn-check" name="override_mark_map_stations" id="overrideMarkMapStationsUnchanged" value="Unchanged" checked>
+        <label class="btn btn-outline-primary" style="width:120px" for="overrideMarkMapStationsUnchanged">Unchanged</label>
+        <input type="radio" class="btn-check" name="override_mark_map_stations" id="overrideMarkMapStationsNo" value="false">
+        <label class="btn btn-outline-primary" style="width:120px" for="overrideMarkMapStationsNo">No</label>
+        <input type="radio" class="btn-check" name="override_mark_map_stations" id="overrideMarkMapStationsYes" value="true">
+        <label class="btn btn-outline-primary" style="width:120px" for="overrideMarkMapStationsYes">Yes</label>
+    </div>
+</div>

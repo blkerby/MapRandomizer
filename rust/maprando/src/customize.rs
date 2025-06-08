@@ -156,6 +156,7 @@ pub struct CustomizeSettings {
     pub override_item_dot_change: Option<ItemDotChange>,
     pub override_transition_letters: Option<bool>,
     pub override_door_locks_size: Option<DoorLocksSize>,
+    pub override_mark_map_stations: Option<bool>,
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {

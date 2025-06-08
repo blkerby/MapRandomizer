@@ -71,6 +71,7 @@ struct CustomizeRequest {
     override_item_dot_change: Text<String>,
     override_transition_letters: Text<String>,
     override_door_locks_size: Text<String>,
+    override_mark_map_stations: Text<String>,
 }
 
 #[post("/{name}/customize")]
@@ -231,6 +232,15 @@ async fn customize_seed(
             _ => panic!(
                 "Unexpected override door locks size option: {}",
                 req.override_door_locks_size.0.as_str()
+            ),
+        },
+        override_mark_map_stations: match req.override_mark_map_stations.0.as_str() {
+            "Unchanged" => None,
+            "false" => Some(false),
+            "true" => Some(true),
+            _ => panic!(
+                "Unexpected override mark map stations option: {}",
+                req.override_mark_map_stations.0.as_str()
             ),
         },
     };

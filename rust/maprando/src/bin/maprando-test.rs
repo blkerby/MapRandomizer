@@ -241,6 +241,7 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
         override_item_dot_change: None,
         override_transition_letters: None,
         override_door_locks_size: None,
+        override_mark_map_stations: None,
     };
 
     cust
@@ -273,6 +274,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         override_item_dot_change: None,
         override_transition_letters: None,
         override_door_locks_size: None,
+        override_mark_map_stations: None,
     };
     customize_rom(
         &mut output_rom,

@@ -276,6 +276,7 @@ fn main() -> Result<()> {
         override_item_dot_change: None,
         override_transition_letters: None,
         override_door_locks_size: None,
+        override_mark_map_stations: None,
     };
     customize_rom(
         &mut output_rom,

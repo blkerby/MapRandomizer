@@ -43,6 +43,14 @@ impl RandomizerSettings {
             }
             None => {}
         }
+
+        if !self.other_settings.race_mode {
+            match customize_settings.override_mark_map_stations {
+                Some(false) => self.quality_of_life_settings.mark_map_stations = false,
+                Some(true) => self.quality_of_life_settings.mark_map_stations = true,
+                None => {}
+            }
+        }
     }
 }
 
