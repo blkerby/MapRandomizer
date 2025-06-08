@@ -34,19 +34,35 @@ Planned work to prioritize (v119?):
   - Populate wallJumpAvoid throughout the logic (strats and notables)
   - Finish checking flash suit logic
   - Maybe make some progress migrating farm strats (to use `farmCycleDrops`)
+- mosaic:
+  - restore morph tunnel continuation behind morph tunnel transition
+- add more strats from Incomplete videos
 
 v118:
 - DONE: implement comeInBlueSpaceJumping
 - DONE: fix BG color in Warehouse Entrance
-- finish refining stutter water shinecharges.
-- add side platform strats.
+- DONE: fix issue with bombs opening wave beam doors.
+- DONE: fix issue reported by Loptr: area transition markers not appearing in pause map next to 2-sided save/refill
+  - https://discord.com/channels/1053421401354285129/1053434532973510748/1376607030764372049
+- DONE: show video dev notes when enabled.
+- DONE: fix logic page "canHeatRun"
+- DONE: fix wall jump boots palette
+- DONE: fix issue with vanilla item fanfare + fast save
+- DONE: implement ridleyKill logical requirement.
+- fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
 - mosaic:
-  - restore morph tunnel continuation behind morph tunnel transition
+  - toilet appearing in botwoon hallway (LN theme)
+  - DONE: fireflea brightness
+- DONE: show collectsItems in logic page
+- DONE: show video author in tooltip hover
+- DONE: fix load checksum issue with random seed 0
+- finish refining stutter water shinecharges.
+- DONE: add side platform strats.
 - DONE: apply Fake Lava patch (resolve conflict with complementary_suits?)
-- add more strats from Incomplete videos
-- chaining temp blue after bouncing through should be extreme:
+- DONE: chaining temp blue after bouncing through should be extreme:
   - maprando.com/logic/room/59/13/4/134
-- add new samus sprites
+- DONE: fix spoiler map issue when clicking item on later step with "spoilers" enabled.
+- DONE: add new samus sprites
 - DONE: rework map tiles (global pause tileset, and room-local mini-map tilesets)
 - DONE: investigate unnecessary scroll bars showing up in Chrome in logic pages.
 - DONE: fix sand hole start locations.

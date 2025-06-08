@@ -461,6 +461,7 @@ impl<'a> Patcher<'a> {
             "horizontal_door_fix",
             "samus_tiles_optim_animated_tiles_fix",
             "sand_clamp",
+            "transition_reveal",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -577,7 +578,14 @@ impl<'a> Patcher<'a> {
         }
 
         match self.settings.quality_of_life_settings.fanfares {
-            Fanfares::Vanilla => {}
+            Fanfares::Vanilla => {
+                if !self.settings.other_settings.ultra_low_qol {
+                    // This is needed only if fast saves are enabled
+                    // (which is currently always except with ultra-low QoL)
+                    // It's important that it be applied after `fast_saves`` since it overrides the same hook point.
+                    patches.push("vanilla_fanfare_stop_sounds");
+                }
+            }
             Fanfares::Trimmed => {
                 // reduce fanfare dialogue box duration (240 frames)
                 self.rom.write_u16(snes2pc(0x858491), 0xF0)?;
@@ -699,13 +707,32 @@ impl<'a> Patcher<'a> {
         asm: &mut Vec<u8>,
         explore: bool,
     ) -> Result<()> {
-        let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+        let (area_offset, bitmask) = xy_to_explored_bit_ptr(x, y);
+        let offset = area_offset + (tile_area as isize) * 0x100;
+        let map_reveal_func = 0x8FEDC0;
 
-        // Mark as revealed (which will persist after deaths/reloads):
-        let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
-        asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
-        asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
-        asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+        // LDX #{offset}
+        asm.extend([0xA2, (offset & 0xFF) as u8, (offset >> 8) as u8]);
+        // LDA #{bitmask}
+        asm.extend([0xA9, bitmask, 0x00]);
+        // JSR reveal_tile
+        asm.extend([
+            0x20,
+            (map_reveal_func & 0xFF) as u8,
+            (map_reveal_func >> 8) as u8,
+        ]);
+
+        // // // Mark as partially revealed (which will persist after deaths/reloads):
+        // // let addr = 0x2700 + (tile_area as isize) * 0x100 + offset;
+        // // asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+        // // asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+        // // asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
+
+        // // Mark as revealed (which will persist after deaths/reloads):
+        // let addr = 0x2000 + (tile_area as isize) * 0x100 + offset;
+        // asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // LDA $70:{addr}
+        // asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
+        // asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x70]); // STA $70:{addr}
 
         // Mark as explored (for elevators. Not needed for area transition arrows/letters except in ultra-low QoL mode):
         if explore {
@@ -713,7 +740,7 @@ impl<'a> Patcher<'a> {
                 // We want to write an explored bit to the current area's map, so we have to write it to
                 // the temporary copy at 0x07F7 (otherwise it wouldn't take effect and would just be overwritten
                 // on the next map reload).
-                let addr = 0x07F7 + offset;
+                let addr = 0x07F7 + area_offset;
                 asm.extend([0xAD, (addr & 0xFF) as u8, (addr >> 8) as u8]); // LDA {addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8D, (addr & 0xFF) as u8, (addr >> 8) as u8]); // STA {addr}
@@ -721,7 +748,7 @@ impl<'a> Patcher<'a> {
                 // We want to write an explored bit to a different area's map, so we have to write it to
                 // the main explored bits at 0x7ECD52 (which will get copied over to 0x07F7 on the map reload
                 // when entering the different area).
-                let addr = 0xCD52 + tile_area as isize * 0x100 + offset;
+                let addr = 0xCD52 + offset;
                 asm.extend([0xAF, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]); // LDA $7E:{addr}
                 asm.extend([0x09, bitmask, 0x00]); // ORA #{bitmask}
                 asm.extend([0x8F, (addr & 0xFF) as u8, (addr >> 8) as u8, 0x7E]);
@@ -947,6 +974,11 @@ impl<'a> Patcher<'a> {
             // Reserve 3 bytes for the JMP instruction to the original ASM (if applicable, or RTS otherwise):
             door_asm_free_space += asm.len() + 3;
         }
+        info!(
+            "door_asm_free_space used: {:x}/{:x}",
+            door_asm_free_space - 0xEE10,
+            0xF600 - 0xEE10
+        );
         assert!(door_asm_free_space <= 0xF600);
         Ok(extra_door_asm_map)
     }
@@ -2407,33 +2439,34 @@ impl<'a> Patcher<'a> {
     }
 
     fn write_walljump_item_graphics(&mut self) -> Result<()> {
-        let f = 0xF;
+        let b = 0x8;
+        let w = 0xc;
         let frame_1: [[u8; 16]; 16] = [
-            [0, 0, 0, f, f, f, f, f, f, f, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, f, 4, 4, 5, 6, 6, f, f, f, f, 0, 0, 0],
-            [0, 0, 0, f, 4, 5, 6, 6, f, f, 6, 4, f, 0, 0, 0],
-            [0, 0, 0, f, 5, 6, 6, f, f, 6, 4, 5, f, 0, 0, 0],
-            [0, 0, 0, f, 5, 6, f, f, 6, 4, 5, f, f, 0, 0, 0],
-            [0, 0, 0, f, 6, 6, f, 6, 4, 5, 6, f, 0, 0, 0, 0],
-            [0, 0, f, f, f, f, 6, f, 6, 5, f, 0, 0, 0, 0, 0],
-            [0, 0, f, 5, 6, 6, f, 6, f, 6, f, 0, 0, 0, 0, 0],
-            [0, 0, f, 4, 5, 6, f, 5, 6, f, f, 0, 0, 0, 0, 0],
-            [0, 0, f, f, 6, 5, f, 6, f, f, 0, 0, 0, 0, 0, 0],
-            [0, f, 6, f, f, 5, f, f, f, 6, f, 0, 0, 0, 0, 0],
-            [f, f, 6, 6, f, f, f, 6, 4, 5, f, f, 0, 0, 0, 0],
-            [f, 6, 6, 4, 6, f, 6, 6, 6, 6, 6, 6, f, f, 0, 0],
-            [f, 6, 4, 4, 6, f, 5, 5, 5, 4, 4, 4, 5, 5, f, f],
-            [f, 6, 5, 5, 6, f, f, f, 6, 6, 6, 6, 6, 6, 6, f],
-            [f, f, f, f, f, 0, 0, 0, f, f, f, f, f, f, f, f],
+            [0, 0, 0, b, b, b, b, b, b, b, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, b, 4, 4, 5, 6, 6, b, b, b, b, 0, 0, 0],
+            [0, 0, 0, b, 4, 5, 6, 6, b, b, 6, 4, b, 0, 0, 0],
+            [0, 0, 0, b, 5, 6, 6, b, b, 6, 4, 5, b, 0, 0, 0],
+            [0, 0, 0, b, 5, 6, b, b, 6, 4, 5, b, b, 0, 0, 0],
+            [0, 0, 0, b, 6, 6, b, 6, 4, 5, 6, b, 0, 0, 0, 0],
+            [0, 0, b, b, b, b, 6, b, 6, 5, b, 0, 0, 0, 0, 0],
+            [0, 0, b, 5, 6, 6, b, 6, b, 6, b, 0, 0, 0, 0, 0],
+            [0, 0, b, 4, 5, 6, b, 5, 6, b, b, 0, 0, 0, 0, 0],
+            [0, 0, b, b, 6, 5, b, 6, b, b, 0, 0, 0, 0, 0, 0],
+            [0, b, 6, b, b, 5, b, b, b, 6, b, 0, 0, 0, 0, 0],
+            [b, b, 6, 6, b, b, b, 6, 4, 5, b, b, 0, 0, 0, 0],
+            [b, 6, 6, 4, 6, b, 6, 6, 6, 6, 6, 6, b, b, 0, 0],
+            [b, 6, 4, 4, 6, b, 5, 5, 5, 4, 4, 4, 5, 5, b, b],
+            [b, 6, 5, 5, 6, b, b, b, 6, 6, 6, 6, 6, 6, 6, b],
+            [b, b, b, b, b, 0, 0, 0, b, b, b, b, b, b, b, b],
         ];
         let frame_2 = frame_1.map(|row| {
             row.map(|x| match x {
-                4 => 0xb,
+                4 => w,
                 5 => 4,
                 6 => 5,
                 7 => 6,
-                0xf => 7,
-                y => y,
+                x if x == b => 7,
+                x => x,
             })
         });
         let frames: [[[u8; 16]; 16]; 2] = [frame_1, frame_2];

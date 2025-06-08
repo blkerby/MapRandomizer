@@ -178,7 +178,6 @@ async fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
         .format_timestamp_millis()
         .init();
-
     let app_data = actix_web::web::Data::new(build_app_data());
 
     let port = app_data.port;

@@ -92,6 +92,10 @@ async fn randomize(
         }
     };
 
+    if settings.other_settings.random_seed == Some(0) {
+        return HttpResponse::BadRequest().body("Invalid random seed: 0");
+    }
+
     let mut validated_preset = false;
     for s in &app_data.preset_data.full_presets {
         if s == &settings {

@@ -43,7 +43,7 @@
                             value="{{+ name }}"
                             onclick="itemProgressionChanged()"
                             autocomplete="off"
-                            {% if name == "Neutral"|as_ref %}
+                            {% if name == &"Neutral" %}
                             checked
                             {% endif %}>
                         <label class="btn btn-outline-primary" for="itemPlacementStyle{{+ name }}">{{+ name }}</label>
@@ -67,7 +67,7 @@
                             value="{{+ name }}"
                             onclick="itemProgressionChanged()"
                             autocomplete="off"
-                            {% if name == "Moderate"|as_ref %}
+                            {% if name == &"Moderate" %}
                             checked
                             {% endif %}>
                         <label class="btn btn-outline-primary" for="itemPriorityStrength{{+ name }}">{{+ name }}</label>
@@ -84,7 +84,7 @@
                     </div>
                     <div id="randomTank" class="col-lg-2 btn-group m-2" role="group">
                         {% for name in ["No", "Yes"] %}
-                        {% let value = name == "Yes"|as_ref %}
+                        {% let value = name == &"Yes" %}
                         <input type="radio"
                             class="btn-check" 
                             name="random_tank" 
@@ -92,7 +92,7 @@
                             value="{{+ value }}"
                             onclick="itemProgressionChanged()"
                             autocomplete="off"
-                            {% if name == "Yes"|as_ref %}
+                            {% if name == &"Yes" %}
                             checked
                             {% endif %}>
                         <label class="btn btn-outline-primary" for="randomTank{{+ name }}">{{+ name }}</label>
@@ -109,7 +109,7 @@
                     </div>
                     <div id="spazerBeforePlasma" class="col-lg-2 btn-group m-2" role="group">
                         {% for name in ["No", "Yes"] %}
-                        {% let value = name == "Yes"|as_ref %}
+                        {% let value = name == &"Yes" %}
                         <input type="radio"
                             class="btn-check" 
                             name="spazer_before_plasma" 
@@ -117,7 +117,7 @@
                             value="{{+ value }}"
                             onclick="itemProgressionChanged()"
                             autocomplete="off"
-                            {% if name == "Yes"|as_ref %}
+                            {% if name == &"Yes" %}
                             checked
                             {% endif %}>
                         <label class="btn btn-outline-primary" for="spazerBeforePlasma{{+ name }}">{{+ name }}</label>
@@ -174,7 +174,7 @@
                                     </div>
                                     <div id="stopItemPlacementEarly" class="col-lg-2 btn-group m-2" role="group">
                                         {% for name in ["No", "Yes"] %}
-                                        {% let value = name == "Yes"|as_ref %}
+                                        {% let value = name == &"Yes" %}
                                         <input type="radio"
                                             class="btn-check" 
                                             name="stop_item_placement_early"
@@ -182,7 +182,7 @@
                                             value="{{+ value }}"
                                             onclick="itemPoolChanged()"
                                             autocomplete="off"
-                                            {% if name == "No"|as_ref %}
+                                            {% if name == &"No" %}
                                             checked
                                             {% endif %}>
                                         <label class="btn btn-outline-primary" for="stopItemPlacementEarly{{+ name }}">{{+ name }}</label>
@@ -280,7 +280,7 @@
                                                 <input type="radio" class="btn-check item-priority-input" name="item_priority_{{+ item }}" value="{{+ priority }}"
                                                     id="itemPriority{{+ item }}{{+ priority }}" autocomplete="off" 
                                                     onclick="itemProgressionChanged()"
-                                                    {% if priority == "Default"|as_ref %}
+                                                    {% if priority == &"Default" %}
                                                     checked
                                                     {% endif %}>
                                                 <label class="btn btn-outline-primary" for="itemPriority{{+ item }}{{+ priority }}">{{+ priority }}</label>
@@ -310,7 +310,7 @@
                                                 id="fillerItems{{+ item }}No" autocomplete="off" 
                                                 onclick="itemProgressionChanged()">
                                             <label class="btn btn-outline-primary" for="fillerItems{{+ item }}No">No</label>
-                                            {% if ["Super", "PowerBomb", "ETank", "ReserveTank"].contains(item.as_str()|as_ref) %}
+                                            {% if ["Super", "PowerBomb", "ETank", "ReserveTank"].contains(&item.as_str()) %}
                                             <input type="radio" class="btn-check filler-items-input" name="filler_items_{{+ item }}" value="Semi"
                                                 id="fillerItems{{+ item }}Semi" autocomplete="off" 
                                                 onclick="itemProgressionChanged()">

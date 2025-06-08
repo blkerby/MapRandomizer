@@ -6,6 +6,7 @@
         <video id="video" width=100% controls style="image-rendering: pixelated;">
           <source id="videoSource">
         </video>
+        <div id="video-note"></div>
       </div>
     </div>
   </div>
@@ -61,7 +62,14 @@
     video.load();
     video.play();
   }
-  function selectVideo(roomId, stratId, videoId) {
+  function startVideoByIds(mp4Url, roomId, stratId) {
+    console.log("startVideoByIds: ", mp4Url, roomId, stratId);
+    var tooltipEl = document.getElementById(`video-png-${roomId}-${stratId}`);
+    var videoNoteHtml = tooltipEl.getAttribute("data-bs-title");
+    document.getElementById("video-note").innerHTML = videoNoteHtml;
+    startVideo(mp4Url);
+  }
+  function selectVideo(roomId, stratId, videoId, idx) {
     let aEl = document.getElementById(`video-a-${roomId}-${stratId}`);
     let pngEl = document.getElementById(`video-png-${roomId}-${stratId}`);
     let webpEl = document.getElementById(`video-webp-${roomId}-${stratId}`);
@@ -70,9 +78,21 @@
     let pngUrl = `{{ video_storage_url }}/png/${videoId}.png`;
     let webpUrl = `{{ video_storage_url }}/webp/${videoId}.webp`;
 
-    aEl.onclick = function() { startVideo(mp4Url) };
+    aEl.onclick = function() { startVideoByIds(mp4Url, roomId, stratId, idx) };
     pngEl.src = pngUrl;
     webpEl.src = webpUrl;
+
+    var tooltipEl = document.getElementById(`video-label-${roomId}-${stratId}-${idx}`);
+    var tooltipHtml = tooltipEl.getAttribute("data-bs-title");
+    pngEl.setAttribute("data-bs-title", tooltipHtml);
+    if (tooltipHtml == "") {
+      let inst = bootstrap.Tooltip.getInstance(pngEl);
+      if (inst != null) {
+        inst.disable();
+      }
+    } else {
+      new bootstrap.Tooltip(pngEl);
+    }
   }
   function initTooltips() {
     const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')

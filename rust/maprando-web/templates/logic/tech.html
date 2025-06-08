@@ -11,6 +11,7 @@
 <meta property="og:image:type" content="image/png">
 <meta property="og:image" content="{{ video_storage_url }}/png/{{ video_id }}.png">
 {% endif %}
+<link rel="stylesheet" href="/static/logic_style.css">
 </head>
 <body>
 {% include "../common/navbar.html" %}
@@ -22,33 +23,17 @@ document.getElementById("navigation-logic").classList.add("active");
 
 <div class="container col-xl-10 col-xxl-8 pb-4">
     <h3 class="my-2">{{+ tech_name +}} ({{+ tech_difficulty_name }})</h3>
-    <style>
-    html[data-bs-theme=dark] .tech-row:hover {
-        background-color: #2b3035;
-    }
-    html[data-bs-theme=light] .tech-row:hover {
-        background-color: #f4f5f6;
-    }
-    .png-tech {
-        position: absolute;
-    }
-    .tech-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:not(:hover) .gif-tech {
-        opacity: 0;
-    }
+    <style id="dev-note-style">
+        .dev-note {
+            display: none;
+        }
     </style>
-
     <div class="row tech-row">
         <div class="text-center col-sm-4 col-md-3 col-lg-2 p-3">
-            {% let tech_name = tech_name|as_ref %}
+            {% let tech_name = &tech_name %}
             {% if tech_video_id.is_some() %}
             {% let video_id = tech_video_id.unwrap() %}
-            {% let video_storage_url = video_storage_url|as_ref %}
+            {% let video_storage_url = &video_storage_url %}
             {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
             {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
             {% let mp4_url = format!("{}/mp4/{}.mp4", video_storage_url, video_id) %}
@@ -131,13 +116,11 @@ function presetChanged() {
 
 function devNotesSettingChanged() {
     let showDevNotes = document.getElementById("showDevNotesYes").checked;
-    var els = document.getElementsByClassName("dev-note");
-    for (let el of els) {
-        if (showDevNotes) {
-            el.classList.remove("d-none");
-        } else {
-            el.classList.add("d-none");
-        }
+    let style = document.getElementById("dev-note-style");
+    if (showDevNotes) {
+        style.innerHTML = ".non-dev-note { display: none }";
+    } else {
+        style.innerHTML = ".dev-note { display: none }";
     }
     saveForm(document.getElementById("logicPageSettingsForm"));
 }

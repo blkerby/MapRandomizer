@@ -3400,6 +3400,20 @@
             "enabled": false
         },
         {
+            "room_id": 142,
+            "notable_id": 2,
+            "room_name": "Ridley's Room",
+            "notable_name": "G-Mode Crystal Flash Stuck Ridley",
+            "enabled": false
+        },
+        {
+            "room_id": 142,
+            "notable_id": 3,
+            "room_name": "Ridley's Room",
+            "notable_name": "G-Mode Ridley with 30 Supers",
+            "enabled": false
+        },
+        {
             "room_id": 156,
             "notable_id": 1,
             "room_name": "Basement",
