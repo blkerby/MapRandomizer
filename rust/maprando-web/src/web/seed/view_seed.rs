@@ -27,6 +27,7 @@ struct CustomizeSeedTemplate {
     etank_colors: Vec<Vec<String>>,
     mosaic_themes: Vec<MosaicTheme>,
     race_mode: bool,
+    mark_map_stations: bool,
 }
 
 #[get("/{name}")]
@@ -93,7 +94,12 @@ async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> 
                 samus_sprite_categories: app_data.samus_sprite_categories.clone(),
                 etank_colors: app_data.etank_colors.clone(),
                 mosaic_themes: app_data.mosaic_themes.clone(),
-                race_mode: settings.is_none_or(|settings| settings.other_settings.race_mode),
+                race_mode: settings
+                    .as_ref()
+                    .is_none_or(|settings| settings.other_settings.race_mode),
+                mark_map_stations: settings
+                    .as_ref()
+                    .is_none_or(|settings| settings.quality_of_life_settings.mark_map_stations),
             };
             // We use a no-cache directive to prevent problems when we change the JavaScript.
             // Probably better would be to properly version the JS and control cache that way.
