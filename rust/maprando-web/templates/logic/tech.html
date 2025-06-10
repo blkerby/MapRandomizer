@@ -83,14 +83,6 @@ document.getElementById("navigation-logic").classList.add("active");
     </form>
 
     <h3>Strats (<span id="stratCount"></span>)</h3>
-    <style>
-    html[data-bs-theme=dark] .table {
-        --bs-table-hover-bg: #2b3035;
-    }
-    html[data-bs-theme=light] .table {
-        --bs-table-hover-bg: #f4f5f6;
-    }
-    </style>
     <table class="table table-hover mb-0">
     <tbody>
     {% for strat in strats %}
