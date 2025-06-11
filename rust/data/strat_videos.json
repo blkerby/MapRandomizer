@@ -4665,6 +4665,14 @@
   },
   {
     "room_id": 32,
+    "strat_id": 111,
+    "video_id": 6461,
+    "created_user": "Sam",
+    "note": "Through the Bridge",
+    "dev_note": "TODO: investigate whether it is possible to bring a frozen Zeb up without Morph, maybe with a G-mode door stuck X-ray climb with Wave to be able to refreeze"
+  },
+  {
+    "room_id": 32,
     "strat_id": 114,
     "video_id": 321,
     "created_user": "Osse101",
@@ -11545,6 +11553,14 @@
   },
   {
     "room_id": 84,
+    "strat_id": 34,
+    "video_id": 6505,
+    "created_user": "Sam",
+    "note": "X-Mode",
+    "dev_note": ""
+  },
+  {
+    "room_id": 84,
     "strat_id": 11,
     "video_id": 5777,
     "created_user": "Sam",
@@ -16817,19 +16833,19 @@
   },
   {
     "room_id": 120,
-    "strat_id": 84,
+    "strat_id": 94,
     "video_id": 2987,
     "created_user": "Sam",
-    "note": "With Morph and Bombs. When Samus start going uphill, exit G-Mode and cross the spike patch. Bomb jump above the remaining speed blocks and fix the camera by rolling around. Avoid the enemies are kill them to cross the room.",
-    "dev_note": "FIXME: Add this variant to logic."
+    "note": "With Bombs",
+    "dev_note": ""
   },
   {
     "room_id": 120,
-    "strat_id": 84,
+    "strat_id": 94,
     "video_id": 2988,
     "created_user": "Sam",
-    "note": "With Morph and Springball. When Samus start going uphill, exit G-Mode and cross the spike patch. Cross the remaining speed blocks with springball jumps and fix the camera by rolling around. Avoid the enemies are kill them to cross the room.",
-    "dev_note": "FIXME: Add this variant to logic."
+    "note": "With SpringBall",
+    "dev_note": ""
   },
   {
     "room_id": 111,
@@ -16845,6 +16861,14 @@
     "video_id": 4884,
     "created_user": "Sam",
     "note": "Super Backup",
+    "dev_note": ""
+  },
+  {
+    "room_id": 111,
+    "strat_id": 45,
+    "video_id": 6385,
+    "created_user": "Sam",
+    "note": "Sova Farm, with Super.",
     "dev_note": ""
   },
   {
@@ -16965,6 +16989,22 @@
     "video_id": 4895,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 111,
+    "strat_id": 46,
+    "video_id": 5189,
+    "created_user": "Sam",
+    "note": "Sova Farm",
+    "dev_note": ""
+  },
+  {
+    "room_id": 111,
+    "strat_id": 46,
+    "video_id": 6386,
+    "created_user": "Sam",
+    "note": "Double Sova Farm",
     "dev_note": ""
   },
   {
@@ -17650,10 +17690,10 @@
   {
     "room_id": 108,
     "strat_id": 63,
-    "video_id": 1991,
+    "video_id": 6350,
     "created_user": "Sam",
-    "note": "Let the Sovas walk away then after the morph tunnel, leave G-Mode. Clear the shot blocks by shooting against them then make your way up blindly to the door.",
-    "dev_note": "FIXME: Add this, exit G-Mode to fix the camera and prevent blind movement"
+    "note": "Slow variant, wait for Sovas",
+    "dev_note": ""
   },
   {
     "room_id": 108,
@@ -17685,6 +17725,14 @@
     "video_id": 1990,
     "created_user": "Sam",
     "note": "With Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 70,
+    "video_id": 1991,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -17918,6 +17966,14 @@
     "created_user": "Sam",
     "note": "Horizontal Bomb Jump",
     "dev_note": "Caveat: The HBJ was missed, but it was a really good first boost, so it didn't matter. "
+  },
+  {
+    "room_id": 110,
+    "strat_id": 24,
+    "video_id": 5180,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 122,

@@ -49,10 +49,11 @@ v118:
 - DONE: fix wall jump boots palette
 - DONE: fix issue with vanilla item fanfare + fast save
 - DONE: implement ridleyKill logical requirement.
-- hovering over tech video: does not animate.
-- pull in updated logic
+- DONE: hovering over tech video: does not animate.
+- DONE: pull in updated logic
 - DONE: fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
 - mosaic:
+  - fix bg graphics in OuterCrateria-themed WS Entrance
   - toilet appearing in botwoon hallway (LN theme)
   - DONE: fireflea brightness
 - DONE: show collectsItems in logic page
