@@ -2,7 +2,9 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
-use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::customize::{
+    customize_rom, ControllerConfig, CustomizeSettings, MusicSettings, Overrides,
+};
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
@@ -273,10 +275,10 @@ fn main() -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
-        override_item_dot_change: None,
-        override_transition_letters: None,
-        override_door_locks_size: None,
-        override_mark_map_stations: None,
+        item_dot_change: None,
+        transition_letters: None,
+        door_locks_size: None,
+        overrides: Overrides::default(),
     };
     customize_rom(
         &mut output_rom,

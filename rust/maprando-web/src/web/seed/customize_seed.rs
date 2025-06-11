@@ -9,8 +9,8 @@ use log::info;
 use maprando::{
     customize::{
         customize_rom, parse_controller_button, ControllerButton, ControllerConfig,
-        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
-        TileTheme,
+        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, Overrides, PaletteTheme,
+        ShakingSetting, TileTheme,
     },
     patch::{make_rom, Rom},
     randomize::Randomization,
@@ -68,9 +68,12 @@ struct CustomizeRequest {
     quick_reload_select: Option<Text<String>>,
     quick_reload_start: Option<Text<String>>,
     moonwalk: Text<bool>,
-    override_item_dot_change: Text<String>,
-    override_transition_letters: Text<String>,
-    override_door_locks_size: Text<String>,
+    // item_dot_change, transition_letters, and door_locks_size are prefixed with "customize_" to
+    // distinguish them from the same options in the RandomizerSettings (settings from the generate
+    // page).
+    customize_item_dot_change: Text<String>,
+    customize_transition_letters: Text<String>,
+    customize_door_locks_size: Text<String>,
     override_mark_map_stations: Text<String>,
 }
 
@@ -140,6 +143,25 @@ async fn customize_seed(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
+    let overrides = if settings
+        .as_ref()
+        .is_none_or(|settings| settings.other_settings.race_mode)
+    {
+        Overrides {
+            mark_map_stations: match req.override_mark_map_stations.0.as_str() {
+                "Unchanged" => None,
+                "false" => Some(false),
+                "true" => Some(true),
+                _ => panic!(
+                    "Unexpected override mark map stations option: {}",
+                    req.override_mark_map_stations.0.as_str()
+                ),
+            },
+        }
+    } else {
+        Overrides::default()
+    };
+
     let customize_settings = CustomizeSettings {
         samus_sprite: if ultra_low_qol
             && req.samus_sprite.0 == "samus_vanilla"
@@ -207,42 +229,34 @@ async fn customize_seed(
             quick_reload_buttons: get_quick_reload_buttons(&req),
             moonwalk: req.moonwalk.0,
         },
-        override_item_dot_change: match req.override_item_dot_change.0.as_str() {
+        item_dot_change: match req.customize_item_dot_change.0.as_str() {
             "Unchanged" => None,
             "Fade" => Some(ItemDotChange::Fade),
             "Disappear" => Some(ItemDotChange::Disappear),
             _ => panic!(
-                "Unexpected override item dot change option: {}",
-                req.override_item_dot_change.0.as_str()
+                "Unexpected customize item dot change option: {}",
+                req.customize_item_dot_change.0.as_str()
             ),
         },
-        override_transition_letters: match req.override_transition_letters.0.as_str() {
+        transition_letters: match req.customize_transition_letters.0.as_str() {
             "Unchanged" => None,
             "Arrows" => Some(false),
             "Letters" => Some(true),
             _ => panic!(
-                "Unexpected override transition letters option: {}",
-                req.override_transition_letters.0.as_str()
+                "Unexpected customize transition letters option: {}",
+                req.customize_transition_letters.0.as_str()
             ),
         },
-        override_door_locks_size: match req.override_door_locks_size.0.as_str() {
+        door_locks_size: match req.customize_door_locks_size.0.as_str() {
             "Unchanged" => None,
             "Small" => Some(DoorLocksSize::Small),
             "Large" => Some(DoorLocksSize::Large),
             _ => panic!(
-                "Unexpected override door locks size option: {}",
-                req.override_door_locks_size.0.as_str()
+                "Unexpected customize door locks size option: {}",
+                req.customize_door_locks_size.0.as_str()
             ),
         },
-        override_mark_map_stations: match req.override_mark_map_stations.0.as_str() {
-            "Unchanged" => None,
-            "false" => Some(false),
-            "true" => Some(true),
-            _ => panic!(
-                "Unexpected override mark map stations option: {}",
-                req.override_mark_map_stations.0.as_str()
-            ),
-        },
+        overrides,
     };
 
     if let Some((mut settings, randomization)) = settings.zip(randomization) {

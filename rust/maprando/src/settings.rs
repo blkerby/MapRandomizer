@@ -22,19 +22,30 @@ pub struct RandomizerSettings {
 }
 impl RandomizerSettings {
     pub fn apply_overrides(&mut self, customize_settings: &CustomizeSettings) {
-        match customize_settings.override_item_dot_change {
+        // Should the item_dot_change, transition_letters, and door_locks_size settings be fully
+        // removed from the RandomizerSettings struct? This will make it so RandomizerSettings has
+        // only settings chosen on the generate page and CustomizeSettings only has settings chosen
+        // on the customize page, which was the case before these options were moved to the
+        // customize page. It will also clean up this method by getting rid of these three options
+        // and leaving only the actual overridden options. However, it seems these three options are
+        // heavily integrated into the make_rom step, which only takes RandomizerSettings. So to
+        // fully move these three options to CustomizeSettings, either make_rom will need to be
+        // modified to take both RandomizerSettings and CustomizeSettings, or both make_rom and
+        // customize_rom will need to be refactored so the patches related to these three options
+        // now occur in customize_rom.
+        match customize_settings.item_dot_change {
             Some(ItemDotChange::Fade) => self.other_settings.item_dot_change = ItemDotChange::Fade,
             Some(ItemDotChange::Disappear) => {
                 self.other_settings.item_dot_change = ItemDotChange::Disappear
             }
             None => {}
         }
-        match customize_settings.override_transition_letters {
+        match customize_settings.transition_letters {
             Some(false) => self.other_settings.transition_letters = false,
             Some(true) => self.other_settings.transition_letters = true,
             None => {}
         }
-        match customize_settings.override_door_locks_size {
+        match customize_settings.door_locks_size {
             Some(DoorLocksSize::Small) => {
                 self.other_settings.door_locks_size = DoorLocksSize::Small
             }
@@ -45,7 +56,7 @@ impl RandomizerSettings {
         }
 
         if !self.other_settings.race_mode {
-            match customize_settings.override_mark_map_stations {
+            match customize_settings.overrides.mark_map_stations {
                 Some(false) => self.quality_of_life_settings.mark_map_stations = false,
                 Some(true) => self.quality_of_life_settings.mark_map_stations = true,
                 None => {}
