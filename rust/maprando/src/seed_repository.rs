@@ -112,8 +112,6 @@ impl SeedRepository {
         let path = object_store::path::Path::parse(full_src_prefix.clone())?;
         self.object_store
             .list(Some(&path))
-            .await
-            .unwrap()
             .for_each_concurrent(64, |meta| {
                 async {
                     let meta = meta.unwrap();
@@ -129,7 +127,7 @@ impl SeedRepository {
                         .bytes()
                         .await
                         .unwrap();
-                    self.object_store.put(&dst_path, data).await.unwrap();
+                    self.object_store.put(&dst_path, data.into()).await.unwrap();
                     self.object_store.delete(&meta.location).await.unwrap();
                     // Note: Instead of get+put+delete, we could use "rename" (or copy+delete) but it doesn't work with the local filesystem implementation.
                 }
