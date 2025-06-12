@@ -27,7 +27,7 @@ slice-of-array = "0.3.2"
 pathfinding = "4.2.1"
 env_logger = "0.10.0"
 log = "0.4.17"
-object_store = { version = "0.6.1", features = ["gcp"] }
+object_store = { version = "0.10.2", features=["aws", "gcp"] }
 futures = "0.3.25"
 zstd = "0.12.2"
 crypto-hash = "0.3.4"

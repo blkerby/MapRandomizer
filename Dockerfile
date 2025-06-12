@@ -53,7 +53,7 @@ RUN python3 scripts/build_ips.py --assembler-path=/asar/asar/bin/asar --verify
 # Now restart with a slim base image and just copy over the binary and data needed at runtime.
 FROM debian:bullseye-slim
 RUN apt-get update && apt-get install -y \
-    libssl1.1 \
+    libssl1.1 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY maps/vanilla /maps/vanilla
 COPY patches /patches
