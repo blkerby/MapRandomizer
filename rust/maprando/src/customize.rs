@@ -153,9 +153,9 @@ pub struct CustomizeSettings {
     pub shaking: ShakingSetting,
     pub flashing: FlashingSetting,
     pub controller_config: ControllerConfig,
-    pub item_dot_change: Option<ItemDotChange>,
-    pub transition_letters: Option<bool>,
-    pub door_locks_size: Option<DoorLocksSize>,
+    pub item_dot_change: ItemDotChange,
+    pub transition_letters: bool,
+    pub door_locks_size: DoorLocksSize,
     pub overrides: Overrides,
 }
 

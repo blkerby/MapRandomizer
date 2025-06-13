@@ -138,15 +138,6 @@ impl<'a> SeedHeaderTemplate<'a> {
             }
             AreaAssignment::Standard => {}
         }
-        if self.settings.other_settings.item_dot_change == ItemDotChange::Disappear {
-            game_variations.push("Item dots disappear after collection");
-        }
-        if !self.settings.other_settings.transition_letters {
-            game_variations.push("Area transitions marked as arrows");
-        }
-        if self.settings.other_settings.door_locks_size == DoorLocksSize::Small {
-            game_variations.push("Door locks drawn smaller on map");
-        }
         match self.settings.other_settings.wall_jump {
             WallJump::Collectible => {
                 game_variations.push("Collectible wall jump");

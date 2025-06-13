@@ -14,8 +14,8 @@ use maprando::randomize::{
     Randomization, Randomizer, SpoilerLog,
 };
 use maprando::settings::{
-    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
-    SkillAssumptionSettings, StartLocationMode,
+    AreaAssignment, DoorLocksSize, ItemDotChange, ItemProgressionSettings, QualityOfLifeSettings,
+    RandomizerSettings, SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando_game::GameData;
@@ -240,9 +240,9 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
             false => maprando::customize::FlashingSetting::Vanilla,
         },
         controller_config: ControllerConfig::default(),
-        item_dot_change: None,
-        transition_letters: None,
-        door_locks_size: None,
+        item_dot_change: ItemDotChange::Fade,
+        transition_letters: true,
+        door_locks_size: DoorLocksSize::Large,
         overrides: Overrides::default(),
     };
 
@@ -273,9 +273,9 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
-        item_dot_change: None,
-        transition_letters: None,
-        door_locks_size: None,
+        item_dot_change: ItemDotChange::Fade,
+        transition_letters: true,
+        door_locks_size: DoorLocksSize::Large,
         overrides: Overrides::default(),
     };
     customize_rom(

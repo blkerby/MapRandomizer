@@ -72,7 +72,7 @@ struct CustomizeRequest {
     // distinguish them from the same options in the RandomizerSettings (settings from the generate
     // page).
     customize_item_dot_change: Text<String>,
-    customize_transition_letters: Text<String>,
+    customize_transition_letters: Text<bool>,
     customize_door_locks_size: Text<String>,
     override_mark_map_stations: Text<String>,
 }
@@ -230,27 +230,17 @@ async fn customize_seed(
             moonwalk: req.moonwalk.0,
         },
         item_dot_change: match req.customize_item_dot_change.0.as_str() {
-            "Unchanged" => None,
-            "Fade" => Some(ItemDotChange::Fade),
-            "Disappear" => Some(ItemDotChange::Disappear),
+            "Fade" => ItemDotChange::Fade,
+            "Disappear" => ItemDotChange::Disappear,
             _ => panic!(
                 "Unexpected customize item dot change option: {}",
                 req.customize_item_dot_change.0.as_str()
             ),
         },
-        transition_letters: match req.customize_transition_letters.0.as_str() {
-            "Unchanged" => None,
-            "Arrows" => Some(false),
-            "Letters" => Some(true),
-            _ => panic!(
-                "Unexpected customize transition letters option: {}",
-                req.customize_transition_letters.0.as_str()
-            ),
-        },
+        transition_letters: req.customize_transition_letters.0,
         door_locks_size: match req.customize_door_locks_size.0.as_str() {
-            "Unchanged" => None,
-            "Small" => Some(DoorLocksSize::Small),
-            "Large" => Some(DoorLocksSize::Large),
+            "Small" => DoorLocksSize::Small,
+            "Large" => DoorLocksSize::Large,
             _ => panic!(
                 "Unexpected customize door locks size option: {}",
                 req.customize_door_locks_size.0.as_str()

@@ -33,33 +33,13 @@ impl RandomizerSettings {
         // modified to take both RandomizerSettings and CustomizeSettings, or both make_rom and
         // customize_rom will need to be refactored so the patches related to these three options
         // now occur in customize_rom.
-        match customize_settings.item_dot_change {
-            Some(ItemDotChange::Fade) => self.other_settings.item_dot_change = ItemDotChange::Fade,
-            Some(ItemDotChange::Disappear) => {
-                self.other_settings.item_dot_change = ItemDotChange::Disappear
-            }
-            None => {}
-        }
-        match customize_settings.transition_letters {
-            Some(false) => self.other_settings.transition_letters = false,
-            Some(true) => self.other_settings.transition_letters = true,
-            None => {}
-        }
-        match customize_settings.door_locks_size {
-            Some(DoorLocksSize::Small) => {
-                self.other_settings.door_locks_size = DoorLocksSize::Small
-            }
-            Some(DoorLocksSize::Large) => {
-                self.other_settings.door_locks_size = DoorLocksSize::Large
-            }
-            None => {}
-        }
+        self.other_settings.item_dot_change = customize_settings.item_dot_change;
+        self.other_settings.transition_letters = customize_settings.transition_letters;
+        self.other_settings.door_locks_size = customize_settings.door_locks_size;
 
         if !self.other_settings.race_mode {
-            match customize_settings.overrides.mark_map_stations {
-                Some(false) => self.quality_of_life_settings.mark_map_stations = false,
-                Some(true) => self.quality_of_life_settings.mark_map_stations = true,
-                None => {}
+            if let Some(mark_map_stations) = customize_settings.overrides.mark_map_stations {
+                self.quality_of_life_settings.mark_map_stations = mark_map_stations;
             }
         }
     }
