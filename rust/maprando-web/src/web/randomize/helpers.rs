@@ -10,8 +10,8 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
     seed_repository::{Seed, SeedFile},
     settings::{
-        get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
-        ItemDotChange, RandomizerSettings, WallJump,
+        get_objective_groups, AreaAssignment, ETankRefill, FillerItemPriority, RandomizerSettings,
+        WallJump,
     },
     spoiler_map,
 };
