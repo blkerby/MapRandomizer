@@ -216,21 +216,48 @@ draw_full_time:
     ; draw period for hundredths
     lda #$007F
     sta !credits_tilemap_offset+4, y
-    lda #$0064
+    lda #$1770  ; divide by 6000 (hundredths of seconds in a minute)
     sta $12
     lda #$ffff
     sta $1a
-    jsl div32 ;; hundredths of seconds in $14, seconds in $16
+    jsl div32 ;; hundredths of seconds in $14, minutes in $16
 
-    rep 6 : iny ;; Increment Y three positions forward to write the last value
     lda $14
+    ldx #$0064  ;; 100
+    jsr div16 ;; hundredths of seconds in $4216, seconds in $4214
+    lda $004216
+    sta $1c   ;; copy seconds to $1c
+
+    ; draw seconds:
+    lda $004214
     jsl draw_two
+
+    ; draw hundredths of seconds:
+    rep 2 : iny ;; Skip separator
+    lda $1c
+    jsl draw_two
+
+    lda $16
+    ldx #$003c  ;; 60
+    jsr div16  ;; hours in $4216, minutes in $4214
+    lda $004216
+    sta $1c   ;; copy hours to $1c
+
+    ;; Move Y back by 11 characters
     tya
     sec
-    sbc #$0010
-    tay     ;; Skip back 8 characters to draw the top three things
-    lda $16
-    jsl draw_time
+    sbc #$0016
+    tay
+
+    ; draw hours:
+    lda $004214
+    jsl draw_two
+
+    ; draw minutes:
+    rep 2 : iny ;; Skip separator
+    lda $1c
+    jsl draw_two
+
     plb
     plx
     rtl
@@ -328,41 +355,6 @@ inner_loop:
     sta !m32_result+7        ;
     plp
     rts
-
-;; Draw time as xx:yy:zz
-draw_time:
-    phx
-    phb
-    rep 6 : dey ;; Decrement Y by 3 characters so the time count fits
-    pea $7f7f : plb : plb
-    sta $004204
-    sep #$20
-    lda #$ff
-    sta $1a
-    lda #$3c
-    sta $004206
-    pha : pla :  pha : pla : rep #$20
-    lda $004216 ;; Seconds
-    sta $12
-    lda $004214 ;; First two groups (hours & minutes)
-    sta $004204
-    sep #$20
-    lda #$3c
-    sta $004206
-    pha : pla :  pha : pla : rep #$20
-    lda $004216
-    sta $14
-    lda $004214 ;; First group (hours)
-    jsl draw_two
-    iny : iny ;; Skip past separator
-    lda $14 ;; Second group (minutes)
-    jsl draw_two
-    iny : iny
-    lda $12 ;; Last group (seconds)
-    jsl draw_two
-    plb
-    plx
-    rtl
 
 ;; Draw 5-digit value to credits tilemap
 ;; A = number to draw, Y = row address
@@ -498,6 +490,19 @@ write_stats:
     plb
     ply
     rtl
+
+;; 16-bit by 8-bit division
+;; input: A = dividend (16-bit),
+;;        X = divisor (8-bit)   
+;; output: $4214 = quotient (16-bit)
+;;         $4216 = remainder (16-bit)
+div16:
+    sta $004204
+    sep #$20
+    txa
+    sta $004206
+    pha : pla :  pha : pla : rep #$20
+    rts
 
 ;; 32-bit by 16-bit division routine total found somewhere
 ;; ($14$16)/$12 : result in $16, remainder in $14
