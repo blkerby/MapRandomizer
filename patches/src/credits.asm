@@ -256,7 +256,7 @@ draw_full_time:
     rtl
 
 adjust_time_fps:
-    ; multiply frame count by 60 / 60.0988
+    ; multiply frame count by 60 / 60.09881186
     ; input: $14 = high 16-bits of frame count, $16 = low 16-bits of frame count
     ; output: overwrites $14, $16
 
@@ -268,8 +268,8 @@ adjust_time_fps:
     lda $16
     sta !m32_multiplicand
     
-    ; 60 / 60.0988 * 2^32 ~= 0xff9442ef
-    lda #$42ef
+    ; 60 / 60.09881186 * 2^32 ~= 0xff943fa1
+    lda #$3fa1
     sta !m32_multiplier
     lda #$ff94
     sta !m32_multiplier+2
