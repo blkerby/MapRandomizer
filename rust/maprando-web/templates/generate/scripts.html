@@ -268,9 +268,11 @@ function buildSettingsObject() {
         "other_settings": {
             "wall_jump": formData.get("wall_jump"),
             "area_assignment": formData.get("area_assignment"),
-            "item_dot_change": formData.get("item_dot_change"),
-            "transition_letters": formData.get("transition_letters") == "true",
-            "door_locks_size": formData.get("door_locks_size"),
+            // The following three values are irrelevant as they are always overridden by the
+            // corresponding customize options.
+            "item_dot_change": "Fade",
+            "transition_letters": true,
+            "door_locks_size": "Large",
             "maps_revealed": formData.get("maps_revealed"),
             "map_station_reveal": formData.get("map_station_reveal"),
             "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
@@ -488,9 +490,6 @@ function applyFullSettingsPreset(preset) {
     let other = preset.other_settings;
     applyRadioValue("wallJump", other.wall_jump);
     applyRadioValue("areaAssignment", other.area_assignment);
-    applyRadioValue("itemDotChange", other.item_dot_change);
-    applyRadioValue("transitionLetters", other.transition_letters);
-    applyRadioValue("doorLocksSize", other.door_locks_size);
     applyRadioValue("mapsRevealed", other.maps_revealed);
     applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);

@@ -2,7 +2,9 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
-use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::customize::{
+    customize_rom, ControllerConfig, CustomizeSettings, MusicSettings, Overrides,
+};
 use maprando::map_repository::MapRepository;
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
@@ -12,8 +14,8 @@ use maprando::randomize::{
     Randomization, Randomizer, SpoilerLog,
 };
 use maprando::settings::{
-    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
-    SkillAssumptionSettings, StartLocationMode,
+    AreaAssignment, DoorLocksSize, ItemDotChange, ItemProgressionSettings, QualityOfLifeSettings,
+    RandomizerSettings, SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_map;
 use maprando_game::GameData;
@@ -238,6 +240,10 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
             false => maprando::customize::FlashingSetting::Vanilla,
         },
         controller_config: ControllerConfig::default(),
+        item_dot_change: ItemDotChange::Fade,
+        transition_letters: true,
+        door_locks_size: DoorLocksSize::Large,
+        overrides: Overrides::default(),
     };
 
     cust
@@ -267,6 +273,10 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
+        item_dot_change: ItemDotChange::Fade,
+        transition_letters: true,
+        door_locks_size: DoorLocksSize::Large,
+        overrides: Overrides::default(),
     };
     customize_rom(
         &mut output_rom,

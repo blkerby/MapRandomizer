@@ -29,10 +29,6 @@ function migrateValue(name, value) {
             "true": "Full",
             "Yes": "Full"
         },
-        "door_locks_size": {
-            "small": "Small",
-            "large": "Large",
-        },
         "music": {
             "vanilla": "area"
         },

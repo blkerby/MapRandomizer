@@ -2,6 +2,8 @@ use anyhow::Result;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
 
+use crate::customize::CustomizeSettings;
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct RandomizerSettings {
     pub version: usize,
@@ -17,6 +19,30 @@ pub struct RandomizerSettings {
     pub other_settings: OtherSettings,
     #[serde(default)]
     pub debug: bool,
+}
+impl RandomizerSettings {
+    pub fn apply_overrides(&mut self, customize_settings: &CustomizeSettings) {
+        // Should the item_dot_change, transition_letters, and door_locks_size settings be fully
+        // removed from the RandomizerSettings struct? This will make it so RandomizerSettings has
+        // only settings chosen on the generate page and CustomizeSettings only has settings chosen
+        // on the customize page, which was the case before these options were moved to the
+        // customize page. It will also clean up this method by getting rid of these three options
+        // and leaving only the actual overridden options. However, it seems these three options are
+        // heavily integrated into the make_rom step, which only takes RandomizerSettings. So to
+        // fully move these three options to CustomizeSettings, either make_rom will need to be
+        // modified to take both RandomizerSettings and CustomizeSettings, or both make_rom and
+        // customize_rom will need to be refactored so the patches related to these three options
+        // now occur in customize_rom.
+        self.other_settings.item_dot_change = customize_settings.item_dot_change;
+        self.other_settings.transition_letters = customize_settings.transition_letters;
+        self.other_settings.door_locks_size = customize_settings.door_locks_size;
+
+        if !self.other_settings.race_mode {
+            if let Some(mark_map_stations) = customize_settings.overrides.mark_map_stations {
+                self.quality_of_life_settings.mark_map_stations = mark_map_stations;
+            }
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]

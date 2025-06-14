@@ -2,14 +2,16 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
-use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::customize::{
+    customize_rom, ControllerConfig, CustomizeSettings, MusicSettings, Overrides,
+};
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
     get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer, SpoilerLog,
 };
-use maprando::settings::{RandomizerSettings, StartLocationMode};
+use maprando::settings::{DoorLocksSize, ItemDotChange, RandomizerSettings, StartLocationMode};
 use maprando::spoiler_map;
 use maprando_game::{GameData, Map};
 use rand::{RngCore, SeedableRng};
@@ -273,6 +275,10 @@ fn main() -> Result<()> {
         shaking: maprando::customize::ShakingSetting::Vanilla,
         flashing: maprando::customize::FlashingSetting::Vanilla,
         controller_config: ControllerConfig::default(),
+        item_dot_change: ItemDotChange::Fade,
+        transition_letters: true,
+        door_locks_size: DoorLocksSize::Large,
+        overrides: Overrides::default(),
     };
     customize_rom(
         &mut output_rom,

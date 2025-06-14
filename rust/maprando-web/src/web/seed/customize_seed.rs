@@ -9,12 +9,12 @@ use log::info;
 use maprando::{
     customize::{
         customize_rom, parse_controller_button, ControllerButton, ControllerConfig,
-        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
-        TileTheme,
+        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, Overrides, PaletteTheme,
+        ShakingSetting, TileTheme,
     },
     patch::{make_rom, Rom},
     randomize::Randomization,
-    settings::RandomizerSettings,
+    settings::{DoorLocksSize, ItemDotChange, RandomizerSettings},
 };
 use maprando_game::Map;
 
@@ -68,6 +68,13 @@ struct CustomizeRequest {
     quick_reload_select: Option<Text<String>>,
     quick_reload_start: Option<Text<String>>,
     moonwalk: Text<bool>,
+    // item_dot_change, transition_letters, and door_locks_size are prefixed with "customize_" to
+    // distinguish them from the same options in the RandomizerSettings (settings from the generate
+    // page).
+    customize_item_dot_change: Text<String>,
+    customize_transition_letters: Text<bool>,
+    customize_door_locks_size: Text<String>,
+    override_mark_map_stations: Text<String>,
 }
 
 #[post("/{name}/customize")]
@@ -136,6 +143,25 @@ async fn customize_seed(
         return HttpResponse::BadRequest().body(InvalidRomTemplate {}.render().unwrap());
     }
 
+    let overrides = if settings
+        .as_ref()
+        .is_some_and(|settings| !settings.other_settings.race_mode)
+    {
+        Overrides {
+            mark_map_stations: match req.override_mark_map_stations.0.as_str() {
+                "Unchanged" => None,
+                "false" => Some(false),
+                "true" => Some(true),
+                _ => panic!(
+                    "Unexpected override mark map stations option: {}",
+                    req.override_mark_map_stations.0.as_str()
+                ),
+            },
+        }
+    } else {
+        Overrides::default()
+    };
+
     let customize_settings = CustomizeSettings {
         samus_sprite: if ultra_low_qol
             && req.samus_sprite.0 == "samus_vanilla"
@@ -203,16 +229,30 @@ async fn customize_seed(
             quick_reload_buttons: get_quick_reload_buttons(&req),
             moonwalk: req.moonwalk.0,
         },
+        item_dot_change: match req.customize_item_dot_change.0.as_str() {
+            "Fade" => ItemDotChange::Fade,
+            "Disappear" => ItemDotChange::Disappear,
+            _ => panic!(
+                "Unexpected customize item dot change option: {}",
+                req.customize_item_dot_change.0.as_str()
+            ),
+        },
+        transition_letters: req.customize_transition_letters.0,
+        door_locks_size: match req.customize_door_locks_size.0.as_str() {
+            "Small" => DoorLocksSize::Small,
+            "Large" => DoorLocksSize::Large,
+            _ => panic!(
+                "Unexpected customize door locks size option: {}",
+                req.customize_door_locks_size.0.as_str()
+            ),
+        },
+        overrides,
     };
 
-    if settings.is_some() && randomization.is_some() {
+    if let Some((mut settings, randomization)) = settings.zip(randomization) {
+        settings.apply_overrides(&customize_settings);
         info!("Patching ROM");
-        match make_rom(
-            &rom,
-            settings.as_ref().unwrap(),
-            randomization.as_ref().unwrap(),
-            &app_data.game_data,
-        ) {
+        match make_rom(&rom, &settings, &randomization, &app_data.game_data) {
             Ok(r) => {
                 rom = r;
             }
