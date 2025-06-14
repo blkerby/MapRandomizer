@@ -145,7 +145,7 @@ async fn customize_seed(
 
     let overrides = if settings
         .as_ref()
-        .is_none_or(|settings| settings.other_settings.race_mode)
+        .is_some_and(|settings| !settings.other_settings.race_mode)
     {
         Overrides {
             mark_map_stations: match req.override_mark_map_stations.0.as_str() {
