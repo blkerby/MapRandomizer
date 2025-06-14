@@ -49,14 +49,17 @@ v118:
 - DONE: fix wall jump boots palette
 - DONE: fix issue with vanilla item fanfare + fast save
 - DONE: implement ridleyKill logical requirement.
-- fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
+- DONE: hovering over tech video: does not animate.
+- DONE: pull in updated logic
+- DONE: fix mama turtle node map tiles: http://localhost:8080/seed/ghR92xQ5r/data/visualizer/index.html
 - mosaic:
+  - fix bg graphics in OuterCrateria-themed WS Entrance
   - toilet appearing in botwoon hallway (LN theme)
   - DONE: fireflea brightness
 - DONE: show collectsItems in logic page
 - DONE: show video author in tooltip hover
 - DONE: fix load checksum issue with random seed 0
-- finish refining stutter water shinecharges.
+- DONE: finish refining stutter water shinecharges.
 - DONE: add side platform strats.
 - DONE: apply Fake Lava patch (resolve conflict with complementary_suits?)
 - DONE: chaining temp blue after bouncing through should be extreme:

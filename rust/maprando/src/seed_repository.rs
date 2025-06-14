@@ -4,7 +4,8 @@ use anyhow::Result;
 use futures::stream::StreamExt;
 use log::info;
 use object_store::{
-    gcp::GoogleCloudStorageBuilder, local::LocalFileSystem, memory::InMemory, ObjectStore,
+    aws::AmazonS3Builder, gcp::GoogleCloudStorageBuilder, local::LocalFileSystem, memory::InMemory,
+    ObjectStore,
 };
 
 // Data needed to render the web page for a randomized seed and to use it to patch a ROM.
@@ -45,6 +46,14 @@ impl SeedRepository {
                 GoogleCloudStorageBuilder::from_env()
                     .with_url(url)
                     .build()?,
+            )
+        } else if url.starts_with("s3:") {
+            let bucket = &url[3..];
+            Box::new(
+                AmazonS3Builder::from_env()
+                    .with_bucket_name(bucket)
+                    .build()
+                    .unwrap(),
             )
         } else if url == "mem" {
             Box::new(InMemory::new())
@@ -103,8 +112,6 @@ impl SeedRepository {
         let path = object_store::path::Path::parse(full_src_prefix.clone())?;
         self.object_store
             .list(Some(&path))
-            .await
-            .unwrap()
             .for_each_concurrent(64, |meta| {
                 async {
                     let meta = meta.unwrap();
@@ -120,7 +127,7 @@ impl SeedRepository {
                         .bytes()
                         .await
                         .unwrap();
-                    self.object_store.put(&dst_path, data).await.unwrap();
+                    self.object_store.put(&dst_path, data.into()).await.unwrap();
                     self.object_store.delete(&meta.location).await.unwrap();
                     // Note: Instead of get+put+delete, we could use "rename" (or copy+delete) but it doesn't work with the local filesystem implementation.
                 }
