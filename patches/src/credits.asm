@@ -216,32 +216,12 @@ draw_full_time:
     ; draw period for hundredths
     lda #$007F
     sta !credits_tilemap_offset+4, y
-    lda #$003c
+    lda #$0064
     sta $12
     lda #$ffff
     sta $1a
-    jsl div32 ;; frames in $14, rest in $16
-    phb ;; convert frames to hundredths
-    phy
-    sep #$30
-    pea $8080 : plb : plb
-    lda $14
-    sta $4202
-    lda #$64
-    sta $4203
-    pha : pla :  pha : pla
-    lda $4216
-    sta $4204
-    lda $4217
-    sta $4205
-    lda #$3c
-    sta $4206
-    pha : pla :  pha : pla : pha : pla
-    lda $4214
-    sta $14
-    rep #$30
-    ply
-    plb
+    jsl div32 ;; hundredths of seconds in $14, seconds in $16
+
     rep 6 : iny ;; Increment Y three positions forward to write the last value
     lda $14
     jsl draw_two
@@ -256,7 +236,8 @@ draw_full_time:
     rtl
 
 adjust_time_fps:
-    ; multiply frame count by 60 / 60.09881186
+    ; convert frame count to hundredths of seconds:
+    ; multiply by 100 / 60.09881186
     ; input: $14 = high 16-bits of frame count, $16 = low 16-bits of frame count
     ; output: overwrites $14, $16
 
@@ -268,16 +249,17 @@ adjust_time_fps:
     lda $16
     sta !m32_multiplicand
     
-    ; 60 / 60.09881186 * 2^32 ~= 0xff943fa1
-    lda #$3fa1
+    ; 100 / 60.09881186 * 2^24 ~= 0x1a9f711
+    lda #$f711
     sta !m32_multiplier
-    lda #$ff94
+    lda #$01a9
     sta !m32_multiplier+2
 
     jsr m32_mult
-    lda !m32_result+4
+
+    lda !m32_result+3
     sta $16
-    lda !m32_result+6
+    lda !m32_result+5
     sta $14
 
     ply
