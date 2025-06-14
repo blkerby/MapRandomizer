@@ -118,10 +118,12 @@
         {% include "help/race.html" %}
         <label for="race_mode">Race mode</label>
     </div>
-    <div id="raceMode" class="col-md-2 btn-group my-2" role="group">
-        <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="false" checked=true>
+    <div id="raceMode" class="col-3 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="race_mode" id="raceModeNo" value="No" checked>
         <label class="btn btn-outline-primary" for="raceModeNo">No</label>
-        <input type="radio" class="btn-check" name="race_mode" id="raceModeYes" value="true">
+        <input type="radio" class="btn-check" name="race_mode" id="raceModeMapOnly" value="MapOnly">
+        <label class="btn btn-outline-primary" for="raceModeMapOnly">Map Only</label>
+        <input type="radio" class="btn-check" name="race_mode" id="raceModeYes" value="Yes">
         <label class="btn btn-outline-primary" for="raceModeYes">Yes</label>
     </div>
 </div>
