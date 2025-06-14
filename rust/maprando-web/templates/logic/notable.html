@@ -8,11 +8,12 @@
 <meta property="og:title" content="{{ room_name +}}: {{+ notable_name +}} ({{ notable_difficulty_name }})">
 {% if notable_video_id.is_some() %}
 {% let video_id = notable_video_id.unwrap() %}
-{% let video_storage_url = video_storage_url|as_ref %}
+{% let video_storage_url = &video_storage_url %}
 {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
 <meta property="og:image:type" content="image/png">
 <meta property="og:image" content="{{ png_url }}">
 {% endif %}
+<link rel="stylesheet" href="/static/logic_style.css">
 </head>
 <body>
 {% include "../common/navbar.html" %}
@@ -24,33 +25,17 @@ document.getElementById("navigation-logic").classList.add("active");
 
 <div class="container col-xl-10 col-xxl-8 pb-4">
     <h3 class="my-2">{{ room_name +}}: {{+ notable_name +}} ({{+ notable_difficulty_name }})</h3>
-    <style>
-    html[data-bs-theme=dark] .notable-row:hover {
-        background-color: #2b3035;
-    }
-    html[data-bs-theme=light] .notable-row:hover {
-        background-color: #f4f5f6;
-    }
-    .png-tech {
-        position: absolute;
-    }
-    .notable-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:hover .png-tech {
-        opacity: 0;
-    }
-    .strat-row:not(:hover) .gif-tech {
-        opacity: 0;
-    }
+    <style id="dev-note-style">
+        .dev-note {
+            display: none;
+        }
     </style>
-
     <div class="row notable-row">
         <div class="text-center col-sm-4 col-md-3 col-lg-2 p-3">
-            {% let notable_name = notable_name|as_ref %}
+            {% let notable_name = &notable_name %}
             {% if notable_video_id.is_some() %}
             {% let video_id = notable_video_id.unwrap() %}
-            {% let video_storage_url = video_storage_url|as_ref %}
+            {% let video_storage_url = &video_storage_url %}
             {% let png_url = format!("{}/png/{}.png", video_storage_url, video_id) %}
             {% let webp_url = format!("{}/webp/{}.webp", video_storage_url, video_id) %}
             {% let mp4_url = format!("{}/mp4/{}.mp4", video_storage_url, video_id) %}
@@ -134,13 +119,11 @@ function getDifficultyFilter() {
 
 function devNotesSettingChanged() {
     let showDevNotes = document.getElementById("showDevNotesYes").checked;
-    var els = document.getElementsByClassName("dev-note");
-    for (let el of els) {
-        if (showDevNotes) {
-            el.classList.remove("d-none");
-        } else {
-            el.classList.add("d-none");
-        }
+    let style = document.getElementById("dev-note-style");
+    if (showDevNotes) {
+        style.innerHTML = ".non-dev-note { display: none }";
+    } else {
+        style.innerHTML = ".dev-note { display: none }";
     }
     saveForm(document.getElementById("logicPageSettingsForm"));
 }
@@ -175,6 +158,7 @@ function updateSelect() {
     document.getElementById("stratCount").innerHTML = cnt;
 }
 loadForm(document.getElementById("filterForm"));
+loadForm(document.getElementById("logicPageSettingsForm"));
 updateSelect();
 devNotesSettingChanged();
 </script>

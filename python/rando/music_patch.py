@@ -11,7 +11,7 @@ import logging
 
 toilet_idx = [i for i, room in enumerate(rooms) if room.name == "Toilet"][0]
 
-def make_area_graph(map, area):
+def make_area_graph(map, area, subarea=None):
     door_room_dict = {}
     room_id_list = []
     next_vertex_id = 0
@@ -19,6 +19,8 @@ def make_area_graph(map, area):
     toilet_intersection_ids = []
     for i, room in enumerate(rooms):
         if map['area'][i] != area:
+            continue
+        if subarea is not None and map['subarea'][i] != subarea:
             continue
         if i == toilet_idx:
             toilet_id = next_vertex_id
@@ -55,12 +57,15 @@ def check_connected(vertices, edges):
     return hist.shape[0] == 1
 
 # Partition area into subareas, one for each song that will play in that area.
-def partition_area(map, area, num_sub_areas):
-    area_graph, room_id_list, edges_list, toilet_id, toilet_intersection_ids = make_area_graph(map, area)
+# This is also used for partitioning a subarea into sub-subareas, by specifying the sub_area parameter.
+def partition_area(map, area, num_sub_areas, sub_area=None):
+    area_graph, room_id_list, edges_list, toilet_id, toilet_intersection_ids = make_area_graph(map, area, sub_area)
     assert check_connected(np.arange(len(room_id_list)), edges_list)
 
+    print(area, num_sub_areas, sub_area, len(room_id_list), len(edges_list), len(toilet_intersection_ids))
+
     # Try to assign subareas to rooms in a way that makes subareas as clustered as possible:
-    for i in range(0, 100):
+    for i in range(0, 2000):
         # print("Area {}: attempt {} to partition to {} subareas".format(area, i, num_sub_areas))
         state = graph_tool.inference.minimize_blockmodel_dl(area_graph,
                                                             multilevel_mcmc_args={
@@ -68,6 +73,7 @@ def partition_area(map, area, num_sub_areas):
                                                               "B_max": num_sub_areas})
         u, block_id = np.unique(state.get_blocks().get_array(), return_inverse=True)
         if len(u) != num_sub_areas:
+            print("num_parts=", len(u))
             continue
 
         # The algorithm above is not guaranteed to result in connected subareas (and in practice it often fails to do
@@ -75,54 +81,36 @@ def partition_area(map, area, num_sub_areas):
         invalid = False
         for j in range(num_sub_areas):
             indj = np.where(block_id == j)[0]
-            if indj.shape[0] < 5:
-                # We want each subarea to contain at least 5 rooms
-                invalid = True
-                break
+            if sub_area is None:
+                if indj.shape[0] < 5:
+                    # We want each subarea to contain at least 5 rooms
+                    print("less than 5 rooms")
+                    invalid = True
+                    break
+            else:
+                if indj.shape[0] < 2:
+                    # We want each subsubarea to contain at least 2 rooms
+                    print("less than 2 rooms")
+                    invalid = True
+                    break
             if not check_connected(indj, edges_list):
                 invalid = True
+                print("disconnected")
                 break
         # Also check that the Toilet gets assigned to the same subarea as its intersecting room(s)
         for i in toilet_intersection_ids:
             if block_id[toilet_id] != block_id[i]:
+                print("invalid toilet")
                 invalid = True
         if not invalid:
             return block_id, room_id_list
-    raise RuntimeError("Failed to partition areas into subareas")
+    raise RuntimeError("Failed to partition areas into subareas or subsubareas")
 
-
-area_music_dict = {
-    0: [
-        # (0x06, 0x05),   # Empty Crateria
-        (0x09, 0x05),  # Crateria Space Pirates
-        (0x0C, 0x05),  # Return to Crateria
-    ],
-    1: [
-        (0x0F, 0x05),   # Green Brinstar
-        (0x12, 0x05),   # Red Brinstar
-    ],
-    2: [
-        (0x15, 0x05),   # Upper Norfair
-        (0x18, 0x05),   # Lower Norfair
-    ],
-    3: [
-        (0x30, 0x05),   # Wrecked Ship (off)
-        (0x30, 0x06),   # Wrecked Ship (on)
-    ],
-    4: [
-        (0x1B, 0x06),   # Outer Maridia
-        (0x1B, 0x05),   # Inner Maridia
-    ],
-    5: [
-        (0x09, 0x06),  # Tourian Entrance (Statues Room)
-        (0x1E, 0x05),  # Tourian Main
-    ],
-}
 
 def make_subareas(map):
     subarea_list = [None for _ in range(len(map['area']))]
+    num_sub_areas = 2
     for area in range(6):
-        num_sub_areas = len(area_music_dict[area])
         local_subarea_list, room_id_list = partition_area(map, area, num_sub_areas=num_sub_areas)
 
         # Make sure Landing Site has subarea 0:
@@ -140,6 +128,22 @@ def make_subareas(map):
                 j += 1
     assert all(x is not None for x in subarea_list)
     return subarea_list
+
+
+def make_subsubareas(map):
+    subsubarea_list = [None for _ in range(len(map['area']))]
+    num_sub_sub_areas = 2
+    for area in range(6):
+        for sub_area in range(2):
+            local_subsubarea_list, room_id_list = partition_area(map, area, num_sub_areas=num_sub_sub_areas, sub_area=sub_area)
+
+            j = 0
+            for i, (a, s) in enumerate(zip(map['area'], map['subarea'])):
+                if a == area and s == sub_area:
+                    subsubarea_list[i] = local_subsubarea_list[j]
+                    j += 1
+    assert all(x is not None for x in subsubarea_list)
+    return subsubarea_list
 
 
 def get_room_size(room):

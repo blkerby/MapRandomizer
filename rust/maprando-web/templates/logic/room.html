@@ -8,6 +8,7 @@
 <meta property="og:title" content="{{ room_name }}">
 <meta property="og:image:type" content="image/png">
 <meta property="og:image" content="/{{+ room_diagram_path }}">
+<link rel="stylesheet" href="/static/logic_style.css">
 
 </head>
 <body>
@@ -106,23 +107,11 @@ document.getElementById("navigation-logic").classList.add("active");
             </button>
             </h2>        
             <div id="collapseStrats" class="accordion-collapse collapse show">
-                <style>
-                html[data-bs-theme=dark] .table {
-                    --bs-table-hover-bg: #2b3035;
-                }
-                html[data-bs-theme=light] .table {
-                    --bs-table-hover-bg: #f4f5f6;
-                }
-                .png-tech {
-                    position: absolute;
-                }
-                .strat-row:hover .png-tech {
-                    opacity: 0;
-                }
-                .strat-row:not(:hover) .gif-tech {
-                    opacity: 0;
-                }
-                </style>
+                <style id="dev-note-style">
+                    .dev-note {
+                        display: none;
+                    }
+                </style>            
                 <table class="table table-hover mb-0">
                 <tbody>
                 {% for strat in strats %}
@@ -181,13 +170,11 @@ function swapNodes() {
 
 function devNotesSettingChanged() {
     let showDevNotes = document.getElementById("showDevNotesYes").checked;
-    var els = document.getElementsByClassName("dev-note");
-    for (let el of els) {
-        if (showDevNotes) {
-            el.classList.remove("d-none");
-        } else {
-            el.classList.add("d-none");
-        }
+    let style = document.getElementById("dev-note-style");
+    if (showDevNotes) {
+        style.innerHTML = ".non-dev-note { display: none }";
+    } else {
+        style.innerHTML = ".dev-note { display: none }";
     }
     saveForm(document.getElementById("logicPageSettingsForm"));
 }

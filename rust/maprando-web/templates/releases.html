@@ -14,9 +14,10 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release118">Version 118 (2025-05-06)</a>:
+<p><a id="release118">Version 118 (2025-06-13)</a>:
 <ul>
 <li>New tile themes "Blue Brinstar" and "Invisible" are available.
+<li>Fireflea rooms are adjusted across tile themes to improve visibility.
 <li>Customization of the amount and types of objectives is now available.
 <li>An objective screen is added to the pause menu, for tracking objective progress.
     <ul>
@@ -42,13 +43,18 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Leniency settings are added for Crystal Flash clips and X-mode (under "Skill assumptions").
 <li>A new option "Custom start location" is added.
 <li>Mother Brain 1 now requires all objectives to be complete before the cutscene will trigger.
+<li>On the spoiler map, hovering over a step now shows additional collectible tanks and ammo.
 <li>New Samus sprites:
     <ul>
     <li>"Charlotte Aran", "Katt Aran", "Zero Suit Samus", and "Richter Belmont" by Jonacrab
+    <li>"Infee and Nitee", "Modul", and "Cacodemon" by WillowPunch
+    <li>"Idol Kiara" by ShinobuFujiko
+    <li>"Pyronett" recolor by Shiru (original by DaWildWildWes)
     <li>"Thomcrow Corbin" by Thomcrow
     <li>"Charizard" by Charmander106
     <li>"Crest" by 16BitKoala
     <li>"Dark Samus" by EquinoxAsKnownBySome
+    <li>"Dark Samus Re-Animated" by Mattroid
     <li>"Space Pirate" by 0x00me
     </ul>
 <li>Map markings now indicate liquids in more situations.
@@ -104,8 +110,16 @@ document.getElementById("navigation-releases").classList.add("active");
         <li><a href="/logic/notable/106/4">Ice Beam Gate Room: Anti-Short Charge Hero Shot</a> (Extreme)
         <li><a href="/logic/notable/121/6">Crocomire Escape: Ceiling Mockball Spring Fling</a> (Extreme)
         <li><a href="/logic/notable/121/7">Crocomire Escape: Spring Ball Jump into Damage Boost</a> (Extreme)
+        <li><a href="/logic/notable/142/2">G-Mode Crystal Flash Stuck Ridley</a> (Insane)
+        <li><a href="/logic/notable/142/3">G-Mode Ridley with 30 Supers</a> (Insane)
         </ul>
     <li>Many redundant notables are removed.
+    <li>Ridley logic is adjusted:
+        <ul>
+        <li>The amount of ammo required is significantly reduced on lower difficulty settings.
+        <li>The expected damage taken from Ridley is increased on lower difficulty settings.
+        <li>Patience tech is accounted for more thoroughly, putting very slow fights out of logic.
+        </ul>
     </ul>
 </ul>
 

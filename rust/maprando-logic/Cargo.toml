@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 maprando-game = { path = "../maprando-game" }
 serde = { version = "1.0.152", features = ["derive"] }
+log = "0.4.17"

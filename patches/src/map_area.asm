@@ -1282,3 +1282,4 @@ org $90AAFD
     CMP #$0010
 
 warnpc !bank_a7_freespace_end
+

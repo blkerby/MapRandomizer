@@ -70,7 +70,7 @@ def create_animated_thumbnails():
             # add padding on the top/bottom to make the image sizes match between static and animated
             for yp in list(range(y_padding)) + [y1 - y0 + y_padding + j for j in range(y_padding)]:
                 for xp in range(0, x1 - x0):
-                    frame.putpixel((xp, yp), frame.getpixel((0, y_padding)))
+                    frame.putpixel((xp, yp), (0, 0, 0, 0))
             frames.append(frame)
             x += 42
         t = (1000 / 60) / 0.7  # animate at 70% speed

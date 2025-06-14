@@ -186,7 +186,7 @@ pub struct SeedFooterTemplate {
 }
 
 pub fn get_random_seed() -> usize {
-    (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize
+    (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize + 1
 }
 
 pub async fn save_seed(
