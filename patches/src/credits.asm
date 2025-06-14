@@ -18,6 +18,10 @@ incsrc "constants.asm"
 
 !credits_tilemap_offset = $0034
 
+!m32_multiplicand    = $20   ; 4 bytes
+!m32_multiplier      = $24   ; 4 bytes
+!m32_result          = $24   ; 8 bytes   (note: shares memory with multiplier)
+
 ;; Defines for the script and credits data
 !speed = set_scroll
 !set = $9a17
@@ -201,6 +205,7 @@ draw_full_time:
     plx
     rtl
 .non_zero:
+    jsr adjust_time_fps
     ; draw colons for time separators
     lda #$005A  ; space
     sta !credits_tilemap_offset-8, y
@@ -249,6 +254,98 @@ draw_full_time:
     plb
     plx
     rtl
+
+adjust_time_fps:
+    ; multiply frame count by 60 / 60.0988
+    ; input: $14 = high 16-bits of frame count, $16 = low 16-bits of frame count
+    ; output: overwrites $14, $16
+
+    phx
+    phy
+
+    lda $14
+    sta !m32_multiplicand+2
+    lda $16
+    sta !m32_multiplicand
+    
+    ; 60 / 60.0988 * 2^32 ~= 0xff9442ef
+    lda #$42ef
+    sta !m32_multiplier
+    lda #$ff94
+    sta !m32_multiplier+2
+
+    jsr m32_mult
+    lda !m32_result+4
+    sta $16
+    lda !m32_result+6
+    sta $14
+
+    ply
+    plx
+    rts
+
+
+m32_mult:
+; 32 bit x 32 bit unsigned multiply, 64 bit result
+; Based on https://github.com/TobyLobster/multiply_test/blob/main/tests/omult22.a
+; On Entry:
+;   multiplier:     four byte value
+;   multiplicand:   four byte value
+; On Exit:
+;   result:         eight byte product (note: 'result' shares memory with 'multiplier')
+;
+    php
+    sep #$20
+    lda #0              ;
+    sta !m32_result+6        ;
+    sta !m32_result+5        ;
+    sta !m32_result+4        ; 32 bits of zero in A, result+6, result+5, result+4
+                        ; (think of A as a local cache of result+7)
+                        ;  Note:    First 8 shifts are  A -> result+6 -> result+5 -> result+4 -> result
+                        ;           Next  8 shifts are  A -> result+6 -> result+5 -> result+4 -> result+1
+                        ;           Next  8 shifts are  A -> result+6 -> result+5 -> result+4 -> result+2
+                        ;           Final 8 shifts are  A -> result+6 -> result+5 -> result+4 -> result+3
+    ldx #$fffc          ; count for outer loop. Loops four times.
+    
+    ; outer loop (4 times)
+outer_loop:
+    ldy #$0008              ; count for inner loop
+    lsr !m32_result+4,x      ; think "result" then later "result+1" then "result+2" then "result+3"
+
+    ; inner loop (8 times)
+inner_loop:
+    bcc +
+
+    ; (result+4, result+5, result+6, A) += (multiplicand, multiplicand+1, multiplicand+2. multiplicand+3)
+    sta !m32_result+7        ; remember A
+    lda !m32_result+4
+    clc
+    adc !m32_multiplicand
+    sta !m32_result+4
+    lda !m32_result+5
+    adc !m32_multiplicand+1
+    sta !m32_result+5
+    lda !m32_result+6
+    adc !m32_multiplicand+2
+    sta !m32_result+6
+    lda !m32_result+7        ; recall A
+    adc !m32_multiplicand+3
+
++
+    ror                 ; shift
+    ror !m32_result+6        ;
+    ror !m32_result+5        ;
+    ror !m32_result+4        ;
+    ror !m32_result+4,x      ; think "result" then later "result+1" then "result+2" then "result+3"
+    dey
+    bne inner_loop      ; go back for 1 more shift?
+
+    inx
+    bne outer_loop      ; go back for 8 more shifts?
+
+    sta !m32_result+7        ;
+    plp
+    rts
 
 ;; Draw time as xx:yy:zz
 draw_time:
