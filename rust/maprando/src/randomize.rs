@@ -29,9 +29,9 @@ use maprando_game::{
     TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
     TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
-    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE,
-    TECH_ID_CAN_STATIONARY_SPIN_JUMP, TECH_ID_CAN_STUTTER_WATER_SHINECHARGE,
-    TECH_ID_CAN_TEMPORARY_BLUE,
+    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP,
+    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -2439,7 +2439,8 @@ impl<'a> Preprocessor<'a> {
                 }
                 Some(Requirement::make_and(vec![
                     Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+                        self.game_data.tech_isv.index_by_key
+                            [&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
                     ),
                     Requirement::make_or(reqs_or_vec),
                 ]))
