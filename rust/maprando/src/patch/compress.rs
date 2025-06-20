@@ -16,7 +16,7 @@ fn encode_block_header(size: usize, block_type: u8, out: &mut Vec<u8>) {
 }
 
 fn encode_raw_block(data: &[u8], out: &mut Vec<u8>) {
-    for i in 0..((data.len() + 1023) / 1024) {
+    for i in 0..data.len().div_ceil(1024) {
         let block = &data[(i * 1024)..min((i + 1) * 1024, data.len())];
         encode_block_header(block.len(), BLOCK_TYPE_RAW, out);
         out.extend(block);
@@ -24,7 +24,7 @@ fn encode_raw_block(data: &[u8], out: &mut Vec<u8>) {
 }
 
 fn encode_rle_block(value: u8, count: usize, out: &mut Vec<u8>) {
-    for i in 0..((count + 1023) / 1024) {
+    for i in 0..count.div_ceil(1024) {
         let end = min(i * 1024 + 1024, count);
         let size = end - i * 1024;
         encode_block_header(size, BLOCK_TYPE_BYTE_RLE, out);
@@ -33,7 +33,7 @@ fn encode_rle_block(value: u8, count: usize, out: &mut Vec<u8>) {
 }
 
 fn encode_block(data: &[u8], value: u8, rle_count: usize, out: &mut Vec<u8>) {
-    if data.len() >= 1 {
+    if !data.is_empty() {
         encode_raw_block(data, out);
     }
     encode_rle_block(value, rle_count, out);

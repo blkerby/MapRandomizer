@@ -65,7 +65,7 @@ pub fn apply_retiling(
 
     let mut fx_door_ptr_map: HashMap<(RoomPtr, RoomStateIdx, DoorPtr), DoorPtr> = HashMap::new();
     for &room_ptr in game_data.raw_room_id_by_ptr.keys() {
-        let state_ptrs = get_room_state_ptrs(&rom, room_ptr)?;
+        let state_ptrs = get_room_state_ptrs(rom, room_ptr)?;
         for (state_idx, (_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
             let orig_fx_ptr = orig_rom.read_u16(state_ptr + 6)? as usize;
             let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;
@@ -96,7 +96,7 @@ pub fn apply_retiling(
                 if let Some(map) = map {
                     let area = map.area[room_idx];
                     let sub_area = map.subarea[room_idx];
-                    let sub_sub_area = if map.subsubarea.len() > 0 {
+                    let sub_sub_area = if !map.subsubarea.is_empty() {
                         map.subsubarea[room_idx]
                     } else {
                         // For backward compatibility, use subsubarea 0 for old maps that didn't have a subsubarea.
@@ -171,7 +171,7 @@ pub fn apply_retiling(
 
     for &room_ptr in game_data.raw_room_id_by_ptr.keys() {
         let theme_name = &theme_name_map[&room_ptr];
-        let state_ptrs = get_room_state_ptrs(&rom, room_ptr)?;
+        let state_ptrs = get_room_state_ptrs(rom, room_ptr)?;
         for (state_idx, (_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
             let patch_filename = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
             apply_bps_patch(rom, orig_rom, &patch_filename)?;

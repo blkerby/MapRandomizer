@@ -47,8 +47,7 @@ impl SeedRepository {
                     .with_url(url)
                     .build()?,
             )
-        } else if url.starts_with("s3:") {
-            let bucket = &url[3..];
+        } else if let Some(bucket) = url.strip_prefix("s3:") {
             Box::new(
                 AmazonS3Builder::from_env()
                     .with_bucket_name(bucket)
@@ -57,8 +56,7 @@ impl SeedRepository {
             )
         } else if url == "mem" {
             Box::new(InMemory::new())
-        } else if url.starts_with("file:") {
-            let root = &url[5..];
+        } else if let Some(root) = url.strip_prefix("file:") {
             Box::new(LocalFileSystem::new_with_prefix(Path::new(root))?)
         } else {
             panic!("Unsupported seed repository type: {}", url);

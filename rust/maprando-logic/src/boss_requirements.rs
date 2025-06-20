@@ -15,7 +15,7 @@ pub fn apply_phantoon_requirement(
     // high proficiency the fight is considered free anyway (as long as Charge or any ammo is available)
     // since all damage can be avoided.
     let boss_hp: f32 = 2500.0;
-    let charge_damage = get_charge_damage(&inventory);
+    let charge_damage = get_charge_damage(inventory);
 
     // Assume a firing rate of between 50% (on lowest difficulty) to 100% (on highest).
     // This represents missing the opportunity to hit Phantoon when he first opens his eye,
@@ -28,20 +28,20 @@ pub fn apply_phantoon_requirement(
         // Assume max 1 charge shot per 10 seconds. With weaker beams, a higher firing rate is
         // possible, but we leave it like this to roughly account for the higher risk of
         // damage from Phantoon's body when one shot won't immediately despawn him.
-        let time = charge_shots_to_use as f32 * 10.0 / firing_rate;
+        let time = charge_shots_to_use * 10.0 / firing_rate;
         possible_kill_times.push(time);
     }
     if inventory.max_missiles > 0 {
         // We don't worry about ammo quantity since they can be farmed from the flames.
         let missiles_to_use = f32::ceil(boss_hp / 100.0);
         // Assume max average rate of 3 missiles per 10 seconds:
-        let time = missiles_to_use as f32 * 10.0 / 3.0 / firing_rate;
+        let time = missiles_to_use * 10.0 / 3.0 / firing_rate;
         possible_kill_times.push(time);
     }
     if inventory.max_supers > 0 {
         // We don't worry about ammo quantity since they can be farmed from the flames.
         let supers_to_use = f32::ceil(boss_hp / 600.0);
-        let time = supers_to_use as f32 * 30.0; // Assume average rate of 1 Super per 30 seconds
+        let time = supers_to_use * 30.0; // Assume average rate of 1 Super per 30 seconds
         possible_kill_times.push(time);
     }
 
@@ -84,7 +84,7 @@ pub fn apply_draygon_requirement(
     can_be_very_patient: bool,
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 6000.0;
-    let charge_damage = get_charge_damage(&inventory);
+    let charge_damage = get_charge_damage(inventory);
 
     // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
     let accuracy = 0.4 + 0.6 * proficiency;
@@ -181,12 +181,12 @@ pub fn apply_draygon_requirement(
             ..local
         };
         if validate_energy(result, inventory, can_manage_reserves).is_some() {
-            return Some(local);
+            Some(local)
         } else {
-            return None;
+            None
         }
     } else {
-        return None;
+        None
     }
 }
 
@@ -204,7 +204,7 @@ pub fn apply_ridley_requirement(
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
-    let charge_damage = get_charge_damage(&inventory);
+    let charge_damage = get_charge_damage(inventory);
 
     // Assume an ammo accuracy rate of between 80% (on lowest difficulty) to 100% (on highest):
     let accuracy = 0.8 + 0.2 * proficiency;
@@ -373,7 +373,7 @@ pub fn apply_botwoon_requirement(
 
     let mut boss_hp: f32 = 1500.0; // HP for one phase of the fight.
     let mut time: f32 = 0.0; // Cumulative time in seconds for the phase
-    let charge_damage = get_charge_damage(&inventory);
+    let charge_damage = get_charge_damage(inventory);
 
     // Assume an ammo accuracy rate of between 25% (on lowest difficulty) to 90% (on highest):
     let accuracy = 0.25 + 0.65 * proficiency;
@@ -491,7 +491,7 @@ pub fn apply_mother_brain_2_requirement(
 ) -> Option<LocalState> {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
-    let charge_damage = get_charge_damage(&inventory);
+    let charge_damage = get_charge_damage(inventory);
 
     // Assume an ammo accuracy rate of between 75% (on lowest difficulty) to 100% (on highest):
     let accuracy = 0.75 + 0.25 * proficiency;

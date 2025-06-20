@@ -3,10 +3,10 @@ use anyhow::Result;
 
 pub fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {
     let mut out: Vec<u8> = vec![];
-    for i in 0..128 {
-        let r = pal[i][0] as u16 / 8;
-        let g = pal[i][1] as u16 / 8;
-        let b = pal[i][2] as u16 / 8;
+    for c in pal {
+        let r = c[0] as u16 / 8;
+        let g = c[1] as u16 / 8;
+        let b = c[2] as u16 / 8;
         let w = r | (g << 5) | (b << 10);
         out.push((w & 0xFF) as u8);
         out.push((w >> 8) as u8);

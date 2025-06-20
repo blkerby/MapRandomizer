@@ -201,27 +201,24 @@ fn apply_gate_glitch_leniency(
         local.energy_used += (difficulty.gate_glitch_leniency as f32
             * difficulty.resource_multiplier
             * 60.0) as Capacity;
-        local = match validate_energy(
+        local = validate_energy(
             local,
             &global.inventory,
             difficulty.tech[game_data.manage_reserves_tech_idx],
-        ) {
-            Some(x) => x,
-            None => return None,
-        };
+        )?;
     }
     if green {
         local.supers_used += difficulty.gate_glitch_leniency;
-        return validate_supers(local, global);
+        validate_supers(local, global)
     } else {
         let missiles_available = global.inventory.max_missiles - local.missiles_used;
         if missiles_available >= difficulty.gate_glitch_leniency {
             local.missiles_used += difficulty.gate_glitch_leniency;
-            return validate_missiles(local, global);
+            validate_missiles(local, global)
         } else {
             local.missiles_used = global.inventory.max_missiles;
             local.supers_used += difficulty.gate_glitch_leniency - missiles_available;
-            return validate_supers(local, global);
+            validate_supers(local, global)
         }
     }
 }
@@ -262,18 +259,16 @@ fn apply_heat_frames(
     let mut new_local = local;
     if varia {
         Some(new_local)
+    } else if !difficulty.tech[game_data.heat_run_tech_idx] {
+        None
     } else {
-        if !difficulty.tech[game_data.heat_run_tech_idx] {
-            None
-        } else {
-            new_local.energy_used +=
-                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
-            validate_energy(
-                new_local,
-                &global.inventory,
-                difficulty.tech[game_data.manage_reserves_tech_idx],
-            )
-        }
+        new_local.energy_used +=
+            (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+        validate_energy(
+            new_local,
+            &global.inventory,
+            difficulty.tech[game_data.manage_reserves_tech_idx],
+        )
     }
 }
 
@@ -389,40 +384,37 @@ fn apply_heat_frames_with_energy_drops(
     let mut new_local = local;
     if varia {
         Some(new_local)
+    } else if !difficulty.tech[game_data.heat_run_tech_idx] {
+        None
     } else {
-        if !difficulty.tech[game_data.heat_run_tech_idx] {
-            None
-        } else {
-            let mut total_drop_value = 0;
-            for drop in drops {
-                total_drop_value += get_enemy_drop_energy_value(
-                    drop,
-                    local,
-                    reverse,
-                    settings.quality_of_life_settings.buffed_drops,
-                )
-            }
-            let heat_energy =
-                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
-            total_drop_value = Capacity::min(total_drop_value, heat_energy);
-            new_local.energy_used += heat_energy;
-            if let Some(x) = validate_energy(
-                new_local,
-                &global.inventory,
-                difficulty.tech[game_data.manage_reserves_tech_idx],
-            ) {
-                new_local = x;
-            } else {
-                return None;
-            }
-            if total_drop_value <= new_local.energy_used {
-                new_local.energy_used -= total_drop_value;
-            } else {
-                new_local.reserves_used -= total_drop_value - new_local.energy_used;
-                new_local.energy_used = 0;
-            }
-            Some(new_local)
+        let mut total_drop_value = 0;
+        for drop in drops {
+            total_drop_value += get_enemy_drop_energy_value(
+                drop,
+                local,
+                reverse,
+                settings.quality_of_life_settings.buffed_drops,
+            )
         }
+        let heat_energy = (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+        total_drop_value = Capacity::min(total_drop_value, heat_energy);
+        new_local.energy_used += heat_energy;
+        if let Some(x) = validate_energy(
+            new_local,
+            &global.inventory,
+            difficulty.tech[game_data.manage_reserves_tech_idx],
+        ) {
+            new_local = x;
+        } else {
+            return None;
+        }
+        if total_drop_value <= new_local.energy_used {
+            new_local.energy_used -= total_drop_value;
+        } else {
+            new_local.reserves_used -= total_drop_value - new_local.energy_used;
+            new_local.energy_used = 0;
+        }
+        Some(new_local)
     }
 }
 
@@ -448,10 +440,8 @@ pub fn apply_link(
         if !link.end_with_shinecharge && local.shinecharge_frames_remaining > 0 {
             return None;
         }
-    } else {
-        if link.start_with_shinecharge && local.shinecharge_frames_remaining == 0 {
-            return None;
-        }
+    } else if link.start_with_shinecharge && local.shinecharge_frames_remaining == 0 {
+        return None;
     }
     let new_local = apply_requirement(
         &link.requirement,
@@ -469,10 +459,8 @@ pub fn apply_link(
             if !link.start_with_shinecharge {
                 new_local.shinecharge_frames_remaining = 0;
             }
-        } else {
-            if !link.end_with_shinecharge {
-                new_local.shinecharge_frames_remaining = 0;
-            }
+        } else if !link.end_with_shinecharge {
+            new_local.shinecharge_frames_remaining = 0;
         }
         Some(new_local)
     } else {
@@ -571,12 +559,10 @@ fn apply_missiles_available_req(
             new_local.missiles_used = Capacity::max(new_local.missiles_used, count);
             Some(new_local)
         }
+    } else if global.inventory.max_missiles - local.missiles_used < count {
+        None
     } else {
-        if global.inventory.max_missiles - local.missiles_used < count {
-            None
-        } else {
-            Some(local)
-        }
+        Some(local)
     }
 }
 
@@ -594,12 +580,10 @@ fn apply_supers_available_req(
             new_local.supers_used = Capacity::max(new_local.supers_used, count);
             Some(new_local)
         }
+    } else if global.inventory.max_supers - local.supers_used < count {
+        None
     } else {
-        if global.inventory.max_supers - local.supers_used < count {
-            None
-        } else {
-            Some(local)
-        }
+        Some(local)
     }
 }
 
@@ -617,12 +601,10 @@ fn apply_power_bombs_available_req(
             new_local.power_bombs_used = Capacity::max(new_local.power_bombs_used, count);
             Some(new_local)
         }
+    } else if global.inventory.max_power_bombs - local.power_bombs_used < count {
+        None
     } else {
-        if global.inventory.max_power_bombs - local.power_bombs_used < count {
-            None
-        } else {
-            Some(local)
-        }
+        Some(local)
     }
 }
 
@@ -640,12 +622,10 @@ fn apply_regular_energy_available_req(
             new_local.energy_used = Capacity::max(new_local.energy_used, count);
             Some(new_local)
         }
+    } else if global.inventory.max_energy - local.energy_used < count {
+        None
     } else {
-        if global.inventory.max_energy - local.energy_used < count {
-            None
-        } else {
-            Some(local)
-        }
+        Some(local)
     }
 }
 
@@ -663,12 +643,10 @@ fn apply_reserve_energy_available_req(
             new_local.reserves_used = Capacity::max(new_local.reserves_used, count);
             Some(new_local)
         }
+    } else if global.inventory.max_reserves - local.reserves_used < count {
+        None
     } else {
-        if global.inventory.max_reserves - local.reserves_used < count {
-            None
-        } else {
-            Some(local)
-        }
+        Some(local)
     }
 }
 
@@ -682,26 +660,22 @@ fn apply_energy_available_req(
         let mut new_local = local;
         if global.inventory.max_energy + global.inventory.max_reserves < count {
             None
+        } else if global.inventory.max_energy < count {
+            new_local.energy_used = global.inventory.max_energy;
+            new_local.reserves_used =
+                Capacity::max(new_local.reserves_used, count - global.inventory.max_energy);
+            Some(new_local)
         } else {
-            if global.inventory.max_energy < count {
-                new_local.energy_used = global.inventory.max_energy;
-                new_local.reserves_used =
-                    Capacity::max(new_local.reserves_used, count - global.inventory.max_energy);
-                Some(new_local)
-            } else {
-                new_local.energy_used = Capacity::max(new_local.energy_used, count);
-                Some(new_local)
-            }
+            new_local.energy_used = Capacity::max(new_local.energy_used, count);
+            Some(new_local)
         }
+    } else if global.inventory.max_reserves - local.reserves_used + global.inventory.max_energy
+        - local.energy_used
+        < count
+    {
+        None
     } else {
-        if global.inventory.max_reserves - local.reserves_used + global.inventory.max_energy
-            - local.energy_used
-            < count
-        {
-            None
-        } else {
-            Some(local)
-        }
+        Some(local)
     }
 }
 
@@ -1098,14 +1072,12 @@ pub fn apply_requirement(
         Requirement::MainHallElevatorFrames => {
             if settings.quality_of_life_settings.fast_elevators {
                 apply_heat_frames(188, local, global, game_data, difficulty)
+            } else if !global.inventory.items[Item::Varia as usize]
+                && global.inventory.max_energy < 149
+            {
+                None
             } else {
-                if !global.inventory.items[Item::Varia as usize]
-                    && global.inventory.max_energy < 149
-                {
-                    None
-                } else {
-                    apply_heat_frames(436, local, global, game_data, difficulty)
-                }
+                apply_heat_frames(436, local, global, game_data, difficulty)
             }
         }
         Requirement::LowerNorfairElevatorDownFrames => {
@@ -1937,7 +1909,7 @@ pub fn apply_requirement(
         Requirement::And(reqs) => {
             let mut new_local = local;
             if reverse {
-                for req in reqs.into_iter().rev() {
+                for req in reqs.iter().rev() {
                     new_local = apply_requirement(
                         req,
                         global,
@@ -2098,7 +2070,7 @@ pub fn traverse(
 
     if let Some(init) = init_opt {
         for (v, cost) in init.cost.iter().enumerate() {
-            let valid = cost.map(|x| f32::is_finite(x));
+            let valid = cost.map(f32::is_finite);
             if valid.iter().any(|&x| x) {
                 modified_vertices.insert(v, valid);
             }
@@ -2133,7 +2105,7 @@ pub fn traverse(
         &seed_links_data.links_by_src
     };
 
-    while modified_vertices.len() > 0 {
+    while !modified_vertices.is_empty() {
         let mut new_modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
         for (&src_id, &modified_costs) in &modified_vertices {
             let src_local_state_arr = result.local_states[src_id];
@@ -2151,7 +2123,7 @@ pub fn traverse(
                     let dst_id = link.to_vertex_id;
                     let dst_old_cost_arr = result.cost[dst_id];
                     if let Some(dst_new_local_state) = apply_link(
-                        &link,
+                        link,
                         global,
                         src_local_state,
                         reverse,
@@ -2172,7 +2144,7 @@ pub fn traverse(
                         let mut any_improvement: bool = false;
                         let mut improved_arr: [bool; NUM_COST_METRICS] = new_modified_vertices
                             .get(&dst_id)
-                            .map(|x| *x)
+                            .copied()
                             .unwrap_or([false; NUM_COST_METRICS]);
                         for dst_cost_idx in 0..NUM_COST_METRICS {
                             if dst_new_cost_arr[dst_cost_idx] < dst_old_cost_arr[dst_cost_idx] {

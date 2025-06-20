@@ -96,6 +96,7 @@ pub fn vflip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
     out
 }
 
+#[allow(clippy::needless_range_loop)]
 pub fn diagonal_flip_tile(tile: [[u8; 8]; 8]) -> [[u8; 8]; 8] {
     let mut out = [[0u8; 8]; 8];
     for y in 0..8 {
@@ -127,12 +128,12 @@ pub fn read_tile_4bpp(rom: &Rom, base_addr: usize, idx: usize) -> Result<[[u8; 8
 }
 
 pub fn write_tile_4bpp(rom: &mut Rom, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
-    for y in 0..8 {
+    for (y, row) in data.iter().enumerate() {
         let addr = base_addr + y * 2;
-        let data_0: u8 = (0..8).map(|x| (data[y][x] & 1) << (7 - x)).sum();
-        let data_1: u8 = (0..8).map(|x| ((data[y][x] >> 1) & 1) << (7 - x)).sum();
-        let data_2: u8 = (0..8).map(|x| ((data[y][x] >> 2) & 1) << (7 - x)).sum();
-        let data_3: u8 = (0..8).map(|x| ((data[y][x] >> 3) & 1) << (7 - x)).sum();
+        let data_0: u8 = (0..8).map(|x| (row[x] & 1) << (7 - x)).sum();
+        let data_1: u8 = (0..8).map(|x| ((row[x] >> 1) & 1) << (7 - x)).sum();
+        let data_2: u8 = (0..8).map(|x| ((row[x] >> 2) & 1) << (7 - x)).sum();
+        let data_3: u8 = (0..8).map(|x| ((row[x] >> 3) & 1) << (7 - x)).sum();
         rom.write_u8(addr, data_0 as isize)?;
         rom.write_u8(addr + 1, data_1 as isize)?;
         rom.write_u8(addr + 16, data_2 as isize)?;
@@ -350,20 +351,18 @@ fn draw_edge(
                 set_wall_pixel(tile, 5, 3);
                 set_wall_pixel(tile, 6, 3);
                 set_wall_pixel(tile, 7, 3);
+            } else if tile_side == TileSide::Bottom {
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
             } else {
-                if tile_side == TileSide::Bottom {
-                    set_wall_pixel(tile, 0, 3);
-                    set_wall_pixel(tile, 1, 3);
-                    set_wall_pixel(tile, 6, 3);
-                    set_wall_pixel(tile, 7, 3);
-                } else {
-                    set_wall_pixel(tile, 0, 3);
-                    set_wall_pixel(tile, 1, 3);
-                    set_wall_pixel(tile, 2, 3);
-                    set_wall_pixel(tile, 5, 3);
-                    set_wall_pixel(tile, 6, 3);
-                    set_wall_pixel(tile, 7, 3);
-                }
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 5, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
             }
         }
         MapTileEdge::ElevatorEntrance => {
@@ -1532,7 +1531,7 @@ impl<'a> MapPatcher<'a> {
             map_tile_map: HashMap::new(),
             gfx_tile_map: HashMap::new(),
             gfx_tile_reverse_map: HashMap::new(),
-            free_tiles: free_tiles,
+            free_tiles,
             locked_door_state_indices,
             dynamic_tile_data: vec![vec![]; 6],
             transition_tile_coords: vec![],
@@ -1549,8 +1548,10 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn index_fixed_tiles(&mut self) -> Result<()> {
-        let mut tile = MapTile::default();
-        tile.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
+        let mut tile = MapTile {
+            special_type: Some(MapTileSpecialType::SlopeUpFloorLow),
+            ..MapTile::default()
+        };
         self.index_tile(tile.clone(), Some(0x10))?;
         self.write_hud_tile_2bpp(0x10, self.render_tile(tile.clone())?)?;
         tile.heated = true;
@@ -1786,8 +1787,10 @@ impl<'a> MapPatcher<'a> {
                 [1, 0, 1, 0, 1, 0, 1, 0],
             ];
             gfx_tile_map.insert(empty_tile, 0x001F);
-            let mut slope = MapTile::default();
-            slope.special_type = Some(MapTileSpecialType::SlopeUpFloorLow);
+            let mut slope = MapTile {
+                special_type: Some(MapTileSpecialType::SlopeUpFloorLow),
+                ..MapTile::default()
+            };
             gfx_tile_map.insert(self.render_tile(slope.clone())?, 0x10);
             slope.heated = true;
             gfx_tile_map.insert(self.render_tile(slope)?, 0x11);
@@ -1880,7 +1883,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn write_tile_4bpp(&mut self, base_addr: usize, data: [[u8; 8]; 8]) -> Result<()> {
-        write_tile_4bpp(&mut self.rom, base_addr, data)
+        write_tile_4bpp(self.rom, base_addr, data)
     }
 
     fn write_map_tile_4bpp(&mut self, idx: usize, data: [[u8; 8]; 8]) -> Result<()> {
@@ -1984,8 +1987,10 @@ impl<'a> MapPatcher<'a> {
             _ => bail!("Unrecognized door direction: {dir}"),
         };
 
-        let mut tile = MapTile::default();
-        tile.special_type = Some(MapTileSpecialType::AreaTransition(other_area, direction));
+        let tile = MapTile {
+            special_type: Some(MapTileSpecialType::AreaTransition(other_area, direction)),
+            ..MapTile::default()
+        };
         self.set_room_tile(room_id, coords.0, coords.1, tile);
         Ok(())
     }
@@ -2090,11 +2095,9 @@ impl<'a> MapPatcher<'a> {
         for i in 0..16 {
             let color = self
                 .rom
-                .read_u16(snes2pc(0xB6F000) + 2 * (0x20 as usize + i as usize))?;
-            self.rom.write_u16(
-                snes2pc(0xB6F000) + 2 * (0x40 as usize + i as usize),
-                color as isize,
-            )?;
+                .read_u16(snes2pc(0xB6F000) + 2 * (0x20 + i as usize))?;
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i as usize), color as isize)?;
         }
 
         // Substitute palette 2 with palette 4 in pause tilemaps:
@@ -2297,7 +2300,7 @@ impl<'a> MapPatcher<'a> {
                 let local_x = tile.coords.0 as isize - self.area_offset_x[area_idx];
                 let local_y = tile.coords.1 as isize - self.area_offset_y[area_idx];
                 let offset = xy_to_map_offset(local_x, local_y);
-                self.rom.write_u16(snes2pc(data_ptr + 2), offset as isize)?; // tilemap offset
+                self.rom.write_u16(snes2pc(data_ptr + 2), offset)?; // tilemap offset
                 self.rom.write_u16(snes2pc(data_ptr + 4), word as isize)?; // tilemap word
                 data_ptr += 6;
             }

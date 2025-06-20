@@ -197,16 +197,16 @@ fn apply_custom_samus_sprite(
                         .unwrap_or(info.display_name.clone());
                     for c in credits_name.chars() {
                         let c = c.to_ascii_uppercase();
-                        if (c >= 'A' && c <= 'Z') || c == ' ' {
+                        if c.is_ascii_uppercase() || c == ' ' {
                             chars.push(c);
                         }
                     }
                     chars.extend(" SPRITE".chars());
                     let mut addr =
-                        snes2pc(0xceb240 + (234 - 128) * 0x40) + 0x20 - (chars.len() + 1) / 2 * 2;
+                        snes2pc(0xceb240 + (234 - 128) * 0x40) + 0x20 - chars.len().div_ceil(2) * 2;
                     for c in chars {
                         let color_palette = 0x0400;
-                        if c >= 'A' && c <= 'Z' {
+                        if c.is_ascii_uppercase() {
                             rom.write_u16(addr, (c as isize - 'A' as isize) | color_palette)?;
                         }
                         addr += 2;
@@ -217,12 +217,12 @@ fn apply_custom_samus_sprite(
                     let author = info.authors.join(", ");
                     for c in author.chars() {
                         let c = c.to_ascii_uppercase();
-                        if (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == ' ' {
+                        if c.is_ascii_uppercase() || c.is_ascii_digit() || c == ' ' {
                             chars.push(c);
                         }
                     }
                     let mut addr =
-                        snes2pc(0xceb240 + (235 - 128) * 0x40) + 0x20 - (chars.len() + 1) / 2 * 2;
+                        snes2pc(0xceb240 + (235 - 128) * 0x40) + 0x20 - chars.len().div_ceil(2) * 2;
                     for c in chars {
                         write_credits_big_char(rom, c, addr)?;
                         addr += 2;

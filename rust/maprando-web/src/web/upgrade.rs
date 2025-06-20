@@ -81,7 +81,7 @@ fn upgrade_tech_settings(settings: &mut serde_json::Value, app_data: &AppData) -
         new_tech_settings.push(TechSetting {
             id: t.id,
             name: t.name.clone(),
-            enabled: tech_map.get(&t.id).map(|x| *x).unwrap_or(false),
+            enabled: tech_map.get(&t.id).copied().unwrap_or(false),
         });
     }
     *settings
@@ -128,7 +128,7 @@ fn upgrade_notable_settings(settings: &mut serde_json::Value, app_data: &AppData
             notable_name: s.notable_name.clone(),
             enabled: notable_map
                 .get(&(s.room_id, s.notable_id))
-                .map(|x| *x)
+                .copied()
                 .unwrap_or(false),
         });
     }
@@ -176,7 +176,7 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
 fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     let etank_refill = settings["other_settings"]["etank_refill"]
         .as_str()
-        .unwrap_or("Vanilla".into())
+        .unwrap_or("Vanilla")
         .to_string();
     let qol_settings = settings
         .get_mut("quality_of_life_settings")

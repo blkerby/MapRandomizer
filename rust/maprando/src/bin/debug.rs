@@ -1,3 +1,6 @@
+// TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
+#![allow(clippy::too_many_arguments)]
+
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
@@ -61,7 +64,7 @@ fn run_scenario(
     let weapon_mask = game_data.get_weapon_mask(&items, &difficulty.tech);
     let global_state = GlobalState {
         inventory: Inventory {
-            items: items,
+            items,
             max_energy: 1899,
             max_missiles: missile_cnt,
             max_reserves: 0,
@@ -75,7 +78,7 @@ fn run_scenario(
         doors_unlocked: vec![],
         weapon_mask,
     };
-    let local_state = LocalState::new();
+    let local_state = LocalState::default();
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),
@@ -85,7 +88,7 @@ fn run_scenario(
     let rng_seed = [0u8; 32];
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
-    let objectives = get_objectives(&settings, &mut rng);
+    let objectives = get_objectives(settings, &mut rng);
     difficulty.draygon_proficiency = proficiency;
     difficulty.ridley_proficiency = proficiency;
     difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] = patience;

@@ -99,15 +99,14 @@ fn get_randomization(
     let implicit_tech = &preset_data.tech_by_difficulty["Implicit"];
     let implicit_notables = &preset_data.notables_by_difficulty["Implicit"];
     let difficulty_tiers = get_difficulty_tiers(
-        &settings,
+        settings,
         &preset_data.difficulty_tiers,
         game_data,
         implicit_tech,
         implicit_notables,
     );
-    let single_map: Option<Map>;
     let mut filenames: Vec<String> = Vec::new();
-    if args.map.is_dir() {
+    let single_map: Option<Map> = if args.map.is_dir() {
         for path in std::fs::read_dir(&args.map)
             .with_context(|| format!("Unable to read maps in directory {}", args.map.display()))?
         {
@@ -119,15 +118,15 @@ fn get_randomization(
             filenames.len(),
             args.map.display()
         );
-        single_map = None;
+        None
     } else {
         let map_string = std::fs::read_to_string(&args.map)
             .with_context(|| format!("Unable to read map file at {}", args.map.display()))?;
-        single_map = Some(
+        Some(
             serde_json::from_str(&map_string)
                 .with_context(|| format!("Unable to parse map file at {}", args.map.display()))?,
-        );
-    }
+        )
+    };
     let root_seed = match args.random_seed {
         Some(s) => s,
         None => (rand::rngs::StdRng::from_entropy().next_u64() & 0xFFFFFFFF) as usize,
@@ -139,10 +138,7 @@ fn get_randomization(
     let max_attempts = if args.item_placement_seed.is_some() {
         1
     } else {
-        match args.max_attempts {
-            Some(ma) => ma,
-            None => 10000, // Same as maprando-web.
-        }
+        args.max_attempts.unwrap_or(10000) // Same as maprando-web.
     };
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
         && game_data.start_locations.len() > 1
@@ -172,7 +168,7 @@ fn get_randomization(
             Some(s) => s,
             None => (rng.next_u64() & 0xFFFFFFFF) as usize,
         };
-        let objectives = get_objectives(&settings, &mut rng);
+        let objectives = get_objectives(settings, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, settings, &objectives, door_seed);
         let randomizer = Randomizer::new(
             &map,
@@ -180,7 +176,7 @@ fn get_randomization(
             objectives,
             settings,
             &difficulty_tiers,
-            &game_data,
+            game_data,
             &game_data.base_links_data,
             &mut rng,
         );
@@ -235,12 +231,9 @@ fn main() -> Result<()> {
     )?;
 
     if let Some(start_location_name) = &args.start_location {
-        game_data.start_locations = game_data
+        game_data
             .start_locations
-            .iter()
-            .cloned()
-            .filter(|x| &x.name == start_location_name)
-            .collect();
+            .retain(|x| &x.name == start_location_name);
     }
 
     let tech_path = Path::new("data/tech_data.json");
@@ -289,7 +282,7 @@ fn main() -> Result<()> {
                 authors: vec!["Nintendo".to_string()],
             }],
         }],
-        &vec![],
+        &[],
     )?;
 
     // Save the outputs:

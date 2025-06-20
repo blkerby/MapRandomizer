@@ -1,3 +1,6 @@
+// TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
+#![allow(clippy::too_many_arguments)]
+
 pub mod boss_requirements;
 pub mod helpers;
 
@@ -77,7 +80,7 @@ impl GlobalState {
     }
 }
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, Default)]
 pub struct LocalState {
     pub energy_used: Capacity,
     pub reserves_used: Capacity,
@@ -91,23 +94,4 @@ pub struct LocalState {
     pub farm_baseline_missiles_used: Capacity,
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
-}
-
-impl LocalState {
-    pub fn new() -> Self {
-        Self {
-            energy_used: 0,
-            reserves_used: 0,
-            missiles_used: 0,
-            supers_used: 0,
-            power_bombs_used: 0,
-            shinecharge_frames_remaining: 0,
-            cycle_frames: 0,
-            farm_baseline_energy_used: 0,
-            farm_baseline_reserves_used: 0,
-            farm_baseline_missiles_used: 0,
-            farm_baseline_supers_used: 0,
-            farm_baseline_power_bombs_used: 0,
-        }
-    }
 }

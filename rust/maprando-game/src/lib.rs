@@ -1,3 +1,6 @@
+// TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
+#![allow(clippy::too_many_arguments)]
+
 pub mod glowpatch;
 pub mod smart_xml;
 
@@ -61,6 +64,7 @@ pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
+#[allow(clippy::type_complexity)]
 #[derive(Deserialize, Serialize, Clone)]
 pub struct Map {
     pub rooms: Vec<(usize, usize)>, // (x, y) of upper-left corner of room on map
@@ -365,7 +369,7 @@ impl Requirement {
             }
             out_reqs.push(req);
         }
-        if out_reqs.len() == 0 {
+        if out_reqs.is_empty() {
             Requirement::Free
         } else if out_reqs.len() == 1 {
             out_reqs.into_iter().next().unwrap()
@@ -384,7 +388,7 @@ impl Requirement {
             }
             out_reqs.push(req);
         }
-        if out_reqs.len() == 0 {
+        if out_reqs.is_empty() {
             Requirement::Never
         } else if out_reqs.len() == 1 {
             out_reqs.into_iter().next().unwrap()
@@ -495,6 +499,7 @@ pub type RoomGeometryRoomIdx = usize;
 pub type RoomGeometryDoorIdx = usize;
 pub type RoomGeometryPartIdx = usize;
 
+#[allow(clippy::type_complexity)]
 #[derive(Deserialize, Default, Clone, Debug)]
 pub struct RoomGeometry {
     pub name: String,
@@ -1060,13 +1065,11 @@ fn parse_runway_geometry_shinecharge(runway: &JsonValue) -> Result<RunwayGeometr
 }
 
 fn compute_runway_effective_length(geom: &RunwayGeometry) -> f32 {
-    let effective_length =
-        geom.length - geom.starting_down_tiles - 9.0 / 16.0 * (1.0 - geom.open_end)
-            + 1.0 / 3.0 * geom.steep_up_tiles
-            + 1.0 / 7.0 * geom.steep_down_tiles
-            + 5.0 / 27.0 * geom.gentle_up_tiles
-            + 5.0 / 59.0 * geom.gentle_down_tiles;
-    effective_length
+    geom.length - geom.starting_down_tiles - 9.0 / 16.0 * (1.0 - geom.open_end)
+        + 1.0 / 3.0 * geom.steep_up_tiles
+        + 1.0 / 7.0 * geom.steep_down_tiles
+        + 5.0 / 27.0 * geom.gentle_up_tiles
+        + 5.0 / 59.0 * geom.gentle_down_tiles
 }
 
 #[derive(Default)]
@@ -1172,8 +1175,8 @@ fn parse_hex(v: &JsonValue, default: f32) -> Result<f32> {
     if pair.len() != 2 {
         bail!("Unexpected format in parse_hex: {}", s);
     }
-    let x = i64::from_str_radix(&pair[0], 16)?;
-    let y = i64::from_str_radix(&pair[1], 16)?;
+    let x = i64::from_str_radix(pair[0], 16)?;
+    let y = i64::from_str_radix(pair[1], 16)?;
     let p = 16i64.pow(pair[1].len() as u32);
     let f = x as f32 + (y as f32 / p as f32);
     Ok(f)
@@ -1313,10 +1316,10 @@ pub enum MapTileInterior {
 impl MapTileInterior {
     pub fn is_item(&self) -> bool {
         use MapTileInterior::*;
-        match self {
-            Item | DoubleItem | HiddenItem | AmmoItem | MediumItem | MajorItem => true,
-            _ => false,
-        }
+        matches!(
+            self,
+            Item | DoubleItem | HiddenItem | AmmoItem | MediumItem | MajorItem
+        )
     }
 }
 
@@ -1706,7 +1709,7 @@ impl GameData {
         }
         if include_other_requires {
             reqs.extend(
-                self.parse_requires_list(&tech_json["otherRequires"].members().as_slice(), &ctx)?,
+                self.parse_requires_list(tech_json["otherRequires"].members().as_slice(), &ctx)?,
             );
         }
         let combined_req = Requirement::make_and(reqs);
@@ -1838,7 +1841,6 @@ impl GameData {
         ensure!(enemy_json["invul"].is_array());
         let invul: HashSet<String> = enemy_json["invul"]
             .members()
-            .into_iter()
             .map(|x| x.to_string())
             .collect();
         let mut vul_mask = 0;
@@ -1905,7 +1907,7 @@ impl GameData {
         ensure!(json_value["requires"].is_array());
         let ctx = RequirementContext::default();
         let req = Requirement::make_and(
-            self.parse_requires_list(&json_value["requires"].members().as_slice(), &ctx)?,
+            self.parse_requires_list(json_value["requires"].members().as_slice(), &ctx)?,
         );
         *self.helpers.get_mut(name).unwrap() = Some(req.clone());
         Ok(req)
@@ -1988,16 +1990,14 @@ impl GameData {
             }
             if let Some(req) = req {
                 reqs_list.push(req);
-            } else {
-                if ctx.node_implicit_door_unlocks.unwrap()[&node_id] {
-                    if ctx.room_heated {
-                        reqs_list.push(Requirement::make_and(vec![
-                            implicit_req.clone(),
-                            heat_req.clone(),
-                        ]));
-                    } else {
-                        reqs_list.push(implicit_req.clone())
-                    }
+            } else if ctx.node_implicit_door_unlocks.unwrap()[&node_id] {
+                if ctx.room_heated {
+                    reqs_list.push(Requirement::make_and(vec![
+                        implicit_req.clone(),
+                        heat_req.clone(),
+                    ]));
+                } else {
+                    reqs_list.push(implicit_req.clone())
                 }
             }
         }
@@ -2009,17 +2009,14 @@ impl GameData {
         node_id: NodeId,
         ctx: &RequirementContext,
     ) -> Result<Requirement> {
-        if let Some(grey_unlock_req_json) = self
-            .grey_lock_map
-            .get(&(ctx.room_id, node_id))
-            .map(|x| x.clone())
+        if let Some(grey_unlock_req_json) = self.grey_lock_map.get(&(ctx.room_id, node_id)).cloned()
         {
             let grey_unlock_req = self.parse_requirement(&grey_unlock_req_json, ctx)?;
             return Ok(grey_unlock_req);
         }
         Ok(Requirement::UnlockDoor {
             room_id: ctx.room_id,
-            node_id: node_id,
+            node_id,
             requirement_red: Box::new(self.get_unlocks_door_type_req(
                 DoorType::Red,
                 node_id,
@@ -2211,10 +2208,10 @@ impl GameData {
             } else if key == "ammo" {
                 let ammo_type = value["type"]
                     .as_str()
-                    .expect(&format!("missing/invalid ammo type in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid ammo type in {}", req_json));
                 let count = value["count"]
                     .as_i32()
-                    .expect(&format!("missing/invalid ammo count in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid ammo count in {}", req_json));
                 if ammo_type == "Missile" {
                     return Ok(Requirement::Missiles(count as Capacity));
                 } else if ammo_type == "Super" {
@@ -2230,10 +2227,10 @@ impl GameData {
                 for value0 in value.members() {
                     let resource_type = value0["type"]
                         .as_str()
-                        .expect(&format!("missing/invalid resource type in {}", req_json));
-                    let count = value0["count"]
-                        .as_i32()
-                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                    let count = value0["count"].as_i32().unwrap_or_else(|| {
+                        panic!("missing/invalid resource count in {}", req_json)
+                    });
                     if resource_type == "Missile" {
                         reqs.push(Requirement::MissilesAvailable(count as Capacity));
                     } else if resource_type == "Super" {
@@ -2256,10 +2253,10 @@ impl GameData {
                 let value0 = value.members().next().unwrap();
                 let resource_type = value0["type"]
                     .as_str()
-                    .expect(&format!("missing/invalid resource type in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
                 let count = value0["count"]
                     .as_i32()
-                    .expect(&format!("missing/invalid resource count in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource count in {}", req_json));
                 if resource_type == "Missile" {
                     return Ok(Requirement::MissilesCapacity(count as Capacity));
                 } else if resource_type == "Super" {
@@ -2278,10 +2275,10 @@ impl GameData {
                 let value0 = value.members().next().unwrap();
                 let resource_type = value0["type"]
                     .as_str()
-                    .expect(&format!("missing/invalid resource type in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
                 let count = value0["count"]
                     .as_i32()
-                    .expect(&format!("missing/invalid resource count in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource count in {}", req_json));
                 if resource_type == "RegularEnergy" {
                     return Ok(Requirement::make_and(vec![
                         Requirement::DisableableETank,
@@ -2295,10 +2292,10 @@ impl GameData {
                 for r in value.members() {
                     let resource_type = r["type"]
                         .as_str()
-                        .expect(&format!("missing/invalid resource type in {}", req_json));
-                    let count = r["count"]
-                        .as_i32()
-                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                    let count = r["count"].as_i32().unwrap_or_else(|| {
+                        panic!("missing/invalid resource count in {}", req_json)
+                    });
                     if resource_type == "RegularEnergy" {
                         assert!(count > 0);
                         reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
@@ -2319,10 +2316,10 @@ impl GameData {
                 for r in value.members() {
                     let resource_type = r["type"]
                         .as_str()
-                        .expect(&format!("missing/invalid resource type in {}", req_json));
-                    let count = r["count"]
-                        .as_i32()
-                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                    let count = r["count"].as_i32().unwrap_or_else(|| {
+                        panic!("missing/invalid resource count in {}", req_json)
+                    });
                     if resource_type == "Missile" {
                         reqs.push(Requirement::MissilesMissingAtMost(count as Capacity));
                     } else if resource_type == "Super" {
@@ -2346,10 +2343,10 @@ impl GameData {
                 for value0 in value.members() {
                     let resource_type = value0["type"]
                         .as_str()
-                        .expect(&format!("missing/invalid resource type in {}", req_json));
-                    let count = value0["count"]
-                        .as_i32()
-                        .expect(&format!("missing/invalid resource count in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                    let count = value0["count"].as_i32().unwrap_or_else(|| {
+                        panic!("missing/invalid resource count in {}", req_json)
+                    });
                     if resource_type == "RegularEnergy" {
                         reqs.push(Requirement::RegularEnergy(count as Capacity));
                     } else if resource_type == "ReserveEnergy" {
@@ -2410,7 +2407,7 @@ impl GameData {
             } else if key == "shinespark" {
                 let frames = value["frames"]
                     .as_i32()
-                    .expect(&format!("missing/invalid frames in {}", req_json))
+                    .unwrap_or_else(|| panic!("missing/invalid frames in {}", req_json))
                     as Capacity;
                 let excess_frames = value["excessFrames"].as_i32().unwrap_or(0) as Capacity;
                 return Ok(Requirement::Shinespark {
@@ -2442,78 +2439,78 @@ impl GameData {
             } else if key == "shineChargeFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid shineChargeFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid shineChargeFrames in {}", req_json));
                 return Ok(Requirement::ShineChargeFrames(frames as Capacity));
             } else if key == "heatFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid heatFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid heatFrames in {}", req_json));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "gravitylessHeatFrames" {
                 // In Map Rando, Gravity doesn't affect heat frames, so this is treated the same as "heatFrames".
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid gravitylessHeatFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid gravitylessHeatFrames in {}", req_json));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "lavaFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid lavaFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid lavaFrames in {}", req_json));
                 return Ok(Requirement::LavaFrames(frames as Capacity));
             } else if key == "gravitylessLavaFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid gravitylessLavaFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid gravitylessLavaFrames in {}", req_json));
                 return Ok(Requirement::GravitylessLavaFrames(frames as Capacity));
             } else if key == "gravitylessAcidFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid gravitylessAcidFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid gravitylessAcidFrames in {}", req_json));
                 return Ok(Requirement::GravitylessAcidFrames(frames as Capacity));
             } else if key == "acidFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid acidFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid acidFrames in {}", req_json));
                 return Ok(Requirement::AcidFrames(frames as Capacity));
             } else if key == "metroidFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid metroidFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid metroidFrames in {}", req_json));
                 return Ok(Requirement::MetroidFrames(frames as Capacity));
             } else if key == "draygonElectricityFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid draygonElectricityFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid draygonElectricityFrames in {}", req_json));
                 return Ok(Requirement::Damage(frames as Capacity));
             } else if key == "samusEaterFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid samusEaterFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid samusEaterFrames in {}", req_json));
                 return Ok(Requirement::Damage(frames as Capacity / 10));
             } else if key == "cycleFrames" {
                 let frames = value
                     .as_i32()
-                    .expect(&format!("invalid cycleFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid cycleFrames in {}", req_json));
                 return Ok(Requirement::CycleFrames(frames as Capacity));
             } else if key == "spikeHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid spikeHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid spikeHits in {}", req_json));
                 return Ok(Requirement::Damage(hits as Capacity * 60));
             } else if key == "thornHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid thornHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid thornHits in {}", req_json));
                 return Ok(Requirement::Damage(hits as Capacity * 16));
             } else if key == "electricityHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid electricityHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid electricityHits in {}", req_json));
                 return Ok(Requirement::Damage(hits as Capacity * 30));
             } else if key == "hibashiHits" {
                 let hits = value
                     .as_i32()
-                    .expect(&format!("invalid hibashiHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid hibashiHits in {}", req_json));
                 return Ok(Requirement::Damage(hits as Capacity * 30));
             } else if key == "enemyDamage" {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
@@ -2625,7 +2622,7 @@ impl GameData {
                     }
                     reqs.push(Requirement::EnemyKill {
                         count: *count as Capacity,
-                        vul: vul,
+                        vul,
                     });
                 }
                 return Ok(Requirement::make_and(reqs));
@@ -2739,7 +2736,7 @@ impl GameData {
             } else if key == "useFlashSuit" {
                 return Ok(Requirement::Never);
             } else if key == "tech" {
-                return Ok(self.get_tech_requirement(value.as_str().unwrap(), false)?);
+                return self.get_tech_requirement(value.as_str().unwrap(), false);
             } else if key == "notable" {
                 let notable_name = value.as_str().unwrap().to_string();
                 let notable_idx = *ctx
@@ -2787,7 +2784,7 @@ impl GameData {
             let room_json = &room_json_map[&room_id];
             let room_name = room_json["name"].clone();
             let preprocessed_room_json = self
-                .preprocess_room(&room_json)
+                .preprocess_room(room_json)
                 .with_context(|| format!("Preprocessing room {}", room_name))?;
             self.process_room(&preprocessed_room_json)
                 .with_context(|| format!("Processing room {}", room_name))?;
@@ -3010,9 +3007,9 @@ impl GameData {
                             num_objectives_complete
                         ));
                     }
-                    for i in 0..num_objectives_complete {
+                    for cond in obj_conditions.iter().take(num_objectives_complete) {
                         strat["requires"]
-                            .push(JsonValue::String(obj_conditions[i].to_string()))
+                            .push(JsonValue::String(cond.to_string()))
                             .unwrap();
                     }
                     new_strats.push(strat);
@@ -3110,7 +3107,7 @@ impl GameData {
         Ok(unlocks_door)
     }
 
-    fn replace_obstacle_flag(&mut self, req_json: &mut JsonValue, obstacle_flag: &str) {
+    fn replace_obstacle_flag(req_json: &mut JsonValue, obstacle_flag: &str) {
         if req_json.is_string() {
             let s = req_json.as_str().unwrap();
             if obstacle_flag == s {
@@ -3118,12 +3115,12 @@ impl GameData {
             }
         } else if req_json.is_array() {
             for x in req_json.members_mut() {
-                self.replace_obstacle_flag(x, obstacle_flag);
+                Self::replace_obstacle_flag(x, obstacle_flag);
             }
         } else if req_json.has_key("and") {
-            self.replace_obstacle_flag(&mut req_json["and"], obstacle_flag);
+            Self::replace_obstacle_flag(&mut req_json["and"], obstacle_flag);
         } else if req_json.has_key("or") {
-            self.replace_obstacle_flag(&mut req_json["or"], obstacle_flag);
+            Self::replace_obstacle_flag(&mut req_json["or"], obstacle_flag);
         }
     }
 
@@ -3354,10 +3351,10 @@ impl GameData {
             // a possibility depending on the obstacle instead:
             // e.g., "f_DefeatedKraid" becomes {"or": ["f_DefeatedKraid", {"obstaclesCleared": ["f_DefeatedKraid"]}]}
             for strat in new_room_json["strats"].members_mut() {
-                self.replace_obstacle_flag(&mut strat["requires"], &obstacle_flag);
+                Self::replace_obstacle_flag(&mut strat["requires"], obstacle_flag);
                 if strat.has_key("unlocksDoors") {
                     for unlock in strat["unlocksDoors"].members_mut() {
-                        self.replace_obstacle_flag(&mut unlock["requires"], &obstacle_flag);
+                        Self::replace_obstacle_flag(&mut unlock["requires"], obstacle_flag);
                     }
                 }
                 let has_flag = strat["setsFlags"]
@@ -3375,7 +3372,7 @@ impl GameData {
                 if node_json.has_key("locks") {
                     for lock_json in node_json["locks"].members_mut() {
                         for strat_json in lock_json["unlockStrats"].members_mut() {
-                            self.replace_obstacle_flag(&mut strat_json["requires"], &obstacle_flag);
+                            Self::replace_obstacle_flag(&mut strat_json["requires"], obstacle_flag);
                         }
                     }
                 }
@@ -3395,7 +3392,7 @@ impl GameData {
             }
         }
 
-        if extra_obstacles.len() > 0 {
+        if !extra_obstacles.is_empty() {
             if !new_room_json.has_key("obstacles") {
                 new_room_json["obstacles"] = json::array![];
             }
@@ -3452,10 +3449,10 @@ impl GameData {
         // TODO: handle case with multiple environments
         ensure!(node_json["doorEnvironments"].is_array());
         ensure!(node_json["doorEnvironments"].len() == 1);
-        return Ok(node_json["doorEnvironments"][0]["physics"]
+        Ok(node_json["doorEnvironments"][0]["physics"]
             .as_str()
             .unwrap()
-            .to_string());
+            .to_string())
     }
 
     pub fn get_room_heated(&self, room_json: &JsonValue, node_id: NodeId) -> Result<bool> {
@@ -3471,9 +3468,9 @@ impl GameData {
                     continue;
                 }
             }
-            return Ok(env["heated"]
+            return env["heated"]
                 .as_bool()
-                .context("Expecting 'heated' to be a bool")?);
+                .context("Expecting 'heated' to be a bool");
         }
         bail!("No match for node {} in roomEnvironments", node_id);
     }
@@ -4024,19 +4021,16 @@ impl GameData {
     }
 
     pub fn does_come_in_shinecharged(&self, entrance_condition: &EntranceCondition) -> bool {
-        match entrance_condition.main {
-            MainEntranceCondition::ComeInShinecharging { .. } => true,
-            MainEntranceCondition::ComeInShinecharged { .. } => true,
-            MainEntranceCondition::ComeInShinechargedJumping { .. } => true,
-            _ => false,
-        }
+        matches!(
+            entrance_condition.main,
+            MainEntranceCondition::ComeInShinecharging { .. }
+                | MainEntranceCondition::ComeInShinecharged { .. }
+                | MainEntranceCondition::ComeInShinechargedJumping { .. }
+        )
     }
 
     pub fn does_leave_shinecharged(&self, exit_condition: &ExitCondition) -> bool {
-        match exit_condition {
-            ExitCondition::LeaveShinecharged { .. } => true,
-            _ => false,
-        }
+        matches!(exit_condition, ExitCondition::LeaveShinecharged { .. })
     }
 
     fn process_strat(
@@ -4060,7 +4054,7 @@ impl GameData {
         let to_heated = self.get_room_heated(room_json, to_node_id)?;
         let physics_res = self.get_node_physics(&self.node_json_map[&(room_id, to_node_id)]);
         let physics: Option<Physics> = if let Ok(physics_str) = &physics_res {
-            Some(parse_physics(&physics_str)?)
+            Some(parse_physics(physics_str)?)
         } else {
             None
         };
@@ -4111,26 +4105,23 @@ impl GameData {
                 continue;
             }
             ensure!(strat_json["requires"].is_array());
-            let requires_json: Vec<JsonValue> = strat_json["requires"]
-                .members()
-                .map(|x| x.clone())
-                .collect();
+            let requires_json: Vec<JsonValue> = strat_json["requires"].members().cloned().collect();
 
             let to_obstacles_bitmask =
-                self.get_obstacle_data(strat_json, from_obstacles_bitmask, &obstacles_idx_map)?;
+                self.get_obstacle_data(strat_json, from_obstacles_bitmask, obstacles_idx_map)?;
             let ctx = RequirementContext {
                 room_id,
-                strat_name: &strat_json["name"].as_str().unwrap(),
-                to_node_id: to_node_id,
+                strat_name: strat_json["name"].as_str().unwrap(),
+                to_node_id,
                 room_heated: from_heated || to_heated,
                 from_obstacles_bitmask,
-                obstacles_idx_map: Some(&obstacles_idx_map),
+                obstacles_idx_map: Some(obstacles_idx_map),
                 unlocks_doors_json: if strat_json.has_key("unlocksDoors") {
                     Some(&strat_json["unlocksDoors"])
                 } else {
                     None
                 },
-                node_implicit_door_unlocks: Some(&node_implicit_door_unlocks),
+                node_implicit_door_unlocks: Some(node_implicit_door_unlocks),
                 notable_map: Some(notable_map),
             };
             let mut requires_vec = vec![];
@@ -4213,17 +4204,13 @@ impl GameData {
             });
             let start_with_shinecharge = if let Some(e) = &entrance_condition {
                 self.does_come_in_shinecharged(e)
-            } else if strat_json["startsWithShineCharge"].as_bool() == Some(true) {
-                true
             } else {
-                false
+                strat_json["startsWithShineCharge"].as_bool() == Some(true)
             };
             let end_with_shinecharge = if let Some(e) = &exit_condition {
                 self.does_leave_shinecharged(e)
-            } else if strat_json["endsWithShineCharge"].as_bool() == Some(true) {
-                true
             } else {
-                false
+                strat_json["endsWithShineCharge"].as_bool() == Some(true)
             };
             let link = Link {
                 from_vertex_id,
@@ -4244,7 +4231,7 @@ impl GameData {
                 }
                 self.node_gmode_regain_mobility
                     .entry((room_id, to_node_id))
-                    .or_insert(vec![])
+                    .or_default()
                     .push((link, gmode_regain_mobility.clone().unwrap()))
             } else if strat_json.has_key("farmCycleDrops") {
                 let enemy_drops = self.parse_enemy_drops(&strat_json["farmCycleDrops"]);
@@ -4395,7 +4382,7 @@ impl GameData {
                     });
                     self.links.push(Link {
                         from_vertex_id: unlock_vertex_id,
-                        to_vertex_id: to_vertex_id,
+                        to_vertex_id,
                         requirement: Requirement::Free,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
@@ -4413,14 +4400,13 @@ impl GameData {
         let area = room_json["area"].as_str().unwrap().to_string();
         let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
         let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
-        let full_area = if sub_sub_area != "" {
+        if !sub_sub_area.is_empty() {
             format!("{} {} {}", sub_sub_area, sub_area, area)
-        } else if sub_area != "" && sub_area != "Main" {
+        } else if !sub_area.is_empty() && sub_area != "Main" {
             format!("{} {}", sub_area, area)
         } else {
             area
-        };
-        full_area
+        }
     }
 
     fn process_room(&mut self, room_json: &JsonValue) -> Result<()> {
@@ -4656,15 +4642,13 @@ impl GameData {
     }
 
     fn add_connection(&mut self, src: (RoomId, NodeId), dst: (RoomId, NodeId), _conn: &JsonValue) {
-        let src_ptr = self.node_ptr_map.get(&src).map(|x| *x);
-        let dst_ptr = self.node_ptr_map.get(&dst).map(|x| *x);
+        let src_ptr = self.node_ptr_map.get(&src).copied();
+        let dst_ptr = self.node_ptr_map.get(&dst).copied();
         let is_west_ocean_bridge = src == (32, 7) || src == (32, 8);
-        if src_ptr.is_some() || dst_ptr.is_some() {
-            if !is_west_ocean_bridge {
-                self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
-                self.reverse_door_ptr_pair_map
-                    .insert(src, (src_ptr, dst_ptr));
-            }
+        if (src_ptr.is_some() || dst_ptr.is_some()) && !is_west_ocean_bridge {
+            self.door_ptr_pair_map.insert((src_ptr, dst_ptr), src);
+            self.reverse_door_ptr_pair_map
+                .insert(src, (src_ptr, dst_ptr));
         }
     }
 
@@ -4711,14 +4695,13 @@ impl GameData {
             if node_json["nodeType"] == "item" {
                 self.item_locations.push((room_id, node_id));
             }
-            if node_json.has_key("utility") {
-                if node_json["utility"].members().any(|x| x == "save") {
-                    if room_id != 304 {
-                        // room_id: 304 is the broken save room, which is not a logical save for the purposes of
-                        // guaranteed early save station, which is all this is currently used for.
-                        self.save_locations.push((room_id, node_id));
-                    }
-                }
+            if node_json.has_key("utility")
+                && node_json["utility"].members().any(|x| x == "save")
+                && room_id != 304
+            {
+                // room_id: 304 is the broken save room, which is not a logical save for the purposes of
+                // guaranteed early save station, which is all this is currently used for.
+                self.save_locations.push((room_id, node_id));
             }
         }
 
@@ -4941,7 +4924,7 @@ impl GameData {
                 .into_iter()
                 .filter(|x| x != tech_id)
                 .collect();
-            self.tech_dependencies.insert(tech_id.clone(), deps);
+            self.tech_dependencies.insert(*tech_id, deps);
         }
         Ok(())
     }
@@ -5044,8 +5027,10 @@ impl GameData {
         strat_videos_path: &Path,
         map_tile_path: &Path,
     ) -> Result<GameData> {
-        let mut game_data = GameData::default();
-        game_data.sm_json_data_path = sm_json_data_path.to_owned();
+        let mut game_data = GameData {
+            sm_json_data_path: sm_json_data_path.to_owned(),
+            ..GameData::default()
+        };
 
         game_data.load_reduced_flashing_patch(reduced_flashing_path)?;
         game_data.load_strat_videos(strat_videos_path)?;

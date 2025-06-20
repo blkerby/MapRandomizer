@@ -84,7 +84,7 @@ impl SuffixTree {
     pub fn find_longest_prefix(&self, query: &[u8]) -> (DataIdx, DataIdx) {
         let mut node_id = 0; // Start at root node
         let mut pos: DataIdx = 0; // Length of prefix of query that has been matched so far
-        if query.len() == 0 {
+        if query.is_empty() {
             // Handle trivial edge case:
             return (0, 0);
         }
@@ -113,9 +113,9 @@ impl SuffixTree {
                 }
             } else {
                 // No further bytes match, so we're done.
-                if node.edges.len() == 0 {
+                if node.edges.is_empty() {
                     // Node has no child edges. The only way this should happen is at the root node, with self.data is empty.
-                    assert!(node_id == 0 && self.data.len() == 0);
+                    assert!(node_id == 0 && self.data.is_empty());
                     return (0, 0);
                 }
                 let edge = &node.edges[0]; // Pick an arbitrary edge
@@ -321,7 +321,7 @@ mod tests {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     #[test]

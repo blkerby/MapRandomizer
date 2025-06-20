@@ -54,14 +54,14 @@ impl MapRepository {
         // Make Toilet area/subarea align with its intersecting room(s):
         // TODO: Push this upstream into the map generation
         let toilet_intersections = Randomizer::get_toilet_intersections(&map, game_data);
-        if toilet_intersections.len() > 0 {
+        if !toilet_intersections.is_empty() {
             let area = map.area[toilet_intersections[0]];
             let subarea = map.subarea[toilet_intersections[0]];
-            for i in 1..toilet_intersections.len() {
-                if map.area[toilet_intersections[i]] != area {
+            for &t in &toilet_intersections {
+                if map.area[t] != area {
                     panic!("Mismatched areas for Toilet intersection");
                 }
-                if map.subarea[toilet_intersections[i]] != subarea {
+                if map.subarea[t] != subarea {
                     panic!("Mismatched subareas for Toilet intersection");
                 }
             }

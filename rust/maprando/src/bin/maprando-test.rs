@@ -170,7 +170,7 @@ fn get_randomization(
             objectives,
             &settings,
             &difficulty_tiers,
-            &game_data,
+            game_data,
             &game_data.base_links_data,
             &mut rng,
         );
@@ -197,25 +197,17 @@ fn get_randomization(
 fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
     let mut rng = rand::rngs::StdRng::from_entropy();
 
-    let mut possible_sprites: Vec<Option<String>> = app
-        .samus_sprites
-        .clone()
-        .into_iter()
-        .map(|x| Some(x))
-        .collect();
+    let mut possible_sprites: Vec<Option<String>> =
+        app.samus_sprites.clone().into_iter().map(Some).collect();
     possible_sprites.push(None);
 
-    let mut possible_etanks: Vec<Option<(u8, u8, u8)>> = app
-        .etank_colors
-        .clone()
-        .into_iter()
-        .map(|x| Some(x))
-        .collect();
+    let mut possible_etanks: Vec<Option<(u8, u8, u8)>> =
+        app.etank_colors.clone().into_iter().map(Some).collect();
     possible_etanks.push(None);
 
     let bits = rng.next_u64();
 
-    let cust = CustomizeSettings {
+    CustomizeSettings {
         samus_sprite: possible_sprites[rng.next_u64() as usize % possible_sprites.len()].clone(),
         etank_color: possible_etanks[rng.next_u64() as usize % possible_etanks.len()],
         reserve_hud_style: bits & 0x01 != 0,
@@ -238,9 +230,7 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
             false => maprando::customize::FlashingSetting::Vanilla,
         },
         controller_config: ControllerConfig::default(),
-    };
-
-    cust
+    }
 }
 
 fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
@@ -249,7 +239,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     info!("Test cycle {cycle_count} Start: seed={}", seed);
 
     // Perform randomization (map selection & item placement):
-    let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(&app, seed)?;
+    let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(app, seed)?;
 
     // Generate the patched ROM:
     let game_rom = make_rom(&app.input_rom, &settings, &randomization, &app.game_data)?;
@@ -275,7 +265,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         &basic_customize_settings,
         &app.game_data,
         &app.samus_sprite_categories,
-        &vec![],
+        &[],
     )?;
 
     std::fs::write(
@@ -297,7 +287,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
                 format!("{output_file_prefix}-custom-{}.smc", custom + 1),
             );
             output_rom = game_rom.clone();
-            let customize_settings = make_random_customization(&app);
+            let customize_settings = make_random_customization(app);
             customize_rom(
                 &mut output_rom,
                 &app.input_rom,
@@ -305,7 +295,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
                 &customize_settings,
                 &app.game_data,
                 &app.samus_sprite_categories,
-                &vec![],
+                &[],
             )?;
             info!(
                 "Writing customization #{0} to {1}",
@@ -442,7 +432,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     }
 
     let etank_color_from_json: Vec<Vec<String>> =
-        serde_json::from_str(&std::fs::read_to_string(&etank_colors_path)?)?;
+        serde_json::from_str(&std::fs::read_to_string(etank_colors_path)?)?;
     let mut etank_colors_str: Vec<String> = vec![];
     for mut v in etank_color_from_json {
         etank_colors_str.append(&mut v);
@@ -460,7 +450,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         .collect();
 
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
-        serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path)?)?;
+        serde_json::from_str(&std::fs::read_to_string(samus_sprites_path)?)?;
 
     let mut samus_sprites: Vec<String> = vec![];
     for cat in &samus_sprite_categories {

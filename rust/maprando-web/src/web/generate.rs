@@ -139,8 +139,8 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         let full_area_idx = area_order_idx[&full_area];
         start_locations_by_area[full_area_idx].1.push(loc.clone());
     }
-    for i in 0..start_locations_by_area.len() {
-        start_locations_by_area[i].1.sort_by_key(|x| {
+    for s in &mut start_locations_by_area {
+        s.1.sort_by_key(|x| {
             (
                 app_data.game_data.room_json_map[&x.room_id]["name"]
                     .as_str()
@@ -159,7 +159,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         item_pool_multiple,
         starting_items_multiple,
         starting_items_single,
-        item_priorities: vec!["Early", "Default", "Late"]
+        item_priorities: ["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
             .collect(),

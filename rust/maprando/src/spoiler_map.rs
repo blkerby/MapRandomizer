@@ -20,7 +20,7 @@ fn get_rgb(r: isize, g: isize, b: isize) -> Rgba<u8> {
         (r * 255 / 31) as u8,
         (g * 255 / 31) as u8,
         (b * 255 / 31) as u8,
-        255 as u8,
+        255,
     ])
 }
 
@@ -191,8 +191,8 @@ pub fn get_spoiler_map(
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
-        let x = room_x + tile_x as usize;
-        let y = room_y + tile_y as usize;
+        let x = room_x + tile_x;
+        let y = room_y + tile_y;
         tiles[y][x].interior = MapTileInterior::Objective;
     }
 

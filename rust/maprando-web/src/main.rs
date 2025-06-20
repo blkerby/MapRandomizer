@@ -1,3 +1,6 @@
+// TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
+#![allow(clippy::too_many_arguments)]
+
 mod logic_helper;
 mod web;
 
@@ -23,7 +26,7 @@ use maprando_game::GameData;
 use std::{path::Path, time::Instant};
 use web::{about, generate, home, logic, randomize, releases, seed, upgrade};
 
-const VISUALIZER_PATH: &'static str = "../visualizer/";
+const VISUALIZER_PATH: &str = "../visualizer/";
 
 #[derive(Parser)]
 struct Args {
@@ -113,7 +116,7 @@ fn build_app_data() -> AppData {
 
     info!("Loading logic preset data");
     let etank_colors: Vec<Vec<String>> =
-        serde_json::from_str(&std::fs::read_to_string(&etank_colors_path).unwrap()).unwrap();
+        serde_json::from_str(&std::fs::read_to_string(etank_colors_path).unwrap()).unwrap();
     let version_info = VersionInfo {
         version: VERSION,
         dev: args.dev,
@@ -128,7 +131,7 @@ fn build_app_data() -> AppData {
 
     let logic_data = LogicData::new(&game_data, &preset_data, &version_info, &video_storage_url);
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
-        serde_json::from_str(&std::fs::read_to_string(&samus_sprites_path).unwrap()).unwrap();
+        serde_json::from_str(&std::fs::read_to_string(samus_sprites_path).unwrap()).unwrap();
 
     let app_data = AppData {
         game_data,

@@ -68,7 +68,7 @@ pub struct SeedHeaderTemplate<'a> {
     enabled_notables: HashSet<(RoomId, NotableId)>,
 }
 
-impl<'a> SeedHeaderTemplate<'a> {
+impl SeedHeaderTemplate<'_> {
     fn percent_enabled(&self, preset_name: &str) -> isize {
         let tech = &self.preset_data.tech_by_difficulty[preset_name];
         let tech_enabled_count = tech
@@ -147,11 +147,8 @@ impl<'a> SeedHeaderTemplate<'a> {
         if self.settings.other_settings.door_locks_size == DoorLocksSize::Small {
             game_variations.push("Door locks drawn smaller on map");
         }
-        match self.settings.other_settings.wall_jump {
-            WallJump::Collectible => {
-                game_variations.push("Collectible wall jump");
-            }
-            _ => {}
+        if self.settings.other_settings.wall_jump == WallJump::Collectible {
+            game_variations.push("Collectible wall jump");
         }
         if self.settings.other_settings.maps_revealed == maprando::settings::MapsRevealed::Partial {
             game_variations.push("Maps partially revealed from start");
@@ -346,8 +343,7 @@ pub fn render_seed(
         get_enabled_notables(&seed_data.difficulty.notables, &app_data.game_data);
     let objective_names: HashMap<String, String> = get_objective_groups()
         .iter()
-        .map(|x| x.objectives.clone())
-        .flatten()
+        .flat_map(|x| x.objectives.clone())
         .collect();
     let seed_header_template = SeedHeaderTemplate {
         seed_name: seed_name.to_string(),

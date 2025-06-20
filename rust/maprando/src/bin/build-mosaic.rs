@@ -1,6 +1,8 @@
+// TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
+#![allow(clippy::too_many_arguments)]
+
 use anyhow::{Context, Result};
 use clap::Parser;
-use crypto_hash;
 use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
 use json::JsonValue;
@@ -119,9 +121,7 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
         height,
     );
 
-    for _ in 0..0x3200 {
-        level_data.push(bts_fill_byte);
-    }
+    level_data.extend(vec![bts_fill_byte; 0x3200]);
     extract_all_screen_bytes(
         &state_xml.level_data.bts.screen,
         &mut level_data[0x6402..],
@@ -146,26 +146,26 @@ pub fn extract_uncompressed_level_data(state_xml: &smart_xml::RoomState) -> Vec<
 
 impl MosaicPatchBuilder {
     fn get_compressed_data(&self, data: &[u8]) -> Result<Vec<u8>> {
-        let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &data);
+        let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, data);
         let output_path = self.compressed_data_cache_dir.join(digest);
         if !output_path.exists() {
             if let Some(compressor_path) = &self.compressor_path {
                 let tmp_path = self.tmp_dir.join("tmpfile");
                 std::fs::write(&tmp_path, data)?;
-                Command::new(&compressor_path)
+                Command::new(compressor_path)
                     .arg("-c")
                     .arg(format!("-f={}", tmp_path.to_str().unwrap()))
                     .arg(format!("-o={}", output_path.to_str().unwrap()))
                     .status()
                     .context("error running compressor")?;
-                return Ok(std::fs::read(output_path)?);
+                Ok(std::fs::read(output_path)?)
             } else {
                 let output = lznint::compress(data);
                 std::fs::write(&output_path, output.clone())?;
-                return Ok(output);
+                Ok(output)
             }
         } else {
-            return Ok(std::fs::read(output_path)?);
+            Ok(std::fs::read(output_path)?)
         }
     }
 
@@ -202,7 +202,7 @@ impl MosaicPatchBuilder {
             out.extend([fx.animationflags as u8]);
             out.extend([fx.paletteblend as u8]);
         }
-        if out.len() == 0 {
+        if out.is_empty() {
             out.extend(vec![0xFF, 0xFF]);
         }
 
@@ -221,7 +221,7 @@ impl MosaicPatchBuilder {
             let room_ptr = self
                 .room_ptr_map
                 .get(&(room_xml.area, room_xml.index))
-                .map(|x| *x)
+                .copied()
                 .unwrap_or(0);
             if room_ptr == 0 {
                 continue;
@@ -248,7 +248,7 @@ impl MosaicPatchBuilder {
             let room_ptr = self
                 .room_ptr_map
                 .get(&(room_xml.area, room_xml.index))
-                .map(|x| *x)
+                .copied()
                 .unwrap_or(0);
             if room_ptr == 0 {
                 continue;
@@ -362,7 +362,7 @@ impl MosaicPatchBuilder {
             })?;
             let compressed_gfx16x16 = self.get_compressed_data(&gfx16x16_bytes)?;
 
-            if tileset_idx >= 0x0F && tileset_idx <= 0x14 {
+            if (0x0F..=0x14).contains(&tileset_idx) {
                 // Skip Ceres tilesets
                 continue;
             }
@@ -429,7 +429,7 @@ impl MosaicPatchBuilder {
         let base_rooms_dir = self.mosaic_dir.join("Projects/Base/Export/Rooms/");
         for room_path in std::fs::read_dir(base_rooms_dir)? {
             let room_filename = room_path?.file_name().to_str().unwrap().to_owned();
-            self.make_room_patch(&room_filename, &project_names)?;
+            self.make_room_patch(&room_filename, project_names)?;
         }
         Ok(())
     }
@@ -449,7 +449,7 @@ impl MosaicPatchBuilder {
         let room_ptr = self
             .room_ptr_map
             .get(&(base_room.area, base_room.index))
-            .map(|x| *x)
+            .copied()
             .unwrap_or(0);
         if room_ptr == 0 {
             info!("Skipping {}", room_filename);
@@ -479,7 +479,7 @@ impl MosaicPatchBuilder {
                 let level_data = extract_uncompressed_level_data(state_xml);
                 let compressed_level_data = self.get_compressed_data(&level_data)?;
                 compressed_level_data_vec.push(compressed_level_data);
-                let fx_data = self.get_fx_data(&state_xml, false);
+                let fx_data = self.get_fx_data(state_xml, false);
                 fx_data_vec.push(fx_data);
                 state_xml_vec.push(state_xml.clone());
             }
@@ -564,7 +564,7 @@ impl MosaicPatchBuilder {
                         let bg_ptr = self
                             .bgdata_map
                             .get(&state_xml.bg_data)
-                            .map(|x| *x)
+                            .copied()
                             .unwrap_or(0);
                         if bg_ptr == 0 {
                             error!("Unrecognized BGData in {}", project);
@@ -767,7 +767,7 @@ impl MosaicPatchBuilder {
             new_rom.write_u24(state_ptr, pc2snes(level_data_addr) as isize)?;
 
             // Set BG X scroll rate to 100%
-            new_rom.write_u8(state_ptr + 12, 0x00 as isize)?;
+            new_rom.write_u8(state_ptr + 12, 0x00)?;
 
             if state_xml.layer1_2 == 0x91C9 {
                 // Disable scrolling sky, in order to be able to draw the tube in Layer2.
@@ -873,8 +873,7 @@ impl MosaicPatchBuilder {
                 let top_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_top)?;
                 let bottom_state_xml =
                     Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
-                let middle_state_xml =
-                    Self::load_room_state(&theme_project_path, &smart_room_name)?;
+                let middle_state_xml = Self::load_room_state(&theme_project_path, smart_room_name)?;
                 let twin_state_xml = if room_geometry.name == "Pants Room" {
                     let east_pants_room_name = room_name_by_pair[&(4, 37)].as_str();
                     Some(Self::load_room_state(
@@ -943,11 +942,11 @@ impl MosaicPatchBuilder {
                         Self::copy_screen(
                             &mut level_data,
                             x,
-                            sy as usize,
+                            sy,
                             width,
                             &orig_level_data,
                             x,
-                            sy as usize,
+                            sy,
                             width,
                             &layer_2,
                         );
@@ -968,7 +967,7 @@ impl MosaicPatchBuilder {
 
                 for &x in &transit_data.x {
                     let mut y_min = isize::MAX;
-                    let mut y_max = 0 as isize;
+                    let mut y_max = 0;
 
                     let mut middle_layer_2 = orig_middle_layer_2.clone();
                     Self::draw_tube(
@@ -982,7 +981,7 @@ impl MosaicPatchBuilder {
                     );
 
                     for y in 0..(room_geometry.map.len() as isize) {
-                        if room_geometry.map[y as usize][x as usize] == 1 {
+                        if room_geometry.map[y as usize][x] == 1 {
                             if y < y_min {
                                 y_min = y;
                             }
@@ -1010,11 +1009,11 @@ impl MosaicPatchBuilder {
                             Self::copy_screen(
                                 &mut new_middle_level_data,
                                 sx,
-                                sy as usize,
+                                sy,
                                 room_width,
                                 &middle_level_data,
                                 sx,
-                                sy as usize,
+                                sy,
                                 room_width,
                                 &middle_layer_2_behind,
                             );
@@ -1025,13 +1024,12 @@ impl MosaicPatchBuilder {
                         self.get_compressed_data(&new_middle_level_data)?;
                     let twin_level_data_len =
                         compressed_twin_level_data.as_ref().map_or(0, |x| x.len());
-                    if dry_run {
-                        if compressed_middle_level_data.len() + twin_level_data_len
+                    if dry_run
+                        && compressed_middle_level_data.len() + twin_level_data_len
                             > *max_intersection_level_data
-                        {
-                            *max_intersection_level_data =
-                                compressed_middle_level_data.len() + twin_level_data_len;
-                        }
+                    {
+                        *max_intersection_level_data =
+                            compressed_middle_level_data.len() + twin_level_data_len;
                     }
 
                     // Construct level data for the Toilet room, one version for each possible vertical position:
@@ -1155,7 +1153,7 @@ impl MosaicPatchBuilder {
                             )?;
 
                             // Set BG scroll rate to 100%
-                            new_rom.write_u8(toilet_state_ptr + 13, 0x00 as isize)?;
+                            new_rom.write_u8(toilet_state_ptr + 13, 0x00)?;
 
                             // Setup ASM:
                             // Copy from middle room if it's the type that loads special tiles (for Crab Hole, etc.)
@@ -1289,19 +1287,17 @@ fn read_json(path: &Path) -> Result<JsonValue> {
 fn load_room_ptrs(sm_json_data_path: &Path) -> Result<Vec<usize>> {
     let room_pattern = sm_json_data_path.to_str().unwrap().to_string() + "/region/**/*.json";
     let mut out: Vec<usize> = vec![];
-    for entry in glob::glob(&room_pattern).unwrap() {
-        if let Ok(path) = entry {
-            let path_str = path
-                .to_str()
-                .with_context(|| format!("Unable to convert path to string: {}", path.display()))?;
-            if path_str.contains("ceres") || path_str.contains("roomDiagrams") {
-                continue;
-            }
-            let room_json = read_json(&path)?;
-            let room_ptr =
-                parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
-            out.push(room_ptr);
+    for path in glob::glob(&room_pattern).unwrap().flatten() {
+        let path_str = path
+            .to_str()
+            .with_context(|| format!("Unable to convert path to string: {}", path.display()))?;
+        if path_str.contains("ceres") || path_str.contains("roomDiagrams") {
+            continue;
         }
+        let room_json = read_json(&path)?;
+        let room_ptr =
+            parse_int::parse::<usize>(room_json["roomAddress"].as_str().unwrap()).unwrap();
+        out.push(room_ptr);
     }
     Ok(out)
 }

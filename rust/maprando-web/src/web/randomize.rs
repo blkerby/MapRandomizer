@@ -133,10 +133,10 @@ async fn randomize(
     let implicit_tech = &app_data.preset_data.tech_by_difficulty["Implicit"];
     let implicit_notables = &app_data.preset_data.notables_by_difficulty["Implicit"];
     let difficulty = DifficultyConfig::new(
-        &skill_settings,
+        skill_settings,
         &app_data.game_data,
-        &implicit_tech,
-        &implicit_notables,
+        implicit_tech,
+        implicit_notables,
     );
     let difficulty_tiers = get_difficulty_tiers(
         &settings,
@@ -268,9 +268,9 @@ async fn randomize(
         peer_addr: http_req
             .peer_addr()
             .map(|x| format!("{:?}", x))
-            .unwrap_or(String::new()),
+            .unwrap_or_default(),
         http_headers: format_http_headers(&http_req),
-        random_seed: random_seed,
+        random_seed,
         map_seed: output.map_seed,
         door_randomization_seed: output.door_randomization_seed,
         item_placement_seed: output.item_placement_seed,

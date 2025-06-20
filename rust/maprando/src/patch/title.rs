@@ -154,7 +154,7 @@ impl<'a> TitlePatcher<'a> {
 
     fn write_title_background_tiles(&mut self, tiles: &[[[u8; 8]; 8]]) -> Result<()> {
         let flat_tiles = tiles.flat().flat();
-        let compressed = compress(&flat_tiles);
+        let compressed = compress(flat_tiles);
         let gfx_pc_addr = self.write_to_free_space(&compressed)?;
         let gfx_snes_addr = pc2snes(gfx_pc_addr);
         // Update reference to tile GFX:
@@ -176,7 +176,7 @@ impl<'a> TitlePatcher<'a> {
             Axis(0),
             &[padded_tilemap0.view(), tilemap_vertical_padding.view()],
         )?;
-        let compressed = compress(&padded_tilemap.as_standard_layout().as_slice().unwrap());
+        let compressed = compress(padded_tilemap.as_standard_layout().as_slice().unwrap());
         let tilemap_pc_addr = self.write_to_free_space(&compressed)?;
         let tilemap_snes_addr = pc2snes(tilemap_pc_addr);
         // Update reference to tilemap:
@@ -212,7 +212,7 @@ impl<'a> TitlePatcher<'a> {
                 if color_plane_mask == 0xE0 {
                     // Effect applied to all 3 color planes (used for subtractive mode, at top of screen)
                     // Reduce the effect to avoid too much darkening at the top of the screen:
-                    intensity = intensity / 3;
+                    intensity /= 3;
                     if intensity > 3 {
                         intensity = 3;
                     }
@@ -242,7 +242,7 @@ impl<'a> TitlePatcher<'a> {
         assert!(img.dim() == (224, 256, 3));
 
         // Compute title background palette, tile GFX, and tilemap:
-        let graphics = encode_mode7_graphics(&img)?;
+        let graphics = encode_mode7_graphics(img)?;
         println!(
             "Title background distinct colors: {}",
             graphics.palette.len()
@@ -264,7 +264,7 @@ impl<'a> TitlePatcher<'a> {
     }
 
     fn read_compressed_tiles(&self, pc_addr: usize) -> Result<Vec<[[u8; 8]; 8]>> {
-        let decompressed = decompress(&self.rom, pc_addr)?;
+        let decompressed = decompress(self.rom, pc_addr)?;
         let mut tiles: Vec<[[u8; 8]; 8]> = Vec::new();
         assert!(decompressed.len() == 16384);
         for i in 0..512 {
@@ -415,7 +415,7 @@ impl<'a> TitlePatcher<'a> {
         // Write the tiles & spritemap to a new location in free space, since they would
         // no longer fit in the original location:
         let encoded_tiles: Vec<[u8; 32]> =
-            tiles.iter().map(|tile| encode_tile_4bpp(tile)).collect();
+            tiles.iter().map(encode_tile_4bpp).collect();
         let new_gfx_pc_addr = self.write_to_free_space(&compress(encoded_tiles.flat()))?;
         let new_gfx_snes_addr = pc2snes(new_gfx_pc_addr);
         let new_spritemap_snes_addr = 0x8CF3E9;

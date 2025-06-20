@@ -293,17 +293,17 @@ pub fn compute_escape_data(
         animals_spoiler = Some(get_spoiler_escape_route(
             &animals_path,
             &graph,
-            &game_data,
+            game_data,
             map,
         ));
         let ship_path = get_shortest_path(graph.animals_vertex_id, graph.ship_vertex_id, &graph)?;
-        ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data, map);
+        ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, game_data, map);
         base_igt_frames = animals_path.last().unwrap().1 + ship_path.last().unwrap().1;
     } else {
         animals_spoiler = None;
         let ship_path =
             get_shortest_path(graph.mother_brain_vertex_id, graph.ship_vertex_id, &graph)?;
-        ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, &game_data, map);
+        ship_spoiler = get_spoiler_escape_route(&ship_path, &graph, game_data, map);
         base_igt_frames = ship_path.last().unwrap().1;
     }
 
@@ -327,8 +327,8 @@ pub fn compute_escape_data(
         base_igt_seconds,
         base_leniency_factor,
         difficulty_multiplier: difficulty.escape_timer_multiplier,
-        raw_time_seconds: raw_time_seconds,
-        final_time_seconds: final_time_seconds,
+        raw_time_seconds,
+        final_time_seconds,
         animals_route: animals_spoiler,
         ship_route: ship_spoiler,
     })

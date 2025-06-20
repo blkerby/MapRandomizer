@@ -6,7 +6,7 @@ use maprando_game::glowpatch::{GlowPatch, GlowPatchSection};
 
 pub fn write_glowpatch(rom: &mut Rom, patch: &GlowPatch) -> Result<()> {
     for section in &patch.sections {
-        write_glowpatch_section(rom, &section, 0)?;
+        write_glowpatch_section(rom, section, 0)?;
     }
     Ok(())
 }
@@ -19,7 +19,7 @@ fn write_glowpatch_section(
     match section {
         GlowPatchSection::Direct { offset, data } => {
             let total_offset = *offset as usize + base_offset;
-            rom.write_n(total_offset, &data)?;
+            rom.write_n(total_offset, data)?;
             Ok(())
         }
         GlowPatchSection::Indirect {
@@ -31,7 +31,7 @@ fn write_glowpatch_section(
             let addr_data = rom.read_n(total_offset, *read_length as usize)?.to_vec();
             let addr = from_bytes_le(&addr_data) as usize;
             for subsection in sections {
-                write_glowpatch_section(rom, &subsection, addr)?;
+                write_glowpatch_section(rom, subsection, addr)?;
             }
             Ok(())
         }
@@ -40,8 +40,8 @@ fn write_glowpatch_section(
 
 fn from_bytes_le(array: &[u8]) -> u64 {
     let mut value: u64 = 0;
-    for i in 0..array.len() {
-        value |= (array[i] as u64) << (8 * i);
+    for (i, &x) in array.iter().enumerate() {
+        value |= (x as u64) << (8 * i);
     }
-    return value;
+    value
 }

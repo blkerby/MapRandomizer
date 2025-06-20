@@ -24,7 +24,6 @@ use maprando_game::{
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::path::PathBuf;
-use urlencoding;
 
 use super::VersionInfo;
 
@@ -156,7 +155,7 @@ fn list_room_diagram_files() -> HashMap<usize, String> {
                 }
 
                 let path_string = new_path.to_str().unwrap().to_string();
-                let segments: Vec<&str> = path_string.split(|c| c == '_' || c == '.').collect();
+                let segments: Vec<&str> = path_string.split(['_', '.']).collect();
                 let subregion = segments[0];
                 if subregion == "ceres" {
                     continue;
@@ -339,27 +338,23 @@ fn make_tech_templates<'a>(
                 "comeInWithMockball",
             ];
             for entrance_name in speedbooster_entrance_conditions {
-                if strat_json["entranceCondition"].has_key(entrance_name) {
-                    if strat_json["entranceCondition"][entrance_name]["speedBooster"].as_bool()
+                if strat_json["entranceCondition"].has_key(entrance_name)
+                    && strat_json["entranceCondition"][entrance_name]["speedBooster"].as_bool()
                         == Some(false)
-                    {
-                        tech_set.insert(
-                            game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
-                        );
-                    }
+                {
+                    tech_set
+                        .insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]);
                 }
             }
 
-            if strat_json["entranceCondition"].has_key("comeInWithDoorStuckSetup") {
-                if from_node_json["doorOrientation"].as_str() == Some("right") {
-                    tech_set.insert(
-                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK],
-                    );
-                    tech_set.insert(
-                        game_data.tech_isv.index_by_key
-                            [&TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER],
-                    );
-                }
+            if strat_json["entranceCondition"].has_key("comeInWithDoorStuckSetup")
+                && from_node_json["doorOrientation"].as_str() == Some("right")
+            {
+                tech_set
+                    .insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK]);
+                tech_set.insert(
+                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER],
+                );
             }
             if strat_json["entranceCondition"].has_key("comeInWithSpark") {
                 let door_orientation = from_node_json["doorOrientation"].as_str().unwrap();
@@ -446,10 +441,10 @@ fn make_tech_templates<'a>(
                     }
                 }
             }
-            if strat_json["exitCondition"].has_key("leaveWithGModeSetup") {
-                if game_data.get_room_heated(room_json, to_node_id).unwrap() {
-                    tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]);
-                }
+            if strat_json["exitCondition"].has_key("leaveWithGModeSetup")
+                && game_data.get_room_heated(room_json, to_node_id).unwrap()
+            {
+                tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE]);
             }
 
             for tech_idx in tech_set {
@@ -475,7 +470,7 @@ fn make_tech_templates<'a>(
 
     let mut tech_templates: Vec<TechTemplate<'a>> = vec![];
     for (tech_idx, tech_ids) in tech_strat_ids.iter().enumerate() {
-        let tech_id = game_data.tech_isv.keys[tech_idx].clone();
+        let tech_id = game_data.tech_isv.keys[tech_idx];
         let tech_json = &game_data.tech_json_map[&tech_id];
         let tech_dependency_names: Vec<String> = game_data.tech_dependencies[&tech_id]
             .iter()
@@ -576,9 +571,9 @@ fn make_notable_templates<'a>(
 
     let mut notable_templates: Vec<NotableTemplate<'a>> = vec![];
     for (notable_idx, ids_set) in notable_strat_ids.iter().enumerate() {
-        let room_id = game_data.notable_info[notable_idx].room_id.clone();
+        let room_id = game_data.notable_info[notable_idx].room_id;
         let notable_info = &game_data.notable_info[notable_idx];
-        let notable_id = notable_info.notable_id.clone();
+        let notable_id = notable_info.notable_id;
         let notable_name = notable_info.name.clone();
         let notable_note = notable_info.note.clone();
         let notable_data = &preset_data.notable_data_map[&(room_id, notable_id)];
@@ -679,7 +674,7 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                     position,
                     door_orientation,
                 } => {
-                    if [DoorOrientation::Left, DoorOrientation::Right].contains(&door_orientation) {
+                    if [DoorOrientation::Left, DoorOrientation::Right].contains(door_orientation) {
                         reqs.push(Requirement::Tech(
                             game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_SHINESPARK],
                         ));
@@ -822,7 +817,7 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                     position,
                     door_orientation,
                 } => {
-                    if [DoorOrientation::Left, DoorOrientation::Right].contains(&door_orientation) {
+                    if [DoorOrientation::Left, DoorOrientation::Right].contains(door_orientation) {
                         reqs.push(Requirement::Tech(
                             game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_SHINESPARK],
                         ));
@@ -889,20 +884,14 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
     Requirement::make_and(reqs)
 }
 
-fn strip_cross_room_reqs(req: Requirement, game_data: &GameData) -> Requirement {
+fn strip_cross_room_reqs(req: Requirement) -> Requirement {
     match req {
-        Requirement::And(subreqs) => Requirement::And(
-            subreqs
-                .into_iter()
-                .map(|x| strip_cross_room_reqs(x, game_data))
-                .collect(),
-        ),
-        Requirement::Or(subreqs) => Requirement::Or(
-            subreqs
-                .into_iter()
-                .map(|x| strip_cross_room_reqs(x, game_data))
-                .collect(),
-        ),
+        Requirement::And(subreqs) => {
+            Requirement::And(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+        }
+        Requirement::Or(subreqs) => {
+            Requirement::Or(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+        }
         Requirement::DoorUnlocked { .. } => Requirement::Free,
         Requirement::NotFlag(_) => Requirement::Free,
         _ => req,
@@ -931,8 +920,10 @@ fn get_strat_difficulty(
         }
         let difficulty_idx = preset_data.difficulty_levels.index_by_key[&difficulty.name];
 
-        let mut local = LocalState::new();
-        local.shinecharge_frames_remaining = 180 - difficulty.shinecharge_leniency_frames;
+        let local = LocalState {
+            shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
+            ..LocalState::default()
+        };
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
         if !links_by_ids.contains_key(&key) {
@@ -940,11 +931,11 @@ fn get_strat_difficulty(
         }
         for link in &links_by_ids[&key] {
             let extra_req = get_cross_room_reqs(link, game_data);
-            let main_req = strip_cross_room_reqs(link.requirement.clone(), game_data);
+            let main_req = strip_cross_room_reqs(link.requirement.clone());
             let combined_req = Requirement::make_and(vec![extra_req, main_req]);
             let new_local = apply_requirement(
                 &combined_req,
-                &global,
+                global,
                 local,
                 false,
                 &preset_data.default_preset,
@@ -1139,7 +1130,7 @@ impl LogicData {
         let weapon_mask = game_data.get_weapon_mask(&items, &tech);
         let global = GlobalState {
             inventory: Inventory {
-                items: items,
+                items,
                 max_energy: 1499,
                 max_reserves: 400,
                 max_missiles: 230,
@@ -1151,7 +1142,7 @@ impl LogicData {
             },
             flags: vec![true; game_data.flag_isv.keys.len()],
             doors_unlocked: vec![],
-            weapon_mask: weapon_mask,
+            weapon_mask,
         };
 
         let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
@@ -1182,7 +1173,7 @@ impl LogicData {
             let template = make_room_template(
                 room_json,
                 &room_diagram_listing,
-                &game_data,
+                game_data,
                 preset_data,
                 &global,
                 &links_by_ids,
@@ -1196,7 +1187,7 @@ impl LogicData {
             for strat in &template.strats {
                 let strat_template = make_strat_template(
                     &template,
-                    &strat,
+                    strat,
                     video_storage_url,
                     version_info,
                     game_data,

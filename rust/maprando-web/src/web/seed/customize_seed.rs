@@ -95,7 +95,7 @@ async fn customize_seed(
         .get_file(seed_name, "map.json")
         .await
         .unwrap_or(vec![]);
-    let map: Option<Map> = if map_data_bytes.len() == 0 {
+    let map: Option<Map> = if map_data_bytes.is_empty() {
         None
     } else {
         Some(serde_json::from_slice(&map_data_bytes).unwrap())
@@ -106,7 +106,7 @@ async fn customize_seed(
         .get_file(seed_name, "public/settings.json")
         .await
         .unwrap_or(vec![]);
-    let settings: Option<RandomizerSettings> = if settings_bytes.len() == 0 {
+    let settings: Option<RandomizerSettings> = if settings_bytes.is_empty() {
         None
     } else {
         match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data, false) {
@@ -122,7 +122,7 @@ async fn customize_seed(
         .get_file(seed_name, "randomization.json")
         .await
         .unwrap_or(vec![]);
-    let randomization: Option<Randomization> = if randomization_bytes.len() == 0 {
+    let randomization: Option<Randomization> = if randomization_bytes.is_empty() {
         None
     } else {
         Some(serde_json::from_slice(&randomization_bytes).unwrap())
@@ -223,7 +223,7 @@ async fn customize_seed(
         }
     } else {
         return HttpResponse::InternalServerError()
-            .body(format!("Seed incompatible with current customizer"));
+            .body("Seed incompatible with current customizer");
     }
 
     info!("CustomizeSettings: {:?}", customize_settings);

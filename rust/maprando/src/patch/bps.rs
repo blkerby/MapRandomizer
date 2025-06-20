@@ -41,7 +41,7 @@ impl BPSPatch {
     pub fn apply(&self, source: &[u8], output: &mut [u8]) {
         for block in &self.blocks {
             match block {
-                &BPSBlock::Unchanged { .. } => {
+                &BPSBlock::Unchanged => {
                     // These blocks won't be loaded and wouldn't do anything anyway.
                 }
                 &BPSBlock::SourceCopy {
@@ -74,7 +74,7 @@ impl BPSPatch {
         let mut out: Vec<(usize, usize)> = vec![];
         for block in &self.blocks {
             match block {
-                &BPSBlock::Unchanged { .. } => {}
+                &BPSBlock::Unchanged => {}
                 &BPSBlock::SourceCopy {
                     src_start,
                     dst_start,
@@ -127,7 +127,7 @@ impl BPSDecoder {
         self.patch_pos += metadata_size;
         while self.patch_pos < self.patch_bytes.len() - 12 {
             let block = self.decode_block()?;
-            if let BPSBlock::Unchanged { .. } = block {
+            if let BPSBlock::Unchanged = block {
                 // Skip blocks that do not change the output.
             } else {
                 self.blocks.push(block);
@@ -164,7 +164,7 @@ impl BPSDecoder {
             0 => {
                 let block = BPSBlock::Unchanged;
                 self.output_pos += length;
-                return Ok(block);
+                Ok(block)
             }
             1 => {
                 let block = BPSBlock::Data {
@@ -172,7 +172,7 @@ impl BPSDecoder {
                     data: self.read_n(length)?,
                 };
                 self.output_pos += length;
-                return Ok(block);
+                Ok(block)
             }
             2 => {
                 let raw_offset = self.decode_number()?;
@@ -187,7 +187,7 @@ impl BPSDecoder {
                 };
                 self.src_pos += length;
                 self.output_pos += length;
-                return Ok(block);
+                Ok(block)
             }
             3 => {
                 let raw_offset = self.decode_number()?;
@@ -202,7 +202,7 @@ impl BPSDecoder {
                 };
                 self.dst_pos += length;
                 self.output_pos += length;
-                return Ok(block);
+                Ok(block)
             }
             _ => panic!("Unexpected BPS action: {}", action),
         }
@@ -279,7 +279,7 @@ impl<'a> BPSEncoder<'a> {
             self.encode_unchanged(self.source_suffix_tree.data.len() - self.input_pos);
         }
         self.write_n(&compute_crc32(&self.source_suffix_tree.data).to_le_bytes());
-        self.write_n(&compute_crc32(&self.target).to_le_bytes());
+        self.write_n(&compute_crc32(self.target).to_le_bytes());
         self.write_n(&compute_crc32(&self.patch_bytes).to_le_bytes());
         self.check_encoding();
     }
@@ -303,7 +303,7 @@ impl<'a> BPSEncoder<'a> {
                 }
                 self.encode_source_copy(source_start as usize, match_length as usize);
                 self.input_pos = start_addr + match_length as usize;
-                start_addr = start_addr + match_length as usize;
+                start_addr += match_length as usize;
             } else {
                 start_addr += 1;
             }
@@ -367,6 +367,6 @@ impl<'a> BPSEncoder<'a> {
         let patch = BPSPatch::new(self.patch_bytes.clone()).unwrap();
         let mut output = self.source_suffix_tree.data.clone();
         patch.apply(&self.source_suffix_tree.data, &mut output);
-        assert!(&self.target == &output);
+        assert!(self.target == output);
     }
 }

@@ -768,7 +768,7 @@ impl<'a> Preprocessor<'a> {
                 *speed_booster,
                 adjacent_min_tiles.get(),
                 remote_and_landing_min_tiles
-                    .into_iter()
+                    .iter()
                     .map(|(a, b)| (a.get(), b.get()))
                     .collect(),
             ),
@@ -782,7 +782,7 @@ impl<'a> Preprocessor<'a> {
                 *speed_booster,
                 adjacent_min_tiles.get(),
                 remote_and_landing_min_tiles
-                    .into_iter()
+                    .iter()
                     .map(|(a, b)| (a.get(), b.get()))
                     .collect(),
                 *movement_type,
@@ -906,15 +906,13 @@ impl<'a> Preprocessor<'a> {
                 if *heated {
                     let heat_frames = if *from_exit_node {
                         compute_run_frames(min_tiles) * 2 + 20
+                    } else if effective_length > max_tiles {
+                        // 10 heat frames to position after stopping on a dime, before resuming running
+                        compute_run_frames(effective_length - max_tiles)
+                            + compute_run_frames(max_tiles)
+                            + 10
                     } else {
-                        if effective_length > max_tiles {
-                            // 10 heat frames to position after stopping on a dime, before resuming running
-                            compute_run_frames(effective_length - max_tiles)
-                                + compute_run_frames(max_tiles)
-                                + 10
-                        } else {
-                            compute_run_frames(effective_length)
-                        }
+                        compute_run_frames(effective_length)
                     };
                     reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
                 }
@@ -1354,15 +1352,13 @@ impl<'a> Preprocessor<'a> {
                 if *heated {
                     let heat_frames = if *from_exit_node {
                         compute_run_frames(min_tiles + unusable_tiles) * 2 + 20
+                    } else if max_tiles < effective_length - unusable_tiles {
+                        // 10 heat frames to position after stopping on a dime, before resuming running
+                        compute_run_frames(effective_length - unusable_tiles - max_tiles)
+                            + compute_run_frames(max_tiles + unusable_tiles)
+                            + 10
                     } else {
-                        if max_tiles < effective_length - unusable_tiles {
-                            // 10 heat frames to position after stopping on a dime, before resuming running
-                            compute_run_frames(effective_length - unusable_tiles - max_tiles)
-                                + compute_run_frames(max_tiles + unusable_tiles)
-                                + 10
-                        } else {
-                            compute_run_frames(effective_length)
-                        }
+                        compute_run_frames(effective_length)
                     };
                     reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
                 }
@@ -2064,11 +2060,9 @@ impl<'a> Preprocessor<'a> {
                 {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::Tech(
+                Some(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
-                ));
-                Some(Requirement::make_and(reqs))
+                ))
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -2206,16 +2200,17 @@ impl<'a> Preprocessor<'a> {
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithGModeSetup { .. } => {
-                let mut reqs: Vec<Requirement> = vec![];
-                reqs.push(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
-                ));
-                reqs.push(Requirement::Item(Item::XRayScope as ItemId));
-                reqs.push(Requirement::ReserveTrigger {
-                    min_reserve_energy: 1,
-                    max_reserve_energy: 400,
-                    heated,
-                });
+                let reqs: Vec<Requirement> = vec![
+                    Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
+                    ),
+                    Requirement::Item(Item::XRayScope as ItemId),
+                    Requirement::ReserveTrigger {
+                        min_reserve_energy: 1,
+                        max_reserve_energy: 400,
+                        heated,
+                    },
+                ];
                 Some(Requirement::make_and(reqs))
             }
             _ => None,
@@ -2288,7 +2283,7 @@ impl<'a> Preprocessor<'a> {
                 } else {
                     Requirement::Never
                 };
-                let immobile_req = if regain_mobility_vec.len() > 0 {
+                let immobile_req = if !regain_mobility_vec.is_empty() {
                     let mut immobile_req_or_vec: Vec<Requirement> = Vec::new();
                     for (regain_mobility_link, _) in regain_mobility_vec {
                         immobile_req_or_vec.push(Requirement::make_and(vec![
@@ -2349,9 +2344,9 @@ impl<'a> Preprocessor<'a> {
                 if *fall_speed_in_tiles != fall_speed_in_tiles_needed {
                     return None;
                 }
-                return Some(Requirement::Tech(
+                Some(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOONFALL],
-                ));
+                ))
             }
             _ => None,
         }
@@ -2368,7 +2363,7 @@ impl<'a> Preprocessor<'a> {
                 if height < min_height {
                     return None;
                 }
-                return Some(Requirement::Walljump);
+                Some(Requirement::Walljump)
             }
             _ => None,
         }
@@ -2388,7 +2383,7 @@ impl<'a> Preprocessor<'a> {
                 if *heated {
                     reqs_and_vec.push(Requirement::HeatFrames(30));
                 }
-                return Some(Requirement::make_and(reqs_and_vec));
+                Some(Requirement::make_and(reqs_and_vec))
             }
             _ => None,
         }
@@ -2585,7 +2580,7 @@ impl<'a> Preprocessor<'a> {
                 if right_position < min_right_position {
                     return None;
                 }
-                return Some(Requirement::Free);
+                Some(Requirement::Free)
             }
             _ => None,
         }
@@ -2965,7 +2960,7 @@ pub fn is_equivalent_difficulty(a: &DifficultyConfig, b: &DifficultyConfig) -> b
     let mut b1 = b.clone();
     a1.name = "".to_string();
     b1.name = "".to_string();
-    return a1 == b1;
+    a1 == b1
 }
 
 pub fn get_difficulty_tiers(
@@ -2986,7 +2981,7 @@ pub fn get_difficulty_tiers(
     difficulty_tiers.push(main_tier.clone());
     if settings.item_progression_settings.item_placement_style == ItemPlacementStyle::Forced {
         for ref_tier in tier_settings {
-            let new_tier = DifficultyConfig::intersect(&ref_tier, &main_tier);
+            let new_tier = DifficultyConfig::intersect(ref_tier, &main_tier);
             if is_equivalent_difficulty(&new_tier, difficulty_tiers.last().unwrap()) {
                 difficulty_tiers.pop();
             }
@@ -3162,34 +3157,34 @@ impl<'r> Randomizer<'r> {
             obstacle_mask: 0,
             actions: vec![],
         }];
-        let mut forward = traverse(
-            &self.base_links_data,
+        let forward = traverse(
+            self.base_links_data,
             &self.seed_links_data,
             None,
             &state.global_state,
-            LocalState::new(),
+            LocalState::default(),
             num_vertices,
             start_vertex_id,
             false,
-            &self.settings,
+            self.settings,
             &self.difficulty_tiers[0],
             self.game_data,
-            &self.locked_door_data,
+            self.locked_door_data,
             &self.objectives,
         );
-        let mut reverse = traverse(
-            &self.base_links_data,
+        let reverse = traverse(
+            self.base_links_data,
             &self.seed_links_data,
             None,
             &state.global_state,
-            LocalState::new(),
+            LocalState::default(),
             num_vertices,
             start_vertex_id,
             true,
-            &self.settings,
+            self.settings,
             &self.difficulty_tiers[0],
             self.game_data,
-            &self.locked_door_data,
+            self.locked_door_data,
             &self.objectives,
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
@@ -3205,7 +3200,7 @@ impl<'r> Randomizer<'r> {
                         state.item_location_state[i].reachable_step = Some(state.step_num);
                     }
                     if !state.item_location_state[i].bireachable
-                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                        && get_bireachable_idxs(&state.global_state, v, &forward, &reverse)
                             .is_some()
                     {
                         state.item_location_state[i].bireachable = true;
@@ -3228,7 +3223,7 @@ impl<'r> Randomizer<'r> {
                         state.flag_location_state[i].reachable_vertex_id = Some(v);
                     }
                     if !state.flag_location_state[i].bireachable
-                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
+                        && get_bireachable_idxs(&state.global_state, v, &forward, &reverse)
                             .is_some()
                     {
                         state.flag_location_state[i].bireachable = true;
@@ -3250,14 +3245,12 @@ impl<'r> Randomizer<'r> {
             state.door_state[i].bireachable_vertex_id = None;
 
             for &v in vertex_ids {
-                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
-                    if !state.door_state[i].bireachable
-                        && get_bireachable_idxs(&state.global_state, v, &mut forward, &mut reverse)
-                            .is_some()
-                    {
-                        state.door_state[i].bireachable = true;
-                        state.door_state[i].bireachable_vertex_id = Some(v);
-                    }
+                if forward.cost[v].iter().any(|&x| f32::is_finite(x))
+                    && !state.door_state[i].bireachable
+                    && get_bireachable_idxs(&state.global_state, v, &forward, &reverse).is_some()
+                {
+                    state.door_state[i].bireachable = true;
+                    state.door_state[i].bireachable_vertex_id = Some(v);
                 }
             }
         }
@@ -3269,9 +3262,7 @@ impl<'r> Randomizer<'r> {
                 obstacle_mask: 0,
                 actions: vec![],
             }];
-            if get_bireachable_idxs(&state.global_state, vertex_id, &mut forward, &mut reverse)
-                .is_some()
-            {
+            if get_bireachable_idxs(&state.global_state, vertex_id, &forward, &reverse).is_some() {
                 state.save_location_state[i].bireachable = true;
             }
         }
@@ -3500,13 +3491,11 @@ impl<'r> Randomizer<'r> {
             key_items_to_place.extend(remaining_items[0..(num_key_items_to_select - 1)].iter());
             key_items_to_place.push(remaining_items[num_key_items_to_select - 1 + attempt_num]);
             assert!(key_items_to_place.len() == num_key_items_to_select);
-            return Some(key_items_to_place);
+            Some(key_items_to_place)
+        } else if attempt_num > 0 {
+            return None;
         } else {
-            if attempt_num > 0 {
-                return None;
-            } else {
-                return Some(vec![]);
-            }
+            return Some(vec![]);
         }
     }
 
@@ -3551,15 +3540,15 @@ impl<'r> Randomizer<'r> {
             let difficulty = &self.difficulty_tiers[tier];
 
             let traverse_result = traverse(
-                &self.base_links_data,
+                self.base_links_data,
                 &self.seed_links_data,
                 self.get_init_traverse(state, init_traverse),
                 &state.global_state,
-                LocalState::new(),
+                LocalState::default(),
                 num_vertices,
                 start_vertex_id,
                 false,
-                &self.settings,
+                self.settings,
                 difficulty,
                 self.game_data,
                 self.locked_door_data,
@@ -3578,7 +3567,7 @@ impl<'r> Randomizer<'r> {
                 }
             }
         }
-        return (0, self.difficulty_tiers.len() - 1);
+        (0, self.difficulty_tiers.len() - 1)
     }
 
     fn place_items(
@@ -3606,10 +3595,7 @@ impl<'r> Randomizer<'r> {
 
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 && !skip_hard_placement {
-            let traverse_result = match state.previous_debug_data.as_ref() {
-                Some(x) => Some(&x.forward),
-                None => None,
-            };
+            let traverse_result = state.previous_debug_data.as_ref().map(|x| &x.forward);
             for i in 0..key_items_to_place.len() {
                 let (hard_idx, tier) = if key_items_to_place.len() > 1 {
                     // We're placing more than one key item in this step. Obtaining some of them could help make
@@ -3778,7 +3764,7 @@ impl<'r> Randomizer<'r> {
             .any(|(n, o)| n.bireachable && o.reachable_step.is_none())
         };
 
-        let is_beatable = self.is_game_beatable(&new_state);
+        let is_beatable = self.is_game_beatable(new_state);
 
         (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_beatable
     }
@@ -3847,11 +3833,11 @@ impl<'r> Randomizer<'r> {
             }
 
             if self.provides_progression(
-                &state,
+                state,
                 &mut new_state,
                 &selected_key_items,
                 &selected_filler_items,
-                &placed_uncollected_bireachable_items,
+                placed_uncollected_bireachable_items,
                 num_unplaced_bireachable,
             ) {
                 let selection = SelectItemsOutput {
@@ -3877,9 +3863,7 @@ impl<'r> Randomizer<'r> {
                     .item_progression_settings
                     .stop_item_placement_early
                 {
-                    for x in &mut selected_key_items {
-                        *x = Item::Nothing;
-                    }
+                    selected_key_items.fill(Item::Nothing);
                     new_state = new_state_filler;
                     for &item in &selected_key_items {
                         if new_state.items_remaining[item as usize] > 0 {
@@ -3887,11 +3871,11 @@ impl<'r> Randomizer<'r> {
                         }
                     }
                     let _ = self.provides_progression(
-                        &state,
+                        state,
                         &mut new_state,
                         &selected_key_items,
                         &selected_filler_items,
-                        &placed_uncollected_bireachable_items,
+                        placed_uncollected_bireachable_items,
                         num_unplaced_bireachable,
                     );
                 }
@@ -3929,12 +3913,12 @@ impl<'r> Randomizer<'r> {
                     any_update = true;
                     let flag_vertex_id = state.flag_location_state[i].reachable_vertex_id.unwrap();
                     spoiler_flag_summaries.push(self.get_spoiler_flag_summary(
-                        &state,
+                        state,
                         flag_vertex_id,
                         flag_id,
                     ));
                     spoiler_flag_details.push(self.get_spoiler_flag_details_one_way(
-                        &state,
+                        state,
                         flag_vertex_id,
                         flag_id,
                         i,
@@ -3945,12 +3929,12 @@ impl<'r> Randomizer<'r> {
                     let flag_vertex_id =
                         state.flag_location_state[i].bireachable_vertex_id.unwrap();
                     spoiler_flag_summaries.push(self.get_spoiler_flag_summary(
-                        &state,
+                        state,
                         flag_vertex_id,
                         flag_id,
                     ));
                     spoiler_flag_details.push(self.get_spoiler_flag_details(
-                        &state,
+                        state,
                         flag_vertex_id,
                         flag_id,
                         i,
@@ -3967,7 +3951,7 @@ impl<'r> Randomizer<'r> {
                     let door_vertex_id = state.door_state[i].bireachable_vertex_id.unwrap();
                     spoiler_door_summaries.push(self.get_spoiler_door_summary(door_vertex_id, i));
                     spoiler_door_details.push(self.get_spoiler_door_details(
-                        &state,
+                        state,
                         door_vertex_id,
                         i,
                     ));
@@ -3992,14 +3976,14 @@ impl<'r> Randomizer<'r> {
             let spoiler_summary = self.get_spoiler_summary(
                 &orig_global_state,
                 state,
-                &state,
+                state,
                 spoiler_flag_summaries,
                 spoiler_door_summaries,
             );
             let spoiler_details = self.get_spoiler_details(
                 &orig_global_state,
                 state,
-                &state,
+                state,
                 spoiler_flag_details,
                 spoiler_door_details,
             );
@@ -4017,19 +4001,17 @@ impl<'r> Randomizer<'r> {
                     placed_uncollected_bireachable_loc.push(i);
                     placed_uncollected_bireachable_items.push(item);
                 }
-            } else {
-                if item_location_state.bireachable {
-                    unplaced_bireachable.push(i);
-                } else if item_location_state.reachable_step.is_some() {
-                    unplaced_oneway_reachable.push(i);
-                }
+            } else if item_location_state.bireachable {
+                unplaced_bireachable.push(i);
+            } else if item_location_state.reachable_step.is_some() {
+                unplaced_oneway_reachable.push(i);
             }
         }
         unplaced_bireachable.shuffle(rng);
         unplaced_oneway_reachable.shuffle(rng);
         let (selection, mut new_state) = self.multi_attempt_select_items(
             attempt_num_rando,
-            &state,
+            state,
             &placed_uncollected_bireachable_items,
             unplaced_bireachable.len(),
             unplaced_oneway_reachable.len(),
@@ -4050,7 +4032,7 @@ impl<'r> Randomizer<'r> {
         // intended logical sequence.
         self.place_items(
             attempt_num_rando,
-            &state,
+            state,
             &mut new_state,
             &unplaced_bireachable,
             &unplaced_oneway_reachable,
@@ -4208,8 +4190,8 @@ impl<'r> Randomizer<'r> {
                 if get_bireachable_idxs(
                     &debug_data.global_state,
                     v,
-                    &mut debug_data.forward,
-                    &mut debug_data.reverse,
+                    &debug_data.forward,
+                    &debug_data.reverse,
                 )
                 .is_some()
                 {
@@ -4350,7 +4332,7 @@ impl<'r> Randomizer<'r> {
         let spoiler_escape = escape_timer::compute_escape_data(
             self.game_data,
             self.map,
-            &self.settings,
+            self.settings,
             save_animals != SaveAnimals::No,
             &self.difficulty_tiers[0],
         )?;
@@ -4505,18 +4487,22 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
     ) -> Result<StartLocationData> {
         if self.settings.start_location_settings.mode == StartLocationMode::Ship {
-            let mut ship_start = StartLocation::default();
-            ship_start.name = "Ship".to_string();
-            ship_start.room_id = 8;
-            ship_start.node_id = 5;
-            ship_start.door_load_node_id = Some(2);
-            ship_start.x = 72.0;
-            ship_start.y = 69.5;
+            let ship_start = StartLocation {
+                name: "Ship".to_string(),
+                room_id: 8,
+                node_id: 5,
+                door_load_node_id: Some(2),
+                x: 72.0,
+                y: 69.5,
+                ..StartLocation::default()
+            };
 
-            let mut ship_hub = HubLocation::default();
-            ship_hub.name = "Ship".to_string();
-            ship_hub.room_id = 8;
-            ship_hub.node_id = 5;
+            let ship_hub = HubLocation {
+                name: "Ship".to_string(),
+                room_id: 8,
+                node_id: 5,
+                ..HubLocation::default()
+            };
 
             return Ok(StartLocationData {
                 start_location: ship_start,
@@ -4569,21 +4555,21 @@ impl<'r> Randomizer<'r> {
             }];
             let global = self.get_initial_global_state();
             let local = apply_requirement(
-                &start_loc.requires_parsed.as_ref().unwrap(),
+                start_loc.requires_parsed.as_ref().unwrap(),
                 &global,
-                LocalState::new(),
+                LocalState::default(),
                 false,
-                &self.settings,
+                self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
-                &self.locked_door_data,
+                self.locked_door_data,
                 &self.objectives,
             );
             if local.is_none() {
                 continue;
             }
             let forward = traverse(
-                &self.base_links_data,
+                self.base_links_data,
                 &self.seed_links_data,
                 None,
                 &global,
@@ -4591,37 +4577,37 @@ impl<'r> Randomizer<'r> {
                 num_vertices,
                 start_vertex_id,
                 false,
-                &self.settings,
+                self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
                 self.locked_door_data,
                 &self.objectives,
             );
             let forward0 = traverse(
-                &self.base_links_data,
+                self.base_links_data,
                 &self.seed_links_data,
                 None,
                 &global,
-                LocalState::new(),
+                LocalState::default(),
                 num_vertices,
                 start_vertex_id,
                 false,
-                &self.settings,
+                self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
                 self.locked_door_data,
                 &self.objectives,
             );
             let reverse = traverse(
-                &self.base_links_data,
+                self.base_links_data,
                 &self.seed_links_data,
                 None,
                 &global,
-                LocalState::new(),
+                LocalState::default(),
                 num_vertices,
                 start_vertex_id,
                 true,
-                &self.settings,
+                self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
                 self.locked_door_data,
@@ -4657,14 +4643,14 @@ impl<'r> Randomizer<'r> {
                     get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse)
                 {
                     let local = apply_requirement(
-                        &hub.requires_parsed.as_ref().unwrap(),
+                        hub.requires_parsed.as_ref().unwrap(),
                         &global,
-                        LocalState::new(),
+                        LocalState::default(),
                         false,
-                        &self.settings,
+                        self.settings,
                         &self.difficulty_tiers[0],
                         self.game_data,
-                        &self.locked_door_data,
+                        self.locked_door_data,
                         &self.objectives,
                     );
                     if local.is_some() {
@@ -4675,14 +4661,14 @@ impl<'r> Randomizer<'r> {
 
                         let hub_obtain_route = self.get_spoiler_route(
                             &global,
-                            LocalState::new(),
+                            LocalState::default(),
                             &hub_obtain_link_idxs,
                             &self.difficulty_tiers[0],
                             false,
                         );
                         let hub_return_route = self.get_spoiler_route(
                             &global,
-                            LocalState::new(),
+                            LocalState::default(),
                             &hub_return_link_idxs,
                             &self.difficulty_tiers[0],
                             true,
@@ -4708,7 +4694,7 @@ impl<'r> Randomizer<'r> {
             .get_weapon_mask(&items, &self.difficulty_tiers[0].tech);
         let mut global = GlobalState {
             inventory: Inventory {
-                items: items,
+                items,
                 max_energy: 99,
                 max_reserves: 0,
                 max_missiles: 0,
@@ -4720,7 +4706,7 @@ impl<'r> Randomizer<'r> {
             },
             flags: self.get_initial_flag_vec(),
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
-            weapon_mask: weapon_mask,
+            weapon_mask,
         };
         for x in &self.settings.item_progression_settings.starting_items {
             for _ in 0..x.count {
@@ -4759,7 +4745,7 @@ impl<'r> Randomizer<'r> {
         let spoiler_escape = escape_timer::compute_escape_data(
             self.game_data,
             self.map,
-            &self.settings,
+            self.settings,
             save_animals != SaveAnimals::No,
             &self.difficulty_tiers[0],
         )?;
@@ -4833,7 +4819,7 @@ impl<'r> Randomizer<'r> {
                 return true;
             }
         }
-        return false;
+        false
     }
 
     pub fn randomize(
@@ -4952,7 +4938,8 @@ impl<'r> Randomizer<'r> {
                 .count();
             info!("[attempt {attempt_num_rando}] step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
 
-            let any_progress = spoiler_summary.items.len() > 0 || spoiler_summary.flags.len() > 0;
+            let any_progress =
+                !spoiler_summary.items.is_empty() || !spoiler_summary.flags.is_empty();
             spoiler_summary_vec.push(spoiler_summary);
             spoiler_details_vec.push(spoiler_details);
             debug_data_vec.push(state.previous_debug_data.as_ref().unwrap().clone());
@@ -5007,12 +4994,11 @@ impl<'r> Randomizer<'r> {
                 break;
             }
 
-            if state.step_num == 2 && self.settings.quality_of_life_settings.early_save {
-                if !state.save_location_state.iter().any(|x| x.bireachable) {
-                    bail!(
-                        "[attempt {attempt_num_rando}] Attempt failed: no accessible save location"
-                    );
-                }
+            if state.step_num == 2
+                && self.settings.quality_of_life_settings.early_save
+                && !state.save_location_state.iter().any(|x| x.bireachable)
+            {
+                bail!("[attempt {attempt_num_rando}] Attempt failed: no accessible save location");
             }
         }
         self.finish(attempt_num_rando, &mut state, &mut rng);
@@ -5205,7 +5191,7 @@ fn extract_relevant_flags(req: &Requirement, out: &mut Vec<usize>) {
     }
 }
 
-impl<'a> Randomizer<'a> {
+impl Randomizer<'_> {
     fn get_vertex_info(&self, vertex_id: usize) -> VertexInfo {
         let VertexKey {
             room_id, node_id, ..
@@ -5255,8 +5241,8 @@ impl<'a> Randomizer<'a> {
             collectible_missiles: global_state.inventory.collectible_missile_packs * 5,
             collectible_supers: global_state.inventory.collectible_super_packs * 5,
             collectible_power_bombs: global_state.inventory.collectible_power_bomb_packs * 5,
-            items: items,
-            flags: flags,
+            items,
+            flags,
         }
     }
 
@@ -5270,23 +5256,23 @@ impl<'a> Randomizer<'a> {
     ) -> Vec<SpoilerRouteEntry> {
         let mut route: Vec<SpoilerRouteEntry> = Vec::new();
 
-        if link_idxs.len() == 0 {
+        if link_idxs.is_empty() {
             return route;
         }
         for &link_idx in link_idxs {
             let link = self.get_link(link_idx as usize);
             let raw_link = self.get_link(link_idx as usize);
-            let sublinks = vec![raw_link.clone()];
+            let sublinks = [raw_link.clone()];
 
             let new_local_state_opt = apply_link(
-                &link,
-                &global_state,
+                link,
+                global_state,
                 local_state,
                 reverse,
-                &self.settings,
+                self.settings,
                 difficulty,
                 self.game_data,
-                &self.locked_door_data,
+                self.locked_door_data,
                 &self.objectives,
             );
             if new_local_state_opt.is_none() {
@@ -5310,7 +5296,7 @@ impl<'a> Randomizer<'a> {
                     .game_data
                     .node_coords
                     .get(&(to_vertex_info.room_id, to_vertex_info.node_id))
-                    .map(|x| *x);
+                    .copied();
                 let coords = door_coords.map(|(x, y)| {
                     (
                         x + to_vertex_info.room_coords.0,
@@ -5432,14 +5418,14 @@ impl<'a> Randomizer<'a> {
             get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
         let obtain_route = self.get_spoiler_route(
             global_state,
-            LocalState::new(),
+            LocalState::default(),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,
         );
         let return_route = self.get_spoiler_route(
             global_state,
-            LocalState::new(),
+            LocalState::default(),
             &reverse_link_idxs,
             &self.difficulty_tiers[0],
             true,
@@ -5457,14 +5443,13 @@ impl<'a> Randomizer<'a> {
         let forward_cost_idx = get_one_way_reachable_idx(vertex_id, forward).unwrap();
         let forward_link_idxs: Vec<LinkIdx> =
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
-        let obtain_route = self.get_spoiler_route(
+        self.get_spoiler_route(
             global_state,
-            LocalState::new(),
+            LocalState::default(),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,
-        );
-        obtain_route
+        )
     }
 
     fn get_spoiler_item_details(
@@ -5492,13 +5477,9 @@ impl<'a> Randomizer<'a> {
             reachable_step: state.item_location_state[item_location_idx]
                 .reachable_step
                 .unwrap(),
-            difficulty: if let Some(tier) = tier {
-                Some(self.difficulty_tiers[tier].name.clone())
-            } else {
-                None
-            },
-            obtain_route: obtain_route,
-            return_route: return_route,
+            difficulty: tier.map(|x| self.difficulty_tiers[x].name.clone()),
+            obtain_route,
+            return_route,
         }
     }
 
@@ -5545,8 +5526,8 @@ impl<'a> Randomizer<'a> {
                 coords: flag_vertex_info.room_coords,
             },
             reachable_step: state.flag_location_state[flag_idx].reachable_step.unwrap(),
-            obtain_route: obtain_route,
-            return_route: return_route,
+            obtain_route,
+            return_route,
         }
     }
 
@@ -5571,7 +5552,7 @@ impl<'a> Randomizer<'a> {
                 coords: flag_vertex_info.room_coords,
             },
             reachable_step: state.flag_location_state[flag_idx].reachable_step.unwrap(),
-            obtain_route: obtain_route,
+            obtain_route,
             return_route: vec![],
         }
     }
@@ -5623,8 +5604,8 @@ impl<'a> Randomizer<'a> {
                 node: door_vertex_info.node_name,
                 coords: door_vertex_info.room_coords,
             },
-            obtain_route: obtain_route,
-            return_route: return_route,
+            obtain_route,
+            return_route,
         }
     }
 

@@ -27,7 +27,7 @@ fn linear_interpolate(x: f32, table: &[(i32, i32)]) -> f32 {
     let x1 = table[i + 1].0 as f32;
     let y0 = table[i].1 as f32;
     let y1 = table[i + 1].1 as f32;
-    (x as f32 - x0) / (x1 - x0) * (y1 - y0) + y0
+    (x - x0) / (x1 - x0) * (y1 - y0) + y0
 }
 
 // Maximum extra run speed (in pixels per frame) obtainable by running on a given length of runway
@@ -47,8 +47,7 @@ pub fn get_extra_run_speed_tiles(extra_run_speed: f32) -> f32 {
     }
     let dash_frames = (extra_run_speed * 16.0) as usize - 1;
     let subpixels = RUN_SPEED_TABLE[dash_frames];
-    let tiles = subpixels as f32 / 256.0;
-    tiles
+    subpixels as f32 / 256.0
 }
 
 // Minimum extra run speed (in pixels per frame) obtainable by gaining a shortcharge
