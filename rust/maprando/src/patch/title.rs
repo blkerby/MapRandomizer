@@ -414,8 +414,7 @@ impl<'a> TitlePatcher<'a> {
 
         // Write the tiles & spritemap to a new location in free space, since they would
         // no longer fit in the original location:
-        let encoded_tiles: Vec<[u8; 32]> =
-            tiles.iter().map(encode_tile_4bpp).collect();
+        let encoded_tiles: Vec<[u8; 32]> = tiles.iter().map(encode_tile_4bpp).collect();
         let new_gfx_pc_addr = self.write_to_free_space(&compress(encoded_tiles.flat()))?;
         let new_gfx_snes_addr = pc2snes(new_gfx_pc_addr);
         let new_spritemap_snes_addr = 0x8CF3E9;
