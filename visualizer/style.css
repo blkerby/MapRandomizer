@@ -57,6 +57,12 @@ a {
 	line-height: 1em;
 	pointer-events: none;
 }
+.room-link {
+	text-decoration: none;
+}
+.room-link:hover {
+	text-decoration: underline;
+}
 #sidebar-info {
 	position: fixed;
 	max-height: 600px;
