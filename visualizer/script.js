@@ -618,7 +618,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 
 			if (k.strat_id !== null) {
-				nodeStr = `<a style="text-decoration:none" href="${strat_url}">${k.room}: ${k.node}</a><br>`;
+				nodeStr = `<a class="room-link" href="${strat_url}">${k.room}: ${k.node}</a><br>`;
 			} else {
 				nodeStr = `${k.room}: ${k.node}<br>`;
 			}
