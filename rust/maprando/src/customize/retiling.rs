@@ -140,6 +140,10 @@ pub fn apply_retiling(
         theme_name_map.insert(room_ptr, theme_name);
     }
 
+    if *theme == TileTheme::AreaThemed {
+        apply_ips_patch(rom, Path::new("../patches/ips/mosaic_fx_fix.ips"))?;
+    }
+
     if *theme != TileTheme::Vanilla {
         // Enable tileset swap based on map area
         rom.write_u16(snes2pc(0x8AB500), 0xF0F0)?;
