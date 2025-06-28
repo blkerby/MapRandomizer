@@ -8,7 +8,6 @@ door_map = {}
 door_name_map = {}
 phantoon_idx = None
 for idx, room in enumerate(room_geometry):
-    print(idx, room['name'])
     if room['name'] == "Phantoon's Room":
         phantoon_idx = idx
     for door in room['doors']:
@@ -21,7 +20,10 @@ for idx, room in enumerate(room_geometry):
 # map_dir = "maps/v93-tame/"
 # map_dir = "maps/v110c-tame/"
 # map_dir = "maps/v110c-wild/"
-map_dir = "maps/v117c-wild/"
+# map_dir = "maps/v117c-standard/"
+# map_dir = "maps/v117c-wild/"
+# map_dir = "maps/v119-standard/"
+map_dir = "maps/v119-wild/"
 cnt_dict = defaultdict(lambda: defaultdict(lambda: 0))
 flat_cnt_dict = defaultdict(lambda: 0)
 map_filenames = list(os.listdir(map_dir))

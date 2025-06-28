@@ -6,7 +6,7 @@ cd tmp
 
 # Download the map pools
 mkdir -p ../maps
-for pool in "v117c-standard" "v117c-wild"
+for pool in "v119-standard" "v119-wild"
 do
 wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/${pool}.tgz
 tar xfz ${pool}.tgz --directory ../maps

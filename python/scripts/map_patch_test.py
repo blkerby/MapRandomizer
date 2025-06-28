@@ -33,7 +33,7 @@ patches = [
     # 'oob_death',
     # 'spinjumprestart',
     # 'door_hurt',
-    "everest_tube",
+    # "everest_tube",
     "fast_pause_menu",
     "rng_fix",
     # "buffed_drops"

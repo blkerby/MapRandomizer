@@ -361,8 +361,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    let standard_maps_path = Path::new("../maps/v117c-standard");
-    let wild_maps_path = Path::new("../maps/v117c-wild");
+    let standard_maps_path = Path::new("../maps/v119-standard");
+    let wild_maps_path = Path::new("../maps/v119-wild");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let map_tiles_path = Path::new("data/map_tiles.json");
