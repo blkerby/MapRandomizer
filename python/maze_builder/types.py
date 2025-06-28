@@ -21,6 +21,7 @@ class DoorSubtype(Enum):
 
 @dataclass
 class DoorIdentifier:
+    node_id: int
     direction: Direction
     x: int
     y: int
@@ -39,6 +40,7 @@ class Item:
 
 @dataclass
 class Room:
+    room_id: int
     name: str
     map: List[List[int]]
     rom_address: Optional[int] = None

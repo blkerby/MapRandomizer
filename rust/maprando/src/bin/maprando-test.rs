@@ -16,7 +16,7 @@ use maprando::settings::{
     SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_map;
-use maprando_game::GameData;
+use maprando_game::{GameData, Map};
 use rand::{RngCore, SeedableRng};
 use std::path::{Path, PathBuf};
 
@@ -134,9 +134,7 @@ fn get_randomization(
     let max_map_attempts = max_attempts / max_attempts_per_map;
     let mut attempt_num = 0;
 
-    let output_file_prefix = format!(
-        "{skill_label}-{item_label}-{qol_label}-{random_seed}"
-    );
+    let output_file_prefix = format!("{skill_label}-{item_label}-{qol_label}-{random_seed}");
 
     // Save a dump of the settings
     let settings_json = serde_json::to_string(&settings)?;
@@ -148,10 +146,17 @@ fn get_randomization(
         settings_json,
     )?;
 
+    let mut map_batch: Vec<Map> = vec![];
+
     for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
-        let mut map = map_repo.get_map(attempt_num, map_seed, game_data)?;
+
+        if map_batch.is_empty() {
+            map_batch = map_repo.get_map_batch(map_seed, game_data).unwrap();
+        }
+
+        let mut map = map_batch.pop().unwrap();
         match settings.other_settings.area_assignment {
             AreaAssignment::Ordered => {
                 order_map_areas(&mut map, map_seed, game_data);
@@ -360,8 +365,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let reduced_flashing_path = Path::new("data/reduced_flashing.json");
     let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
-    let standard_maps_path = Path::new("../maps/v119-standard");
-    let wild_maps_path = Path::new("../maps/v119-wild");
+    let standard_maps_path = Path::new("../maps/v119-standard-avro");
+    let wild_maps_path = Path::new("../maps/v119-wild-avro");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
     let title_screen_path = Path::new("../TitleScreen/Images");
     let map_tiles_path = Path::new("data/map_tiles.json");
@@ -424,8 +429,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     // If we are using a locked-in preset, go ahead and remove all the others.
     if let Some(fixed_preset) = &args.qol_preset {
         let path = format!("data/presets/quality-of-life/{fixed_preset}.json");
-        let s = std::fs::read_to_string(&path)
-            .context(format!("Unable to load QoL preset: {path}"))?;
+        let s =
+            std::fs::read_to_string(&path).context(format!("Unable to load QoL preset: {path}"))?;
         let p: QualityOfLifeSettings = serde_json::from_str(&s)?;
         qol_presets = vec![p];
     }

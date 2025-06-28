@@ -9,6 +9,7 @@ ELEVATOR = DoorSubtype.ELEVATOR
 
 rooms = [
     Room(
+        room_id=7,
         name='The Moat',
         sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x795FF,
@@ -17,8 +18,8 @@ rooms = [
             [1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18ADE, 0x18A36, 0),  # Crateria Kihunter Room
-            DoorIdentifier(RIGHT, 1, 0, 0x18AEA, 0x189CA, 0),  # West Ocean
+            DoorIdentifier(1, LEFT, 0, 0, 0x18ADE, 0x18A36, 0),  # Crateria Kihunter Room
+            DoorIdentifier(2, RIGHT, 1, 0, 0x18AEA, 0x189CA, 0),  # West Ocean
         ],
         items=[
             Item(0, 0, 0x78248),
@@ -30,6 +31,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=8,
         name='Landing Site',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x791F8,
@@ -41,10 +43,10 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x1892E, 0x18946, 0),  # Gauntlet Entrance
-            DoorIdentifier(LEFT, 0, 4, 0x18916, 0x1896A, 0),  # Parlor and Alcatraz
-            DoorIdentifier(RIGHT, 8, 1, 0x1893A, 0x189B2, 0),  # Crateria Power Bomb Room
-            DoorIdentifier(RIGHT, 8, 4, 0x18922, 0x18AC6, 0),  # Crateria Tube
+            DoorIdentifier(1, LEFT, 0, 2, 0x1892E, 0x18946, 0),  # Gauntlet Entrance
+            DoorIdentifier(2, LEFT, 0, 4, 0x18916, 0x1896A, 0),  # Parlor and Alcatraz
+            DoorIdentifier(3, RIGHT, 8, 1, 0x1893A, 0x189B2, 0),  # Crateria Power Bomb Room
+            DoorIdentifier(4, RIGHT, 8, 4, 0x18922, 0x18AC6, 0),  # Crateria Tube
         ],
         node_tiles={
             1: [(0, 2), (1, 2)],  # top left door
@@ -64,13 +66,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=9,
         name='Crateria Tube',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x795D4,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18AC6, 0x18922, None),  # Landing Site
-            DoorIdentifier(RIGHT, 0, 0, 0x18AD2, 0x18A2A, None),  # Crateria Kihunter Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x18AC6, 0x18922, None),  # Landing Site
+            DoorIdentifier(2, RIGHT, 0, 0, 0x18AD2, 0x18A2A, None),  # Crateria Kihunter Room
         ],
         node_tiles={
             1: [(0, 0)],
@@ -78,6 +81,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=10,
         name='Parlor And Alcatraz',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x792FD,
@@ -89,13 +93,13 @@ rooms = [
             [0, 1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x1895E, 0x18BF2, 0),  # Terminator Room
-            DoorIdentifier(LEFT, 1, 2, 0x1899A, 0x189BE, 0),  # Crateria Save Room
-            DoorIdentifier(LEFT, 1, 3, 0x189A6, 0x18C8E, 0),  # Final Missile Bombway
-            DoorIdentifier(RIGHT, 4, 0, 0x1896A, 0x18916, 0),  # Landing Site
-            DoorIdentifier(RIGHT, 3, 2, 0x18982, 0x18BB6, 0),  # Flyway
-            DoorIdentifier(RIGHT, 1, 3, 0x18976, 0x18BCE, 0),  # Pre-Map Flyway
-            DoorIdentifier(DOWN, 1, 4, 0x1898E, 0x18B3E, 1),  # Climb
+            DoorIdentifier(1, LEFT, 0, 0, 0x1895E, 0x18BF2, 0),  # Terminator Room
+            DoorIdentifier(2, LEFT, 1, 2, 0x1899A, 0x189BE, 0),  # Crateria Save Room
+            DoorIdentifier(3, LEFT, 1, 3, 0x189A6, 0x18C8E, 0),  # Final Missile Bombway
+            DoorIdentifier(4, RIGHT, 4, 0, 0x1896A, 0x18916, 0),  # Landing Site
+            DoorIdentifier(5, RIGHT, 3, 2, 0x18982, 0x18BB6, 0),  # Flyway
+            DoorIdentifier(6, RIGHT, 1, 3, 0x18976, 0x18BCE, 0),  # Pre-Map Flyway
+            DoorIdentifier(7, DOWN, 1, 4, 0x1898E, 0x18B3E, 1),  # Climb
         ],
         node_tiles={
             1: [(0, 0)],  # top left door
@@ -109,6 +113,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=11,
         name='Climb',
         sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x796BA,
@@ -124,11 +129,11 @@ rooms = [
             [1, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 8, 0x18B6E, 0x1AB34, 0),  # Tourian Escape Room 4
-            DoorIdentifier(RIGHT, 2, 0, 0x18B4A, 0x18C6A, 0),  # Crateria Super Room (top)
-            DoorIdentifier(RIGHT, 2, 7, 0x18B56, 0x18C76, 0),  # Crateria Super Room (bottom)
-            DoorIdentifier(RIGHT, 1, 8, 0x18B62, 0x18B7A, 0),  # Pit Room
-            DoorIdentifier(UP, 1, 0, 0x18B3E, 0x1898E, 1),  # Parlor and Alcatraz
+            DoorIdentifier(2, LEFT, 0, 8, 0x18B6E, 0x1AB34, 0),  # Tourian Escape Room 4
+            DoorIdentifier(3, RIGHT, 2, 0, 0x18B4A, 0x18C6A, 0),  # Crateria Super Room (top)
+            DoorIdentifier(4, RIGHT, 2, 7, 0x18B56, 0x18C76, 0),  # Crateria Super Room (bottom)
+            DoorIdentifier(5, RIGHT, 1, 8, 0x18B62, 0x18B7A, 0),  # Pit Room
+            DoorIdentifier(1, UP, 1, 0, 0x18B3E, 0x1898E, 1),  # Parlor and Alcatraz
         ],
         node_tiles={
             1: [(1, 0)],  # top door
@@ -140,6 +145,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=12,
         name='Pit Room',
         sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x7975C,
@@ -148,8 +154,8 @@ rooms = [
             [1, 0, 0]
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18B7A, 0x18B62, 0),  # Climb
-            DoorIdentifier(RIGHT, 2, 0, 0x18B86, 0x18B92, 0),  # Blue Brinstar Elevator Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x18B7A, 0x18B62, 0),  # Climb
+            DoorIdentifier(2, RIGHT, 2, 0, 0x18B86, 0x18B92, 0),  # Blue Brinstar Elevator Room
         ],
         items=[
             Item(0, 1, 0x783EE),
@@ -161,13 +167,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=13,
         name='Flyway',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79879,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18BB6, 0x18982, 0),  # Parlor and Alcatraz
-            DoorIdentifier(RIGHT, 2, 0, 0x18BC2, 0x18BAA, 0),  # Bomb Torizo Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x18BB6, 0x18982, 0),  # Parlor and Alcatraz
+            DoorIdentifier(2, RIGHT, 2, 0, 0x18BC2, 0x18BAA, 0),  # Bomb Torizo Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -175,13 +182,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=14,
         name='Pre-Map Flyway',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x798E2,
         map=[[1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18BCE, 0x18976, 0),  # Parlor and Alcatraz
-            DoorIdentifier(RIGHT, 2, 0, 0x18BDA, 0x18C2E, 0),  # Crateria Map Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x18BCE, 0x18976, 0),  # Parlor and Alcatraz
+            DoorIdentifier(2, RIGHT, 2, 0, 0x18BDA, 0x18C2E, 0),  # Crateria Map Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -189,12 +197,13 @@ rooms = [
         },
     ),
     Room(
+        room_id=15,
         name='Crateria Map Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79994,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C2E, 0x18BDA, 0),  # Pre-Map Flyway
+            DoorIdentifier(1, LEFT, 0, 0, 0x18C2E, 0x18BDA, 0),  # Pre-Map Flyway
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -202,12 +211,13 @@ rooms = [
         },
     ),
     Room(
+        room_id=16,
         name='Crateria Save Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x793D5,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x189BE, 0x1899A, 0),  # Parlor and Alcatraz
+            DoorIdentifier(1, RIGHT, 0, 0, 0x189BE, 0x1899A, 0),  # Parlor and Alcatraz
         ],
         node_tiles={
             1: [(0, 0)],  # door
@@ -215,12 +225,13 @@ rooms = [
         },
     ),
     Room(
+        room_id=17,
         name='The Final Missile',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79A90,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18C9A, 0x18C82, 0),  # Final Missile Bombway
+            DoorIdentifier(1, RIGHT, 0, 0, 0x18C9A, 0x18C82, 0),  # Final Missile Bombway
         ],
         items=[
             Item(0, 0, 0x78486),
@@ -231,13 +242,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=18,
         name='Final Missile Bombway',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79A44,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C82, 0x18C9A, 0),  # The Final Missile
-            DoorIdentifier(RIGHT, 1, 0, 0x18C8E, 0x189A6, 0),  # Parlor and Alcatraz
+            DoorIdentifier(1, LEFT, 0, 0, 0x18C82, 0x18C9A, 0),  # The Final Missile
+            DoorIdentifier(2, RIGHT, 1, 0, 0x18C8E, 0x189A6, 0),  # Parlor and Alcatraz
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -245,12 +257,13 @@ rooms = [
         },
     ),
     Room(
+        room_id=19,
         name='Bomb Torizo Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79804,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18BAA, 0x18BC2, 0),  # Flyway
+            DoorIdentifier(1, LEFT, 0, 0, 0x18BAA, 0x18BC2, 0),  # Flyway
         ],
         items=[
             Item(0, 0, 0x78404),
@@ -261,6 +274,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=20,
         name='Terminator Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7990D,
@@ -270,8 +284,8 @@ rooms = [
             [1, 1, 1, 0, 0, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 2, 0x18BE6, 0x18C3A, 0),  # Green Pirates Shaft
-            DoorIdentifier(RIGHT, 5, 0, 0x18BF2, 0x1895E, 0),  # Parlor and Alcatraz
+            DoorIdentifier(1, LEFT, 0, 2, 0x18BE6, 0x18C3A, 0),  # Green Pirates Shaft
+            DoorIdentifier(2, RIGHT, 5, 0, 0x18BF2, 0x1895E, 0),  # Parlor and Alcatraz
         ],
         items=[
             Item(0, 2, 0x78432),
@@ -283,6 +297,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=21,
         name='Green Pirates Shaft',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x799BD,
@@ -296,10 +311,10 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 6, 0x18C46, 0x18C16, 0),  # Lower Mushrooms
-            DoorIdentifier(RIGHT, 0, 0, 0x18C5E, 0x18B1A, 0),  # Gauntlet Energy Tank Room
-            DoorIdentifier(RIGHT, 0, 4, 0x18C3A, 0x18BE6, 0),  # Terminator Room
-            DoorIdentifier(RIGHT, 0, 6, 0x18C52, 0x191E6, 0),  # Statues Hallway
+            DoorIdentifier(3, LEFT, 0, 6, 0x18C46, 0x18C16, 0),  # Lower Mushrooms
+            DoorIdentifier(1, RIGHT, 0, 0, 0x18C5E, 0x18B1A, 0),  # Gauntlet Energy Tank Room
+            DoorIdentifier(2, RIGHT, 0, 4, 0x18C3A, 0x18BE6, 0),  # Terminator Room
+            DoorIdentifier(4, RIGHT, 0, 6, 0x18C52, 0x191E6, 0),  # Statues Hallway
         ],
         parts=[[1], [0, 2, 3]],
         transient_part_connections=[(0, 1)],  # crumble blocks
@@ -321,13 +336,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=22,
         name='Lower Mushrooms',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79969,
         map=[[1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C22, 0x18BFE, 0),  # Green Brinstar Elevator Room
-            DoorIdentifier(RIGHT, 3, 0, 0x18C16, 0x18C46, 0),  # Green Pirates Shaft
+            DoorIdentifier(1, LEFT, 0, 0, 0x18C22, 0x18BFE, 0),  # Green Brinstar Elevator Room
+            DoorIdentifier(2, RIGHT, 3, 0, 0x18C16, 0x18C46, 0),  # Green Pirates Shaft
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0)],  # left door
@@ -335,6 +351,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=23,
         name='Green Brinstar Elevator Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x79938,
@@ -345,8 +362,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18BFE, 0x18C22, 0),  # Lower Mushrooms
-            DoorIdentifier(DOWN, 0, 3, 0x18C0A, 0x18CA6, None, ELEVATOR),
+            DoorIdentifier(1, RIGHT, 0, 0, 0x18BFE, 0x18C22, 0),  # Lower Mushrooms
+            DoorIdentifier(2, DOWN, 0, 3, 0x18C0A, 0x18CA6, None, ELEVATOR),
         ],
         node_tiles={
             1: [(0, 0)],  # right door
@@ -354,6 +371,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=24,
         name='Crateria Kihunter Room',
         sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x7948C,
@@ -363,9 +381,9 @@ rooms = [
             [0, 1, 0],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18A2A, 0x18AD2, 0),  # Crateria Tube
-            DoorIdentifier(RIGHT, 2, 0, 0x18A36, 0x18ADE, 0),  # The Moat
-            DoorIdentifier(DOWN, 1, 2, 0x18A42, 0x18AF6, 1),  # Red Brinstar Elevator Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x18A2A, 0x18AD2, 0),  # Crateria Tube
+            DoorIdentifier(2, RIGHT, 2, 0, 0x18A36, 0x18ADE, 0),  # The Moat
+            DoorIdentifier(3, DOWN, 1, 2, 0x18A42, 0x18AF6, 1),  # Red Brinstar Elevator Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -374,13 +392,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=26,
         name='Statues Hallway',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7A5ED,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x191E6, 0x18C52, 0),  # Green Pirates Shaft
-            DoorIdentifier(RIGHT, 4, 0, 0x191F2, 0x19216, 0),  # Statues Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x191E6, 0x18C52, 0),  # Green Pirates Shaft
+            DoorIdentifier(2, RIGHT, 4, 0, 0x191F2, 0x19216, 0),  # Statues Room
         ],
         node_tiles={
             1: [(0, 0), (1, 0), (2, 0), (3, 0)],  # left door
@@ -388,6 +407,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=25,
         name='Red Brinstar Elevator Room',
         sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x7962A,
@@ -398,8 +418,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(UP, 0, 0, 0x18AF6, 0x18A42, 1),  # Crateria Kihunter Room
-            DoorIdentifier(DOWN, 0, 3, 0x18B02, 0x190BA, None, ELEVATOR),  # Caterpillar Room
+            DoorIdentifier(1, UP, 0, 0, 0x18AF6, 0x18A42, 1),  # Crateria Kihunter Room
+            DoorIdentifier(2, DOWN, 0, 3, 0x18B02, 0x190BA, None, ELEVATOR),  # Caterpillar Room
         ],
         node_tiles={
             1: [(0, 0)],  # top door
@@ -408,6 +428,7 @@ rooms = [
     ),
     Room(
         # TODO: add this to wiki.supermetroid.run/List_of_rooms because it is missing.
+        room_id=306,
         name='Blue Brinstar Elevator Room',
         sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x797B5,
@@ -418,8 +439,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18B92, 0x18B86, 0),  # Pit Room
-            DoorIdentifier(DOWN, 0, 3, 0x18B9E, 0x18EB6, None, ELEVATOR),  # Morph Ball Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x18B92, 0x18B86, 0),  # Pit Room
+            DoorIdentifier(2, DOWN, 0, 3, 0x18B9E, 0x18EB6, None, ELEVATOR),  # Morph Ball Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -427,6 +448,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=27,
         name='Statues Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7A66A,
@@ -438,8 +460,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x19216, 0x191F2, 0),  # Statues Hallway
-            DoorIdentifier(DOWN, 0, 4, 0x19222, 0x1A990, None, ELEVATOR),  # Tourian First Room
+            DoorIdentifier(1, LEFT, 0, 0, 0x19216, 0x191F2, 0),  # Statues Hallway
+            DoorIdentifier(2, DOWN, 0, 4, 0x19222, 0x1A990, None, ELEVATOR),  # Tourian First Room
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -447,12 +469,13 @@ rooms = [
         },
     ),
     Room(
+        room_id=28,
         name='Crateria Power Bomb Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x793AA,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x189B2, 0x1893A, 0),  # Landing Site
+            DoorIdentifier(1, LEFT, 0, 0, 0x189B2, 0x1893A, 0),  # Landing Site
         ],
         items=[
             Item(1, 0, 0x781CC),
@@ -463,6 +486,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=29,
         name='Crateria Super Room',
         sub_area=SubArea.SOUTH_CRATERIA,
         rom_address=0x799F9,
@@ -477,8 +501,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18C6A, 0x18B4A, 0),  # Climb (top)
-            DoorIdentifier(LEFT, 0, 7, 0x18C76, 0x18B56, 0),  # Climb (bottom)
+            DoorIdentifier(1, LEFT, 0, 0, 0x18C6A, 0x18B4A, 0),  # Climb (top)
+            DoorIdentifier(2, LEFT, 0, 7, 0x18C76, 0x18B56, 0),  # Climb (bottom)
         ],
         parts=[[0], [1]],
         transient_part_connections=[(1, 0)],  # speed blocks
@@ -497,13 +521,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=30,
         name='Gauntlet Entrance',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x792B3,
         map=[[1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18952, 0x18B0E, 0),  # Gauntlet Energy Tank Room
-            DoorIdentifier(RIGHT, 4, 0, 0x18946, 0x1892E, 0),  # Landing Site
+            DoorIdentifier(1, LEFT, 0, 0, 0x18952, 0x18B0E, 0),  # Gauntlet Energy Tank Room
+            DoorIdentifier(2, RIGHT, 4, 0, 0x18946, 0x1892E, 0),  # Landing Site
         ],
         node_tiles={
             1: [(0, 0), (1, 0)],  # left door
@@ -511,13 +536,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=31,
         name='Gauntlet Energy Tank Room',
         sub_area=SubArea.WEST_CRATERIA,
         rom_address=0x7965B,
         map=[[1, 1, 1, 1, 1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18B1A, 0x18C5E, 0),  # Green Pirates Shaft
-            DoorIdentifier(RIGHT, 5, 0, 0x18B0E, 0x18952, 0),  # Gauntlet Entrance
+            DoorIdentifier(1, LEFT, 0, 0, 0x18B1A, 0x18C5E, 0),  # Green Pirates Shaft
+            DoorIdentifier(2, RIGHT, 5, 0, 0x18B0E, 0x18952, 0),  # Gauntlet Entrance
         ],
         items=[
             Item(5, 0, 0x78264),
@@ -530,6 +556,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=32,
         name='West Ocean',
         sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x793FE,
@@ -537,20 +564,20 @@ rooms = [
         map=[
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 1, 1,   0, 0, 1, 0, 0],
+            [1, 1, 1, 0, 0, 1, 0, 0],
             [1, 1, 1, 1, 1, 1, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 5, 2, 0x18B26, 0x18A1E, 0),  # Bowling Alley Path (east)
-            DoorIdentifier(LEFT, 0, 4, 0x189CA, 0x18AEA, 0),  # The Moat
-            DoorIdentifier(RIGHT, 7, 0, 0x189EE, 0x1A1E0, 0),  # Attic
-            DoorIdentifier(RIGHT, 7, 1, 0x189FA, 0x1A18C, 0),  # Bowling Alley (top)
-            DoorIdentifier(RIGHT, 2, 2, 0x189E2, 0x18A12, 0),  # Bowling Alley Path (west)
-            DoorIdentifier(RIGHT, 5, 2, 0x18B32, 0x1A198, 0),  # Bowling Alley (middle)
-            DoorIdentifier(RIGHT, 5, 3, 0x18A06, 0x1A300, 0),  # Gravity Suit Room
-            DoorIdentifier(RIGHT, 7, 4, 0x189D6, 0x1A1B0, 0),  # Wrecked Ship Entrance
+            DoorIdentifier(7, LEFT, 5, 2, 0x18B26, 0x18A1E, 0),  # Bowling Alley Path (east)
+            DoorIdentifier(1, LEFT, 0, 4, 0x189CA, 0x18AEA, 0),  # The Moat
+            DoorIdentifier(2, RIGHT, 7, 0, 0x189EE, 0x1A1E0, 0),  # Attic
+            DoorIdentifier(3, RIGHT, 7, 1, 0x189FA, 0x1A18C, 0),  # Bowling Alley (top)
+            DoorIdentifier(6, RIGHT, 2, 2, 0x189E2, 0x18A12, 0),  # Bowling Alley Path (west)
+            DoorIdentifier(8, RIGHT, 5, 2, 0x18B32, 0x1A198, 0),  # Bowling Alley (middle)
+            DoorIdentifier(4, RIGHT, 5, 3, 0x18A06, 0x1A300, 0),  # Gravity Suit Room
+            DoorIdentifier(5, RIGHT, 7, 4, 0x189D6, 0x1A1B0, 0),  # Wrecked Ship Entrance
         ],
         parts=[[1, 6, 7], [2, 3, 4], [0, 5]],
         transient_part_connections=[(1, 0)],  # crumble block
@@ -588,13 +615,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=33,
         name='Bowling Alley Path',
         sub_area=SubArea.CENTRAL_CRATERIA,
         rom_address=0x79461,
         map=[[1, 1]],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18A12, 0x189E2, 0),  # West Ocean
-            DoorIdentifier(RIGHT, 1, 0, 0x18A1E, 0x18B26, 0),  # West Ocean (Homing Geemer Room)
+            DoorIdentifier(1, LEFT, 0, 0, 0x18A12, 0x189E2, 0),  # West Ocean
+            DoorIdentifier(2, RIGHT, 1, 0, 0x18A1E, 0x18B26, 0),  # West Ocean (Homing Geemer Room)
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -602,6 +630,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=34,
         name='East Ocean',
         sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x794FD,
@@ -614,8 +643,8 @@ rooms = [
             [1, 1, 1, 1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 4, 0x18A66, 0x1A264, 0),  # Electric Death Room
-            DoorIdentifier(RIGHT, 6, 4, 0x18A72, 0x18A7E, 0),  # Forgotten Highway Kago Room
+            DoorIdentifier(1, LEFT, 0, 4, 0x18A66, 0x1A264, 0),  # Electric Death Room
+            DoorIdentifier(2, RIGHT, 6, 4, 0x18A72, 0x18A7E, 0),  # Forgotten Highway Kago Room
         ],
         node_tiles={
             1: [(0, 4), (1, 4)],  # left door
@@ -625,6 +654,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=35,
         name='Forgotten Highway Kago Room',
         sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x79552,
@@ -635,8 +665,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 0, 0x18A7E, 0x18A72, 0),  # East Ocean
-            DoorIdentifier(DOWN, 0, 3, 0x18A8A, 0x18A96, 1),  # Crab Maze
+            DoorIdentifier(1, LEFT, 0, 0, 0x18A7E, 0x18A72, 0),  # East Ocean
+            DoorIdentifier(2, DOWN, 0, 3, 0x18A8A, 0x18A96, 1),  # Crab Maze
         ],
         node_tiles={
             1: [(0, 0)],  # left door
@@ -644,6 +674,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=36,
         name='Crab Maze',
         sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x7957D,
@@ -652,8 +683,8 @@ rooms = [
             [1, 1, 1, 1],
         ],
         door_ids=[
-            DoorIdentifier(LEFT, 0, 1, 0x18AAE, 0x18AA2, 0),  # Forgotten Highway Elbow
-            DoorIdentifier(UP, 3, 0, 0x18A96, 0x18A8A, 1),  # Forgotten Highway Kago Room
+            DoorIdentifier(2, LEFT, 0, 1, 0x18AAE, 0x18AA2, 0),  # Forgotten Highway Elbow
+            DoorIdentifier(1, UP, 3, 0, 0x18A96, 0x18A8A, 1),  # Forgotten Highway Kago Room
         ],
         node_tiles={
             1: [(3, 0), (3, 1)],  # top right door
@@ -662,6 +693,7 @@ rooms = [
         },
     ),
     Room(
+        room_id=37,
         name='Forgotten Highway Elevator',
         sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x794CC,
@@ -672,8 +704,8 @@ rooms = [
             [1],
         ],
         door_ids=[
-            DoorIdentifier(UP, 0, 0, 0x18A4E, 0x18ABA, 1),  # Forgotten Highway Elbow
-            DoorIdentifier(DOWN, 0, 3, 0x18A5A, 0x1A594, 0, ELEVATOR),  # Maridia Elevator Room
+            DoorIdentifier(1, UP, 0, 0, 0x18A4E, 0x18ABA, 1),  # Forgotten Highway Elbow
+            DoorIdentifier(2, DOWN, 0, 3, 0x18A5A, 0x1A594, 0, ELEVATOR),  # Maridia Elevator Room
         ],
         node_tiles={
             1: [(0, 0)],  # top door
@@ -681,13 +713,14 @@ rooms = [
         },
     ),
     Room(
+        room_id=305,
         name='Forgotten Highway Elbow',  # Add to list on wiki.supermetroid.run
         sub_area=SubArea.EAST_CRATERIA,
         rom_address=0x795A8,
         map=[[1]],
         door_ids=[
-            DoorIdentifier(RIGHT, 0, 0, 0x18AA2, 0x18AAE, 0),  # Crab Maze
-            DoorIdentifier(DOWN, 0, 0, 0x18ABA, 0x18A4E, 1),  # Forgotten Highway Elevator
+            DoorIdentifier(1, RIGHT, 0, 0, 0x18AA2, 0x18AAE, 0),  # Crab Maze
+            DoorIdentifier(2, DOWN, 0, 0, 0x18ABA, 0x18A4E, 1),  # Forgotten Highway Elevator
         ],
         node_tiles={
             1: [(0, 0)],  # right door

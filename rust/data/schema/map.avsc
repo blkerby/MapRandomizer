@@ -1,0 +1,18 @@
+{
+    "namespace": "com.maprando.sm",
+    "type": "record",
+    "name": "map",
+    "fields": [
+        {"name": "room_id", "type": {"type": "array", "items": "int"}},
+        {"name": "room_x", "type": {"type": "array", "items": "int"}},
+        {"name": "room_y", "type": {"type": "array", "items": "int"}},
+        {"name": "room_area", "type": {"type": "array", "items": "int"}},
+        {"name": "room_subarea", "type": {"type": "array", "items": "int"}},
+        {"name": "room_subsubarea", "type": {"type": "array", "items": "int"}},
+        {"name": "conn_from_room_id", "type": {"type": "array", "items": "int"}},
+        {"name": "conn_from_door_id", "type": {"type": "array", "items": "int"}},
+        {"name": "conn_to_room_id", "type": {"type": "array", "items": "int"}},
+        {"name": "conn_to_door_id", "type": {"type": "array", "items": "int"}},
+        {"name": "conn_bidirectional", "type": {"type": "array", "items": "boolean"}}
+    ]
+}

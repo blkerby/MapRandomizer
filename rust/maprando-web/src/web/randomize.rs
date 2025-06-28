@@ -12,7 +12,7 @@ use maprando::{
     },
     settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
 };
-use maprando_game::LinksDataGroup;
+use maprando_game::{LinksDataGroup, Map};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
@@ -178,6 +178,7 @@ async fn randomize(
     let time_start_attempts = Instant::now();
     let mut attempt_num = 0;
     let mut output_opt: Option<AttemptOutput> = None;
+    let mut map_batch: Vec<Map> = vec![];
     'attempts: for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
@@ -186,9 +187,14 @@ async fn randomize(
             // TODO: it doesn't make sense to panic on things like this.
             panic!("Unrecognized map layout option: {map_layout}");
         }
-        let mut map = app_data.map_repositories[&map_layout]
-            .get_map(attempt_num, map_seed, &app_data.game_data)
-            .unwrap();
+
+        if map_batch.is_empty() {
+            map_batch = app_data.map_repositories[&map_layout]
+                .get_map_batch(map_seed, &app_data.game_data)
+                .unwrap();
+        }
+
+        let mut map = map_batch.pop().unwrap();
         match settings.other_settings.area_assignment {
             AreaAssignment::Ordered => {
                 order_map_areas(&mut map, map_seed, &app_data.game_data);

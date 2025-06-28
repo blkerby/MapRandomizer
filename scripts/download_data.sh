@@ -6,11 +6,11 @@ cd tmp
 
 # Download the map pools
 mkdir -p ../maps
-for pool in "v119-standard" "v119-wild"
+for pool in "v119-standard-avro" "v119-wild-avro"
 do
-wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/${pool}.tgz
-tar xfz ${pool}.tgz --directory ../maps
-rm ${pool}.tgz
+wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/${pool}.tar
+tar xf ${pool}.tar --directory ../maps
+rm ${pool}.tar
 done
 
 # Download the Mosaic patches
