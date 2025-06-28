@@ -163,7 +163,7 @@ fn list_room_diagram_files() -> HashMap<usize, String> {
                 let room_id: usize = str::parse(segments[2]).unwrap();
                 out.insert(room_id, path_string);
             }
-            Err(e) => panic!("Failure reading room diagrams: {:?}", e),
+            Err(e) => panic!("Failure reading room diagrams: {e:?}"),
         }
     }
     out

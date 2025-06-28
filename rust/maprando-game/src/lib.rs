@@ -429,7 +429,7 @@ impl Requirement {
 
     pub fn print_pretty(&self, indent: usize, game_data: &GameData) {
         let spaces = " ".repeat(indent);
-        print!("{}", spaces);
+        print!("{spaces}");
         match self {
             &Requirement::Tech(tech_idx) => {
                 let tech_id = game_data.tech_isv.keys[tech_idx];
@@ -447,7 +447,7 @@ impl Requirement {
                     r.print_pretty(indent + 2, game_data);
                     println!(",");
                 }
-                print!("{})", spaces)
+                print!("{spaces})")
             }
             Requirement::Or(reqs) => {
                 println!("Or(");
@@ -455,10 +455,10 @@ impl Requirement {
                     r.print_pretty(indent + 2, game_data);
                     println!(",");
                 }
-                print!("{})", spaces)
+                print!("{spaces})")
             }
             other => {
-                print!("{:?}", other);
+                print!("{other:?}");
             }
         }
     }
@@ -1682,7 +1682,7 @@ impl GameData {
         let tech_json = &self
             .tech_json_map
             .get(&tech_id)
-            .context(format!("Tech not found: {} ({})", tech_name, tech_id))?
+            .context(format!("Tech not found: {tech_name} ({tech_id})"))?
             .clone();
 
         let mut reqs: Vec<Requirement> = vec![if tech_id == TECH_ID_CAN_WALLJUMP {
@@ -1696,12 +1696,12 @@ impl GameData {
             if req.is_string() {
                 reqs.push(
                     self.get_tech_requirement(req.as_str().unwrap(), include_other_requires)
-                        .context(format!("Parsing tech requirement '{}'", req))?,
+                        .context(format!("Parsing tech requirement '{req}'"))?,
                 );
             } else if req.has_key("tech") {
                 reqs.push(
                     self.get_tech_requirement(req["tech"].as_str().unwrap(), false)
-                        .context(format!("Parsing pure tech requirement '{}'", req))?,
+                        .context(format!("Parsing pure tech requirement '{req}'"))?,
                 );
             } else {
                 bail!("Unexpected requirement type in techRequires: {}", req);
@@ -1833,7 +1833,7 @@ impl GameData {
             "Missile" => (100.0 * multiplier) as Capacity,
             "Super" => (300.0 * multiplier) as Capacity,
             "PowerBomb" => (400.0 * multiplier) as Capacity,
-            _ => panic!("Unsupported weapon: {}", weapon_name),
+            _ => panic!("Unsupported weapon: {weapon_name}"),
         }
     }
 
@@ -1952,8 +1952,7 @@ impl GameData {
                 Requirement::HeatFrames(60),
             )],
             DoorType::Gray | DoorType::Beam(_) => panic!(
-                "Unexpected DoorType in get_unlocks_door_type_req: {:?}",
-                door_type
+                "Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}"
             ),
         };
         let room_id = ctx.room_id;
@@ -2049,7 +2048,7 @@ impl GameData {
         for req_json in req_jsons {
             reqs.push(
                 self.parse_requirement(req_json, ctx)
-                    .with_context(|| format!("Processing requirement {}", req_json))?,
+                    .with_context(|| format!("Processing requirement {req_json}"))?,
             );
         }
         Ok(reqs)
@@ -2065,32 +2064,32 @@ impl GameData {
             let count = drop["count"].as_i32().unwrap() as Capacity;
             let nothing_weight = drops_json["noDrop"]
                 .as_f32()
-                .context(format!("missing noDrop for {}", enemy_name))
+                .context(format!("missing noDrop for {enemy_name}"))
                 .unwrap()
                 / 102.0;
             let small_energy_weight = drops_json["smallEnergy"]
                 .as_f32()
-                .context(format!("missing smallEnergy for {}", enemy_name))
+                .context(format!("missing smallEnergy for {enemy_name}"))
                 .unwrap()
                 / 102.0;
             let large_energy_weight = drops_json["bigEnergy"]
                 .as_f32()
-                .context(format!("missing bigEnergy for {}", enemy_name))
+                .context(format!("missing bigEnergy for {enemy_name}"))
                 .unwrap()
                 / 102.0;
             let missile_weight = drops_json["missile"]
                 .as_f32()
-                .context(format!("missing missile for {}", enemy_name))
+                .context(format!("missing missile for {enemy_name}"))
                 .unwrap()
                 / 102.0;
             let super_weight = drops_json["super"]
                 .as_f32()
-                .context(format!("missing super for {}", enemy_name))
+                .context(format!("missing super for {enemy_name}"))
                 .unwrap()
                 / 102.0;
             let power_bomb_weight = drops_json["powerBomb"]
                 .as_f32()
-                .context(format!("missing powerBomb for {}", enemy_name))
+                .context(format!("missing powerBomb for {enemy_name}"))
                 .unwrap()
                 / 102.0;
             let enemy_drop = EnemyDrop {
@@ -2203,15 +2202,15 @@ impl GameData {
                 if let Some(&flag_id) = self.flag_isv.index_by_key.get(value.as_str().unwrap()) {
                     return Ok(Requirement::NotFlag(flag_id));
                 } else {
-                    panic!("Unrecognized flag in 'not': {}", value);
+                    panic!("Unrecognized flag in 'not': {value}");
                 }
             } else if key == "ammo" {
                 let ammo_type = value["type"]
                     .as_str()
-                    .unwrap_or_else(|| panic!("missing/invalid ammo type in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid ammo type in {req_json}"));
                 let count = value["count"]
                     .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid ammo count in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid ammo count in {req_json}"));
                 if ammo_type == "Missile" {
                     return Ok(Requirement::Missiles(count as Capacity));
                 } else if ammo_type == "Super" {
@@ -2227,9 +2226,9 @@ impl GameData {
                 for value0 in value.members() {
                     let resource_type = value0["type"]
                         .as_str()
-                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
                     let count = value0["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {}", req_json)
+                        panic!("missing/invalid resource count in {req_json}")
                     });
                     if resource_type == "Missile" {
                         reqs.push(Requirement::MissilesAvailable(count as Capacity));
@@ -2253,10 +2252,10 @@ impl GameData {
                 let value0 = value.members().next().unwrap();
                 let resource_type = value0["type"]
                     .as_str()
-                    .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
                 let count = value0["count"]
                     .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid resource count in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
                 if resource_type == "Missile" {
                     return Ok(Requirement::MissilesCapacity(count as Capacity));
                 } else if resource_type == "Super" {
@@ -2275,10 +2274,10 @@ impl GameData {
                 let value0 = value.members().next().unwrap();
                 let resource_type = value0["type"]
                     .as_str()
-                    .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
                 let count = value0["count"]
                     .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid resource count in {}", req_json));
+                    .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
                 if resource_type == "RegularEnergy" {
                     return Ok(Requirement::make_and(vec![
                         Requirement::DisableableETank,
@@ -2292,9 +2291,9 @@ impl GameData {
                 for r in value.members() {
                     let resource_type = r["type"]
                         .as_str()
-                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
                     let count = r["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {}", req_json)
+                        panic!("missing/invalid resource count in {req_json}")
                     });
                     if resource_type == "RegularEnergy" {
                         assert!(count > 0);
@@ -2316,9 +2315,9 @@ impl GameData {
                 for r in value.members() {
                     let resource_type = r["type"]
                         .as_str()
-                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
                     let count = r["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {}", req_json)
+                        panic!("missing/invalid resource count in {req_json}")
                     });
                     if resource_type == "Missile" {
                         reqs.push(Requirement::MissilesMissingAtMost(count as Capacity));
@@ -2343,9 +2342,9 @@ impl GameData {
                 for value0 in value.members() {
                     let resource_type = value0["type"]
                         .as_str()
-                        .unwrap_or_else(|| panic!("missing/invalid resource type in {}", req_json));
+                        .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
                     let count = value0["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {}", req_json)
+                        panic!("missing/invalid resource count in {req_json}")
                     });
                     if resource_type == "RegularEnergy" {
                         reqs.push(Requirement::RegularEnergy(count as Capacity));
@@ -2407,7 +2406,7 @@ impl GameData {
             } else if key == "shinespark" {
                 let frames = value["frames"]
                     .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid frames in {}", req_json))
+                    .unwrap_or_else(|| panic!("missing/invalid frames in {req_json}"))
                     as Capacity;
                 let excess_frames = value["excessFrames"].as_i32().unwrap_or(0) as Capacity;
                 return Ok(Requirement::Shinespark {
@@ -2439,78 +2438,78 @@ impl GameData {
             } else if key == "shineChargeFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid shineChargeFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid shineChargeFrames in {req_json}"));
                 return Ok(Requirement::ShineChargeFrames(frames as Capacity));
             } else if key == "heatFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid heatFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid heatFrames in {req_json}"));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "gravitylessHeatFrames" {
                 // In Map Rando, Gravity doesn't affect heat frames, so this is treated the same as "heatFrames".
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid gravitylessHeatFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid gravitylessHeatFrames in {req_json}"));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
             } else if key == "lavaFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid lavaFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid lavaFrames in {req_json}"));
                 return Ok(Requirement::LavaFrames(frames as Capacity));
             } else if key == "gravitylessLavaFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid gravitylessLavaFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid gravitylessLavaFrames in {req_json}"));
                 return Ok(Requirement::GravitylessLavaFrames(frames as Capacity));
             } else if key == "gravitylessAcidFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid gravitylessAcidFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid gravitylessAcidFrames in {req_json}"));
                 return Ok(Requirement::GravitylessAcidFrames(frames as Capacity));
             } else if key == "acidFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid acidFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid acidFrames in {req_json}"));
                 return Ok(Requirement::AcidFrames(frames as Capacity));
             } else if key == "metroidFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid metroidFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid metroidFrames in {req_json}"));
                 return Ok(Requirement::MetroidFrames(frames as Capacity));
             } else if key == "draygonElectricityFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid draygonElectricityFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid draygonElectricityFrames in {req_json}"));
                 return Ok(Requirement::Damage(frames as Capacity));
             } else if key == "samusEaterFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid samusEaterFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid samusEaterFrames in {req_json}"));
                 return Ok(Requirement::Damage(frames as Capacity / 10));
             } else if key == "cycleFrames" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid cycleFrames in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid cycleFrames in {req_json}"));
                 return Ok(Requirement::CycleFrames(frames as Capacity));
             } else if key == "spikeHits" {
                 let hits = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid spikeHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid spikeHits in {req_json}"));
                 return Ok(Requirement::Damage(hits as Capacity * 60));
             } else if key == "thornHits" {
                 let hits = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid thornHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid thornHits in {req_json}"));
                 return Ok(Requirement::Damage(hits as Capacity * 16));
             } else if key == "electricityHits" {
                 let hits = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid electricityHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid electricityHits in {req_json}"));
                 return Ok(Requirement::Damage(hits as Capacity * 30));
             } else if key == "hibashiHits" {
                 let hits = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid hibashiHits in {}", req_json));
+                    .unwrap_or_else(|| panic!("invalid hibashiHits in {req_json}"));
                 return Ok(Requirement::Damage(hits as Capacity * 30));
             } else if key == "enemyDamage" {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
@@ -2521,8 +2520,7 @@ impl GameData {
                     .get(&(enemy_name.clone(), attack_name.clone()))
                     .with_context(|| {
                         format!(
-                            "Missing enemy attack damage for {} - {}:",
-                            enemy_name, attack_name
+                            "Missing enemy attack damage for {enemy_name} - {attack_name}:"
                         )
                     })?;
                 return Ok(Requirement::Damage(hits * base_damage));
@@ -2785,9 +2783,9 @@ impl GameData {
             let room_name = room_json["name"].clone();
             let preprocessed_room_json = self
                 .preprocess_room(room_json)
-                .with_context(|| format!("Preprocessing room {}", room_name))?;
+                .with_context(|| format!("Preprocessing room {room_name}"))?;
             self.process_room(&preprocessed_room_json)
-                .with_context(|| format!("Processing room {}", room_name))?;
+                .with_context(|| format!("Processing room {room_name}"))?;
         }
 
         let ignored_notable_strats = get_ignored_notable_strats();
@@ -2798,7 +2796,7 @@ impl GameData {
                 .difference(&all_notable_strats)
                 .cloned()
                 .collect();
-            panic!("Unrecognized ignored notable strats: {:?}", diff);
+            panic!("Unrecognized ignored notable strats: {diff:?}");
         }
 
         Ok(())
@@ -3263,7 +3261,7 @@ impl GameData {
             }
 
             if logical_gray_door_node_ids.contains(&(room_id, node_id)) {
-                let obstacle_name = format!("door_{}", node_id);
+                let obstacle_name = format!("door_{node_id}");
                 extra_obstacles.push(obstacle_name);
             }
 
@@ -3388,7 +3386,7 @@ impl GameData {
                 if !strat_json.has_key("clearsObstacles") {
                     strat_json["clearsObstacles"] = json::array![];
                 }
-                strat_json["clearsObstacles"].push(format!("door_{}", from_node_id))?;
+                strat_json["clearsObstacles"].push(format!("door_{from_node_id}"))?;
             }
         }
 
@@ -4401,9 +4399,9 @@ impl GameData {
         let sub_area = room_json["subarea"].as_str().unwrap_or("").to_string();
         let sub_sub_area = room_json["subsubarea"].as_str().unwrap_or("").to_string();
         if !sub_sub_area.is_empty() {
-            format!("{} {} {}", sub_sub_area, sub_area, area)
+            format!("{sub_sub_area} {sub_area} {area}")
         } else if !sub_area.is_empty() && sub_area != "Main" {
-            format!("{} {}", sub_area, area)
+            format!("{sub_area} {area}")
         } else {
             area
         }
@@ -4784,7 +4782,7 @@ impl GameData {
                         continue 'weapon;
                     }
                 } else {
-                    panic!("Unrecognized weapon requirement: {}", req_name);
+                    panic!("Unrecognized weapon requirement: {req_name}");
                 }
             }
             weapon_mask |= 1 << i;
@@ -4820,7 +4818,7 @@ impl GameData {
                 for req in loc.requires.as_ref().unwrap() {
                     let req_str = req.to_string();
                     let req_json = json::parse(&req_str)
-                        .with_context(|| format!("Error parsing requires in {:?}", loc))?;
+                        .with_context(|| format!("Error parsing requires in {loc:?}"))?;
                     req_json_list.push(req_json);
                 }
                 let ctx = RequirementContext::default();
@@ -4833,7 +4831,7 @@ impl GameData {
                 obstacle_mask: 0,
                 actions: vec![],
             }) {
-                panic!("Bad starting location: {:?}", loc);
+                panic!("Bad starting location: {loc:?}");
             }
         }
         self.start_locations = start_locations;
@@ -4853,7 +4851,7 @@ impl GameData {
                 for req in loc.requires.as_ref().unwrap() {
                     let req_str = req.to_string();
                     let req_json = json::parse(&req_str)
-                        .with_context(|| format!("Error parsing requires in {:?}", loc))?;
+                        .with_context(|| format!("Error parsing requires in {loc:?}"))?;
                     req_json_list.push(req_json);
                 }
                 let ctx = RequirementContext::default();
@@ -4866,7 +4864,7 @@ impl GameData {
                 obstacle_mask: 0,
                 actions: vec![],
             }) {
-                panic!("Bad hub location: {:?}", loc);
+                panic!("Bad hub location: {loc:?}");
             }
         }
         self.hub_locations = hub_locations;

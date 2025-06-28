@@ -4347,7 +4347,7 @@ impl<'r> Randomizer<'r> {
             item_priority: state
                 .item_precedence
                 .iter()
-                .map(|x| format!("{:?}", x))
+                .map(|x| format!("{x:?}"))
                 .collect(),
             summary: spoiler_summaries,
             objectives: spoiler_objectives,

@@ -503,7 +503,7 @@ impl MosaicPatchBuilder {
                 let state_xml = &state_xml_vec[i];
 
                 if state_xml.gfx_set == 1 {
-                    println!("Gfx set = 1: {} {}", room_name, project);
+                    println!("Gfx set = 1: {room_name} {project}");
                 }
 
                 // Write the tileset index
@@ -621,7 +621,7 @@ impl MosaicPatchBuilder {
                 encoder.encode();
 
                 // Save the BPS patch to a file:
-                let output_filename = format!("{}-{:X}-{}.bps", project, room_ptr, state_idx);
+                let output_filename = format!("{project}-{room_ptr:X}-{state_idx}.bps");
                 let output_path = self.output_patches_dir.join(output_filename);
                 std::fs::write(&output_path, &encoder.patch_bytes)?;
             }
@@ -632,7 +632,7 @@ impl MosaicPatchBuilder {
     fn load_room_state(project_path: &Path, room_name: &str) -> Result<RoomState> {
         let room_path = project_path
             .join("Export/Rooms")
-            .join(format!("{}.xml", room_name));
+            .join(format!("{room_name}.xml"));
         let room_str = std::fs::read_to_string(&room_path)
             .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
         let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
@@ -842,7 +842,7 @@ impl MosaicPatchBuilder {
         let transit_tube_data_path = Path::new("../transit-tube-data");
         for theme_name in theme_names {
             let theme_transit_data_path =
-                transit_tube_data_path.join(format!("{}.json", theme_name));
+                transit_tube_data_path.join(format!("{theme_name}.json"));
             let theme_transit_data_str = std::fs::read_to_string(&theme_transit_data_path)
                 .with_context(|| {
                     format!(
@@ -1260,7 +1260,7 @@ impl MosaicPatchBuilder {
 
                                 // Save the BPS patch to a file:
                                 let output_filename =
-                                    format!("{}-VanillaMapTransit.bps", theme_name);
+                                    format!("{theme_name}-VanillaMapTransit.bps");
                                 info!("Writing {}", output_filename);
                                 let output_path = self.output_patches_dir.join(output_filename);
                                 std::fs::write(&output_path, &encoder.patch_bytes)?;

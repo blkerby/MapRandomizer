@@ -32,7 +32,7 @@ fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
         3 => get_rgb(16, 17, 0), // Wrecked Ship
         4 => get_rgb(3, 12, 29), // Maridia
         5 => get_rgb(21, 12, 0), // Tourian
-        _ => panic!("Unexpected area {}", area),
+        _ => panic!("Unexpected area {area}"),
     };
     let hot_area_color = match area {
         0 => get_rgb(27, 15, 31), // Crateria
@@ -41,7 +41,7 @@ fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
         3 => get_rgb(23, 23, 11), // Wrecked Ship
         4 => get_rgb(12, 20, 31), // Maridia
         5 => get_rgb(29, 17, 12), // Tourian
-        _ => panic!("Unexpected area {}", area),
+        _ => panic!("Unexpected area {area}"),
     };
     match value {
         0 => get_rgb(0, 0, 0),
@@ -56,7 +56,7 @@ fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
         13 => get_rgb(31, 31, 31), // Item dots (white)
         14 => get_rgb(7, 31, 7), // Green door (Super, Plasma)
         15 => get_rgb(18, 12, 14), // Gray door (including Charge)
-        _ => panic!("Unexpected color value {}", value),
+        _ => panic!("Unexpected color value {value}"),
     }
 }
 
@@ -74,7 +74,7 @@ fn get_outline_color(value: u8) -> Rgba<u8> {
         13 => get_rgb(0, 0, 0),
         14 => get_rgb(0, 0, 0),
         15 => get_rgb(0, 0, 0),
-        _ => panic!("Unexpected color value {}", value),
+        _ => panic!("Unexpected color value {value}"),
     }
 }
 

@@ -2291,7 +2291,7 @@ impl Patcher<'_> {
             (DoorType::Beam(_), "left") => 0xFCC6,
             (DoorType::Beam(_), "down") => 0xFCCC,
             (DoorType::Beam(_), "up") => 0xFCD2,
-            (a, b) => panic!("Unexpected door type: {:?} {}", a, b),
+            (a, b) => panic!("Unexpected door type: {a:?} {b}"),
         };
         // TODO: Instead of using extra setup ASM to spawn the doors, it might be better to just rewrite
         // the room PLM list, to add the new door PLMs.
@@ -2430,7 +2430,7 @@ impl Patcher<'_> {
                 .extra_setup_asm = (pc2snes(next_addr) & 0xFFFF) as u16;
             next_addr += asm.len();
         }
-        println!("extra setup ASM end: {:x}", next_addr);
+        println!("extra setup ASM end: {next_addr:x}");
         assert!(next_addr <= snes2pc(0xB8E000));
 
         Ok(())
@@ -2893,7 +2893,7 @@ impl Patcher<'_> {
             for (i, c) in s.chars().enumerate() {
                 tile_data[*row][col + i] = *char_mapping
                     .get(&c)
-                    .context(format!("Unexpected character '{}'", c))
+                    .context(format!("Unexpected character '{c}'"))
                     .unwrap();
             }
             *row += 1;
@@ -2926,7 +2926,7 @@ impl Patcher<'_> {
                     Phantoon => draw_row("- PHANTOON", &mut tile_data, &mut row, &mut row_max, col),
                     Draygon => draw_row("- DRAYGON", &mut tile_data, &mut row, &mut row_max, col),
                     Ridley => draw_row("- RIDLEY", &mut tile_data, &mut row, &mut row_max, col),
-                    _ => panic!("unexpected objective: {:?}", obj),
+                    _ => panic!("unexpected objective: {obj:?}"),
                 }
             }
             advance_pos(&mut row, &mut row_max, &mut col);
@@ -2947,7 +2947,7 @@ impl Patcher<'_> {
                     GoldenTorizo => {
                         draw_row("- GOLD TORIZO", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    _ => panic!("unexpected objective: {:?}", obj),
+                    _ => panic!("unexpected objective: {obj:?}"),
                 }
             }
             advance_pos(&mut row, &mut row_max, &mut col);
@@ -2970,7 +2970,7 @@ impl Patcher<'_> {
                     GoldenTorizo => {
                         draw_row("- GOLD TORIZO", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    _ => panic!("unexpected objective: {:?}", obj),
+                    _ => panic!("unexpected objective: {obj:?}"),
                 }
             }
             advance_pos(&mut row, &mut row_max, &mut col);
@@ -2989,7 +2989,7 @@ impl Patcher<'_> {
                     MetalPiratesRoom => {
                         draw_row("- METAL", &mut tile_data, &mut row, &mut row_max, col)
                     }
-                    _ => panic!("unexpected objective: {:?}", obj),
+                    _ => panic!("unexpected objective: {obj:?}"),
                 }
             }
             advance_pos(&mut row, &mut row_max, &mut col);
@@ -3007,7 +3007,7 @@ impl Patcher<'_> {
                     MetroidRoom2 => '2',
                     MetroidRoom3 => '3',
                     MetroidRoom4 => '4',
-                    _ => panic!("unexpected objective: {:?}", obj),
+                    _ => panic!("unexpected objective: {obj:?}"),
                 };
                 tile_data[row][col + i * 3 + 1] = char_mapping[&num];
             }

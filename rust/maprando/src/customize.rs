@@ -174,7 +174,7 @@ fn apply_custom_samus_sprite(
             .samus_sprite
             .clone()
             .unwrap_or("samus_vanilla".to_string());
-        let patch_path_str = format!("../patches/samus_sprites/{}.ips", sprite_name);
+        let patch_path_str = format!("../patches/samus_sprites/{sprite_name}.ips");
         apply_ips_patch(rom, Path::new(&patch_path_str))?;
 
         if settings.vanilla_screw_attack_animation {
@@ -269,7 +269,7 @@ fn get_button_mask(mut controller_button: ControllerButton, default: ControllerB
         ControllerButton::R => 0x0010,
         ControllerButton::Select => 0x2000,
         ControllerButton::Start => 0x1000,
-        _ => panic!("Unexpected controller button: {:?}", controller_button),
+        _ => panic!("Unexpected controller button: {controller_button:?}"),
     }
 }
 

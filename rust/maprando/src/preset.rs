@@ -145,7 +145,7 @@ impl PresetData {
         let mut skill_presets: Vec<SkillAssumptionSettings> = vec![];
         let mut difficulty_tiers: Vec<DifficultyConfig> = vec![];
         for name in skill_preset_names {
-            let path = skill_preset_path.join(format!("{}.json", name));
+            let path = skill_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
             let preset: SkillAssumptionSettings =
@@ -165,7 +165,7 @@ impl PresetData {
         let item_progression_preset_path = presets_path.join("item-progression");
         let mut item_progression_presets: Vec<ItemProgressionSettings> = vec![];
         for name in item_progression_preset_names {
-            let path = item_progression_preset_path.join(format!("{}.json", name));
+            let path = item_progression_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
             let preset: ItemProgressionSettings =
@@ -178,7 +178,7 @@ impl PresetData {
         let qol_preset_path = presets_path.join("quality-of-life");
         let mut quality_of_life_presets: Vec<QualityOfLifeSettings> = vec![];
         for name in qol_preset_names {
-            let path = qol_preset_path.join(format!("{}.json", name));
+            let path = qol_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
             let preset: QualityOfLifeSettings =
@@ -199,7 +199,7 @@ impl PresetData {
         let objective_preset_path = presets_path.join("objectives");
         let mut objective_presets: Vec<ObjectiveSettings> = vec![];
         for name in objective_preset_names {
-            let path = objective_preset_path.join(format!("{}.json", name));
+            let path = objective_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
             let preset: ObjectiveSettings =
@@ -216,7 +216,7 @@ impl PresetData {
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
         for name in full_preset_names {
-            let path = full_preset_path.join(format!("{}.json", name));
+            let path = full_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
             let preset: RandomizerSettings =

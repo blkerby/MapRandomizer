@@ -59,7 +59,7 @@ impl SeedRepository {
         } else if let Some(root) = url.strip_prefix("file:") {
             Box::new(LocalFileSystem::new_with_prefix(Path::new(root))?)
         } else {
-            panic!("Unsupported seed repository type: {}", url);
+            panic!("Unsupported seed repository type: {url}");
         };
         Ok(Self {
             object_store,

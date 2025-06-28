@@ -57,7 +57,7 @@ fn run_scenario(
             "R" => {
                 items[Item::ScrewAttack as usize] = true;
             }
-            _ => panic!("unrecognized beam {}", item),
+            _ => panic!("unrecognized beam {item}"),
         }
     }
 
@@ -132,8 +132,7 @@ fn run_scenario(
         .map(|x| format!("{}", x.energy_used))
         .unwrap_or("n/a".to_string());
     println!(
-        "proficiency={}, items={:?}, missiles={}, patience={}: {}",
-        proficiency, item_loadout, missile_cnt, patience, outcome
+        "proficiency={proficiency}, items={item_loadout:?}, missiles={missile_cnt}, patience={patience}: {outcome}"
     );
 }
 

@@ -218,7 +218,7 @@ async fn customize_seed(
             }
             Err(err) => {
                 return HttpResponse::InternalServerError()
-                    .body(format!("Error patching ROM: {:?}", err))
+                    .body(format!("Error patching ROM: {err:?}"))
             }
         }
     } else {
@@ -239,7 +239,7 @@ async fn customize_seed(
         Ok(()) => {}
         Err(err) => {
             return HttpResponse::InternalServerError()
-                .body(format!("Error customizing ROM: {:?}", err))
+                .body(format!("Error customizing ROM: {err:?}"))
         }
     }
 

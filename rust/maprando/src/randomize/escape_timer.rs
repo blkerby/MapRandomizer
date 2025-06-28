@@ -179,8 +179,7 @@ pub fn get_full_room_door_graph(
                 .index_by_key
                 .get(&(room_idx, door_idx))
                 .context(format!(
-                    "base.vertices.index_by_key missing entry: ({}, {})",
-                    room_idx, door_idx
+                    "base.vertices.index_by_key missing entry: ({room_idx}, {door_idx})"
                 ))
                 .unwrap();
             let door_ptr_pair = (door.exit_ptr, door.entrance_ptr);
@@ -320,7 +319,7 @@ pub fn compute_escape_data(
     if final_time_seconds > 5995.0 {
         final_time_seconds = 5995.0;
     }
-    println!("escape time: {}", final_time_seconds);
+    println!("escape time: {final_time_seconds}");
 
     Ok(SpoilerEscape {
         base_igt_frames,

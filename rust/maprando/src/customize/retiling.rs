@@ -13,7 +13,7 @@ const BPS_PATCH_PATH: &str = "../patches/mosaic";
 
 fn apply_bps_patch(rom: &mut Rom, orig_rom: &Rom, filename: &str) -> Result<()> {
     let path = Path::new(BPS_PATCH_PATH).join(filename);
-    let patch_bytes = std::fs::read(path).with_context(|| format!("Loading {}", filename))?;
+    let patch_bytes = std::fs::read(path).with_context(|| format!("Loading {filename}"))?;
     let patch = BPSPatch::new(patch_bytes)?;
     patch.apply(&orig_rom.data, &mut rom.data);
     Ok(())
@@ -27,15 +27,15 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
     let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
     let patch_filename = if room_ptr == 0x7FFFF {
         // Unspecified room means this is vanilla map, so leave the Toilet alone.
-        format!("{}-VanillaMapTransit.bps", theme_name)
+        format!("{theme_name}-VanillaMapTransit.bps")
     } else {
         let x = rom.read_u8(toilet_rel_x_addr)? as i8 as isize;
         let y = rom.read_u8(toilet_rel_y_addr)? as i8 as isize;
-        format!("{}-{:X}-Transit-{}-{}.bps", theme_name, room_ptr, x, y)
+        format!("{theme_name}-{room_ptr:X}-Transit-{x}-{y}.bps")
     };
-    println!("toilet patch: {}", patch_filename);
+    println!("toilet patch: {patch_filename}");
     apply_bps_patch(rom, orig_rom, &patch_filename)
-        .context(format!("Applying Toilet patch: {}", patch_filename))?;
+        .context(format!("Applying Toilet patch: {patch_filename}"))?;
 
     Ok(())
 }
@@ -59,7 +59,7 @@ pub fn apply_retiling(
         "in_place_level_data",
     ];
     for name in &patch_names {
-        let patch_path_str = format!("../patches/ips/{}.ips", name);
+        let patch_path_str = format!("../patches/ips/{name}.ips");
         apply_ips_patch(rom, Path::new(&patch_path_str))?;
     }
 
@@ -117,8 +117,7 @@ pub fn apply_retiling(
                         (5, 0, _) => "MetroidHabitat",
                         (5, 1, _) => "MechaTourian",
                         _ => panic!(
-                            "unexpected area/subarea/subsubarea combination: ({}, {}, {})",
-                            area, sub_area, sub_sub_area
+                            "unexpected area/subarea/subsubarea combination: ({area}, {sub_area}, {sub_sub_area})"
                         ),
                     }
                     .to_string()
@@ -177,7 +176,7 @@ pub fn apply_retiling(
         let theme_name = &theme_name_map[&room_ptr];
         let state_ptrs = get_room_state_ptrs(rom, room_ptr)?;
         for (state_idx, (_event_ptr, state_ptr)) in state_ptrs.iter().enumerate() {
-            let patch_filename = format!("{}-{:X}-{}.bps", theme_name, room_ptr, state_idx);
+            let patch_filename = format!("{theme_name}-{room_ptr:X}-{state_idx}.bps");
             apply_bps_patch(rom, orig_rom, &patch_filename)?;
 
             let fx_ptr = rom.read_u16(state_ptr + 6)? as usize;

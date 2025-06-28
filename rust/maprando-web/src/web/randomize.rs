@@ -184,7 +184,7 @@ async fn randomize(
 
         if !app_data.map_repositories.contains_key(&map_layout) {
             // TODO: it doesn't make sense to panic on things like this.
-            panic!("Unrecognized map layout option: {}", map_layout);
+            panic!("Unrecognized map layout option: {map_layout}");
         }
         let mut map = app_data.map_repositories[&map_layout]
             .get_map(attempt_num, map_seed, &app_data.game_data)
@@ -267,7 +267,7 @@ async fn randomize(
         timestamp,
         peer_addr: http_req
             .peer_addr()
-            .map(|x| format!("{:?}", x))
+            .map(|x| format!("{x:?}"))
             .unwrap_or_default(),
         http_headers: format_http_headers(&http_req),
         random_seed,
@@ -351,6 +351,6 @@ async fn randomize(
     .unwrap();
 
     HttpResponse::Ok().json(RandomizeResponse {
-        seed_url: format!("/seed/{}/", seed_name),
+        seed_url: format!("/seed/{seed_name}/"),
     })
 }

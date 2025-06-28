@@ -16,7 +16,7 @@ async fn get_seed_file(
 ) -> impl Responder {
     let seed_name = &info.0;
     let filename = &info.1;
-    println!("get_seed_file {}", filename);
+    println!("get_seed_file {filename}");
 
     let data_result: Result<Vec<u8>> = if filename.starts_with("visualizer/")
         && app_data.static_visualizer

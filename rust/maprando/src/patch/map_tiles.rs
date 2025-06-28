@@ -1013,7 +1013,7 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
                             [0, 0, 0, 0, 0, 0, 0, 0],
                         ];
                     }
-                    _ => panic!("Unexpected area {}", area_idx),
+                    _ => panic!("Unexpected area {area_idx}"),
                 }
             } else {
                 match dir {
@@ -1803,7 +1803,7 @@ impl<'a> MapPatcher<'a> {
                         gfx_tile_map.insert(self.gfx_tile_reverse_map[&idx], next_tile);
                         next_tile += 1;
                     } else {
-                        panic!("Tile not found in global map tileset: {:?}", data);
+                        panic!("Tile not found in global map tileset: {data:?}");
                     }
                 }
                 Self::find_tile(data, &gfx_tile_map).unwrap()
@@ -2262,8 +2262,7 @@ impl<'a> MapPatcher<'a> {
             for (_, room_id, ref tile) in &*data {
                 if !interior_priority.contains(&tile.interior) {
                     panic!(
-                        "In room_id={room_id}, unexpected dynamic tile interior: {:?}",
-                        tile
+                        "In room_id={room_id}, unexpected dynamic tile interior: {tile:?}"
                     );
                 }
             }

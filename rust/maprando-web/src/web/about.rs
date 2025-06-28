@@ -15,7 +15,7 @@ impl AboutTemplate {
     fn sprite_artists(&self) -> String {
         self.sprite_artists
             .iter()
-            .map(|x| format!("<i>{}</i>", x))
+            .map(|x| format!("<i>{x}</i>"))
             .collect::<Vec<String>>()
             .join(", ")
     }

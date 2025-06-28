@@ -204,7 +204,7 @@ impl BPSDecoder {
                 self.output_pos += length;
                 Ok(block)
             }
-            _ => panic!("Unexpected BPS action: {}", action),
+            _ => panic!("Unexpected BPS action: {action}"),
         }
     }
 

@@ -260,7 +260,7 @@ pub async fn save_seed(
     // Write the spoiler log
     let spoiler_bytes = serde_json::to_vec_pretty(&spoiler_log).unwrap();
     files.push(SeedFile::new(
-        &format!("{}/spoiler.json", prefix),
+        &format!("{prefix}/spoiler.json"),
         spoiler_bytes,
     ));
 
@@ -268,17 +268,17 @@ pub async fn save_seed(
     let spoiler_maps =
         spoiler_map::get_spoiler_map(randomization, &app_data.game_data, settings).unwrap();
     files.push(SeedFile::new(
-        &format!("{}/map-explored.png", prefix),
+        &format!("{prefix}/map-explored.png"),
         spoiler_maps.explored,
     ));
     files.push(SeedFile::new(
-        &format!("{}/map-outline.png", prefix),
+        &format!("{prefix}/map-outline.png"),
         spoiler_maps.outline,
     ));
 
     // Write the spoiler visualizer
     for (filename, data) in &app_data.visualizer_files {
-        let path = format!("{}/visualizer/{}", prefix, filename);
+        let path = format!("{prefix}/visualizer/{filename}");
         files.push(SeedFile::new(&path, data.clone()));
     }
 

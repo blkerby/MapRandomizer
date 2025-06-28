@@ -67,22 +67,22 @@ fn get_settings(args: &Args, preset_data: &PresetData) -> Result<RandomizerSetti
     let mut settings = preset_data.default_preset.clone();
 
     if let Some(preset) = &args.preset {
-        let path = format!("data/presets/full-settings/{}.json", preset);
+        let path = format!("data/presets/full-settings/{preset}.json");
         let s = std::fs::read_to_string(path)?;
         settings = serde_json::from_str(&s)?;
     }
     if let Some(skill_preset) = &args.skill_preset {
-        let path = format!("data/presets/skill-assumptions/{}.json", skill_preset);
+        let path = format!("data/presets/skill-assumptions/{skill_preset}.json");
         let s = std::fs::read_to_string(path)?;
         settings.skill_assumption_settings = serde_json::from_str(&s)?;
     }
     if let Some(item_preset) = &args.item_preset {
-        let path = format!("data/presets/item-progression/{}.json", item_preset);
+        let path = format!("data/presets/item-progression/{item_preset}.json");
         let s = std::fs::read_to_string(path)?;
         settings.item_progression_settings = serde_json::from_str(&s)?;
     }
     if let Some(qol_preset) = &args.qol_preset {
-        let path = format!("data/presets/item-quality-of-life/{}.json", qol_preset);
+        let path = format!("data/presets/item-quality-of-life/{qol_preset}.json");
         let s = std::fs::read_to_string(path)?;
         settings.quality_of_life_settings = serde_json::from_str(&s)?;
     }

@@ -228,7 +228,7 @@ impl<'a> TitlePatcher<'a> {
                 } else if c == 0 {
                     break;
                 } else {
-                    panic!("Unexpected title screen gradient control: {:x}", c);
+                    panic!("Unexpected title screen gradient control: {c:x}");
                 }
                 c = color_plane_mask | intensity;
                 self.rom.write_u8(addr_pc, num_lines)?;

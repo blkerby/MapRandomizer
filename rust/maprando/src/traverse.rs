@@ -2160,8 +2160,7 @@ pub fn traverse(
                         if any_improvement {
                             let check_value = |name: &'static str, v: Capacity| {
                                 if v < 0 {
-                                    panic!("Resource {} is negative, with value {}: old_state={:?}, new_state={:?}, link={:?}", 
-                                        name, v, src_local_state, dst_new_local_state, link);
+                                    panic!("Resource {name} is negative, with value {v}: old_state={src_local_state:?}, new_state={dst_new_local_state:?}, link={link:?}");
                                 }
                             };
                             check_value("energy", dst_new_local_state.energy_used);

@@ -33,7 +33,7 @@ impl GlobalState {
     pub fn print_debug(&self, game_data: &GameData) {
         for (i, item) in game_data.item_isv.keys.iter().enumerate() {
             if self.inventory.items[i] {
-                println!("{:?}", item);
+                println!("{item:?}");
             }
         }
     }

@@ -53,7 +53,7 @@ async fn unlock_seed(
             Ok(n) => n.as_millis() as usize,
             Err(_) => panic!("SystemTime before UNIX EPOCH!"),
         };
-        let unlock_time_str = format!("{}", timestamp);
+        let unlock_time_str = format!("{timestamp}");
         app_data
             .seed_repository
             .put_file(
