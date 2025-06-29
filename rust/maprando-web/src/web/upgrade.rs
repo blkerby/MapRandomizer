@@ -307,7 +307,7 @@ async fn upgrade_settings(settings_str: String, app_data: web::Data<AppData>) ->
             .content_type("application/json")
             .body(settings_str),
         Err(e) => {
-            error!("Failed to upgrade settings: {}", e);
+            error!("Failed to upgrade settings: {e}");
             HttpResponse::BadRequest().body(e.to_string())
         }
     }

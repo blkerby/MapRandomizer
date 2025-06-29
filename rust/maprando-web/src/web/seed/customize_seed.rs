@@ -226,7 +226,7 @@ async fn customize_seed(
             .body("Seed incompatible with current customizer");
     }
 
-    info!("CustomizeSettings: {:?}", customize_settings);
+    info!("CustomizeSettings: {customize_settings:?}");
     match customize_rom(
         &mut rom,
         &orig_rom,

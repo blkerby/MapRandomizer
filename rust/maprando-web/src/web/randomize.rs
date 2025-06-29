@@ -233,8 +233,7 @@ async fn randomize(
                 Ok(x) => x,
                 Err(e) => {
                     info!(
-                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {}",
-                        e
+                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}"
                     );
                     continue;
                 }

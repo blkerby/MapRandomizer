@@ -43,7 +43,7 @@ async fn get_seed_file(
         }
         // TODO: Use more refined error handling instead of always returning 404:
         Err(err) => {
-            error!("{}", err.to_string());
+            error!("{err}");
             HttpResponse::NotFound().body(FileNotFoundTemplate {}.render().unwrap())
         }
     }

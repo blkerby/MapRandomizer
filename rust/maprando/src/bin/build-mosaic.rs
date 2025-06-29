@@ -452,7 +452,7 @@ impl MosaicPatchBuilder {
             .copied()
             .unwrap_or(0);
         if room_ptr == 0 {
-            info!("Skipping {}", room_filename);
+            info!("Skipping {room_filename}");
             return Ok(());
         }
 
@@ -567,7 +567,7 @@ impl MosaicPatchBuilder {
                             .copied()
                             .unwrap_or(0);
                         if bg_ptr == 0 {
-                            error!("Unrecognized BGData in {}", project);
+                            error!("Unrecognized BGData in {project}");
                         }
                         new_rom.write_u16(state_ptr + 22, bg_ptr)?;
                     }
@@ -1261,7 +1261,7 @@ impl MosaicPatchBuilder {
                                 // Save the BPS patch to a file:
                                 let output_filename =
                                     format!("{theme_name}-VanillaMapTransit.bps");
-                                info!("Writing {}", output_filename);
+                                info!("Writing {output_filename}");
                                 let output_path = self.output_patches_dir.join(output_filename);
                                 std::fs::write(&output_path, &encoder.patch_bytes)?;
                             }

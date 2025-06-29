@@ -106,8 +106,7 @@ fn get_randomization(
     };
 
     info!(
-        "Generating seed using Skills {0}, Progression {1}, QoL {2}",
-        skill_label, item_label, qol_label
+        "Generating seed using Skills {skill_label}, Progression {item_label}, QoL {qol_label}"
     );
 
     let difficulty_tiers = get_difficulty_tiers(
@@ -188,8 +187,7 @@ fn get_randomization(
                 }
                 Err(e) => {
                     info!(
-                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {}",
-                        e
+                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}"
                     );
                 }
             }
@@ -240,7 +238,7 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
 fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     let seed: u64 = app.attempt_num.unwrap_or(cycle_count as u64);
 
-    info!("Test cycle {cycle_count} Start: seed={}", seed);
+    info!("Test cycle {cycle_count} Start: seed={seed}");
 
     // Perform randomization (map selection & item placement):
     let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(app, seed)?;
@@ -503,7 +501,7 @@ fn main() -> Result<()> {
     let mut error_vec = vec![];
     for test_cycle in 0..args.test_cycles {
         if let Err(e) = perform_test_cycle(&app_data, test_cycle) {
-            error!("Failed during test cycle {test_cycle}: {}", e);
+            error!("Failed during test cycle {test_cycle}: {e}");
             error_vec.push((test_cycle, e));
         }
         if args.attempt_num.is_some() {
@@ -512,7 +510,7 @@ fn main() -> Result<()> {
     }
     for (test_cycle, e) in error_vec {
         // error!("Failed during test cycle {test_cycle}: {}\n{}", e, e.backtrace());
-        error!("Failed during test cycle {test_cycle}: {}", e);
+        error!("Failed during test cycle {test_cycle}: {e}");
     }
 
     Ok(())

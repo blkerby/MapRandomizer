@@ -3581,8 +3581,7 @@ impl<'r> Randomizer<'r> {
         other_items_to_place: &[Item],
     ) {
         info!(
-            "[attempt {attempt_num_rando}] Placing {:?}, {:?}",
-            key_items_to_place, other_items_to_place
+            "[attempt {attempt_num_rando}] Placing {key_items_to_place:?}, {other_items_to_place:?}"
         );
 
         let num_items_remaining: usize = state.items_remaining.iter().sum();
@@ -3676,8 +3675,7 @@ impl<'r> Randomizer<'r> {
             .stop_item_placement_early
         {
             info!(
-                "[attempt {attempt_num_rando}] Finishing without {:?}",
-                remaining_items
+                "[attempt {attempt_num_rando}] Finishing without {remaining_items:?}"
             );
             for item_loc_state in &mut state.item_location_state {
                 if item_loc_state.placed_item.is_none() {
@@ -3686,8 +3684,7 @@ impl<'r> Randomizer<'r> {
             }
         } else {
             info!(
-                "[attempt {attempt_num_rando}] Finishing with {:?}",
-                remaining_items
+                "[attempt {attempt_num_rando}] Finishing with {remaining_items:?}"
             );
             remaining_items.shuffle(rng);
             let mut idx = 0;
@@ -4512,7 +4509,7 @@ impl<'r> Randomizer<'r> {
             });
         }
         for i in 0..num_attempts {
-            info!("[attempt {attempt_num_rando}] start location attempt {}", i);
+            info!("[attempt {attempt_num_rando}] start location attempt {i}");
             let start_loc_idx = match self.settings.start_location_settings.mode {
                 StartLocationMode::Random => rng.gen_range(0..self.game_data.start_locations.len()),
                 StartLocationMode::Custom => {
@@ -4545,7 +4542,7 @@ impl<'r> Randomizer<'r> {
             };
             let start_loc = self.game_data.start_locations[start_loc_idx].clone();
 
-            info!("[attempt {attempt_num_rando}] start: {:?}", start_loc);
+            info!("[attempt {attempt_num_rando}] start: {start_loc:?}");
             let num_vertices = self.game_data.vertex_isv.keys.len();
             let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
                 room_id: start_loc.room_id,
@@ -4877,8 +4874,7 @@ impl<'r> Randomizer<'r> {
             self.apply_spazer_plasma_priority(&mut item_precedence);
         }
         info!(
-            "[attempt {attempt_num_rando}] Item precedence: {:?}",
-            item_precedence
+            "[attempt {attempt_num_rando}] Item precedence: {item_precedence:?}"
         );
         let mut state = RandomizationState {
             step_num: 1,
