@@ -1951,9 +1951,9 @@ impl GameData {
                 Requirement::Item(Item::Charge as ItemId),
                 Requirement::HeatFrames(60),
             )],
-            DoorType::Gray | DoorType::Beam(_) => panic!(
-                "Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}"
-            ),
+            DoorType::Gray | DoorType::Beam(_) => {
+                panic!("Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}")
+            }
         };
         let room_id = ctx.room_id;
         let empty_array = json::array![];
@@ -2227,9 +2227,9 @@ impl GameData {
                     let resource_type = value0["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = value0["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {req_json}")
-                    });
+                    let count = value0["count"]
+                        .as_i32()
+                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
                     if resource_type == "Missile" {
                         reqs.push(Requirement::MissilesAvailable(count as Capacity));
                     } else if resource_type == "Super" {
@@ -2292,9 +2292,9 @@ impl GameData {
                     let resource_type = r["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = r["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {req_json}")
-                    });
+                    let count = r["count"]
+                        .as_i32()
+                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
                     if resource_type == "RegularEnergy" {
                         assert!(count > 0);
                         reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
@@ -2316,9 +2316,9 @@ impl GameData {
                     let resource_type = r["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = r["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {req_json}")
-                    });
+                    let count = r["count"]
+                        .as_i32()
+                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
                     if resource_type == "Missile" {
                         reqs.push(Requirement::MissilesMissingAtMost(count as Capacity));
                     } else if resource_type == "Super" {
@@ -2343,9 +2343,9 @@ impl GameData {
                     let resource_type = value0["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = value0["count"].as_i32().unwrap_or_else(|| {
-                        panic!("missing/invalid resource count in {req_json}")
-                    });
+                    let count = value0["count"]
+                        .as_i32()
+                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
                     if resource_type == "RegularEnergy" {
                         reqs.push(Requirement::RegularEnergy(count as Capacity));
                     } else if resource_type == "ReserveEnergy" {
@@ -2519,9 +2519,7 @@ impl GameData {
                     .enemy_attack_damage
                     .get(&(enemy_name.clone(), attack_name.clone()))
                     .with_context(|| {
-                        format!(
-                            "Missing enemy attack damage for {enemy_name} - {attack_name}:"
-                        )
+                        format!("Missing enemy attack damage for {enemy_name} - {attack_name}:")
                     })?;
                 return Ok(Requirement::Damage(hits * base_damage));
             } else if key == "enemyKill" {

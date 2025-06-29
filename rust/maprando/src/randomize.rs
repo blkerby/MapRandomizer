@@ -3674,18 +3674,14 @@ impl<'r> Randomizer<'r> {
             .item_progression_settings
             .stop_item_placement_early
         {
-            info!(
-                "[attempt {attempt_num_rando}] Finishing without {remaining_items:?}"
-            );
+            info!("[attempt {attempt_num_rando}] Finishing without {remaining_items:?}");
             for item_loc_state in &mut state.item_location_state {
                 if item_loc_state.placed_item.is_none() {
                     item_loc_state.placed_item = Some(Item::Nothing);
                 }
             }
         } else {
-            info!(
-                "[attempt {attempt_num_rando}] Finishing with {remaining_items:?}"
-            );
+            info!("[attempt {attempt_num_rando}] Finishing with {remaining_items:?}");
             remaining_items.shuffle(rng);
             let mut idx = 0;
             for item_loc_state in &mut state.item_location_state {
@@ -4873,9 +4869,7 @@ impl<'r> Randomizer<'r> {
         if self.settings.item_progression_settings.spazer_before_plasma {
             self.apply_spazer_plasma_priority(&mut item_precedence);
         }
-        info!(
-            "[attempt {attempt_num_rando}] Item precedence: {item_precedence:?}"
-        );
+        info!("[attempt {attempt_num_rando}] Item precedence: {item_precedence:?}");
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,

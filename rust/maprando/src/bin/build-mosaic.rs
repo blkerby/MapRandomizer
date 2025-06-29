@@ -841,8 +841,7 @@ impl MosaicPatchBuilder {
 
         let transit_tube_data_path = Path::new("../transit-tube-data");
         for theme_name in theme_names {
-            let theme_transit_data_path =
-                transit_tube_data_path.join(format!("{theme_name}.json"));
+            let theme_transit_data_path = transit_tube_data_path.join(format!("{theme_name}.json"));
             let theme_transit_data_str = std::fs::read_to_string(&theme_transit_data_path)
                 .with_context(|| {
                     format!(
@@ -1259,8 +1258,7 @@ impl MosaicPatchBuilder {
                                 encoder.encode();
 
                                 // Save the BPS patch to a file:
-                                let output_filename =
-                                    format!("{theme_name}-VanillaMapTransit.bps");
+                                let output_filename = format!("{theme_name}-VanillaMapTransit.bps");
                                 info!("Writing {output_filename}");
                                 let output_path = self.output_patches_dir.join(output_filename);
                                 std::fs::write(&output_path, &encoder.patch_bytes)?;

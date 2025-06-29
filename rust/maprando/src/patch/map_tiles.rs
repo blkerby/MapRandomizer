@@ -2261,9 +2261,7 @@ impl<'a> MapPatcher<'a> {
         for data in self.dynamic_tile_data.iter_mut() {
             for (_, room_id, ref tile) in &*data {
                 if !interior_priority.contains(&tile.interior) {
-                    panic!(
-                        "In room_id={room_id}, unexpected dynamic tile interior: {tile:?}"
-                    );
+                    panic!("In room_id={room_id}, unexpected dynamic tile interior: {tile:?}");
                 }
             }
 

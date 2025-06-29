@@ -105,9 +105,7 @@ fn get_randomization(
         None => String::from("Custom"),
     };
 
-    info!(
-        "Generating seed using Skills {skill_label}, Progression {item_label}, QoL {qol_label}"
-    );
+    info!("Generating seed using Skills {skill_label}, Progression {item_label}, QoL {qol_label}");
 
     let difficulty_tiers = get_difficulty_tiers(
         &settings,
@@ -186,9 +184,7 @@ fn get_randomization(
                     return Ok((settings, randomization, spoiler_log, output_file_prefix));
                 }
                 Err(e) => {
-                    info!(
-                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}"
-                    );
+                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}");
                 }
             }
         }

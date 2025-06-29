@@ -232,9 +232,7 @@ async fn randomize(
             let (randomization, spoiler_log) = match randomization_result {
                 Ok(x) => x,
                 Err(e) => {
-                    info!(
-                        "Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}"
-                    );
+                    info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}");
                     continue;
                 }
             };
