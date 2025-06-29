@@ -227,14 +227,19 @@ gameplay_start:
     rtl
 
 clear_timers:
+    lda #$0000
     sta !nmi_counter
+    lda $0954 ; save slots used
+    bne .skip_clear
     ldx #$0020
+
 .clear_timers:
     sta !stat_pause_time-2, x
     dex
     dex
     bne .clear_timers
 
+.skip_clear
     lda #$000c ; replaced code
     sta $0de2  ;
     rtl
