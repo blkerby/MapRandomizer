@@ -1,3 +1,9 @@
 8000-B000: HUD map tile graphics (2bpp)
 B000-C000: reserved in case we want to expand the amount of map tiles
-C000-FFFF: [FREE]
+C000-C300: room name font graphics (1bpp)
+  - a character is represented by 8 bytes, one byte for each row of pixels
+  - the value of the `x`th pixel from the left (x = 0..7) is indicated by the bit 1 << (7 - x)
+C300-C360: room name font character widths (in pixels, including space)
+C360-D800: room names (referenced in ExtraRoomData):
+  - a character value of `c` references the tile at $C000 + (c - 1) * 8
+  - zero indicates end-of-string

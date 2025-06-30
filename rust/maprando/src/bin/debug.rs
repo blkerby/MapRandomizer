@@ -141,30 +141,11 @@ fn main() -> Result<()> {
         .format_timestamp_millis()
         .init();
 
-    let sm_json_data_path = Path::new("../sm-json-data");
-    let room_geometry_path = Path::new("../room_geometry.json");
-    let escape_timings_path = Path::new("data/escape_timings.json");
-    let start_locations_path = Path::new("data/start_locations.json");
-    let hub_locations_path = Path::new("data/hub_locations.json");
-    let reduced_flashing_path = Path::new("data/reduced_flashing.json");
-    let strat_videos_path = Path::new("data/strat_videos.json");
-    let title_screen_path = Path::new("../TitleScreen/Images");
     let tech_path = Path::new("data/tech_data.json");
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
-    let map_tiles_path = Path::new("data/map_tiles.json");
 
-    let game_data = GameData::load(
-        sm_json_data_path,
-        room_geometry_path,
-        escape_timings_path,
-        start_locations_path,
-        hub_locations_path,
-        title_screen_path,
-        reduced_flashing_path,
-        strat_videos_path,
-        map_tiles_path,
-    )?;
+    let game_data = GameData::load()?;
 
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
     let mut settings = preset_data.default_preset.clone();

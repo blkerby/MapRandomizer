@@ -350,31 +350,12 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
 }
 
 fn build_app_data(args: &Args) -> Result<TestAppData> {
-    let sm_json_data_path = Path::new("../sm-json-data");
-    let room_geometry_path = Path::new("../room_geometry.json");
-    let escape_timings_path = Path::new("data/escape_timings.json");
-    let start_locations_path = Path::new("data/start_locations.json");
-    let hub_locations_path = Path::new("data/hub_locations.json");
     let etank_colors_path = Path::new("data/etank_colors.json");
-    let reduced_flashing_path = Path::new("data/reduced_flashing.json");
-    let strat_videos_path = Path::new("data/strat_videos.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
     let standard_maps_path = Path::new("../maps/v119-standard-avro");
     let wild_maps_path = Path::new("../maps/v119-wild-avro");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
-    let title_screen_path = Path::new("../TitleScreen/Images");
-    let map_tiles_path = Path::new("data/map_tiles.json");
-    let game_data = GameData::load(
-        sm_json_data_path,
-        room_geometry_path,
-        escape_timings_path,
-        start_locations_path,
-        hub_locations_path,
-        title_screen_path,
-        reduced_flashing_path,
-        strat_videos_path,
-        map_tiles_path,
-    )?;
+    let game_data = GameData::load()?;
 
     if !args.output_seeds.is_dir() {
         bail!("{0} is not a directory", args.output_seeds.display());

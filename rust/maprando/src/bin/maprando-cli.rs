@@ -206,26 +206,7 @@ fn main() -> Result<()> {
         .init();
 
     let args = Args::parse();
-    let sm_json_data_path = Path::new("../sm-json-data");
-    let room_geometry_path = Path::new("../room_geometry.json");
-    let escape_timings_path = Path::new("data/escape_timings.json");
-    let start_locations_path = Path::new("data/start_locations.json");
-    let hub_locations_path = Path::new("data/hub_locations.json");
-    let reduced_flashing_path = Path::new("data/reduced_flashing.json");
-    let strat_videos_path = Path::new("data/strat_videos.json");
-    let title_screen_path = Path::new("../TitleScreen/Images");
-    let map_tiles_path = Path::new("data/map_tiles.json");
-    let mut game_data = GameData::load(
-        sm_json_data_path,
-        room_geometry_path,
-        escape_timings_path,
-        start_locations_path,
-        hub_locations_path,
-        title_screen_path,
-        reduced_flashing_path,
-        strat_videos_path,
-        map_tiles_path,
-    )?;
+    let mut game_data = GameData::load()?;
 
     if let Some(start_location_name) = &args.start_location {
         game_data

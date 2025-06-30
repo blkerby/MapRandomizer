@@ -1,3 +1,5 @@
+// The changes suggested by this lint usually make the code more cluttered and less clear:
+#![allow(clippy::needless_range_loop)]
 // TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
 #![allow(clippy::too_many_arguments)]
 
@@ -1404,6 +1406,15 @@ struct MapTileDataFile {
     rooms: Vec<MapTileData>,
 }
 
+type GfxTile1Bpp = [u8; 8];
+
+#[derive(Default)]
+pub struct VariableWidthFont {
+    pub gfx: Vec<GfxTile1Bpp>,
+    pub widths: Vec<u8>,
+    pub char_isv: IndexedVec<char>,
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -1484,6 +1495,7 @@ pub struct GameData {
     pub pause_abuse_tech_idx: TechIdx,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
+    pub room_name_font: VariableWidthFont,
     pub reduced_flashing_patch: GlowPatch,
     pub strat_videos: HashMap<(RoomId, StratId), Vec<StratVideo>>,
     pub map_tile_data: Vec<MapTileData>,
@@ -4963,6 +4975,60 @@ impl GameData {
         Ok(())
     }
 
+    pub fn load_room_name_font(&mut self, path: &Path) -> Result<()> {
+        let img = read_image(path)?;
+        let dim = img.dim();
+        let char_map = [
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            "abcdefghijklmnopqrstuvwxyz",
+            "0123456789-'.",
+        ];
+        assert!(dim.1 % 8 == 0);
+        assert!(dim.0 % 8 == 0);
+        assert!(dim.1 / 8 == char_map[0].len());
+        assert!(dim.0 / 8 == char_map.len());
+        let mut gfx: Vec<GfxTile1Bpp> = vec![];
+        let mut widths: Vec<u8> = vec![];
+        let mut char_isv: IndexedVec<char> = IndexedVec::default();
+
+        // Add a space character:
+        gfx.push([0; 8]);
+        widths.push(4);
+        char_isv.add(&' ');
+
+        for cy in 0..dim.0 / 8 {
+            let char_row = &char_map[cy];
+            for cx in 0..char_row.len() {
+                let mut tile: GfxTile1Bpp = [0u8; 8];
+                let mut max_x = 0;
+                for py in 0..8 {
+                    for px in 0..8 {
+                        let y = cy * 8 + py;
+                        let x = cx * 8 + px;
+                        let r = img[(y, x, 0)];
+                        let g = img[(y, x, 1)];
+                        let b = img[(y, x, 2)];
+                        if (r, g, b) == (255, 255, 255) {
+                            tile[py] |= 1 << (7 - px);
+                            max_x = max_x.max(px);
+                        }
+                    }
+                }
+                let pos = char_isv.add(&(char_row.as_bytes()[cx] as char));
+                assert_eq!(pos, gfx.len());
+                gfx.push(tile);
+                widths.push(max_x as u8 + 2);
+            }
+        }
+
+        self.room_name_font = VariableWidthFont {
+            gfx,
+            widths,
+            char_isv,
+        };
+        Ok(())
+    }
+
     fn load_reduced_flashing_patch(&mut self, path: &Path) -> Result<()> {
         let reduced_flashing_str = std::fs::read_to_string(path).with_context(|| {
             format!(
@@ -5012,17 +5078,18 @@ impl GameData {
         Ok(())
     }
 
-    pub fn load(
-        sm_json_data_path: &Path,
-        room_geometry_path: &Path,
-        escape_timings_path: &Path,
-        start_locations_path: &Path,
-        hub_locations_path: &Path,
-        title_screen_path: &Path,
-        reduced_flashing_path: &Path,
-        strat_videos_path: &Path,
-        map_tile_path: &Path,
-    ) -> Result<GameData> {
+    pub fn load() -> Result<GameData> {
+        let sm_json_data_path = Path::new("../sm-json-data");
+        let room_geometry_path = Path::new("../room_geometry.json");
+        let escape_timings_path = Path::new("data/escape_timings.json");
+        let start_locations_path = Path::new("data/start_locations.json");
+        let hub_locations_path = Path::new("data/hub_locations.json");
+        let title_screen_path = Path::new("../TitleScreen/Images");
+        let room_name_font_path = Path::new("data/room_name_font.png");
+        let reduced_flashing_path = Path::new("data/reduced_flashing.json");
+        let strat_videos_path = Path::new("data/strat_videos.json");
+        let map_tile_path = Path::new("data/map_tiles.json");
+
         let mut game_data = GameData {
             sm_json_data_path: sm_json_data_path.to_owned(),
             ..GameData::default()
@@ -5318,6 +5385,7 @@ impl GameData {
             0x1AD000, // Tourian
         ];
         game_data.load_title_screens(title_screen_path)?;
+        game_data.load_room_name_font(room_name_font_path)?;
 
         // for link in &game_data.links {
         //     let from_vertex_id = link.from_vertex_id;

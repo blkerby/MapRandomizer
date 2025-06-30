@@ -211,6 +211,7 @@ pub struct ExtraRoomData {
     // - word: tilemap offset to modify (relative to $703000)
     // - word: tilemap value to write
     pub dynamic_tiles: u16,
+    pub room_name: u16, // pointer to room name text in bank E3
 }
 
 pub struct Patcher<'a> {
@@ -1034,6 +1035,50 @@ impl Patcher<'_> {
             ptr += 2
         }
         assert!(ptr <= 0x90FC00);
+        Ok(())
+    }
+
+    fn write_room_name_font(&mut self) -> Result<()> {
+        // Variable-width font for showing the current room name in the pause menu
+        let font_addr = 0xE3C000;
+        let font = &self.game_data.room_name_font;
+        let gfx_bytes: Vec<u8> = font.gfx.iter().copied().flatten().collect();
+        assert!(gfx_bytes.len() <= 0x300);
+        self.rom.write_n(snes2pc(font_addr), &gfx_bytes)?;
+
+        let font_width_addr = 0xE3C300;
+        assert!(font.widths.len() <= 0x60);
+        self.rom.write_n(snes2pc(font_width_addr), &font.widths)?;
+
+        Ok(())
+    }
+
+    fn write_room_name_data(&mut self) -> Result<()> {
+        // Write room names, for showing current room name in the pause menu:
+        let mut addr = 0xE3C360;
+        let font = &self.game_data.room_name_font;
+        for (room_ptr, data) in &mut self.extra_room_data {
+            let room_id = self.game_data.raw_room_id_by_ptr[room_ptr];
+            let room_json = &self.game_data.room_json_map[&room_id];
+            let room_name = room_json["name"].as_str().unwrap();
+            let mut name_data: Vec<u8> = vec![];
+            for c in room_name.chars() {
+                name_data.push(
+                    *font
+                        .char_isv
+                        .index_by_key
+                        .get(&c)
+                        .unwrap_or_else(|| panic!("Unrecognized room name char: {c}"))
+                        as u8
+                        + 1,
+                );
+            }
+            name_data.push(0); // end-of-string marker
+            self.rom.write_n(snes2pc(addr), &name_data)?;
+            data.room_name = (snes2pc(addr) & 0xFFFF) as u16;
+            addr += name_data.len();
+        }
+        assert!(addr <= 0xE3D800);
         Ok(())
     }
 
@@ -2779,7 +2824,7 @@ impl Patcher<'_> {
         let end_addr = snes2pc(0xB89000);
         for (&room_ptr, data) in &self.extra_room_data {
             let addr = next_addr;
-            next_addr += 9;
+            next_addr += 11;
             // Write "extra room data", which is basically an extension of the room header:
             self.rom.write_u8(addr, data.map_area as isize)?;
             self.rom
@@ -2787,6 +2832,7 @@ impl Patcher<'_> {
             self.rom.write_u16(addr + 3, data.map_tiles as isize)?;
             self.rom.write_u16(addr + 5, data.map_tilemap as isize)?;
             self.rom.write_u16(addr + 7, data.dynamic_tiles as isize)?;
+            self.rom.write_u16(addr + 9, data.room_name as isize)?;
             // Point to the room header extension using the "unused pointer"/"special X-ray" field.
             // Within a room, every room state points to the same extension.
             for (_, state_ptr) in get_room_state_ptrs(self.rom, room_ptr)? {
@@ -3154,6 +3200,8 @@ pub fn make_rom(
     patcher.apply_map_tile_patches()?;
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
+    patcher.write_room_name_font()?;
+    patcher.write_room_name_data()?;
     patcher.remove_non_blue_doors()?;
     override_music(patcher.rom)?;
     if settings.map_layout != "Vanilla"
