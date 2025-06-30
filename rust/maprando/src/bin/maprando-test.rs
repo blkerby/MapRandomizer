@@ -322,7 +322,8 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     let spoiler_str = serde_json::to_string_pretty(&spoiler_log)?;
     std::fs::write(output_spoiler_log_path, spoiler_str)?;
 
-    let spoiler_maps = spoiler_map::get_spoiler_map(&randomization, &app.game_data, &settings)?;
+    let spoiler_maps =
+        spoiler_map::get_spoiler_map(&randomization, &app.game_data, &settings, true)?;
 
     let output_spoiler_map_explored_path = Path::join(
         &app.output_dir,

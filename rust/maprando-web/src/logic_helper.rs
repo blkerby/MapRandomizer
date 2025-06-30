@@ -1,16 +1,21 @@
+use anyhow::Result;
 use askama::Template;
 use glob::glob;
 use hashbrown::{HashMap, HashSet};
+use itertools::Itertools;
 use json::JsonValue;
 use log::warn;
 use maprando::{
     preset::PresetData,
+    randomize::{EssentialSpoilerData, Randomization},
+    settings::{Objective, RandomizerSettings},
+    spoiler_map::{self, image::RgbaImage},
     traverse::{apply_requirement, LockedDoorData},
 };
 use maprando_game::{
-    DoorOrientation, ExitCondition, GameData, Link, MainEntranceCondition, NodeId, NotableId,
-    NotableIdx, Requirement, RoomId, SparkPosition, StratId, StratVideo, TechId, VertexAction,
-    VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY,
+    DoorOrientation, ExitCondition, GameData, Item, Link, MainEntranceCondition, Map, NodeId,
+    NotableId, NotableIdx, Requirement, RoomId, SparkPosition, StartLocation, StratId, StratVideo,
+    TechId, VertexAction, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY,
     TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
     TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
     TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
@@ -23,7 +28,7 @@ use maprando_game::{
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TECH_ID_CAN_WALLJUMP,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
-use std::path::PathBuf;
+use std::{io::Cursor, path::PathBuf};
 
 use super::VersionInfo;
 
@@ -130,6 +135,7 @@ struct LogicIndexTemplate<'a> {
     _notables: &'a [NotableTemplate<'a>],
     area_order: &'a [String],
     tech_difficulties: Vec<String>,
+    room_polygons: &'a [RoomPolygon],
 }
 
 #[derive(Default)]
@@ -141,6 +147,7 @@ pub struct LogicData {
     pub notable_html: HashMap<(RoomId, NotableId), String>, // Map from room/notable ID to rendered HTML.
     pub notable_strat_counts: HashMap<(RoomId, NotableId), usize>, // Map from tech ID to strat count using that tech.
     pub strat_html: HashMap<(RoomId, NodeId, NodeId, StratId), String>, // Map from (room ID, from node ID, to node ID, strat ID) to rendered HTML.
+    pub vanilla_map_png: Vec<u8>, // PNG of vanilla map, to show on logic index page
 }
 
 fn list_room_diagram_files() -> HashMap<usize, String> {
@@ -1114,14 +1121,201 @@ fn make_strat_template<'a>(
     }
 }
 
+fn get_vanilla_randomization(vanilla_map: &Map) -> Randomization {
+    // For now we're not using the actual vanilla item placement,
+    // since we're only using this to draw the map.
+    Randomization {
+        objectives: vec![
+            Objective::Kraid,
+            Objective::Phantoon,
+            Objective::Draygon,
+            Objective::Ridley,
+        ],
+        save_animals: maprando::settings::SaveAnimals::Optional,
+        map: vanilla_map.clone(),
+        toilet_intersections: vec![],
+        locked_doors: vec![],
+        item_placement: vec![Item::Missile; 100],
+        start_location: StartLocation::default(),
+        escape_time_seconds: 0.0,
+        essential_spoiler_data: EssentialSpoilerData {
+            item_spoiler_info: vec![],
+        },
+        seed: 0,
+        display_seed: 0,
+        seed_name: "".to_string(),
+    }
+}
+
+struct RoomPolygon {
+    room_id: usize,
+    room_name: String,
+    svg_path: String,
+}
+
+#[derive(Default)]
+struct VanillaMapData {
+    png: Vec<u8>,
+    room_polygons: Vec<RoomPolygon>,
+}
+
+type Point = (i32, i32);
+
+#[derive(Default)]
+struct PolygonBuffer {
+    edges: HashMap<(Point, Point), i32>,
+}
+
+impl PolygonBuffer {
+    pub fn add_edge(&mut self, mut p1: Point, mut p2: Point, mut wt: i32) {
+        if p1 > p2 {
+            std::mem::swap(&mut p1, &mut p2);
+            wt = -wt;
+        }
+        *self.edges.entry((p1, p2)).or_default() += wt;
+        if self.edges[&(p1, p2)] == 0 {
+            self.edges.remove(&(p1, p2));
+        }
+    }
+
+    pub fn add_poly(&mut self, points: Vec<Point>) {
+        for (&p1, &p2) in points.iter().circular_tuple_windows() {
+            self.add_edge(p1, p2, 1);
+        }
+    }
+
+    pub fn get_edge(&self, mut p1: Point, mut p2: Point) -> i32 {
+        let mut sgn = 1;
+        if p1 > p2 {
+            std::mem::swap(&mut p1, &mut p2);
+            sgn = -1;
+        }
+        match self.edges.get(&(p1, p2)) {
+            Some(wt) => sgn * wt,
+            None => 0,
+        }
+    }
+
+    fn extract_path(&mut self) -> Option<Vec<Point>> {
+        let e = self.edges.keys().next()?;
+        let p0 = e.0;
+        let mut p = p0;
+        let mut out = vec![p0];
+        'outer: loop {
+            for p1 in self.neighbors(p) {
+                let wt = self.get_edge(p, p1);
+                if wt > 0 {
+                    self.add_edge(p, p1, -1);
+                    out.push(p1);
+                    p = p1;
+                    if p == p0 {
+                        return Some(out);
+                    }
+                    continue 'outer;
+                }
+            }
+            panic!("failed to continue path: {out:?}");
+        }
+    }
+
+    fn extract_all_paths(&mut self) -> Vec<Vec<Point>> {
+        let mut out = vec![];
+        while let Some(path) = self.extract_path() {
+            out.push(path);
+        }
+        out
+    }
+
+    fn neighbors(&self, p: Point) -> Vec<Point> {
+        let (x, y) = p;
+        vec![(x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)]
+    }
+}
+
+fn get_vanilla_map_data(
+    vanilla_map: &Map,
+    game_data: &GameData,
+    settings: &RandomizerSettings,
+) -> Result<VanillaMapData> {
+    let randomization = get_vanilla_randomization(vanilla_map);
+    let mut settings = settings.clone();
+    settings.map_layout = "Vanilla".to_string();
+    let (img, _) = spoiler_map::get_spoiler_images(&randomization, game_data, &settings, true)?;
+
+    let mut cropped_img = RgbaImage::new(68 * 8 + 1, 59 * 8 + 1);
+    let offset_x = 3 * 8;
+    let offset_y = 4 * 8 - 1;
+    for y in 0..cropped_img.height() {
+        for x in 0..cropped_img.width() {
+            let p = img.get_pixel(x + offset_x, y + offset_y);
+            cropped_img.put_pixel(x, y, *p);
+        }
+    }
+
+    let mut png: Vec<u8> = Vec::new();
+    cropped_img.write_to(
+        &mut Cursor::new(&mut png),
+        spoiler_map::image::ImageOutputFormat::Png,
+    )?;
+
+    let mut room_polygons: Vec<RoomPolygon> = vec![];
+    for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
+        let room_id = game_data.room_id_by_ptr[&room.rom_address];
+
+        let mut poly_buf = PolygonBuffer::default();
+        for y in 0..room.map.len() {
+            for x in 0..room.map[0].len() {
+                if room.map[y][x] == 0 {
+                    continue;
+                }
+                let x = x as i32;
+                let y = y as i32;
+                poly_buf.add_poly(vec![(x, y), (x, y + 1), (x + 1, y + 1), (x + 1, y)]);
+            }
+        }
+
+        let room_json = &game_data.room_json_map[&room_id];
+        let room_name = room_json["name"].as_str().unwrap().to_string();
+        let room_x = vanilla_map.rooms[room_idx].0 as i32;
+        let room_y = vanilla_map.rooms[room_idx].1 as i32;
+        let mut svg_path: String = String::new();
+        for path in poly_buf.extract_all_paths() {
+            svg_path.push_str("M ");
+            svg_path.push_str(
+                &path
+                    .iter()
+                    .map(|(x, y)| {
+                        let x1 = (room_x + x + 1) * 8 - offset_x as i32;
+                        let y1 = (room_y + y + 1) * 8 - offset_y as i32;
+                        format!("{x1},{y1}")
+                    })
+                    .join(" L "),
+            );
+            svg_path.push_str("Z ");
+        }
+
+        room_polygons.push(RoomPolygon {
+            room_id,
+            room_name,
+            svg_path,
+        });
+    }
+
+    Ok(VanillaMapData { png, room_polygons })
+}
+
 impl LogicData {
     pub fn new(
         game_data: &GameData,
         preset_data: &PresetData,
         version_info: &VersionInfo,
         video_storage_url: &str,
-    ) -> LogicData {
+        vanilla_map: &Map,
+    ) -> Result<LogicData> {
         let mut out = LogicData::default();
+        let vanilla_map_data =
+            get_vanilla_map_data(vanilla_map, game_data, &preset_data.default_preset)?;
+        out.vanilla_map_png = vanilla_map_data.png;
         let room_diagram_listing = list_room_diagram_files();
         let mut room_templates: Vec<RoomTemplate> = vec![];
 
@@ -1267,8 +1461,9 @@ impl LogicData {
             _notables: &notable_templates,
             area_order: &game_data.area_order,
             tech_difficulties: preset_data.difficulty_levels.keys.clone(),
+            room_polygons: &vanilla_map_data.room_polygons,
         };
         out.index_html = index_template.render().unwrap();
-        out
+        Ok(out)
     }
 }

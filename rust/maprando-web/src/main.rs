@@ -15,6 +15,7 @@ use actix_web::{
     App, HttpServer,
 };
 use clap::Parser;
+use hashbrown::HashMap;
 use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
@@ -108,30 +109,36 @@ fn build_app_data() -> AppData {
     };
 
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
+    let map_repositories: HashMap<String, MapRepository> = vec![
+        (
+            "Vanilla".to_string(),
+            MapRepository::new("Vanilla", vanilla_map_path).unwrap(),
+        ),
+        (
+            "Standard".to_string(),
+            MapRepository::new("Standard", standard_maps_path).unwrap(),
+        ),
+        (
+            "Wild".to_string(),
+            MapRepository::new("Wild", wild_maps_path).unwrap(),
+        ),
+    ]
+    .into_iter()
+    .collect();
+    let vanilla_map = map_repositories["Vanilla"]
+        .get_map_batch(0, &game_data)
+        .unwrap()[0]
+        .clone();
 
-    let logic_data = LogicData::new(&game_data, &preset_data, &version_info, &video_storage_url);
+    let logic_data =
+        LogicData::new(&game_data, &preset_data, &version_info, &video_storage_url, &vanilla_map).unwrap();
     let samus_sprite_categories: Vec<SamusSpriteCategory> =
         serde_json::from_str(&std::fs::read_to_string(samus_sprites_path).unwrap()).unwrap();
 
     let app_data = AppData {
         game_data,
         preset_data,
-        map_repositories: vec![
-            (
-                "Vanilla".to_string(),
-                MapRepository::new("Vanilla", vanilla_map_path).unwrap(),
-            ),
-            (
-                "Standard".to_string(),
-                MapRepository::new("Standard", standard_maps_path).unwrap(),
-            ),
-            (
-                "Wild".to_string(),
-                MapRepository::new("Wild", wild_maps_path).unwrap(),
-            ),
-        ]
-        .into_iter()
-        .collect(),
+        map_repositories,
         seed_repository: SeedRepository::new(&args.seed_repository_url).unwrap(),
         visualizer_files: load_visualizer_files(),
         video_storage_url,

@@ -278,7 +278,7 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
-    let spoiler_maps = spoiler_map::get_spoiler_map(&randomization, &game_data, &settings)?;
+    let spoiler_maps = spoiler_map::get_spoiler_map(&randomization, &game_data, &settings, true)?;
 
     if let Some(output_spoiler_map_explored_path) = &args.output_spoiler_map_explored {
         println!(

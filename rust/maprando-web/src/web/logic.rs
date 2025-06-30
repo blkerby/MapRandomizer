@@ -4,6 +4,7 @@ mod logic_notable;
 mod logic_room;
 mod logic_strat;
 mod logic_tech;
+mod logic_vanilla_map;
 
 use askama::Template;
 
@@ -19,4 +20,5 @@ pub fn scope() -> actix_web::Scope {
         .service(logic_tech::logic_tech)
         .service(logic_notable::logic_notable)
         .service(logic_boss_calculator::logic_boss_calculator)
+        .service(logic_vanilla_map::logic_vanilla_map)
 }

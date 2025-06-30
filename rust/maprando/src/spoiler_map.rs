@@ -3,6 +3,8 @@ use hashbrown::HashMap;
 use image::{Rgba, RgbaImage};
 use std::io::Cursor;
 
+pub use image;
+
 use crate::{
     patch::map_tiles::{
         apply_door_lock, apply_item_interior, get_gray_doors, get_objective_tiles, render_tile,
@@ -26,12 +28,13 @@ fn get_rgb(r: isize, g: isize, b: isize) -> Rgba<u8> {
 
 fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
     let cool_area_color = match area {
-        0 => get_rgb(18, 0, 27), // Crateria
-        1 => get_rgb(0, 18, 0),  // Brinstar
-        2 => get_rgb(23, 0, 0),  // Norfair
-        3 => get_rgb(16, 17, 0), // Wrecked Ship
-        4 => get_rgb(3, 12, 29), // Maridia
-        5 => get_rgb(21, 12, 0), // Tourian
+        0 => get_rgb(18, 0, 27),  // Crateria
+        1 => get_rgb(0, 18, 0),   // Brinstar
+        2 => get_rgb(23, 0, 0),   // Norfair
+        3 => get_rgb(16, 17, 0),  // Wrecked Ship
+        4 => get_rgb(3, 12, 29),  // Maridia
+        5 => get_rgb(21, 12, 0),  // Tourian
+        6 => get_rgb(10, 10, 10), // unexplored
         _ => panic!("Unexpected area {area}"),
     };
     let hot_area_color = match area {
@@ -41,6 +44,7 @@ fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
         3 => get_rgb(23, 23, 11), // Wrecked Ship
         4 => get_rgb(12, 20, 31), // Maridia
         5 => get_rgb(29, 17, 12), // Tourian
+        6 => get_rgb(17, 17, 17), // unexplored
         _ => panic!("Unexpected area {area}"),
     };
     match value {
@@ -83,16 +87,31 @@ pub struct SpoilerMaps {
     pub outline: Vec<u8>,
 }
 
-pub fn get_spoiler_map(
+fn add_vanilla_elevators(tiles: &mut [Vec<MapTile>]) {
+    let coords = [(7, 16, 23), (24, 25, 31), (35, 15, 27), (60, 18, 23)];
+    for (x, y0, y1) in coords {
+        for y in y0..y1 {
+            tiles[y][x].special_type = Some(MapTileSpecialType::Elevator);
+            tiles[y][x].area = Some(6); // Special area to draw as gray color
+        }
+    }
+}
+
+pub fn get_spoiler_images(
     randomization: &Randomization,
     game_data: &GameData,
     settings: &RandomizerSettings,
-) -> Result<SpoilerMaps> {
+    show_grid: bool,
+) -> Result<(RgbaImage, RgbaImage)> {
     let map = &randomization.map;
     let max_tiles = 72;
-    let width = (max_tiles + 2) * 8;
-    let height = (max_tiles + 2) * 8;
+    let width = max_tiles;
+    let height = max_tiles;
     let mut tiles: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
+
+    if settings.map_layout == "Vanilla" {
+        add_vanilla_elevators(&mut tiles);
+    }
 
     // Create the base form of the room tiles
     for room in &game_data.map_tile_data {
@@ -197,8 +216,23 @@ pub fn get_spoiler_map(
     }
 
     // Render the map tiles into image (one in explored form, and one in partially revealed/outline form):
-    let mut img_explored = RgbaImage::new(width as u32, height as u32);
-    let mut img_outline = RgbaImage::new(width as u32, height as u32);
+    let mut img_explored = RgbaImage::new((width + 2) as u32 * 8, (height + 2) as u32 * 8);
+    let mut img_outline = RgbaImage::new((width + 2) as u32 * 8, (height + 2) as u32 * 8);
+
+    if show_grid {
+        let grid_color = get_rgb(6, 6, 6);
+        for y in 0..height + 2 {
+            for x in 0..width + 2 {
+                for py in (1..8).step_by(2) {
+                    img_explored.put_pixel(x as u32 * 8, y as u32 * 8 + py, grid_color);
+                }
+                for px in (0..8).step_by(2) {
+                    img_explored.put_pixel(x as u32 * 8 + px, y as u32 * 8 + 7, grid_color);
+                }
+            }
+        }
+    }
+
     for y in 0..height {
         for x in 0..width {
             let tile = &tiles[y][x];
@@ -223,6 +257,18 @@ pub fn get_spoiler_map(
             }
         }
     }
+
+    Ok((img_explored, img_outline))
+}
+
+pub fn get_spoiler_map(
+    randomization: &Randomization,
+    game_data: &GameData,
+    settings: &RandomizerSettings,
+    show_grid: bool,
+) -> Result<SpoilerMaps> {
+    let (img_explored, img_outline) =
+        get_spoiler_images(randomization, game_data, settings, show_grid)?;
 
     let mut vec_explored: Vec<u8> = Vec::new();
     img_explored.write_to(

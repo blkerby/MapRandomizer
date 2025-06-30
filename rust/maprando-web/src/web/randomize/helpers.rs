@@ -266,7 +266,7 @@ pub async fn save_seed(
 
     // Write the spoiler maps
     let spoiler_maps =
-        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, settings).unwrap();
+        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, settings, false).unwrap();
     files.push(SeedFile::new(
         &format!("{prefix}/map-explored.png"),
         spoiler_maps.explored,

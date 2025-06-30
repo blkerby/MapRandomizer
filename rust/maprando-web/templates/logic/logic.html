@@ -3,6 +3,20 @@
 <head>
 {% include "../common/header.html" %}
 <title>Logic - Super Metroid Map Rando</title>
+<style>
+    .vanilla-map-container {
+        position: relative;
+    }
+    .vanilla-map-container img {
+        image-rendering: pixelated;
+    }
+    .vanilla-map-container svg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+    }
+</style>
 </head>
 <body>
 {% include "../common/navbar.html" %}
@@ -10,13 +24,29 @@
 document.getElementById("navigation-logic").classList.add("active");
 </script>
 
-<div class="container col-lg-9 col-xl-7 col-xxl-6 pb-4">
+<div class="container col-lg-9 col-xl-7 col-xxl-6 pt-3 pb-0">
     <h3 class="my-3">Logic</h3>
     <p>The logic for Super Metroid Map Rando is based on the
     <a href="https://github.com/miketrethewey/sm-json-data/tree/master">sm-json-data</a> project. For details about
     how to interpret the JSON, see the documentation there. This page links to listings of strats by room and also by
     tech.</p>
+</div>
 
+<div class="container-xxl p-3">
+    <div class="vanilla-map-container">
+        <img src="/logic/vanilla_map.png" width="100%">
+        <svg width="100%" viewBox="0 0 545 473">
+        {% for p in room_polygons %}
+        <a href="/logic/room/{{ p.room_id }}">
+        <title>{{ p.room_name }}</title>
+        <path d="{{ p.svg_path }}" />
+        </a>
+        {% endfor %}
+        </svg>
+    </div>
+</div>
+
+<div class="container col-lg-9 col-xl-7 col-xxl-6 pb-4">
     <a class="mb-2 border border-primary border-2 rounded-3 bg-primary-subtle p-3 d-flex align-items-center text-decoration-none" href="logic/boss_calculator">
         <div class="pe-2">
             <img class="bg-black" src="/static/bosses/ridley.png">
@@ -85,3 +115,4 @@ document.getElementById("navigation-logic").classList.add("active");
     </p>
     </ul>
 </div>
+<script src="imageMapResizer.min.js"></script>
