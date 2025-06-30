@@ -1057,26 +1057,29 @@ impl Patcher<'_> {
         // Write room names, for showing current room name in the pause menu:
         let mut addr = 0xE3C360;
         let font = &self.game_data.room_name_font;
-        for (room_ptr, data) in &mut self.extra_room_data {
+        for room_ptr in &self.game_data.room_ptrs {
             let room_id = self.game_data.raw_room_id_by_ptr[room_ptr];
             let room_json = &self.game_data.room_json_map[&room_id];
             let room_name = room_json["name"].as_str().unwrap();
             let mut name_data: Vec<u8> = vec![];
+            let mut total_width = 0;
             for c in room_name.chars() {
-                name_data.push(
-                    *font
-                        .char_isv
-                        .index_by_key
-                        .get(&c)
-                        .unwrap_or_else(|| panic!("Unrecognized room name char: {c}"))
-                        as u8
-                        + 1,
-                );
+                let char_idx = *font
+                    .char_isv
+                    .index_by_key
+                    .get(&c)
+                    .unwrap_or_else(|| panic!("Unrecognized room name char: {c}"));
+                total_width += font.widths[char_idx];
+                name_data.push(char_idx as u8 + 1);
             }
             name_data.push(0); // end-of-string marker
-            self.rom.write_n(snes2pc(addr), &name_data)?;
+
+            let pixel_offset = 128 - total_width / 2;
+            self.rom.write_u8(snes2pc(addr), pixel_offset as isize)?;
+            self.rom.write_n(snes2pc(addr + 1), &name_data)?;
+            let data = self.extra_room_data.get_mut(room_ptr).unwrap();
             data.room_name = (snes2pc(addr) & 0xFFFF) as u16;
-            addr += name_data.len();
+            addr += name_data.len() + 1;
         }
         assert!(addr <= 0xE3D800);
         Ok(())

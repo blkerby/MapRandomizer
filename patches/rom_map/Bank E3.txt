@@ -5,5 +5,7 @@ C000-C300: room name font graphics (1bpp)
   - the value of the `x`th pixel from the left (x = 0..7) is indicated by the bit 1 << (7 - x)
 C300-C360: room name font character widths (in pixels, including space)
 C360-D800: room names (referenced in ExtraRoomData):
+  - first byte indicates the pixel offset (from the left edge of the screen) of where
+    to begin drawing the room name to have it be centered.
   - a character value of `c` references the tile at $C000 + (c - 1) * 8
   - zero indicates end-of-string
