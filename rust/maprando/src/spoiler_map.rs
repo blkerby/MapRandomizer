@@ -220,9 +220,15 @@ pub fn get_spoiler_images(
     let mut img_outline = RgbaImage::new((width + 2) as u32 * 8, (height + 2) as u32 * 8);
 
     if show_grid {
+        let black_color = get_rgb(0, 0, 0);
         let grid_color = get_rgb(6, 6, 6);
         for y in 0..height + 2 {
             for x in 0..width + 2 {
+                for py in 0..8 {
+                    for px in 0..8 {
+                        img_explored.put_pixel(x as u32 * 8 + px, y as u32 * 8 + py, black_color);
+                    }
+                }
                 for py in (1..8).step_by(2) {
                     img_explored.put_pixel(x as u32 * 8, y as u32 * 8 + py, grid_color);
                 }
