@@ -1,5 +1,5 @@
-function lookupOffset(room, node) {
-	key = room + ": " + node
+function lookupOffset(room_id, node_id) {
+	key = room_id + ":" + node_id
 	return offsets[key];
 }
 let createDiv = (html) => {
@@ -866,7 +866,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		for (i in c.all_items) {
 			let loc = c.all_items[i].location;
 			if (loc.room_id == ri) {
-				let os = lookupOffset(loc.room, loc.node);
+				let os = lookupOffset(loc.room_id, loc.node_id);
 				let lx = loc.coords[0]*24 + 24;
 				let ly = loc.coords[1]*24 + 24;
 				if (os) {
@@ -1063,7 +1063,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	items: {
 		for (let v of c.all_items) {
 			if (v.item == "Nothing") { continue; }
-			let os = lookupOffset(v.location.room, v.location.node);
+			let os = lookupOffset(v.location.room_id, v.location.node_id);
 			if (os) {
 				v.location.coords[0] += os[0];
 				v.location.coords[1] += os[1];

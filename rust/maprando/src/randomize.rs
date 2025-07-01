@@ -4253,13 +4253,20 @@ impl<'r> Randomizer<'r> {
             .map(|(i, x)| {
                 let (r, n) = self.game_data.item_locations[i];
                 let item_vertex_info = self.get_vertex_info_by_id(r, n);
+                let room_id = item_vertex_info.room_id;
+                let node_id = item_vertex_info.node_id;
+                let node_coords = self.game_data.node_coords[&(room_id, node_id)];
+                let coords = (
+                    item_vertex_info.room_coords.0 + node_coords.0,
+                    item_vertex_info.room_coords.1 + node_coords.1,
+                );
                 let location = SpoilerLocation {
                     area: item_vertex_info.area_name,
-                    room_id: item_vertex_info.room_id,
+                    room_id,
                     room: item_vertex_info.room_name,
-                    node_id: item_vertex_info.node_id,
+                    node_id,
                     node: item_vertex_info.node_name,
-                    coords: item_vertex_info.room_coords,
+                    coords,
                 };
                 let item = x.placed_item.unwrap();
                 SpoilerItemLoc {
