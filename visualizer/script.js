@@ -975,7 +975,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				continue;
 
 			for (j in c.all_rooms)	{
-				if (c.all_rooms[j].room == i)
+				if (c.all_rooms[j].room_id == i)
 					break;
 			}
 			sr = c.all_rooms[j];
