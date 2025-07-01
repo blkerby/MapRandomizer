@@ -24,7 +24,6 @@ document.getElementById("navigation-logic").classList.add("active");
         <div class="col-sm-8">
             <h3 class="mb-0 pb-0">{{+ room_name }}</h3>
         </div>
-
         <div class="col-sm-4 pb-2 hstack">
             <div class="ms-auto">
                 <p class="my-auto"><small>Room ID: {{+ room_id }}</small></p>
@@ -35,6 +34,9 @@ document.getElementById("navigation-logic").classList.add("active");
             </div>
         </div>
     </div>
+    {% if twin_room_id.is_some() %}
+    <p>(See also <a href="/logic/room/{{ twin_room_id.unwrap() }}">{{ twin_room_name.as_ref().unwrap() }}</a>)</p>
+    {% endif %}
     <div class="row my-2">
         <div class="col-12 overflow-auto">
             <img src="/{{+ room_diagram_path }}">

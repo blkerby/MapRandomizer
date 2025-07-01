@@ -65,6 +65,8 @@ struct RoomTemplate<'a> {
     preset_data: &'a PresetData,
     room_id: usize,
     room_name: String,
+    twin_room_id: Option<usize>,
+    twin_room_name: Option<String>,
     room_name_url_encoded: String,
     area: String,
     room_diagram_path: String,
@@ -1085,12 +1087,27 @@ fn make_room_template<'a>(
         room_strats.push(strat);
     }
 
+    let twin_room_id = match room_id {
+        220 => Some(322),
+        322 => Some(220),
+        32 => Some(313),
+        313 => Some(32),
+        _ => None,
+    };
+    let twin_room_name = twin_room_id.map(|x| {
+        game_data.room_json_map[&x]["name"]
+            .as_str()
+            .unwrap()
+            .to_string()
+    });
     RoomTemplate {
         version_info: version_info.clone(),
         preset_data,
         room_id,
         room_name_url_encoded: urlencoding::encode(&room_name).into_owned(),
         room_name,
+        twin_room_id,
+        twin_room_name,
         area: full_area,
         room_diagram_path: room_diagram_listing[&room_id].clone(),
         nodes,
