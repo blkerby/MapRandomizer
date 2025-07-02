@@ -504,6 +504,7 @@ pub type RoomGeometryPartIdx = usize;
 #[allow(clippy::type_complexity)]
 #[derive(Deserialize, Default, Clone, Debug)]
 pub struct RoomGeometry {
+    pub room_id: usize,
     pub name: String,
     pub area: usize,
     pub rom_address: usize,
@@ -567,6 +568,7 @@ pub struct EscapeTimingGroup {
 
 #[derive(Deserialize)]
 pub struct EscapeTimingRoom {
+    pub room_id: RoomId,
     pub room_name: String,
     pub timings: Vec<EscapeTimingGroup>,
 }
@@ -4889,6 +4891,9 @@ impl GameData {
             if room.name == "Toilet" {
                 self.toilet_room_idx = room_idx;
             }
+            // Make sure room IDs in room geometry match the sm-json-data (via the room address)
+            let room_id = self.room_id_by_ptr[&room.rom_address];
+            assert_eq!(room_id, room.room_id);
             self.room_idx_by_name.insert(room.name.clone(), room_idx);
             self.room_idx_by_ptr.insert(room.rom_address, room_idx);
             if let Some(twin_rom_address) = room.twin_rom_address {

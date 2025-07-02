@@ -1,5 +1,6 @@
 [
     {
+        "room_id": 7,
         "name": "The Moat",
         "area": 0,
         "rom_address": 497151,
@@ -18,6 +19,7 @@
         "heated": false
     },
     {
+        "room_id": 8,
         "name": "Landing Site",
         "area": 0,
         "rom_address": 496120,
@@ -47,6 +49,7 @@
         "heated": false
     },
     {
+        "room_id": 9,
         "name": "Crateria Tube",
         "area": 0,
         "rom_address": 497108,
@@ -65,6 +68,7 @@
         "heated": false
     },
     {
+        "room_id": 10,
         "name": "Parlor And Alcatraz",
         "area": 0,
         "rom_address": 496381,
@@ -97,6 +101,7 @@
         "heated": false
     },
     {
+        "room_id": 11,
         "name": "Climb",
         "area": 0,
         "rom_address": 497338,
@@ -118,6 +123,7 @@
         "heated": false
     },
     {
+        "room_id": 12,
         "name": "Pit Room",
         "area": 0,
         "rom_address": 497500,
@@ -136,6 +142,7 @@
         "heated": false
     },
     {
+        "room_id": 13,
         "name": "Flyway",
         "area": 0,
         "rom_address": 497785,
@@ -154,6 +161,7 @@
         "heated": false
     },
     {
+        "room_id": 14,
         "name": "Pre-Map Flyway",
         "area": 0,
         "rom_address": 497890,
@@ -172,6 +180,7 @@
         "heated": false
     },
     {
+        "room_id": 15,
         "name": "Crateria Map Room",
         "area": 0,
         "rom_address": 498068,
@@ -187,6 +196,7 @@
         "heated": false
     },
     {
+        "room_id": 16,
         "name": "Crateria Save Room",
         "area": 0,
         "rom_address": 496597,
@@ -202,6 +212,7 @@
         "heated": false
     },
     {
+        "room_id": 17,
         "name": "The Final Missile",
         "area": 0,
         "rom_address": 498320,
@@ -217,6 +228,7 @@
         "heated": false
     },
     {
+        "room_id": 18,
         "name": "Final Missile Bombway",
         "area": 0,
         "rom_address": 498244,
@@ -235,6 +247,7 @@
         "heated": false
     },
     {
+        "room_id": 19,
         "name": "Bomb Torizo Room",
         "area": 0,
         "rom_address": 497668,
@@ -250,6 +263,7 @@
         "heated": false
     },
     {
+        "room_id": 20,
         "name": "Terminator Room",
         "area": 0,
         "rom_address": 497933,
@@ -268,6 +282,7 @@
         "heated": false
     },
     {
+        "room_id": 21,
         "name": "Green Pirates Shaft",
         "area": 0,
         "rom_address": 498109,
@@ -288,6 +303,7 @@
         "heated": false
     },
     {
+        "room_id": 22,
         "name": "Lower Mushrooms",
         "area": 0,
         "rom_address": 498025,
@@ -306,6 +322,7 @@
         "heated": false
     },
     {
+        "room_id": 23,
         "name": "Green Brinstar Elevator Room",
         "area": 0,
         "rom_address": 497976,
@@ -324,6 +341,7 @@
         "heated": false
     },
     {
+        "room_id": 24,
         "name": "Crateria Kihunter Room",
         "area": 0,
         "rom_address": 496780,
@@ -343,6 +361,7 @@
         "heated": false
     },
     {
+        "room_id": 26,
         "name": "Statues Hallway",
         "area": 0,
         "rom_address": 501229,
@@ -361,6 +380,7 @@
         "heated": false
     },
     {
+        "room_id": 25,
         "name": "Red Brinstar Elevator Room",
         "area": 0,
         "rom_address": 497194,
@@ -379,6 +399,7 @@
         "heated": false
     },
     {
+        "room_id": 306,
         "name": "Blue Brinstar Elevator Room",
         "area": 0,
         "rom_address": 497589,
@@ -397,6 +418,7 @@
         "heated": false
     },
     {
+        "room_id": 27,
         "name": "Statues Room",
         "area": 0,
         "rom_address": 501354,
@@ -415,6 +437,7 @@
         "heated": false
     },
     {
+        "room_id": 28,
         "name": "Crateria Power Bomb Room",
         "area": 0,
         "rom_address": 496554,
@@ -430,6 +453,7 @@
         "heated": false
     },
     {
+        "room_id": 29,
         "name": "Crateria Super Room",
         "area": 0,
         "rom_address": 498169,
@@ -448,6 +472,7 @@
         "heated": false
     },
     {
+        "room_id": 30,
         "name": "Gauntlet Entrance",
         "area": 0,
         "rom_address": 496307,
@@ -466,6 +491,7 @@
         "heated": false
     },
     {
+        "room_id": 31,
         "name": "Gauntlet Energy Tank Room",
         "area": 0,
         "rom_address": 497243,
@@ -484,6 +510,7 @@
         "heated": false
     },
     {
+        "room_id": 32,
         "name": "West Ocean",
         "area": 0,
         "rom_address": 496638,
@@ -526,6 +553,7 @@
         "heated": false
     },
     {
+        "room_id": 33,
         "name": "Bowling Alley Path",
         "area": 0,
         "rom_address": 496737,
@@ -544,6 +572,7 @@
         "heated": false
     },
     {
+        "room_id": 34,
         "name": "East Ocean",
         "area": 0,
         "rom_address": 496893,
@@ -562,6 +591,7 @@
         "heated": false
     },
     {
+        "room_id": 35,
         "name": "Forgotten Highway Kago Room",
         "area": 0,
         "rom_address": 496978,
@@ -580,6 +610,7 @@
         "heated": false
     },
     {
+        "room_id": 36,
         "name": "Crab Maze",
         "area": 0,
         "rom_address": 497021,
@@ -598,6 +629,7 @@
         "heated": false
     },
     {
+        "room_id": 37,
         "name": "Forgotten Highway Elevator",
         "area": 0,
         "rom_address": 496844,
@@ -616,6 +648,7 @@
         "heated": false
     },
     {
+        "room_id": 305,
         "name": "Forgotten Highway Elbow",
         "area": 0,
         "rom_address": 497064,
@@ -634,6 +667,7 @@
         "heated": false
     },
     {
+        "room_id": 66,
         "name": "Red Tower",
         "area": 1,
         "rom_address": 500307,
@@ -655,6 +689,7 @@
         "heated": false
     },
     {
+        "room_id": 67,
         "name": "Red Brinstar Fireflea Room",
         "area": 1,
         "rom_address": 500371,
@@ -673,6 +708,7 @@
         "heated": false
     },
     {
+        "room_id": 68,
         "name": "X-Ray Scope Room",
         "area": 1,
         "rom_address": 500430,
@@ -688,6 +724,7 @@
         "heated": false
     },
     {
+        "room_id": 69,
         "name": "Bat Room",
         "area": 1,
         "rom_address": 500701,
@@ -706,6 +743,7 @@
         "heated": false
     },
     {
+        "room_id": 70,
         "name": "Below Spazer",
         "area": 1,
         "rom_address": 500744,
@@ -725,6 +763,7 @@
         "heated": false
     },
     {
+        "room_id": 71,
         "name": "Spazer Room",
         "area": 1,
         "rom_address": 500807,
@@ -740,6 +779,7 @@
         "heated": false
     },
     {
+        "room_id": 74,
         "name": "Hellway",
         "area": 1,
         "rom_address": 500471,
@@ -758,6 +798,7 @@
         "heated": false
     },
     {
+        "room_id": 75,
         "name": "Caterpillar Room",
         "area": 1,
         "rom_address": 500514,
@@ -780,6 +821,7 @@
         "heated": false
     },
     {
+        "room_id": 76,
         "name": "Alpha Power Bomb Room",
         "area": 1,
         "rom_address": 500654,
@@ -795,6 +837,7 @@
         "heated": false
     },
     {
+        "room_id": 77,
         "name": "Beta Power Bomb Room",
         "area": 1,
         "rom_address": 500604,
@@ -810,6 +853,7 @@
         "heated": false
     },
     {
+        "room_id": 320,
         "name": "Caterpillar Save Room",
         "area": 1,
         "rom_address": 501556,
@@ -825,6 +869,7 @@
         "heated": false
     },
     {
+        "room_id": 319,
         "name": "Sloaters Refill",
         "area": 1,
         "rom_address": 501272,
@@ -840,6 +885,7 @@
         "heated": false
     },
     {
+        "room_id": 38,
         "name": "Morph Ball Room",
         "area": 1,
         "rom_address": 499359,
@@ -859,6 +905,7 @@
         "heated": false
     },
     {
+        "room_id": 39,
         "name": "Construction Zone",
         "area": 1,
         "rom_address": 499473,
@@ -878,6 +925,7 @@
         "heated": false
     },
     {
+        "room_id": 40,
         "name": "First Missile Room",
         "area": 1,
         "rom_address": 499975,
@@ -893,6 +941,7 @@
         "heated": false
     },
     {
+        "room_id": 41,
         "name": "Blue Brinstar Energy Tank Room",
         "area": 1,
         "rom_address": 499556,
@@ -911,6 +960,7 @@
         "heated": false
     },
     {
+        "room_id": 42,
         "name": "Blue Brinstar Boulder Room",
         "area": 1,
         "rom_address": 500141,
@@ -929,6 +979,7 @@
         "heated": false
     },
     {
+        "room_id": 43,
         "name": "Billy Mays Room",
         "area": 1,
         "rom_address": 500184,
@@ -944,6 +995,7 @@
         "heated": false
     },
     {
+        "room_id": 44,
         "name": "Green Brinstar Main Shaft",
         "area": 1,
         "rom_address": 498393,
@@ -986,6 +1038,7 @@
         "heated": false
     },
     {
+        "room_id": 45,
         "name": "Early Supers Room",
         "area": 1,
         "rom_address": 498632,
@@ -1004,6 +1057,7 @@
         "heated": false
     },
     {
+        "room_id": 46,
         "name": "Brinstar Reserve Tank Room",
         "area": 1,
         "rom_address": 498695,
@@ -1019,6 +1073,7 @@
         "heated": false
     },
     {
+        "room_id": 47,
         "name": "Brinstar Pre-Map Room",
         "area": 1,
         "rom_address": 498589,
@@ -1037,6 +1092,7 @@
         "heated": false
     },
     {
+        "room_id": 48,
         "name": "Brinstar Map Room",
         "area": 1,
         "rom_address": 498741,
@@ -1052,6 +1108,7 @@
         "heated": false
     },
     {
+        "room_id": 49,
         "name": "Green Brinstar Fireflea Room",
         "area": 1,
         "rom_address": 498782,
@@ -1070,6 +1127,7 @@
         "heated": false
     },
     {
+        "room_id": 316,
         "name": "Green Brinstar Missile Refill",
         "area": 1,
         "rom_address": 498825,
@@ -1085,6 +1143,7 @@
         "heated": false
     },
     {
+        "room_id": 314,
         "name": "Green Brinstar Main Shaft Save Room",
         "area": 1,
         "rom_address": 500225,
@@ -1100,6 +1159,7 @@
         "heated": false
     },
     {
+        "room_id": 315,
         "name": "Etecoon Save Room",
         "area": 1,
         "rom_address": 500266,
@@ -1115,6 +1175,7 @@
         "heated": false
     },
     {
+        "room_id": 50,
         "name": "Green Brinstar Beetom Room",
         "area": 1,
         "rom_address": 499685,
@@ -1133,6 +1194,7 @@
         "heated": false
     },
     {
+        "room_id": 51,
         "name": "Etecoon Energy Tank Room",
         "area": 1,
         "rom_address": 499729,
@@ -1153,6 +1215,7 @@
         "heated": false
     },
     {
+        "room_id": 52,
         "name": "Etecoon Super Room",
         "area": 1,
         "rom_address": 499793,
@@ -1168,6 +1231,7 @@
         "heated": false
     },
     {
+        "room_id": 54,
         "name": "Green Hill Zone",
         "area": 1,
         "rom_address": 499282,
@@ -1187,6 +1251,7 @@
         "heated": false
     },
     {
+        "room_id": 55,
         "name": "Noob Bridge",
         "area": 1,
         "rom_address": 499642,
@@ -1205,6 +1270,7 @@
         "heated": false
     },
     {
+        "room_id": 56,
         "name": "Spore Spawn Kihunter Room",
         "area": 1,
         "rom_address": 499100,
@@ -1223,6 +1289,7 @@
         "heated": false
     },
     {
+        "room_id": 57,
         "name": "Spore Spawn Room",
         "area": 1,
         "rom_address": 499143,
@@ -1241,6 +1308,7 @@
         "heated": false
     },
     {
+        "room_id": 58,
         "name": "Dachora Room",
         "area": 1,
         "rom_address": 498867,
@@ -1260,6 +1328,7 @@
         "heated": false
     },
     {
+        "room_id": 317,
         "name": "Dachora Energy Refill",
         "area": 1,
         "rom_address": 499835,
@@ -1275,6 +1344,7 @@
         "heated": false
     },
     {
+        "room_id": 59,
         "name": "Big Pink",
         "area": 1,
         "rom_address": 498969,
@@ -1315,6 +1385,7 @@
         "heated": false
     },
     {
+        "room_id": 318,
         "name": "Big Pink Save Room",
         "area": 1,
         "rom_address": 500100,
@@ -1330,6 +1401,7 @@
         "heated": false
     },
     {
+        "room_id": 60,
         "name": "Pink Brinstar Power Bomb Room",
         "area": 1,
         "rom_address": 499217,
@@ -1348,6 +1420,7 @@
         "heated": false
     },
     {
+        "room_id": 61,
         "name": "Pink Brinstar Hopper Room",
         "area": 1,
         "rom_address": 500016,
@@ -1366,6 +1439,7 @@
         "heated": false
     },
     {
+        "room_id": 62,
         "name": "Hopper Energy Tank Room",
         "area": 1,
         "rom_address": 500059,
@@ -1381,6 +1455,7 @@
         "heated": false
     },
     {
+        "room_id": 63,
         "name": "Spore Spawn Super Room",
         "area": 1,
         "rom_address": 498523,
@@ -1399,6 +1474,7 @@
         "heated": false
     },
     {
+        "room_id": 64,
         "name": "Spore Spawn Farming Room",
         "area": 1,
         "rom_address": 499876,
@@ -1417,6 +1493,7 @@
         "heated": false
     },
     {
+        "room_id": 65,
         "name": "Waterway Energy Tank Room",
         "area": 1,
         "rom_address": 499922,
@@ -1432,6 +1509,7 @@
         "heated": false
     },
     {
+        "room_id": 78,
         "name": "Warehouse Entrance",
         "area": 1,
         "rom_address": 501409,
@@ -1451,6 +1529,7 @@
         "heated": false
     },
     {
+        "room_id": 79,
         "name": "Warehouse Zeela Room",
         "area": 1,
         "rom_address": 500849,
@@ -1470,6 +1549,7 @@
         "heated": false
     },
     {
+        "room_id": 80,
         "name": "Warehouse Energy Tank Room",
         "area": 1,
         "rom_address": 500913,
@@ -1485,6 +1565,7 @@
         "heated": false
     },
     {
+        "room_id": 81,
         "name": "Warehouse Kihunter Room",
         "area": 1,
         "rom_address": 500954,
@@ -1504,6 +1585,7 @@
         "heated": false
     },
     {
+        "room_id": 300,
         "name": "Kraid Save Room",
         "area": 1,
         "rom_address": 501515,
@@ -1519,6 +1601,7 @@
         "heated": false
     },
     {
+        "room_id": 82,
         "name": "Baby Kraid Room",
         "area": 1,
         "rom_address": 501025,
@@ -1537,6 +1620,7 @@
         "heated": false
     },
     {
+        "room_id": 83,
         "name": "Kraid Eye Door Room",
         "area": 1,
         "rom_address": 501099,
@@ -1556,6 +1640,7 @@
         "heated": false
     },
     {
+        "room_id": 301,
         "name": "Kraid Recharge Station",
         "area": 1,
         "rom_address": 501313,
@@ -1571,6 +1656,7 @@
         "heated": false
     },
     {
+        "room_id": 84,
         "name": "Kraid Room",
         "area": 1,
         "rom_address": 501151,
@@ -1589,6 +1675,7 @@
         "heated": false
     },
     {
+        "room_id": 85,
         "name": "Varia Suit Room",
         "area": 1,
         "rom_address": 501474,
@@ -1604,6 +1691,7 @@
         "heated": false
     },
     {
+        "room_id": 169,
         "name": "West Glass Tube Tunnel",
         "area": 4,
         "rom_address": 511828,
@@ -1622,6 +1710,7 @@
         "heated": false
     },
     {
+        "room_id": 200,
         "name": "Boyon Gate Hall",
         "area": 4,
         "rom_address": 511872,
@@ -1641,6 +1730,7 @@
         "heated": false
     },
     {
+        "room_id": 170,
         "name": "Glass Tunnel",
         "area": 4,
         "rom_address": 511739,
@@ -1661,6 +1751,7 @@
         "heated": false
     },
     {
+        "room_id": 171,
         "name": "Glass Tunnel Save Room",
         "area": 4,
         "rom_address": 511698,
@@ -1676,6 +1767,7 @@
         "heated": false
     },
     {
+        "room_id": 172,
         "name": "Main Street",
         "area": 4,
         "rom_address": 511945,
@@ -1707,6 +1799,7 @@
         "heated": false
     },
     {
+        "room_id": 173,
         "name": "Fish Tank",
         "area": 4,
         "rom_address": 512023,
@@ -1727,6 +1820,7 @@
         "heated": false
     },
     {
+        "room_id": 174,
         "name": "Mt. Everest",
         "area": 4,
         "rom_address": 512185,
@@ -1762,6 +1856,7 @@
         "heated": false
     },
     {
+        "room_id": 175,
         "name": "Crab Shaft",
         "area": 4,
         "rom_address": 512419,
@@ -1781,6 +1876,7 @@
         "heated": false
     },
     {
+        "room_id": 176,
         "name": "Crab Tunnel",
         "area": 4,
         "rom_address": 512138,
@@ -1799,6 +1895,7 @@
         "heated": false
     },
     {
+        "room_id": 177,
         "name": "Red Fish Room",
         "area": 4,
         "rom_address": 512260,
@@ -1817,6 +1914,7 @@
         "heated": false
     },
     {
+        "room_id": 178,
         "name": "Mama Turtle Room",
         "area": 4,
         "rom_address": 512085,
@@ -1832,6 +1930,7 @@
         "heated": false
     },
     {
+        "room_id": 179,
         "name": "Pseudo Plasma Spark Room",
         "area": 4,
         "rom_address": 512477,
@@ -1850,6 +1949,7 @@
         "heated": false
     },
     {
+        "room_id": 180,
         "name": "Northwest Maridia Bug Room",
         "area": 4,
         "rom_address": 512365,
@@ -1868,6 +1968,7 @@
         "heated": false
     },
     {
+        "room_id": 181,
         "name": "Watering Hole",
         "area": 4,
         "rom_address": 512315,
@@ -1883,6 +1984,7 @@
         "heated": false
     },
     {
+        "room_id": 182,
         "name": "Aqueduct Save Room",
         "area": 4,
         "rom_address": 513893,
@@ -1898,6 +2000,7 @@
         "heated": false
     },
     {
+        "room_id": 183,
         "name": "Aqueduct",
         "area": 4,
         "rom_address": 513447,
@@ -1932,6 +2035,7 @@
         "heated": false
     },
     {
+        "room_id": 321,
         "name": "Toilet",
         "area": 4,
         "rom_address": 513032,
@@ -1950,6 +2054,7 @@
         "heated": false
     },
     {
+        "room_id": 184,
         "name": "Botwoon Hallway",
         "area": 4,
         "rom_address": 513559,
@@ -1968,6 +2073,7 @@
         "heated": false
     },
     {
+        "room_id": 185,
         "name": "Botwoon's Room",
         "area": 4,
         "rom_address": 514398,
@@ -1986,6 +2092,7 @@
         "heated": false
     },
     {
+        "room_id": 186,
         "name": "Botwoon Energy Tank Room",
         "area": 4,
         "rom_address": 514020,
@@ -2006,6 +2113,7 @@
         "heated": false
     },
     {
+        "room_id": 187,
         "name": "Halfie Climb Room",
         "area": 4,
         "rom_address": 514323,
@@ -2026,6 +2134,7 @@
         "heated": false
     },
     {
+        "room_id": 188,
         "name": "Maridia Missile Refill Room",
         "area": 4,
         "rom_address": 514117,
@@ -2041,6 +2150,7 @@
         "heated": false
     },
     {
+        "room_id": 189,
         "name": "Colosseum",
         "area": 4,
         "rom_address": 513834,
@@ -2060,6 +2170,7 @@
         "heated": false
     },
     {
+        "room_id": 190,
         "name": "Draygon Save Room",
         "area": 4,
         "rom_address": 514074,
@@ -2078,6 +2189,7 @@
         "heated": false
     },
     {
+        "room_id": 191,
         "name": "Maridia Health Refill Room",
         "area": 4,
         "rom_address": 514516,
@@ -2093,6 +2205,7 @@
         "heated": false
     },
     {
+        "room_id": 192,
         "name": "The Precious Room",
         "area": 4,
         "rom_address": 513935,
@@ -2111,6 +2224,7 @@
         "heated": false
     },
     {
+        "room_id": 193,
         "name": "Draygon's Room",
         "area": 4,
         "rom_address": 514656,
@@ -2129,6 +2243,7 @@
         "heated": false
     },
     {
+        "room_id": 194,
         "name": "Space Jump Room",
         "area": 4,
         "rom_address": 514474,
@@ -2144,6 +2259,7 @@
         "heated": false
     },
     {
+        "room_id": 195,
         "name": "West Cactus Alley Room",
         "area": 4,
         "rom_address": 514558,
@@ -2162,6 +2278,7 @@
         "heated": false
     },
     {
+        "room_id": 196,
         "name": "East Cactus Alley Room",
         "area": 4,
         "rom_address": 514603,
@@ -2180,6 +2297,7 @@
         "heated": false
     },
     {
+        "room_id": 197,
         "name": "Plasma Spark Room",
         "area": 4,
         "rom_address": 512832,
@@ -2207,6 +2325,7 @@
         "heated": false
     },
     {
+        "room_id": 198,
         "name": "Oasis",
         "area": 4,
         "rom_address": 513166,
@@ -2226,6 +2345,7 @@
         "heated": false
     },
     {
+        "room_id": 199,
         "name": "West Sand Hall",
         "area": 4,
         "rom_address": 513121,
@@ -2245,6 +2365,7 @@
         "heated": false
     },
     {
+        "room_id": 202,
         "name": "West Sand Hall Tunnel",
         "area": 4,
         "rom_address": 512594,
@@ -2263,6 +2384,7 @@
         "heated": false
     },
     {
+        "room_id": 203,
         "name": "Maridia Map Room",
         "area": 4,
         "rom_address": 512950,
@@ -2278,6 +2400,7 @@
         "heated": false
     },
     {
+        "room_id": 204,
         "name": "Botwoon Quicksand Room",
         "area": 4,
         "rom_address": 514200,
@@ -2298,6 +2421,7 @@
         "heated": false
     },
     {
+        "room_id": 205,
         "name": "Below Botwoon Energy Tank",
         "area": 4,
         "rom_address": 513789,
@@ -2317,6 +2441,7 @@
         "heated": false
     },
     {
+        "room_id": 206,
         "name": "West Aqueduct Quicksand Room",
         "area": 4,
         "rom_address": 513357,
@@ -2335,6 +2460,7 @@
         "heated": false
     },
     {
+        "room_id": 207,
         "name": "East Aqueduct Quicksand Room",
         "area": 4,
         "rom_address": 513402,
@@ -2353,6 +2479,7 @@
         "heated": false
     },
     {
+        "room_id": 208,
         "name": "East Sand Hole",
         "area": 4,
         "rom_address": 513310,
@@ -2371,6 +2498,7 @@
         "heated": false
     },
     {
+        "room_id": 209,
         "name": "West Sand Hole",
         "area": 4,
         "rom_address": 513263,
@@ -2389,6 +2517,7 @@
         "heated": false
     },
     {
+        "room_id": 210,
         "name": "East Sand Hall",
         "area": 4,
         "rom_address": 513218,
@@ -2408,6 +2537,7 @@
         "heated": false
     },
     {
+        "room_id": 211,
         "name": "Bug Sand Hole",
         "area": 4,
         "rom_address": 513075,
@@ -2427,6 +2557,7 @@
         "heated": false
     },
     {
+        "room_id": 212,
         "name": "Plasma Beach Quicksand Room",
         "area": 4,
         "rom_address": 514158,
@@ -2445,6 +2576,7 @@
         "heated": false
     },
     {
+        "room_id": 213,
         "name": "Butterfly Room",
         "area": 4,
         "rom_address": 513516,
@@ -2464,6 +2596,7 @@
         "heated": false
     },
     {
+        "room_id": 214,
         "name": "Thread The Needle Room",
         "area": 4,
         "rom_address": 512729,
@@ -2482,6 +2615,7 @@
         "heated": false
     },
     {
+        "room_id": 215,
         "name": "Maridia Elevator Room",
         "area": 4,
         "rom_address": 512779,
@@ -2501,6 +2635,7 @@
         "heated": false
     },
     {
+        "room_id": 216,
         "name": "Forgotten Highway Save Room",
         "area": 4,
         "rom_address": 512991,
@@ -2516,6 +2651,7 @@
         "heated": false
     },
     {
+        "room_id": 217,
         "name": "Kassiuz Room",
         "area": 4,
         "rom_address": 512903,
@@ -2534,6 +2670,7 @@
         "heated": false
     },
     {
+        "room_id": 218,
         "name": "Plasma Tutorial Room",
         "area": 4,
         "rom_address": 512638,
@@ -2552,6 +2689,7 @@
         "heated": false
     },
     {
+        "room_id": 219,
         "name": "Plasma Room",
         "area": 4,
         "rom_address": 512682,
@@ -2567,6 +2705,7 @@
         "heated": false
     },
     {
+        "room_id": 220,
         "name": "Pants Room",
         "area": 4,
         "rom_address": 513606,
@@ -2587,6 +2726,7 @@
         "heated": false
     },
     {
+        "room_id": 222,
         "name": "Shaktool Room",
         "area": 4,
         "rom_address": 514245,
@@ -2605,6 +2745,7 @@
         "heated": false
     },
     {
+        "room_id": 223,
         "name": "Spring Ball Room",
         "area": 4,
         "rom_address": 513744,
@@ -2620,6 +2761,7 @@
         "heated": false
     },
     {
+        "room_id": 201,
         "name": "Crab Hole",
         "area": 4,
         "rom_address": 512540,
@@ -2640,6 +2782,7 @@
         "heated": false
     },
     {
+        "room_id": 132,
         "name": "Main Hall",
         "area": 2,
         "rom_address": 504374,
@@ -2659,6 +2802,7 @@
         "heated": true
     },
     {
+        "room_id": 133,
         "name": "Fast Pillars Setup Room",
         "area": 2,
         "rom_address": 504741,
@@ -2679,6 +2823,7 @@
         "heated": true
     },
     {
+        "room_id": 134,
         "name": "Pillar Room",
         "area": 2,
         "rom_address": 504919,
@@ -2697,6 +2842,7 @@
         "heated": true
     },
     {
+        "room_id": 135,
         "name": "The Worst Room In The Game",
         "area": 2,
         "rom_address": 505005,
@@ -2716,6 +2862,7 @@
         "heated": true
     },
     {
+        "room_id": 136,
         "name": "Amphitheatre",
         "area": 2,
         "rom_address": 505061,
@@ -2740,6 +2887,7 @@
         "heated": true
     },
     {
+        "room_id": 137,
         "name": "Red Kihunter Shaft",
         "area": 2,
         "rom_address": 505221,
@@ -2760,6 +2908,7 @@
         "heated": true
     },
     {
+        "room_id": 312,
         "name": "Red Kihunter Shaft Save Room",
         "area": 2,
         "rom_address": 505665,
@@ -2775,6 +2924,7 @@
         "heated": false
     },
     {
+        "room_id": 138,
         "name": "Wasteland",
         "area": 2,
         "rom_address": 505301,
@@ -2793,6 +2943,7 @@
         "heated": true
     },
     {
+        "room_id": 139,
         "name": "Metal Pirates Room",
         "area": 2,
         "rom_address": 505387,
@@ -2811,6 +2962,7 @@
         "heated": true
     },
     {
+        "room_id": 140,
         "name": "Plowerhouse Room",
         "area": 2,
         "rom_address": 504962,
@@ -2829,6 +2981,7 @@
         "heated": true
     },
     {
+        "room_id": 141,
         "name": "Lower Norfair Farming Room",
         "area": 2,
         "rom_address": 504698,
@@ -2847,6 +3000,7 @@
         "heated": true
     },
     {
+        "room_id": 142,
         "name": "Ridley's Room",
         "area": 2,
         "rom_address": 504622,
@@ -2865,6 +3019,7 @@
         "heated": true
     },
     {
+        "room_id": 143,
         "name": "Ridley Tank Room",
         "area": 2,
         "rom_address": 505496,
@@ -2880,6 +3035,7 @@
         "heated": true
     },
     {
+        "room_id": 144,
         "name": "Mickey Mouse Room",
         "area": 2,
         "rom_address": 504842,
@@ -2898,6 +3054,7 @@
         "heated": true
     },
     {
+        "room_id": 145,
         "name": "Lower Norfair Fireflea Room",
         "area": 2,
         "rom_address": 505582,
@@ -2917,6 +3074,7 @@
         "heated": false
     },
     {
+        "room_id": 146,
         "name": "Lower Norfair Spring Ball Maze Room",
         "area": 2,
         "rom_address": 505104,
@@ -2936,6 +3094,7 @@
         "heated": true
     },
     {
+        "room_id": 147,
         "name": "Lower Norfair Escape Power Bomb Room",
         "area": 2,
         "rom_address": 505178,
@@ -2954,6 +3113,7 @@
         "heated": true
     },
     {
+        "room_id": 148,
         "name": "Three Musketeers' Room",
         "area": 2,
         "rom_address": 505430,
@@ -2972,6 +3132,7 @@
         "heated": true
     },
     {
+        "room_id": 149,
         "name": "Acid Statue Room",
         "area": 2,
         "rom_address": 504293,
@@ -2990,6 +3151,7 @@
         "heated": true
     },
     {
+        "room_id": 150,
         "name": "Golden Torizo's Room",
         "area": 2,
         "rom_address": 504451,
@@ -3008,6 +3170,7 @@
         "heated": true
     },
     {
+        "room_id": 151,
         "name": "Screw Attack Room",
         "area": 2,
         "rom_address": 505537,
@@ -3027,6 +3190,7 @@
         "heated": true
     },
     {
+        "room_id": 152,
         "name": "Golden Torizo Energy Recharge",
         "area": 2,
         "rom_address": 504581,
@@ -3042,6 +3206,7 @@
         "heated": false
     },
     {
+        "room_id": 153,
         "name": "Fast Ripper Room",
         "area": 2,
         "rom_address": 504538,
@@ -3060,6 +3225,7 @@
         "heated": true
     },
     {
+        "room_id": 86,
         "name": "Business Center",
         "area": 2,
         "rom_address": 501726,
@@ -3083,6 +3249,7 @@
         "heated": false
     },
     {
+        "room_id": 87,
         "name": "Norfair Map Room",
         "area": 2,
         "rom_address": 503988,
@@ -3098,6 +3265,7 @@
         "heated": false
     },
     {
+        "room_id": 88,
         "name": "Hi Jump Energy Tank Room",
         "area": 2,
         "rom_address": 502337,
@@ -3116,6 +3284,7 @@
         "heated": false
     },
     {
+        "room_id": 89,
         "name": "Hi Jump Boots Room",
         "area": 2,
         "rom_address": 502245,
@@ -3131,6 +3300,7 @@
         "heated": false
     },
     {
+        "room_id": 90,
         "name": "Cathedral Entrance",
         "area": 2,
         "rom_address": 501683,
@@ -3149,6 +3319,7 @@
         "heated": true
     },
     {
+        "room_id": 91,
         "name": "Cathedral",
         "area": 2,
         "rom_address": 501640,
@@ -3167,6 +3338,7 @@
         "heated": true
     },
     {
+        "room_id": 92,
         "name": "Rising Tide",
         "area": 2,
         "rom_address": 503715,
@@ -3185,6 +3357,7 @@
         "heated": true
     },
     {
+        "room_id": 93,
         "name": "Frog Speedway",
         "area": 2,
         "rom_address": 504070,
@@ -3203,6 +3376,7 @@
         "heated": false
     },
     {
+        "room_id": 94,
         "name": "Upper Norfair Farming Room",
         "area": 2,
         "rom_address": 503666,
@@ -3222,6 +3396,7 @@
         "heated": true
     },
     {
+        "room_id": 95,
         "name": "Purple Shaft",
         "area": 2,
         "rom_address": 503519,
@@ -3241,6 +3416,7 @@
         "heated": true
     },
     {
+        "room_id": 96,
         "name": "Purple Farming Room",
         "area": 2,
         "rom_address": 503889,
@@ -3256,6 +3432,7 @@
         "heated": true
     },
     {
+        "room_id": 302,
         "name": "Frog Savestation",
         "area": 2,
         "rom_address": 504167,
@@ -3274,6 +3451,7 @@
         "heated": false
     },
     {
+        "room_id": 97,
         "name": "Bubble Mountain",
         "area": 2,
         "rom_address": 502963,
@@ -3297,6 +3475,7 @@
         "heated": false
     },
     {
+        "room_id": 307,
         "name": "Bubble Mountain Save Room",
         "area": 2,
         "rom_address": 504029,
@@ -3312,6 +3491,7 @@
         "heated": false
     },
     {
+        "room_id": 98,
         "name": "Green Bubbles Missile Room",
         "area": 2,
         "rom_address": 502915,
@@ -3330,6 +3510,7 @@
         "heated": true
     },
     {
+        "room_id": 99,
         "name": "Norfair Reserve Tank Room",
         "area": 2,
         "rom_address": 502874,
@@ -3345,6 +3526,7 @@
         "heated": true
     },
     {
+        "room_id": 100,
         "name": "Bat Cave",
         "area": 2,
         "rom_address": 503930,
@@ -3363,6 +3545,7 @@
         "heated": true
     },
     {
+        "room_id": 101,
         "name": "Speed Booster Hall",
         "area": 2,
         "rom_address": 503024,
@@ -3381,6 +3564,7 @@
         "heated": true
     },
     {
+        "room_id": 102,
         "name": "Speed Booster Room",
         "area": 2,
         "rom_address": 503067,
@@ -3396,6 +3580,7 @@
         "heated": true
     },
     {
+        "room_id": 103,
         "name": "Single Chamber",
         "area": 2,
         "rom_address": 503134,
@@ -3417,6 +3602,7 @@
         "heated": true
     },
     {
+        "room_id": 104,
         "name": "Double Chamber",
         "area": 2,
         "rom_address": 503213,
@@ -3436,6 +3622,7 @@
         "heated": true
     },
     {
+        "room_id": 105,
         "name": "Wave Beam Room",
         "area": 2,
         "rom_address": 503262,
@@ -3451,6 +3638,7 @@
         "heated": false
     },
     {
+        "room_id": 106,
         "name": "Ice Beam Gate Room",
         "area": 2,
         "rom_address": 501781,
@@ -3471,6 +3659,7 @@
         "heated": false
     },
     {
+        "room_id": 107,
         "name": "Ice Beam Acid Room",
         "area": 2,
         "rom_address": 501597,
@@ -3489,6 +3678,7 @@
         "heated": true
     },
     {
+        "room_id": 108,
         "name": "Ice Beam Snake Room",
         "area": 2,
         "rom_address": 501945,
@@ -3508,6 +3698,7 @@
         "heated": true
     },
     {
+        "room_id": 109,
         "name": "Ice Beam Room",
         "area": 2,
         "rom_address": 501904,
@@ -3523,6 +3714,7 @@
         "heated": false
     },
     {
+        "room_id": 110,
         "name": "Ice Beam Tutorial Room",
         "area": 2,
         "rom_address": 501861,
@@ -3541,6 +3733,7 @@
         "heated": true
     },
     {
+        "room_id": 111,
         "name": "Crumble Shaft",
         "area": 2,
         "rom_address": 502008,
@@ -3559,6 +3752,7 @@
         "heated": true
     },
     {
+        "room_id": 308,
         "name": "Nutella Refill",
         "area": 2,
         "rom_address": 503846,
@@ -3577,6 +3771,7 @@
         "heated": false
     },
     {
+        "room_id": 112,
         "name": "Spiky Acid Snakes Tunnel",
         "area": 2,
         "rom_address": 503803,
@@ -3595,6 +3790,7 @@
         "heated": true
     },
     {
+        "room_id": 113,
         "name": "Kronic Boost Room",
         "area": 2,
         "rom_address": 503412,
@@ -3615,6 +3811,7 @@
         "heated": true
     },
     {
+        "room_id": 114,
         "name": "Magdollite Tunnel",
         "area": 2,
         "rom_address": 503476,
@@ -3633,6 +3830,7 @@
         "heated": true
     },
     {
+        "room_id": 115,
         "name": "Lava Dive Room",
         "area": 2,
         "rom_address": 503572,
@@ -3651,6 +3849,7 @@
         "heated": true
     },
     {
+        "room_id": 116,
         "name": "Volcano Room",
         "area": 2,
         "rom_address": 503346,
@@ -3669,6 +3868,7 @@
         "heated": true
     },
     {
+        "room_id": 117,
         "name": "Spiky Platforms Tunnel",
         "area": 2,
         "rom_address": 503303,
@@ -3687,6 +3887,7 @@
         "heated": true
     },
     {
+        "room_id": 118,
         "name": "Red Pirate Shaft",
         "area": 2,
         "rom_address": 504121,
@@ -3705,6 +3906,7 @@
         "heated": false
     },
     {
+        "room_id": 119,
         "name": "Acid Snakes Tunnel",
         "area": 2,
         "rom_address": 503758,
@@ -3724,6 +3926,7 @@
         "heated": true
     },
     {
+        "room_id": 120,
         "name": "Crocomire Speedway",
         "area": 2,
         "rom_address": 502051,
@@ -3752,6 +3955,7 @@
         "heated": true
     },
     {
+        "room_id": 121,
         "name": "Crocomire Escape",
         "area": 2,
         "rom_address": 502286,
@@ -3770,6 +3974,7 @@
         "heated": true
     },
     {
+        "room_id": 122,
         "name": "Crocomire's Room",
         "area": 2,
         "rom_address": 502157,
@@ -3788,6 +3993,7 @@
         "heated": false
     },
     {
+        "room_id": 123,
         "name": "Post Crocomire Farming Room",
         "area": 2,
         "rom_address": 502402,
@@ -3808,6 +4014,7 @@
         "heated": false
     },
     {
+        "room_id": 124,
         "name": "Post Crocomire Power Bomb Room",
         "area": 2,
         "rom_address": 502494,
@@ -3823,6 +4030,7 @@
         "heated": true
     },
     {
+        "room_id": 125,
         "name": "Post Crocomire Shaft",
         "area": 2,
         "rom_address": 502535,
@@ -3843,6 +4051,7 @@
         "heated": false
     },
     {
+        "room_id": 126,
         "name": "Post Crocomire Missile Room",
         "area": 2,
         "rom_address": 502587,
@@ -3858,6 +4067,7 @@
         "heated": false
     },
     {
+        "room_id": 127,
         "name": "Post Crocomire Jump Room",
         "area": 2,
         "rom_address": 502671,
@@ -3882,6 +4092,7 @@
         "heated": false
     },
     {
+        "room_id": 128,
         "name": "Grapple Beam Room",
         "area": 2,
         "rom_address": 502827,
@@ -3900,6 +4111,7 @@
         "heated": false
     },
     {
+        "room_id": 129,
         "name": "Grapple Tutorial Room 1",
         "area": 2,
         "rom_address": 502784,
@@ -3918,6 +4130,7 @@
         "heated": false
     },
     {
+        "room_id": 130,
         "name": "Grapple Tutorial Room 2",
         "area": 2,
         "rom_address": 502738,
@@ -3936,6 +4149,7 @@
         "heated": false
     },
     {
+        "room_id": 131,
         "name": "Grapple Tutorial Room 3",
         "area": 2,
         "rom_address": 502628,
@@ -3954,6 +4168,7 @@
         "heated": false
     },
     {
+        "room_id": 303,
         "name": "Crocomire Save Room",
         "area": 2,
         "rom_address": 504210,
@@ -3969,6 +4184,7 @@
         "heated": false
     },
     {
+        "room_id": 311,
         "name": "Post Crocomire Save Room",
         "area": 2,
         "rom_address": 502453,
@@ -3984,6 +4200,7 @@
         "heated": false
     },
     {
+        "room_id": 309,
         "name": "Lower Norfair Elevator",
         "area": 2,
         "rom_address": 503615,
@@ -4003,6 +4220,7 @@
         "heated": true
     },
     {
+        "room_id": 310,
         "name": "Lower Norfair Elevator Save Room",
         "area": 2,
         "rom_address": 504251,
@@ -4018,6 +4236,7 @@
         "heated": false
     },
     {
+        "room_id": 154,
         "name": "Wrecked Ship Entrance",
         "area": 3,
         "rom_address": 510472,
@@ -4036,6 +4255,7 @@
         "heated": false
     },
     {
+        "room_id": 155,
         "name": "Wrecked Ship Main Shaft",
         "area": 3,
         "rom_address": 510710,
@@ -4059,6 +4279,7 @@
         "heated": false
     },
     {
+        "room_id": 160,
         "name": "Attic",
         "area": 3,
         "rom_address": 510546,
@@ -4078,6 +4299,7 @@
         "heated": false
     },
     {
+        "room_id": 156,
         "name": "Basement",
         "area": 3,
         "rom_address": 511087,
@@ -4097,6 +4319,7 @@
         "heated": false
     },
     {
+        "room_id": 157,
         "name": "Wrecked Ship Map Room",
         "area": 3,
         "rom_address": 511179,
@@ -4112,6 +4335,7 @@
         "heated": false
     },
     {
+        "room_id": 158,
         "name": "Phantoon's Room",
         "area": 3,
         "rom_address": 511251,
@@ -4127,6 +4351,7 @@
         "heated": false
     },
     {
+        "room_id": 159,
         "name": "Wrecked Ship West Super Room",
         "area": 3,
         "rom_address": 511400,
@@ -4142,6 +4367,7 @@
         "heated": false
     },
     {
+        "room_id": 161,
         "name": "Bowling Alley",
         "area": 3,
         "rom_address": 510350,
@@ -4161,6 +4387,7 @@
         "heated": false
     },
     {
+        "room_id": 162,
         "name": "Gravity Suit Room",
         "area": 3,
         "rom_address": 511552,
@@ -4179,6 +4406,7 @@
         "heated": false
     },
     {
+        "room_id": 163,
         "name": "Wrecked Ship East Super Room",
         "area": 3,
         "rom_address": 511473,
@@ -4194,6 +4422,7 @@
         "heated": false
     },
     {
+        "room_id": 164,
         "name": "Sponge Bath",
         "area": 3,
         "rom_address": 511324,
@@ -4212,6 +4441,7 @@
         "heated": false
     },
     {
+        "room_id": 165,
         "name": "Spiky Death Room",
         "area": 3,
         "rom_address": 510859,
@@ -4230,6 +4460,7 @@
         "heated": false
     },
     {
+        "room_id": 166,
         "name": "Electric Death Room",
         "area": 3,
         "rom_address": 510933,
@@ -4249,6 +4480,7 @@
         "heated": false
     },
     {
+        "room_id": 167,
         "name": "Wrecked Ship Energy Tank Room",
         "area": 3,
         "rom_address": 511015,
@@ -4264,6 +4496,7 @@
         "heated": false
     },
     {
+        "room_id": 168,
         "name": "Assembly Line",
         "area": 3,
         "rom_address": 510638,
@@ -4279,6 +4512,7 @@
         "heated": false
     },
     {
+        "room_id": 304,
         "name": "Wrecked Ship Save Room",
         "area": 3,
         "rom_address": 511626,
@@ -4294,6 +4528,7 @@
         "heated": false
     },
     {
+        "room_id": 224,
         "name": "Tourian First Room",
         "area": 5,
         "rom_address": 514734,
@@ -4313,6 +4548,7 @@
         "heated": false
     },
     {
+        "room_id": 225,
         "name": "Tourian Map Room",
         "area": 5,
         "rom_address": 515867,
@@ -4328,6 +4564,7 @@
         "heated": false
     },
     {
+        "room_id": 226,
         "name": "Metroid Room 1",
         "area": 5,
         "rom_address": 514785,
@@ -4346,6 +4583,7 @@
         "heated": false
     },
     {
+        "room_id": 227,
         "name": "Metroid Room 2",
         "area": 5,
         "rom_address": 514865,
@@ -4364,6 +4602,7 @@
         "heated": false
     },
     {
+        "room_id": 228,
         "name": "Metroid Room 3",
         "area": 5,
         "rom_address": 514941,
@@ -4382,6 +4621,7 @@
         "heated": false
     },
     {
+        "room_id": 229,
         "name": "Metroid Room 4",
         "area": 5,
         "rom_address": 515021,
@@ -4400,6 +4640,7 @@
         "heated": false
     },
     {
+        "room_id": 230,
         "name": "Blue Hopper Room",
         "area": 5,
         "rom_address": 515097,
@@ -4418,6 +4659,7 @@
         "heated": false
     },
     {
+        "room_id": 231,
         "name": "Dust Torizo Room",
         "area": 5,
         "rom_address": 515173,
@@ -4436,6 +4678,7 @@
         "heated": false
     },
     {
+        "room_id": 232,
         "name": "Big Boy Room",
         "area": 5,
         "rom_address": 515249,
@@ -4454,6 +4697,7 @@
         "heated": false
     },
     {
+        "room_id": 233,
         "name": "Seaweed Room",
         "area": 5,
         "rom_address": 515327,
@@ -4473,6 +4717,7 @@
         "heated": false
     },
     {
+        "room_id": 234,
         "name": "Tourian Recharge Room",
         "area": 5,
         "rom_address": 515374,
@@ -4488,6 +4733,7 @@
         "heated": false
     },
     {
+        "room_id": 235,
         "name": "Tourian Eye Door Room",
         "area": 5,
         "rom_address": 515524,
@@ -4506,6 +4752,7 @@
         "heated": false
     },
     {
+        "room_id": 236,
         "name": "Rinka Shaft",
         "area": 5,
         "rom_address": 515571,
@@ -4525,6 +4772,7 @@
         "heated": false
     },
     {
+        "room_id": 237,
         "name": "Lower Tourian Save Room",
         "area": 5,
         "rom_address": 515619,
@@ -4540,6 +4788,7 @@
         "heated": false
     },
     {
+        "room_id": 238,
         "name": "Mother Brain Room",
         "area": 5,
         "rom_address": 515416,
@@ -4558,6 +4807,7 @@
         "heated": false
     },
     {
+        "room_id": 239,
         "name": "Tourian Escape Room 1",
         "area": 5,
         "rom_address": 515661,
@@ -4576,6 +4826,7 @@
         "heated": false
     },
     {
+        "room_id": 240,
         "name": "Tourian Escape Room 2",
         "area": 5,
         "rom_address": 515706,
@@ -4594,6 +4845,7 @@
         "heated": false
     },
     {
+        "room_id": 241,
         "name": "Tourian Escape Room 3",
         "area": 5,
         "rom_address": 515751,
@@ -4612,6 +4864,7 @@
         "heated": false
     },
     {
+        "room_id": 242,
         "name": "Tourian Escape Room 4",
         "area": 5,
         "rom_address": 515806,

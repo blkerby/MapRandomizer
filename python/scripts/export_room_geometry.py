@@ -44,6 +44,7 @@ def node_tiles_to_json(node_tiles_dict):
 all_json = []
 for room in rooms:
     room_json = {
+        'room_id': room.room_id,
         "name": room.name,
         'area': room.area.value,
         "rom_address": room.rom_address,
