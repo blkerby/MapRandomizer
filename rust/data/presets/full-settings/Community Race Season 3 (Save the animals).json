@@ -1,5 +1,5 @@
 {
-    "version": 118,
+    "version": 119,
     "name": "Community Race Season 3 (Save the animals)",
     "skill_assumption_settings": {
         "preset": "Hard",
@@ -2122,6 +2122,13 @@
                 "enabled": false
             },
             {
+                "room_id": 161,
+                "notable_id": 5,
+                "room_name": "Bowling Alley",
+                "notable_name": "Grapple Block Crystal Flash",
+                "enabled": false
+            },
+            {
                 "room_id": 201,
                 "notable_id": 1,
                 "room_name": "Crab Hole",
@@ -3420,7 +3427,7 @@
                 "room_id": 156,
                 "notable_id": 1,
                 "room_name": "Basement",
-                "notable_name": "G-mode Morph Workrobot Ride",
+                "notable_name": "G-Mode Morph Workrobot Ride",
                 "enabled": false
             },
             {

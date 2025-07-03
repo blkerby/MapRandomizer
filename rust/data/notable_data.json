@@ -1883,7 +1883,7 @@
     "room_id": 156,
     "room_name": "Basement",
     "notable_id": 1,
-    "name": "G-mode Morph Workrobot Ride",
+    "name": "G-Mode Morph Workrobot Ride",
     "difficulty": "Insane",
     "video_id": 161
   },
@@ -1918,6 +1918,14 @@
     "name": "Missile Chozo Camera Unlock",
     "difficulty": "Very Hard",
     "video_id": 476
+  },
+  {
+    "room_id": 161,
+    "room_name": "Bowling Alley",
+    "notable_id": 5,
+    "name": "Grapple Block Crystal Flash",
+    "difficulty": "Expert",
+    "video_id": 4042
   },
   {
     "room_id": 164,
