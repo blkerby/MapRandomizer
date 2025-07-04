@@ -2140,7 +2140,7 @@
             "mapTiles": [
                 {"coords": [0, 0], "left": "door", "right": "empty", "top": "wall", "bottom": "wall"},
                 {"coords": [1, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
-                {"coords": [2, 0], "left": "empty", "right": "empty", "top": "wall", "bottom": "wall"},
+                {"coords": [2, 0], "left": "empty", "right": "passage", "top": "wall", "bottom": "wall"},
                 {"coords": [3, 0], "left": "empty", "right": "wall", "top": "wall", "bottom": "wall", "interior": "item"}
             ]
         },
