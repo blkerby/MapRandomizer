@@ -1,10 +1,12 @@
 <div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Item markers:</div>
-    <div class="col-4 col-sm-3">{{+ item_markers }}</div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Initial map reveal:</div>
+    <div class="col-4 col-sm-3">{{+ 
+        settings.quality_of_life_settings.initial_map_reveal_settings.preset.as_ref().unwrap_or(&"Custom".to_string()) 
+    }}</div>
 </div>
 <div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Map stations always visible on map:</div>
-    <div class="col-4 col-sm-3">{% if mark_map_stations %}Yes{% else %}No{% endif %}</div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Item markers:</div>
+    <div class="col-4 col-sm-3">{{+ item_markers }}</div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Room outline revealed on entry:</div>

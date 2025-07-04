@@ -3,8 +3,8 @@ use hashbrown::{HashMap, HashSet};
 use crate::{
     randomize::{LockedDoor, Randomization},
     settings::{
-        DoorLocksSize, ItemDotChange, ItemMarkers, MapStationReveal, MapsRevealed, Objective,
-        RandomizerSettings,
+        DoorLocksSize, InitialMapRevealSettings, ItemDotChange, ItemMarkers, MapRevealLevel,
+        MapStationReveal, Objective, RandomizerSettings,
     },
 };
 use maprando_game::{
@@ -2114,61 +2114,78 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
+    fn get_initial_tile_reveal(
+        tile: &MapTile,
+        imr_settings: &InitialMapRevealSettings,
+    ) -> MapRevealLevel {
+        if let Some(MapTileSpecialType::AreaTransition(_, _)) = tile.special_type {
+            return match imr_settings.area_transitions {
+                MapRevealLevel::No => MapRevealLevel::No,
+                // Area transition tiles (arrows/letters) wouldn't render correctly
+                // with partial reveal, so we override it to full reveal:
+                MapRevealLevel::Partial | MapRevealLevel::Full => MapRevealLevel::Full,
+            };
+        }
+        match tile.interior {
+            MapTileInterior::MapStation => imr_settings.map_stations,
+            MapTileInterior::SaveStation => imr_settings.save_stations,
+            MapTileInterior::EnergyRefill => imr_settings.refill_stations,
+            MapTileInterior::AmmoRefill => imr_settings.refill_stations,
+            MapTileInterior::DoubleRefill => imr_settings.refill_stations,
+            MapTileInterior::Ship => imr_settings.ship,
+            MapTileInterior::Item => imr_settings.items1,
+            MapTileInterior::AmmoItem => imr_settings.items2,
+            MapTileInterior::MediumItem => imr_settings.items3,
+            MapTileInterior::MajorItem => imr_settings.items4,
+            MapTileInterior::Objective => imr_settings.objectives,
+            _ => imr_settings.other,
+        }
+    }
+
     fn set_initial_map(&mut self) -> Result<()> {
         let revealed_addr = snes2pc(0xB5F000);
         let partially_revealed_addr = snes2pc(0xB5F800);
         let area_seen_addr = snes2pc(0xB5F600);
-        match self.settings.other_settings.maps_revealed {
-            MapsRevealed::Full => {
-                self.rom.write_n(revealed_addr, &vec![0xFF; 0x600])?; // whole map revealed bits: true
-                self.rom
-                    .write_n(partially_revealed_addr, &vec![0xFF; 0x600])?; // whole map partially revealed bits: true
-                self.rom.write_u16(area_seen_addr, 0x003F)?; // area seen bits: true (for pause map area switching)
-            }
-            MapsRevealed::Partial => {
-                self.rom.write_n(revealed_addr, &vec![0; 0x600])?; // whole map revealed bits: false
-                self.rom
-                    .write_n(partially_revealed_addr, &vec![0xFF; 0x600])?; // whole map partially revealed bits: true
-                self.rom.write_u16(area_seen_addr, 0x003F)?; // area seen bits: true (for pause map area switching)
+        let imr_settings = &self
+            .settings
+            .quality_of_life_settings
+            .initial_map_reveal_settings;
 
-                // Show area-transition markers (arrows or letters) as revealed:
-                for &(area, x, y) in &self.transition_tile_coords {
-                    let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
-                    let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
+        if imr_settings.all_areas {
+            // allow pause map area switching to all areas from start of game:
+            self.rom.write_u16(area_seen_addr, 0x003F)?;
+        } else {
+            self.rom.write_u16(area_seen_addr, 0x0000)?;
+        }
+
+        // Initialize all tiles to not-revealed by default
+        self.rom.write_n(revealed_addr, &vec![0; 0x600])?;
+        self.rom.write_n(partially_revealed_addr, &vec![0; 0x600])?;
+
+        for (&(area, x, y), tile) in &self.map_tile_map {
+            let local_x = x - self.area_offset_x[area];
+            let local_y = y - self.area_offset_y[area];
+            let (offset, bitmask) = xy_to_explored_bit_ptr(local_x, local_y);
+            let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
+            let ptr_partial = partially_revealed_addr + area * 0x100 + offset as usize;
+            match Self::get_initial_tile_reveal(tile, imr_settings) {
+                MapRevealLevel::No => {}
+                MapRevealLevel::Partial => {
+                    self.rom.write_u8(
+                        ptr_partial,
+                        self.rom.read_u8(ptr_partial)? | bitmask as isize,
+                    )?;
+                }
+                MapRevealLevel::Full => {
+                    self.rom.write_u8(
+                        ptr_partial,
+                        self.rom.read_u8(ptr_partial)? | bitmask as isize,
+                    )?;
                     self.rom.write_u8(
                         ptr_revealed,
                         self.rom.read_u8(ptr_revealed)? | bitmask as isize,
                     )?;
                 }
-            }
-            MapsRevealed::No => {
-                self.rom.write_n(revealed_addr, &vec![0; 0x600])?;
-                self.rom.write_n(partially_revealed_addr, &vec![0; 0x600])?;
-                self.rom.write_u16(area_seen_addr, 0x0000)?;
-            }
-        }
-
-        if self.settings.quality_of_life_settings.mark_map_stations {
-            for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
-                if !room.name.contains(" Map Room") {
-                    continue;
-                }
-                let area = self.map.area[room_idx];
-                let x = self.rom.read_u8(room.rom_address + 2)?;
-                let y = self.rom.read_u8(room.rom_address + 3)?;
-                let (offset, bitmask) = xy_to_explored_bit_ptr(x, y);
-
-                let ptr_revealed = revealed_addr + area * 0x100 + offset as usize;
-                self.rom.write_u8(
-                    ptr_revealed,
-                    self.rom.read_u8(ptr_revealed)? | bitmask as isize,
-                )?;
-
-                let ptr_partial = partially_revealed_addr + area * 0x100 + offset as usize;
-                self.rom.write_u8(
-                    ptr_partial,
-                    self.rom.read_u8(ptr_partial)? | bitmask as isize,
-                )?;
             }
         }
         Ok(())

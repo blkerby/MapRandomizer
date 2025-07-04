@@ -45,7 +45,6 @@ pub struct SeedHeaderTemplate<'a> {
     escape_enemies_cleared: bool,
     escape_refill: bool,
     escape_movement_items: bool,
-    mark_map_stations: bool,
     item_markers: String,
     all_items_spawn: bool,
     acid_chozo: bool,
@@ -149,12 +148,6 @@ impl SeedHeaderTemplate<'_> {
         }
         if self.settings.other_settings.wall_jump == WallJump::Collectible {
             game_variations.push("Collectible wall jump");
-        }
-        if self.settings.other_settings.maps_revealed == maprando::settings::MapsRevealed::Partial {
-            game_variations.push("Maps partially revealed from start");
-        }
-        if self.settings.other_settings.maps_revealed == maprando::settings::MapsRevealed::Full {
-            game_variations.push("Maps revealed from start");
         }
         if self.settings.other_settings.map_station_reveal
             == maprando::settings::MapStationReveal::Partial
@@ -415,7 +408,6 @@ pub fn render_seed(
         escape_enemies_cleared: seed_data.escape_enemies_cleared,
         escape_refill: seed_data.escape_refill,
         escape_movement_items: seed_data.escape_movement_items,
-        mark_map_stations: seed_data.mark_map_stations,
         item_markers: seed_data.item_markers.clone(),
         all_items_spawn: seed_data.all_items_spawn,
         acid_chozo: seed_data.acid_chozo,

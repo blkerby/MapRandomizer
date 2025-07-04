@@ -13,7 +13,31 @@
                             <div class="card-header">Map</div>
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#initialMapRevealHelpModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="initial_map_reveal">Initial map reveal</label>
+                                    </div>
+                                    <div id="initialMapRevealPreset" class="col-lg-6 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealNo" value="No" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealNo">No</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealMaps" value="Maps" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealMaps">Maps</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPartial" value="Partial" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealPartial">Partial</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealFull" value="Full" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealFull">Full</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealGlobal" value="Global" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealGlobal">Global</label>
+                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#initialMapRevealModal">
+                                            <i class="bi bi-gear"></i>
+                                        </button>                    
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemMarkersModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -34,22 +58,7 @@
                                 </div>
 
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#mapStationsModal">
-                                            <i class="bi bi-question-circle"></i>
-                                        </button>
-                                        <label for="preset">Map stations always visible on map</label>
-                                    </div>
-                                    <div id="markMapStations" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsNo" value="false">
-                                        <label class="btn btn-outline-primary" for="markMapStationsNo">No</label>
-                                        <input type="radio" class="btn-check" name="mark_map_stations" id="markMapStationsYes" value="true" checked>
-                                        <label class="btn btn-outline-primary" for="markMapStationsYes">Yes</label>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#roomOutlineModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -64,7 +73,7 @@
                                 </div>
 
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#oppositeAreaModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -88,7 +97,7 @@
                             <div class="card-header">End game</div>
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#shortMotherBrainModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -105,7 +114,7 @@
                                 </div>
 
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#supersDoubleModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -120,7 +129,7 @@
                                 </div>
 
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#movementItemsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -135,7 +144,7 @@
                                 </div>
 
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#escapeRefillModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -150,7 +159,7 @@
                                 </div>
 
                                 <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#enemiesClearedModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -466,10 +475,9 @@
         </div>
     </div>
 </div>
-
                                           
+{% include "help/quality/initial_map_reveal.html" %}
 {% include "help/quality/item_markers.html" %}
-{% include "help/quality/map_stations.html" %}
 {% include "help/quality/room_outline.html" %}
 {% include "help/quality/opposite_area_revealed.html" %}
 
@@ -499,3 +507,5 @@
 
 {% include "help/quality/buffed_drops.html" %}
 {% include "help/quality/early_save.html" %}
+
+{% include "initial_map_reveal.html" %}

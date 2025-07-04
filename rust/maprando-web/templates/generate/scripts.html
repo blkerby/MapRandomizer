@@ -186,6 +186,25 @@ function buildStartLocationSettings(formData) {
     return out;
 }
 
+function buildInitialMapRevealSettings(formData) {
+    return {
+        "preset": formData.get("initial_map_reveal"),
+        "map_stations": formData.get("initial_map_reveal_maps"),
+        "save_stations": formData.get("initial_map_reveal_saves"),
+        "refill_stations": formData.get("initial_map_reveal_refills"),
+        "ship": formData.get("initial_map_reveal_ship"),
+        "objectives": formData.get("initial_map_reveal_objectives"),
+        "refill_stations": formData.get("initial_map_reveal_refills"),
+        "area_transitions": formData.get("initial_map_reveal_area_transitions"),
+        "items1": formData.get("initial_map_reveal_items1"),
+        "items2": formData.get("initial_map_reveal_items2"),
+        "items3": formData.get("initial_map_reveal_items3"),
+        "items4": formData.get("initial_map_reveal_items4"),
+        "other": formData.get("initial_map_reveal_other"),
+        "all_areas": formData.get("initial_map_reveal_all_areas") == "true",
+    }
+}
+
 function buildSettingsObject() {
     var formData = new FormData(document.getElementById("main-form"));
     let version = {{ version_info.version }};
@@ -234,8 +253,8 @@ function buildSettingsObject() {
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
+            "initial_map_reveal_settings": buildInitialMapRevealSettings(formData),
             "item_markers": formData.get("item_markers"),
-            "mark_map_stations": formData.get("mark_map_stations") == "true",
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
             "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
             "mother_brain_fight": formData.get("mother_brain_fight"),
@@ -417,6 +436,23 @@ async function prepareSubmit(form) {
     }
 }
 
+function applyInitialMapRevealSettings(imrSettings) {
+    applyRadioValue("initialMapRevealMaps", preset.map_stations);
+    applyRadioValue("initialMapRevealSaves", preset.save_stations);
+    applyRadioValue("initialMapRevealRefills", preset.refill_stations);
+    applyRadioValue("initialMapRevealShip", preset.ship);
+    applyRadioValue("initialMapRevealObjectives", preset.objectives);
+    applyRadioValue("initialMapRevealAreaTransitions", preset.area_transitions);
+    applyRadioValue("initialMapRevealItems1", preset.items1);
+    applyRadioValue("initialMapRevealItems2", preset.items2);
+    applyRadioValue("initialMapRevealItems3", preset.items3);
+    applyRadioValue("initialMapRevealItems4", preset.items4);
+    applyRadioValue("initialMapRevealOther", preset.other);
+    applyRadioValue("initialMapRevealAllAreas", preset.all_areas);
+    applyRadioValue("initialMapRevealPreset", imrSettings.preset);
+    processInitialMapRevealPreset();
+}
+
 function applyQolPreset(preset) {
     for (var presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.value == preset.preset) {
@@ -430,8 +466,8 @@ function applyQolPreset(preset) {
         }
     }
 
+    applyInitialMapRevealSettings(preset.initial_map_reveal_settings);
     applyRadioValue("itemMarkers", preset.item_markers);
-    applyRadioValue("markMapStations", preset.mark_map_stations);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
     applyRadioValue("motherBrainFight", preset.mother_brain_fight);
@@ -491,7 +527,6 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("itemDotChange", other.item_dot_change);
     applyRadioValue("transitionLetters", other.transition_letters);
     applyRadioValue("doorLocksSize", other.door_locks_size);
-    applyRadioValue("mapsRevealed", other.maps_revealed);
     applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
@@ -600,7 +635,6 @@ async function fullSettingsPresetChanged(presetEl) {
 function qualityOfLifePresetChanged() {
     var isOff = false;
     for (var presetEl of document.getElementsByClassName("qol-preset-button")) {
-        console.log(presetEl.value, presetEl.checked);
         if (presetEl.checked) {
             let preset = qolPresets[presetEl.value];
             if (presetEl.value == "Off") {
@@ -622,6 +656,63 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeHigh").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
+}
+
+function processInitialMapRevealPreset() {
+    let tileTypes = [
+        "Maps",
+        "Saves",
+        "Refills",
+        "Ship",
+        "Objectives",
+        "AreaTransitions",
+        "Items1",
+        "Items2",
+        "Items3",
+        "Items4",
+        "Other"
+    ]
+    if (document.getElementById("initialMapRevealNo").checked) {
+        for (t of tileTypes) {
+            document.getElementById(`initialMapReveal${t}No`).checked = true;
+        }
+        document.getElementById("initialMapRevealAllAreasNo").checked = true;
+    } else if (document.getElementById("initialMapRevealMaps").checked) { 
+        for (t of tileTypes) {
+            document.getElementById(`initialMapReveal${t}No`).checked = true;
+        }
+        document.getElementById(`initialMapRevealMapsFull`).checked = true;
+        document.getElementById("initialMapRevealAllAreasNo").checked = true;
+    } else if (document.getElementById("initialMapRevealPartial").checked) { 
+        for (t of tileTypes) {
+            document.getElementById(`initialMapReveal${t}Partial`).checked = true;
+        }
+        document.getElementById("initialMapRevealAllAreasNo").checked = true;
+    } else if (document.getElementById("initialMapRevealFull").checked) { 
+        for (t of tileTypes) {
+            document.getElementById(`initialMapReveal${t}Full`).checked = true;
+        }
+        document.getElementById("initialMapRevealAllAreasNo").checked = true;
+    } else if (document.getElementById("initialMapRevealGlobal").checked) { 
+        for (t of tileTypes) {
+            document.getElementById(`initialMapReveal${t}Full`).checked = true;
+        }
+        document.getElementById("initialMapRevealAllAreasYes").checked = true;
+    }
+}
+
+function initialMapRevealPresetChanged() {
+    processInitialMapRevealPreset();
+    qualityOfLifeSettingChanged();
+}
+
+function initialMapRevealSettingChanged() {
+    document.getElementById("initialMapRevealNo").checked = false;
+    document.getElementById("initialMapRevealMaps").checked = false;
+    document.getElementById("initialMapRevealPartial").checked = false;
+    document.getElementById("initialMapRevealFull").checked = false;
+    document.getElementById("initialMapRevealGlobal").checked = false;
+    initialMapRevealPresetChanged();
 }
 
 function objectivePresetChanged() {
@@ -928,8 +1019,6 @@ function checkOtherOptions() {
         document.getElementById("itemDotChangeDisappear").checked ||
         document.getElementById("transitionLettersNo").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
-        document.getElementById("mapsRevealedPartial").checked ||
-        document.getElementById("mapsRevealedFull").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
         document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 

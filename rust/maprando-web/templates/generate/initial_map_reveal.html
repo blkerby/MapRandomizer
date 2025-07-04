@@ -1,0 +1,152 @@
+<div class="modal" id="initialMapRevealModal" tabindex="-1" data-parent-modal="qualityOfLifeModal">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Initial map reveal</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        
+            <div class="modal-body px-4 py-2">
+                <div class="card">
+                    <div class="card-header">Tile types</div>
+                    <div class="card-body">
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealMaps" class="col-md-7 col-lg-5 col-form-label">Map stations</label>
+                            <div id="initialMapRevealMaps" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_maps" id="initialMapRevealMapsNo" value="No" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealMapsNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_maps" id="initialMapRevealMapsPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealMapsPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_maps" id="initialMapRevealMapsFull" value="Full" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealMapsFull">Full</label>
+                            </div>
+                        </div>
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealSaves" class="col-md-7 col-lg-5 col-form-label">Save stations</label>
+                            <div id="initialMapRevealSaves" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_saves" id="initialMapRevealSavesNo" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealSavesNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_saves" id="initialMapRevealSavesPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealSavesPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_saves" id="initialMapRevealSavesFull" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealSavesFull">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealRefills" class="col-md-7 col-lg-5 col-form-label">Refill stations</label>
+                            <div id="initialMapRevealRefills" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_refills" id="initialMapRevealRefillsNo" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealRefillsNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_refills" id="initialMapRevealRefillsPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealRefillsPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_refills" id="initialMapRevealRefillsFull" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealRefillsFull">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealShip" class="col-md-7 col-lg-5 col-form-label">Ship</label>
+                            <div id="initialMapRevealShip" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_ship" id="initialMapRevealShipNo" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealShipNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_ship" id="initialMapRevealShipPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealShipPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_ship" id="initialMapRevealShipFull" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealShipFull">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealObjectives" class="col-md-7 col-lg-5 col-form-label">Objectives</label>
+                            <div id="initialMapRevealObjectives" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_objectives" id="initialMapRevealObjectivesNo" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealObjectivesNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_objectives" id="initialMapRevealObjectivesPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealObjectivesPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_objectives" id="initialMapRevealObjectivesFull" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealObjectivesFull">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealAreaTransitions" class="col-md-7 col-lg-5 col-form-label">Area transitions</label>
+                            <div id="initialMapRevealAreaTransitions" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_area_transitions" id="initialMapRevealAreaTransitionsNo" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealAreaTransitionsNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_area_transitions" id="initialMapRevealAreaTransitionsPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealAreaTransitionsPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_area_transitions" id="initialMapRevealAreaTransitionsFull" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealAreaTransitionsFull">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealItems1" class="col-md-7 col-lg-5 col-form-label">Items: tier 1 (small dots)</label>
+                            <div id="initialMapRevealItems1" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items1" id="initialMapRevealItems1No" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems1No">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items1" id="initialMapRevealItems1Partial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems1Partial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items1" id="initialMapRevealItems1Full" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems1Full">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealItems2" class="col-md-7 col-lg-5 col-form-label">Items: tier 2 (X's)</label>
+                            <div id="initialMapRevealItems2" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items2" id="initialMapRevealItems2No" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems2No">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items2" id="initialMapRevealItems2Partial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems2Partial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items2" id="initialMapRevealItems2Full" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems2Full">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealItems3" class="col-md-7 col-lg-5 col-form-label">Items: tier 3 (hollow circles)</label>
+                            <div id="initialMapRevealItems3" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items3" id="initialMapRevealItems3No" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems3No">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items3" id="initialMapRevealItems3Partial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems3Partial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items3" id="initialMapRevealItems3Full" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems3Full">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealItems4" class="col-md-7 col-lg-5 col-form-label">Items: tier 4 (large dots)</label>
+                            <div id="initialMapRevealItems4" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items4" id="initialMapRevealItems4No" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems4No">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items4" id="initialMapRevealItems4Partial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems4Partial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_items4" id="initialMapRevealItems4Full" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealItems4Full">Full</label>
+                            </div>
+                        </div>        
+                        <div class="form-group row my-2">
+                            <label for="initialMapRevealOther" class="col-md-7 col-lg-5 col-form-label">Other</label>
+                            <div id="initialMapRevealOther" class="col-sm-5 col-lg-4 btn-group">
+                                <input type="radio" class="btn-check" name="initial_map_reveal_other" id="initialMapRevealOtherNo" value="No" checked onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealOtherNo">No</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_other" id="initialMapRevealOtherPartial" value="Partial" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealOtherPartial">Partial</label>
+                                <input type="radio" class="btn-check" name="initial_map_reveal_other" id="initialMapRevealOtherFull" value="Full" onchange="initialMapRevealSettingChanged()">
+                                <label class="btn btn-outline-primary" for="initialMapRevealOtherFull">Full</label>
+                            </div>
+                        </div>        
+                    </div>
+                </div>
+                <div class="form-group row my-2">
+                    <label for="initialMapRevealAllAreas" class="col-md-7 col-lg-5 col-form-label">Reveal tiles in unvisited areas</label>
+                    <div id="initialMapRevealAllAreas" class="col-sm-2 btn-group">
+                        <input type="radio" class="btn-check" name="initial_map_reveal_all_areas" id="initialMapRevealAllAreasNo" value="false" checked onchange="initialMapRevealSettingChanged()">
+                        <label class="btn btn-outline-primary" for="initialMapRevealAllAreasNo">No</label>
+                        <input type="radio" class="btn-check" name="initial_map_reveal_all_areas" id="initialMapRevealAllAreasYes" value="true" onchange="initialMapRevealSettingChanged()">
+                        <label class="btn btn-outline-primary" for="initialMapRevealAllAreasYes">Yes</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

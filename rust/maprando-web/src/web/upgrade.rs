@@ -1,10 +1,11 @@
 use crate::web::AppData;
 use actix_web::{post, web, HttpResponse, Responder};
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use hashbrown::HashMap;
 use log::error;
 use maprando::settings::{
-    parse_randomizer_settings, NotableSetting, RandomizerSettings, TechSetting,
+    parse_randomizer_settings, InitialMapRevealSettings, MapRevealLevel, NotableSetting,
+    RandomizerSettings, TechSetting,
 };
 use maprando_game::{NotableId, RoomId, TechId};
 
@@ -173,6 +174,74 @@ fn upgrade_item_progression_settings(settings: &mut serde_json::Value) -> Result
     Ok(())
 }
 
+fn upgrade_initial_map_reveal_settings(settings: &mut serde_json::Value) -> Result<()> {
+    if settings["quality_of_life_settings"]
+        .as_object()
+        .unwrap()
+        .contains_key("initial_map_reveal_settings")
+    {
+        return Ok(());
+    }
+
+    let maps_revealed = settings["other_settings"]
+        .as_object_mut()
+        .context("missing 'other_settings'")?["maps_revealed"]
+        .as_str()
+        .context("expected 'maps_revealed' to be a string")?
+        .to_owned();
+
+    let qol_settings = settings["quality_of_life_settings"]
+        .as_object_mut()
+        .unwrap();
+    if let Some(mark_map_stations) = qol_settings["mark_map_stations"].as_bool() {
+        let reveal_level = match maps_revealed.as_str() {
+            "No" => MapRevealLevel::No,
+            "Partial" => MapRevealLevel::Partial,
+            "Full" => MapRevealLevel::Full,
+            _ => bail!("Unexpected value of 'maps_revealed'"),
+        };
+        let initial_map_reveal_settings = InitialMapRevealSettings {
+            preset: Some(match reveal_level {
+                MapRevealLevel::No => {
+                    if mark_map_stations {
+                        "Maps".to_string()
+                    } else {
+                        "No".to_string()
+                    }
+                }
+                MapRevealLevel::Partial => "Partial".to_string(),
+                MapRevealLevel::Full => "Full".to_string(),
+            }),
+            map_stations: if reveal_level == MapRevealLevel::No {
+                if mark_map_stations {
+                    MapRevealLevel::Full
+                } else {
+                    MapRevealLevel::No
+                }
+            } else {
+                reveal_level
+            },
+            save_stations: reveal_level,
+            refill_stations: reveal_level,
+            ship: reveal_level,
+            objectives: reveal_level,
+            area_transitions: reveal_level,
+            items1: reveal_level,
+            items2: reveal_level,
+            items3: reveal_level,
+            items4: reveal_level,
+            other: reveal_level,
+            all_areas: reveal_level != MapRevealLevel::No,
+        };
+        qol_settings.insert(
+            "initial_map_reveal_settings".to_string(),
+            serde_json::to_value(initial_map_reveal_settings)?,
+        );
+    };
+
+    Ok(())
+}
+
 fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     let etank_refill = settings["other_settings"]["etank_refill"]
         .as_str()
@@ -198,7 +267,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("reserve_backward_transfer") {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
     }
-
+    upgrade_initial_map_reveal_settings(settings)?;
     Ok(())
 }
 

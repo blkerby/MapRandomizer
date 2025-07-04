@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use anyhow::Result;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
@@ -109,8 +111,8 @@ pub enum StartingItemsPreset {
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
     // Map:
+    pub initial_map_reveal_settings: InitialMapRevealSettings,
     pub item_markers: ItemMarkers,
-    pub mark_map_stations: bool,
     pub room_outline_revealed: bool,
     pub opposite_area_revealed: bool,
     // End game:
@@ -140,6 +142,36 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub buffed_drops: bool,
     pub early_save: bool,
+}
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
+pub enum MapRevealLevel {
+    No,
+    Partial,
+    Full,
+}
+
+impl Display for MapRevealLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct InitialMapRevealSettings {
+    pub preset: Option<String>,
+    pub map_stations: MapRevealLevel,
+    pub save_stations: MapRevealLevel,
+    pub refill_stations: MapRevealLevel,
+    pub ship: MapRevealLevel,
+    pub objectives: MapRevealLevel,
+    pub area_transitions: MapRevealLevel,
+    pub items1: MapRevealLevel,
+    pub items2: MapRevealLevel,
+    pub items3: MapRevealLevel,
+    pub items4: MapRevealLevel,
+    pub other: MapRevealLevel,
+    pub all_areas: bool,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
@@ -303,7 +335,6 @@ pub struct OtherSettings {
     pub item_dot_change: ItemDotChange,
     pub transition_letters: bool,
     pub door_locks_size: DoorLocksSize,
-    pub maps_revealed: MapsRevealed,
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub ultra_low_qol: bool,
@@ -419,13 +450,6 @@ pub enum WallJump {
 pub enum ETankRefill {
     Disabled,
     Vanilla,
-    Full,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum MapsRevealed {
-    No,
-    Partial,
     Full,
 }
 

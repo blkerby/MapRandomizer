@@ -1,0 +1,49 @@
+{% let imr = settings.quality_of_life_settings.initial_map_reveal_settings %}
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Map stations:</div>
+    <div class="col-4 col-sm-3">{{ imr.map_stations }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Save stations:</div>
+    <div class="col-4 col-sm-3">{{ imr.save_stations }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Refill stations:</div>
+    <div class="col-4 col-sm-3">{{ imr.refill_stations }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Ship:</div>
+    <div class="col-4 col-sm-3">{{ imr.ship }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Objectives:</div>
+    <div class="col-4 col-sm-3">{{ imr.objectives }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Area transitions:</div>
+    <div class="col-4 col-sm-3">{{ imr.area_transitions }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Items: tier 1 (small dots):</div>
+    <div class="col-4 col-sm-3">{{ imr.items1 }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Items: tier 2 (X's):</div>
+    <div class="col-4 col-sm-3">{{ imr.items2 }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Items: tier 3 (hollow circles):</div>
+    <div class="col-4 col-sm-3">{{ imr.items3 }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Items: tier 4 (large dots):</div>
+    <div class="col-4 col-sm-3">{{ imr.items4 }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Other:</div>
+    <div class="col-4 col-sm-3">{{ imr.other }}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Reveal tiles in unvisited areas:</div>
+    <div class="col-4 col-sm-3">{% if imr.all_areas %}Yes{% else %}No{% endif %}</div>
+</div>

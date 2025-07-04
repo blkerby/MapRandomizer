@@ -40,7 +40,6 @@ struct SeedData {
     escape_enemies_cleared: bool,
     escape_refill: bool,
     escape_movement_items: bool,
-    mark_map_stations: bool,
     transition_letters: bool,
     item_markers: String,
     item_dot_change: String,
@@ -63,7 +62,6 @@ struct SeedData {
     early_save: bool,
     area_assignment: String,
     wall_jump: String,
-    maps_revealed: String,
     vanilla_map: bool,
     ultra_low_qol: bool,
 }
@@ -290,7 +288,6 @@ async fn randomize(
         escape_enemies_cleared: qol_settings.escape_enemies_cleared,
         escape_refill: qol_settings.escape_refill,
         escape_movement_items: qol_settings.escape_movement_items,
-        mark_map_stations: qol_settings.mark_map_stations,
         transition_letters: other_settings.transition_letters,
         item_markers: to_variant_name(&qol_settings.item_markers)
             .unwrap()
@@ -330,9 +327,6 @@ async fn randomize(
             .unwrap()
             .to_string(),
         wall_jump: to_variant_name(&other_settings.wall_jump)
-            .unwrap()
-            .to_string(),
-        maps_revealed: to_variant_name(&other_settings.maps_revealed)
             .unwrap()
             .to_string(),
         vanilla_map: settings.map_layout == "Vanilla",

@@ -1,7 +1,21 @@
 {
     "preset": "Default",
+    "initial_map_reveal_settings": {
+        "preset": "Maps",
+        "map_stations": "Full",
+        "save_stations": "No",
+        "refill_stations": "No",
+        "ship": "No",
+        "objectives": "No",
+        "area_transitions": "No",
+        "items1": "No",
+        "items2": "No",
+        "items3": "No",
+        "items4": "No",
+        "other": "No",
+        "all_areas": false
+    },
     "item_markers": "3-Tiered",
-    "mark_map_stations": true,
     "room_outline_revealed": true,
     "opposite_area_revealed": false,
     "mother_brain_fight": "Short",
