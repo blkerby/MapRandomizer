@@ -1406,7 +1406,6 @@ conv_2bpp:                  ; X = room name ptr
     sta !pixel_row          ; row counter
     
 tile_lp:
-    rep #$30
     phx                     ; tile ptr
     lda !bit_offset
     stz !overflow_bits
@@ -1468,6 +1467,12 @@ tile_lp:
     sta [$4a],y
     inc $4a
 
+    rep #$30
+    tya
+    clc
+    adc #$0010              ; update tile ptr to next tile
+    sta !next_tile_ptr
+
     plx                     ; tile ptr
     inx
     dec !pixel_row
@@ -1478,12 +1483,6 @@ tile_lp:
     lda !letter_width
     adc !bit_offset
     sta !bit_offset
-    
-    rep #$30
-    tya
-    clc
-    adc #$0010              ; update tile ptr to next tile
-    sta !next_tile_ptr
     
     plx                     ; curr letter ptr
     inx
