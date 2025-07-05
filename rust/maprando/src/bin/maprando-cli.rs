@@ -235,6 +235,7 @@ fn main() -> Result<()> {
         etank_color: None,
         reserve_hud_style: true,
         vanilla_screw_attack_animation: true,
+        room_names: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,
         door_theme: maprando::customize::DoorTheme::Vanilla,

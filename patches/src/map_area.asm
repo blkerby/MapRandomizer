@@ -11,8 +11,8 @@ lorom
 !bank_85_freespace_end = $85A880
 !bank_85_freespace2_start = $85AB80
 !bank_85_freespace2_end  = $85AD00
-!etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
-!room_name_option = $82FFFA
+!etank_color = $82FFFE   ; must match address customize.rs
+!room_name_option = $82FFFA  ; must match address in customize.rs
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A7FFE0
 
