@@ -12,6 +12,7 @@ lorom
 !bank_85_freespace2_start = $85AB80
 !bank_85_freespace2_end  = $85AD00
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
+!room_name_option = $82FFFA
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A7FFE0
 
@@ -283,6 +284,8 @@ PauseRoutineIndex:
 
 pause_start_hook_wrapper:
     jsl pause_start_hook
+    lda !room_name_option
+    sta $7ed825
     jsl render_room_name
     rts
 
@@ -650,9 +653,9 @@ switch_map_area:
     jsr next_area
 .update:
     jsr update_pause_map_palette
-	jsl $80858C     ;load explored bits for area
-	lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area (TODO: remove this, should be unnecessary now.)
-    jsl $8293C3		;update area label and construct new area map
+    jsl $80858C     ;load explored bits for area
+    lda $7ED908,x : and #$00FF : sta $0789	;set flag of map station for next area (TODO: remove this, should be unnecessary now.)
+    jsl $8293C3     ;update area label and construct new area map
 
     lda $1F5B
     cmp !backup_area
@@ -1403,6 +1406,7 @@ conv_2bpp:                  ; X = room name ptr
     sta !pixel_row          ; row counter
     
 tile_lp:
+    rep #$30
     phx                     ; tile ptr
     lda !bit_offset
     stz !overflow_bits

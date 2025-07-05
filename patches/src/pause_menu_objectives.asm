@@ -22,7 +22,7 @@ math pri on
 incsrc "constants.asm"
 
 !bank_82_free_space_start = $82FF80
-!bank_82_free_space_end = $82FFFC
+!bank_82_free_space_end = $82FFFA
 
 !bank_85_free_space_start = $859B20
 !bank_85_free_space_end = $859FF0
