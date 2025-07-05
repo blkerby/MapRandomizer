@@ -5,8 +5,12 @@ lorom
 !bank_81_freespace_end = $81F140
 !bank_82_freespace_start = $82F70F
 !bank_82_freespace_end = $82F810
+!bank_82_freespace2_start = $82FC50
+!bank_82_freespace2_end = $82FCD0
 !bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear.asm and fix_kraid_hud.asm
 !bank_85_freespace_end = $85A880
+!bank_85_freespace2_start = $85AB80
+!bank_85_freespace2_end  = $85AD00
 !etank_color = $82FFFE   ; must match addess customize.rs (be careful moving this, will probably break customization on old versions)
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A7FFE0
@@ -24,6 +28,20 @@ incsrc "constants.asm"
 !unexplored_light_gray = #$4631
 !area_explored_mask = $702600
 
+macro queueGfxDMA(src, dstVRAM, size)
+    LDX $0330
+    LDA.w #<size> : STA.b $D0,x
+    INX : INX
+    LDA.W #(<src>&$ffff) : STA.b $D0,x
+    INX : INX
+    SEP #$20
+    LDA.b #(<src>>>16) : STA.b $D0,x
+    REP #$20
+    INX
+    LDA.w #<dstVRAM> : STA.b $D0,x
+    INX : INX
+    STX $0330
+endmacro
 
 ; pause map colors for palettes 2 (explored) and 6 (unexplored):
 ; 
@@ -61,6 +79,10 @@ org $8085C9  ; Mirror current area's map explored
 
 org $8085E6  ; Mirror current area's map explored
     ldx $1F5B
+
+; game state Eh hook (after all BG2/3 writes finished)
+org $8290C8
+    jmp write_room_name_tiles
 
 org $82941B  ; Updates the area and map in the map screen
     lda $1F5B
@@ -256,11 +278,12 @@ vram_transfer_wrapper:
     rtl
 
 PauseRoutineIndex:
-	DW $9120, $9142, $9156, $91AB, $9231, $9186, $91D7, $9200	;same as $9110
-	DW $9156, switch_map_area_wrapper, $9200		;fade out / map construction / fade in
+    DW $9120, $9142, $9156, $91AB, $9231, $9186, $91D7, $9200	;same as $9110
+    DW $9156, switch_map_area_wrapper, $9200		;fade out / map construction / fade in
 
 pause_start_hook_wrapper:
     jsl pause_start_hook
+    jsl render_room_name
     rts
 
 pause_end_hook:
@@ -1283,3 +1306,254 @@ org $90AAFD
 
 warnpc !bank_a7_freespace_end
 
+; game state 0e hook (fade-in to pause)
+org !bank_82_freespace2_start
+write_room_name_tiles:
+    php         ; replaced code
+    rep #$30    ;
+    lda $51
+    and #$00ff
+    cmp #$0080  ; write early in fade-in
+    bne .skip_write
+    lda $7ED825
+    beq .skip_write
+    ldx #$0000
+    lda #$2cc0
+.fill_bg3
+    sta $707a00,x
+    inc
+    inx : inx
+    cpx #$0040
+    bne .fill_bg3
+    %queueGfxDMA($707a00, $5b00, $40)
+    %queueGfxDMA($707a00, $5f00, $40) ; 2nd write for rooms with BG3 shift
+.skip_write
+    jmp $90cb
+
+warnpc !bank_82_freespace2_end
+
+org !bank_85_freespace2_start
+
+!bit_offset = $40
+!overflow_bits = $42
+!pixel_row = $44
+!curr_tile = $45
+!letter_width = $46
+!num_frame_tiles = $48
+; $4a = new tiles sram ptr (24-bit addr)
+!next_tile_ptr = $4d
+; $4d (post-render) = bg2 tiles sram ptr (24-bit addr)
+
+render_room_name:
+    lda $7ED825     ; room name enabled?
+    bne .fill
+    rtl
+
+; clear new tile space
+.fill
+    php
+    ldx #$200
+    lda #$0000
+
+.fill_lp
+    sta $7077fe,x
+    dex : dex
+    bne .fill_lp
+
+; convert 1bpp to 2bpp and render variable-width font
+    ldx $07bb               ; x <- room state pointer
+    lda $8F0010,x
+    tax                     ; x <- extra room data pointer
+    lda $B80009,x           ; a <- [extra room data pointer + 9]
+    tax
+    lda $e30000,x           ; load x start (name centered)
+    and #$00ff
+    sta !bit_offset         ; set bit starting point
+
+    and #$00f8              ; round down to multiple of 8
+    sec
+    sbc #$0010              ; account for corner tile and 1 full space
+    lsr #3
+    sta !num_frame_tiles
+
+    inx                     ; start of room name
+    lda #$0070
+    sta $4c                 ; SRAM bank
+
+conv_2bpp:                  ; X = room name ptr
+    lda $e30000,x           ; load next letter
+    and #$00ff
+    bne .cont
+    jmp done
+
+.cont
+    dec
+    tay
+    phx                     ; save current letter ptr
+    tax
+    lda $e3c300,x           ; load width
+    and #$00ff
+    sta !letter_width
+    tya
+    asl #3                  ; tile ptr = (letter - 1) * 8
+    tax
+    lda #$7800
+    sta $4a                 ; start of output buffer
+    lda #$0008
+    sta !pixel_row          ; row counter
+    
+tile_lp:
+    phx                     ; tile ptr
+    lda !bit_offset
+    stz !overflow_bits
+    ldy #$0000
+
+; bit offset (rounded) / 8 * 16
+    pha
+    and #$00f8              ; clear remainder
+    asl
+    tay
+; bit offset % 8
+    pla
+    and #$0007
+    sta !overflow_bits      ; save remainder
+
+    sep #$20
+    lda $e3c000,x
+    sta !curr_tile
+    beq .done_shifting
+    ldx !overflow_bits
+    beq .done_shifting
+
+.keep_shifting
+    lsr
+    bcc .no_overflow
+; bit(s) overflow to next tile
+; shift << (tile + 0x10)
+    pha
+    phy
+; load orig tile and asl (8 - leftover) bits
+    lda #$08
+    sec
+    sbc !overflow_bits
+    sta !overflow_bits
+    lda !curr_tile
+.asl_lp
+    asl
+    dec !overflow_bits
+    bne .asl_lp 
+    sta !curr_tile          ; save shifted tile
+    rep #$30
+    lda !next_tile_ptr
+    tay
+    iny
+    sep #$20
+    lda [$4a],y
+    ora !curr_tile          ; update adjacent tile with overflow
+    sta [$4a],y
+    ply
+    pla
+.no_overflow
+    dex
+    beq .done_shifting
+    bra .keep_shifting
+    
+.done_shifting
+    inc $4a
+    ora [$4a],y             ; update tile
+    sta [$4a],y
+    inc $4a
+
+    plx                     ; tile ptr
+    inx
+    dec !pixel_row
+    beq .next_letter
+    jmp tile_lp
+
+.next_letter
+    lda !letter_width
+    adc !bit_offset
+    sta !bit_offset
+    
+    rep #$30
+    tya
+    clc
+    adc #$0010              ; update tile ptr to next tile
+    sta !next_tile_ptr
+    
+    plx                     ; curr letter ptr
+    inx
+    jmp conv_2bpp
+
+done:
+    plp
+    lda #$0002              ; set post-rendering state
+    sta $7ed825
+    
+; store rendered tiles, bottom frame (BG2, BG3) in SRAM for map switching, obj/equip screens
+; copy rendered room name to VRAM
+    %queueGfxDMA($707800, $4600, $200)
+
+; clear BG2 bottom frame for name
+; $B030 left/right edge, $B00F blank
+; $707c00 format: vram addr, size, data
+    lda #$0070
+    sta $4f
+    lda #$7c04
+    sta $4d
+
+    lda #$B030
+    sta [$4d]              ; left jagged edge
+    
+    lda !num_frame_tiles   ; 30 boxes total - $48*2
+    asl
+    sta $40
+    lda #$001e
+    sec
+    sbc $40
+    asl
+    tay
+    phy
+    lda #$B00F              ; solid black tile to cover map tiles
+    
+.fill_blank
+    sta [$4d],y
+    dey : dey
+    bne .fill_blank
+    
+    ply
+    iny : iny
+    
+    lda #$B030
+    sta [$4d],y             ; right jagged edge
+    
+    iny
+    tya                     ; final size
+    dec $4d : dec $4d
+    sta [$4d]               ; save for rewrites
+    tay
+
+    lda !num_frame_tiles
+    clc
+    adc #$3b00
+    dec $4d : dec $4d
+    sta [$4d]               ; vram start addr
+    pha
+
+    LDX $0330
+    TYA : STA.b $D0,x       ; size
+    INX : INX
+    LDA.W #$7c04 : STA.b $D0,x ; offset
+    INX : INX
+    SEP #$20
+    LDA.b #$70 : STA.b $D0,x ; bank
+    REP #$20
+    INX
+    PLA
+    STA.b $D0,x             ; vram addr
+    INX : INX
+    STX $0330
+
+    rtl
+    
+warnpc !bank_85_freespace2_end

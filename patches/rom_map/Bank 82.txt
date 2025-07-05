@@ -6,7 +6,7 @@ FA90 - FBB0: seed_hash_display.asm
 FBB0 - FBF0: fix_kraid_hud.asm
 FBF0 - FC30: vanilla_bugfixes.asm
 FC30 - FC50: fix_transition_bad_tiles.asm
-FC50 - FCD0: [FREE]
+FC50 - FCD0: map_area.asm
 FCD0 - FD00: escape.asm
 FD00 - FD80: item_dots_disappear.asm
 FD80 - FE00: fast_doors.asm
