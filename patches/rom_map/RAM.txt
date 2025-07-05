@@ -31,6 +31,7 @@ $7ED823: randomizer-specific event flags:
   $0004: baby kraid room door unlocked
   $0008: plasma room door unlocked
   $0010: metal pirates room door unlocked
+$7ED825: pause menu room name enabled (map_area.asm)
 $7ed86c: bomb_torizo.asm
 $7EF4A0-$7EF4AF: temp storage for special tile (reserve_hud.asm)
 $7EF4B0-$7EF4E0: backup of DMA registers in decompression.asm

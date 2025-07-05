@@ -1060,7 +1060,7 @@ impl Patcher<'_> {
         for room_ptr in &self.game_data.room_ptrs {
             let room_id = self.game_data.raw_room_id_by_ptr[room_ptr];
             let room_json = &self.game_data.room_json_map[&room_id];
-            let room_name = room_json["name"].as_str().unwrap();
+            let room_name = room_json["name"].as_str().unwrap().to_ascii_uppercase();
             let mut name_data: Vec<u8> = vec![];
             let mut total_width = 0;
             for c in room_name.chars() {
