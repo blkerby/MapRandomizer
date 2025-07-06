@@ -28,7 +28,7 @@ incsrc "constants.asm"
 !bank_85_free_space_end = $859FF0
 
 !bank_85_free_space2_start = $85aa00
-!bank_85_free_space2_end = $85ab60
+!bank_85_free_space2_end = $85ab20
 
 !bank_B6_free_space_start = $B6F200
 !bank_B6_free_space_end = $B6F660
@@ -51,10 +51,6 @@ org $8291a1
 ;;; simplify unpausing
 org $82932B
     JSL display_unpause : nop : nop : nop
-
-;;; map switch hook
-org $829435
-    jsl map_switch_hook : nop
 
 ;;; update BG2 buttons
 org $82A62D
@@ -95,7 +91,8 @@ table "tables/pause_menu_objectives_chars.tbl",RTL
 !pause_index = $0727
 
 ;;; fast_pause_menu
-!fast_pause_menu = $82fffc      ; must match address in patch.rs
+!fast_pause_menu = $82fffc      ; must match address in customize.rs
+!room_name_option = $82fffa     ; must match address in customize.rs
 
 ;;; pause index values
 !pause_index_map_screen = #$0000
@@ -482,7 +479,6 @@ check_l_r_pressed:
 
 ;;; unpause
 display_unpause:
-    JSR set_room_name_state
     LDA !pause_screen_mode
     CMP !pause_screen_mode_equip
     BEQ .equip
@@ -741,7 +737,7 @@ func_map2obj_load_obj:
     STA $0723                      ; Screen fade delay = 1
     STA $0725                      ; Screen fade counter = 1
     INC !pause_index               ; Pause index = B (map screen to objective screen - fading in)
-    LDA $7ED825
+    LDA !room_name_option
     BEQ .skip_name
     JSR fill_bottom_frame
 .skip_name
@@ -799,7 +795,7 @@ func_obj2map_fading_out:
     LDY #$3800
     MVN $7E, $70
     
-    LDA $7ED825
+    LDA !room_name_option
     BEQ .end
     JSR restore_room_name
 .end:
@@ -853,7 +849,7 @@ warnpc !bank_85_free_space_end
 ;; routines for bottom frame screen swap / map switching
 org !bank_85_free_space2_start
 call_fill_bottom:
-    lda $7ED825
+    lda !room_name_option
     beq skip_write
     jsr fill_bottom_frame
 skip_write:
@@ -862,7 +858,7 @@ skip_write:
 call_restore_name:
     stz $723    ; replaced code
     stz $725    ;
-    lda $7ED825
+    lda !room_name_option
     beq .skip_write2
     jsr restore_room_name
 .skip_write2
@@ -872,23 +868,9 @@ fill_bottom_frame:
     PHP
     ;; fill in lower frame (BG2)
     REP #$30
-    LDA #$B031
-    LDX #$003C
-    
-.fill_frame
-    STA $707C3E,X
-    DEX : DEX
-    BNE .fill_frame
     %queueGfxDMA($707C40, $3B01, $3C)
-    
-    ;; clear room name (BG3)
-    LDA #$000e
-    LDX #$0200
-    
-.fill_frame2
-    STA $707CFE,X
-    DEX : DEX
-    BNE .fill_frame2
+
+    ;; clear name (BG3)
     %queueGfxDMA($707D00, $5B00, $200)
     %queueGfxDMA($707D00, $5F00, $200) ; 2nd write for rooms with BG3 shift
     PLP
@@ -918,34 +900,6 @@ restore_room_name:
     PLA
     RTS
 
-;; clear/print room name based on current area
-map_switch_hook:
-    lda #$02
-    sta $420b
-    rep #$20
-    lda $7ED825
-    cmp #$0002              ; post-rendered state?
-    bne .leave
-    lda $1f5b               ; current displayed map area
-    cmp $1f62               ; current map area
-    beq .room_name
-    jsr fill_bottom_frame
-.leave
-    rtl
-    
-.room_name
-    jsr restore_room_name
-    rtl
-print PC
-
-set_room_name_state:
-    lda $7ed825
-    beq .no_fix
-    lda #$0001
-    sta $7ed825               ; Reset room name rendered state on unpause
-.no_fix
-    rts
-    
 warnpc !bank_85_free_space2_end
 
 org !bank_B6_free_space_start

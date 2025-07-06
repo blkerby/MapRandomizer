@@ -10,9 +10,9 @@ lorom
 !bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear.asm and fix_kraid_hud.asm
 !bank_85_freespace_end = $85A880
 !bank_85_freespace2_start = $85AB80
-!bank_85_freespace2_end  = $85AD00
+!bank_85_freespace2_end  = $85AD80
 !etank_color = $82FFFE   ; must match address customize.rs
-!room_name_option = $82FFFA  ; must match address in customize.rs
+!room_name_option = $82FFFA   ; must match address customize.rs
 !bank_a7_freespace_start = $A7FFC0
 !bank_a7_freespace_end = $A7FFE0
 
@@ -81,8 +81,7 @@ org $8085C9  ; Mirror current area's map explored
 org $8085E6  ; Mirror current area's map explored
     ldx $1F5B
 
-; game state Eh hook (after all BG2/3 writes finished)
-org $8290C8
+org $8290C8  ; Game state Eh hook (after all BG2/3 writes finished)
     jmp write_room_name_tiles
 
 org $82941B  ; Updates the area and map in the map screen
@@ -284,8 +283,6 @@ PauseRoutineIndex:
 
 pause_start_hook_wrapper:
     jsl pause_start_hook
-    lda !room_name_option
-    sta $7ed825
     jsl render_room_name
     rts
 
@@ -661,11 +658,18 @@ switch_map_area:
     cmp !backup_area
     beq .orig_area
     jsr simple_scroll_setup  ; for map in different area, set scrolls without using samus position
+    lda !room_name_option
+    beq .done
+    %queueGfxDMA($707C40, $3B01, $3C)  ; fill bottom frame
+    %queueGfxDMA($707D00, $5B00, $200) ; clear name
+    %queueGfxDMA($707D00, $5F00, $200)
     bra .done
 .orig_area:
     jsl $829028     ;set map scroll boundaries and screen starting position like vanilla, using samus position
+    lda !room_name_option
+    beq .done
+    jsr write_room_name
 .done:
-
     LDA #$0000             ;\
     STA $0723             ;} Screen fade delay = 0
 
@@ -1318,7 +1322,7 @@ write_room_name_tiles:
     and #$00ff
     cmp #$0080  ; write early in fade-in
     bne .skip_write
-    lda $7ED825
+    lda !room_name_option
     beq .skip_write
     ldx #$0000
     lda #$2cc0
@@ -1348,7 +1352,7 @@ org !bank_85_freespace2_start
 ; $4d (post-render) = bg2 tiles sram ptr (24-bit addr)
 
 render_room_name:
-    lda $7ED825     ; room name enabled?
+    lda !room_name_option     ; room name enabled?
     bne .fill
     rtl
 
@@ -1490,9 +1494,7 @@ tile_lp:
 
 done:
     plp
-    lda #$0002              ; set post-rendering state
-    sta $7ed825
-    
+
 ; store rendered tiles, bottom frame (BG2, BG3) in SRAM for map switching, obj/equip screens
 ; copy rendered room name to VRAM
     %queueGfxDMA($707800, $4600, $200)
@@ -1557,6 +1559,43 @@ done:
     INX : INX
     STX $0330
 
-    rtl
+; fill frame tiles (BG2)
+    LDA #$B031
+    LDX #$003C
     
+.fill_frame
+    STA $707C3E,X
+    DEX : DEX
+    BNE .fill_frame
+    
+; clear name tiles (BG3)
+    LDA #$000e
+    LDX #$0200
+    
+.fill_frame2
+    STA $707CFE,X
+    DEX : DEX
+    BNE .fill_frame2
+    
+    rtl
+
+write_room_name:
+    %queueGfxDMA($707a00, $5b00, $40)
+    %queueGfxDMA($707a00, $5f00, $40)
+
+    LDX $0330
+    LDA $707c02  : STA.b $D0,x ; size
+    INX : INX
+    LDA.W #$7c04 : STA.b $D0,x ; offset
+    INX : INX
+    SEP #$20
+    LDA.b #$70   : STA.b $D0,x ; bank
+    REP #$20
+    INX
+    LDA $707c00  : STA.b $D0,x ; vram addr
+    INX : INX
+    STX $0330
+    
+    rts
+
 warnpc !bank_85_freespace2_end
