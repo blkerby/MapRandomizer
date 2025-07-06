@@ -370,9 +370,9 @@ pub fn customize_rom(
         apply_ips_patch(rom, Path::new("../patches/ips/reserve_hud.ips"))?;
     }
     if settings.room_names {
-        rom.write_u8(snes2pc(0x82FFFA), 1)?;
+        rom.write_u16(snes2pc(0x82FFFA), 1)?;
     } else {
-        rom.write_u8(snes2pc(0x82FFFA), 0)?;
+        rom.write_u16(snes2pc(0x82FFFA), 0)?;
     }
     match settings.music {
         MusicSettings::AreaThemed => {}
