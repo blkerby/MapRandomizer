@@ -797,6 +797,9 @@ func_obj2map_fading_out:
     
     LDA !room_name_option
     BEQ .end
+    lda $1f5b
+    cmp $1f62
+    bne .end
     JSR restore_room_name
 .end:
     RTL
@@ -860,6 +863,9 @@ call_restore_name:
     stz $725    ;
     lda !room_name_option
     beq .skip_write2
+    lda $1f5b
+    cmp $1f62
+    bne .skip_write2
     jsr restore_room_name
 .skip_write2
     bra skip_write
