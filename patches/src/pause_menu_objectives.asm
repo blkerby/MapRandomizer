@@ -22,10 +22,13 @@ math pri on
 incsrc "constants.asm"
 
 !bank_82_free_space_start = $82FF80
-!bank_82_free_space_end = $82FFFC
+!bank_82_free_space_end = $82FFFA
 
 !bank_85_free_space_start = $859B20
 !bank_85_free_space_end = $859FF0
+
+!bank_85_free_space2_start = $85aa00
+!bank_85_free_space2_end = $85ab20
 
 !bank_B6_free_space_start = $B6F200
 !bank_B6_free_space_end = $B6F660
@@ -36,7 +39,15 @@ incsrc "constants.asm"
 ;;; new pause index func list
 org $82910A
     JSR (new_pause_index_func_list,x)
-    
+
+; map => equip screen hook
+org $8291d3
+    jml call_fill_bottom ; fill bottom frame, clear name
+
+; equip => map screen hook
+org $8291a1
+    jml call_restore_name : nop : nop ; clear bottom frame, insert name
+
 ;;; simplify unpausing
 org $82932B
     JSL display_unpause : nop : nop : nop
@@ -80,7 +91,8 @@ table "tables/pause_menu_objectives_chars.tbl",RTL
 !pause_index = $0727
 
 ;;; fast_pause_menu
-!fast_pause_menu = $82fffc      ; must match address in patch.rs
+!fast_pause_menu = $82fffc      ; must match address in customize.rs
+!room_name_option = $82fffa     ; must match address in customize.rs
 
 ;;; pause index values
 !pause_index_map_screen = #$0000
@@ -725,6 +737,10 @@ func_map2obj_load_obj:
     STA $0723                      ; Screen fade delay = 1
     STA $0725                      ; Screen fade counter = 1
     INC !pause_index               ; Pause index = B (map screen to objective screen - fading in)
+    LDA !room_name_option
+    BEQ .skip_name
+    JSR fill_bottom_frame
+.skip_name
     RTL
 
 func_map2obj_fading_in:
@@ -778,7 +794,10 @@ func_obj2map_fading_out:
     LDX #$5000
     LDY #$3800
     MVN $7E, $70
-
+    
+    LDA !room_name_option
+    BEQ .end
+    JSR restore_room_name
 .end:
     RTL
 
@@ -826,6 +845,62 @@ obj_bg1_tilemap:
 
 print "85 end: ", pc
 warnpc !bank_85_free_space_end
+
+;; routines for bottom frame screen swap / map switching
+org !bank_85_free_space2_start
+call_fill_bottom:
+    lda !room_name_option
+    beq skip_write
+    jsr fill_bottom_frame
+skip_write:
+    jml $8291a7  ; inc $727 / rts
+    
+call_restore_name:
+    stz $723    ; replaced code
+    stz $725    ;
+    lda !room_name_option
+    beq .skip_write2
+    jsr restore_room_name
+.skip_write2
+    bra skip_write
+
+fill_bottom_frame:
+    PHP
+    ;; fill in lower frame (BG2)
+    REP #$30
+    %queueGfxDMA($707C40, $3B01, $3C)
+
+    ;; clear name (BG3)
+    %queueGfxDMA($707D00, $5B00, $200)
+    %queueGfxDMA($707D00, $5F00, $200) ; 2nd write for rooms with BG3 shift
+    PLP
+    RTS
+
+restore_room_name:
+    PHA
+    PHX
+    ;; restore room name and remove bottom frame
+    %queueGfxDMA($707a00, $5b00, $40)
+    %queueGfxDMA($707a00, $5f00, $40) ; 2nd write for rooms with BG3 shift
+    
+    LDX $0330
+    LDA $707c02  : STA.b $D0,x ; size
+    INX : INX
+    LDA.W #$7c04 : STA.b $D0,x ; offset
+    INX : INX
+    SEP #$20
+    LDA.b #$70   : STA.b $D0,x ; bank
+    REP #$20
+    INX
+    LDA $707c00  : STA.b $D0,x ; vram addr
+    INX : INX
+    STX $0330
+    
+    PLX
+    PLA
+    RTS
+
+warnpc !bank_85_free_space2_end
 
 org !bank_B6_free_space_start
 obj_txt_ptrs:

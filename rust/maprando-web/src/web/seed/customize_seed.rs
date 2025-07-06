@@ -36,6 +36,7 @@ struct CustomizeRequest {
     shaking: Text<String>,
     flashing: Text<String>,
     vanilla_screw_attack_animation: Text<bool>,
+    room_names: Text<bool>,
     control_shot: Text<String>,
     control_jump: Text<String>,
     control_dash: Text<String>,
@@ -152,6 +153,7 @@ async fn customize_seed(
         )),
         reserve_hud_style: req.reserve_hud_style.0,
         vanilla_screw_attack_animation: req.vanilla_screw_attack_animation.0,
+        room_names: req.room_names.0,
         palette_theme: if req.room_palettes.0 == "area-themed" {
             PaletteTheme::AreaThemed
         } else {

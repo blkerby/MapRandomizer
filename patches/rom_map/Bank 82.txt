@@ -6,7 +6,7 @@ FA90 - FBB0: seed_hash_display.asm
 FBB0 - FBF0: fix_kraid_hud.asm
 FBF0 - FC30: vanilla_bugfixes.asm
 FC30 - FC50: fix_transition_bad_tiles.asm
-FC50 - FCD0: [FREE]
+FC50 - FCD0: map_area.asm
 FCD0 - FD00: escape.asm
 FD00 - FD80: item_dots_disappear.asm
 FD80 - FE00: fast_doors.asm
@@ -16,6 +16,7 @@ FE80 - FF00: zebes_asleep_music.asm
 FF00 - FF20: reserve_hud.asm
 FF20 - FF30: [FREE]
 FF30 - FF80: reserve_hud.asm
-FF80 - FFFC: pause_menu_objectives.asm
+FF80 - FFFA: pause_menu_objectives.asm
+FFFA - FFFC: room name/map_area
 FFFC - FFFE: objectives/fast_pause_menu
 FFFE - end: custom etank color
