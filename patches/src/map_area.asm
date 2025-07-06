@@ -1506,7 +1506,7 @@ done:
     lda #$7c04
     sta $4d
 
-    lda #$B030
+    lda #$F030
     sta [$4d]              ; left jagged edge
     
     lda !num_frame_tiles   ; 30 boxes total - $48*2
