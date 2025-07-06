@@ -1352,10 +1352,6 @@ org !bank_85_freespace2_start
 ; $4d (post-render) = bg2 tiles sram ptr (24-bit addr)
 
 render_room_name:
-    lda !room_name_option     ; room name enabled?
-    bne .fill
-    rtl
-
 ; clear new tile space
 .fill
     php
