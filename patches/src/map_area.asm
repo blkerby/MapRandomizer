@@ -1493,11 +1493,14 @@ done:
 
 ; store rendered tiles, bottom frame (BG2, BG3) in SRAM for map switching, obj/equip screens
 ; copy rendered room name to VRAM
+    lda !room_name_option
+    beq .skip_write
     %queueGfxDMA($707800, $4600, $200)
 
 ; clear BG2 bottom frame for name
 ; $B030 left/right edge, $B00F blank
 ; $707c00 format: vram addr, size, data
+.skip_write
     lda #$0070
     sta $4f
     lda #$7c04
@@ -1539,8 +1542,12 @@ done:
     adc #$3b00
     dec $4d : dec $4d
     sta [$4d]               ; vram start addr
-    pha
-
+    tax
+    
+    lda !room_name_option
+    beq .skip_write2
+    TXA
+    PHA
     LDX $0330
     TYA : STA.b $D0,x       ; size
     INX : INX
@@ -1548,7 +1555,7 @@ done:
     INX : INX
     SEP #$20
     LDA.b #$70 : STA.b $D0,x ; bank
-    REP #$20
+    REP #$30
     INX
     PLA
     STA.b $D0,x             ; vram addr
@@ -1556,6 +1563,7 @@ done:
     STX $0330
 
 ; fill frame tiles (BG2)
+.skip_write2
     LDA #$B031
     LDX #$003C
     
