@@ -437,18 +437,18 @@ async function prepareSubmit(form) {
 }
 
 function applyInitialMapRevealSettings(imrSettings) {
-    applyRadioValue("initialMapRevealMaps", preset.map_stations);
-    applyRadioValue("initialMapRevealSaves", preset.save_stations);
-    applyRadioValue("initialMapRevealRefills", preset.refill_stations);
-    applyRadioValue("initialMapRevealShip", preset.ship);
-    applyRadioValue("initialMapRevealObjectives", preset.objectives);
-    applyRadioValue("initialMapRevealAreaTransitions", preset.area_transitions);
-    applyRadioValue("initialMapRevealItems1", preset.items1);
-    applyRadioValue("initialMapRevealItems2", preset.items2);
-    applyRadioValue("initialMapRevealItems3", preset.items3);
-    applyRadioValue("initialMapRevealItems4", preset.items4);
-    applyRadioValue("initialMapRevealOther", preset.other);
-    applyRadioValue("initialMapRevealAllAreas", preset.all_areas);
+    applyRadioValue("initialMapRevealMaps", imrSettings.map_stations);
+    applyRadioValue("initialMapRevealSaves", imrSettings.save_stations);
+    applyRadioValue("initialMapRevealRefills", imrSettings.refill_stations);
+    applyRadioValue("initialMapRevealShip", imrSettings.ship);
+    applyRadioValue("initialMapRevealObjectives", imrSettings.objectives);
+    applyRadioValue("initialMapRevealAreaTransitions", imrSettings.area_transitions);
+    applyRadioValue("initialMapRevealItems1", imrSettings.items1);
+    applyRadioValue("initialMapRevealItems2", imrSettings.items2);
+    applyRadioValue("initialMapRevealItems3", imrSettings.items3);
+    applyRadioValue("initialMapRevealItems4", imrSettings.items4);
+    applyRadioValue("initialMapRevealOther", imrSettings.other);
+    applyRadioValue("initialMapRevealAllAreas", imrSettings.all_areas);
     applyRadioValue("initialMapRevealPreset", imrSettings.preset);
     processInitialMapRevealPreset();
 }
