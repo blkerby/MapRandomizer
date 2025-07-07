@@ -1886,10 +1886,7 @@ pub fn apply_requirement(
                 Some(local)
             }
         }
-        Requirement::ResetRoom {
-            room_id: _,
-            node_id: _,
-        } => {
+        &Requirement::ResetRoom { room_id, node_id } => {
             // TODO: add more requirements here
             let mut new_local = local;
             if new_local.cycle_frames > 0 {
@@ -1897,7 +1894,19 @@ pub fn apply_requirement(
                 // The actual time can vary based on room load time and whether fast doors are enabled.
                 new_local.cycle_frames += 400;
             }
-            Some(local)
+            let reset_req = &game_data.node_reset_room_requirement[&(room_id, node_id)];
+            new_local = apply_requirement(
+                reset_req,
+                global,
+                new_local,
+                reverse,
+                settings,
+                difficulty,
+                game_data,
+                locked_door_data,
+                objectives,
+            )?;
+            Some(new_local)
         }
         Requirement::EscapeMorphLocation => {
             if settings.map_layout == "Vanilla" {

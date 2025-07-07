@@ -1455,7 +1455,9 @@ pub struct GameData {
     pub node_door_unlock: HashMap<(RoomId, NodeId), Vec<VertexId>>,
     pub node_entrance_conditions: HashMap<(RoomId, NodeId), Vec<(VertexId, EntranceCondition)>>,
     pub node_exit_conditions: HashMap<(RoomId, NodeId), Vec<(VertexId, ExitCondition)>>,
+    pub node_maybe_exits: HashMap<(RoomId, NodeId), Vec<VertexId>>,
     pub node_gmode_regain_mobility: HashMap<(RoomId, NodeId), Vec<(Link, GModeRegainMobility)>>,
+    pub node_reset_room_requirement: HashMap<(RoomId, NodeId), Requirement>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
     pub door_ptr_pair_map: HashMap<DoorPtrPair, (RoomId, NodeId)>,
     pub reverse_door_ptr_pair_map: HashMap<(RoomId, NodeId), DoorPtrPair>,
@@ -4720,7 +4722,11 @@ impl GameData {
             for action in &vertex_key.actions {
                 match action {
                     VertexAction::Nothing => panic!("Unexpected VertexAction::Nothing"),
-                    VertexAction::MaybeExit(_, _) => {}
+                    VertexAction::MaybeExit(_, _) => self
+                        .node_maybe_exits
+                        .entry((vertex_key.room_id, vertex_key.node_id))
+                        .or_default()
+                        .push(vertex_id),
                     VertexAction::Exit(exit_condition) => self
                         .node_exit_conditions
                         .entry((vertex_key.room_id, vertex_key.node_id))
@@ -4948,6 +4954,125 @@ impl GameData {
     fn make_links_data(&mut self) {
         self.base_links_data =
             LinksDataGroup::new(self.links.clone(), self.vertex_isv.keys.len(), 0);
+    }
+
+    fn process_reset_room_req(req: &Requirement, free_unlock_id: (RoomId, NodeId)) -> Requirement {
+        match req {
+            &Requirement::DoorUnlocked { room_id, node_id }
+                if (room_id, node_id) == free_unlock_id =>
+            {
+                Requirement::Free
+            }
+            &Requirement::UnlockDoor {
+                room_id, node_id, ..
+            } if (room_id, node_id) == free_unlock_id => Requirement::Free,
+            Requirement::ReserveTrigger { .. } => Requirement::Never,
+            Requirement::RegularEnergyDrain(_) => Requirement::Never,
+            Requirement::ResetRoom { .. } => Requirement::Never,
+            Requirement::And(and_reqs) => Requirement::make_and(
+                and_reqs
+                    .iter()
+                    .map(|r| Self::process_reset_room_req(r, free_unlock_id))
+                    .collect(),
+            ),
+            Requirement::Or(or_reqs) => Requirement::make_or(
+                or_reqs
+                    .iter()
+                    .map(|r| Self::process_reset_room_req(r, free_unlock_id))
+                    .collect(),
+            ),
+            _ => req.clone(),
+        }
+    }
+
+    fn make_reset_room_requirements(&mut self) {
+        let mut nodes: Vec<(RoomId, NodeId)> =
+            self.node_entrance_conditions.keys().copied().collect();
+        nodes.sort();
+        for (room_id, node_id) in nodes {
+            let heated = self
+                .get_room_heated(&self.room_json_map[&room_id], node_id)
+                .unwrap_or(true);
+            let entrances = &self.node_entrance_conditions[&(room_id, node_id)];
+            let mut entrance_vertex_ids: HashSet<VertexId> = HashSet::new();
+            for (v, e) in entrances {
+                if let MainEntranceCondition::ComeInNormally {} = e.main {
+                    entrance_vertex_ids.insert(*v);
+                }
+            }
+
+            let exits = &self
+                .node_exit_conditions
+                .get(&(room_id, node_id))
+                .cloned()
+                .unwrap_or_default();
+            let mut exit_vertex_ids: HashSet<VertexId> = HashSet::new();
+            for (v, e) in exits {
+                if let ExitCondition::LeaveNormally {} = e {
+                    exit_vertex_ids.insert(*v);
+                }
+            }
+
+            let maybe_exits = &self
+                .node_maybe_exits
+                .get(&(room_id, node_id))
+                .cloned()
+                .unwrap_or_default();
+            for v in maybe_exits {
+                exit_vertex_ids.insert(*v);
+            }
+
+            let mut req_or: Vec<Requirement> = vec![];
+            let mut entrance_reqs_map: HashMap<VertexId, Vec<Requirement>> = HashMap::new();
+            for &entrance_id in &entrance_vertex_ids {
+                for (_, link) in &self.base_links_data.links_by_src[entrance_id] {
+                    if exit_vertex_ids.contains(&link.to_vertex_id) {
+                        // Handle links that directly connect a comeInNormally vertex to a leaveNormally vertex:
+                        // This is for the case where comeInNormally+leaveNormally is in the same strat.
+                        // Here we assume that any heat frame requirements are included explicitly in the strat.
+                        req_or.push(link.requirement.clone());
+                    } else {
+                        // Handle links from a comeInNormally vertex to an intermediate vertex
+                        entrance_reqs_map
+                            .entry(link.to_vertex_id)
+                            .or_default()
+                            .push(link.requirement.clone());
+                    }
+                }
+            }
+
+            let mut exit_reqs_map: HashMap<VertexId, Vec<Requirement>> = HashMap::new();
+            for &exit_id in &exit_vertex_ids {
+                for (_, link) in &self.base_links_data.links_by_dst[exit_id] {
+                    // Note: links in `links_by_dst` have their `from_vertex_id`` and `to_vertex_id`` swapped.
+                    exit_reqs_map
+                        .entry(link.to_vertex_id)
+                        .or_default()
+                        .push(link.requirement.clone());
+                }
+            }
+
+            for &v in entrance_reqs_map.keys() {
+                if !exit_reqs_map.contains_key(&v) {
+                    continue;
+                }
+                let entrance_or = Requirement::make_or(entrance_reqs_map[&v].clone());
+                let exit_or = Requirement::make_or(exit_reqs_map[&v].clone());
+                let mut req_and = vec![entrance_or, exit_or];
+                let vertex_key = &self.vertex_isv.keys[v];
+                if heated && vertex_key.node_id == node_id {
+                    // If the comeInNormally and leaveNormally strats are at the door node,
+                    // assume an implicit requirement of 40 heat frames to open the door:
+                    req_and.push(Requirement::HeatFrames(40));
+                }
+                req_or.push(Requirement::make_and(req_and));
+            }
+
+            let reset_room_req =
+                Self::process_reset_room_req(&Requirement::make_or(req_or), (room_id, node_id));
+            self.node_reset_room_requirement
+                .insert((room_id, node_id), reset_room_req);
+        }
     }
 
     pub fn load_title_screens(&mut self, path: &Path) -> Result<()> {
@@ -5358,6 +5483,7 @@ impl GameData {
         game_data.make_links_data();
         game_data.load_connections()?;
         game_data.populate_target_locations()?;
+        game_data.make_reset_room_requirements();
         game_data.extract_all_tech_dependencies()?;
         game_data.extract_all_strat_dependencies()?;
 
