@@ -7,8 +7,8 @@ import io
 import os
 
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.6.7.1-tinystates-ntsc.sfc'
-output_rom_path = '/home/kerby/Downloads/prachack-2.6.7.1-rngfix.smc'
+input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.7.0-bsnes-ntsc.sfc'
+output_rom_path = '/home/kerby/Downloads/prachack-2.7.0.smc'
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 

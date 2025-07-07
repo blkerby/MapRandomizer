@@ -1159,7 +1159,7 @@ impl Patcher<'_> {
         for &room_ptr in &self.game_data.room_ptrs {
             self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles =
                 (next_addr & 0xFFFF) as u16;
-            if map_patcher.room_map_gfx[&room_ptr].len() > 80 {
+            if map_patcher.room_map_gfx[&room_ptr].len() > 96 {
                 bail!("Too many map tiles in room {:x}", room_ptr);
             }
             for &x in &map_patcher.room_map_gfx[&room_ptr] {
