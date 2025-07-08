@@ -5,56 +5,77 @@
         "node_id": 5
     },
     {
-        "name": "Pre-Map Flyway (1 Reo, 3 Mellows)",
+        "name": "Crateria Power Bomb Room",
+        "room_id": 28,
+        "node_id": 1,
+        "requires": ["canDodgeWhileShooting"]
+    },
+    {
+        "name": "Flyway",
+        "room_id": 13,
+        "node_id": 1
+    },
+    {
+        "name": "Pre-Map Flyway",
         "room_id": 14,
-        "node_id": 1,
-        "note": ["The Reo drops Supers and Power Bombs at a 4% rate each."]
+        "node_id": 1
     },
     {
-        "name": "Gauntlet Energy Tank Room (Zebbo Farm)",
+        "name": "Gauntlet Energy Tank Room",
         "room_id": 31,
-        "node_id": 1,
-        "note": ["The Zebbos drop Power Bombs at a 2% rate."]
+        "node_id": 1
     },
     {
-        "name": "Lower Mushrooms (2 Kagos)",
+        "name": "Lower Mushrooms",
         "room_id": 22,
         "node_id": 1
     },
     {
-        "name": "Terminator Room (3 Wavers, 6 Geemers)",
+        "name": "Terminator Room",
         "room_id": 20,
-        "node_id": 2,
-        "note": ["The Wavers drop Power Bombs at a 4% rate."]
+        "node_id": 2
     },
     {
-        "name": "Bowling Alley Path (3 Wavers, 3 Choots)",
-        "room_id": 33,
-        "node_id": 1,
-        "note": ["The Wavers and Choots drop Power Bombs at a 4% rate."]
+        "name": "Crab Maze Right",
+        "room_id": 36,
+        "node_id": 1
     },
     {
-        "name": "Crateria Kihunter Room (2 Kihunters, 2 Scisers)",
+        "name": "Crab Maze Left",
+        "room_id": 36,
+        "node_id": 2
+    },
+    {
+        "name": "Crateria Kihunter Room",
         "room_id": 24,
-        "node_id": 1,
-        "note": ["The Kihunters drop Supers at a 4% rate."]
+        "node_id": 1
     },
     {
-        "name": "East Ocean (2 Choots)",
+        "name": "East Ocean",
         "room_id": 34,
         "node_id": 1,
-        "requires": ["canCarefulJump"],
-        "note": ["The Choots drop Power Bombs at a 4% rate."]
+        "requires": ["canCarefulJump"]
     },
     {
-        "name": "Forgotten Highway Kago Room (2 Kagos)",
+        "name": "Forgotten Highway Kago Room",
         "room_id": 35,
         "node_id": 2
+    },
+    {
+        "name": "Pancakes and Wavers Room",
+        "room_id": 33,
+        "node_id": 1
     },
     {
         "name": "West Ocean (Zeb Farm)",
         "room_id": 32,
         "node_id": 6
+    },
+    {
+        "name": "West Ocean (Skulteras)",
+        "room_id": 32,
+        "node_id": 13,
+        "requires": ["canBePatient"]
     },
     {
         "name": "Brinstar Pre-Map Room (1 Small Sidehopper, 2 Zeelas)",
@@ -64,22 +85,31 @@
         "note": ["The Small Sidehopper drops Power Bombs at a 2% rate."]
     },
     {
-        "name": "Early Supers Room Left (Zeb Farm)",
+        "name": "Early Supers Room Left",
         "room_id": 45,
         "node_id": 1
     },
     {
-        "name": "Early Supers Room Right (4 Wavers, 3 Small Sidehoppers)",
+        "name": "Early Supers Room Right",
         "room_id": 45,
         "node_id": 2,
-        "note": ["The Wavers drop Power Bombs at a 4% rate."]
+        "requires": [{"or": ["canCrouchJump", "canWalljump"]}]
     },
     {
         "name": "Etecoon Energy Tank Room (Zebbo Farm)",
         "room_id": 51,
         "node_id": 7,
-        "requires": ["canTrickyJump"],
-        "note": ["The Zebbos drop Power Bombs at a 2% rate."]
+        "requires": ["canTrickyDodgeEnemies"]
+    },
+    {
+        "name": "Green Brinstar Fireflea Room",
+        "room_id": 49,
+        "node_id": 1
+    },
+    {
+        "name": "Green Brinstar Main Shaft",
+        "room_id": 44,
+        "node_id": 12
     },
     {
         "name": "Green Hill Zone Left (Geega Farm)",
@@ -92,10 +122,14 @@
         "node_id": 3
     },
     {
+        "name": "Noob Bridge",
+        "room_id": 55,
+        "node_id": 1
+    },
+    {
         "name": "Spore Spawn Kihunter Room (3 Kihunters)",
         "room_id": 56,
-        "node_id": 1,
-        "note": ["The Kihunters drop Supers and Power Bombs at a 4% rate."]
+        "node_id": 1
     },
     {
         "name": "Big Pink (Zeb Farm)",
@@ -103,10 +137,21 @@
         "node_id": 13
     },
     {
+        "name": "Dachora Energy Refill",
+        "room_id": 317,
+        "node_id": 1
+    },
+    {
         "name": "Dachora Room Top Left (3 Reos, 2 Zeelas)",
         "room_id": 58,
         "node_id": 1,
         "note": ["The Reo drops Power Bombs at a 4% rate each."]
+    },
+    {
+        "name": "Mission Impossible Room",
+        "room_id": 60,
+        "node_id": 1,
+        "requires": ["canBeVeryPatient"]
     },
     {
         "name": "Spore Spawn Farming Room (Zeb Farm)",
@@ -119,12 +164,14 @@
         "node_id": 1
     },
     {
-        "name": "Bat Room (2 Skrees)",
-        "room_id": 69,
-        "node_id": 2,
-        "requires": ["never"],
-        "note": ["The Skrees drop Supers and Power Bombs at a 2% rate each, low energy at a 8% rate, big energy at a 1.2% rate."],
-        "devNote": ["Keeping this disabled as the low energy drop rate is insufficient if the neighboring rooms are heated."]
+        "name": "Waterway Energy Tank Room",
+        "room_id": 65,
+        "node_id": 1
+    },
+    {
+        "name": "Below Spazer",
+        "room_id": 70,
+        "node_id": 2
     },
     {
         "name": "Hellway (Zebbo Farm)",
@@ -142,6 +189,12 @@
         "name": "Red Tower (Geega Farm)",
         "room_id": 66,
         "node_id": 1
+    },
+    {
+        "name": "Skree Boost Room",
+        "room_id": 69,
+        "node_id": 2,
+        "requires": ["canBePatient"]
     },
     {
         "name": "Kraid Eye Door Room (Zeb Farm)",

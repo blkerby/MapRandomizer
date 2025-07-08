@@ -78,7 +78,7 @@ fn run_scenario(
         doors_unlocked: vec![],
         weapon_mask,
     };
-    let local_state = LocalState::default();
+    let local_state = LocalState::full();
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),

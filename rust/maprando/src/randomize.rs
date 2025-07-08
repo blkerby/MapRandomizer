@@ -3162,7 +3162,7 @@ impl<'r> Randomizer<'r> {
             &self.seed_links_data,
             None,
             &state.global_state,
-            LocalState::default(),
+            LocalState::empty(&state.global_state),
             num_vertices,
             start_vertex_id,
             false,
@@ -3177,7 +3177,7 @@ impl<'r> Randomizer<'r> {
             &self.seed_links_data,
             None,
             &state.global_state,
-            LocalState::default(),
+            LocalState::full(),
             num_vertices,
             start_vertex_id,
             true,
@@ -3544,7 +3544,7 @@ impl<'r> Randomizer<'r> {
                 &self.seed_links_data,
                 self.get_init_traverse(state, init_traverse),
                 &state.global_state,
-                LocalState::default(),
+                LocalState::full(),
                 num_vertices,
                 start_vertex_id,
                 false,
@@ -4557,7 +4557,7 @@ impl<'r> Randomizer<'r> {
             let local = apply_requirement(
                 start_loc.requires_parsed.as_ref().unwrap(),
                 &global,
-                LocalState::default(),
+                LocalState::full(),
                 false,
                 self.settings,
                 &self.difficulty_tiers[0],
@@ -4588,7 +4588,7 @@ impl<'r> Randomizer<'r> {
                 &self.seed_links_data,
                 None,
                 &global,
-                LocalState::default(),
+                LocalState::full(),
                 num_vertices,
                 start_vertex_id,
                 false,
@@ -4603,7 +4603,7 @@ impl<'r> Randomizer<'r> {
                 &self.seed_links_data,
                 None,
                 &global,
-                LocalState::default(),
+                LocalState::full(),
                 num_vertices,
                 start_vertex_id,
                 true,
@@ -4645,7 +4645,7 @@ impl<'r> Randomizer<'r> {
                     let local = apply_requirement(
                         hub.requires_parsed.as_ref().unwrap(),
                         &global,
-                        LocalState::default(),
+                        LocalState::full(),
                         false,
                         self.settings,
                         &self.difficulty_tiers[0],
@@ -4661,14 +4661,14 @@ impl<'r> Randomizer<'r> {
 
                         let hub_obtain_route = self.get_spoiler_route(
                             &global,
-                            LocalState::default(),
+                            LocalState::full(),
                             &hub_obtain_link_idxs,
                             &self.difficulty_tiers[0],
                             false,
                         );
                         let hub_return_route = self.get_spoiler_route(
                             &global,
-                            LocalState::default(),
+                            LocalState::full(),
                             &hub_return_link_idxs,
                             &self.difficulty_tiers[0],
                             true,
@@ -5380,22 +5380,6 @@ impl Randomizer<'_> {
                 route[i + 1].power_bombs_used = None;
             }
         }
-        if route[0].energy_used == Some(0) {
-            route[0].energy_used = None;
-        }
-        if route[0].reserves_used == Some(0) {
-            route[0].reserves_used = None;
-        }
-        if route[0].missiles_used == Some(0) {
-            route[0].missiles_used = None;
-        }
-        if route[0].supers_used == Some(0) {
-            route[0].supers_used = None;
-        }
-        if route[0].power_bombs_used == Some(0) {
-            route[0].power_bombs_used = None;
-        }
-
         route
     }
 
@@ -5415,14 +5399,14 @@ impl Randomizer<'_> {
             get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
         let obtain_route = self.get_spoiler_route(
             global_state,
-            LocalState::default(),
+            LocalState::empty(global_state),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,
         );
         let return_route = self.get_spoiler_route(
             global_state,
-            LocalState::default(),
+            LocalState::full(),
             &reverse_link_idxs,
             &self.difficulty_tiers[0],
             true,
@@ -5442,7 +5426,7 @@ impl Randomizer<'_> {
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         self.get_spoiler_route(
             global_state,
-            LocalState::default(),
+            LocalState::full(),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,

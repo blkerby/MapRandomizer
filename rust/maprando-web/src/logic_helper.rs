@@ -931,7 +931,7 @@ fn get_strat_difficulty(
 
         let local = LocalState {
             shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
-            ..LocalState::default()
+            ..LocalState::full()
         };
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());

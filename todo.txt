@@ -1,4 +1,5 @@
 v119:
+- require hub room to have a door with a free reset (satisfiable with 1 energy, no other resources)
 - Allow more options to be overridden on the customization step:
   - examples: Item dots after collection, Area transition markers on map, Door locks size on map
   - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
@@ -14,7 +15,7 @@ v119:
   - Currently starting hubs are restricted to rooms where you can farm all types of resources (energy, Missiles, Supers, PBs).
   - But it may be slow, and this can sometimes result in an unreasonable expectations of managing/farming PBs in the early game.
   - Instead, what we should do is 1) relax the constraint on starting hubs to require them to only be an energy farm, and 2) not consider starting ammo (Missiles, Supers, PBs) to be available except to the extent that a regular logical farm makes them available.
-- Make `resetRoom` account for the ~10 heat damage required to reset with a heated room (important for strats with `farmCycleDrops`).
+- DONE: Make `resetRoom` account for the ~10 heat damage required to reset with a heated room (important for strats with `farmCycleDrops`).
 - Support maps with incomplete room sets.
 - Logic work (sm-json-data):
   - Finish adding cross-room temp blue strats and remote runway setups/applications in Norfair

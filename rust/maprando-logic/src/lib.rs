@@ -80,7 +80,7 @@ impl GlobalState {
     }
 }
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize, Default)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct LocalState {
     pub energy_used: Capacity,
     pub reserves_used: Capacity,
@@ -94,4 +94,40 @@ pub struct LocalState {
     pub farm_baseline_missiles_used: Capacity,
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
+}
+
+impl LocalState {
+    pub fn empty(global: &GlobalState) -> Self {
+        LocalState {
+            energy_used: global.inventory.max_energy - 1,
+            reserves_used: global.inventory.max_reserves,
+            missiles_used: global.inventory.max_missiles,
+            supers_used: global.inventory.max_supers,
+            power_bombs_used: global.inventory.max_power_bombs,
+            shinecharge_frames_remaining: 0,
+            cycle_frames: 0,
+            farm_baseline_energy_used: 0,
+            farm_baseline_reserves_used: 0,
+            farm_baseline_missiles_used: global.inventory.max_missiles,
+            farm_baseline_supers_used: global.inventory.max_supers,
+            farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
+        }
+    }
+
+    pub fn full() -> Self {
+        LocalState {
+            energy_used: 0,
+            reserves_used: 0,
+            missiles_used: 0,
+            supers_used: 0,
+            power_bombs_used: 0,
+            shinecharge_frames_remaining: 0,
+            cycle_frames: 0,
+            farm_baseline_energy_used: 0,
+            farm_baseline_reserves_used: 0,
+            farm_baseline_missiles_used: 0,
+            farm_baseline_supers_used: 0,
+            farm_baseline_power_bombs_used: 0,
+        }
+    }
 }

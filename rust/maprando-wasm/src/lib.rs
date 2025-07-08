@@ -1,5 +1,5 @@
 use maprando_game::RidleyStuck;
-use maprando_logic::{boss_requirements::*, Inventory};
+use maprando_logic::{boss_requirements::*, Inventory, LocalState};
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;
@@ -24,7 +24,7 @@ pub fn can_defeat_phantoon(
     can_manage_reserves: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_default();
+    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
     match apply_phantoon_requirement(&inventory, local, proficiency, can_manage_reserves) {
         Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
@@ -41,7 +41,7 @@ pub fn can_defeat_draygon(
     can_be_very_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_default();
+    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
     match apply_draygon_requirement(
         &inventory,
@@ -66,7 +66,7 @@ pub fn can_defeat_ridley(
     can_be_extremely_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_default();
+    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
     match apply_ridley_requirement(
         &inventory,
@@ -94,7 +94,7 @@ pub fn can_defeat_botwoon(
     can_manage_reserves: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_default();
+    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
     match apply_botwoon_requirement(
         &inventory,
@@ -119,7 +119,7 @@ pub fn can_defeat_mother_brain_2(
     r_mode: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_default();
+    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
     match apply_mother_brain_2_requirement(
         &inventory,
