@@ -20746,6 +20746,14 @@
   {
     "room_id": 149,
     "strat_id": 6,
+    "video_id": 2374,
+    "created_user": "Sam",
+    "note": "Tricky Spring Ball jump (more difficult alternative)",
+    "dev_note": "\n\nFIXME: add this strat to logic"
+  },
+  {
+    "room_id": 149,
+    "strat_id": 6,
     "video_id": 4324,
     "created_user": "Sam",
     "note": "",
@@ -35914,10 +35922,10 @@
   {
     "room_id": 196,
     "strat_id": 17,
-    "video_id": 2328,
-    "created_user": "Sam",
+    "video_id": 6984,
+    "created_user": "maddo",
     "note": "",
-    "dev_note": "Caveat: this leaves with a shinespark, while the logic expects leaving with a shinecharge"
+    "dev_note": ""
   },
   {
     "room_id": 196,
