@@ -591,13 +591,9 @@ pub struct StartLocation {
 
 #[derive(Deserialize, Debug, Clone, Default)]
 pub struct HubLocation {
-    pub name: String,
     pub room_id: usize,
     pub node_id: usize,
-    pub requires: Option<Vec<serde_json::Value>>,
-    pub note: Option<Vec<String>>,
-    #[serde(skip_deserializing)]
-    pub requires_parsed: Option<Requirement>,
+    pub vertex_id: usize,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
@@ -1490,7 +1486,7 @@ pub struct GameData {
     pub escape_timings: Vec<EscapeTimingRoom>,
     pub start_locations: Vec<StartLocation>,
     pub start_location_id_map: HashMap<(RoomId, NodeId), StartLocationId>,
-    pub hub_locations: Vec<HubLocation>,
+    pub hub_farms: Vec<(VertexId, Requirement)>,
     pub heat_run_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
     pub speed_ball_tech_idx: TechIdx, // Cached since it is used frequently in graph traversal, and to avoid needing to store it in every HeatFrames req.
     pub wall_jump_tech_idx: TechIdx,
@@ -4856,35 +4852,39 @@ impl GameData {
         Ok(())
     }
 
-    fn load_hub_locations(&mut self, path: &Path) -> Result<()> {
-        let hub_locations_str = std::fs::read_to_string(path)
-            .with_context(|| format!("Unable to load hub locations at {}", path.display()))?;
-        let mut hub_locations: Vec<HubLocation> = serde_json::from_str(&hub_locations_str)?;
-        for loc in &mut hub_locations {
-            if loc.requires.is_none() {
-                loc.requires_parsed = Some(Requirement::Free);
-            } else {
-                let mut req_json_list: Vec<JsonValue> = vec![];
-                for req in loc.requires.as_ref().unwrap() {
-                    let req_str = req.to_string();
-                    let req_json = json::parse(&req_str)
-                        .with_context(|| format!("Error parsing requires in {loc:?}"))?;
-                    req_json_list.push(req_json);
-                }
-                let ctx = RequirementContext::default();
-                let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
-                loc.requires_parsed = Some(Requirement::make_and(req_list));
+    fn has_energy_fill(req: &Requirement) -> bool {
+        match req {
+            Requirement::Farm { .. } => true,
+            Requirement::EnergyRefill(_) => true,
+            Requirement::RegularEnergyRefill(_) => true,
+            Requirement::EnergyStationRefill => true,
+            Requirement::And(requirements) => requirements.iter().any(Self::has_energy_fill),
+            Requirement::Or(requirements) => requirements.iter().any(Self::has_energy_fill),
+            _ => false,
+        }
+    }
+
+    fn load_hub_locations(&mut self) -> Result<()> {
+        // Hub locations used to be hand-curated to be reasonable initial farms.
+        // Now we determine them automatically, based on whether energy can be farmed
+        // at a node. The aim is for `sm-json-data` to handle all the farm logic
+        // in a consistent way.
+
+        let mut hub_farms: Vec<(VertexId, Requirement)> = vec![];
+        for link in &self.links {
+            if link.from_vertex_id != link.to_vertex_id {
+                continue;
             }
-            if !self.vertex_isv.index_by_key.contains_key(&VertexKey {
-                room_id: loc.room_id,
-                node_id: loc.node_id,
-                obstacle_mask: 0,
-                actions: vec![],
-            }) {
-                panic!("Bad hub location: {loc:?}");
+            let vertex_key = &self.vertex_isv.keys[link.from_vertex_id];
+            if vertex_key.obstacle_mask != 0 {
+                continue;
+            }
+            if Self::has_energy_fill(&link.requirement) {
+                hub_farms.push((link.from_vertex_id, link.requirement.clone()));
             }
         }
-        self.hub_locations = hub_locations;
+
+        self.hub_farms = hub_farms;
         Ok(())
     }
 
@@ -5211,7 +5211,6 @@ impl GameData {
         let room_geometry_path = Path::new("../room_geometry.json");
         let escape_timings_path = Path::new("data/escape_timings.json");
         let start_locations_path = Path::new("data/start_locations.json");
-        let hub_locations_path = Path::new("data/hub_locations.json");
         let title_screen_path = Path::new("../TitleScreen/Images");
         let room_name_font_path = Path::new("data/room_name_font.png");
         let reduced_flashing_path = Path::new("data/reduced_flashing.json");
@@ -5492,7 +5491,7 @@ impl GameData {
             .context("Unable to load room geometry")?;
         game_data.load_escape_timings(escape_timings_path)?;
         game_data.load_start_locations(start_locations_path)?;
-        game_data.load_hub_locations(hub_locations_path)?;
+        game_data.load_hub_locations()?;
         game_data.load_map_tile_data(map_tile_path)?;
         game_data.area_names = vec![
             "Crateria",

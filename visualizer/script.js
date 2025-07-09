@@ -809,7 +809,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		flagIcons(si, ss.flags);
 		let item_info = document.createElement("div");
 		item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
-		routeData(item_info, c.hub_obtain_route);
+		routeData(item_info, c.hub_obtain_route, ss);
 				
 		item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
 		routeData(item_info, c.hub_return_route);

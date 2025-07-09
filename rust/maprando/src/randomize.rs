@@ -4343,6 +4343,11 @@ impl<'r> Randomizer<'r> {
             .map(|x| x.get_flag_name().to_owned())
             .collect();
 
+        let hub_room_id = state.hub_location.room_id;
+        let hub_room_name = self.game_data.room_json_map[&hub_room_id]["name"]
+            .as_str()
+            .unwrap()
+            .to_string();
         let spoiler_log = SpoilerLog {
             item_priority: state
                 .item_precedence
@@ -4351,7 +4356,6 @@ impl<'r> Randomizer<'r> {
                 .collect(),
             summary: spoiler_summaries,
             objectives: spoiler_objectives,
-            hub_location_name: state.hub_location.name.clone(),
             start_location: SpoilerStartLocation {
                 name: state.start_location.name.clone(),
                 room_id: state.start_location.room_id,
@@ -4359,6 +4363,7 @@ impl<'r> Randomizer<'r> {
                 x: state.start_location.x,
                 y: state.start_location.y,
             },
+            hub_location_name: hub_room_name,
             hub_obtain_route: state.hub_obtain_route.clone(),
             hub_return_route: state.hub_return_route.clone(),
             escape: spoiler_escape,
@@ -4498,7 +4503,6 @@ impl<'r> Randomizer<'r> {
             };
 
             let ship_hub = HubLocation {
-                name: "Ship".to_string(),
                 room_id: 8,
                 node_id: 5,
                 ..HubLocation::default()
@@ -4583,21 +4587,8 @@ impl<'r> Randomizer<'r> {
                 self.locked_door_data,
                 &self.objectives,
             );
-            let forward0 = traverse(
-                self.base_links_data,
-                &self.seed_links_data,
-                None,
-                &global,
-                LocalState::full(),
-                num_vertices,
-                start_vertex_id,
-                false,
-                self.settings,
-                &self.difficulty_tiers[0],
-                self.game_data,
-                self.locked_door_data,
-                &self.objectives,
-            );
+
+            // TODO: check for a reachable item before continuing.
             let reverse = traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4614,75 +4605,86 @@ impl<'r> Randomizer<'r> {
                 &self.objectives,
             );
 
-            // We require several conditions for a start location to be valid with a given hub location:
-            // 1) The hub location must be one-way reachable from the start location, including initial start location
-            // requirements (e.g. including requirements to reach the starting node from the actual start location, which
-            // may not be at a node)
-            // 2) The starting node (not the actual start location) must be bireachable from the hub location
-            // (ie. there must be a logical round-trip path from the hub to the starting node and back)
-            // 3) Any logical requirements on the hub must be satisfied.
-            for hub in &self.game_data.hub_locations {
-                let hub_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
-                    room_id: hub.room_id,
-                    node_id: hub.node_id,
-                    obstacle_mask: 0,
-                    actions: vec![],
-                }];
-                for cost_idx in 0..NUM_COST_METRICS {
-                    if f32::is_finite(forward.cost[hub_vertex_id][cost_idx]) {
-                        break;
-                    }
-                }
-                if !forward.cost[hub_vertex_id]
-                    .iter()
-                    .any(|&x| f32::is_finite(x))
-                {
+            // For a hub location to be valid for a given start location, there must be a path from the
+            // start location to the hub location and back to the starting node. Note that the forward path
+            // from start location to the hub location includes initial start location requirements
+            // (e.g. including requirements to reach the starting node from the actual start location, which
+            // may not be at a node), while the reverse path only needs to go back to the starting node,
+            // which is in the same room as the start location but is not necessarily exactly the same.
+            // Among the valid hubs, we select one with the best energy farm.
+            let mut best_hub_vertex_id: VertexId = start_vertex_id;
+            let mut best_hub_cost: Capacity = global.inventory.max_energy - 1;
+            for &(hub_vertex_id, ref hub_req) in self
+                .game_data
+                .hub_farms
+                .iter()
+                .chain([(start_vertex_id, Requirement::Free)].iter())
+            {
+                if get_bireachable_idxs(&global, hub_vertex_id, &forward, &reverse).is_none() {
                     continue;
-                }
-                if let Some((forward_cost_idx, reverse_cost_idx)) =
-                    get_bireachable_idxs(&global, hub_vertex_id, &forward0, &reverse)
-                {
-                    let local = apply_requirement(
-                        hub.requires_parsed.as_ref().unwrap(),
-                        &global,
-                        LocalState::full(),
-                        false,
-                        self.settings,
-                        &self.difficulty_tiers[0],
-                        self.game_data,
-                        self.locked_door_data,
-                        &self.objectives,
-                    );
-                    if local.is_some() {
-                        let hub_obtain_link_idxs =
-                            get_spoiler_route(&forward, hub_vertex_id, forward_cost_idx);
-                        let hub_return_link_idxs =
-                            get_spoiler_route(&reverse, hub_vertex_id, reverse_cost_idx);
+                };
 
-                        let hub_obtain_route = self.get_spoiler_route(
-                            &global,
-                            LocalState::full(),
-                            &hub_obtain_link_idxs,
-                            &self.difficulty_tiers[0],
-                            false,
-                        );
-                        let hub_return_route = self.get_spoiler_route(
-                            &global,
-                            LocalState::full(),
-                            &hub_return_link_idxs,
-                            &self.difficulty_tiers[0],
-                            true,
-                        );
-
-                        return Ok(StartLocationData {
-                            start_location: start_loc,
-                            hub_location: hub.clone(),
-                            hub_obtain_route,
-                            hub_return_route,
-                        });
-                    }
+                let new_local = apply_requirement(
+                    hub_req,
+                    &global,
+                    LocalState::empty(&global),
+                    false,
+                    self.settings,
+                    &self.difficulty_tiers[0],
+                    self.game_data,
+                    self.locked_door_data,
+                    &self.objectives,
+                );
+                let hub_cost = if let Some(loc) = new_local {
+                    loc.energy_used
+                } else {
+                    Capacity::MAX
+                };
+                if hub_cost < best_hub_cost {
+                    best_hub_cost = hub_cost;
+                    best_hub_vertex_id = hub_vertex_id;
                 }
             }
+
+            let Some((forward_cost_idx, reverse_cost_idx)) =
+                get_bireachable_idxs(&global, best_hub_vertex_id, &forward, &reverse)
+            else {
+                panic!("inconsistent result from get_bireachable_idxs");
+            };
+
+            let vertex_key = self.game_data.vertex_isv.keys[best_hub_vertex_id].clone();
+            let hub_location = HubLocation {
+                room_id: vertex_key.room_id,
+                node_id: vertex_key.node_id,
+                vertex_id: best_hub_vertex_id,
+            };
+
+            let hub_obtain_link_idxs =
+                get_spoiler_route(&forward, best_hub_vertex_id, forward_cost_idx);
+            let hub_return_link_idxs =
+                get_spoiler_route(&reverse, best_hub_vertex_id, reverse_cost_idx);
+
+            let hub_obtain_route = self.get_spoiler_route(
+                &global,
+                local.unwrap(),
+                &hub_obtain_link_idxs,
+                &self.difficulty_tiers[0],
+                false,
+            );
+            let hub_return_route = self.get_spoiler_route(
+                &global,
+                LocalState::full(),
+                &hub_return_link_idxs,
+                &self.difficulty_tiers[0],
+                true,
+            );
+
+            return Ok(StartLocationData {
+                start_location: start_loc,
+                hub_location,
+                hub_obtain_route,
+                hub_return_route,
+            });
         }
         bail!("[attempt {attempt_num_rando}] Failed to find start location.")
     }
