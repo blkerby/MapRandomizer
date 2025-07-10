@@ -2072,6 +2072,7 @@ impl GameData {
             let enemy_name = drop["enemy"].as_str().unwrap();
             let enemy_json = &self.enemy_json[enemy_name];
             let drops_json = &enemy_json["drops"];
+            let amount_of_drops = enemy_json["amountOfDrops"].as_isize().unwrap() as Capacity;
             let count = drop["count"].as_i32().unwrap() as Capacity;
             let nothing_weight = drops_json["noDrop"]
                 .as_f32()
@@ -2110,7 +2111,7 @@ impl GameData {
                 missile_weight: Float::new(missile_weight),
                 super_weight: Float::new(super_weight),
                 power_bomb_weight: Float::new(power_bomb_weight),
-                count,
+                count: count * amount_of_drops,
             };
             enemy_drops.push(enemy_drop);
         }
