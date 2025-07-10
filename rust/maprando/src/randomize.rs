@@ -4588,7 +4588,18 @@ impl<'r> Randomizer<'r> {
                 &self.objectives,
             );
 
-            // TODO: check for a reachable item before continuing.
+            let mut has_reachable_item = false;
+            for &v in self.game_data.item_vertex_ids.iter().flatten() {
+                for i in 0..NUM_COST_METRICS {
+                    if forward.cost[v][i].is_finite() {
+                        has_reachable_item = true;
+                    }
+                }
+            }
+            if !has_reachable_item {
+                continue;
+            }
+
             let reverse = traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4614,11 +4625,9 @@ impl<'r> Randomizer<'r> {
             // Among the valid hubs, we select one with the best energy farm.
             let mut best_hub_vertex_id: VertexId = start_vertex_id;
             let mut best_hub_cost: Capacity = global.inventory.max_energy - 1;
-            for &(hub_vertex_id, ref hub_req) in self
-                .game_data
-                .hub_farms
+            for &(hub_vertex_id, ref hub_req) in [(start_vertex_id, Requirement::Free)]
                 .iter()
-                .chain([(start_vertex_id, Requirement::Free)].iter())
+                .chain(self.game_data.hub_farms.iter())
             {
                 if get_bireachable_idxs(&global, hub_vertex_id, &forward, &reverse).is_none() {
                     continue;

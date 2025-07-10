@@ -752,7 +752,7 @@ pub fn apply_farm_requirement(
         let cycle_missiles = (end_local.missiles_used - local.missiles_used) as f32;
         let cycle_supers = (end_local.supers_used - local.supers_used) as f32;
         let cycle_pbs = (end_local.power_bombs_used - local.power_bombs_used) as f32;
-        let mut patience_frames = 2700.0;
+        let mut patience_frames = 5400.0;
         if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_EXTREMELY_PATIENT]] {
             patience_frames *= 8.0;
         } else if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] {
@@ -760,7 +760,7 @@ pub fn apply_farm_requirement(
         } else if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT]] {
             patience_frames *= 2.0;
         }
-        let mut num_cycles = (patience_frames / cycle_frames).round() as i32;
+        let mut num_cycles = (patience_frames / cycle_frames).floor() as i32;
 
         let mut new_local = local;
         if new_local.farm_baseline_energy_used < new_local.energy_used {

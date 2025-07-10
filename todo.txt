@@ -1,5 +1,7 @@
 v119:
-- require hub room to have a door with a free reset (satisfiable with 1 energy, no other resources)
+- handle enemy "amountOfDrops"
+- fix issue with min/max objectives ui
+- when two-sided saves are partially revealed, fix issue with neighboring lines showing white
 - Allow more options to be overridden on the customization step:
   - examples: Item dots after collection, Area transition markers on map, Door locks size on map
   - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
@@ -11,10 +13,7 @@ v119:
   - So by default we could hide these (on the Generate page as well as in logic pages), to reduce clutter.
   - Controls would need to be available, with 3 settings: to hide the wallJumpAvoid strats, to show them exclusively, or to show everything.
 - Model carrying around a flash suit (in LocalState somewhere, and as another cost metric)
-- Refine how initial ammo capacity works, and relax starting hub constraints:
-  - Currently starting hubs are restricted to rooms where you can farm all types of resources (energy, Missiles, Supers, PBs).
-  - But it may be slow, and this can sometimes result in an unreasonable expectations of managing/farming PBs in the early game.
-  - Instead, what we should do is 1) relax the constraint on starting hubs to require them to only be an energy farm, and 2) not consider starting ammo (Missiles, Supers, PBs) to be available except to the extent that a regular logical farm makes them available.
+- DONE: Refine how initial ammo capacity works, and relax starting hub constraints
 - DONE: Make `resetRoom` account for the ~10 heat damage required to reset with a heated room (important for strats with `farmCycleDrops`).
 - Support maps with incomplete room sets.
 - Logic work (sm-json-data):

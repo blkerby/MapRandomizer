@@ -371,6 +371,8 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
     let mut base_preset = preset_data.default_preset.clone();
 
+    base_preset.start_location_settings.mode = StartLocationMode::Random;
+
     if let Some(fixed_preset) = &args.preset {
         let path = format!("data/presets/full-settings/{fixed_preset}.json");
         let s =
