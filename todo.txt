@@ -1,7 +1,7 @@
 v119:
 - DONE: handle enemy "amountOfDrops"
 - DONE: fix issue with min/max objectives ui
-- when two-sided saves are partially revealed, fix issue with neighboring lines showing white
+- DONE: when two-sided saves are partially revealed, fix issue with neighboring lines showing white
 - Allow more options to be overridden on the customization step:
   - examples: Item dots after collection, Area transition markers on map, Door locks size on map
   - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.

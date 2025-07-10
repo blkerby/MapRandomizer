@@ -2196,18 +2196,29 @@ impl<'a> MapPatcher<'a> {
         // and then when looking at the map later, don't remember that there's another room behind it.
         // To avoid this, when entering on of these rooms, we do a "partial reveal" on just the door
         // of the neighboring rooms.
+        let imr_settings = &self
+            .settings
+            .quality_of_life_settings
+            .initial_map_reveal_settings;
+        let save_partial = imr_settings.save_stations == MapRevealLevel::Partial;
+        let refill_partial = imr_settings.refill_stations == MapRevealLevel::Partial;
         let room_ids = vec![
-            302, // Frog Savestation
-            190, // Draygon Save Room
-            308, // Nutella Refill
+            (302, save_partial),   // Frog Savestation
+            (190, save_partial),   // Draygon Save Room
+            (308, refill_partial), // Nutella Refill
         ];
         let mut table_addr = snes2pc(0x85A180);
         let partial_revealed_bits_base = 0x2700;
         let tilemap_base = 0x4000;
-        let palette = 0x0800;
         let left_door_tile_idx = 0x12;
 
-        for room_id in room_ids {
+        for (room_id, partial) in room_ids {
+            // If the save/refill tile is initially partially revealed, then we also use
+            // the partial reveal palette for the neighboring markings. This is not completely
+            // ideal as the markings will still show as partial revealed even after the
+            // save/refill tile is explored, but it's the best we can do without a significant
+            // overhaul of the ASM; and it's unclear if this option will find much use anyway.
+            let palette = if partial { 0x0C00 } else { 0x0800 };
             let room_ptr = self.game_data.room_ptr_by_id[&room_id];
             let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
             let room = &self.game_data.room_geometry[room_idx];
