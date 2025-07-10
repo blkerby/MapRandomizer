@@ -783,15 +783,19 @@ function objectivesChanged() {
 }
 
 function minimumObjectivesChanged() {
-    if (document.getElementById("minimumObjectives").value > document.getElementById("maximumObjectives").value) {
-        document.getElementById("maximumObjectives").value = document.getElementById("minimumObjectives").value;
+    let minValue = parseInt(document.getElementById("minimumObjectives").value);
+    let maxValue = parseInt(document.getElementById("maximumObjectives").value);
+    if (minValue > maxValue) {
+        document.getElementById("maximumObjectives").value = minValue;
     }
     objectivesChanged();
 }
 
 function maximumObjectivesChanged() {
-    if (document.getElementById("minimumObjectives").value > document.getElementById("maximumObjectives").value) {
-        document.getElementById("minimumObjectives").value = document.getElementById("maximumObjectives").value;
+    let minValue = parseInt(document.getElementById("minimumObjectives").value);
+    let maxValue = parseInt(document.getElementById("maximumObjectives").value);
+    if (minValue > maxValue) {
+        document.getElementById("minimumObjectives").value = maxValue;
     }
     objectivesChanged();
 }
