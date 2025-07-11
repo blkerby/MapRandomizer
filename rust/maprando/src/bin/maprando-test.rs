@@ -374,7 +374,11 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     base_preset.start_location_settings.mode = StartLocationMode::Random;
 
     if let Some(fixed_preset) = &args.preset {
-        let path = format!("data/presets/full-settings/{fixed_preset}.json");
+        let path = if fixed_preset.ends_with(".json") {
+            fixed_preset.clone()
+        } else {
+            format!("data/presets/full-settings/{fixed_preset}.json")
+        };
         let s =
             std::fs::read_to_string(&path).context(format!("Unable to read {}", path.as_str()))?;
         base_preset = serde_json::from_str(&s)?;

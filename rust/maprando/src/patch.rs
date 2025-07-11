@@ -2956,7 +2956,7 @@ impl Patcher<'_> {
             if *row > *row_max {
                 *row_max = *row;
             }
-            if *row >= 12 {
+            if *col == 1 && *row >= 8 {
                 *row = 1;
                 *col += 15;
             }
