@@ -1,3 +1,16 @@
+v120?:
+- Handle the new wallJumpAvoid property on strats and notables:
+  - This identifies strats/notables that are only useful when playing with the "Collectible" wall jump option.
+  - So by default we could hide these (on the Generate page as well as in logic pages), to reduce clutter.
+  - Controls would need to be available, with 3 settings: to hide the wallJumpAvoid strats, to show them exclusively, or to show everything.
+- Model carrying around a flash suit (in LocalState somewhere, and as another cost metric)
+- Support maps with incomplete room sets.
+- Logic work (sm-json-data):
+  - Finish adding cross-room temp blue strats and remote runway setups/applications in Norfair
+    - Add missing remote runway strats in pink brinstar hopper room left side
+  - Populate wallJumpAvoid throughout the logic (strats and notables)
+  - Finish checking flash suit logic
+
 v119:
 - DONE: handle enemy "amountOfDrops"
 - DONE: fix issue with min/max objectives ui
@@ -8,20 +21,9 @@ v119:
   - options with more substantial effects could maybe be included, but we'd need to define rules for "Race mode" of which changes are allowed
 - DONE: Add QoL setting for limiting starting map reveal to visited area
 - DONE: Finer-grained map reveal options for specific types of tiles (maybe?)
-- Handle the new wallJumpAvoid property on strats and notables:
-  - This identifies strats/notables that are only useful when playing with the "Collectible" wall jump option.
-  - So by default we could hide these (on the Generate page as well as in logic pages), to reduce clutter.
-  - Controls would need to be available, with 3 settings: to hide the wallJumpAvoid strats, to show them exclusively, or to show everything.
-- Model carrying around a flash suit (in LocalState somewhere, and as another cost metric)
 - DONE: Refine how initial ammo capacity works, and relax starting hub constraints
 - DONE: Make `resetRoom` account for the ~10 heat damage required to reset with a heated room (important for strats with `farmCycleDrops`).
-- Support maps with incomplete room sets.
-- Logic work (sm-json-data):
-  - Finish adding cross-room temp blue strats and remote runway setups/applications in Norfair
-    - Add missing remote runway strats in pink brinstar hopper room left side
-  - Populate wallJumpAvoid throughout the logic (strats and notables)
-  - Finish checking flash suit logic
-  - Maybe make some progress migrating farm strats (to use `farmCycleDrops`)
+- Finish migrating farm strats (to use `farmCycleDrops`)
 - Mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
 - add more strats from Incomplete videos
