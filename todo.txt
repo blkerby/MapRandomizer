@@ -12,6 +12,12 @@ v120?:
   - Finish checking flash suit logic
 
 v119:
+- fix Volcano Room heated runway logic
+- implement "heated" field on leaveWithRunway
+- fix fog in Pit Room (Outer Maridia theme?) 
+  - osse stream Jul 12
+- back-side MB should be notable?
+- DONE: show farmEnemyDrops in logic pages
 - DONE: handle enemy "amountOfDrops"
 - DONE: fix issue with min/max objectives ui
 - DONE: when two-sided saves are partially revealed, fix issue with neighboring lines showing white

@@ -126,6 +126,14 @@
     <p class="mb-0">Unlocks doors:</p>
     <pre class="overflow-auto" style="max-width:1100px">{{+ strat.unlocks_doors.as_ref().unwrap() }}</pre>
 {% endif %}
+{% if strat.farm_cycle_drops.len() > 0 %}
+    <p class="mb-0">Farm cycle drops:
+    {%+ for drop in strat.farm_cycle_drops %}
+        {{+ drop.count +}} {{+ drop.enemy +}}
+        {% if !loop.last %}, {%+ endif %}
+    {% endfor %}
+    </p>
+{% endif %}
 
 {% if strat.dev_note.len() > 0 %}
 <p class="dev-note">Dev note: {{+ strat.dev_note }}</p>

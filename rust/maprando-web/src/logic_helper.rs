@@ -33,6 +33,12 @@ use std::{io::Cursor, path::PathBuf};
 use super::VersionInfo;
 
 #[derive(Clone)]
+struct EnemyDrop {
+    enemy: String,
+    count: usize,
+}
+
+#[derive(Clone)]
 struct RoomStrat {
     room_id: usize,
     room_name: String,
@@ -54,6 +60,7 @@ struct RoomStrat {
     resets_obstacles: Vec<String>,
     collects_items: Vec<String>,
     unlocks_doors: Option<String>,
+    farm_cycle_drops: Vec<EnemyDrop>,
     difficulty_idx: usize,
     difficulty_name: String,
 }
@@ -1059,6 +1066,19 @@ fn make_room_template<'a>(
             None
         };
 
+        let farm_cycle_drops: Vec<EnemyDrop> = if strat_json.has_key("farmCycleDrops") {
+            let mut drops: Vec<EnemyDrop> = vec![];
+            for drop in strat_json["farmCycleDrops"].members() {
+                drops.push(EnemyDrop {
+                    enemy: drop["enemy"].as_str().unwrap().to_string(),
+                    count: drop["count"].as_usize().unwrap(),
+                });
+            }
+            drops
+        } else {
+            vec![]
+        };
+
         let strat_name = strat_json["name"].as_str().unwrap().to_string();
         let strat = RoomStrat {
             room_id,
@@ -1081,6 +1101,7 @@ fn make_room_template<'a>(
             clears_obstacles,
             resets_obstacles,
             collects_items,
+            farm_cycle_drops,
             difficulty_idx,
             difficulty_name,
         };
