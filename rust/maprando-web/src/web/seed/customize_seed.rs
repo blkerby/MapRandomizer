@@ -8,9 +8,8 @@ use askama::Template;
 use log::info;
 use maprando::{
     customize::{
-        parse_controller_button, ControllerButton, ControllerConfig,
-        CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
-        TileTheme,
+        parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme,
+        FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
     },
     patch::{make_rom, Rom},
     randomize::Randomization,
