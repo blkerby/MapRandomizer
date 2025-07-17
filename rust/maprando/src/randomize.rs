@@ -5438,7 +5438,7 @@ impl Randomizer<'_> {
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         self.get_spoiler_route(
             global_state,
-            LocalState::full(),
+            LocalState::empty(global_state),
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,

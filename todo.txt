@@ -22,7 +22,7 @@ v119:
 - use simpleCycleFrames in bug farm strats.
 - adjust requirements on canPreciseWalljump strats
 - add canLongXRayClimb tech (Expert), move canXRayClimb down to Very Hard.
-- fix crash when processing spoiler route, involving new farm strats.
+- DONE: fix crash when processing spoiler route, involving new farm strats.
 - DONE: fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
 - DONE: show farmEnemyDrops in logic pages
 - DONE: handle enemy "amountOfDrops"
