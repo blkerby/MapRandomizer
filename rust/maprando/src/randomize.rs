@@ -4283,8 +4283,10 @@ impl<'r> Randomizer<'r> {
             .zip(self.game_data.room_geometry.iter())
             .map(|((room_idx, c), g)| {
                 let room_id = self.game_data.room_id_by_ptr[&g.rom_address];
-                let room = g.name.clone();
-                let short_name = strip_name(&room);
+                let room = self.game_data.room_json_map[&room_id]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string();
                 let map = if room_idx == self.game_data.toilet_room_idx {
                     vec![vec![1; 1]; 10]
                 } else {
@@ -4310,7 +4312,6 @@ impl<'r> Randomizer<'r> {
                 SpoilerRoomLoc {
                     room_id,
                     room,
-                    short_name,
                     map,
                     map_reachable_step,
                     map_bireachable_step,
@@ -4767,8 +4768,10 @@ impl<'r> Randomizer<'r> {
             .zip(self.game_data.room_geometry.iter())
             .map(|(c, g)| {
                 let room_id = self.game_data.room_id_by_ptr[&g.rom_address];
-                let room = g.name.clone();
-                let short_name = strip_name(&room);
+                let room = self.game_data.room_json_map[&room_id]["name"]
+                    .as_str()
+                    .unwrap()
+                    .to_string();
                 let height = g.map.len();
                 let width = g.map[0].len();
                 let map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
@@ -4776,7 +4779,6 @@ impl<'r> Randomizer<'r> {
                 SpoilerRoomLoc {
                     room_id,
                     room,
-                    short_name,
                     map: g.map.clone(),
                     map_reachable_step,
                     map_bireachable_step,
@@ -5133,7 +5135,6 @@ pub struct SpoilerRoomLoc {
     // here temporarily, most likely, since these can be baked into the web UI
     pub room_id: usize,
     pub room: String,
-    pub short_name: String,
     pub map: Vec<Vec<u8>>,
     pub map_reachable_step: Vec<Vec<u8>>,
     pub map_bireachable_step: Vec<Vec<u8>>,

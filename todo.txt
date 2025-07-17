@@ -19,8 +19,9 @@ v119:
   - osse stream Jul 12
 - DONE: back-side MB should be notable?
 - DONE: move canStaggeredWalljump to VH
+- use simpleCycleFrames in bug farm strats.
 - adjust requirements on canPreciseWalljump strats
-- fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
+- DONE: fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
 - DONE: show farmEnemyDrops in logic pages
 - DONE: handle enemy "amountOfDrops"
 - DONE: fix issue with min/max objectives ui
