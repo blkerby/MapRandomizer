@@ -43,7 +43,7 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
 pub fn apply_retiling(
     rom: &mut Rom,
     orig_rom: &Rom,
-    map: &Option<Map>,
+    map: &Map,
     game_data: &GameData,
     theme: &TileTheme,
     mosaic_themes: &[MosaicTheme],
@@ -93,39 +93,33 @@ pub fn apply_retiling(
             TileTheme::Vanilla => "Base".to_string(),
             TileTheme::Constant(s) => s.clone(),
             TileTheme::AreaThemed => {
-                if let Some(map) = map {
-                    let area = map.area[room_idx];
-                    let sub_area = map.subarea[room_idx];
-                    let sub_sub_area = if !map.subsubarea.is_empty() {
-                        map.subsubarea[room_idx]
-                    } else {
-                        // For backward compatibility, use subsubarea 0 for old maps that didn't have a subsubarea.
-                        0
-                    };
-                    match (area, sub_area, sub_sub_area) {
-                        (0, 0, _) => "OuterCrateria",
-                        (0, 1, 0) => "InnerCrateria",
-                        (0, 1, 1) => "BlueBrinstar",
-                        (1, 0, 0) => "GreenBrinstar",
-                        (1, 0, 1) => "PinkBrinstar",
-                        (1, 1, _) => "RedBrinstar",
-                        (2, 0, _) => "UpperNorfair",
-                        (2, 1, _) => "LowerNorfair",
-                        (3, _, _) => "WreckedShip",
-                        (4, 0, _) => "WestMaridia",
-                        (4, 1, _) => "YellowMaridia",
-                        (5, 0, _) => "MetroidHabitat",
-                        (5, 1, _) => "MechaTourian",
-                        _ => panic!(
-                            "unexpected area/subarea/subsubarea combination: ({area}, {sub_area}, {sub_sub_area})"
-                        ),
-                    }
-                    .to_string()
+                let area = map.area[room_idx];
+                let sub_area = map.subarea[room_idx];
+                let sub_sub_area = if !map.subsubarea.is_empty() {
+                    map.subsubarea[room_idx]
                 } else {
-                    // Fall back to Base theme in case map is unavailable
-                    // (since it wasn't saved off in earlier randomizer versions)
-                    "Base".to_string()
+                    // For backward compatibility, use subsubarea 0 for old maps that didn't have a subsubarea.
+                    0
+                };
+                match (area, sub_area, sub_sub_area) {
+                    (0, 0, _) => "OuterCrateria",
+                    (0, 1, 0) => "InnerCrateria",
+                    (0, 1, 1) => "BlueBrinstar",
+                    (1, 0, 0) => "GreenBrinstar",
+                    (1, 0, 1) => "PinkBrinstar",
+                    (1, 1, _) => "RedBrinstar",
+                    (2, 0, _) => "UpperNorfair",
+                    (2, 1, _) => "LowerNorfair",
+                    (3, _, _) => "WreckedShip",
+                    (4, 0, _) => "WestMaridia",
+                    (4, 1, _) => "YellowMaridia",
+                    (5, 0, _) => "MetroidHabitat",
+                    (5, 1, _) => "MechaTourian",
+                    _ => panic!(
+                        "unexpected area/subarea/subsubarea combination: ({area}, {sub_area}, {sub_sub_area})"
+                    ),
                 }
+                .to_string()
             }
             TileTheme::Scrambled => {
                 let seed = random_seed ^ (room_ptr as u32);

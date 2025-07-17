@@ -5285,7 +5285,7 @@ impl Randomizer<'_> {
                 &self.objectives,
             );
             if new_local_state_opt.is_none() {
-                panic!("Failed applying requirement in spoiler route: reverse={}, local_state={:?}, requirement={:?}", reverse, local_state, link.requirement);
+                panic!("Failed applying requirement in spoiler route: reverse={}, local_state={:#?}, requirement={:#?}", reverse, local_state, link.requirement);
             }
             let new_local_state = new_local_state_opt.unwrap();
             let sublinks_ordered: Vec<&Link> = if reverse {

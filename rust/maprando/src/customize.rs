@@ -323,7 +323,7 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
 pub fn customize_rom(
     rom: &mut Rom,
     orig_rom: &Rom,
-    map: &Option<Map>,
+    map: &Map,
     settings: &CustomizeSettings,
     game_data: &GameData,
     samus_sprite_categories: &[SamusSpriteCategory],

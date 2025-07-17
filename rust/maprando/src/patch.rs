@@ -11,7 +11,10 @@ pub mod title;
 use std::path::Path;
 
 use crate::{
-    customize::vanilla_music::override_music,
+    customize::{
+        customize_rom, mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory,
+        vanilla_music::override_music, CustomizeSettings,
+    },
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
@@ -218,6 +221,7 @@ pub struct Patcher<'a> {
     pub orig_rom: &'a mut Rom,
     pub rom: &'a mut Rom,
     pub settings: &'a RandomizerSettings,
+    pub customize_settings: &'a CustomizeSettings,
     pub randomization: &'a Randomization,
     pub game_data: &'a GameData,
     pub map: &'a Map,
@@ -3157,12 +3161,15 @@ fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
 
 pub fn make_rom(
     base_rom: &Rom,
-    settings: &RandomizerSettings,
+    randomizer_settings: &RandomizerSettings,
+    customize_settings: &CustomizeSettings,
     randomization: &Randomization,
     game_data: &GameData,
+    samus_sprite_categories: &[SamusSpriteCategory],
+    mosaic_themes: &[MosaicTheme],
 ) -> Result<Rom> {
     let mut orig_rom = base_rom.clone();
-    apply_orig_ips_patches(&mut orig_rom, settings)?;
+    apply_orig_ips_patches(&mut orig_rom, randomizer_settings)?;
 
     // Remove solid wall that spawns in Tourian Escape Room 1 while coming through right door.
     // Note that this wall spawns in two ways: 1) as a normal PLM which spawns when entering through either door
@@ -3179,7 +3186,8 @@ pub fn make_rom(
     let mut patcher = Patcher {
         orig_rom: &mut orig_rom,
         rom: &mut rom,
-        settings,
+        settings: randomizer_settings,
+        customize_settings,
         randomization,
         game_data,
         map: &randomization.map,
@@ -3207,13 +3215,13 @@ pub fn make_rom(
     patcher.write_room_name_data()?;
     patcher.remove_non_blue_doors()?;
     override_music(patcher.rom)?;
-    if settings.map_layout != "Vanilla"
-        || settings.other_settings.area_assignment == AreaAssignment::Random
+    if randomizer_settings.map_layout != "Vanilla"
+        || randomizer_settings.other_settings.area_assignment == AreaAssignment::Random
     {
         patcher.use_area_based_music()?;
     }
     patcher.setup_door_specific_fx()?;
-    if !settings.other_settings.ultra_low_qol {
+    if !randomizer_settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
     }
     patcher.fix_crateria_scrolling_sky()?;
@@ -3225,15 +3233,30 @@ pub fn make_rom(
     patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
-    if !settings.other_settings.ultra_low_qol {
+    if !randomizer_settings.other_settings.ultra_low_qol {
         patcher.apply_hazard_markers()?;
     }
-    if settings.quality_of_life_settings.room_outline_revealed {
+    if randomizer_settings
+        .quality_of_life_settings
+        .room_outline_revealed
+    {
         patcher.apply_all_room_outlines()?;
     }
     patcher.apply_toilet_data()?;
     patcher.apply_mother_brain_setup_asm()?;
     patcher.apply_extra_setup_asm()?;
     patcher.write_extra_room_data()?;
+
+    info!("CustomizeSettings: {customize_settings:?}");
+    customize_rom(
+        patcher.rom,
+        base_rom,
+        &randomization.map,
+        customize_settings,
+        game_data,
+        samus_sprite_categories,
+        mosaic_themes,
+    )?;
+
     Ok(rom)
 }

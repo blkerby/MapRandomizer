@@ -2,7 +2,7 @@ use anyhow::{bail, Context, Result};
 use clap::Parser;
 use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
-use maprando::customize::{customize_rom, ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::customize::{ControllerConfig, CustomizeSettings, MusicSettings};
 use maprando::map_repository::MapRepository;
 use maprando::patch::make_rom;
 use maprando::patch::Rom;
@@ -45,9 +45,6 @@ struct Args {
 
     #[arg(long)]
     qol_preset: Option<String>,
-
-    #[arg(long)]
-    customize: bool,
 }
 
 // Reduced version of web::AppData for test tool
@@ -65,7 +62,6 @@ struct TestAppData {
     etank_colors: Vec<(u8, u8, u8)>,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     samus_sprites: Vec<String>,
-    customize: bool,
 }
 
 fn get_randomization(
@@ -239,79 +235,31 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
 
     // Perform randomization (map selection & item placement):
     let (settings, randomization, spoiler_log, output_file_prefix) = get_randomization(app, seed)?;
+    let customize_settings = make_random_customization(app);
 
     // Generate the patched ROM:
-    let game_rom = make_rom(&app.input_rom, &settings, &randomization, &app.game_data)?;
-    let mut output_rom = game_rom.clone();
-    let basic_customize_settings = CustomizeSettings {
-        samus_sprite: None,
-        etank_color: None,
-        reserve_hud_style: true,
-        vanilla_screw_attack_animation: true,
-        room_names: true,
-        palette_theme: maprando::customize::PaletteTheme::AreaThemed,
-        tile_theme: maprando::customize::TileTheme::Vanilla,
-        door_theme: maprando::customize::DoorTheme::Vanilla,
-        music: MusicSettings::AreaThemed,
-        disable_beeping: false,
-        shaking: maprando::customize::ShakingSetting::Vanilla,
-        flashing: maprando::customize::FlashingSetting::Vanilla,
-        controller_config: ControllerConfig::default(),
-    };
-    customize_rom(
-        &mut output_rom,
+    let game_rom = make_rom(
         &app.input_rom,
-        &Some(randomization.map.clone()),
-        &basic_customize_settings,
+        &settings,
+        &customize_settings,
+        &randomization,
         &app.game_data,
         &app.samus_sprite_categories,
         &[],
     )?;
+    let output_rom = game_rom.clone();
 
     std::fs::write(
         Path::join(
             &app.output_dir,
-            format!("{output_file_prefix}-basic-customize.txt"),
+            format!("{output_file_prefix}-customize.txt"),
         ),
-        format!("{basic_customize_settings:?}"),
+        format!("{customize_settings:?}"),
     )?;
 
     let output_rom_path = Path::join(&app.output_dir, format!("{output_file_prefix}-rom.smc"));
     info!("Writing output ROM to {}", output_rom_path.display());
     output_rom.save(&output_rom_path)?;
-
-    if app.customize {
-        for custom in 0..5 {
-            let custom_rom_path = Path::join(
-                &app.output_dir,
-                format!("{output_file_prefix}-custom-{}.smc", custom + 1),
-            );
-            output_rom = game_rom.clone();
-            let customize_settings = make_random_customization(app);
-            customize_rom(
-                &mut output_rom,
-                &app.input_rom,
-                &Some(randomization.map.clone()),
-                &customize_settings,
-                &app.game_data,
-                &app.samus_sprite_categories,
-                &[],
-            )?;
-            info!(
-                "Writing customization #{0} to {1}",
-                custom + 1,
-                custom_rom_path.display()
-            );
-            output_rom.save(&custom_rom_path)?;
-            std::fs::write(
-                Path::join(
-                    &app.output_dir,
-                    format!("{output_file_prefix}-customize-{}.txt", custom + 1),
-                ),
-                format!("{customize_settings:?}"),
-            )?;
-        }
-    }
 
     let output_spoiler_log_path = Path::join(
         &app.output_dir,
@@ -472,7 +420,6 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         etank_colors,
         samus_sprite_categories,
         samus_sprites,
-        customize: args.customize,
     };
     Ok(app)
 }

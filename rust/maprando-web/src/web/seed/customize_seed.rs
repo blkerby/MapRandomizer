@@ -8,7 +8,7 @@ use askama::Template;
 use log::info;
 use maprando::{
     customize::{
-        customize_rom, parse_controller_button, ControllerButton, ControllerConfig,
+        parse_controller_button, ControllerButton, ControllerConfig,
         CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting,
         TileTheme,
     },
@@ -16,7 +16,6 @@ use maprando::{
     randomize::Randomization,
     settings::RandomizerSettings,
 };
-use maprando_game::Map;
 
 #[derive(Template)]
 #[template(path = "errors/invalid_rom.html")]
@@ -90,17 +89,6 @@ async fn customize_seed(
     )
     .unwrap();
     let seed_data = json::parse(&seed_data_str).unwrap();
-
-    let map_data_bytes = app_data
-        .seed_repository
-        .get_file(seed_name, "map.json")
-        .await
-        .unwrap_or(vec![]);
-    let map: Option<Map> = if map_data_bytes.is_empty() {
-        None
-    } else {
-        Some(serde_json::from_slice(&map_data_bytes).unwrap())
-    };
 
     let settings_bytes = app_data
         .seed_repository
@@ -212,8 +200,11 @@ async fn customize_seed(
         match make_rom(
             &rom,
             settings.as_ref().unwrap(),
+            &customize_settings,
             randomization.as_ref().unwrap(),
             &app_data.game_data,
+            &app_data.samus_sprite_categories,
+            &app_data.mosaic_themes,
         ) {
             Ok(r) => {
                 rom = r;
@@ -227,24 +218,6 @@ async fn customize_seed(
         return HttpResponse::InternalServerError()
             .body("Seed incompatible with current customizer");
     }
-
-    info!("CustomizeSettings: {customize_settings:?}");
-    match customize_rom(
-        &mut rom,
-        &orig_rom,
-        &map,
-        &customize_settings,
-        &app_data.game_data,
-        &app_data.samus_sprite_categories,
-        &app_data.mosaic_themes,
-    ) {
-        Ok(()) => {}
-        Err(err) => {
-            return HttpResponse::InternalServerError()
-                .body(format!("Error customizing ROM: {err:?}"))
-        }
-    }
-
     HttpResponse::Ok()
         .content_type("application/octet-stream")
         .insert_header(ContentDisposition {
