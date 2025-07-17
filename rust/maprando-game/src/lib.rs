@@ -238,13 +238,16 @@ pub enum Requirement {
         excess_frames: Capacity,
     },
     HeatFrames(Capacity),
+    SimpleHeatFrames(Capacity),
     HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>),
     LavaFrames(Capacity),
+    LavaFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>),
     GravitylessLavaFrames(Capacity),
     AcidFrames(Capacity),
     GravitylessAcidFrames(Capacity),
     MetroidFrames(Capacity),
     CycleFrames(Capacity),
+    SimpleCycleFrames(Capacity),
     Farm {
         requirement: Box<Requirement>,
         drops: Vec<EnemyDrop>,
@@ -2457,6 +2460,11 @@ impl GameData {
                     .as_i32()
                     .unwrap_or_else(|| panic!("invalid heatFrames in {req_json}"));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
+            } else if key == "simpleHeatFrames" {
+                let frames = value
+                    .as_i32()
+                    .unwrap_or_else(|| panic!("invalid simpleHeatFrames in {req_json}"));
+                return Ok(Requirement::SimpleHeatFrames(frames as Capacity));
             } else if key == "gravitylessHeatFrames" {
                 // In Map Rando, Gravity doesn't affect heat frames, so this is treated the same as "heatFrames".
                 let frames = value
@@ -2503,6 +2511,11 @@ impl GameData {
                     .as_i32()
                     .unwrap_or_else(|| panic!("invalid cycleFrames in {req_json}"));
                 return Ok(Requirement::CycleFrames(frames as Capacity));
+            } else if key == "simpleCycleFrames" {
+                let frames = value
+                    .as_i32()
+                    .unwrap_or_else(|| panic!("invalid simpleCycleFrames in {req_json}"));
+                return Ok(Requirement::SimpleCycleFrames(frames as Capacity));
             } else if key == "spikeHits" {
                 let hits = value
                     .as_i32()
@@ -2757,6 +2770,10 @@ impl GameData {
                 let frames = value["frames"].as_i32().unwrap() as Capacity;
                 let enemy_drops = self.parse_enemy_drops(&value["drops"]);
                 return Ok(Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops));
+            } else if key == "lavaFramesWithEnergyDrops" {
+                let frames = value["frames"].as_i32().unwrap() as Capacity;
+                let enemy_drops = self.parse_enemy_drops(&value["drops"]);
+                return Ok(Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops));
             } else if key == "disableEquipment" {
                 return Ok(Requirement::Tech(
                     self.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],

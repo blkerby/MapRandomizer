@@ -552,6 +552,12 @@
         "video_id": 1125
     },
     {
+        "tech_id": 201,
+        "name": "canBootless2WideUWJ",
+        "difficulty": "Beyond",
+        "video_id": 2475
+    },
+    {
         "tech_id": 84,
         "name": "canJumpIntoRespawningBlock",
         "difficulty": "Very Hard",

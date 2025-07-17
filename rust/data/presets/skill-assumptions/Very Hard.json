@@ -943,6 +943,11 @@
             "enabled": false
         },
         {
+            "id": 201,
+            "name": "canBootless2WideUWJ",
+            "enabled": false
+        },
+        {
             "id": 93,
             "name": "canLongCeilingBombJump",
             "enabled": false
@@ -1048,17 +1053,17 @@
             "enabled": true
         },
         {
-            "room_id": 61,
+            "room_id": 60,
             "notable_id": 2,
-            "room_name": "Pink Brinstar Hopper Room",
-            "notable_name": "Reverse Gate Glitch",
+            "room_name": "Mission Impossible Room",
+            "notable_name": "Crystal Flash Clip",
             "enabled": true
         },
         {
-            "room_id": 60,
+            "room_id": 61,
             "notable_id": 2,
-            "room_name": "Pink Brinstar Power Bomb Room",
-            "notable_name": "Crystal Flash Clip",
+            "room_name": "Pink Brinstar Wave Gate Room",
+            "notable_name": "Reverse Gate Glitch",
             "enabled": true
         },
         {
@@ -1106,22 +1111,15 @@
         {
             "room_id": 146,
             "notable_id": 1,
-            "room_name": "Lower Norfair Spring Ball Maze Room",
+            "room_name": "Lower Norfair Spring Ball Maze",
             "notable_name": "Crystal Flash Clip",
             "enabled": true
         },
         {
             "room_id": 176,
             "notable_id": 2,
-            "room_name": "Crab Tunnel",
+            "room_name": "Crab Gate Room",
             "notable_name": "Suitless Green Gate Glitch",
-            "enabled": true
-        },
-        {
-            "room_id": 170,
-            "notable_id": 1,
-            "room_name": "Glass Tunnel",
-            "notable_name": "Tube Clip",
             "enabled": true
         },
         {
@@ -1129,6 +1127,13 @@
             "notable_id": 2,
             "room_name": "Mama Turtle Room",
             "notable_name": "Shoot Down and Grab Right Item",
+            "enabled": true
+        },
+        {
+            "room_id": 170,
+            "notable_id": 1,
+            "room_name": "Maridia Tube",
+            "notable_name": "Tube Clip",
             "enabled": true
         },
         {
@@ -1141,14 +1146,14 @@
         {
             "room_id": 196,
             "notable_id": 7,
-            "room_name": "East Cactus Alley Room",
+            "room_name": "East Cactus Alley",
             "notable_name": "Suitless Bootless Space Jump",
             "enabled": true
         },
         {
             "room_id": 195,
             "notable_id": 1,
-            "room_name": "West Cactus Alley Room",
+            "room_name": "West Cactus Alley",
             "notable_name": "Suitless HiJump Space Jump",
             "enabled": true
         },
@@ -1171,6 +1176,13 @@
             "notable_id": 4,
             "room_name": "Mother Brain Room",
             "notable_name": "Ice Zebetite Skip",
+            "enabled": true
+        },
+        {
+            "room_id": 238,
+            "notable_id": 6,
+            "room_name": "Mother Brain Room",
+            "notable_name": "Reverse Mother Brain",
             "enabled": true
         },
         {
@@ -1246,21 +1258,21 @@
         {
             "room_id": 61,
             "notable_id": 1,
-            "room_name": "Pink Brinstar Hopper Room",
+            "room_name": "Pink Brinstar Wave Gate Room",
             "notable_name": "Shinespark to Ride the Elevator",
             "enabled": true
         },
         {
             "room_id": 61,
             "notable_id": 4,
-            "room_name": "Pink Brinstar Hopper Room",
+            "room_name": "Pink Brinstar Wave Gate Room",
             "notable_name": "Shot Clip to Ride the Elevator",
             "enabled": true
         },
         {
             "room_id": 61,
             "notable_id": 5,
-            "room_name": "Pink Brinstar Hopper Room",
+            "room_name": "Pink Brinstar Wave Gate Room",
             "notable_name": "Screw and Kago to Ride the Elevator",
             "enabled": true
         },
@@ -1370,24 +1382,24 @@
             "enabled": true
         },
         {
-            "room_id": 123,
-            "notable_id": 2,
-            "room_name": "Post Crocomire Farming Room",
-            "notable_name": "Damage Boost",
-            "enabled": true
-        },
-        {
             "room_id": 127,
             "notable_id": 5,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Big Jump Shinespark",
             "enabled": true
         },
         {
             "room_id": 127,
             "notable_id": 6,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Acid Shinespark",
+            "enabled": true
+        },
+        {
+            "room_id": 123,
+            "notable_id": 2,
+            "room_name": "Post Crocomire Farming Room",
+            "notable_name": "Damage Boost",
             "enabled": true
         },
         {
@@ -1435,7 +1447,7 @@
         {
             "room_id": 146,
             "notable_id": 2,
-            "room_name": "Lower Norfair Spring Ball Maze Room",
+            "room_name": "Lower Norfair Spring Ball Maze",
             "notable_name": "Air Speedball",
             "enabled": true
         },
@@ -1601,27 +1613,6 @@
             "enabled": true
         },
         {
-            "room_id": 211,
-            "notable_id": 1,
-            "room_name": "Bug Sand Hole",
-            "notable_name": "Sand Jumps",
-            "enabled": true
-        },
-        {
-            "room_id": 211,
-            "notable_id": 2,
-            "room_name": "Bug Sand Hole",
-            "notable_name": "Damage Boost",
-            "enabled": true
-        },
-        {
-            "room_id": 211,
-            "notable_id": 3,
-            "room_name": "Bug Sand Hole",
-            "notable_name": "Speedy Jump Morph",
-            "enabled": true
-        },
-        {
             "room_id": 213,
             "notable_id": 1,
             "room_name": "Butterfly Room",
@@ -1631,7 +1622,7 @@
         {
             "room_id": 180,
             "notable_id": 1,
-            "room_name": "Northwest Maridia Bug Room",
+            "room_name": "Maridia Swiss Cheese Room",
             "notable_name": "Frozen Menu Bridge",
             "enabled": true
         },
@@ -1640,6 +1631,27 @@
             "notable_id": 1,
             "room_name": "Plasma Spark Room",
             "notable_name": "Frozen Fish Climb",
+            "enabled": true
+        },
+        {
+            "room_id": 211,
+            "notable_id": 1,
+            "room_name": "Yoink Room",
+            "notable_name": "Sand Jumps",
+            "enabled": true
+        },
+        {
+            "room_id": 211,
+            "notable_id": 2,
+            "room_name": "Yoink Room",
+            "notable_name": "Damage Boost",
+            "enabled": true
+        },
+        {
+            "room_id": 211,
+            "notable_id": 3,
+            "room_name": "Yoink Room",
+            "notable_name": "Speedy Jump Morph",
             "enabled": true
         },
         {
@@ -1671,20 +1683,6 @@
             "enabled": true
         },
         {
-            "room_id": 230,
-            "notable_id": 2,
-            "room_name": "Blue Hopper Room",
-            "notable_name": "Screw Attack Jumps",
-            "enabled": true
-        },
-        {
-            "room_id": 230,
-            "notable_id": 4,
-            "room_name": "Blue Hopper Room",
-            "notable_name": "Squeeze Under Hoppers",
-            "enabled": true
-        },
-        {
             "room_id": 227,
             "notable_id": 1,
             "room_name": "Metroid Room 2",
@@ -1710,6 +1708,20 @@
             "notable_id": 4,
             "room_name": "Tourian Escape Room 4",
             "notable_name": "Bootless Walljumpless Space Jump",
+            "enabled": true
+        },
+        {
+            "room_id": 230,
+            "notable_id": 2,
+            "room_name": "Tourian Hopper Room",
+            "notable_name": "Screw Attack Jumps",
+            "enabled": true
+        },
+        {
+            "room_id": 230,
+            "notable_id": 4,
+            "room_name": "Tourian Hopper Room",
+            "notable_name": "Squeeze Under Hoppers",
             "enabled": true
         },
         {
@@ -1832,17 +1844,17 @@
             "enabled": false
         },
         {
-            "room_id": 61,
+            "room_id": 60,
             "notable_id": 3,
-            "room_name": "Pink Brinstar Hopper Room",
-            "notable_name": "Hopper X-Ray Climb",
+            "room_name": "Mission Impossible Room",
+            "notable_name": "Mission Impossible",
             "enabled": false
         },
         {
-            "room_id": 60,
+            "room_id": 61,
             "notable_id": 3,
-            "room_name": "Pink Brinstar Power Bomb Room",
-            "notable_name": "Mission Impossible",
+            "room_name": "Pink Brinstar Wave Gate Room",
+            "notable_name": "Hopper X-Ray Climb",
             "enabled": false
         },
         {
@@ -1930,24 +1942,24 @@
             "enabled": false
         },
         {
-            "room_id": 99,
-            "notable_id": 1,
-            "room_name": "Norfair Reserve Tank Room",
-            "notable_name": "Power Bomb with Damage Boost",
-            "enabled": false
-        },
-        {
             "room_id": 112,
             "notable_id": 1,
-            "room_name": "Spiky Acid Snakes Tunnel",
+            "room_name": "Lava Grapple Tunnel",
             "notable_name": "Frozen Maw Platforms",
             "enabled": false
         },
         {
             "room_id": 112,
             "notable_id": 2,
-            "room_name": "Spiky Acid Snakes Tunnel",
+            "room_name": "Lava Grapple Tunnel",
             "notable_name": "Suitless Damage Boosts",
+            "enabled": false
+        },
+        {
+            "room_id": 99,
+            "notable_id": 1,
+            "room_name": "Norfair Reserve Tank Room",
+            "notable_name": "Power Bomb with Damage Boost",
             "enabled": false
         },
         {
@@ -2002,42 +2014,42 @@
         {
             "room_id": 127,
             "notable_id": 1,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Indiana Jones Grapple",
             "enabled": false
         },
         {
             "room_id": 127,
             "notable_id": 3,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Full Room Space Jump Through Speed Blocks",
             "enabled": false
         },
         {
             "room_id": 127,
             "notable_id": 4,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Left Side Diagonal Shinespark",
             "enabled": false
         },
         {
             "room_id": 127,
             "notable_id": 7,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Springwall",
             "enabled": false
         },
         {
             "room_id": 127,
             "notable_id": 8,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Mella Ice Clip",
             "enabled": false
         },
         {
             "room_id": 127,
             "notable_id": 9,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "Spring Ball Unmorph Bomb Boost",
             "enabled": false
         },
@@ -2126,6 +2138,13 @@
             "enabled": false
         },
         {
+            "room_id": 176,
+            "notable_id": 1,
+            "room_name": "Crab Gate Room",
+            "notable_name": "Stutter Shinecharge Through The Gate",
+            "enabled": false
+        },
+        {
             "room_id": 201,
             "notable_id": 1,
             "room_name": "Crab Hole",
@@ -2144,13 +2163,6 @@
             "notable_id": 3,
             "room_name": "Crab Hole",
             "notable_name": "Suitless Crab Climb Superless with Springball",
-            "enabled": false
-        },
-        {
-            "room_id": 176,
-            "notable_id": 1,
-            "room_name": "Crab Tunnel",
-            "notable_name": "Stutter Shinecharge Through The Gate",
             "enabled": false
         },
         {
@@ -2212,21 +2224,21 @@
         {
             "room_id": 196,
             "notable_id": 2,
-            "room_name": "East Cactus Alley Room",
+            "room_name": "East Cactus Alley",
             "notable_name": "Cross Room Jump with IBJ",
             "enabled": false
         },
         {
             "room_id": 196,
             "notable_id": 6,
-            "room_name": "East Cactus Alley Room",
+            "room_name": "East Cactus Alley",
             "notable_name": "Bomb Jump Water Escape",
             "enabled": false
         },
         {
             "room_id": 209,
             "notable_id": 1,
-            "room_name": "West Sand Hole",
+            "room_name": "West Sand Pit",
             "notable_name": "Suitless Wall Jump Break Free",
             "enabled": false
         },
@@ -2343,27 +2355,6 @@
             "enabled": false
         },
         {
-            "room_id": 230,
-            "notable_id": 1,
-            "room_name": "Blue Hopper Room",
-            "notable_name": "Hopper Dodge",
-            "enabled": false
-        },
-        {
-            "room_id": 230,
-            "notable_id": 3,
-            "room_name": "Blue Hopper Room",
-            "notable_name": "Roll Under Hoppers",
-            "enabled": false
-        },
-        {
-            "room_id": 230,
-            "notable_id": 5,
-            "room_name": "Blue Hopper Room",
-            "notable_name": "Crystal Flash",
-            "enabled": false
-        },
-        {
             "room_id": 226,
             "notable_id": 1,
             "room_name": "Metroid Room 1",
@@ -2396,6 +2387,27 @@
             "notable_id": 4,
             "room_name": "Metroid Room 4",
             "notable_name": "Bottom Metroid Avoid (Six Power Bomb Dodge Kill)",
+            "enabled": false
+        },
+        {
+            "room_id": 230,
+            "notable_id": 1,
+            "room_name": "Tourian Hopper Room",
+            "notable_name": "Hopper Dodge",
+            "enabled": false
+        },
+        {
+            "room_id": 230,
+            "notable_id": 3,
+            "room_name": "Tourian Hopper Room",
+            "notable_name": "Roll Under Hoppers",
+            "enabled": false
+        },
+        {
+            "room_id": 230,
+            "notable_id": 5,
+            "room_name": "Tourian Hopper Room",
+            "notable_name": "Crystal Flash",
             "enabled": false
         },
         {
@@ -2455,13 +2467,6 @@
             "enabled": false
         },
         {
-            "room_id": 33,
-            "notable_id": 1,
-            "room_name": "Bowling Alley Path",
-            "notable_name": "Double Frozen Choot Runway",
-            "enabled": false
-        },
-        {
             "room_id": 34,
             "notable_id": 1,
             "room_name": "East Ocean",
@@ -2480,6 +2485,13 @@
             "notable_id": 8,
             "room_name": "East Ocean",
             "notable_name": "Precise Space Jump Water Escape",
+            "enabled": false
+        },
+        {
+            "room_id": 33,
+            "notable_id": 1,
+            "room_name": "Pancakes and Wavers Room",
+            "notable_name": "Double Frozen Choot Runway",
             "enabled": false
         },
         {
@@ -2625,14 +2637,14 @@
         {
             "room_id": 60,
             "notable_id": 1,
-            "room_name": "Pink Brinstar Power Bomb Room",
+            "room_name": "Mission Impossible Room",
             "notable_name": "Mission Impossible Shinespark",
             "enabled": false
         },
         {
             "room_id": 60,
             "notable_id": 4,
-            "room_name": "Pink Brinstar Power Bomb Room",
+            "room_name": "Mission Impossible Room",
             "notable_name": "Mission Impossible Walljumpless",
             "enabled": false
         },
@@ -2791,13 +2803,6 @@
             "enabled": false
         },
         {
-            "room_id": 147,
-            "notable_id": 2,
-            "room_name": "Lower Norfair Escape Power Bomb Room",
-            "notable_name": "Grapple Teleport Inside Wall",
-            "enabled": false
-        },
-        {
             "room_id": 145,
             "notable_id": 2,
             "room_name": "Lower Norfair Fireflea Room",
@@ -2830,6 +2835,13 @@
             "notable_id": 3,
             "room_name": "Red Kihunter Shaft",
             "notable_name": "Grapple Teleport Semi-Blind Movement",
+            "enabled": false
+        },
+        {
+            "room_id": 147,
+            "notable_id": 2,
+            "room_name": "The Jail",
+            "notable_name": "Grapple Teleport Inside Wall",
             "enabled": false
         },
         {
@@ -2996,21 +3008,21 @@
         {
             "room_id": 196,
             "notable_id": 4,
-            "room_name": "East Cactus Alley Room",
+            "room_name": "East Cactus Alley",
             "notable_name": "Springball Spike Boost",
             "enabled": false
         },
         {
             "room_id": 208,
             "notable_id": 2,
-            "room_name": "East Sand Hole",
+            "room_name": "East Sand Pit",
             "notable_name": "Underwater Walljump",
             "enabled": false
         },
         {
             "room_id": 208,
             "notable_id": 4,
-            "room_name": "East Sand Hole",
+            "room_name": "East Sand Pit",
             "notable_name": "Sandfall Bounce",
             "enabled": false
         },
@@ -3171,21 +3183,21 @@
         {
             "room_id": 29,
             "notable_id": 2,
-            "room_name": "Crateria Super Room",
+            "room_name": "Climb Supers Room",
             "notable_name": "In-Room SpeedKeep for Temporary Blue",
             "enabled": false
         },
         {
             "room_id": 29,
             "notable_id": 3,
-            "room_name": "Crateria Super Room",
+            "room_name": "Climb Supers Room",
             "notable_name": "G-Mode Up with Power Bombs",
             "enabled": false
         },
         {
             "room_id": 29,
             "notable_id": 4,
-            "room_name": "Crateria Super Room",
+            "room_name": "Climb Supers Room",
             "notable_name": "G-Mode Morph Long Ceiling Bomb Jump",
             "enabled": false
         },
@@ -3239,13 +3251,6 @@
             "enabled": false
         },
         {
-            "room_id": 33,
-            "notable_id": 2,
-            "room_name": "Bowling Alley Path",
-            "notable_name": "Triple Frozen Choot Runway",
-            "enabled": false
-        },
-        {
             "room_id": 24,
             "notable_id": 1,
             "room_name": "Crateria Kihunter Room",
@@ -3257,6 +3262,13 @@
             "notable_id": 3,
             "room_name": "East Ocean",
             "notable_name": "Speedy Springball Bounce to the Door",
+            "enabled": false
+        },
+        {
+            "room_id": 33,
+            "notable_id": 2,
+            "room_name": "Pancakes and Wavers Room",
+            "notable_name": "Triple Frozen Choot Runway",
             "enabled": false
         },
         {
@@ -3323,6 +3335,13 @@
             "enabled": false
         },
         {
+            "room_id": 70,
+            "notable_id": 3,
+            "room_name": "Below Spazer",
+            "notable_name": "CWJ Jump Shot Speedball",
+            "enabled": false
+        },
+        {
             "room_id": 93,
             "notable_id": 2,
             "room_name": "Frog Speedway",
@@ -3367,7 +3386,7 @@
         {
             "room_id": 127,
             "notable_id": 2,
-            "room_name": "Post Crocomire Jump Room",
+            "room_name": "Indiana Jones Room",
             "notable_name": "G-Mode Morph Long Diagonal Bomb Jump",
             "enabled": false
         },
@@ -3393,13 +3412,6 @@
             "enabled": false
         },
         {
-            "room_id": 147,
-            "notable_id": 1,
-            "room_name": "Lower Norfair Escape Power Bomb Room",
-            "notable_name": "Crystal Flash Clip",
-            "enabled": false
-        },
-        {
             "room_id": 134,
             "notable_id": 2,
             "room_name": "Pillar Room",
@@ -3418,6 +3430,13 @@
             "notable_id": 3,
             "room_name": "Ridley's Room",
             "notable_name": "G-Mode Ridley with 30 Supers",
+            "enabled": false
+        },
+        {
+            "room_id": 147,
+            "notable_id": 1,
+            "room_name": "The Jail",
+            "notable_name": "Crystal Flash Clip",
             "enabled": false
         },
         {
@@ -3456,20 +3475,6 @@
             "enabled": false
         },
         {
-            "room_id": 170,
-            "notable_id": 2,
-            "room_name": "Glass Tunnel",
-            "notable_name": "Grapple Teleport into Grapple Jump (or Tube Intact)",
-            "enabled": false
-        },
-        {
-            "room_id": 170,
-            "notable_id": 3,
-            "room_name": "Glass Tunnel",
-            "notable_name": "Cross Room Platform Stuck Wiggle to Top Door",
-            "enabled": false
-        },
-        {
             "room_id": 172,
             "notable_id": 2,
             "room_name": "Main Street",
@@ -3488,6 +3493,20 @@
             "notable_id": 1,
             "room_name": "Mama Turtle Room",
             "notable_name": "Insane Walljump",
+            "enabled": false
+        },
+        {
+            "room_id": 170,
+            "notable_id": 2,
+            "room_name": "Maridia Tube",
+            "notable_name": "Grapple Teleport into Grapple Jump (or Tube Intact)",
+            "enabled": false
+        },
+        {
+            "room_id": 170,
+            "notable_id": 3,
+            "room_name": "Maridia Tube",
+            "notable_name": "Cross Room Platform Stuck Wiggle to Top Door",
             "enabled": false
         },
         {
@@ -3584,21 +3603,21 @@
         {
             "room_id": 196,
             "notable_id": 1,
-            "room_name": "East Cactus Alley Room",
+            "room_name": "East Cactus Alley",
             "notable_name": "G-Mode Morph, IBJ, HBJ",
             "enabled": false
         },
         {
             "room_id": 208,
             "notable_id": 1,
-            "room_name": "East Sand Hole",
+            "room_name": "East Sand Pit",
             "notable_name": "Suitless HiJump Perfect Bomb Boost",
             "enabled": false
         },
         {
             "room_id": 208,
             "notable_id": 3,
-            "room_name": "East Sand Hole",
+            "room_name": "East Sand Pit",
             "notable_name": "Insane Walljump Morph",
             "enabled": false
         },
@@ -3766,7 +3785,7 @@
         {
             "room_id": 196,
             "notable_id": 5,
-            "room_name": "East Cactus Alley Room",
+            "room_name": "East Cactus Alley",
             "notable_name": "HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
             "enabled": false
         }

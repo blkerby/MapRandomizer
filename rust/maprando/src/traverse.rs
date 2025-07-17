@@ -9,7 +9,7 @@ use crate::{
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
     LinksDataGroup, NodeId, Requirement, RoomId, VertexId, TECH_ID_CAN_BE_EXTREMELY_PATIENT,
-    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT,
+    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT, TECH_ID_CAN_SUITLESS_LAVA_DIVE,
 };
 use maprando_logic::{
     boss_requirements::{
@@ -254,6 +254,7 @@ fn apply_heat_frames(
     global: &GlobalState,
     game_data: &GameData,
     difficulty: &DifficultyConfig,
+    simple: bool,
 ) -> Option<LocalState> {
     let varia = global.inventory.items[Item::Varia as usize];
     let mut new_local = local;
@@ -262,8 +263,12 @@ fn apply_heat_frames(
     } else if !difficulty.tech[game_data.heat_run_tech_idx] {
         None
     } else {
-        new_local.energy_used +=
-            (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+        if simple {
+            new_local.energy_used += (frames as f32 / 4.0).ceil() as Capacity;
+        } else {
+            new_local.energy_used +=
+                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+        }
         validate_energy(
             new_local,
             &global.inventory,
@@ -399,6 +404,59 @@ fn apply_heat_frames_with_energy_drops(
         let heat_energy = (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
         total_drop_value = Capacity::min(total_drop_value, heat_energy);
         new_local.energy_used += heat_energy;
+        if let Some(x) = validate_energy(
+            new_local,
+            &global.inventory,
+            difficulty.tech[game_data.manage_reserves_tech_idx],
+        ) {
+            new_local = x;
+        } else {
+            return None;
+        }
+        if total_drop_value <= new_local.energy_used {
+            new_local.energy_used -= total_drop_value;
+        } else {
+            new_local.reserves_used -= total_drop_value - new_local.energy_used;
+            new_local.energy_used = 0;
+        }
+        Some(new_local)
+    }
+}
+
+fn apply_lava_frames_with_energy_drops(
+    frames: Capacity,
+    drops: &[EnemyDrop],
+    local: LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+    settings: &RandomizerSettings,
+    difficulty: &DifficultyConfig,
+    reverse: bool,
+) -> Option<LocalState> {
+    let varia = global.inventory.items[Item::Varia as usize];
+    let gravity = global.inventory.items[Item::Gravity as usize];
+    let mut new_local = local;
+    if gravity && varia {
+        Some(new_local)
+    } else if !difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_SUITLESS_LAVA_DIVE]] {
+        None
+    } else {
+        let mut total_drop_value = 0;
+        for drop in drops {
+            total_drop_value += get_enemy_drop_energy_value(
+                drop,
+                local,
+                reverse,
+                settings.quality_of_life_settings.buffed_drops,
+            )
+        }
+        let lava_energy = if gravity || varia {
+            (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity
+        } else {
+            (frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity
+        };
+        total_drop_value = Capacity::min(total_drop_value, lava_energy);
+        new_local.energy_used += lava_energy;
         if let Some(x) = validate_energy(
             new_local,
             &global.inventory,
@@ -741,11 +799,7 @@ pub fn apply_farm_requirement(
     );
     if let Some(end_local) = end_local_result {
         assert!(end_local.cycle_frames >= 100);
-        // Start with the heat damage multiplier, but adjust it to be closer to 1.0
-        // since farming is generally easy/repetitive so you expect it to be
-        // doable more efficiently:
-        let cycle_multiplier = (difficulty.resource_multiplier + 2.0) / 3.0;
-        let cycle_frames = (end_local.cycle_frames - 1) as f32 * cycle_multiplier;
+        let cycle_frames = (end_local.cycle_frames - 1) as f32;
         let cycle_energy = (end_local.energy_used + end_local.reserves_used
             - local.energy_used
             - local.reserves_used) as f32;
@@ -1055,7 +1109,10 @@ pub fn apply_requirement(
             }
         }
         Requirement::HeatFrames(frames) => {
-            apply_heat_frames(*frames, local, global, game_data, difficulty)
+            apply_heat_frames(*frames, local, global, game_data, difficulty, false)
+        }
+        Requirement::SimpleHeatFrames(frames) => {
+            apply_heat_frames(*frames, local, global, game_data, difficulty, true)
         }
         Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops) => {
             apply_heat_frames_with_energy_drops(
@@ -1069,29 +1126,41 @@ pub fn apply_requirement(
                 reverse,
             )
         }
+        Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops) => {
+            apply_lava_frames_with_energy_drops(
+                *frames,
+                enemy_drops,
+                local,
+                global,
+                game_data,
+                settings,
+                difficulty,
+                reverse,
+            )
+        }
         Requirement::MainHallElevatorFrames => {
             if settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(188, local, global, game_data, difficulty)
+                apply_heat_frames(188, local, global, game_data, difficulty, true)
             } else if !global.inventory.items[Item::Varia as usize]
                 && global.inventory.max_energy < 149
             {
                 None
             } else {
-                apply_heat_frames(436, local, global, game_data, difficulty)
+                apply_heat_frames(436, local, global, game_data, difficulty, true)
             }
         }
         Requirement::LowerNorfairElevatorDownFrames => {
             if settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(30, local, global, game_data, difficulty)
+                apply_heat_frames(30, local, global, game_data, difficulty, true)
             } else {
-                apply_heat_frames(60, local, global, game_data, difficulty)
+                apply_heat_frames(60, local, global, game_data, difficulty, true)
             }
         }
         Requirement::LowerNorfairElevatorUpFrames => {
             if settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(48, local, global, game_data, difficulty)
+                apply_heat_frames(48, local, global, game_data, difficulty, true)
             } else {
-                apply_heat_frames(108, local, global, game_data, difficulty)
+                apply_heat_frames(108, local, global, game_data, difficulty, true)
             }
         }
         Requirement::LavaFrames(frames) => {
@@ -1149,6 +1218,12 @@ pub fn apply_requirement(
             validate_energy(new_local, &global.inventory, can_manage_reserves)
         }
         Requirement::CycleFrames(frames) => {
+            let mut new_local: LocalState = local;
+            new_local.cycle_frames +=
+                (*frames as f32 * difficulty.resource_multiplier).ceil() as Capacity;
+            Some(new_local)
+        }
+        Requirement::SimpleCycleFrames(frames) => {
             let mut new_local: LocalState = local;
             new_local.cycle_frames += frames;
             Some(new_local)

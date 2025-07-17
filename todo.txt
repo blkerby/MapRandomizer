@@ -14,9 +14,13 @@ v120?:
 v119:
 - fix Volcano Room heated runway logic
 - implement "heated" field on leaveWithRunway
+- implement lavaFramesWithEnergyDrops
 - fix fog in Pit Room (Outer Maridia theme?) 
   - osse stream Jul 12
 - back-side MB should be notable?
+- move canStaggeredWalljump to VH
+- adjust requirements on canPreciseWalljump strats
+- fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
 - DONE: show farmEnemyDrops in logic pages
 - DONE: handle enemy "amountOfDrops"
 - DONE: fix issue with min/max objectives ui
