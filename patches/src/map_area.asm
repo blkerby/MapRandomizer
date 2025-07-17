@@ -9,8 +9,8 @@ lorom
 !bank_82_freespace2_end = $82FCD0
 !bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear.asm and fix_kraid_hud.asm
 !bank_85_freespace_end = $85A880
-!bank_85_freespace2_start = $85AB80
-!bank_85_freespace2_end  = $85AD80
+!bank_85_freespace2_start = $85AB00
+!bank_85_freespace2_end  = $85ACA0
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
 !bank_a7_freespace_start = $A7FFC0
@@ -29,19 +29,11 @@ incsrc "constants.asm"
 !unexplored_light_gray = #$4631
 !area_explored_mask = $702600
 
-macro queueGfxDMA(src, dstVRAM, size)
-    LDX $0330
-    LDA.w #<size> : STA.b $D0,x
-    INX : INX
-    LDA.W #(<src>&$ffff) : STA.b $D0,x
-    INX : INX
-    SEP #$20
-    LDA.b #(<src>>>16) : STA.b $D0,x
-    REP #$20
-    INX
-    LDA.w #<dstVRAM> : STA.b $D0,x
-    INX : INX
-    STX $0330
+macro call_sram_to_gfx_dma(src, dstVRAM, size) ; uses A/X/Y
+    LDA.W #<size>
+    LDX.W #(<src>&$ffff)
+    LDY.W #<dstVRAM>
+    JSL sram_to_gfx_dma
 endmacro
 
 ; pause map colors for palettes 2 (explored) and 6 (unexplored):
@@ -660,9 +652,9 @@ switch_map_area:
     jsr simple_scroll_setup  ; for map in different area, set scrolls without using samus position
     lda !room_name_option
     beq .done
-    %queueGfxDMA($707C40, $3B01, $3C)  ; fill bottom frame
-    %queueGfxDMA($707D00, $5B00, $200) ; clear name
-    %queueGfxDMA($707D00, $5F00, $200)
+    %call_sram_to_gfx_dma($7C40, $3B01, $3C)  ; fill bottom frame
+    %call_sram_to_gfx_dma($7D00, $5B00, $200) ; clear name
+    %call_sram_to_gfx_dma($7D00, $5F00, $200)
     bra .done
 .orig_area:
     jsl $829028     ;set map scroll boundaries and screen starting position like vanilla, using samus position
@@ -1332,8 +1324,8 @@ write_room_name_tiles:
     inx : inx
     cpx #$0040
     bne .fill_bg3
-    %queueGfxDMA($707a00, $5b00, $40)
-    %queueGfxDMA($707a00, $5f00, $40) ; 2nd write for rooms with BG3 shift
+    %call_sram_to_gfx_dma($7A00, $5B00, $40)
+    %call_sram_to_gfx_dma($7A00, $5F00, $40) ; 2nd write for rooms with BG3 shift
 .skip_write
     jmp $90cb
 
@@ -1341,10 +1333,11 @@ warnpc !bank_82_freespace2_end
 
 org !bank_85_freespace2_start
 
-!bit_offset = $40
+!bit_offset = $3a
+!bit_offset_round = $3e
+!overflow_bits_init = $40
 !overflow_bits = $42
-!pixel_row = $44
-!curr_tile = $45
+!curr_tile = $44
 !letter_width = $46
 !num_frame_tiles = $48
 ; $4a = new tiles sram ptr (24-bit addr)
@@ -1383,7 +1376,7 @@ render_room_name:
     lda #$0070
     sta $4c                 ; SRAM bank
 
-conv_2bpp:                  ; X = room name ptr
+load_letter:                ; X = room name ptr
     lda $e30000,x           ; load next letter
     and #$00ff
     bne .cont
@@ -1402,24 +1395,25 @@ conv_2bpp:                  ; X = room name ptr
     tax
     lda #$7800
     sta $4a                 ; start of output buffer
-    lda #$0008
-    sta !pixel_row          ; row counter
-    
-tile_lp:
-    phx                     ; tile ptr
-    lda !bit_offset
-    stz !overflow_bits
-    ldy #$0000
 
 ; bit offset (rounded) / 8 * 16
+    lda !bit_offset
     pha
     and #$00f8              ; clear remainder
     asl
-    tay
+    sta !bit_offset_round
 ; bit offset % 8
     pla
     and #$0007
-    sta !overflow_bits      ; save remainder
+    sta !overflow_bits_init ; save remainder
+    lda #$0008              ; row count
+    
+tile_lp:
+    pha                     ; pixel row
+    phx                     ; tile ptr
+    lda !overflow_bits_init
+    sta !overflow_bits
+    ldy !bit_offset_round
 
     sep #$20
     lda $e3c000,x
@@ -1440,17 +1434,14 @@ tile_lp:
     sec
     sbc !overflow_bits
     sta !overflow_bits
+    tay
     lda !curr_tile
 .asl_lp
     asl
-    dec !overflow_bits
+    dey
     bne .asl_lp 
     sta !curr_tile          ; save shifted tile
-    rep #$30
-    lda !next_tile_ptr
-    tay
-    iny
-    sep #$20
+    ldy !next_tile_ptr
     lda [$4a],y
     ora !curr_tile          ; update adjacent tile with overflow
     sta [$4a],y
@@ -1458,9 +1449,8 @@ tile_lp:
     pla
 .no_overflow
     dex
-    beq .done_shifting
-    bra .keep_shifting
-    
+    bne .keep_shifting
+
 .done_shifting
     inc $4a
     ora [$4a],y             ; update tile
@@ -1470,14 +1460,14 @@ tile_lp:
     rep #$30
     tya
     clc
-    adc #$0010              ; update tile ptr to next tile
+    adc #$0011              ; update tile ptr to next tile
     sta !next_tile_ptr
 
     plx                     ; tile ptr
     inx
-    dec !pixel_row
-    beq .next_letter
-    jmp tile_lp
+    pla                     ; pixel row
+    dec
+    bne tile_lp
 
 .next_letter
     lda !letter_width
@@ -1486,7 +1476,7 @@ tile_lp:
     
     plx                     ; curr letter ptr
     inx
-    jmp conv_2bpp
+    jmp load_letter
 
 done:
     plp
@@ -1495,7 +1485,7 @@ done:
 ; copy rendered room name to VRAM
     lda !room_name_option
     beq .skip_write
-    %queueGfxDMA($707800, $4600, $200)
+    %call_sram_to_gfx_dma($7800, $4600, $200)
 
 ; clear BG2 bottom frame for name
 ; $B030 left/right edge, $B00F blank
@@ -1546,60 +1536,56 @@ done:
     
     lda !room_name_option
     beq .skip_write2
-    TXA
-    PHA
-    LDX $0330
-    TYA : STA.b $D0,x       ; size
-    INX : INX
-    LDA.W #$7c04 : STA.b $D0,x ; offset
-    INX : INX
-    SEP #$20
-    LDA.b #$70 : STA.b $D0,x ; bank
-    REP #$30
-    INX
-    PLA
-    STA.b $D0,x             ; vram addr
-    INX : INX
-    STX $0330
+
+    tya ; size
+    txy ; vram addr
+    ldx #$7c04 ; offset
+    jsl sram_to_gfx_dma
 
 ; fill frame tiles (BG2)
 .skip_write2
-    LDA #$B031
-    LDX #$003C
+    lda #$B031
+    ldx #$003C
     
 .fill_frame
-    STA $707C3E,X
-    DEX : DEX
-    BNE .fill_frame
+    sta $707C3E,X
+    dex : dex
+    bne .fill_frame
     
 ; clear name tiles (BG3)
-    LDA #$000e
-    LDX #$0200
+    lda #$000e
+    ldx #$0200
     
 .fill_frame2
-    STA $707CFE,X
-    DEX : DEX
-    BNE .fill_frame2
+    sta $707CFE,X
+    dex : dex
+    bne .fill_frame2
     
     rtl
 
 write_room_name:
-    %queueGfxDMA($707a00, $5b00, $40)
-    %queueGfxDMA($707a00, $5f00, $40)
+    %call_sram_to_gfx_dma($7A00, $5B00, $40)
+    %call_sram_to_gfx_dma($7A00, $5F00, $40)
 
-    LDX $0330
-    LDA $707c02  : STA.b $D0,x ; size
-    INX : INX
-    LDA.W #$7c04 : STA.b $D0,x ; offset
-    INX : INX
-    SEP #$20
-    LDA.b #$70   : STA.b $D0,x ; bank
-    REP #$20
-    INX
-    LDA $707c00  : STA.b $D0,x ; vram addr
-    INX : INX
-    STX $0330
+    lda $707c00 : tay ; vram addr
+    lda $707c02 ; size
+    ldx #$7c04 ; offset
+    jsl sram_to_gfx_dma
     
     rts
+
+sram_to_gfx_dma: ; size in A, src in X (bank hardcoded to $70), dest in Y
+    PHX
+    LDX $0330
+    STA $D0,x ; size
+    INX : INX
+    PLA : STA $D0,x ; src
+    INX : INX
+    LDA #$0070 : STA $D0,x ; bank
+    INX
+    STY $D0,x ; dest
+    INX : INX
+    STX $0330
+    RTL
 
 warnpc !bank_85_freespace2_end

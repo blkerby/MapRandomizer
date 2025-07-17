@@ -27,8 +27,8 @@ incsrc "constants.asm"
 !bank_85_free_space_start = $859B20
 !bank_85_free_space_end = $859FF0
 
-!bank_85_free_space2_start = $85aa00
-!bank_85_free_space2_end = $85ab20
+!bank_85_free_space2_start = $85AA00
+!bank_85_free_space2_end = $85AAA0
 
 !bank_B6_free_space_start = $B6F200
 !bank_B6_free_space_end = $B6F660
@@ -210,6 +210,13 @@ macro callBank82Func(func)
     DEX
     JSL hook_85_to_82
     PLX
+endmacro
+
+macro call_sram_to_gfx_dma(src, dstVRAM, size) ; uses A/X/Y
+    LDA.W #<size>
+    LDX.W #(<src>&$ffff)
+    LDY.W #<dstVRAM>
+    JSR sram_to_gfx_dma
 endmacro
 
 org !bank_82_free_space_start
@@ -874,11 +881,11 @@ fill_bottom_frame:
     PHP
     ;; fill in lower frame (BG2)
     REP #$30
-    %queueGfxDMA($707C40, $3B01, $3C)
+    %call_sram_to_gfx_dma($7C40, $3B01, $3C)
 
     ;; clear name (BG3)
-    %queueGfxDMA($707D00, $5B00, $200)
-    %queueGfxDMA($707D00, $5F00, $200) ; 2nd write for rooms with BG3 shift
+    %call_sram_to_gfx_dma($7D00, $5B00, $200)
+    %call_sram_to_gfx_dma($7D00, $5F00, $200) ; 2nd write for rooms with BG3 shift
     PLP
     RTS
 
@@ -886,24 +893,31 @@ restore_room_name:
     PHA
     PHX
     ;; restore room name and remove bottom frame
-    %queueGfxDMA($707a00, $5b00, $40)
-    %queueGfxDMA($707a00, $5f00, $40) ; 2nd write for rooms with BG3 shift
+    %call_sram_to_gfx_dma($7A00, $5B00, $40)
+    %call_sram_to_gfx_dma($7A00, $5F00, $40) ; 2nd write for rooms with BG3 shift
     
-    LDX $0330
-    LDA $707c02  : STA.b $D0,x ; size
-    INX : INX
-    LDA.W #$7c04 : STA.b $D0,x ; offset
-    INX : INX
-    SEP #$20
-    LDA.b #$70   : STA.b $D0,x ; bank
-    REP #$20
-    INX
-    LDA $707c00  : STA.b $D0,x ; vram addr
-    INX : INX
-    STX $0330
+    LDA $707c00 ; vram addr
+    TAY
+    LDA $707c02 ; size
+    LDX #$7c04 ; offset
+    JSR sram_to_gfx_dma
     
     PLX
     PLA
+    RTS
+
+sram_to_gfx_dma: ; size in A, src in X (bank hardcoded to $70), dest in Y
+    PHX
+    LDX $0330
+    STA $D0,x ; size
+    INX : INX
+    PLA : STA $D0,x ; src
+    INX : INX
+    LDA #$0070 : STA $D0,x ; bank
+    INX
+    STY $D0,x ; dest
+    INX : INX
+    STX $0330
     RTS
 
 warnpc !bank_85_free_space2_end
