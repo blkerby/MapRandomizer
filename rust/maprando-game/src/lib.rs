@@ -371,8 +371,11 @@ impl Requirement {
                 return Requirement::Never;
             } else if let Requirement::Free = req {
                 continue;
+            } else if let Requirement::And(and_reqs) = req {
+                out_reqs.extend(and_reqs);
+            } else {
+                out_reqs.push(req);
             }
-            out_reqs.push(req);
         }
         if out_reqs.is_empty() {
             Requirement::Free
@@ -390,8 +393,11 @@ impl Requirement {
                 continue;
             } else if let Requirement::Free = req {
                 return Requirement::Free;
+            } else if let Requirement::Or(or_reqs) = req {
+                out_reqs.extend(or_reqs);
+            } else {
+                out_reqs.push(req);
             }
-            out_reqs.push(req);
         }
         if out_reqs.is_empty() {
             Requirement::Never

@@ -903,10 +903,10 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
 fn strip_cross_room_reqs(req: Requirement) -> Requirement {
     match req {
         Requirement::And(subreqs) => {
-            Requirement::And(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+            Requirement::make_and(subreqs.into_iter().map(strip_cross_room_reqs).collect())
         }
         Requirement::Or(subreqs) => {
-            Requirement::Or(subreqs.into_iter().map(strip_cross_room_reqs).collect())
+            Requirement::make_or(subreqs.into_iter().map(strip_cross_room_reqs).collect())
         }
         Requirement::DoorUnlocked { .. } => Requirement::Free,
         Requirement::NotFlag(_) => Requirement::Free,
