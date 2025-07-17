@@ -206,11 +206,6 @@
                 "enabled": false
             },
             {
-                "id": 82,
-                "name": "canStaggeredWalljump",
-                "enabled": false
-            },
-            {
                 "id": 193,
                 "name": "canLongIBJ",
                 "enabled": false
@@ -398,6 +393,11 @@
             {
                 "id": 72,
                 "name": "canTrickyJump",
+                "enabled": false
+            },
+            {
+                "id": 82,
+                "name": "canStaggeredWalljump",
                 "enabled": false
             },
             {

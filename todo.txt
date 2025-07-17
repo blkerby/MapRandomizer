@@ -12,13 +12,13 @@ v120?:
   - Finish checking flash suit logic
 
 v119:
-- fix Volcano Room heated runway logic
-- implement "heated" field on leaveWithRunway
-- implement lavaFramesWithEnergyDrops
+- DONE: fix Volcano Room heated runway logic
+- DONE: implement "heated" field on leaveWithRunway
+- DONE: implement lavaFramesWithEnergyDrops
 - fix fog in Pit Room (Outer Maridia theme?) 
   - osse stream Jul 12
-- back-side MB should be notable?
-- move canStaggeredWalljump to VH
+- DONE: back-side MB should be notable?
+- DONE: move canStaggeredWalljump to VH
 - adjust requirements on canPreciseWalljump strats
 - fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
 - DONE: show farmEnemyDrops in logic pages
