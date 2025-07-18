@@ -1344,6 +1344,10 @@ org !bank_85_freespace2_start
 !next_tile_ptr = $4d
 ; $4d (post-render) = bg2 tiles sram ptr (24-bit addr)
 
+; blank pixel rows in the font
+!blank_pixel_rows_top = 2
+!blank_pixel_rows_bottom = 1
+
 render_room_name:
 ; clear new tile space
 .fill
@@ -1393,7 +1397,7 @@ load_letter:                ; X = room name ptr
     tya
     asl #3                  ; tile ptr = (letter - 1) * 8
     tax
-    lda #$7800
+    lda.w #$7800+(!blank_pixel_rows_top*2)
     sta $4a                 ; start of output buffer
 
 ; bit offset (rounded) / 8 * 16
@@ -1402,12 +1406,18 @@ load_letter:                ; X = room name ptr
     and #$00f8              ; clear remainder
     asl
     sta !bit_offset_round
+
+; next tile ptr
+    clc
+    adc #$0011
+    sta !next_tile_ptr
+
 ; bit offset % 8
     pla
     and #$0007
     sta !overflow_bits_init ; save remainder
-    lda #$0008              ; row count
-    
+    lda.w #(8-!blank_pixel_rows_bottom-!blank_pixel_rows_top) ; pixel row count
+
 tile_lp:
     pha                     ; pixel row
     phx                     ; tile ptr
@@ -1416,12 +1426,12 @@ tile_lp:
     ldy !bit_offset_round
 
     sep #$20
-    lda $e3c000,x
-    sta !curr_tile
+    lda $e3c000+!blank_pixel_rows_top,x
     beq .done_shifting
     ldx !overflow_bits
     beq .done_shifting
-
+    sta !curr_tile
+    
 .keep_shifting
     lsr
     bcc .no_overflow
