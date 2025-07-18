@@ -491,6 +491,11 @@
                 "enabled": false
             },
             {
+                "id": 156,
+                "name": "canXRayClimb",
+                "enabled": false
+            },
+            {
                 "id": 173,
                 "name": "canPartialFloorClip",
                 "enabled": false
@@ -661,8 +666,8 @@
                 "enabled": false
             },
             {
-                "id": 156,
-                "name": "canXRayClimb",
+                "id": 202,
+                "name": "canLongXRayClimb",
                 "enabled": false
             },
             {
@@ -1070,13 +1075,6 @@
                 "enabled": false
             },
             {
-                "room_id": 66,
-                "notable_id": 8,
-                "room_name": "Red Tower",
-                "notable_name": "Hero Shot",
-                "enabled": false
-            },
-            {
                 "room_id": 94,
                 "notable_id": 1,
                 "room_name": "Upper Norfair Farming Room",
@@ -1298,6 +1296,13 @@
                 "notable_id": 2,
                 "room_name": "Red Tower",
                 "notable_name": "Hero Shot Shinespark",
+                "enabled": false
+            },
+            {
+                "room_id": 66,
+                "notable_id": 8,
+                "room_name": "Red Tower",
+                "notable_name": "Hero Shot",
                 "enabled": false
             },
             {
@@ -1854,6 +1859,13 @@
                 "enabled": false
             },
             {
+                "room_id": 60,
+                "notable_id": 5,
+                "room_name": "Mission Impossible Room",
+                "notable_name": "Doorway Sidehopper Kill",
+                "enabled": false
+            },
+            {
                 "room_id": 61,
                 "notable_id": 3,
                 "room_name": "Pink Brinstar Wave Gate Room",
@@ -2243,6 +2255,13 @@
                 "notable_id": 1,
                 "room_name": "West Sand Pit",
                 "notable_name": "Suitless Wall Jump Break Free",
+                "enabled": false
+            },
+            {
+                "room_id": 197,
+                "notable_id": 5,
+                "room_name": "Plasma Spark Room",
+                "notable_name": "Left Shaft Precise Crouch Jump Down Grab",
                 "enabled": false
             },
             {

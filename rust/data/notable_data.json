@@ -840,6 +840,14 @@
     "video_id": 76
   },
   {
+    "room_id": 60,
+    "room_name": "Mission Impossible Room",
+    "notable_id": 5,
+    "name": "Doorway Sidehopper Kill",
+    "difficulty": "Expert",
+    "video_id": 7088
+  },
+  {
     "room_id": 61,
     "room_name": "Pink Brinstar Wave Gate Room",
     "notable_id": 1,
@@ -1020,7 +1028,7 @@
     "room_name": "Red Tower",
     "notable_id": 8,
     "name": "Hero Shot",
-    "difficulty": "Hard",
+    "difficulty": "Very Hard",
     "video_id": 544
   },
   {
@@ -2782,6 +2790,14 @@
     "name": "Insane Frozen Choot Spring Ball Jump",
     "difficulty": "Insane",
     "video_id": 73
+  },
+  {
+    "room_id": 197,
+    "room_name": "Plasma Spark Room",
+    "notable_id": 5,
+    "name": "Left Shaft Precise Crouch Jump Down Grab",
+    "difficulty": "Expert",
+    "video_id": 4355
   },
   {
     "room_id": 214,

@@ -1010,8 +1010,14 @@
     {
         "tech_id": 156,
         "name": "canXRayClimb",
-        "difficulty": "Expert",
+        "difficulty": "Very Hard",
         "video_id": 795
+    },
+    {
+        "tech_id": 202,
+        "name": "canLongXRayClimb",
+        "difficulty": "Expert",
+        "video_id": 2212
     },
     {
         "tech_id": 157,

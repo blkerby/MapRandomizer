@@ -15,6 +15,7 @@ v119:
 - DONE: fix Volcano Room heated runway logic
 - DONE: implement "heated" field on leaveWithRunway
 - DONE: implement lavaFramesWithEnergyDrops
+- resetRoom formatting
 - fix fog in Pit Room (Outer Maridia theme?) 
   - osse stream Jul 12
 - DONE: back-side MB should be notable?
