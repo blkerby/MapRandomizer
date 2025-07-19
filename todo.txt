@@ -10,6 +10,10 @@ v120?:
     - Add missing remote runway strats in pink brinstar hopper room left side
   - Populate wallJumpAvoid throughout the logic (strats and notables)
   - Finish checking flash suit logic
+- Allow more options to be overridden on the customization step:
+  - example: Door locks size on map
+  - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
+  - options with more substantial effects could maybe be included, but we'd need to define rules for "Race mode" of which changes are allowed
 
 v119:
 - DONE: fix Volcano Room heated runway logic
@@ -30,10 +34,6 @@ v119:
 - DONE: handle enemy "amountOfDrops"
 - DONE: fix issue with min/max objectives ui
 - DONE: when two-sided saves are partially revealed, fix issue with neighboring lines showing white
-- Allow more options to be overridden on the customization step:
-  - examples: Item dots after collection, Area transition markers on map, Door locks size on map
-  - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
-  - options with more substantial effects could maybe be included, but we'd need to define rules for "Race mode" of which changes are allowed
 - DONE: Add QoL setting for limiting starting map reveal to visited area
 - DONE: Finer-grained map reveal options for specific types of tiles (maybe?)
 - DONE: Refine how initial ammo capacity works, and relax starting hub constraints

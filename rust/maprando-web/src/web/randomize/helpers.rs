@@ -11,7 +11,7 @@ use maprando::{
     seed_repository::{Seed, SeedFile},
     settings::{
         get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
-        ItemDotChange, RandomizerSettings, WallJump,
+        RandomizerSettings, WallJump,
     },
     spoiler_map,
 };
@@ -136,12 +136,6 @@ impl SeedHeaderTemplate<'_> {
                 game_variations.push("Random area assignment");
             }
             AreaAssignment::Standard => {}
-        }
-        if self.settings.other_settings.item_dot_change == ItemDotChange::Disappear {
-            game_variations.push("Item dots disappear after collection");
-        }
-        if !self.settings.other_settings.transition_letters {
-            game_variations.push("Area transitions marked as arrows");
         }
         if self.settings.other_settings.door_locks_size == DoorLocksSize::Small {
             game_variations.push("Door locks drawn smaller on map");

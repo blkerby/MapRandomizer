@@ -233,6 +233,8 @@ fn main() -> Result<()> {
         samus_sprite: Some("samus_vanilla".to_string()),
         // samus_sprite: None,
         etank_color: None,
+        item_dot_change: maprando::customize::ItemDotChange::Fade,
+        transition_letters: true,
         reserve_hud_style: true,
         vanilla_screw_attack_animation: true,
         room_names: true,

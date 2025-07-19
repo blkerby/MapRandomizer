@@ -332,8 +332,6 @@ pub struct StartLocationSettings {
 pub struct OtherSettings {
     pub wall_jump: WallJump,
     pub area_assignment: AreaAssignment,
-    pub item_dot_change: ItemDotChange,
-    pub transition_letters: bool,
     pub door_locks_size: DoorLocksSize,
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
@@ -399,12 +397,6 @@ pub enum Fanfares {
     Vanilla,
     Trimmed,
     Off,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum ItemDotChange {
-    Fade,
-    Disappear,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

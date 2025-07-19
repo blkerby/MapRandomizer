@@ -1154,6 +1154,7 @@ impl Patcher<'_> {
             self.game_data,
             self.map,
             self.settings,
+            self.customize_settings,
             self.randomization,
             &self.locked_door_state_indices,
         );

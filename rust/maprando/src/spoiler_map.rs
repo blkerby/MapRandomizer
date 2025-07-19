@@ -6,6 +6,7 @@ use std::io::Cursor;
 pub use image;
 
 use crate::{
+    customize::CustomizeSettings,
     patch::map_tiles::{
         apply_door_lock, apply_item_interior, get_gray_doors, get_objective_tiles, render_tile,
     },
@@ -108,6 +109,8 @@ pub fn get_spoiler_images(
     let width = max_tiles;
     let height = max_tiles;
     let mut tiles: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
+
+    let customize_settings = CustomizeSettings::default();
 
     if settings.map_layout == "Vanilla" {
         add_vanilla_elevators(&mut tiles);
@@ -245,7 +248,7 @@ pub fn get_spoiler_images(
             if tile.area.is_none() {
                 continue;
             }
-            let data = render_tile(tile.clone(), settings)?;
+            let data = render_tile(tile.clone(), settings, &customize_settings)?;
             for py in 0..8 {
                 for px in 0..8 {
                     if data[py][px] == 0 {

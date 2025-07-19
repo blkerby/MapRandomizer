@@ -40,9 +40,7 @@ struct SeedData {
     escape_enemies_cleared: bool,
     escape_refill: bool,
     escape_movement_items: bool,
-    transition_letters: bool,
     item_markers: String,
-    item_dot_change: String,
     all_items_spawn: bool,
     acid_chozo: bool,
     remove_climb_lava: bool,
@@ -288,11 +286,7 @@ async fn randomize(
         escape_enemies_cleared: qol_settings.escape_enemies_cleared,
         escape_refill: qol_settings.escape_refill,
         escape_movement_items: qol_settings.escape_movement_items,
-        transition_letters: other_settings.transition_letters,
         item_markers: to_variant_name(&qol_settings.item_markers)
-            .unwrap()
-            .to_string(),
-        item_dot_change: to_variant_name(&other_settings.item_dot_change)
             .unwrap()
             .to_string(),
         all_items_spawn: qol_settings.all_items_spawn,

@@ -1,10 +1,11 @@
 use hashbrown::{HashMap, HashSet};
 
 use crate::{
+    customize::{CustomizeSettings, ItemDotChange},
     randomize::{LockedDoor, Randomization},
     settings::{
-        DoorLocksSize, InitialMapRevealSettings, ItemDotChange, ItemMarkers, MapRevealLevel,
-        MapStationReveal, Objective, RandomizerSettings,
+        DoorLocksSize, InitialMapRevealSettings, ItemMarkers, MapRevealLevel, MapStationReveal,
+        Objective, RandomizerSettings,
     },
 };
 use maprando_game::{
@@ -34,6 +35,7 @@ pub struct MapPatcher<'a> {
     pub game_data: &'a GameData,
     pub map: &'a Map,
     pub settings: &'a RandomizerSettings,
+    pub customize_settings: &'a CustomizeSettings,
     pub randomization: &'a Randomization,
     pub map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
     pub gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
@@ -462,7 +464,11 @@ fn draw_edge(
     }
 }
 
-pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8; 8]; 8]> {
+pub fn render_tile(
+    tile: MapTile,
+    settings: &RandomizerSettings,
+    customize_settings: &CustomizeSettings,
+) -> Result<[[u8; 8]; 8]> {
     let bg_color = if tile.heated && !settings.other_settings.ultra_low_qol {
         2
     } else {
@@ -939,7 +945,7 @@ pub fn render_tile(tile: MapTile, settings: &RandomizerSettings) -> Result<[[u8;
     };
     match tile.special_type {
         Some(MapTileSpecialType::AreaTransition(area_idx, dir)) => {
-            if settings.other_settings.transition_letters {
+            if customize_settings.transition_letters {
                 match area_idx {
                     0 => {
                         data = [
@@ -1474,6 +1480,7 @@ impl<'a> MapPatcher<'a> {
         game_data: &'a GameData,
         map: &'a Map,
         settings: &'a RandomizerSettings,
+        customize_settings: &'a CustomizeSettings,
         randomization: &'a Randomization,
         locked_door_state_indices: &'a [usize],
     ) -> Self {
@@ -1527,6 +1534,7 @@ impl<'a> MapPatcher<'a> {
             game_data,
             map,
             settings,
+            customize_settings,
             randomization,
             map_tile_map: HashMap::new(),
             gfx_tile_map: HashMap::new(),
@@ -1643,7 +1651,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn render_tile(&self, tile: MapTile) -> Result<[[u8; 8]; 8]> {
-        render_tile(tile, self.settings)
+        render_tile(tile, self.settings, self.customize_settings)
     }
 
     fn write_map_tiles(&mut self) -> Result<()> {
@@ -2366,7 +2374,7 @@ impl<'a> MapPatcher<'a> {
             } else {
                 tile.interior = get_item_interior(item, self.settings);
                 self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                if self.settings.other_settings.item_dot_change == ItemDotChange::Fade {
+                if self.customize_settings.item_dot_change == ItemDotChange::Fade {
                     tile.interior = apply_item_interior(orig_tile, item, self.settings);
                     tile.faded = true;
                     self.set_room_tile(room_id, x, y, tile.clone());

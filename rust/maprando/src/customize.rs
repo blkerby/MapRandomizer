@@ -138,10 +138,18 @@ pub enum FlashingSetting {
     Reduced,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum ItemDotChange {
+    Fade,
+    Disappear,
+}
+
 #[derive(Debug)]
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
     pub etank_color: Option<(u8, u8, u8)>,
+    pub item_dot_change: ItemDotChange,
+    pub transition_letters: bool,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
     pub palette_theme: PaletteTheme,
@@ -153,6 +161,28 @@ pub struct CustomizeSettings {
     pub flashing: FlashingSetting,
     pub room_names: bool,
     pub controller_config: ControllerConfig,
+}
+
+impl Default for CustomizeSettings {
+    fn default() -> Self {
+        Self {
+            samus_sprite: Some("samus_vanilla".to_string()),
+            etank_color: None,
+            item_dot_change: ItemDotChange::Fade,
+            transition_letters: true,
+            reserve_hud_style: true,
+            vanilla_screw_attack_animation: true,
+            room_names: true,
+            palette_theme: PaletteTheme::Vanilla,
+            tile_theme: TileTheme::AreaThemed,
+            door_theme: DoorTheme::Vanilla,
+            music: MusicSettings::AreaThemed,
+            disable_beeping: false,
+            shaking: ShakingSetting::Vanilla,
+            flashing: FlashingSetting::Vanilla,
+            controller_config: ControllerConfig::default(),
+        }
+    }
 }
 
 fn remove_mother_brain_flashing(rom: &mut Rom) -> Result<()> {

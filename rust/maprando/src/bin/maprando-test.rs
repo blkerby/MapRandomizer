@@ -204,6 +204,8 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
     CustomizeSettings {
         samus_sprite: possible_sprites[rng.next_u64() as usize % possible_sprites.len()].clone(),
         etank_color: possible_etanks[rng.next_u64() as usize % possible_etanks.len()],
+        item_dot_change: maprando::customize::ItemDotChange::Fade,
+        transition_letters: true,
         reserve_hud_style: bits & 0x01 != 0,
         vanilla_screw_attack_animation: bits & 0x02 != 0,
         room_names: true,
