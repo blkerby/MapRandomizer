@@ -486,6 +486,7 @@ impl Patcher<'_> {
                 "load_plms_early",
                 "spin_lock",
                 "fix_transition_bad_tiles",
+                "fix_horiz_doors",
             ]);
         }
 
