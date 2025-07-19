@@ -59,6 +59,7 @@ struct RoomStrat {
     clears_obstacles: Vec<String>,
     resets_obstacles: Vec<String>,
     collects_items: Vec<String>,
+    sets_flags: Vec<String>,
     unlocks_doors: Option<String>,
     farm_cycle_drops: Vec<EnemyDrop>,
     difficulty_idx: usize,
@@ -1040,6 +1041,14 @@ fn make_room_template<'a>(
         } else {
             vec![]
         };
+        let sets_flags: Vec<String> = if strat_json.has_key("setsFlags") {
+            strat_json["setsFlags"]
+                .members()
+                .map(|x| x.as_str().unwrap().to_string())
+                .collect()
+        } else {
+            vec![]
+        };
         let entrance_condition: Option<String> = if strat_json.has_key("entranceCondition") {
             Some(strat_json["entranceCondition"].pretty(2))
         } else {
@@ -1101,6 +1110,7 @@ fn make_room_template<'a>(
             clears_obstacles,
             resets_obstacles,
             collects_items,
+            sets_flags,
             farm_cycle_drops,
             difficulty_idx,
             difficulty_name,

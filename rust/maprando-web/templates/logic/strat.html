@@ -119,6 +119,9 @@
 {% if strat.collects_items.len() > 0 %}
     <p>Collects items: {{+ strat.collects_items.join(", ") }}</p>
 {% endif %}
+{% if strat.sets_flags.len() > 0 %}
+    <p>Sets flags: {{+ strat.sets_flags.join(", ") }}</p>
+{% endif %}
 {% if strat.bypasses_door_shell %}
     <p>Bypasses door shell: true</p>
 {% endif %}
