@@ -15,14 +15,15 @@ v119:
 - DONE: fix Volcano Room heated runway logic
 - DONE: implement "heated" field on leaveWithRunway
 - DONE: implement lavaFramesWithEnergyDrops
-- resetRoom formatting
+- DONE: resetRoom formatting
+- DONE: fix logic issue with MB fight not requiring objectives?
 - fix fog in Pit Room (Outer Maridia theme?) 
   - osse stream Jul 12
 - DONE: back-side MB should be notable?
 - DONE: move canStaggeredWalljump to VH
-- use simpleCycleFrames in bug farm strats.
+- DONE: use simpleCycleFrames in bug farm strats.
 - adjust requirements on canPreciseWalljump strats
-- add canLongXRayClimb tech (Expert), move canXRayClimb down to Very Hard.
+- DONE: add canLongXRayClimb tech (Expert), move canXRayClimb down to Very Hard.
 - DONE: fix crash when processing spoiler route, involving new farm strats.
 - DONE: fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
 - DONE: show farmEnemyDrops in logic pages

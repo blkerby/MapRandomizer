@@ -2982,9 +2982,14 @@ impl GameData {
 
     fn override_mother_brain_room(&mut self, room_json: &mut JsonValue) {
         // Add a requirement for objectives to be completed in order to cross the barriers
+        // or start the MB2 fight.
+        // "id: 38": Destroy First Zebetite
+        // node 2: right door node
+        // node 4: MB2 fight node
         for x in room_json["strats"].members_mut() {
             if x["id"] == 38
                 || (x["link"][0].as_i32().unwrap() == 2 && x["link"][1].as_i32().unwrap() != 2)
+                || (x["link"][1].as_i32().unwrap() == 4)
             {
                 x["requires"].push("i_MotherBrainBarrier1Clear").unwrap();
                 x["requires"].push("i_MotherBrainBarrier2Clear").unwrap();
