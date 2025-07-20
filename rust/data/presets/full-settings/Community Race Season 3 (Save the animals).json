@@ -2203,6 +2203,13 @@
             },
             {
                 "room_id": 183,
+                "notable_id": 6,
+                "room_name": "Aqueduct",
+                "notable_name": "Left-Side X-Ray Climb (Upper)",
+                "enabled": false
+            },
+            {
+                "room_id": 183,
                 "notable_id": 8,
                 "room_name": "Aqueduct",
                 "notable_name": "Blue Space Jump",
@@ -2976,13 +2983,6 @@
                 "notable_id": 5,
                 "room_name": "Aqueduct",
                 "notable_name": "Suitless Temporary Blue To Items",
-                "enabled": false
-            },
-            {
-                "room_id": 183,
-                "notable_id": 6,
-                "room_name": "Aqueduct",
-                "notable_name": "Left-Side X-Ray Climb (Upper)",
                 "enabled": false
             },
             {
