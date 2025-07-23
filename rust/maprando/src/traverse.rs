@@ -789,7 +789,7 @@ pub fn apply_farm_requirement(
     let end_local_result = apply_requirement(
         req,
         global,
-        local,
+        start_local,
         reverse,
         settings,
         difficulty,
@@ -798,7 +798,11 @@ pub fn apply_farm_requirement(
         objectives,
     );
     if let Some(end_local) = end_local_result {
-        assert!(end_local.cycle_frames >= 100);
+        if end_local.cycle_frames < 100 {
+            panic!(
+                "bad farm: expected cycle_frames >= 100: end_local={end_local:#?},\n req={req:#?}"
+            );
+        }
         let cycle_frames = (end_local.cycle_frames - 1) as f32;
         let cycle_energy = (end_local.energy_used + end_local.reserves_used
             - local.energy_used
