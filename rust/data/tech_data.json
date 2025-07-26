@@ -505,7 +505,7 @@
     },
     {
         "tech_id": 78,
-        "name": "canDelayedWalljump",
+        "name": "canTrickyWalljump",
         "difficulty": "Hard",
         "video_id": 1036
     },
@@ -526,12 +526,6 @@
         "name": "canFastWalljumpClimb",
         "difficulty": "Expert",
         "video_id": 951
-    },
-    {
-        "tech_id": 82,
-        "name": "canStaggeredWalljump",
-        "difficulty": "Very Hard",
-        "video_id": 927
     },
     {
         "tech_id": 83,

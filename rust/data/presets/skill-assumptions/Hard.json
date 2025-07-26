@@ -199,7 +199,7 @@
         },
         {
             "id": 78,
-            "name": "canDelayedWalljump",
+            "name": "canTrickyWalljump",
             "enabled": true
         },
         {
@@ -390,11 +390,6 @@
         {
             "id": 72,
             "name": "canTrickyJump",
-            "enabled": false
-        },
-        {
-            "id": 82,
-            "name": "canStaggeredWalljump",
             "enabled": false
         },
         {

@@ -20105,22 +20105,6 @@
   },
   {
     "room_id": 126,
-    "strat_id": 9,
-    "video_id": 5350,
-    "created_user": "maddo",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 126,
-    "strat_id": 4,
-    "video_id": 3574,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 126,
     "strat_id": 5,
     "video_id": 2579,
     "created_user": "Sam",
@@ -20137,8 +20121,24 @@
   },
   {
     "room_id": 126,
+    "strat_id": 9,
+    "video_id": 5350,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 126,
     "strat_id": 10,
     "video_id": 5749,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 126,
+    "strat_id": 4,
+    "video_id": 3574,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
