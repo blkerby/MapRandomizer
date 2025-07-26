@@ -3,3 +3,5 @@ FB70 - FC00: used by escape_items.asm for acquiring all items with hyper beam
 FC00 - FC80: used by escape.asm for escape setup.
 FD00 - FD40: used by fast_mother_brain_cutscene.asm
 FD40 - FE00: used by escape_autosave.asm
+FE00 - FF50: used by fix_dust_torizo.asm
+FF50 - FFFF: [FREE]
