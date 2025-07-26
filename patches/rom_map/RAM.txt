@@ -37,7 +37,8 @@ $7EF4A0-$7EF4AF: temp storage for special tile (reserve_hud.asm)
 $7EF4B0-$7EF4E0: backup of DMA registers in decompression.asm
 $7EF4E0-$7EF500: [FREE]
 $7EF500: room map tile graphics pointer (into bank $E4)
-$7EF502-$7EFE00: [FREE]
+$7EF502-$7EF594: fix_dust_torizo.asm
+$7EF594-$7EFE00: [FREE]
 $7EFE00: map area (copy of $1F5B to be saved to SRAM)
 $7EFE02: map area explored mask
 $7EFE04: copy of $1F5D (to be saved to SRAM for escape autosave)
