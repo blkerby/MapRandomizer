@@ -336,6 +336,14 @@
     "video_id": 102
   },
   {
+    "room_id": 7,
+    "room_name": "The Moat",
+    "notable_id": 3,
+    "name": "CWJ Bomb Boost",
+    "difficulty": "Extreme",
+    "video_id": 7142
+  },
+  {
     "room_id": 32,
     "room_name": "West Ocean",
     "notable_id": 1,

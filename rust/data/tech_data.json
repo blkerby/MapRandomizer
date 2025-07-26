@@ -906,6 +906,12 @@
         "video_id": 2074
     },
     {
+        "tech_id": 203,
+        "name": "canShinesparkSlopeClip",
+        "difficulty": "Extreme",
+        "video_id": 6880
+    },
+    {
         "tech_id": 140,
         "name": "canSlowShortCharge",
         "difficulty": "Expert",

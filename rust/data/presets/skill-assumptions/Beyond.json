@@ -793,6 +793,11 @@
             "enabled": true
         },
         {
+            "id": 203,
+            "name": "canShinesparkSlopeClip",
+            "enabled": true
+        },
+        {
             "id": 143,
             "name": "canSpeedKeep",
             "enabled": true
@@ -2525,6 +2530,13 @@
             "notable_id": 2,
             "room_name": "The Moat",
             "notable_name": "Leave With Grapple Teleport",
+            "enabled": true
+        },
+        {
+            "room_id": 7,
+            "notable_id": 3,
+            "room_name": "The Moat",
+            "notable_name": "CWJ Bomb Boost",
             "enabled": true
         },
         {
