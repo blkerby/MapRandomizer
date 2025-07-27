@@ -1,7 +1,7 @@
 {
     "preset": "Technical",
     "progression_rate": "Slow",
-    "item_placement_style": "Forced",
+    "item_placement_style": "Local",
     "item_priority_strength": "Moderate",
     "random_tank": true,
     "spazer_before_plasma": true,

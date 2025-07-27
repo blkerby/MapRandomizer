@@ -203,6 +203,7 @@ impl DifficultyConfig {
 // Includes preprocessing specific to the map:
 pub struct Randomizer<'a> {
     pub map: &'a Map,
+    pub item_areas: Vec<AreaIdx>, // assigned area of each item, in order by game_data.item_locations
     pub toilet_intersections: Vec<RoomGeometryRoomIdx>,
     pub locked_door_data: &'a LockedDoorData,
     pub game_data: &'a GameData,
@@ -278,6 +279,7 @@ pub struct RandomizationState {
     pub debug_data: Option<DebugData>,
     pub previous_debug_data: Option<DebugData>,
     pub key_visited_vertices: HashSet<usize>,
+    pub last_key_areas: Vec<AreaIdx>,
 }
 
 // Info about an item used during ROM patching, to show info in the credits
@@ -2979,7 +2981,9 @@ pub fn get_difficulty_tiers(
     let mut difficulty_tiers = vec![];
 
     difficulty_tiers.push(main_tier.clone());
-    if settings.item_progression_settings.item_placement_style == ItemPlacementStyle::Forced {
+    if [ItemPlacementStyle::Forced, ItemPlacementStyle::Local]
+        .contains(&settings.item_progression_settings.item_placement_style)
+    {
         for ref_tier in tier_settings {
             let new_tier = DifficultyConfig::intersect(ref_tier, &main_tier);
             if is_equivalent_difficulty(&new_tier, difficulty_tiers.last().unwrap()) {
@@ -3077,8 +3081,17 @@ impl<'r> Randomizer<'r> {
             .map(|x| (x.item, x.priority))
             .collect();
 
+        let mut item_areas: Vec<AreaIdx> = Vec::new();
+        for &(room_id, _) in &game_data.item_locations {
+            let room_ptr = game_data.room_ptr_by_id[&room_id];
+            let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+            let area = map.area[room_idx];
+            item_areas.push(area);
+        }
+
         Randomizer {
             map,
+            item_areas,
             toilet_intersections,
             locked_door_data,
             initial_items_remaining,
@@ -3524,6 +3537,7 @@ impl<'r> Randomizer<'r> {
         state: &RandomizationState,
         bireachable_locations: &[ItemLocationId],
         init_traverse: Option<&TraverseResult>,
+        preferred_areas: &[AreaIdx],
     ) -> (usize, usize) {
         // For forced mode, we prioritize placing a key item at a location that is inaccessible at
         // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
@@ -3555,6 +3569,9 @@ impl<'r> Randomizer<'r> {
                 &self.objectives,
             );
 
+            let mut preferred_locs: Vec<usize> = Vec::new();
+            let mut other_locs: Vec<usize> = Vec::new();
+
             for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
                 let mut is_reachable = false;
                 for &v in &self.game_data.item_vertex_ids[item_location_id] {
@@ -3563,8 +3580,21 @@ impl<'r> Randomizer<'r> {
                     }
                 }
                 if !is_reachable {
-                    return (i, tier - 1);
+                    if self.settings.item_progression_settings.item_placement_style
+                        == ItemPlacementStyle::Local
+                        && preferred_areas.contains(&self.item_areas[item_location_id])
+                    {
+                        preferred_locs.push(i);
+                    } else {
+                        other_locs.push(i);
+                    }
                 }
+            }
+
+            if !preferred_locs.is_empty() {
+                return (preferred_locs[0], tier - 1);
+            } else if !other_locs.is_empty() {
+                return (other_locs[0], tier - 1);
             }
         }
         (0, self.difficulty_tiers.len() - 1)
@@ -3595,6 +3625,7 @@ impl<'r> Randomizer<'r> {
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
         if self.difficulty_tiers.len() > 1 && !skip_hard_placement {
             let traverse_result = state.previous_debug_data.as_ref().map(|x| &x.forward);
+            let mut new_key_areas: Vec<AreaIdx> = Vec::new();
             for i in 0..key_items_to_place.len() {
                 let (hard_idx, tier) = if key_items_to_place.len() > 1 {
                     // We're placing more than one key item in this step. Obtaining some of them could help make
@@ -3604,11 +3635,17 @@ impl<'r> Randomizer<'r> {
                         new_state,
                         &new_bireachable_locations[i..],
                         traverse_result,
+                        &state.last_key_areas,
                     )
                 } else {
                     // We're only placing one key item in this step. Try to find a location that is hard to reach
                     // without already having the new item.
-                    self.find_hard_location(state, &new_bireachable_locations[i..], traverse_result)
+                    self.find_hard_location(
+                        state,
+                        &new_bireachable_locations[i..],
+                        traverse_result,
+                        &state.last_key_areas,
+                    )
                 };
                 info!(
                     "[attempt {attempt_num_rando}] {:?} in tier {} (of {})",
@@ -3619,6 +3656,8 @@ impl<'r> Randomizer<'r> {
 
                 let hard_loc = new_bireachable_locations[i + hard_idx];
                 new_bireachable_locations.swap(i, i + hard_idx);
+
+                new_key_areas.push(self.item_areas[hard_loc]);
 
                 // Mark the vertices along the path to the newly chosen hard location. Vertices that are
                 // easily accessible from along this path are then discouraged from being chosen later
@@ -3643,6 +3682,7 @@ impl<'r> Randomizer<'r> {
                     new_state.key_visited_vertices.insert(vertex_id);
                 }
             }
+            new_state.last_key_areas = new_key_areas;
         }
 
         let mut all_locations: Vec<ItemLocationId> = Vec::new();
@@ -3803,6 +3843,7 @@ impl<'r> Randomizer<'r> {
             debug_data: None,
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
+            last_key_areas: Vec::new(),
         };
         for &item in &selected_filler_items {
             // We check if items_remaining is positive, only because with "Stop item placement early" there
@@ -4912,6 +4953,7 @@ impl<'r> Randomizer<'r> {
             debug_data: None,
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
+            last_key_areas: Vec::new(),
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {

@@ -351,6 +351,7 @@ pub enum ProgressionRate {
 pub enum ItemPlacementStyle {
     Neutral,
     Forced,
+    Local,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq)]

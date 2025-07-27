@@ -154,7 +154,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
     let generate_template = GenerateTemplate {
         version_info: app_data.version_info.clone(),
         progression_rates: vec!["Fast", "Uniform", "Slow"],
-        item_placement_styles: vec!["Neutral", "Forced"],
+        item_placement_styles: vec!["Neutral", "Forced", "Local"],
         objective_groups: get_objective_groups(),
         item_pool_multiple,
         starting_items_multiple,
