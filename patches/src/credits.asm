@@ -722,6 +722,8 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
 
     ;; Custom randomizer credits text
     ;; Set scroll speed to 2 frames per pixel
