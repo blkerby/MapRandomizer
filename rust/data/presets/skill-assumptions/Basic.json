@@ -1457,13 +1457,6 @@
             "enabled": false
         },
         {
-            "room_id": 139,
-            "notable_id": 1,
-            "room_name": "Metal Pirates Room",
-            "notable_name": "Speed Echoes Kill",
-            "enabled": false
-        },
-        {
             "room_id": 134,
             "notable_id": 1,
             "room_name": "Pillar Room",
@@ -2077,6 +2070,13 @@
             "notable_id": 3,
             "room_name": "Lower Norfair Fireflea Room",
             "notable_name": "Morph Over the Fune",
+            "enabled": false
+        },
+        {
+            "room_id": 139,
+            "notable_id": 1,
+            "room_name": "Metal Pirates Room",
+            "notable_name": "Speed Echoes Kill",
             "enabled": false
         },
         {
