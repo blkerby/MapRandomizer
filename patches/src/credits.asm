@@ -720,14 +720,16 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
 
     ;; Custom randomizer credits text
+    ;; Set scroll speed to 2 frames per pixel
+    dw !speed, $0002
     dw !draw, !row*128  ; MAP RANDO CONTRIBUTORS
     dw !draw, !blank
     dw !draw, !row*129  ; LEAD DEVELOPER
     dw !draw, !blank
-    ;; Set scroll speed to 2 frames per pixel
-    dw !speed, $0002
     dw !draw, !row*130
     dw !draw, !row*131
     dw !draw, !blank
@@ -743,9 +745,6 @@ script:
     dw !draw, !blank
     dw !draw, !row*255
     dw !draw, !row*256
-    dw !draw, !blank
-    dw !draw, !row*257
-    dw !draw, !row*258
     dw !draw, !blank
     dw !draw, !row*137  ; LOGIC DATA
     dw !draw, !blank
@@ -1025,8 +1024,8 @@ credits:
     !big
     dw "      KYLEB         OSSE101     " ;; 133
     dw "      kyleb         osse!}!     " ;; 134
-    dw "          AMOEBAOFDOOM          " ;; 135
-    dw "          amoebaofdoom          " ;; 136
+    dw "   AMOEBAOFDOOM    STAG SHOT    " ;; 135
+    dw "   amoebaofdoom    stag shot    " ;; 136
 
     !green
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
@@ -1174,10 +1173,10 @@ credits:
     !orange
     dw "     ADDITIONAL DEVELOPERS      " ;; 254
     !big
-    dw "     SELICRE       STAG SHOT    " ;; 255
-    dw "     selicre       stag shot    " ;; 256
-    dw "             CHANGE             " ;; 257
-    dw "             change             " ;; 258
+    dw "     SELICRE         CHANGE     " ;; 255
+    dw "     selicre         change     " ;; 256
+    dw "                                " ;; 257
+    dw "                                " ;; 258
     dw "   SAMLITTLEHORNS      KEWLAN   " ;; 259
     dw "   samlittlehorns      kewlan   " ;; 260
 
