@@ -4,6 +4,7 @@ v120?:
   - So by default we could hide these (on the Generate page as well as in logic pages), to reduce clutter.
   - Controls would need to be available, with 3 settings: to hide the wallJumpAvoid strats, to show them exclusively, or to show everything.
 - Model carrying around a flash suit (in LocalState somewhere, and as another cost metric)
+- save with flash suit QoL
 - Support maps with incomplete room sets.
 - Logic work (sm-json-data):
   - Finish adding cross-room temp blue strats and remote runway setups/applications in Norfair
