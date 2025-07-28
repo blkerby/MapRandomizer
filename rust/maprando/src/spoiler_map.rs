@@ -121,6 +121,9 @@ pub fn get_spoiler_images(
         let room_id = room.room_id;
         let room_ptr = game_data.room_ptr_by_id[&room_id];
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
         let area = map.area[room_idx];

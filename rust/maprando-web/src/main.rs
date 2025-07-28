@@ -65,6 +65,7 @@ fn build_app_data() -> AppData {
     let args = Args::parse();
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
+    let small_maps_path = Path::new("../maps/v119-small-avro");
     let standard_maps_path = Path::new("../maps/v119-standard-avro");
     let wild_maps_path = Path::new("../maps/v119-wild-avro");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
@@ -113,6 +114,10 @@ fn build_app_data() -> AppData {
         (
             "Vanilla".to_string(),
             MapRepository::new("Vanilla", vanilla_map_path).unwrap(),
+        ),
+        (
+            "Small".to_string(),
+            MapRepository::new("Small", small_maps_path).unwrap(),
         ),
         (
             "Standard".to_string(),

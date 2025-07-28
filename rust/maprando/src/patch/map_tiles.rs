@@ -1713,6 +1713,9 @@ impl<'a> MapPatcher<'a> {
 
         // Write room map offsets:
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            if !self.randomization.map.room_mask[room_idx] {
+                continue;
+            }
             let area = self.randomization.map.area[room_idx];
             let room_x = self.map.rooms[room_idx].0 as isize - self.area_offset_x[area];
             let room_y = self.map.rooms[room_idx].1 as isize - self.area_offset_y[area];
@@ -1777,6 +1780,10 @@ impl<'a> MapPatcher<'a> {
 
         for &room_ptr in &self.game_data.room_ptrs {
             let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
             let room_width = self.rom.read_u8(room_ptr + 4)?;
             let room_height = self.rom.read_u8(room_ptr + 5)?;
 
@@ -1820,7 +1827,7 @@ impl<'a> MapPatcher<'a> {
 
             for y in -1..room_height + 1 {
                 for x in -2..room_width + 2 {
-                    let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+                    let (area, x1, y1) = self.get_room_coords(room_id, x, y).unwrap();
                     let tile = self.map_tile_map.get(&(area, x1, y1));
                     let data: [[u8; 8]; 8] = if let Some(x) = tile {
                         self.render_tile(x.clone())?
@@ -1912,7 +1919,9 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_objective_tiles(&mut self) -> Result<()> {
         for (room_id, x, y) in get_objective_tiles(&self.randomization.objectives) {
-            let tile = self.get_room_tile(room_id, x as isize, y as isize);
+            let Some(tile) = self.get_room_tile(room_id, x as isize, y as isize) else {
+                continue;
+            };
             tile.interior = MapTileInterior::Objective;
         }
         Ok(())
@@ -1923,7 +1932,9 @@ impl<'a> MapPatcher<'a> {
         // by an X depending on the objective setting.
         let gray_door = MapTileEdge::LockedDoor(DoorLockType::Gray);
         for (room_id, x, y, dir) in get_gray_doors() {
-            let tile = self.get_room_tile(room_id, x, y);
+            let Some(tile) = self.get_room_tile(room_id, x, y) else {
+                continue;
+            };
             match dir {
                 Direction::Left => {
                     tile.left = gray_door;
@@ -1955,7 +1966,10 @@ impl<'a> MapPatcher<'a> {
                 let room_geom = &self.game_data.room_geometry[room_idx];
                 let door = &room_geom.doors[door_idx];
                 let room_id = self.game_data.room_id_by_ptr[&room_geom.rom_address];
-                let tile = self.get_room_tile(room_id, door.x as isize, door.y as isize);
+                let Some(tile) = self.get_room_tile(room_id, door.x as isize, door.y as isize)
+                else {
+                    continue;
+                };
                 let new_tile = apply_door_lock(tile, locked_door, door);
 
                 // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
@@ -2346,6 +2360,11 @@ impl<'a> MapPatcher<'a> {
     fn indicate_items(&mut self) -> Result<()> {
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
+            let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
             if room_id == 19
                 && self
                     .randomization
@@ -2362,7 +2381,7 @@ impl<'a> MapPatcher<'a> {
             let room = &self.game_data.room_geometry[room_idx];
             let area = self.map.area[room_idx];
             let (x, y) = find_item_xy(item_ptr, &room.items)?;
-            let orig_tile = self.get_room_tile(room_id, x, y).clone();
+            let orig_tile = self.get_room_tile(room_id, x, y).unwrap().clone();
             let mut tile = orig_tile.clone();
             tile.faded = false;
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
@@ -2752,9 +2771,17 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn get_room_coords(&self, room_id: usize, x: isize, y: isize) -> (AreaIdx, isize, isize) {
+    fn get_room_coords(
+        &self,
+        room_id: usize,
+        x: isize,
+        y: isize,
+    ) -> Option<(AreaIdx, isize, isize)> {
         let room_ptr = self.game_data.room_ptr_by_id[&room_id];
         let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+        if !self.map.room_mask[room_idx] {
+            return None;
+        }
         let area = self.map.area[room_idx];
         let mut room_coords = self.map.rooms[room_idx];
         if room_id == 313 {
@@ -2766,16 +2793,18 @@ impl<'a> MapPatcher<'a> {
         }
         let x = room_coords.0 as isize + x;
         let y = room_coords.1 as isize + y;
-        (area, x, y)
+        Some((area, x, y))
     }
 
-    fn get_room_tile(&mut self, room_id: usize, x: isize, y: isize) -> &mut MapTile {
-        let (area, x1, y1) = self.get_room_coords(room_id, x, y);
-        self.map_tile_map.get_mut(&(area, x1, y1)).unwrap()
+    fn get_room_tile(&mut self, room_id: usize, x: isize, y: isize) -> Option<&mut MapTile> {
+        let (area, x1, y1) = self.get_room_coords(room_id, x, y)?;
+        Some(self.map_tile_map.get_mut(&(area, x1, y1)).unwrap())
     }
 
     fn set_room_tile(&mut self, room_id: usize, x: isize, y: isize, mut tile: MapTile) {
-        let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+        let Some((area, x1, y1)) = self.get_room_coords(room_id, x, y) else {
+            return;
+        };
         tile.coords.0 = x1 as usize;
         tile.coords.1 = y1 as usize;
         self.map_tile_map.insert((area, x1, y1), tile);
@@ -2830,6 +2859,9 @@ impl<'a> MapPatcher<'a> {
         }
 
         for area in 0..NUM_AREAS {
+            if self.area_min_x[area] == isize::MAX {
+                continue;
+            }
             let margin_x = (64 - (self.area_max_x[area] - self.area_min_x[area])) / 2;
             let margin_y = (32 - (self.area_max_y[area] - self.area_min_y[area])) / 2;
             self.area_offset_x[area] = self.area_min_x[area] - margin_x;

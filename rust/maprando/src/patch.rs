@@ -779,7 +779,9 @@ impl Patcher<'_> {
         let room_x = self.rom.read_u8(room.rom_address + 2)?;
         let room_y = self.rom.read_u8(room.rom_address + 3)?;
         let area = self.map.area[room_idx];
-        let other_door_ptr_pair = self.other_door_ptr_pair_map[door_ptr_pair];
+        let Some(&other_door_ptr_pair) = self.other_door_ptr_pair_map.get(door_ptr_pair) else {
+            return Ok(());
+        };
         let (other_room_idx, _other_door_idx) =
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let other_area = self.map.area[other_room_idx];
@@ -923,7 +925,9 @@ impl Patcher<'_> {
             ((None, Some(0x1A8B8)), 0x345, 0x3BB),        // Below Botwoon Energy Tank (right)
         ];
         for (door_pair, min_position, max_position) in sand_entrances {
-            let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
+            let Some(&other_door_pair) = self.other_door_ptr_pair_map.get(&door_pair) else {
+                continue;
+            };
 
             let asm = vec![
                 0xA2,
@@ -1116,8 +1120,12 @@ impl Patcher<'_> {
 
         for ptr in save_station_ptrs {
             let orig_entrance_door_ptr = (self.rom.read_u16(ptr + 2)? + 0x10000) as NodePtr;
-            let exit_door_ptr = orig_door_map[&orig_entrance_door_ptr];
-            let entrance_door_ptr = new_door_map[&exit_door_ptr];
+            let Some(&exit_door_ptr) = orig_door_map.get(&orig_entrance_door_ptr) else {
+                continue;
+            };
+            let Some(&entrance_door_ptr) = new_door_map.get(&exit_door_ptr) else {
+                continue;
+            };
             self.rom
                 .write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
         }
@@ -1164,6 +1172,11 @@ impl Patcher<'_> {
 
         let mut next_addr = 0xE48000;
         for &room_ptr in &self.game_data.room_ptrs {
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+
             self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles =
                 (next_addr & 0xFFFF) as u16;
             if map_patcher.room_map_gfx[&room_ptr].len() > 96 {
@@ -1713,35 +1726,6 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn fix_crateria_scrolling_sky(&mut self) -> Result<()> {
-        // This function probably isn't needed anymore since we're using Mosaic's
-        // reimplementation of scrolling sky.
-        let data = vec![
-            (0x8FB76C, (0x1892E, 0x18946)), // Landing Site
-            (0x8FB777, (0x18916, 0x1896A)), // Landing Site
-            (0x8FB782, (0x1893A, 0x189B2)), // Landing Site
-            (0x8FB78D, (0x18922, 0x18AC6)), // Landing Site
-            (0x8FB7B0, (0x189E2, 0x18A12)), // West Ocean
-            (0x8FB7BB, (0x189CA, 0x18AEA)), // West Ocean (Bottom-left door, to Moat)
-            (0x8FB7C6, (0x189FA, 0x1A18C)), // West Ocean
-            (0x8FB7D1, (0x189D6, 0x1A1B0)), // West Ocean
-            (0x8FB7DC, (0x189EE, 0x1A1E0)), // West Ocean
-            (0x8FB7E7, (0x18A06, 0x1A300)), // West Ocean
-            (0x8FB7F4, (0x18A72, 0x18A7E)), // East Ocean
-            (0x8FB7FF, (0x18A66, 0x1A264)), // East Ocean
-        ];
-        for (addr, (exit_ptr, entrance_ptr)) in data {
-            let door_pair = (Some(exit_ptr), Some(entrance_ptr));
-            let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
-            self.rom.write_u16(
-                snes2pc(addr),
-                (other_door_pair.0.unwrap() & 0xFFFF) as isize,
-            )?;
-        }
-
-        Ok(())
-    }
-
     fn apply_seed_identifiers(&mut self) -> Result<()> {
         let cartridge_name = "SUPERMETROID MAPRANDO";
         self.rom.write_n(0x7FC0, cartridge_name.as_bytes())?;
@@ -2172,7 +2156,10 @@ impl Patcher<'_> {
     }
 
     fn apply_door_hazard_marker(&mut self, door_ptr_pair: DoorPtrPair) -> Result<()> {
-        let mut other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        let Some(&(mut other_door_ptr_pair)) = self.other_door_ptr_pair_map.get(&door_ptr_pair)
+        else {
+            return Ok(());
+        };
 
         if other_door_ptr_pair == (Some(0x1AA8C), Some(0x1AAE0)) {
             // Don't draw hazard marker on left side of Mother Brain Room:
@@ -3227,7 +3214,6 @@ pub fn make_rom(
     if !randomizer_settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
     }
-    patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;

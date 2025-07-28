@@ -32,8 +32,15 @@ struct StoredMap {
 }
 
 #[derive(Deserialize)]
+#[serde(untagged)]
+enum MapsPerFile {
+    Fixed(usize),
+    Variable(Vec<usize>),
+}
+
+#[derive(Deserialize)]
 struct MapManifest {
-    pub maps_per_file: usize,
+    pub maps_per_file: MapsPerFile,
     pub files: Vec<String>,
 }
 
@@ -42,10 +49,14 @@ impl MapRepository {
         let manifest_bytes = std::fs::read(base_path.join("manifest.json"))?;
         let manifest: MapManifest = serde_json::from_slice(&manifest_bytes)?;
 
+        let num_maps = match manifest.maps_per_file {
+            MapsPerFile::Fixed(n) => manifest.files.len() * n,
+            MapsPerFile::Variable(v) => v.iter().sum(),
+        };
         info!(
             "{}: {} maps available ({})",
             name,
-            manifest.files.len() * manifest.maps_per_file,
+            num_maps,
             base_path.display()
         );
         Ok(MapRepository {
@@ -63,15 +74,27 @@ impl MapRepository {
         let buf_reader = BufReader::new(file);
         let avro_reader = apache_avro::Reader::new(buf_reader)?;
         let mut map_vec: Vec<Map> = vec![];
+        let room_geometry = &game_data.room_geometry;
 
         for value in avro_reader {
             let stored_map: StoredMap = apache_avro::from_value(&value?)?;
             let num_rooms = stored_map.room_id.len();
             let num_conns = stored_map.conn_from_door_id.len();
 
-            let mut rooms: Vec<(usize, usize)> = vec![];
+            let mut room_mask: Vec<bool> = vec![false; room_geometry.len()];
+            let mut rooms: Vec<(usize, usize)> = vec![(0, 0); room_geometry.len()];
+            let mut areas: Vec<usize> = vec![0; room_geometry.len()];
+            let mut subareas: Vec<usize> = vec![0; room_geometry.len()];
+            let mut subsubareas: Vec<usize> = vec![0; room_geometry.len()];
             for i in 0..num_rooms {
-                rooms.push((stored_map.room_x[i], stored_map.room_y[i]));
+                let room_id = stored_map.room_id[i];
+                let room_ptr = game_data.room_ptr_by_id[&room_id];
+                let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+                room_mask[room_idx] = true;
+                rooms[room_idx] = (stored_map.room_x[i], stored_map.room_y[i]);
+                areas[room_idx] = stored_map.room_area[i];
+                subareas[room_idx] = stored_map.room_subarea[i];
+                subsubareas[room_idx] = stored_map.room_subsubarea[i];
             }
 
             let mut doors = vec![];
@@ -100,11 +123,12 @@ impl MapRepository {
             }
 
             let mut map = Map {
+                room_mask,
                 rooms,
                 doors,
-                area: stored_map.room_area,
-                subarea: stored_map.room_subarea,
-                subsubarea: stored_map.room_subsubarea,
+                area: areas,
+                subarea: subareas,
+                subsubarea: subsubareas,
             };
 
             // Make Toilet area/subarea/subsubarea align with its intersecting room(s):
@@ -128,6 +152,31 @@ impl MapRepository {
                 map.area[game_data.toilet_room_idx] = area;
                 map.subarea[game_data.toilet_room_idx] = subarea;
                 map.subsubarea[game_data.toilet_room_idx] = subsubarea;
+            }
+
+            let toilet_top = (Some(0x1A60C), Some(0x1A5AC));
+            let toilet_bottom = (Some(0x1A600), Some(0x1A678));
+            let mut found_top: bool = false;
+            let mut found_bottom: bool = false;
+            for d in &map.doors {
+                if d.0 == toilet_top || d.1 == toilet_top {
+                    found_top = true;
+                }
+                if d.0 == toilet_bottom || d.1 == toilet_bottom {
+                    found_bottom = true;
+                }
+            }
+            if !found_top || !found_bottom {
+                // If Toilet does not connect on both sides, then remove it,
+                // since we can't put a wall inside it.
+                // TODO: push this upstream to the small map extraction
+                map.room_mask[game_data.toilet_room_idx] = false;
+                map.doors.retain(|x| {
+                    x.0 != toilet_top
+                        && x.0 != toilet_bottom
+                        && x.1 != toilet_top
+                        && x.1 != toilet_bottom
+                });
             }
 
             map_vec.push(map);

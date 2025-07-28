@@ -974,9 +974,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (f == "f_ZebesAwake")
 				continue;
 
+
+			var found = false;
 			for (j in c.all_rooms)	{
-				if (c.all_rooms[j].room_id == i)
+				if (c.all_rooms[j].room_id == i) {
+					found = true;
 					break;
+				}
+			}
+			if (!found) {
+				continue;
 			}
 			sr = c.all_rooms[j];
 			e.className = "flag";

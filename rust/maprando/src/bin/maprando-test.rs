@@ -159,7 +159,7 @@ fn get_randomization(
             }
             AreaAssignment::Standard => {}
         }
-        let objectives = get_objectives(&settings, &mut rng);
+        let objectives = get_objectives(&settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, &settings, &objectives, door_seed);
         let randomizer = Randomizer::new(
             &map,
@@ -305,6 +305,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
 fn build_app_data(args: &Args) -> Result<TestAppData> {
     let etank_colors_path = Path::new("data/etank_colors.json");
     let vanilla_map_path = Path::new("../maps/vanilla");
+    let small_maps_path = Path::new("../maps/v119-small-avro");
     let standard_maps_path = Path::new("../maps/v119-standard-avro");
     let wild_maps_path = Path::new("../maps/v119-wild-avro");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
@@ -412,6 +413,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         preset_data,
         map_repos: vec![
             MapRepository::new("Vanilla", vanilla_map_path)?,
+            MapRepository::new("Small", small_maps_path)?,
             MapRepository::new("Standard", standard_maps_path)?,
             MapRepository::new("Wild", wild_maps_path)?,
         ],

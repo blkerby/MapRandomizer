@@ -6,7 +6,7 @@ cd tmp
 
 # Download the map pools
 mkdir -p ../maps
-for pool in "v119-standard-avro" "v119-wild-avro"
+for pool in "v119-small-avro" "v119-standard-avro" "v119-wild-avro"
 do
 wget https://map-rando-artifacts.s3.us-west-004.backblazeb2.com/maps/${pool}.tar
 tar xf ${pool}.tar --directory ../maps
