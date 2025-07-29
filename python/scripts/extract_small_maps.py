@@ -18,6 +18,31 @@ avro_map_schema = fastavro.parse_schema(json.load(open("rust/data/schema/map.avs
 # map from (room_id, door_id) to (room_id, part_id)
 door_part_map = {}
 
+disallowed_walls = {
+    # Elevators:
+    (23, 1),  # Green Brinstar Elevator Room
+    (44, 9),  # Green Brinstar Main Shaft
+    (27, 1),  # Statues Room
+    (224, 2), # Tourian First Room
+    (306, 1), # Blue Brinstar Elevator Room
+    (38, 2),  # Morph Ball Room
+    (25, 1),  # Red Brinstar Elevator Room
+    (75, 5),  # Caterpillar Room
+    (37, 1),  # Forgotten Highway Elevator Room
+    (215, 2), # Maridia Elevator Room
+    (78, 2),  # Warehouse Entrance
+    (86, 6),  # Business Center
+    (309, 2), # Lower Norfair Elevator Room
+    (132, 2), # Main Hall
+    # Sand (redundant with strong connected check, though may be faster to check up-front):
+    # (183, 3), # Aqueduct: Left
+    # (184, 4), # Aqueduct: Right
+    # (186, 2), # Botwoon Energy Tank Room: Left
+    # (186, 3), # Botwoon Energy Tank Room: Right
+    # (199, 2), # West Sand Hall
+    # ...
+}
+
 base_graph = nx.DiGraph()
 for room in room_geometry:
     room_id = room["room_id"]
@@ -52,7 +77,7 @@ def build_graph(map_data):
         if bidirectional:
             G.add_edge(to_part, from_part)
     return G
-                     
+
 def subset_map(map_data, areas_to_keep):
     keep_i = []
     for i, area in enumerate(map_data["room_area"]):
@@ -71,12 +96,17 @@ def subset_map(map_data, areas_to_keep):
     new_conn_to_door_id = []
     new_conn_bidirectional = []
     room_id_set = set(new_room_id)
+    walls = []
     for i in range(len(map_data["conn_from_room_id"])):
         from_room_id = map_data["conn_from_room_id"][i]
         from_door_id = map_data["conn_from_door_id"][i]
         to_room_id = map_data["conn_to_room_id"][i]
         to_door_id = map_data["conn_to_door_id"][i]
         bidirectional = map_data["conn_bidirectional"][i]
+        if from_room_id in room_id_set and to_room_id not in room_id_set:
+            walls.append((from_room_id, from_door_id))
+        if to_room_id in room_id_set and from_room_id not in room_id_set:
+            walls.append((to_room_id, to_door_id))
         if from_room_id not in room_id_set or to_room_id not in room_id_set:
             continue
         new_conn_from_room_id.append(from_room_id)
@@ -84,7 +114,7 @@ def subset_map(map_data, areas_to_keep):
         new_conn_to_room_id.append(to_room_id)
         new_conn_to_door_id.append(to_door_id)
         new_conn_bidirectional.append(bidirectional)
-    return {
+    new_map = {
         "room_id": new_room_id,
         "room_x": new_room_x,
         "room_y": new_room_y,
@@ -96,7 +126,8 @@ def subset_map(map_data, areas_to_keep):
         "conn_to_room_id": new_conn_to_room_id,
         "conn_to_door_id": new_conn_to_door_id,
         "conn_bidirectional": new_conn_bidirectional,
-    }            
+    }
+    return new_map, walls
     
 def get_all_subsets(A: list):
     if len(A) == 0:
@@ -125,9 +156,11 @@ def try_extract_small_map(map_data):
     target_size = 150
     max_size = 180
     for subset in area_subsets:
-        new_map = subset_map(map_data, subset)
+        new_map, walls = subset_map(map_data, subset)
         num_rooms = len(new_map["room_id"])
         if not min_size <= num_rooms < max_size:
+            continue
+        if any(w in disallowed_walls for w in walls):
             continue
         G = build_graph(new_map)
         if not nx.is_strongly_connected(G):
@@ -140,7 +173,7 @@ def try_extract_small_map(map_data):
 maps_per_file = []
 file_names = []
 file_list = list(sorted([f for f in os.listdir(args.input_path) if f.endswith('.avro')]))
-for i, filename in enumerate(file_list)[:1]:
+for i, filename in enumerate(file_list):
     path = args.input_path / filename
     print(f"{i}/{len(file_list)}: {path}")
     input_file = open(path, "rb")
