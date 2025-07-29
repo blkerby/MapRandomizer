@@ -465,6 +465,7 @@ impl Patcher<'_> {
             "samus_tiles_optim_animated_tiles_fix",
             "sand_clamp",
             "transition_reveal",
+            "wall_doors",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -2309,7 +2310,7 @@ impl Patcher<'_> {
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&locked_door.src_ptr_pair];
         let room = &self.game_data.room_geometry[room_idx];
         let door = &room.doors[door_idx];
-        let (x, y) = match door.direction.as_str() {
+        let (mut x, mut y) = match door.direction.as_str() {
             "right" => (door.x * 16 + 14 - door.offset.unwrap_or(0), door.y * 16 + 6),
             "left" => (door.x * 16 + 1 + door.offset.unwrap_or(0), door.y * 16 + 6),
             "up" => (door.x * 16 + 6, door.y * 16 + 1 + door.offset.unwrap_or(0)),
@@ -2333,6 +2334,32 @@ impl Patcher<'_> {
             (DoorType::Beam(_), "left") => 0xFCC6,
             (DoorType::Beam(_), "down") => 0xFCCC,
             (DoorType::Beam(_), "up") => 0xFCD2,
+            (DoorType::Wall, "right") => 0xF5C0,
+            (DoorType::Wall, "left") => {
+                x -= 1;
+                0xF5C0
+            }
+            (DoorType::Wall, "down") => match door.offset {
+                Some(0) => 0xF5C4,
+                Some(1) => 0xF5C8,
+                Some(2) => 0xF5CC,
+                _ => panic!("unexpected door offset: {:?}", door.offset),
+            },
+            (DoorType::Wall, "up") => match door.offset {
+                Some(0) => {
+                    y -= 1;
+                    0xF5C4
+                }
+                Some(1) => {
+                    y -= 2;
+                    0xF5C8
+                }
+                Some(2) => {
+                    y -= 3;
+                    0xF5CC
+                }
+                _ => panic!("unexpected door offset: {:?}", door.offset),
+            },
             (a, b) => panic!("Unexpected door type: {a:?} {b}"),
         };
         // TODO: Instead of using extra setup ASM to spawn the doors, it might be better to just rewrite

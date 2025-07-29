@@ -375,8 +375,8 @@ fn draw_edge(
             set_air_pixel(tile, 0, 3);
             set_air_pixel(tile, 7, 3);
         }
-        MapTileEdge::LockedDoor(lock_type) => {
-            if [Gray, Red, Green, Yellow].contains(&lock_type) {
+        MapTileEdge::LockedDoor(lock_type) => match lock_type {
+            Gray | Red | Green | Yellow => {
                 let color = match lock_type {
                     DoorLockType::Gray => 15,
                     DoorLockType::Red => 7,
@@ -418,7 +418,8 @@ fn draw_edge(
                         set_deep_pixel(tile, 5, 4);
                     }
                 }
-            } else if [Charge, Ice, Wave, Spazer, Plasma].contains(&lock_type) {
+            }
+            Charge | Ice | Wave | Spazer | Plasma => {
                 let color = match lock_type {
                     Charge => 15,
                     Ice => 8,
@@ -460,7 +461,17 @@ fn draw_edge(
                     }
                 }
             }
-        }
+            Wall => {
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 3, 13);
+                set_wall_pixel(tile, 4, 13);
+                set_wall_pixel(tile, 5, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+            }
+        },
     }
 }
 
@@ -1297,6 +1308,7 @@ pub fn apply_door_lock(
     let lock_type = match locked_door.door_type {
         DoorType::Blue => panic!("unexpected blue door lock"),
         DoorType::Gray => panic!("unexpected gray door lock"),
+        DoorType::Wall => DoorLockType::Wall,
         DoorType::Red => DoorLockType::Red,
         DoorType::Green => DoorLockType::Green,
         DoorType::Yellow => DoorLockType::Yellow,

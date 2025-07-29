@@ -148,16 +148,25 @@ pub fn get_spoiler_images(
     // Add item dots:
     let mut item_coords: HashMap<ItemPtr, (usize, usize)> = HashMap::new();
     for room in &game_data.room_geometry {
+        let room_id = room.room_id;
+        let room_ptr = game_data.room_ptr_by_id[&room_id];
+        let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         for item in &room.items {
             item_coords.insert(item.addr, (item.x, item.y));
         }
     }
     for (i, &item) in randomization.item_placement.iter().enumerate() {
         let (room_id, node_id) = game_data.item_locations[i];
-        let item_ptr = game_data.node_ptr_map[&(room_id, node_id)];
-        let (item_x, item_y) = item_coords[&item_ptr];
         let room_ptr = game_data.room_ptr_by_id[&room_id];
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
+        let item_ptr = game_data.node_ptr_map[&(room_id, node_id)];
+        let (item_x, item_y) = item_coords[&item_ptr];
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
         let x = room_x + item_x;

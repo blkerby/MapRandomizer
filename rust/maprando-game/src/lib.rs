@@ -200,6 +200,7 @@ pub enum DoorType {
     Yellow,
     Gray,
     Beam(BeamType),
+    Wall,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -1269,6 +1270,7 @@ pub struct StratVideo {
 #[serde(rename_all = "camelCase")]
 pub enum DoorLockType {
     Gray,
+    Wall,
     // Ammo doors:
     Red,
     Green,
@@ -1974,9 +1976,9 @@ impl GameData {
                 Requirement::Item(Item::Charge as ItemId),
                 Requirement::HeatFrames(60),
             )],
-            DoorType::Gray | DoorType::Beam(_) => {
+            DoorType::Gray | DoorType::Beam(_) | DoorType::Wall => {
                 panic!("Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}")
-            }
+            },
         };
         let room_id = ctx.room_id;
         let empty_array = json::array![];

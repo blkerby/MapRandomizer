@@ -2593,7 +2593,11 @@ impl<'a> Preprocessor<'a> {
     }
 }
 
-fn get_randomizable_doors(game_data: &GameData, objectives: &[Objective]) -> HashSet<DoorPtrPair> {
+fn get_randomizable_doors(
+    game_data: &GameData,
+    walls: &[DoorPtrPair],
+    objectives: &[Objective],
+) -> HashSet<DoorPtrPair> {
     // Doors which we do not want to randomize:
     let mut non_randomizable_doors: HashSet<DoorPtrPair> = vec![
         // Gray doors - Pirate rooms:
@@ -2703,6 +2707,8 @@ fn get_randomizable_doors(game_data: &GameData, objectives: &[Objective]) -> Has
     .map(|(x, y)| (Some(x), Some(y)))
     .collect();
 
+    non_randomizable_doors.extend(walls);
+
     // Avoid placing an ammo door on a tile with an objective "X", as it looks bad.
     for i in objectives.iter() {
         use Objective::*;
@@ -2755,13 +2761,35 @@ fn get_randomizable_doors(game_data: &GameData, objectives: &[Objective]) -> Has
 fn get_randomizable_door_connections(
     game_data: &GameData,
     map: &Map,
+    walls: &[DoorPtrPair],
     objectives: &[Objective],
 ) -> Vec<(DoorPtrPair, DoorPtrPair)> {
-    let doors = get_randomizable_doors(game_data, objectives);
+    let doors = get_randomizable_doors(game_data, walls, objectives);
     let mut out: Vec<(DoorPtrPair, DoorPtrPair)> = vec![];
     for (src_door_ptr_pair, dst_door_ptr_pair, _bidirectional) in &map.doors {
         if doors.contains(src_door_ptr_pair) && doors.contains(dst_door_ptr_pair) {
             out.push((*src_door_ptr_pair, *dst_door_ptr_pair));
+        }
+    }
+    out
+}
+
+fn get_walls(map: &Map, game_data: &GameData) -> Vec<DoorPtrPair> {
+    let mut out = vec![];
+    let mut door_set: HashSet<DoorPtrPair> = HashSet::new();
+    for door in &map.doors {
+        door_set.insert(door.0);
+        door_set.insert(door.1);
+    }
+    for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
+        if !map.room_mask[room_idx] {
+            continue;
+        }
+        for door in &room.doors {
+            let pair = (door.exit_ptr, door.entrance_ptr);
+            if !door_set.contains(&pair) {
+                out.push(pair);
+            }
         }
     }
     out
@@ -2813,7 +2841,8 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
         }
     };
-    let door_conns = get_randomizable_door_connections(game_data, map, objectives);
+    let walls = get_walls(map, game_data);
+    let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
     let mut locked_doors: Vec<LockedDoor> = vec![];
     let total_cnt = door_types.len();
     let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
@@ -2845,6 +2874,15 @@ pub fn randomize_doors(
         used_locs.insert(src_loc);
         used_locs.insert(dst_loc);
         locked_doors.push(door);
+    }
+
+    for &ptr_pair in &walls {
+        locked_doors.push(LockedDoor {
+            src_ptr_pair: ptr_pair,
+            dst_ptr_pair: (None, None),
+            door_type: DoorType::Wall,
+            bidirectional: false,
+        });
     }
 
     let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -5661,6 +5699,7 @@ impl Randomizer<'_> {
             DoorType::Green => "green",
             DoorType::Yellow => "yellow",
             DoorType::Gray => "gray",
+            DoorType::Wall => "wall",
             DoorType::Beam(beam) => match beam {
                 BeamType::Charge => "charge",
                 BeamType::Ice => "ice",
