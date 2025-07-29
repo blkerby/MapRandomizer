@@ -3116,27 +3116,8 @@ impl<'r> Randomizer<'r> {
             } else {
                 0
             };
-        initial_items_remaining[Item::Super as usize] = 10;
-        initial_items_remaining[Item::PowerBomb as usize] = 10;
-        initial_items_remaining[Item::ETank as usize] = 14;
-        initial_items_remaining[Item::ReserveTank as usize] = 4;
-        initial_items_remaining[Item::Missile as usize] =
-            available_items.saturating_sub(initial_items_remaining.iter().sum::<usize>());
-
         for x in &settings.item_progression_settings.item_pool {
             initial_items_remaining[x.item as usize] = x.count;
-        }
-
-        ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
-
-        if initial_items_remaining.iter().sum::<usize>() > available_items {
-            initial_items_remaining[Item::Missile as usize] =
-                initial_items_remaining[Item::Missile as usize].saturating_sub(
-                    initial_items_remaining
-                        .iter()
-                        .sum::<usize>()
-                        .saturating_sub(available_items),
-                );
         }
 
         for x in &settings.item_progression_settings.starting_items {
@@ -3144,14 +3125,37 @@ impl<'r> Randomizer<'r> {
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
         }
 
-        if initial_items_remaining.iter().sum::<usize>() > available_items {
-            let excess = initial_items_remaining.iter().sum::<usize>() - available_items;
-            initial_items_remaining[Item::Super as usize] -=
-                usize::min(initial_items_remaining[Item::Super as usize], excess / 2);
-            let excess = initial_items_remaining.iter().sum::<usize>() - available_items;
-            initial_items_remaining[Item::PowerBomb as usize] -=
-                usize::min(initial_items_remaining[Item::PowerBomb as usize], excess);
+        let target_initial_items = initial_items_remaining.clone();
+        for i in 0..10 {
+            ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
+            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+                break;
+            }
+            initial_items_remaining[Item::Super as usize] =
+                initial_items_remaining[Item::Super as usize].saturating_sub(1);
+            initial_items_remaining[Item::PowerBomb as usize] =
+                initial_items_remaining[Item::PowerBomb as usize].saturating_sub(1);
+            initial_items_remaining[Item::ETank as usize] =
+                initial_items_remaining[Item::ETank as usize].saturating_sub(2);
+            if i % 3 == 0 {
+                initial_items_remaining[Item::ReserveTank as usize] =
+                    initial_items_remaining[Item::ReserveTank as usize].saturating_sub(1);
+            }
+            initial_items_remaining[Item::Missile as usize] =
+                initial_items_remaining[Item::Missile as usize].saturating_sub(9);
         }
+
+        if initial_items_remaining.iter().sum::<usize>() > available_items {
+            // TODO: fail more gracefully
+            panic!("Not enough available item locations: {available_items}");
+        }
+
+        initial_items_remaining[Item::Missile as usize] = usize::min(
+            target_initial_items[Item::Missile as usize],
+            initial_items_remaining[Item::Missile as usize] + available_items
+                - initial_items_remaining.iter().sum::<usize>(),
+        );
+
         assert!(initial_items_remaining.iter().sum::<usize>() <= available_items);
         initial_items_remaining[Item::Nothing as usize] =
             available_items - initial_items_remaining.iter().sum::<usize>();
