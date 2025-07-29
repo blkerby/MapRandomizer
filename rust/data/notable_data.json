@@ -2824,6 +2824,14 @@
     "video_id": 89
   },
   {
+    "room_id": 181,
+    "room_name": "Watering Hole",
+    "notable_id": 2,
+    "name": "Precise Crouch Jump Down Grab",
+    "difficulty": "Expert",
+    "video_id": 3153
+  },
+  {
     "room_id": 211,
     "room_name": "Yoink Room",
     "notable_id": 1,

@@ -2269,6 +2269,13 @@
             "enabled": true
         },
         {
+            "room_id": 181,
+            "notable_id": 2,
+            "room_name": "Watering Hole",
+            "notable_name": "Precise Crouch Jump Down Grab",
+            "enabled": true
+        },
+        {
             "room_id": 322,
             "notable_id": 2,
             "room_name": "East Pants Room",
