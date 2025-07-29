@@ -121,6 +121,9 @@ pub fn get_spoiler_images(
         let room_id = room.room_id;
         let room_ptr = game_data.room_ptr_by_id[&room_id];
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
         let area = map.area[room_idx];
@@ -145,39 +148,30 @@ pub fn get_spoiler_images(
     // Add item dots:
     let mut item_coords: HashMap<ItemPtr, (usize, usize)> = HashMap::new();
     for room in &game_data.room_geometry {
+        let room_id = room.room_id;
+        let room_ptr = game_data.room_ptr_by_id[&room_id];
+        let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         for item in &room.items {
             item_coords.insert(item.addr, (item.x, item.y));
         }
     }
     for (i, &item) in randomization.item_placement.iter().enumerate() {
         let (room_id, node_id) = game_data.item_locations[i];
-        let item_ptr = game_data.node_ptr_map[&(room_id, node_id)];
-        let (item_x, item_y) = item_coords[&item_ptr];
         let room_ptr = game_data.room_ptr_by_id[&room_id];
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
+        let item_ptr = game_data.node_ptr_map[&(room_id, node_id)];
+        let (item_x, item_y) = item_coords[&item_ptr];
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
         let x = room_x + item_x;
         let y = room_y + item_y;
         tiles[y][x].interior = apply_item_interior(tiles[y][x].clone(), item, settings);
-    }
-
-    // Add door locks:
-    for locked_door in randomization.locked_doors.iter() {
-        let mut ptr_pairs = vec![locked_door.src_ptr_pair];
-        if locked_door.bidirectional {
-            ptr_pairs.push(locked_door.dst_ptr_pair);
-        }
-        for ptr_pair in ptr_pairs {
-            let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
-            let room_geom = &game_data.room_geometry[room_idx];
-            let door = &room_geom.doors[door_idx];
-            let room_x = map.rooms[room_idx].0;
-            let room_y = map.rooms[room_idx].1;
-            let x = room_x + door.x;
-            let y = room_y + door.y;
-            tiles[y][x] = apply_door_lock(&tiles[y][x], locked_door, door);
-        }
     }
 
     // Add gray doors:
@@ -205,6 +199,24 @@ pub fn get_spoiler_images(
             }
         }
         tiles[y][x] = tile;
+    }
+
+    // Add door locks:
+    for locked_door in randomization.locked_doors.iter() {
+        let mut ptr_pairs = vec![locked_door.src_ptr_pair];
+        if locked_door.bidirectional {
+            ptr_pairs.push(locked_door.dst_ptr_pair);
+        }
+        for ptr_pair in ptr_pairs {
+            let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+            let room_geom = &game_data.room_geometry[room_idx];
+            let door = &room_geom.doors[door_idx];
+            let room_x = map.rooms[room_idx].0;
+            let room_y = map.rooms[room_idx].1;
+            let x = room_x + door.x;
+            let y = room_y + door.y;
+            tiles[y][x] = apply_door_lock(&tiles[y][x], locked_door, door);
+        }
     }
 
     // Add objectives:

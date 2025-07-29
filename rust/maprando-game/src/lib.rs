@@ -67,8 +67,10 @@ pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
 #[allow(clippy::type_complexity)]
-#[derive(Deserialize, Serialize, Clone)]
+#[derive(Deserialize, Serialize, Clone, Debug)]
 pub struct Map {
+    #[serde(default)]
+    pub room_mask: Vec<bool>,
     pub rooms: Vec<(usize, usize)>, // (x, y) of upper-left corner of room on map
     pub doors: Vec<(
         (Option<usize>, Option<usize>), // Source (exit_ptr, entrance_ptr)
@@ -198,6 +200,7 @@ pub enum DoorType {
     Yellow,
     Gray,
     Beam(BeamType),
+    Wall,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -1267,6 +1270,7 @@ pub struct StratVideo {
 #[serde(rename_all = "camelCase")]
 pub enum DoorLockType {
     Gray,
+    Wall,
     // Ammo doors:
     Red,
     Green,
@@ -1484,6 +1488,7 @@ pub struct GameData {
     pub room_id_by_ptr: HashMap<RoomPtr, RoomId>,
     pub raw_room_id_by_ptr: HashMap<RoomPtr, RoomId>, // Does not replace twin room pointer with corresponding main room pointer
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
+    pub room_idx_by_id: HashMap<RoomId, RoomGeometryRoomIdx>,
     pub toilet_room_idx: usize,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
     pub node_coords: HashMap<(RoomId, NodeId), (usize, usize)>,
@@ -1971,9 +1976,9 @@ impl GameData {
                 Requirement::Item(Item::Charge as ItemId),
                 Requirement::HeatFrames(60),
             )],
-            DoorType::Gray | DoorType::Beam(_) => {
+            DoorType::Gray | DoorType::Beam(_) | DoorType::Wall => {
                 panic!("Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}")
-            }
+            },
         };
         let room_id = ctx.room_id;
         let empty_array = json::array![];
@@ -4930,6 +4935,7 @@ impl GameData {
             let room_id = self.room_id_by_ptr[&room.rom_address];
             assert_eq!(room_id, room.room_id);
             self.room_idx_by_ptr.insert(room.rom_address, room_idx);
+            self.room_idx_by_id.insert(room_id, room_idx);
             if let Some(twin_rom_address) = room.twin_rom_address {
                 self.room_idx_by_ptr.insert(twin_rom_address, room_idx);
             }

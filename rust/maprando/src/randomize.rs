@@ -2,6 +2,7 @@ pub mod escape_timer;
 mod run_speed;
 
 use crate::helpers::get_item_priorities;
+use crate::patch::map_tiles::get_objective_tiles;
 use crate::patch::NUM_AREAS;
 use crate::settings::{
     DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
@@ -602,15 +603,18 @@ impl<'a> Preprocessor<'a> {
         ];
         for ((src_room_id, src_node_id), (dst_other_room_id, dst_other_node_id)) in extra_door_links
         {
-            let (dst_room_id, dst_node_id) = self.door_map[&(dst_other_room_id, dst_other_node_id)];
-            self.add_door_links(
-                src_room_id,
-                src_node_id,
-                dst_room_id,
-                dst_node_id,
-                false,
-                &mut door_links,
-            )
+            if let Some(&(dst_room_id, dst_node_id)) =
+                self.door_map.get(&(dst_other_room_id, dst_other_node_id))
+            {
+                self.add_door_links(
+                    src_room_id,
+                    src_node_id,
+                    dst_room_id,
+                    dst_node_id,
+                    false,
+                    &mut door_links,
+                )
+            }
         }
 
         // for link in &door_links {
@@ -2589,7 +2593,11 @@ impl<'a> Preprocessor<'a> {
     }
 }
 
-fn get_randomizable_doors(game_data: &GameData, objectives: &[Objective]) -> HashSet<DoorPtrPair> {
+fn get_randomizable_doors(
+    game_data: &GameData,
+    walls: &[DoorPtrPair],
+    objectives: &[Objective],
+) -> HashSet<DoorPtrPair> {
     // Doors which we do not want to randomize:
     let mut non_randomizable_doors: HashSet<DoorPtrPair> = vec![
         // Gray doors - Pirate rooms:
@@ -2699,6 +2707,8 @@ fn get_randomizable_doors(game_data: &GameData, objectives: &[Objective]) -> Has
     .map(|(x, y)| (Some(x), Some(y)))
     .collect();
 
+    non_randomizable_doors.extend(walls);
+
     // Avoid placing an ammo door on a tile with an objective "X", as it looks bad.
     for i in objectives.iter() {
         use Objective::*;
@@ -2751,13 +2761,35 @@ fn get_randomizable_doors(game_data: &GameData, objectives: &[Objective]) -> Has
 fn get_randomizable_door_connections(
     game_data: &GameData,
     map: &Map,
+    walls: &[DoorPtrPair],
     objectives: &[Objective],
 ) -> Vec<(DoorPtrPair, DoorPtrPair)> {
-    let doors = get_randomizable_doors(game_data, objectives);
+    let doors = get_randomizable_doors(game_data, walls, objectives);
     let mut out: Vec<(DoorPtrPair, DoorPtrPair)> = vec![];
     for (src_door_ptr_pair, dst_door_ptr_pair, _bidirectional) in &map.doors {
         if doors.contains(src_door_ptr_pair) && doors.contains(dst_door_ptr_pair) {
             out.push((*src_door_ptr_pair, *dst_door_ptr_pair));
+        }
+    }
+    out
+}
+
+fn get_walls(map: &Map, game_data: &GameData) -> Vec<DoorPtrPair> {
+    let mut out = vec![];
+    let mut door_set: HashSet<DoorPtrPair> = HashSet::new();
+    for door in &map.doors {
+        door_set.insert(door.0);
+        door_set.insert(door.1);
+    }
+    for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
+        if !map.room_mask[room_idx] {
+            continue;
+        }
+        for door in &room.doors {
+            let pair = (door.exit_ptr, door.entrance_ptr);
+            if !door_set.contains(&pair) {
+                out.push(pair);
+            }
         }
     }
     out
@@ -2809,7 +2841,8 @@ pub fn randomize_doors(
             door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
         }
     };
-    let door_conns = get_randomizable_door_connections(game_data, map, objectives);
+    let walls = get_walls(map, game_data);
+    let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
     let mut locked_doors: Vec<LockedDoor> = vec![];
     let total_cnt = door_types.len();
     let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
@@ -2841,6 +2874,15 @@ pub fn randomize_doors(
         used_locs.insert(src_loc);
         used_locs.insert(dst_loc);
         locked_doors.push(door);
+    }
+
+    for &ptr_pair in &walls {
+        locked_doors.push(LockedDoor {
+            src_ptr_pair: ptr_pair,
+            dst_ptr_pair: (None, None),
+            door_type: DoorType::Wall,
+            bidirectional: false,
+        });
     }
 
     let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -2995,14 +3037,31 @@ pub fn get_difficulty_tiers(
     difficulty_tiers
 }
 
-pub fn get_objectives<R: Rng>(settings: &RandomizerSettings, rng: &mut R) -> Vec<Objective> {
+pub fn get_objectives<R: Rng>(
+    settings: &RandomizerSettings,
+    map: Option<&Map>,
+    game_data: &GameData,
+    rng: &mut R,
+) -> Vec<Objective> {
     let obj_settings = &settings.objective_settings;
     let num_objectives =
         rng.gen_range(obj_settings.min_objectives..=obj_settings.max_objectives) as usize;
     let mut random_options: Vec<Objective> = vec![];
     let mut out = vec![];
 
-    for obj_option in &obj_settings.objective_options {
+    'obj: for obj_option in &obj_settings.objective_options {
+        // Skip objective option if it does not exist on the map.
+        let obj_tiles = get_objective_tiles(&[obj_option.objective]);
+        if let Some(map) = map {
+            for (room_id, _, _) in obj_tiles {
+                let room_ptr = game_data.room_ptr_by_id[&room_id];
+                let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+                if !map.room_mask[room_idx] {
+                    continue 'obj;
+                }
+            }
+        }
+
         match obj_option.setting {
             ObjectiveSetting::No => {}
             ObjectiveSetting::Maybe => {
@@ -3014,7 +3073,11 @@ pub fn get_objectives<R: Rng>(settings: &RandomizerSettings, rng: &mut R) -> Vec
         }
     }
 
-    out.extend(random_options.choose_multiple(rng, num_objectives - out.len()));
+    if out.len() + random_options.len() < num_objectives {
+        out.extend(random_options);
+    } else {
+        out.extend(random_options.choose_multiple(rng, num_objectives - out.len()));
+    }
     out
 }
 
@@ -3029,6 +3092,14 @@ impl<'r> Randomizer<'r> {
         base_links_data: &'r LinksDataGroup,
         _rng: &mut R,
     ) -> Randomizer<'r> {
+        let mut available_items: usize = 0;
+        for (room_id, _) in &game_data.item_locations {
+            let room_idx = game_data.room_idx_by_id[room_id];
+            if map.room_mask[room_idx] {
+                available_items += 1;
+            }
+        }
+
         let preprocessor = Preprocessor::new(game_data, map, &difficulty_tiers[0]);
         let preprocessed_seed_links: Vec<Link> = preprocessor.get_all_door_links();
         info!(
@@ -3045,22 +3116,8 @@ impl<'r> Randomizer<'r> {
             } else {
                 0
             };
-        initial_items_remaining[Item::Super as usize] = 10;
-        initial_items_remaining[Item::PowerBomb as usize] = 10;
-        initial_items_remaining[Item::ETank as usize] = 14;
-        initial_items_remaining[Item::ReserveTank as usize] = 4;
-        initial_items_remaining[Item::Missile as usize] =
-            game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
-
         for x in &settings.item_progression_settings.item_pool {
             initial_items_remaining[x.item as usize] = x.count;
-        }
-
-        ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
-
-        if initial_items_remaining.iter().sum::<usize>() > game_data.item_locations.len() {
-            initial_items_remaining[Item::Missile as usize] -=
-                initial_items_remaining.iter().sum::<usize>() - game_data.item_locations.len();
         }
 
         for x in &settings.item_progression_settings.starting_items {
@@ -3068,9 +3125,40 @@ impl<'r> Randomizer<'r> {
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
         }
 
-        assert!(initial_items_remaining.iter().sum::<usize>() <= game_data.item_locations.len());
+        let target_initial_items = initial_items_remaining.clone();
+        for i in 0..10 {
+            ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
+            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+                break;
+            }
+            initial_items_remaining[Item::Super as usize] =
+                initial_items_remaining[Item::Super as usize].saturating_sub(1);
+            initial_items_remaining[Item::PowerBomb as usize] =
+                initial_items_remaining[Item::PowerBomb as usize].saturating_sub(1);
+            initial_items_remaining[Item::ETank as usize] =
+                initial_items_remaining[Item::ETank as usize].saturating_sub(2);
+            if i % 3 == 0 {
+                initial_items_remaining[Item::ReserveTank as usize] =
+                    initial_items_remaining[Item::ReserveTank as usize].saturating_sub(1);
+            }
+            initial_items_remaining[Item::Missile as usize] =
+                initial_items_remaining[Item::Missile as usize].saturating_sub(9);
+        }
+
+        if initial_items_remaining.iter().sum::<usize>() > available_items {
+            // TODO: fail more gracefully
+            panic!("Not enough available item locations: {available_items}");
+        }
+
+        initial_items_remaining[Item::Missile as usize] = usize::min(
+            target_initial_items[Item::Missile as usize],
+            initial_items_remaining[Item::Missile as usize] + available_items
+                - initial_items_remaining.iter().sum::<usize>(),
+        );
+
+        assert!(initial_items_remaining.iter().sum::<usize>() <= available_items);
         initial_items_remaining[Item::Nothing as usize] =
-            game_data.item_locations.len() - initial_items_remaining.iter().sum::<usize>();
+            available_items - initial_items_remaining.iter().sum::<usize>();
 
         let toilet_intersections = Self::get_toilet_intersections(map, game_data);
 
@@ -3114,8 +3202,17 @@ impl<'r> Randomizer<'r> {
 
     pub fn get_toilet_intersections(map: &Map, game_data: &GameData) -> Vec<RoomGeometryRoomIdx> {
         let mut out = vec![];
+        if !map.room_mask[game_data.toilet_room_idx] {
+            return out;
+        }
         let toilet_pos = map.rooms[game_data.toilet_room_idx];
         for room_idx in 0..map.rooms.len() {
+            if !map.room_mask[room_idx] {
+                continue;
+            }
+            if room_idx == game_data.toilet_room_idx {
+                continue;
+            }
             let room_map = &game_data.room_geometry[room_idx].map;
             let room_pos = map.rooms[room_idx];
             let room_height = room_map.len() as isize;
@@ -3724,13 +3821,17 @@ impl<'r> Randomizer<'r> {
             info!("[attempt {attempt_num_rando}] Finishing with {remaining_items:?}");
             remaining_items.shuffle(rng);
             let mut idx = 0;
-            for item_loc_state in &mut state.item_location_state {
+            for (i, item_loc_state) in state.item_location_state.iter_mut().enumerate() {
+                let room_id = self.game_data.item_locations[i].0;
+                let room_idx = self.game_data.room_idx_by_id[&room_id];
+                if !self.map.room_mask[room_idx] {
+                    item_loc_state.placed_item = Some(Item::Nothing);
+                }
                 if item_loc_state.placed_item.is_none() {
                     item_loc_state.placed_item = Some(remaining_items[idx]);
                     idx += 1;
                 }
             }
-            assert!(idx == remaining_items.len());
         }
     }
 
@@ -4316,50 +4417,49 @@ impl<'r> Randomizer<'r> {
                 }
             })
             .collect();
-        let spoiler_all_rooms = self
-            .map
-            .rooms
-            .iter()
-            .enumerate()
-            .zip(self.game_data.room_geometry.iter())
-            .map(|((room_idx, c), g)| {
-                let room_id = self.game_data.room_id_by_ptr[&g.rom_address];
-                let room = self.game_data.room_json_map[&room_id]["name"]
-                    .as_str()
-                    .unwrap()
-                    .to_string();
-                let map = if room_idx == self.game_data.toilet_room_idx {
-                    vec![vec![1; 1]; 10]
-                } else {
-                    g.map.clone()
-                };
-                let height = map.len();
-                let width = map[0].len();
-                let mut map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
-                let mut map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
-                for y in 0..height {
-                    for x in 0..width {
-                        if map[y][x] != 0 {
-                            let key = (room_idx, (x, y));
-                            if let Some(step) = map_tile_reachable_step.get(&key) {
-                                map_reachable_step[y][x] = *step as u8;
-                            }
-                            if let Some(step) = map_tile_bireachable_step.get(&key) {
-                                map_bireachable_step[y][x] = *step as u8;
-                            }
+
+        let mut spoiler_all_rooms: Vec<SpoilerRoomLoc> = Vec::new();
+        for (room_idx, room_coords) in self.map.rooms.iter().enumerate() {
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            let room_geom = &self.game_data.room_geometry[room_idx];
+            let room_id = self.game_data.room_id_by_ptr[&room_geom.rom_address];
+            let room = self.game_data.room_json_map[&room_id]["name"]
+                .as_str()
+                .unwrap()
+                .to_string();
+            let map = if room_idx == self.game_data.toilet_room_idx {
+                vec![vec![1; 1]; 10]
+            } else {
+                room_geom.map.clone()
+            };
+            let height = map.len();
+            let width = map[0].len();
+            let mut map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+            let mut map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+            for y in 0..height {
+                for x in 0..width {
+                    if map[y][x] != 0 {
+                        let key = (room_idx, (x, y));
+                        if let Some(step) = map_tile_reachable_step.get(&key) {
+                            map_reachable_step[y][x] = *step as u8;
+                        }
+                        if let Some(step) = map_tile_bireachable_step.get(&key) {
+                            map_bireachable_step[y][x] = *step as u8;
                         }
                     }
                 }
-                SpoilerRoomLoc {
-                    room_id,
-                    room,
-                    map,
-                    map_reachable_step,
-                    map_bireachable_step,
-                    coords: *c,
-                }
-            })
-            .collect();
+            }
+            spoiler_all_rooms.push(SpoilerRoomLoc {
+                room_id,
+                room,
+                map,
+                map_reachable_step,
+                map_bireachable_step,
+                coords: *room_coords,
+            });
+        }
 
         let save_animals = if self.settings.save_animals == SaveAnimals::Random {
             if rng.gen_bool(0.5) {
@@ -4802,31 +4902,30 @@ impl<'r> Randomizer<'r> {
             save_animals != SaveAnimals::No,
             &self.difficulty_tiers[0],
         )?;
-        let spoiler_all_rooms = self
-            .map
-            .rooms
-            .iter()
-            .zip(self.game_data.room_geometry.iter())
-            .map(|(c, g)| {
-                let room_id = self.game_data.room_id_by_ptr[&g.rom_address];
-                let room = self.game_data.room_json_map[&room_id]["name"]
-                    .as_str()
-                    .unwrap()
-                    .to_string();
-                let height = g.map.len();
-                let width = g.map[0].len();
-                let map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
-                let map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
-                SpoilerRoomLoc {
-                    room_id,
-                    room,
-                    map: g.map.clone(),
-                    map_reachable_step,
-                    map_bireachable_step,
-                    coords: *c,
-                }
-            })
-            .collect();
+        let mut spoiler_all_rooms: Vec<SpoilerRoomLoc> = Vec::new();
+        for (room_idx, room_coords) in self.map.rooms.iter().enumerate() {
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            let room_geom = &self.game_data.room_geometry[room_idx];
+            let room_id = self.game_data.room_id_by_ptr[&room_geom.rom_address];
+            let room = self.game_data.room_json_map[&room_id]["name"]
+                .as_str()
+                .unwrap()
+                .to_string();
+            let height = room_geom.map.len();
+            let width = room_geom.map[0].len();
+            let map_reachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+            let map_bireachable_step: Vec<Vec<u8>> = vec![vec![255; width]; height];
+            spoiler_all_rooms.push(SpoilerRoomLoc {
+                room_id,
+                room,
+                map: room_geom.map.clone(),
+                map_reachable_step,
+                map_bireachable_step,
+                coords: *room_coords,
+            });
+        }
 
         let spoiler_log = SpoilerLog {
             item_priority: vec![],
@@ -5023,22 +5122,27 @@ impl<'r> Randomizer<'r> {
                         }
                     }
 
-                    // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
-                    // behind Bowling Alley.
-                    let phantoon_flag_id =
-                        self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
-                    let mut phantoon_defeated = false;
-                    for (i, flag_id) in self.game_data.flag_ids.iter().enumerate() {
-                        if *flag_id == phantoon_flag_id && state.flag_location_state[i].bireachable
-                        {
-                            phantoon_defeated = true;
+                    if self.settings.map_layout != "Small" {
+                        // Check that Phantoon can be defeated. This is to rule out the possibility that Phantoon may be locked
+                        // behind Bowling Alley. On Small maps we relax this, since Phantoon may not exist; the game is still
+                        // verified to be logically beatable, but possibly some part of the map could be inaccessible due
+                        // to Bowling Alley.
+                        let phantoon_flag_id =
+                            self.game_data.flag_isv.index_by_key["f_DefeatedPhantoon"];
+                        let mut phantoon_defeated = false;
+                        for (i, flag_id) in self.game_data.flag_ids.iter().enumerate() {
+                            if *flag_id == phantoon_flag_id
+                                && state.flag_location_state[i].bireachable
+                            {
+                                phantoon_defeated = true;
+                            }
                         }
-                    }
 
-                    if !phantoon_defeated {
-                        bail!(
-                            "[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated"
-                        );
+                        if !phantoon_defeated {
+                            bail!(
+                                "[attempt {attempt_num_rando}] Attempt failed: Phantoon not defeated"
+                            );
+                        }
                     }
                 }
 
@@ -5599,6 +5703,7 @@ impl Randomizer<'_> {
             DoorType::Green => "green",
             DoorType::Yellow => "yellow",
             DoorType::Gray => "gray",
+            DoorType::Wall => "wall",
             DoorType::Beam(beam) => match beam {
                 BeamType::Charge => "charge",
                 BeamType::Ice => "ice",

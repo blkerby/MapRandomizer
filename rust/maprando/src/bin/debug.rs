@@ -88,7 +88,7 @@ fn run_scenario(
     let rng_seed = [0u8; 32];
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
-    let objectives = get_objectives(settings, &mut rng);
+    let objectives = get_objectives(settings, None, game_data, &mut rng);
     difficulty.draygon_proficiency = proficiency;
     difficulty.ridley_proficiency = proficiency;
     difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] = patience;

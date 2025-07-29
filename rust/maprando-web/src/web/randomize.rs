@@ -200,7 +200,7 @@ async fn randomize(
             }
             AreaAssignment::Standard => {}
         }
-        let objectives = get_objectives(&settings, &mut rng);
+        let objectives = get_objectives(&settings, Some(&map), &app_data.game_data, &mut rng);
         let locked_door_data = randomize_doors(
             &app_data.game_data,
             &map,

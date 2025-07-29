@@ -375,8 +375,8 @@ fn draw_edge(
             set_air_pixel(tile, 0, 3);
             set_air_pixel(tile, 7, 3);
         }
-        MapTileEdge::LockedDoor(lock_type) => {
-            if [Gray, Red, Green, Yellow].contains(&lock_type) {
+        MapTileEdge::LockedDoor(lock_type) => match lock_type {
+            Gray | Red | Green | Yellow => {
                 let color = match lock_type {
                     DoorLockType::Gray => 15,
                     DoorLockType::Red => 7,
@@ -418,7 +418,8 @@ fn draw_edge(
                         set_deep_pixel(tile, 5, 4);
                     }
                 }
-            } else if [Charge, Ice, Wave, Spazer, Plasma].contains(&lock_type) {
+            }
+            Charge | Ice | Wave | Spazer | Plasma => {
                 let color = match lock_type {
                     Charge => 15,
                     Ice => 8,
@@ -460,7 +461,17 @@ fn draw_edge(
                     }
                 }
             }
-        }
+            Wall => {
+                set_wall_pixel(tile, 0, 3);
+                set_wall_pixel(tile, 1, 3);
+                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 3, 13);
+                set_wall_pixel(tile, 4, 13);
+                set_wall_pixel(tile, 5, 3);
+                set_wall_pixel(tile, 6, 3);
+                set_wall_pixel(tile, 7, 3);
+            }
+        },
     }
 }
 
@@ -1297,6 +1308,7 @@ pub fn apply_door_lock(
     let lock_type = match locked_door.door_type {
         DoorType::Blue => panic!("unexpected blue door lock"),
         DoorType::Gray => panic!("unexpected gray door lock"),
+        DoorType::Wall => DoorLockType::Wall,
         DoorType::Red => DoorLockType::Red,
         DoorType::Green => DoorLockType::Green,
         DoorType::Yellow => DoorLockType::Yellow,
@@ -1713,6 +1725,9 @@ impl<'a> MapPatcher<'a> {
 
         // Write room map offsets:
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            if !self.randomization.map.room_mask[room_idx] {
+                continue;
+            }
             let area = self.randomization.map.area[room_idx];
             let room_x = self.map.rooms[room_idx].0 as isize - self.area_offset_x[area];
             let room_y = self.map.rooms[room_idx].1 as isize - self.area_offset_y[area];
@@ -1777,6 +1792,10 @@ impl<'a> MapPatcher<'a> {
 
         for &room_ptr in &self.game_data.room_ptrs {
             let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
             let room_width = self.rom.read_u8(room_ptr + 4)?;
             let room_height = self.rom.read_u8(room_ptr + 5)?;
 
@@ -1820,7 +1839,7 @@ impl<'a> MapPatcher<'a> {
 
             for y in -1..room_height + 1 {
                 for x in -2..room_width + 2 {
-                    let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+                    let (area, x1, y1) = self.get_room_coords(room_id, x, y).unwrap();
                     let tile = self.map_tile_map.get(&(area, x1, y1));
                     let data: [[u8; 8]; 8] = if let Some(x) = tile {
                         self.render_tile(x.clone())?
@@ -1912,7 +1931,9 @@ impl<'a> MapPatcher<'a> {
 
     fn indicate_objective_tiles(&mut self) -> Result<()> {
         for (room_id, x, y) in get_objective_tiles(&self.randomization.objectives) {
-            let tile = self.get_room_tile(room_id, x as isize, y as isize);
+            let Some(tile) = self.get_room_tile(room_id, x as isize, y as isize) else {
+                continue;
+            };
             tile.interior = MapTileInterior::Objective;
         }
         Ok(())
@@ -1923,7 +1944,9 @@ impl<'a> MapPatcher<'a> {
         // by an X depending on the objective setting.
         let gray_door = MapTileEdge::LockedDoor(DoorLockType::Gray);
         for (room_id, x, y, dir) in get_gray_doors() {
-            let tile = self.get_room_tile(room_id, x, y);
+            let Some(tile) = self.get_room_tile(room_id, x, y) else {
+                continue;
+            };
             match dir {
                 Direction::Left => {
                     tile.left = gray_door;
@@ -1955,14 +1978,23 @@ impl<'a> MapPatcher<'a> {
                 let room_geom = &self.game_data.room_geometry[room_idx];
                 let door = &room_geom.doors[door_idx];
                 let room_id = self.game_data.room_id_by_ptr[&room_geom.rom_address];
-                let tile = self.get_room_tile(room_id, door.x as isize, door.y as isize);
+                let Some(tile) = self.get_room_tile(room_id, door.x as isize, door.y as isize)
+                else {
+                    continue;
+                };
                 let new_tile = apply_door_lock(tile, locked_door, door);
 
-                // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
-                // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
-                // the item bits start.
-                let item_idx = self.locked_door_state_indices[i] + 512;
-                self.dynamic_tile_data[area].push((item_idx, room_id, new_tile));
+                if locked_door.door_type == DoorType::Wall {
+                    // Walls are permanent, so we apply the change to the tile directly.
+                    // This is necessary in order to support multiple walls on the same tile.
+                    *tile = new_tile;
+                } else {
+                    // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
+                    // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
+                    // the item bits start.
+                    let item_idx = self.locked_door_state_indices[i] + 512;
+                    self.dynamic_tile_data[area].push((item_idx, room_id, new_tile));
+                }
             }
         }
         Ok(())
@@ -2204,17 +2236,34 @@ impl<'a> MapPatcher<'a> {
         // and then when looking at the map later, don't remember that there's another room behind it.
         // To avoid this, when entering on of these rooms, we do a "partial reveal" on just the door
         // of the neighboring rooms.
+        // TODO: consider extending this behavior to objective tiles as well.
         let imr_settings = &self
             .settings
             .quality_of_life_settings
             .initial_map_reveal_settings;
         let save_partial = imr_settings.save_stations == MapRevealLevel::Partial;
         let refill_partial = imr_settings.refill_stations == MapRevealLevel::Partial;
-        let room_ids = vec![
+        let mut room_ids = vec![
             (302, save_partial),   // Frog Savestation
             (190, save_partial),   // Draygon Save Room
             (308, refill_partial), // Nutella Refill
         ];
+
+        // Don't show the special reveal if the room is blocked by a wall.
+        room_ids.retain(|&(room_id, _)| {
+            for door in &self.randomization.locked_doors {
+                if door.door_type == DoorType::Wall {
+                    let (src_room_idx, _) =
+                        self.game_data.room_and_door_idxs_by_door_ptr_pair[&door.src_ptr_pair];
+                    let src_room_id = self.game_data.room_geometry[src_room_idx].room_id;
+                    if src_room_id == room_id {
+                        return false;
+                    }
+                }
+            }
+            true
+        });
+
         let mut table_addr = snes2pc(0x85A180);
         let partial_revealed_bits_base = 0x2700;
         let tilemap_base = 0x4000;
@@ -2346,6 +2395,11 @@ impl<'a> MapPatcher<'a> {
     fn indicate_items(&mut self) -> Result<()> {
         for (i, &item) in self.randomization.item_placement.iter().enumerate() {
             let (room_id, node_id) = self.game_data.item_locations[i];
+            let room_ptr = self.game_data.room_ptr_by_id[&room_id];
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
             if room_id == 19
                 && self
                     .randomization
@@ -2362,7 +2416,7 @@ impl<'a> MapPatcher<'a> {
             let room = &self.game_data.room_geometry[room_idx];
             let area = self.map.area[room_idx];
             let (x, y) = find_item_xy(item_ptr, &room.items)?;
-            let orig_tile = self.get_room_tile(room_id, x, y).clone();
+            let orig_tile = self.get_room_tile(room_id, x, y).unwrap().clone();
             let mut tile = orig_tile.clone();
             tile.faded = false;
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
@@ -2752,9 +2806,17 @@ impl<'a> MapPatcher<'a> {
         Ok(())
     }
 
-    fn get_room_coords(&self, room_id: usize, x: isize, y: isize) -> (AreaIdx, isize, isize) {
+    fn get_room_coords(
+        &self,
+        room_id: usize,
+        x: isize,
+        y: isize,
+    ) -> Option<(AreaIdx, isize, isize)> {
         let room_ptr = self.game_data.room_ptr_by_id[&room_id];
         let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+        if !self.map.room_mask[room_idx] {
+            return None;
+        }
         let area = self.map.area[room_idx];
         let mut room_coords = self.map.rooms[room_idx];
         if room_id == 313 {
@@ -2766,16 +2828,18 @@ impl<'a> MapPatcher<'a> {
         }
         let x = room_coords.0 as isize + x;
         let y = room_coords.1 as isize + y;
-        (area, x, y)
+        Some((area, x, y))
     }
 
-    fn get_room_tile(&mut self, room_id: usize, x: isize, y: isize) -> &mut MapTile {
-        let (area, x1, y1) = self.get_room_coords(room_id, x, y);
-        self.map_tile_map.get_mut(&(area, x1, y1)).unwrap()
+    fn get_room_tile(&mut self, room_id: usize, x: isize, y: isize) -> Option<&mut MapTile> {
+        let (area, x1, y1) = self.get_room_coords(room_id, x, y)?;
+        Some(self.map_tile_map.get_mut(&(area, x1, y1)).unwrap())
     }
 
     fn set_room_tile(&mut self, room_id: usize, x: isize, y: isize, mut tile: MapTile) {
-        let (area, x1, y1) = self.get_room_coords(room_id, x, y);
+        let Some((area, x1, y1)) = self.get_room_coords(room_id, x, y) else {
+            return;
+        };
         tile.coords.0 = x1 as usize;
         tile.coords.1 = y1 as usize;
         self.map_tile_map.insert((area, x1, y1), tile);
@@ -2830,6 +2894,9 @@ impl<'a> MapPatcher<'a> {
         }
 
         for area in 0..NUM_AREAS {
+            if self.area_min_x[area] == isize::MAX {
+                continue;
+            }
             let margin_x = (64 - (self.area_max_x[area] - self.area_min_x[area])) / 2;
             let margin_y = (32 - (self.area_max_y[area] - self.area_min_y[area])) / 2;
             self.area_offset_x[area] = self.area_min_x[area] - margin_x;
@@ -2867,8 +2934,8 @@ impl<'a> MapPatcher<'a> {
         self.apply_room_tiles()?;
         self.indicate_objective_tiles()?;
         if !self.settings.other_settings.ultra_low_qol {
-            self.indicate_locked_doors()?;
             self.indicate_gray_doors()?;
+            self.indicate_locked_doors()?;
         }
         self.add_cross_area_arrows()?;
         self.set_map_activation_behavior()?;

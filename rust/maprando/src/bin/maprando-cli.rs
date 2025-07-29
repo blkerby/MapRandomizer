@@ -168,7 +168,7 @@ fn get_randomization(
             Some(s) => s,
             None => (rng.next_u64() & 0xFFFFFFFF) as usize,
         };
-        let objectives = get_objectives(settings, &mut rng);
+        let objectives = get_objectives(settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, settings, &objectives, door_seed);
         let randomizer = Randomizer::new(
             &map,

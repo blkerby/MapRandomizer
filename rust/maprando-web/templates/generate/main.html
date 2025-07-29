@@ -195,9 +195,11 @@
                     {% include "help/map_layout.html" %}
                     <label for="map_layout">Map layout</label>
                 </div>
-                <div id="mapLayout" class="col-lg-4 btn-group" role="group">
+                <div id="mapLayout" class="col-lg-5 btn-group" role="group">
                     <input type="radio" class="btn-check" name="map_layout" id="mapLayoutVanilla" value="Vanilla" onchange="fullSettingsChanged()">
                     <label class="btn btn-outline-primary" for="mapLayoutVanilla">Vanilla</label>
+                    <input type="radio" class="btn-check" name="map_layout" id="mapLayoutSmall" value="Small" onchange="fullSettingsChanged()">
+                    <label class="btn btn-outline-primary" for="mapLayoutSmall">Small</label>
                     <input type="radio" class="btn-check" name="map_layout" id="mapLayoutStandard" value="Standard" onchange="fullSettingsChanged()" checked=true>
                     <label class="btn btn-outline-primary" for="mapLayoutStandard">Standard</label>
                     <input type="radio" class="btn-check" name="map_layout" id="mapLayoutWild" value="Wild" onchange="fullSettingsChanged()">

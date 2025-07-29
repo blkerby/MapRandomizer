@@ -465,6 +465,7 @@ impl Patcher<'_> {
             "samus_tiles_optim_animated_tiles_fix",
             "sand_clamp",
             "transition_reveal",
+            "wall_doors",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -779,7 +780,9 @@ impl Patcher<'_> {
         let room_x = self.rom.read_u8(room.rom_address + 2)?;
         let room_y = self.rom.read_u8(room.rom_address + 3)?;
         let area = self.map.area[room_idx];
-        let other_door_ptr_pair = self.other_door_ptr_pair_map[door_ptr_pair];
+        let Some(&other_door_ptr_pair) = self.other_door_ptr_pair_map.get(door_ptr_pair) else {
+            return Ok(());
+        };
         let (other_room_idx, _other_door_idx) =
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&other_door_ptr_pair];
         let other_area = self.map.area[other_room_idx];
@@ -923,7 +926,9 @@ impl Patcher<'_> {
             ((None, Some(0x1A8B8)), 0x345, 0x3BB),        // Below Botwoon Energy Tank (right)
         ];
         for (door_pair, min_position, max_position) in sand_entrances {
-            let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
+            let Some(&other_door_pair) = self.other_door_ptr_pair_map.get(&door_pair) else {
+                continue;
+            };
 
             let asm = vec![
                 0xA2,
@@ -1116,8 +1121,12 @@ impl Patcher<'_> {
 
         for ptr in save_station_ptrs {
             let orig_entrance_door_ptr = (self.rom.read_u16(ptr + 2)? + 0x10000) as NodePtr;
-            let exit_door_ptr = orig_door_map[&orig_entrance_door_ptr];
-            let entrance_door_ptr = new_door_map[&exit_door_ptr];
+            let Some(&exit_door_ptr) = orig_door_map.get(&orig_entrance_door_ptr) else {
+                continue;
+            };
+            let Some(&entrance_door_ptr) = new_door_map.get(&exit_door_ptr) else {
+                continue;
+            };
             self.rom
                 .write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
         }
@@ -1164,6 +1173,11 @@ impl Patcher<'_> {
 
         let mut next_addr = 0xE48000;
         for &room_ptr in &self.game_data.room_ptrs {
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+
             self.extra_room_data.get_mut(&room_ptr).unwrap().map_tiles =
                 (next_addr & 0xFFFF) as u16;
             if map_patcher.room_map_gfx[&room_ptr].len() > 96 {
@@ -1276,6 +1290,48 @@ impl Patcher<'_> {
                         }
                     }
                     ptr += 6;
+                }
+            }
+        }
+
+        // If a wall is placed where we would normally keep gray door, then remove the gray door:
+        let gray_door_plm_map: HashMap<DoorPtrPair, PcAddr> = vec![
+            // Gray doors - Pirate rooms:
+            ((0x18B7A, 0x18B62), 0x783E8), // Pit Room left
+            ((0x18B86, 0x18B92), 0x783E2), // Pit Room right
+            ((0x19192, 0x1917A), 0x789FA), // Baby Kraid left
+            ((0x1919E, 0x191AA), 0x789F4), // Baby Kraid right
+            ((0x1A558, 0x1A54C), 0x7C553), // Plasma Room
+            ((0x19A32, 0x19966), 0x7F700), // Metal Pirates left (randomizer-specific addition)
+            ((0x19A3E, 0x19A1A), 0x7F706), // Metal Pirates right (randomizer-specific location)
+            // ((0x19A3E, 0x19A1A), vec![0x790C8]), // Metal Pirates right (vanilla PLM address, no longer used)
+            // Gray doors - Bosses:
+            ((0x191CE, 0x191B6), 0x78A34), // Kraid left
+            ((0x191DA, 0x19252), 0x78A2E), // Kraid right
+            ((0x1A2C4, 0x1A2AC), 0x7C2B3), // Phantoon
+            ((0x1A978, 0x1A924), 0x7C7C1), // Draygon left
+            ((0x1A96C, 0x1A840), 0x7C7BB), // Draygon right
+            ((0x198B2, 0x19A62), 0x78E9E), // Ridley left
+            ((0x198BE, 0x198CA), 0x78E98), // Ridley right
+            // Gray doors - Minibosses:
+            ((0x18BAA, 0x18BC2), 0x783FE), // Bomb Torizo
+            ((0x18E56, 0x18E3E), 0x78642), // Spore Spawn bottom
+            ((0x193EA, 0x193D2), 0x78B9E), // Crocomire top
+            ((0x1A90C, 0x1A774), 0x7C79F), // Botwoon left
+            ((0x19882, 0x19A86), 0x78E7A), // Golden Torizo right
+        ]
+        .into_iter()
+        .map(|((exit_ptr, entrance_ptr), plm_addr)| {
+            ((Some(exit_ptr), Some(entrance_ptr)), plm_addr)
+        })
+        .collect();
+
+        for door in &self.randomization.locked_doors {
+            if door.door_type == DoorType::Wall {
+                if let Some(&ptr) = gray_door_plm_map.get(&door.src_ptr_pair) {
+                    // Remove the gray door where the wall is being placed.
+                    self.rom.write_u16(ptr, 0xB63F)?; // left continuation arrow (should have no effect, giving a blue door)
+                    self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
                 }
             }
         }
@@ -1713,35 +1769,6 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn fix_crateria_scrolling_sky(&mut self) -> Result<()> {
-        // This function probably isn't needed anymore since we're using Mosaic's
-        // reimplementation of scrolling sky.
-        let data = vec![
-            (0x8FB76C, (0x1892E, 0x18946)), // Landing Site
-            (0x8FB777, (0x18916, 0x1896A)), // Landing Site
-            (0x8FB782, (0x1893A, 0x189B2)), // Landing Site
-            (0x8FB78D, (0x18922, 0x18AC6)), // Landing Site
-            (0x8FB7B0, (0x189E2, 0x18A12)), // West Ocean
-            (0x8FB7BB, (0x189CA, 0x18AEA)), // West Ocean (Bottom-left door, to Moat)
-            (0x8FB7C6, (0x189FA, 0x1A18C)), // West Ocean
-            (0x8FB7D1, (0x189D6, 0x1A1B0)), // West Ocean
-            (0x8FB7DC, (0x189EE, 0x1A1E0)), // West Ocean
-            (0x8FB7E7, (0x18A06, 0x1A300)), // West Ocean
-            (0x8FB7F4, (0x18A72, 0x18A7E)), // East Ocean
-            (0x8FB7FF, (0x18A66, 0x1A264)), // East Ocean
-        ];
-        for (addr, (exit_ptr, entrance_ptr)) in data {
-            let door_pair = (Some(exit_ptr), Some(entrance_ptr));
-            let other_door_pair = self.other_door_ptr_pair_map[&door_pair];
-            self.rom.write_u16(
-                snes2pc(addr),
-                (other_door_pair.0.unwrap() & 0xFFFF) as isize,
-            )?;
-        }
-
-        Ok(())
-    }
-
     fn apply_seed_identifiers(&mut self) -> Result<()> {
         let cartridge_name = "SUPERMETROID MAPRANDO";
         self.rom.write_n(0x7FC0, cartridge_name.as_bytes())?;
@@ -2172,7 +2199,10 @@ impl Patcher<'_> {
     }
 
     fn apply_door_hazard_marker(&mut self, door_ptr_pair: DoorPtrPair) -> Result<()> {
-        let mut other_door_ptr_pair = self.other_door_ptr_pair_map[&door_ptr_pair];
+        let Some(&(mut other_door_ptr_pair)) = self.other_door_ptr_pair_map.get(&door_ptr_pair)
+        else {
+            return Ok(());
+        };
 
         if other_door_ptr_pair == (Some(0x1AA8C), Some(0x1AAE0)) {
             // Don't draw hazard marker on left side of Mother Brain Room:
@@ -2322,7 +2352,7 @@ impl Patcher<'_> {
             self.game_data.room_and_door_idxs_by_door_ptr_pair[&locked_door.src_ptr_pair];
         let room = &self.game_data.room_geometry[room_idx];
         let door = &room.doors[door_idx];
-        let (x, y) = match door.direction.as_str() {
+        let (mut x, mut y) = match door.direction.as_str() {
             "right" => (door.x * 16 + 14 - door.offset.unwrap_or(0), door.y * 16 + 6),
             "left" => (door.x * 16 + 1 + door.offset.unwrap_or(0), door.y * 16 + 6),
             "up" => (door.x * 16 + 6, door.y * 16 + 1 + door.offset.unwrap_or(0)),
@@ -2346,6 +2376,32 @@ impl Patcher<'_> {
             (DoorType::Beam(_), "left") => 0xFCC6,
             (DoorType::Beam(_), "down") => 0xFCCC,
             (DoorType::Beam(_), "up") => 0xFCD2,
+            (DoorType::Wall, "right") => 0xF5C0,
+            (DoorType::Wall, "left") => {
+                x -= 1;
+                0xF5C0
+            }
+            (DoorType::Wall, "down") => match door.offset {
+                Some(0) => 0xF5C4,
+                Some(1) => 0xF5C8,
+                Some(2) => 0xF5CC,
+                _ => panic!("unexpected door offset: {:?}", door.offset),
+            },
+            (DoorType::Wall, "up") => match door.offset {
+                Some(0) => {
+                    y -= 1;
+                    0xF5C4
+                }
+                Some(1) => {
+                    y -= 2;
+                    0xF5C8
+                }
+                Some(2) => {
+                    y -= 3;
+                    0xF5CC
+                }
+                _ => panic!("unexpected door offset: {:?}", door.offset),
+            },
             (a, b) => panic!("Unexpected door type: {a:?} {b}"),
         };
         // TODO: Instead of using extra setup ASM to spawn the doors, it might be better to just rewrite
@@ -3227,7 +3283,6 @@ pub fn make_rom(
     if !randomizer_settings.other_settings.ultra_low_qol {
         patcher.setup_reload_cre()?;
     }
-    patcher.fix_crateria_scrolling_sky()?;
     patcher.apply_title_screen_patches()?;
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
