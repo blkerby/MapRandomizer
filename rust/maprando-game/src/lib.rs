@@ -1978,7 +1978,7 @@ impl GameData {
             )],
             DoorType::Gray | DoorType::Beam(_) | DoorType::Wall => {
                 panic!("Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}")
-            },
+            }
         };
         let room_id = ctx.room_id;
         let empty_array = json::array![];

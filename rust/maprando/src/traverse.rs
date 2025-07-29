@@ -1960,7 +1960,7 @@ pub fn apply_requirement(
                     DoorType::Gray => {
                         panic!("Unexpected gray door while processing Requirement::UnlockDoor")
                     }
-                    DoorType::Wall => None
+                    DoorType::Wall => None,
                 }
             } else {
                 Some(local)
