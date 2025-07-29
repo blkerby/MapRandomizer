@@ -164,6 +164,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById(`step-${step_limit}`).classList.add("selected");
 		}
 	}
+	function getRoomIndex(room_id) {
+		for (i in c.all_rooms) {
+			if (c.all_rooms[i].room_id == room_id) {
+				return i;
+			}
+		}
+		return null;
+	}
 	function addSuppItem(item,step, count, added_item)
 	{
 		let supp_div = document.getElementById("sidebar-supp-item");
@@ -822,7 +830,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let sr = null, e = null, ri = c.start_location.room_id, ni = c.start_location.node_id, i=-1, x=0, y=0;
 		let n = c.start_location.name;
 
-
 		for (i in c.all_rooms) {
 			if (ri ==c.all_rooms[i].room_id )
 			{
@@ -833,7 +840,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 		if (n == "Ship") {
-			i = 1;
+			i = getRoomIndex(8); // Landing Site
 			x = c.all_rooms[i].coords[0]*24+24;
 			y = c.all_rooms[i].coords[1]*24+24;
 			x += 96;
@@ -843,17 +850,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		} else if (n == "") {
 			// escape
 			n = "Mother Brain Room";
-			i = 248;
+			i = getRoomIndex(238);  // Mother Brain Room
 			x = c.all_rooms[i].coords[0]*24+24;
 			y = c.all_rooms[i].coords[1]*24+24;
 		} else if (n == "Homing Geemer Room") {
-			i = 26;
+			i = getRoomIndex(32);  // West Ocean
 			x = c.all_rooms[i].coords[0]*24+24;
 			y = c.all_rooms[i].coords[1]*24+24;
 			x += 120;
 			y += 48;
 		} else if (n == "East Pants Room") {
-			i = 138;
+			i = getRoomIndex(220);  // Pants Room
 			x = c.all_rooms[i].coords[0]*24+24;
 			y = c.all_rooms[i].coords[1]*24+24;
 			x += 24;
@@ -915,7 +922,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	}
 		
 	shipicon: {
-		sr = c.all_rooms[1];
+		sr = c.all_rooms[getRoomIndex(8)];  // Landing Site
 		e = document.createElement("img");
 		e.src = "gunship.png";
 		e.id = "gunship"

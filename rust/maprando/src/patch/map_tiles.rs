@@ -1984,11 +1984,17 @@ impl<'a> MapPatcher<'a> {
                 };
                 let new_tile = apply_door_lock(tile, locked_door, door);
 
-                // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
-                // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
-                // the item bits start.
-                let item_idx = self.locked_door_state_indices[i] + 512;
-                self.dynamic_tile_data[area].push((item_idx, room_id, new_tile));
+                if locked_door.door_type == DoorType::Wall {
+                    // Walls are permanent, so we apply the change to the tile directly.
+                    // This is necessary in order to support multiple walls on the same tile.
+                    *tile = new_tile;
+                } else {
+                    // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
+                    // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
+                    // the item bits start.
+                    let item_idx = self.locked_door_state_indices[i] + 512;
+                    self.dynamic_tile_data[area].push((item_idx, room_id, new_tile));
+                }
             }
         }
         Ok(())
@@ -2230,17 +2236,34 @@ impl<'a> MapPatcher<'a> {
         // and then when looking at the map later, don't remember that there's another room behind it.
         // To avoid this, when entering on of these rooms, we do a "partial reveal" on just the door
         // of the neighboring rooms.
+        // TODO: consider extending this behavior to objective tiles as well.
         let imr_settings = &self
             .settings
             .quality_of_life_settings
             .initial_map_reveal_settings;
         let save_partial = imr_settings.save_stations == MapRevealLevel::Partial;
         let refill_partial = imr_settings.refill_stations == MapRevealLevel::Partial;
-        let room_ids = vec![
+        let mut room_ids = vec![
             (302, save_partial),   // Frog Savestation
             (190, save_partial),   // Draygon Save Room
             (308, refill_partial), // Nutella Refill
         ];
+
+        // Don't show the special reveal if the room is blocked by a wall.
+        room_ids.retain(|&(room_id, _)| {
+            for door in &self.randomization.locked_doors {
+                if door.door_type == DoorType::Wall {
+                    let (src_room_idx, _) =
+                        self.game_data.room_and_door_idxs_by_door_ptr_pair[&door.src_ptr_pair];
+                    let src_room_id = self.game_data.room_geometry[src_room_idx].room_id;
+                    if src_room_id == room_id {
+                        return false;
+                    }
+                }
+            }
+            true
+        });
+
         let mut table_addr = snes2pc(0x85A180);
         let partial_revealed_bits_base = 0x2700;
         let tilemap_base = 0x4000;
@@ -2911,8 +2934,8 @@ impl<'a> MapPatcher<'a> {
         self.apply_room_tiles()?;
         self.indicate_objective_tiles()?;
         if !self.settings.other_settings.ultra_low_qol {
-            self.indicate_locked_doors()?;
             self.indicate_gray_doors()?;
+            self.indicate_locked_doors()?;
         }
         self.add_cross_area_arrows()?;
         self.set_map_activation_behavior()?;

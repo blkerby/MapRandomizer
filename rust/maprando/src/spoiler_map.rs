@@ -174,24 +174,6 @@ pub fn get_spoiler_images(
         tiles[y][x].interior = apply_item_interior(tiles[y][x].clone(), item, settings);
     }
 
-    // Add door locks:
-    for locked_door in randomization.locked_doors.iter() {
-        let mut ptr_pairs = vec![locked_door.src_ptr_pair];
-        if locked_door.bidirectional {
-            ptr_pairs.push(locked_door.dst_ptr_pair);
-        }
-        for ptr_pair in ptr_pairs {
-            let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
-            let room_geom = &game_data.room_geometry[room_idx];
-            let door = &room_geom.doors[door_idx];
-            let room_x = map.rooms[room_idx].0;
-            let room_y = map.rooms[room_idx].1;
-            let x = room_x + door.x;
-            let y = room_y + door.y;
-            tiles[y][x] = apply_door_lock(&tiles[y][x], locked_door, door);
-        }
-    }
-
     // Add gray doors:
     let gray_door = MapTileEdge::LockedDoor(DoorLockType::Gray);
     for (room_id, door_x, door_y, dir) in get_gray_doors() {
@@ -217,6 +199,24 @@ pub fn get_spoiler_images(
             }
         }
         tiles[y][x] = tile;
+    }
+
+    // Add door locks:
+    for locked_door in randomization.locked_doors.iter() {
+        let mut ptr_pairs = vec![locked_door.src_ptr_pair];
+        if locked_door.bidirectional {
+            ptr_pairs.push(locked_door.dst_ptr_pair);
+        }
+        for ptr_pair in ptr_pairs {
+            let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+            let room_geom = &game_data.room_geometry[room_idx];
+            let door = &room_geom.doors[door_idx];
+            let room_x = map.rooms[room_idx].0;
+            let room_y = map.rooms[room_idx].1;
+            let x = room_x + door.x;
+            let y = room_y + door.y;
+            tiles[y][x] = apply_door_lock(&tiles[y][x], locked_door, door);
+        }
     }
 
     // Add objectives:

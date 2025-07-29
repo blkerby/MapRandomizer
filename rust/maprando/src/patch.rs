@@ -1293,6 +1293,48 @@ impl Patcher<'_> {
                 }
             }
         }
+
+        // If a wall is placed where we would normally keep gray door, then remove the gray door:
+        let gray_door_plm_map: HashMap<DoorPtrPair, PcAddr> = vec![
+            // Gray doors - Pirate rooms:
+            ((0x18B7A, 0x18B62), 0x783E8), // Pit Room left
+            ((0x18B86, 0x18B92), 0x783E2), // Pit Room right
+            ((0x19192, 0x1917A), 0x789FA), // Baby Kraid left
+            ((0x1919E, 0x191AA), 0x789F4), // Baby Kraid right
+            ((0x1A558, 0x1A54C), 0x7C553), // Plasma Room
+            ((0x19A32, 0x19966), 0x7F700), // Metal Pirates left (randomizer-specific addition)
+            ((0x19A3E, 0x19A1A), 0x7F706), // Metal Pirates right (randomizer-specific location)
+            // ((0x19A3E, 0x19A1A), vec![0x790C8]), // Metal Pirates right (vanilla PLM address, no longer used)
+            // Gray doors - Bosses:
+            ((0x191CE, 0x191B6), 0x78A34), // Kraid left
+            ((0x191DA, 0x19252), 0x78A2E), // Kraid right
+            ((0x1A2C4, 0x1A2AC), 0x7C2B3), // Phantoon
+            ((0x1A978, 0x1A924), 0x7C7C1), // Draygon left
+            ((0x1A96C, 0x1A840), 0x7C7BB), // Draygon right
+            ((0x198B2, 0x19A62), 0x78E9E), // Ridley left
+            ((0x198BE, 0x198CA), 0x78E98), // Ridley right
+            // Gray doors - Minibosses:
+            ((0x18BAA, 0x18BC2), 0x783FE), // Bomb Torizo
+            ((0x18E56, 0x18E3E), 0x78642), // Spore Spawn bottom
+            ((0x193EA, 0x193D2), 0x78B9E), // Crocomire top
+            ((0x1A90C, 0x1A774), 0x7C79F), // Botwoon left
+            ((0x19882, 0x19A86), 0x78E7A), // Golden Torizo right
+        ]
+        .into_iter()
+        .map(|((exit_ptr, entrance_ptr), plm_addr)| {
+            ((Some(exit_ptr), Some(entrance_ptr)), plm_addr)
+        })
+        .collect();
+
+        for door in &self.randomization.locked_doors {
+            if door.door_type == DoorType::Wall {
+                if let Some(&ptr) = gray_door_plm_map.get(&door.src_ptr_pair) {
+                    // Remove the gray door where the wall is being placed.
+                    self.rom.write_u16(ptr, 0xB63F)?; // left continuation arrow (should have no effect, giving a blue door)
+                    self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
+                }
+            }
+        }
         Ok(())
     }
 
