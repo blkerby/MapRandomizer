@@ -21,7 +21,7 @@ use std::fs::File;
 use std::hash::Hash;
 use std::path::{Path, PathBuf};
 use strum::VariantNames;
-use strum_macros::{EnumString, EnumVariantNames};
+use strum_macros::{EnumString, VariantNames};
 
 pub const TECH_ID_CAN_WALLJUMP: TechId = 76;
 pub const TECH_ID_CAN_HEAT_RUN: TechId = 6;
@@ -121,7 +121,7 @@ pub struct IndexedVec<T: Hash + Eq> {
     Eq,
     Hash,
     EnumString,
-    EnumVariantNames,
+    VariantNames,
     TryFromPrimitive,
     Serialize,
     Deserialize,
