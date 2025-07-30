@@ -210,8 +210,7 @@ impl PresetData {
 
         let full_preset_names = [
             "Default",
-            "Community Race Season 3 (No animals)",
-            "Community Race Season 3 (Save the animals)",
+            "Community Race Season 4",
         ];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];

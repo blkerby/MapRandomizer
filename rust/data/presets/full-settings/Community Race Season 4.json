@@ -1,6 +1,6 @@
 {
     "version": 119,
-    "name": "Community Race Season 3 (Save the animals)",
+    "name": "Community Race Season 4",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4120,11 +4120,11 @@
         ]
     },
     "quality_of_life_settings": {
-        "preset": "High",
+        "preset": null,
         "initial_map_reveal_settings": {
-            "preset": "Maps",
+            "preset": null,
             "map_stations": "Full",
-            "save_stations": "No",
+            "save_stations": "Full",
             "refill_stations": "No",
             "ship": "No",
             "objectives": "No",
@@ -4147,15 +4147,15 @@
         "fast_elevators": true,
         "fast_doors": true,
         "fast_pause_menu": true,
+        "fanfares": "Off",
         "respin": false,
         "infinite_space_jump": false,
         "momentum_conservation": false,
-        "fanfares": "Off",
         "all_items_spawn": true,
         "acid_chozo": true,
         "remove_climb_lava": true,
-        "energy_station_reserves": true,
         "etank_refill": "Full",
+        "energy_station_reserves": true,
         "disableable_etanks": true,
         "reserve_backward_transfer": false,
         "buffed_drops": true,
@@ -4248,20 +4248,20 @@
     "map_layout": "Standard",
     "doors_mode": "Ammo",
     "start_location_settings": {
-        "mode": "Random"
+        "mode": "Random",
+        "room_id": null,
+        "node_id": null
     },
-    "save_animals": "Yes",
+    "save_animals": "No",
     "other_settings": {
         "wall_jump": "Vanilla",
-        "etank_refill": "Vanilla",
-        "area_assignment": "Standard",
-        "item_dot_change": "Fade",
-        "transition_letters": true,
+        "area_assignment": "Ordered",
         "door_locks_size": "Large",
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,
         "ultra_low_qol": false,
         "race_mode": true,
         "random_seed": null
-    }
+    },
+    "debug": false
 }
