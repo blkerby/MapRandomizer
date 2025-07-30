@@ -14,8 +14,8 @@ use maprando_game::{
     RoomGeometryItem, RoomId, RoomPtr,
 };
 
-use super::{snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset, Rom};
-use anyhow::{bail, Context, Result};
+use super::{Rom, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset};
+use anyhow::{Context, Result, bail};
 
 pub type TilemapOffset = u16;
 pub type TilemapWord = u16;
@@ -550,11 +550,7 @@ pub fn render_tile(
     };
 
     let item_color = if tile.faded {
-        if tile.heated {
-            1
-        } else {
-            2
-        }
+        if tile.heated { 1 } else { 2 }
     } else {
         13
     };
@@ -2344,7 +2340,7 @@ impl<'a> MapPatcher<'a> {
             MapTileInterior::MajorItem,
         ];
         for data in self.dynamic_tile_data.iter_mut() {
-            for (_, room_id, ref tile) in &*data {
+            for (_, room_id, tile) in &*data {
                 if !interior_priority.contains(&tile.interior) {
                     panic!("In room_id={room_id}, unexpected dynamic tile interior: {tile:?}");
                 }

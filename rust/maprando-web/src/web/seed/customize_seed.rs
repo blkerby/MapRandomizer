@@ -1,17 +1,18 @@
-use crate::web::{upgrade::try_upgrade_settings, AppData};
-use actix_easy_multipart::{bytes::Bytes, text::Text, MultipartForm};
+use crate::web::{AppData, upgrade::try_upgrade_settings};
+use actix_easy_multipart::{MultipartForm, bytes::Bytes, text::Text};
 use actix_web::{
+    HttpResponse, Responder,
     http::header::{ContentDisposition, DispositionParam, DispositionType},
-    post, web, HttpResponse, Responder,
+    post, web,
 };
 use askama::Template;
 use log::info;
 use maprando::{
     customize::{
-        parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme,
-        FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting, TileTheme,
+        ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, FlashingSetting,
+        MusicSettings, PaletteTheme, ShakingSetting, TileTheme, parse_controller_button,
     },
-    patch::{make_rom, Rom},
+    patch::{Rom, make_rom},
     randomize::Randomization,
     settings::RandomizerSettings,
 };
@@ -69,6 +70,14 @@ struct CustomizeRequest {
     quick_reload_select: Option<Text<String>>,
     quick_reload_start: Option<Text<String>>,
     moonwalk: Text<bool>,
+}
+
+fn upgrade_randomization(randomization: &mut Randomization) {
+    if randomization.map.room_mask.is_empty() {
+        // For older seeds, room_mask is not specified, and it means all rooms
+        // are present:
+        randomization.map.room_mask = vec![true; randomization.map.rooms.len()];
+    }
 }
 
 #[post("/{name}/customize")]
@@ -202,13 +211,16 @@ async fn customize_seed(
         },
     };
 
-    if settings.is_some() && randomization.is_some() {
+    if settings.is_some()
+        && let Some(mut randomization) = randomization
+    {
         info!("Patching ROM");
+        upgrade_randomization(&mut randomization);
         match make_rom(
             &rom,
             settings.as_ref().unwrap(),
             &customize_settings,
-            randomization.as_ref().unwrap(),
+            &randomization,
             &app_data.game_data,
             &app_data.samus_sprite_categories,
             &app_data.mosaic_themes,
@@ -218,7 +230,7 @@ async fn customize_seed(
             }
             Err(err) => {
                 return HttpResponse::InternalServerError()
-                    .body(format!("Error patching ROM: {err:?}"))
+                    .body(format!("Error patching ROM: {err:?}"));
             }
         }
     } else {

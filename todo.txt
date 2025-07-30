@@ -17,6 +17,7 @@ v120?:
   - options with more substantial effects could maybe be included, but we'd need to define rules for "Race mode" of which changes are allowed
 
 v119:
+- investigate fog missing in climb, west maridia theme? (zebes asleep)
 - investigate bug report about MB Skip and "Hyper Beam gives all movement items": https://discord.com/channels/1053421401354285129/1053434532973510748/1396769689119752224
 - canBombAboveIBJ from VH to Extreme?
 - DONE: fix Volcano Room heated runway logic
