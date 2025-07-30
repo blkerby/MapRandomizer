@@ -1,5 +1,5 @@
-use crate::{web::AppData, VISUALIZER_PATH};
-use actix_web::{get, web, HttpResponse, Responder};
+use crate::{VISUALIZER_PATH, web::AppData};
+use actix_web::{HttpResponse, Responder, get, web};
 use anyhow::{Context, Result};
 use askama::Template;
 use log::error;

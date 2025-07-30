@@ -3,17 +3,17 @@
 
 use anyhow::{Context, Result};
 use clap::Parser;
-use hashbrown::hash_map::Entry;
 use hashbrown::HashMap;
+use hashbrown::hash_map::Entry;
 use json::JsonValue;
 use log::{error, info};
 use maprando::customize::Allocator;
 use maprando::patch::bps::BPSEncoder;
 use maprando::patch::suffix_tree::SuffixTree;
-use maprando::patch::{get_room_state_ptrs, pc2snes, snes2pc, Rom};
+use maprando::patch::{Rom, get_room_state_ptrs, pc2snes, snes2pc};
 use maprando_game::{
-    smart_xml::{self, Layer2Type, RoomState, Screen},
     DoorPtr, RoomGeometry,
+    smart_xml::{self, Layer2Type, RoomState, Screen},
 };
 use serde::Deserialize;
 use std::fs::File;

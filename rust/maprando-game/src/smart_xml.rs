@@ -1,4 +1,4 @@
-use serde::{de::Error, Deserialize, Deserializer};
+use serde::{Deserialize, Deserializer, de::Error};
 
 fn from_hex<'de, D>(deserializer: D) -> Result<usize, D::Error>
 where

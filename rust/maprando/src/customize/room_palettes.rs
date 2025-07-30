@@ -1,4 +1,4 @@
-use crate::patch::{snes2pc, Rom};
+use crate::patch::{Rom, snes2pc};
 use anyhow::Result;
 
 pub fn encode_palette(pal: &[[u8; 3]]) -> Vec<u8> {

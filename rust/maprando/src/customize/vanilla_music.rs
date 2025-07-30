@@ -7,8 +7,8 @@
 
 use anyhow::Result;
 
-use crate::patch::snes2pc;
 use crate::patch::Rom;
+use crate::patch::snes2pc;
 
 pub fn override_music(rom: &mut Rom) -> Result<()> {
     // Apply vanilla music (since even for tracks that we don't change below, we need

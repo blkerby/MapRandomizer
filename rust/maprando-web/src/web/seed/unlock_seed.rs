@@ -1,7 +1,8 @@
 use crate::web::AppData;
 use actix_web::{
+    HttpResponse, Responder,
     http::header::{self},
-    post, web, HttpResponse, Responder,
+    post, web,
 };
 use askama::Template;
 use serde_derive::Deserialize;

@@ -4,8 +4,8 @@ use anyhow::Result;
 use futures::stream::StreamExt;
 use log::info;
 use object_store::{
-    aws::AmazonS3Builder, gcp::GoogleCloudStorageBuilder, local::LocalFileSystem, memory::InMemory,
-    ObjectStore,
+    ObjectStore, aws::AmazonS3Builder, gcp::GoogleCloudStorageBuilder, local::LocalFileSystem,
+    memory::InMemory,
 };
 
 // Data needed to render the web page for a randomized seed and to use it to patch a ROM.

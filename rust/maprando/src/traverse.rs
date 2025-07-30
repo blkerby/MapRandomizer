@@ -8,16 +8,16 @@ use crate::{
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
-    LinksDataGroup, NodeId, Requirement, RoomId, VertexId, TECH_ID_CAN_BE_EXTREMELY_PATIENT,
-    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT, TECH_ID_CAN_SUITLESS_LAVA_DIVE,
+    LinksDataGroup, NodeId, Requirement, RoomId, TECH_ID_CAN_BE_EXTREMELY_PATIENT,
+    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT, TECH_ID_CAN_SUITLESS_LAVA_DIVE, VertexId,
 };
 use maprando_logic::{
+    GlobalState, Inventory, LocalState,
     boss_requirements::{
         apply_botwoon_requirement, apply_draygon_requirement, apply_mother_brain_2_requirement,
         apply_phantoon_requirement, apply_ridley_requirement,
     },
     helpers::{suit_damage_factor, validate_energy},
-    GlobalState, Inventory, LocalState,
 };
 
 fn apply_enemy_kill_requirement(
@@ -84,11 +84,7 @@ fn apply_enemy_kill_requirement(
     }
     local.missiles_used += missiles_used;
 
-    if hp <= 0 {
-        Some(local)
-    } else {
-        None
-    }
+    if hp <= 0 { Some(local) } else { None }
 }
 
 pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
@@ -2249,7 +2245,9 @@ pub fn traverse(
                         if any_improvement {
                             let check_value = |name: &'static str, v: Capacity| {
                                 if v < 0 {
-                                    panic!("Resource {name} is negative, with value {v}: old_state={src_local_state:?}, new_state={dst_new_local_state:?}, link={link:?}");
+                                    panic!(
+                                        "Resource {name} is negative, with value {v}: old_state={src_local_state:?}, new_state={dst_new_local_state:?}, link={link:?}"
+                                    );
                                 }
                             };
                             check_value("energy", dst_new_local_state.energy_used);

@@ -1,12 +1,12 @@
 use std::path::Path;
 
 use crate::patch::compress::compress;
-use maprando_game::{read_image, IndexedVec};
+use maprando_game::{IndexedVec, read_image};
 
-use super::{decompress::decompress, pc2snes, snes2pc, PcAddr, Rom};
-use anyhow::{bail, ensure, Result};
+use super::{PcAddr, Rom, decompress::decompress, pc2snes, snes2pc};
+use anyhow::{Result, bail, ensure};
 use hashbrown::HashMap;
-use ndarray::{concatenate, Array2, Array3, Axis};
+use ndarray::{Array2, Array3, Axis, concatenate};
 use slice_of_array::prelude::*;
 
 pub struct TitlePatcher<'a> {

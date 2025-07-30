@@ -1,6 +1,6 @@
 use anyhow::Result;
 use log::info;
-use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
+use rand::{SeedableRng, rngs::StdRng, seq::SliceRandom};
 use serde::Deserialize;
 use std::{
     fs::File,

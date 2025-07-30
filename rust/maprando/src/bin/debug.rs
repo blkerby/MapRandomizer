@@ -5,9 +5,9 @@ use anyhow::Result;
 use hashbrown::HashMap;
 use maprando::{
     preset::PresetData,
-    randomize::{get_objectives, DifficultyConfig},
+    randomize::{DifficultyConfig, get_objectives},
     settings::RandomizerSettings,
-    traverse::{apply_requirement, LockedDoorData},
+    traverse::{LockedDoorData, apply_requirement},
 };
 use maprando_game::{
     Capacity, GameData, Item, Requirement, RidleyStuck, TECH_ID_CAN_BE_EXTREMELY_PATIENT,

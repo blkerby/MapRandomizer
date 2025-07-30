@@ -1,7 +1,7 @@
 use super::SeedData;
 use crate::web::{AppData, VersionInfo};
 use actix_web::HttpRequest;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use askama::Template;
 use hashbrown::{HashMap, HashSet};
 use maprando::{
@@ -10,8 +10,8 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
     seed_repository::{Seed, SeedFile},
     settings::{
-        get_objective_groups, AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority,
-        RandomizerSettings, WallJump,
+        AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, RandomizerSettings,
+        WallJump, get_objective_groups,
     },
     spoiler_map,
 };

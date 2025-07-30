@@ -2,19 +2,19 @@ pub mod escape_timer;
 mod run_speed;
 
 use crate::helpers::get_item_priorities;
-use crate::patch::map_tiles::get_objective_tiles;
 use crate::patch::NUM_AREAS;
+use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
     DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
     MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings,
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
-    apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
-    get_spoiler_route, traverse, LockedDoorData, TraverseResult, IMPOSSIBLE_LOCAL_STATE,
-    NUM_COST_METRICS,
+    IMPOSSIBLE_LOCAL_STATE, LockedDoorData, NUM_COST_METRICS, TraverseResult, apply_link,
+    apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx, get_spoiler_route,
+    traverse,
 };
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
@@ -23,20 +23,21 @@ use maprando_game::{
     GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
     ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
     Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance,
-    SidePlatformEnvironment, SparkPosition, StartLocation, TechId, TemporaryBlueDirection,
-    VertexId, VertexKey, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT,
-    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
-    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
-    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
-    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP,
-    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
-    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE,
+    SidePlatformEnvironment, SparkPosition, StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH,
+    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
+    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
+    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
+    TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
+    TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TechId,
+    TemporaryBlueDirection, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
-use rand::{seq::SliceRandom, Rng};
+use rand::{Rng, seq::SliceRandom};
 use run_speed::{
     get_extra_run_speed_tiles, get_max_extra_run_speed, get_shortcharge_max_extra_run_speed,
     get_shortcharge_min_extra_run_speed,
@@ -3989,9 +3990,13 @@ impl<'r> Randomizer<'r> {
             } else {
                 if self.settings.item_progression_settings.progression_rate == ProgressionRate::Slow
                 {
-                    info!("[attempt {attempt_num_rando}] Continuing with last-ditch effort after exhausting key item placement attempts");
+                    info!(
+                        "[attempt {attempt_num_rando}] Continuing with last-ditch effort after exhausting key item placement attempts"
+                    );
                 } else {
-                    bail!("[attempt {attempt_num_rando}] Failing after exhausting key item placement attempts");
+                    bail!(
+                        "[attempt {attempt_num_rando}] Failing after exhausting key item placement attempts"
+                    );
                 }
                 if self
                     .settings
@@ -5087,7 +5092,10 @@ impl<'r> Randomizer<'r> {
                 .iter()
                 .filter(|x| x.bireachable)
                 .count();
-            info!("[attempt {attempt_num_rando}] step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}", state.step_num);
+            info!(
+                "[attempt {attempt_num_rando}] step={0}, bireachable={cnt_bireachable}, reachable={cnt_reachable}, placed={cnt_placed}, collected={cnt_collected}",
+                state.step_num
+            );
 
             let any_progress =
                 !spoiler_summary.items.is_empty() || !spoiler_summary.flags.is_empty();
@@ -5117,8 +5125,10 @@ impl<'r> Randomizer<'r> {
                         if self.initial_items_remaining[i] > 0
                             && !state.global_state.inventory.items[i]
                         {
-                            bail!("[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible, missing {:?}",
-                                  Item::try_from(i).unwrap());
+                            bail!(
+                                "[attempt {attempt_num_rando}] Attempt failed: Key items not all collectible, missing {:?}",
+                                Item::try_from(i).unwrap()
+                            );
                         }
                     }
 
@@ -5431,7 +5441,10 @@ impl Randomizer<'_> {
                 &self.objectives,
             );
             if new_local_state_opt.is_none() {
-                panic!("Failed applying requirement in spoiler route: reverse={}, local_state={:#?}, requirement={:#?}", reverse, local_state, link.requirement);
+                panic!(
+                    "Failed applying requirement in spoiler route: reverse={}, local_state={:#?}, requirement={:#?}",
+                    reverse, local_state, link.requirement
+                );
             }
             let new_local_state = new_local_state_opt.unwrap();
             let sublinks_ordered: Vec<&Link> = if reverse {

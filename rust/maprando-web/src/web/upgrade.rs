@@ -1,11 +1,11 @@
 use crate::web::AppData;
-use actix_web::{post, web, HttpResponse, Responder};
-use anyhow::{bail, Context, Result};
+use actix_web::{HttpResponse, Responder, post, web};
+use anyhow::{Context, Result, bail};
 use hashbrown::HashMap;
 use log::error;
 use maprando::settings::{
-    parse_randomizer_settings, InitialMapRevealSettings, MapRevealLevel, NotableSetting,
-    RandomizerSettings, TechSetting,
+    InitialMapRevealSettings, MapRevealLevel, NotableSetting, RandomizerSettings, TechSetting,
+    parse_randomizer_settings,
 };
 use maprando_game::{NotableId, RoomId, TechId};
 

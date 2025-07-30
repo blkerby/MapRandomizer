@@ -7,9 +7,9 @@ pub mod glowpatch;
 pub mod smart_xml;
 
 use crate::glowpatch::GlowPatch;
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use hashbrown::{HashMap, HashSet};
-use image::{io::Reader as ImageReader, Rgb};
+use image::{Rgb, io::Reader as ImageReader};
 use json::{self, JsonValue};
 use log::{error, info, warn};
 use ndarray::Array3;
@@ -2000,7 +2000,13 @@ impl GameData {
                         ensure!(u["types"].is_array());
                         if u["types"].members().any(|t| t == key) {
                             if req.is_some() {
-                                bail!("Overlapping unlocksDoors for '{}', room_id={}, node_id={}: {:?}", key, room_id, node_id, unlocks_doors_json);
+                                bail!(
+                                    "Overlapping unlocksDoors for '{}', room_id={}, node_id={}: {:?}",
+                                    key,
+                                    room_id,
+                                    node_id,
+                                    unlocks_doors_json
+                                );
                             }
                             let requires: &[JsonValue] = u["requires"].members().as_slice();
                             let mut req_list = self.parse_requires_list(requires, &ctx1)?;
@@ -4266,7 +4272,9 @@ impl GameData {
             };
             if gmode_regain_mobility.is_some() {
                 if entrance_condition.is_some() || exit_condition.is_some() {
-                    bail!("gModeRegainMobility combined with entranceCondition or exitCondition is not allowed.");
+                    bail!(
+                        "gModeRegainMobility combined with entranceCondition or exitCondition is not allowed."
+                    );
                 }
                 if from_node_id != to_node_id {
                     bail!("gModeRegainMobility `from` and `to` node must be equal.");

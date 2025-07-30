@@ -1,5 +1,5 @@
-use crate::{web::logic::RoomNotFoundTemplate, web::AppData};
-use actix_web::{get, web, HttpResponse, Responder};
+use crate::{web::AppData, web::logic::RoomNotFoundTemplate};
+use actix_web::{HttpResponse, Responder, get, web};
 use askama::Template;
 use maprando_game::TechId;
 

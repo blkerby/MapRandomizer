@@ -1,13 +1,13 @@
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use clap::Parser;
 use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
 use maprando::customize::{ControllerConfig, CustomizeSettings, MusicSettings};
-use maprando::patch::make_rom;
 use maprando::patch::Rom;
+use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    get_difficulty_tiers, get_objectives, randomize_doors, Randomization, Randomizer, SpoilerLog,
+    Randomization, Randomizer, SpoilerLog, get_difficulty_tiers, get_objectives, randomize_doors,
 };
 use maprando::settings::{RandomizerSettings, StartLocationMode};
 use maprando::spoiler_map;
@@ -186,7 +186,9 @@ fn get_randomization(
                 Some(s) => s,
                 None => (rng.next_u64() & 0xFFFFFFFF) as usize,
             };
-            info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}");
+            info!(
+                "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}"
+            );
             match randomizer.randomize(attempt_num, item_seed, 1) {
                 Ok(randomization) => {
                     return Ok(randomization);

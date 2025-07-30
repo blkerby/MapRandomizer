@@ -12,8 +12,8 @@ use std::path::Path;
 
 use crate::{
     customize::{
-        customize_rom, mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory,
-        vanilla_music::override_music, CustomizeSettings,
+        CustomizeSettings, customize_rom, mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory,
+        vanilla_music::override_music,
     },
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
@@ -22,7 +22,7 @@ use crate::{
         ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use hashbrown::{HashMap, HashSet};
 use ips;
 use log::info;

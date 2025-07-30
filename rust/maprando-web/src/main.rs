@@ -6,13 +6,13 @@ mod web;
 
 use crate::{
     logic_helper::LogicData,
-    web::{AppData, VersionInfo, VERSION},
+    web::{AppData, VERSION, VersionInfo},
 };
 use actix_easy_multipart::MultipartFormConfig;
 use actix_files::NamedFile;
 use actix_web::{
-    middleware::{Compress, Logger},
     App, HttpServer,
+    middleware::{Compress, Logger},
 };
 use clap::Parser;
 use hashbrown::HashMap;

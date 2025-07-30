@@ -1,8 +1,8 @@
 use crate::web::{AppData, PresetData, VersionInfo};
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{HttpResponse, Responder, get, web};
 use askama::Template;
 use hashbrown::HashMap;
-use maprando::settings::{get_objective_groups, ObjectiveGroup};
+use maprando::settings::{ObjectiveGroup, get_objective_groups};
 use maprando_game::{NotableId, RoomId, StartLocation, TechId};
 
 #[derive(Template)]

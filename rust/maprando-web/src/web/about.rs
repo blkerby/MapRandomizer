@@ -1,5 +1,5 @@
 use crate::web::{AppData, VersionInfo};
-use actix_web::{get, web, HttpResponse, Responder};
+use actix_web::{HttpResponse, Responder, get, web};
 use askama::Template;
 use hashbrown::HashMap;
 

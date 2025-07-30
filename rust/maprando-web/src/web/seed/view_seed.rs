@@ -1,8 +1,8 @@
 use crate::web::{AppData, VersionInfo};
 use actix_web::{
-    get,
+    HttpResponse, Responder, get,
     http::header::{self, CacheControl, CacheDirective},
-    web, HttpResponse, Responder,
+    web,
 };
 use askama::Template;
 use log::error;

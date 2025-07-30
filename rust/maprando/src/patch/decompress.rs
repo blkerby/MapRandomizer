@@ -1,5 +1,5 @@
 use super::Rom;
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 
 pub fn decompress(rom: &Rom, mut addr: usize) -> Result<Vec<u8>> {
     let mut out: Vec<u8> = Vec::new();

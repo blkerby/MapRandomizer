@@ -1,5 +1,5 @@
 use maprando_game::RidleyStuck;
-use maprando_logic::{boss_requirements::*, Inventory, LocalState};
+use maprando_logic::{Inventory, LocalState, boss_requirements::*};
 use wasm_bindgen::prelude::*;
 
 extern crate console_error_panic_hook;

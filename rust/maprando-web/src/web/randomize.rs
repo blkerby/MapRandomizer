@@ -1,14 +1,15 @@
 mod helpers;
 
-use crate::web::{upgrade::try_upgrade_settings, AppData, VERSION};
-use actix_easy_multipart::{text::Text, MultipartForm};
-use actix_web::{post, web, HttpRequest, HttpResponse, Responder};
+use crate::web::{AppData, VERSION, upgrade::try_upgrade_settings};
+use actix_easy_multipart::{MultipartForm, text::Text};
+use actix_web::{HttpRequest, HttpResponse, Responder, post, web};
 use helpers::*;
 use log::info;
 use maprando::{
     randomize::{
-        filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
-        randomize_map_areas, DifficultyConfig, Randomization, Randomizer, SpoilerLog,
+        DifficultyConfig, Randomization, Randomizer, SpoilerLog, filter_links,
+        get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
+        randomize_map_areas,
     },
     settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
 };
@@ -222,7 +223,9 @@ async fn randomize(
             let item_placement_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
             attempt_num += 1;
 
-            info!("Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}");
+            info!(
+                "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
+            );
             let randomization_result =
                 randomizer.randomize(attempt_num, item_placement_seed, display_seed);
             let (randomization, spoiler_log) = match randomization_result {
