@@ -2953,37 +2953,26 @@ pub fn filter_links(
     out
 }
 
+fn get_minimal_tank_count(difficulty: &DifficultyConfig) -> usize {
+    if difficulty.ridley_proficiency < 0.3 {
+        12
+    } else if difficulty.ridley_proficiency < 0.8 {
+        9
+    } else if difficulty.ridley_proficiency < 0.9 {
+        7
+    } else {
+        3
+    }
+}
+
 fn ensure_enough_tanks(initial_items_remaining: &mut [usize], difficulty: &DifficultyConfig) {
     // Give an extra tank to two, compared to what may be needed for Ridley, for lenience:
-    if difficulty.ridley_proficiency < 0.3 {
-        while initial_items_remaining[Item::ETank as usize]
-            + initial_items_remaining[Item::ReserveTank as usize]
-            < 12
-        {
-            initial_items_remaining[Item::ETank as usize] += 1;
-        }
-    } else if difficulty.ridley_proficiency < 0.8 {
-        while initial_items_remaining[Item::ETank as usize]
-            + initial_items_remaining[Item::ReserveTank as usize]
-            < 9
-        {
-            initial_items_remaining[Item::ETank as usize] += 1;
-        }
-    } else if difficulty.ridley_proficiency < 0.9 {
-        while initial_items_remaining[Item::ETank as usize]
-            + initial_items_remaining[Item::ReserveTank as usize]
-            < 7
-        {
-            initial_items_remaining[Item::ETank as usize] += 1;
-        }
-    } else {
-        // Give enough tanks for Mother Brain:
-        while initial_items_remaining[Item::ETank as usize]
-            + initial_items_remaining[Item::ReserveTank as usize]
-            < 3
-        {
-            initial_items_remaining[Item::ETank as usize] += 1;
-        }
+    let minimal_tank_count = get_minimal_tank_count(difficulty);
+    while initial_items_remaining[Item::ETank as usize]
+        + initial_items_remaining[Item::ReserveTank as usize]
+        < minimal_tank_count
+    {
+        initial_items_remaining[Item::ETank as usize] += 1;
     }
 }
 
@@ -3126,35 +3115,45 @@ impl<'r> Randomizer<'r> {
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
         }
 
+        ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
         let target_initial_items = initial_items_remaining.clone();
-        for i in 0..10 {
-            ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
-            if initial_items_remaining.iter().sum::<usize>() <= available_items {
-                break;
+        let ammo_shortage_weight: Vec<(Item, f32)> = vec![
+            (Item::Missile, 0.12),
+            (Item::PowerBomb, 1.0),
+            (Item::Super, 1.0),
+        ];
+        let tank_shortage_weight: Vec<(Item, f32)> =
+            vec![(Item::ETank, 0.7), (Item::ReserveTank, 2.0)];
+        let minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
+        for _ in 0..initial_items_remaining
+            .iter()
+            .sum::<usize>()
+            .saturating_sub(available_items)
+        {
+            let tank_count = initial_items_remaining[Item::ETank as usize]
+                + initial_items_remaining[Item::ReserveTank as usize];
+            let mut removal_options = ammo_shortage_weight.clone();
+            if tank_count > minimal_tank_count {
+                removal_options.extend(tank_shortage_weight.clone());
             }
-            initial_items_remaining[Item::Missile as usize] =
-                initial_items_remaining[Item::Missile as usize].saturating_sub(9);
-            if initial_items_remaining.iter().sum::<usize>() <= available_items {
-                break;
+            let mut best_removal_item: Option<Item> = None;
+            let mut best_removal_cost: f32 = f32::MAX;
+            for (item, weight) in removal_options {
+                if initial_items_remaining[item as usize] == 0 {
+                    continue;
+                }
+                let gap =
+                    target_initial_items[item as usize] - initial_items_remaining[item as usize];
+                let cost = (gap + 1) as f32 * weight;
+                if cost < best_removal_cost {
+                    best_removal_cost = cost;
+                    best_removal_item = Some(item);
+                }
             }
-            initial_items_remaining[Item::Super as usize] =
-                initial_items_remaining[Item::Super as usize].saturating_sub(1);
-            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+            if let Some(item) = best_removal_item {
+                initial_items_remaining[item as usize] -= 1;
+            } else {
                 break;
-            }
-            initial_items_remaining[Item::PowerBomb as usize] =
-                initial_items_remaining[Item::PowerBomb as usize].saturating_sub(1);
-            if initial_items_remaining.iter().sum::<usize>() <= available_items {
-                break;
-            }
-            initial_items_remaining[Item::ETank as usize] =
-                initial_items_remaining[Item::ETank as usize].saturating_sub(2);
-            if initial_items_remaining.iter().sum::<usize>() <= available_items {
-                break;
-            }
-            if i % 3 == 0 {
-                initial_items_remaining[Item::ReserveTank as usize] =
-                    initial_items_remaining[Item::ReserveTank as usize].saturating_sub(1);
             }
         }
 
