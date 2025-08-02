@@ -179,6 +179,9 @@ pub fn get_spoiler_images(
     for (room_id, door_x, door_y, dir) in get_gray_doors() {
         let room_ptr = game_data.room_ptr_by_id[&room_id];
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
         let x = room_x + door_x as usize;
@@ -209,6 +212,9 @@ pub fn get_spoiler_images(
         }
         for ptr_pair in ptr_pairs {
             let (room_idx, door_idx) = game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+            if !map.room_mask[room_idx] {
+                continue;
+            }
             let room_geom = &game_data.room_geometry[room_idx];
             let door = &room_geom.doors[door_idx];
             let room_x = map.rooms[room_idx].0;
@@ -223,6 +229,9 @@ pub fn get_spoiler_images(
     for (room_id, tile_x, tile_y) in get_objective_tiles(&randomization.objectives) {
         let room_ptr = game_data.room_ptr_by_id[&room_id];
         let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+        if !map.room_mask[room_idx] {
+            continue;
+        }
         let room_x = map.rooms[room_idx].0;
         let room_y = map.rooms[room_idx].1;
         let x = room_x + tile_x;

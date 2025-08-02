@@ -186,7 +186,9 @@ pub fn apply_retiling(
         }
     }
 
-    apply_toilet(rom, orig_rom, &theme_name_map[&toilet_room_ptr])?;
+    if map.room_mask[game_data.toilet_room_idx] {
+        apply_toilet(rom, orig_rom, &theme_name_map[&toilet_room_ptr])?;
+    }
 
     Ok(())
 }

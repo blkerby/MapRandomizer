@@ -3132,18 +3132,30 @@ impl<'r> Randomizer<'r> {
             if initial_items_remaining.iter().sum::<usize>() <= available_items {
                 break;
             }
+            initial_items_remaining[Item::Missile as usize] =
+                initial_items_remaining[Item::Missile as usize].saturating_sub(9);
+            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+                break;
+            }
             initial_items_remaining[Item::Super as usize] =
                 initial_items_remaining[Item::Super as usize].saturating_sub(1);
+            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+                break;
+            }
             initial_items_remaining[Item::PowerBomb as usize] =
                 initial_items_remaining[Item::PowerBomb as usize].saturating_sub(1);
+            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+                break;
+            }
             initial_items_remaining[Item::ETank as usize] =
                 initial_items_remaining[Item::ETank as usize].saturating_sub(2);
+            if initial_items_remaining.iter().sum::<usize>() <= available_items {
+                break;
+            }
             if i % 3 == 0 {
                 initial_items_remaining[Item::ReserveTank as usize] =
                     initial_items_remaining[Item::ReserveTank as usize].saturating_sub(1);
             }
-            initial_items_remaining[Item::Missile as usize] =
-                initial_items_remaining[Item::Missile as usize].saturating_sub(9);
         }
 
         if initial_items_remaining.iter().sum::<usize>() > available_items {

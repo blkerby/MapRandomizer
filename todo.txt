@@ -15,11 +15,16 @@ v120?:
   - example: Door locks size on map
   - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
   - options with more substantial effects could maybe be included, but we'd need to define rules for "Race mode" of which changes are allowed
+- handle all cost metrics in "or"s
+- Mosaic:
+  - restore morph tunnel continuation behind morph tunnel transition
+- add more strats from Incomplete videos
 
 v119:
+- DONE: toilet showing up in aqueduct BG when not placed?
+- DONE: investigate item pool issue reported by somerando: https://dev.maprando.com/seed/D6Xd5mLyN/
 - investigate fog missing in climb, west maridia theme? (zebes asleep)
 - investigate bug report about MB Skip and "Hyper Beam gives all movement items": https://discord.com/channels/1053421401354285129/1053434532973510748/1396769689119752224
-- canBombAboveIBJ from VH to Extreme?
 - DONE: fix Volcano Room heated runway logic
 - DONE: implement "heated" field on leaveWithRunway
 - DONE: implement lavaFramesWithEnergyDrops
@@ -30,7 +35,7 @@ v119:
 - DONE: back-side MB should be notable?
 - DONE: move canStaggeredWalljump to VH
 - DONE: use simpleCycleFrames in bug farm strats.
-- adjust requirements on canPreciseWalljump strats
+- DONE: adjust requirements on canPreciseWalljump strats
 - DONE: add canLongXRayClimb tech (Expert), move canXRayClimb down to Very Hard.
 - DONE: fix crash when processing spoiler route, involving new farm strats.
 - DONE: fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
@@ -43,9 +48,6 @@ v119:
 - DONE: Refine how initial ammo capacity works, and relax starting hub constraints
 - DONE: Make `resetRoom` account for the ~10 heat damage required to reset with a heated room (important for strats with `farmCycleDrops`).
 - Finish migrating farm strats (to use `farmCycleDrops`)
-- Mosaic:
-  - restore morph tunnel continuation behind morph tunnel transition
-- add more strats from Incomplete videos
 
 
 Other future work: --------------------------------------------------------------------
