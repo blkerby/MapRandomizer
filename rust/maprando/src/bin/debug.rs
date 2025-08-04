@@ -10,7 +10,8 @@ use maprando::{
     traverse::{LockedDoorData, apply_requirement},
 };
 use maprando_game::{
-    Capacity, GameData, Item, NodeId, Requirement, RidleyStuck, RoomId, TECH_ID_CAN_BE_EXTREMELY_PATIENT, TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT
+    Capacity, GameData, Item, NodeId, Requirement, RidleyStuck, RoomId,
+    TECH_ID_CAN_BE_EXTREMELY_PATIENT, TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
