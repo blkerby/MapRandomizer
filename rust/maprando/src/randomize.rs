@@ -205,6 +205,7 @@ impl DifficultyConfig {
 // Includes preprocessing specific to the map:
 pub struct Randomizer<'a> {
     pub map: &'a Map,
+    pub door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     pub item_areas: Vec<AreaIdx>, // assigned area of each item, in order by game_data.item_locations
     pub toilet_intersections: Vec<RoomGeometryRoomIdx>,
     pub locked_door_data: &'a LockedDoorData,
@@ -3162,13 +3163,6 @@ impl<'r> Randomizer<'r> {
             panic!("Not enough available item locations: {available_items}");
         }
 
-        initial_items_remaining[Item::Missile as usize] = usize::min(
-            target_initial_items[Item::Missile as usize],
-            initial_items_remaining[Item::Missile as usize] + available_items
-                - initial_items_remaining.iter().sum::<usize>(),
-        );
-
-        assert!(initial_items_remaining.iter().sum::<usize>() <= available_items);
         initial_items_remaining[Item::Nothing as usize] =
             available_items - initial_items_remaining.iter().sum::<usize>();
 
@@ -3191,6 +3185,7 @@ impl<'r> Randomizer<'r> {
 
         Randomizer {
             map,
+            door_map: preprocessor.door_map,
             item_areas,
             toilet_intersections,
             locked_door_data,
@@ -3291,6 +3286,7 @@ impl<'r> Randomizer<'r> {
             self.settings,
             &self.difficulty_tiers[0],
             self.game_data,
+            &self.door_map,
             self.locked_door_data,
             &self.objectives,
         );
@@ -3306,6 +3302,7 @@ impl<'r> Randomizer<'r> {
             self.settings,
             &self.difficulty_tiers[0],
             self.game_data,
+            &self.door_map,
             self.locked_door_data,
             &self.objectives,
         );
@@ -3674,6 +3671,7 @@ impl<'r> Randomizer<'r> {
                 self.settings,
                 difficulty,
                 self.game_data,
+                &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
             );
@@ -4724,6 +4722,7 @@ impl<'r> Randomizer<'r> {
                 self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
+                &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
             );
@@ -4742,6 +4741,7 @@ impl<'r> Randomizer<'r> {
                 self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
+                &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
             );
@@ -4770,6 +4770,7 @@ impl<'r> Randomizer<'r> {
                 self.settings,
                 &self.difficulty_tiers[0],
                 self.game_data,
+                &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
             );
@@ -4799,6 +4800,7 @@ impl<'r> Randomizer<'r> {
                     self.settings,
                     &self.difficulty_tiers[0],
                     self.game_data,
+                    &self.door_map,
                     self.locked_door_data,
                     &self.objectives,
                 );
@@ -5448,6 +5450,7 @@ impl Randomizer<'_> {
                 self.settings,
                 difficulty,
                 self.game_data,
+                &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
             );

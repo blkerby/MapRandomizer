@@ -5,7 +5,6 @@ v120?:
   - Controls would need to be available, with 3 settings: to hide the wallJumpAvoid strats, to show them exclusively, or to show everything.
 - Model carrying around a flash suit (in LocalState somewhere, and as another cost metric)
 - save with flash suit QoL
-- Support maps with incomplete room sets.
 - Logic work (sm-json-data):
   - Finish adding cross-room temp blue strats and remote runway setups/applications in Norfair
     - Add missing remote runway strats in pink brinstar hopper room left side
@@ -21,10 +20,11 @@ v120?:
 - add more strats from Incomplete videos
 
 v119:
+- DONE: Support maps with incomplete room sets.
 - DONE: toilet showing up in aqueduct BG when not placed?
 - DONE: investigate item pool issue reported by somerando: https://dev.maprando.com/seed/D6Xd5mLyN/
 - investigate fog missing in climb, west maridia theme? (zebes asleep)
-- investigate bug report about MB Skip and "Hyper Beam gives all movement items": https://discord.com/channels/1053421401354285129/1053434532973510748/1396769689119752224
+- DONE: investigate bug report about MB Skip and "Hyper Beam gives all movement items": https://discord.com/channels/1053421401354285129/1053434532973510748/1396769689119752224
 - DONE: fix Volcano Room heated runway logic
 - DONE: implement "heated" field on leaveWithRunway
 - DONE: implement lavaFramesWithEnergyDrops

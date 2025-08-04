@@ -487,6 +487,7 @@ pub fn apply_link(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
 ) -> Option<LocalState> {
@@ -505,6 +506,7 @@ pub fn apply_link(
         settings,
         difficulty,
         game_data,
+        door_map,
         locked_door_data,
         objectives,
     );
@@ -546,6 +548,7 @@ pub fn debug_requirement(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
 ) {
@@ -560,6 +563,7 @@ pub fn debug_requirement(
             settings,
             difficulty,
             game_data,
+            door_map,
             locked_door_data,
             objectives
         )
@@ -575,6 +579,7 @@ pub fn debug_requirement(
                     settings,
                     difficulty,
                     game_data,
+                    door_map,
                     locked_door_data,
                     objectives,
                 );
@@ -590,6 +595,7 @@ pub fn debug_requirement(
                     settings,
                     difficulty,
                     game_data,
+                    door_map,
                     locked_door_data,
                     objectives,
                 );
@@ -771,6 +777,7 @@ pub fn apply_farm_requirement(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
 ) -> Option<LocalState> {
@@ -790,6 +797,7 @@ pub fn apply_farm_requirement(
         settings,
         difficulty,
         game_data,
+        door_map,
         locked_door_data,
         objectives,
     );
@@ -1029,6 +1037,7 @@ pub fn apply_requirement(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
 ) -> Option<LocalState> {
@@ -1415,6 +1424,7 @@ pub fn apply_requirement(
             settings,
             difficulty,
             game_data,
+            door_map,
             locked_door_data,
             objectives,
         ),
@@ -1907,6 +1917,7 @@ pub fn apply_requirement(
                         settings,
                         difficulty,
                         game_data,
+                        door_map,
                         locked_door_data,
                         objectives,
                     ),
@@ -1918,6 +1929,7 @@ pub fn apply_requirement(
                         settings,
                         difficulty,
                         game_data,
+                        door_map,
                         locked_door_data,
                         objectives,
                     ),
@@ -1929,6 +1941,7 @@ pub fn apply_requirement(
                         settings,
                         difficulty,
                         game_data,
+                        door_map,
                         locked_door_data,
                         objectives,
                     ),
@@ -1943,6 +1956,7 @@ pub fn apply_requirement(
                                     settings,
                                     difficulty,
                                     game_data,
+                                    door_map,
                                     locked_door_data,
                                     objectives,
                                 )
@@ -1970,18 +1984,23 @@ pub fn apply_requirement(
                 // The actual time can vary based on room load time and whether fast doors are enabled.
                 new_local.cycle_frames += 400;
             }
-            let reset_req = &game_data.node_reset_room_requirement[&(room_id, node_id)];
-            new_local = apply_requirement(
-                reset_req,
-                global,
-                new_local,
-                reverse,
-                settings,
-                difficulty,
-                game_data,
-                locked_door_data,
-                objectives,
-            )?;
+
+            if let Some(&(other_room_id, other_node_id)) = door_map.get(&(room_id, node_id)) {
+                let reset_req =
+                    &game_data.node_reset_room_requirement[&(other_room_id, other_node_id)];
+                new_local = apply_requirement(
+                    reset_req,
+                    global,
+                    new_local,
+                    reverse,
+                    settings,
+                    difficulty,
+                    game_data,
+                    door_map,
+                    locked_door_data,
+                    objectives,
+                )?;
+            }
             Some(new_local)
         }
         Requirement::EscapeMorphLocation => {
@@ -2003,6 +2022,7 @@ pub fn apply_requirement(
                         settings,
                         difficulty,
                         game_data,
+                        door_map,
                         locked_door_data,
                         objectives,
                     )?;
@@ -2017,6 +2037,7 @@ pub fn apply_requirement(
                         settings,
                         difficulty,
                         game_data,
+                        door_map,
                         locked_door_data,
                         objectives,
                     )?;
@@ -2036,6 +2057,7 @@ pub fn apply_requirement(
                     settings,
                     difficulty,
                     game_data,
+                    door_map,
                     locked_door_data,
                     objectives,
                 ) {
@@ -2147,6 +2169,7 @@ pub fn traverse(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     game_data: &GameData,
+    door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
 ) -> TraverseResult {
@@ -2215,6 +2238,7 @@ pub fn traverse(
                         settings,
                         difficulty,
                         game_data,
+                        door_map,
                         locked_door_data,
                         objectives,
                     ) {

@@ -10,8 +10,7 @@ use maprando::{
     traverse::{LockedDoorData, apply_requirement},
 };
 use maprando_game::{
-    Capacity, GameData, Item, Requirement, RidleyStuck, TECH_ID_CAN_BE_EXTREMELY_PATIENT,
-    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT,
+    Capacity, GameData, Item, NodeId, Requirement, RidleyStuck, RoomId, TECH_ID_CAN_BE_EXTREMELY_PATIENT, TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -84,6 +83,7 @@ fn run_scenario(
         locked_door_node_map: HashMap::new(),
         locked_door_vertex_ids: vec![],
     };
+    let door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
 
     let rng_seed = [0u8; 32];
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -124,6 +124,7 @@ fn run_scenario(
         settings,
         &difficulty,
         game_data,
+        &door_map,
         &locked_door_data,
         &objectives,
     );

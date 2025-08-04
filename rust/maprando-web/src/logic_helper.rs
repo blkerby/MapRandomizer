@@ -931,6 +931,7 @@ fn get_strat_difficulty(
         locked_door_node_map: HashMap::new(),
         locked_door_vertex_ids: vec![],
     };
+    let door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
     for difficulty in preset_data.difficulty_tiers.iter().rev() {
         if difficulty.name == "Implicit" {
             // Skip the "Implicit" difficulty
@@ -959,6 +960,7 @@ fn get_strat_difficulty(
                 &preset_data.default_preset,
                 difficulty,
                 game_data,
+                &door_map,
                 &locked_door_data,
                 &[],
             );

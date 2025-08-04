@@ -5114,6 +5114,7 @@ impl GameData {
 
             let reset_room_req =
                 Self::process_reset_room_req(&Requirement::make_or(req_or), (room_id, node_id));
+
             self.node_reset_room_requirement
                 .insert((room_id, node_id), reset_room_req);
         }

@@ -1518,7 +1518,12 @@ impl Patcher<'_> {
                 self.rom.write_u16(snes2pc(0xA9AF07), 0xB115)?; // skip MB moving forward, drooling, exploding
                 self.rom.write_u16(snes2pc(0xA9B19F), 1)?; // accelerate fade to gray (which wouldn't have an effect here except for a delay)
 
-                if self.settings.quality_of_life_settings.escape_movement_items {
+                if self.settings.quality_of_life_settings.escape_movement_items
+                    || self
+                        .settings
+                        .item_progression_settings
+                        .stop_item_placement_early
+                {
                     // 0xA9FB70: new hyper beam collect routine in escape_items.asm.
                     self.rom.write_u24(snes2pc(0xA9AF01), 0xA9FB70)?;
                 }
