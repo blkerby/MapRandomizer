@@ -798,12 +798,14 @@ function maximumObjectivesChanged() {
 
 function startLocationPresetChanged() {
     document.getElementById("customStartLocation").value = "unspecified";
+    fullSettingsChanged();
 }
 
 function customStartLocationChanged() {
     document.getElementById("startLocationShip").checked = false;
     document.getElementById("startLocationRandom").checked = false;
     document.getElementById("startLocationEscape").checked = false;
+    fullSettingsChanged();
 }
 
 function applyItemProgressionPreset(preset) {

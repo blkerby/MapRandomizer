@@ -127,9 +127,6 @@ Major new features (not clear yet which of these will ever happen):
 - Overhaul the G-mode logic schema, to be able to model using locked doors to overload PLMs, and opening PB doors with artificial morph.
 - Make Gravity-only Samus palette different from Gravity+Varia?
     - Include support for custom sprites to define the new palette.
-- Small-sized map option, where only a subset of the rooms are included?
-  - Could maybe be done without a new map gen model, by chopping off parts of existing maps as an offline processing step.
-  - This needs some thought about how to handle objectives: i.e. if an objective doesn't exist, then it needs to not be required.
 - Support for horizontally mirrored rooms (requires heavy logic work, along with a new map gen model)
 - Support for randomizing room environments: heat and water (massive logic work)
 - make map rando for other hacks (e.g. project base, subversion?)
@@ -152,7 +149,6 @@ Other:
 - add sm-json-data tests:
   - check that if some implicit strats are overridden, then all applicable ones are.
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
-- fix clippy lints and set up as part of CI
 - simplify SeedData. It's not clear if we really even need this anymore.
 - Make f_allItemsSpawn (etc.) not be a flag? Could be "i_allItemsSpawn" instead and handled similar to other logic-impacting settings.
 - embed some logic data in video site? (e.g. show strat note when uploading/editing)
