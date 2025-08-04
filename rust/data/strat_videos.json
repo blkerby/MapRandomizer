@@ -5753,6 +5753,22 @@
   },
   {
     "room_id": 39,
+    "strat_id": 53,
+    "video_id": 7302,
+    "created_user": "maddo",
+    "note": "Single Geemer method",
+    "dev_note": ""
+  },
+  {
+    "room_id": 39,
+    "strat_id": 53,
+    "video_id": 6629,
+    "created_user": "Sam",
+    "note": "Two Geemer method",
+    "dev_note": ""
+  },
+  {
+    "room_id": 39,
     "strat_id": 15,
     "video_id": 6656,
     "created_user": "Sam",
@@ -29298,6 +29314,14 @@
   {
     "room_id": 201,
     "strat_id": 10,
+    "video_id": 7307,
+    "created_user": "Sam",
+    "note": "Roll over the crabs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 201,
+    "strat_id": 10,
     "video_id": 2145,
     "created_user": "Sam",
     "note": "Suitless With Spring Ball",
@@ -42570,8 +42594,8 @@
   {
     "room_id": 179,
     "strat_id": 27,
-    "video_id": 760,
-    "created_user": "Osse101",
+    "video_id": 7305,
+    "created_user": "Sam",
     "note": "canFreeFallClip",
     "dev_note": ""
   },
@@ -43601,6 +43625,14 @@
   },
   {
     "room_id": 210,
+    "strat_id": 70,
+    "video_id": 4589,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 210,
     "strat_id": 26,
     "video_id": 6391,
     "created_user": "Sam",
@@ -43798,6 +43830,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 72,
+    "video_id": 7291,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": "Caveat: doing it this way may risk getting shot by an Evir particle while climbing."
   },
   {
     "room_id": 202,

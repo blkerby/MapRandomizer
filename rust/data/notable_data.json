@@ -496,6 +496,14 @@
     "video_id": 2637
   },
   {
+    "room_id": 39,
+    "room_name": "Construction Zone",
+    "notable_id": 2,
+    "name": "Ice Moonfall Clip",
+    "difficulty": "Extreme",
+    "video_id": 7302
+  },
+  {
     "room_id": 45,
     "room_name": "Early Supers Room",
     "notable_id": 2,
@@ -2768,6 +2776,14 @@
     "video_id": 214
   },
   {
+    "room_id": 219,
+    "room_name": "Plasma Room",
+    "notable_id": 1,
+    "name": "Damage-Avoiding Pseudo-Screw",
+    "difficulty": "Extreme",
+    "video_id": 7301
+  },
+  {
     "room_id": 197,
     "room_name": "Plasma Spark Room",
     "notable_id": 1,
@@ -2974,6 +2990,30 @@
     "name": "Cross-Room Blue Speed Jump (Right to Left)",
     "difficulty": "Expert",
     "video_id": 5642
+  },
+  {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 13,
+    "name": "Suitless Bootless Evir Freeze (Left to Center)",
+    "difficulty": "Extreme",
+    "video_id": 4589
+  },
+  {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 14,
+    "name": "Suitless Bootless Evir Climb",
+    "difficulty": "Extreme",
+    "video_id": 7291
+  },
+  {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 15,
+    "name": "Door Stuck Flatley Jump",
+    "difficulty": "Insane",
+    "video_id": 7261
   },
   {
     "room_id": 198,

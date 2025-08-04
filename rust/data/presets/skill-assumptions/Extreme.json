@@ -2591,6 +2591,13 @@
             "enabled": true
         },
         {
+            "room_id": 39,
+            "notable_id": 2,
+            "room_name": "Construction Zone",
+            "notable_name": "Ice Moonfall Clip",
+            "enabled": true
+        },
+        {
             "room_id": 45,
             "notable_id": 3,
             "room_name": "Early Supers Room",
@@ -3067,6 +3074,13 @@
             "enabled": true
         },
         {
+            "room_id": 219,
+            "notable_id": 1,
+            "room_name": "Plasma Room",
+            "notable_name": "Damage-Avoiding Pseudo-Screw",
+            "enabled": true
+        },
+        {
             "room_id": 214,
             "notable_id": 1,
             "room_name": "Thread The Needle Room",
@@ -3120,6 +3134,20 @@
             "notable_id": 11,
             "room_name": "East Sand Hall",
             "notable_name": "Suitless Bootless Evir Freeze (Center to Right)",
+            "enabled": true
+        },
+        {
+            "room_id": 210,
+            "notable_id": 13,
+            "room_name": "East Sand Hall",
+            "notable_name": "Suitless Bootless Evir Freeze (Left to Center)",
+            "enabled": true
+        },
+        {
+            "room_id": 210,
+            "notable_id": 14,
+            "room_name": "East Sand Hall",
+            "notable_name": "Suitless Bootless Evir Climb",
             "enabled": true
         },
         {
@@ -3694,6 +3722,13 @@
             "notable_id": 4,
             "room_name": "Plasma Spark Room",
             "notable_name": "Insane Frozen Choot Spring Ball Jump",
+            "enabled": false
+        },
+        {
+            "room_id": 210,
+            "notable_id": 15,
+            "room_name": "East Sand Hall",
+            "notable_name": "Door Stuck Flatley Jump",
             "enabled": false
         },
         {
