@@ -2966,17 +2966,6 @@ fn get_minimal_tank_count(difficulty: &DifficultyConfig) -> usize {
     }
 }
 
-fn ensure_enough_tanks(initial_items_remaining: &mut [usize], difficulty: &DifficultyConfig) {
-    // Give an extra tank to two, compared to what may be needed for Ridley, for lenience:
-    let minimal_tank_count = get_minimal_tank_count(difficulty);
-    while initial_items_remaining[Item::ETank as usize]
-        + initial_items_remaining[Item::ReserveTank as usize]
-        < minimal_tank_count
-    {
-        initial_items_remaining[Item::ETank as usize] += 1;
-    }
-}
-
 pub fn strip_name(s: &str) -> String {
     let mut out = String::new();
     for word in s.split_inclusive(|x: char| !x.is_ascii_alphabetic()) {
@@ -3111,12 +3100,22 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[x.item as usize] = x.count;
         }
 
+        let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
         for x in &settings.item_progression_settings.starting_items {
             initial_items_remaining[x.item as usize] -=
                 usize::min(x.count, initial_items_remaining[x.item as usize]);
+            if x.item == Item::ETank || x.item == Item::ReserveTank {
+                minimal_tank_count = minimal_tank_count.saturating_sub(x.count);
+            }
         }
 
-        ensure_enough_tanks(&mut initial_items_remaining, &difficulty_tiers[0]);
+        while initial_items_remaining[Item::ETank as usize]
+            + initial_items_remaining[Item::ReserveTank as usize]
+            < minimal_tank_count
+        {
+            initial_items_remaining[Item::ETank as usize] += 1;
+        }
+
         let target_initial_items = initial_items_remaining.clone();
         let ammo_shortage_weight: Vec<(Item, f32)> = vec![
             (Item::Missile, 0.12),
@@ -3125,7 +3124,6 @@ impl<'r> Randomizer<'r> {
         ];
         let tank_shortage_weight: Vec<(Item, f32)> =
             vec![(Item::ETank, 0.7), (Item::ReserveTank, 2.0)];
-        let minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
         for _ in 0..initial_items_remaining
             .iter()
             .sum::<usize>()
