@@ -350,11 +350,11 @@ fn get_enemy_drop_values(
         p_missile += p_super * rel_missile;
         p_super = 0.0;
     }
-    if full_missiles {
+    if full_missiles && (p_small + p_large > 0.0) {
         p_small += p_missile * p_small / (p_small + p_large);
         p_large += p_missile * p_large / (p_small + p_large);
         p_missile = 0.0;
-    } else if full_energy {
+    } else if full_energy && p_missile > 0.0_ {
         p_missile += p_small + p_large;
         p_small = 0.0;
         p_large = 0.0;
@@ -363,11 +363,12 @@ fn get_enemy_drop_values(
     let expected_missiles = p_missile * 2.0;
     let expected_supers = p_super;
     let expected_pbs = p_pb * if buffed_drops { 2.0 } else { 1.0 };
+    let count = drop.count as f32;
     [
-        expected_energy,
-        expected_missiles,
-        expected_supers,
-        expected_pbs,
+        expected_energy * count,
+        expected_missiles * count,
+        expected_supers * count,
+        expected_pbs * count,
     ]
 }
 
