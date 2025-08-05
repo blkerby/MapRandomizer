@@ -20,6 +20,7 @@ v120?:
 - add more strats from Incomplete videos
 
 v119:
+- shorter spoiler routes
 - DONE: Support maps with incomplete room sets.
 - DONE: toilet showing up in aqueduct BG when not placed?
 - DONE: investigate item pool issue reported by somerando: https://dev.maprando.com/seed/D6Xd5mLyN/

@@ -55,6 +55,7 @@
             <div class="btn-group flex-wrap m-1" role="group">
                 {% for i in 0..videos.unwrap().len() %} 
                 {% let video = videos.unwrap()[i] %}
+                {% let created_user = video.created_user|escape %}
                 {% let checked %}
                 {% if i == 0 %}
                 {% let checked = "checked" %}
