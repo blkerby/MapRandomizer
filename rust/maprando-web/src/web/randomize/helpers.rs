@@ -245,7 +245,7 @@ pub async fn save_seed(
     ));
 
     // Write the spoiler log
-    let spoiler_bytes = serde_json::to_vec_pretty(&spoiler_log).unwrap();
+    let spoiler_bytes = serde_json::to_vec(&spoiler_log).unwrap();
     files.push(SeedFile::new(
         &format!("{prefix}/spoiler.json"),
         spoiler_bytes,

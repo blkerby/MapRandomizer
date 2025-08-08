@@ -10,9 +10,9 @@ use crate::settings::{
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
-    IMPOSSIBLE_LOCAL_STATE, LockedDoorData, NUM_COST_METRICS, TraverseResult, apply_link,
-    apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx, get_spoiler_route,
-    traverse,
+    IMPOSSIBLE_LOCAL_STATE, LockedDoorData, NUM_COST_METRICS, StepTrailId, TraverseResult,
+    apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
+    get_spoiler_route, traverse,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
@@ -4207,6 +4207,11 @@ impl<'r> Randomizer<'r> {
             spoiler_door_details,
         );
         *state = new_state;
+
+        info!(
+            "step trails: {}",
+            state.debug_data.as_ref().unwrap().forward.step_trails.len()
+        );
         Ok((spoiler_summary, spoiler_details, false))
     }
 
@@ -4304,6 +4309,27 @@ impl<'r> Randomizer<'r> {
         }
 
         EssentialSpoilerData { item_spoiler_info }
+    }
+
+    fn get_spoiler_game_data(&self) -> SpoilerGameData {
+        let mut links: Vec<SpoilerLink> = vec![];
+        for link in self
+            .base_links_data
+            .links
+            .iter()
+            .chain(self.seed_links_data.links.iter())
+        {
+            links.push(SpoilerLink {
+                from_vertex_id: link.from_vertex_id,
+                to_vertex_id: link.to_vertex_id,
+                strat_id: link.strat_id,
+                strat_name: link.strat_name.clone(),
+            });
+        }
+        SpoilerGameData {
+            vertices: vec![],
+            links,
+        }
     }
 
     pub fn get_randomization<R: Rng>(
@@ -4524,6 +4550,7 @@ impl<'r> Randomizer<'r> {
             details: spoiler_details,
             all_items: spoiler_all_items,
             all_rooms: spoiler_all_rooms,
+            game_data: self.get_spoiler_game_data(),
         };
 
         let randomization = Randomization {
@@ -4961,6 +4988,7 @@ impl<'r> Randomizer<'r> {
             details: vec![],
             all_items: vec![],
             all_rooms: spoiler_all_rooms,
+            game_data: self.get_spoiler_game_data(),
         };
 
         let randomization = Randomization {
@@ -5284,12 +5312,150 @@ pub struct SpoilerDoorDetails {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct SpoilerLocalState {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub energy_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub reserves_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub missiles_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub supers_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub power_bombs_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub shinecharge_frames_remaining: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub cycle_frames: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub farm_baseline_energy_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub farm_baseline_reserves_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub farm_baseline_missiles_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub farm_baseline_supers_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub farm_baseline_power_bombs_used: Option<Capacity>,
+}
+
+impl SpoilerLocalState {
+    fn new(new_state: LocalState, old_state: LocalState) -> Self {
+        Self {
+            energy_used: if new_state.energy_used == old_state.energy_used {
+                None
+            } else {
+                Some(new_state.energy_used)
+            },
+            reserves_used: if new_state.reserves_used == old_state.reserves_used {
+                None
+            } else {
+                Some(new_state.reserves_used)
+            },
+            missiles_used: if new_state.missiles_used == old_state.missiles_used {
+                None
+            } else {
+                Some(new_state.missiles_used)
+            },
+            supers_used: if new_state.supers_used == old_state.supers_used {
+                None
+            } else {
+                Some(new_state.supers_used)
+            },
+            power_bombs_used: if new_state.power_bombs_used == old_state.power_bombs_used {
+                None
+            } else {
+                Some(new_state.power_bombs_used)
+            },
+            shinecharge_frames_remaining: if new_state.shinecharge_frames_remaining
+                == old_state.shinecharge_frames_remaining
+            {
+                None
+            } else {
+                Some(new_state.shinecharge_frames_remaining)
+            },
+            cycle_frames: if new_state.cycle_frames == old_state.cycle_frames {
+                None
+            } else {
+                Some(new_state.cycle_frames)
+            },
+            farm_baseline_energy_used: if new_state.farm_baseline_energy_used
+                == old_state.farm_baseline_energy_used
+            {
+                None
+            } else {
+                Some(new_state.farm_baseline_energy_used)
+            },
+            farm_baseline_reserves_used: if new_state.farm_baseline_reserves_used
+                == old_state.farm_baseline_reserves_used
+            {
+                None
+            } else {
+                Some(new_state.farm_baseline_reserves_used)
+            },
+            farm_baseline_missiles_used: if new_state.farm_baseline_missiles_used
+                == old_state.farm_baseline_missiles_used
+            {
+                None
+            } else {
+                Some(new_state.farm_baseline_missiles_used)
+            },
+            farm_baseline_supers_used: if new_state.farm_baseline_supers_used
+                == old_state.farm_baseline_supers_used
+            {
+                None
+            } else {
+                Some(new_state.farm_baseline_supers_used)
+            },
+            farm_baseline_power_bombs_used: if new_state.farm_baseline_power_bombs_used
+                == old_state.farm_baseline_power_bombs_used
+            {
+                None
+            } else {
+                Some(new_state.farm_baseline_power_bombs_used)
+            },
+        }
+    }
+}
+
+pub fn get_spoiler_traverse_result(tr: &TraverseResult) -> SpoilerTraverseResult {
+    let mut out: SpoilerTraverseResult = SpoilerTraverseResult {
+        prev_trail_ids: vec![],
+        link_idxs: vec![],
+        local_states: vec![],
+        start_trail_ids: tr.start_trail_ids.clone(),
+    };
+    for t in &tr.step_trails {
+        let old_state = if t.prev_trail_id >= 0 {
+            tr.step_trails[t.prev_trail_id as usize].local_state
+        } else {
+            LocalState::full()
+        };
+        let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
+        out.prev_trail_ids.push(t.prev_trail_id);
+        out.link_idxs.push(t.link_idx);
+        out.local_states.push(spoiler_local_state);
+    }
+    out
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerTraverseResult {
+    pub prev_trail_ids: Vec<StepTrailId>,
+    pub link_idxs: Vec<LinkIdx>,
+    pub local_states: Vec<SpoilerLocalState>,
+    pub start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct SpoilerDetails {
     pub step: usize,
     pub start_state: SpoilerStartState,
     pub flags: Vec<SpoilerFlagDetails>,
     pub doors: Vec<SpoilerDoorDetails>,
     pub items: Vec<SpoilerItemDetails>,
+    pub forward_traverse: SpoilerTraverseResult,
+    pub reverse_traverse: SpoilerTraverseResult,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -5334,6 +5500,19 @@ pub struct SpoilerSummary {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct SpoilerLink {
+    pub from_vertex_id: VertexId,
+    pub to_vertex_id: VertexId,
+    pub strat_id: Option<usize>,
+    pub strat_name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerGameData {
+    vertices: Vec<VertexKey>,
+    links: Vec<SpoilerLink>,
+}
+#[derive(Serialize, Deserialize)]
 pub struct SpoilerLog {
     pub item_priority: Vec<String>,
     pub summary: Vec<SpoilerSummary>,
@@ -5346,6 +5525,7 @@ pub struct SpoilerLog {
     pub details: Vec<SpoilerDetails>,
     pub all_items: Vec<SpoilerItemLoc>,
     pub all_rooms: Vec<SpoilerRoomLoc>,
+    pub game_data: SpoilerGameData,
 }
 
 fn extract_relevant_flags(req: &Requirement, out: &mut Vec<usize>) {
@@ -5440,6 +5620,7 @@ impl Randomizer<'_> {
             let raw_link = self.get_link(link_idx as usize);
             let sublinks = [raw_link.clone()];
 
+            // TODO: use the stored local state from the trails, instead of recomputing.
             let new_local_state_opt = apply_link(
                 link,
                 global_state,
@@ -5838,12 +6019,15 @@ impl Randomizer<'_> {
                 }
             }
         }
+        let debug_data = new_state.debug_data.as_ref().unwrap();
         SpoilerDetails {
             step: state.step_num,
             start_state: self.get_spoiler_start_state(orig_global_state),
             items,
             flags: spoiler_flag_details,
             doors: spoiler_door_details,
+            forward_traverse: get_spoiler_traverse_result(&debug_data.forward),
+            reverse_traverse: get_spoiler_traverse_result(&debug_data.reverse),
         }
     }
 

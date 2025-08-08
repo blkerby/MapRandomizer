@@ -1,6 +1,7 @@
 use std::cmp::{max, min};
 
 use hashbrown::HashMap;
+use serde::{Deserialize, Serialize};
 
 use crate::{
     randomize::{DifficultyConfig, LockedDoor},
@@ -2144,10 +2145,11 @@ pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &TraverseResult) -> 
 
 pub type StepTrailId = i32;
 
-#[derive(Clone)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct StepTrail {
     pub prev_trail_id: StepTrailId,
     pub link_idx: LinkIdx,
+    pub local_state: LocalState,
 }
 
 #[derive(Clone)]
@@ -2248,6 +2250,7 @@ pub fn traverse(
 
                         let new_step_trail = StepTrail {
                             prev_trail_id: src_trail_id,
+                            local_state: dst_new_local_state,
                             link_idx,
                         };
                         let new_trail_id = result.step_trails.len() as StepTrailId;

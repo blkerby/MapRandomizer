@@ -172,7 +172,7 @@ impl Item {
     }
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct EnemyDrop {
     pub nothing_weight: Float,
     pub small_energy_weight: Float,
@@ -210,7 +210,7 @@ pub enum RidleyStuck {
     Bottom,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Requirement {
     Free,
     Never,
@@ -608,7 +608,7 @@ pub struct HubLocation {
     pub vertex_id: usize,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct EnemyVulnerabilities {
     pub hp: Capacity,
     pub non_ammo_vulnerabilities: WeaponMask,
@@ -628,7 +628,7 @@ pub struct RunwayGeometry {
     pub starting_down_tiles: f32,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Physics {
     Air,
     Water,
@@ -646,7 +646,7 @@ fn parse_physics(physics: &str) -> Result<Physics> {
     })
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum DoorOrientation {
     Left,
     Right,
@@ -670,7 +670,7 @@ fn parse_door_orientation(door_orientation: &str) -> Result<DoorOrientation> {
 #[derive(Clone, Debug)]
 pub struct GModeRegainMobility {}
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum SparkPosition {
     Top,
     Bottom,
@@ -678,7 +678,7 @@ pub enum SparkPosition {
 }
 
 // Hashable wrapper for f32 based on its bits.
-#[derive(Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Float {
     data: u32,
 }
@@ -699,42 +699,42 @@ impl Debug for Float {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TemporaryBlueDirection {
     Left,
     Right,
     Any,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BlueOption {
     Yes,
     No,
     Any,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub enum GrappleSwingBlockEnvironment {
     #[default]
     Air,
     Water,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct GrappleSwingBlock {
     position: (Float, Float),
     environment: GrappleSwingBlockEnvironment,
     obstructions: Vec<(i32, i32)>,
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GrappleJumpPosition {
     Left,
     Right,
     Any,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ExitCondition {
     LeaveNormally {},
     LeaveWithRunway {
@@ -872,41 +872,41 @@ fn parse_bounce_movement_type(s: &str) -> Result<BounceMovementType> {
     })
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GModeMode {
     Direct,
     Indirect,
     Any,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum GModeMobility {
     Mobile,
     Immobile,
     Any,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum ToiletCondition {
     No,
     Yes,
     Any,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct EntranceCondition {
     pub through_toilet: ToiletCondition,
     pub main: MainEntranceCondition,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum BounceMovementType {
     Controlled,
     Uncontrolled,
     Any,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub enum SidePlatformEnvironment {
     #[default]
     Any,
@@ -914,7 +914,7 @@ pub enum SidePlatformEnvironment {
     Water,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct SidePlatformEntrance {
     pub min_tiles: Float,
     pub speed_booster: Option<bool>,
@@ -925,7 +925,7 @@ pub struct SidePlatformEntrance {
     pub requirement: Requirement,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum MainEntranceCondition {
     ComeInNormally {},
     ComeInRunning {
@@ -1225,7 +1225,7 @@ pub fn read_image(path: &Path) -> Result<Array3<u8>> {
     Ok(arr)
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub enum VertexAction {
     #[default]
     Nothing, // This should never be constructed, just here because we need a default value
@@ -1240,7 +1240,7 @@ pub enum VertexAction {
     FlagSet(FlagId),
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Default, Serialize, Deserialize)]
 pub struct VertexKey {
     pub room_id: RoomId,
     pub node_id: NodeId,
