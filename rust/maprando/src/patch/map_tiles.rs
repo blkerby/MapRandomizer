@@ -495,53 +495,52 @@ pub fn render_tile(
         (MapLiquidType::Acid, true) => (2, 1),
         _ => panic!("unexpected liquid type"),
     };
-    if let Some(liquid_level) = tile.liquid_level {
-        if !settings.other_settings.ultra_low_qol {
-            let level = (liquid_level * 8.0).floor() as isize;
-            for y in level..8 {
-                for x in 0..8 {
-                    match tile.liquid_type {
-                        MapLiquidType::Water => {
-                            if (x + y) % 2 == 0 {
-                                data[y as usize][x as usize] = liquid_colors.0;
-                            } else {
-                                data[y as usize][x as usize] = liquid_colors.1;
-                            }
-                        }
-                        MapLiquidType::Lava => {
+    if let Some(liquid_level) = tile.liquid_level
+        && !settings.other_settings.ultra_low_qol
+    {
+        let level = (liquid_level * 8.0).floor() as isize;
+        for y in level..8 {
+            for x in 0..8 {
+                match tile.liquid_type {
+                    MapLiquidType::Water => {
+                        if (x + y) % 2 == 0 {
+                            data[y as usize][x as usize] = liquid_colors.0;
+                        } else {
                             data[y as usize][x as usize] = liquid_colors.1;
                         }
-                        MapLiquidType::Acid => {
-                            if (x + y) % 2 == 0 {
-                                data[y as usize][x as usize] = liquid_colors.1;
-                            }
-                        }
-                        MapLiquidType::None => bail!("unexpected liquid type None"),
                     }
+                    MapLiquidType::Lava => {
+                        data[y as usize][x as usize] = liquid_colors.1;
+                    }
+                    MapLiquidType::Acid => {
+                        if (x + y) % 2 == 0 {
+                            data[y as usize][x as usize] = liquid_colors.1;
+                        }
+                    }
+                    MapLiquidType::None => bail!("unexpected liquid type None"),
                 }
             }
+        }
 
-            if tile.faded
-                && tile.interior.is_item()
-                && (tile.liquid_type == MapLiquidType::Lava
-                    || tile.liquid_type == MapLiquidType::Acid
-                    || (tile.liquid_type == MapLiquidType::Water
-                        && tile.liquid_level.unwrap() > 0.5))
-            {
-                // Improve contrast around faded items:
-                match tile.interior {
-                    MapTileInterior::Item => {
-                        for y in 2..6 {
-                            for x in 2..6 {
-                                data[y][x] = bg_color;
-                            }
+        if tile.faded
+            && tile.interior.is_item()
+            && (tile.liquid_type == MapLiquidType::Lava
+                || tile.liquid_type == MapLiquidType::Acid
+                || (tile.liquid_type == MapLiquidType::Water && tile.liquid_level.unwrap() > 0.5))
+        {
+            // Improve contrast around faded items:
+            match tile.interior {
+                MapTileInterior::Item => {
+                    for y in 2..6 {
+                        for x in 2..6 {
+                            data[y][x] = bg_color;
                         }
                     }
-                    _ => {
-                        for y in 1..7 {
-                            for x in 1..7 {
-                                data[y][x] = bg_color;
-                            }
+                }
+                _ => {
+                    for y in 1..7 {
+                        for x in 1..7 {
+                            data[y][x] = bg_color;
                         }
                     }
                 }
@@ -571,13 +570,13 @@ pub fn render_tile(
             data[4][5] = item_color;
             data[5][3] = item_color;
             data[5][4] = item_color;
-            if let Some(liquid_level) = tile.liquid_level {
-                if liquid_level < 0.5 {
-                    data[3][3] = liquid_colors.0;
-                    data[3][4] = liquid_colors.0;
-                    data[4][3] = liquid_colors.0;
-                    data[4][4] = liquid_colors.0;
-                }
+            if let Some(liquid_level) = tile.liquid_level
+                && liquid_level < 0.5
+            {
+                data[3][3] = liquid_colors.0;
+                data[3][4] = liquid_colors.0;
+                data[4][3] = liquid_colors.0;
+                data[4][4] = liquid_colors.0;
             }
         }
         MapTileInterior::AmmoItem => {

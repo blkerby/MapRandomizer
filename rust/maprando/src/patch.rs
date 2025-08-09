@@ -1327,12 +1327,12 @@ impl Patcher<'_> {
         .collect();
 
         for door in &self.randomization.locked_doors {
-            if door.door_type == DoorType::Wall {
-                if let Some(&ptr) = gray_door_plm_map.get(&door.src_ptr_pair) {
-                    // Remove the gray door where the wall is being placed.
-                    self.rom.write_u16(ptr, 0xB63F)?; // left continuation arrow (should have no effect, giving a blue door)
-                    self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
-                }
+            if door.door_type == DoorType::Wall
+                && let Some(&ptr) = gray_door_plm_map.get(&door.src_ptr_pair)
+            {
+                // Remove the gray door where the wall is being placed.
+                self.rom.write_u16(ptr, 0xB63F)?; // left continuation arrow (should have no effect, giving a blue door)
+                self.rom.write_u16(ptr + 2, 0)?; // position = (0, 0)
             }
         }
         Ok(())

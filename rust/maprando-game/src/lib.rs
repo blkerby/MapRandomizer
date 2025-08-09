@@ -4215,14 +4215,13 @@ impl GameData {
             } else if ["door", "exit"].contains(&to_node_json["nodeType"].as_str().unwrap())
                 && strat_json.has_key("unlocksDoors")
                 && to_node_json["useImplicitLeaveNormally"].as_bool() != Some(false)
+                && let Ok(unlock_to_door_req) = self.get_unlocks_doors_req(to_node_id, &ctx)
             {
-                if let Ok(unlock_to_door_req) = self.get_unlocks_doors_req(to_node_id, &ctx) {
-                    maybe_exit_req = Some(unlock_to_door_req);
-                    to_actions.push(VertexAction::MaybeExit(
-                        ExitCondition::LeaveNormally {},
-                        maybe_exit_req.clone().unwrap(),
-                    ));
-                }
+                maybe_exit_req = Some(unlock_to_door_req);
+                to_actions.push(VertexAction::MaybeExit(
+                    ExitCondition::LeaveNormally {},
+                    maybe_exit_req.clone().unwrap(),
+                ));
             }
 
             if !bypasses_door_shell && exit_condition.is_some() {

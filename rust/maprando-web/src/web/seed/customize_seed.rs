@@ -266,10 +266,10 @@ fn get_spin_lock_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
     ];
 
     for (setting, button) in setting_button_mapping {
-        if let Some(x) = setting {
-            if x.0 == "on" {
-                spin_lock_buttons.push(button);
-            }
+        if let Some(x) = setting
+            && x.0 == "on"
+        {
+            spin_lock_buttons.push(button);
         }
     }
     spin_lock_buttons
@@ -293,10 +293,10 @@ fn get_quick_reload_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
     ];
 
     for (setting, button) in setting_button_mapping {
-        if let Some(x) = setting {
-            if x.0 == "on" {
-                quick_reload_buttons.push(button);
-            }
+        if let Some(x) = setting
+            && x.0 == "on"
+        {
+            quick_reload_buttons.push(button);
         }
     }
     quick_reload_buttons

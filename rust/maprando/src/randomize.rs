@@ -3610,9 +3610,9 @@ impl<'r> Randomizer<'r> {
             assert!(key_items_to_place.len() == num_key_items_to_select);
             Some(key_items_to_place)
         } else if attempt_num > 0 {
-            return None;
+            None
         } else {
-            return Some(vec![]);
+            Some(vec![])
         }
     }
 
