@@ -828,6 +828,11 @@
             "enabled": false
         },
         {
+            "id": 205,
+            "name": "canComplexGMode",
+            "enabled": false
+        },
+        {
             "id": 163,
             "name": "canEnterGModeImmobile",
             "enabled": false
@@ -835,6 +840,11 @@
         {
             "id": 164,
             "name": "canArtificialMorph",
+            "enabled": false
+        },
+        {
+            "id": 206,
+            "name": "canPowerBombItemOverloadPLMs",
             "enabled": false
         },
         {
@@ -900,6 +910,11 @@
         {
             "id": 54,
             "name": "canBombGrappleJump",
+            "enabled": false
+        },
+        {
+            "id": 204,
+            "name": "canSuperSink",
             "enabled": false
         },
         {
@@ -1432,14 +1447,14 @@
             "room_id": 151,
             "notable_id": 2,
             "room_name": "Screw Attack Room",
-            "notable_name": "Transition Screwjump",
+            "notable_name": "Transition Screw Jump",
             "enabled": false
         },
         {
             "room_id": 151,
             "notable_id": 3,
             "room_name": "Screw Attack Room",
-            "notable_name": "Transition Speedjump with Bombs",
+            "notable_name": "Transition Speedy Jump with Bombs",
             "enabled": false
         },
         {
@@ -3403,6 +3418,13 @@
             "enabled": false
         },
         {
+            "room_id": 90,
+            "notable_id": 7,
+            "room_name": "Cathedral Entrance",
+            "notable_name": "Dessgeega Dodge (Right-to-Left)",
+            "enabled": false
+        },
+        {
             "room_id": 93,
             "notable_id": 2,
             "room_name": "Frog Speedway",
@@ -3498,6 +3520,13 @@
             "notable_id": 1,
             "room_name": "The Jail",
             "notable_name": "Crystal Flash Clip",
+            "enabled": false
+        },
+        {
+            "room_id": 135,
+            "notable_id": 9,
+            "room_name": "The Worst Room In The Game",
+            "notable_name": "X-Mode Temporary Blue",
             "enabled": false
         },
         {

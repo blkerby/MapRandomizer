@@ -225,6 +225,14 @@
   },
   {
     "room_id": 11,
+    "strat_id": 108,
+    "video_id": 7316,
+    "created_user": "Sam",
+    "note": "canSuperSink",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
     "strat_id": 47,
     "video_id": 327,
     "created_user": "Osse101",
@@ -5148,7 +5156,7 @@
     "strat_id": 134,
     "video_id": 6234,
     "created_user": "Sam",
-    "note": "With Space Jump.",
+    "note": "With Space Jump",
     "dev_note": ""
   },
   {
@@ -23761,14 +23769,6 @@
   },
   {
     "room_id": 136,
-    "strat_id": 32,
-    "video_id": 2405,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": "With Varia Suit and 3 Energy Tanks."
-  },
-  {
-    "room_id": 136,
     "strat_id": 34,
     "video_id": 3291,
     "created_user": "Sam",
@@ -42145,6 +42145,14 @@
   },
   {
     "room_id": 219,
+    "strat_id": 32,
+    "video_id": 7301,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 219,
     "strat_id": 24,
     "video_id": 4348,
     "created_user": "Sam",
@@ -43739,6 +43747,14 @@
     "room_id": 210,
     "strat_id": 45,
     "video_id": 5477,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 210,
+    "strat_id": 71,
+    "video_id": 7261,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""

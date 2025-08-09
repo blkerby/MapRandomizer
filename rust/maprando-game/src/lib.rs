@@ -55,6 +55,7 @@ pub const TECH_ID_CAN_PRECISE_GRAPPLE: TechId = 51;
 pub const TECH_ID_CAN_GRAPPLE_JUMP: TechId = 52;
 pub const TECH_ID_CAN_GRAPPLE_TELEPORT: TechId = 55;
 pub const TECH_ID_CAN_SAMUS_EATER_TELEPORT: TechId = 194;
+pub const TECH_ID_CAN_SUPER_SINK: TechId = 204;
 pub const TECH_ID_CAN_KAGO: TechId = 107;
 pub const TECH_ID_CAN_SUITLESS_LAVA_DIVE: TechId = 5;
 pub const TECH_ID_CAN_HERO_SHOT: TechId = 130;
@@ -823,6 +824,7 @@ pub enum ExitCondition {
         floor_positions: Vec<(u16, u16)>,
         ceiling_positions: Vec<(u16, u16)>,
     },
+    LeaveWithSuperSink {},
 }
 
 fn parse_spark_position(s: Option<&str>) -> Result<SparkPosition> {
@@ -1047,6 +1049,7 @@ pub enum MainEntranceCondition {
         floor_positions: Vec<(u16, u16)>,
         ceiling_positions: Vec<(u16, u16)>,
     },
+    ComeInWithSuperSink {},
 }
 
 fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
@@ -3760,6 +3763,7 @@ impl GameData {
                     .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                     .collect(),
             },
+            "leaveWithSuperSink" => ExitCondition::LeaveWithSuperSink {},
             _ => {
                 bail!(format!("Unrecognized exit condition: {}", key));
             }
@@ -4067,6 +4071,7 @@ impl GameData {
                     .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
                     .collect(),
             },
+            "comeInWithSuperSink" => MainEntranceCondition::ComeInWithSuperSink {},
             _ => {
                 bail!(format!("Unrecognized entrance condition: {}", key));
             }

@@ -1152,6 +1152,14 @@
     "video_id": 401
   },
   {
+    "room_id": 90,
+    "room_name": "Cathedral Entrance",
+    "notable_id": 7,
+    "name": "Dessgeega Dodge (Right-to-Left)",
+    "difficulty": "Insane",
+    "video_id": 7396
+  },
+  {
     "room_id": 104,
     "room_name": "Double Chamber",
     "notable_id": 1,
@@ -1619,7 +1627,7 @@
     "room_id": 151,
     "room_name": "Screw Attack Room",
     "notable_id": 2,
-    "name": "Transition Screwjump",
+    "name": "Transition Screw Jump",
     "difficulty": "Very Hard",
     "video_id": 1077
   },
@@ -1627,7 +1635,7 @@
     "room_id": 151,
     "room_name": "Screw Attack Room",
     "notable_id": 3,
-    "name": "Transition Speedjump with Bombs",
+    "name": "Transition Speedy Jump with Bombs",
     "difficulty": "Very Hard",
     "video_id": 554
   },
@@ -1870,6 +1878,14 @@
     "name": "HiJump and Only Screw",
     "difficulty": "Extreme",
     "video_id": 376
+  },
+  {
+    "room_id": 135,
+    "room_name": "The Worst Room In The Game",
+    "notable_id": 9,
+    "name": "X-Mode Temporary Blue",
+    "difficulty": "Insane",
+    "video_id": 7347
   },
   {
     "room_id": 148,

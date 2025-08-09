@@ -32,8 +32,8 @@ use maprando_game::{
     TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
-    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TechId,
-    TemporaryBlueDirection, VertexId, VertexKey,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
+    TechId, TemporaryBlueDirection, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -872,6 +872,9 @@ impl<'a> Preprocessor<'a> {
                 floor_positions,
                 ceiling_positions,
             ),
+            MainEntranceCondition::ComeInWithSuperSink {} => {
+                self.get_come_in_with_super_sink_reqs(exit_condition)
+            }
         }
     }
 
@@ -2564,6 +2567,18 @@ impl<'a> Preprocessor<'a> {
                     None
                 }
             }
+            _ => None,
+        }
+    }
+
+    fn get_come_in_with_super_sink_reqs(
+        &self,
+        exit_condition: &ExitCondition,
+    ) -> Option<Requirement> {
+        match exit_condition {
+            ExitCondition::LeaveWithSuperSink {} => Some(Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SUPER_SINK],
+            )),
             _ => None,
         }
     }

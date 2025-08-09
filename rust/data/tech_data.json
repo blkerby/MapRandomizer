@@ -378,6 +378,12 @@
         "video_id": 3533
     },
     {
+        "tech_id": 204,
+        "name": "canSuperSink",
+        "difficulty": "Insane",
+        "video_id": 7316
+    },
+    {
         "tech_id": 185,
         "name": "canMorphTurnaround",
         "difficulty": "Hard",
@@ -1056,6 +1062,12 @@
         "video_id": 982
     },
     {
+        "tech_id": 205,
+        "name": "canComplexGMode",
+        "difficulty": "Extreme",
+        "video_id": 5882
+    },
+    {
         "tech_id": 200,
         "name": "canTrickyGMode",
         "difficulty": "Insane",
@@ -1078,6 +1090,12 @@
         "name": "canArtificialMorph",
         "difficulty": "Extreme",
         "video_id": 985
+    },
+    {
+        "tech_id": 206,
+        "name": "canPowerBombItemOverloadPLMs",
+        "difficulty": "Extreme",
+        "video_id": 6234
     },
     {
         "tech_id": 194,

@@ -25,8 +25,8 @@ use maprando_game::{
     TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK,
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
-    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_TEMPORARY_BLUE, TECH_ID_CAN_WALLJUMP,
-    TechId, VertexAction, VertexKey,
+    TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
+    TECH_ID_CAN_WALLJUMP, TechId, VertexAction, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use std::{io::Cursor, path::PathBuf};
@@ -339,6 +339,7 @@ fn make_tech_templates<'a>(
                     "comeInWithSidePlatform",
                     vec![TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
                 ),
+                ("comeInWithSuperSink", vec![TECH_ID_CAN_SUPER_SINK]),
             ];
 
             for (entrance_name, tech_ids) in entrance_condition_techs {
@@ -434,6 +435,7 @@ fn make_tech_templates<'a>(
                     "leaveWithSidePlatform",
                     vec![TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
                 ),
+                ("leaveWithSuperSink", vec![TECH_ID_CAN_SUPER_SINK]),
             ];
 
             for (exit_name, tech_ids) in exit_condition_techs {
@@ -813,6 +815,11 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_SAMUS_EATER_TELEPORT],
                     ));
                 }
+                MainEntranceCondition::ComeInWithSuperSink { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_SUPER_SINK],
+                    ));
+                }
             }
         }
     }
@@ -894,6 +901,11 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 ExitCondition::LeaveWithSamusEaterTeleport { .. } => {
                     reqs.push(Requirement::Tech(
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_SAMUS_EATER_TELEPORT],
+                    ));
+                }
+                ExitCondition::LeaveWithSuperSink { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_SUPER_SINK],
                     ));
                 }
             }
