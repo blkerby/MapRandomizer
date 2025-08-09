@@ -265,6 +265,8 @@ function updateDebugData() {
 	if (costMetric < 0 || costMetric > 1) {
 		return;
 	}
+	let forwardCost = details.forward_traverse.cost[vertexId][costMetric];
+	let reverseCost = details.reverse_traverse.cost[vertexId][costMetric];
 
 	let vertexKey = spoiler.game_data.vertices[vertexId];
 	let roomId = vertexKey.room_id;
@@ -278,7 +280,7 @@ function updateDebugData() {
 	headerMainLine.innerText = `[${vertexId}] ${roomName}: ${nodeName} (${obstacleMask})`;
 	debugHeader.appendChild(headerMainLine);
 	let costMetricLine = document.createElement("p");
-	costMetricLine.innerText = `Cost metric ${costMetric}`;
+	costMetricLine.innerText = `Cost metric ${costMetric}: obtain=${forwardCost}, return=${reverseCost}`;
 	debugHeader.appendChild(costMetricLine);
 	if (vertexKey.actions.length > 0) {
 		let actionPre = document.createElement("pre");

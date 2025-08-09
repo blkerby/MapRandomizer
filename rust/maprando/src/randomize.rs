@@ -5446,6 +5446,7 @@ pub fn get_spoiler_traverse_result(tr: &TraverseResult) -> SpoilerTraverseResult
         prev_trail_ids: vec![],
         link_idxs: vec![],
         local_states: vec![],
+        cost: tr.cost.clone(),
         start_trail_ids: tr.start_trail_ids.clone(),
     };
     for t in &tr.step_trails {
@@ -5468,6 +5469,7 @@ pub struct SpoilerTraverseResult {
     pub link_idxs: Vec<LinkIdx>,
     pub local_states: Vec<SpoilerLocalState>,
     pub start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
+    pub cost: Vec<[f32; NUM_COST_METRICS]>,
 }
 
 #[derive(Serialize, Deserialize)]
