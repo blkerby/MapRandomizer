@@ -1426,6 +1426,13 @@ pub struct VariableWidthFont {
     pub char_isv: IndexedVec<char>,
 }
 
+#[derive(Clone)]
+pub struct ExitInfo {
+    pub vertex_id: VertexId,
+    pub exit_condition: ExitCondition,
+    pub exit_req: Requirement,
+}
+
 // TODO: Clean this up, e.g. pull out a separate structure to hold
 // temporary data used only during loading, replace any
 // remaining JsonValue types in the main struct with something
@@ -1463,8 +1470,7 @@ pub struct GameData {
     pub node_ptr_map: HashMap<(RoomId, NodeId), NodePtr>,
     pub node_door_unlock: HashMap<(RoomId, NodeId), Vec<VertexId>>,
     pub node_entrance_conditions: HashMap<(RoomId, NodeId), Vec<(VertexId, EntranceCondition)>>,
-    pub node_exit_conditions: HashMap<(RoomId, NodeId), Vec<(VertexId, ExitCondition)>>,
-    pub node_maybe_exits: HashMap<(RoomId, NodeId), Vec<VertexId>>,
+    pub node_exit_conditions: HashMap<(RoomId, NodeId), Vec<ExitInfo>>,
     pub node_gmode_regain_mobility: HashMap<(RoomId, NodeId), Vec<(Link, GModeRegainMobility)>>,
     pub node_reset_room_requirement: HashMap<(RoomId, NodeId), Requirement>,
     pub room_num_obstacles: HashMap<RoomId, usize>,
@@ -3386,7 +3392,13 @@ impl GameData {
             }
         }
 
+        let existing_strats: Vec<JsonValue> = new_room_json["strats"].members().cloned().collect();
+        new_room_json["strats"].clear();
+        // Put the extra strats at the beginning, to prioritize them during traversal.
         for strat in extra_strats {
+            new_room_json["strats"].push(strat).unwrap();
+        }
+        for strat in existing_strats {
             new_room_json["strats"].push(strat).unwrap();
         }
 
@@ -4208,7 +4220,6 @@ impl GameData {
                 }
             }
 
-            let mut maybe_exit_req: Option<Requirement> = None;
             if let Some(e) = &exit_condition {
                 to_actions.push(VertexAction::Exit(e.clone()));
                 requires_vec.push(exit_req.clone().unwrap());
@@ -4217,7 +4228,7 @@ impl GameData {
                 && to_node_json["useImplicitLeaveNormally"].as_bool() != Some(false)
                 && let Ok(unlock_to_door_req) = self.get_unlocks_doors_req(to_node_id, &ctx)
             {
-                maybe_exit_req = Some(unlock_to_door_req);
+                let maybe_exit_req = Some(unlock_to_door_req);
                 to_actions.push(VertexAction::MaybeExit(
                     ExitCondition::LeaveNormally {},
                     maybe_exit_req.clone().unwrap(),
@@ -4354,29 +4365,6 @@ impl GameData {
                 }
             } else {
                 self.links.push(link.clone());
-            }
-
-            if let Some(r) = &maybe_exit_req {
-                let actions = vec![
-                    VertexAction::Exit(ExitCondition::LeaveNormally {}),
-                    VertexAction::DoorUnlock(to_node_id, usize::MAX),
-                ];
-                let exit_to_vertex_id = self.vertex_isv.add(&VertexKey {
-                    room_id,
-                    node_id: to_node_id,
-                    obstacle_mask: 0,
-                    actions,
-                });
-                self.links.push(Link {
-                    from_vertex_id: to_vertex_id,
-                    to_vertex_id: exit_to_vertex_id,
-                    requirement: r.clone(),
-                    start_with_shinecharge: false,
-                    end_with_shinecharge: false,
-                    strat_id: None,
-                    strat_name: "Base (Maybe Exit -> Exit)".to_string(),
-                    strat_notes: vec![],
-                });
             }
 
             if exit_condition.is_none() && !to_actions.is_empty() {
@@ -4760,16 +4748,24 @@ impl GameData {
             for action in &vertex_key.actions {
                 match action {
                     VertexAction::Nothing => panic!("Unexpected VertexAction::Nothing"),
-                    VertexAction::MaybeExit(_, _) => self
-                        .node_maybe_exits
+                    VertexAction::MaybeExit(exit_condition, exit_req) => self
+                        .node_exit_conditions
                         .entry((vertex_key.room_id, vertex_key.node_id))
                         .or_default()
-                        .push(vertex_id),
+                        .push(ExitInfo {
+                            vertex_id,
+                            exit_condition: exit_condition.clone(),
+                            exit_req: exit_req.clone(),
+                        }),
                     VertexAction::Exit(exit_condition) => self
                         .node_exit_conditions
                         .entry((vertex_key.room_id, vertex_key.node_id))
                         .or_default()
-                        .push((vertex_id, exit_condition.clone())),
+                        .push(ExitInfo {
+                            vertex_id,
+                            exit_condition: exit_condition.clone(),
+                            exit_req: Requirement::Free,
+                        }),
                     VertexAction::Enter(entrance_condition) => self
                         .node_entrance_conditions
                         .entry((vertex_key.room_id, vertex_key.node_id))
@@ -5050,19 +5046,10 @@ impl GameData {
                 .cloned()
                 .unwrap_or_default();
             let mut exit_vertex_ids: HashSet<VertexId> = HashSet::new();
-            for (v, e) in exits {
-                if let ExitCondition::LeaveNormally {} = e {
-                    exit_vertex_ids.insert(*v);
+            for exit_info in exits {
+                if let ExitCondition::LeaveNormally {} = exit_info.exit_condition {
+                    exit_vertex_ids.insert(exit_info.vertex_id);
                 }
-            }
-
-            let maybe_exits = &self
-                .node_maybe_exits
-                .get(&(room_id, node_id))
-                .cloned()
-                .unwrap_or_default();
-            for v in maybe_exits {
-                exit_vertex_ids.insert(*v);
             }
 
             let mut req_or: Vec<Requirement> = vec![];

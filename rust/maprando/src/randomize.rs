@@ -512,13 +512,16 @@ impl<'a> Preprocessor<'a> {
     ) {
         let empty_vec_exits = vec![];
         let empty_vec_entrances = vec![];
-        for (src_vertex_id, exit_condition) in self
+        for exit_info in self
             .game_data
             .node_exit_conditions
             .get(&(src_room_id, src_node_id))
             .unwrap_or(&empty_vec_exits)
         {
-            for (dst_vertex_id, entrance_condition) in self
+            let src_vertex_id = exit_info.vertex_id;
+            let exit_condition = &exit_info.exit_condition;
+            let exit_req = &exit_info.exit_req;
+            for &(dst_vertex_id, ref entrance_condition) in self
                 .game_data
                 .node_entrance_conditions
                 .get(&(dst_room_id, dst_node_id))
@@ -562,9 +565,9 @@ impl<'a> Preprocessor<'a> {
                 // }
                 if let Some(req) = req_opt {
                     door_links.push(Link {
-                        from_vertex_id: *src_vertex_id,
-                        to_vertex_id: *dst_vertex_id,
-                        requirement: req,
+                        from_vertex_id: src_vertex_id,
+                        to_vertex_id: dst_vertex_id,
+                        requirement: Requirement::make_and(vec![req, exit_req.clone()]),
                         start_with_shinecharge: exit_with_shinecharge,
                         end_with_shinecharge: enter_with_shinecharge,
                         strat_id: None,
