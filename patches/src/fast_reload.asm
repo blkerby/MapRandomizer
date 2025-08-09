@@ -36,6 +36,8 @@ deathhook:
     jsl load_save_slot
     jsl $80858C       ; load map
 
+    stz $0E1E         ; reset boss flag to avoid BG2 write (possible door transition corruption)
+
     ; In case we're on an elevator ride, reset this state so that Samus will have control after the reload:
     stz $0E18
 

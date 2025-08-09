@@ -12,6 +12,8 @@ lorom
 !bank_80_free_space_end = $80D240
 !bank_86_free_space_start = $86F4B0
 !bank_86_free_space_end = $86F4D0
+!bank_90_free_space_start = $90FC10
+!bank_90_free_space_end = $90FC30
 
 incsrc "constants.asm"
 
@@ -297,3 +299,26 @@ powamp_fix:
     rts
 
 warnpc !bank_86_free_space_end
+
+; Fix rare bug when reserves are on auto and activate while short grappling, 
+; leading to an errant Samus Y-scroll while refilling. The bug occurs due to 
+; continuous scroll calculations while in game state 0x1b (refill). Fix is to
+; add a refill state check to scroll function.
+; - Stag Shot
+
+org $9094ee
+    jmp fix_grapple_scroll : nop
+    
+org !bank_90_free_space_start
+fix_grapple_scroll:
+    lda $998
+    cmp #$001b  ; auto-refilling?
+    bne .resume
+    jmp $9586   ; end of func
+.resume
+    phk         ; replaced code
+    plb         ;
+    rep #$30    ;
+    jmp $94f2
+    
+warnpc !bank_90_free_space_end
