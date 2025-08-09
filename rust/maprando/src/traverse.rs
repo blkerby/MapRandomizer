@@ -2154,6 +2154,7 @@ pub struct StepTrail {
 
 #[derive(Clone)]
 pub struct TraverseResult {
+    pub traversal_number: usize,
     pub local_states: Vec<[LocalState; NUM_COST_METRICS]>,
     pub cost: Vec<[f32; NUM_COST_METRICS]>,
     pub step_trails: Vec<StepTrail>,
@@ -2175,6 +2176,7 @@ pub fn traverse(
     door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
+    traversal_number: &mut usize,
 ) -> TraverseResult {
     let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
     let mut result: TraverseResult;
@@ -2189,6 +2191,7 @@ pub fn traverse(
         result = init;
     } else {
         result = TraverseResult {
+            traversal_number: 0,
             local_states: vec![[IMPOSSIBLE_LOCAL_STATE; NUM_COST_METRICS]; num_vertices],
             cost: vec![[f32::INFINITY; NUM_COST_METRICS]; num_vertices],
             step_trails: Vec::with_capacity(num_vertices * 10),
@@ -2204,6 +2207,8 @@ pub fn traverse(
         result.cost[start_vertex_id] = compute_cost(init_local, &global.inventory, reverse);
         modified_vertices.insert(start_vertex_id, first_metric);
     }
+    result.traversal_number = *traversal_number;
+    *traversal_number += 1;
 
     let base_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
         &base_links_data.links_by_dst
@@ -2264,9 +2269,7 @@ pub fn traverse(
                                 result.local_states[dst_id][dst_cost_idx] = dst_new_local_state;
                                 result.start_trail_ids[dst_id][dst_cost_idx] = new_trail_id;
                                 result.cost[dst_id][dst_cost_idx] = dst_new_cost_arr[dst_cost_idx];
-                                if !any_improvement {
-                                    improved_arr[dst_cost_idx] = true;
-                                }
+                                improved_arr[dst_cost_idx] = true;
                                 any_improvement = true;
                             }
                         }

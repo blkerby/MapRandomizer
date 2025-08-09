@@ -43,6 +43,8 @@ use run_speed::{
     get_shortcharge_min_extra_run_speed,
 };
 use serde_derive::{Deserialize, Serialize};
+use std::cell::RefCell;
+use std::ops::DerefMut;
 use std::{cmp::min, convert::TryFrom, hash::Hash, iter, time::SystemTime};
 use strum::VariantNames;
 
@@ -283,6 +285,7 @@ pub struct RandomizationState {
     pub previous_debug_data: Option<DebugData>,
     pub key_visited_vertices: HashSet<usize>,
     pub last_key_areas: Vec<AreaIdx>,
+    pub next_traversal_number: RefCell<usize>,
 }
 
 // Info about an item used during ROM patching, to show info in the credits
@@ -3287,6 +3290,7 @@ impl<'r> Randomizer<'r> {
             &self.door_map,
             self.locked_door_data,
             &self.objectives,
+            state.next_traversal_number.borrow_mut().deref_mut(),
         );
         let reverse = traverse(
             self.base_links_data,
@@ -3303,6 +3307,7 @@ impl<'r> Randomizer<'r> {
             &self.door_map,
             self.locked_door_data,
             &self.objectives,
+            state.next_traversal_number.borrow_mut().deref_mut(),
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
@@ -3672,6 +3677,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
+                state.next_traversal_number.borrow_mut().deref_mut(),
             );
 
             let mut preferred_locs: Vec<usize> = Vec::new();
@@ -3953,6 +3959,7 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
             last_key_areas: Vec::new(),
+            next_traversal_number: state.next_traversal_number.clone(),
         };
         for &item in &selected_filler_items {
             // We check if items_remaining is positive, only because with "Stop item placement early" there
@@ -4719,6 +4726,8 @@ impl<'r> Randomizer<'r> {
                 hub_return_route: vec![],
             });
         }
+
+        let mut next_traversal_number = 0;
         for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {i}");
             let start_loc_idx = match self.settings.start_location_settings.mode {
@@ -4792,6 +4801,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
+                &mut next_traversal_number,
             );
 
             let mut has_reachable_item = false;
@@ -4821,6 +4831,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
+                &mut next_traversal_number,
             );
 
             // For a hub location to be valid for a given start location, there must be a path from the
@@ -5120,6 +5131,7 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
             last_key_areas: Vec::new(),
+            next_traversal_number: RefCell::new(0),
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {
@@ -5443,6 +5455,7 @@ impl SpoilerLocalState {
 
 pub fn get_spoiler_traverse_result(tr: &TraverseResult) -> SpoilerTraverseResult {
     let mut out: SpoilerTraverseResult = SpoilerTraverseResult {
+        traversal_number: tr.traversal_number,
         prev_trail_ids: vec![],
         link_idxs: vec![],
         local_states: vec![],
@@ -5465,6 +5478,7 @@ pub fn get_spoiler_traverse_result(tr: &TraverseResult) -> SpoilerTraverseResult
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerTraverseResult {
+    pub traversal_number: usize,
     pub prev_trail_ids: Vec<StepTrailId>,
     pub link_idxs: Vec<LinkIdx>,
     pub local_states: Vec<SpoilerLocalState>,

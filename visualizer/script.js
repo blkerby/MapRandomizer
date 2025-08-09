@@ -212,27 +212,34 @@ function getDebugRoute(traverseResult, vertexId, costMetric, backward) {
 	for (trailId of trailIdArray) {
 		let linkIdx = traverseResult.link_idxs[trailId];
 		let link = spoiler.game_data.links[linkIdx];
-		let vertexId = link.to_vertex_id;
-		let vertexKey = spoiler.game_data.vertices[vertexId];
-		let roomId = vertexKey.room_id;
-		let nodeId = vertexKey.node_id;
+		let fromVertexId = link.from_vertex_id;
+		let fromVertexKey = spoiler.game_data.vertices[fromVertexId];
+		let fromNodeId = fromVertexKey.node_id;
+		let toVertexId = link.to_vertex_id;
+		let toVertexKey = spoiler.game_data.vertices[toVertexId];
+		let roomId = toVertexKey.room_id;
+		let toNodeId = toVertexKey.node_id;
 		let stratId = link.strat_id;
 		let stratName = link.strat_name;
 		let room = roomMap[roomId];
-		let node = nodeMap[[roomId, nodeId]];
-		let obstacleMask = vertexKey.obstacle_mask;
-
-		// let trailIdTd = document.createElement("td");
-		// trailIdTd.innerText = trailId;
-		// tr.appendChild(trailIdTd);
+		let node = nodeMap[[roomId, toNodeId]];
+		let obstacleMask = toVertexKey.obstacle_mask;
 
 		let mainLineDiv = document.createElement("div");
-		mainLineDiv.innerText = `[${vertexId}] ${room.name}: ${node.name} (${obstacleMask}) - ${stratName}`;
+		let stratText = `[${toVertexId}] ${room.name}: ${node.name} (${obstacleMask}) {${linkIdx}} ${stratName}`;
+		if (stratId !== null) {
+			let mainLineA = document.createElement("a");
+			mainLineA.innerText = stratText;
+			mainLineA.href = `/logic/room/${roomId}/${fromNodeId}/${toNodeId}/${stratId}`;
+			mainLineDiv.appendChild(mainLineA);
+		} else {
+			mainLineDiv.innerText = stratText;
+		}
 		routeDiv.appendChild(mainLineDiv);
 		
-		if (vertexKey.actions.length > 0) {
+		if (toVertexKey.actions.length > 0) {
 			let vertexActionCode = document.createElement("code");
-			vertexActionCode.innerText = JSON.stringify(vertexKey.actions);
+			vertexActionCode.innerText = JSON.stringify(toVertexKey.actions);
 			routeDiv.appendChild(vertexActionCode);
 		}
 
@@ -305,13 +312,15 @@ function updateDebugData() {
 	debugOutput.appendChild(reverseStateDiv);
 
 	let forwardRouteDiv = document.createElement("div");
-	let forwardRouteHeader = createHtmlElement('<div class="category">OBTAIN ROUTE</div>');
+	let forwardTraversalNumber = details.forward_traverse.traversal_number;
+	let forwardRouteHeader = createHtmlElement(`<div class="category">OBTAIN ROUTE (traversal number ${forwardTraversalNumber})</div>`);
 	forwardRouteDiv.appendChild(forwardRouteHeader);
 	forwardRouteDiv.appendChild(forwardRoute);
 	debugOutput.appendChild(forwardRouteDiv);
 
 	let reverseDiv = document.createElement("div");
-	let reverseHeader = createHtmlElement('<div class="category">RETURN ROUTE</div>');
+	let reverseTraversalNumber = details.reverse_traverse.traversal_number;
+	let reverseHeader = createHtmlElement(`<div class="category">RETURN ROUTE (traversal number ${reverseTraversalNumber})</div>`);
 	reverseDiv.appendChild(reverseHeader);
 	reverseDiv.appendChild(reverseRoute);
 	debugOutput.appendChild(reverseDiv);
