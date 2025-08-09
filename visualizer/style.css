@@ -46,7 +46,7 @@ a {
 #overlay {
 	position: absolute;
 }
-.popup, #room-info, #sidebar-info, #sidebar-route, #settings, #sidebar-supp-item {
+.popup, #room-info, #sidebar-info, #sidebar-route, #settings, #sidebar-supp-item, #debugData {
 	position: relative;
 	color: #eee;
 	background-color: #222222e0;
@@ -265,4 +265,28 @@ a {
 #sublabel {
 	position:relative;
 	left:10px;
+}
+#debugData {
+	bottom: 16px;
+	right: 16px;
+	position: fixed;
+	pointer-events: auto;
+}
+.debugLabel {
+	display: inline-block;
+	width: 150px;
+	text-align: right;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+.debugInput {
+	width: 60px;
+}
+#debugOutput {
+	max-width: 900px;
+	max-height: 600px;
+	overflow-x: auto;
+	overflow-y: auto;
+	user-select: text;
 }

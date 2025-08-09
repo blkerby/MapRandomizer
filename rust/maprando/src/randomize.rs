@@ -4312,6 +4312,27 @@ impl<'r> Randomizer<'r> {
     }
 
     fn get_spoiler_game_data(&self) -> SpoilerGameData {
+        let mut rooms: Vec<SpoilerRoom> = vec![];
+        let mut nodes: Vec<SpoilerNode> = vec![];
+        for &room_ptr in &self.game_data.room_ptrs {
+            let room_id = self.game_data.raw_room_id_by_ptr[&room_ptr];
+            let room = &self.game_data.room_json_map[&room_id];
+            rooms.push(SpoilerRoom {
+                room_id,
+                name: room["name"].as_str().unwrap().to_string(),
+            });
+
+            for node in room["nodes"].members() {
+                let node_id = node["id"].as_usize().unwrap();
+                let node_name = node["name"].as_str().unwrap().to_string();
+                nodes.push(SpoilerNode {
+                    room_id,
+                    node_id,
+                    name: node_name,
+                });
+            }
+        }
+
         let mut links: Vec<SpoilerLink> = vec![];
         for link in self
             .base_links_data
@@ -4327,7 +4348,9 @@ impl<'r> Randomizer<'r> {
             });
         }
         SpoilerGameData {
-            vertices: vec![],
+            rooms,
+            nodes,
+            vertices: self.game_data.vertex_isv.keys.clone(),
             links,
         }
     }
@@ -5429,7 +5452,7 @@ pub fn get_spoiler_traverse_result(tr: &TraverseResult) -> SpoilerTraverseResult
         let old_state = if t.prev_trail_id >= 0 {
             tr.step_trails[t.prev_trail_id as usize].local_state
         } else {
-            LocalState::full()
+            IMPOSSIBLE_LOCAL_STATE
         };
         let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
         out.prev_trail_ids.push(t.prev_trail_id);
@@ -5508,7 +5531,22 @@ pub struct SpoilerLink {
 }
 
 #[derive(Serialize, Deserialize)]
+pub struct SpoilerRoom {
+    pub room_id: usize,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerNode {
+    pub room_id: usize,
+    pub node_id: usize,
+    pub name: String,
+}
+
+#[derive(Serialize, Deserialize)]
 pub struct SpoilerGameData {
+    rooms: Vec<SpoilerRoom>,
+    nodes: Vec<SpoilerNode>,
     vertices: Vec<VertexKey>,
     links: Vec<SpoilerLink>,
 }

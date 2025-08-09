@@ -1,3 +1,7 @@
+var spoiler = null;
+var roomMap = new Map();
+var nodeMap = new Map();
+
 function lookupOffset(room_id, node_id) {
 	key = room_id + ":" + node_id
 	return offsets[key];
@@ -117,8 +121,206 @@ document.getElementById("settingsCog").onclick = ev => {
 	let f = document.getElementById("settingsForm")
 	f.style.display = f.style.display == "none" ? "block" : "none";
 }
+function setDebugDataVisibility() {
+	let checked = document.getElementById("debugDataCheckbox").checked;
+	let debugData = document.getElementById("debugData");
+	debugData.style.display = checked ? "block" : "none";
+}
+
+function changeDebugDataVertexId() {
+	if (spoiler === null) {
+		return;
+	}
+	let vertexId = parseInt(document.getElementById("debugVertexId").value);
+	let vertexKey = spoiler.game_data.vertices[vertexId];
+	if (vertexKey === undefined) {
+		document.getElementById("debugRoomId").value = "";
+		document.getElementById("debugNodeId").value = "";
+		document.getElementById("debugObstacleMask").value = "";
+		return;
+	}
+	document.getElementById("debugRoomId").value = vertexKey.room_id;
+	document.getElementById("debugNodeId").value = vertexKey.node_id;
+	document.getElementById("debugObstacleMask").value = vertexKey.obstacle_mask;
+}
+
+function changeDebugDataInput() {
+	if (spoiler === null) {
+		return;
+	}
+	let roomId = parseInt(document.getElementById("debugRoomId").value);
+	let nodeId = parseInt(document.getElementById("debugNodeId").value);
+	let obstacleMask = parseInt(document.getElementById("debugObstacleMask").value);
+	// We could build and use a hash map for this, but it's not really necessary.
+	document.getElementById("debugVertexId").value = "";
+	for (vertexId in spoiler.game_data.vertices) {
+		let key = spoiler.game_data.vertices[vertexId];
+		if (key.room_id == roomId && key.node_id == nodeId 
+			&& key.obstacle_mask == obstacleMask && key.actions.length == 0) 
+		{
+			document.getElementById("debugVertexId").value = vertexId;
+			break;
+		}
+	}
+}
+
+function getTrailIds(endTrailId, traverseResult, backward) {
+	let out = [];
+	let trailId = endTrailId;
+	while (trailId != -1) {
+		out.push(trailId);
+		trailId = traverseResult.prev_trail_ids[trailId];
+	}
+	out.reverse();
+
+	let finalLocalState = {};
+	for (trailId of out) {
+		let localState = traverseResult.local_states[trailId];
+		Object.assign(finalLocalState, localState);
+	}
+
+	if (backward) {
+		out.reverse();
+	}
+	return [out, finalLocalState];
+}
+
+function getDebugRoute(traverseResult, vertexId, costMetric, backward) {
+	let endTrailId = traverseResult.start_trail_ids[vertexId][costMetric];
+	let [trailIdArray, finalLocalState] = getTrailIds(endTrailId, traverseResult, backward);
+
+	let statePre = document.createElement("pre");
+	if (Object.keys(finalLocalState).length > 0) {
+		let keyOrder = [
+			"energy_used",
+			"reserves_used",
+			"missiles_used",
+			"supers_used",
+			"power_bombs_used",
+			"shinecharge_frames_remaining",
+			"cycle_frames",
+			"farm_baseline_energy_used",
+			"farm_baseline_reserves_used",
+			"farm_baseline_missiles_used",
+			"farm_baseline_supers_used",
+			"farm_baseline_power_bombs_used",
+		];
+		statePre.innerText = JSON.stringify(finalLocalState, keyOrder, 2);
+	}
+
+	let routeDiv = document.createElement("div");
+	for (trailId of trailIdArray) {
+		let linkIdx = traverseResult.link_idxs[trailId];
+		let link = spoiler.game_data.links[linkIdx];
+		let vertexId = link.to_vertex_id;
+		let vertexKey = spoiler.game_data.vertices[vertexId];
+		let roomId = vertexKey.room_id;
+		let nodeId = vertexKey.node_id;
+		let stratId = link.strat_id;
+		let stratName = link.strat_name;
+		let room = roomMap[roomId];
+		let node = nodeMap[[roomId, nodeId]];
+		let obstacleMask = vertexKey.obstacle_mask;
+
+		// let trailIdTd = document.createElement("td");
+		// trailIdTd.innerText = trailId;
+		// tr.appendChild(trailIdTd);
+
+		let mainLineDiv = document.createElement("div");
+		mainLineDiv.innerText = `[${vertexId}] ${room.name}: ${node.name} (${obstacleMask}) - ${stratName}`;
+		routeDiv.appendChild(mainLineDiv);
+		
+		if (vertexKey.actions.length > 0) {
+			let vertexActionCode = document.createElement("code");
+			vertexActionCode.innerText = JSON.stringify(vertexKey.actions);
+			routeDiv.appendChild(vertexActionCode);
+		}
+
+		let localState = traverseResult.local_states[trailId];
+		if (Object.keys(localState).length > 0) {
+			let localStateCode = document.createElement("code");
+			localStateCode.innerText = JSON.stringify(localState);
+			routeDiv.appendChild(localStateCode);	
+		}
+	}
+	return [statePre, routeDiv];
+}
+
+function updateDebugData() {
+	let debugOutput = document.getElementById("debugOutput");
+	debugOutput.innerHTML = "";
+	let step = parseInt(document.getElementById("debugStepNumber").value) - 1;
+	let details = spoiler.details[step];
+	if (details === undefined) {
+		return;
+	}
+	let vertexId = parseInt(document.getElementById("debugVertexId").value);
+	if (vertexId === undefined || isNaN(vertexId)) {
+		return;
+	}
+	if (vertexId < 0 || vertexId >= spoiler.game_data.vertices.length) {
+		return;
+	}
+	let costMetric = parseInt(document.getElementById("debugCostMetric").value);
+	if (costMetric < 0 || costMetric > 1) {
+		return;
+	}
+
+	let vertexKey = spoiler.game_data.vertices[vertexId];
+	let roomId = vertexKey.room_id;
+	let nodeId = vertexKey.node_id;
+	let roomName = roomMap[roomId].name;
+	let nodeName = nodeMap[[roomId, nodeId]].name;
+	let obstacleMask = vertexKey.obstacle_mask;
+
+	let debugHeader = document.createElement("div");
+	let headerMainLine = document.createElement("p");
+	headerMainLine.innerText = `[${vertexId}] ${roomName}: ${nodeName} (${obstacleMask})`;
+	debugHeader.appendChild(headerMainLine);
+	let costMetricLine = document.createElement("p");
+	costMetricLine.innerText = `Cost metric ${costMetric}`;
+	debugHeader.appendChild(costMetricLine);
+	if (vertexKey.actions.length > 0) {
+		let actionPre = document.createElement("pre");
+		actionPre.innerText = JSON.stringify(vertexKey.actions, null, 2);
+		debugHeader.appendChild(actionPre);
+	}
+	debugOutput.appendChild(debugHeader);
+
+	let [forwardState, forwardRoute] = getDebugRoute(details.forward_traverse, vertexId, costMetric, false);
+	let [reverseState, reverseRoute] = getDebugRoute(details.reverse_traverse, vertexId, costMetric, true);
+	
+	let forwardStateDiv = document.createElement("div");
+	let forwardStateHeader = createHtmlElement('<div class="category">OBTAIN STATE</div>');
+	forwardStateDiv.appendChild(forwardStateHeader);
+	forwardStateDiv.appendChild(forwardState);
+	debugOutput.appendChild(forwardStateDiv);
+
+	let reverseStateDiv = document.createElement("div");
+	let reverseStateHeader = createHtmlElement('<div class="category">RETURN STATE</div>');
+	reverseStateDiv.appendChild(reverseStateHeader);
+	reverseStateDiv.appendChild(reverseState);
+	debugOutput.appendChild(reverseStateDiv);
+
+	let forwardRouteDiv = document.createElement("div");
+	let forwardRouteHeader = createHtmlElement('<div class="category">OBTAIN ROUTE</div>');
+	forwardRouteDiv.appendChild(forwardRouteHeader);
+	forwardRouteDiv.appendChild(forwardRoute);
+	debugOutput.appendChild(forwardRouteDiv);
+
+	let reverseDiv = document.createElement("div");
+	let reverseHeader = createHtmlElement('<div class="category">RETURN ROUTE</div>');
+	reverseDiv.appendChild(reverseHeader);
+	reverseDiv.appendChild(reverseRoute);
+	debugOutput.appendChild(reverseDiv);
+
+	debugOutput.style.paddingBottom = "16px";
+}
+
+document.getElementById("debugDataForm").addEventListener("submit", updateDebugData);
 loadForm(document.getElementById("settingsForm"));
 loadForm(document.getElementById("helpForm"));
+setDebugDataVisibility();
 if (!document.getElementById("showonce").checked)
 	document.getElementById("msg-wrap").style.display = "flex";
 
@@ -130,6 +332,15 @@ ctx.fillRect(0,0,592,592);
 
 
 fetch(`../spoiler.json`).then(c => c.json()).then(c => {
+	spoiler = c;
+
+	for (room of spoiler.game_data.rooms) {
+		roomMap[room.room_id] = room;
+	}
+	for (node of spoiler.game_data.nodes) {
+		nodeMap[[node.room_id, node.node_id]] = node;
+	}
+
 	flagtypes["objectives"] = c.objectives;
 	flagtypes["objectives"].push("f_DefeatedMotherBrain");
 	// generate map
@@ -1214,7 +1425,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			// deselect
 			show_overview();
 			update_selected();
-			document.getElementById("path-overlay").innerHTML = ""
+			document.getElementById("path-overlay").innerHTML = "";
+			document.getElementById("debugOutput").innerHTML = "";
 		}
 	}
 	function dblclick() {

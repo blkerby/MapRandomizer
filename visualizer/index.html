@@ -60,6 +60,26 @@
             <label for="misc">flags</label><br>
             <input type=checkbox id="spoilers" name="spoilers" onchange="window.gen_obscurity()">
             <label for="spoilers">spoilers</label><br>
+            <input type=checkbox id="debugDataCheckbox" name="debugdata" onchange="setDebugDataVisibility()">
+            <label for="debugdata">debug data</label><br>
+        </form>
+    </div>
+    <div id="debugData">
+        <div id="debugOutput"></div>
+        <form id="debugDataForm" style="margin:8px 8px" onsubmit="return false;">
+        <label for="debugStepNumber" class="debugLabel">Step</label>
+        <input type="text" id="debugStepNumber" name="debugStepNumber" class="debugInput">
+        <label for="debugRoomId" class="debugLabel">Room ID</label>
+        <input type="text" id="debugRoomId" name="debugRoomId" class="debugInput" onchange="changeDebugDataInput()"><br>
+        <label for="debugNodeId" class="debugLabel">Node ID</label>
+        <input type="text" id="debugNodeId" name="debugNodeId" class="debugInput" onchange="changeDebugDataInput()">
+        <label for="debugObstacleMask" class="debugLabel">Obstacle mask</label>
+        <input type="text" id="debugObstacleMask" name="debugObstacleMask" class="debugInput" onchange="changeDebugDataInput()" value="0"><br>
+        <label for="debugVertexId" class="debugLabel">Vertex ID</label>
+        <input type="text" id="debugVertexId" name="debugVertexId" class="debugInput" onchange="changeDebugDataVertexId()">
+        <label for="debugCostMetric" class="debugLabel">Cost metric</label>
+        <input type="text" id="debugCostMetric" name="debugCostMetric" class="debugInput" value="0"><br>
+        <button type="submit" class="btn btn-secondary" style="display:block;margin:10px auto">Show debug data</button>
         </form>
     </div>
     <script src="consts.js"></script>
