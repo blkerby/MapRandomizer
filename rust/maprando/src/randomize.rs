@@ -220,6 +220,7 @@ pub struct Randomizer<'a> {
     pub base_links_data: &'a LinksDataGroup,
     pub seed_links_data: LinksDataGroup,
     pub initial_items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count per distinct item name)
+    pub next_traversal_number: RefCell<usize>,
 }
 
 #[derive(Clone)]
@@ -285,7 +286,6 @@ pub struct RandomizationState {
     pub previous_debug_data: Option<DebugData>,
     pub key_visited_vertices: HashSet<usize>,
     pub last_key_areas: Vec<AreaIdx>,
-    pub next_traversal_number: RefCell<usize>,
 }
 
 // Info about an item used during ROM patching, to show info in the credits
@@ -3205,6 +3205,7 @@ impl<'r> Randomizer<'r> {
                 base_links_data.links.len(),
             ),
             difficulty_tiers,
+            next_traversal_number: RefCell::new(0),
         }
     }
 
@@ -3290,7 +3291,7 @@ impl<'r> Randomizer<'r> {
             &self.door_map,
             self.locked_door_data,
             &self.objectives,
-            state.next_traversal_number.borrow_mut().deref_mut(),
+            self.next_traversal_number.borrow_mut().deref_mut(),
         );
         let reverse = traverse(
             self.base_links_data,
@@ -3307,7 +3308,7 @@ impl<'r> Randomizer<'r> {
             &self.door_map,
             self.locked_door_data,
             &self.objectives,
-            state.next_traversal_number.borrow_mut().deref_mut(),
+            self.next_traversal_number.borrow_mut().deref_mut(),
         );
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
             // Clear out any previous bireachable markers (because in rare cases a previously bireachable
@@ -3677,7 +3678,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
-                state.next_traversal_number.borrow_mut().deref_mut(),
+                self.next_traversal_number.borrow_mut().deref_mut(),
             );
 
             let mut preferred_locs: Vec<usize> = Vec::new();
@@ -3959,7 +3960,6 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
             last_key_areas: Vec::new(),
-            next_traversal_number: state.next_traversal_number.clone(),
         };
         for &item in &selected_filler_items {
             // We check if items_remaining is positive, only because with "Stop item placement early" there
@@ -4214,11 +4214,6 @@ impl<'r> Randomizer<'r> {
             spoiler_door_details,
         );
         *state = new_state;
-
-        info!(
-            "step trails: {}",
-            state.debug_data.as_ref().unwrap().forward.step_trails.len()
-        );
         Ok((spoiler_summary, spoiler_details, false))
     }
 
@@ -4727,7 +4722,6 @@ impl<'r> Randomizer<'r> {
             });
         }
 
-        let mut next_traversal_number = 0;
         for i in 0..num_attempts {
             info!("[attempt {attempt_num_rando}] start location attempt {i}");
             let start_loc_idx = match self.settings.start_location_settings.mode {
@@ -4801,7 +4795,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
-                &mut next_traversal_number,
+                self.next_traversal_number.borrow_mut().deref_mut(),
             );
 
             let mut has_reachable_item = false;
@@ -4831,7 +4825,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
-                &mut next_traversal_number,
+                self.next_traversal_number.borrow_mut().deref_mut(),
             );
 
             // For a hub location to be valid for a given start location, there must be a path from the
@@ -5131,7 +5125,6 @@ impl<'r> Randomizer<'r> {
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
             last_key_areas: Vec::new(),
-            next_traversal_number: RefCell::new(0),
         };
         self.update_reachability(&mut state);
         if !state.item_location_state.iter().any(|x| x.bireachable) {
@@ -6073,7 +6066,7 @@ impl Randomizer<'_> {
                 }
             }
         }
-        let debug_data = new_state.debug_data.as_ref().unwrap();
+        let debug_data = state.debug_data.as_ref().unwrap();
         SpoilerDetails {
             step: state.step_num,
             start_state: self.get_spoiler_start_state(orig_global_state),

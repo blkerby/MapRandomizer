@@ -1,6 +1,7 @@
 use std::cmp::{max, min};
 
 use hashbrown::HashMap;
+use log::debug;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -2178,6 +2179,7 @@ pub fn traverse(
     objectives: &[Objective],
     traversal_number: &mut usize,
 ) -> TraverseResult {
+    debug!("Traversal number {traversal_number} (reverse: {reverse})");
     let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
     let mut result: TraverseResult;
 
@@ -2223,7 +2225,14 @@ pub fn traverse(
 
     while !modified_vertices.is_empty() {
         let mut new_modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
-        for (&src_id, &modified_costs) in &modified_vertices {
+        let modified_vertices_vec = {
+            // Process the vertices in sorted order, to make the traversal deterministic.
+            let mut m: Vec<(usize, [bool; NUM_COST_METRICS])> =
+                modified_vertices.into_iter().collect();
+            m.sort();
+            m
+        };
+        for &(src_id, modified_costs) in &modified_vertices_vec {
             let src_local_state_arr = result.local_states[src_id];
             let src_trail_id_arr = result.start_trail_ids[src_id];
             for src_cost_idx in 0..NUM_COST_METRICS {
