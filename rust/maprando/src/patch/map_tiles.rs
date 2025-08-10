@@ -2244,8 +2244,12 @@ impl<'a> MapPatcher<'a> {
             (308, refill_partial), // Nutella Refill
         ];
 
-        // Don't show the special reveal if the room is blocked by a wall.
+        // Don't show the special reveal if the room is unplaced or blocked by a wall.
         room_ids.retain(|&(room_id, _)| {
+            let room_idx = self.game_data.room_idx_by_id[&room_id];
+            if !self.randomization.map.room_mask[room_idx] {
+                return false;
+            }
             for door in &self.randomization.locked_doors {
                 if door.door_type == DoorType::Wall {
                     let (src_room_idx, _) =
