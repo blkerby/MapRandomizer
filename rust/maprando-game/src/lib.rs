@@ -4091,6 +4091,7 @@ impl GameData {
             MainEntranceCondition::ComeInShinecharging { .. }
                 | MainEntranceCondition::ComeInShinecharged { .. }
                 | MainEntranceCondition::ComeInShinechargedJumping { .. }
+                | MainEntranceCondition::ComeInStutterShinecharging { .. }
         )
     }
 

@@ -1980,6 +1980,10 @@ impl<'a> Preprocessor<'a> {
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
                 ));
                 reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
+                reqs.push(Requirement::ShineCharge {
+                    used_tiles: Float::new(45.0),
+                    heated: false,
+                });
                 if *heated {
                     let heat_frames = if *from_exit_node {
                         compute_run_frames(min_tiles) * 2 + 20
@@ -3878,9 +3882,8 @@ impl<'r> Randomizer<'r> {
         num_unplaced_bireachable: usize,
     ) -> bool {
         // Collect all the items that would be collectible in this scenario:
-        // 1) Items that were already placed on an earlier step; this is only applicable to filler items
-        // (normally Missiles) on Slow progression, which became one-way reachable on an earlier step but are now
-        // bireachable.
+        // 1) Items that were already placed on an earlier step; this is only applicable to filler items,
+        // which became one-way reachable on an earlier step but are now bireachable.
         // 2) Key items,
         // 3) Other items
         for &item in placed_uncollected_bireachable_items.iter().chain(
