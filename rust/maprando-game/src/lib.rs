@@ -243,9 +243,9 @@ pub enum Requirement {
     },
     HeatFrames(Capacity),
     SimpleHeatFrames(Capacity),
-    HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>),
+    HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
     LavaFrames(Capacity),
-    LavaFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>),
+    LavaFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
     GravitylessLavaFrames(Capacity),
     AcidFrames(Capacity),
     GravitylessAcidFrames(Capacity),
@@ -254,7 +254,8 @@ pub enum Requirement {
     SimpleCycleFrames(Capacity),
     Farm {
         requirement: Box<Requirement>,
-        drops: Vec<EnemyDrop>,
+        enemy_drops: Vec<EnemyDrop>,
+        enemy_drops_buffed: Vec<EnemyDrop>,
         full_energy: bool,
         full_missiles: bool,
         full_supers: bool,
@@ -1455,6 +1456,7 @@ pub struct GameData {
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     enemy_json: HashMap<String, JsonValue>,
+    enemy_json_buffed: HashMap<String, JsonValue>,
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
     pub tech_json_map: HashMap<TechId, JsonValue>,
@@ -1813,6 +1815,18 @@ impl GameData {
     }
 
     fn load_enemies(&mut self) -> Result<()> {
+        // Overridden enemy drop rates for buffed drop QoL:
+        // (enemy ID, small energy, big energy, missiles, nothing, supers, power bombs)
+        // Covern buff is ignored, to reduce the loss-of-access issue when power is on.
+        let buffed_drop_overrides = vec![
+            (83, 0x3C, 0x3C, 0x32, 0x05, 0x3C, 0x14), // Gamet
+            (23, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Zeb
+            (30, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Geega
+            (24, 0x00, 0x8C, 0x05, 0x00, 0x64, 0x0A), // Zebbo
+            (75, 0x00, 0x64, 0x3C, 0x05, 0x46, 0x14), // Zoa
+            // (51, 0x32, 0x5F, 0x32, 0x00, 0x14, 0x28), // Covern
+            (8, 0x23, 0x5F, 0x3C, 0x05, 0x28, 0x14), // Kago
+        ];
         for file in ["main.json", "bosses/main.json"] {
             let enemies_json = read_json(&self.sm_json_data_path.join("enemies").join(file))?;
             ensure!(enemies_json["enemies"].is_array());
@@ -1830,6 +1844,24 @@ impl GameData {
                     .insert(enemy_name.to_string(), vul);
                 self.enemy_json
                     .insert(enemy_name.to_string(), enemy_json.clone());
+
+                let mut enemy_json_buffed = enemy_json.clone();
+                for &(enemy_id, small, big, missiles, nothing, supers, pbs) in
+                    &buffed_drop_overrides
+                {
+                    if enemy_id == enemy_json["id"].as_usize().unwrap() {
+                        enemy_json_buffed["drops"] = json::object! {
+                            "noDrop": nothing,
+                            "smallEnergy": small,
+                            "bigEnergy": big,
+                            "missile": missiles,
+                            "super": supers,
+                            "powerBomb": pbs,
+                        };
+                    }
+                }
+                self.enemy_json_buffed
+                    .insert(enemy_name.to_string(), enemy_json_buffed.clone());
             }
         }
         Ok(())
@@ -2094,52 +2126,56 @@ impl GameData {
         Ok(reqs)
     }
 
-    fn parse_enemy_drops(&self, value: &JsonValue) -> Vec<EnemyDrop> {
+    fn parse_enemy_drops(&self, value: &JsonValue, buffed: bool) -> Vec<EnemyDrop> {
         let mut enemy_drops = vec![];
         assert!(value.is_array());
         for drop in value.members() {
             let enemy_name = drop["enemy"].as_str().unwrap();
-            let enemy_json = &self.enemy_json[enemy_name];
+            let enemy_json = if buffed {
+                &self.enemy_json_buffed[enemy_name]
+            } else {
+                &self.enemy_json[enemy_name]
+            };
             let drops_json = &enemy_json["drops"];
             let amount_of_drops = enemy_json["amountOfDrops"].as_isize().unwrap() as Capacity;
             let count = drop["count"].as_i32().unwrap() as Capacity;
             let nothing_weight = drops_json["noDrop"]
                 .as_f32()
                 .context(format!("missing noDrop for {enemy_name}"))
-                .unwrap()
-                / 102.0;
+                .unwrap();
             let small_energy_weight = drops_json["smallEnergy"]
                 .as_f32()
                 .context(format!("missing smallEnergy for {enemy_name}"))
-                .unwrap()
-                / 102.0;
+                .unwrap();
             let large_energy_weight = drops_json["bigEnergy"]
                 .as_f32()
                 .context(format!("missing bigEnergy for {enemy_name}"))
-                .unwrap()
-                / 102.0;
+                .unwrap();
             let missile_weight = drops_json["missile"]
                 .as_f32()
                 .context(format!("missing missile for {enemy_name}"))
-                .unwrap()
-                / 102.0;
+                .unwrap();
             let super_weight = drops_json["super"]
                 .as_f32()
                 .context(format!("missing super for {enemy_name}"))
-                .unwrap()
-                / 102.0;
+                .unwrap();
             let power_bomb_weight = drops_json["powerBomb"]
                 .as_f32()
                 .context(format!("missing powerBomb for {enemy_name}"))
-                .unwrap()
-                / 102.0;
+                .unwrap();
+            let total_weight = nothing_weight
+                + small_energy_weight
+                + large_energy_weight
+                + missile_weight
+                + super_weight
+                + power_bomb_weight;
             let enemy_drop = EnemyDrop {
-                nothing_weight: Float::new(nothing_weight),
-                small_energy_weight: Float::new(small_energy_weight),
-                large_energy_weight: Float::new(large_energy_weight),
-                missile_weight: Float::new(missile_weight),
-                super_weight: Float::new(super_weight),
-                power_bomb_weight: Float::new(power_bomb_weight),
+                nothing_weight: Float::new(nothing_weight / total_weight),
+                small_energy_weight: Float::new(small_energy_weight / total_weight),
+                large_energy_weight: Float::new(large_energy_weight / total_weight),
+                missile_weight: Float::new(missile_weight / total_weight),
+                super_weight: Float::new(super_weight / total_weight),
+                power_bomb_weight: Float::new(power_bomb_weight / total_weight),
                 count: count * amount_of_drops,
             };
             enemy_drops.push(enemy_drop);
@@ -2794,12 +2830,22 @@ impl GameData {
                 return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
                 let frames = value["frames"].as_i32().unwrap() as Capacity;
-                let enemy_drops = self.parse_enemy_drops(&value["drops"]);
-                return Ok(Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops));
+                let enemy_drops = self.parse_enemy_drops(&value["drops"], false);
+                let enemy_drops_buffed = self.parse_enemy_drops(&value["drops"], true);
+                return Ok(Requirement::HeatFramesWithEnergyDrops(
+                    frames,
+                    enemy_drops,
+                    enemy_drops_buffed,
+                ));
             } else if key == "lavaFramesWithEnergyDrops" {
                 let frames = value["frames"].as_i32().unwrap() as Capacity;
-                let enemy_drops = self.parse_enemy_drops(&value["drops"]);
-                return Ok(Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops));
+                let enemy_drops = self.parse_enemy_drops(&value["drops"], false);
+                let enemy_drops_buffed = self.parse_enemy_drops(&value["drops"], true);
+                return Ok(Requirement::LavaFramesWithEnergyDrops(
+                    frames,
+                    enemy_drops,
+                    enemy_drops_buffed,
+                ));
             } else if key == "disableEquipment" {
                 return Ok(Requirement::Tech(
                     self.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
@@ -4300,7 +4346,9 @@ impl GameData {
                     .or_default()
                     .push((link, gmode_regain_mobility.clone().unwrap()))
             } else if strat_json.has_key("farmCycleDrops") {
-                let enemy_drops = self.parse_enemy_drops(&strat_json["farmCycleDrops"]);
+                let enemy_drops = self.parse_enemy_drops(&strat_json["farmCycleDrops"], false);
+                let enemy_drops_buffed =
+                    self.parse_enemy_drops(&strat_json["farmCycleDrops"], true);
                 let mut has_high_energy: bool = false;
                 let mut has_high_missiles: bool = false;
                 let mut has_high_supers: bool = false;
@@ -4358,7 +4406,8 @@ impl GameData {
                                 }
                                 farm_link.requirement = Requirement::Farm {
                                     requirement: Box::new(requirement.clone()),
-                                    drops: enemy_drops.clone(),
+                                    enemy_drops: enemy_drops.clone(),
+                                    enemy_drops_buffed: enemy_drops_buffed.clone(),
                                     full_energy,
                                     full_missiles,
                                     full_supers,

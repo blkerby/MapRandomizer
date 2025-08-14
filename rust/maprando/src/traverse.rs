@@ -908,6 +908,7 @@ pub fn apply_farm_requirement(
                         new_local.energy_used = 0;
                     }
                 } else {
+                    new_local.energy_used = global.inventory.max_energy - 1;
                     new_local.reserves_used = global.inventory.max_reserves - fill_energy;
                 }
             } else {
@@ -1011,10 +1012,8 @@ pub fn apply_farm_requirement(
             }
         }
 
-        if new_local.energy_used == 0 {
+        if new_local.energy_used == 0 && new_local.reserves_used == 0 {
             new_local.farm_baseline_energy_used = 0;
-        }
-        if new_local.reserves_used == 0 {
             new_local.farm_baseline_reserves_used = 0;
         }
         if new_local.missiles_used == 0 {
@@ -1126,28 +1125,24 @@ pub fn apply_requirement(
         Requirement::SimpleHeatFrames(frames) => {
             apply_heat_frames(*frames, local, global, game_data, difficulty, true)
         }
-        Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops) => {
+        Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
+            let drops = if settings.quality_of_life_settings.buffed_drops {
+                enemy_drops_buffed
+            } else {
+                enemy_drops
+            };
             apply_heat_frames_with_energy_drops(
-                *frames,
-                enemy_drops,
-                local,
-                global,
-                game_data,
-                settings,
-                difficulty,
-                reverse,
+                *frames, drops, local, global, game_data, settings, difficulty, reverse,
             )
         }
-        Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops) => {
+        Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
+            let drops = if settings.quality_of_life_settings.buffed_drops {
+                enemy_drops_buffed
+            } else {
+                enemy_drops
+            };
             apply_lava_frames_with_energy_drops(
-                *frames,
-                enemy_drops,
-                local,
-                global,
-                game_data,
-                settings,
-                difficulty,
-                reverse,
+                *frames, drops, local, global, game_data, settings, difficulty, reverse,
             )
         }
         Requirement::MainHallElevatorFrames => {
@@ -1409,28 +1404,36 @@ pub fn apply_requirement(
         }
         Requirement::Farm {
             requirement,
-            drops,
+            enemy_drops,
+            enemy_drops_buffed,
             full_energy,
             full_missiles,
             full_power_bombs,
             full_supers,
-        } => apply_farm_requirement(
-            requirement,
-            drops,
-            global,
-            local,
-            reverse,
-            *full_energy,
-            *full_missiles,
-            *full_supers,
-            *full_power_bombs,
-            settings,
-            difficulty,
-            game_data,
-            door_map,
-            locked_door_data,
-            objectives,
-        ),
+        } => {
+            let drops = if settings.quality_of_life_settings.buffed_drops {
+                enemy_drops_buffed
+            } else {
+                enemy_drops
+            };
+            apply_farm_requirement(
+                requirement,
+                drops,
+                global,
+                local,
+                reverse,
+                *full_energy,
+                *full_missiles,
+                *full_supers,
+                *full_power_bombs,
+                settings,
+                difficulty,
+                game_data,
+                door_map,
+                locked_door_data,
+                objectives,
+            )
+        }
         Requirement::EnergyRefill(limit) => {
             let limit_reserves = max(0, *limit - global.inventory.max_energy);
             if reverse {
