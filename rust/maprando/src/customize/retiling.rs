@@ -152,16 +152,19 @@ pub fn apply_retiling(
     let toilet_intersecting_room_ptr_addr = snes2pc(0xB5FE70);
     let toilet_intersection_room_ptr =
         (rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000) as usize;
-    if toilet_intersection_room_ptr == 0x7FFFF {
-        // Unspecified room means this is vanilla map, so the Toilet intersects Aqueduct and Botwoon Hallway.
-        theme_name_map.insert(0x7D5A7, theme_name_map[&toilet_room_ptr].clone()); // Aqueduct
-        theme_name_map.insert(0x7D617, theme_name_map[&toilet_room_ptr].clone());
-    // Botwoon Hallway
-    } else {
-        theme_name_map.insert(
-            toilet_intersection_room_ptr,
-            theme_name_map[&toilet_room_ptr].clone(),
-        );
+
+    if map.room_mask[game_data.toilet_room_idx] {
+        if toilet_intersection_room_ptr == 0x7FFFF {
+            // Unspecified room means this is vanilla map, so the Toilet intersects Aqueduct and Botwoon Hallway.
+            theme_name_map.insert(0x7D5A7, theme_name_map[&toilet_room_ptr].clone()); // Aqueduct
+            theme_name_map.insert(0x7D617, theme_name_map[&toilet_room_ptr].clone());
+        // Botwoon Hallway
+        } else {
+            theme_name_map.insert(
+                toilet_intersection_room_ptr,
+                theme_name_map[&toilet_room_ptr].clone(),
+            );
+        }
     }
     theme_name_map.insert(0x7D69A, theme_name_map[&0x7D646].clone()); // East Pants Room
     theme_name_map.insert(0x7968F, theme_name_map[&0x793FE].clone()); // Homing Geemer Room

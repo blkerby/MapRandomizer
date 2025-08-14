@@ -22,7 +22,7 @@ v120?:
 v119:
 - maybe have second spoiler JSON file without the debugging data?
 - DONE: fix issue with double farming energy when energy gets full
-- investigate bug with toilet intersection tileset in weekly seed: https://dev.maprando.com/seed/f2HDVGBxJ
+- DONE?: investigate bug with toilet intersection tileset in weekly seed: https://dev.maprando.com/seed/f2HDVGBxJ
 - maybe blank out missing areas in credits area times
 - DONE: Support maps with incomplete room sets.
 - DONE: toilet showing up in aqueduct BG when not placed?
