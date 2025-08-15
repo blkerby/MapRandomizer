@@ -4,7 +4,8 @@ EDC0-EE00:  transition_reveal.asm
 EE00-EE10:  mb_left_entrance.asm
 EE10-F600:  Used for custom door ASMs
 F600-F700:  Used by `escape` patch
-F700-F800:  Used by `gray_doors` patch
+F700-F7F0:  Used by `gray_doors` patch
+F7F0-F800:  boss_exit.asm
 F800-F900:  Used by `escape_autosave` patch
 F900-FE00:  Used for tileset table & pointers for area-themed palettes
 FE00-FE40:  Toilet PLMs
