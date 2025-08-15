@@ -5,6 +5,7 @@
     "speed_ball_tiles": 20,
     "shinecharge_leniency_frames": 15,
     "resource_multiplier": 1.15,
+    "farm_time_limit": 90,
     "gate_glitch_leniency": 2,
     "door_stuck_leniency": 2,
     "bomb_into_cf_leniency": 5,

@@ -71,6 +71,7 @@ pub struct DifficultyConfig {
     pub shinecharge_leniency_frames: Capacity,
     pub speed_ball_tiles: f32,
     pub resource_multiplier: f32,
+    pub farm_time_limit: f32,
     pub gate_glitch_leniency: Capacity,
     pub door_stuck_leniency: Capacity,
     pub bomb_into_cf_leniency: Capacity,
@@ -126,6 +127,7 @@ impl DifficultyConfig {
             shinecharge_leniency_frames: skill.shinecharge_leniency_frames as Capacity,
             speed_ball_tiles: skill.speed_ball_tiles,
             resource_multiplier: skill.resource_multiplier,
+            farm_time_limit: skill.farm_time_limit,
             gate_glitch_leniency: skill.gate_glitch_leniency as Capacity,
             bomb_into_cf_leniency: skill.bomb_into_cf_leniency as Capacity,
             jump_into_cf_leniency: skill.jump_into_cf_leniency as Capacity,
@@ -168,6 +170,7 @@ impl DifficultyConfig {
                 other.shinecharge_leniency_frames,
             ),
             resource_multiplier: f32::max(self.resource_multiplier, other.resource_multiplier),
+            farm_time_limit: f32::min(self.farm_time_limit, other.farm_time_limit),
             gate_glitch_leniency: Capacity::max(
                 self.gate_glitch_leniency,
                 other.gate_glitch_leniency as Capacity,

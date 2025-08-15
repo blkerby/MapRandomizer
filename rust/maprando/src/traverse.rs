@@ -10,8 +10,7 @@ use crate::{
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
-    LinksDataGroup, NodeId, Requirement, RoomId, TECH_ID_CAN_BE_EXTREMELY_PATIENT,
-    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT, TECH_ID_CAN_SUITLESS_LAVA_DIVE, VertexId,
+    LinksDataGroup, NodeId, Requirement, RoomId, TECH_ID_CAN_SUITLESS_LAVA_DIVE, VertexId,
 };
 use maprando_logic::{
     GlobalState, Inventory, LocalState,
@@ -817,14 +816,7 @@ pub fn apply_farm_requirement(
         let cycle_missiles = (end_local.missiles_used - local.missiles_used) as f32;
         let cycle_supers = (end_local.supers_used - local.supers_used) as f32;
         let cycle_pbs = (end_local.power_bombs_used - local.power_bombs_used) as f32;
-        let mut patience_frames = 5400.0;
-        if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_EXTREMELY_PATIENT]] {
-            patience_frames *= 8.0;
-        } else if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] {
-            patience_frames *= 4.0;
-        } else if difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT]] {
-            patience_frames *= 2.0;
-        }
+        let patience_frames = difficulty.farm_time_limit * 60.0;
         let mut num_cycles = (patience_frames / cycle_frames).floor() as i32;
 
         let mut new_local = local;

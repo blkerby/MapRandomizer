@@ -29,6 +29,7 @@ pub struct SkillAssumptionSettings {
     pub speed_ball_tiles: f32,
     pub shinecharge_leniency_frames: i32,
     pub resource_multiplier: f32,
+    pub farm_time_limit: f32,
     pub gate_glitch_leniency: i32,
     pub door_stuck_leniency: i32,
     pub bomb_into_cf_leniency: i32,

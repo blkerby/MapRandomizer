@@ -157,6 +157,9 @@ fn upgrade_other_skill_settings(settings: &mut serde_json::Value) -> Result<()> 
     if !skill_assumption_settings.contains_key("spike_xmode_leniency") {
         skill_assumption_settings.insert("spike_xmode_leniency".to_string(), 2.into());
     }
+    if !skill_assumption_settings.contains_key("farm_time_limit") {
+        skill_assumption_settings.insert("farm_time_limit".to_string(), (60.0).into());
+    }
 
     Ok(())
 }
