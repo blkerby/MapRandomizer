@@ -7,4 +7,3 @@ $F900 - $F910: escape_timer.asm
 $F980 - $FA00: respin.asm
 $FA00 - $FC00: map_progress_maintain.asm (list of cross-area tiles to reveal)
 $FC00 - $FC10: Fake Lava.asm
-$FC10 - $FC30: vanilla_bugfixes.asm
