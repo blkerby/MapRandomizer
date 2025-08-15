@@ -65,8 +65,7 @@
         "door_load_node_id": 1,
         "x": 42.5,
         "y": 10,
-        "spicy": true,
-        "camera_offset_x": 2
+        "spicy": true
     },
     {
         "name": "Crateria Super Room Bottom Left",
@@ -75,7 +74,7 @@
         "door_load_node_id": 2,
         "x": 35,
         "y": 122,
-        "camera_offset_x": -2
+        "camera_offset_x": -4
     },
     {
         "name": "Crateria Super Room Bottom Right",
@@ -113,7 +112,7 @@
         "node_id": 1,
         "x": 29.5,
         "y": 41,
-        "camera_offset_x": 5
+        "camera_offset_x": 4
     },
     {
         "name": "Landing Site Top Right",
@@ -267,8 +266,8 @@
         "y": 78,
         "spicy": true,
         "requires": ["canHorizontalDamageBoost", "canTrickyJump"],
-        "camera_offset_x": -3,
-        "camera_offset_y": 1
+        "camera_offset_x": -4,
+        "camera_offset_y": 3
     },
     {
         "name": "East Ocean Left",
@@ -1651,12 +1650,11 @@
         "name": "Colosseum Left",
         "room_id": 189,
         "node_id": 1,
-        "x": 44.5,
-        "y": 8,
+        "x": 34.5,
+        "y": 10,
         "spicy": true,
         "requires": [{"spikeHits": 1}, "canInsaneWalljump"],
-        "camera_offset_x": 10,
-        "devNote": ["This is as far left as we can adjust the camera without activating the Mochtroid."]
+        "camera_offset_x": -12
     },
     {
         "name": "Colosseum Right",
@@ -2035,8 +2033,7 @@
         "room_id": 235,
         "node_id": 1,
         "x": 26,
-        "y": 12,
-        "camera_offset_x": 2
+        "y": 12
     },
     {
         "name": "Tourian First Room",
@@ -2225,9 +2222,10 @@
         "name": "Warehouse Entrance Pit",
         "room_id": 78,
         "node_id": 4,
+        "door_load_node_id": 3,
         "x": 26,
         "y": 21,
-        "camera_offset_x": 2,
+        "camera_offset_x": 0,
         "camera_offset_y": -6,
         "requires": []
     },
@@ -2409,7 +2407,7 @@
         "door_load_node_id": 1,
         "x": 17,
         "y": 12,
-        "camera_offset_x": -6,
+        "camera_offset_x": -8,
         "camera_offset_y": 1
     },
     {
