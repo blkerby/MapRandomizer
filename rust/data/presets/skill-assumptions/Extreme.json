@@ -2900,6 +2900,13 @@
             "enabled": true
         },
         {
+            "room_id": 142,
+            "notable_id": 2,
+            "room_name": "Ridley's Room",
+            "notable_name": "G-Mode Crystal Flash Stuck Ridley",
+            "enabled": true
+        },
+        {
             "room_id": 147,
             "notable_id": 2,
             "room_name": "The Jail",
@@ -3128,13 +3135,6 @@
             "notable_id": 6,
             "room_name": "East Sand Hall",
             "notable_name": "Cross Room Jump with Ice or Damage Boost",
-            "enabled": true
-        },
-        {
-            "room_id": 210,
-            "notable_id": 8,
-            "room_name": "East Sand Hall",
-            "notable_name": "Right Door G-Mode Setup Suitless HiJump",
             "enabled": true
         },
         {
@@ -3503,13 +3503,6 @@
         },
         {
             "room_id": 142,
-            "notable_id": 2,
-            "room_name": "Ridley's Room",
-            "notable_name": "G-Mode Crystal Flash Stuck Ridley",
-            "enabled": false
-        },
-        {
-            "room_id": 142,
             "notable_id": 3,
             "room_name": "Ridley's Room",
             "notable_name": "G-Mode Ridley with 30 Supers",
@@ -3751,6 +3744,13 @@
             "notable_id": 4,
             "room_name": "Plasma Spark Room",
             "notable_name": "Insane Frozen Choot Spring Ball Jump",
+            "enabled": false
+        },
+        {
+            "room_id": 210,
+            "notable_id": 8,
+            "room_name": "East Sand Hall",
+            "notable_name": "Right Door G-Mode Setup Suitless HiJump",
             "enabled": false
         },
         {
