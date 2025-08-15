@@ -322,3 +322,11 @@ fix_grapple_scroll:
     jmp $94f2
     
 warnpc !bank_90_free_space_end
+
+; Fix improper clearing of BG2
+; Noted by PJBoy: https://patrickjohnston.org/bank/80#fA23F
+; Normally not an issue, but with custom spawn points if the initial camera offset is not
+; a multiple of 4, it can cause scroll clipping which would expose unintended tiles.
+
+org $80a27a
+    lda #$a29b
