@@ -27725,7 +27725,7 @@
     "video_id": 7072,
     "created_user": "Loptr",
     "note": "Double IBJ into Staggered Bomb Above IBJ without Varia",
-    "dev_note": ""
+    "dev_note": "canBombAboveIBJ"
   },
   {
     "room_id": 135,

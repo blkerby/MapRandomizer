@@ -403,11 +403,6 @@
             "enabled": true
         },
         {
-            "id": 91,
-            "name": "canBombAboveIBJ",
-            "enabled": true
-        },
-        {
             "id": 99,
             "name": "canSpringBallBombJump",
             "enabled": true
@@ -755,6 +750,11 @@
         {
             "id": 83,
             "name": "canUnderwaterWalljump",
+            "enabled": false
+        },
+        {
+            "id": 91,
+            "name": "canBombAboveIBJ",
             "enabled": false
         },
         {
