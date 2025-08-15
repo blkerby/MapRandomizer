@@ -4916,6 +4916,15 @@ impl GameData {
                     loc
                 );
             }
+
+            let door_node_id = loc.door_load_node_id.unwrap_or(loc.node_id);
+            if !self
+                .reverse_door_ptr_pair_map
+                .contains_key(&(loc.room_id, door_node_id))
+            {
+                bail!("Invalid door node for start location: {:?}", loc);
+            }
+
             start_location_id_map.insert((loc.room_id, loc.node_id), i);
             if loc.requires.is_none() {
                 loc.requires_parsed = Some(Requirement::Free);
