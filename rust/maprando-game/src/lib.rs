@@ -2132,9 +2132,15 @@ impl GameData {
         for drop in value.members() {
             let enemy_name = drop["enemy"].as_str().unwrap();
             let enemy_json = if buffed {
-                &self.enemy_json_buffed[enemy_name]
+                &self
+                    .enemy_json_buffed
+                    .get(enemy_name)
+                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
             } else {
-                &self.enemy_json[enemy_name]
+                &self
+                    .enemy_json
+                    .get(enemy_name)
+                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
             };
             let drops_json = &enemy_json["drops"];
             let amount_of_drops = enemy_json["amountOfDrops"].as_isize().unwrap() as Capacity;

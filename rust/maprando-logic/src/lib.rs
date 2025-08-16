@@ -44,35 +44,46 @@ impl GlobalState {
         game_data: &GameData,
         ammo_collect_fraction: f32,
         tech: &[bool],
+        starting_local_state: &mut LocalState,
     ) {
         self.inventory.items[item as usize] = true;
         match item {
             Item::Missile => {
                 self.inventory.collectible_missile_packs += 1;
-                self.inventory.max_missiles = (ammo_collect_fraction
+                let new_max_missiles = (ammo_collect_fraction
                     * self.inventory.collectible_missile_packs as f32)
                     .round() as Capacity
                     * 5;
+                starting_local_state.missiles_used +=
+                    new_max_missiles - self.inventory.max_missiles;
+                self.inventory.max_missiles = new_max_missiles;
             }
             Item::Super => {
                 self.inventory.collectible_super_packs += 1;
-                self.inventory.max_supers = (ammo_collect_fraction
+                let new_max_supers = (ammo_collect_fraction
                     * self.inventory.collectible_super_packs as f32)
                     .round() as Capacity
                     * 5;
+                starting_local_state.supers_used += new_max_supers - self.inventory.max_supers;
+                self.inventory.max_supers = new_max_supers;
             }
             Item::PowerBomb => {
                 self.inventory.collectible_power_bomb_packs += 1;
-                self.inventory.max_power_bombs = (ammo_collect_fraction
+                let new_max_power_bombs = (ammo_collect_fraction
                     * self.inventory.collectible_power_bomb_packs as f32)
                     .round() as Capacity
                     * 5;
+                starting_local_state.power_bombs_used +=
+                    new_max_power_bombs - self.inventory.max_power_bombs;
+                self.inventory.max_power_bombs = new_max_power_bombs;
             }
             Item::ETank => {
                 self.inventory.max_energy += 100;
+                starting_local_state.energy_used += 100;
             }
             Item::ReserveTank => {
                 self.inventory.max_reserves += 100;
+                starting_local_state.reserves_used += 100;
             }
             _ => {}
         }

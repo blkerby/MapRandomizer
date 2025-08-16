@@ -803,224 +803,222 @@ pub fn apply_farm_requirement(
         locked_door_data,
         objectives,
     );
-    if let Some(end_local) = end_local_result {
-        if end_local.cycle_frames < 100 {
-            panic!(
-                "bad farm: expected cycle_frames >= 100: end_local={end_local:#?},\n req={req:#?}"
-            );
-        }
-        let cycle_frames = (end_local.cycle_frames - 1) as f32;
-        let cycle_energy = (end_local.energy_used + end_local.reserves_used
-            - local.energy_used
-            - local.reserves_used) as f32;
-        let cycle_missiles = (end_local.missiles_used - local.missiles_used) as f32;
-        let cycle_supers = (end_local.supers_used - local.supers_used) as f32;
-        let cycle_pbs = (end_local.power_bombs_used - local.power_bombs_used) as f32;
-        let patience_frames = difficulty.farm_time_limit * 60.0;
-        let mut num_cycles = (patience_frames / cycle_frames).floor() as i32;
+    let end_local = end_local_result?;
+    if end_local.cycle_frames < 100 {
+        panic!("bad farm: expected cycle_frames >= 100: end_local={end_local:#?},\n req={req:#?}");
+    }
+    let cycle_frames = (end_local.cycle_frames - 1) as f32;
+    let cycle_energy = (end_local.energy_used + end_local.reserves_used
+        - local.energy_used
+        - local.reserves_used) as f32;
+    let cycle_missiles = (end_local.missiles_used - local.missiles_used) as f32;
+    let cycle_supers = (end_local.supers_used - local.supers_used) as f32;
+    let cycle_pbs = (end_local.power_bombs_used - local.power_bombs_used) as f32;
+    let patience_frames = difficulty.farm_time_limit * 60.0;
+    let mut num_cycles = (patience_frames / cycle_frames).floor() as i32;
 
-        let mut new_local = local;
-        if new_local.farm_baseline_energy_used < new_local.energy_used {
-            new_local.farm_baseline_energy_used = new_local.energy_used;
-        }
-        if new_local.farm_baseline_reserves_used < new_local.reserves_used {
-            new_local.farm_baseline_reserves_used = new_local.reserves_used;
-        }
-        if new_local.farm_baseline_missiles_used < new_local.missiles_used {
-            new_local.farm_baseline_missiles_used = new_local.missiles_used;
-        }
-        if new_local.farm_baseline_supers_used < new_local.supers_used {
-            new_local.farm_baseline_supers_used = new_local.supers_used;
-        }
-        if new_local.farm_baseline_power_bombs_used < new_local.power_bombs_used {
-            new_local.farm_baseline_power_bombs_used = new_local.power_bombs_used;
-        }
-        new_local.energy_used = new_local.farm_baseline_energy_used;
-        new_local.reserves_used = new_local.farm_baseline_reserves_used;
-        new_local.missiles_used = new_local.farm_baseline_missiles_used;
-        new_local.supers_used = new_local.farm_baseline_supers_used;
-        new_local.power_bombs_used = new_local.farm_baseline_power_bombs_used;
+    let mut new_local = local;
+    if new_local.farm_baseline_energy_used < new_local.energy_used {
+        new_local.farm_baseline_energy_used = new_local.energy_used;
+    }
+    if new_local.farm_baseline_reserves_used < new_local.reserves_used {
+        new_local.farm_baseline_reserves_used = new_local.reserves_used;
+    }
+    if new_local.farm_baseline_missiles_used < new_local.missiles_used {
+        new_local.farm_baseline_missiles_used = new_local.missiles_used;
+    }
+    if new_local.farm_baseline_supers_used < new_local.supers_used {
+        new_local.farm_baseline_supers_used = new_local.supers_used;
+    }
+    if new_local.farm_baseline_power_bombs_used < new_local.power_bombs_used {
+        new_local.farm_baseline_power_bombs_used = new_local.power_bombs_used;
+    }
+    new_local.energy_used = new_local.farm_baseline_energy_used;
+    new_local.reserves_used = new_local.farm_baseline_reserves_used;
+    new_local.missiles_used = new_local.farm_baseline_missiles_used;
+    new_local.supers_used = new_local.farm_baseline_supers_used;
+    new_local.power_bombs_used = new_local.farm_baseline_power_bombs_used;
 
-        if reverse {
-            // Handling reverse traversals is tricky because in the reverse traversal we don't know
-            // the current resource levels, so we don't know if they can be full (affecting the drop
-            // rates of other resource types). We address this by constructing variants of farm strats
-            // (as separate Links) with different requirements on which combinations will be filled to full.
-            // There is a limited ability for these different variants to propagate through the graph
-            // traversal, due to the limitations in the cost metrics that we are using. But it is better
-            // than nothing and could be refined later if needed.
-            //
-            // We also treat filling the given resources to full as having a separate "patience" allocation
-            // of cycle frames. So in a worst-case scenario the total time required for the farm could be up
-            // to double what would be allowed in forward traversal. But because we allocate only a modest
-            // 45 seconds for farming (assuming no patience tech), in the worst case this still stays under
-            // the limit of 1.5 minutes associated with `canBePatient`.
-            //
+    if reverse {
+        // Handling reverse traversals is tricky because in the reverse traversal we don't know
+        // the current resource levels, so we don't know if they can be full (affecting the drop
+        // rates of other resource types). We address this by constructing variants of farm strats
+        // (as separate Links) with different requirements on which combinations will be filled to full.
+        // There is a limited ability for these different variants to propagate through the graph
+        // traversal, due to the limitations in the cost metrics that we are using. But it is better
+        // than nothing and could be refined later if needed.
+        //
+        // We also treat filling the given resources to full as having a separate "patience" allocation
+        // of cycle frames. So in a worst-case scenario the total time required for the farm could be up
+        // to double what would be allowed in forward traversal. But because we allocate only a modest
+        // 45 seconds for farming (assuming no patience tech), in the worst case this still stays under
+        // the limit of 1.5 minutes associated with `canBePatient`.
+        //
+        let [drop_energy, drop_missiles, drop_supers, drop_pbs] = get_total_enemy_drop_values(
+            drops,
+            full_energy,
+            full_missiles,
+            full_supers,
+            full_power_bombs,
+            settings.quality_of_life_settings.buffed_drops,
+        );
+
+        let net_energy = ((drop_energy - cycle_energy) * num_cycles as f32) as Capacity;
+        let net_missiles = ((drop_missiles - cycle_missiles) * num_cycles as f32) as Capacity;
+        let net_supers = ((drop_supers - cycle_supers) * num_cycles as f32) as Capacity;
+        let net_pbs = ((drop_pbs - cycle_pbs) * num_cycles as f32) as Capacity;
+
+        if net_energy < 0 || net_missiles < 0 || net_supers < 0 || net_pbs < 0 {
+            return None;
+        }
+
+        // Now calculate refill rates assuming no resources are full. This is what we use to determine
+        // how close to full the given resources must start out:
+        let [raw_energy, raw_missiles, raw_supers, raw_pbs] = get_total_enemy_drop_values(
+            drops,
+            false,
+            false,
+            false,
+            false,
+            settings.quality_of_life_settings.buffed_drops,
+        );
+
+        let fill_energy = ((raw_energy - cycle_energy) * num_cycles as f32) as Capacity;
+        let fill_missiles = ((raw_missiles - cycle_missiles) * num_cycles as f32) as Capacity;
+        let fill_supers = ((raw_supers - cycle_supers) * num_cycles as f32) as Capacity;
+        let fill_pbs = ((raw_pbs - cycle_pbs) * num_cycles as f32) as Capacity;
+
+        if full_energy {
+            if fill_energy > global.inventory.max_reserves {
+                new_local.reserves_used = 0;
+                new_local.energy_used =
+                    global.inventory.max_energy - 1 - (fill_energy - global.inventory.max_reserves);
+                if new_local.energy_used < 0 {
+                    new_local.energy_used = 0;
+                }
+            } else {
+                new_local.energy_used = global.inventory.max_energy - 1;
+                new_local.reserves_used = global.inventory.max_reserves - fill_energy;
+            }
+        } else {
+            if new_local.reserves_used > 0 {
+                // There may be a way to refine this by having an option to fill regular energy (not reserves),
+                // but it probably wouldn't work without creating a new cost metric anyway. It probably only
+                // applies in scenarios involving Big Boy drain?
+                new_local.energy_used = global.inventory.max_energy - 1;
+            }
+            if net_energy > new_local.reserves_used {
+                new_local.energy_used -= net_energy - new_local.reserves_used;
+                new_local.reserves_used = 0;
+                if new_local.energy_used < 0 {
+                    new_local.energy_used = 0;
+                }
+            } else {
+                new_local.reserves_used -= net_energy;
+            }
+        }
+        if full_missiles {
+            new_local.missiles_used = global.inventory.max_missiles - fill_missiles;
+        } else {
+            new_local.missiles_used -= net_missiles;
+        }
+        if new_local.missiles_used < 0 {
+            new_local.missiles_used = 0;
+        }
+        if full_supers {
+            new_local.supers_used = global.inventory.max_supers - fill_supers;
+        } else {
+            new_local.supers_used -= net_supers;
+        }
+        if new_local.supers_used < 0 {
+            new_local.supers_used = 0;
+        }
+        if full_power_bombs {
+            new_local.power_bombs_used = global.inventory.max_power_bombs - fill_pbs;
+        } else {
+            new_local.power_bombs_used -= net_pbs;
+        }
+        if new_local.power_bombs_used < 0 {
+            new_local.power_bombs_used = 0;
+        }
+    } else {
+        let mut energy = new_local.energy_used as f32;
+        let mut reserves = new_local.reserves_used as f32;
+        let mut missiles = new_local.missiles_used as f32;
+        let mut supers = new_local.supers_used as f32;
+        let mut pbs = new_local.power_bombs_used as f32;
+
+        while num_cycles > 0 {
             let [drop_energy, drop_missiles, drop_supers, drop_pbs] = get_total_enemy_drop_values(
                 drops,
-                full_energy,
-                full_missiles,
-                full_supers,
-                full_power_bombs,
+                energy == 0.0 && reserves == 0.0,
+                missiles == 0.0,
+                supers == 0.0,
+                pbs == 0.0,
                 settings.quality_of_life_settings.buffed_drops,
             );
 
-            let net_energy = ((drop_energy - cycle_energy) * num_cycles as f32) as Capacity;
-            let net_missiles = ((drop_missiles - cycle_missiles) * num_cycles as f32) as Capacity;
-            let net_supers = ((drop_supers - cycle_supers) * num_cycles as f32) as Capacity;
-            let net_pbs = ((drop_pbs - cycle_pbs) * num_cycles as f32) as Capacity;
+            let net_energy = drop_energy - cycle_energy;
+            let net_missiles = drop_missiles - cycle_missiles;
+            let net_supers = drop_supers - cycle_supers;
+            let net_pbs = drop_pbs - cycle_pbs;
 
-            if net_energy < 0 || net_missiles < 0 || net_supers < 0 || net_pbs < 0 {
+            if net_energy < 0.0 || net_missiles < 0.0 || net_supers < 0.0 || net_pbs < 0.0 {
                 return None;
             }
 
-            // Now calculate refill rates assuming no resources are full. This is what we use to determine
-            // how close to full the given resources must start out:
-            let [raw_energy, raw_missiles, raw_supers, raw_pbs] = get_total_enemy_drop_values(
-                drops,
-                false,
-                false,
-                false,
-                false,
-                settings.quality_of_life_settings.buffed_drops,
-            );
-
-            let fill_energy = ((raw_energy - cycle_energy) * num_cycles as f32) as Capacity;
-            let fill_missiles = ((raw_missiles - cycle_missiles) * num_cycles as f32) as Capacity;
-            let fill_supers = ((raw_supers - cycle_supers) * num_cycles as f32) as Capacity;
-            let fill_pbs = ((raw_pbs - cycle_pbs) * num_cycles as f32) as Capacity;
-
-            if full_energy {
-                if fill_energy > global.inventory.max_reserves {
-                    new_local.reserves_used = 0;
-                    new_local.energy_used = global.inventory.max_energy
-                        - 1
-                        - (fill_energy - global.inventory.max_reserves);
-                    if new_local.energy_used < 0 {
-                        new_local.energy_used = 0;
-                    }
-                } else {
-                    new_local.energy_used = global.inventory.max_energy - 1;
-                    new_local.reserves_used = global.inventory.max_reserves - fill_energy;
-                }
-            } else {
-                if new_local.reserves_used > 0 {
-                    // There may be a way to refine this by having an option to fill regular energy (not reserves),
-                    // but it probably wouldn't work without creating a new cost metric anyway. It probably only
-                    // applies in scenarios involving Big Boy drain?
-                    new_local.energy_used = global.inventory.max_energy - 1;
-                }
-                if net_energy > new_local.reserves_used {
-                    new_local.energy_used -= net_energy - new_local.reserves_used;
-                    new_local.reserves_used = 0;
-                    if new_local.energy_used < 0 {
-                        new_local.energy_used = 0;
-                    }
-                } else {
-                    new_local.reserves_used -= net_energy;
-                }
+            energy -= net_energy;
+            if energy < 0.0 {
+                reserves += energy;
+                energy = 0.0;
             }
-            if full_missiles {
-                new_local.missiles_used = global.inventory.max_missiles - fill_missiles;
-            } else {
-                new_local.missiles_used -= net_missiles;
+            if reserves < 0.0 {
+                reserves = 0.0;
             }
-            if new_local.missiles_used < 0 {
-                new_local.missiles_used = 0;
+            missiles -= net_missiles;
+            if missiles < 0.0 {
+                missiles = 0.0;
             }
-            if full_supers {
-                new_local.supers_used = global.inventory.max_supers - fill_supers;
-            } else {
-                new_local.supers_used -= net_supers;
+            supers -= net_supers;
+            if supers < 0.0 {
+                supers = 0.0;
             }
-            if new_local.supers_used < 0 {
-                new_local.supers_used = 0;
+            pbs -= net_pbs;
+            if pbs < 0.0 {
+                pbs = 0.0;
             }
-            if full_power_bombs {
-                new_local.power_bombs_used = global.inventory.max_power_bombs - fill_pbs;
-            } else {
-                new_local.power_bombs_used -= net_pbs;
-            }
-            if new_local.power_bombs_used < 0 {
-                new_local.power_bombs_used = 0;
-            }
-            return Some(new_local);
-        } else {
-            let mut energy = new_local.energy_used as f32;
-            let mut reserves = new_local.reserves_used as f32;
-            let mut missiles = new_local.missiles_used as f32;
-            let mut supers = new_local.supers_used as f32;
-            let mut pbs = new_local.power_bombs_used as f32;
 
-            while num_cycles > 0 {
-                let [drop_energy, drop_missiles, drop_supers, drop_pbs] =
-                    get_total_enemy_drop_values(
-                        drops,
-                        energy == 0.0 && reserves == 0.0,
-                        missiles == 0.0,
-                        supers == 0.0,
-                        pbs == 0.0,
-                        settings.quality_of_life_settings.buffed_drops,
-                    );
+            new_local.energy_used = energy.round() as Capacity;
+            new_local.reserves_used = reserves.round() as Capacity;
+            new_local.missiles_used = missiles.round() as Capacity;
+            new_local.supers_used = supers.round() as Capacity;
+            new_local.power_bombs_used = pbs.round() as Capacity;
 
-                let net_energy = drop_energy - cycle_energy;
-                let net_missiles = drop_missiles - cycle_missiles;
-                let net_supers = drop_supers - cycle_supers;
-                let net_pbs = drop_pbs - cycle_pbs;
-
-                if net_energy < 0.0 || net_missiles < 0.0 || net_supers < 0.0 || net_pbs < 0.0 {
-                    return None;
-                }
-
-                energy -= net_energy;
-                if energy < 0.0 {
-                    reserves += energy;
-                    energy = 0.0;
-                }
-                if reserves < 0.0 {
-                    reserves = 0.0;
-                }
-                missiles -= net_missiles;
-                if missiles < 0.0 {
-                    missiles = 0.0;
-                }
-                supers -= net_supers;
-                if supers < 0.0 {
-                    supers = 0.0;
-                }
-                pbs -= net_pbs;
-                if pbs < 0.0 {
-                    pbs = 0.0;
-                }
-
-                new_local.energy_used = energy.ceil() as Capacity;
-                new_local.reserves_used = reserves.ceil() as Capacity;
-                new_local.missiles_used = missiles.ceil() as Capacity;
-                new_local.supers_used = supers.ceil() as Capacity;
-                new_local.power_bombs_used = pbs.ceil() as Capacity;
-
-                // TODO: process multiple cycles at once, for more efficient computation.
-                num_cycles -= 1;
-            }
+            // TODO: process multiple cycles at once, for more efficient computation.
+            num_cycles -= 1;
         }
-
-        if new_local.energy_used == 0 && new_local.reserves_used == 0 {
-            new_local.farm_baseline_energy_used = 0;
-            new_local.farm_baseline_reserves_used = 0;
-        }
-        if new_local.missiles_used == 0 {
-            new_local.farm_baseline_missiles_used = 0;
-        }
-        if new_local.supers_used == 0 {
-            new_local.farm_baseline_supers_used = 0;
-        }
-        if new_local.power_bombs_used == 0 {
-            new_local.farm_baseline_power_bombs_used = 0;
-        }
-        Some(new_local)
-    } else {
-        None
     }
+
+    new_local.energy_used = Capacity::min(new_local.energy_used, local.energy_used);
+    new_local.reserves_used = Capacity::min(new_local.reserves_used, local.reserves_used);
+    new_local.missiles_used = Capacity::min(new_local.missiles_used, local.missiles_used);
+    new_local.supers_used = Capacity::min(new_local.supers_used, local.supers_used);
+    new_local.power_bombs_used = Capacity::min(new_local.power_bombs_used, local.power_bombs_used);
+
+    if new_local.energy_used == 0 && new_local.reserves_used == 0 {
+        new_local.farm_baseline_energy_used = 0;
+        new_local.farm_baseline_reserves_used = 0;
+    }
+    if new_local.missiles_used == 0 {
+        new_local.farm_baseline_missiles_used = 0;
+    }
+    if new_local.supers_used == 0 {
+        new_local.farm_baseline_supers_used = 0;
+    }
+    if new_local.power_bombs_used == 0 {
+        new_local.farm_baseline_power_bombs_used = 0;
+    }
+    Some(new_local)
 }
 
 pub fn apply_requirement(
@@ -1977,28 +1975,45 @@ pub fn apply_requirement(
         &Requirement::ResetRoom { room_id, node_id } => {
             // TODO: add more requirements here
             let mut new_local = local;
+
             if new_local.cycle_frames > 0 {
                 // We assume the it takes 400 frames to go through the door transition, shoot open the door, and return.
                 // The actual time can vary based on room load time and whether fast doors are enabled.
                 new_local.cycle_frames += 400;
             }
 
-            if let Some(&(other_room_id, other_node_id)) = door_map.get(&(room_id, node_id)) {
-                let reset_req =
-                    &game_data.node_reset_room_requirement[&(other_room_id, other_node_id)];
-                new_local = apply_requirement(
-                    reset_req,
-                    global,
-                    new_local,
-                    reverse,
-                    settings,
-                    difficulty,
-                    game_data,
-                    door_map,
-                    locked_door_data,
-                    objectives,
-                )?;
+            let Some(&(mut other_room_id, mut other_node_id)) = door_map.get(&(room_id, node_id))
+            else {
+                // When simulating logic for the logic pages, the `door_map` may be empty,
+                // but we still treat the requirement as satisfiable.
+                return Some(new_local);
+            };
+
+            if other_room_id == 321 {
+                // Passing through the Toilet adds to the time taken to reset the room.
+                if new_local.cycle_frames > 0 {
+                    new_local.cycle_frames += 600;
+                }
+                let opposite_node_id = match other_node_id {
+                    1 => 2,
+                    2 => 1,
+                    _ => panic!("unexpected Toilet node ID: {}", other_node_id),
+                };
+                (other_room_id, other_node_id) = door_map[&(321, opposite_node_id)];
             }
+            let reset_req = &game_data.node_reset_room_requirement[&(other_room_id, other_node_id)];
+            new_local = apply_requirement(
+                reset_req,
+                global,
+                new_local,
+                reverse,
+                settings,
+                difficulty,
+                game_data,
+                door_map,
+                locked_door_data,
+                objectives,
+            )?;
             Some(new_local)
         }
         Requirement::EscapeMorphLocation => {
@@ -2151,6 +2166,7 @@ pub struct StepTrail {
 #[derive(Clone)]
 pub struct TraverseResult {
     pub traversal_number: usize,
+    pub starting_local_state: LocalState,
     pub local_states: Vec<[LocalState; NUM_COST_METRICS]>,
     pub cost: Vec<[f32; NUM_COST_METRICS]>,
     pub step_trails: Vec<StepTrail>,
@@ -2189,6 +2205,7 @@ pub fn traverse(
     } else {
         result = TraverseResult {
             traversal_number: 0,
+            starting_local_state: init_local,
             local_states: vec![[IMPOSSIBLE_LOCAL_STATE; NUM_COST_METRICS]; num_vertices],
             cost: vec![[f32::INFINITY; NUM_COST_METRICS]; num_vertices],
             step_trails: Vec::with_capacity(num_vertices * 10),

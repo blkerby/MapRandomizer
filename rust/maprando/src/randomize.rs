@@ -285,6 +285,7 @@ pub struct RandomizationState {
     pub door_state: Vec<DoorState>,                  // Corresponds to LockedDoorData.locked_doors
     pub items_remaining: Vec<usize>, // Corresponds to GameData.items_isv (one count for each of 21 distinct item names)
     pub global_state: GlobalState,
+    pub starting_local_state: LocalState, // Initial local state at the hub location
     pub debug_data: Option<DebugData>,
     pub previous_debug_data: Option<DebugData>,
     pub key_visited_vertices: HashSet<usize>,
@@ -3306,7 +3307,7 @@ impl<'r> Randomizer<'r> {
             &self.seed_links_data,
             None,
             &state.global_state,
-            LocalState::empty(&state.global_state),
+            state.starting_local_state,
             num_vertices,
             start_vertex_id,
             false,
@@ -3421,6 +3422,9 @@ impl<'r> Randomizer<'r> {
             forward,
             reverse,
         });
+
+        // Update the starting local state for later iterations, based on available farming:
+        state.starting_local_state = self.get_initial_local_state(state);
     }
 
     // Determine how many key items vs. filler items to place on this step.
@@ -3902,6 +3906,7 @@ impl<'r> Randomizer<'r> {
                     .item_progression_settings
                     .ammo_collect_fraction,
                 &self.difficulty_tiers[0].tech,
+                &mut new_state.starting_local_state,
             );
         }
 
@@ -3942,6 +3947,18 @@ impl<'r> Randomizer<'r> {
         (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_beatable
     }
 
+    fn get_initial_local_state(&self, state: &RandomizationState) -> LocalState {
+        let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
+            room_id: state.hub_location.room_id,
+            node_id: state.hub_location.node_id,
+            obstacle_mask: 0,
+            actions: vec![],
+        }];
+        let cost_metric_idx = 0; // use energy-sensitive cost metric
+        let forward_traverse = &state.debug_data.as_ref().unwrap().forward;
+        forward_traverse.local_states[start_vertex_id][cost_metric_idx]
+    }
+
     fn multi_attempt_select_items<R: Rng + Clone>(
         &self,
         attempt_num_rando: usize,
@@ -3980,6 +3997,7 @@ impl<'r> Randomizer<'r> {
             door_state: state.door_state.clone(),
             items_remaining: state.items_remaining.clone(),
             global_state: state.global_state.clone(),
+            starting_local_state: self.get_initial_local_state(state),
             debug_data: None,
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
@@ -4078,6 +4096,7 @@ impl<'r> Randomizer<'r> {
         let mut spoiler_flag_details: Vec<SpoilerFlagDetails> = Vec::new();
         let mut spoiler_door_summaries: Vec<SpoilerDoorSummary> = Vec::new();
         let mut spoiler_door_details: Vec<SpoilerDoorDetails> = Vec::new();
+        let mut flag_update_num: i32 = 0;
         loop {
             let mut any_update = false;
             for (i, &flag_id) in self.game_data.flag_ids.iter().enumerate() {
@@ -4136,11 +4155,12 @@ impl<'r> Randomizer<'r> {
                     state.global_state.doors_unlocked[i] = true;
                 }
             }
-            if any_update {
+            if any_update || flag_update_num == 0 {
                 self.update_reachability(state);
             } else {
                 break;
             }
+            flag_update_num += 1;
         }
 
         if self
@@ -4788,7 +4808,7 @@ impl<'r> Randomizer<'r> {
                 obstacle_mask: 0,
                 actions: vec![],
             }];
-            let global = self.get_initial_global_state();
+            let (global, _) = self.get_initial_states();
             let local = apply_requirement(
                 start_loc.requires_parsed.as_ref().unwrap(),
                 &global,
@@ -4935,7 +4955,7 @@ impl<'r> Randomizer<'r> {
         bail!("[attempt {attempt_num_rando}] Failed to find start location.")
     }
 
-    fn get_initial_global_state(&self) -> GlobalState {
+    fn get_initial_states(&self) -> (GlobalState, LocalState) {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self
             .game_data
@@ -4956,6 +4976,7 @@ impl<'r> Randomizer<'r> {
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
             weapon_mask,
         };
+        let mut local = LocalState::empty(&global);
         for x in &self.settings.item_progression_settings.starting_items {
             for _ in 0..x.count {
                 global.collect(
@@ -4965,10 +4986,11 @@ impl<'r> Randomizer<'r> {
                         .item_progression_settings
                         .ammo_collect_fraction,
                     &self.difficulty_tiers[0].tech,
+                    &mut local,
                 );
             }
         }
-        global
+        (global, local)
     }
 
     pub fn dummy_randomize<R: Rng>(
@@ -5083,7 +5105,7 @@ impl<'r> Randomizer<'r> {
         if self.settings.start_location_settings.mode == StartLocationMode::Escape {
             return self.dummy_randomize(seed, display_seed, &mut rng);
         }
-        let initial_global_state = self.get_initial_global_state();
+        let (initial_global_state, initial_local_state) = self.get_initial_states();
         let initial_item_location_state = ItemLocationState {
             placed_item: None,
             collected: false,
@@ -5144,6 +5166,7 @@ impl<'r> Randomizer<'r> {
             ],
             door_state: vec![initial_door_state; self.locked_door_data.locked_doors.len()],
             items_remaining: self.initial_items_remaining.clone(),
+            starting_local_state: initial_local_state,
             global_state: initial_global_state,
             debug_data: None,
             previous_debug_data: None,
@@ -5834,7 +5857,7 @@ impl Randomizer<'_> {
             get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
         let obtain_route = self.get_spoiler_route(
             global_state,
-            LocalState::empty(global_state),
+            forward.starting_local_state,
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,
@@ -5861,7 +5884,7 @@ impl Randomizer<'_> {
             get_spoiler_route(forward, vertex_id, forward_cost_idx);
         self.get_spoiler_route(
             global_state,
-            LocalState::empty(global_state),
+            forward.starting_local_state,
             &forward_link_idxs,
             &self.difficulty_tiers[0],
             false,
