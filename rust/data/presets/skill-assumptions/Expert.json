@@ -664,6 +664,16 @@
             "enabled": true
         },
         {
+            "id": 161,
+            "name": "canEnterRMode",
+            "enabled": true
+        },
+        {
+            "id": 162,
+            "name": "canEnterGMode",
+            "enabled": true
+        },
+        {
             "id": 171,
             "name": "canPreciseCeilingClip",
             "enabled": true
@@ -816,16 +826,6 @@
         {
             "id": 159,
             "name": "canXMode",
-            "enabled": false
-        },
-        {
-            "id": 161,
-            "name": "canEnterRMode",
-            "enabled": false
-        },
-        {
-            "id": 162,
-            "name": "canEnterGMode",
             "enabled": false
         },
         {

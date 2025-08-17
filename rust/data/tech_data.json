@@ -1052,13 +1052,13 @@
     {
         "tech_id": 161,
         "name": "canEnterRMode",
-        "difficulty": "Extreme",
-        "video_id": 207
+        "difficulty": "Expert",
+        "video_id": 265
     },
     {
         "tech_id": 162,
         "name": "canEnterGMode",
-        "difficulty": "Extreme",
+        "difficulty": "Expert",
         "video_id": 982
     },
     {
