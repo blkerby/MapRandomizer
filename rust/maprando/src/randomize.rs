@@ -10,9 +10,8 @@ use crate::settings::{
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::traverse::{
-    IMPOSSIBLE_LOCAL_STATE, LockedDoorData, NUM_COST_METRICS, StepTrailId, TraverseResult,
-    apply_link, apply_requirement, get_bireachable_idxs, get_one_way_reachable_idx,
-    get_spoiler_route, traverse,
+    IMPOSSIBLE_LOCAL_STATE, LockedDoorData, NUM_COST_METRICS, TraverseResult, apply_requirement,
+    get_bireachable_idxs, get_one_way_reachable_idx, get_spoiler_trail_ids, traverse,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
@@ -21,9 +20,9 @@ use maprando_game::{
     self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
     GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
-    ItemLocationId, Link, LinkIdx, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId,
-    Physics, Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance,
-    SidePlatformEnvironment, SparkPosition, StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH,
+    ItemLocationId, Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics,
+    Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment,
+    SparkPosition, StartLocation, StepTrailId, TECH_ID_CAN_ARTIFICIAL_MORPH,
     TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
     TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
     TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
@@ -3302,10 +3301,13 @@ impl<'r> Randomizer<'r> {
             obstacle_mask: 0,
             actions: vec![],
         }];
+        // TODO: avoid the unnecessary clone:
+        let forward_init: Option<TraverseResult> =
+            state.debug_data.as_ref().map(|x| x.forward.clone());
         let forward = traverse(
             self.base_links_data,
             &self.seed_links_data,
-            None,
+            forward_init,
             &state.global_state,
             state.starting_local_state,
             num_vertices,
@@ -3319,10 +3321,12 @@ impl<'r> Randomizer<'r> {
             &self.objectives,
             self.next_traversal_number.borrow_mut().deref_mut(),
         );
+        let reverse_init: Option<TraverseResult> =
+            state.debug_data.as_ref().map(|x| x.reverse.clone());
         let reverse = traverse(
             self.base_links_data,
             &self.seed_links_data,
-            None,
+            reverse_init,
             &state.global_state,
             LocalState::full(),
             num_vertices,
@@ -3813,12 +3817,13 @@ impl<'r> Randomizer<'r> {
                 let (forward_cost_idx, _) =
                     get_bireachable_idxs(&state.global_state, hard_vertex_id, forward, reverse)
                         .unwrap();
-                let route = get_spoiler_route(
+                let route = get_spoiler_trail_ids(
                     &state.debug_data.as_ref().unwrap().forward,
                     hard_vertex_id,
                     forward_cost_idx,
                 );
-                for &link_idx in &route {
+                for &trail_id in &route {
+                    let link_idx = forward.step_trails[trail_id as usize].link_idx;
                     let vertex_id = self.get_link(link_idx as usize).to_vertex_id;
                     new_state.key_visited_vertices.insert(vertex_id);
                 }
@@ -3998,7 +4003,7 @@ impl<'r> Randomizer<'r> {
             items_remaining: state.items_remaining.clone(),
             global_state: state.global_state.clone(),
             starting_local_state: self.get_initial_local_state(state),
-            debug_data: None,
+            debug_data: state.debug_data.clone(),
             previous_debug_data: None,
             key_visited_vertices: HashSet::new(),
             last_key_areas: Vec::new(),
@@ -4925,25 +4930,15 @@ impl<'r> Randomizer<'r> {
                 vertex_id: best_hub_vertex_id,
             };
 
-            let hub_obtain_link_idxs =
-                get_spoiler_route(&forward, best_hub_vertex_id, forward_cost_idx);
-            let hub_return_link_idxs =
-                get_spoiler_route(&reverse, best_hub_vertex_id, reverse_cost_idx);
+            let hub_obtain_trail_ids =
+                get_spoiler_trail_ids(&forward, best_hub_vertex_id, forward_cost_idx);
+            let hub_return_trail_ids =
+                get_spoiler_trail_ids(&reverse, best_hub_vertex_id, reverse_cost_idx);
 
-            let hub_obtain_route = self.get_spoiler_route(
-                &global,
-                local.unwrap(),
-                &hub_obtain_link_idxs,
-                &self.difficulty_tiers[0],
-                false,
-            );
-            let hub_return_route = self.get_spoiler_route(
-                &global,
-                LocalState::full(),
-                &hub_return_link_idxs,
-                &self.difficulty_tiers[0],
-                true,
-            );
+            let hub_obtain_route =
+                self.get_spoiler_route(&global, &hub_obtain_trail_ids, &forward, false);
+            let hub_return_route =
+                self.get_spoiler_route(&global, &hub_return_trail_ids, &reverse, true);
 
             return Ok(StartLocationData {
                 start_location: start_loc,
@@ -5520,7 +5515,7 @@ pub fn get_spoiler_traverse_result(tr: &TraverseResult) -> SpoilerTraverseResult
 pub struct SpoilerTraverseResult {
     pub traversal_number: usize,
     pub prev_trail_ids: Vec<StepTrailId>,
-    pub link_idxs: Vec<LinkIdx>,
+    pub link_idxs: Vec<StepTrailId>,
     pub local_states: Vec<SpoilerLocalState>,
     pub start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
     pub cost: Vec<[f32; NUM_COST_METRICS]>,
@@ -5699,121 +5694,71 @@ impl Randomizer<'_> {
     pub fn get_spoiler_route(
         &self,
         global_state: &GlobalState,
-        mut local_state: LocalState,
-        link_idxs: &[LinkIdx],
-        difficulty: &DifficultyConfig,
+        trail_ids: &[StepTrailId],
+        traverse_result: &TraverseResult,
         reverse: bool,
     ) -> Vec<SpoilerRouteEntry> {
         let mut route: Vec<SpoilerRouteEntry> = Vec::new();
 
-        if link_idxs.is_empty() {
+        if trail_ids.is_empty() {
             return route;
         }
-        for &link_idx in link_idxs {
+        for &trail_id in trail_ids {
+            let trail = &traverse_result.step_trails[trail_id as usize];
+            let link_idx = trail.link_idx;
             let link = self.get_link(link_idx as usize);
-            let raw_link = self.get_link(link_idx as usize);
-            let sublinks = [raw_link.clone()];
+            let new_local_state = trail.local_state;
+            let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
+            let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
+            let VertexKey {
+                obstacle_mask: to_obstacles_mask,
+                ..
+            } = self.game_data.vertex_isv.keys[link.to_vertex_id];
+            let door_coords = self
+                .game_data
+                .node_coords
+                .get(&(to_vertex_info.room_id, to_vertex_info.node_id))
+                .copied();
+            let coords = door_coords.map(|(x, y)| {
+                (
+                    x + to_vertex_info.room_coords.0,
+                    y + to_vertex_info.room_coords.1,
+                )
+            });
 
-            // TODO: use the stored local state from the trails, instead of recomputing.
-            let new_local_state_opt = apply_link(
-                link,
-                global_state,
-                local_state,
-                reverse,
-                self.settings,
-                difficulty,
-                self.game_data,
-                &self.door_map,
-                self.locked_door_data,
-                &self.objectives,
-            );
-            if new_local_state_opt.is_none() {
-                panic!(
-                    "Failed applying requirement in spoiler route: reverse={}, local_state={:#?}, requirement={:#?}",
-                    reverse, local_state, link.requirement
-                );
-            }
-            let new_local_state = new_local_state_opt.unwrap();
-            let sublinks_ordered: Vec<&Link> = if reverse {
-                sublinks.iter().rev().collect()
-            } else {
-                sublinks.iter().collect()
-            };
-            for (i, link) in sublinks_ordered.iter().enumerate() {
-                let last = i == sublinks.len() - 1;
-                let from_vertex_info = self.get_vertex_info(link.from_vertex_id);
-                let to_vertex_info = self.get_vertex_info(link.to_vertex_id);
-                let VertexKey {
-                    obstacle_mask: to_obstacles_mask,
-                    ..
-                } = self.game_data.vertex_isv.keys[link.to_vertex_id];
-                let door_coords = self
-                    .game_data
-                    .node_coords
-                    .get(&(to_vertex_info.room_id, to_vertex_info.node_id))
-                    .copied();
-                let coords = door_coords.map(|(x, y)| {
-                    (
-                        x + to_vertex_info.room_coords.0,
-                        y + to_vertex_info.room_coords.1,
-                    )
-                });
-
-                let mut relevant_flag_idxs = vec![];
-                extract_relevant_flags(&link.requirement, &mut relevant_flag_idxs);
-                relevant_flag_idxs.sort();
-                relevant_flag_idxs.dedup();
-                let mut relevant_flags = vec![];
-                for flag_idx in relevant_flag_idxs {
-                    let flag_name = self.game_data.flag_isv.keys[flag_idx].clone();
-                    if global_state.flags[flag_idx] {
-                        relevant_flags.push(flag_name);
-                    }
+            let mut relevant_flag_idxs = vec![];
+            extract_relevant_flags(&link.requirement, &mut relevant_flag_idxs);
+            relevant_flag_idxs.sort();
+            relevant_flag_idxs.dedup();
+            let mut relevant_flags = vec![];
+            for flag_idx in relevant_flag_idxs {
+                let flag_name = self.game_data.flag_isv.keys[flag_idx].clone();
+                if global_state.flags[flag_idx] {
+                    relevant_flags.push(flag_name);
                 }
-
-                let spoiler_entry = SpoilerRouteEntry {
-                    area: to_vertex_info.area_name,
-                    short_room: strip_name(&to_vertex_info.room_name),
-                    room: to_vertex_info.room_name,
-                    node: to_vertex_info.node_name,
-                    room_id: to_vertex_info.room_id,
-                    from_node_id: from_vertex_info.node_id,
-                    to_node_id: to_vertex_info.node_id,
-                    strat_id: link.strat_id,
-                    obstacles_bitmask: to_obstacles_mask,
-                    coords,
-                    strat_name: link.strat_name.clone(),
-                    strat_notes: link.strat_notes.clone(),
-                    energy_used: if last {
-                        Some(new_local_state.energy_used)
-                    } else {
-                        Some(local_state.energy_used)
-                    },
-                    reserves_used: if last {
-                        Some(new_local_state.reserves_used)
-                    } else {
-                        Some(local_state.reserves_used)
-                    },
-                    missiles_used: if last {
-                        Some(new_local_state.missiles_used)
-                    } else {
-                        Some(local_state.missiles_used)
-                    },
-                    supers_used: if last {
-                        Some(new_local_state.supers_used)
-                    } else {
-                        Some(local_state.supers_used)
-                    },
-                    power_bombs_used: if last {
-                        Some(new_local_state.power_bombs_used)
-                    } else {
-                        Some(local_state.power_bombs_used)
-                    },
-                    relevant_flags,
-                };
-                route.push(spoiler_entry);
             }
-            local_state = new_local_state;
+
+            let spoiler_entry = SpoilerRouteEntry {
+                area: to_vertex_info.area_name,
+                short_room: strip_name(&to_vertex_info.room_name),
+                room: to_vertex_info.room_name,
+                node: to_vertex_info.node_name,
+                room_id: to_vertex_info.room_id,
+                from_node_id: from_vertex_info.node_id,
+                to_node_id: to_vertex_info.node_id,
+                strat_id: link.strat_id,
+                obstacles_bitmask: to_obstacles_mask,
+                coords,
+                strat_name: link.strat_name.clone(),
+                strat_notes: link.strat_notes.clone(),
+                energy_used: Some(new_local_state.energy_used),
+                reserves_used: Some(new_local_state.reserves_used),
+                missiles_used: Some(new_local_state.missiles_used),
+                supers_used: Some(new_local_state.supers_used),
+                power_bombs_used: Some(new_local_state.power_bombs_used),
+                relevant_flags,
+            };
+            route.push(spoiler_entry);
         }
 
         if reverse {
@@ -5851,24 +5796,12 @@ impl Randomizer<'_> {
         let global_state = &state.debug_data.as_ref().unwrap().global_state;
         let (forward_cost_idx, reverse_cost_idx) =
             get_bireachable_idxs(global_state, vertex_id, forward, reverse).unwrap();
-        let forward_link_idxs: Vec<LinkIdx> =
-            get_spoiler_route(forward, vertex_id, forward_cost_idx);
-        let reverse_link_idxs: Vec<LinkIdx> =
-            get_spoiler_route(reverse, vertex_id, reverse_cost_idx);
-        let obtain_route = self.get_spoiler_route(
-            global_state,
-            forward.starting_local_state,
-            &forward_link_idxs,
-            &self.difficulty_tiers[0],
-            false,
-        );
-        let return_route = self.get_spoiler_route(
-            global_state,
-            LocalState::full(),
-            &reverse_link_idxs,
-            &self.difficulty_tiers[0],
-            true,
-        );
+        let forward_trail_ids: Vec<StepTrailId> =
+            get_spoiler_trail_ids(forward, vertex_id, forward_cost_idx);
+        let reverse_trail_ids: Vec<StepTrailId> =
+            get_spoiler_trail_ids(reverse, vertex_id, reverse_cost_idx);
+        let obtain_route = self.get_spoiler_route(global_state, &forward_trail_ids, forward, false);
+        let return_route = self.get_spoiler_route(global_state, &reverse_trail_ids, reverse, true);
         (obtain_route, return_route)
     }
 
@@ -5880,15 +5813,9 @@ impl Randomizer<'_> {
         let forward = &state.debug_data.as_ref().unwrap().forward;
         let global_state = &state.debug_data.as_ref().unwrap().global_state;
         let forward_cost_idx = get_one_way_reachable_idx(vertex_id, forward).unwrap();
-        let forward_link_idxs: Vec<LinkIdx> =
-            get_spoiler_route(forward, vertex_id, forward_cost_idx);
-        self.get_spoiler_route(
-            global_state,
-            forward.starting_local_state,
-            &forward_link_idxs,
-            &self.difficulty_tiers[0],
-            false,
-        )
+        let forward_trail_ids: Vec<StepTrailId> =
+            get_spoiler_trail_ids(forward, vertex_id, forward_cost_idx);
+        self.get_spoiler_route(global_state, &forward_trail_ids, forward, false)
     }
 
     fn get_spoiler_item_details(

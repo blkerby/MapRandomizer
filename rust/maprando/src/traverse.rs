@@ -9,8 +9,7 @@ use crate::{
     settings::{MotherBrainFight, Objective, RandomizerSettings, WallJump},
 };
 use maprando_game::{
-    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
-    LinksDataGroup, NodeId, Requirement, RoomId, TECH_ID_CAN_SUITLESS_LAVA_DIVE, VertexId,
+    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinksDataGroup, NodeId, Requirement, RoomId, StepTrailId, VertexId, TECH_ID_CAN_SUITLESS_LAVA_DIVE
 };
 use maprando_logic::{
     GlobalState, Inventory, LocalState,
@@ -2154,12 +2153,10 @@ pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &TraverseResult) -> 
     None
 }
 
-pub type StepTrailId = i32;
-
 #[derive(Clone, Serialize, Deserialize)]
 pub struct StepTrail {
     pub prev_trail_id: StepTrailId,
-    pub link_idx: LinkIdx,
+    pub link_idx: StepTrailId,
     pub local_state: LocalState,
 }
 
@@ -2224,12 +2221,12 @@ pub fn traverse(
     result.traversal_number = *traversal_number;
     *traversal_number += 1;
 
-    let base_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
+    let base_links_by_src: &Vec<Vec<(StepTrailId, Link)>> = if reverse {
         &base_links_data.links_by_dst
     } else {
         &base_links_data.links_by_src
     };
-    let seed_links_by_src: &Vec<Vec<(LinkIdx, Link)>> = if reverse {
+    let seed_links_by_src: &Vec<Vec<(StepTrailId, Link)>> = if reverse {
         &seed_links_data.links_by_dst
     } else {
         &seed_links_data.links_by_src
@@ -2324,16 +2321,16 @@ pub fn traverse(
     result
 }
 
-pub fn get_spoiler_route(
+pub fn get_spoiler_trail_ids(
     traverse_result: &TraverseResult,
     vertex_id: usize,
     cost_idx: usize,
-) -> Vec<LinkIdx> {
+) -> Vec<StepTrailId> {
     let mut trail_id = traverse_result.start_trail_ids[vertex_id][cost_idx];
-    let mut steps: Vec<LinkIdx> = Vec::new();
+    let mut steps: Vec<StepTrailId> = Vec::new();
     while trail_id != -1 {
         let step_trail = &traverse_result.step_trails[trail_id as usize];
-        steps.push(step_trail.link_idx);
+        steps.push(trail_id);
         trail_id = step_trail.prev_trail_id;
     }
     steps.reverse();

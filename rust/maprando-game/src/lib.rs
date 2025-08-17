@@ -108,7 +108,7 @@ pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 pub type TilesetIdx = usize; // Tileset index
 pub type AreaIdx = usize; // Area index (0..5)
-pub type LinkIdx = u32;
+pub type StepTrailId = i32;
 
 #[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {
@@ -1091,14 +1091,14 @@ fn compute_runway_effective_length(geom: &RunwayGeometry) -> f32 {
 #[derive(Default)]
 pub struct LinksDataGroup {
     pub links: Vec<Link>,
-    pub links_by_src: Vec<Vec<(LinkIdx, Link)>>,
-    pub links_by_dst: Vec<Vec<(LinkIdx, Link)>>,
+    pub links_by_src: Vec<Vec<(StepTrailId, Link)>>,
+    pub links_by_dst: Vec<Vec<(StepTrailId, Link)>>,
 }
 
 impl LinksDataGroup {
     pub fn new(links: Vec<Link>, num_vertices: usize, start_idx: usize) -> Self {
-        let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
-        let mut links_by_dst: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+        let mut links_by_src: Vec<Vec<(StepTrailId, Link)>> = vec![Vec::new(); num_vertices];
+        let mut links_by_dst: Vec<Vec<(StepTrailId, Link)>> = vec![Vec::new(); num_vertices];
 
         for (idx, link) in links.iter().enumerate() {
             let mut reversed_link = link.clone();
@@ -1107,8 +1107,9 @@ impl LinksDataGroup {
                 &mut reversed_link.to_vertex_id,
             );
             links_by_dst[reversed_link.from_vertex_id]
-                .push(((start_idx + idx) as LinkIdx, reversed_link));
-            links_by_src[link.from_vertex_id].push(((start_idx + idx) as LinkIdx, link.clone()));
+                .push(((start_idx + idx) as StepTrailId, reversed_link));
+            links_by_src[link.from_vertex_id]
+                .push(((start_idx + idx) as StepTrailId, link.clone()));
         }
         Self {
             links,
