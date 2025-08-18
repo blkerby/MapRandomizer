@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use anyhow::{bail, Context, Result};
+use anyhow::{Context, Result, bail};
 use hashbrown::HashMap;
 use maprando_game::{Item, NotableId, RoomId, TechId};
 use serde::{Deserialize, Serialize};
@@ -561,7 +561,10 @@ fn upgrade_tech_settings(settings: &mut serde_json::Value, preset_data: &PresetD
     Ok(())
 }
 
-fn upgrade_notable_settings(settings: &mut serde_json::Value, preset_data: &PresetData) -> Result<()> {
+fn upgrade_notable_settings(
+    settings: &mut serde_json::Value,
+    preset_data: &PresetData,
+) -> Result<()> {
     // This updates the names of notables, discards any obsolete notables settings, and disables
     // any new notables that are not referenced in the settings.
     let mut notable_map: HashMap<(RoomId, NotableId), bool> = HashMap::new();
@@ -773,7 +776,10 @@ fn upgrade_animals_setting(settings: &mut serde_json::Value) -> Result<()> {
     Ok(())
 }
 
-fn upgrade_objective_settings(settings: &mut serde_json::Value, preset_data: &PresetData) -> Result<()> {
+fn upgrade_objective_settings(
+    settings: &mut serde_json::Value,
+    preset_data: &PresetData,
+) -> Result<()> {
     let settings_obj = settings
         .as_object_mut()
         .context("expected settings to be object")?;

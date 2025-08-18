@@ -1,4 +1,4 @@
-use crate::web::{AppData};
+use crate::web::AppData;
 use actix_easy_multipart::{MultipartForm, bytes::Bytes, text::Text};
 use actix_web::{
     HttpResponse, Responder,
@@ -9,11 +9,12 @@ use askama::Template;
 use log::info;
 use maprando::{
     customize::{
-        parse_controller_button, ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, FlashingSetting, MusicSettings, PaletteTheme, ShakingSetting, TileTheme
+        ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, FlashingSetting,
+        MusicSettings, PaletteTheme, ShakingSetting, TileTheme, parse_controller_button,
     },
-    patch::{make_rom, Rom},
+    patch::{Rom, make_rom},
     randomize::Randomization,
-    settings::{try_upgrade_settings, RandomizerSettings},
+    settings::{RandomizerSettings, try_upgrade_settings},
 };
 
 #[derive(Template)]
@@ -107,7 +108,11 @@ async fn customize_seed(
     let settings: Option<RandomizerSettings> = if settings_bytes.is_empty() {
         None
     } else {
-        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data.preset_data, false) {
+        match try_upgrade_settings(
+            String::from_utf8(settings_bytes).unwrap(),
+            &app_data.preset_data,
+            false,
+        ) {
             Ok(s) => Some(s.1),
             Err(e) => {
                 return HttpResponse::InternalServerError().body(e.to_string());
