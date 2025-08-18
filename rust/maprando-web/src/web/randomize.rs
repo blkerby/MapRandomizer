@@ -7,11 +7,9 @@ use helpers::*;
 use log::info;
 use maprando::{
     randomize::{
-        DifficultyConfig, Randomization, Randomizer, SpoilerLog, filter_links,
-        get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors,
-        randomize_map_areas,
+        filter_links, get_difficulty_tiers, get_objectives, order_map_areas, randomize_doors, randomize_map_areas, DifficultyConfig, Randomization, Randomizer
     },
-    settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
+    settings::{AreaAssignment, RandomizerSettings, StartLocationMode}, spoiler_log::SpoilerLog,
 };
 use maprando_game::{LinksDataGroup, Map};
 use rand::{RngCore, SeedableRng};

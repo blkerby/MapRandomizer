@@ -2172,6 +2172,7 @@ pub struct TraversalStep {
     pub updates: Vec<TraversalUpdate>,
     pub start_step_trail_idx: usize,
     pub step_num: usize,
+    pub global_state: GlobalState,
 }
 
 pub struct Traverser {
@@ -2185,7 +2186,7 @@ pub struct Traverser {
 }
 
 impl Traverser {
-    pub fn new(num_vertices: usize, reverse: bool) -> Self {
+    pub fn new(num_vertices: usize, reverse: bool, global_state: &GlobalState) -> Self {
         Self {
             reverse,
             step_trails: Vec::with_capacity(num_vertices * 10),
@@ -2196,6 +2197,7 @@ impl Traverser {
                 updates: vec![],
                 start_step_trail_idx: 0,
                 step_num: 0,
+                global_state: global_state.clone(),
             },
             past_steps: vec![],
         }
@@ -2238,6 +2240,7 @@ impl Traverser {
             updates: vec![],
             start_step_trail_idx: self.step_trails.len(),
             step_num: 0,
+            global_state: self.step.global_state.clone(),
         };
         std::mem::swap(&mut self.step, &mut step);
         step.step_num = step_num;
@@ -2266,8 +2269,9 @@ impl Traverser {
         door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
         locked_door_data: &LockedDoorData,
         objectives: &[Objective],
-        step_num: usize
+        step_num: usize,
     ) {
+        self.step.global_state = global.clone();
         let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
 
         for (v, cost) in self.cost.iter().enumerate() {
