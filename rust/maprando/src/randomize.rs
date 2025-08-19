@@ -228,6 +228,7 @@ pub struct Randomizer<'a> {
 #[derive(Clone)]
 pub struct ItemLocationState {
     pub placed_item: Option<Item>,
+    pub placed_tier: Option<usize>,
     pub collected: bool,
     pub reachable_traversal: Option<TraversalId>,
     pub bireachable_traversal: Option<TraversalId>,
@@ -262,7 +263,8 @@ pub struct LockedDoor {
     pub bidirectional: bool, // if true, the door is locked on both sides, with a shared state
 }
 
-// The core graph traversal state, which is large so we don't want to clone it.
+// The core graph traversal state, which is large so we want to avoid cloning it where possible.
+#[derive(Clone)]
 pub struct TraverserPair {
     pub forward: Traverser,
     pub reverse: Traverser,
@@ -3600,75 +3602,64 @@ impl<'r> Randomizer<'r> {
         }
     }
 
-    // fn find_hard_location(
-    //     &self,
-    //     state: &RandomizationState,
-    //     bireachable_locations: &[ItemLocationId],
-    //     init_traverse: Option<&TraverseResult>,
-    //     preferred_areas: &[AreaIdx],
-    // ) -> (usize, usize) {
-    //     // For forced mode, we prioritize placing a key item at a location that is inaccessible at
-    //     // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
-    //     // a location with the hardest possible difficulty to reach.
-    //     let num_vertices = self.game_data.vertex_isv.keys.len();
-    //     let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
-    //         room_id: state.hub_location.room_id,
-    //         node_id: state.hub_location.node_id,
-    //         obstacle_mask: 0,
-    //         actions: vec![],
-    //     }];
+    fn find_hard_location(
+        &self,
+        state: &RandomizationState,
+        bireachable_locations: &[ItemLocationId],
+        traverser: &mut Traverser,
+        preferred_areas: &[AreaIdx],
+    ) -> (usize, usize) {
+        // For forced mode, we prioritize placing a key item at a location that is inaccessible at
+        // lower difficulty tiers. This function returns an index into `bireachable_locations`, identifying
+        // a location with the hardest possible difficulty to reach.
 
-    //     for tier in 1..self.difficulty_tiers.len() {
-    //         let difficulty = &self.difficulty_tiers[tier];
+        for tier in 1..self.difficulty_tiers.len() {
+            let difficulty = &self.difficulty_tiers[tier];
 
-    //         let traverse_result = traverse(
-    //             self.base_links_data,
-    //             &self.seed_links_data,
-    //             self.get_init_traverse(state, init_traverse),
-    //             &state.global_state,
-    //             LocalState::full(),
-    //             num_vertices,
-    //             start_vertex_id,
-    //             false,
-    //             self.settings,
-    //             difficulty,
-    //             self.game_data,
-    //             &self.door_map,
-    //             self.locked_door_data,
-    //             &self.objectives,
-    //             self.next_traversal_number.borrow_mut().deref_mut(),
-    //         );
+            traverser.traverse(
+                self.base_links_data,
+                &self.seed_links_data,
+                &state.global_state,
+                self.settings,
+                difficulty,
+                self.game_data,
+                &self.door_map,
+                self.locked_door_data,
+                &self.objectives,
+                0,
+            );
 
-    //         let mut preferred_locs: Vec<usize> = Vec::new();
-    //         let mut other_locs: Vec<usize> = Vec::new();
+            let mut preferred_locs: Vec<usize> = Vec::new();
+            let mut other_locs: Vec<usize> = Vec::new();
 
-    //         for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
-    //             let mut is_reachable = false;
-    //             for &v in &self.game_data.item_vertex_ids[item_location_id] {
-    //                 if traverse_result.cost[v].iter().any(|&x| f32::is_finite(x)) {
-    //                     is_reachable = true;
-    //                 }
-    //             }
-    //             if !is_reachable {
-    //                 if self.settings.item_progression_settings.item_placement_style
-    //                     == ItemPlacementStyle::Local
-    //                     && preferred_areas.contains(&self.item_areas[item_location_id])
-    //                 {
-    //                     preferred_locs.push(i);
-    //                 } else {
-    //                     other_locs.push(i);
-    //                 }
-    //             }
-    //         }
+            for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
+                let mut is_reachable = false;
+                for &v in &self.game_data.item_vertex_ids[item_location_id] {
+                    if traverser.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                        is_reachable = true;
+                    }
+                }
+                if !is_reachable {
+                    if self.settings.item_progression_settings.item_placement_style
+                        == ItemPlacementStyle::Local
+                        && preferred_areas.contains(&self.item_areas[item_location_id])
+                    {
+                        preferred_locs.push(i);
+                    } else {
+                        other_locs.push(i);
+                    }
+                }
+            }
 
-    //         if !preferred_locs.is_empty() {
-    //             return (preferred_locs[0], tier - 1);
-    //         } else if !other_locs.is_empty() {
-    //             return (other_locs[0], tier - 1);
-    //         }
-    //     }
-    //     (0, self.difficulty_tiers.len() - 1)
-    // }
+            traverser.pop_step();
+            if !preferred_locs.is_empty() {
+                return (preferred_locs[0], tier - 1);
+            } else if !other_locs.is_empty() {
+                return (other_locs[0], tier - 1);
+            }
+        }
+        (0, self.difficulty_tiers.len() - 1)
+    }
 
     fn place_items(
         &self,
@@ -3679,6 +3670,7 @@ impl<'r> Randomizer<'r> {
         other_locations: &[ItemLocationId],
         key_items_to_place: &[Item],
         other_items_to_place: &[Item],
+        traverser_pair: &TraverserPair,
     ) {
         info!(
             "[attempt {attempt_num_rando}] Placing {key_items_to_place:?}, {other_items_to_place:?}"
@@ -3693,68 +3685,53 @@ impl<'r> Randomizer<'r> {
             && num_items_remaining < num_items_to_place + KEY_ITEM_FINISH_THRESHOLD;
 
         let mut new_bireachable_locations: Vec<ItemLocationId> = bireachable_locations.to_vec();
-        // if self.difficulty_tiers.len() > 1 && !skip_hard_placement {
-        //     let traverse_result = state.previous_debug_data.as_ref().map(|x| &x.forward);
-        //     let mut new_key_areas: Vec<AreaIdx> = Vec::new();
-        //     for i in 0..key_items_to_place.len() {
-        //         let (hard_idx, tier) = if key_items_to_place.len() > 1 {
-        //             // We're placing more than one key item in this step. Obtaining some of them could help make
-        //             // others easier to obtain. So we use "new_state" to try to find locations that are still hard to
-        //             // reach even with the new items.
-        //             self.find_hard_location(
-        //                 new_state,
-        //                 &new_bireachable_locations[i..],
-        //                 traverse_result,
-        //                 &state.last_key_areas,
-        //             )
-        //         } else {
-        //             // We're only placing one key item in this step. Try to find a location that is hard to reach
-        //             // without already having the new item.
-        //             self.find_hard_location(
-        //                 state,
-        //                 &new_bireachable_locations[i..],
-        //                 traverse_result,
-        //                 &state.last_key_areas,
-        //             )
-        //         };
-        //         info!(
-        //             "[attempt {attempt_num_rando}] {:?} in tier {} (of {})",
-        //             key_items_to_place[i],
-        //             tier,
-        //             self.difficulty_tiers.len()
-        //         );
+        let mut tier_vec: Vec<usize> = vec![];
+        if self.difficulty_tiers.len() > 1 && !skip_hard_placement {
+            // TODO: avoid doing this clone:
+            let mut past_traverser = traverser_pair.forward.clone();
+            let step = past_traverser.past_steps.last().unwrap().step_num;
+            while past_traverser.past_steps.len() > 1
+                && past_traverser.past_steps.last().unwrap().step_num >= step - 1
+            {
+                past_traverser.pop_step();
+            }
+            let mut new_key_areas: Vec<AreaIdx> = Vec::new();
+            for i in 0..key_items_to_place.len() {
+                let (hard_idx, tier) = if key_items_to_place.len() > 1 {
+                    // We're placing more than one key item in this step. Obtaining some of them could help make
+                    // others easier to obtain. So we use "new_state" to try to find locations that are still hard to
+                    // reach even with the new items.
+                    self.find_hard_location(
+                        new_state,
+                        &new_bireachable_locations[i..],
+                        &mut past_traverser,
+                        &state.last_key_areas,
+                    )
+                } else {
+                    // We're only placing one key item in this step. Try to find a location that is hard to reach
+                    // without already having the new item.
+                    self.find_hard_location(
+                        state,
+                        &new_bireachable_locations[i..],
+                        &mut past_traverser,
+                        &state.last_key_areas,
+                    )
+                };
+                info!(
+                    "[attempt {attempt_num_rando}] {:?} in tier {} (of {})",
+                    key_items_to_place[i],
+                    tier,
+                    self.difficulty_tiers.len(),
+                );
 
-        //         let hard_loc = new_bireachable_locations[i + hard_idx];
-        //         new_bireachable_locations.swap(i, i + hard_idx);
+                let hard_loc = new_bireachable_locations[i + hard_idx];
+                new_bireachable_locations.swap(i, i + hard_idx);
+                tier_vec.push(tier);
 
-        //         new_key_areas.push(self.item_areas[hard_loc]);
-
-        //         // Mark the vertices along the path to the newly chosen hard location. Vertices that are
-        //         // easily accessible from along this path are then discouraged from being chosen later
-        //         // as hard locations (since the point of forced mode is to ensure unique hard strats
-        //         // are required; we don't want it to be the same hard strat over and over again).
-        //         let hard_vertex_id = state.item_location_state[hard_loc]
-        //             .bireachable_vertex_id
-        //             .unwrap();
-        //         new_state.item_location_state[hard_loc].difficulty_tier = Some(tier);
-        //         let forward = &state.debug_data.as_ref().unwrap().forward;
-        //         let reverse = &state.debug_data.as_ref().unwrap().reverse;
-        //         let (forward_cost_idx, _) =
-        //             get_bireachable_idxs(&state.global_state, hard_vertex_id, forward, reverse)
-        //                 .unwrap();
-        //         let route = get_spoiler_trail_ids(
-        //             &state.debug_data.as_ref().unwrap().forward,
-        //             hard_vertex_id,
-        //             forward_cost_idx,
-        //         );
-        //         for &trail_id in &route {
-        //             let link_idx = forward.step_trails[trail_id as usize].link_idx;
-        //             let vertex_id = self.get_link(link_idx as usize).to_vertex_id;
-        //             new_state.key_visited_vertices.insert(vertex_id);
-        //         }
-        //     }
-        //     new_state.last_key_areas = new_key_areas;
-        // }
+                new_key_areas.push(self.item_areas[hard_loc]);
+            }
+            new_state.last_key_areas = new_key_areas;
+        }
 
         let mut all_locations: Vec<ItemLocationId> = Vec::new();
         all_locations.extend(new_bireachable_locations);
@@ -3763,8 +3740,16 @@ impl<'r> Randomizer<'r> {
         all_items_to_place.extend(key_items_to_place);
         all_items_to_place.extend(other_items_to_place);
         assert!(all_locations.len() == all_items_to_place.len());
-        for (&loc, &item) in iter::zip(&all_locations, &all_items_to_place) {
+        for i in 0..all_locations.len() {
+            let loc = all_locations[i];
+            let item = all_items_to_place[i];
+            let tier = if i < tier_vec.len() {
+                Some(tier_vec[i])
+            } else {
+                None
+            };
             new_state.item_location_state[loc].placed_item = Some(item);
+            new_state.item_location_state[loc].placed_tier = tier;
         }
     }
 
@@ -3956,11 +3941,6 @@ impl<'r> Randomizer<'r> {
             .select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
             .unwrap();
         let num_traversal_steps = traverser_pair.forward.past_steps.len();
-        info!(
-            "num_traversal_steps: {}, step_trails={}",
-            num_traversal_steps,
-            traverser_pair.forward.step_trails.len()
-        );
 
         loop {
             assert_eq!(num_traversal_steps, traverser_pair.forward.past_steps.len());
@@ -4033,7 +4013,6 @@ impl<'r> Randomizer<'r> {
         traverser_pair: &mut TraverserPair,
         rng: &mut R,
     ) -> Result<bool> {
-        let mut flag_update_num: i32 = 0;
         loop {
             let mut any_update = false;
             for (i, &flag_id) in self.game_data.flag_ids.iter().enumerate() {
@@ -4060,12 +4039,11 @@ impl<'r> Randomizer<'r> {
                     state.global_state.doors_unlocked[i] = true;
                 }
             }
-            if any_update || flag_update_num == 0 {
+            if any_update {
                 self.update_reachability(state, traverser_pair);
             } else {
                 break;
             }
-            flag_update_num += 1;
         }
 
         if self
@@ -4127,6 +4105,7 @@ impl<'r> Randomizer<'r> {
             &unplaced_oneway_reachable,
             &selection.key_items,
             &selection.other_items,
+            traverser_pair,
         );
 
         // Mark the newly placed bireachable items as collected:
@@ -4751,6 +4730,7 @@ impl<'r> Randomizer<'r> {
         let (initial_global_state, initial_local_state) = self.get_initial_states();
         let initial_item_location_state = ItemLocationState {
             placed_item: None,
+            placed_tier: None,
             collected: false,
             reachable_traversal: None,
             bireachable_traversal: None,
@@ -4830,9 +4810,11 @@ impl<'r> Randomizer<'r> {
             start_vertex_id,
             &state.global_state,
         );
+        traverser_pair.forward.finish_step(1);
         traverser_pair
             .reverse
             .add_origin(LocalState::full(), start_vertex_id, &state.global_state);
+        traverser_pair.reverse.finish_step(1);
         self.update_reachability(&mut state, &mut traverser_pair);
         if !state
             .item_location_state

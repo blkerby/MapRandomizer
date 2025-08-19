@@ -8,13 +8,17 @@ use crate::{
     settings::{MotherBrainFight, Objective, RandomizerSettings, WallJump},
 };
 use maprando_game::{
-    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, StepTrailId, VertexId, TECH_ID_CAN_SUITLESS_LAVA_DIVE
+    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
+    LinksDataGroup, NodeId, Requirement, RoomId, StepTrailId, TECH_ID_CAN_SUITLESS_LAVA_DIVE,
+    VertexId,
 };
 use maprando_logic::{
+    GlobalState, IMPOSSIBLE_LOCAL_STATE, Inventory, LocalState,
     boss_requirements::{
         apply_botwoon_requirement, apply_draygon_requirement, apply_mother_brain_2_requirement,
         apply_phantoon_requirement, apply_ridley_requirement,
-    }, helpers::{suit_damage_factor, validate_energy}, GlobalState, Inventory, LocalState, IMPOSSIBLE_LOCAL_STATE
+    },
+    helpers::{suit_damage_factor, validate_energy},
 };
 
 fn apply_enemy_kill_requirement(
@@ -2146,6 +2150,7 @@ pub struct TraversalUpdate {
     pub old_cost: [f32; NUM_COST_METRICS],
 }
 
+#[derive(Clone)]
 pub struct TraversalStep {
     pub updates: Vec<TraversalUpdate>,
     pub start_step_trail_idx: usize,
@@ -2153,6 +2158,7 @@ pub struct TraversalStep {
     pub global_state: GlobalState,
 }
 
+#[derive(Clone)]
 pub struct Traverser {
     pub reverse: bool,
     pub step_trails: Vec<StepTrail>,
@@ -2213,7 +2219,7 @@ impl Traverser {
         self.add_trail(start_vertex_id, start_trail_ids, local_state, cost);
     }
 
-    fn finish_step(&mut self, step_num: usize) {
+    pub fn finish_step(&mut self, step_num: usize) {
         let mut step = TraversalStep {
             updates: vec![],
             start_step_trail_idx: self.step_trails.len(),

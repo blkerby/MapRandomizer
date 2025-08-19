@@ -16,8 +16,8 @@ use crate::{
     },
     settings::SaveAnimals,
     traverse::{
-        NUM_COST_METRICS, Traverser, get_bireachable_idxs,
-        get_one_way_reachable_idx, get_spoiler_trail_ids,
+        NUM_COST_METRICS, Traverser, get_bireachable_idxs, get_one_way_reachable_idx,
+        get_spoiler_trail_ids,
     },
 };
 
@@ -915,7 +915,7 @@ pub fn get_spoiler_log(
                     state,
                     item_vertex_id,
                     item,
-                    None, // TODO: use item tier
+                    item_state.placed_tier,
                     i,
                     traverser_pair,
                 );
@@ -1078,11 +1078,6 @@ pub fn get_spoiler_log(
     spoiler_summaries.reverse();
     spoiler_details.reverse();
 
-    let item_placement: Vec<Item> = state
-        .item_location_state
-        .iter()
-        .map(|x| x.placed_item.unwrap())
-        .collect();
     let spoiler_all_items = state
         .item_location_state
         .iter()
