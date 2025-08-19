@@ -8,17 +8,13 @@ use crate::{
     settings::{MotherBrainFight, Objective, RandomizerSettings, WallJump},
 };
 use maprando_game::{
-    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link,
-    LinksDataGroup, NodeId, Requirement, RoomId, StepTrailId, TECH_ID_CAN_SUITLESS_LAVA_DIVE,
-    VertexId,
+    BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx, LinksDataGroup, NodeId, Requirement, RoomId, StepTrailId, VertexId, TECH_ID_CAN_SUITLESS_LAVA_DIVE
 };
 use maprando_logic::{
-    GlobalState, Inventory, LocalState,
     boss_requirements::{
         apply_botwoon_requirement, apply_draygon_requirement, apply_mother_brain_2_requirement,
         apply_phantoon_requirement, apply_ridley_requirement,
-    },
-    helpers::{suit_damage_factor, validate_energy},
+    }, helpers::{suit_damage_factor, validate_energy}, GlobalState, Inventory, LocalState, IMPOSSIBLE_LOCAL_STATE
 };
 
 fn apply_enemy_kill_requirement(
@@ -87,21 +83,6 @@ fn apply_enemy_kill_requirement(
 
     if hp <= 0 { Some(local) } else { None }
 }
-
-pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
-    energy_used: 0x3FFF,
-    reserves_used: 0x3FFF,
-    missiles_used: 0x3FFF,
-    supers_used: 0x3FFF,
-    power_bombs_used: 0x3FFF,
-    shinecharge_frames_remaining: 0x3FFF,
-    cycle_frames: 0x3FFF,
-    farm_baseline_energy_used: 0x3FFF,
-    farm_baseline_reserves_used: 0x3FFF,
-    farm_baseline_missiles_used: 0x3FFF,
-    farm_baseline_supers_used: 0x3FFF,
-    farm_baseline_power_bombs_used: 0x3FFF,
-};
 
 pub const NUM_COST_METRICS: usize = 2;
 
@@ -2087,10 +2068,6 @@ pub fn apply_requirement(
     }
 }
 
-pub fn is_reachable_state(local: LocalState) -> bool {
-    local.energy_used != IMPOSSIBLE_LOCAL_STATE.energy_used
-}
-
 pub fn is_bireachable_state(
     global: &GlobalState,
     forward: LocalState,
@@ -2147,7 +2124,7 @@ pub fn get_bireachable_idxs(
 pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &Traverser) -> Option<usize> {
     for forward_cost_idx in 0..NUM_COST_METRICS {
         let forward_state = forward.local_states[vertex_id][forward_cost_idx];
-        if is_reachable_state(forward_state) {
+        if !forward_state.is_impossible() {
             return Some(forward_cost_idx);
         }
     }
@@ -2157,10 +2134,11 @@ pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &Traverser) -> Optio
 #[derive(Clone, Serialize, Deserialize)]
 pub struct StepTrail {
     pub prev_trail_id: StepTrailId,
-    pub link_idx: StepTrailId,
+    pub link_idx: LinkIdx,
     pub local_state: LocalState,
 }
 
+#[derive(Clone, Serialize, Deserialize)]
 pub struct TraversalUpdate {
     pub vertex_id: VertexId,
     pub old_start_trail_id: [StepTrailId; NUM_COST_METRICS],

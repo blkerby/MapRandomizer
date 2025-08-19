@@ -1,8 +1,10 @@
+use std::default;
+
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando_game::{
-    BeamType, Capacity, DoorType, FlagId, Item, NodeId, Requirement, RoomId, StepTrailId, VertexId,
-    VertexKey,
+    BeamType, Capacity, DoorType, FlagId, Item, LinkIdx, NodeId, Requirement, RoomId, StepTrailId,
+    TraversalId, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, LocalState};
 use serde::{Deserialize, Serialize};
@@ -16,42 +18,69 @@ use crate::{
     },
     settings::SaveAnimals,
     traverse::{
-        NUM_COST_METRICS, Traverser, get_bireachable_idxs, get_one_way_reachable_idx,
-        get_spoiler_trail_ids,
+        NUM_COST_METRICS, StepTrail, TraversalStep, Traverser, get_bireachable_idxs,
+        get_one_way_reachable_idx, get_spoiler_trail_ids,
     },
 };
 
-pub fn get_spoiler_traverse_result(tr: &Traverser) -> SpoilerTraverseResult {
-    let mut out: SpoilerTraverseResult = SpoilerTraverseResult {
-        traversal_number: 0, //tr.traversal_number,
-        prev_trail_ids: vec![],
-        link_idxs: vec![],
-        local_states: vec![],
-        cost: tr.cost.clone(),
-        start_trail_ids: tr.start_trail_ids.clone(),
-    };
-    // for t in &tr.step_trails {
-    //     let old_state = if t.prev_trail_id >= 0 {
-    //         tr.step_trails[t.prev_trail_id as usize].local_state
-    //     } else {
-    //         IMPOSSIBLE_LOCAL_STATE
-    //     };
-    //     let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
-    //     out.prev_trail_ids.push(t.prev_trail_id);
-    //     out.link_idxs.push(t.link_idx);
-    //     out.local_states.push(spoiler_local_state);
-    // }
-    out
-}
+pub fn get_spoiler_traversal(tr: &Traverser) -> SpoilerTraversal {
+    let mut steps: Vec<SpoilerTraversalStep> = vec![];
+    let num_traversals = tr.past_steps.len();
+    let mut first_updates_by_vertex: HashMap<(VertexId, TraversalId), usize> = HashMap::new();
+    let mut last_updates_by_vertex: HashMap<(VertexId, TraversalId), usize> = HashMap::new();
+    for (t, s) in tr.past_steps.iter().enumerate() {
+        for (i, u) in s.updates.iter().enumerate() {
+            first_updates_by_vertex.entry((u.vertex_id, t)).or_insert(i);
+            last_updates_by_vertex.insert((u.vertex_id, t), i);
+        }
+    }
 
-#[derive(Serialize, Deserialize)]
-pub struct SpoilerTraverseResult {
-    pub traversal_number: usize,
-    pub prev_trail_ids: Vec<StepTrailId>,
-    pub link_idxs: Vec<StepTrailId>,
-    pub local_states: Vec<SpoilerLocalState>,
-    pub start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
-    pub cost: Vec<[f32; NUM_COST_METRICS]>,
+    for (t, s) in tr.past_steps.iter().enumerate() {
+        let mut updated_vertex_ids: Vec<VertexId> = vec![];
+        let mut updated_start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]> = vec![];
+        for (i, u) in s.updates.iter().enumerate() {
+            if last_updates_by_vertex[&(u.vertex_id, t)] != i {
+                continue;
+            }
+
+            let mut new_start_trail_id = tr.start_trail_ids[u.vertex_id];
+            for t1 in (t + 1)..num_traversals {
+                if let Some(&j) = first_updates_by_vertex.get(&(u.vertex_id, t1)) {
+                    new_start_trail_id = tr.past_steps[t1].updates[j].old_start_trail_id;
+                    break;
+                }
+            }
+            updated_vertex_ids.push(u.vertex_id);
+            updated_start_trail_ids.push(new_start_trail_id);
+        }
+        steps.push(SpoilerTraversalStep {
+            updated_vertex_ids,
+            updated_start_trail_ids,
+            step_num: s.step_num,
+        });
+    }
+
+    let mut prev_trail_ids: Vec<StepTrailId> = vec![];
+    let mut link_idxs: Vec<LinkIdx> = vec![];
+    let mut local_states: Vec<SpoilerLocalState> = vec![];
+    for t in &tr.step_trails {
+        let old_state = if t.prev_trail_id >= 0 {
+            tr.step_trails[t.prev_trail_id as usize].local_state
+        } else {
+            LocalState::full()
+        };
+        let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
+        prev_trail_ids.push(t.prev_trail_id);
+        link_idxs.push(t.link_idx);
+        local_states.push(spoiler_local_state);
+    }
+
+    SpoilerTraversal {
+        prev_trail_ids,
+        link_idxs,
+        local_states,
+        steps,
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -132,6 +161,22 @@ pub struct SpoilerGameData {
     vertices: Vec<VertexKey>,
     links: Vec<SpoilerLink>,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerTraversalStep {
+    pub step_num: usize,
+    pub updated_vertex_ids: Vec<VertexId>,
+    pub updated_start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct SpoilerTraversal {
+    pub prev_trail_ids: Vec<StepTrailId>,
+    pub link_idxs: Vec<LinkIdx>,
+    pub local_states: Vec<SpoilerLocalState>,
+    pub steps: Vec<SpoilerTraversalStep>,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerLog {
     pub item_priority: Vec<String>,
@@ -146,6 +191,8 @@ pub struct SpoilerLog {
     pub all_items: Vec<SpoilerItemLoc>,
     pub all_rooms: Vec<SpoilerRoomLoc>,
     pub game_data: SpoilerGameData,
+    pub forward_traversal: SpoilerTraversal,
+    pub reverse_traversal: SpoilerTraversal,
 }
 
 // Spoiler log ---------------------------------------------------------
@@ -240,7 +287,7 @@ pub struct SpoilerDoorDetails {
     return_route: Vec<SpoilerRouteEntry>,
 }
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Copy, Clone, Default)]
 pub struct SpoilerLocalState {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub energy_used: Option<Capacity>,
@@ -278,79 +325,79 @@ struct VertexInfo {
 }
 
 impl SpoilerLocalState {
-    fn new(new_state: LocalState, old_state: LocalState) -> Self {
+    fn new(local: LocalState, ref_local: LocalState) -> Self {
         Self {
-            energy_used: if new_state.energy_used == old_state.energy_used {
+            energy_used: if local.energy_used == ref_local.energy_used {
                 None
             } else {
-                Some(new_state.energy_used)
+                Some(local.energy_used)
             },
-            reserves_used: if new_state.reserves_used == old_state.reserves_used {
+            reserves_used: if local.reserves_used == ref_local.reserves_used {
                 None
             } else {
-                Some(new_state.reserves_used)
+                Some(local.reserves_used)
             },
-            missiles_used: if new_state.missiles_used == old_state.missiles_used {
+            missiles_used: if local.missiles_used == ref_local.missiles_used {
                 None
             } else {
-                Some(new_state.missiles_used)
+                Some(local.missiles_used)
             },
-            supers_used: if new_state.supers_used == old_state.supers_used {
+            supers_used: if local.supers_used == ref_local.supers_used {
                 None
             } else {
-                Some(new_state.supers_used)
+                Some(local.supers_used)
             },
-            power_bombs_used: if new_state.power_bombs_used == old_state.power_bombs_used {
+            power_bombs_used: if local.power_bombs_used == ref_local.power_bombs_used {
                 None
             } else {
-                Some(new_state.power_bombs_used)
+                Some(local.power_bombs_used)
             },
-            shinecharge_frames_remaining: if new_state.shinecharge_frames_remaining
-                == old_state.shinecharge_frames_remaining
+            shinecharge_frames_remaining: if local.shinecharge_frames_remaining
+                == ref_local.shinecharge_frames_remaining
             {
                 None
             } else {
-                Some(new_state.shinecharge_frames_remaining)
+                Some(local.shinecharge_frames_remaining)
             },
-            cycle_frames: if new_state.cycle_frames == old_state.cycle_frames {
+            cycle_frames: if local.cycle_frames == ref_local.cycle_frames {
                 None
             } else {
-                Some(new_state.cycle_frames)
+                Some(local.cycle_frames)
             },
-            farm_baseline_energy_used: if new_state.farm_baseline_energy_used
-                == old_state.farm_baseline_energy_used
+            farm_baseline_energy_used: if local.farm_baseline_energy_used
+                == ref_local.farm_baseline_energy_used
             {
                 None
             } else {
-                Some(new_state.farm_baseline_energy_used)
+                Some(local.farm_baseline_energy_used)
             },
-            farm_baseline_reserves_used: if new_state.farm_baseline_reserves_used
-                == old_state.farm_baseline_reserves_used
+            farm_baseline_reserves_used: if local.farm_baseline_reserves_used
+                == ref_local.farm_baseline_reserves_used
             {
                 None
             } else {
-                Some(new_state.farm_baseline_reserves_used)
+                Some(local.farm_baseline_reserves_used)
             },
-            farm_baseline_missiles_used: if new_state.farm_baseline_missiles_used
-                == old_state.farm_baseline_missiles_used
+            farm_baseline_missiles_used: if local.farm_baseline_missiles_used
+                == ref_local.farm_baseline_missiles_used
             {
                 None
             } else {
-                Some(new_state.farm_baseline_missiles_used)
+                Some(local.farm_baseline_missiles_used)
             },
-            farm_baseline_supers_used: if new_state.farm_baseline_supers_used
-                == old_state.farm_baseline_supers_used
+            farm_baseline_supers_used: if local.farm_baseline_supers_used
+                == ref_local.farm_baseline_supers_used
             {
                 None
             } else {
-                Some(new_state.farm_baseline_supers_used)
+                Some(local.farm_baseline_supers_used)
             },
-            farm_baseline_power_bombs_used: if new_state.farm_baseline_power_bombs_used
-                == old_state.farm_baseline_power_bombs_used
+            farm_baseline_power_bombs_used: if local.farm_baseline_power_bombs_used
+                == ref_local.farm_baseline_power_bombs_used
             {
                 None
             } else {
-                Some(new_state.farm_baseline_power_bombs_used)
+                Some(local.farm_baseline_power_bombs_used)
             },
         }
     }
@@ -822,6 +869,9 @@ pub fn get_spoiler_log(
     traverser_pair: &mut TraverserPair,
     save_animals: SaveAnimals,
 ) -> Result<SpoilerLog> {
+    let forward_traversal = get_spoiler_traversal(&traverser_pair.forward);
+    let reverse_traversal = get_spoiler_traversal(&traverser_pair.reverse);
+
     // Compute the first step on which each node becomes reachable/bireachable:
     let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
     let mut node_bireachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -1150,5 +1200,7 @@ pub fn get_spoiler_log(
         all_items: spoiler_all_items,
         all_rooms: spoiler_all_rooms,
         game_data: get_spoiler_game_data(randomizer),
+        forward_traversal,
+        reverse_traversal,
     })
 }

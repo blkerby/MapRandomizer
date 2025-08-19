@@ -109,6 +109,7 @@ pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of do
 pub type TilesetIdx = usize; // Tileset index
 pub type AreaIdx = usize; // Area index (0..5)
 pub type StepTrailId = i32;
+pub type LinkIdx = i32;
 pub type TraversalId = usize; // Index into Traversal.past_steps
 
 #[derive(Default, Clone)]

@@ -11,7 +11,7 @@ use crate::settings::{
 };
 use crate::spoiler_log::{
     SpoilerDetails, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
-    SpoilerSummary, get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
+    SpoilerSummary, SpoilerTraversal, get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
     LockedDoorData, NUM_COST_METRICS, Traverser, apply_requirement, get_bireachable_idxs,
@@ -4698,6 +4698,18 @@ impl<'r> Randomizer<'r> {
             all_items: vec![],
             all_rooms: spoiler_all_rooms,
             game_data: get_spoiler_game_data(self),
+            forward_traversal: SpoilerTraversal {
+                steps: vec![],
+                prev_trail_ids: vec![],
+                link_idxs: vec![],
+                local_states: vec![],
+            },
+            reverse_traversal: SpoilerTraversal {
+                steps: vec![],
+                prev_trail_ids: vec![],
+                link_idxs: vec![],
+                local_states: vec![],
+            },
         };
 
         let randomization = Randomization {
