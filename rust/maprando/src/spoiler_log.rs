@@ -1,5 +1,3 @@
-use std::default;
-
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando_game::{
@@ -18,7 +16,7 @@ use crate::{
     },
     settings::SaveAnimals,
     traverse::{
-        NUM_COST_METRICS, StepTrail, TraversalStep, Traverser, get_bireachable_idxs,
+        NUM_COST_METRICS, Traverser, get_bireachable_idxs,
         get_one_way_reachable_idx, get_spoiler_trail_ids,
     },
 };

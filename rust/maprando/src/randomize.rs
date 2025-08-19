@@ -10,31 +10,30 @@ use crate::settings::{
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::spoiler_log::{
-    SpoilerDetails, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
-    SpoilerSummary, SpoilerTraversal, get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
+    SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation, SpoilerTraversal,
+    get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
     LockedDoorData, NUM_COST_METRICS, Traverser, apply_requirement, get_bireachable_idxs,
-    get_one_way_reachable_idx, get_spoiler_trail_ids,
+    get_spoiler_trail_ids,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
 use log::info;
 use maprando_game::{
     self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
-    DoorPtrPair, DoorType, EntranceCondition, ExitCondition, FlagId, Float, GModeMobility,
-    GModeMode, GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId,
-    ItemLocationId, Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics,
-    Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment,
-    SparkPosition, StartLocation, StepTrailId, TECH_ID_CAN_ARTIFICIAL_MORPH,
-    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
-    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
-    TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
-    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
-    TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
-    TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
-    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    DoorPtrPair, DoorType, EntranceCondition, ExitCondition, Float, GModeMobility, GModeMode,
+    GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId,
+    Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
+    RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment, SparkPosition,
+    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT,
+    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
+    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
+    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
+    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
+    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP,
+    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
     TechId, TemporaryBlueDirection, TraversalId, VertexId, VertexKey,
 };
@@ -49,8 +48,6 @@ use serde_derive::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::{cmp::min, convert::TryFrom, hash::Hash, iter, time::SystemTime};
 use strum::VariantNames;
-
-use self::escape_timer::SpoilerEscape;
 
 // Once there are fewer than 20 item locations remaining to be filled, key items will be
 // placed as quickly as possible. This helps prevent generation failures particularly on lower
@@ -4036,7 +4033,6 @@ impl<'r> Randomizer<'r> {
         traverser_pair: &mut TraverserPair,
         rng: &mut R,
     ) -> Result<bool> {
-        let orig_global_state = state.global_state.clone();
         let mut flag_update_num: i32 = 0;
         loop {
             let mut any_update = false;
