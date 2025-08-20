@@ -1,4 +1,4 @@
-use crate::web::{AppData, upgrade::try_upgrade_settings};
+use crate::web::AppData;
 use actix_easy_multipart::{MultipartForm, bytes::Bytes, text::Text};
 use actix_web::{
     HttpResponse, Responder,
@@ -14,7 +14,7 @@ use maprando::{
     },
     patch::{Rom, make_rom},
     randomize::Randomization,
-    settings::RandomizerSettings,
+    settings::{RandomizerSettings, try_upgrade_settings},
 };
 
 #[derive(Template)]
@@ -108,7 +108,11 @@ async fn customize_seed(
     let settings: Option<RandomizerSettings> = if settings_bytes.is_empty() {
         None
     } else {
-        match try_upgrade_settings(String::from_utf8(settings_bytes).unwrap(), &app_data, false) {
+        match try_upgrade_settings(
+            String::from_utf8(settings_bytes).unwrap(),
+            &app_data.preset_data,
+            false,
+        ) {
             Ok(s) => Some(s.1),
             Err(e) => {
                 return HttpResponse::InternalServerError().body(e.to_string());
