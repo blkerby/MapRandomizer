@@ -667,11 +667,6 @@
                 "enabled": false
             },
             {
-                "id": 161,
-                "name": "canRMode",
-                "enabled": false
-            },
-            {
                 "id": 162,
                 "name": "canGMode",
                 "enabled": false
@@ -829,6 +824,11 @@
             {
                 "id": 159,
                 "name": "canXMode",
+                "enabled": false
+            },
+            {
+                "id": 161,
+                "name": "canRMode",
                 "enabled": false
             },
             {

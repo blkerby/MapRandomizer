@@ -23009,6 +23009,14 @@
   },
   {
     "room_id": 125,
+    "strat_id": 48,
+    "video_id": 6781,
+    "created_user": "kyleb",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 125,
     "strat_id": 41,
     "video_id": 1420,
     "created_user": "maddo",
@@ -28513,6 +28521,14 @@
   },
   {
     "room_id": 160,
+    "strat_id": 58,
+    "video_id": 6777,
+    "created_user": "kyleb",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 160,
     "strat_id": 44,
     "video_id": 6566,
     "created_user": "Sam",
@@ -28645,6 +28661,14 @@
     "video_id": 6861,
     "created_user": "Sam",
     "note": "Immobile G-Mode, Tank a Projectile",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 60,
+    "video_id": 6992,
+    "created_user": "kyleb",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -28966,6 +28990,14 @@
     "created_user": "Osse101",
     "note": "",
     "dev_note": "canLongCeilingBombJump"
+  },
+  {
+    "room_id": 161,
+    "strat_id": 65,
+    "video_id": 6958,
+    "created_user": "kyleb",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 161,
@@ -29926,6 +29958,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 155,
+    "strat_id": 108,
+    "video_id": 6779,
+    "created_user": "kyleb",
+    "note": "",
+    "dev_note": "The horizontal position of the atomic can be here or 1 to the right, the horizontal position of Samus can be left or right 1 pixel from this video."
   },
   {
     "room_id": 155,
@@ -37505,6 +37545,22 @@
   },
   {
     "room_id": 183,
+    "strat_id": 179,
+    "video_id": 7058,
+    "created_user": "kyleb",
+    "note": "With Spring Ball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 183,
+    "strat_id": 179,
+    "video_id": 7061,
+    "created_user": "kyleb",
+    "note": "Gravity, Space. Slope clip (high pixel clip might be easier)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 45,
     "video_id": 3704,
     "created_user": "Sam",
@@ -37660,6 +37716,22 @@
     "strat_id": 13,
     "video_id": 1941,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 112,
+    "video_id": 6787,
+    "created_user": "kyleb",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 113,
+    "video_id": 6788,
+    "created_user": "kyleb",
     "note": "",
     "dev_note": ""
   },
@@ -45001,6 +45073,22 @@
   },
   {
     "room_id": 211,
+    "strat_id": 85,
+    "video_id": 6785,
+    "created_user": "kyleb",
+    "note": "Ice",
+    "dev_note": ""
+  },
+  {
+    "room_id": 211,
+    "strat_id": 85,
+    "video_id": 6786,
+    "created_user": "kyleb",
+    "note": "Naked Maw Dodge",
+    "dev_note": ""
+  },
+  {
+    "room_id": 211,
     "strat_id": 23,
     "video_id": 4524,
     "created_user": "Sam",
@@ -47861,6 +47949,14 @@
     "video_id": 6176,
     "created_user": "Sam",
     "note": "With 3 Power Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 228,
+    "strat_id": 50,
+    "video_id": 6999,
+    "created_user": "kyleb",
+    "note": "",
     "dev_note": ""
   },
   {
