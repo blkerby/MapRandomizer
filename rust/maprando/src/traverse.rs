@@ -2293,8 +2293,12 @@ impl Traverser {
                     if !modified_costs[src_cost_idx] {
                         continue;
                     }
-                    let src_trail_id = src_trail_id_arr[src_cost_idx];
                     let src_local_state = src_local_state_arr[src_cost_idx];
+                    if src_cost_idx > 0 && src_local_state == src_local_state_arr[src_cost_idx - 1]
+                    {
+                        continue;
+                    }
+                    let src_trail_id = src_trail_id_arr[src_cost_idx];
                     let all_src_links = base_links_by_src[src_id]
                         .iter()
                         .chain(seed_links_by_src[src_id].iter());

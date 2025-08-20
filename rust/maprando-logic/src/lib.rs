@@ -91,7 +91,7 @@ impl GlobalState {
     }
 }
 
-#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct LocalState {
     pub energy_used: Capacity,
     pub reserves_used: Capacity,
