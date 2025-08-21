@@ -16,8 +16,8 @@ use crate::{
     },
     settings::SaveAnimals,
     traverse::{
-        NUM_COST_METRICS, Traverser, get_bireachable_idxs, get_one_way_reachable_idx,
-        get_spoiler_trail_ids,
+        NUM_COST_METRICS, Traverser, get_bireachable_idxs, get_spoiler_trail_ids,
+        is_bireachable_state,
     },
 };
 
@@ -577,17 +577,18 @@ fn get_spoiler_route_birectional(
     randomizer: &Randomizer,
     state: &RandomizationState,
     vertex_id: usize,
+    traversal_num: TraversalId,
     traverser_pair: &TraverserPair,
+    trail_data: &TrailData,
 ) -> (Vec<SpoilerRouteEntry>, Vec<SpoilerRouteEntry>) {
     let forward = &traverser_pair.forward;
     let reverse = &traverser_pair.reverse;
     let global_state = &state.global_state;
-    let (forward_cost_idx, reverse_cost_idx) =
-        get_bireachable_idxs(global_state, vertex_id, forward, reverse).unwrap();
-    let forward_trail_ids: Vec<StepTrailId> =
-        get_spoiler_trail_ids(forward, vertex_id, forward_cost_idx);
-    let reverse_trail_ids: Vec<StepTrailId> =
-        get_spoiler_trail_ids(reverse, vertex_id, reverse_cost_idx);
+    // TODO: minimize the length across all applicable vertices (take a Vec<VertexId> instead).
+    let (forward_trail_id, reverse_trail_id, _) =
+        get_shortest_route_two_way(vertex_id, traversal_num, trail_data, traverser_pair);
+    let forward_trail_ids: Vec<StepTrailId> = get_spoiler_trail_ids(forward, forward_trail_id);
+    let reverse_trail_ids: Vec<StepTrailId> = get_spoiler_trail_ids(reverse, reverse_trail_id);
     let obtain_route =
         get_spoiler_route(randomizer, global_state, &forward_trail_ids, forward, false);
     let return_route =
@@ -599,12 +600,15 @@ fn get_spoiler_route_one_way(
     randomizer: &Randomizer,
     state: &RandomizationState,
     vertex_id: usize,
+    traversal_num: TraversalId,
     forward: &Traverser,
+    trail_data: &TrailData,
 ) -> Vec<SpoilerRouteEntry> {
     let global_state = &state.global_state;
-    let forward_cost_idx = get_one_way_reachable_idx(vertex_id, forward).unwrap();
-    let forward_trail_ids: Vec<StepTrailId> =
-        get_spoiler_trail_ids(forward, vertex_id, forward_cost_idx);
+    // TODO: minimize the length across all applicable vertices (take a Vec<VertexId> instead).
+    let (forward_trail_id, _) =
+        get_shortest_route_one_way(vertex_id, traversal_num, trail_data, forward);
+    let forward_trail_ids: Vec<StepTrailId> = get_spoiler_trail_ids(forward, forward_trail_id);
     get_spoiler_route(randomizer, global_state, &forward_trail_ids, forward, false)
 }
 
@@ -616,9 +620,19 @@ fn get_spoiler_item_details(
     tier: Option<usize>,
     item_location_idx: usize,
     traverser_pair: &TraverserPair,
+    trail_data: &TrailData,
 ) -> SpoilerItemDetails {
-    let (obtain_route, return_route) =
-        get_spoiler_route_birectional(randomizer, state, item_vertex_id, traverser_pair);
+    let traversal_num = state.item_location_state[item_location_idx]
+        .bireachable_traversal
+        .unwrap();
+    let (obtain_route, return_route) = get_spoiler_route_birectional(
+        randomizer,
+        state,
+        item_vertex_id,
+        traversal_num,
+        traverser_pair,
+        trail_data,
+    );
     let (room_id, node_id) = randomizer.game_data.item_locations[item_location_idx];
     let item_vertex_info = get_vertex_info_by_id(randomizer, room_id, node_id);
     let reachable_traversal = state.item_location_state[item_location_idx]
@@ -663,16 +677,26 @@ fn get_spoiler_item_summary(
     }
 }
 
-pub fn get_spoiler_flag_details(
+fn get_spoiler_flag_details(
     randomizer: &Randomizer,
     state: &RandomizationState,
     flag_vertex_id: usize,
     flag_id: FlagId,
     flag_idx: usize,
     traverser_pair: &TraverserPair,
+    trail_data: &TrailData,
 ) -> SpoilerFlagDetails {
-    let (obtain_route, return_route) =
-        get_spoiler_route_birectional(randomizer, state, flag_vertex_id, traverser_pair);
+    let traversal_num = state.flag_location_state[flag_idx]
+        .bireachable_traversal
+        .unwrap();
+    let (obtain_route, return_route) = get_spoiler_route_birectional(
+        randomizer,
+        state,
+        flag_vertex_id,
+        traversal_num,
+        traverser_pair,
+        trail_data,
+    );
     let flag_vertex_info = get_vertex_info(randomizer, flag_vertex_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
@@ -693,20 +717,28 @@ pub fn get_spoiler_flag_details(
     }
 }
 
-pub fn get_spoiler_flag_details_one_way(
+fn get_spoiler_flag_details_one_way(
     randomizer: &Randomizer,
     state: &RandomizationState,
     flag_vertex_id: usize,
     flag_id: FlagId,
     flag_idx: usize,
     forward: &Traverser,
+    trail_data: &TrailData,
 ) -> SpoilerFlagDetails {
     // This is for a one-way reachable flag, used for f_DefeatedMotherBrain:
-    let obtain_route = get_spoiler_route_one_way(randomizer, state, flag_vertex_id, forward);
-    let flag_vertex_info = get_vertex_info(randomizer, flag_vertex_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
         .unwrap();
+    let obtain_route = get_spoiler_route_one_way(
+        randomizer,
+        state,
+        flag_vertex_id,
+        reachable_traversal,
+        forward,
+        trail_data,
+    );
+    let flag_vertex_info = get_vertex_info(randomizer, flag_vertex_id);
     SpoilerFlagDetails {
         flag: randomizer.game_data.flag_isv.keys[flag_id].to_string(),
         location: SpoilerLocation {
@@ -742,15 +774,25 @@ fn get_door_type_name(door_type: DoorType) -> String {
     .to_string()
 }
 
-pub fn get_spoiler_door_details(
+fn get_spoiler_door_details(
     randomizer: &Randomizer,
     state: &RandomizationState,
     unlock_vertex_id: usize,
     locked_door_idx: usize,
     traverser_pair: &TraverserPair,
+    trail_data: &TrailData,
 ) -> SpoilerDoorDetails {
-    let (obtain_route, return_route) =
-        get_spoiler_route_birectional(randomizer, state, unlock_vertex_id, traverser_pair);
+    let traversal_num = state.door_state[locked_door_idx]
+        .bireachable_traversal
+        .unwrap();
+    let (obtain_route, return_route) = get_spoiler_route_birectional(
+        randomizer,
+        state,
+        unlock_vertex_id,
+        traversal_num,
+        traverser_pair,
+        trail_data,
+    );
     let locked_door = &randomizer.locked_door_data.locked_doors[locked_door_idx];
     let (room_id, node_id) = randomizer.game_data.door_ptr_pair_map[&locked_door.src_ptr_pair];
     let door_vertex_id = randomizer.game_data.vertex_isv.index_by_key[&VertexKey {
@@ -777,7 +819,7 @@ pub fn get_spoiler_door_details(
     }
 }
 
-pub fn get_spoiler_flag_summary(
+fn get_spoiler_flag_summary(
     randomizer: &Randomizer,
     _state: &RandomizationState,
     _flag_vertex_id: usize,
@@ -788,7 +830,7 @@ pub fn get_spoiler_flag_summary(
     }
 }
 
-pub fn get_spoiler_door_summary(
+fn get_spoiler_door_summary(
     randomizer: &Randomizer,
     _unlock_vertex_id: usize,
     locked_door_idx: usize,
@@ -861,6 +903,117 @@ pub fn get_spoiler_game_data(randomizer: &Randomizer) -> SpoilerGameData {
     }
 }
 
+fn get_trail_length(traverser: &Traverser) -> Vec<u32> {
+    let mut trail_depth: Vec<u32> = vec![];
+    for trail in &traverser.step_trails {
+        if trail.prev_trail_id == -1 {
+            trail_depth.push(0);
+        } else {
+            trail_depth.push(trail_depth[trail.prev_trail_id as usize] + 1);
+        }
+    }
+    trail_depth
+}
+
+fn get_trails_by_vertex(
+    randomizer: &Randomizer,
+    traverser: &Traverser,
+    reverse: bool,
+) -> HashMap<VertexId, Vec<StepTrailId>> {
+    let mut out: HashMap<VertexId, Vec<StepTrailId>> = HashMap::new();
+    for (i, trail) in traverser.step_trails.iter().enumerate() {
+        let link = randomizer.get_link(trail.link_idx as usize);
+        let vertex_id = if reverse {
+            link.from_vertex_id
+        } else {
+            link.to_vertex_id
+        };
+        out.entry(vertex_id).or_default().push(i as StepTrailId);
+    }
+    out
+}
+
+struct TrailData {
+    forward_trail_length: Vec<u32>,
+    forward_trails_by_vertex: HashMap<VertexId, Vec<StepTrailId>>,
+    reverse_trail_length: Vec<u32>,
+    reverse_trails_by_vertex: HashMap<VertexId, Vec<StepTrailId>>,
+}
+
+fn get_shortest_route_one_way(
+    vertex_id: VertexId,
+    traversal_num: TraversalId,
+    trail_data: &TrailData,
+    traverser: &Traverser,
+) -> (StepTrailId, u32) {
+    let trail_limit = if traversal_num + 1 < traverser.past_steps.len() {
+        traverser.past_steps[traversal_num + 1].start_step_trail_idx as StepTrailId
+    } else {
+        traverser.step_trails.len() as StepTrailId
+    };
+    let mut best_trail_id = -1;
+    let mut best_length = u32::MAX;
+    for &trail_id in &trail_data.forward_trails_by_vertex[&vertex_id] {
+        if trail_id >= trail_limit {
+            break;
+        }
+        let len = trail_data.forward_trail_length[trail_id as usize];
+        if len < best_length {
+            best_length = len;
+            best_trail_id = trail_id;
+        }
+    }
+    (best_trail_id, best_length)
+}
+
+fn get_shortest_route_two_way(
+    vertex_id: VertexId,
+    traversal_num: usize,
+    trail_data: &TrailData,
+    traverser_pair: &TraverserPair,
+) -> (StepTrailId, StepTrailId, u32) {
+    let global_state = &traverser_pair.forward.past_steps[traversal_num].global_state;
+    let forward_trail_limit = if traversal_num + 1 < traverser_pair.forward.past_steps.len() {
+        traverser_pair.forward.past_steps[traversal_num + 1].start_step_trail_idx as StepTrailId
+    } else {
+        traverser_pair.forward.step_trails.len() as StepTrailId
+    };
+    let reverse_trail_limit = if traversal_num + 1 < traverser_pair.reverse.past_steps.len() {
+        traverser_pair.reverse.past_steps[traversal_num + 1].start_step_trail_idx as StepTrailId
+    } else {
+        traverser_pair.reverse.step_trails.len() as StepTrailId
+    };
+    let mut best_forward_trail_id = -1;
+    let mut best_reverse_trail_id = -1;
+    let mut best_length = u32::MAX;
+    for &forward_trail_id in &trail_data.forward_trails_by_vertex[&vertex_id] {
+        if forward_trail_id >= forward_trail_limit {
+            break;
+        }
+        let forward_len = trail_data.forward_trail_length[forward_trail_id as usize];
+        let forward_local_state =
+            traverser_pair.forward.step_trails[forward_trail_id as usize].local_state;
+        for &reverse_trail_id in &trail_data.reverse_trails_by_vertex[&vertex_id] {
+            if reverse_trail_id >= reverse_trail_limit {
+                break;
+            }
+            let reverse_len = trail_data.reverse_trail_length[reverse_trail_id as usize];
+            let reverse_local_state =
+                traverser_pair.reverse.step_trails[reverse_trail_id as usize].local_state;
+            if !is_bireachable_state(global_state, forward_local_state, reverse_local_state) {
+                continue;
+            }
+            let len = forward_len + reverse_len;
+            if len < best_length {
+                best_length = len;
+                best_forward_trail_id = forward_trail_id;
+                best_reverse_trail_id = reverse_trail_id;
+            }
+        }
+    }
+    (best_forward_trail_id, best_reverse_trail_id, best_length)
+}
+
 pub fn get_spoiler_log(
     randomizer: &Randomizer,
     state: &RandomizationState,
@@ -869,6 +1022,13 @@ pub fn get_spoiler_log(
 ) -> Result<SpoilerLog> {
     let forward_traversal = get_spoiler_traversal(&traverser_pair.forward);
     let reverse_traversal = get_spoiler_traversal(&traverser_pair.reverse);
+
+    let trail_data = TrailData {
+        forward_trail_length: get_trail_length(&traverser_pair.forward),
+        reverse_trail_length: get_trail_length(&traverser_pair.reverse),
+        forward_trails_by_vertex: get_trails_by_vertex(randomizer, &traverser_pair.forward, false),
+        reverse_trails_by_vertex: get_trails_by_vertex(randomizer, &traverser_pair.reverse, true),
+    };
 
     // Compute the first step on which each node becomes reachable/bireachable:
     let mut node_reachable_step: HashMap<(RoomId, NodeId), usize> = HashMap::new();
@@ -918,12 +1078,13 @@ pub fn get_spoiler_log(
                     item_state.placed_tier,
                     i,
                     traverser_pair,
+                    &trail_data,
                 );
                 spoiler_item_details.push(item_details);
             }
 
-            for (i, flag_state) in state.flag_location_state.iter().enumerate() {
-                let flag_id = randomizer.game_data.flag_ids[i];
+            for (flag_idx, flag_state) in state.flag_location_state.iter().enumerate() {
+                let flag_id = randomizer.game_data.flag_ids[flag_idx];
                 if flag_id == randomizer.game_data.mother_brain_defeated_flag_id {
                     if flag_state.reachable_traversal != Some(traversal_num) {
                         continue;
@@ -937,8 +1098,9 @@ pub fn get_spoiler_log(
                         state,
                         flag_vertex_id,
                         flag_id,
-                        i,
+                        flag_idx,
                         &traverser_pair.forward,
+                        &trail_data,
                     );
                     spoiler_flag_details.push(flag_details);
                 } else {
@@ -954,8 +1116,9 @@ pub fn get_spoiler_log(
                         state,
                         flag_vertex_id,
                         flag_id,
-                        i,
+                        flag_idx,
                         traverser_pair,
+                        &trail_data,
                     );
                     spoiler_flag_details.push(flag_details);
                 }
@@ -974,6 +1137,7 @@ pub fn get_spoiler_log(
                     unlock_vertex_id,
                     i,
                     traverser_pair,
+                    &trail_data,
                 );
                 spoiler_door_details.push(door_details);
             }

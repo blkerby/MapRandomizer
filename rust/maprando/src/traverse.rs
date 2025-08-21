@@ -2381,12 +2381,7 @@ impl Traverser {
     }
 }
 
-pub fn get_spoiler_trail_ids(
-    traverser: &Traverser,
-    vertex_id: usize,
-    cost_idx: usize,
-) -> Vec<StepTrailId> {
-    let mut trail_id = traverser.start_trail_ids[vertex_id][cost_idx];
+pub fn get_spoiler_trail_ids(traverser: &Traverser, mut trail_id: StepTrailId) -> Vec<StepTrailId> {
     let mut steps: Vec<StepTrailId> = Vec::new();
     while trail_id != -1 {
         let step_trail = &traverser.step_trails[trail_id as usize];
@@ -2395,4 +2390,13 @@ pub fn get_spoiler_trail_ids(
     }
     steps.reverse();
     steps
+}
+
+pub fn get_spoiler_trail_by_vertex_cost(
+    traverser: &Traverser,
+    vertex_id: usize,
+    cost_idx: usize,
+) -> Vec<StepTrailId> {
+    let trail_id = traverser.start_trail_ids[vertex_id][cost_idx];
+    get_spoiler_trail_ids(traverser, trail_id)
 }

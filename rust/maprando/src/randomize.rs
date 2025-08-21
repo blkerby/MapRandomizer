@@ -15,7 +15,7 @@ use crate::spoiler_log::{
 };
 use crate::traverse::{
     LockedDoorData, NUM_COST_METRICS, Traverser, apply_requirement, get_bireachable_idxs,
-    get_spoiler_trail_ids,
+    get_spoiler_trail_by_vertex_cost,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
@@ -4543,9 +4543,9 @@ impl<'r> Randomizer<'r> {
             };
 
             let hub_obtain_trail_ids =
-                get_spoiler_trail_ids(forward, best_hub_vertex_id, forward_cost_idx);
+                get_spoiler_trail_by_vertex_cost(forward, best_hub_vertex_id, forward_cost_idx);
             let hub_return_trail_ids =
-                get_spoiler_trail_ids(reverse, best_hub_vertex_id, reverse_cost_idx);
+                get_spoiler_trail_by_vertex_cost(reverse, best_hub_vertex_id, reverse_cost_idx);
 
             let hub_obtain_route =
                 get_spoiler_route(self, &global, &hub_obtain_trail_ids, forward, false);
