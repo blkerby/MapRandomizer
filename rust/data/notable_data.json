@@ -1456,6 +1456,22 @@
     "video_id": 5508
   },
   {
+    "room_id": 106,
+    "room_name": "Ice Beam Gate Room",
+    "notable_id": 5,
+    "name": "Speedy Crouch Gate Clip",
+    "difficulty": "Insane",
+    "video_id": 7557
+  },
+  {
+    "room_id": 106,
+    "room_name": "Ice Beam Gate Room",
+    "notable_id": 6,
+    "name": "Arm Pump Crouch Gate Clip",
+    "difficulty": "Insane",
+    "video_id": 7620
+  },
+  {
     "room_id": 110,
     "room_name": "Ice Beam Tutorial Room",
     "notable_id": 1,
@@ -2782,6 +2798,14 @@
     "name": "Moonfall Spark",
     "difficulty": "Insane",
     "video_id": 3748
+  },
+  {
+    "room_id": 215,
+    "room_name": "Maridia Elevator Room",
+    "notable_id": 1,
+    "name": "Dodge Rippers IBJ",
+    "difficulty": "Insane",
+    "video_id": 7571
   },
   {
     "room_id": 180,

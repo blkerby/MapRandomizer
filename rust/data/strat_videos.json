@@ -913,6 +913,14 @@
   },
   {
     "room_id": 29,
+    "strat_id": 78,
+    "video_id": 5160,
+    "created_user": "aquanight",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 29,
     "strat_id": 51,
     "video_id": 2653,
     "created_user": "Sam",
@@ -1198,6 +1206,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": "To Halfie Climb Bottom Left to Top right door with Springball and Bombs"
+  },
+  {
+    "room_id": 8,
+    "strat_id": 92,
+    "video_id": 5280,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 8,
@@ -2341,6 +2357,14 @@
     "video_id": 379,
     "created_user": "maddo",
     "note": "Shinespark",
+    "dev_note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 122,
+    "video_id": 7603,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -5849,6 +5873,14 @@
   },
   {
     "room_id": 41,
+    "strat_id": 70,
+    "video_id": 6630,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 41,
     "strat_id": 60,
     "video_id": 6039,
     "created_user": "Sam",
@@ -6668,6 +6700,14 @@
     "strat_id": 42,
     "video_id": 619,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 48,
+    "video_id": 7579,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -12529,6 +12569,14 @@
   },
   {
     "room_id": 66,
+    "strat_id": 133,
+    "video_id": 7562,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 66,
     "strat_id": 36,
     "video_id": 84,
     "created_user": "Osse101",
@@ -12574,6 +12622,14 @@
     "created_user": "Sam",
     "note": "From Halfie Climb (Bottom Position)",
     "dev_note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 134,
+    "video_id": 7563,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "X-Ray Climb"
   },
   {
     "room_id": 66,
@@ -14109,6 +14165,22 @@
     "video_id": 182,
     "created_user": "maddo",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 221,
+    "video_id": 7575,
+    "created_user": "maddo",
+    "note": "Kill the Cacatac, Open Door",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 221,
+    "video_id": 7574,
+    "created_user": "maddo",
+    "note": "Tank the Cacatac",
     "dev_note": ""
   },
   {
@@ -16316,6 +16388,14 @@
     "strat_id": 20,
     "video_id": 5488,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 98,
+    "strat_id": 22,
+    "video_id": 6823,
+    "created_user": "Osse101",
     "note": "",
     "dev_note": ""
   },
@@ -20401,6 +20481,14 @@
   },
   {
     "room_id": 106,
+    "strat_id": 83,
+    "video_id": 7557,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
     "strat_id": 22,
     "video_id": 840,
     "created_user": "maddo",
@@ -20492,6 +20580,14 @@
     "strat_id": 78,
     "video_id": 5508,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 84,
+    "video_id": 7620,
+    "created_user": "Osse101",
     "note": "",
     "dev_note": ""
   },
@@ -38097,6 +38193,14 @@
   },
   {
     "room_id": 186,
+    "strat_id": 115,
+    "video_id": 6628,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
     "strat_id": 53,
     "video_id": 4218,
     "created_user": "Sam",
@@ -43757,6 +43861,22 @@
     "video_id": 6326,
     "created_user": "maddo",
     "note": "From Metal Pirates Room",
+    "dev_note": ""
+  },
+  {
+    "room_id": 215,
+    "strat_id": 59,
+    "video_id": 7571,
+    "created_user": "Sam",
+    "note": "Boost while Rippers are away",
+    "dev_note": ""
+  },
+  {
+    "room_id": 215,
+    "strat_id": 59,
+    "video_id": 7605,
+    "created_user": "maddo",
+    "note": "Boost over the Rippers",
     "dev_note": ""
   },
   {
