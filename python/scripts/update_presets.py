@@ -21,7 +21,7 @@ for path in glob.glob(qol_presets_path + "/*.json"):
     preset = json.load(open(path, "r"))
     qol_presets[preset["preset"]] = preset
 
-version = int(open("rust/maprando-web/src/VERSION", "r").read())
+version = int(open("rust/VERSION", "r").read())
 print("Version:", version)
 
 # Update full-settings presets:

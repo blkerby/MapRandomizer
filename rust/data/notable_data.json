@@ -963,7 +963,7 @@
     "room_id": 67,
     "room_name": "Red Brinstar Fireflea Room",
     "notable_id": 2,
-    "name": "X-Ray Exit Damage Boost",
+    "name": "Damage Boost (Left to Right)",
     "difficulty": "Very Hard",
     "video_id": 569
   },
@@ -971,7 +971,7 @@
     "room_id": 67,
     "room_name": "Red Brinstar Fireflea Room",
     "notable_id": 4,
-    "name": "X-Ray Access Damage Boost",
+    "name": "Full Room Damage Boosts (Right to Left)",
     "difficulty": "Expert",
     "video_id": 447
   },
@@ -979,7 +979,7 @@
     "room_id": 67,
     "room_name": "Red Brinstar Fireflea Room",
     "notable_id": 5,
-    "name": "X-Ray Access Tricky SpringBall Jump",
+    "name": "Tricky Spring Ball Jump",
     "difficulty": "Expert",
     "video_id": 266
   },
@@ -987,7 +987,7 @@
     "room_id": 67,
     "room_name": "Red Brinstar Fireflea Room",
     "notable_id": 6,
-    "name": "X-Ray Access SpikeJumps with HiJump",
+    "name": "Spike Jumps with HiJump",
     "difficulty": "Expert",
     "video_id": 449
   },
