@@ -17,7 +17,7 @@ use maprando::{
 };
 use maprando_game::GameData;
 
-pub const VERSION: usize = include!("VERSION");
+pub const VERSION: usize = include!("../../VERSION");
 
 #[derive(Clone)]
 pub struct VersionInfo {

@@ -1,6 +1,6 @@
 mod helpers;
 
-use crate::web::{AppData, VERSION, upgrade::try_upgrade_settings};
+use crate::web::{AppData, VERSION};
 use actix_easy_multipart::{MultipartForm, text::Text};
 use actix_web::{HttpRequest, HttpResponse, Responder, post, web};
 use helpers::*;
@@ -10,7 +10,7 @@ use maprando::{
         DifficultyConfig, Randomization, Randomizer, filter_links, get_difficulty_tiers,
         get_objectives, order_map_areas, randomize_doors, randomize_map_areas,
     },
-    settings::{AreaAssignment, RandomizerSettings, StartLocationMode},
+    settings::{AreaAssignment, RandomizerSettings, StartLocationMode, try_upgrade_settings},
     spoiler_log::SpoilerLog,
 };
 use maprando_game::{LinksDataGroup, Map};
@@ -82,12 +82,13 @@ async fn randomize(
     http_req: HttpRequest,
     app_data: web::Data<AppData>,
 ) -> impl Responder {
-    let mut settings = match try_upgrade_settings(req.settings.0.to_string(), &app_data, true) {
-        Ok(s) => s.1,
-        Err(e) => {
-            return HttpResponse::BadRequest().body(e.to_string());
-        }
-    };
+    let mut settings =
+        match try_upgrade_settings(req.settings.0.to_string(), &app_data.preset_data, true) {
+            Ok(s) => s.1,
+            Err(e) => {
+                return HttpResponse::BadRequest().body(e.to_string());
+            }
+        };
 
     if settings.other_settings.random_seed == Some(0) {
         return HttpResponse::BadRequest().body("Invalid random seed: 0");

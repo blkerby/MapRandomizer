@@ -664,13 +664,8 @@
             "enabled": true
         },
         {
-            "id": 161,
-            "name": "canEnterRMode",
-            "enabled": true
-        },
-        {
             "id": 162,
-            "name": "canEnterGMode",
+            "name": "canGMode",
             "enabled": true
         },
         {
@@ -829,13 +824,18 @@
             "enabled": true
         },
         {
+            "id": 161,
+            "name": "canRMode",
+            "enabled": true
+        },
+        {
             "id": 205,
             "name": "canComplexGMode",
             "enabled": true
         },
         {
             "id": 163,
-            "name": "canEnterGModeImmobile",
+            "name": "canGModeImmobile",
             "enabled": true
         },
         {
@@ -1301,7 +1301,7 @@
             "room_id": 67,
             "notable_id": 2,
             "room_name": "Red Brinstar Fireflea Room",
-            "notable_name": "X-Ray Exit Damage Boost",
+            "notable_name": "Damage Boost (Left to Right)",
             "enabled": true
         },
         {
@@ -1882,21 +1882,21 @@
             "room_id": 67,
             "notable_id": 4,
             "room_name": "Red Brinstar Fireflea Room",
-            "notable_name": "X-Ray Access Damage Boost",
+            "notable_name": "Full Room Damage Boosts (Right to Left)",
             "enabled": true
         },
         {
             "room_id": 67,
             "notable_id": 5,
             "room_name": "Red Brinstar Fireflea Room",
-            "notable_name": "X-Ray Access Tricky SpringBall Jump",
+            "notable_name": "Tricky Spring Ball Jump",
             "enabled": true
         },
         {
             "room_id": 67,
             "notable_id": 6,
             "room_name": "Red Brinstar Fireflea Room",
-            "notable_name": "X-Ray Access SpikeJumps with HiJump",
+            "notable_name": "Spike Jumps with HiJump",
             "enabled": true
         },
         {
