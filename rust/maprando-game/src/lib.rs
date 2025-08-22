@@ -1093,14 +1093,14 @@ fn compute_runway_effective_length(geom: &RunwayGeometry) -> f32 {
 #[derive(Default)]
 pub struct LinksDataGroup {
     pub links: Vec<Link>,
-    pub links_by_src: Vec<Vec<(StepTrailId, Link)>>,
-    pub links_by_dst: Vec<Vec<(StepTrailId, Link)>>,
+    pub links_by_src: Vec<Vec<(LinkIdx, Link)>>,
+    pub links_by_dst: Vec<Vec<(LinkIdx, Link)>>,
 }
 
 impl LinksDataGroup {
     pub fn new(links: Vec<Link>, num_vertices: usize, start_idx: usize) -> Self {
-        let mut links_by_src: Vec<Vec<(StepTrailId, Link)>> = vec![Vec::new(); num_vertices];
-        let mut links_by_dst: Vec<Vec<(StepTrailId, Link)>> = vec![Vec::new(); num_vertices];
+        let mut links_by_src: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
+        let mut links_by_dst: Vec<Vec<(LinkIdx, Link)>> = vec![Vec::new(); num_vertices];
 
         for (idx, link) in links.iter().enumerate() {
             let mut reversed_link = link.clone();
@@ -1109,9 +1109,8 @@ impl LinksDataGroup {
                 &mut reversed_link.to_vertex_id,
             );
             links_by_dst[reversed_link.from_vertex_id]
-                .push(((start_idx + idx) as StepTrailId, reversed_link));
-            links_by_src[link.from_vertex_id]
-                .push(((start_idx + idx) as StepTrailId, link.clone()));
+                .push(((start_idx + idx) as LinkIdx, reversed_link));
+            links_by_src[link.from_vertex_id].push(((start_idx + idx) as LinkIdx, link.clone()));
         }
         Self {
             links,
