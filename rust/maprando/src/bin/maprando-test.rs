@@ -449,7 +449,7 @@ fn main() -> Result<()> {
         }
     }
     for (test_cycle, e) in error_vec {
-        error!("Failed during test cycle {test_cycle}: {}\n{}", e);
+        error!("Failed during test cycle {test_cycle}: {}", e);
         // error!("Failed during test cycle {test_cycle}: {e}");
     }
 
