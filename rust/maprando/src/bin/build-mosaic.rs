@@ -148,6 +148,7 @@ impl MosaicPatchBuilder {
     fn get_compressed_data(&self, data: &[u8]) -> Result<Vec<u8>> {
         let digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, data);
         let output_path = self.compressed_data_cache_dir.join(digest);
+        let output: Vec<u8>;
         if !output_path.exists() {
             if let Some(compressor_path) = &self.compressor_path {
                 let tmp_path = self.tmp_dir.join("tmpfile");
@@ -158,15 +159,17 @@ impl MosaicPatchBuilder {
                     .arg(format!("-o={}", output_path.to_str().unwrap()))
                     .status()
                     .context("error running compressor")?;
-                Ok(std::fs::read(output_path)?)
+                output = std::fs::read(output_path)?;
             } else {
-                let output = lznint::compress(data);
+                output = lznint::compress(data);
                 std::fs::write(&output_path, output.clone())?;
-                Ok(output)
             }
         } else {
-            Ok(std::fs::read(output_path)?)
+            output = std::fs::read(output_path)?;
         }
+        let decompressed_data = lznint::decompress(&output)?;
+        assert_eq!(data, decompressed_data);
+        Ok(output)
     }
 
     fn get_fx_data(&self, state_xml: &smart_xml::RoomState, default_only: bool) -> Vec<u8> {
