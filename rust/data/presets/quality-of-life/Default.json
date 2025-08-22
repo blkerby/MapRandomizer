@@ -38,5 +38,7 @@
     "disableable_etanks": false,
     "reserve_backward_transfer": false,
     "buffed_drops": true,
-    "early_save": true
+    "early_save": true,
+    "persist_flash_suit": false,
+    "persist_blue_suit": false
 }

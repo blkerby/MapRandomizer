@@ -148,6 +148,8 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub buffed_drops: bool,
     pub early_save: bool,
+    pub persist_flash_suit: bool,
+    pub persist_blue_suit: bool,
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
@@ -738,6 +740,12 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("reserve_backward_transfer") {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("persist_flash_suit") {
+        qol_settings.insert("persist_flash_suit".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("persist_blue_suit") {
+        qol_settings.insert("persist_blue_suit".to_string(), false.into());
     }
     upgrade_initial_map_reveal_settings(settings)?;
     Ok(())

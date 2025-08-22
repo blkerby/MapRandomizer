@@ -4245,7 +4245,9 @@
         "disableable_etanks": true,
         "reserve_backward_transfer": false,
         "buffed_drops": true,
-        "early_save": true
+        "early_save": true,
+        "persist_flash_suit": false,
+        "persist_blue_suit": false
     },
     "objective_settings": {
         "preset": "Bosses",
