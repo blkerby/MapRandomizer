@@ -108,7 +108,9 @@ pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 pub type TilesetIdx = usize; // Tileset index
 pub type AreaIdx = usize; // Area index (0..5)
-pub type LinkIdx = u32;
+pub type StepTrailId = i32;
+pub type LinkIdx = i32;
+pub type TraversalId = usize; // Index into Traversal.past_steps
 
 #[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {

@@ -7,9 +7,10 @@ use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, SpoilerLog, get_difficulty_tiers, get_objectives, randomize_doors,
+    Randomization, Randomizer, get_difficulty_tiers, get_objectives, randomize_doors,
 };
 use maprando::settings::{RandomizerSettings, StartLocationMode};
+use maprando::spoiler_log::SpoilerLog;
 use maprando::spoiler_map;
 use maprando_game::{GameData, Map};
 use rand::{RngCore, SeedableRng};

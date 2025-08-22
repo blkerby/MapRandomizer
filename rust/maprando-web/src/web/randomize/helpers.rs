@@ -7,12 +7,13 @@ use hashbrown::{HashMap, HashSet};
 use maprando::{
     helpers::get_item_priorities,
     preset::PresetData,
-    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, SpoilerLog},
+    randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
     seed_repository::{Seed, SeedFile},
     settings::{
         AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, RandomizerSettings,
         WallJump, get_objective_groups,
     },
+    spoiler_log::SpoilerLog,
     spoiler_map,
 };
 use maprando_game::{GameData, NotableId, RoomId, TechId};
