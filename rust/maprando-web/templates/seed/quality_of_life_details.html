@@ -106,3 +106,11 @@
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Guaranteed early save station:</div>
     <div class="col-4 col-sm-3">{% if early_save %}Yes{% else %}No{% endif %}</div>
 </div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Flash suit persists across save/load:</div>
+    <div class="col-4 col-sm-3">{% if settings.quality_of_life_settings.persist_flash_suit %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Blue suit persists across save/load:</div>
+    <div class="col-4 col-sm-3">{% if settings.quality_of_life_settings.persist_blue_suit %}Yes{% else %}No{% endif %}</div>
+</div>

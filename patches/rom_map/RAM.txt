@@ -43,4 +43,10 @@ $7EFE00: map area (copy of $1F5B to be saved to SRAM)
 $7EFE02: map area explored mask
 $7EFE04: copy of $1F5D (to be saved to SRAM for escape autosave)
 $7EFE06-7FFE86: item collection times (used in credits.asm)
+$7EFE86-7EFE90: [FREE] (save slot-specific data to be copied to SRAM)
+$7EFE90-7EFE91:
+  - bit 0: stored flash suit
+  - bit 1: stored blue suit
+$7EFE91-7EFF00: [FREE] (save slot-specific data to be copied to SRAM)
+$7EFF00-7F0000: [FREE]
 $7fffe8: scroll speed (credits.asm)

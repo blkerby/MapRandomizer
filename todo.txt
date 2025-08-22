@@ -17,7 +17,9 @@ v120?:
 - handle all cost metrics in "or"s
 - Mosaic:
   - restore morph tunnel continuation behind morph tunnel transition
+  - verify that compressed output decompresses to original
 - add more strats from Incomplete videos
+
 
 v119:
 - DONE: update start location camera_offset_x to avoid BG graphical bug.
