@@ -674,28 +674,28 @@ function processInitialMapRevealPreset() {
         "Items4",
         "Other"
     ]
-    if (document.getElementById("initialMapRevealNo").checked) {
+    if (document.getElementById("initialMapRevealPresetNo").checked) {
         for (t of tileTypes) {
             document.getElementById(`initialMapReveal${t}No`).checked = true;
         }
         document.getElementById("initialMapRevealAllAreasNo").checked = true;
-    } else if (document.getElementById("initialMapRevealMaps").checked) { 
+    } else if (document.getElementById("initialMapRevealPresetMaps").checked) { 
         for (t of tileTypes) {
             document.getElementById(`initialMapReveal${t}No`).checked = true;
         }
         document.getElementById(`initialMapRevealMapsFull`).checked = true;
         document.getElementById("initialMapRevealAllAreasNo").checked = true;
-    } else if (document.getElementById("initialMapRevealPartial").checked) { 
+    } else if (document.getElementById("initialMapRevealPresetPartial").checked) { 
         for (t of tileTypes) {
             document.getElementById(`initialMapReveal${t}Partial`).checked = true;
         }
         document.getElementById("initialMapRevealAllAreasNo").checked = true;
-    } else if (document.getElementById("initialMapRevealFull").checked) { 
+    } else if (document.getElementById("initialMapRevealPresetFull").checked) { 
         for (t of tileTypes) {
             document.getElementById(`initialMapReveal${t}Full`).checked = true;
         }
         document.getElementById("initialMapRevealAllAreasNo").checked = true;
-    } else if (document.getElementById("initialMapRevealGlobal").checked) { 
+    } else if (document.getElementById("initialMapRevealPresetGlobal").checked) { 
         for (t of tileTypes) {
             document.getElementById(`initialMapReveal${t}Full`).checked = true;
         }
@@ -709,11 +709,11 @@ function initialMapRevealPresetChanged() {
 }
 
 function initialMapRevealSettingChanged() {
-    document.getElementById("initialMapRevealNo").checked = false;
-    document.getElementById("initialMapRevealMaps").checked = false;
-    document.getElementById("initialMapRevealPartial").checked = false;
-    document.getElementById("initialMapRevealFull").checked = false;
-    document.getElementById("initialMapRevealGlobal").checked = false;
+    document.getElementById("initialMapRevealPresetNo").checked = false;
+    document.getElementById("initialMapRevealPresetMaps").checked = false;
+    document.getElementById("initialMapRevealPresetPartial").checked = false;
+    document.getElementById("initialMapRevealPresetFull").checked = false;
+    document.getElementById("initialMapRevealPresetGlobal").checked = false;
     initialMapRevealPresetChanged();
 }
 
