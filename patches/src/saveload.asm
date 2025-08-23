@@ -50,8 +50,29 @@ SaveGame: PHP : REP #$30 : PHB : PHX : PHY
 .noinc
     TXA
 	ASL A : STA $12
-	LDA $1F5B : INC A : XBA : TAX : LDY #$00FE
-SaveMap: LDA $07F7,Y : STA $CD50,X : DEX : DEX : DEY : DEY : BPL SaveMap		;Saves the current map
+	LDA $1F5B : INC A : XBA : TAX
+SaveStoredFlashSuit:
+	LDY #$0000
+	LDA $0ACC  ; check that special Samus palette type is normal (e.g. to ensure we don't have a regular shinecharge)
+	BNE .skip
+	LDA $0A68  ; check that the special Samus palette timer is non-zero (indicating the ability to spark)
+	BEQ .skip
+	INY        ; Y <- 1
+.skip:
+SaveStoredBlueuit:
+	LDA $0B3E
+	CMP #$0400 ; check that the dash counter is 4, with 0 speed boost timer
+	BNE .finish
+	TYA
+	ORA #$0002
+	TAY		    ; Y |= 2 (set blue suit bit)
+.finish:
+	TYA
+	STA $7EFE90
+SaveMap: 
+	LDY #$00FE
+.loop:
+	LDA $07F7,Y : STA $CD50,X : DEX : DEX : DEY : DEY : BPL .loop		;Saves the current map
 	LDY #$005E
 SaveItems: LDA $09A2,Y : STA $D7C0,Y : DEY : DEY : BPL SaveItems				;Saves current equipment	
 	LDA $078B : STA $D916		;Current save for the area

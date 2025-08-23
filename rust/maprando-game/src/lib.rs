@@ -65,6 +65,7 @@ pub const TECH_ID_CAN_MOONDANCE: TechId = 26;
 pub const TECH_ID_CAN_EXTENDED_MOONDANCE: TechId = 27;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
+pub const TECH_ID_CAN_SPIKE_SUIT: TechId = 141;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
 #[allow(clippy::type_complexity)]
@@ -108,7 +109,9 @@ pub type DoorPtr = usize; // PC address of door data for exiting given door
 pub type DoorPtrPair = (Option<DoorPtr>, Option<DoorPtr>); // PC addresses of door data for exiting & entering given door (from vanilla door connection)
 pub type TilesetIdx = usize; // Tileset index
 pub type AreaIdx = usize; // Area index (0..5)
-pub type LinkIdx = u32;
+pub type StepTrailId = i32;
+pub type LinkIdx = i32;
+pub type TraversalId = usize; // Index into Traversal.past_steps
 
 #[derive(Default, Clone)]
 pub struct IndexedVec<T: Hash + Eq> {
@@ -364,6 +367,9 @@ pub enum Requirement {
         node_id: NodeId,
     },
     EscapeMorphLocation,
+    GainFlashSuit,
+    UseFlashSuit,
+    NoFlashSuit,
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -1517,6 +1523,7 @@ pub struct GameData {
     pub wall_jump_tech_idx: TechIdx,
     pub manage_reserves_tech_idx: TechIdx,
     pub pause_abuse_tech_idx: TechIdx,
+    pub spike_suit_tech_idx: TechIdx,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
     pub room_name_font: VariableWidthFont,
@@ -1613,6 +1620,11 @@ impl GameData {
             .tech_isv
             .index_by_key
             .get(&TECH_ID_CAN_PAUSE_ABUSE)
+            .unwrap();
+        self.spike_suit_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_SPIKE_SUIT)
             .unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
         Ok(())
@@ -2818,12 +2830,11 @@ impl GameData {
                     heated: ctx.room_heated,
                 });
             } else if key == "gainFlashSuit" {
-                // TODO: implement flash suit logic once the data is more complete
-                return Ok(Requirement::Never);
+                return Ok(Requirement::GainFlashSuit);
             } else if key == "noFlashSuit" {
-                return Ok(Requirement::Free);
+                return Ok(Requirement::NoFlashSuit);
             } else if key == "useFlashSuit" {
-                return Ok(Requirement::Never);
+                return Ok(Requirement::UseFlashSuit);
             } else if key == "tech" {
                 return self.get_tech_requirement(value.as_str().unwrap(), false);
             } else if key == "notable" {
@@ -4296,6 +4307,10 @@ impl GameData {
             if !bypasses_door_shell && exit_condition.is_some() {
                 let unlock_to_door_req = self.get_unlocks_doors_req(to_node_id, &ctx)?;
                 requires_vec.push(unlock_to_door_req);
+            }
+
+            if strat_json["flashSuitChecked"].as_bool().unwrap_or(false) {
+                requires_vec.push(Requirement::NoFlashSuit);
             }
 
             let requirement = Requirement::make_and(requires_vec);

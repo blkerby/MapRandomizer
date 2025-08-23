@@ -20,16 +20,16 @@
                                         <label for="initial_map_reveal">Initial map reveal</label>
                                     </div>
                                     <div id="initialMapRevealPreset" class="col-lg-6 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealNo" value="No" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealNo">No</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealMaps" value="Maps" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealMaps">Maps</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPartial" value="Partial" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealPartial">Partial</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealFull" value="Full" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealFull">Full</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealGlobal" value="Global" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealGlobal">Global</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetNo" value="No" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetNo">No</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetMaps" value="Maps" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetMaps">Maps</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetPartial" value="Partial" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetPartial">Partial</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetFull" value="Full" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetFull">Full</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetGlobal" value="Global" onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetGlobal">Global</label>
                                         <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#initialMapRevealModal">
                                             <i class="bi bi-gear"></i>
                                         </button>                    
@@ -464,6 +464,36 @@
                                         <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#persistFlashSuitModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="persistFlashSuit">Flash suit persists across save/load</label>
+                                    </div>
+                                    <div id="persistFlashSuit" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="persist_flash_suit" id="persistFlashSuitNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="persistFlashSuitNo">No</label>
+                                        <input type="radio" class="btn-check" name="persist_flash_suit" id="persistFlashSuitYes" value="true">
+                                        <label class="btn btn-outline-primary" for="persistFlashSuitYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#persistBlueSuitModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="persistBlueSuit">Blue suit persists across save/load</label>
+                                    </div>
+                                    <div id="persistBlueSuit" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="persist_blue_suit" id="persistBlueSuitNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="persistBlueSuitNo">No</label>
+                                        <input type="radio" class="btn-check" name="persist_blue_suit" id="persistBlueSuitYes" value="true">
+                                        <label class="btn btn-outline-primary" for="persistBlueSuitYes">Yes</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -507,5 +537,7 @@
 
 {% include "help/quality/buffed_drops.html" %}
 {% include "help/quality/early_save.html" %}
+{% include "help/quality/persist_flash_suit.html" %}
+{% include "help/quality/persist_blue_suit.html" %}
 
 {% include "initial_map_reveal.html" %}

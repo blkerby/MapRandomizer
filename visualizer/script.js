@@ -164,18 +164,23 @@ function changeDebugDataInput() {
 	}
 }
 
-function getTrailIds(endTrailId, traverseResult, backward) {
+function getTrailIds(endTrailId, traversal, backward) {
 	let out = [];
 	let trailId = endTrailId;
 	while (trailId != -1) {
 		out.push(trailId);
-		trailId = traverseResult.prev_trail_ids[trailId];
+		trailId = traversal.prev_trail_ids[trailId];
 	}
 	out.reverse();
 
 	let finalLocalState = {};
+	if (endTrailId != -1) {
+		for (k of localStateKeyOrder) {
+			finalLocalState[k] = 0;
+		}
+	}
 	for (trailId of out) {
-		let localState = traverseResult.local_states[trailId];
+		let localState = traversal.local_states[trailId];
 		Object.assign(finalLocalState, localState);
 	}
 
@@ -185,32 +190,48 @@ function getTrailIds(endTrailId, traverseResult, backward) {
 	return [out, finalLocalState];
 }
 
-function getDebugRoute(traverseResult, vertexId, costMetric, backward) {
-	let endTrailId = traverseResult.start_trail_ids[vertexId][costMetric];
-	let [trailIdArray, finalLocalState] = getTrailIds(endTrailId, traverseResult, backward);
+let localStateKeyOrder = [
+	"energy_used",
+	"reserves_used",
+	"missiles_used",
+	"supers_used",
+	"power_bombs_used",
+	"shinecharge_frames_remaining",
+	"cycle_frames",
+	"farm_baseline_energy_used",
+	"farm_baseline_reserves_used",
+	"farm_baseline_missiles_used",
+	"farm_baseline_supers_used",
+	"farm_baseline_power_bombs_used",
+	"flash_suit",
+];
+
+function getDebugRoute(traversal, step, vertexId, costMetric, backward) {
+	let traversalNumber;
+	let endTrailId = -1;
+	for (i in traversal.steps) {
+		let s = traversal.steps[i];
+		if (s.step_num > step) {
+			break;
+		}
+		for (j in s.updated_vertex_ids) {
+			if (s.updated_vertex_ids[j] == vertexId) {
+				traversalNumber = i;
+				endTrailId = s.updated_start_trail_ids[j][costMetric];
+				break;
+			}
+		}
+	}
+	let [trailIdArray, finalLocalState] = getTrailIds(endTrailId, traversal, backward);
 
 	let statePre = document.createElement("pre");
 	if (Object.keys(finalLocalState).length > 0) {
-		let keyOrder = [
-			"energy_used",
-			"reserves_used",
-			"missiles_used",
-			"supers_used",
-			"power_bombs_used",
-			"shinecharge_frames_remaining",
-			"cycle_frames",
-			"farm_baseline_energy_used",
-			"farm_baseline_reserves_used",
-			"farm_baseline_missiles_used",
-			"farm_baseline_supers_used",
-			"farm_baseline_power_bombs_used",
-		];
-		statePre.innerText = JSON.stringify(finalLocalState, keyOrder, 2);
+		statePre.innerText = JSON.stringify(finalLocalState, localStateKeyOrder, 2);
 	}
 
 	let routeDiv = document.createElement("div");
 	for (trailId of trailIdArray) {
-		let linkIdx = traverseResult.link_idxs[trailId];
+		let linkIdx = traversal.link_idxs[trailId];
 		let link = spoiler.game_data.links[linkIdx];
 		let fromVertexId = link.from_vertex_id;
 		let fromVertexKey = spoiler.game_data.vertices[fromVertexId];
@@ -243,20 +264,20 @@ function getDebugRoute(traverseResult, vertexId, costMetric, backward) {
 			routeDiv.appendChild(vertexActionCode);
 		}
 
-		let localState = traverseResult.local_states[trailId];
+		let localState = traversal.local_states[trailId];
 		if (Object.keys(localState).length > 0) {
 			let localStateCode = document.createElement("code");
 			localStateCode.innerText = JSON.stringify(localState);
 			routeDiv.appendChild(localStateCode);	
 		}
 	}
-	return [statePre, routeDiv];
+	return [traversalNumber, statePre, routeDiv];
 }
 
 function updateDebugData() {
 	let debugOutput = document.getElementById("debugOutput");
 	debugOutput.innerHTML = "";
-	let step = parseInt(document.getElementById("debugStepNumber").value) - 1;
+	let step = parseInt(document.getElementById("debugStepNumber").value);
 	let details = spoiler.details[step];
 	if (details === undefined) {
 		return;
@@ -269,11 +290,9 @@ function updateDebugData() {
 		return;
 	}
 	let costMetric = parseInt(document.getElementById("debugCostMetric").value);
-	if (costMetric < 0 || costMetric > 1) {
+	if (costMetric < 0 || costMetric > 2) {
 		return;
 	}
-	let forwardCost = details.forward_traverse.cost[vertexId][costMetric];
-	let reverseCost = details.reverse_traverse.cost[vertexId][costMetric];
 
 	let vertexKey = spoiler.game_data.vertices[vertexId];
 	let roomId = vertexKey.room_id;
@@ -286,9 +305,6 @@ function updateDebugData() {
 	let headerMainLine = document.createElement("p");
 	headerMainLine.innerText = `[${vertexId}] ${roomName}: ${nodeName} (${obstacleMask})`;
 	debugHeader.appendChild(headerMainLine);
-	let costMetricLine = document.createElement("p");
-	costMetricLine.innerText = `Cost metric ${costMetric}: obtain=${forwardCost}, return=${reverseCost}`;
-	debugHeader.appendChild(costMetricLine);
 	if (vertexKey.actions.length > 0) {
 		let actionPre = document.createElement("pre");
 		actionPre.innerText = JSON.stringify(vertexKey.actions, null, 2);
@@ -296,8 +312,10 @@ function updateDebugData() {
 	}
 	debugOutput.appendChild(debugHeader);
 
-	let [forwardState, forwardRoute] = getDebugRoute(details.forward_traverse, vertexId, costMetric, false);
-	let [reverseState, reverseRoute] = getDebugRoute(details.reverse_traverse, vertexId, costMetric, true);
+	let [forwardTraversalNum, forwardState, forwardRoute] =
+		getDebugRoute(spoiler.forward_traversal, step, vertexId, costMetric, false);
+	let [reverseTraversalNum, reverseState, reverseRoute] =
+		getDebugRoute(spoiler.reverse_traversal, step, vertexId, costMetric, true);
 	
 	let forwardStateDiv = document.createElement("div");
 	let forwardStateHeader = createHtmlElement('<div class="category">OBTAIN STATE</div>');
@@ -312,15 +330,13 @@ function updateDebugData() {
 	debugOutput.appendChild(reverseStateDiv);
 
 	let forwardRouteDiv = document.createElement("div");
-	let forwardTraversalNumber = details.forward_traverse.traversal_number;
-	let forwardRouteHeader = createHtmlElement(`<div class="category">OBTAIN ROUTE (traversal number ${forwardTraversalNumber})</div>`);
+	let forwardRouteHeader = createHtmlElement(`<div class="category">OBTAIN ROUTE (traversal number ${forwardTraversalNum})</div>`);
 	forwardRouteDiv.appendChild(forwardRouteHeader);
 	forwardRouteDiv.appendChild(forwardRoute);
 	debugOutput.appendChild(forwardRouteDiv);
 
 	let reverseDiv = document.createElement("div");
-	let reverseTraversalNumber = details.reverse_traverse.traversal_number;
-	let reverseHeader = createHtmlElement(`<div class="category">RETURN ROUTE (traversal number ${reverseTraversalNumber})</div>`);
+	let reverseHeader = createHtmlElement(`<div class="category">RETURN ROUTE (traversal number ${reverseTraversalNum})</div>`);
 	reverseDiv.appendChild(reverseHeader);
 	reverseDiv.appendChild(reverseRoute);
 	debugOutput.appendChild(reverseDiv);

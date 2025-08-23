@@ -1,5 +1,5 @@
 {
-    "version": 119,
+    "version": 120,
     "name": "Default",
     "skill_assumption_settings": {
         "preset": "Basic",
@@ -802,6 +802,11 @@
                 "enabled": false
             },
             {
+                "id": 141,
+                "name": "canSpikeSuit",
+                "enabled": false
+            },
+            {
                 "id": 143,
                 "name": "canSpeedKeep",
                 "enabled": false
@@ -937,6 +942,11 @@
                 "enabled": false
             },
             {
+                "id": 142,
+                "name": "canTrickyCarryFlashSuit",
+                "enabled": false
+            },
+            {
                 "id": 148,
                 "name": "canLongChainTemporaryBlue",
                 "enabled": false
@@ -954,6 +964,11 @@
             {
                 "id": 165,
                 "name": "canDownwardGModeSetup",
+                "enabled": false
+            },
+            {
+                "id": 178,
+                "name": "canElevatorCrystalFlash",
                 "enabled": false
             },
             {
@@ -3471,6 +3486,20 @@
                 "enabled": false
             },
             {
+                "room_id": 106,
+                "notable_id": 5,
+                "room_name": "Ice Beam Gate Room",
+                "notable_name": "Speedy Crouch Gate Clip",
+                "enabled": false
+            },
+            {
+                "room_id": 106,
+                "notable_id": 6,
+                "room_name": "Ice Beam Gate Room",
+                "notable_name": "Arm Pump Crouch Gate Clip",
+                "enabled": false
+            },
+            {
                 "room_id": 127,
                 "notable_id": 2,
                 "room_name": "Indiana Jones Room",
@@ -3734,6 +3763,13 @@
                 "notable_id": 1,
                 "room_name": "Kassiuz Room",
                 "notable_name": "Moonfall Spark",
+                "enabled": false
+            },
+            {
+                "room_id": 215,
+                "notable_id": 1,
+                "room_name": "Maridia Elevator Room",
+                "notable_name": "Dodge Rippers IBJ",
                 "enabled": false
             },
             {
@@ -4224,7 +4260,9 @@
         "disableable_etanks": false,
         "reserve_backward_transfer": false,
         "buffed_drops": true,
-        "early_save": true
+        "early_save": true,
+        "persist_flash_suit": false,
+        "persist_blue_suit": false
     },
     "objective_settings": {
         "preset": "Bosses",
