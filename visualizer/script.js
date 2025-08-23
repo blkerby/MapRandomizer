@@ -203,6 +203,7 @@ let localStateKeyOrder = [
 	"farm_baseline_missiles_used",
 	"farm_baseline_supers_used",
 	"farm_baseline_power_bombs_used",
+	"flash_suit",
 ];
 
 function getDebugRoute(traversal, step, vertexId, costMetric, backward) {
@@ -210,8 +211,8 @@ function getDebugRoute(traversal, step, vertexId, costMetric, backward) {
 	let endTrailId = -1;
 	for (i in traversal.steps) {
 		let s = traversal.steps[i];
-		if (s.step_num != step) {
-			continue;
+		if (s.step_num > step) {
+			break;
 		}
 		for (j in s.updated_vertex_ids) {
 			if (s.updated_vertex_ids[j] == vertexId) {
@@ -289,7 +290,7 @@ function updateDebugData() {
 		return;
 	}
 	let costMetric = parseInt(document.getElementById("debugCostMetric").value);
-	if (costMetric < 0 || costMetric > 1) {
+	if (costMetric < 0 || costMetric > 2) {
 		return;
 	}
 

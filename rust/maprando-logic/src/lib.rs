@@ -105,6 +105,7 @@ pub struct LocalState {
     pub farm_baseline_missiles_used: Capacity,
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
+    pub flash_suit: bool,
 }
 
 pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
@@ -120,6 +121,7 @@ pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
     farm_baseline_missiles_used: 0x3FFF,
     farm_baseline_supers_used: 0x3FFF,
     farm_baseline_power_bombs_used: 0x3FFF,
+    flash_suit: false,
 };
 
 impl LocalState {
@@ -137,6 +139,7 @@ impl LocalState {
             farm_baseline_missiles_used: global.inventory.max_missiles,
             farm_baseline_supers_used: global.inventory.max_supers,
             farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
+            flash_suit: false,
         }
     }
 
@@ -154,6 +157,7 @@ impl LocalState {
             farm_baseline_missiles_used: 0,
             farm_baseline_supers_used: 0,
             farm_baseline_power_bombs_used: 0,
+            flash_suit: false,
         }
     }
 

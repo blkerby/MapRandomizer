@@ -953,6 +953,7 @@ fn get_strat_difficulty(
 
         let local = LocalState {
             shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
+            flash_suit: difficulty.tech[game_data.spike_suit_tech_idx],
             ..LocalState::full()
         };
 

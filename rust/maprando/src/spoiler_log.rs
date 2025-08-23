@@ -311,6 +311,8 @@ pub struct SpoilerLocalState {
     pub farm_baseline_supers_used: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub farm_baseline_power_bombs_used: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flash_suit: Option<Capacity>,
 }
 
 struct VertexInfo {
@@ -396,6 +398,11 @@ impl SpoilerLocalState {
                 None
             } else {
                 Some(local.farm_baseline_power_bombs_used)
+            },
+            flash_suit: if local.flash_suit == ref_local.flash_suit {
+                None
+            } else {
+                Some(if local.flash_suit { 1 } else { 0 })
             },
         }
     }

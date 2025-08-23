@@ -88,7 +88,7 @@ fn apply_enemy_kill_requirement(
     if hp <= 0 { Some(local) } else { None }
 }
 
-pub const NUM_COST_METRICS: usize = 2;
+pub const NUM_COST_METRICS: usize = 3;
 
 fn compute_cost(
     local: LocalState,
@@ -102,27 +102,31 @@ fn compute_cost(
     let supers_cost = (local.supers_used as f32) / (inventory.max_supers as f32 + eps);
     let power_bombs_cost =
         (local.power_bombs_used as f32) / (inventory.max_power_bombs as f32 + eps);
-    let mut shinecharge_cost = -(local.shinecharge_frames_remaining as f32) / 180.0;
+    let mut shinecharge_cost = if local.flash_suit {
+        // For the purposes of the cost metrics, treat flash suit as equivalent
+        // to a large amount of shinecharge frames remaining:
+        -10.0
+    } else {
+        -(local.shinecharge_frames_remaining as f32) / 180.0
+    };
     if reverse {
         shinecharge_cost = -shinecharge_cost;
     }
     let cycle_frames_cost = (local.cycle_frames as f32) * 0.0001;
+    let total_energy_cost = energy_cost + reserve_cost;
+    let total_ammo_cost = missiles_cost + supers_cost + power_bombs_cost;
 
-    let energy_sensitive_cost_metric = 100.0 * (energy_cost + reserve_cost)
-        + missiles_cost
-        + supers_cost
-        + power_bombs_cost
-        + shinecharge_cost
-        + cycle_frames_cost;
-    let ammo_sensitive_cost_metric = energy_cost
-        + reserve_cost
-        + 100.0
-            * (missiles_cost
-                + supers_cost
-                + power_bombs_cost
-                + shinecharge_cost
-                + cycle_frames_cost);
-    [energy_sensitive_cost_metric, ammo_sensitive_cost_metric]
+    let energy_sensitive_cost_metric =
+        100.0 * total_energy_cost + total_ammo_cost + shinecharge_cost + cycle_frames_cost;
+    let ammo_sensitive_cost_metric =
+        total_energy_cost + 100.0 * total_ammo_cost + shinecharge_cost + cycle_frames_cost;
+    let shinecharge_sensitive_cost_metric =
+        total_energy_cost + total_ammo_cost + 100.0 * shinecharge_cost + cycle_frames_cost;
+    [
+        energy_sensitive_cost_metric,
+        ammo_sensitive_cost_metric,
+        shinecharge_sensitive_cost_metric,
+    ]
 }
 
 fn validate_energy_no_auto_reserve(
@@ -1765,9 +1769,13 @@ pub fn apply_requirement(
                 let mut new_local = local;
                 if reverse {
                     new_local.shinecharge_frames_remaining = 0;
+                    if new_local.flash_suit {
+                        return None;
+                    }
                 } else {
                     new_local.shinecharge_frames_remaining =
                         180 - difficulty.shinecharge_leniency_frames;
+                    new_local.flash_suit = false;
                 }
                 Some(new_local)
             } else {
@@ -1837,6 +1845,42 @@ pub fn apply_requirement(
                 }
             } else {
                 None
+            }
+        }
+        Requirement::GainFlashSuit => {
+            let mut new_local = local;
+            if reverse {
+                new_local.flash_suit = false;
+                Some(new_local)
+            } else {
+                new_local.flash_suit = true;
+                Some(new_local)
+            }
+        }
+        Requirement::NoFlashSuit => {
+            let mut new_local = local;
+            if reverse {
+                if new_local.flash_suit {
+                    None
+                } else {
+                    Some(new_local)
+                }
+            } else {
+                new_local.flash_suit = false;
+                Some(new_local)
+            }
+        }
+        Requirement::UseFlashSuit => {
+            let mut new_local = local;
+            
+            if reverse {
+                new_local.flash_suit = true;
+                Some(new_local)
+            } else if !new_local.flash_suit {
+                None
+            } else {
+                new_local.flash_suit = false;
+                Some(new_local)
             }
         }
         Requirement::DoorUnlocked { room_id, node_id } => {
@@ -2096,6 +2140,9 @@ pub fn is_bireachable_state(
         return false;
     }
     if reverse.shinecharge_frames_remaining > forward.shinecharge_frames_remaining {
+        return false;
+    }
+    if reverse.flash_suit && !forward.flash_suit {
         return false;
     }
     true

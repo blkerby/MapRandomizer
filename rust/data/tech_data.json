@@ -920,13 +920,13 @@
     {
         "tech_id": 141,
         "name": "canSpikeSuit",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme",
+        "video_id": 5323
     },
     {
         "tech_id": 142,
         "name": "canTrickyCarryFlashSuit",
-        "difficulty": "Ignored",
+        "difficulty": "Insane",
         "video_id": null
     },
     {
@@ -1190,8 +1190,8 @@
     {
         "tech_id": 178,
         "name": "canElevatorCrystalFlash",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Insane",
+        "video_id": 6495
     },
     {
         "tech_id": 179,

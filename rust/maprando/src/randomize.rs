@@ -2072,9 +2072,12 @@ impl<'a> Preprocessor<'a> {
                 {
                     return None;
                 }
-                Some(Requirement::Tech(
-                    self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
-                ))
+                Some(Requirement::make_and(vec![
+                    Requirement::NoFlashSuit,
+                    Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
+                    ),
+                ]))
             }
             ExitCondition::LeaveWithRunway {
                 effective_length,
@@ -2217,6 +2220,7 @@ impl<'a> Preprocessor<'a> {
                         self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_R_MODE],
                     ),
                     Requirement::Item(Item::XRayScope as ItemId),
+                    Requirement::NoFlashSuit,
                     Requirement::ReserveTrigger {
                         min_reserve_energy: 1,
                         max_reserve_energy: 400,
@@ -2284,6 +2288,7 @@ impl<'a> Preprocessor<'a> {
                         Requirement::Item(Item::Varia as ItemId),
                     ]));
                 }
+                reqs.push(Requirement::NoFlashSuit);
                 reqs.push(Requirement::Item(Item::XRayScope as ItemId));
 
                 let mobile_req = if *knockback {
@@ -2555,9 +2560,12 @@ impl<'a> Preprocessor<'a> {
                         .iter()
                         .any(|x| entrance_ceiling_positions_set.contains(x))
                 {
-                    Some(Requirement::Tech(
-                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SAMUS_EATER_TELEPORT],
-                    ))
+                    Some(Requirement::make_and(vec![
+                        Requirement::NoFlashSuit,
+                        Requirement::Tech(
+                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SAMUS_EATER_TELEPORT],
+                        ),
+                    ]))
                 } else {
                     None
                 }

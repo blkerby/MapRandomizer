@@ -10,6 +10,8 @@ v120?:
     - Add missing remote runway strats in pink brinstar hopper room left side
   - Populate wallJumpAvoid throughout the logic (strats and notables)
   - Finish checking flash suit logic
+  - East Ocean: use flash suit from 4 -> 2
+  - Gauntlet Entrance: remote runway strats on right side
 - Allow more options to be overridden on the customization step:
   - example: Door locks size on map
   - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
@@ -19,42 +21,8 @@ v120?:
   - restore morph tunnel continuation behind morph tunnel transition
   - verify that compressed output decompresses to original
 - add more strats from Incomplete videos
-
-
-v119:
-- DONE: update start location camera_offset_x to avoid BG graphical bug.
 - maybe have second spoiler JSON file without the debugging data?
-- DONE: fix issue with double farming energy when energy gets full
-- DONE?: investigate bug with toilet intersection tileset in weekly seed: https://dev.maprando.com/seed/f2HDVGBxJ
-- maybe blank out missing areas in credits area times
-- DONE: Support maps with incomplete room sets.
-- DONE: toilet showing up in aqueduct BG when not placed?
-- DONE: investigate item pool issue reported by somerando: https://dev.maprando.com/seed/D6Xd5mLyN/
-- investigate fog missing in climb, west maridia theme? (zebes asleep)
-- DONE: investigate bug report about MB Skip and "Hyper Beam gives all movement items": https://discord.com/channels/1053421401354285129/1053434532973510748/1396769689119752224
-- DONE: fix Volcano Room heated runway logic
-- DONE: implement "heated" field on leaveWithRunway
-- DONE: implement lavaFramesWithEnergyDrops
-- DONE: resetRoom formatting
-- DONE: fix logic issue with MB fight not requiring objectives?
-- fix fog in Pit Room (Outer Maridia theme?) 
-  - osse stream Jul 12
-- DONE: back-side MB should be notable?
-- DONE: move canStaggeredWalljump to VH
-- DONE: use simpleCycleFrames in bug farm strats.
-- DONE: adjust requirements on canPreciseWalljump strats
-- DONE: add canLongXRayClimb tech (Expert), move canXRayClimb down to Very Hard.
-- DONE: fix crash when processing spoiler route, involving new farm strats.
-- DONE: fix spoiler map room names to be consistent with sm-json-data (room geometry, escape timings)
-- DONE: show farmEnemyDrops in logic pages
-- DONE: handle enemy "amountOfDrops"
-- DONE: fix issue with min/max objectives ui
-- DONE: when two-sided saves are partially revealed, fix issue with neighboring lines showing white
-- DONE: Add QoL setting for limiting starting map reveal to visited area
-- DONE: Finer-grained map reveal options for specific types of tiles (maybe?)
-- DONE: Refine how initial ammo capacity works, and relax starting hub constraints
-- DONE: Make `resetRoom` account for the ~10 heat damage required to reset with a heated room (important for strats with `farmCycleDrops`).
-- Finish migrating farm strats (to use `farmCycleDrops`)
+
 
 
 Other future work: --------------------------------------------------------------------
@@ -140,6 +108,7 @@ Major new features (not clear yet which of these will ever happen):
   - would be a lot of work. we could invite others to help implement the logic
 
 Other:
+- maybe blank out missing areas in credits area times
 - maybe run customization on client (with Rust WebAssembly)
   - then the ROM wouldn't need to be passed to the server.
   - but Mosaic (tile theming) data will need to be downloaded

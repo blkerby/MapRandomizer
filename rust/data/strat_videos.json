@@ -7213,7 +7213,7 @@
     "video_id": 5323,
     "created_user": "maddo",
     "note": "",
-    "dev_note": ""
+    "dev_note": "canSpikeSuit"
   },
   {
     "room_id": 44,
@@ -14497,6 +14497,14 @@
   },
   {
     "room_id": 97,
+    "strat_id": 222,
+    "video_id": 2426,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
     "strat_id": 33,
     "video_id": 2025,
     "created_user": "Sam",
@@ -14636,6 +14644,22 @@
     "strat_id": 178,
     "video_id": 185,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 223,
+    "video_id": 710,
+    "created_user": "NZT",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 223,
+    "video_id": 2425,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -15257,14 +15281,6 @@
   },
   {
     "room_id": 97,
-    "strat_id": 146,
-    "video_id": 2426,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 97,
     "strat_id": 147,
     "video_id": 6088,
     "created_user": "Sam",
@@ -15290,25 +15306,9 @@
   {
     "room_id": 97,
     "strat_id": 155,
-    "video_id": 710,
-    "created_user": "NZT",
-    "note": "The wavers are easy to setup for climbing if you can access the middle top door. Otherwise they fly all over the room and make it more difficult. ",
-    "dev_note": ""
-  },
-  {
-    "room_id": 97,
-    "strat_id": 155,
     "video_id": 711,
     "created_user": "NZT",
-    "note": "Entry from other doors, walljump makes it much easier to get on the first Waver. ",
-    "dev_note": ""
-  },
-  {
-    "room_id": 97,
-    "strat_id": 155,
-    "video_id": 2425,
-    "created_user": "Sam",
-    "note": "",
+    "note": "Wall Jump",
     "dev_note": ""
   },
   {

@@ -799,6 +799,11 @@
             "enabled": false
         },
         {
+            "id": 141,
+            "name": "canSpikeSuit",
+            "enabled": false
+        },
+        {
             "id": 143,
             "name": "canSpeedKeep",
             "enabled": false
@@ -934,6 +939,11 @@
             "enabled": false
         },
         {
+            "id": 142,
+            "name": "canTrickyCarryFlashSuit",
+            "enabled": false
+        },
+        {
             "id": 148,
             "name": "canLongChainTemporaryBlue",
             "enabled": false
@@ -951,6 +961,11 @@
         {
             "id": 165,
             "name": "canDownwardGModeSetup",
+            "enabled": false
+        },
+        {
+            "id": 178,
+            "name": "canElevatorCrystalFlash",
             "enabled": false
         },
         {
