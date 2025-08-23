@@ -1872,7 +1872,7 @@ pub fn apply_requirement(
         }
         Requirement::UseFlashSuit => {
             let mut new_local = local;
-            
+
             if reverse {
                 new_local.flash_suit = true;
                 Some(new_local)
