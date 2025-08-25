@@ -24,11 +24,12 @@ pub fn can_defeat_phantoon(
     can_manage_reserves: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
-    match apply_phantoon_requirement(&inventory, local, proficiency, can_manage_reserves) {
-        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
-        None => JsValue::null(),
+    if apply_phantoon_requirement(&inventory, &mut local, proficiency, can_manage_reserves) {
+        serde_wasm_bindgen::to_value(&local).unwrap()
+    } else {
+        JsValue::null()
     }
 }
 
@@ -41,17 +42,18 @@ pub fn can_defeat_draygon(
     can_be_very_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
-    match apply_draygon_requirement(
+    if apply_draygon_requirement(
         &inventory,
-        local,
+        &mut local,
         proficiency,
         can_manage_reserves,
         can_be_very_patient,
     ) {
-        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
-        None => JsValue::null(),
+        serde_wasm_bindgen::to_value(&local).unwrap()
+    } else {
+        JsValue::null()
     }
 }
 
@@ -66,11 +68,11 @@ pub fn can_defeat_ridley(
     can_be_extremely_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
-    match apply_ridley_requirement(
+    if apply_ridley_requirement(
         &inventory,
-        local,
+        &mut local,
         proficiency,
         can_manage_reserves,
         can_be_patient,
@@ -80,8 +82,9 @@ pub fn can_defeat_ridley(
         false,
         RidleyStuck::None,
     ) {
-        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
-        None => JsValue::null(),
+        serde_wasm_bindgen::to_value(&local).unwrap()
+    } else {
+        JsValue::null()
     }
 }
 
@@ -94,17 +97,18 @@ pub fn can_defeat_botwoon(
     can_manage_reserves: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
-    match apply_botwoon_requirement(
+    if apply_botwoon_requirement(
         &inventory,
-        local,
+        &mut local,
         proficiency,
         second_phase,
         can_manage_reserves,
     ) {
-        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
-        None => JsValue::null(),
+        serde_wasm_bindgen::to_value(&local).unwrap()
+    } else {
+        JsValue::null()
     }
 }
 
@@ -119,18 +123,19 @@ pub fn can_defeat_mother_brain_2(
     r_mode: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
 
-    match apply_mother_brain_2_requirement(
+    if apply_mother_brain_2_requirement(
         &inventory,
-        local,
+        &mut local,
         proficiency,
         supers_double,
         can_manage_reserves,
         can_be_very_patient,
         r_mode,
     ) {
-        Some(local) => serde_wasm_bindgen::to_value(&local).unwrap(),
-        None => JsValue::null(),
+        serde_wasm_bindgen::to_value(&local).unwrap()
+    } else {
+        JsValue::null()
     }
 }

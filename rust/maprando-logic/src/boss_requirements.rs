@@ -6,10 +6,10 @@ use maprando_game::{Capacity, Item, RidleyStuck};
 
 pub fn apply_phantoon_requirement(
     inventory: &Inventory,
-    mut local: LocalState,
+    local: &mut LocalState,
     proficiency: f32,
     can_manage_reserves: bool,
-) -> Option<LocalState> {
+) -> bool {
     // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
     // as soon as he opens his eye. Faster or more complex strats are not relevant, since at
     // high proficiency the fight is considered free anyway (as long as Charge or any ammo is available)
@@ -48,7 +48,7 @@ pub fn apply_phantoon_requirement(
     let kill_time = match possible_kill_times.iter().min_by(|x, y| x.total_cmp(y)) {
         Some(t) => t,
         None => {
-            return None;
+            return false;
         }
     };
 
@@ -68,7 +68,7 @@ pub fn apply_phantoon_requirement(
 
     // Overflow safeguard - bail here if Samus takes calamitous damage.
     if net_dps * kill_time > 10000.0 {
-        return None;
+        return false;
     }
 
     local.energy_used += (net_dps * kill_time) as Capacity;
@@ -78,11 +78,11 @@ pub fn apply_phantoon_requirement(
 
 pub fn apply_draygon_requirement(
     inventory: &Inventory,
-    local: LocalState,
+    local: &mut LocalState,
     proficiency: f32,
     can_manage_reserves: bool,
     can_be_very_patient: bool,
-) -> Option<LocalState> {
+) -> bool {
     let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(inventory);
 
@@ -130,7 +130,7 @@ pub fn apply_draygon_requirement(
     let supers_available = inventory.max_supers - local.supers_used;
     boss_hp -= (supers_available as f32) * accuracy * 300.0;
     if boss_hp < 0.0 {
-        return Some(local);
+        return true;
     }
 
     let missiles_available = inventory.max_missiles - local.missiles_used;
@@ -160,7 +160,7 @@ pub fn apply_draygon_requirement(
         };
         let overall_damage_rate = farming_missile_damage_rate + charge_damage_rate;
         if overall_damage_rate == 0.0 {
-            return None;
+            return false;
         }
         time += boss_hp / overall_damage_rate;
     }
@@ -172,27 +172,21 @@ pub fn apply_draygon_requirement(
         }
         // Overflow safeguard - bail here if Samus takes calamitous damage.
         if net_dps * time > 10000.0 {
-            return None;
+            return false;
         }
         // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
         // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
-        let result = LocalState {
-            energy_used: local.energy_used + (net_dps * time) as Capacity,
-            ..local
-        };
-        if validate_energy(result, inventory, can_manage_reserves).is_some() {
-            Some(local)
-        } else {
-            None
-        }
+        // TODO: do something more reasonable here.
+        local.energy_used += (net_dps * time) as Capacity;
+        validate_energy(local, inventory, can_manage_reserves)
     } else {
-        None
+        false
     }
 }
 
 pub fn apply_ridley_requirement(
     inventory: &Inventory,
-    mut local: LocalState,
+    local: &mut LocalState,
     proficiency: f32,
     can_manage_reserves: bool,
     can_be_patient: bool,
@@ -201,7 +195,7 @@ pub fn apply_ridley_requirement(
     use_power_bombs: bool,
     g_mode: bool,
     stuck: RidleyStuck,
-) -> Option<LocalState> {
+) -> bool {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
     let charge_damage = get_charge_damage(inventory);
@@ -301,7 +295,7 @@ pub fn apply_ridley_requirement(
 
     if boss_hp > 0.0 {
         // We don't have enough ammo to finish the fight:
-        return None;
+        return false;
     }
 
     // For determining if patience tech is required:
@@ -316,7 +310,7 @@ pub fn apply_ridley_requirement(
         || good_time >= 360.0 && !can_be_extremely_patient
     {
         // We don't have enough patience to finish the fight:
-        return None;
+        return false;
     }
 
     let morph = inventory.items[Item::Morph as usize];
@@ -342,7 +336,7 @@ pub fn apply_ridley_requirement(
     let damage = base_ridley_attack_dps * hit_rate * time;
     // Overflow safeguard - bail here if Samus takes calamitous damage.
     if damage > 10000.0 {
-        return None;
+        return false;
     }
     local.energy_used += (damage / suit_damage_factor(inventory) as f32) as Capacity;
 
@@ -363,11 +357,11 @@ pub fn apply_ridley_requirement(
 
 pub fn apply_botwoon_requirement(
     inventory: &Inventory,
-    mut local: LocalState,
+    local: &mut LocalState,
     proficiency: f32,
     second_phase: bool,
     can_manage_reserves: bool,
-) -> Option<LocalState> {
+) -> bool {
     // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
     // assuming instead the player just uses ammo and/or regular charged shots.
 
@@ -431,8 +425,8 @@ pub fn apply_botwoon_requirement(
         } else {
             // Prioritize using missiles over supers. This is slower but the idea is to conserve supers
             // since they are generally more valuable to save for later.
-            use_missiles(&mut local, &mut boss_hp, &mut time);
-            use_supers(&mut local, &mut boss_hp, &mut time);
+            use_missiles(local, &mut boss_hp, &mut time);
+            use_supers(local, &mut boss_hp, &mut time);
         }
     } else {
         // In the first phase, prioritize using the highest-DPS weapons, to finish the fight faster and
@@ -440,15 +434,15 @@ pub fn apply_botwoon_requirement(
         if charge_damage >= 450.0 {
             use_charge(&mut boss_hp, &mut time);
         } else {
-            use_supers(&mut local, &mut boss_hp, &mut time);
-            use_missiles(&mut local, &mut boss_hp, &mut time);
+            use_supers(local, &mut boss_hp, &mut time);
+            use_missiles(local, &mut boss_hp, &mut time);
             use_charge(&mut boss_hp, &mut time);
         }
     }
 
     if boss_hp > 0.0 {
         // We don't have enough ammo to finish the fight:
-        return None;
+        return false;
     }
 
     if !second_phase {
@@ -469,7 +463,7 @@ pub fn apply_botwoon_requirement(
         let damage_per_hit = 96.0 / suit_damage_factor(inventory) as f32;
         // Overflow safeguard - bail here if Samus takes calamitous damage.
         if hits * damage_per_hit > 10000.0 {
-            return None;
+            return false;
         }
         local.energy_used += (hits * damage_per_hit) as Capacity;
     }
@@ -482,13 +476,13 @@ pub fn apply_botwoon_requirement(
 
 pub fn apply_mother_brain_2_requirement(
     inventory: &Inventory,
-    mut local: LocalState,
+    local: &mut LocalState,
     proficiency: f32,
     supers_double: bool,
     can_manage_reserves: bool,
     can_be_very_patient: bool,
     r_mode: bool,
-) -> Option<LocalState> {
+) -> bool {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
     let charge_damage = get_charge_damage(inventory);
@@ -550,12 +544,12 @@ pub fn apply_mother_brain_2_requirement(
 
     if boss_hp > 0.0 {
         // We don't have enough ammo to finish the fight:
-        return None;
+        return false;
     }
 
     if time >= 180.0 && !can_be_very_patient {
         // We don't have enough patience to finish the fight:
-        return None;
+        return false;
     }
 
     // Assumed rate of Mother Brain damage to Samus (per second), given minimal dodging skill:
@@ -571,19 +565,19 @@ pub fn apply_mother_brain_2_requirement(
             local.energy_used += 300;
             if inventory.max_energy < 151 {
                 // With Varia, we need at least one ETank to survive rainbow beam.
-                return None;
+                return false;
             }
         } else {
             local.energy_used += 600;
             if inventory.max_energy < 301 {
                 // Without Varia, we need at least three ETanks to survive rainbow beam.
-                return None;
+                return false;
             }
         }
     }
     // Overflow safeguard - bail here if Samus takes calamitous damage.
     if damage > 10000.0 {
-        return None;
+        return false;
     }
 
     validate_energy(local, inventory, can_manage_reserves)

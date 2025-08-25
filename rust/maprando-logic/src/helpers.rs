@@ -38,10 +38,10 @@ pub fn suit_damage_factor(inventory: &Inventory) -> Capacity {
 }
 
 pub fn validate_energy(
-    mut local: LocalState,
+    local: &mut LocalState,
     inventory: &Inventory,
     can_manage_reserves: bool,
-) -> Option<LocalState> {
+) -> bool {
     if local.energy_used >= inventory.max_energy {
         if can_manage_reserves {
             // Assume that just enough reserve energy is manually converted to regular energy.
@@ -56,12 +56,12 @@ pub fn validate_energy(
             local.reserves_used = inventory.max_reserves;
             local.energy_used = std::cmp::max(0, local.energy_used - reserves_available);
             if local.energy_used >= inventory.max_energy {
-                return None;
+                return false;
             }
         }
     }
     if local.reserves_used > inventory.max_reserves {
-        return None;
+        return false;
     }
-    Some(local)
+    true
 }
