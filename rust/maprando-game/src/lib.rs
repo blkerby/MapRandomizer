@@ -66,6 +66,7 @@ pub const TECH_ID_CAN_EXTENDED_MOONDANCE: TechId = 27;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_SPIKE_SUIT: TechId = 141;
+pub const TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH: TechId = 178;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
 #[allow(clippy::type_complexity)]
@@ -1523,7 +1524,6 @@ pub struct GameData {
     pub wall_jump_tech_idx: TechIdx,
     pub manage_reserves_tech_idx: TechIdx,
     pub pause_abuse_tech_idx: TechIdx,
-    pub spike_suit_tech_idx: TechIdx,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
     pub room_name_font: VariableWidthFont,
@@ -1620,11 +1620,6 @@ impl GameData {
             .tech_isv
             .index_by_key
             .get(&TECH_ID_CAN_PAUSE_ABUSE)
-            .unwrap();
-        self.spike_suit_tech_idx = *self
-            .tech_isv
-            .index_by_key
-            .get(&TECH_ID_CAN_SPIKE_SUIT)
             .unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
         Ok(())
