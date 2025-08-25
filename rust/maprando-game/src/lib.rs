@@ -1471,7 +1471,7 @@ pub struct GameData {
     pub tech_id_by_name: HashMap<String, TechId>,
     pub notable_id_by_name: HashMap<(RoomId, String), NotableId>,
     pub helper_json_map: HashMap<String, JsonValue>,
-    tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
+    pub tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,

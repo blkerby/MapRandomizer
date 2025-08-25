@@ -2490,6 +2490,10 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
         entrance_position: GrappleJumpPosition,
     ) -> Option<Requirement> {
+        let grapple_jump_req = self.game_data.tech_requirement[&(TECH_ID_CAN_GRAPPLE_JUMP, true)]
+            .clone()
+            .unwrap();
+
         match exit_condition {
             ExitCondition::LeaveWithGrappleJump { position } => {
                 if position == &GrappleJumpPosition::Any
@@ -2497,9 +2501,7 @@ impl<'a> Preprocessor<'a> {
                     || &entrance_position == position
                 {
                     Some(Requirement::make_and(vec![
-                        Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_GRAPPLE_JUMP],
-                        ),
+                        grapple_jump_req,
                         Requirement::Item(self.game_data.item_isv.index_by_key["Grapple"]),
                         Requirement::Item(self.game_data.item_isv.index_by_key["Morph"]),
                     ]))
