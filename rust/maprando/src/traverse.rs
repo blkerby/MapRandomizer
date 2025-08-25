@@ -2078,7 +2078,7 @@ impl Traverser {
                 HashMap::new();
             let modified_vertices_vec = {
                 // Process the vertices in sorted order, to make the traversal deterministic.
-                // This also improves performance, possibly due to better locality: 
+                // This also improves performance, possibly due to better locality:
                 // neighboring vertices would tend to have their data stored next to each other.
                 let mut m: Vec<(usize, [bool; NUM_COST_METRICS])> =
                     modified_vertices.into_iter().collect();
