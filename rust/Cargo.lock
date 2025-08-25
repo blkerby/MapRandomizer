@@ -1334,6 +1334,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.15.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9229cfe53dfd69f0609a49f65461bd93001ea1ef889cd5529dd176593f5338a1"
+
+[[package]]
 name = "heck"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1553,12 +1559,12 @@ checksum = "206ca75c9c03ba3d4ace2460e57b189f39f43de612c2f85836e65c929701bb2d"
 
 [[package]]
 name = "indexmap"
-version = "2.4.0"
+version = "2.11.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93ead53efc7ea8ed3cfb0c79fc8023fbb782a5432b52830b6518941cebe6505c"
+checksum = "f2481980430f9f78649238835720ddccc57e52df14ffce1c6f37391d61b563e9"
 dependencies = [
  "equivalent",
- "hashbrown",
+ "hashbrown 0.15.5",
 ]
 
 [[package]]
@@ -1756,7 +1762,7 @@ dependencies = [
  "env_logger",
  "futures",
  "glob",
- "hashbrown",
+ "hashbrown 0.14.5",
  "image",
  "ips",
  "json",
@@ -1787,7 +1793,7 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "glob",
- "hashbrown",
+ "hashbrown 0.14.5",
  "image",
  "json",
  "log",
@@ -1838,7 +1844,7 @@ dependencies = [
  "env_logger",
  "futures",
  "glob",
- "hashbrown",
+ "hashbrown 0.14.5",
  "itertools 0.14.0",
  "json",
  "log",
