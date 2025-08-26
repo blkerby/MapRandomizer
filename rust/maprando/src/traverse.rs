@@ -228,13 +228,19 @@ fn is_mother_brain_barrier_clear(
     }
 }
 
+enum MultiplierType {
+    Simple,
+    Regular,
+    FlashSuit,
+}
+
 fn apply_heat_frames(
     frames: Capacity,
     local: &mut LocalState,
     global: &GlobalState,
     game_data: &GameData,
     difficulty: &DifficultyConfig,
-    simple: bool,
+    multiplier_type: MultiplierType,
 ) -> bool {
     let varia = global.inventory.items[Item::Varia as usize];
     if varia {
@@ -242,12 +248,12 @@ fn apply_heat_frames(
     } else if !difficulty.tech[game_data.heat_run_tech_idx] {
         false
     } else {
-        if simple {
-            local.energy_used += (frames as f32 / 4.0).ceil() as Capacity;
-        } else {
-            local.energy_used +=
-                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
-        }
+        let multiplier = match multiplier_type {
+            MultiplierType::Simple => 1.0,
+            MultiplierType::Regular => difficulty.resource_multiplier,
+            MultiplierType::FlashSuit => difficulty.flash_suit_resource_multiplier,
+        };
+        local.energy_used += (frames as f32 * multiplier / 4.0).ceil() as Capacity;
         validate_energy(
             local,
             &global.inventory,
@@ -364,6 +370,7 @@ fn apply_heat_frames_with_energy_drops(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     reverse: bool,
+    flash_suit_lenience: bool,
 ) -> bool {
     let varia = global.inventory.items[Item::Varia as usize];
     if varia {
@@ -380,7 +387,12 @@ fn apply_heat_frames_with_energy_drops(
                 settings.quality_of_life_settings.buffed_drops,
             )
         }
-        let heat_energy = (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+        let multiplier = if flash_suit_lenience {
+            difficulty.flash_suit_resource_multiplier
+        } else {
+            difficulty.resource_multiplier
+        };
+        let heat_energy = (frames as f32 * multiplier / 4.0).ceil() as Capacity;
         total_drop_value = Capacity::min(total_drop_value, heat_energy);
         local.energy_used += heat_energy;
         if !validate_energy(
@@ -1197,19 +1209,37 @@ fn apply_requirement_simple(
             .quality_of_life_settings
             .remove_climb_lava
             .into(),
-        Requirement::HeatFrames(frames) => apply_heat_frames(
+        Requirement::HeatFrames {
+            frames,
+            flash_suit_lenience,
+        } => apply_heat_frames(
             *frames,
             local,
             cx.global,
             cx.game_data,
             cx.difficulty,
-            false,
+            if *flash_suit_lenience {
+                MultiplierType::FlashSuit
+            } else {
+                MultiplierType::Regular
+            },
         )
         .into(),
-        Requirement::SimpleHeatFrames(frames) => {
-            apply_heat_frames(*frames, local, cx.global, cx.game_data, cx.difficulty, true).into()
-        }
-        Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
+        Requirement::SimpleHeatFrames(frames) => apply_heat_frames(
+            *frames,
+            local,
+            cx.global,
+            cx.game_data,
+            cx.difficulty,
+            MultiplierType::Simple,
+        )
+        .into(),
+        Requirement::HeatFramesWithEnergyDrops {
+            frames,
+            enemy_drops,
+            enemy_drops_buffed,
+            flash_suit_lenience,
+        } => {
             let drops = if cx.settings.quality_of_life_settings.buffed_drops {
                 enemy_drops_buffed
             } else {
@@ -1224,6 +1254,7 @@ fn apply_requirement_simple(
                 cx.settings,
                 cx.difficulty,
                 cx.reverse,
+                *flash_suit_lenience,
             )
             .into()
         }
@@ -1247,27 +1278,75 @@ fn apply_requirement_simple(
         }
         Requirement::MainHallElevatorFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(188, local, cx.global, cx.game_data, cx.difficulty, true).into()
+                apply_heat_frames(
+                    188,
+                    local,
+                    cx.global,
+                    cx.game_data,
+                    cx.difficulty,
+                    MultiplierType::Simple,
+                )
+                .into()
             } else if !cx.global.inventory.items[Item::Varia as usize]
                 && cx.global.inventory.max_energy < 149
             {
                 SimpleResult::Failure
             } else {
-                apply_heat_frames(436, local, cx.global, cx.game_data, cx.difficulty, true).into()
+                apply_heat_frames(
+                    436,
+                    local,
+                    cx.global,
+                    cx.game_data,
+                    cx.difficulty,
+                    MultiplierType::Simple,
+                )
+                .into()
             }
         }
         Requirement::LowerNorfairElevatorDownFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(30, local, cx.global, cx.game_data, cx.difficulty, true).into()
+                apply_heat_frames(
+                    30,
+                    local,
+                    cx.global,
+                    cx.game_data,
+                    cx.difficulty,
+                    MultiplierType::Simple,
+                )
+                .into()
             } else {
-                apply_heat_frames(60, local, cx.global, cx.game_data, cx.difficulty, true).into()
+                apply_heat_frames(
+                    60,
+                    local,
+                    cx.global,
+                    cx.game_data,
+                    cx.difficulty,
+                    MultiplierType::Simple,
+                )
+                .into()
             }
         }
         Requirement::LowerNorfairElevatorUpFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(48, local, cx.global, cx.game_data, cx.difficulty, true).into()
+                apply_heat_frames(
+                    48,
+                    local,
+                    cx.global,
+                    cx.game_data,
+                    cx.difficulty,
+                    MultiplierType::Simple,
+                )
+                .into()
             } else {
-                apply_heat_frames(108, local, cx.global, cx.game_data, cx.difficulty, true).into()
+                apply_heat_frames(
+                    108,
+                    local,
+                    cx.global,
+                    cx.game_data,
+                    cx.difficulty,
+                    MultiplierType::Simple,
+                )
+                .into()
             }
         }
         Requirement::LavaFrames(frames) => {

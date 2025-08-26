@@ -14,8 +14,7 @@ use crate::spoiler_log::{
     get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
-    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs,
-    get_spoiler_trail_ids,
+    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs, get_spoiler_trail_ids,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
@@ -70,6 +69,7 @@ pub struct DifficultyConfig {
     pub shinecharge_leniency_frames: Capacity,
     pub speed_ball_tiles: f32,
     pub resource_multiplier: f32,
+    pub flash_suit_resource_multiplier: f32,
     pub farm_time_limit: f32,
     pub gate_glitch_leniency: Capacity,
     pub door_stuck_leniency: Capacity,
@@ -126,6 +126,7 @@ impl DifficultyConfig {
             shinecharge_leniency_frames: skill.shinecharge_leniency_frames as Capacity,
             speed_ball_tiles: skill.speed_ball_tiles,
             resource_multiplier: skill.resource_multiplier,
+            flash_suit_resource_multiplier: skill.flash_suit_resource_multiplier,
             farm_time_limit: skill.farm_time_limit,
             gate_glitch_leniency: skill.gate_glitch_leniency as Capacity,
             bomb_into_cf_leniency: skill.bomb_into_cf_leniency as Capacity,
@@ -169,6 +170,10 @@ impl DifficultyConfig {
                 other.shinecharge_leniency_frames,
             ),
             resource_multiplier: f32::max(self.resource_multiplier, other.resource_multiplier),
+            flash_suit_resource_multiplier: f32::max(
+                self.flash_suit_resource_multiplier,
+                other.flash_suit_resource_multiplier,
+            ),
             farm_time_limit: f32::min(self.farm_time_limit, other.farm_time_limit),
             gate_glitch_leniency: Capacity::max(
                 self.gate_glitch_leniency,
@@ -922,7 +927,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
+                    reqs.push(Requirement::make_heat_frames(heat_frames as Capacity));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1132,7 +1137,7 @@ impl<'a> Preprocessor<'a> {
                         runway_heated,
                         *heated,
                     );
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1184,7 +1189,7 @@ impl<'a> Preprocessor<'a> {
                         runway_heated,
                         *heated,
                     );
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1256,7 +1261,7 @@ impl<'a> Preprocessor<'a> {
                         runway_heated,
                         *heated,
                     );
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1368,7 +1373,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
+                    reqs.push(Requirement::make_heat_frames(heat_frames as Capacity));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1450,14 +1455,14 @@ impl<'a> Preprocessor<'a> {
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let (heat_frames_2, _) =
                             compute_shinecharge_frames(other_runway_length, 0.0);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                        reqs.push(Requirement::make_heat_frames(heat_frames_1 + heat_frames_2 + 5));
                     }
                 } else if *heated {
                     // Runway in the other room starts at a different node and runs toward the door. The full combined
                     // runway is used.
                     let (frames_1, _) = compute_shinecharge_frames(effective_length, 0.0);
                     let heat_frames = frames_1 + 5;
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1567,7 +1572,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
@@ -1690,7 +1695,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 if exit_movement_type == BounceMovementType::Controlled {
                     reqs.push(Requirement::Tech(
@@ -1845,7 +1850,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 if entrance_movement_type == BounceMovementType::Controlled {
                     reqs.push(Requirement::Tech(
@@ -1891,10 +1896,10 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
+                        reqs.push(Requirement::make_heat_frames(heat_frames_1 + heat_frames_2 + 15));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                        reqs.push(Requirement::make_heat_frames(heat_frames + 5));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -1934,10 +1939,10 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
+                        reqs.push(Requirement::make_heat_frames(heat_frames_1 + heat_frames_2 + 15));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                        reqs.push(Requirement::make_heat_frames(heat_frames + 5));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -1981,7 +1986,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -2047,10 +2052,10 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                        reqs.push(Requirement::make_heat_frames(heat_frames_1 + heat_frames_2 + 5));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                        reqs.push(Requirement::make_heat_frames(heat_frames + 5));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -2102,12 +2107,12 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(
+                        reqs.push(Requirement::make_heat_frames(
                             heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15,
                         ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(
+                        reqs.push(Requirement::make_heat_frames(
                             heat_frames + heat_frames_temp_blue + 5,
                         ));
                     }
@@ -2147,7 +2152,7 @@ impl<'a> Preprocessor<'a> {
                     if *from_exit_node {
                         heat_frames += compute_run_frames(effective_length);
                     }
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::make_heat_frames(heat_frames));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -2197,7 +2202,7 @@ impl<'a> Preprocessor<'a> {
                     heat_frames_per_attempt += 50;
                 }
                 if heat_frames_per_attempt > 0 {
-                    reqs.push(Requirement::HeatFrames(heat_frames_per_attempt));
+                    reqs.push(Requirement::make_heat_frames(heat_frames_per_attempt));
                     reqs.push(Requirement::HeatedDoorStuckLeniency {
                         heat_frames: heat_frames_per_attempt,
                     })
@@ -2398,7 +2403,7 @@ impl<'a> Preprocessor<'a> {
                     self.game_data.item_isv.index_by_key["SpaceJump"],
                 ));
                 if *heated {
-                    reqs_and_vec.push(Requirement::HeatFrames(30));
+                    reqs_and_vec.push(Requirement::make_heat_frames(30));
                 }
                 Some(Requirement::make_and(reqs_and_vec))
             }

@@ -46,6 +46,7 @@ pub struct SkillAssumptionSettings {
     pub botwoon_proficiency: f32,
     pub mother_brain_proficiency: f32,
     pub escape_timer_multiplier: f32,
+    pub flash_suit_resource_multiplier: f32,
     pub tech_settings: Vec<TechSetting>,
     pub notable_settings: Vec<NotableSetting>,
 }

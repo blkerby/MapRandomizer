@@ -60,6 +60,7 @@ function applySkillPreset(preset) {
     document.getElementById("speedBallTiles").value = preset.speed_ball_tiles;
     document.getElementById("shinechargeLeniencyFrames").value = preset.shinecharge_leniency_frames;
     document.getElementById("resourceMultiplier").value = preset.resource_multiplier;
+    document.getElementById("flashSuitResourceMultiplier").value = preset.flash_suit_resource_multiplier;
     document.getElementById("farmTimeLimit").value = preset.farm_time_limit;
     document.getElementById("gateGlitchLeniency").value = preset.gate_glitch_leniency;
     document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
@@ -222,6 +223,7 @@ function buildSettingsObject() {
             "speed_ball_tiles": parseFloat(formData.get("speed_ball_tiles")),
             "shinecharge_leniency_frames": parseFloat(formData.get("shinecharge_leniency_frames")),
             "resource_multiplier": parseFloat(formData.get("resource_multiplier")),
+            "flash_suit_resource_multiplier": parseFloat(formData.get("flash_suit_resource_multiplier")),
             "farm_time_limit": parseFloat(formData.get("farm_time_limit")),
             "gate_glitch_leniency": parseFloat(formData.get("gate_glitch_leniency")),
             "door_stuck_leniency": parseFloat(formData.get("door_stuck_leniency")),

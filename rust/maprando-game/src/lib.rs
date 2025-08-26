@@ -245,9 +245,17 @@ pub enum Requirement {
         frames: Capacity,
         excess_frames: Capacity,
     },
-    HeatFrames(Capacity),
+    HeatFrames {
+        frames: Capacity,
+        flash_suit_lenience: bool,
+    },
     SimpleHeatFrames(Capacity),
-    HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
+    HeatFramesWithEnergyDrops {
+        frames: Capacity,
+        enemy_drops: Vec<EnemyDrop>,
+        enemy_drops_buffed: Vec<EnemyDrop>,
+        flash_suit_lenience: bool,
+    },
     LavaFrames(Capacity),
     LavaFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
     GravitylessLavaFrames(Capacity),
@@ -448,6 +456,46 @@ impl Requirement {
                 heated,
             }
         }
+    }
+
+    pub fn make_heat_frames(frames: Capacity) -> Requirement {
+        Requirement::Or(vec![
+            Requirement::HeatFrames {
+                frames,
+                flash_suit_lenience: true,
+            },
+            Requirement::And(vec![
+                Requirement::NoFlashSuit,
+                Requirement::HeatFrames {
+                    frames,
+                    flash_suit_lenience: false,
+                },
+            ]),
+        ])
+    }
+
+    pub fn make_heat_frames_with_drops(
+        frames: Capacity,
+        enemy_drops: Vec<EnemyDrop>,
+        enemy_drops_buffed: Vec<EnemyDrop>,
+    ) -> Requirement {
+        Requirement::Or(vec![
+            Requirement::HeatFramesWithEnergyDrops {
+                frames,
+                enemy_drops: enemy_drops.clone(),
+                enemy_drops_buffed: enemy_drops_buffed.clone(),
+                flash_suit_lenience: true,
+            },
+            Requirement::And(vec![
+                Requirement::NoFlashSuit,
+                Requirement::HeatFramesWithEnergyDrops {
+                    frames,
+                    enemy_drops: enemy_drops.clone(),
+                    enemy_drops_buffed: enemy_drops_buffed.clone(),
+                    flash_suit_lenience: false,
+                },
+            ]),
+        ])
     }
 
     pub fn print_pretty(&self, indent: usize, game_data: &GameData) {
@@ -1998,7 +2046,7 @@ impl GameData {
                 (
                     vec!["missiles", "ammo"],
                     Requirement::Missiles(5),
-                    Requirement::HeatFrames(50),
+                    Requirement::make_heat_frames(50),
                 ),
                 (
                     vec!["super", "ammo"],
@@ -2017,12 +2065,12 @@ impl GameData {
                     Requirement::Item(Item::Morph as ItemId),
                     Requirement::PowerBombs(1),
                 ]),
-                Requirement::HeatFrames(110),
+                Requirement::make_heat_frames(110),
             )],
             DoorType::Beam(BeamType::Charge) => vec![(
                 vec!["charge"],
                 Requirement::Item(Item::Charge as ItemId),
-                Requirement::HeatFrames(60),
+                Requirement::make_heat_frames(60),
             )],
             DoorType::Gray | DoorType::Beam(_) | DoorType::Wall => {
                 panic!("Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}")
@@ -2534,7 +2582,7 @@ impl GameData {
                 let frames = value
                     .as_i32()
                     .unwrap_or_else(|| panic!("invalid heatFrames in {req_json}"));
-                return Ok(Requirement::HeatFrames(frames as Capacity));
+                return Ok(Requirement::make_heat_frames(frames as Capacity));
             } else if key == "simpleHeatFrames" {
                 let frames = value
                     .as_i32()
@@ -2545,7 +2593,7 @@ impl GameData {
                 let frames = value
                     .as_i32()
                     .unwrap_or_else(|| panic!("invalid gravitylessHeatFrames in {req_json}"));
-                return Ok(Requirement::HeatFrames(frames as Capacity));
+                return Ok(Requirement::make_heat_frames(frames as Capacity));
             } else if key == "lavaFrames" {
                 let frames = value
                     .as_i32()
@@ -2844,7 +2892,7 @@ impl GameData {
                 let frames = value["frames"].as_i32().unwrap() as Capacity;
                 let enemy_drops = self.parse_enemy_drops(&value["drops"], false);
                 let enemy_drops_buffed = self.parse_enemy_drops(&value["drops"], true);
-                return Ok(Requirement::HeatFramesWithEnergyDrops(
+                return Ok(Requirement::make_heat_frames_with_drops(
                     frames,
                     enemy_drops,
                     enemy_drops_buffed,
@@ -5173,7 +5221,7 @@ impl GameData {
                 if heated && vertex_key.node_id == node_id {
                     // If the comeInNormally and leaveNormally strats are at the door node,
                     // assume an implicit requirement of 40 heat frames to open the door:
-                    req_and.push(Requirement::HeatFrames(40));
+                    req_and.push(Requirement::make_heat_frames(40));
                 }
                 req_or.push(Requirement::make_and(req_and));
             }
