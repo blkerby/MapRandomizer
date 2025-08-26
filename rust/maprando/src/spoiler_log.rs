@@ -16,10 +16,19 @@ use crate::{
     },
     settings::SaveAnimals,
     traverse::{
-        NUM_COST_METRICS, Traverser, get_bireachable_idxs, get_one_way_reachable_idx,
-        get_spoiler_trail_ids,
+        LocalStateReducer, NUM_COST_METRICS, Traverser, get_bireachable_idxs,
+        get_one_way_reachable_idx, get_spoiler_trail_ids,
     },
 };
+
+fn get_start_trail_ids(lsr: &LocalStateReducer<StepTrailId>) -> [StepTrailId; NUM_COST_METRICS] {
+    let mut out = [-1; NUM_COST_METRICS];
+    for i in 0..NUM_COST_METRICS {
+        let idx = lsr.best_cost_idxs[i];
+        out[i] = lsr.trail_ids[idx as usize];
+    }
+    out
+}
 
 pub fn get_spoiler_traversal(tr: &Traverser) -> SpoilerTraversal {
     let mut steps: Vec<SpoilerTraversalStep> = vec![];
@@ -41,10 +50,11 @@ pub fn get_spoiler_traversal(tr: &Traverser) -> SpoilerTraversal {
                 continue;
             }
 
-            let mut new_start_trail_id = tr.start_trail_ids[u.vertex_id];
+            // TODO: fix this.
+            let mut new_start_trail_id = get_start_trail_ids(&tr.lsr[u.vertex_id]);
             for t1 in (t + 1)..num_traversals {
                 if let Some(&j) = first_updates_by_vertex.get(&(u.vertex_id, t1)) {
-                    new_start_trail_id = tr.past_steps[t1].updates[j].old_start_trail_id;
+                    new_start_trail_id = get_start_trail_ids(&tr.past_steps[t1].updates[j].old_lsr);
                     break;
                 }
             }
@@ -62,13 +72,13 @@ pub fn get_spoiler_traversal(tr: &Traverser) -> SpoilerTraversal {
     let mut link_idxs: Vec<LinkIdx> = vec![];
     let mut local_states: Vec<SpoilerLocalState> = vec![];
     for t in &tr.step_trails {
-        let old_state = if t.prev_trail_id >= 0 {
-            tr.step_trails[t.prev_trail_id as usize].local_state
+        let old_state = if t.local_state.prev_trail_id >= 0 {
+            tr.step_trails[t.local_state.prev_trail_id as usize].local_state
         } else {
             LocalState::full()
         };
         let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
-        prev_trail_ids.push(t.prev_trail_id);
+        prev_trail_ids.push(t.local_state.prev_trail_id);
         link_idxs.push(t.link_idx);
         local_states.push(spoiler_local_state);
     }
@@ -1024,10 +1034,7 @@ pub fn get_spoiler_log(
                     }
                 }
 
-                if traverser_pair.forward.cost[v]
-                    .iter()
-                    .any(|&x| f32::is_finite(x))
-                {
+                if !traverser_pair.forward.lsr[v].local.is_empty() {
                     node_reachable_step.insert((*room_id, *node_id), step_num.saturating_sub(1));
                     let room_ptr = randomizer.game_data.room_ptr_by_id[room_id];
                     let room_idx = randomizer.game_data.room_idx_by_ptr[&room_ptr];

@@ -4304,7 +4304,7 @@ impl GameData {
                 requires_vec.push(unlock_to_door_req);
             }
 
-            if strat_json["flashSuitChecked"].as_bool().unwrap_or(false) {
+            if !strat_json["flashSuitChecked"].as_bool().unwrap_or(false) {
                 requires_vec.push(Requirement::NoFlashSuit);
             }
 

@@ -1,6 +1,10 @@
-use std::cmp::{max, min};
+use std::{
+    cmp::{max, min},
+    fmt::Debug,
+};
 
-use hashbrown::HashMap;
+use arrayvec::ArrayVec;
+use hashbrown::{HashMap, HashSet};
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -13,7 +17,7 @@ use maprando_game::{
     VertexId,
 };
 use maprando_logic::{
-    GlobalState, IMPOSSIBLE_LOCAL_STATE, Inventory, LocalState,
+    GlobalState, Inventory, LocalState,
     boss_requirements::{
         apply_botwoon_requirement, apply_draygon_requirement, apply_mother_brain_2_requirement,
         apply_phantoon_requirement, apply_ridley_requirement,
@@ -453,25 +457,29 @@ pub struct LockedDoorData {
     pub locked_door_vertex_ids: Vec<Vec<VertexId>>,
 }
 
-fn apply_link(link: &Link, cx: &mut TraversalContext) -> bool {
+type LocalStateArray = ArrayVec<LocalState, NUM_COST_METRICS>;
+
+fn apply_link(link: &Link, mut local: LocalStateArray, cx: &TraversalContext) -> LocalStateArray {
     if cx.reverse {
-        if !link.end_with_shinecharge && cx.local.shinecharge_frames_remaining > 0 {
-            return false;
+        if !link.end_with_shinecharge {
+            local.retain(|x| x.shinecharge_frames_remaining == 0);
         }
-    } else if link.start_with_shinecharge && cx.local.shinecharge_frames_remaining == 0 {
-        return false;
+    } else if link.start_with_shinecharge {
+        local.retain(|x| x.shinecharge_frames_remaining > 0);
     }
-    if !apply_requirement_rec(&link.requirement, cx) {
-        return false;
-    }
+    local = apply_requirement_complex(&link.requirement, local, cx);
     if cx.reverse {
         if !link.start_with_shinecharge {
-            cx.local.shinecharge_frames_remaining = 0;
+            for loc in &mut local {
+                loc.shinecharge_frames_remaining = 0;
+            }
         }
     } else if !link.end_with_shinecharge {
-        cx.local.shinecharge_frames_remaining = 0;
+        for loc in &mut local {
+            loc.shinecharge_frames_remaining = 0;
+        }
     }
-    true
+    local
 }
 
 fn has_beam(beam: BeamType, inventory: &Inventory) -> bool {
@@ -950,9 +958,105 @@ pub fn apply_farm_requirement(
     Some(new_local)
 }
 
+// We parametrize the "trail_id" type. In the Traverser data structure, an i32 is used;
+// but during internal requirement processing (e.g. resolving `or`s) a unit type is used
+// as we do not create trails at that level of detail.
+#[derive(Clone, Debug)]
+pub struct LocalStateReducer<T: Copy + Debug> {
+    pub local: ArrayVec<LocalState, NUM_COST_METRICS>,
+    pub trail_ids: ArrayVec<T, NUM_COST_METRICS>,
+    pub best_cost_values: [f32; NUM_COST_METRICS],
+    pub best_cost_idxs: [u8; NUM_COST_METRICS],
+}
+
+impl<T: Copy + Debug> LocalStateReducer<T> {
+    fn new() -> Self {
+        Self {
+            local: ArrayVec::new(),
+            trail_ids: ArrayVec::new(),
+            best_cost_values: [f32::MAX; NUM_COST_METRICS],
+            best_cost_idxs: [0; NUM_COST_METRICS],
+        }
+    }
+
+    fn push(
+        &mut self,
+        local: LocalState,
+        trail_id: T,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        let cost = compute_cost(&local, inventory, reverse);
+        let n = self.local.len() as u8;
+        let mut improved_any: bool = false;
+        let mut improved_all: bool = true;
+        for i in 0..NUM_COST_METRICS {
+            if cost[i] < self.best_cost_values[i] {
+                self.best_cost_values[i] = cost[i];
+                self.best_cost_idxs[i] = n;
+                improved_any = true;
+            }
+            if cost[i] > self.best_cost_values[i] {
+                improved_all = false;
+            }
+        }
+
+        // Handle the common, easy cases first:
+        if !improved_any {
+            // No strict improvement across any metrics, so do nothing.
+            return false;
+        }
+
+        if improved_all {
+            // Weak improvement across all metrics, so replace all existing states with this one.
+            let mut new_local = ArrayVec::new();
+            new_local.push(local);
+            self.local = new_local;
+
+            let mut new_trail_ids = ArrayVec::new();
+            new_trail_ids.push(trail_id);
+            self.trail_ids = new_trail_ids;
+
+            self.best_cost_idxs = [0; NUM_COST_METRICS];
+            self.best_cost_values = cost;
+            return true;
+        }
+
+        // The general case: some metrics are improved, others were better with an existing state.
+        // Filter the states, keeping only those that are optimal with respect to at least one cost metric.
+        let mut idxs = self.best_cost_idxs;
+        idxs.sort();
+        let mut idxs = idxs.to_vec();
+        idxs.dedup();
+        let mut new_local: ArrayVec<LocalState, NUM_COST_METRICS> = ArrayVec::new();
+        let mut new_trail_ids: ArrayVec<T, NUM_COST_METRICS> = ArrayVec::new();
+        for &i in &idxs {
+            if i == n {
+                new_local.push(local);
+                new_trail_ids.push(trail_id);
+            } else {
+                new_local.push(self.local[i as usize]);
+                new_trail_ids.push(self.trail_ids[i as usize]);
+            }
+        }
+        self.local = new_local;
+        self.trail_ids = new_trail_ids;
+        'outer: for i in 0..NUM_COST_METRICS {
+            let j0 = self.best_cost_idxs[i];
+            for (k, j) in idxs.iter().copied().enumerate() {
+                if j == j0 {
+                    self.best_cost_idxs[i] = k as u8;
+                    continue 'outer;
+                }
+            }
+            panic!("internal error");
+        }
+        true
+    }
+}
+
 struct TraversalContext<'a> {
     global: &'a GlobalState,
-    local: LocalState,
     reverse: bool,
     settings: &'a RandomizerSettings,
     difficulty: &'a DifficultyConfig,
@@ -962,10 +1066,11 @@ struct TraversalContext<'a> {
     objectives: &'a [Objective],
 }
 
+// TODO: get rid of this function?
 pub fn apply_requirement(
     req: &Requirement,
     global: &GlobalState,
-    local: LocalState,
+    mut local: LocalState,
     reverse: bool,
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
@@ -974,9 +1079,8 @@ pub fn apply_requirement(
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
 ) -> Option<LocalState> {
-    let mut cx = TraversalContext {
+    let cx = TraversalContext {
         global,
-        local,
         reverse,
         settings,
         difficulty,
@@ -985,26 +1089,89 @@ pub fn apply_requirement(
         locked_door_data,
         objectives,
     };
-    if apply_requirement_rec(req, &mut cx) {
-        Some(cx.local)
-    } else {
-        None
+    match apply_requirement_simple(req, &mut local, &cx) {
+        SimpleResult::Failure => None,
+        SimpleResult::Success => Some(local),
+        SimpleResult::ExtraState(_) => Some(local),
     }
 }
 
-fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
+enum SimpleResult {
+    Failure,
+    Success,
+    ExtraState(LocalState),
+}
+
+impl From<bool> for SimpleResult {
+    fn from(value: bool) -> Self {
+        if value {
+            SimpleResult::Success
+        } else {
+            SimpleResult::Failure
+        }
+    }
+}
+
+fn apply_requirement_complex(
+    req: &Requirement,
+    mut local: ArrayVec<LocalState, NUM_COST_METRICS>,
+    cx: &TraversalContext,
+) -> ArrayVec<LocalState, NUM_COST_METRICS> {
+    match req {
+        Requirement::And(sub_reqs) => {
+            for r in sub_reqs {
+                local = apply_requirement_complex(r, local, cx);
+                if local.is_empty() {
+                    break;
+                }
+            }
+            local
+        }
+        Requirement::Or(sub_reqs) => {
+            let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
+            for r in sub_reqs {
+                for loc in apply_requirement_complex(r, local.clone(), cx) {
+                    reducer.push(loc, (), &cx.global.inventory, cx.reverse);
+                }
+            }
+            reducer.local
+        }
+        _ => {
+            let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
+            for mut loc in local {
+                match apply_requirement_simple(req, &mut loc, cx) {
+                    SimpleResult::Failure => {}
+                    SimpleResult::Success => {
+                        reducer.push(loc, (), &cx.global.inventory, cx.reverse);
+                    }
+                    SimpleResult::ExtraState(extra_state) => {
+                        reducer.push(loc, (), &cx.global.inventory, cx.reverse);
+                        reducer.push(extra_state, (), &cx.global.inventory, cx.reverse);
+                    }
+                }
+            }
+            reducer.local
+        }
+    }
+}
+
+fn apply_requirement_simple(
+    req: &Requirement,
+    local: &mut LocalState,
+    cx: &TraversalContext,
+) -> SimpleResult {
     let can_manage_reserves = cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx];
     match req {
-        Requirement::Free => true,
-        Requirement::Never => false,
-        Requirement::Tech(tech_idx) => cx.difficulty.tech[*tech_idx],
-        Requirement::Notable(notable_idx) => cx.difficulty.notables[*notable_idx],
-        Requirement::Item(item_id) => cx.global.inventory.items[*item_id],
-        Requirement::Flag(flag_id) => cx.global.flags[*flag_id],
+        Requirement::Free => SimpleResult::Success,
+        Requirement::Never => SimpleResult::Failure,
+        Requirement::Tech(tech_idx) => cx.difficulty.tech[*tech_idx].into(),
+        Requirement::Notable(notable_idx) => cx.difficulty.notables[*notable_idx].into(),
+        Requirement::Item(item_id) => cx.global.inventory.items[*item_id].into(),
+        Requirement::Flag(flag_id) => cx.global.flags[*flag_id].into(),
         Requirement::NotFlag(_flag_id) => {
             // We're ignoring this for now. It should be safe because all strats relying on a "not" flag will be
             // guarded by "canRiskPermanentLossOfAccess" if there is not an alternative strat with the flag set.
-            true
+            SimpleResult::Success
         }
         Requirement::MotherBrainBarrierClear(obj_id) => is_mother_brain_barrier_clear(
             cx.global,
@@ -1012,32 +1179,36 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             cx.objectives,
             cx.game_data,
             *obj_id,
-        ),
-        Requirement::DisableableETank => cx.settings.quality_of_life_settings.disableable_etanks,
+        )
+        .into(),
+        Requirement::DisableableETank => cx
+            .settings
+            .quality_of_life_settings
+            .disableable_etanks
+            .into(),
         Requirement::Walljump => match cx.settings.other_settings.wall_jump {
-            WallJump::Vanilla => cx.difficulty.tech[cx.game_data.wall_jump_tech_idx],
-            WallJump::Collectible => {
-                cx.difficulty.tech[cx.game_data.wall_jump_tech_idx]
-                    && cx.global.inventory.items[Item::WallJump as usize]
-            }
+            WallJump::Vanilla => cx.difficulty.tech[cx.game_data.wall_jump_tech_idx].into(),
+            WallJump::Collectible => (cx.difficulty.tech[cx.game_data.wall_jump_tech_idx]
+                && cx.global.inventory.items[Item::WallJump as usize])
+                .into(),
         },
-        Requirement::ClimbWithoutLava => cx.settings.quality_of_life_settings.remove_climb_lava,
+        Requirement::ClimbWithoutLava => cx
+            .settings
+            .quality_of_life_settings
+            .remove_climb_lava
+            .into(),
         Requirement::HeatFrames(frames) => apply_heat_frames(
             *frames,
-            &mut cx.local,
+            local,
             cx.global,
             cx.game_data,
             cx.difficulty,
             false,
-        ),
-        Requirement::SimpleHeatFrames(frames) => apply_heat_frames(
-            *frames,
-            &mut cx.local,
-            cx.global,
-            cx.game_data,
-            cx.difficulty,
-            true,
-        ),
+        )
+        .into(),
+        Requirement::SimpleHeatFrames(frames) => {
+            apply_heat_frames(*frames, local, cx.global, cx.game_data, cx.difficulty, true).into()
+        }
         Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
             let drops = if cx.settings.quality_of_life_settings.buffed_drops {
                 enemy_drops_buffed
@@ -1047,13 +1218,14 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             apply_heat_frames_with_energy_drops(
                 *frames,
                 drops,
-                &mut cx.local,
+                local,
                 cx.global,
                 cx.game_data,
                 cx.settings,
                 cx.difficulty,
                 cx.reverse,
             )
+            .into()
         }
         Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
             let drops = if cx.settings.quality_of_life_settings.buffed_drops {
@@ -1064,277 +1236,245 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             apply_lava_frames_with_energy_drops(
                 *frames,
                 drops,
-                &mut cx.local,
+                local,
                 cx.global,
                 cx.game_data,
                 cx.settings,
                 cx.difficulty,
                 cx.reverse,
             )
+            .into()
         }
         Requirement::MainHallElevatorFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(
-                    188,
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                    true,
-                )
+                apply_heat_frames(188, local, cx.global, cx.game_data, cx.difficulty, true).into()
             } else if !cx.global.inventory.items[Item::Varia as usize]
                 && cx.global.inventory.max_energy < 149
             {
-                false
+                SimpleResult::Failure
             } else {
-                apply_heat_frames(
-                    436,
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                    true,
-                )
+                apply_heat_frames(436, local, cx.global, cx.game_data, cx.difficulty, true).into()
             }
         }
         Requirement::LowerNorfairElevatorDownFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(
-                    30,
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                    true,
-                )
+                apply_heat_frames(30, local, cx.global, cx.game_data, cx.difficulty, true).into()
             } else {
-                apply_heat_frames(
-                    60,
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                    true,
-                )
+                apply_heat_frames(60, local, cx.global, cx.game_data, cx.difficulty, true).into()
             }
         }
         Requirement::LowerNorfairElevatorUpFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {
-                apply_heat_frames(
-                    48,
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                    true,
-                )
+                apply_heat_frames(48, local, cx.global, cx.game_data, cx.difficulty, true).into()
             } else {
-                apply_heat_frames(
-                    108,
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                    true,
-                )
+                apply_heat_frames(108, local, cx.global, cx.game_data, cx.difficulty, true).into()
             }
         }
         Requirement::LavaFrames(frames) => {
             let varia = cx.global.inventory.items[Item::Varia as usize];
             let gravity = cx.global.inventory.items[Item::Gravity as usize];
             if gravity && varia {
-                true
+                SimpleResult::Success
             } else if gravity || varia {
-                cx.local.energy_used +=
+                local.energy_used +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity;
-                validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+                validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
             } else {
-                cx.local.energy_used +=
+                local.energy_used +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity;
-                validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+                validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
             }
         }
         Requirement::GravitylessLavaFrames(frames) => {
             let varia = cx.global.inventory.items[Item::Varia as usize];
             if varia {
-                cx.local.energy_used +=
+                local.energy_used +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity
             } else {
-                cx.local.energy_used +=
+                local.energy_used +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity
             }
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::AcidFrames(frames) => {
-            cx.local.energy_used += (*frames as f32 * cx.difficulty.resource_multiplier * 1.5
+            local.energy_used += (*frames as f32 * cx.difficulty.resource_multiplier * 1.5
                 / suit_damage_factor(&cx.global.inventory) as f32)
                 .ceil() as Capacity;
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::GravitylessAcidFrames(frames) => {
             let varia = cx.global.inventory.items[Item::Varia as usize];
             if varia {
-                cx.local.energy_used +=
+                local.energy_used +=
                     (*frames as f32 * cx.difficulty.resource_multiplier * 0.75).ceil() as Capacity;
             } else {
-                cx.local.energy_used +=
+                local.energy_used +=
                     (*frames as f32 * cx.difficulty.resource_multiplier * 1.5).ceil() as Capacity;
             }
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::MetroidFrames(frames) => {
-            cx.local.energy_used += (*frames as f32 * cx.difficulty.resource_multiplier * 0.75
+            local.energy_used += (*frames as f32 * cx.difficulty.resource_multiplier * 0.75
                 / suit_damage_factor(&cx.global.inventory) as f32)
                 .ceil() as Capacity;
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::CycleFrames(frames) => {
-            cx.local.cycle_frames +=
+            local.cycle_frames +=
                 (*frames as f32 * cx.difficulty.resource_multiplier).ceil() as Capacity;
-            true
+            SimpleResult::Success
         }
         Requirement::SimpleCycleFrames(frames) => {
-            cx.local.cycle_frames += frames;
-            true
+            local.cycle_frames += frames;
+            SimpleResult::Success
         }
         Requirement::Damage(base_energy) => {
             let energy = base_energy / suit_damage_factor(&cx.global.inventory);
             if energy >= cx.global.inventory.max_energy
                 && !cx.difficulty.tech[cx.game_data.pause_abuse_tech_idx]
             {
-                false
+                SimpleResult::Failure
             } else {
-                cx.local.energy_used += energy;
-                validate_energy_no_auto_reserve(
-                    &mut cx.local,
-                    cx.global,
-                    cx.game_data,
-                    cx.difficulty,
-                )
+                local.energy_used += energy;
+                validate_energy_no_auto_reserve(local, cx.global, cx.game_data, cx.difficulty)
+                    .into()
             }
         }
         Requirement::Energy(count) => {
-            cx.local.energy_used += *count;
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            local.energy_used += *count;
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::RegularEnergy(count) => {
             // For now, we assume reserve energy can be converted to regular energy, so this is
             // implemented the same as the Energy requirement above.
-            cx.local.energy_used += *count;
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            local.energy_used += *count;
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::ReserveEnergy(count) => {
-            cx.local.reserves_used += *count;
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            local.reserves_used += *count;
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::Missiles(count) => {
-            cx.local.missiles_used += *count;
-            validate_missiles(&cx.local, cx.global)
+            local.missiles_used += *count;
+            validate_missiles(local, cx.global).into()
         }
         Requirement::Supers(count) => {
-            cx.local.supers_used += *count;
-            validate_supers(&cx.local, cx.global)
+            local.supers_used += *count;
+            validate_supers(local, cx.global).into()
         }
         Requirement::PowerBombs(count) => {
-            cx.local.power_bombs_used += *count;
-            validate_power_bombs(&cx.local, cx.global)
+            local.power_bombs_used += *count;
+            validate_power_bombs(local, cx.global).into()
         }
         Requirement::GateGlitchLeniency { green, heated } => apply_gate_glitch_leniency(
-            &mut cx.local,
+            local,
             cx.global,
             *green,
             *heated,
             cx.difficulty,
             cx.game_data,
-        ),
+        )
+        .into(),
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
             if !cx.global.inventory.items[Item::Varia as usize] {
-                cx.local.energy_used += (cx.difficulty.door_stuck_leniency as f32
+                local.energy_used += (cx.difficulty.door_stuck_leniency as f32
                     * cx.difficulty.resource_multiplier
                     * *heat_frames as f32
                     / 4.0) as Capacity;
-                validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+                validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
             } else {
-                true
+                SimpleResult::Success
             }
         }
         Requirement::BombIntoCrystalFlashClipLeniency {} => {
-            cx.local.power_bombs_used += cx.difficulty.bomb_into_cf_leniency;
-            validate_power_bombs(&cx.local, cx.global)
+            local.power_bombs_used += cx.difficulty.bomb_into_cf_leniency;
+            validate_power_bombs(local, cx.global).into()
         }
         Requirement::JumpIntoCrystalFlashClipLeniency {} => {
-            cx.local.power_bombs_used += cx.difficulty.jump_into_cf_leniency;
-            validate_power_bombs(&cx.local, cx.global)
+            local.power_bombs_used += cx.difficulty.jump_into_cf_leniency;
+            validate_power_bombs(local, cx.global).into()
         }
         Requirement::XModeSpikeHitLeniency {} => {
-            cx.local.energy_used +=
+            local.energy_used +=
                 cx.difficulty.spike_xmode_leniency * 60 / suit_damage_factor(&cx.global.inventory);
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::XModeThornHitLeniency {} => {
-            cx.local.energy_used +=
+            local.energy_used +=
                 cx.difficulty.spike_xmode_leniency * 16 / suit_damage_factor(&cx.global.inventory);
-            validate_energy(&mut cx.local, &cx.global.inventory, can_manage_reserves)
+            validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::MissilesAvailable(count) => {
-            apply_missiles_available_req(&mut cx.local, cx.global, *count, cx.reverse)
+            apply_missiles_available_req(local, cx.global, *count, cx.reverse).into()
         }
         Requirement::SupersAvailable(count) => {
-            apply_supers_available_req(&mut cx.local, cx.global, *count, cx.reverse)
+            apply_supers_available_req(local, cx.global, *count, cx.reverse).into()
         }
         Requirement::PowerBombsAvailable(count) => {
-            apply_power_bombs_available_req(&mut cx.local, cx.global, *count, cx.reverse)
+            apply_power_bombs_available_req(local, cx.global, *count, cx.reverse).into()
         }
         Requirement::RegularEnergyAvailable(count) => {
-            apply_regular_energy_available_req(&mut cx.local, cx.global, *count, cx.reverse)
+            apply_regular_energy_available_req(local, cx.global, *count, cx.reverse).into()
         }
         Requirement::ReserveEnergyAvailable(count) => {
-            apply_reserve_energy_available_req(&mut cx.local, cx.global, *count, cx.reverse)
+            apply_reserve_energy_available_req(local, cx.global, *count, cx.reverse).into()
         }
         Requirement::EnergyAvailable(count) => {
-            apply_energy_available_req(&mut cx.local, cx.global, *count, cx.reverse)
+            apply_energy_available_req(local, cx.global, *count, cx.reverse).into()
         }
         Requirement::MissilesMissingAtMost(count) => apply_missiles_available_req(
-            &mut cx.local,
+            local,
             cx.global,
             cx.global.inventory.max_missiles - *count,
             cx.reverse,
-        ),
+        )
+        .into(),
         Requirement::SupersMissingAtMost(count) => apply_supers_available_req(
-            &mut cx.local,
+            local,
             cx.global,
             cx.global.inventory.max_supers - *count,
             cx.reverse,
-        ),
+        )
+        .into(),
         Requirement::PowerBombsMissingAtMost(count) => apply_power_bombs_available_req(
-            &mut cx.local,
+            local,
             cx.global,
             cx.global.inventory.max_power_bombs - *count,
             cx.reverse,
-        ),
+        )
+        .into(),
         Requirement::RegularEnergyMissingAtMost(count) => apply_regular_energy_available_req(
-            &mut cx.local,
+            local,
             cx.global,
             cx.global.inventory.max_energy - *count,
             cx.reverse,
-        ),
+        )
+        .into(),
         Requirement::ReserveEnergyMissingAtMost(count) => apply_reserve_energy_available_req(
-            &mut cx.local,
+            local,
             cx.global,
             cx.global.inventory.max_reserves - *count,
             cx.reverse,
-        ),
+        )
+        .into(),
         Requirement::EnergyMissingAtMost(count) => apply_energy_available_req(
-            &mut cx.local,
+            local,
             cx.global,
             cx.global.inventory.max_energy + cx.global.inventory.max_reserves - *count,
             cx.reverse,
-        ),
-        Requirement::MissilesCapacity(count) => cx.global.inventory.max_missiles >= *count,
-        Requirement::SupersCapacity(count) => cx.global.inventory.max_supers >= *count,
-        Requirement::PowerBombsCapacity(count) => cx.global.inventory.max_power_bombs >= *count,
-        Requirement::RegularEnergyCapacity(count) => cx.global.inventory.max_energy >= *count,
-        Requirement::ReserveEnergyCapacity(count) => cx.global.inventory.max_reserves >= *count,
+        )
+        .into(),
+        Requirement::MissilesCapacity(count) => (cx.global.inventory.max_missiles >= *count).into(),
+        Requirement::SupersCapacity(count) => (cx.global.inventory.max_supers >= *count).into(),
+        Requirement::PowerBombsCapacity(count) => {
+            (cx.global.inventory.max_power_bombs >= *count).into()
+        }
+        Requirement::RegularEnergyCapacity(count) => {
+            (cx.global.inventory.max_energy >= *count).into()
+        }
+        Requirement::ReserveEnergyCapacity(count) => {
+            (cx.global.inventory.max_reserves >= *count).into()
+        }
         Requirement::Farm {
             requirement,
             enemy_drops,
@@ -1353,7 +1493,7 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
                 requirement,
                 drops,
                 cx.global,
-                cx.local,
+                *local,
                 cx.reverse,
                 *full_energy,
                 *full_missiles,
@@ -1366,160 +1506,161 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
                 cx.locked_door_data,
                 cx.objectives,
             ) {
-                cx.local = new_local;
-                true
+                *local = new_local;
+                SimpleResult::Success
             } else {
-                false
+                SimpleResult::Failure
             }
         }
         Requirement::EnergyRefill(limit) => {
             let limit_reserves = max(0, *limit - cx.global.inventory.max_energy);
             if cx.reverse {
-                if cx.local.energy_used < *limit {
-                    cx.local.energy_used = 0;
-                    cx.local.farm_baseline_energy_used = 0;
+                if local.energy_used < *limit {
+                    local.energy_used = 0;
+                    local.farm_baseline_energy_used = 0;
                 }
-                if cx.local.reserves_used <= limit_reserves {
-                    cx.local.reserves_used = 0;
-                    cx.local.farm_baseline_reserves_used = 0;
+                if local.reserves_used <= limit_reserves {
+                    local.reserves_used = 0;
+                    local.farm_baseline_reserves_used = 0;
                 }
             } else {
-                if cx.local.energy_used > cx.global.inventory.max_energy - limit {
-                    cx.local.energy_used = max(0, cx.global.inventory.max_energy - limit);
-                    cx.local.farm_baseline_energy_used = cx.local.energy_used;
+                if local.energy_used > cx.global.inventory.max_energy - limit {
+                    local.energy_used = max(0, cx.global.inventory.max_energy - limit);
+                    local.farm_baseline_energy_used = local.energy_used;
                 }
-                if cx.local.reserves_used > cx.global.inventory.max_reserves - limit_reserves {
-                    cx.local.reserves_used =
-                        max(0, cx.global.inventory.max_reserves - limit_reserves);
-                    cx.local.farm_baseline_reserves_used = cx.local.reserves_used;
+                if local.reserves_used > cx.global.inventory.max_reserves - limit_reserves {
+                    local.reserves_used = max(0, cx.global.inventory.max_reserves - limit_reserves);
+                    local.farm_baseline_reserves_used = local.reserves_used;
                 }
             }
-            true
+            SimpleResult::Success
         }
         Requirement::RegularEnergyRefill(limit) => {
             if cx.reverse {
-                if cx.local.energy_used < *limit {
-                    cx.local.energy_used = 0;
-                    cx.local.farm_baseline_energy_used = 0;
+                if local.energy_used < *limit {
+                    local.energy_used = 0;
+                    local.farm_baseline_energy_used = 0;
                 }
-            } else if cx.local.energy_used > cx.global.inventory.max_energy - limit {
-                cx.local.energy_used = max(0, cx.global.inventory.max_energy - limit);
-                cx.local.farm_baseline_energy_used = cx.local.energy_used;
+            } else if local.energy_used > cx.global.inventory.max_energy - limit {
+                local.energy_used = max(0, cx.global.inventory.max_energy - limit);
+                local.farm_baseline_energy_used = local.energy_used;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::ReserveRefill(limit) => {
             if cx.reverse {
-                if cx.local.reserves_used <= *limit {
-                    cx.local.reserves_used = 0;
-                    cx.local.farm_baseline_reserves_used = 0;
+                if local.reserves_used <= *limit {
+                    local.reserves_used = 0;
+                    local.farm_baseline_reserves_used = 0;
                 }
-            } else if cx.local.reserves_used > cx.global.inventory.max_reserves - limit {
-                cx.local.reserves_used = max(0, cx.global.inventory.max_reserves - limit);
-                cx.local.farm_baseline_reserves_used = cx.local.reserves_used;
+            } else if local.reserves_used > cx.global.inventory.max_reserves - limit {
+                local.reserves_used = max(0, cx.global.inventory.max_reserves - limit);
+                local.farm_baseline_reserves_used = local.reserves_used;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::MissileRefill(limit) => {
             if cx.reverse {
-                if cx.local.missiles_used <= *limit {
-                    cx.local.missiles_used = 0;
-                    cx.local.farm_baseline_missiles_used = 0;
+                if local.missiles_used <= *limit {
+                    local.missiles_used = 0;
+                    local.farm_baseline_missiles_used = 0;
                 }
-            } else if cx.local.missiles_used > cx.global.inventory.max_missiles - limit {
-                cx.local.missiles_used = max(0, cx.global.inventory.max_missiles - limit);
-                cx.local.farm_baseline_missiles_used = cx.local.missiles_used;
+            } else if local.missiles_used > cx.global.inventory.max_missiles - limit {
+                local.missiles_used = max(0, cx.global.inventory.max_missiles - limit);
+                local.farm_baseline_missiles_used = local.missiles_used;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::SuperRefill(limit) => {
             if cx.reverse {
-                if cx.local.supers_used <= *limit {
-                    cx.local.supers_used = 0;
-                    cx.local.farm_baseline_supers_used = 0;
+                if local.supers_used <= *limit {
+                    local.supers_used = 0;
+                    local.farm_baseline_supers_used = 0;
                 }
-            } else if cx.local.supers_used > cx.global.inventory.max_supers - limit {
-                cx.local.supers_used = max(0, cx.global.inventory.max_supers - limit);
-                cx.local.farm_baseline_supers_used = cx.local.supers_used;
+            } else if local.supers_used > cx.global.inventory.max_supers - limit {
+                local.supers_used = max(0, cx.global.inventory.max_supers - limit);
+                local.farm_baseline_supers_used = local.supers_used;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::PowerBombRefill(limit) => {
             if cx.reverse {
-                if cx.local.power_bombs_used <= *limit {
-                    cx.local.power_bombs_used = 0;
-                    cx.local.farm_baseline_power_bombs_used = 0;
+                if local.power_bombs_used <= *limit {
+                    local.power_bombs_used = 0;
+                    local.farm_baseline_power_bombs_used = 0;
                 }
-            } else if cx.local.power_bombs_used > cx.global.inventory.max_power_bombs - limit {
-                cx.local.power_bombs_used = max(0, cx.global.inventory.max_power_bombs - limit);
-                cx.local.farm_baseline_power_bombs_used = cx.local.power_bombs_used;
+            } else if local.power_bombs_used > cx.global.inventory.max_power_bombs - limit {
+                local.power_bombs_used = max(0, cx.global.inventory.max_power_bombs - limit);
+                local.farm_baseline_power_bombs_used = local.power_bombs_used;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::AmmoStationRefill => {
-            cx.local.missiles_used = 0;
-            cx.local.farm_baseline_missiles_used = 0;
+            local.missiles_used = 0;
+            local.farm_baseline_missiles_used = 0;
             if !cx.settings.other_settings.ultra_low_qol {
-                cx.local.supers_used = 0;
-                cx.local.farm_baseline_supers_used = 0;
-                cx.local.power_bombs_used = 0;
-                cx.local.farm_baseline_power_bombs_used = 0;
+                local.supers_used = 0;
+                local.farm_baseline_supers_used = 0;
+                local.power_bombs_used = 0;
+                local.farm_baseline_power_bombs_used = 0;
             }
-            true
+            SimpleResult::Success
         }
-        Requirement::AmmoStationRefillAll => !cx.settings.other_settings.ultra_low_qol,
+        Requirement::AmmoStationRefillAll => (!cx.settings.other_settings.ultra_low_qol).into(),
         Requirement::EnergyStationRefill => {
-            cx.local.energy_used = 0;
-            cx.local.farm_baseline_energy_used = 0;
+            local.energy_used = 0;
+            local.farm_baseline_energy_used = 0;
             if cx.settings.quality_of_life_settings.energy_station_reserves
                 || cx
                     .settings
                     .quality_of_life_settings
                     .reserve_backward_transfer
             {
-                cx.local.reserves_used = 0;
-                cx.local.farm_baseline_reserves_used = 0;
+                local.reserves_used = 0;
+                local.farm_baseline_reserves_used = 0;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::SupersDoubleDamageMotherBrain => {
-            cx.settings.quality_of_life_settings.supers_double
+            cx.settings.quality_of_life_settings.supers_double.into()
         }
-        Requirement::ShinesparksCostEnergy => cx.settings.other_settings.energy_free_shinesparks,
+        Requirement::ShinesparksCostEnergy => {
+            cx.settings.other_settings.energy_free_shinesparks.into()
+        }
         Requirement::RegularEnergyDrain(count) => {
             if cx.reverse {
-                let amt = Capacity::max(0, cx.local.energy_used - count + 1);
-                cx.local.reserves_used += amt;
-                cx.local.energy_used -= amt;
-                cx.local.reserves_used <= cx.global.inventory.max_reserves
+                let amt = Capacity::max(0, local.energy_used - count + 1);
+                local.reserves_used += amt;
+                local.energy_used -= amt;
+                (local.reserves_used <= cx.global.inventory.max_reserves).into()
             } else {
-                cx.local.energy_used =
-                    Capacity::max(cx.local.energy_used, cx.global.inventory.max_energy - count);
-                true
+                local.energy_used =
+                    Capacity::max(local.energy_used, cx.global.inventory.max_energy - count);
+                SimpleResult::Success
             }
         }
         Requirement::ReserveEnergyDrain(count) => {
             if cx.reverse {
-                cx.local.reserves_used <= *count
+                (local.reserves_used <= *count).into()
             } else {
                 // TODO: Drained reserve energy could potentially be transferred into regular energy, but it wouldn't
                 // be consistent with how "resourceAtMost" is currently defined.
-                cx.local.reserves_used = Capacity::max(
-                    cx.local.reserves_used,
+                local.reserves_used = Capacity::max(
+                    local.reserves_used,
                     cx.global.inventory.max_reserves - count,
                 );
-                true
+                SimpleResult::Success
             }
         }
         Requirement::MissileDrain(count) => {
             if cx.reverse {
-                cx.local.missiles_used <= *count
+                (local.missiles_used <= *count).into()
             } else {
-                cx.local.missiles_used = Capacity::max(
-                    cx.local.missiles_used,
+                local.missiles_used = Capacity::max(
+                    local.missiles_used,
                     cx.global.inventory.max_missiles - count,
                 );
-                true
+                SimpleResult::Success
             }
         }
         Requirement::ReserveTrigger {
@@ -1528,22 +1669,23 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             heated,
         } => {
             if cx.reverse {
-                if cx.local.reserves_used > 0 {
-                    false
+                if local.reserves_used > 0 {
+                    SimpleResult::Failure
                 } else {
-                    cx.local.energy_used = 0;
+                    local.energy_used = 0;
                     let energy_needed = if *heated {
-                        (cx.local.energy_used * 4 + 2) / 3
+                        (local.energy_used * 4 + 2) / 3
                     } else {
-                        cx.local.energy_used
+                        local.energy_used
                     };
-                    cx.local.reserves_used = max(energy_needed + 1, *min_reserve_energy);
-                    cx.local.reserves_used <= *max_reserve_energy
-                        && cx.local.reserves_used <= cx.global.inventory.max_reserves
+                    local.reserves_used = max(energy_needed + 1, *min_reserve_energy);
+                    (local.reserves_used <= *max_reserve_energy
+                        && local.reserves_used <= cx.global.inventory.max_reserves)
+                        .into()
                 }
             } else {
                 let reserve_energy = min(
-                    cx.global.inventory.max_reserves - cx.local.reserves_used,
+                    cx.global.inventory.max_reserves - local.reserves_used,
                     *max_reserve_energy,
                 );
                 let usable_reserve_energy = if *heated {
@@ -1552,33 +1694,35 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
                     reserve_energy
                 };
                 if reserve_energy >= *min_reserve_energy {
-                    cx.local.reserves_used = cx.global.inventory.max_reserves;
-                    cx.local.energy_used =
+                    local.reserves_used = cx.global.inventory.max_reserves;
+                    local.energy_used =
                         max(0, cx.global.inventory.max_energy - usable_reserve_energy);
-                    true
+                    SimpleResult::Success
                 } else {
-                    false
+                    SimpleResult::Failure
                 }
             }
         }
         Requirement::EnemyKill { count, vul } => {
-            apply_enemy_kill_requirement(cx.global, &mut cx.local, *count, vul)
+            apply_enemy_kill_requirement(cx.global, local, *count, vul).into()
         }
         Requirement::PhantoonFight {} => apply_phantoon_requirement(
             &cx.global.inventory,
-            &mut cx.local,
+            local,
             cx.difficulty.phantoon_proficiency,
             can_manage_reserves,
-        ),
+        )
+        .into(),
         Requirement::DraygonFight {
             can_be_very_patient_tech_idx: can_be_very_patient_tech_id,
         } => apply_draygon_requirement(
             &cx.global.inventory,
-            &mut cx.local,
+            local,
             cx.difficulty.draygon_proficiency,
             can_manage_reserves,
             cx.difficulty.tech[*can_be_very_patient_tech_id],
-        ),
+        )
+        .into(),
         Requirement::RidleyFight {
             can_be_patient_tech_idx,
             can_be_very_patient_tech_idx,
@@ -1588,7 +1732,7 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             stuck,
         } => apply_ridley_requirement(
             &cx.global.inventory,
-            &mut cx.local,
+            local,
             cx.difficulty.ridley_proficiency,
             can_manage_reserves,
             cx.difficulty.tech[*can_be_patient_tech_idx],
@@ -1597,36 +1741,39 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             *power_bombs,
             *g_mode,
             *stuck,
-        ),
+        )
+        .into(),
         Requirement::BotwoonFight { second_phase } => apply_botwoon_requirement(
             &cx.global.inventory,
-            &mut cx.local,
+            local,
             cx.difficulty.botwoon_proficiency,
             *second_phase,
             can_manage_reserves,
-        ),
+        )
+        .into(),
         Requirement::MotherBrain2Fight {
             can_be_very_patient_tech_id,
             r_mode,
         } => {
             if cx.settings.quality_of_life_settings.mother_brain_fight == MotherBrainFight::Skip {
-                return true;
+                return SimpleResult::Success;
             }
             apply_mother_brain_2_requirement(
                 &cx.global.inventory,
-                &mut cx.local,
+                local,
                 cx.difficulty.mother_brain_proficiency,
                 cx.settings.quality_of_life_settings.supers_double,
                 can_manage_reserves,
                 cx.difficulty.tech[*can_be_very_patient_tech_id],
                 *r_mode,
             )
+            .into()
         }
         Requirement::SpeedBall { used_tiles, heated } => {
             if !cx.difficulty.tech[cx.game_data.speed_ball_tech_idx]
                 || !cx.global.inventory.items[Item::Morph as usize]
             {
-                false
+                SimpleResult::Failure
             } else {
                 let used_tiles = used_tiles.get();
                 let tiles_limit = if *heated && !cx.global.inventory.items[Item::Varia as usize] {
@@ -1634,7 +1781,9 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
                 } else {
                     cx.difficulty.speed_ball_tiles
                 };
-                cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit
+                (cx.global.inventory.items[Item::SpeedBooster as usize]
+                    && used_tiles >= tiles_limit)
+                    .into()
             }
         }
         Requirement::GetBlueSpeed { used_tiles, heated } => {
@@ -1644,7 +1793,8 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             } else {
                 cx.difficulty.shine_charge_tiles
             };
-            cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit
+            (cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit)
+                .into()
         }
         Requirement::ShineCharge { used_tiles, heated } => {
             let used_tiles = used_tiles.get();
@@ -1655,28 +1805,29 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             };
             if cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
                 if cx.reverse {
-                    cx.local.shinecharge_frames_remaining = 0;
-                    if cx.local.flash_suit {
-                        return false;
+                    local.shinecharge_frames_remaining = 0;
+                    if local.flash_suit {
+                        return SimpleResult::Failure;
                     }
                 } else {
-                    cx.local.shinecharge_frames_remaining =
+                    local.shinecharge_frames_remaining =
                         180 - cx.difficulty.shinecharge_leniency_frames;
-                    cx.local.flash_suit = false;
+                    local.flash_suit = false;
                 }
-                true
+                SimpleResult::Success
             } else {
-                false
+                SimpleResult::Failure
             }
         }
         Requirement::ShineChargeFrames(frames) => {
             if cx.reverse {
-                cx.local.shinecharge_frames_remaining += frames;
-                cx.local.shinecharge_frames_remaining
-                    <= 180 - cx.difficulty.shinecharge_leniency_frames
+                local.shinecharge_frames_remaining += frames;
+                (local.shinecharge_frames_remaining
+                    <= 180 - cx.difficulty.shinecharge_leniency_frames)
+                    .into()
             } else {
-                cx.local.shinecharge_frames_remaining -= frames;
-                cx.local.shinecharge_frames_remaining >= 0
+                local.shinecharge_frames_remaining -= frames;
+                (local.shinecharge_frames_remaining >= 0).into()
             }
         }
         Requirement::Shinespark {
@@ -1686,76 +1837,71 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
         } => {
             if cx.difficulty.tech[*shinespark_tech_id] {
                 if cx.settings.other_settings.energy_free_shinesparks {
-                    return true;
+                    return SimpleResult::Success;
                 }
                 if cx.reverse {
-                    if cx.local.energy_used <= 28 {
+                    if local.energy_used <= 28 {
                         if frames == excess_frames {
                             // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
-                            return true;
+                            return SimpleResult::Success;
                         }
-                        cx.local.energy_used = 28 + frames - excess_frames;
+                        local.energy_used = 28 + frames - excess_frames;
                     } else {
-                        cx.local.energy_used += frames;
+                        local.energy_used += frames;
                     }
-                    validate_energy_no_auto_reserve(
-                        &mut cx.local,
-                        cx.global,
-                        cx.game_data,
-                        cx.difficulty,
-                    )
+                    validate_energy_no_auto_reserve(local, cx.global, cx.game_data, cx.difficulty)
+                        .into()
                 } else {
                     if frames == excess_frames
-                        && cx.local.energy_used >= cx.global.inventory.max_energy - 29
+                        && local.energy_used >= cx.global.inventory.max_energy - 29
                     {
                         // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
-                        return true;
+                        return SimpleResult::Success;
                     }
-                    cx.local.energy_used += frames - excess_frames + 28;
+                    local.energy_used += frames - excess_frames + 28;
                     if !validate_energy_no_auto_reserve(
-                        &mut cx.local,
+                        local,
                         cx.global,
                         cx.game_data,
                         cx.difficulty,
                     ) {
-                        return false;
+                        return SimpleResult::Failure;
                     }
-                    let energy_remaining =
-                        cx.global.inventory.max_energy - cx.local.energy_used - 1;
-                    cx.local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
-                    cx.local.energy_used -= 28;
-                    true
+                    let energy_remaining = cx.global.inventory.max_energy - local.energy_used - 1;
+                    local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
+                    local.energy_used -= 28;
+                    SimpleResult::Success
                 }
             } else {
-                false
+                SimpleResult::Failure
             }
         }
         Requirement::GainFlashSuit => {
             #[allow(clippy::needless_bool_assign)]
             if cx.reverse {
-                cx.local.flash_suit = false;
+                local.flash_suit = false;
             } else {
-                cx.local.flash_suit = true;
+                local.flash_suit = true;
             }
-            true
+            SimpleResult::Success
         }
         Requirement::NoFlashSuit => {
             if cx.reverse {
-                !cx.local.flash_suit
+                (!local.flash_suit).into()
             } else {
-                cx.local.flash_suit = false;
-                true
+                local.flash_suit = false;
+                SimpleResult::Success
             }
         }
         Requirement::UseFlashSuit => {
             if cx.reverse {
-                cx.local.flash_suit = true;
-                true
-            } else if !cx.local.flash_suit {
-                false
+                local.flash_suit = true;
+                SimpleResult::Success
+            } else if !local.flash_suit {
+                SimpleResult::Failure
             } else {
-                cx.local.flash_suit = false;
-                true
+                local.flash_suit = false;
+                SimpleResult::Success
             }
         }
         Requirement::DoorUnlocked { room_id, node_id } => {
@@ -1764,9 +1910,9 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
                 .locked_door_node_map
                 .get(&(*room_id, *node_id))
             {
-                cx.global.doors_unlocked[*locked_door_idx]
+                cx.global.doors_unlocked[*locked_door_idx].into()
             } else {
-                true
+                SimpleResult::Success
             }
         }
         Requirement::DoorType {
@@ -1783,7 +1929,7 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             } else {
                 DoorType::Blue
             };
-            *door_type == actual_door_type
+            (*door_type == actual_door_type).into()
         }
         Requirement::UnlockDoor {
             room_id,
@@ -1800,38 +1946,38 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             {
                 let door_type = cx.locked_door_data.locked_doors[*locked_door_idx].door_type;
                 if cx.global.doors_unlocked[*locked_door_idx] {
-                    return true;
+                    return SimpleResult::Success;
                 }
                 match door_type {
-                    DoorType::Blue => true,
-                    DoorType::Red => apply_requirement_rec(requirement_red, cx),
-                    DoorType::Green => apply_requirement_rec(requirement_green, cx),
-                    DoorType::Yellow => apply_requirement_rec(requirement_yellow, cx),
+                    DoorType::Blue => SimpleResult::Success,
+                    DoorType::Red => apply_requirement_simple(requirement_red, local, cx),
+                    DoorType::Green => apply_requirement_simple(requirement_green, local, cx),
+                    DoorType::Yellow => apply_requirement_simple(requirement_yellow, local, cx),
                     DoorType::Beam(beam) => {
                         if has_beam(beam, &cx.global.inventory) {
                             if let BeamType::Charge = beam {
-                                apply_requirement_rec(requirement_charge, cx)
+                                apply_requirement_simple(requirement_charge, local, cx)
                             } else {
-                                true
+                                SimpleResult::Success
                             }
                         } else {
-                            false
+                            SimpleResult::Failure
                         }
                     }
                     DoorType::Gray => {
                         panic!("Unexpected gray door while processing Requirement::UnlockDoor")
                     }
-                    DoorType::Wall => false,
+                    DoorType::Wall => SimpleResult::Failure,
                 }
             } else {
-                true
+                SimpleResult::Success
             }
         }
         &Requirement::ResetRoom { room_id, node_id } => {
-            if cx.local.cycle_frames > 0 {
+            if local.cycle_frames > 0 {
                 // We assume the it takes 400 frames to go through the door transition, shoot open the door, and return.
                 // The actual time can vary based on room load time and whether fast doors are enabled.
-                cx.local.cycle_frames += 400;
+                local.cycle_frames += 400;
             }
 
             let Some(&(mut other_room_id, mut other_node_id)) =
@@ -1839,13 +1985,13 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             else {
                 // When simulating logic for the logic pages, the `cx.door_map` may be empty,
                 // but we still treat the requirement as satisfiable.
-                return true;
+                return SimpleResult::Success;
             };
 
             if other_room_id == 321 {
                 // Passing through the Toilet adds to the time taken to reset the room.
-                if cx.local.cycle_frames > 0 {
-                    cx.local.cycle_frames += 600;
+                if local.cycle_frames > 0 {
+                    local.cycle_frames += 600;
                 }
                 let opposite_node_id = match other_node_id {
                     1 => 2,
@@ -1856,46 +2002,52 @@ fn apply_requirement_rec(req: &Requirement, cx: &mut TraversalContext) -> bool {
             }
             let reset_req =
                 &cx.game_data.node_reset_room_requirement[&(other_room_id, other_node_id)];
-            apply_requirement_rec(reset_req, cx)
+            apply_requirement_simple(reset_req, local, cx)
         }
-        Requirement::EscapeMorphLocation => cx.settings.map_layout == "Vanilla",
+        Requirement::EscapeMorphLocation => (cx.settings.map_layout == "Vanilla").into(),
         Requirement::And(reqs) => {
             if cx.reverse {
                 for req in reqs.iter().rev() {
-                    if !apply_requirement_rec(req, cx) {
-                        return false;
-                    };
+                    match apply_requirement_simple(req, local, cx) {
+                        SimpleResult::Failure => return SimpleResult::Failure,
+                        SimpleResult::Success => {}
+                        SimpleResult::ExtraState(_) => todo!(),
+                    }
                 }
             } else {
                 for req in reqs {
-                    if !apply_requirement_rec(req, cx) {
-                        return false;
+                    match apply_requirement_simple(req, local, cx) {
+                        SimpleResult::Failure => return SimpleResult::Failure,
+                        SimpleResult::Success => {}
+                        SimpleResult::ExtraState(_) => todo!(),
                     }
                 }
             }
-            true
+            SimpleResult::Success
         }
         Requirement::Or(reqs) => {
             let mut best_local = None;
             let mut best_cost = [f32::INFINITY; NUM_COST_METRICS];
-            let orig_local = cx.local;
+            let orig_local = *local;
             for req in reqs {
-                cx.local = orig_local;
-                if !apply_requirement_rec(req, cx) {
-                    continue;
+                *local = orig_local;
+                match apply_requirement_simple(req, local, cx) {
+                    SimpleResult::Failure => continue,
+                    SimpleResult::Success => {}
+                    SimpleResult::ExtraState(_) => todo!(),
                 }
-                let cost = compute_cost(&cx.local, &cx.global.inventory, cx.reverse);
+                let cost = compute_cost(local, &cx.global.inventory, cx.reverse);
                 // TODO: Maybe do something better than just using the first cost metric.
                 if cost[0] < best_cost[0] {
                     best_cost = cost;
-                    best_local = Some(cx.local);
+                    best_local = Some(*local);
                 }
             }
             if let Some(new_local) = best_local {
-                cx.local = new_local;
-                true
+                *local = new_local;
+                SimpleResult::Success
             } else {
-                false
+                SimpleResult::Failure
             }
         }
     }
@@ -1942,44 +2094,36 @@ pub fn get_bireachable_idxs(
     forward: &Traverser,
     reverse: &Traverser,
 ) -> Option<(usize, usize)> {
-    for forward_cost_idx in 0..NUM_COST_METRICS {
-        for reverse_cost_idx in 0..NUM_COST_METRICS {
-            let forward_state = forward.local_states[vertex_id][forward_cost_idx];
-            let reverse_state = reverse.local_states[vertex_id][reverse_cost_idx];
+    for (forward_idx, &forward_state) in forward.lsr[vertex_id].local.iter().enumerate() {
+        for (reverse_idx, &reverse_state) in reverse.lsr[vertex_id].local.iter().enumerate() {
             if is_bireachable_state(global, forward_state, reverse_state) {
                 // A valid combination of forward & return routes has been found.
-                return Some((forward_cost_idx, reverse_cost_idx));
+                return Some((forward_idx, reverse_idx));
             }
         }
     }
     None
 }
 
-// If the given vertex is reachable, returns a cost metric index (between 0 and NUM_COST_METRICS),
+// If the given vertex is reachable, returns an index (between 0 and NUM_COST_METRICS),
 // indicating a forward route. Otherwise returns None.
 pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &Traverser) -> Option<usize> {
-    for forward_cost_idx in 0..NUM_COST_METRICS {
-        let forward_state = forward.local_states[vertex_id][forward_cost_idx];
-        if !forward_state.is_impossible() {
-            return Some(forward_cost_idx);
-        }
+    if !forward.lsr[vertex_id].local.is_empty() {
+        return Some(0);
     }
     None
 }
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct StepTrail {
-    pub prev_trail_id: StepTrailId,
     pub link_idx: LinkIdx,
     pub local_state: LocalState,
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct TraversalUpdate {
     pub vertex_id: VertexId,
-    pub old_start_trail_id: [StepTrailId; NUM_COST_METRICS],
-    pub old_local_state: [LocalState; NUM_COST_METRICS],
-    pub old_cost: [f32; NUM_COST_METRICS],
+    pub old_lsr: LocalStateReducer<StepTrailId>,
 }
 
 #[derive(Clone)]
@@ -1994,9 +2138,7 @@ pub struct TraversalStep {
 pub struct Traverser {
     pub reverse: bool,
     pub step_trails: Vec<StepTrail>,
-    pub start_trail_ids: Vec<[StepTrailId; NUM_COST_METRICS]>,
-    pub local_states: Vec<[LocalState; NUM_COST_METRICS]>,
-    pub cost: Vec<[f32; NUM_COST_METRICS]>,
+    pub lsr: Vec<LocalStateReducer<StepTrailId>>,
     pub step: TraversalStep,
     pub past_steps: Vec<TraversalStep>,
 }
@@ -2006,9 +2148,7 @@ impl Traverser {
         Self {
             reverse,
             step_trails: Vec::with_capacity(num_vertices * 10),
-            start_trail_ids: vec![[-1; NUM_COST_METRICS]; num_vertices],
-            local_states: vec![[IMPOSSIBLE_LOCAL_STATE; NUM_COST_METRICS]; num_vertices],
-            cost: vec![[f32::INFINITY; NUM_COST_METRICS]; num_vertices],
+            lsr: vec![LocalStateReducer::new(); num_vertices],
             step: TraversalStep {
                 updates: vec![],
                 start_step_trail_idx: 0,
@@ -2019,23 +2159,12 @@ impl Traverser {
         }
     }
 
-    fn add_trail(
-        &mut self,
-        vertex_id: VertexId,
-        start_trail_id: [StepTrailId; NUM_COST_METRICS],
-        local_state: [LocalState; NUM_COST_METRICS],
-        cost: [f32; NUM_COST_METRICS],
-    ) {
+    fn add_trail(&mut self, vertex_id: VertexId, lsr: LocalStateReducer<StepTrailId>) {
         let u = TraversalUpdate {
             vertex_id,
-            old_start_trail_id: self.start_trail_ids[vertex_id],
-            old_local_state: self.local_states[vertex_id],
-            old_cost: self.cost[vertex_id],
+            old_lsr: self.lsr[vertex_id].clone(),
         };
-        self.start_trail_ids[vertex_id] = start_trail_id;
-        self.local_states[vertex_id] = local_state;
-        self.cost[vertex_id] = cost;
-
+        self.lsr[vertex_id] = lsr;
         self.step.updates.push(u);
     }
 
@@ -2045,10 +2174,9 @@ impl Traverser {
         start_vertex_id: usize,
         global: &GlobalState,
     ) {
-        let start_trail_ids = [-1; NUM_COST_METRICS];
-        let local_state = [init_local; NUM_COST_METRICS];
-        let cost = compute_cost(&init_local, &global.inventory, self.reverse);
-        self.add_trail(start_vertex_id, start_trail_ids, local_state, cost);
+        let mut lsr = LocalStateReducer::<StepTrailId>::new();
+        lsr.push(init_local, -1, &global.inventory, self.reverse);
+        self.add_trail(start_vertex_id, lsr);
     }
 
     pub fn finish_step(&mut self, step_num: usize) {
@@ -2066,9 +2194,7 @@ impl Traverser {
     pub fn pop_step(&mut self) {
         let step = self.past_steps.pop().unwrap();
         for u in step.updates.iter().rev() {
-            self.start_trail_ids[u.vertex_id] = u.old_start_trail_id;
-            self.local_states[u.vertex_id] = u.old_local_state;
-            self.cost[u.vertex_id] = u.old_cost;
+            self.lsr[u.vertex_id] = u.old_lsr.clone();
         }
         self.step_trails.truncate(step.start_step_trail_idx);
         self.step.start_step_trail_idx = self.step_trails.len();
@@ -2088,12 +2214,11 @@ impl Traverser {
         step_num: usize,
     ) {
         self.step.global_state = global.clone();
-        let mut modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> = HashMap::new();
+        let mut modified_vertices: HashSet<usize> = HashSet::new();
 
-        for (v, cost) in self.cost.iter().enumerate() {
-            let valid = cost.map(f32::is_finite);
-            if valid.iter().any(|&x| x) {
-                modified_vertices.insert(v, valid);
+        for v in 0..self.lsr.len() {
+            if !self.lsr[v].local.is_empty() {
+                modified_vertices.insert(v);
             }
         }
 
@@ -2108,9 +2233,8 @@ impl Traverser {
             &seed_links_data.links_by_src
         };
 
-        let mut cx = TraversalContext {
+        let cx = TraversalContext {
             global,
-            local: LocalState::full(),
             reverse: self.reverse,
             settings,
             difficulty,
@@ -2120,90 +2244,43 @@ impl Traverser {
             objectives,
         };
         while !modified_vertices.is_empty() {
-            let mut new_modified_vertices: HashMap<usize, [bool; NUM_COST_METRICS]> =
-                HashMap::new();
+            let mut new_modified_vertices: HashSet<usize> = HashSet::new();
             let modified_vertices_vec = {
                 // Process the vertices in sorted order, to make the traversal deterministic.
                 // This also improves performance, possibly due to better locality:
                 // neighboring vertices would tend to have their data stored next to each other.
-                let mut m: Vec<(usize, [bool; NUM_COST_METRICS])> =
-                    modified_vertices.into_iter().collect();
+                let mut m: Vec<usize> = modified_vertices.into_iter().collect();
                 m.sort();
                 m
             };
-            for &(src_id, modified_costs) in &modified_vertices_vec {
-                let src_local_state_arr = self.local_states[src_id];
-                let src_trail_id_arr = self.start_trail_ids[src_id];
-                for src_cost_idx in 0..NUM_COST_METRICS {
-                    if !modified_costs[src_cost_idx] {
-                        continue;
-                    }
-                    let src_local_state = src_local_state_arr[src_cost_idx];
-                    if src_cost_idx > 0 && src_local_state == src_local_state_arr[src_cost_idx - 1]
-                    {
-                        continue;
-                    }
-                    let src_trail_id = src_trail_id_arr[src_cost_idx];
-                    let all_src_links = base_links_by_src[src_id]
-                        .iter()
-                        .chain(seed_links_by_src[src_id].iter());
-                    for &(link_idx, ref link) in all_src_links {
-                        let dst_id = link.to_vertex_id;
-                        let dst_old_cost_arr = self.cost[dst_id];
-                        cx.local = src_local_state;
-                        if !apply_link(link, &mut cx) {
-                            continue;
-                        }
-                        let dst_new_cost_arr =
-                            compute_cost(&cx.local, &global.inventory, self.reverse);
-
-                        let new_step_trail = StepTrail {
-                            prev_trail_id: src_trail_id,
-                            local_state: cx.local,
-                            link_idx,
-                        };
+            for &src_id in &modified_vertices_vec {
+                let mut src_local_arr = self.lsr[src_id].local.clone();
+                for (i, local) in src_local_arr.iter_mut().enumerate() {
+                    local.prev_trail_id = self.lsr[src_id].trail_ids[i];
+                }
+                let all_src_links = base_links_by_src[src_id]
+                    .iter()
+                    .chain(seed_links_by_src[src_id].iter());
+                for &(link_idx, ref link) in all_src_links {
+                    let dst_id = link.to_vertex_id;
+                    let mut local_arr = src_local_arr.clone();
+                    let mut any_improvement: bool = false;
+                    let mut new_lsr = self.lsr[dst_id].clone();
+                    local_arr = apply_link(link, local_arr, &cx);
+                    for local in local_arr {
                         let new_trail_id = self.step_trails.len() as StepTrailId;
-                        let mut any_improvement: bool = false;
-                        let mut improved_arr: [bool; NUM_COST_METRICS] = new_modified_vertices
-                            .get(&dst_id)
-                            .copied()
-                            .unwrap_or([false; NUM_COST_METRICS]);
-
-                        let mut new_local_state = self.local_states[dst_id];
-                        let mut new_start_trail_ids = self.start_trail_ids[dst_id];
-                        let mut new_cost = self.cost[dst_id];
-
-                        for dst_cost_idx in 0..NUM_COST_METRICS {
-                            if dst_new_cost_arr[dst_cost_idx] < dst_old_cost_arr[dst_cost_idx] {
-                                new_local_state[dst_cost_idx] = cx.local;
-                                new_start_trail_ids[dst_cost_idx] = new_trail_id;
-                                new_cost[dst_cost_idx] = dst_new_cost_arr[dst_cost_idx];
-                                improved_arr[dst_cost_idx] = true;
-                                any_improvement = true;
-                            }
-                        }
-                        if any_improvement {
-                            let check_value = |name: &'static str, v: Capacity| {
-                                if v < 0 {
-                                    panic!(
-                                        "Resource {name} is negative, with value {v}: old_state={src_local_state:?}, new_state={:?}, link={link:?}",
-                                        cx.local
-                                    );
-                                }
+                        if new_lsr.push(local, new_trail_id, &cx.global.inventory, cx.reverse) {
+                            let new_step_trail = StepTrail {
+                                local_state: local,
+                                link_idx,
                             };
-                            check_value("energy", cx.local.energy_used);
-                            check_value("reserves", cx.local.reserves_used);
-                            check_value("missiles", cx.local.missiles_used);
-                            check_value("supers", cx.local.supers_used);
-                            check_value("power_bombs", cx.local.power_bombs_used);
-                            check_value(
-                                "shinecharge_frames",
-                                cx.local.shinecharge_frames_remaining,
-                            );
-                            self.add_trail(dst_id, new_start_trail_ids, new_local_state, new_cost);
                             self.step_trails.push(new_step_trail);
-                            new_modified_vertices.insert(dst_id, improved_arr);
+                            any_improvement = true;
                         }
+                    }
+                    if any_improvement {
+                        self.add_trail(dst_id, new_lsr);
+                        new_modified_vertices.insert(dst_id);
                     }
                 }
             }
@@ -2216,14 +2293,14 @@ impl Traverser {
 pub fn get_spoiler_trail_ids(
     traverser: &Traverser,
     vertex_id: usize,
-    cost_idx: usize,
+    idx: usize,
 ) -> Vec<StepTrailId> {
-    let mut trail_id = traverser.start_trail_ids[vertex_id][cost_idx];
+    let mut trail_id = traverser.lsr[vertex_id].trail_ids[idx];
     let mut steps: Vec<StepTrailId> = Vec::new();
     while trail_id != -1 {
         let step_trail = &traverser.step_trails[trail_id as usize];
         steps.push(trail_id);
-        trail_id = step_trail.prev_trail_id;
+        trail_id = step_trail.local_state.prev_trail_id;
     }
     steps.reverse();
     steps

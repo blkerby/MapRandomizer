@@ -14,7 +14,7 @@ use crate::spoiler_log::{
     get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
-    LockedDoorData, NUM_COST_METRICS, Traverser, apply_requirement, get_bireachable_idxs,
+    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs,
     get_spoiler_trail_ids,
 };
 use anyhow::{Context, Result, bail};
@@ -3325,7 +3325,7 @@ impl<'r> Randomizer<'r> {
         let traversal_num = forward.past_steps.len() - 1;
         for (i, vertex_ids) in self.game_data.item_vertex_ids.iter().enumerate() {
             for &v in vertex_ids {
-                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                if !forward.lsr[v].local.is_empty() {
                     if state.item_location_state[i].reachable_traversal.is_none() {
                         state.item_location_state[i].reachable_traversal = Some(traversal_num);
                     }
@@ -3340,7 +3340,7 @@ impl<'r> Randomizer<'r> {
         }
         for (i, vertex_ids) in self.game_data.flag_vertex_ids.iter().enumerate() {
             for &v in vertex_ids {
-                if forward.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                if !forward.lsr[v].local.is_empty() {
                     if state.flag_location_state[i].reachable_traversal.is_none() {
                         state.flag_location_state[i].reachable_traversal = Some(traversal_num);
                         state.flag_location_state[i].reachable_vertex_id = Some(v);
@@ -3361,7 +3361,7 @@ impl<'r> Randomizer<'r> {
             .enumerate()
         {
             for &v in vertex_ids {
-                if forward.cost[v].iter().any(|&x| f32::is_finite(x))
+                if !forward.lsr[v].local.is_empty()
                     && state.door_state[i].bireachable_traversal.is_none()
                     && get_bireachable_idxs(&state.global_state, v, forward, reverse).is_some()
                 {
@@ -3645,7 +3645,7 @@ impl<'r> Randomizer<'r> {
             for (i, &item_location_id) in bireachable_locations.iter().enumerate() {
                 let mut is_reachable = false;
                 for &v in &self.game_data.item_vertex_ids[item_location_id] {
-                    if traverser.cost[v].iter().any(|&x| f32::is_finite(x)) {
+                    if !traverser.lsr[v].local.is_empty() {
                         is_reachable = true;
                     }
                 }
@@ -3895,7 +3895,8 @@ impl<'r> Randomizer<'r> {
             actions: vec![],
         }];
         let cost_metric_idx = 0; // use energy-sensitive cost metric
-        traverser_pair.forward.local_states[start_vertex_id][cost_metric_idx]
+        let i = traverser_pair.forward.lsr[start_vertex_id].best_cost_idxs[cost_metric_idx];
+        traverser_pair.forward.lsr[start_vertex_id].local[i as usize]
     }
 
     fn multi_attempt_select_items<R: Rng + Clone>(
@@ -4471,10 +4472,8 @@ impl<'r> Randomizer<'r> {
 
             let mut has_reachable_item = false;
             for &v in self.game_data.item_vertex_ids.iter().flatten() {
-                for i in 0..NUM_COST_METRICS {
-                    if forward.cost[v][i].is_finite() {
-                        has_reachable_item = true;
-                    }
+                if !forward.lsr[v].local.is_empty() {
+                    has_reachable_item = true;
                 }
             }
             if !has_reachable_item {

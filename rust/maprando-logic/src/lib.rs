@@ -4,7 +4,7 @@
 pub mod boss_requirements;
 pub mod helpers;
 
-use maprando_game::{Capacity, GameData, Item, WeaponMask};
+use maprando_game::{Capacity, GameData, Item, StepTrailId, WeaponMask};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize)]
@@ -106,23 +106,8 @@ pub struct LocalState {
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
     pub flash_suit: bool,
+    pub prev_trail_id: StepTrailId,
 }
-
-pub const IMPOSSIBLE_LOCAL_STATE: LocalState = LocalState {
-    energy_used: 0x3FFF,
-    reserves_used: 0x3FFF,
-    missiles_used: 0x3FFF,
-    supers_used: 0x3FFF,
-    power_bombs_used: 0x3FFF,
-    shinecharge_frames_remaining: 0x3FFF,
-    cycle_frames: 0x3FFF,
-    farm_baseline_energy_used: 0x3FFF,
-    farm_baseline_reserves_used: 0x3FFF,
-    farm_baseline_missiles_used: 0x3FFF,
-    farm_baseline_supers_used: 0x3FFF,
-    farm_baseline_power_bombs_used: 0x3FFF,
-    flash_suit: false,
-};
 
 impl LocalState {
     pub fn empty(global: &GlobalState) -> Self {
@@ -140,6 +125,7 @@ impl LocalState {
             farm_baseline_supers_used: global.inventory.max_supers,
             farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
             flash_suit: false,
+            prev_trail_id: -1,
         }
     }
 
@@ -158,10 +144,7 @@ impl LocalState {
             farm_baseline_supers_used: 0,
             farm_baseline_power_bombs_used: 0,
             flash_suit: false,
+            prev_trail_id: -1,
         }
-    }
-
-    pub fn is_impossible(&self) -> bool {
-        self.energy_used == IMPOSSIBLE_LOCAL_STATE.energy_used
     }
 }
