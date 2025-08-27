@@ -809,8 +809,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
 			routeData(item_info, j.obtain_route, ss);
 				
-			item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
-			routeData(item_info, j.return_route);
+			if (j.return_route.length !=0){
+				item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
+				routeData(item_info, j.return_route);
+			} else {
+				let escText = createDiv("ESCAPE");
+				if (c.escape.animals_route){
+					escText.innerHTML += " WITH THE ANIMALS";
+				}
+				escText.className = "category";
+				item_info.appendChild(escText);
+			}
 		}
 		si.appendChild(item_info);
 	}
