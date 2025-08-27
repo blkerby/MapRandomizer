@@ -850,16 +850,46 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		return out;
 	}
 	function routeData(p, route, ss=null) {
-		let lastRoom=null, lastNode=null;
+		let lastRoom=null, lastNode=null, roomDiv=null, roomRoute=null;
 		for (let k of route) {
 			let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 			let nodeStr;
 			let out = "";
+			if (k.room != lastRoom) {
+				if (roomDiv) {
+					p.appendChild(roomDiv);
+				}
+				
+				let rr = document.createElement("div");
+				rr.className = "room-route";
 
+				let roomHead = document.createElement("span");
+				roomHead.innerHTML = `${k.room}`;
+				roomHead.className = "room-head";
+
+				let arrow = document.createElement("i");
+				arrow.className="bi bi-arrow-right";
+				roomHead.appendChild(arrow);
+
+				roomHead.onclick = ev => {
+					if (rr.style.display == "block") {
+						arrow.className="bi bi-arrow-right";
+						rr.style.display = "none";
+					} else {
+						arrow.className="bi bi-arrow-down";
+						rr.style.display = "block";
+					}
+				}
+				roomRoute = rr;
+				
+				roomDiv = document.createElement("div");
+				roomDiv.appendChild(roomHead);
+				roomDiv.appendChild(roomRoute);
+			}
 			if (ss == null)	{
 				out = consumableData(k);
 				if (out != "") {
-					p.appendChild(createHtmlElement(`<small>${out}</small>`));
+					roomRoute.appendChild(createHtmlElement(`<small>${out}</small>`));
 				}
 			}
 
@@ -869,7 +899,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				nodeStr = `${k.room}: ${k.node}<br>`;
 			}
 			if (k.room != lastRoom || k.node != lastNode || k.strat_id !== null) {
-				p.appendChild(createDiv(nodeStr));
+				roomRoute.appendChild(createDiv(nodeStr));
 				lastRoom = k.room;
 				lastNode = k.node;
 			}
@@ -894,12 +924,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			if (out != "") {
-				p.appendChild(createHtmlElement(`<small>${out}</small>`));
+				roomRoute.appendChild(createHtmlElement(`<small>${out}</small>`));
 			}
 			if (ss != null)	{
 				out = consumableData(k, ss);
 				if (out != "") {
-					p.appendChild(createHtmlElement(`<small>${out}</small>`));
+					roomRoute.appendChild(createHtmlElement(`<small>${out}</small>`));
 				}
 			}
 			
@@ -925,9 +955,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					flagContainer.appendChild(flagA);
 				}
 				flagContainer.appendChild(document.createElement("br"));
-				p.appendChild(flagContainer);
+				roomRoute.appendChild(flagContainer);
 			}
 		}
+		p.appendChild(roomDiv);
 	}
 	function flagIcons(p, flags, j=null) {
 		for (i in flags) {
@@ -1009,7 +1040,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (c.summary.length ==0)
 			return;
 
-		if (c.hub_obtain_route.length == 0)
+		if (c.hub_obtain_route == null || c.hub_return_route == null)
 			return;
 		
 		showRoute(c.hub_return_route, "yellow");
@@ -1053,10 +1084,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.appendChild(item_list);
 		
 		flagIcons(si, ss.flags);
+
 		let item_info = document.createElement("div");
 		item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
 		routeData(item_info, c.hub_obtain_route, ss);
-				
+		
 		item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
 		routeData(item_info, c.hub_return_route);
 		si.appendChild(item_info);

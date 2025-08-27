@@ -63,6 +63,12 @@ a {
 .room-link:hover {
 	text-decoration: underline;
 }
+.room-head:hover {
+	text-decoration: underline;
+}
+.room-route {
+	display: none;
+}
 #sidebar-info {
 	position: fixed;
 	max-height: 600px;
