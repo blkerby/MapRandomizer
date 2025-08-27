@@ -4230,6 +4230,7 @@ impl<'r> Randomizer<'r> {
         display_seed: usize,
         rng: &mut R,
         traverser_pair: &mut TraverserPair,
+        start_location_data: &StartLocationData,
     ) -> Result<(Randomization, SpoilerLog)> {
         let save_animals = if self.settings.save_animals == SaveAnimals::Random {
             if rng.gen_bool(0.5) {
@@ -4241,7 +4242,7 @@ impl<'r> Randomizer<'r> {
             self.settings.save_animals
         };
 
-        let spoiler_log = get_spoiler_log(self, state, traverser_pair, save_animals)?;
+        let spoiler_log = get_spoiler_log(self, state, traverser_pair, save_animals, start_location_data)?;
 
         let item_placement: Vec<Item> = state
             .item_location_state
@@ -4674,8 +4675,8 @@ impl<'r> Randomizer<'r> {
                 y: StartLocation::default().y,
             },
             hub_location_name: String::new(),
-            // hub_obtain_route: vec![],
-            // hub_return_route: vec![],
+            hub_obtain_route: vec![],
+            hub_return_route: vec![],
             escape: spoiler_escape,
             details: vec![],
             all_items: vec![],
@@ -4790,8 +4791,8 @@ impl<'r> Randomizer<'r> {
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
-            start_location: start_location_data.start_location,
-            hub_location: start_location_data.hub_location,
+            start_location: start_location_data.start_location.clone(),
+            hub_location: start_location_data.hub_location.clone(),
             item_location_state: vec![
                 initial_item_location_state;
                 self.game_data.item_locations.len()
@@ -4948,6 +4949,6 @@ impl<'r> Randomizer<'r> {
             }
         }
         self.finish(attempt_num_rando, &mut state, &mut rng);
-        self.get_randomization(&state, seed, display_seed, &mut rng, &mut traverser_pair)
+        self.get_randomization(&state, seed, display_seed, &mut rng, &mut traverser_pair, &start_location_data)
     }
 }
