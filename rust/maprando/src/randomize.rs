@@ -14,8 +14,7 @@ use crate::spoiler_log::{
     get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
-    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs,
-    get_spoiler_trail_ids,
+    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs, get_spoiler_trail_ids,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
