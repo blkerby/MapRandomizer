@@ -889,7 +889,10 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (ss == null)	{
 				out = consumableData(k);
 				if (out != "") {
-					roomRoute.appendChild(createHtmlElement(`<small>${out}</small>`));
+					let cons = document.createElement("div");
+					cons.className = "route-consumables";
+					cons.innerHTML = `<small>${out}</small>`;
+					roomRoute.appendChild(cons);
 				}
 			}
 
@@ -924,17 +927,26 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			if (out != "") {
-				roomRoute.appendChild(createHtmlElement(`<small>${out}</small>`));
+				let strat = document.createElement("div");
+				strat.className = "route-strat";
+				strat.innerHTML = `<small>${out}</small>`;
+				roomRoute.appendChild(strat);
 			}
 			if (ss != null)	{
 				out = consumableData(k, ss);
 				if (out != "") {
-					roomRoute.appendChild(createHtmlElement(`<small>${out}</small>`));
+					let cons = document.createElement("div");
+					cons.className = "route-consumables";
+					cons.innerHTML = `<small>${out}</small>`;
+					roomRoute.appendChild(cons);
 				}
 			}
 			
 			if (k.relevant_flags) {
+				let flagDiv = document.createElement("div");
+				flagDiv.className = "route-flags";
 				let flagContainer = document.createElement("small");
+				flagDiv.appendChild(flagContainer);
 				let flagSpan0 = document.createElement("span");
 				flagSpan0.innerText = "Relevant flags: ";
 				flagContainer.appendChild(flagSpan0);
@@ -955,7 +967,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					flagContainer.appendChild(flagA);
 				}
 				flagContainer.appendChild(document.createElement("br"));
-				roomRoute.appendChild(flagContainer);
+				roomRoute.appendChild(flagDiv);
 			}
 		}
 		p.appendChild(roomDiv);

@@ -68,6 +68,10 @@ a {
 }
 .room-route {
 	display: none;
+	padding: 5px;
+}
+.route-consumables, .route-flags, .route-strat{
+	padding-left: 10px;
 }
 #sidebar-info {
 	position: fixed;
