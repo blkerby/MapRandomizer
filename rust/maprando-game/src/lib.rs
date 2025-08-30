@@ -67,6 +67,7 @@ pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_SPIKE_SUIT: TechId = 141;
 pub const TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH: TechId = 178;
+pub const TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT: TechId = 142;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
 #[allow(clippy::type_complexity)]
