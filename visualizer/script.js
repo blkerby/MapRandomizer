@@ -705,7 +705,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		ctx.putImageData(img, 0, 0);
 	}
-	
 	let show_item_details = (item_name, loc, i, j, mapitem = false) => {
 		if (j !== null) {
 			document.getElementById("path-overlay").innerHTML = ""
@@ -787,6 +786,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				icon_el.onclick = ev => {
 					show_item_details(item.item, item.location, i, item);
 				}
+				icon_el.onmouseenter = ev => {
+					document.getElementById(item.location.room +": "+ item.location.node).classList.add("highlight");
+				}
+				icon_el.onmouseleave = ev => {
+					document.getElementById(item.location.room +": "+ item.location.node).classList.remove("highlight");
+				}
 				if (item == j) {
 					icon_el.classList.add("selected")
 				}
@@ -858,8 +863,42 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		return out;
 	}
+	
+	function highlightRoute(to, room_id, iters) {
+		if (to == null || to.length == 0)
+			return;
+
+		path = "";
+		found = 0;
+		sameroom = false;
+		for (let k of to) {
+			if (k.room_id == room_id) {
+				if (found != iters && !sameroom) {
+					found++;
+					sameroom = true;
+				}
+				if  (found == iters && k.coords) {
+					let x = k.coords[0] * 24 + 24 + 12;
+					let y = k.coords[1] * 24 + 24 + 12;
+					path += `${path == "" ? "M" : "L"}${x} ${y} `;
+				}
+			} else if (found == iters) {
+				if  (k.coords) {
+					let x = k.coords[0] * 24 + 24 + 12;
+					let y = k.coords[1] * 24 + 24 + 12;
+					path += `${path == "" ? "M" : "L"}${x} ${y} `;
+				}
+				break;
+			} else {
+				sameroom = false;
+			}
+		}
+		document.getElementById("path-highlight").innerHTML += `<path d="${path}" id="path-out"/>`
+		document.getElementById("path-highlight").innerHTML += `<path d="${path}" id="path-in"/>`
+	}
 	function routeData(p, route, ss=null) {
 		let lastRoom=null, lastNode=null, roomDiv=null, roomRoute=null;
+		let room_reps = new Map();
 		for (let k of route) {
 			let strat_url = `/logic/room/${k.room_id}/${k.from_node_id}/${k.to_node_id}/${k.strat_id}`;
 			let nodeStr;
@@ -869,6 +908,12 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					p.appendChild(roomDiv);
 				}
 				
+				if (!room_reps.has(k.room_id)){
+					room_reps.set(k.room_id, 1);
+				} else {
+					room_reps.set(k.room_id, room_reps.get(k.room_id)+1);
+				}
+
 				let rr = document.createElement("div");
 				rr.className = "room-route";
 
@@ -892,6 +937,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				roomRoute = rr;
 				
 				roomDiv = document.createElement("div");
+				let reps = room_reps.get(k.room_id);
+				roomDiv.onmouseenter = ev => {
+					highlightRoute(route,k.room_id, reps);
+				}
+				roomDiv.onmouseleave = ev => {
+					document.getElementById("path-highlight").innerHTML = "";
+				}
 				roomDiv.appendChild(roomHead);
 				roomDiv.appendChild(roomRoute);
 			}
@@ -911,7 +963,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				nodeStr = `${k.room}: ${k.node}<br>`;
 			}
 			if (k.room != lastRoom || k.node != lastNode || k.strat_id !== null) {
-				roomRoute.appendChild(createDiv(nodeStr));
+				let node_div = createDiv(nodeStr);
+				roomRoute.appendChild(node_div);
 				lastRoom = k.room;
 				lastNode = k.node;
 			}
@@ -999,6 +1052,13 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				e.classList.add("selected");
 			e.onclick = ev => {
 				showFlag(c.details, f);
+			}
+			e.onmouseenter = ev => {
+				document.getElementById(f).classList.add("highlight");
+			}
+			
+			e.onmouseleave = ev => {
+				document.getElementById(f).classList.remove("highlight");
 			}
 			p.appendChild(e);
 		}
