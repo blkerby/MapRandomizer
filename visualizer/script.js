@@ -1130,7 +1130,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (c.summary.length ==0)
 			return;
 
-		if (c.hub_obtain_route == null || c.hub_return_route == null)
+		if (c.hub_obtain_route == null || c.hub_obtain_route.length == 0)
 			return;
 		
 		showRoute(c.hub_return_route, "yellow");
@@ -1178,6 +1178,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		let item_info = document.createElement("div");
 		item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
 		routeData(item_info, c.hub_obtain_route, ss);
+
+		if (c.hub_return_route == null || c.hub_obtain_route.length == 0){			
+			si.appendChild(item_info);
+			return;
+		}
 		
 		item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
 		routeData(item_info, c.hub_return_route);
