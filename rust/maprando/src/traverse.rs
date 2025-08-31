@@ -1092,14 +1092,14 @@ pub fn apply_requirement(
     match apply_requirement_simple(req, &mut local, &cx) {
         SimpleResult::Failure => None,
         SimpleResult::Success => Some(local),
-        SimpleResult::ExtraState(_) => Some(local),
+        SimpleResult::_ExtraState(_) => Some(local),
     }
 }
 
 enum SimpleResult {
     Failure,
     Success,
-    ExtraState(LocalState),
+    _ExtraState(LocalState),
 }
 
 impl From<bool> for SimpleResult {
@@ -1144,7 +1144,7 @@ fn apply_requirement_complex(
                     SimpleResult::Success => {
                         reducer.push(loc, (), &cx.global.inventory, cx.reverse);
                     }
-                    SimpleResult::ExtraState(extra_state) => {
+                    SimpleResult::_ExtraState(extra_state) => {
                         reducer.push(loc, (), &cx.global.inventory, cx.reverse);
                         reducer.push(extra_state, (), &cx.global.inventory, cx.reverse);
                     }
@@ -2011,7 +2011,7 @@ fn apply_requirement_simple(
                     match apply_requirement_simple(req, local, cx) {
                         SimpleResult::Failure => return SimpleResult::Failure,
                         SimpleResult::Success => {}
-                        SimpleResult::ExtraState(_) => todo!(),
+                        SimpleResult::_ExtraState(_) => todo!(),
                     }
                 }
             } else {
@@ -2019,7 +2019,7 @@ fn apply_requirement_simple(
                     match apply_requirement_simple(req, local, cx) {
                         SimpleResult::Failure => return SimpleResult::Failure,
                         SimpleResult::Success => {}
-                        SimpleResult::ExtraState(_) => todo!(),
+                        SimpleResult::_ExtraState(_) => todo!(),
                     }
                 }
             }
@@ -2034,7 +2034,7 @@ fn apply_requirement_simple(
                 match apply_requirement_simple(req, local, cx) {
                     SimpleResult::Failure => continue,
                     SimpleResult::Success => {}
-                    SimpleResult::ExtraState(_) => todo!(),
+                    SimpleResult::_ExtraState(_) => todo!(),
                 }
                 let cost = compute_cost(local, &cx.global.inventory, cx.reverse);
                 // TODO: Maybe do something better than just using the first cost metric.

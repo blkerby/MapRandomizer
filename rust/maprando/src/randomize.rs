@@ -14,8 +14,7 @@ use crate::spoiler_log::{
     get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
-    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs,
-    get_spoiler_trail_ids,
+    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs, get_spoiler_trail_ids,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
@@ -35,7 +34,8 @@ use maprando_game::{
     TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP,
     TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TechId, TemporaryBlueDirection, TraversalId, VertexId, VertexKey,
+    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
+    VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -963,6 +963,12 @@ impl<'a> Preprocessor<'a> {
                         self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
                     ));
                 }
+                reqs.push(Requirement::Or(vec![
+                    Requirement::NoFlashSuit,
+                    Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT],
+                    ),
+                ]));
                 Some(Requirement::make_and(reqs))
             }
             _ => None,
@@ -1495,10 +1501,17 @@ impl<'a> Preprocessor<'a> {
                 if *blue == BlueOption::No {
                     return None;
                 }
-                Some(Requirement::make_shinecharge(
+                reqs.push(Requirement::make_blue_speed(
                     remote_runway_length.get(),
                     *heated,
-                ))
+                ));
+                reqs.push(Requirement::Or(vec![
+                    Requirement::NoFlashSuit,
+                    Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT],
+                    ),
+                ]));
+                Some(Requirement::make_and(reqs))
             }
             _ => None,
         }
@@ -4231,6 +4244,7 @@ impl<'r> Randomizer<'r> {
         display_seed: usize,
         rng: &mut R,
         traverser_pair: &mut TraverserPair,
+        start_location_data: &StartLocationData,
     ) -> Result<(Randomization, SpoilerLog)> {
         let save_animals = if self.settings.save_animals == SaveAnimals::Random {
             if rng.gen_bool(0.5) {
@@ -4242,7 +4256,13 @@ impl<'r> Randomizer<'r> {
             self.settings.save_animals
         };
 
-        let spoiler_log = get_spoiler_log(self, state, traverser_pair, save_animals)?;
+        let spoiler_log = get_spoiler_log(
+            self,
+            state,
+            traverser_pair,
+            save_animals,
+            start_location_data,
+        )?;
 
         let item_placement: Vec<Item> = state
             .item_location_state
@@ -4675,8 +4695,8 @@ impl<'r> Randomizer<'r> {
                 y: StartLocation::default().y,
             },
             hub_location_name: String::new(),
-            // hub_obtain_route: vec![],
-            // hub_return_route: vec![],
+            hub_obtain_route: vec![],
+            hub_return_route: vec![],
             escape: spoiler_escape,
             details: vec![],
             all_items: vec![],
@@ -4791,8 +4811,8 @@ impl<'r> Randomizer<'r> {
         let mut state = RandomizationState {
             step_num: 1,
             item_precedence,
-            start_location: start_location_data.start_location,
-            hub_location: start_location_data.hub_location,
+            start_location: start_location_data.start_location.clone(),
+            hub_location: start_location_data.hub_location.clone(),
             item_location_state: vec![
                 initial_item_location_state;
                 self.game_data.item_locations.len()
@@ -4949,6 +4969,13 @@ impl<'r> Randomizer<'r> {
             }
         }
         self.finish(attempt_num_rando, &mut state, &mut rng);
-        self.get_randomization(&state, seed, display_seed, &mut rng, &mut traverser_pair)
+        self.get_randomization(
+            &state,
+            seed,
+            display_seed,
+            &mut rng,
+            &mut traverser_pair,
+            &start_location_data,
+        )
     }
 }

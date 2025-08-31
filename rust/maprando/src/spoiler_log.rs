@@ -10,7 +10,7 @@ use strum::VariantNames;
 
 use crate::{
     randomize::{
-        RandomizationState, Randomizer, TraverserPair,
+        RandomizationState, Randomizer, StartLocationData, TraverserPair,
         escape_timer::{self, SpoilerEscape},
         strip_name,
     },
@@ -193,8 +193,8 @@ pub struct SpoilerLog {
     pub escape: SpoilerEscape,
     pub start_location: SpoilerStartLocation,
     pub hub_location_name: String,
-    // pub hub_obtain_route: Vec<SpoilerRouteEntry>,
-    // pub hub_return_route: Vec<SpoilerRouteEntry>,
+    pub hub_obtain_route: Vec<SpoilerRouteEntry>,
+    pub hub_return_route: Vec<SpoilerRouteEntry>,
     pub details: Vec<SpoilerDetails>,
     pub all_items: Vec<SpoilerItemLoc>,
     pub all_rooms: Vec<SpoilerRoomLoc>,
@@ -883,6 +883,7 @@ pub fn get_spoiler_log(
     state: &RandomizationState,
     traverser_pair: &mut TraverserPair,
     save_animals: SaveAnimals,
+    start_location_data: &StartLocationData,
 ) -> Result<SpoilerLog> {
     let forward_traversal = get_spoiler_traversal(&traverser_pair.forward);
     let reverse_traversal = get_spoiler_traversal(&traverser_pair.reverse);
@@ -1200,8 +1201,8 @@ pub fn get_spoiler_log(
             y: state.start_location.y,
         },
         hub_location_name: hub_room_name,
-        // hub_obtain_route: state.hub_obtain_route.clone(),
-        // hub_return_route: state.hub_return_route.clone(),
+        hub_obtain_route: start_location_data.hub_obtain_route.clone(),
+        hub_return_route: start_location_data.hub_return_route.clone(),
         escape: spoiler_escape,
         details: spoiler_details,
         all_items: spoiler_all_items,
