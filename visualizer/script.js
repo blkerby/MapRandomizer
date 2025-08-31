@@ -536,6 +536,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 							show_item_details(j.item, j.location, i, j);
 						ev.stopPropagation();
 					}
+					let map_icon = document.getElementById(j.location.room + ": " + j.location.node);
+					el.onmouseenter = ev => {
+						if (document.getElementById("spoilers").checked || step_limit == null || step_limit > Number(i)){
+							map_icon.classList.add("highlight");
+						}
+					}
+					el.onmouseleave = ev => {
+						map_icon.classList.remove("highlight");
+					}
 					step_div.appendChild(el);
 
 					if (first) {
