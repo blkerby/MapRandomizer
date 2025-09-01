@@ -1893,7 +1893,14 @@ fn apply_requirement_simple(
                 SimpleResult::Success
             }
         }
-        Requirement::UseFlashSuit => {
+        &Requirement::UseFlashSuit {
+            carry_flash_suit_tech_idx,
+        } => {
+            if !cx.difficulty.tech[carry_flash_suit_tech_idx] {
+                // It isn't strictly necessary to check the tech here (since it already checked
+                // when obtaining the flash suit), but it could affect Forced item placement.
+                return SimpleResult::Failure;
+            }
             if cx.reverse {
                 local.flash_suit = true;
                 SimpleResult::Success

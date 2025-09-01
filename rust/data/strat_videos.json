@@ -26081,14 +26081,6 @@
   },
   {
     "room_id": 145,
-    "strat_id": 49,
-    "video_id": 2436,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 145,
     "strat_id": 50,
     "video_id": 5994,
     "created_user": "Sam",
@@ -26765,14 +26757,6 @@
     "video_id": 1815,
     "created_user": "Sam",
     "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 144,
-    "strat_id": 79,
-    "video_id": 6445,
-    "created_user": "Sam",
-    "note": "Bombs",
     "dev_note": ""
   },
   {

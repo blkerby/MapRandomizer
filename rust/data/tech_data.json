@@ -918,10 +918,28 @@
         "video_id": 965
     },
     {
+        "tech_id": 207,
+        "name": "canCarryFlashSuit",
+        "difficulty": "Extreme",
+        "video_id": null
+    },
+    {
         "tech_id": 141,
         "name": "canSpikeSuit",
         "difficulty": "Extreme",
         "video_id": 5323
+    },
+    {
+        "tech_id": 178,
+        "name": "canElevatorCrystalFlash",
+        "difficulty": "Insane",
+        "video_id": 6495
+    },
+    {
+        "tech_id": 208,
+        "name": "canComplexCarryFlashSuit",
+        "difficulty": "Extreme",
+        "video_id": null
     },
     {
         "tech_id": 142,
@@ -1186,12 +1204,6 @@
         "name": "can10PowerBombCrystalFlash",
         "difficulty": "Expert",
         "video_id": 971
-    },
-    {
-        "tech_id": 178,
-        "name": "canElevatorCrystalFlash",
-        "difficulty": "Insane",
-        "video_id": 6495
     },
     {
         "tech_id": 179,

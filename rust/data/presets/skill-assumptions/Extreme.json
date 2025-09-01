@@ -799,8 +799,18 @@
             "enabled": true
         },
         {
+            "id": 207,
+            "name": "canCarryFlashSuit",
+            "enabled": true
+        },
+        {
             "id": 141,
             "name": "canSpikeSuit",
+            "enabled": true
+        },
+        {
+            "id": 208,
+            "name": "canComplexCarryFlashSuit",
             "enabled": true
         },
         {
@@ -939,6 +949,11 @@
             "enabled": false
         },
         {
+            "id": 178,
+            "name": "canElevatorCrystalFlash",
+            "enabled": false
+        },
+        {
             "id": 142,
             "name": "canTrickyCarryFlashSuit",
             "enabled": false
@@ -961,11 +976,6 @@
         {
             "id": 165,
             "name": "canDownwardGModeSetup",
-            "enabled": false
-        },
-        {
-            "id": 178,
-            "name": "canElevatorCrystalFlash",
             "enabled": false
         },
         {
@@ -1393,7 +1403,7 @@
             "room_id": 121,
             "notable_id": 4,
             "room_name": "Crocomire Escape",
-            "notable_name": "SpringBall Freeze",
+            "notable_name": "Spring Ball Freeze",
             "enabled": true
         },
         {
@@ -2002,7 +2012,7 @@
             "room_id": 121,
             "notable_id": 3,
             "room_name": "Crocomire Escape",
-            "notable_name": "SpringBall Bomb Boost",
+            "notable_name": "Spring Ball Bomb Boost",
             "enabled": true
         },
         {

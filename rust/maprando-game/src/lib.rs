@@ -67,6 +67,7 @@ pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_SPIKE_SUIT: TechId = 141;
 pub const TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH: TechId = 178;
+pub const TECH_ID_CAN_CARRY_FLASH_SUIT: TechId = 207;
 pub const TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT: TechId = 142;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 
@@ -370,7 +371,9 @@ pub enum Requirement {
     },
     EscapeMorphLocation,
     GainFlashSuit,
-    UseFlashSuit,
+    UseFlashSuit {
+        carry_flash_suit_tech_idx: TechIdx,
+    },
     NoFlashSuit,
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
@@ -2830,7 +2833,10 @@ impl GameData {
             } else if key == "noFlashSuit" {
                 return Ok(Requirement::NoFlashSuit);
             } else if key == "useFlashSuit" {
-                return Ok(Requirement::UseFlashSuit);
+                return Ok(Requirement::UseFlashSuit {
+                    carry_flash_suit_tech_idx: self.tech_isv.index_by_key
+                        [&TECH_ID_CAN_CARRY_FLASH_SUIT],
+                });
             } else if key == "tech" {
                 return self.get_tech_requirement(value.as_str().unwrap(), false);
             } else if key == "notable" {
@@ -3358,6 +3364,23 @@ impl GameData {
                         }
                     },
                     "requires": req
+                });
+            }
+
+            if !node_json.has_key("spawnAt")
+                && node_type == "door"
+                && node_json["doorOrientation"] == "down"
+                && node_json["useImplicitComeInWithGrappleJump"].as_bool() != Some(false)
+            {
+                extra_strats.push(json::object! {
+                    "link": [node_id, node_id],
+                    "name": "Base (Come In With Grapple Jump)",
+                    "entranceCondition": {
+                        "comeInWithGrappleJump": {
+                            "position": "any"
+                        }
+                    },
+                    "requires": []
                 });
             }
 
