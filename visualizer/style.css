@@ -26,6 +26,11 @@ a {
 	pointer-events: none;
 	z-index: 3;
 }
+#path-highlight {
+	position: absolute;
+	pointer-events: none;
+	z-index: 3;
+}
 #obscure-overlay {
 	position: absolute;
 	margin: 24px;
@@ -128,6 +133,57 @@ a {
 	font-size: small;
 	font-weight: bold;
 	margin-right: 8px;
+}
+@keyframes pathpulsein {
+	50% {
+		stroke-width: 4;
+	}
+	100% {
+		stroke-width: 2;
+	}
+}
+#path-in {
+	stroke:cyan;
+	stroke-width: 2;
+	fill:none;
+	stroke-linejoin: round;
+	animation-name: pathpulsein;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+@keyframes pathpulseout {
+	50% {
+		stroke-width: 6;
+	}
+	100% {
+		stroke-width: 4;
+	}
+}
+#path-out {
+	stroke:black;
+	stroke-width: 4;
+	fill:none;
+	stroke-linejoin: round;
+	animation-name: pathpulseout;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
+}
+@keyframes pulse {
+	50% {
+		transform: scale(2);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+.highlight {
+	z-index: 2;
+	animation-name: pulse;
+	animation-duration: 1s;
+	animation-iteration-count: infinite;
+	animation-timing-function: linear;
 }
 .hidden {
 	display: none;
