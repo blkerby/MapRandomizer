@@ -526,17 +526,19 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					let el = icon(item_plm[j.item]);
 					el.id = j.item;
 					el.className = "ui-icon-hoverable";
+					let map_icon = document.getElementById(j.location.room + ": " + j.location.node);
 					el.onclick = ev => {
 						if (el.style.backgroundPositionX== `-${item_plm["Hidden"] * 16}px`)
 						{
 							gen_obscurity(Number(i)+1);
 							suppItems(Number(i));
-						}
-						else
+							map_icon.classList.add("highlight");
+						} else {
+							map_icon.classList.remove("highlight");
 							show_item_details(j.item, j.location, i, j);
+						}
 						ev.stopPropagation();
 					}
-					let map_icon = document.getElementById(j.location.room + ": " + j.location.node);
 					el.onmouseenter = ev => {
 						if (document.getElementById("spoilers").checked || step_limit == null || step_limit > Number(i)){
 							map_icon.classList.add("highlight");
@@ -770,7 +772,32 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			for (let i of ss.items) {
 				if (i == "Nothing") { continue; }
 				if (!ic.includes(item_plm[i])) {
-					unique_item_list.appendChild(icon(item_plm[i]));
+					let item = null;
+					let step = -1;
+					for (let s in c.details){
+						for (let it of c.details[s].items){
+							if (it.item == i){
+								item = it;
+								step = s;
+								break;
+							}
+						}
+					}
+					if (item == null){continue;}
+					let uniq = icon(item_plm[i]);
+					uniq.className = "ui-icon-hoverable";
+					let map_icon = document.getElementById(item.location.room +": "+ item.location.node);
+					uniq.onclick = ev => {
+						show_item_details(item.item, item.location, step, item, true);
+						map_icon.classList.remove("highlight");
+					}
+					uniq.onmouseenter = ev => {
+						map_icon.classList.add("highlight");
+					}
+					uniq.onmouseleave = ev => {
+						map_icon.classList.remove("highlight");
+					}
+					unique_item_list.appendChild(uniq);
 				}
 			}
 			si.appendChild(unique_item_list);
@@ -792,14 +819,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let item = items[item_idx];
 				let icon_el = icon(item_plm[item.item]);
 				icon_el.className = "ui-icon-hoverable";
+				let map_icon = document.getElementById(item.location.room +": "+ item.location.node);
 				icon_el.onclick = ev => {
 					show_item_details(item.item, item.location, i, item);
+					map_icon.classList.remove("highlight");
 				}
 				icon_el.onmouseenter = ev => {
-					document.getElementById(item.location.room +": "+ item.location.node).classList.add("highlight");
+					map_icon.classList.add("highlight");
 				}
 				icon_el.onmouseleave = ev => {
-					document.getElementById(item.location.room +": "+ item.location.node).classList.remove("highlight");
+					map_icon.classList.remove("highlight");
 				}
 				if (item == j) {
 					icon_el.classList.add("selected")
