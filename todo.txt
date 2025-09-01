@@ -21,7 +21,7 @@ v120?:
   - DONE: verify that compressed output decompresses to original
 - add more strats from Incomplete videos
 - maybe have second spoiler JSON file without the debugging data?
-
+- implement useImplicitComeInWithGrappleJump
 
 
 Other future work: --------------------------------------------------------------------
