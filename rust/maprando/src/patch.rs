@@ -227,6 +227,7 @@ pub struct Patcher<'a> {
     pub map: &'a Map,
     pub other_door_ptr_pair_map: HashMap<DoorPtrPair, DoorPtrPair>,
     pub extra_setup_asm: HashMap<RoomPtr, Vec<u8>>,
+    pub extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)>,
     pub locked_door_state_indices: Vec<usize>,
     pub nothing_item_bitmask: [u8; 0x40],
     // per-area vec of (addr, bitmask) of cross-area tiles to reveal when map is activated:
@@ -678,7 +679,6 @@ impl Patcher<'_> {
         src_exit_ptr: usize,
         dst_entrance_ptr: usize,
         cross_area: bool,
-        extra_door_asm_map: &HashMap<NodePtr, (AsmPtr, AsmPtr)>,
     ) -> Result<()> {
         let mut door_data = self.orig_rom.read_n(dst_entrance_ptr, 12)?.to_vec();
         // Trigger the map to reload if the door crosses areas:
@@ -687,7 +687,7 @@ impl Patcher<'_> {
         } else {
             door_data[2] &= !0x40;
         }
-        if let Some(&(new_asm, end_asm)) = extra_door_asm_map.get(&src_exit_ptr) {
+        if let Some(&(new_asm, end_asm)) = self.extra_door_asm_map.get(&src_exit_ptr) {
             // Set extra custom ASM applicable to exiting from the given door exit:
             door_data[10..12].copy_from_slice(&((new_asm as u16).to_le_bytes()));
 
@@ -961,7 +961,7 @@ impl Patcher<'_> {
 
     // Returns map from door data PC address to 1) new custom door ASM pointer, 2) end of custom door ASM
     // where an RTS or JMP instruction must be added (based on the connecting door).
-    fn prepare_extra_door_asm(&mut self) -> Result<HashMap<DoorPtr, (AsmPtr, AsmPtr)>> {
+    fn prepare_extra_door_asm(&mut self) -> Result<()> {
         let toilet_exit_asm: Vec<u8> = vec![0x20, 0x01, 0xE3]; // JSR 0xE301
         let boss_exit_asm: Vec<u8> = vec![0x20, 0xF0, 0xF7]; // JSR 0xF7F0
         let mut extra_door_asm: HashMap<DoorPtr, Vec<u8>> = HashMap::new();
@@ -998,11 +998,11 @@ impl Patcher<'_> {
             0xF600 - 0xEE10
         );
         assert!(door_asm_free_space <= 0xF600);
-        Ok(extra_door_asm_map)
+        self.extra_door_asm_map = extra_door_asm_map;
+        Ok(())
     }
 
     fn write_door_data(&mut self) -> Result<()> {
-        let extra_door_asm_map = self.prepare_extra_door_asm()?;
         for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
             &self.randomization.map.doors
         {
@@ -1019,7 +1019,6 @@ impl Patcher<'_> {
                     src_exit_ptr.unwrap(),
                     dst_entrance_ptr.unwrap(),
                     cross_area,
-                    &extra_door_asm_map,
                 )?;
             }
             if dst_exit_ptr.is_some() && src_entrance_ptr.is_some() {
@@ -1027,7 +1026,6 @@ impl Patcher<'_> {
                     dst_exit_ptr.unwrap(),
                     src_entrance_ptr.unwrap(),
                     cross_area,
-                    &extra_door_asm_map,
                 )?;
             }
         }
@@ -1110,30 +1108,52 @@ impl Patcher<'_> {
             0x4703, 0x4711, 0x471F, 0x481B, 0x4917, 0x4925, 0x4933, 0x4941, 0x4A2F, 0x4A3D,
         ];
 
-        let mut orig_door_map: HashMap<NodePtr, NodePtr> = HashMap::new();
-        let mut new_door_map: HashMap<NodePtr, NodePtr> = HashMap::new();
-        for &((src_exit_ptr, src_entrance_ptr), (dst_exit_ptr, dst_entrance_ptr), _bidirectional) in
-            &self.randomization.map.doors
-        {
-            if let (Some(exit_ptr), Some(entrance_ptr)) = (src_exit_ptr, src_entrance_ptr) {
-                orig_door_map.insert(exit_ptr, entrance_ptr);
-            }
-            if let (Some(exit_ptr), Some(entrance_ptr)) = (dst_exit_ptr, dst_entrance_ptr) {
-                orig_door_map.insert(exit_ptr, entrance_ptr);
-            }
-            if let (Some(src_ptr), Some(dst_ptr)) = (src_exit_ptr, dst_exit_ptr) {
-                new_door_map.insert(src_ptr, dst_ptr);
-                new_door_map.insert(dst_ptr, src_ptr);
+        let mut orig_door_map: HashMap<NodePtr, DoorPtrPair> = HashMap::new();
+        for &(exit_ptr, entrance_ptr) in self.game_data.door_ptr_pair_map.keys() {
+            if let Some(e) = entrance_ptr {
+                orig_door_map.insert(e, (exit_ptr, entrance_ptr));
             }
         }
 
+        let mut unused_door_ptrs: HashSet<NodePtr> = HashSet::new();
+        for &(exit_ptr, _) in self.game_data.door_ptr_pair_map.keys() {
+            if let Some(ptr) = exit_ptr {
+                unused_door_ptrs.insert(ptr);
+            }
+        }
+
+        let mut new_door_map: HashMap<DoorPtrPair, DoorPtrPair> = HashMap::new();
+        for &(src_pair, dst_pair, _bidirectional) in &self.randomization.map.doors {
+            new_door_map.insert(src_pair, dst_pair);
+            new_door_map.insert(dst_pair, src_pair);
+            if let Some(ptr) = src_pair.0 {
+                unused_door_ptrs.remove(&ptr);
+            }
+            if let Some(ptr) = dst_pair.0 {
+                unused_door_ptrs.remove(&ptr);
+            }
+        }
+
+        let mut unused_door_ptrs: Vec<NodePtr> = unused_door_ptrs.into_iter().collect();
+        unused_door_ptrs.sort(); // The order doesn't matter, but sort it for determinism.
+
         for ptr in save_station_ptrs {
             let orig_entrance_door_ptr = (self.rom.read_u16(ptr + 2)? + 0x10000) as NodePtr;
-            let Some(&exit_door_ptr) = orig_door_map.get(&orig_entrance_door_ptr) else {
+            let Some(&save_pair) = orig_door_map.get(&orig_entrance_door_ptr) else {
                 continue;
             };
-            let Some(&entrance_door_ptr) = new_door_map.get(&exit_door_ptr) else {
-                continue;
+            let entrance_door_ptr = if let Some(&other_pair) = new_door_map.get(&save_pair) {
+                other_pair.0.unwrap()
+            } else {
+                // Since the map has no door leading here (e.g. due to a wall blocking it)
+                // we have to find an unused door header to populate the save station data.
+                // (Note: We could limit this to only saves that exist on the map, though
+                // for now that seems unnecessary.)
+                let unused_ptr = unused_door_ptrs
+                    .pop()
+                    .expect("No more available door headers for save station.");
+                self.write_one_door_data(unused_ptr, orig_entrance_door_ptr, false)?;
+                unused_ptr
             };
             self.rom
                 .write_u16(ptr + 2, (entrance_door_ptr & 0xFFFF) as isize)?;
@@ -3265,6 +3285,7 @@ pub fn make_rom(
         map: &randomization.map,
         other_door_ptr_pair_map: get_other_door_ptr_pair_map(&randomization.map),
         extra_setup_asm: HashMap::new(),
+        extra_door_asm_map: HashMap::new(),
         locked_door_state_indices: vec![],
         nothing_item_bitmask: [0; 0x40],
         map_reveal_bitmasks: vec![vec![]; NUM_AREAS],
@@ -3281,6 +3302,7 @@ pub fn make_rom(
     patcher.write_beam_door_tiles()?;
     patcher.apply_locked_doors()?;
     patcher.apply_map_tile_patches()?;
+    patcher.prepare_extra_door_asm()?;
     patcher.write_door_data()?;
     patcher.write_map_reveal_tiles()?;
     patcher.write_room_name_font()?;

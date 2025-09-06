@@ -69,8 +69,10 @@
         {% endif %}
         <h6>Map info</h6>
         <ul>
+        {% if settings.map_layout != "Small" %}
         <li>Every Zebes room from the vanilla game is placed somewhere. Once all movement items are
         collected, it is possible to reach every room with only Basic tech.
+        {% endif %}
         <li>Phantoon's Room always connects to the same room as the broken map station, and both are 
         in the same area as the broken save room.
         </ul>
