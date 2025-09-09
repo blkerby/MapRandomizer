@@ -21,6 +21,8 @@ v120?:
   - DONE: verify that compressed output decompresses to original
 - add more strats from Incomplete videos
 - maybe have second spoiler JSON file without the debugging data?
+- wall not showing on minimap when combined with door lock on same tile
+- acid showing up during fade-in transition of Acid Statue Room when already cleared.
 - DONE: implement useImplicitComeInWithGrappleJump
 
 
