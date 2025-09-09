@@ -159,7 +159,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         item_pool_multiple,
         starting_items_multiple,
         starting_items_single,
-        item_priorities: ["Early", "Default", "Late"]
+        item_priorities: ["Early", "Default", "Late", "Never"]
             .iter()
             .map(|x| x.to_string())
             .collect(),

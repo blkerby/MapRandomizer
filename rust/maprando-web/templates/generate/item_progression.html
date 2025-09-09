@@ -277,6 +277,7 @@
                                         <label class="col-sm-4 col-form-label text-end" for="item_priority_{{+ item }}">{{+ item }}</label>
                                         <div id="itemPriority{{ item }}" class="col-sm-7 btn-group" role="group">
                                             {% for priority in item_priorities %}
+						{% if ["Early", "Default", "Late"].contains(&priority.as_str()) || [ "Gravity", "Plasma", "SpaceJump", "ScrewAttack", "WallJump" ].contains(&item.as_str()) %}
                                                 <input type="radio" class="btn-check item-priority-input" name="item_priority_{{+ item }}" value="{{+ priority }}"
                                                     id="itemPriority{{+ item }}{{+ priority }}" autocomplete="off" 
                                                     onclick="itemProgressionChanged()"
@@ -284,6 +285,7 @@
                                                     checked
                                                     {% endif %}>
                                                 <label class="btn btn-outline-primary" for="itemPriority{{+ item }}{{+ priority }}">{{+ priority }}</label>
+						{% endif %}
                                             {% endfor %}
                                         </div>
                                     </div>
