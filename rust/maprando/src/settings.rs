@@ -374,6 +374,7 @@ pub enum KeyItemPriority {
     #[default]
     Default,
     Late,
+    Never,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

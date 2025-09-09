@@ -3138,6 +3138,16 @@ impl<'r> Randomizer<'r> {
         for x in &settings.item_progression_settings.item_pool {
             initial_items_remaining[x.item as usize] = x.count;
         }
+        
+        for kip in settings.item_progression_settings.key_item_priority.iter() {
+            if kip.priority == KeyItemPriority::Never {
+                if let Some(fip) = settings.item_progression_settings.filler_items.iter().find(|f| f.item == kip.item) {
+                    if fip.priority != FillerItemPriority::No { continue; }
+                }
+                // The item is not progression and not filler: remove it from the pool.
+                initial_items_remaining[kip.item as usize] = 0;
+            }
+        }
 
         let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
         for x in &settings.item_progression_settings.starting_items {
@@ -4305,6 +4315,7 @@ impl<'r> Randomizer<'r> {
                 let mut items = vec![];
                 for (i, priority_group) in item_priorities.iter().enumerate() {
                     for item_name in &priority_group.items {
+                        if priority_group.priority == KeyItemPriority::Never { continue; }
                         items.push(item_name.clone());
                         if i != 1 {
                             // Include a second copy of Early and Late items:
@@ -4335,6 +4346,7 @@ impl<'r> Randomizer<'r> {
             }
             ItemPriorityStrength::Heavy => {
                 for priority_group in item_priorities {
+                    if priority_group.priority == KeyItemPriority::Never { continue; }
                     let mut items = priority_group.items.clone();
                     items.shuffle(rng);
                     for item_name in &items {
