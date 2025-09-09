@@ -3141,10 +3141,7 @@ impl<'r> Randomizer<'r> {
         
         for kip in settings.item_progression_settings.key_item_priority.iter() {
             if kip.priority == KeyItemPriority::Never {
-                if let Some(fip) = settings.item_progression_settings.filler_items.iter().find(|f| f.item == kip.item) {
-                    if fip.priority != FillerItemPriority::No { continue; }
-                }
-                // The item is not progression and not filler: remove it from the pool.
+                // Items set to 'Never' are removed from the pool.
                 initial_items_remaining[kip.item as usize] = 0;
             }
         }
@@ -4311,7 +4308,7 @@ impl<'r> Randomizer<'r> {
         }
         match item_priority_strength {
             ItemPriorityStrength::Moderate => {
-                assert!(item_priorities.len() == 3);
+                assert!(item_priorities.len() == 4);
                 let mut items = vec![];
                 for (i, priority_group) in item_priorities.iter().enumerate() {
                     for item_name in &priority_group.items {
