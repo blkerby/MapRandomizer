@@ -41,8 +41,6 @@ struct Args {
     debug: bool,
     #[arg(long, action)]
     static_visualizer: bool,
-    #[arg(long)]
-    parallelism: Option<usize>,
     #[arg(long, action)]
     dev: bool,
     #[arg(long, default_value_t = 8080)]
@@ -214,6 +212,8 @@ async fn main() {
         }
         app
     })
+    .workers(1)
+    .worker_max_blocking_threads(1)
     .bind(("0.0.0.0", port))
     .unwrap()
     .run()

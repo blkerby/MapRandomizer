@@ -76,24 +76,19 @@ struct RandomizeResponse {
     seed_url: String,
 }
 
-#[post("/randomize")]
-async fn randomize(
-    req: MultipartForm<RandomizeRequest>,
-    http_req: HttpRequest,
+struct AttemptOutput {
+    random_seed: usize,
+    map_seed: usize,
+    door_randomization_seed: usize,
+    item_placement_seed: usize,
+    randomization: Randomization,
+    spoiler_log: SpoilerLog,
+}
+
+fn handle_randomize_request(
+    mut settings: RandomizerSettings,
     app_data: web::Data<AppData>,
-) -> impl Responder {
-    let mut settings =
-        match try_upgrade_settings(req.settings.0.to_string(), &app_data.preset_data, true) {
-            Ok(s) => s.1,
-            Err(e) => {
-                return HttpResponse::BadRequest().body(e.to_string());
-            }
-        };
-
-    if settings.other_settings.random_seed == Some(0) {
-        return HttpResponse::BadRequest().body("Invalid random seed: 0");
-    }
-
+) -> (Option<AttemptOutput>, Vec<DifficultyConfig>) {
     let mut validated_preset = false;
     for s in &app_data.preset_data.full_presets {
         if s == &settings {
@@ -106,9 +101,6 @@ async fn randomize(
     }
 
     let skill_settings = &settings.skill_assumption_settings;
-    let item_settings = &settings.item_progression_settings;
-    let qol_settings = &settings.quality_of_life_settings;
-    let other_settings = &settings.other_settings;
     let race_mode = settings.other_settings.race_mode;
     let random_seed = if settings.other_settings.random_seed.is_none() || race_mode {
         get_random_seed()
@@ -120,10 +112,6 @@ async fn randomize(
     } else {
         random_seed
     };
-
-    if skill_settings.ridley_proficiency < 0.0 || skill_settings.ridley_proficiency > 1.0 {
-        return HttpResponse::BadRequest().body("Invalid Ridley proficiency");
-    }
     let mut rng_seed = [0u8; 32];
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
@@ -164,14 +152,6 @@ async fn randomize(
         "Random seed={random_seed}, max_attempts_per_map={max_attempts_per_map}, max_map_attempts={max_map_attempts}, difficulty={:?}",
         difficulty_tiers[0]
     );
-
-    struct AttemptOutput {
-        map_seed: usize,
-        door_randomization_seed: usize,
-        item_placement_seed: usize,
-        randomization: Randomization,
-        spoiler_log: SpoilerLog,
-    }
 
     let time_start_attempts = Instant::now();
     let mut attempt_num = 0;
@@ -241,6 +221,7 @@ async fn randomize(
                 randomization.display_seed,
             );
             output_opt = Some(AttemptOutput {
+                random_seed,
                 map_seed,
                 door_randomization_seed,
                 item_placement_seed,
@@ -251,15 +232,50 @@ async fn randomize(
         }
     }
 
+    info!(
+        "Wall-clock time for attempts: {:?} sec",
+        time_start_attempts.elapsed().as_secs_f32()
+    );
+    (output_opt, difficulty_tiers)
+}
+
+#[post("/randomize")]
+async fn randomize(
+    req: MultipartForm<RandomizeRequest>,
+    http_req: HttpRequest,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let settings =
+        match try_upgrade_settings(req.settings.0.to_string(), &app_data.preset_data, true) {
+            Ok(s) => s.1,
+            Err(e) => {
+                return HttpResponse::BadRequest().body(e.to_string());
+            }
+        };
+
+    if settings.other_settings.random_seed == Some(0) {
+        return HttpResponse::BadRequest().body("Invalid random seed: 0");
+    }
+
+    if settings.skill_assumption_settings.ridley_proficiency < 0.0
+        || settings.skill_assumption_settings.ridley_proficiency > 1.0
+    {
+        return HttpResponse::BadRequest().body("Invalid Ridley proficiency");
+    }
+
+    let settings_copy = settings.clone();
+    let app_data_copy = app_data.clone();
+    let (output_opt, difficulty_tiers) = actix_web::rt::task::spawn_blocking(|| {
+        handle_randomize_request(settings_copy, app_data_copy)
+    })
+    .await
+    .unwrap();
+
     if output_opt.is_none() {
         return HttpResponse::InternalServerError().body("Failed too many randomization attempts");
     }
     let output = output_opt.unwrap();
 
-    info!(
-        "Wall-clock time for attempts: {:?} sec",
-        time_start_attempts.elapsed().as_secs_f32()
-    );
     let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
         Ok(n) => n.as_millis() as usize,
         Err(_) => panic!("SystemTime before UNIX EPOCH!"),
@@ -273,37 +289,39 @@ async fn randomize(
             .map(|x| format!("{x:?}"))
             .unwrap_or_default(),
         http_headers: format_http_headers(&http_req),
-        random_seed,
+        random_seed: output.random_seed,
         map_seed: output.map_seed,
         door_randomization_seed: output.door_randomization_seed,
         item_placement_seed: output.item_placement_seed,
         settings: settings.clone(),
-        race_mode,
-        preset: skill_settings.preset.clone(),
-        item_progression_preset: item_settings.preset.clone(),
+        race_mode: settings.other_settings.race_mode,
+        preset: settings.skill_assumption_settings.preset.clone(),
+        item_progression_preset: settings.item_progression_settings.preset.clone(),
         difficulty: difficulty_tiers[0].clone(),
-        quality_of_life_preset: qol_settings.preset.clone(),
-        supers_double: qol_settings.supers_double,
-        mother_brain_fight: to_variant_name(&qol_settings.mother_brain_fight)
+        quality_of_life_preset: settings.quality_of_life_settings.preset.clone(),
+        supers_double: settings.quality_of_life_settings.supers_double,
+        mother_brain_fight: to_variant_name(&settings.quality_of_life_settings.mother_brain_fight)
             .unwrap()
             .to_string(),
-        escape_enemies_cleared: qol_settings.escape_enemies_cleared,
-        escape_refill: qol_settings.escape_refill,
-        escape_movement_items: qol_settings.escape_movement_items,
-        item_markers: to_variant_name(&qol_settings.item_markers)
+        escape_enemies_cleared: settings.quality_of_life_settings.escape_enemies_cleared,
+        escape_refill: settings.quality_of_life_settings.escape_refill,
+        escape_movement_items: settings.quality_of_life_settings.escape_movement_items,
+        item_markers: to_variant_name(&settings.quality_of_life_settings.item_markers)
             .unwrap()
             .to_string(),
-        all_items_spawn: qol_settings.all_items_spawn,
-        acid_chozo: qol_settings.acid_chozo,
-        remove_climb_lava: qol_settings.remove_climb_lava,
-        buffed_drops: qol_settings.buffed_drops,
-        fast_elevators: qol_settings.fast_elevators,
-        fast_doors: qol_settings.fast_doors,
-        fast_pause_menu: qol_settings.fast_pause_menu,
-        respin: qol_settings.respin,
-        infinite_space_jump: qol_settings.infinite_space_jump,
-        momentum_conservation: qol_settings.momentum_conservation,
-        fanfares: to_variant_name(&qol_settings.fanfares).unwrap().to_string(),
+        all_items_spawn: settings.quality_of_life_settings.all_items_spawn,
+        acid_chozo: settings.quality_of_life_settings.acid_chozo,
+        remove_climb_lava: settings.quality_of_life_settings.remove_climb_lava,
+        buffed_drops: settings.quality_of_life_settings.buffed_drops,
+        fast_elevators: settings.quality_of_life_settings.fast_elevators,
+        fast_doors: settings.quality_of_life_settings.fast_doors,
+        fast_pause_menu: settings.quality_of_life_settings.fast_pause_menu,
+        respin: settings.quality_of_life_settings.respin,
+        infinite_space_jump: settings.quality_of_life_settings.infinite_space_jump,
+        momentum_conservation: settings.quality_of_life_settings.momentum_conservation,
+        fanfares: to_variant_name(&settings.quality_of_life_settings.fanfares)
+            .unwrap()
+            .to_string(),
         objectives: output
             .randomization
             .objectives
@@ -320,15 +338,15 @@ async fn randomize(
         },
         map_layout: settings.map_layout.clone(),
         save_animals: to_variant_name(&settings.save_animals).unwrap().to_string(),
-        early_save: qol_settings.early_save,
-        area_assignment: to_variant_name(&other_settings.area_assignment)
+        early_save: settings.quality_of_life_settings.early_save,
+        area_assignment: to_variant_name(&settings.other_settings.area_assignment)
             .unwrap()
             .to_string(),
-        wall_jump: to_variant_name(&other_settings.wall_jump)
+        wall_jump: to_variant_name(&settings.other_settings.wall_jump)
             .unwrap()
             .to_string(),
         vanilla_map: settings.map_layout == "Vanilla",
-        ultra_low_qol: other_settings.ultra_low_qol,
+        ultra_low_qol: settings.other_settings.ultra_low_qol,
     };
 
     let seed_name = &output.randomization.seed_name;
