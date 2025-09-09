@@ -17,7 +17,7 @@ use maprando_game::{LinksDataGroup, Map};
 use rand::{RngCore, SeedableRng};
 use serde_derive::{Deserialize, Serialize};
 use serde_variant::to_variant_name;
-use std::time::{Instant, SystemTime};
+use std::time::{Duration, Instant, SystemTime};
 
 #[derive(Serialize, Deserialize)]
 struct SeedData {
@@ -83,12 +83,19 @@ struct AttemptOutput {
     item_placement_seed: usize,
     randomization: Randomization,
     spoiler_log: SpoilerLog,
+    difficulty_tiers: Vec<DifficultyConfig>,
+}
+
+#[derive(Debug)]
+enum AttemptError {
+    TooManyAttempts,
+    TimedOut,
 }
 
 fn handle_randomize_request(
     mut settings: RandomizerSettings,
     app_data: web::Data<AppData>,
-) -> (Option<AttemptOutput>, Vec<DifficultyConfig>) {
+) -> Result<AttemptOutput, AttemptError> {
     let mut validated_preset = false;
     for s in &app_data.preset_data.full_presets {
         if s == &settings {
@@ -141,6 +148,7 @@ fn handle_randomize_request(
     );
     let map_layout = settings.map_layout.clone();
     let max_attempts = 2000;
+    let attempts_timeout = Duration::from_secs(25);
     let max_attempts_per_map = if settings.start_location_settings.mode == StartLocationMode::Random
     {
         10
@@ -155,9 +163,8 @@ fn handle_randomize_request(
 
     let time_start_attempts = Instant::now();
     let mut attempt_num = 0;
-    let mut output_opt: Option<AttemptOutput> = None;
     let mut map_batch: Vec<Map> = vec![];
-    'attempts: for _ in 0..max_map_attempts {
+    for _ in 0..max_map_attempts {
         let map_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
         let door_randomization_seed = (rng.next_u64() & 0xFFFFFFFF) as usize;
 
@@ -213,6 +220,9 @@ fn handle_randomize_request(
                 Ok(x) => x,
                 Err(e) => {
                     info!("Attempt {attempt_num}/{max_attempts}: Randomization failed: {e}");
+                    if time_start_attempts.elapsed() > attempts_timeout {
+                        return Err(AttemptError::TimedOut);
+                    }
                     continue;
                 }
             };
@@ -220,23 +230,24 @@ fn handle_randomize_request(
                 "Successful attempt {attempt_num}/{attempt_num}/{max_attempts}: display_seed={}, random_seed={random_seed}, map_seed={map_seed}, door_randomization_seed={door_randomization_seed}, item_placement_seed={item_placement_seed}",
                 randomization.display_seed,
             );
-            output_opt = Some(AttemptOutput {
+
+            info!(
+                "Wall-clock time for attempts: {:?} sec",
+                time_start_attempts.elapsed().as_secs_f32()
+            );
+            let output_result = Ok(AttemptOutput {
                 random_seed,
                 map_seed,
                 door_randomization_seed,
                 item_placement_seed,
                 randomization,
                 spoiler_log,
+                difficulty_tiers,
             });
-            break 'attempts;
+            return output_result;
         }
     }
-
-    info!(
-        "Wall-clock time for attempts: {:?} sec",
-        time_start_attempts.elapsed().as_secs_f32()
-    );
-    (output_opt, difficulty_tiers)
+    Err(AttemptError::TooManyAttempts)
 }
 
 #[post("/randomize")]
@@ -265,16 +276,23 @@ async fn randomize(
 
     let settings_copy = settings.clone();
     let app_data_copy = app_data.clone();
-    let (output_opt, difficulty_tiers) = actix_web::rt::task::spawn_blocking(|| {
+    let output_result = actix_web::rt::task::spawn_blocking(|| {
         handle_randomize_request(settings_copy, app_data_copy)
     })
     .await
     .unwrap();
 
-    if output_opt.is_none() {
-        return HttpResponse::InternalServerError().body("Failed too many randomization attempts");
-    }
-    let output = output_opt.unwrap();
+    let output = match output_result {
+        Ok(x) => x,
+        Err(AttemptError::TimedOut) => {
+            return HttpResponse::InternalServerError()
+                .body("Failed too many randomization attempts (timeout reached)");
+        }
+        Err(AttemptError::TooManyAttempts) => {
+            return HttpResponse::InternalServerError()
+                .body("Failed too many randomization attempts (maximum attempt count reached)");
+        }
+    };
 
     let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
         Ok(n) => n.as_millis() as usize,
@@ -297,7 +315,7 @@ async fn randomize(
         race_mode: settings.other_settings.race_mode,
         preset: settings.skill_assumption_settings.preset.clone(),
         item_progression_preset: settings.item_progression_settings.preset.clone(),
-        difficulty: difficulty_tiers[0].clone(),
+        difficulty: output.difficulty_tiers[0].clone(),
         quality_of_life_preset: settings.quality_of_life_settings.preset.clone(),
         supers_double: settings.quality_of_life_settings.supers_double,
         mother_brain_fight: to_variant_name(&settings.quality_of_life_settings.mother_brain_fight)
