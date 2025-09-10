@@ -1961,7 +1961,15 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_locked_doors(&mut self) -> Result<()> {
-        for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
+        let mut locked_doors = self.randomization.locked_doors.clone();
+
+        // Process walls before other door types:
+        locked_doors.sort_by_key(|x| match x.door_type {
+            DoorType::Wall => 0,
+            _ => 1,
+        });
+
+        for (i, locked_door) in locked_doors.iter().enumerate() {
             let mut ptr_pairs = vec![locked_door.src_ptr_pair];
             if locked_door.bidirectional {
                 ptr_pairs.push(locked_door.dst_ptr_pair);
