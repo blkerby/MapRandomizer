@@ -3138,13 +3138,6 @@ impl<'r> Randomizer<'r> {
         for x in &settings.item_progression_settings.item_pool {
             initial_items_remaining[x.item as usize] = x.count;
         }
-        
-        for kip in settings.item_progression_settings.key_item_priority.iter() {
-            if kip.priority == KeyItemPriority::Never {
-                // Items set to 'Never' are removed from the pool.
-                initial_items_remaining[kip.item as usize] = 0;
-            }
-        }
 
         let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
         for x in &settings.item_progression_settings.starting_items {
@@ -3160,6 +3153,13 @@ impl<'r> Randomizer<'r> {
             < minimal_tank_count
         {
             initial_items_remaining[Item::ETank as usize] += 1;
+        }
+
+        for kip in settings.item_progression_settings.key_item_priority.iter() {
+            if kip.priority == KeyItemPriority::Never {
+                // Items set to 'Never' are removed from the pool.
+                initial_items_remaining[kip.item as usize] = 0;
+            }
         }
 
         let target_initial_items = initial_items_remaining.clone();
@@ -4311,8 +4311,10 @@ impl<'r> Randomizer<'r> {
                 assert!(item_priorities.len() == 4);
                 let mut items = vec![];
                 for (i, priority_group) in item_priorities.iter().enumerate() {
+                    if priority_group.priority == KeyItemPriority::Never {
+                        continue;
+                    }
                     for item_name in &priority_group.items {
-                        if priority_group.priority == KeyItemPriority::Never { continue; }
                         items.push(item_name.clone());
                         if i != 1 {
                             // Include a second copy of Early and Late items:
@@ -4343,7 +4345,9 @@ impl<'r> Randomizer<'r> {
             }
             ItemPriorityStrength::Heavy => {
                 for priority_group in item_priorities {
-                    if priority_group.priority == KeyItemPriority::Never { continue; }
+                    if priority_group.priority == KeyItemPriority::Never {
+                        continue;
+                    }
                     let mut items = priority_group.items.clone();
                     items.shuffle(rng);
                     for item_name in &items {
@@ -4366,14 +4370,12 @@ impl<'r> Randomizer<'r> {
         if rng.gen_bool(0.5) {
             return;
         }
-        let etank_idx = item_precedence
-            .iter()
-            .position(|&x| x == Item::ETank)
-            .unwrap();
-        let reserve_idx = item_precedence
-            .iter()
-            .position(|&x| x == Item::ReserveTank)
-            .unwrap();
+        let Some(etank_idx) = item_precedence.iter().position(|&x| x == Item::ETank) else {
+            return;
+        };
+        let Some(reserve_idx) = item_precedence.iter().position(|&x| x == Item::ReserveTank) else {
+            return;
+        };
         item_precedence[etank_idx] = Item::ReserveTank;
         item_precedence[reserve_idx] = Item::ETank;
     }
