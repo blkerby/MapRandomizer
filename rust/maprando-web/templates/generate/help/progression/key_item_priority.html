@@ -25,6 +25,15 @@
           next step. Otherwise, the randomizer replaces the last key item with the next one in the priority order and
           tries again, continuing this way until it either succeeds or all item types are exhausted, in which case it
           will try again with a new map and new item priority order.</p>
+        <p>If a key item's priority is set to "Never", that item will never be placed. All occurrences of it will be removed
+          from the item pool, which can free up space for extra ammo if desired. <b>Warning:</b> There is no "fallback" if the
+          item would be required for a given randomization attempt: that attempt will fail. Removing certain items can make it impossible to
+          create a playable seed, depending on other settings. It is strongly advised to review the Logic pages if you are unsure what
+          affect removing an item can have at your chosen difficulty level. An example of this is if Gravity Suit is removed while Draygon
+          is a required objective: you will need to ensure your chosen difficulty allows for notable strats and tech that allow Draygon to
+          be defeated without Gravity Suit. If you have trouble creating seeds with this setting, considering reviewing your Objectives and
+          Difficulty settings if you really
+          want to be sure these items are not included.</p>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
