@@ -172,6 +172,8 @@ is_delayed_plm:
     BEQ .done
     CMP #$DB44      ; Set Metroids cleared states when required (needs to happen after enemy initialization)
     BEQ .done
+    CMP #$D6D6      ; Acid Statue Room chozo (overwrites FX)
+    BEQ .done
 
     ; Beam door PLMS are delayed, because their graphics could be overwritten if CRE is reloaded,
     ; or if neighboring rooms have different beam doors.
