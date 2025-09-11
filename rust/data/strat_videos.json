@@ -29738,9 +29738,9 @@
   {
     "room_id": 167,
     "strat_id": 13,
-    "video_id": 2238,
+    "video_id": 7922,
     "created_user": "Sam",
-    "note": "Swing until Samus' bonks against the ceiling to maximize her speed and release Grapple at the correct time on her way upward. Catch the rightmost Grapple block with a precise angle shot.",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -29782,6 +29782,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": "Done with shot button mapped to an electronic drumpad."
+  },
+  {
+    "room_id": 167,
+    "strat_id": 30,
+    "video_id": 2238,
+    "created_user": "Sam",
+    "note": "Swing until Samus' bonks against the ceiling to maximize her speed and release Grapple at the correct time on her way upward. Catch the rightmost Grapple block with a precise angle shot.",
+    "dev_note": ""
   },
   {
     "room_id": 167,

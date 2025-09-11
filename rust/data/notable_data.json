@@ -1026,14 +1026,6 @@
   {
     "room_id": 66,
     "room_name": "Red Tower",
-    "notable_id": 6,
-    "name": "Grapple Teleport Inside Wall",
-    "difficulty": "Extreme",
-    "video_id": 143
-  },
-  {
-    "room_id": 66,
-    "room_name": "Red Tower",
     "notable_id": 7,
     "name": "Midair HBJ",
     "difficulty": "Expert",
@@ -1824,14 +1816,6 @@
     "video_id": 51
   },
   {
-    "room_id": 147,
-    "room_name": "The Jail",
-    "notable_id": 2,
-    "name": "Grapple Teleport Inside Wall",
-    "difficulty": "Extreme",
-    "video_id": 101
-  },
-  {
     "room_id": 135,
     "room_name": "The Worst Room In The Game",
     "notable_id": 1,
@@ -2403,7 +2387,7 @@
     "room_id": 186,
     "room_name": "Botwoon Energy Tank Room",
     "notable_id": 2,
-    "name": "Sand Grapple Boost",
+    "name": "Sand Grapple Boost (Left to Right)",
     "difficulty": "Insane",
     "video_id": 111
   },

@@ -1018,6 +1018,9 @@ pub enum MainEntranceCondition {
     ComeInStutterShinecharging {
         min_tiles: Float,
     },
+    ComeInStutterGettingBlueSpeed {
+        min_tiles: Float,
+    },
     ComeInWithBombBoost {},
     ComeInWithDoorStuckSetup {
         heated: bool,
@@ -3946,6 +3949,13 @@ impl GameData {
                 }
             }
             "comeInStutterShinecharging" => MainEntranceCondition::ComeInStutterShinecharging {
+                min_tiles: Float::new(
+                    value["minTiles"]
+                        .as_f32()
+                        .context("Expecting number 'minTiles'")?,
+                ),
+            },
+            "comeInStutterGettingBlueSpeed" => MainEntranceCondition::ComeInStutterGettingBlueSpeed {
                 min_tiles: Float::new(
                     value["minTiles"]
                         .as_f32()

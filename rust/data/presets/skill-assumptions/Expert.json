@@ -734,6 +734,11 @@
             "enabled": false
         },
         {
+            "id": 209,
+            "name": "canGrappleTeleportWallEscape",
+            "enabled": false
+        },
+        {
             "id": 57,
             "name": "canUnmorphGrappleHang",
             "enabled": false
@@ -2772,13 +2777,6 @@
             "enabled": false
         },
         {
-            "room_id": 66,
-            "notable_id": 6,
-            "room_name": "Red Tower",
-            "notable_name": "Grapple Teleport Inside Wall",
-            "enabled": false
-        },
-        {
             "room_id": 80,
             "notable_id": 1,
             "room_name": "Warehouse Energy Tank Room",
@@ -2930,13 +2928,6 @@
             "notable_id": 2,
             "room_name": "Ridley's Room",
             "notable_name": "G-Mode Crystal Flash Stuck Ridley",
-            "enabled": false
-        },
-        {
-            "room_id": 147,
-            "notable_id": 2,
-            "room_name": "The Jail",
-            "notable_name": "Grapple Teleport Inside Wall",
             "enabled": false
         },
         {
@@ -3692,7 +3683,7 @@
             "room_id": 186,
             "notable_id": 2,
             "room_name": "Botwoon Energy Tank Room",
-            "notable_name": "Sand Grapple Boost",
+            "notable_name": "Sand Grapple Boost (Left to Right)",
             "enabled": false
         },
         {

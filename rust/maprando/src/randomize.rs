@@ -708,7 +708,10 @@ impl<'a> Preprocessor<'a> {
                 door_orientation,
             } => self.get_come_in_with_spark_reqs(exit_condition, *position, *door_orientation),
             MainEntranceCondition::ComeInStutterShinecharging { min_tiles } => {
-                self.get_come_in_stutter_shinecharging_reqs(exit_condition, min_tiles.get())
+                self.get_come_in_stutter_shinecharging_reqs(exit_condition, min_tiles.get(), true)
+            }
+            MainEntranceCondition::ComeInStutterGettingBlueSpeed { min_tiles } => {
+                self.get_come_in_stutter_shinecharging_reqs(exit_condition, min_tiles.get(), false)
             }
             MainEntranceCondition::ComeInWithBombBoost {} => {
                 self.get_come_in_with_bomb_boost_reqs(exit_condition)
@@ -1963,6 +1966,7 @@ impl<'a> Preprocessor<'a> {
         &self,
         exit_condition: &ExitCondition,
         min_tiles: f32,
+        include_shinecharge: bool,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithRunway {
@@ -1984,10 +1988,12 @@ impl<'a> Preprocessor<'a> {
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
                 ));
                 reqs.push(Requirement::Item(Item::SpeedBooster as ItemId));
-                reqs.push(Requirement::ShineCharge {
-                    used_tiles: Float::new(45.0),
-                    heated: false,
-                });
+                if include_shinecharge {
+                    reqs.push(Requirement::ShineCharge {
+                        used_tiles: Float::new(45.0),
+                        heated: false,
+                    });
+                }
                 if *heated {
                     let heat_frames = if *from_exit_node {
                         compute_run_frames(min_tiles) * 2 + 20

@@ -360,6 +360,12 @@
         "video_id": 775
     },
     {
+        "tech_id": 209,
+        "name": "canGrappleTeleportWallEscape",
+        "difficulty": "Extreme",
+        "video_id": 144
+    },
+    {
         "tech_id": 56,
         "name": "canGrappleBombHang",
         "difficulty": "Expert",

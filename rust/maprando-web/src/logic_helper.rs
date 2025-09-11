@@ -715,6 +715,11 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                         game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
                     ));
                 }
+                MainEntranceCondition::ComeInStutterGettingBlueSpeed { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_STUTTER_WATER_SHINECHARGE],
+                    ));
+                }
                 MainEntranceCondition::ComeInWithDoorStuckSetup {
                     door_orientation, ..
                 } => {
