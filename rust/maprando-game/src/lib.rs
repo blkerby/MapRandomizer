@@ -3955,13 +3955,15 @@ impl GameData {
                         .context("Expecting number 'minTiles'")?,
                 ),
             },
-            "comeInStutterGettingBlueSpeed" => MainEntranceCondition::ComeInStutterGettingBlueSpeed {
-                min_tiles: Float::new(
-                    value["minTiles"]
-                        .as_f32()
-                        .context("Expecting number 'minTiles'")?,
-                ),
-            },
+            "comeInStutterGettingBlueSpeed" => {
+                MainEntranceCondition::ComeInStutterGettingBlueSpeed {
+                    min_tiles: Float::new(
+                        value["minTiles"]
+                            .as_f32()
+                            .context("Expecting number 'minTiles'")?,
+                    ),
+                }
+            }
             "comeInWithBombBoost" => MainEntranceCondition::ComeInWithBombBoost {},
             "comeInWithDoorStuckSetup" => {
                 let node_json = &self.node_json_map[&(room_id, from_node_id)];
