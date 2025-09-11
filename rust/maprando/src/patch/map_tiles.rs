@@ -1961,42 +1961,47 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn indicate_locked_doors(&mut self) -> Result<()> {
-        let mut locked_doors = self.randomization.locked_doors.clone();
-
-        // Process walls before other door types:
-        locked_doors.sort_by_key(|x| match x.door_type {
-            DoorType::Wall => 0,
-            _ => 1,
-        });
-
-        for (i, locked_door) in locked_doors.iter().enumerate() {
-            let mut ptr_pairs = vec![locked_door.src_ptr_pair];
-            if locked_door.bidirectional {
-                ptr_pairs.push(locked_door.dst_ptr_pair);
-            }
-            for ptr_pair in ptr_pairs {
-                let (room_idx, door_idx) =
-                    self.game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
-                let area = self.randomization.map.area[room_idx];
-                let room_geom = &self.game_data.room_geometry[room_idx];
-                let door = &room_geom.doors[door_idx];
-                let room_id = self.game_data.room_id_by_ptr[&room_geom.rom_address];
-                let Some(tile) = self.get_room_tile(room_id, door.x as isize, door.y as isize)
-                else {
-                    continue;
+        for pass in [0, 1] {
+            for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
+                // Process wall doors on a first pass, all other door types on second pass.
+                let valid = match (pass, locked_door.door_type) {
+                    (0, DoorType::Wall) => true,
+                    (0, _) => false,
+                    (1, DoorType::Wall) => false,
+                    (1, _) => true,
+                    _ => panic!("internal error"),
                 };
-                let new_tile = apply_door_lock(tile, locked_door, door);
+                if !valid {
+                    continue;
+                }
+                let mut ptr_pairs = vec![locked_door.src_ptr_pair];
+                if locked_door.bidirectional {
+                    ptr_pairs.push(locked_door.dst_ptr_pair);
+                }
+                for ptr_pair in ptr_pairs {
+                    let (room_idx, door_idx) =
+                        self.game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+                    let area = self.randomization.map.area[room_idx];
+                    let room_geom = &self.game_data.room_geometry[room_idx];
+                    let door = &room_geom.doors[door_idx];
+                    let room_id = self.game_data.room_id_by_ptr[&room_geom.rom_address];
+                    let Some(tile) = self.get_room_tile(room_id, door.x as isize, door.y as isize)
+                    else {
+                        continue;
+                    };
+                    let new_tile = apply_door_lock(tile, locked_door, door);
 
-                if locked_door.door_type == DoorType::Wall {
-                    // Walls are permanent, so we apply the change to the tile directly.
-                    // This is necessary in order to support multiple walls on the same tile.
-                    *tile = new_tile;
-                } else {
-                    // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
-                    // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
-                    // the item bits start.
-                    let item_idx = self.locked_door_state_indices[i] + 512;
-                    self.dynamic_tile_data[area].push((item_idx, room_id, new_tile));
+                    if locked_door.door_type == DoorType::Wall {
+                        // Walls are permanent, so we apply the change to the tile directly.
+                        // This is necessary in order to support multiple walls on the same tile.
+                        *tile = new_tile;
+                    } else {
+                        // Here, to make doors disappear once unlocked, we're (slightly awkwardly) reusing the mechanism for
+                        // making item dots disappear. Door bits are stored at $D8B0, which is 512 bits after $D870 where
+                        // the item bits start.
+                        let item_idx = self.locked_door_state_indices[i] + 512;
+                        self.dynamic_tile_data[area].push((item_idx, room_id, new_tile));
+                    }
                 }
             }
         }
