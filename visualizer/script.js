@@ -991,6 +991,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					dr.classList.add("ui-icon-hoverable");
 					dr.onclick = ev => {
 						show_item_details(d.door_type + " door", d.location, s, d);
+						document.getElementById("path-highlight").innerHTML = "";
 					}
 					return dr;
 				}
