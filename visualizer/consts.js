@@ -47,8 +47,7 @@ let door_enum = {
 	"spazer":5,
 	"wave":6,
 	"plasma":7,
-	"gray":8,
-	"blue":9,
+	"blue":8,
 };
 let itemtypes = {
 	"majors": ["Varia",
