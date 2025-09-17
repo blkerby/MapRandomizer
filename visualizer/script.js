@@ -780,6 +780,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (step === null){
 				step = c.summary.length;
 			}
+			step--;
 			let prevdoors = 0;
 			for (let i = 0; i < step; i++){
 				prevdoors += c.summary[i].doors.length;
@@ -866,8 +867,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			item_list.className = "door-list";
 			let doornums = new Map();
 			try {
-			if (step_limit !== null && c.details[step_limit].doors){
-				for (let dr of c.details[step_limit].doors){
+			if (c.details[step].doors){
+				for (let dr of c.details[step].doors){
 					let dt = dr.door_type;
 					if (doornums.has(dt)){
 						doornums.set(dt, doornums.get(dt)+1);
