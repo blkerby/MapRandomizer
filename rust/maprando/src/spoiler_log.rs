@@ -772,9 +772,9 @@ pub fn get_spoiler_door_details(
         get_spoiler_route_birectional(randomizer, state, unlock_vertex_id, traverser_pair);
     let summary = get_spoiler_door_summary(randomizer, unlock_vertex_id, locked_door_idx);
     SpoilerDoorDetails {
-        door_type:summary.door_type,
-        location:summary.location,
-        direction:summary.direction,
+        door_type: summary.door_type,
+        location: summary.location,
+        direction: summary.direction,
         obtain_route,
         return_route,
     }
@@ -809,7 +809,8 @@ pub fn get_spoiler_door_summary(
     let mut coords = door_vertex_info.room_coords;
     let ptr_pairs = vec![locked_door.src_ptr_pair];
     for ptr_pair in ptr_pairs {
-        let (room_idx, door_idx) = randomizer.game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+        let (room_idx, door_idx) =
+            randomizer.game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
         if !randomizer.map.room_mask[room_idx] {
             continue;
         }
