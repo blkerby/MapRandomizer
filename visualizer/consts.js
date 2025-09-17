@@ -38,7 +38,7 @@ let item_plm = {
 	"None": 22,
 	"Hidden": 23,
 };
-let doors = {
+let door_enum = {
 	"red":0,
 	"green":1,
 	"yellow":2,
@@ -47,7 +47,8 @@ let doors = {
 	"spazer":5,
 	"wave":6,
 	"plasma":7,
-	"blue":8,
+	"gray":8,
+	"blue":9,
 };
 let itemtypes = {
 	"majors": ["Varia",

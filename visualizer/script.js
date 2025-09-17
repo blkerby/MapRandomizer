@@ -22,10 +22,16 @@ let icon = id => {
 	el.style.backgroundPositionX = `-${id * 16}px`;
 	return el;
 }
-let door = id => {
+let ui_door = id => {
 	let el = document.createElement("span");
 	el.className = "door-icon";
 	el.style.backgroundPositionX = `-${id * 16}px`;
+	return el;
+}
+let map_door = id => {
+	let el = document.createElement("span");
+	el.className = "map-door-icon";
+	el.style.backgroundPositionX = `-${id * 18}px`;
 	return el;
 }
 
@@ -779,7 +785,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				prevdoors += c.summary[i].doors.length;
 			}
 			if (prevdoors != 0){
-				let dr = door(doors["blue"]);
+				let dr = ui_door(door_enum["blue"]);
 				let drnum = document.createElement("span");
 				drnum.innerHTML = prevdoors;
 				non_unique_item_list.appendChild(dr);
@@ -821,8 +827,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				}
 			}
 			si.appendChild(unique_item_list);
-			
-			
 
 			let collectible_header = document.createElement("div");
 			collectible_header.className = "category";
@@ -861,6 +865,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			item_list = document.createElement("div");
 			item_list.className = "door-list";
 			let doornums = new Map();
+			try {
 			if (step_limit !== null && c.details[step_limit].doors){
 				for (let dr of c.details[step_limit].doors){
 					let dt = dr.door_type;
@@ -870,9 +875,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 						doornums.set(dt,1);
 					}
 				}
-			}
+			}}catch(ERR){}
 			for (let [dt, num] of doornums){
-				let d = door(doors[dt]);
+				let d = ui_door(door_enum[dt]);
 				item_list.appendChild(d);
 				let nspan = document.createElement("span");
 				nspan.innerHTML = num;
@@ -977,10 +982,16 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		document.getElementById("path-highlight").innerHTML += `<path d="${path}" id="path-in"/>`
 	}
 	function roomDoor(room, node){
-		for (let step of c.details){
+		for (let s in c.details){
+			let step = c.details[s];
 			for (let d of step.doors){
 				if (d.location.room==room && d.location.node ==node){
-					return door(doors[d.door_type]);
+					let dr = ui_door(door_enum[d.door_type]);
+					dr.classList.add("ui-icon-hoverable");
+					dr.onclick = ev => {
+						show_item_details(d.door_type + " door", d.location, s, d);
+					}
+					return dr;
 				}
 			}
 		}
@@ -1619,6 +1630,38 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			document.getElementById("overlay").appendChild(e);
 			if (screen.availHeight < 600+32)
 			document.getElementById("sidebar-info").style.maxHeight = screen.availHeight-32 + "px";
+		}
+	}
+	// doors
+	for (let v in c.details){
+		let deet = c.details[v];
+		for(let d of deet.doors){
+			let elem = map_door(door_enum[d.door_type]);
+			elem.id = d.location.room + ": " + d.location.node;
+			let ox = 0;
+			let oy = 0;
+			if (d.direction == "up" || d.direction == "down") {
+				elem.style.rotate = "90deg";
+				ox = -1;
+				oy = 12;
+			} else {
+				ox = 12;
+			}
+			elem.style.left = d.location.coords[0] * 24 + 27 + ox + "px";
+			elem.style.top = d.location.coords[1] * 24 + 27 + oy + "px";
+			elem.onclick = ev => {
+				if (document.getElementById("spoilers").checked || step_limit == null || v < step_limit) {
+					show_item_details(d.door_type + " door", d.location, v, d, true);
+				}
+			}
+			elem.onpointerenter = ev => {
+				hideRoom();
+				elem.style.scale = 1.5;
+			}
+			elem.onpointerleave = ev => {
+				elem.style.scale = 1;
+			}
+			document.getElementById("overlay").appendChild(elem);
 		}
 	}
 

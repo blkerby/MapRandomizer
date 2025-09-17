@@ -131,6 +131,7 @@ pub struct SpoilerFlagSummary {
 pub struct SpoilerDoorSummary {
     door_type: String,
     location: SpoilerLocation,
+    direction: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -290,6 +291,7 @@ pub struct SpoilerFlagDetails {
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerDoorDetails {
     door_type: String,
+    direction: String,
     location: SpoilerLocation,
     obtain_route: Vec<SpoilerRouteEntry>,
     return_route: Vec<SpoilerRouteEntry>,
@@ -768,27 +770,11 @@ pub fn get_spoiler_door_details(
 ) -> SpoilerDoorDetails {
     let (obtain_route, return_route) =
         get_spoiler_route_birectional(randomizer, state, unlock_vertex_id, traverser_pair);
-    let locked_door = &randomizer.locked_door_data.locked_doors[locked_door_idx];
-    let (room_id, node_id) = randomizer.game_data.door_ptr_pair_map[&locked_door.src_ptr_pair];
-    let door_vertex_id = randomizer.game_data.vertex_isv.index_by_key[&VertexKey {
-        room_id,
-        node_id,
-        obstacle_mask: 0,
-        actions: vec![],
-    }];
-    let door_vertex_info = get_vertex_info(randomizer, door_vertex_id);
+    let summary = get_spoiler_door_summary(randomizer, unlock_vertex_id, locked_door_idx);
     SpoilerDoorDetails {
-        door_type: get_door_type_name(
-            randomizer.locked_door_data.locked_doors[locked_door_idx].door_type,
-        ),
-        location: SpoilerLocation {
-            area: door_vertex_info.area_name,
-            room_id: door_vertex_info.room_id,
-            room: door_vertex_info.room_name,
-            node_id: door_vertex_info.node_id,
-            node: door_vertex_info.node_name,
-            coords: door_vertex_info.room_coords,
-        },
+        door_type:summary.door_type,
+        location:summary.location,
+        direction:summary.direction,
         obtain_route,
         return_route,
     }
@@ -819,6 +805,20 @@ pub fn get_spoiler_door_summary(
         actions: vec![],
     }];
     let door_vertex_info = get_vertex_info(randomizer, door_vertex_id);
+    let mut direction = "none".to_string();
+    let mut coords = door_vertex_info.room_coords;
+    let ptr_pairs = vec![locked_door.src_ptr_pair];
+    for ptr_pair in ptr_pairs {
+        let (room_idx, door_idx) = randomizer.game_data.room_and_door_idxs_by_door_ptr_pair[&ptr_pair];
+        if !randomizer.map.room_mask[room_idx] {
+            continue;
+        }
+        let room_geom = &randomizer.game_data.room_geometry[room_idx];
+        let door = &room_geom.doors[door_idx];
+        direction = door.direction.clone();
+        coords.0 += door.x;
+        coords.1 += door.y;
+    }
     SpoilerDoorSummary {
         door_type: get_door_type_name(
             randomizer.locked_door_data.locked_doors[locked_door_idx].door_type,
@@ -829,8 +829,9 @@ pub fn get_spoiler_door_summary(
             room: door_vertex_info.room_name,
             node_id: door_vertex_info.node_id,
             node: door_vertex_info.node_name,
-            coords: door_vertex_info.room_coords,
+            coords,
         },
+        direction,
     }
 }
 
