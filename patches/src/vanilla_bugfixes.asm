@@ -305,3 +305,22 @@ warnpc !bank_86_free_space_end
 
 org $80a27a
     lda #$a29b
+
+;;; Spring ball menu crash fix by strotlog.
+;;; Fix obscure vanilla bug where: turning off spring ball while bouncing, can crash in $91:EA07,
+;;; or exactly the same way as well in $91:F1FC:
+;;; Fix buffer overrun. Overwrite nearby unreachable code at $91:fc4a (due to pose 0x65
+;;; not existing) as our "free space". Translate RAM $0B20 values:
+;;; #$0601 (spring ball specific value) --> #$0001
+;;; #$0602 (spring ball specific value) --> #$0002
+;;; thus loading a valid jump table array index for these two buggy functions.
+org $91ea07
+    jsr fix_spring_ball_crash
+org $91f1fc
+    jsr fix_spring_ball_crash
+org $91fc4a
+fix_spring_ball_crash:
+    lda $0B20    ; $0B20: Used for bouncing as a ball when you land
+    and #$00ff
+    rts
+warnpc $91fc54 ; ensure we don't write past the point where vanilla-accessible code resumes
