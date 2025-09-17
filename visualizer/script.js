@@ -776,22 +776,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					non_unique_item_list.appendChild(count);
 				}
 			}
-			let step = step_limit;
-			if (step === null){
-				step = c.summary.length;
-			}
-			step--;
-			let prevdoors = 0;
-			for (let i = 0; i < step; i++){
-				prevdoors += c.summary[i].doors.length;
-			}
-			if (prevdoors != 0){
-				let dr = ui_door(door_enum["blue"]);
-				let drnum = document.createElement("span");
-				drnum.innerHTML = prevdoors;
-				non_unique_item_list.appendChild(dr);
-				non_unique_item_list.appendChild(drnum);
-			}
 			si.appendChild(non_unique_item_list);
 
 			let unique_item_list = document.createElement("div");
@@ -861,28 +845,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					icon_el.classList.add("selected")
 				}
 				item_list.appendChild(icon_el);
-			}
-			si.appendChild(item_list);
-			item_list = document.createElement("div");
-			item_list.className = "door-list";
-			let doornums = new Map();
-			try {
-			if (c.details[step].doors){
-				for (let dr of c.details[step].doors){
-					let dt = dr.door_type;
-					if (doornums.has(dt)){
-						doornums.set(dt, doornums.get(dt)+1);
-					} else {
-						doornums.set(dt,1);
-					}
-				}
-			}}catch(ERR){}
-			for (let [dt, num] of doornums){
-				let d = ui_door(door_enum[dt]);
-				item_list.appendChild(d);
-				let nspan = document.createElement("span");
-				nspan.innerHTML = num;
-				item_list.appendChild(nspan);
 			}
 			si.appendChild(item_list);
 		}
