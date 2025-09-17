@@ -25,7 +25,7 @@ let icon = id => {
 let door = id => {
 	let el = document.createElement("span");
 	el.className = "door-icon";
-	el.style.backgroundPositionX = `-${id * 25}px`;
+	el.style.backgroundPositionX = `-${id * 16}px`;
 	return el;
 }
 
@@ -976,6 +976,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		document.getElementById("path-highlight").innerHTML += `<path d="${path}" id="path-out"/>`
 		document.getElementById("path-highlight").innerHTML += `<path d="${path}" id="path-in"/>`
 	}
+	function roomDoor(room, node){
+		for (let step of c.details){
+			for (let d of step.doors){
+				if (d.location.room==room && d.location.node ==node){
+					return door(doors[d.door_type]);
+				}
+			}
+		}
+	}
 	function routeData(p, route, ss=null) {
 		let lastRoom=null, lastNode=null, roomDiv=null, roomRoute=null;
 		let room_reps = new Map();
@@ -986,6 +995,18 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (k.room != lastRoom) {
 				if (roomDiv) {
 					p.appendChild(roomDiv);
+					let d = roomDoor(lastRoom,lastNode);
+					if (d && roomRoute) {
+						let lc = roomRoute.lastChild;
+						while (lc.lastChild !== null) {
+							lc = lc.lastChild;
+						}
+						if (lc.nodeName == "BR"){
+							lc.replaceWith(d);
+						} else {
+							lc.appendChild(d);
+						}
+					}
 				}
 				
 				if (!room_reps.has(k.room_id)){
@@ -993,7 +1014,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				} else {
 					room_reps.set(k.room_id, room_reps.get(k.room_id)+1);
 				}
-
 				let rr = document.createElement("div");
 				rr.className = "room-route";
 
@@ -1113,6 +1133,18 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 		}
 		p.appendChild(roomDiv);
+		let d = roomDoor(lastRoom,lastNode);
+		if (d && roomRoute) {
+			let lc = roomRoute.lastChild;
+			while (lc.lastChild !== null) {
+				lc = lc.lastChild;
+			}
+			if (lc.nodeName == "BR"){
+				lc.replaceWith(d);
+			} else {
+				lc.appendChild(d);
+			}
+		}
 	}
 	function flagIcons(p, flags, j=null) {
 		for (i in flags) {

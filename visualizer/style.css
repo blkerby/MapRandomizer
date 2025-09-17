@@ -206,9 +206,9 @@ a {
 }
 .door-icon{
 	background-image: url("doors.png");
-	width: 25px;
-	height: 25px;
-	background-size: 225px;
+	width: 16px;
+	height: 16px;
+	background-size: 144px;
 	image-rendering: pixelated;
 	transition: transform 200ms ease;
 	display: inline-block;
