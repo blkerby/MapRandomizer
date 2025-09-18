@@ -38,6 +38,17 @@ let item_plm = {
 	"None": 22,
 	"Hidden": 23,
 };
+let door_enum = {
+	"red":0,
+	"green":1,
+	"yellow":2,
+	"charge":3,
+	"ice":4,
+	"spazer":5,
+	"wave":6,
+	"plasma":7,
+	"blue":8,
+};
 let itemtypes = {
 	"majors": ["Varia",
 			"Gravity",

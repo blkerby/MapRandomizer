@@ -204,10 +204,26 @@ a {
 	image-rendering: pixelated;
 	transition: transform 200ms ease;
 }
-.icon {
+.door-icon{
+	background-image: url("doors.png");
+	width: 16px;
+	height: 16px;
+	background-size: 144px;
+	image-rendering: pixelated;
+	transition: transform 200ms ease;
+}
+.map-door-icon{
+	background-image: url("map_doors.png");
+	width: 18px;
+	height: 18px;
+	background-size: 162px;
+	image-rendering: pixelated;
+	transition: transform 200ms ease;
+}
+.icon,.map-door-icon {
 	position: absolute;
 }
-.ui-icon, .ui-icon-hoverable {
+.door-icon, .ui-icon, .ui-icon-hoverable {
 	display: inline-block;
 	margin-top: 1px;
 	margin-bottom: 1px;
@@ -218,7 +234,7 @@ a {
 	transform: scale(2);
 	z-index: 2;
 }
-.ui-icon-hoverable:hover {
+.door-icon:hover, .ui-icon-hoverable:hover {
 	transform: scale(2);
 	z-index: 2;
 }
