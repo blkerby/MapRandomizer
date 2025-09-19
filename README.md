@@ -105,7 +105,7 @@ cd rust
 cargo run --bin maprando-web -- --seed-repository-url mem
 ```
 
-For significantly faster performance (at the cost of taking longer to build), using the `--release` option:
+For significantly faster performance (at the cost of taking longer to build), use the `--release` option:
 
 ```sh
 cargo run --release --bin maprando-web -- --seed-repository-url mem
