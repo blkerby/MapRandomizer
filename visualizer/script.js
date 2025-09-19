@@ -1616,6 +1616,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			} else {
 				ox = 12;
 			}
+			if (document.getElementById("smalldoors").checked) {
+				elem.style.backgroundImage = "url('map_doors_small.png')";
+			}
 			elem.style.left = d.location.coords[0] * 24 + 27 + ox + "px";
 			elem.style.top = d.location.coords[1] * 24 + 27 + oy + "px";
 			elem.onclick = ev => {
