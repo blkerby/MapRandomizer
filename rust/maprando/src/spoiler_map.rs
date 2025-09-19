@@ -11,7 +11,7 @@ use crate::{
         apply_door_lock, apply_item_interior, get_gray_doors, get_objective_tiles, render_tile,
     },
     randomize::Randomization,
-    settings::RandomizerSettings,
+    settings::{DoorLocksSize, RandomizerSettings},
 };
 use maprando_game::{
     Direction, DoorLockType, GameData, ItemPtr, MapTile, MapTileEdge, MapTileInterior,
@@ -110,7 +110,7 @@ pub fn get_spoiler_images(
     let height = max_tiles;
     let mut tiles: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
     let mut smalldoorsettings = settings.clone();
-    smalldoorsettings.other_settings.door_locks_size = crate::settings::DoorLocksSize::Small;
+    smalldoorsettings.other_settings.door_locks_size = DoorLocksSize::Small;
     let customize_settings = CustomizeSettings::default();
 
     if settings.map_layout == "Vanilla" {
