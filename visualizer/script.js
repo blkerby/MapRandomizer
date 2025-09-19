@@ -49,6 +49,11 @@ document.getElementById("ship").onchange = ev => {
 document.getElementById("start").onchange = ev => {
 	document.getElementById("helm").style.visibility = ev.target.checked ? "visible" : "hidden";
 }
+document.getElementById("smalldoors").onchange = ev => {
+	for (e of document.getElementsByClassName("map-door-icon")) {
+		e.style.backgroundImage = ev.target.checked ? "url('map_doors_small.png')" : "url('map_doors.png')";
+	}
+}
 document.getElementById("sidebar-info").onmousemove = ev => {
 	let el = document.getElementById("room-info");
 	el.classList.add("hidden");
