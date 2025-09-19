@@ -1798,8 +1798,7 @@
     {
         "name": "East Pants Room",
         "room_id": 322,
-        "node_id": 1,
-        "door_load_node_id": 2,
+        "node_id": 2,
         "x": 8,
         "y": 10
     },

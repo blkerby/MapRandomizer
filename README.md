@@ -105,6 +105,12 @@ cd rust
 cargo run --bin maprando-web -- --seed-repository-url mem
 ```
 
+For significantly faster performance (at the cost of taking longer to build), use the `--release` option:
+
+```sh
+cargo run --release --bin maprando-web -- --seed-repository-url mem
+```
+
 ### Use local copy of videos
 
 If you want to be able to have full functionality of the site while offline, including being able to browse the library of videos in the Logic pages, a local copy of the video library can be downloaded or synced as follows:
