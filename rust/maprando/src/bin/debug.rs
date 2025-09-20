@@ -131,7 +131,7 @@ fn run_scenario(
     );
 
     let outcome = new_local_state_opt
-        .map(|x| format!("{}", x.energy_used))
+        .map(|x| format!("{}", x.energy))
         .unwrap_or("n/a".to_string());
     println!(
         "proficiency={proficiency}, items={item_loadout:?}, missiles={missile_cnt}, patience={patience}: {outcome}"

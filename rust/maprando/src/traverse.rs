@@ -100,7 +100,13 @@ fn compute_cost(
     reverse: bool,
 ) -> [f32; NUM_COST_METRICS] {
     let eps = 1e-15;
-    let energy_cost = (local.energy_used as f32) / (inventory.max_energy as f32 + eps);
+    let energy = match (reverse, local.energy) {
+        (false, maprando_logic::ResourceLevel::Consumed(x)) => x,
+        (false, maprando_logic::ResourceLevel::Remaining(x)) => inventory.max_energy - x,
+        (true, maprando_logic::ResourceLevel::Consumed(x)) => inventory.max_energy - x,
+        (true, maprando_logic::ResourceLevel::Remaining(x)) => x,
+    };
+    let energy_cost = (energy as f32) / (inventory.max_energy as f32 + eps);
     let reserve_cost = (local.reserves_used as f32) / (inventory.max_reserves as f32 + eps);
     let missiles_cost = (local.missiles_used as f32) / (inventory.max_missiles as f32 + eps);
     let supers_cost = (local.supers_used as f32) / (inventory.max_supers as f32 + eps);
@@ -139,11 +145,11 @@ fn validate_energy_no_auto_reserve(
     game_data: &GameData,
     difficulty: &DifficultyConfig,
 ) -> bool {
-    if local.energy_used >= global.inventory.max_energy {
+    if local.energy >= global.inventory.max_energy {
         if difficulty.tech[game_data.manage_reserves_tech_idx] {
             // Assume that just enough reserve energy is manually converted to regular energy.
-            local.reserves_used += local.energy_used - (global.inventory.max_energy - 1);
-            local.energy_used = global.inventory.max_energy - 1;
+            local.reserves_used += local.energy - (global.inventory.max_energy - 1);
+            local.energy = global.inventory.max_energy - 1;
         } else {
             // Assume that reserves cannot be used (e.g. during a shinespark or enemy hit).
             return false;
@@ -176,7 +182,7 @@ fn apply_gate_glitch_leniency(
     game_data: &GameData,
 ) -> bool {
     if heated && !global.inventory.items[Item::Varia as usize] {
-        local.energy_used += (difficulty.gate_glitch_leniency as f32
+        local.energy += (difficulty.gate_glitch_leniency as f32
             * difficulty.resource_multiplier
             * 60.0) as Capacity;
         if !validate_energy(
@@ -243,9 +249,9 @@ fn apply_heat_frames(
         false
     } else {
         if simple {
-            local.energy_used += (frames as f32 / 4.0).ceil() as Capacity;
+            local.energy += (frames as f32 / 4.0).ceil() as Capacity;
         } else {
-            local.energy_used +=
+            local.energy +=
                 (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
         }
         validate_energy(
@@ -382,7 +388,7 @@ fn apply_heat_frames_with_energy_drops(
         }
         let heat_energy = (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
         total_drop_value = Capacity::min(total_drop_value, heat_energy);
-        local.energy_used += heat_energy;
+        local.energy += heat_energy;
         if !validate_energy(
             local,
             &global.inventory,
@@ -390,11 +396,11 @@ fn apply_heat_frames_with_energy_drops(
         ) {
             return false;
         }
-        if total_drop_value <= local.energy_used {
-            local.energy_used -= total_drop_value;
+        if total_drop_value <= local.energy {
+            local.energy -= total_drop_value;
         } else {
-            local.reserves_used -= total_drop_value - local.energy_used;
-            local.energy_used = 0;
+            local.reserves_used -= total_drop_value - local.energy;
+            local.energy = 0;
         }
         true
     }
@@ -432,7 +438,7 @@ fn apply_lava_frames_with_energy_drops(
             (frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity
         };
         total_drop_value = Capacity::min(total_drop_value, lava_energy);
-        local.energy_used += lava_energy;
+        local.energy += lava_energy;
         if !validate_energy(
             local,
             &global.inventory,
@@ -440,11 +446,11 @@ fn apply_lava_frames_with_energy_drops(
         ) {
             return false;
         }
-        if total_drop_value <= local.energy_used {
-            local.energy_used -= total_drop_value;
+        if total_drop_value <= local.energy {
+            local.energy -= total_drop_value;
         } else {
-            local.reserves_used -= total_drop_value - local.energy_used;
-            local.energy_used = 0;
+            local.reserves_used -= total_drop_value - local.energy;
+            local.energy = 0;
         }
         true
     }
@@ -627,11 +633,11 @@ fn apply_regular_energy_available_req(
         if global.inventory.max_energy < count {
             false
         } else {
-            local.energy_used = Capacity::max(local.energy_used, count);
+            local.energy = Capacity::max(local.energy, count);
             true
         }
     } else {
-        global.inventory.max_energy - local.energy_used >= count
+        global.inventory.max_energy - local.energy >= count
     }
 }
 
@@ -663,17 +669,17 @@ fn apply_energy_available_req(
         if global.inventory.max_energy + global.inventory.max_reserves < count {
             false
         } else if global.inventory.max_energy < count {
-            local.energy_used = global.inventory.max_energy;
+            local.energy = global.inventory.max_energy;
             local.reserves_used =
                 Capacity::max(local.reserves_used, count - global.inventory.max_energy);
             true
         } else {
-            local.energy_used = Capacity::max(local.energy_used, count);
+            local.energy = Capacity::max(local.energy, count);
             false
         }
     } else {
         global.inventory.max_reserves - local.reserves_used + global.inventory.max_energy
-            - local.energy_used
+            - local.energy
             >= count
     }
 }
@@ -745,9 +751,8 @@ pub fn apply_farm_requirement(
         panic!("bad farm: expected cycle_frames >= 100: end_local={end_local:#?},\n req={req:#?}");
     }
     let cycle_frames = (end_local.cycle_frames - 1) as f32;
-    let cycle_energy = (end_local.energy_used + end_local.reserves_used
-        - local.energy_used
-        - local.reserves_used) as f32;
+    let cycle_energy =
+        (end_local.energy + end_local.reserves_used - local.energy - local.reserves_used) as f32;
     let cycle_missiles = (end_local.missiles_used - local.missiles_used) as f32;
     let cycle_supers = (end_local.supers_used - local.supers_used) as f32;
     let cycle_pbs = (end_local.power_bombs_used - local.power_bombs_used) as f32;
@@ -755,8 +760,8 @@ pub fn apply_farm_requirement(
     let mut num_cycles = (patience_frames / cycle_frames).floor() as i32;
 
     let mut new_local = local;
-    if new_local.farm_baseline_energy_used < new_local.energy_used {
-        new_local.farm_baseline_energy_used = new_local.energy_used;
+    if new_local.farm_baseline_energy_used < new_local.energy {
+        new_local.farm_baseline_energy_used = new_local.energy;
     }
     if new_local.farm_baseline_reserves_used < new_local.reserves_used {
         new_local.farm_baseline_reserves_used = new_local.reserves_used;
@@ -770,7 +775,7 @@ pub fn apply_farm_requirement(
     if new_local.farm_baseline_power_bombs_used < new_local.power_bombs_used {
         new_local.farm_baseline_power_bombs_used = new_local.power_bombs_used;
     }
-    new_local.energy_used = new_local.farm_baseline_energy_used;
+    new_local.energy = new_local.farm_baseline_energy_used;
     new_local.reserves_used = new_local.farm_baseline_reserves_used;
     new_local.missiles_used = new_local.farm_baseline_missiles_used;
     new_local.supers_used = new_local.farm_baseline_supers_used;
@@ -828,13 +833,13 @@ pub fn apply_farm_requirement(
         if full_energy {
             if fill_energy > global.inventory.max_reserves {
                 new_local.reserves_used = 0;
-                new_local.energy_used =
+                new_local.energy =
                     global.inventory.max_energy - 1 - (fill_energy - global.inventory.max_reserves);
-                if new_local.energy_used < 0 {
-                    new_local.energy_used = 0;
+                if new_local.energy < 0 {
+                    new_local.energy = 0;
                 }
             } else {
-                new_local.energy_used = global.inventory.max_energy - 1;
+                new_local.energy = global.inventory.max_energy - 1;
                 new_local.reserves_used = global.inventory.max_reserves - fill_energy;
             }
         } else {
@@ -842,13 +847,13 @@ pub fn apply_farm_requirement(
                 // There may be a way to refine this by having an option to fill regular energy (not reserves),
                 // but it probably wouldn't work without creating a new cost metric anyway. It probably only
                 // applies in scenarios involving Big Boy drain?
-                new_local.energy_used = global.inventory.max_energy - 1;
+                new_local.energy = global.inventory.max_energy - 1;
             }
             if net_energy > new_local.reserves_used {
-                new_local.energy_used -= net_energy - new_local.reserves_used;
+                new_local.energy -= net_energy - new_local.reserves_used;
                 new_local.reserves_used = 0;
-                if new_local.energy_used < 0 {
-                    new_local.energy_used = 0;
+                if new_local.energy < 0 {
+                    new_local.energy = 0;
                 }
             } else {
                 new_local.reserves_used -= net_energy;
@@ -879,7 +884,7 @@ pub fn apply_farm_requirement(
             new_local.power_bombs_used = 0;
         }
     } else {
-        let mut energy = new_local.energy_used as f32;
+        let mut energy = new_local.energy as f32;
         let mut reserves = new_local.reserves_used as f32;
         let mut missiles = new_local.missiles_used as f32;
         let mut supers = new_local.supers_used as f32;
@@ -925,7 +930,7 @@ pub fn apply_farm_requirement(
                 pbs = 0.0;
             }
 
-            new_local.energy_used = energy.round() as Capacity;
+            new_local.energy = energy.round() as Capacity;
             new_local.reserves_used = reserves.round() as Capacity;
             new_local.missiles_used = missiles.round() as Capacity;
             new_local.supers_used = supers.round() as Capacity;
@@ -936,13 +941,13 @@ pub fn apply_farm_requirement(
         }
     }
 
-    new_local.energy_used = Capacity::min(new_local.energy_used, local.energy_used);
+    new_local.energy = Capacity::min(new_local.energy, local.energy);
     new_local.reserves_used = Capacity::min(new_local.reserves_used, local.reserves_used);
     new_local.missiles_used = Capacity::min(new_local.missiles_used, local.missiles_used);
     new_local.supers_used = Capacity::min(new_local.supers_used, local.supers_used);
     new_local.power_bombs_used = Capacity::min(new_local.power_bombs_used, local.power_bombs_used);
 
-    if new_local.energy_used == 0 && new_local.reserves_used == 0 {
+    if new_local.energy == 0 && new_local.reserves_used == 0 {
         new_local.farm_baseline_energy_used = 0;
         new_local.farm_baseline_reserves_used = 0;
     }
@@ -1276,11 +1281,11 @@ fn apply_requirement_simple(
             if gravity && varia {
                 SimpleResult::Success
             } else if gravity || varia {
-                local.energy_used +=
+                local.energy +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity;
                 validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
             } else {
-                local.energy_used +=
+                local.energy +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity;
                 validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
             }
@@ -1288,16 +1293,16 @@ fn apply_requirement_simple(
         Requirement::GravitylessLavaFrames(frames) => {
             let varia = cx.global.inventory.items[Item::Varia as usize];
             if varia {
-                local.energy_used +=
+                local.energy +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity
             } else {
-                local.energy_used +=
+                local.energy +=
                     (*frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity
             }
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::AcidFrames(frames) => {
-            local.energy_used += (*frames as f32 * cx.difficulty.resource_multiplier * 1.5
+            local.energy += (*frames as f32 * cx.difficulty.resource_multiplier * 1.5
                 / suit_damage_factor(&cx.global.inventory) as f32)
                 .ceil() as Capacity;
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
@@ -1305,16 +1310,16 @@ fn apply_requirement_simple(
         Requirement::GravitylessAcidFrames(frames) => {
             let varia = cx.global.inventory.items[Item::Varia as usize];
             if varia {
-                local.energy_used +=
+                local.energy +=
                     (*frames as f32 * cx.difficulty.resource_multiplier * 0.75).ceil() as Capacity;
             } else {
-                local.energy_used +=
+                local.energy +=
                     (*frames as f32 * cx.difficulty.resource_multiplier * 1.5).ceil() as Capacity;
             }
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::MetroidFrames(frames) => {
-            local.energy_used += (*frames as f32 * cx.difficulty.resource_multiplier * 0.75
+            local.energy += (*frames as f32 * cx.difficulty.resource_multiplier * 0.75
                 / suit_damage_factor(&cx.global.inventory) as f32)
                 .ceil() as Capacity;
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
@@ -1335,19 +1340,19 @@ fn apply_requirement_simple(
             {
                 SimpleResult::Failure
             } else {
-                local.energy_used += energy;
+                local.energy += energy;
                 validate_energy_no_auto_reserve(local, cx.global, cx.game_data, cx.difficulty)
                     .into()
             }
         }
         Requirement::Energy(count) => {
-            local.energy_used += *count;
+            local.energy += *count;
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::RegularEnergy(count) => {
             // For now, we assume reserve energy can be converted to regular energy, so this is
             // implemented the same as the Energy requirement above.
-            local.energy_used += *count;
+            local.energy += *count;
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::ReserveEnergy(count) => {
@@ -1377,7 +1382,7 @@ fn apply_requirement_simple(
         .into(),
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
             if !cx.global.inventory.items[Item::Varia as usize] {
-                local.energy_used += (cx.difficulty.door_stuck_leniency as f32
+                local.energy += (cx.difficulty.door_stuck_leniency as f32
                     * cx.difficulty.resource_multiplier
                     * *heat_frames as f32
                     / 4.0) as Capacity;
@@ -1395,12 +1400,12 @@ fn apply_requirement_simple(
             validate_power_bombs(local, cx.global).into()
         }
         Requirement::XModeSpikeHitLeniency {} => {
-            local.energy_used +=
+            local.energy +=
                 cx.difficulty.spike_xmode_leniency * 60 / suit_damage_factor(&cx.global.inventory);
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
         Requirement::XModeThornHitLeniency {} => {
-            local.energy_used +=
+            local.energy +=
                 cx.difficulty.spike_xmode_leniency * 16 / suit_damage_factor(&cx.global.inventory);
             validate_energy(local, &cx.global.inventory, can_manage_reserves).into()
         }
@@ -1515,8 +1520,8 @@ fn apply_requirement_simple(
         Requirement::EnergyRefill(limit) => {
             let limit_reserves = max(0, *limit - cx.global.inventory.max_energy);
             if cx.reverse {
-                if local.energy_used < *limit {
-                    local.energy_used = 0;
+                if local.energy < *limit {
+                    local.energy = 0;
                     local.farm_baseline_energy_used = 0;
                 }
                 if local.reserves_used <= limit_reserves {
@@ -1524,9 +1529,9 @@ fn apply_requirement_simple(
                     local.farm_baseline_reserves_used = 0;
                 }
             } else {
-                if local.energy_used > cx.global.inventory.max_energy - limit {
-                    local.energy_used = max(0, cx.global.inventory.max_energy - limit);
-                    local.farm_baseline_energy_used = local.energy_used;
+                if local.energy > cx.global.inventory.max_energy - limit {
+                    local.energy = max(0, cx.global.inventory.max_energy - limit);
+                    local.farm_baseline_energy_used = local.energy;
                 }
                 if local.reserves_used > cx.global.inventory.max_reserves - limit_reserves {
                     local.reserves_used = max(0, cx.global.inventory.max_reserves - limit_reserves);
@@ -1537,13 +1542,13 @@ fn apply_requirement_simple(
         }
         Requirement::RegularEnergyRefill(limit) => {
             if cx.reverse {
-                if local.energy_used < *limit {
-                    local.energy_used = 0;
+                if local.energy < *limit {
+                    local.energy = 0;
                     local.farm_baseline_energy_used = 0;
                 }
-            } else if local.energy_used > cx.global.inventory.max_energy - limit {
-                local.energy_used = max(0, cx.global.inventory.max_energy - limit);
-                local.farm_baseline_energy_used = local.energy_used;
+            } else if local.energy > cx.global.inventory.max_energy - limit {
+                local.energy = max(0, cx.global.inventory.max_energy - limit);
+                local.farm_baseline_energy_used = local.energy;
             }
             SimpleResult::Success
         }
@@ -1608,7 +1613,7 @@ fn apply_requirement_simple(
         }
         Requirement::AmmoStationRefillAll => (!cx.settings.other_settings.ultra_low_qol).into(),
         Requirement::EnergyStationRefill => {
-            local.energy_used = 0;
+            local.energy = 0;
             local.farm_baseline_energy_used = 0;
             if cx.settings.quality_of_life_settings.energy_station_reserves
                 || cx
@@ -1629,13 +1634,12 @@ fn apply_requirement_simple(
         }
         Requirement::RegularEnergyDrain(count) => {
             if cx.reverse {
-                let amt = Capacity::max(0, local.energy_used - count + 1);
+                let amt = Capacity::max(0, local.energy - count + 1);
                 local.reserves_used += amt;
-                local.energy_used -= amt;
+                local.energy -= amt;
                 (local.reserves_used <= cx.global.inventory.max_reserves).into()
             } else {
-                local.energy_used =
-                    Capacity::max(local.energy_used, cx.global.inventory.max_energy - count);
+                local.energy = Capacity::max(local.energy, cx.global.inventory.max_energy - count);
                 SimpleResult::Success
             }
         }
@@ -1672,11 +1676,11 @@ fn apply_requirement_simple(
                 if local.reserves_used > 0 {
                     SimpleResult::Failure
                 } else {
-                    local.energy_used = 0;
+                    local.energy = 0;
                     let energy_needed = if *heated {
-                        (local.energy_used * 4 + 2) / 3
+                        (local.energy * 4 + 2) / 3
                     } else {
-                        local.energy_used
+                        local.energy
                     };
                     local.reserves_used = max(energy_needed + 1, *min_reserve_energy);
                     (local.reserves_used <= *max_reserve_energy
@@ -1695,8 +1699,7 @@ fn apply_requirement_simple(
                 };
                 if reserve_energy >= *min_reserve_energy {
                     local.reserves_used = cx.global.inventory.max_reserves;
-                    local.energy_used =
-                        max(0, cx.global.inventory.max_energy - usable_reserve_energy);
+                    local.energy = max(0, cx.global.inventory.max_energy - usable_reserve_energy);
                     SimpleResult::Success
                 } else {
                     SimpleResult::Failure
@@ -1840,25 +1843,25 @@ fn apply_requirement_simple(
                     return SimpleResult::Success;
                 }
                 if cx.reverse {
-                    if local.energy_used <= 28 {
+                    if local.energy <= 28 {
                         if frames == excess_frames {
                             // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
                             return SimpleResult::Success;
                         }
-                        local.energy_used = 28 + frames - excess_frames;
+                        local.energy = 28 + frames - excess_frames;
                     } else {
-                        local.energy_used += frames;
+                        local.energy += frames;
                     }
                     validate_energy_no_auto_reserve(local, cx.global, cx.game_data, cx.difficulty)
                         .into()
                 } else {
                     if frames == excess_frames
-                        && local.energy_used >= cx.global.inventory.max_energy - 29
+                        && local.energy >= cx.global.inventory.max_energy - 29
                     {
                         // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
                         return SimpleResult::Success;
                     }
-                    local.energy_used += frames - excess_frames + 28;
+                    local.energy += frames - excess_frames + 28;
                     if !validate_energy_no_auto_reserve(
                         local,
                         cx.global,
@@ -1867,9 +1870,9 @@ fn apply_requirement_simple(
                     ) {
                         return SimpleResult::Failure;
                     }
-                    let energy_remaining = cx.global.inventory.max_energy - local.energy_used - 1;
-                    local.energy_used += std::cmp::min(*excess_frames, energy_remaining);
-                    local.energy_used -= 28;
+                    let energy_remaining = cx.global.inventory.max_energy - local.energy - 1;
+                    local.energy += std::cmp::min(*excess_frames, energy_remaining);
+                    local.energy -= 28;
                     SimpleResult::Success
                 }
             } else {
@@ -2068,8 +2071,8 @@ pub fn is_bireachable_state(
     if forward.reserves_used + reverse.reserves_used > global.inventory.max_reserves {
         return false;
     }
-    let forward_total_energy_used = forward.energy_used + forward.reserves_used;
-    let reverse_total_energy_used = reverse.energy_used + reverse.reserves_used;
+    let forward_total_energy_used = forward.energy + forward.reserves_used;
+    let reverse_total_energy_used = reverse.energy + reverse.reserves_used;
     let max_total_energy = global.inventory.max_energy + global.inventory.max_reserves;
     if forward_total_energy_used + reverse_total_energy_used >= max_total_energy {
         return false;

@@ -9,6 +9,7 @@ pub fn apply_phantoon_requirement(
     local: &mut LocalState,
     proficiency: f32,
     can_manage_reserves: bool,
+    reverse: bool,
 ) -> bool {
     // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
     // as soon as he opens his eye. Faster or more complex strats are not relevant, since at
@@ -71,9 +72,7 @@ pub fn apply_phantoon_requirement(
         return false;
     }
 
-    local.energy_used += (net_dps * kill_time) as Capacity;
-
-    validate_energy(local, inventory, can_manage_reserves)
+    local.use_energy((net_dps * kill_time) as Capacity, true, inventory, reverse)
 }
 
 pub fn apply_draygon_requirement(
@@ -82,6 +81,7 @@ pub fn apply_draygon_requirement(
     proficiency: f32,
     can_manage_reserves: bool,
     can_be_very_patient: bool,
+    reverse: bool,
 ) -> bool {
     let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(inventory);
@@ -177,8 +177,7 @@ pub fn apply_draygon_requirement(
         // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
         // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
         // TODO: do something more reasonable here.
-        local.energy_used += (net_dps * time) as Capacity;
-        validate_energy(local, inventory, can_manage_reserves)
+        local.use_energy((net_dps * time) as Capacity, true, inventory, reverse)
     } else {
         false
     }
@@ -195,6 +194,7 @@ pub fn apply_ridley_requirement(
     use_power_bombs: bool,
     g_mode: bool,
     stuck: RidleyStuck,
+    reverse: bool,
 ) -> bool {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
@@ -338,21 +338,20 @@ pub fn apply_ridley_requirement(
     if damage > 10000.0 {
         return false;
     }
-    local.energy_used += (damage / suit_damage_factor(inventory) as f32) as Capacity;
+    let mut energy_used = (damage / suit_damage_factor(inventory) as f32) as Capacity;
 
     if !inventory.items[Item::Varia as usize] && !g_mode {
         // Heat run case: We do not explicitly check canHeatRun tech here, because it is
         // already required to reach the boss node from the doors.
         // Include time pre- and post-fight when Samus must still take heat damage:
         let heat_time = time + 16.0;
-        let heat_energy_used = (heat_time * 15.0) as Capacity;
-        local.energy_used += heat_energy_used;
+        energy_used += (heat_time * 15.0) as Capacity;
     }
 
     // TODO: We could add back some energy and/or ammo by assuming we get drops.
     // By omitting this for now we're just making the logic a little more conservative in favor of
     // the player.
-    validate_energy(local, inventory, can_manage_reserves)
+    local.use_energy(energy_used, true, inventory, reverse)
 }
 
 pub fn apply_botwoon_requirement(
@@ -361,6 +360,7 @@ pub fn apply_botwoon_requirement(
     proficiency: f32,
     second_phase: bool,
     can_manage_reserves: bool,
+    reverse: bool,
 ) -> bool {
     // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
     // assuming instead the player just uses ammo and/or regular charged shots.
@@ -465,13 +465,18 @@ pub fn apply_botwoon_requirement(
         if hits * damage_per_hit > 10000.0 {
             return false;
         }
-        local.energy_used += (hits * damage_per_hit) as Capacity;
+        // TODO: We could add back some energy and/or ammo by assuming we get drops.
+        // By omitting this for now we're just making the logic a little more conservative in favor of
+        // the player.
+        local.use_energy(
+            (hits * damage_per_hit) as Capacity,
+            true,
+            inventory,
+            reverse,
+        )
+    } else {
+        true
     }
-
-    // TODO: We could add back some energy and/or ammo by assuming we get drops.
-    // By omitting this for now we're just making the logic a little more conservative in favor of
-    // the player.
-    validate_energy(local, inventory, can_manage_reserves)
 }
 
 pub fn apply_mother_brain_2_requirement(
@@ -482,6 +487,7 @@ pub fn apply_mother_brain_2_requirement(
     can_manage_reserves: bool,
     can_be_very_patient: bool,
     r_mode: bool,
+    reverse: bool,
 ) -> bool {
     let mut boss_hp: f32 = 18000.0;
     let mut time: f32 = 0.0; // Cumulative time in seconds for the fight
@@ -557,28 +563,29 @@ pub fn apply_mother_brain_2_requirement(
     let base_mb_attack_dps = 20.0;
     let hit_rate = 1.0 - proficiency;
     let damage = base_mb_attack_dps * hit_rate * time;
+    // Overflow safeguard - bail here if Samus takes calamitous damage.
+    if damage > 10000.0 {
+        return false;
+    }
     if !r_mode {
-        local.energy_used += (damage / suit_damage_factor(inventory) as f32) as Capacity;
+        let mut energy_used = (damage / suit_damage_factor(inventory) as f32) as Capacity;
 
         // Account for Rainbow beam damage:
         if inventory.items[Item::Varia as usize] {
-            local.energy_used += 300;
+            energy_used += 300;
             if inventory.max_energy < 151 {
                 // With Varia, we need at least one ETank to survive rainbow beam.
                 return false;
             }
         } else {
-            local.energy_used += 600;
+            energy_used += 600;
             if inventory.max_energy < 301 {
                 // Without Varia, we need at least three ETanks to survive rainbow beam.
                 return false;
             }
         }
+        local.use_energy(energy_used, true, inventory, reverse)
+    } else {
+        true
     }
-    // Overflow safeguard - bail here if Samus takes calamitous damage.
-    if damage > 10000.0 {
-        return false;
-    }
-
-    validate_energy(local, inventory, can_manage_reserves)
 }

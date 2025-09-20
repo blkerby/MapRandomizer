@@ -4565,7 +4565,7 @@ impl<'r> Randomizer<'r> {
                     &self.objectives,
                 );
                 let hub_cost = if let Some(loc) = new_local {
-                    loc.energy_used
+                    loc.energy
                 } else {
                     Capacity::MAX
                 };

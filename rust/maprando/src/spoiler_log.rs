@@ -339,10 +339,10 @@ struct VertexInfo {
 impl SpoilerLocalState {
     fn new(local: LocalState, ref_local: LocalState) -> Self {
         Self {
-            energy_used: if local.energy_used == ref_local.energy_used {
+            energy_used: if local.energy == ref_local.energy {
                 None
             } else {
-                Some(local.energy_used)
+                Some(local.energy)
             },
             reserves_used: if local.reserves_used == ref_local.reserves_used {
                 None
@@ -557,7 +557,7 @@ pub fn get_spoiler_route(
             coords,
             strat_name: link.strat_name.clone(),
             strat_notes: link.strat_notes.clone(),
-            energy_used: Some(new_local_state.energy_used),
+            energy_used: Some(new_local_state.energy),
             reserves_used: Some(new_local_state.reserves_used),
             missiles_used: Some(new_local_state.missiles_used),
             supers_used: Some(new_local_state.supers_used),
