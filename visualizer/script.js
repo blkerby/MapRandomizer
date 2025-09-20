@@ -49,6 +49,11 @@ document.getElementById("ship").onchange = ev => {
 document.getElementById("start").onchange = ev => {
 	document.getElementById("helm").style.visibility = ev.target.checked ? "visible" : "hidden";
 }
+document.getElementById("smalldoors").onchange = ev => {
+	for (e of document.getElementsByClassName("map-door-icon")) {
+		e.style.backgroundImage = ev.target.checked ? "url('map_doors_small.png')" : "url('map_doors.png')";
+	}
+}
 document.getElementById("sidebar-info").onmousemove = ev => {
 	let el = document.getElementById("room-info");
 	el.classList.add("hidden");
@@ -1610,6 +1615,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				oy = 12;
 			} else {
 				ox = 12;
+			}
+			if (document.getElementById("smalldoors").checked) {
+				elem.style.backgroundImage = "url('map_doors_small.png')";
 			}
 			elem.style.left = d.location.coords[0] * 24 + 27 + ox + "px";
 			elem.style.top = d.location.coords[1] * 24 + 27 + oy + "px";
