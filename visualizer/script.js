@@ -49,6 +49,11 @@ document.getElementById("ship").onchange = ev => {
 document.getElementById("start").onchange = ev => {
 	document.getElementById("helm").style.visibility = ev.target.checked ? "visible" : "hidden";
 }
+document.getElementById("smalldoors").onchange = ev => {
+	for (e of document.getElementsByClassName("map-door-icon")) {
+		e.style.backgroundImage = ev.target.checked ? "url('map_doors_small.png')" : "url('map_doors.png')";
+	}
+}
 document.getElementById("sidebar-info").onmousemove = ev => {
 	let el = document.getElementById("room-info");
 	el.classList.add("hidden");
@@ -218,9 +223,8 @@ let localStateKeyOrder = [
 	"flash_suit",
 ];
 
-function getDebugRoute(traversal, step, vertexId, costMetric, backward) {
-	let traversalNumber;
-	let endTrailId = -1;
+function getTrailStarts(traversal, step, vertexId, costMetric) {
+	let trailStarts = [];
 	for (i in traversal.steps) {
 		let s = traversal.steps[i];
 		if (s.step_num > step) {
@@ -228,12 +232,18 @@ function getDebugRoute(traversal, step, vertexId, costMetric, backward) {
 		}
 		for (j in s.updated_vertex_ids) {
 			if (s.updated_vertex_ids[j] == vertexId) {
-				traversalNumber = i;
-				endTrailId = s.updated_start_trail_ids[j][costMetric];
-				break;
+				trailStarts.push([i, s.step_num, s.updated_start_trail_ids[j][costMetric]]);
 			}
 		}
 	}
+	return trailStarts;
+}
+
+function getDebugRoute(traversal, historyIndex, trailStarts, backward) {
+	if (trailStarts.length - 1 - historyIndex < 0) {
+		return [null, null, document.createElement("pre"), document.createElement("div")];
+	}
+	let [traversalNumber, stepNum, endTrailId] = trailStarts[trailStarts.length - 1 - historyIndex];
 	let [trailIdArray, finalLocalState] = getTrailIds(endTrailId, traversal, backward);
 
 	let statePre = document.createElement("pre");
@@ -283,7 +293,7 @@ function getDebugRoute(traversal, step, vertexId, costMetric, backward) {
 			routeDiv.appendChild(localStateCode);	
 		}
 	}
-	return [traversalNumber, statePre, routeDiv];
+	return [traversalNumber, stepNum, statePre, routeDiv];
 }
 
 function updateDebugData() {
@@ -302,6 +312,7 @@ function updateDebugData() {
 		return;
 	}
 	let costMetric = parseInt(document.getElementById("debugCostMetric").value);
+	let historyIndex = parseInt(document.getElementById("debugHistoryIndex").value);
 	if (costMetric < 0 || costMetric > 2) {
 		return;
 	}
@@ -315,7 +326,7 @@ function updateDebugData() {
 
 	let debugHeader = document.createElement("div");
 	let headerMainLine = document.createElement("p");
-	headerMainLine.innerText = `[${vertexId}] ${roomName}: ${nodeName} (${obstacleMask})`;
+	headerMainLine.innerText = `[${vertexId}] ${roomName}: ${nodeName} (obstacle mask ${obstacleMask}, step ${step}, history index ${historyIndex})`;
 	debugHeader.appendChild(headerMainLine);
 	if (vertexKey.actions.length > 0) {
 		let actionPre = document.createElement("pre");
@@ -324,10 +335,12 @@ function updateDebugData() {
 	}
 	debugOutput.appendChild(debugHeader);
 
-	let [forwardTraversalNum, forwardState, forwardRoute] =
-		getDebugRoute(spoiler.forward_traversal, step, vertexId, costMetric, false);
-	let [reverseTraversalNum, reverseState, reverseRoute] =
-		getDebugRoute(spoiler.reverse_traversal, step, vertexId, costMetric, true);
+	let forwardTrailStarts = getTrailStarts(spoiler.forward_traversal, step, vertexId, costMetric);
+	let [forwardTraversalNum, forwardStepNum, forwardState, forwardRoute] =
+		getDebugRoute(spoiler.forward_traversal, historyIndex, forwardTrailStarts, false);
+	let reverseTrailStarts = getTrailStarts(spoiler.reverse_traversal, step, vertexId, costMetric);
+	let [reverseTraversalNum, reverseStepNum, reverseState, reverseRoute] =
+		getDebugRoute(spoiler.reverse_traversal, historyIndex, reverseTrailStarts, true);
 	
 	let forwardStateDiv = document.createElement("div");
 	let forwardStateHeader = createHtmlElement('<div class="category">OBTAIN STATE</div>');
@@ -342,21 +355,46 @@ function updateDebugData() {
 	debugOutput.appendChild(reverseStateDiv);
 
 	let forwardRouteDiv = document.createElement("div");
-	let forwardRouteHeader = createHtmlElement(`<div class="category">OBTAIN ROUTE (traversal number ${forwardTraversalNum})</div>`);
+	let forwardRouteHeader = createHtmlElement(`<div class="category">OBTAIN ROUTE (step ${forwardStepNum}, traversal ${forwardTraversalNum})</div>`);
 	forwardRouteDiv.appendChild(forwardRouteHeader);
 	forwardRouteDiv.appendChild(forwardRoute);
 	debugOutput.appendChild(forwardRouteDiv);
 
 	let reverseDiv = document.createElement("div");
-	let reverseHeader = createHtmlElement(`<div class="category">RETURN ROUTE (traversal number ${reverseTraversalNum})</div>`);
+	let reverseHeader = createHtmlElement(`<div class="category">RETURN ROUTE (step ${reverseStepNum}, traversal ${reverseTraversalNum})</div>`);
 	reverseDiv.appendChild(reverseHeader);
 	reverseDiv.appendChild(reverseRoute);
 	debugOutput.appendChild(reverseDiv);
 
+	let forwardHistoryDiv = document.createElement("div");
+	let forwardHistoryHeader = createHtmlElement(`<div class="category">OBTAIN HISTORY</div>`);
+	forwardHistoryDiv.appendChild(forwardHistoryHeader);
+	for (const [i, [traversalNumber, stepNum, endTrailId]] of forwardTrailStarts.toReversed().entries()) {
+		let [_trailIdArray, finalLocalState] = getTrailIds(endTrailId, spoiler.forward_traversal, false);
+		let historyItem = createHtmlElement(`<div>History index ${i} (step ${stepNum}, traversal ${traversalNumber})</div>`);
+		forwardHistoryDiv.appendChild(historyItem);
+		let statePre = document.createElement("pre");
+		statePre.innerText = JSON.stringify(finalLocalState, localStateKeyOrder, 2);
+		forwardHistoryDiv.appendChild(statePre);
+	}
+	debugOutput.appendChild(forwardHistoryDiv);
+
+	let reverseHistoryDiv = document.createElement("div");
+	let reverseHistoryHeader = createHtmlElement(`<div class="category">RETURN HISTORY</div>`);
+	reverseHistoryDiv.appendChild(reverseHistoryHeader);
+	for (const [i, [traversalNumber, stepNum, endTrailId]] of reverseTrailStarts.toReversed().entries()) {
+		let [_trailIdArray, finalLocalState] = getTrailIds(endTrailId, spoiler.reverse_traversal, false);
+		let historyItem = createHtmlElement(`<div>History index ${i} (step ${stepNum}, traversal ${traversalNumber})</div>`);
+		reverseHistoryDiv.appendChild(historyItem);
+		let statePre = document.createElement("pre");
+		statePre.innerText = JSON.stringify(finalLocalState, localStateKeyOrder, 2);
+		reverseHistoryDiv.appendChild(statePre);
+	}
+	debugOutput.appendChild(reverseHistoryDiv);
+
 	debugOutput.style.paddingBottom = "16px";
 }
 
-document.getElementById("debugDataForm").addEventListener("submit", updateDebugData);
 loadForm(document.getElementById("settingsForm"));
 loadForm(document.getElementById("helpForm"));
 setDebugDataVisibility();
@@ -1609,6 +1647,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				oy = 12;
 			} else {
 				ox = 12;
+			}
+			if (document.getElementById("smalldoors").checked) {
+				elem.style.backgroundImage = "url('map_doors_small.png')";
 			}
 			elem.style.left = d.location.coords[0] * 24 + 27 + ox + "px";
 			elem.style.top = d.location.coords[1] * 24 + 27 + oy + "px";
