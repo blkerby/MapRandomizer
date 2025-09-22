@@ -770,11 +770,11 @@ pub fn apply_farm_requirement(
 
     if new_local.energy_missing(&global.inventory, true) == 0 {
         if reverse {
-            new_local.energy = ResourceLevel::Remaining(1);
-            new_local.reserves = ResourceLevel::Remaining(0);
+            new_local.energy = ResourceLevel::Remaining(1).into();
+            new_local.reserves = ResourceLevel::Remaining(0).into();
         } else {
-            new_local.energy = ResourceLevel::Consumed(0);
-            new_local.reserves = ResourceLevel::Consumed(0);
+            new_local.energy = ResourceLevel::Consumed(0).into();
+            new_local.reserves = ResourceLevel::Consumed(0).into();
         }
         new_local.farm_baseline_energy = new_local.energy;
         new_local.farm_baseline_reserves = new_local.reserves;
@@ -1416,26 +1416,26 @@ fn apply_requirement_simple(
             let reserves_remaining = local.reserves_remaining(&cx.global.inventory);
             if cx.reverse {
                 if energy_remaining <= limit_energy {
-                    local.energy = ResourceLevel::Remaining(1);
+                    local.energy = ResourceLevel::Remaining(1).into();
                     local.farm_baseline_energy = local.energy;
                 }
                 if reserves_remaining <= limit_reserves {
-                    local.reserves = ResourceLevel::Remaining(0);
+                    local.reserves = ResourceLevel::Remaining(0).into();
                     local.farm_baseline_reserves = local.reserves;
                 }
             } else {
                 if limit_energy >= cx.global.inventory.max_energy {
-                    local.energy = ResourceLevel::Consumed(0);
+                    local.energy = ResourceLevel::Consumed(0).into();
                     local.farm_baseline_energy = local.energy;
                 } else if energy_remaining < limit_energy {
-                    local.energy = ResourceLevel::Remaining(limit_energy);
+                    local.energy = ResourceLevel::Remaining(limit_energy).into();
                     local.farm_baseline_energy = local.energy;
                 }
                 if limit_reserves >= cx.global.inventory.max_reserves {
-                    local.reserves = ResourceLevel::Consumed(0);
+                    local.reserves = ResourceLevel::Consumed(0).into();
                     local.farm_baseline_reserves = local.reserves;
                 } else if reserves_remaining < limit_reserves {
-                    local.reserves = ResourceLevel::Remaining(limit_reserves);
+                    local.reserves = ResourceLevel::Remaining(limit_reserves).into();
                     local.farm_baseline_reserves = local.reserves;
                 }
             }
@@ -1445,11 +1445,12 @@ fn apply_requirement_simple(
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
             if cx.reverse {
                 if energy_remaining <= limit {
-                    local.energy = ResourceLevel::Remaining(1);
-                    local.farm_baseline_energy = ResourceLevel::Remaining(1);
+                    local.energy = ResourceLevel::Remaining(1).into();
+                    local.farm_baseline_energy = ResourceLevel::Remaining(1).into();
                 }
             } else if energy_remaining < limit {
-                local.energy = ResourceLevel::Remaining(min(limit, cx.global.inventory.max_energy));
+                local.energy =
+                    ResourceLevel::Remaining(min(limit, cx.global.inventory.max_energy)).into();
                 local.farm_baseline_energy = local.energy;
             }
             SimpleResult::Success
@@ -1458,12 +1459,12 @@ fn apply_requirement_simple(
             let reserves_remaining = local.reserves_remaining(&cx.global.inventory);
             if cx.reverse {
                 if reserves_remaining <= limit {
-                    local.reserves = ResourceLevel::Remaining(0);
-                    local.farm_baseline_reserves = ResourceLevel::Remaining(0);
+                    local.reserves = ResourceLevel::Remaining(0).into();
+                    local.farm_baseline_reserves = ResourceLevel::Remaining(0).into();
                 }
             } else if reserves_remaining < limit {
                 local.reserves =
-                    ResourceLevel::Remaining(min(limit, cx.global.inventory.max_reserves));
+                    ResourceLevel::Remaining(min(limit, cx.global.inventory.max_reserves)).into();
                 local.farm_baseline_reserves = local.reserves;
             }
             SimpleResult::Success
@@ -1518,10 +1519,10 @@ fn apply_requirement_simple(
         Requirement::AmmoStationRefillAll => (!cx.settings.other_settings.ultra_low_qol).into(),
         Requirement::EnergyStationRefill => {
             if cx.reverse {
-                local.energy = ResourceLevel::Remaining(1);
+                local.energy = ResourceLevel::Remaining(1).into();
                 local.farm_baseline_energy = local.energy;
             } else {
-                local.energy = ResourceLevel::Consumed(0);
+                local.energy = ResourceLevel::Consumed(0).into();
                 local.farm_baseline_energy = local.energy;
             }
             if cx.settings.quality_of_life_settings.energy_station_reserves
@@ -1531,10 +1532,10 @@ fn apply_requirement_simple(
                     .reserve_backward_transfer
             {
                 if cx.reverse {
-                    local.reserves = ResourceLevel::Remaining(0);
+                    local.reserves = ResourceLevel::Remaining(0).into();
                     local.farm_baseline_reserves = local.reserves;
                 } else {
-                    local.reserves = ResourceLevel::Consumed(0);
+                    local.reserves = ResourceLevel::Consumed(0).into();
                     local.farm_baseline_reserves = local.reserves;
                 }
             }
@@ -1554,7 +1555,8 @@ fn apply_requirement_simple(
                     .use_reserve_energy(amt, &cx.global.inventory, cx.reverse)
                     .into()
             } else {
-                local.energy = ResourceLevel::Remaining(Capacity::min(count, energy_remaining));
+                local.energy =
+                    ResourceLevel::Remaining(Capacity::min(count, energy_remaining)).into();
                 SimpleResult::Success
             }
         }
@@ -1563,7 +1565,8 @@ fn apply_requirement_simple(
             if cx.reverse {
                 (reserves_remaining <= count).into()
             } else {
-                local.reserves = ResourceLevel::Remaining(Capacity::min(count, reserves_remaining));
+                local.reserves =
+                    ResourceLevel::Remaining(Capacity::min(count, reserves_remaining)).into();
                 SimpleResult::Success
             }
         }
@@ -1780,7 +1783,7 @@ fn apply_requirement_simple(
                     } else {
                         let reserves_needed =
                             Capacity::max(0, 29 + min_frames - regular_energy_remaining);
-                        local.energy = ResourceLevel::Remaining(29);
+                        local.energy = ResourceLevel::Remaining(29).into();
                         local
                             .use_reserve_energy(reserves_needed, &cx.global.inventory, cx.reverse)
                             .into()

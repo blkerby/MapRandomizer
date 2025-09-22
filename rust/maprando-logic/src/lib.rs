@@ -101,12 +101,29 @@ pub enum ResourceLevel {
     Remaining(Capacity),
 }
 
-impl ResourceLevel {
-    pub fn signed_encode(&self) -> Capacity {
-        match *self {
-            ResourceLevel::Consumed(x) => -x - 1,
-            ResourceLevel::Remaining(x) => x,
+#[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+pub struct EncodedResourceLevel(pub Capacity);
+
+impl EncodedResourceLevel {
+    fn new(r: ResourceLevel) -> Self {
+        match r {
+            ResourceLevel::Consumed(x) => EncodedResourceLevel(-x - 1),
+            ResourceLevel::Remaining(x) => EncodedResourceLevel(x),
         }
+    }
+
+    fn decode(&self) -> ResourceLevel {
+        if self.0 >= 0 {
+            ResourceLevel::Remaining(self.0)
+        } else {
+            ResourceLevel::Consumed(-self.0 - 1)
+        }
+    }
+}
+
+impl From<ResourceLevel> for EncodedResourceLevel {
+    fn from(value: ResourceLevel) -> Self {
+        EncodedResourceLevel::new(value)
     }
 }
 
@@ -118,15 +135,15 @@ impl ResourceLevel {
 // won't have to be public.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct LocalState {
-    pub energy: ResourceLevel,
-    pub reserves: ResourceLevel,
+    pub energy: EncodedResourceLevel,
+    pub reserves: EncodedResourceLevel,
     pub missiles_used: Capacity,
     pub supers_used: Capacity,
     pub power_bombs_used: Capacity,
     pub shinecharge_frames_remaining: Capacity,
     pub cycle_frames: Capacity,
-    pub farm_baseline_energy: ResourceLevel,
-    pub farm_baseline_reserves: ResourceLevel,
+    pub farm_baseline_energy: EncodedResourceLevel,
+    pub farm_baseline_reserves: EncodedResourceLevel,
     pub farm_baseline_missiles_used: Capacity,
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
@@ -137,15 +154,15 @@ pub struct LocalState {
 impl LocalState {
     pub fn empty(global: &GlobalState) -> Self {
         LocalState {
-            energy: ResourceLevel::Remaining(1),
-            reserves: ResourceLevel::Remaining(0),
+            energy: ResourceLevel::Remaining(1).into(),
+            reserves: ResourceLevel::Remaining(0).into(),
             missiles_used: global.inventory.max_missiles,
             supers_used: global.inventory.max_supers,
             power_bombs_used: global.inventory.max_power_bombs,
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
-            farm_baseline_energy: ResourceLevel::Remaining(1),
-            farm_baseline_reserves: ResourceLevel::Remaining(0),
+            farm_baseline_energy: ResourceLevel::Remaining(1).into(),
+            farm_baseline_reserves: ResourceLevel::Remaining(0).into(),
             farm_baseline_missiles_used: global.inventory.max_missiles,
             farm_baseline_supers_used: global.inventory.max_supers,
             farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
@@ -157,14 +174,14 @@ impl LocalState {
     pub fn full(reverse: bool) -> Self {
         LocalState {
             energy: if reverse {
-                ResourceLevel::Remaining(1)
+                ResourceLevel::Remaining(1).into()
             } else {
-                ResourceLevel::Consumed(0)
+                ResourceLevel::Consumed(0).into()
             },
             reserves: if reverse {
-                ResourceLevel::Remaining(0)
+                ResourceLevel::Remaining(0).into()
             } else {
-                ResourceLevel::Consumed(0)
+                ResourceLevel::Consumed(0).into()
             },
             missiles_used: 0,
             supers_used: 0,
@@ -172,14 +189,14 @@ impl LocalState {
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
             farm_baseline_energy: if reverse {
-                ResourceLevel::Remaining(1)
+                ResourceLevel::Remaining(1).into()
             } else {
-                ResourceLevel::Consumed(0)
+                ResourceLevel::Consumed(0).into()
             },
             farm_baseline_reserves: if reverse {
-                ResourceLevel::Remaining(0)
+                ResourceLevel::Remaining(0).into()
             } else {
-                ResourceLevel::Consumed(0)
+                ResourceLevel::Consumed(0).into()
             },
             farm_baseline_missiles_used: 0,
             farm_baseline_supers_used: 0,
@@ -189,8 +206,24 @@ impl LocalState {
         }
     }
 
+    pub fn energy(&self) -> ResourceLevel {
+        self.energy.decode()
+    }
+
+    pub fn reserves(&self) -> ResourceLevel {
+        self.reserves.decode()
+    }
+
+    pub fn farm_baseline_energy(&self) -> ResourceLevel {
+        self.farm_baseline_energy.decode()
+    }
+
+    pub fn farm_baseline_reserves(&self) -> ResourceLevel {
+        self.farm_baseline_reserves.decode()
+    }
+
     pub fn energy_remaining(&self, inventory: &Inventory, include_reserves: bool) -> Capacity {
-        let energy = match self.energy {
+        let energy = match self.energy() {
             ResourceLevel::Consumed(x) => inventory.max_energy - x,
             ResourceLevel::Remaining(x) => x,
         };
@@ -211,7 +244,7 @@ impl LocalState {
     }
 
     pub fn reserves_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.reserves {
+        match self.reserves() {
             ResourceLevel::Consumed(x) => inventory.max_reserves - x,
             ResourceLevel::Remaining(x) => x,
         }
@@ -222,14 +255,14 @@ impl LocalState {
     }
 
     pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.farm_baseline_energy {
+        match self.farm_baseline_energy() {
             ResourceLevel::Consumed(x) => inventory.max_energy - x,
             ResourceLevel::Remaining(x) => x,
         }
     }
 
     pub fn farm_baseline_reserves_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.farm_baseline_reserves {
+        match self.farm_baseline_reserves() {
             ResourceLevel::Consumed(x) => inventory.max_reserves - x,
             ResourceLevel::Remaining(x) => x,
         }
@@ -255,9 +288,9 @@ impl LocalState {
             {
                 false
             } else {
-                self.energy = ResourceLevel::Remaining(1);
+                self.energy = ResourceLevel::Remaining(1).into();
                 self.reserves =
-                    ResourceLevel::Remaining(Capacity::max(min_refill, reserves_needed));
+                    ResourceLevel::Remaining(Capacity::max(min_refill, reserves_needed)).into();
                 true
             }
         } else {
@@ -268,8 +301,9 @@ impl LocalState {
             if heated {
                 usable_reserves = usable_reserves * 3 / 4;
             }
-            self.energy = ResourceLevel::Remaining(Capacity::min(usable_reserves, max_refill));
-            self.reserves = ResourceLevel::Remaining(0);
+            self.energy =
+                ResourceLevel::Remaining(Capacity::min(usable_reserves, max_refill)).into();
+            self.reserves = ResourceLevel::Remaining(0).into();
             true
         }
     }
@@ -281,11 +315,11 @@ impl LocalState {
         inventory: &Inventory,
         reverse: bool,
     ) -> bool {
-        match (reverse, self.energy) {
+        match (reverse, self.energy()) {
             (false, ResourceLevel::Consumed(x)) => {
                 if x + amt >= inventory.max_energy {
                     if can_transfer_reserves {
-                        self.energy = ResourceLevel::Consumed(inventory.max_energy - 1);
+                        self.energy = ResourceLevel::Consumed(inventory.max_energy - 1).into();
                         self.use_reserve_energy(
                             x + amt - (inventory.max_energy - 1),
                             inventory,
@@ -295,46 +329,46 @@ impl LocalState {
                         false
                     }
                 } else {
-                    self.energy = ResourceLevel::Consumed(x + amt);
+                    self.energy = ResourceLevel::Consumed(x + amt).into();
                     true
                 }
             }
             (false, ResourceLevel::Remaining(x)) => {
                 if x <= amt {
                     if can_transfer_reserves {
-                        self.energy = ResourceLevel::Remaining(1);
+                        self.energy = ResourceLevel::Remaining(1).into();
                         self.use_reserve_energy(amt - x + 1, inventory, reverse)
                     } else {
                         false
                     }
                 } else {
-                    self.energy = ResourceLevel::Remaining(x - amt);
+                    self.energy = ResourceLevel::Remaining(x - amt).into();
                     true
                 }
             }
             (true, ResourceLevel::Consumed(x)) => {
                 if x <= amt {
                     if can_transfer_reserves {
-                        self.energy = ResourceLevel::Consumed(0);
+                        self.energy = ResourceLevel::Consumed(0).into();
                         self.use_reserve_energy(amt - x, inventory, reverse)
                     } else {
                         false
                     }
                 } else {
-                    self.energy = ResourceLevel::Consumed(x - amt);
+                    self.energy = ResourceLevel::Consumed(x - amt).into();
                     true
                 }
             }
             (true, ResourceLevel::Remaining(x)) => {
                 if x + amt >= inventory.max_energy {
                     if can_transfer_reserves {
-                        self.energy = ResourceLevel::Remaining(inventory.max_energy);
+                        self.energy = ResourceLevel::Remaining(inventory.max_energy).into();
                         self.use_reserve_energy(x + amt - inventory.max_energy, inventory, reverse)
                     } else {
                         false
                     }
                 } else {
-                    self.energy = ResourceLevel::Remaining(x + amt);
+                    self.energy = ResourceLevel::Remaining(x + amt).into();
                     true
                 }
             }
@@ -348,20 +382,20 @@ impl LocalState {
         inventory: &Inventory,
         reverse: bool,
     ) {
-        match (reverse, self.energy) {
+        match (reverse, self.energy()) {
             (false, ResourceLevel::Consumed(x)) => {
                 if x < amt {
-                    self.energy = ResourceLevel::Consumed(0);
+                    self.energy = ResourceLevel::Consumed(0).into();
                     if can_transfer_reserves {
                         self.refill_reserve_energy(amt - x, inventory, reverse)
                     }
                 } else {
-                    self.energy = ResourceLevel::Consumed(x - amt);
+                    self.energy = ResourceLevel::Consumed(x - amt).into();
                 }
             }
             (false, ResourceLevel::Remaining(x)) => {
                 if x + amt > inventory.max_energy {
-                    self.energy = ResourceLevel::Remaining(inventory.max_energy);
+                    self.energy = ResourceLevel::Remaining(inventory.max_energy).into();
                     if can_transfer_reserves {
                         self.refill_reserve_energy(
                             x + amt - inventory.max_energy,
@@ -370,12 +404,12 @@ impl LocalState {
                         )
                     }
                 } else {
-                    self.energy = ResourceLevel::Remaining(x + amt);
+                    self.energy = ResourceLevel::Remaining(x + amt).into();
                 }
             }
             (true, ResourceLevel::Consumed(x)) => {
                 if x + amt > inventory.max_energy {
-                    self.energy = ResourceLevel::Consumed(0);
+                    self.energy = ResourceLevel::Consumed(0).into();
                     if can_transfer_reserves {
                         self.refill_reserve_energy(
                             x + amt - inventory.max_energy,
@@ -384,17 +418,17 @@ impl LocalState {
                         );
                     }
                 } else {
-                    self.energy = ResourceLevel::Consumed(x + amt);
+                    self.energy = ResourceLevel::Consumed(x + amt).into();
                 }
             }
             (true, ResourceLevel::Remaining(x)) => {
                 if x < amt {
-                    self.energy = ResourceLevel::Remaining(1);
+                    self.energy = ResourceLevel::Remaining(1).into();
                     if can_transfer_reserves {
                         self.refill_reserve_energy(amt - x + 1, inventory, reverse);
                     }
                 } else {
-                    self.energy = ResourceLevel::Remaining(x - amt);
+                    self.energy = ResourceLevel::Remaining(x - amt).into();
                 }
             }
         }
@@ -424,12 +458,12 @@ impl LocalState {
         inventory: &Inventory,
         reverse: bool,
     ) -> bool {
-        match (reverse, self.reserves) {
+        match (reverse, self.reserves()) {
             (false, ResourceLevel::Consumed(x)) => {
                 if x + amt > inventory.max_reserves {
                     false
                 } else {
-                    self.reserves = ResourceLevel::Consumed(x + amt);
+                    self.reserves = ResourceLevel::Consumed(x + amt).into();
                     true
                 }
             }
@@ -437,7 +471,7 @@ impl LocalState {
                 if amt > x {
                     false
                 } else {
-                    self.reserves = ResourceLevel::Remaining(x - amt);
+                    self.reserves = ResourceLevel::Remaining(x - amt).into();
                     true
                 }
             }
@@ -445,7 +479,7 @@ impl LocalState {
                 if amt > x {
                     false
                 } else {
-                    self.reserves = ResourceLevel::Consumed(x - amt);
+                    self.reserves = ResourceLevel::Consumed(x - amt).into();
                     true
                 }
             }
@@ -453,7 +487,7 @@ impl LocalState {
                 if x + amt > inventory.max_reserves {
                     false
                 } else {
-                    self.reserves = ResourceLevel::Remaining(x + amt);
+                    self.reserves = ResourceLevel::Remaining(x + amt).into();
                     true
                 }
             }
@@ -461,20 +495,20 @@ impl LocalState {
     }
 
     pub fn refill_reserve_energy(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) {
-        match (reverse, self.reserves) {
+        match (reverse, self.reserves()) {
             (false, ResourceLevel::Consumed(x)) => {
-                self.reserves = ResourceLevel::Consumed(Capacity::max(0, x - amt));
+                self.reserves = ResourceLevel::Consumed(Capacity::max(0, x - amt)).into();
             }
             (false, ResourceLevel::Remaining(x)) => {
                 self.reserves =
-                    ResourceLevel::Remaining(Capacity::min(inventory.max_reserves, x + amt));
+                    ResourceLevel::Remaining(Capacity::min(inventory.max_reserves, x + amt)).into();
             }
             (true, ResourceLevel::Consumed(x)) => {
                 self.reserves =
-                    ResourceLevel::Consumed(Capacity::min(inventory.max_reserves, x + amt));
+                    ResourceLevel::Consumed(Capacity::min(inventory.max_reserves, x + amt)).into();
             }
             (true, ResourceLevel::Remaining(x)) => {
-                self.reserves = ResourceLevel::Remaining(Capacity::max(0, x - amt));
+                self.reserves = ResourceLevel::Remaining(Capacity::max(0, x - amt)).into();
             }
         }
     }
@@ -502,7 +536,7 @@ impl LocalState {
     ) -> bool {
         if reverse {
             let missing = self.reserves_missing(inventory);
-            self.reserves = ResourceLevel::Consumed(Capacity::min(missing, amt));
+            self.reserves = ResourceLevel::Consumed(Capacity::min(missing, amt)).into();
             true
         } else {
             inventory.max_reserves - self.reserves_remaining(inventory) <= amt
