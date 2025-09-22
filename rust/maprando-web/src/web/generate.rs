@@ -20,6 +20,7 @@ struct GenerateTemplate<'a> {
     objective_presets_json: String,
     item_priorities: Vec<String>,
     item_pool_multiple: Vec<String>,
+    item_pool_single: Vec<String>,
     starting_items_multiple: Vec<String>,
     starting_items_single: Vec<String>,
     prioritizable_items: Vec<String>,
@@ -38,6 +39,28 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         .into_iter()
         .map(|x| x.to_string())
         .collect();
+        
+    let item_pool_single: Vec<String> = [
+        "Charge",
+        "Ice",
+        "Wave",
+        "Spazer",
+        "Plasma",
+        "XRayScope",
+        "Morph",
+        "Bombs",
+        "Grapple",
+        "HiJump",
+        "SpeedBooster",
+        "SpringBall",
+        "SpaceJump",
+        "ScrewAttack",
+        "Varia",
+        "Gravity",
+    ]
+    .into_iter()
+    .map(|x| x.to_string())
+    .collect();
 
     let starting_items_multiple: Vec<String> =
         ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
@@ -157,6 +180,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         item_placement_styles: vec!["Neutral", "Forced", "Local"],
         objective_groups: get_objective_groups(),
         item_pool_multiple,
+        item_pool_single,
         starting_items_multiple,
         starting_items_single,
         item_priorities: ["Early", "Default", "Late", "Never"]

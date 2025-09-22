@@ -198,6 +198,21 @@
                                         </div>
                                     </div>
                                 {% endfor %}
+                                {% for item in item_pool_single %}
+                                    <div class="form-group row my-2">
+                                        <label class="col-sm-2 col-form-label text-end" for="item_pool_{{+ item }}">{{+ item }}</label>
+                                        <div id="itemPool{{ item}}" class="col-sm-3 btn-group" role="group">
+                                            <input type="radio" class="btn-check item-pool-input-single" name="item_pool_{{+ item }}" value="No"
+                                                id="itemPool{{+ item }}No" autocomplete="off" 
+                                                onclick="itemPoolChanged()">
+                                            <label class="btn btn-outline-primary" for="itemPool{{+ item }}No">No</label>
+                                            <input type="radio" class="btn-check item-pool-input-single" name="item_pool_{{+ item }}" value="Yes"
+                                                id="itemPool{{+ item }}Yes" autocomplete="off" 
+                                                onclick="itemPoolChanged()" checked>
+                                            <label class="btn btn-outline-primary" for="itemPool{{+ item }}Yes">Yes</label>
+                                        </div>
+                                    </div>
+                                {% endfor %}
                             </div>
                         </div>
                     </div>

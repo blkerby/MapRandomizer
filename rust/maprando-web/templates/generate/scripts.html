@@ -345,6 +345,16 @@ function buildItemPool() {
         name = x.name.substring(10);
         itemPool.push({"item": name, "count": tryParseInt(x.value)});
     });
+    document.querySelectorAll('.item-pool-input-single')
+    .forEach(function (x) {
+        // remove prefix: 'item_pool_"
+        name = x.name.substring(10);
+        if (x.checked && x.value == "Yes") {
+            itemPool.push({"item": name, "count": 1});
+        } else if (x.checked && x.value == "No") {
+            itemPool.push({"item": name, "count": 0});
+        }
+    });
     return itemPool;
 }
 function buildStartingItems() {
@@ -835,10 +845,22 @@ function applyItemProgressionPreset(preset) {
     applyRadioValue("itemPoolPreset", preset.item_pool_preset);
     applyRadioValue("stopItemPlacementEarly", preset.stop_item_placement_early);
     document.getElementById("ammoCollectFraction").value = preset.ammo_collect_fraction;
+    
+    /* Preset all uniques to true (upgrade previous presets which lacked these) */
+    
+    {% for item in item_pool_single %}
+    document.getElementById("itemPool{{+ item }}Yes").checked = true;
+    {% endfor %}
+    
     for (x of preset.item_pool) {
         let item = x.item;
         let cnt = x.count;
-        document.getElementById(`itemPool${item}`).value = cnt;
+	let el = document.getElementById(`itemPool${item}`);
+	if (el.classList.contains("item-pool-input-multiple")) {
+		el.value = cnt;
+	} else {
+		applyRadioValue(`itemPool${item}`, cnt > 0 ? "Yes" : "No");
+	}
     }
     processItemPoolPreset();
     applyRadioValue("startingItemsPreset", preset.starting_items_preset);
@@ -940,6 +962,9 @@ function processItemPoolPreset() {
         document.getElementById("itemPoolPowerBomb").value = "10";
         document.getElementById("itemPoolETank").value = "14";
         document.getElementById("itemPoolReserveTank").value = "4";
+        {% for item in item_pool_single %}
+        document.getElementById("itemPool{{+ item }}Yes").checked = true;
+        {% endfor %}
     }
     if (document.getElementById("itemPoolPresetReduced").checked) {
         document.getElementById("stopItemPlacementEarlyYes").checked = true;
@@ -948,11 +973,14 @@ function processItemPoolPreset() {
         document.getElementById("itemPoolPowerBomb").value = "5";
         document.getElementById("itemPoolETank").value = "3";
         document.getElementById("itemPoolReserveTank").value = "3";
+        {% for item in item_pool_single %}
+        document.getElementById("itemPool{{+ item }}Yes").checked = true;
+        {% endfor %}
     }
 }
 function validateItemPool() {
-    if (parseInt(document.getElementById("itemPoolMissile").value) > 46) {
-        document.getElementById("itemPoolMissile").value = "46";
+    if (parseInt(document.getElementById("itemPoolMissile").value) > 100) {
+        document.getElementById("itemPoolMissile").value = "100";
     }
     if (parseInt(document.getElementById("itemPoolETank").value) > 14) {
         document.getElementById("itemPoolETank").value = "14";
@@ -967,20 +995,20 @@ function validateItemPool() {
         document.getElementById("itemPoolPowerBomb").value = "19";
     }
 
-    if (parseInt(document.getElementById("itemPoolMissile").value) < 2) {
-        document.getElementById("itemPoolMissile").value = "2";
+    if (parseInt(document.getElementById("itemPoolMissile").value) < 0) {
+        document.getElementById("itemPoolMissile").value = "0";
     }
-    if (parseInt(document.getElementById("itemPoolETank").value) < 2) {
-        document.getElementById("itemPoolETank").value = "2";
+    if (parseInt(document.getElementById("itemPoolETank").value) < 0) {
+        document.getElementById("itemPoolETank").value = "0";
     }
-    if (parseInt(document.getElementById("itemPoolReserveTank").value) < 1) {
-        document.getElementById("itemPoolReserveTank").value = "1";
+    if (parseInt(document.getElementById("itemPoolReserveTank").value) < 0) {
+        document.getElementById("itemPoolReserveTank").value = "0";
     }
-    if (parseInt(document.getElementById("itemPoolSuper").value) < 2) {
-        document.getElementById("itemPoolSuper").value = "2";
+    if (parseInt(document.getElementById("itemPoolSuper").value) < 0) {
+        document.getElementById("itemPoolSuper").value = "0";
     }
-    if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 1) {
-        document.getElementById("itemPoolPowerBomb").value = "1";
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 0) {
+        document.getElementById("itemPoolPowerBomb").value = "0";
     }
 }
 function itemPoolPresetChanged() {
