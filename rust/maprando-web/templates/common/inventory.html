@@ -308,7 +308,7 @@
         ref_inventory.addEventListener("contextmenu", onItemClick);
     });
 
-    function getInventory() {
+    function getInventory(can_manage_reserves) {
         let inventory = {};
 
         inventory.items = [];
@@ -332,6 +332,10 @@
         inventory.collectible_missile_packs = getAmount(ref_missiles) / 5;
         inventory.collectible_super_packs = getAmount(ref_supers) / 5;
         inventory.collectible_power_bomb_packs = getAmount(ref_powerbombs) / 5;
+        inventory.collectible_reserve_tanks = getAmount(ref_reserves);
+        if (!canManageReserves && inventory.max_reserves > inventory.max_energy) {
+            inventory.max_reserves = inventory.max_energy;
+        }
         return inventory;
     }
 </script>

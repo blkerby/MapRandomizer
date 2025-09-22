@@ -73,12 +73,13 @@ fn run_scenario(
             collectible_missile_packs: 0,
             collectible_super_packs: 0,
             collectible_power_bomb_packs: 0,
+            collectible_reserve_tanks: 0,
         },
         flags: vec![false; game_data.flag_isv.keys.len()],
         doors_unlocked: vec![],
         weapon_mask,
     };
-    let local_state = LocalState::full();
+    let local_state = LocalState::full(false);
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),
@@ -131,7 +132,7 @@ fn run_scenario(
     );
 
     let outcome = new_local_state_opt
-        .map(|x| format!("{}", x.energy))
+        .map(|x| format!("{:?}", x.energy))
         .unwrap_or("n/a".to_string());
     println!(
         "proficiency={proficiency}, items={item_loadout:?}, missiles={missile_cnt}, patience={patience}: {outcome}"

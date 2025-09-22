@@ -963,7 +963,7 @@ fn get_strat_difficulty(
         let local = LocalState {
             shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
             flash_suit: flash_suit_obtainable,
-            ..LocalState::full()
+            ..LocalState::full(false)
         };
 
         let key = (room_id, from_node_id, to_node_id, strat_name.clone());
@@ -1406,6 +1406,7 @@ impl LogicData {
                 collectible_missile_packs: 0,
                 collectible_super_packs: 0,
                 collectible_power_bomb_packs: 0,
+                collectible_reserve_tanks: 0,
             },
             flags: vec![true; game_data.flag_isv.keys.len()],
             doors_unlocked: vec![],

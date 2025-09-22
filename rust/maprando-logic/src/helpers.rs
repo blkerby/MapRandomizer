@@ -1,4 +1,4 @@
-use crate::{Inventory, LocalState};
+use crate::Inventory;
 use maprando_game::{Capacity, Item};
 
 pub fn get_charge_damage(inventory: &Inventory) -> f32 {

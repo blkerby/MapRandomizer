@@ -8,7 +8,6 @@ pub fn apply_phantoon_requirement(
     inventory: &Inventory,
     local: &mut LocalState,
     proficiency: f32,
-    can_manage_reserves: bool,
     reverse: bool,
 ) -> bool {
     // We only consider simple, safer strats here, where we try to damage Phantoon as much as possible
@@ -79,7 +78,6 @@ pub fn apply_draygon_requirement(
     inventory: &Inventory,
     local: &mut LocalState,
     proficiency: f32,
-    can_manage_reserves: bool,
     can_be_very_patient: bool,
     reverse: bool,
 ) -> bool {
@@ -187,7 +185,6 @@ pub fn apply_ridley_requirement(
     inventory: &Inventory,
     local: &mut LocalState,
     proficiency: f32,
-    can_manage_reserves: bool,
     can_be_patient: bool,
     can_be_very_patient: bool,
     can_be_extremely_patient: bool,
@@ -359,7 +356,6 @@ pub fn apply_botwoon_requirement(
     local: &mut LocalState,
     proficiency: f32,
     second_phase: bool,
-    can_manage_reserves: bool,
     reverse: bool,
 ) -> bool {
     // We aim to be a little lenient here. For example, we don't take SBAs (e.g. X-factors) into account,
@@ -484,7 +480,6 @@ pub fn apply_mother_brain_2_requirement(
     local: &mut LocalState,
     proficiency: f32,
     supers_double: bool,
-    can_manage_reserves: bool,
     can_be_very_patient: bool,
     r_mode: bool,
     reverse: bool,

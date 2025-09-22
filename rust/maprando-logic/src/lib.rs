@@ -18,6 +18,7 @@ pub struct Inventory {
     pub collectible_missile_packs: Capacity,
     pub collectible_super_packs: Capacity,
     pub collectible_power_bomb_packs: Capacity,
+    pub collectible_reserve_tanks: Capacity,
 }
 
 // TODO: move tech and notable_strats out of this struct, since these do not change from step to step.
@@ -79,11 +80,14 @@ impl GlobalState {
             }
             Item::ETank => {
                 self.inventory.max_energy += 100;
-                starting_local_state.energy += 100;
             }
             Item::ReserveTank => {
-                self.inventory.max_reserves += 100;
-                starting_local_state.reserves_used += 100;
+                self.inventory.collectible_reserve_tanks += 1;
+                self.inventory.max_reserves = self.inventory.collectible_reserve_tanks * 100;
+                if !tech[game_data.manage_reserves_tech_idx] {
+                    self.inventory.max_reserves =
+                        Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
+                }
             }
             _ => {}
         }
@@ -97,9 +101,23 @@ pub enum ResourceLevel {
     Remaining(Capacity),
 }
 
+impl ResourceLevel {
+    pub fn signed_encode(&self) -> Capacity {
+        match *self {
+            ResourceLevel::Consumed(x) => -x - 1,
+            ResourceLevel::Remaining(x) => x,
+        }
+    }
+}
+
+// Using ResourceLevel enums is a bit wasteful here since it costs a byte for each discriminant:
+// we could instead use the sign bit of the Capacity to distinguish Remaining vs. Consumed variants.
+// That would be more error-prone, so we postpone it as a potential future optimization.
+// To support a potential change in representation, we're moving in a direction of making LocalState
+// encapsulated, adding methods for interacting with it, so that its member fields eventually
+// won't have to be public.
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct LocalState {
-    // Positive values are relative to empty, zero and negative values are relative to full:
     pub energy: ResourceLevel,
     pub reserves: ResourceLevel,
     pub missiles_used: Capacity,
@@ -107,8 +125,8 @@ pub struct LocalState {
     pub power_bombs_used: Capacity,
     pub shinecharge_frames_remaining: Capacity,
     pub cycle_frames: Capacity,
-    pub farm_baseline_energy_used: Capacity,
-    pub farm_baseline_reserves_used: Capacity,
+    pub farm_baseline_energy: ResourceLevel,
+    pub farm_baseline_reserves: ResourceLevel,
     pub farm_baseline_missiles_used: Capacity,
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
@@ -126,8 +144,8 @@ impl LocalState {
             power_bombs_used: global.inventory.max_power_bombs,
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
-            farm_baseline_energy_used: 0,
-            farm_baseline_reserves_used: 0,
+            farm_baseline_energy: ResourceLevel::Remaining(1),
+            farm_baseline_reserves: ResourceLevel::Remaining(0),
             farm_baseline_missiles_used: global.inventory.max_missiles,
             farm_baseline_supers_used: global.inventory.max_supers,
             farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
@@ -153,8 +171,16 @@ impl LocalState {
             power_bombs_used: 0,
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
-            farm_baseline_energy_used: 0,
-            farm_baseline_reserves_used: 0,
+            farm_baseline_energy: if reverse {
+                ResourceLevel::Remaining(1)
+            } else {
+                ResourceLevel::Consumed(0)
+            },
+            farm_baseline_reserves: if reverse {
+                ResourceLevel::Remaining(0)
+            } else {
+                ResourceLevel::Consumed(0)
+            },
             farm_baseline_missiles_used: 0,
             farm_baseline_supers_used: 0,
             farm_baseline_power_bombs_used: 0,
@@ -163,61 +189,108 @@ impl LocalState {
         }
     }
 
-    fn energy_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.energy {
+    pub fn energy_remaining(&self, inventory: &Inventory, include_reserves: bool) -> Capacity {
+        let energy = match self.energy {
             ResourceLevel::Consumed(x) => inventory.max_energy - x,
             ResourceLevel::Remaining(x) => x,
+        };
+        if include_reserves {
+            energy + self.reserves_remaining(inventory)
+        } else {
+            energy
         }
     }
 
-    fn reserves_remaining(&self, inventory: &Inventory) -> Capacity {
+    pub fn energy_missing(&self, inventory: &Inventory, include_reserves: bool) -> Capacity {
+        let remaining = self.energy_remaining(inventory, include_reserves);
+        if include_reserves {
+            inventory.max_energy + inventory.max_reserves - remaining
+        } else {
+            inventory.max_energy - remaining
+        }
+    }
+
+    pub fn reserves_remaining(&self, inventory: &Inventory) -> Capacity {
         match self.reserves {
             ResourceLevel::Consumed(x) => inventory.max_reserves - x,
             ResourceLevel::Remaining(x) => x,
         }
     }
 
-    pub fn auto_reserve_trigger(&mut self, inventory: &Inventory, reverse: bool) -> bool {
+    pub fn reserves_missing(&self, inventory: &Inventory) -> Capacity {
+        inventory.max_reserves - self.reserves_remaining(inventory)
+    }
+
+    pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {
+        match self.farm_baseline_energy {
+            ResourceLevel::Consumed(x) => inventory.max_energy - x,
+            ResourceLevel::Remaining(x) => x,
+        }
+    }
+
+    pub fn farm_baseline_reserves_remaining(&self, inventory: &Inventory) -> Capacity {
+        match self.farm_baseline_reserves {
+            ResourceLevel::Consumed(x) => inventory.max_reserves - x,
+            ResourceLevel::Remaining(x) => x,
+        }
+    }
+
+    pub fn auto_reserve_trigger(
+        &mut self,
+        min_refill: Capacity,
+        max_refill: Capacity,
+        inventory: &Inventory,
+        heated: bool,
+        reverse: bool,
+    ) -> bool {
+        let reserves_remaining = self.reserves_remaining(inventory);
         if reverse {
-            let energy_remaining = self.energy_remaining(inventory);
-        } else {
-            let reserves_remaining = self.reserves_remaining(inventory);
-            if reserves_remaining == 0 {
+            let mut reserves_needed = self.energy_remaining(inventory, false);
+            if heated {
+                reserves_needed = (reserves_needed * 4 + 2) / 3;
+            }
+            if reserves_needed > inventory.max_reserves
+                || reserves_needed > max_refill
+                || reserves_remaining > 0
+            {
                 false
             } else {
-                self.energy = ResourceLevel::Remaining(Capacity::min(
-                    reserves_remaining,
-                    inventory.max_energy,
-                ));
+                self.energy = ResourceLevel::Remaining(1);
+                self.reserves =
+                    ResourceLevel::Remaining(Capacity::max(min_refill, reserves_needed));
                 true
             }
+        } else {
+            if reserves_remaining <= min_refill {
+                return false;
+            }
+            let mut usable_reserves = Capacity::min(reserves_remaining, inventory.max_energy);
+            if heated {
+                usable_reserves = usable_reserves * 3 / 4;
+            }
+            self.energy = ResourceLevel::Remaining(Capacity::min(usable_reserves, max_refill));
+            self.reserves = ResourceLevel::Remaining(0);
+            true
         }
     }
 
     pub fn use_energy(
         &mut self,
         amt: Capacity,
-        can_auto_reserve: bool,
-        can_manage_reserves: bool,
+        can_transfer_reserves: bool,
         inventory: &Inventory,
         reverse: bool,
     ) -> bool {
         match (reverse, self.energy) {
             (false, ResourceLevel::Consumed(x)) => {
                 if x + amt >= inventory.max_energy {
-                    if can_manage_reserves {
-                        // Assume that just enough reserve energy is manually converted to regular energy.
+                    if can_transfer_reserves {
                         self.energy = ResourceLevel::Consumed(inventory.max_energy - 1);
                         self.use_reserve_energy(
                             x + amt - (inventory.max_energy - 1),
                             inventory,
                             reverse,
                         )
-                    } else if can_auto_reserve {
-                        // let new_energy = x + amt - local.res
-                        self.energy = ResourceLevel::Consumed(x + amt);
-                        self.reserves = ResourceLevel::Remaining(0);
-                        false
                     } else {
                         false
                     }
@@ -228,8 +301,7 @@ impl LocalState {
             }
             (false, ResourceLevel::Remaining(x)) => {
                 if x <= amt {
-                    if can_manage_reserves {
-                        // Assume that just enough reserve energy is manually converted to regular energy.
+                    if can_transfer_reserves {
                         self.energy = ResourceLevel::Remaining(1);
                         self.use_reserve_energy(amt - x + 1, inventory, reverse)
                     } else {
@@ -242,8 +314,7 @@ impl LocalState {
             }
             (true, ResourceLevel::Consumed(x)) => {
                 if x <= amt {
-                    if can_manage_reserves {
-                        // Assume that just enough reserve energy is manually converted to regular energy.
+                    if can_transfer_reserves {
                         self.energy = ResourceLevel::Consumed(0);
                         self.use_reserve_energy(amt - x, inventory, reverse)
                     } else {
@@ -256,8 +327,7 @@ impl LocalState {
             }
             (true, ResourceLevel::Remaining(x)) => {
                 if x + amt >= inventory.max_energy {
-                    if can_manage_reserves {
-                        // Assume that just enough reserve energy is manually converted to regular energy.
+                    if can_transfer_reserves {
                         self.energy = ResourceLevel::Remaining(inventory.max_energy);
                         self.use_reserve_energy(x + amt - inventory.max_energy, inventory, reverse)
                     } else {
@@ -268,6 +338,83 @@ impl LocalState {
                     true
                 }
             }
+        }
+    }
+
+    pub fn refill_energy(
+        &mut self,
+        amt: Capacity,
+        can_transfer_reserves: bool,
+        inventory: &Inventory,
+        reverse: bool,
+    ) {
+        match (reverse, self.energy) {
+            (false, ResourceLevel::Consumed(x)) => {
+                if x < amt {
+                    self.energy = ResourceLevel::Consumed(0);
+                    if can_transfer_reserves {
+                        self.refill_reserve_energy(amt - x, inventory, reverse)
+                    }
+                } else {
+                    self.energy = ResourceLevel::Consumed(x - amt);
+                }
+            }
+            (false, ResourceLevel::Remaining(x)) => {
+                if x + amt > inventory.max_energy {
+                    self.energy = ResourceLevel::Remaining(inventory.max_energy);
+                    if can_transfer_reserves {
+                        self.refill_reserve_energy(
+                            x + amt - inventory.max_energy,
+                            inventory,
+                            reverse,
+                        )
+                    }
+                } else {
+                    self.energy = ResourceLevel::Remaining(x + amt);
+                }
+            }
+            (true, ResourceLevel::Consumed(x)) => {
+                if x + amt > inventory.max_energy {
+                    self.energy = ResourceLevel::Consumed(0);
+                    if can_transfer_reserves {
+                        self.refill_reserve_energy(
+                            x + amt - inventory.max_energy,
+                            inventory,
+                            reverse,
+                        );
+                    }
+                } else {
+                    self.energy = ResourceLevel::Consumed(x + amt);
+                }
+            }
+            (true, ResourceLevel::Remaining(x)) => {
+                if x < amt {
+                    self.energy = ResourceLevel::Remaining(1);
+                    if can_transfer_reserves {
+                        self.refill_reserve_energy(amt - x + 1, inventory, reverse);
+                    }
+                } else {
+                    self.energy = ResourceLevel::Remaining(x - amt);
+                }
+            }
+        }
+    }
+
+    pub fn ensure_energy_available(
+        &mut self,
+        amt: Capacity,
+        can_transfer_reserves: bool,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        if reverse {
+            // This is a bit inefficient of a way to implement this, but it's rarely used so it shouldn't matter.
+            self.refill_energy(amt, can_transfer_reserves, inventory, reverse);
+            self.use_energy(amt, can_transfer_reserves, inventory, reverse)
+        } else {
+            self.energy_remaining(inventory, can_transfer_reserves)
+                + self.reserves_remaining(inventory)
+                >= amt
         }
     }
 
@@ -311,5 +458,66 @@ impl LocalState {
                 }
             }
         }
+    }
+
+    pub fn refill_reserve_energy(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) {
+        match (reverse, self.reserves) {
+            (false, ResourceLevel::Consumed(x)) => {
+                self.reserves = ResourceLevel::Consumed(Capacity::max(0, x - amt));
+            }
+            (false, ResourceLevel::Remaining(x)) => {
+                self.reserves =
+                    ResourceLevel::Remaining(Capacity::min(inventory.max_reserves, x + amt));
+            }
+            (true, ResourceLevel::Consumed(x)) => {
+                self.reserves =
+                    ResourceLevel::Consumed(Capacity::min(inventory.max_reserves, x + amt));
+            }
+            (true, ResourceLevel::Remaining(x)) => {
+                self.reserves = ResourceLevel::Remaining(Capacity::max(0, x - amt));
+            }
+        }
+    }
+
+    pub fn ensure_reserve_energy_available(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        if reverse {
+            // This is a bit inefficient of a way to implement this, but it's rarely used so it shouldn't matter.
+            self.refill_reserve_energy(amt, inventory, reverse);
+            self.use_reserve_energy(amt, inventory, reverse)
+        } else {
+            self.reserves_remaining(inventory) >= amt
+        }
+    }
+
+    pub fn ensure_reserve_missing_at_most(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        if reverse {
+            let missing = self.reserves_missing(inventory);
+            self.reserves = ResourceLevel::Consumed(Capacity::min(missing, amt));
+            true
+        } else {
+            inventory.max_reserves - self.reserves_remaining(inventory) <= amt
+        }
+    }
+
+    pub fn refill_missiles(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {
+        self.missiles_used = Capacity::max(0, self.missiles_used - amt);
+    }
+
+    pub fn refill_supers(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {
+        self.supers_used = Capacity::max(0, self.supers_used - amt);
+    }
+
+    pub fn refill_power_bombs(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {
+        self.power_bombs_used = Capacity::max(0, self.power_bombs_used - amt);
     }
 }

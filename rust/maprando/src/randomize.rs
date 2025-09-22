@@ -4477,7 +4477,7 @@ impl<'r> Randomizer<'r> {
             let local = apply_requirement(
                 start_loc.requires_parsed.as_ref().unwrap(),
                 &global,
-                LocalState::full(),
+                LocalState::full(false),
                 false,
                 self.settings,
                 &self.difficulty_tiers[0],
@@ -4520,7 +4520,7 @@ impl<'r> Randomizer<'r> {
 
             traverser_pair
                 .reverse
-                .add_origin(LocalState::full(), start_vertex_id, &global);
+                .add_origin(LocalState::full(true), start_vertex_id, &global);
             traverser_pair.reverse.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4543,7 +4543,8 @@ impl<'r> Randomizer<'r> {
             // which is in the same room as the start location but is not necessarily exactly the same.
             // Among the valid hubs, we select one with the best energy farm.
             let mut best_hub_vertex_id: VertexId = start_vertex_id;
-            let mut best_hub_cost: Capacity = global.inventory.max_energy - 1;
+            let mut best_hub_cost: Capacity =
+                global.inventory.max_energy - 1 + global.inventory.max_reserves;
             for &(hub_vertex_id, ref hub_req) in [(start_vertex_id, Requirement::Free)]
                 .iter()
                 .chain(self.game_data.hub_farms.iter())
@@ -4565,7 +4566,7 @@ impl<'r> Randomizer<'r> {
                     &self.objectives,
                 );
                 let hub_cost = if let Some(loc) = new_local {
-                    loc.energy
+                    loc.energy_missing(&global.inventory, true)
                 } else {
                     Capacity::MAX
                 };
@@ -4627,6 +4628,7 @@ impl<'r> Randomizer<'r> {
                 collectible_missile_packs: 0,
                 collectible_super_packs: 0,
                 collectible_power_bomb_packs: 0,
+                collectible_reserve_tanks: 0,
             },
             flags: self.get_initial_flag_vec(),
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
@@ -4857,9 +4859,11 @@ impl<'r> Randomizer<'r> {
             &state.global_state,
         );
         traverser_pair.forward.finish_step(1);
-        traverser_pair
-            .reverse
-            .add_origin(LocalState::full(), start_vertex_id, &state.global_state);
+        traverser_pair.reverse.add_origin(
+            LocalState::full(false),
+            start_vertex_id,
+            &state.global_state,
+        );
         traverser_pair.reverse.finish_step(1);
         self.update_reachability(&mut state, &mut traverser_pair);
         if !state

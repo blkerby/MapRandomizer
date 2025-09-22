@@ -203,15 +203,15 @@ function getTrailIds(endTrailId, traversal, backward) {
 }
 
 let localStateKeyOrder = [
-	"energy_used",
-	"reserves_used",
+	"energy",
+	"reserves",
 	"missiles_used",
 	"supers_used",
 	"power_bombs_used",
 	"shinecharge_frames_remaining",
 	"cycle_frames",
-	"farm_baseline_energy_used",
-	"farm_baseline_reserves_used",
+	"farm_baseline_energy",
+	"farm_baseline_reserves",
 	"farm_baseline_missiles_used",
 	"farm_baseline_supers_used",
 	"farm_baseline_power_bombs_used",
@@ -879,17 +879,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 	function consumableData(k, ss=null) {
 		let remstr = ss == null ? "still needed" : "remaining";
 		let out = "";
-		if (k.energy_used !== undefined) {
-			if (ss == null)
-				out += `Energy ${remstr}: ${k.energy_used + 1}<br>`;
+		if (k.energy !== undefined) {
+			if (k.energy >= 0)
+				out += `Energy remaining: ${k.energy}<br>`;
 			else
-				out += `Energy ${remstr}: ${ss.max_energy - k.energy_used}<br>`;
+				out += `Energy consumed: ${-k.energy - 1}<br>`;
 		}
-		if (k.reserves_used !== undefined) {
-			if (ss == null)
-				out += `Reserves ${remstr}: ${k.reserves_used}<br>`;
+		if (k.reserves !== undefined) {
+			if (k.reserves >= 0)
+				out += `Reserves remaining: ${k.reserves}<br>`;
 			else
-				out += `Reserves ${remstr}: ${ss.max_reserves - k.reserves_used}<br>`;
+				out += `Reserves consumed: ${-k.reserves - 1}<br>`;
 		}
 		if (k.missiles_used !== undefined) {
 			if (ss == null)
