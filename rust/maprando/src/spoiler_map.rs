@@ -85,6 +85,7 @@ fn get_outline_color(value: u8) -> Rgba<u8> {
 
 pub struct SpoilerMaps {
     pub explored: Vec<u8>,
+    pub explored_small: Vec<u8>,
     pub outline: Vec<u8>,
 }
 
@@ -103,14 +104,17 @@ pub fn get_spoiler_images(
     game_data: &GameData,
     settings: &RandomizerSettings,
     show_grid: bool,
-) -> Result<(RgbaImage, RgbaImage)> {
+) -> Result<(RgbaImage, RgbaImage, RgbaImage)> {
     let map = &randomization.map;
     let max_tiles = 72;
     let width = max_tiles;
     let height = max_tiles;
     let mut tiles: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
+    let mut tiles_small: Vec<Vec<MapTile>> = vec![vec![MapTile::default(); width]; height];
     let mut smalldoorsettings = settings.clone();
     smalldoorsettings.other_settings.door_locks_size = DoorLocksSize::Small;
+    let mut largedoorsettings = settings.clone();
+    largedoorsettings.other_settings.door_locks_size = DoorLocksSize::Large;
     let customize_settings = CustomizeSettings::default();
 
     if settings.map_layout == "Vanilla" {
@@ -143,6 +147,15 @@ pub fn get_spoiler_images(
                 tiles[y][x] = tile.clone();
                 tiles[y][x].area = Some(area);
             }
+            if tiles_small[y][x].area.is_none()
+                || tiles_small[y][x].special_type == Some(MapTileSpecialType::Tube)
+                || tiles_small[y][x].special_type == Some(MapTileSpecialType::Elevator)
+            {
+                // Allow other tiles to take priority (draw on top of) tube and elevator tiles,
+                // because of the Toilet, and also Tourian elevator on vanilla map.
+                tiles_small[y][x] = tile.clone();
+                tiles_small[y][x].area = Some(area);
+            }
         }
     }
 
@@ -172,7 +185,9 @@ pub fn get_spoiler_images(
         let room_y = map.rooms[room_idx].1;
         let x = room_x + item_x;
         let y = room_y + item_y;
-        tiles[y][x].interior = apply_item_interior(tiles[y][x].clone(), item, settings);
+        tiles[y][x].interior = apply_item_interior(tiles[y][x].clone(), item, &largedoorsettings);
+        tiles_small[y][x].interior =
+            apply_item_interior(tiles[y][x].clone(), item, &smalldoorsettings);
     }
 
     // Add gray doors:
@@ -203,6 +218,22 @@ pub fn get_spoiler_images(
             }
         }
         tiles[y][x] = tile;
+        tile = tiles_small[y][x].clone();
+        match dir {
+            Direction::Left => {
+                tile.left = gray_door;
+            }
+            Direction::Right => {
+                tile.right = gray_door;
+            }
+            Direction::Up => {
+                tile.top = gray_door;
+            }
+            Direction::Down => {
+                tile.bottom = gray_door;
+            }
+        }
+        tiles_small[y][x] = tile;
     }
 
     // Add door locks:
@@ -223,6 +254,7 @@ pub fn get_spoiler_images(
             let x = room_x + door.x;
             let y = room_y + door.y;
             tiles[y][x] = apply_door_lock(&tiles[y][x], locked_door, door);
+            tiles_small[y][x] = apply_door_lock(&tiles_small[y][x], locked_door, door);
         }
     }
 
@@ -238,9 +270,11 @@ pub fn get_spoiler_images(
         let x = room_x + tile_x;
         let y = room_y + tile_y;
         tiles[y][x].interior = MapTileInterior::Objective;
+        tiles_small[y][x].interior = MapTileInterior::Objective;
     }
 
     // Render the map tiles into image (one in explored form, and one in partially revealed/outline form):
+    let mut img_explored_small = RgbaImage::new((width + 2) as u32 * 8, (height + 2) as u32 * 8);
     let mut img_explored = RgbaImage::new((width + 2) as u32 * 8, (height + 2) as u32 * 8);
     let mut img_outline = RgbaImage::new((width + 2) as u32 * 8, (height + 2) as u32 * 8);
 
@@ -252,13 +286,20 @@ pub fn get_spoiler_images(
                 for py in 0..8 {
                     for px in 0..8 {
                         img_explored.put_pixel(x as u32 * 8 + px, y as u32 * 8 + py, black_color);
+                        img_explored_small.put_pixel(
+                            x as u32 * 8 + px,
+                            y as u32 * 8 + py,
+                            black_color,
+                        );
                     }
                 }
                 for py in (1..8).step_by(2) {
                     img_explored.put_pixel(x as u32 * 8, y as u32 * 8 + py, grid_color);
+                    img_explored_small.put_pixel(x as u32 * 8, y as u32 * 8 + py, grid_color);
                 }
                 for px in (0..8).step_by(2) {
                     img_explored.put_pixel(x as u32 * 8 + px, y as u32 * 8 + 7, grid_color);
+                    img_explored_small.put_pixel(x as u32 * 8 + px, y as u32 * 8 + 7, grid_color);
                 }
             }
         }
@@ -267,29 +308,43 @@ pub fn get_spoiler_images(
     for y in 0..height {
         for x in 0..width {
             let tile = &tiles[y][x];
+            let tile_small = &tiles_small[y][x];
             if tile.area.is_none() {
                 continue;
             }
-            let data = render_tile(tile.clone(), &smalldoorsettings, &customize_settings)?;
+            let datasmall =
+                render_tile(tile_small.clone(), &smalldoorsettings, &customize_settings)?;
+            let datalarge = render_tile(tile.clone(), &largedoorsettings, &customize_settings)?;
             for py in 0..8 {
                 for px in 0..8 {
-                    if data[py][px] == 0 {
-                        continue;
-                    }
                     let x1 = (x + 1) * 8 + px;
                     let y1 = (y + 1) * 8 + py;
-                    img_explored.put_pixel(
+                    if datalarge[py][px] != 0 {
+                        img_explored.put_pixel(
+                            x1 as u32,
+                            y1 as u32,
+                            get_explored_color(datalarge[py][px], tile.area.unwrap()),
+                        );
+                    }
+                    if datalarge[py][px] == 0 {
+                        continue;
+                    }
+                    img_explored_small.put_pixel(
                         x1 as u32,
                         y1 as u32,
-                        get_explored_color(data[py][px], tile.area.unwrap()),
+                        get_explored_color(datasmall[py][px], tile.area.unwrap()),
                     );
-                    img_outline.put_pixel(x1 as u32, y1 as u32, get_outline_color(data[py][px]));
+                    img_outline.put_pixel(
+                        x1 as u32,
+                        y1 as u32,
+                        get_outline_color(datasmall[py][px]),
+                    );
                 }
             }
         }
     }
 
-    Ok((img_explored, img_outline))
+    Ok((img_explored, img_explored_small, img_outline))
 }
 
 pub fn get_spoiler_map(
@@ -298,12 +353,18 @@ pub fn get_spoiler_map(
     settings: &RandomizerSettings,
     show_grid: bool,
 ) -> Result<SpoilerMaps> {
-    let (img_explored, img_outline) =
+    let (img_explored, img_explored_small, img_outline) =
         get_spoiler_images(randomization, game_data, settings, show_grid)?;
 
     let mut vec_explored: Vec<u8> = Vec::new();
     img_explored.write_to(
         &mut Cursor::new(&mut vec_explored),
+        image::ImageOutputFormat::Png,
+    )?;
+
+    let mut vec_explored_small: Vec<u8> = Vec::new();
+    img_explored_small.write_to(
+        &mut Cursor::new(&mut vec_explored_small),
         image::ImageOutputFormat::Png,
     )?;
 
@@ -315,6 +376,7 @@ pub fn get_spoiler_map(
 
     Ok(SpoilerMaps {
         explored: vec_explored,
+        explored_small: vec_explored_small,
         outline: vec_outline,
     })
 }

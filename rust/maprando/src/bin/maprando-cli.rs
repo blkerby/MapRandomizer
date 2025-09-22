@@ -294,6 +294,8 @@ fn main() -> Result<()> {
         );
         let spoiler_map_explored = spoiler_maps.explored.clone();
         std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored)?;
+        let spoiler_map_explored_small = spoiler_maps.explored_small.clone();
+        std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored_small)?;
     }
 
     if let Some(output_spoiler_map_outline_path) = &args.output_spoiler_map_outline {

@@ -289,8 +289,22 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         "Writing spoiler map (explored) to {}",
         output_spoiler_map_explored_path.display()
     );
+
     let spoiler_map_explored = spoiler_maps.explored.clone();
     std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored)?;
+
+    let output_spoiler_map_explored_small_path = Path::join(
+        &app.output_dir,
+        format!("{output_file_prefix}-explored-small.png"),
+    );
+
+    info!(
+        "Writing spoiler map (explored) to {}",
+        output_spoiler_map_explored_small_path.display()
+    );
+
+    let spoiler_map_explored_small = spoiler_maps.explored_small.clone();
+    std::fs::write(output_spoiler_map_explored_small_path, spoiler_map_explored_small)?;
 
     let output_spoiler_map_outline_path =
         Path::join(&app.output_dir, format!("{output_file_prefix}-outline.png"));

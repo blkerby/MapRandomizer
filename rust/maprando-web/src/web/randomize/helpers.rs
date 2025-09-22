@@ -260,6 +260,10 @@ pub async fn save_seed(
         spoiler_maps.explored,
     ));
     files.push(SeedFile::new(
+        &format!("{prefix}/map-explored-small.png"),
+        spoiler_maps.explored_small,
+    ));
+    files.push(SeedFile::new(
         &format!("{prefix}/map-outline.png"),
         spoiler_maps.outline,
     ));
