@@ -55,8 +55,6 @@ impl GlobalState {
                     * self.inventory.collectible_missile_packs as f32)
                     .round() as Capacity
                     * 5;
-                starting_local_state.missiles_used +=
-                    new_max_missiles - self.inventory.max_missiles;
                 self.inventory.max_missiles = new_max_missiles;
             }
             Item::Super => {
@@ -137,14 +135,14 @@ impl From<ResourceLevel> for EncodedResourceLevel {
 pub struct LocalState {
     pub energy: EncodedResourceLevel,
     pub reserves: EncodedResourceLevel,
-    pub missiles_used: Capacity,
+    pub missiles: EncodedResourceLevel,
     pub supers_used: Capacity,
     pub power_bombs_used: Capacity,
     pub shinecharge_frames_remaining: Capacity,
     pub cycle_frames: Capacity,
     pub farm_baseline_energy: EncodedResourceLevel,
     pub farm_baseline_reserves: EncodedResourceLevel,
-    pub farm_baseline_missiles_used: Capacity,
+    pub farm_baseline_missiles: EncodedResourceLevel,
     pub farm_baseline_supers_used: Capacity,
     pub farm_baseline_power_bombs_used: Capacity,
     pub flash_suit: bool,
@@ -156,14 +154,14 @@ impl LocalState {
         LocalState {
             energy: ResourceLevel::Remaining(1).into(),
             reserves: ResourceLevel::Remaining(0).into(),
-            missiles_used: global.inventory.max_missiles,
+            missiles: ResourceLevel::Remaining(0).into(),
             supers_used: global.inventory.max_supers,
             power_bombs_used: global.inventory.max_power_bombs,
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
             farm_baseline_energy: ResourceLevel::Remaining(1).into(),
             farm_baseline_reserves: ResourceLevel::Remaining(0).into(),
-            farm_baseline_missiles_used: global.inventory.max_missiles,
+            farm_baseline_missiles: ResourceLevel::Remaining(0).into(),
             farm_baseline_supers_used: global.inventory.max_supers,
             farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
             flash_suit: false,
@@ -172,18 +170,19 @@ impl LocalState {
     }
 
     pub fn full(reverse: bool) -> Self {
+        let generic_resource_level = if reverse {
+            ResourceLevel::Remaining(0).into()
+        } else {
+            ResourceLevel::Consumed(0).into()
+        };
         LocalState {
             energy: if reverse {
                 ResourceLevel::Remaining(1).into()
             } else {
                 ResourceLevel::Consumed(0).into()
             },
-            reserves: if reverse {
-                ResourceLevel::Remaining(0).into()
-            } else {
-                ResourceLevel::Consumed(0).into()
-            },
-            missiles_used: 0,
+            reserves: generic_resource_level,
+            missiles: generic_resource_level,
             supers_used: 0,
             power_bombs_used: 0,
             shinecharge_frames_remaining: 0,
@@ -193,12 +192,8 @@ impl LocalState {
             } else {
                 ResourceLevel::Consumed(0).into()
             },
-            farm_baseline_reserves: if reverse {
-                ResourceLevel::Remaining(0).into()
-            } else {
-                ResourceLevel::Consumed(0).into()
-            },
-            farm_baseline_missiles_used: 0,
+            farm_baseline_reserves: generic_resource_level,
+            farm_baseline_missiles: generic_resource_level,
             farm_baseline_supers_used: 0,
             farm_baseline_power_bombs_used: 0,
             flash_suit: false,
@@ -214,12 +209,20 @@ impl LocalState {
         self.reserves.decode()
     }
 
+    pub fn missiles(&self) -> ResourceLevel {
+        self.missiles.decode()
+    }
+
     pub fn farm_baseline_energy(&self) -> ResourceLevel {
         self.farm_baseline_energy.decode()
     }
 
     pub fn farm_baseline_reserves(&self) -> ResourceLevel {
         self.farm_baseline_reserves.decode()
+    }
+
+    pub fn farm_baseline_missiles(&self) -> ResourceLevel {
+        self.farm_baseline_missiles.decode()
     }
 
     pub fn energy_remaining(&self, inventory: &Inventory, include_reserves: bool) -> Capacity {
@@ -243,29 +246,107 @@ impl LocalState {
         }
     }
 
-    pub fn reserves_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.reserves() {
-            ResourceLevel::Consumed(x) => inventory.max_reserves - x,
+    pub fn energy_available(
+        &self,
+        inventory: &Inventory,
+        include_reserves: bool,
+        reverse: bool,
+    ) -> Capacity {
+        if reverse {
+            self.energy_missing(inventory, include_reserves)
+        } else {
+            self.energy_remaining(inventory, include_reserves)
+        }
+    }
+
+    pub fn resource_missing(level: ResourceLevel, max_resource: Capacity) -> Capacity {
+        match level {
+            ResourceLevel::Consumed(x) => x,
+            ResourceLevel::Remaining(x) => max_resource - x,
+        }
+    }
+
+    pub fn resource_remaining(level: ResourceLevel, max_resource: Capacity) -> Capacity {
+        match level {
+            ResourceLevel::Consumed(x) => max_resource - x,
             ResourceLevel::Remaining(x) => x,
         }
+    }
+
+    pub fn resource_available(
+        level: ResourceLevel,
+        max_resource: Capacity,
+        reverse: bool,
+    ) -> Capacity {
+        if reverse {
+            Self::resource_missing(level, max_resource)
+        } else {
+            Self::resource_remaining(level, max_resource)
+        }
+    }
+
+    pub fn reserves_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.reserves(), inventory.max_reserves)
     }
 
     pub fn reserves_missing(&self, inventory: &Inventory) -> Capacity {
-        inventory.max_reserves - self.reserves_remaining(inventory)
+        Self::resource_missing(self.reserves(), inventory.max_reserves)
+    }
+
+    pub fn reserves_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {
+        Self::resource_available(self.reserves(), inventory.max_reserves, reverse)
+    }
+
+    pub fn missiles_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.missiles(), inventory.max_missiles)
+    }
+
+    pub fn missiles_missing(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_missing(self.missiles(), inventory.max_missiles)
+    }
+
+    pub fn missiles_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {
+        Self::resource_available(self.missiles(), inventory.max_missiles, reverse)
     }
 
     pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.farm_baseline_energy() {
-            ResourceLevel::Consumed(x) => inventory.max_energy - x,
-            ResourceLevel::Remaining(x) => x,
-        }
+        Self::resource_remaining(self.farm_baseline_energy(), inventory.max_energy)
+    }
+
+    pub fn farm_baseline_energy_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {
+        Self::resource_available(self.farm_baseline_energy(), inventory.max_energy, reverse)
     }
 
     pub fn farm_baseline_reserves_remaining(&self, inventory: &Inventory) -> Capacity {
-        match self.farm_baseline_reserves() {
-            ResourceLevel::Consumed(x) => inventory.max_reserves - x,
-            ResourceLevel::Remaining(x) => x,
-        }
+        Self::resource_remaining(self.farm_baseline_reserves(), inventory.max_reserves)
+    }
+
+    pub fn farm_baseline_reserves_available(
+        &self,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> Capacity {
+        Self::resource_available(
+            self.farm_baseline_reserves(),
+            inventory.max_reserves,
+            reverse,
+        )
+    }
+
+    pub fn farm_baseline_missiles_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.farm_baseline_missiles(), inventory.max_missiles)
+    }
+
+    pub fn farm_baseline_missiles_available(
+        &self,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> Capacity {
+        Self::resource_available(
+            self.farm_baseline_missiles(),
+            inventory.max_missiles,
+            reverse,
+        )
     }
 
     pub fn auto_reserve_trigger(
@@ -452,99 +533,162 @@ impl LocalState {
         }
     }
 
+    pub fn use_resource(
+        amt: Capacity,
+        max_resource: Capacity,
+        level: &mut EncodedResourceLevel,
+        reverse: bool,
+    ) -> bool {
+        *level = match (reverse, level.decode()) {
+            (false, ResourceLevel::Consumed(x)) => {
+                if x + amt > max_resource {
+                    return false;
+                } else {
+                    ResourceLevel::Consumed(x + amt).into()
+                }
+            }
+            (false, ResourceLevel::Remaining(x)) => {
+                if amt > x {
+                    return false;
+                } else {
+                    ResourceLevel::Remaining(x - amt).into()
+                }
+            }
+            (true, ResourceLevel::Consumed(x)) => {
+                if amt > x {
+                    return false;
+                } else {
+                    ResourceLevel::Consumed(x - amt).into()
+                }
+            }
+            (true, ResourceLevel::Remaining(x)) => {
+                if x + amt > max_resource {
+                    return false;
+                } else {
+                    ResourceLevel::Remaining(x + amt).into()
+                }
+            }
+        };
+        true
+    }
+
+    pub fn use_missiles(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) -> bool {
+        Self::use_resource(amt, inventory.max_missiles, &mut self.missiles, reverse)
+    }
+
     pub fn use_reserve_energy(
         &mut self,
         amt: Capacity,
         inventory: &Inventory,
         reverse: bool,
     ) -> bool {
-        match (reverse, self.reserves()) {
+        Self::use_resource(amt, inventory.max_reserves, &mut self.reserves, reverse)
+    }
+
+    pub fn ensure_resource_available(
+        amt: Capacity,
+        max_resource: Capacity,
+        level: &mut EncodedResourceLevel,
+        reverse: bool,
+    ) -> bool {
+        if reverse {
+            // This is a bit inefficient of a way to implement this, but it's rarely used so it shouldn't matter.
+            Self::refill_resource(amt, max_resource, level, reverse);
+            Self::use_resource(amt, max_resource, level, reverse)
+        } else {
+            Self::resource_remaining(level.decode(), max_resource) >= amt
+        }
+    }
+
+    pub fn ensure_reserves_available(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_available(amt, inventory.max_reserves, &mut self.reserves, reverse)
+    }
+
+    pub fn ensure_missiles_available(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_available(amt, inventory.max_missiles, &mut self.missiles, reverse)
+    }
+
+    pub fn ensure_resource_missing_at_most(
+        amt: Capacity,
+        max_resource: Capacity,
+        level: &mut EncodedResourceLevel,
+        reverse: bool,
+    ) -> bool {
+        let missing = Self::resource_missing(level.decode(), max_resource);
+        if reverse {
+            *level = ResourceLevel::Consumed(Capacity::min(missing, amt)).into();
+            true
+        } else {
+            missing <= amt
+        }
+    }
+
+    pub fn ensure_reserves_missing_at_most(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_missing_at_most(
+            amt,
+            inventory.max_reserves,
+            &mut self.reserves,
+            reverse,
+        )
+    }
+
+    pub fn ensure_missiles_missing_at_most(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_missing_at_most(
+            amt,
+            inventory.max_missiles,
+            &mut self.missiles,
+            reverse,
+        )
+    }
+
+    fn refill_resource(
+        amt: Capacity,
+        max_resource: Capacity,
+        level: &mut EncodedResourceLevel,
+        reverse: bool,
+    ) {
+        *level = match (reverse, level.decode()) {
             (false, ResourceLevel::Consumed(x)) => {
-                if x + amt > inventory.max_reserves {
-                    false
-                } else {
-                    self.reserves = ResourceLevel::Consumed(x + amt).into();
-                    true
-                }
+                ResourceLevel::Consumed(Capacity::max(0, x - amt)).into()
             }
             (false, ResourceLevel::Remaining(x)) => {
-                if amt > x {
-                    false
-                } else {
-                    self.reserves = ResourceLevel::Remaining(x - amt).into();
-                    true
-                }
+                ResourceLevel::Remaining(Capacity::min(max_resource, x + amt)).into()
             }
             (true, ResourceLevel::Consumed(x)) => {
-                if amt > x {
-                    false
-                } else {
-                    self.reserves = ResourceLevel::Consumed(x - amt).into();
-                    true
-                }
+                ResourceLevel::Consumed(Capacity::min(max_resource, x + amt)).into()
             }
             (true, ResourceLevel::Remaining(x)) => {
-                if x + amt > inventory.max_reserves {
-                    false
-                } else {
-                    self.reserves = ResourceLevel::Remaining(x + amt).into();
-                    true
-                }
+                ResourceLevel::Remaining(Capacity::max(0, x - amt)).into()
             }
         }
     }
 
     pub fn refill_reserve_energy(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) {
-        match (reverse, self.reserves()) {
-            (false, ResourceLevel::Consumed(x)) => {
-                self.reserves = ResourceLevel::Consumed(Capacity::max(0, x - amt)).into();
-            }
-            (false, ResourceLevel::Remaining(x)) => {
-                self.reserves =
-                    ResourceLevel::Remaining(Capacity::min(inventory.max_reserves, x + amt)).into();
-            }
-            (true, ResourceLevel::Consumed(x)) => {
-                self.reserves =
-                    ResourceLevel::Consumed(Capacity::min(inventory.max_reserves, x + amt)).into();
-            }
-            (true, ResourceLevel::Remaining(x)) => {
-                self.reserves = ResourceLevel::Remaining(Capacity::max(0, x - amt)).into();
-            }
-        }
+        Self::refill_resource(amt, inventory.max_reserves, &mut self.reserves, reverse);
     }
 
-    pub fn ensure_reserve_energy_available(
-        &mut self,
-        amt: Capacity,
-        inventory: &Inventory,
-        reverse: bool,
-    ) -> bool {
-        if reverse {
-            // This is a bit inefficient of a way to implement this, but it's rarely used so it shouldn't matter.
-            self.refill_reserve_energy(amt, inventory, reverse);
-            self.use_reserve_energy(amt, inventory, reverse)
-        } else {
-            self.reserves_remaining(inventory) >= amt
-        }
-    }
-
-    pub fn ensure_reserve_missing_at_most(
-        &mut self,
-        amt: Capacity,
-        inventory: &Inventory,
-        reverse: bool,
-    ) -> bool {
-        if reverse {
-            let missing = self.reserves_missing(inventory);
-            self.reserves = ResourceLevel::Consumed(Capacity::min(missing, amt)).into();
-            true
-        } else {
-            inventory.max_reserves - self.reserves_remaining(inventory) <= amt
-        }
-    }
-
-    pub fn refill_missiles(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {
-        self.missiles_used = Capacity::max(0, self.missiles_used - amt);
+    pub fn refill_missiles(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) {
+        Self::refill_resource(amt, inventory.max_missiles, &mut self.missiles, reverse);
     }
 
     pub fn refill_supers(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {

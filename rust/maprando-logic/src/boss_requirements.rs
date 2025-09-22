@@ -131,7 +131,7 @@ pub fn apply_draygon_requirement(
         return true;
     }
 
-    let missiles_available = inventory.max_missiles - local.missiles_used;
+    let missiles_available = local.missiles_available(inventory, reverse);
     let missile_firing_rate = 20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
     let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
 
@@ -243,7 +243,7 @@ pub fn apply_ridley_requirement(
     }
 
     // Then use available missiles:
-    let missiles_available = inventory.max_missiles - local.missiles_used;
+    let missiles_available = local.missiles_available(inventory, reverse);
     let missiles_to_use = max(
         0,
         min(
@@ -251,7 +251,7 @@ pub fn apply_ridley_requirement(
             f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
         ),
     );
-    local.missiles_used += missiles_to_use;
+    local.use_missiles(missiles_to_use, inventory, reverse);
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
     time += missiles_to_use as f32 * missile_time;
 
@@ -386,7 +386,7 @@ pub fn apply_botwoon_requirement(
     };
 
     let use_missiles = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
-        let missiles_available = inventory.max_missiles - local.missiles_used;
+        let missiles_available = local.missiles_available(inventory, reverse);
         let missiles_to_use = max(
             0,
             min(
@@ -394,7 +394,7 @@ pub fn apply_botwoon_requirement(
                 f32::ceil(*boss_hp / (100.0 * accuracy)) as Capacity,
             ),
         );
-        local.missiles_used += missiles_to_use;
+        local.use_missiles(missiles_to_use, inventory, reverse);
         *boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
         // Assume a max average rate of one missile shot per 1.0 seconds:
         *time += missiles_to_use as f32 * 1.0 / firing_rate;
@@ -521,7 +521,7 @@ pub fn apply_mother_brain_2_requirement(
     }
 
     // Then use available missiles:
-    let missiles_available = inventory.max_missiles - local.missiles_used;
+    let missiles_available = local.missiles_available(inventory, reverse);
     let missiles_to_use = max(
         0,
         min(
@@ -529,7 +529,7 @@ pub fn apply_mother_brain_2_requirement(
             f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
         ),
     );
-    local.missiles_used += missiles_to_use;
+    local.use_missiles(missiles_to_use, inventory, reverse);
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
     time += missiles_to_use as f32 * missile_time / firing_rate;
 

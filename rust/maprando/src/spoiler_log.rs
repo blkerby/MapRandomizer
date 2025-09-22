@@ -349,10 +349,10 @@ impl SpoilerLocalState {
             } else {
                 Some(local.reserves.0)
             },
-            missiles_used: if local.missiles_used == ref_local.missiles_used {
+            missiles_used: if local.missiles == ref_local.missiles {
                 None
             } else {
-                Some(local.missiles_used)
+                Some(local.missiles.0)
             },
             supers_used: if local.supers_used == ref_local.supers_used {
                 None
@@ -388,12 +388,12 @@ impl SpoilerLocalState {
             } else {
                 Some(local.farm_baseline_reserves.0)
             },
-            farm_baseline_missiles_used: if local.farm_baseline_missiles_used
-                == ref_local.farm_baseline_missiles_used
+            farm_baseline_missiles_used: if local.farm_baseline_missiles
+                == ref_local.farm_baseline_missiles
             {
                 None
             } else {
-                Some(local.farm_baseline_missiles_used)
+                Some(local.farm_baseline_missiles.0)
             },
             farm_baseline_supers_used: if local.farm_baseline_supers_used
                 == ref_local.farm_baseline_supers_used
@@ -557,7 +557,7 @@ pub fn get_spoiler_route(
             strat_notes: link.strat_notes.clone(),
             energy: Some(new_local_state.energy.0),
             reserves: Some(new_local_state.reserves.0),
-            missiles_used: Some(new_local_state.missiles_used),
+            missiles_used: Some(new_local_state.missiles.0),
             supers_used: Some(new_local_state.supers_used),
             power_bombs_used: Some(new_local_state.power_bombs_used),
             relevant_flags,

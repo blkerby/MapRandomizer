@@ -205,14 +205,14 @@ function getTrailIds(endTrailId, traversal, backward) {
 let localStateKeyOrder = [
 	"energy",
 	"reserves",
-	"missiles_used",
+	"missiles",
 	"supers_used",
 	"power_bombs_used",
 	"shinecharge_frames_remaining",
 	"cycle_frames",
 	"farm_baseline_energy",
 	"farm_baseline_reserves",
-	"farm_baseline_missiles_used",
+	"farm_baseline_missiles",
 	"farm_baseline_supers_used",
 	"farm_baseline_power_bombs_used",
 	"flash_suit",
@@ -891,11 +891,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			else
 				out += `Reserves consumed: ${-k.reserves - 1}<br>`;
 		}
-		if (k.missiles_used !== undefined) {
-			if (ss == null)
-				out += `Missiles ${remstr}: ${k.missiles_used}<br>`;
+		if (k.missiles !== undefined) {
+			if (k.missiles >= 0)
+				out += `Missiles remaining: ${k.missiles}<br>`;
 			else
-				out += `Missiles ${remstr}: ${ss.max_missiles - k.missiles_used}<br>`;
+				out += `Missiles consumed: ${-k.missiles - 1}<br>`;
 		}
 		if (k.supers_used !== undefined) {
 			if (ss == null)
