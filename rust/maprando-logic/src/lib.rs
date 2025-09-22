@@ -45,7 +45,6 @@ impl GlobalState {
         game_data: &GameData,
         ammo_collect_fraction: f32,
         tech: &[bool],
-        starting_local_state: &mut LocalState,
     ) {
         self.inventory.items[item as usize] = true;
         match item {
@@ -63,7 +62,6 @@ impl GlobalState {
                     * self.inventory.collectible_super_packs as f32)
                     .round() as Capacity
                     * 5;
-                starting_local_state.supers_used += new_max_supers - self.inventory.max_supers;
                 self.inventory.max_supers = new_max_supers;
             }
             Item::PowerBomb => {
@@ -72,8 +70,6 @@ impl GlobalState {
                     * self.inventory.collectible_power_bomb_packs as f32)
                     .round() as Capacity
                     * 5;
-                starting_local_state.power_bombs_used +=
-                    new_max_power_bombs - self.inventory.max_power_bombs;
                 self.inventory.max_power_bombs = new_max_power_bombs;
             }
             Item::ETank => {
@@ -136,34 +132,34 @@ pub struct LocalState {
     pub energy: EncodedResourceLevel,
     pub reserves: EncodedResourceLevel,
     pub missiles: EncodedResourceLevel,
-    pub supers_used: Capacity,
-    pub power_bombs_used: Capacity,
+    pub supers: EncodedResourceLevel,
+    pub power_bombs: EncodedResourceLevel,
     pub shinecharge_frames_remaining: Capacity,
     pub cycle_frames: Capacity,
     pub farm_baseline_energy: EncodedResourceLevel,
     pub farm_baseline_reserves: EncodedResourceLevel,
     pub farm_baseline_missiles: EncodedResourceLevel,
-    pub farm_baseline_supers_used: Capacity,
-    pub farm_baseline_power_bombs_used: Capacity,
+    pub farm_baseline_supers: EncodedResourceLevel,
+    pub farm_baseline_power_bombs: EncodedResourceLevel,
     pub flash_suit: bool,
     pub prev_trail_id: StepTrailId,
 }
 
 impl LocalState {
-    pub fn empty(global: &GlobalState) -> Self {
+    pub fn empty() -> Self {
         LocalState {
             energy: ResourceLevel::Remaining(1).into(),
             reserves: ResourceLevel::Remaining(0).into(),
             missiles: ResourceLevel::Remaining(0).into(),
-            supers_used: global.inventory.max_supers,
-            power_bombs_used: global.inventory.max_power_bombs,
+            supers: ResourceLevel::Remaining(0).into(),
+            power_bombs: ResourceLevel::Remaining(0).into(),
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
             farm_baseline_energy: ResourceLevel::Remaining(1).into(),
             farm_baseline_reserves: ResourceLevel::Remaining(0).into(),
             farm_baseline_missiles: ResourceLevel::Remaining(0).into(),
-            farm_baseline_supers_used: global.inventory.max_supers,
-            farm_baseline_power_bombs_used: global.inventory.max_power_bombs,
+            farm_baseline_supers: ResourceLevel::Remaining(0).into(),
+            farm_baseline_power_bombs: ResourceLevel::Remaining(0).into(),
             flash_suit: false,
             prev_trail_id: -1,
         }
@@ -183,8 +179,8 @@ impl LocalState {
             },
             reserves: generic_resource_level,
             missiles: generic_resource_level,
-            supers_used: 0,
-            power_bombs_used: 0,
+            supers: generic_resource_level,
+            power_bombs: generic_resource_level,
             shinecharge_frames_remaining: 0,
             cycle_frames: 0,
             farm_baseline_energy: if reverse {
@@ -194,8 +190,8 @@ impl LocalState {
             },
             farm_baseline_reserves: generic_resource_level,
             farm_baseline_missiles: generic_resource_level,
-            farm_baseline_supers_used: 0,
-            farm_baseline_power_bombs_used: 0,
+            farm_baseline_supers: generic_resource_level,
+            farm_baseline_power_bombs: generic_resource_level,
             flash_suit: false,
             prev_trail_id: -1,
         }
@@ -213,6 +209,14 @@ impl LocalState {
         self.missiles.decode()
     }
 
+    pub fn supers(&self) -> ResourceLevel {
+        self.supers.decode()
+    }
+
+    pub fn power_bombs(&self) -> ResourceLevel {
+        self.power_bombs.decode()
+    }
+
     pub fn farm_baseline_energy(&self) -> ResourceLevel {
         self.farm_baseline_energy.decode()
     }
@@ -223,6 +227,14 @@ impl LocalState {
 
     pub fn farm_baseline_missiles(&self) -> ResourceLevel {
         self.farm_baseline_missiles.decode()
+    }
+
+    pub fn farm_baseline_supers(&self) -> ResourceLevel {
+        self.farm_baseline_supers.decode()
+    }
+
+    pub fn farm_baseline_power_bombs(&self) -> ResourceLevel {
+        self.farm_baseline_power_bombs.decode()
     }
 
     pub fn energy_remaining(&self, inventory: &Inventory, include_reserves: bool) -> Capacity {
@@ -309,6 +321,30 @@ impl LocalState {
         Self::resource_available(self.missiles(), inventory.max_missiles, reverse)
     }
 
+    pub fn supers_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.supers(), inventory.max_supers)
+    }
+
+    pub fn supers_missing(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_missing(self.supers(), inventory.max_supers)
+    }
+
+    pub fn supers_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {
+        Self::resource_available(self.supers(), inventory.max_supers, reverse)
+    }
+
+    pub fn power_bombs_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.power_bombs(), inventory.max_power_bombs)
+    }
+
+    pub fn power_bombs_missing(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_missing(self.power_bombs(), inventory.max_power_bombs)
+    }
+
+    pub fn power_bombs_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {
+        Self::resource_available(self.power_bombs(), inventory.max_power_bombs, reverse)
+    }
+
     pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {
         Self::resource_remaining(self.farm_baseline_energy(), inventory.max_energy)
     }
@@ -349,6 +385,31 @@ impl LocalState {
         )
     }
 
+    pub fn farm_baseline_supers_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.farm_baseline_supers(), inventory.max_supers)
+    }
+
+    pub fn farm_baseline_supers_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {
+        Self::resource_available(self.farm_baseline_supers(), inventory.max_supers, reverse)
+    }
+
+    pub fn farm_baseline_power_bombs_remaining(&self, inventory: &Inventory) -> Capacity {
+        Self::resource_remaining(self.farm_baseline_power_bombs(), inventory.max_power_bombs)
+    }
+
+    pub fn farm_baseline_power_bombs_available(
+        &self,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> Capacity {
+        Self::resource_available(
+            self.farm_baseline_power_bombs(),
+            inventory.max_power_bombs,
+            reverse,
+        )
+    }
+
+    #[must_use]
     pub fn auto_reserve_trigger(
         &mut self,
         min_refill: Capacity,
@@ -389,6 +450,7 @@ impl LocalState {
         }
     }
 
+    #[must_use]
     pub fn use_energy(
         &mut self,
         amt: Capacity,
@@ -515,6 +577,7 @@ impl LocalState {
         }
     }
 
+    #[must_use]
     pub fn ensure_energy_available(
         &mut self,
         amt: Capacity,
@@ -533,6 +596,7 @@ impl LocalState {
         }
     }
 
+    #[must_use]
     pub fn use_resource(
         amt: Capacity,
         max_resource: Capacity,
@@ -572,10 +636,27 @@ impl LocalState {
         true
     }
 
+    #[must_use]
     pub fn use_missiles(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) -> bool {
         Self::use_resource(amt, inventory.max_missiles, &mut self.missiles, reverse)
     }
 
+    #[must_use]
+    pub fn use_supers(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) -> bool {
+        Self::use_resource(amt, inventory.max_supers, &mut self.supers, reverse)
+    }
+
+    #[must_use]
+    pub fn use_power_bombs(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) -> bool {
+        Self::use_resource(
+            amt,
+            inventory.max_power_bombs,
+            &mut self.power_bombs,
+            reverse,
+        )
+    }
+
+    #[must_use]
     pub fn use_reserve_energy(
         &mut self,
         amt: Capacity,
@@ -585,6 +666,7 @@ impl LocalState {
         Self::use_resource(amt, inventory.max_reserves, &mut self.reserves, reverse)
     }
 
+    #[must_use]
     pub fn ensure_resource_available(
         amt: Capacity,
         max_resource: Capacity,
@@ -600,6 +682,7 @@ impl LocalState {
         }
     }
 
+    #[must_use]
     pub fn ensure_reserves_available(
         &mut self,
         amt: Capacity,
@@ -609,6 +692,7 @@ impl LocalState {
         Self::ensure_resource_available(amt, inventory.max_reserves, &mut self.reserves, reverse)
     }
 
+    #[must_use]
     pub fn ensure_missiles_available(
         &mut self,
         amt: Capacity,
@@ -618,6 +702,32 @@ impl LocalState {
         Self::ensure_resource_available(amt, inventory.max_missiles, &mut self.missiles, reverse)
     }
 
+    #[must_use]
+    pub fn ensure_supers_available(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_available(amt, inventory.max_supers, &mut self.supers, reverse)
+    }
+
+    #[must_use]
+    pub fn ensure_power_bombs_available(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_available(
+            amt,
+            inventory.max_power_bombs,
+            &mut self.power_bombs,
+            reverse,
+        )
+    }
+
+    #[must_use]
     pub fn ensure_resource_missing_at_most(
         amt: Capacity,
         max_resource: Capacity,
@@ -633,6 +743,7 @@ impl LocalState {
         }
     }
 
+    #[must_use]
     pub fn ensure_reserves_missing_at_most(
         &mut self,
         amt: Capacity,
@@ -647,6 +758,7 @@ impl LocalState {
         )
     }
 
+    #[must_use]
     pub fn ensure_missiles_missing_at_most(
         &mut self,
         amt: Capacity,
@@ -657,6 +769,31 @@ impl LocalState {
             amt,
             inventory.max_missiles,
             &mut self.missiles,
+            reverse,
+        )
+    }
+
+    #[must_use]
+    pub fn ensure_supers_missing_at_most(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_missing_at_most(amt, inventory.max_supers, &mut self.supers, reverse)
+    }
+
+    #[must_use]
+    pub fn ensure_power_bombs_missing_at_most(
+        &mut self,
+        amt: Capacity,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        Self::ensure_resource_missing_at_most(
+            amt,
+            inventory.max_power_bombs,
+            &mut self.power_bombs,
             reverse,
         )
     }
@@ -691,11 +828,16 @@ impl LocalState {
         Self::refill_resource(amt, inventory.max_missiles, &mut self.missiles, reverse);
     }
 
-    pub fn refill_supers(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {
-        self.supers_used = Capacity::max(0, self.supers_used - amt);
+    pub fn refill_supers(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) {
+        Self::refill_resource(amt, inventory.max_supers, &mut self.supers, reverse);
     }
 
-    pub fn refill_power_bombs(&mut self, amt: Capacity, _inventory: &Inventory, _reverse: bool) {
-        self.power_bombs_used = Capacity::max(0, self.power_bombs_used - amt);
+    pub fn refill_power_bombs(&mut self, amt: Capacity, inventory: &Inventory, reverse: bool) {
+        Self::refill_resource(
+            amt,
+            inventory.max_power_bombs,
+            &mut self.power_bombs,
+            reverse,
+        );
     }
 }

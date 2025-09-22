@@ -206,15 +206,15 @@ let localStateKeyOrder = [
 	"energy",
 	"reserves",
 	"missiles",
-	"supers_used",
-	"power_bombs_used",
+	"supers",
+	"power_bombs",
 	"shinecharge_frames_remaining",
 	"cycle_frames",
 	"farm_baseline_energy",
 	"farm_baseline_reserves",
 	"farm_baseline_missiles",
-	"farm_baseline_supers_used",
-	"farm_baseline_power_bombs_used",
+	"farm_baseline_supers",
+	"farm_baseline_power_bombs",
 	"flash_suit",
 ];
 
@@ -877,7 +877,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.appendChild(item_info);
 	}
 	function consumableData(k, ss=null) {
-		let remstr = ss == null ? "still needed" : "remaining";
 		let out = "";
 		if (k.energy !== undefined) {
 			if (k.energy >= 0)
@@ -897,17 +896,17 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			else
 				out += `Missiles consumed: ${-k.missiles - 1}<br>`;
 		}
-		if (k.supers_used !== undefined) {
-			if (ss == null)
-				out += `Supers ${remstr}: ${k.supers_used}<br>`;
+		if (k.supers !== undefined) {
+			if (k.supers >= 0)
+				out += `Supers remaining: ${k.supers}<br>`;
 			else
-				out += `Supers ${remstr}: ${ss.max_supers - k.supers_used}<br>`;
+				out += `Supers consumed: ${-k.supers - 1}<br>`;
 		}
-		if (k.power_bombs_used !== undefined) {
-			if (ss == null)
-				out += `PBs ${remstr}: ${k.power_bombs_used}<br>`;
+		if (k.power_bombs !== undefined) {
+			if (k.power_bombs >= 0)
+				out += `PBs remaining: ${k.power_bombs}<br>`;
 			else
-				out += `PBs ${remstr}: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
+				out += `PBs consumed: ${-k.power_bombs - 1}<br>`;
 		}
 		return out;
 	}

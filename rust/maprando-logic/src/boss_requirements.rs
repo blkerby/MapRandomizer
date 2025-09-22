@@ -125,7 +125,7 @@ pub fn apply_draygon_requirement(
     };
 
     // We assume as many Supers are available can be used immediately (e.g. on the first goop cycle):
-    let supers_available = inventory.max_supers - local.supers_used;
+    let supers_available = local.supers_available(inventory, reverse);
     boss_hp -= (supers_available as f32) * accuracy * 300.0;
     if boss_hp < 0.0 {
         return true;
@@ -221,12 +221,12 @@ pub fn apply_ridley_requirement(
     let power_bomb_dps = 400.0 * accuracy / power_bomb_time;
 
     // Prioritize using supers:
-    let supers_available = inventory.max_supers - local.supers_used;
+    let supers_available = local.supers_available(inventory, reverse);
     let supers_to_use = min(
         supers_available,
         f32::ceil(boss_hp / (600.0 * accuracy)) as Capacity,
     );
-    local.supers_used += supers_to_use;
+    assert!(local.use_supers(supers_to_use, inventory, reverse));
     boss_hp -= supers_to_use as f32 * 600.0 * accuracy;
     time += supers_to_use as f32 * super_time;
 
@@ -251,7 +251,7 @@ pub fn apply_ridley_requirement(
             f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
         ),
     );
-    local.use_missiles(missiles_to_use, inventory, reverse);
+    assert!(local.use_missiles(missiles_to_use, inventory, reverse));
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
     time += missiles_to_use as f32 * missile_time;
 
@@ -267,7 +267,7 @@ pub fn apply_ridley_requirement(
 
     if inventory.items[Item::Morph as usize] && use_power_bombs {
         // Use Power Bombs:
-        let pbs_available = inventory.max_power_bombs - local.power_bombs_used;
+        let pbs_available = local.power_bombs_available(inventory, reverse);
         let pbs_to_use = max(
             0,
             min(
@@ -275,7 +275,7 @@ pub fn apply_ridley_requirement(
                 f32::ceil(boss_hp / (400.0 * accuracy)) as Capacity,
             ),
         );
-        local.power_bombs_used += pbs_to_use;
+        assert!(local.use_power_bombs(pbs_to_use, inventory, reverse));
         boss_hp -= pbs_to_use as f32 * 400.0 * accuracy;
         time += pbs_to_use as f32 * power_bomb_time;
     }
@@ -374,12 +374,12 @@ pub fn apply_botwoon_requirement(
     // The firing rates below are for the first phase (since the rate doesn't matter for
     // the second phase):
     let use_supers = |local: &mut LocalState, boss_hp: &mut f32, time: &mut f32| {
-        let supers_available = inventory.max_supers - local.supers_used;
+        let supers_available = local.supers_available(inventory, reverse);
         let supers_to_use = min(
             supers_available,
             f32::ceil(*boss_hp / (300.0 * accuracy)) as Capacity,
         );
-        local.supers_used += supers_to_use;
+        assert!(local.use_supers(supers_to_use, inventory, reverse));
         *boss_hp -= supers_to_use as f32 * 300.0 * accuracy;
         // Assume a max average rate of one super shot per 2.0 second:
         *time += supers_to_use as f32 * 2.0 / firing_rate;
@@ -394,7 +394,7 @@ pub fn apply_botwoon_requirement(
                 f32::ceil(*boss_hp / (100.0 * accuracy)) as Capacity,
             ),
         );
-        local.use_missiles(missiles_to_use, inventory, reverse);
+        assert!(local.use_missiles(missiles_to_use, inventory, reverse));
         *boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
         // Assume a max average rate of one missile shot per 1.0 seconds:
         *time += missiles_to_use as f32 * 1.0 / firing_rate;
@@ -499,13 +499,13 @@ pub fn apply_mother_brain_2_requirement(
     let missile_time = 0.17;
 
     // Prioritize using supers:
-    let supers_available = inventory.max_supers - local.supers_used;
+    let supers_available = local.supers_available(inventory, reverse);
     let super_damage = if supers_double { 600.0 } else { 300.0 };
     let supers_to_use = min(
         supers_available,
         f32::ceil(boss_hp / (super_damage * accuracy)) as Capacity,
     );
-    local.supers_used += supers_to_use;
+    assert!(local.use_supers(supers_to_use, inventory, reverse));
     boss_hp -= supers_to_use as f32 * super_damage * accuracy;
     time += supers_to_use as f32 * super_time / firing_rate;
 
@@ -529,7 +529,7 @@ pub fn apply_mother_brain_2_requirement(
             f32::ceil(boss_hp / (100.0 * accuracy)) as Capacity,
         ),
     );
-    local.use_missiles(missiles_to_use, inventory, reverse);
+    assert!(local.use_missiles(missiles_to_use, inventory, reverse));
     boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
     time += missiles_to_use as f32 * missile_time / firing_rate;
 

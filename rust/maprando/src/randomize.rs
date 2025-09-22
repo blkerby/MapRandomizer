@@ -3856,7 +3856,6 @@ impl<'r> Randomizer<'r> {
                     .item_progression_settings
                     .ammo_collect_fraction,
                 &self.difficulty_tiers[0].tech,
-                &mut state.starting_local_state,
             );
         }
         // Update `items_remaining` for key items only.
@@ -4556,7 +4555,7 @@ impl<'r> Randomizer<'r> {
                 let new_local = apply_requirement(
                     hub_req,
                     &global,
-                    LocalState::empty(&global),
+                    LocalState::empty(),
                     false,
                     self.settings,
                     &self.difficulty_tiers[0],
@@ -4634,7 +4633,6 @@ impl<'r> Randomizer<'r> {
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
             weapon_mask,
         };
-        let mut local = LocalState::empty(&global);
         for x in &self.settings.item_progression_settings.starting_items {
             for _ in 0..x.count {
                 global.collect(
@@ -4644,10 +4642,10 @@ impl<'r> Randomizer<'r> {
                         .item_progression_settings
                         .ammo_collect_fraction,
                     &self.difficulty_tiers[0].tech,
-                    &mut local,
                 );
             }
         }
+        let local = LocalState::empty();
         (global, local)
     }
 

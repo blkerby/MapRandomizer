@@ -227,11 +227,11 @@ pub struct SpoilerRouteEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reserves: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub missiles_used: Option<Capacity>,
+    pub missiles: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub supers_used: Option<Capacity>,
+    pub supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub power_bombs_used: Option<Capacity>,
+    pub power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub relevant_flags: Vec<String>,
 }
@@ -354,15 +354,15 @@ impl SpoilerLocalState {
             } else {
                 Some(local.missiles.0)
             },
-            supers_used: if local.supers_used == ref_local.supers_used {
+            supers_used: if local.supers == ref_local.supers {
                 None
             } else {
-                Some(local.supers_used)
+                Some(local.supers.0)
             },
-            power_bombs_used: if local.power_bombs_used == ref_local.power_bombs_used {
+            power_bombs_used: if local.power_bombs == ref_local.power_bombs {
                 None
             } else {
-                Some(local.power_bombs_used)
+                Some(local.power_bombs.0)
             },
             shinecharge_frames_remaining: if local.shinecharge_frames_remaining
                 == ref_local.shinecharge_frames_remaining
@@ -395,19 +395,19 @@ impl SpoilerLocalState {
             } else {
                 Some(local.farm_baseline_missiles.0)
             },
-            farm_baseline_supers_used: if local.farm_baseline_supers_used
-                == ref_local.farm_baseline_supers_used
+            farm_baseline_supers_used: if local.farm_baseline_supers
+                == ref_local.farm_baseline_supers
             {
                 None
             } else {
-                Some(local.farm_baseline_supers_used)
+                Some(local.farm_baseline_supers.0)
             },
-            farm_baseline_power_bombs_used: if local.farm_baseline_power_bombs_used
-                == ref_local.farm_baseline_power_bombs_used
+            farm_baseline_power_bombs_used: if local.farm_baseline_power_bombs
+                == ref_local.farm_baseline_power_bombs
             {
                 None
             } else {
-                Some(local.farm_baseline_power_bombs_used)
+                Some(local.farm_baseline_power_bombs.0)
             },
             flash_suit: if local.flash_suit == ref_local.flash_suit {
                 None
@@ -557,9 +557,9 @@ pub fn get_spoiler_route(
             strat_notes: link.strat_notes.clone(),
             energy: Some(new_local_state.energy.0),
             reserves: Some(new_local_state.reserves.0),
-            missiles_used: Some(new_local_state.missiles.0),
-            supers_used: Some(new_local_state.supers_used),
-            power_bombs_used: Some(new_local_state.power_bombs_used),
+            missiles: Some(new_local_state.missiles.0),
+            supers: Some(new_local_state.supers.0),
+            power_bombs: Some(new_local_state.power_bombs.0),
             relevant_flags,
         };
         route.push(spoiler_entry);
@@ -577,14 +577,14 @@ pub fn get_spoiler_route(
         if route[i + 1].reserves == route[i].reserves {
             route[i + 1].reserves = None;
         }
-        if route[i + 1].missiles_used == route[i].missiles_used {
-            route[i + 1].missiles_used = None;
+        if route[i + 1].missiles == route[i].missiles {
+            route[i + 1].missiles = None;
         }
-        if route[i + 1].supers_used == route[i].supers_used {
-            route[i + 1].supers_used = None;
+        if route[i + 1].supers == route[i].supers {
+            route[i + 1].supers = None;
         }
-        if route[i + 1].power_bombs_used == route[i].power_bombs_used {
-            route[i + 1].power_bombs_used = None;
+        if route[i + 1].power_bombs == route[i].power_bombs {
+            route[i + 1].power_bombs = None;
         }
     }
     route
