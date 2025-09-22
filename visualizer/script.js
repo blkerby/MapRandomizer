@@ -368,6 +368,9 @@ loadForm(document.getElementById("helpForm"));
 setDebugDataVisibility();
 if (!document.getElementById("showonce").checked)
 	document.getElementById("msg-wrap").style.display = "flex";
+if (document.getElementById("smalldoors").checked){
+	document.getElementById("map").src = "../map-explored-small.png"
+}
 
 let ctx = document.getElementById("spoiler-overlay").getContext("2d");
 let grid = document.getElementById("grid");

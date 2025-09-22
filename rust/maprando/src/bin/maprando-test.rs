@@ -304,7 +304,10 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     );
 
     let spoiler_map_explored_small = spoiler_maps.explored_small.clone();
-    std::fs::write(output_spoiler_map_explored_small_path, spoiler_map_explored_small)?;
+    std::fs::write(
+        output_spoiler_map_explored_small_path,
+        spoiler_map_explored_small,
+    )?;
 
     let output_spoiler_map_outline_path =
         Path::join(&app.output_dir, format!("{output_file_prefix}-outline.png"));
