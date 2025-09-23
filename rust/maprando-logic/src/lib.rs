@@ -817,6 +817,32 @@ impl LocalState {
         )
     }
 
+    #[must_use]
+    pub fn ensure_energy_missing_at_most(
+        &mut self,
+        amt: Capacity,
+        include_reserves: bool,
+        inventory: &Inventory,
+        reverse: bool,
+    ) -> bool {
+        let missing = self.energy_missing(inventory, include_reserves);
+        if reverse {
+            if amt < inventory.max_energy {
+                self.energy = ResourceLevel::Consumed(Capacity::min(missing, amt)).into();
+            } else {
+                let missing_reserves = self.reserves_missing(inventory);
+                self.reserves = ResourceLevel::Consumed(Capacity::min(
+                    missing_reserves,
+                    amt - inventory.max_energy + 1,
+                ))
+                .into();
+            }
+            true
+        } else {
+            missing <= amt
+        }
+    }
+
     fn refill_resource(
         amt: Capacity,
         max_resource: Capacity,

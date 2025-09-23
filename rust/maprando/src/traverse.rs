@@ -1297,11 +1297,15 @@ fn apply_requirement_simple(
         &Requirement::PowerBombsMissingAtMost(count) => local
             .ensure_power_bombs_missing_at_most(count, &cx.global.inventory, cx.reverse)
             .into(),
-        Requirement::RegularEnergyMissingAtMost(_) => unimplemented!(),
+        &Requirement::RegularEnergyMissingAtMost(count) => local
+            .ensure_energy_missing_at_most(count, false, &cx.global.inventory, cx.reverse)
+            .into(),
         &Requirement::ReserveEnergyMissingAtMost(count) => local
             .ensure_reserves_missing_at_most(count, &cx.global.inventory, cx.reverse)
             .into(),
-        Requirement::EnergyMissingAtMost(_) => unimplemented!(),
+        &Requirement::EnergyMissingAtMost(count) => local
+            .ensure_energy_missing_at_most(count, true, &cx.global.inventory, cx.reverse)
+            .into(),
         Requirement::MissilesCapacity(count) => (cx.global.inventory.max_missiles >= *count).into(),
         Requirement::SupersCapacity(count) => (cx.global.inventory.max_supers >= *count).into(),
         Requirement::PowerBombsCapacity(count) => {
