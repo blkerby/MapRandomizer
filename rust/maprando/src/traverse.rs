@@ -614,12 +614,12 @@ pub fn apply_farm_requirement(
 
     let mut new_local = local;
     if new_local.farm_baseline_energy_available(&global.inventory, reverse)
-        > new_local.energy_available(&global.inventory, false, false)
+        > new_local.energy_available(&global.inventory, false, reverse)
     {
         new_local.farm_baseline_energy = new_local.energy;
     }
     if new_local.farm_baseline_reserves_available(&global.inventory, reverse)
-        > new_local.reserves_remaining(&global.inventory)
+        > new_local.reserves_available(&global.inventory, reverse)
     {
         new_local.farm_baseline_reserves = new_local.reserves;
     }
