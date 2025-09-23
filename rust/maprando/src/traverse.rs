@@ -98,26 +98,30 @@ fn apply_enemy_kill_requirement(
 
 pub const NUM_COST_METRICS: usize = 3;
 
-fn compute_cost(local: &LocalState, reverse: bool) -> [f32; NUM_COST_METRICS] {
+fn compute_cost(
+    local: &LocalState,
+    inventory: &Inventory,
+    reverse: bool,
+) -> [f32; NUM_COST_METRICS] {
     let mut energy_cost = match local.energy() {
         ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (1500 - x) as f32,
+        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as f32 + 0.5,
     } / 1500.0;
     let mut reserve_cost = match local.reserves() {
         ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (400 - x) as f32,
+        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as f32 + 0.5,
     } / 400.0;
     let mut missiles_cost = match local.missiles() {
         ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (500 - x) as f32,
+        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as f32 + 0.5,
     } / 500.0;
     let mut supers_cost = match local.supers() {
         ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (100 - x) as f32,
+        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as f32 + 0.5,
     } / 100.0;
     let mut power_bombs_cost = match local.power_bombs() {
         ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (100 - x) as f32,
+        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as f32 + 0.5,
     } / 100.0;
     let mut shinecharge_cost = if local.flash_suit {
         // For the purposes of the cost metrics, treat flash suit as equivalent
@@ -762,8 +766,14 @@ impl<T: Copy + Debug> LocalStateReducer<T> {
         }
     }
 
-    fn push(&mut self, local: LocalState, trail_id: T, reverse: bool) -> bool {
-        let cost = compute_cost(&local, reverse);
+    fn push(
+        &mut self,
+        local: LocalState,
+        inventory: &Inventory,
+        trail_id: T,
+        reverse: bool,
+    ) -> bool {
+        let cost = compute_cost(&local, inventory, reverse);
         let n = self.local.len() as u8;
         let mut improved_any: bool = false;
         let mut improved_all: bool = true;
@@ -908,7 +918,7 @@ fn apply_requirement_complex(
             let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
             for r in sub_reqs {
                 for loc in apply_requirement_complex(r, local.clone(), cx) {
-                    reducer.push(loc, (), cx.reverse);
+                    reducer.push(loc, &cx.global.inventory, (), cx.reverse);
                 }
             }
             reducer.local
@@ -919,11 +929,11 @@ fn apply_requirement_complex(
                 match apply_requirement_simple(req, &mut loc, cx) {
                     SimpleResult::Failure => {}
                     SimpleResult::Success => {
-                        reducer.push(loc, (), cx.reverse);
+                        reducer.push(loc, &cx.global.inventory, (), cx.reverse);
                     }
                     SimpleResult::_ExtraState(extra_state) => {
-                        reducer.push(loc, (), cx.reverse);
-                        reducer.push(extra_state, (), cx.reverse);
+                        reducer.push(loc, &cx.global.inventory, (), cx.reverse);
+                        reducer.push(extra_state, &cx.global.inventory, (), cx.reverse);
                     }
                 }
             }
@@ -1910,7 +1920,7 @@ fn apply_requirement_simple(
                     SimpleResult::Success => {}
                     SimpleResult::_ExtraState(_) => todo!(),
                 }
-                let cost = compute_cost(local, cx.reverse);
+                let cost = compute_cost(local, &cx.global.inventory, cx.reverse);
                 // TODO: Maybe do something better than just using the first cost metric.
                 if cost[0] < best_cost[0] {
                     best_cost = cost;
@@ -2055,10 +2065,11 @@ impl Traverser {
     pub fn add_origin(
         &mut self,
         init_local: LocalState,
+        inventory: &Inventory,
         start_vertex_id: usize,
     ) {
         let mut lsr = LocalStateReducer::<StepTrailId>::new();
-        lsr.push(init_local, -1, self.reverse);
+        lsr.push(init_local, inventory, -1, self.reverse);
         self.add_trail(start_vertex_id, lsr);
     }
 
@@ -2148,11 +2159,22 @@ impl Traverser {
                     let dst_id = link.to_vertex_id;
                     let mut local_arr = src_local_arr.clone();
                     let mut any_improvement: bool = false;
-                    let mut new_lsr = self.lsr[dst_id].clone();
+                    let old_lsr = &self.lsr[dst_id];
+                    let mut new_lsr = LocalStateReducer::new();
+                    for i in 0..old_lsr.local.len() {
+                        // Rebuild the LocalStateReducer in order to update costs, which
+                        // may have changed due to new inventory.
+                        new_lsr.push(
+                            old_lsr.local[i],
+                            &cx.global.inventory,
+                            old_lsr.trail_ids[i],
+                            cx.reverse,
+                        );
+                    }
                     local_arr = apply_link(link, local_arr, &cx);
                     for local in local_arr {
                         let new_trail_id = self.step_trails.len() as StepTrailId;
-                        if new_lsr.push(local, new_trail_id, cx.reverse) {
+                        if new_lsr.push(local, &cx.global.inventory, new_trail_id, cx.reverse) {
                             let new_step_trail = StepTrail {
                                 local_state: local,
                                 link_idx,

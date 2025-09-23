@@ -4489,7 +4489,9 @@ impl<'r> Randomizer<'r> {
                 continue;
             };
 
-            traverser_pair.forward.add_origin(local, start_vertex_id);
+            traverser_pair
+                .forward
+                .add_origin(local, &global.inventory, start_vertex_id);
             traverser_pair.forward.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4515,9 +4517,11 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
 
-            traverser_pair
-                .reverse
-                .add_origin(LocalState::full(true), start_vertex_id);
+            traverser_pair.reverse.add_origin(
+                LocalState::full(true),
+                &global.inventory,
+                start_vertex_id,
+            );
             traverser_pair.reverse.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4898,13 +4902,17 @@ impl<'r> Randomizer<'r> {
             obstacle_mask: 0,
             actions: vec![],
         }];
-        traverser_pair
-            .forward
-            .add_origin(initial_local_state, start_vertex_id);
+        traverser_pair.forward.add_origin(
+            initial_local_state,
+            &state.global_state.inventory,
+            start_vertex_id,
+        );
         traverser_pair.forward.finish_step(1);
-        traverser_pair
-            .reverse
-            .add_origin(LocalState::full(true), start_vertex_id);
+        traverser_pair.reverse.add_origin(
+            LocalState::full(true),
+            &state.global_state.inventory,
+            start_vertex_id,
+        );
         traverser_pair.reverse.finish_step(1);
         self.update_reachability(&mut state, &mut traverser_pair);
         if !state
