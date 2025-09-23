@@ -848,7 +848,7 @@ function applyItemProgressionPreset(preset) {
     
     /* Preset all uniques to true (upgrade previous presets which lacked these) */
     
-    {% for item in item_pool_single %}
+    {% for item in item_names_single %}
     document.getElementById("itemPool{{+ item }}Yes").checked = true;
     {% endfor %}
     
@@ -908,10 +908,10 @@ function itemProgressionChanged() {
 }
 function processStartingItemsPreset() {
     if (document.getElementById("startingItemsPresetNone").checked) {
-        {% for item in starting_items_multiple %}
+        {% for item in item_names_multiple %}
         document.getElementById("startingItem{{+ item }}").value = "0";
         {% endfor %}
-        {% for item in starting_items_single %}
+        {% for item in item_names_single %}
         document.getElementById("startingItem{{+ item }}No").checked = true;
         {% endfor %}
     }
@@ -921,7 +921,7 @@ function processStartingItemsPreset() {
         document.getElementById("startingItemReserveTank").value = "4";
         document.getElementById("startingItemSuper").value = "10";
         document.getElementById("startingItemPowerBomb").value = "10";
-        {% for item in starting_items_single %}
+        {% for item in item_names_single %}
         document.getElementById("startingItem{{+ item }}Yes").checked = true;
         {% endfor %}
     }
@@ -962,7 +962,7 @@ function processItemPoolPreset() {
         document.getElementById("itemPoolPowerBomb").value = "10";
         document.getElementById("itemPoolETank").value = "14";
         document.getElementById("itemPoolReserveTank").value = "4";
-        {% for item in item_pool_single %}
+        {% for item in item_names_single %}
         document.getElementById("itemPool{{+ item }}Yes").checked = true;
         {% endfor %}
     }
@@ -973,7 +973,7 @@ function processItemPoolPreset() {
         document.getElementById("itemPoolPowerBomb").value = "5";
         document.getElementById("itemPoolETank").value = "3";
         document.getElementById("itemPoolReserveTank").value = "3";
-        {% for item in item_pool_single %}
+        {% for item in item_names_single %}
         document.getElementById("itemPool{{+ item }}Yes").checked = true;
         {% endfor %}
     }

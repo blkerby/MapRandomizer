@@ -189,7 +189,7 @@
                                         {% endfor %}
                                     </div>
                                 </div>
-                                {% for item in item_pool_multiple %}
+                                {% for item in item_names_multiple %}
                                     <div class="form-group row m-2">
                                         <label class="col-lg-3 col-form-label text-end" for="item_pool_min_{{+ item }}">{{+ item }}</label>
                                         <div class="col-lg-2">
@@ -198,7 +198,7 @@
                                         </div>
                                     </div>
                                 {% endfor %}
-                                {% for item in item_pool_single %}
+                                {% for item in item_names_single %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-2 col-form-label text-end" for="item_pool_{{+ item }}">{{+ item }}</label>
                                         <div id="itemPool{{ item}}" class="col-sm-3 btn-group" role="group">
@@ -246,7 +246,7 @@
                             </h2>
                             <div id="collapseStartingItems" class="accordion-collapse collapse">
                                 <input type="hidden" id="json-starting-items" name="starting_item_json">
-                                {% for item in starting_items_multiple %}
+                                {% for item in item_names_multiple %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-2 col-form-label text-end" for="starting_item_{{+ item }}">{{+ item }}</label>
                                         <div class="col-sm-2">
@@ -255,7 +255,7 @@
                                         </div>
                                     </div>
                                 {% endfor %}
-                                {% for item in starting_items_single %}
+                                {% for item in item_names_single %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-2 col-form-label text-end" for="starting_item_{{+ item }}">{{+ item }}</label>
                                         <div id="startingItem{{ item}}" class="col-sm-3 btn-group" role="group">
