@@ -199,27 +199,27 @@
                 }
 
                 function do_boss_check() {
-                    let inventory = getInventory();
+                    let inventory = getInventory(can_manage_reserves);
                     let local = null;
                     let proficiency = getProficiency();
 
                     if (selected_boss == "Phantoon") {
-                        local = can_defeat_phantoon(inventory, local, proficiency, can_manage_reserves);
+                        local = can_defeat_phantoon(inventory, local, proficiency);
                     }
                     else if (selected_boss == "Draygon") {
-                        local = can_defeat_draygon(inventory, local, proficiency, can_manage_reserves, can_be_very_patient);
+                        local = can_defeat_draygon(inventory, local, proficiency, can_be_very_patient);
                     }
                     else if (selected_boss == "Ridley") {
-                        local = can_defeat_ridley(inventory, local, proficiency, can_manage_reserves, can_be_patient, can_be_very_patient, can_be_extremely_patient);
+                        local = can_defeat_ridley(inventory, local, proficiency, can_be_patient, can_be_very_patient, can_be_extremely_patient);
                     }
                     else if (selected_boss == "Botwoon") {
-                        local = can_defeat_botwoon(inventory, local, proficiency, false, can_manage_reserves);
+                        local = can_defeat_botwoon(inventory, local, proficiency, false);
                         if (local != null) {
-                            local = can_defeat_botwoon(inventory, local, proficiency, true, can_manage_reserves);
+                            local = can_defeat_botwoon(inventory, local, proficiency, true);
                         }
                     }
                     else if (selected_boss == "Mother Brain 2") {
-                        local = can_defeat_mother_brain_2(inventory, local, proficiency, supers_double, can_manage_reserves, can_be_very_patient, false);
+                        local = can_defeat_mother_brain_2(inventory, local, proficiency, supers_double, can_be_very_patient, false);
                     }
 
                     updateResults(local);

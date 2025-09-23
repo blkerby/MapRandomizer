@@ -75,15 +75,20 @@ pub fn get_spoiler_traversal(tr: &Traverser) -> SpoilerTraversal {
         let old_state = if t.local_state.prev_trail_id >= 0 {
             tr.step_trails[t.local_state.prev_trail_id as usize].local_state
         } else {
-            LocalState::full()
+            LocalState::empty()
         };
-        let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
+        let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state, false);
         prev_trail_ids.push(t.local_state.prev_trail_id);
         link_idxs.push(t.link_idx);
         local_states.push(spoiler_local_state);
     }
 
     SpoilerTraversal {
+        initial_local_state: SpoilerLocalState::new(
+            tr.initial_local_state,
+            LocalState::empty(),
+            true,
+        ),
         prev_trail_ids,
         link_idxs,
         local_states,
@@ -180,6 +185,7 @@ pub struct SpoilerTraversalStep {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerTraversal {
+    pub initial_local_state: SpoilerLocalState,
     pub prev_trail_ids: Vec<StepTrailId>,
     pub link_idxs: Vec<LinkIdx>,
     pub local_states: Vec<SpoilerLocalState>,
@@ -223,15 +229,15 @@ pub struct SpoilerRouteEntry {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strat_notes: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub energy_used: Option<Capacity>,
+    pub energy: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reserves_used: Option<Capacity>,
+    pub reserves: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub missiles_used: Option<Capacity>,
+    pub missiles: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub supers_used: Option<Capacity>,
+    pub supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub power_bombs_used: Option<Capacity>,
+    pub power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub relevant_flags: Vec<String>,
 }
@@ -297,32 +303,32 @@ pub struct SpoilerDoorDetails {
     return_route: Vec<SpoilerRouteEntry>,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone, Default)]
+#[derive(Serialize, Deserialize, Copy, Clone, Default, Debug)]
 pub struct SpoilerLocalState {
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub energy_used: Option<Capacity>,
+    pub energy: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub reserves_used: Option<Capacity>,
+    pub reserves: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub missiles_used: Option<Capacity>,
+    pub missiles: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub supers_used: Option<Capacity>,
+    pub supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub power_bombs_used: Option<Capacity>,
+    pub power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shinecharge_frames_remaining: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub cycle_frames: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_energy_used: Option<Capacity>,
+    pub farm_baseline_energy: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_reserves_used: Option<Capacity>,
+    pub farm_baseline_reserves: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_missiles_used: Option<Capacity>,
+    pub farm_baseline_missiles: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_supers_used: Option<Capacity>,
+    pub farm_baseline_supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_power_bombs_used: Option<Capacity>,
+    pub farm_baseline_power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flash_suit: Option<Capacity>,
 }
@@ -337,81 +343,85 @@ struct VertexInfo {
 }
 
 impl SpoilerLocalState {
-    fn new(local: LocalState, ref_local: LocalState) -> Self {
+    pub fn new(local: LocalState, ref_local: LocalState, include_all: bool) -> Self {
         Self {
-            energy_used: if local.energy_used == ref_local.energy_used {
+            energy: if local.energy == ref_local.energy && !include_all {
                 None
             } else {
-                Some(local.energy_used)
+                Some(local.energy.0)
             },
-            reserves_used: if local.reserves_used == ref_local.reserves_used {
+            reserves: if local.reserves == ref_local.reserves && !include_all {
                 None
             } else {
-                Some(local.reserves_used)
+                Some(local.reserves.0)
             },
-            missiles_used: if local.missiles_used == ref_local.missiles_used {
+            missiles: if local.missiles == ref_local.missiles && !include_all {
                 None
             } else {
-                Some(local.missiles_used)
+                Some(local.missiles.0)
             },
-            supers_used: if local.supers_used == ref_local.supers_used {
+            supers: if local.supers == ref_local.supers && !include_all {
                 None
             } else {
-                Some(local.supers_used)
+                Some(local.supers.0)
             },
-            power_bombs_used: if local.power_bombs_used == ref_local.power_bombs_used {
+            power_bombs: if local.power_bombs == ref_local.power_bombs && !include_all {
                 None
             } else {
-                Some(local.power_bombs_used)
+                Some(local.power_bombs.0)
             },
             shinecharge_frames_remaining: if local.shinecharge_frames_remaining
                 == ref_local.shinecharge_frames_remaining
+                && !include_all
             {
                 None
             } else {
                 Some(local.shinecharge_frames_remaining)
             },
-            cycle_frames: if local.cycle_frames == ref_local.cycle_frames {
+            cycle_frames: if local.cycle_frames == ref_local.cycle_frames && !include_all {
                 None
             } else {
                 Some(local.cycle_frames)
             },
-            farm_baseline_energy_used: if local.farm_baseline_energy_used
-                == ref_local.farm_baseline_energy_used
+            farm_baseline_energy: if local.farm_baseline_energy == ref_local.farm_baseline_energy
+                && !include_all
             {
                 None
             } else {
-                Some(local.farm_baseline_energy_used)
+                Some(local.farm_baseline_energy.0)
             },
-            farm_baseline_reserves_used: if local.farm_baseline_reserves_used
-                == ref_local.farm_baseline_reserves_used
+            farm_baseline_reserves: if local.farm_baseline_reserves
+                == ref_local.farm_baseline_reserves
+                && !include_all
             {
                 None
             } else {
-                Some(local.farm_baseline_reserves_used)
+                Some(local.farm_baseline_reserves.0)
             },
-            farm_baseline_missiles_used: if local.farm_baseline_missiles_used
-                == ref_local.farm_baseline_missiles_used
+            farm_baseline_missiles: if local.farm_baseline_missiles
+                == ref_local.farm_baseline_missiles
+                && !include_all
             {
                 None
             } else {
-                Some(local.farm_baseline_missiles_used)
+                Some(local.farm_baseline_missiles.0)
             },
-            farm_baseline_supers_used: if local.farm_baseline_supers_used
-                == ref_local.farm_baseline_supers_used
+            farm_baseline_supers: if local.farm_baseline_supers == ref_local.farm_baseline_supers
+                && !include_all
             {
                 None
             } else {
-                Some(local.farm_baseline_supers_used)
+                Some(local.farm_baseline_supers.0)
             },
-            farm_baseline_power_bombs_used: if local.farm_baseline_power_bombs_used
-                == ref_local.farm_baseline_power_bombs_used
+            farm_baseline_power_bombs: if local.farm_baseline_power_bombs
+                == ref_local.farm_baseline_power_bombs
+                && !include_all
             {
                 None
             } else {
-                Some(local.farm_baseline_power_bombs_used)
+                Some(local.farm_baseline_power_bombs.0)
             },
-            flash_suit: if local.flash_suit == ref_local.flash_suit {
+            flash_suit: if local.flash_suit == ref_local.flash_suit && !include_all {
                 None
             } else {
                 Some(if local.flash_suit { 1 } else { 0 })
@@ -557,11 +567,11 @@ pub fn get_spoiler_route(
             coords,
             strat_name: link.strat_name.clone(),
             strat_notes: link.strat_notes.clone(),
-            energy_used: Some(new_local_state.energy_used),
-            reserves_used: Some(new_local_state.reserves_used),
-            missiles_used: Some(new_local_state.missiles_used),
-            supers_used: Some(new_local_state.supers_used),
-            power_bombs_used: Some(new_local_state.power_bombs_used),
+            energy: Some(new_local_state.energy.0),
+            reserves: Some(new_local_state.reserves.0),
+            missiles: Some(new_local_state.missiles.0),
+            supers: Some(new_local_state.supers.0),
+            power_bombs: Some(new_local_state.power_bombs.0),
             relevant_flags,
         };
         route.push(spoiler_entry);
@@ -573,20 +583,20 @@ pub fn get_spoiler_route(
 
     // Remove repeated resource values, to reduce clutter in the spoiler view:
     for i in (0..(route.len() - 1)).rev() {
-        if route[i + 1].energy_used == route[i].energy_used {
-            route[i + 1].energy_used = None;
+        if route[i + 1].energy == route[i].energy {
+            route[i + 1].energy = None;
         }
-        if route[i + 1].reserves_used == route[i].reserves_used {
-            route[i + 1].reserves_used = None;
+        if route[i + 1].reserves == route[i].reserves {
+            route[i + 1].reserves = None;
         }
-        if route[i + 1].missiles_used == route[i].missiles_used {
-            route[i + 1].missiles_used = None;
+        if route[i + 1].missiles == route[i].missiles {
+            route[i + 1].missiles = None;
         }
-        if route[i + 1].supers_used == route[i].supers_used {
-            route[i + 1].supers_used = None;
+        if route[i + 1].supers == route[i].supers {
+            route[i + 1].supers = None;
         }
-        if route[i + 1].power_bombs_used == route[i].power_bombs_used {
-            route[i + 1].power_bombs_used = None;
+        if route[i + 1].power_bombs == route[i].power_bombs {
+            route[i + 1].power_bombs = None;
         }
     }
     route
@@ -594,13 +604,12 @@ pub fn get_spoiler_route(
 
 fn get_spoiler_route_birectional(
     randomizer: &Randomizer,
-    state: &RandomizationState,
+    global_state: &GlobalState,
     vertex_id: usize,
     traverser_pair: &TraverserPair,
 ) -> (Vec<SpoilerRouteEntry>, Vec<SpoilerRouteEntry>) {
     let forward = &traverser_pair.forward;
     let reverse = &traverser_pair.reverse;
-    let global_state = &state.global_state;
     let (forward_cost_idx, reverse_cost_idx) =
         get_bireachable_idxs(global_state, vertex_id, forward, reverse).unwrap();
     let forward_trail_ids: Vec<StepTrailId> =
@@ -630,6 +639,7 @@ fn get_spoiler_route_one_way(
 fn get_spoiler_item_details(
     randomizer: &Randomizer,
     state: &RandomizationState,
+    global_state: &GlobalState,
     item_vertex_id: usize,
     item: Item,
     tier: Option<usize>,
@@ -637,7 +647,7 @@ fn get_spoiler_item_details(
     traverser_pair: &TraverserPair,
 ) -> SpoilerItemDetails {
     let (obtain_route, return_route) =
-        get_spoiler_route_birectional(randomizer, state, item_vertex_id, traverser_pair);
+        get_spoiler_route_birectional(randomizer, global_state, item_vertex_id, traverser_pair);
     let (room_id, node_id) = randomizer.game_data.item_locations[item_location_idx];
     let item_vertex_info = get_vertex_info_by_id(randomizer, room_id, node_id);
     let reachable_traversal = state.item_location_state[item_location_idx]
@@ -685,13 +695,14 @@ fn get_spoiler_item_summary(
 pub fn get_spoiler_flag_details(
     randomizer: &Randomizer,
     state: &RandomizationState,
+    global_state: &GlobalState,
     flag_vertex_id: usize,
     flag_id: FlagId,
     flag_idx: usize,
     traverser_pair: &TraverserPair,
 ) -> SpoilerFlagDetails {
     let (obtain_route, return_route) =
-        get_spoiler_route_birectional(randomizer, state, flag_vertex_id, traverser_pair);
+        get_spoiler_route_birectional(randomizer, global_state, flag_vertex_id, traverser_pair);
     let flag_vertex_info = get_vertex_info(randomizer, flag_vertex_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
@@ -763,13 +774,13 @@ fn get_door_type_name(door_type: DoorType) -> String {
 
 pub fn get_spoiler_door_details(
     randomizer: &Randomizer,
-    state: &RandomizationState,
+    global_state: &GlobalState,
     unlock_vertex_id: usize,
     locked_door_idx: usize,
     traverser_pair: &TraverserPair,
 ) -> SpoilerDoorDetails {
     let (obtain_route, return_route) =
-        get_spoiler_route_birectional(randomizer, state, unlock_vertex_id, traverser_pair);
+        get_spoiler_route_birectional(randomizer, global_state, unlock_vertex_id, traverser_pair);
     let summary = get_spoiler_door_summary(randomizer, unlock_vertex_id, locked_door_idx);
     SpoilerDoorDetails {
         door_type: summary.door_type,
@@ -933,6 +944,7 @@ pub fn get_spoiler_log(
                 let item_details = get_spoiler_item_details(
                     randomizer,
                     state,
+                    &global_state,
                     item_vertex_id,
                     item,
                     item_state.placed_tier,
@@ -972,6 +984,7 @@ pub fn get_spoiler_log(
                     let flag_details = get_spoiler_flag_details(
                         randomizer,
                         state,
+                        &global_state,
                         flag_vertex_id,
                         flag_id,
                         i,
@@ -990,7 +1003,7 @@ pub fn get_spoiler_log(
                 spoiler_door_summaries.push(door_summary);
                 let door_details = get_spoiler_door_details(
                     randomizer,
-                    state,
+                    &global_state,
                     unlock_vertex_id,
                     i,
                     traverser_pair,

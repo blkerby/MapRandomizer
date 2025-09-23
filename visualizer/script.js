@@ -190,12 +190,7 @@ function getTrailIds(endTrailId, traversal, backward) {
 	}
 	out.reverse();
 
-	let finalLocalState = {};
-	if (endTrailId != -1) {
-		for (k of localStateKeyOrder) {
-			finalLocalState[k] = 0;
-		}
-	}
+	let finalLocalState = { ...traversal.initial_local_state};
 	for (trailId of out) {
 		let localState = traversal.local_states[trailId];
 		Object.assign(finalLocalState, localState);
@@ -208,18 +203,18 @@ function getTrailIds(endTrailId, traversal, backward) {
 }
 
 let localStateKeyOrder = [
-	"energy_used",
-	"reserves_used",
-	"missiles_used",
-	"supers_used",
-	"power_bombs_used",
+	"energy",
+	"reserves",
+	"missiles",
+	"supers",
+	"power_bombs",
 	"shinecharge_frames_remaining",
 	"cycle_frames",
-	"farm_baseline_energy_used",
-	"farm_baseline_reserves_used",
-	"farm_baseline_missiles_used",
-	"farm_baseline_supers_used",
-	"farm_baseline_power_bombs_used",
+	"farm_baseline_energy",
+	"farm_baseline_reserves",
+	"farm_baseline_missiles",
+	"farm_baseline_supers",
+	"farm_baseline_power_bombs",
 	"flash_suit",
 ];
 
@@ -915,37 +910,36 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		si.appendChild(item_info);
 	}
 	function consumableData(k, ss=null) {
-		let remstr = ss == null ? "still needed" : "remaining";
 		let out = "";
-		if (k.energy_used !== undefined) {
-			if (ss == null)
-				out += `Energy ${remstr}: ${k.energy_used + 1}<br>`;
+		if (k.energy !== undefined) {
+			if (k.energy >= 0)
+				out += `Energy remaining: ${k.energy}<br>`;
 			else
-				out += `Energy ${remstr}: ${ss.max_energy - k.energy_used}<br>`;
+				out += `Energy consumed: ${-k.energy - 1}<br>`;
 		}
-		if (k.reserves_used !== undefined) {
-			if (ss == null)
-				out += `Reserves ${remstr}: ${k.reserves_used}<br>`;
+		if (k.reserves !== undefined) {
+			if (k.reserves >= 0)
+				out += `Reserves remaining: ${k.reserves}<br>`;
 			else
-				out += `Reserves ${remstr}: ${ss.max_reserves - k.reserves_used}<br>`;
+				out += `Reserves consumed: ${-k.reserves - 1}<br>`;
 		}
-		if (k.missiles_used !== undefined) {
-			if (ss == null)
-				out += `Missiles ${remstr}: ${k.missiles_used}<br>`;
+		if (k.missiles !== undefined) {
+			if (k.missiles >= 0)
+				out += `Missiles remaining: ${k.missiles}<br>`;
 			else
-				out += `Missiles ${remstr}: ${ss.max_missiles - k.missiles_used}<br>`;
+				out += `Missiles consumed: ${-k.missiles - 1}<br>`;
 		}
-		if (k.supers_used !== undefined) {
-			if (ss == null)
-				out += `Supers ${remstr}: ${k.supers_used}<br>`;
+		if (k.supers !== undefined) {
+			if (k.supers >= 0)
+				out += `Supers remaining: ${k.supers}<br>`;
 			else
-				out += `Supers ${remstr}: ${ss.max_supers - k.supers_used}<br>`;
+				out += `Supers consumed: ${-k.supers - 1}<br>`;
 		}
-		if (k.power_bombs_used !== undefined) {
-			if (ss == null)
-				out += `PBs ${remstr}: ${k.power_bombs_used}<br>`;
+		if (k.power_bombs !== undefined) {
+			if (k.power_bombs >= 0)
+				out += `PBs remaining: ${k.power_bombs}<br>`;
 			else
-				out += `PBs ${remstr}: ${ss.max_power_bombs - k.power_bombs_used}<br>`;
+				out += `PBs consumed: ${-k.power_bombs - 1}<br>`;
 		}
 		return out;
 	}

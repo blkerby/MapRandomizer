@@ -62,23 +62,26 @@ fn run_scenario(
     }
 
     let weapon_mask = game_data.get_weapon_mask(&items, &difficulty.tech);
+    let inventory = Inventory {
+        items,
+        max_energy: 1899,
+        max_missiles: missile_cnt,
+        max_reserves: 0,
+        max_supers: super_cnt,
+        max_power_bombs: 0,
+        collectible_missile_packs: 0,
+        collectible_super_packs: 0,
+        collectible_power_bomb_packs: 0,
+        collectible_reserve_tanks: 0,
+    };
     let global_state = GlobalState {
-        inventory: Inventory {
-            items,
-            max_energy: 1899,
-            max_missiles: missile_cnt,
-            max_reserves: 0,
-            max_supers: super_cnt,
-            max_power_bombs: 0,
-            collectible_missile_packs: 0,
-            collectible_super_packs: 0,
-            collectible_power_bomb_packs: 0,
-        },
+        pool_inventory: inventory.clone(),
+        inventory,
         flags: vec![false; game_data.flag_isv.keys.len()],
         doors_unlocked: vec![],
         weapon_mask,
     };
-    let local_state = LocalState::full();
+    let local_state = LocalState::full(false);
     let locked_door_data = LockedDoorData {
         locked_doors: vec![],
         locked_door_node_map: HashMap::new(),
@@ -131,7 +134,7 @@ fn run_scenario(
     );
 
     let outcome = new_local_state_opt
-        .map(|x| format!("{}", x.energy_used))
+        .map(|x| format!("{:?}", x.energy))
         .unwrap_or("n/a".to_string());
     println!(
         "proficiency={proficiency}, items={item_loadout:?}, missiles={missile_cnt}, patience={patience}: {outcome}"
