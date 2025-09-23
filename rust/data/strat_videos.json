@@ -5122,10 +5122,26 @@
   {
     "room_id": 32,
     "strat_id": 86,
-    "video_id": 2149,
+    "video_id": 7959,
     "created_user": "Sam",
-    "note": "Bomb boost to reach the leftmost 2 tiles space and leave G-mode. X-ray turnaround to forced stand-up. Face left and perform a partial floor clip. Jump and down-grab to go up one tile then wiggle to the left in order to exit the morph tunnel.",
-    "dev_note": "Caveat: This uses 5 Power Bombs, while logic only requires 2 (or 1 with a Zeb hit)"
+    "note": "Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 86,
+    "video_id": 7960,
+    "created_user": "Sam",
+    "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 86,
+    "video_id": 7961,
+    "created_user": "Sam",
+    "note": "3 Power Bombs",
+    "dev_note": "Caveat: The strat says it should be doable in 2 PB boosts, or 1 and a Zeb hit"
   },
   {
     "room_id": 32,

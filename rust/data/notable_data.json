@@ -1632,6 +1632,14 @@
     "video_id": 2999
   },
   {
+    "room_id": 150,
+    "room_name": "Golden Torizo's Room",
+    "notable_id": 8,
+    "name": "Safe Spot Kill (Lenient)",
+    "difficulty": "Hard",
+    "video_id": 3054
+  },
+  {
     "room_id": 151,
     "room_name": "Screw Attack Room",
     "notable_id": 2,
