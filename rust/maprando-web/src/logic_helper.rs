@@ -1395,19 +1395,21 @@ impl LogicData {
         let items = vec![true; game_data.item_isv.keys.len()];
         let tech = vec![true; game_data.tech_isv.keys.len()];
         let weapon_mask = game_data.get_weapon_mask(&items, &tech);
+        let inventory = Inventory {
+            items,
+            max_energy: 1499,
+            max_reserves: 400,
+            max_missiles: 230,
+            max_supers: 50,
+            max_power_bombs: 50,
+            collectible_missile_packs: 0,
+            collectible_super_packs: 0,
+            collectible_power_bomb_packs: 0,
+            collectible_reserve_tanks: 0,
+        };
         let global = GlobalState {
-            inventory: Inventory {
-                items,
-                max_energy: 1499,
-                max_reserves: 400,
-                max_missiles: 230,
-                max_supers: 50,
-                max_power_bombs: 50,
-                collectible_missile_packs: 0,
-                collectible_super_packs: 0,
-                collectible_power_bomb_packs: 0,
-                collectible_reserve_tanks: 0,
-            },
+            pool_inventory: inventory.clone(),
+            inventory,
             flags: vec![true; game_data.flag_isv.keys.len()],
             doors_unlocked: vec![],
             weapon_mask,

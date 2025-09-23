@@ -10,8 +10,8 @@ use crate::settings::{
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::spoiler_log::{
-    SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation, SpoilerTraversal,
-    get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
+    SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
+    SpoilerTraversal, get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
     LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs, get_spoiler_trail_ids,
@@ -4489,9 +4489,7 @@ impl<'r> Randomizer<'r> {
                 continue;
             };
 
-            traverser_pair
-                .forward
-                .add_origin(local, start_vertex_id, &global);
+            traverser_pair.forward.add_origin(local, start_vertex_id);
             traverser_pair.forward.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4519,7 +4517,7 @@ impl<'r> Randomizer<'r> {
 
             traverser_pair
                 .reverse
-                .add_origin(LocalState::full(true), start_vertex_id, &global);
+                .add_origin(LocalState::full(true), start_vertex_id);
             traverser_pair.reverse.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4611,6 +4609,34 @@ impl<'r> Randomizer<'r> {
         bail!("[attempt {attempt_num_rando}] Failed to find start location.")
     }
 
+    fn get_pool_inventory(&self) -> Inventory {
+        let acf = self
+            .settings
+            .item_progression_settings
+            .ammo_collect_fraction;
+        let collectible_missile_packs = self.initial_items_remaining[Item::Missile as usize];
+        let collectible_super_packs = self.initial_items_remaining[Item::Super as usize];
+        let collectible_pb_packs = self.initial_items_remaining[Item::PowerBomb as usize];
+        let collectible_etanks = self.initial_items_remaining[Item::ETank as usize];
+        let collectible_reserve_tanks = self.initial_items_remaining[Item::ReserveTank as usize];
+        Inventory {
+            items: self
+                .initial_items_remaining
+                .iter()
+                .map(|&x| x > 0)
+                .collect(),
+            max_energy: (99 + collectible_etanks * 100) as Capacity,
+            max_reserves: (collectible_reserve_tanks * 100) as Capacity,
+            max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity * 5,
+            max_supers: (acf * collectible_super_packs as f32).round() as Capacity * 5,
+            max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity * 5,
+            collectible_missile_packs: collectible_missile_packs as Capacity,
+            collectible_super_packs: collectible_super_packs as Capacity,
+            collectible_power_bomb_packs: collectible_pb_packs as Capacity,
+            collectible_reserve_tanks: collectible_reserve_tanks as Capacity,
+        }
+    }
+
     fn get_initial_states(&self) -> (GlobalState, LocalState) {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self
@@ -4629,6 +4655,7 @@ impl<'r> Randomizer<'r> {
                 collectible_power_bomb_packs: 0,
                 collectible_reserve_tanks: 0,
             },
+            pool_inventory: self.get_pool_inventory(),
             flags: self.get_initial_flag_vec(),
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
             weapon_mask,
@@ -4720,12 +4747,22 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
             game_data: get_spoiler_game_data(self),
             forward_traversal: SpoilerTraversal {
+                initial_local_state: SpoilerLocalState::new(
+                    LocalState::empty(),
+                    LocalState::empty(),
+                    true,
+                ),
                 steps: vec![],
                 prev_trail_ids: vec![],
                 link_idxs: vec![],
                 local_states: vec![],
             },
             reverse_traversal: SpoilerTraversal {
+                initial_local_state: SpoilerLocalState::new(
+                    LocalState::empty(),
+                    LocalState::empty(),
+                    true,
+                ),
                 steps: vec![],
                 prev_trail_ids: vec![],
                 link_idxs: vec![],
@@ -4805,8 +4842,18 @@ impl<'r> Randomizer<'r> {
         };
         let num_vertices = self.game_data.vertex_isv.keys.len();
         let mut traverser_pair = TraverserPair {
-            forward: Traverser::new(num_vertices, false, &initial_global_state),
-            reverse: Traverser::new(num_vertices, true, &initial_global_state),
+            forward: Traverser::new(
+                num_vertices,
+                false,
+                initial_local_state,
+                &initial_global_state,
+            ),
+            reverse: Traverser::new(
+                num_vertices,
+                true,
+                initial_local_state,
+                &initial_global_state,
+            ),
         };
         let start_location_data = self.determine_start_location(
             attempt_num_rando,
@@ -4851,17 +4898,13 @@ impl<'r> Randomizer<'r> {
             obstacle_mask: 0,
             actions: vec![],
         }];
-        traverser_pair.forward.add_origin(
-            initial_local_state,
-            start_vertex_id,
-            &state.global_state,
-        );
+        traverser_pair
+            .forward
+            .add_origin(initial_local_state, start_vertex_id);
         traverser_pair.forward.finish_step(1);
-        traverser_pair.reverse.add_origin(
-            LocalState::full(false),
-            start_vertex_id,
-            &state.global_state,
-        );
+        traverser_pair
+            .reverse
+            .add_origin(LocalState::full(true), start_vertex_id);
         traverser_pair.reverse.finish_step(1);
         self.update_reachability(&mut state, &mut traverser_pair);
         if !state

@@ -62,19 +62,21 @@ fn run_scenario(
     }
 
     let weapon_mask = game_data.get_weapon_mask(&items, &difficulty.tech);
+    let inventory = Inventory {
+        items,
+        max_energy: 1899,
+        max_missiles: missile_cnt,
+        max_reserves: 0,
+        max_supers: super_cnt,
+        max_power_bombs: 0,
+        collectible_missile_packs: 0,
+        collectible_super_packs: 0,
+        collectible_power_bomb_packs: 0,
+        collectible_reserve_tanks: 0,
+    };
     let global_state = GlobalState {
-        inventory: Inventory {
-            items,
-            max_energy: 1899,
-            max_missiles: missile_cnt,
-            max_reserves: 0,
-            max_supers: super_cnt,
-            max_power_bombs: 0,
-            collectible_missile_packs: 0,
-            collectible_super_packs: 0,
-            collectible_power_bomb_packs: 0,
-            collectible_reserve_tanks: 0,
-        },
+        pool_inventory: inventory.clone(),
+        inventory,
         flags: vec![false; game_data.flag_isv.keys.len()],
         doors_unlocked: vec![],
         weapon_mask,

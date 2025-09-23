@@ -75,15 +75,20 @@ pub fn get_spoiler_traversal(tr: &Traverser) -> SpoilerTraversal {
         let old_state = if t.local_state.prev_trail_id >= 0 {
             tr.step_trails[t.local_state.prev_trail_id as usize].local_state
         } else {
-            LocalState::full(tr.reverse)
+            LocalState::empty()
         };
-        let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state);
+        let spoiler_local_state = SpoilerLocalState::new(t.local_state, old_state, false);
         prev_trail_ids.push(t.local_state.prev_trail_id);
         link_idxs.push(t.link_idx);
         local_states.push(spoiler_local_state);
     }
 
     SpoilerTraversal {
+        initial_local_state: SpoilerLocalState::new(
+            tr.initial_local_state,
+            LocalState::empty(),
+            true,
+        ),
         prev_trail_ids,
         link_idxs,
         local_states,
@@ -180,6 +185,7 @@ pub struct SpoilerTraversalStep {
 
 #[derive(Serialize, Deserialize)]
 pub struct SpoilerTraversal {
+    pub initial_local_state: SpoilerLocalState,
     pub prev_trail_ids: Vec<StepTrailId>,
     pub link_idxs: Vec<LinkIdx>,
     pub local_states: Vec<SpoilerLocalState>,
@@ -297,18 +303,18 @@ pub struct SpoilerDoorDetails {
     return_route: Vec<SpoilerRouteEntry>,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone, Default)]
+#[derive(Serialize, Deserialize, Copy, Clone, Default, Debug)]
 pub struct SpoilerLocalState {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub energy: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub reserves: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub missiles_used: Option<Capacity>,
+    pub missiles: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub supers_used: Option<Capacity>,
+    pub supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub power_bombs_used: Option<Capacity>,
+    pub power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub shinecharge_frames_remaining: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -318,11 +324,11 @@ pub struct SpoilerLocalState {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub farm_baseline_reserves: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_missiles_used: Option<Capacity>,
+    pub farm_baseline_missiles: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_supers_used: Option<Capacity>,
+    pub farm_baseline_supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub farm_baseline_power_bombs_used: Option<Capacity>,
+    pub farm_baseline_power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flash_suit: Option<Capacity>,
 }
@@ -337,79 +343,85 @@ struct VertexInfo {
 }
 
 impl SpoilerLocalState {
-    fn new(local: LocalState, ref_local: LocalState) -> Self {
+    pub fn new(local: LocalState, ref_local: LocalState, include_all: bool) -> Self {
         Self {
-            energy: if local.energy == ref_local.energy {
+            energy: if local.energy == ref_local.energy && !include_all {
                 None
             } else {
                 Some(local.energy.0)
             },
-            reserves: if local.reserves == ref_local.reserves {
+            reserves: if local.reserves == ref_local.reserves && !include_all {
                 None
             } else {
                 Some(local.reserves.0)
             },
-            missiles_used: if local.missiles == ref_local.missiles {
+            missiles: if local.missiles == ref_local.missiles && !include_all {
                 None
             } else {
                 Some(local.missiles.0)
             },
-            supers_used: if local.supers == ref_local.supers {
+            supers: if local.supers == ref_local.supers && !include_all {
                 None
             } else {
                 Some(local.supers.0)
             },
-            power_bombs_used: if local.power_bombs == ref_local.power_bombs {
+            power_bombs: if local.power_bombs == ref_local.power_bombs && !include_all {
                 None
             } else {
                 Some(local.power_bombs.0)
             },
             shinecharge_frames_remaining: if local.shinecharge_frames_remaining
                 == ref_local.shinecharge_frames_remaining
+                && !include_all
             {
                 None
             } else {
                 Some(local.shinecharge_frames_remaining)
             },
-            cycle_frames: if local.cycle_frames == ref_local.cycle_frames {
+            cycle_frames: if local.cycle_frames == ref_local.cycle_frames && !include_all {
                 None
             } else {
                 Some(local.cycle_frames)
             },
-            farm_baseline_energy: if local.farm_baseline_energy == ref_local.farm_baseline_energy {
+            farm_baseline_energy: if local.farm_baseline_energy == ref_local.farm_baseline_energy
+                && !include_all
+            {
                 None
             } else {
                 Some(local.farm_baseline_energy.0)
             },
             farm_baseline_reserves: if local.farm_baseline_reserves
                 == ref_local.farm_baseline_reserves
+                && !include_all
             {
                 None
             } else {
                 Some(local.farm_baseline_reserves.0)
             },
-            farm_baseline_missiles_used: if local.farm_baseline_missiles
+            farm_baseline_missiles: if local.farm_baseline_missiles
                 == ref_local.farm_baseline_missiles
+                && !include_all
             {
                 None
             } else {
                 Some(local.farm_baseline_missiles.0)
             },
-            farm_baseline_supers_used: if local.farm_baseline_supers
-                == ref_local.farm_baseline_supers
+            farm_baseline_supers: if local.farm_baseline_supers == ref_local.farm_baseline_supers
+                && !include_all
             {
                 None
             } else {
                 Some(local.farm_baseline_supers.0)
             },
-            farm_baseline_power_bombs_used: if local.farm_baseline_power_bombs
+            farm_baseline_power_bombs: if local.farm_baseline_power_bombs
                 == ref_local.farm_baseline_power_bombs
+                && !include_all
             {
                 None
             } else {
                 Some(local.farm_baseline_power_bombs.0)
             },
-            flash_suit: if local.flash_suit == ref_local.flash_suit {
+            flash_suit: if local.flash_suit == ref_local.flash_suit && !include_all {
                 None
             } else {
                 Some(if local.flash_suit { 1 } else { 0 })

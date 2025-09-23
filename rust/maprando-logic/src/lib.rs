@@ -25,6 +25,7 @@ pub struct Inventory {
 #[derive(Clone, Debug)]
 pub struct GlobalState {
     pub inventory: Inventory,
+    pub pool_inventory: Inventory,
     pub flags: Vec<bool>,
     pub doors_unlocked: Vec<bool>,
     pub weapon_mask: WeaponMask,
@@ -93,6 +94,24 @@ impl GlobalState {
 pub enum ResourceLevel {
     Consumed(Capacity),
     Remaining(Capacity),
+}
+
+impl ResourceLevel {
+    pub fn full(reverse: bool) -> Self {
+        if reverse {
+            ResourceLevel::Remaining(0)
+        } else {
+            ResourceLevel::Consumed(0)
+        }
+    }
+
+    pub fn full_energy(reverse: bool) -> Self {
+        if reverse {
+            ResourceLevel::Remaining(1)
+        } else {
+            ResourceLevel::Consumed(0)
+        }
+    }
 }
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]

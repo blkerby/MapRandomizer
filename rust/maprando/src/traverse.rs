@@ -98,29 +98,34 @@ fn apply_enemy_kill_requirement(
 
 pub const NUM_COST_METRICS: usize = 3;
 
-fn compute_cost(
-    local: &LocalState,
-    inventory: &Inventory,
-    reverse: bool,
-) -> [f32; NUM_COST_METRICS] {
-    let eps = 1e-15;
-    let mut energy_cost =
-        (local.energy_missing(inventory, false) as f32) / (inventory.max_energy as f32 + eps);
-    let mut reserve_cost =
-        (local.reserves_missing(inventory) as f32) / (inventory.max_reserves as f32 + eps);
-    let mut missiles_cost =
-        (local.missiles_missing(inventory) as f32) / (inventory.max_missiles as f32 + eps);
-    let mut supers_cost =
-        (local.supers_missing(inventory) as f32) / (inventory.max_supers as f32 + eps);
-    let mut power_bombs_cost =
-        (local.power_bombs_missing(inventory) as f32) / (inventory.max_power_bombs as f32 + eps);
+fn compute_cost(local: &LocalState, reverse: bool) -> [f32; NUM_COST_METRICS] {
+    let mut energy_cost = match local.energy() {
+        ResourceLevel::Consumed(x) => x as f32,
+        ResourceLevel::Remaining(x) => (1500 - x) as f32,
+    } / 1500.0;
+    let mut reserve_cost = match local.reserves() {
+        ResourceLevel::Consumed(x) => x as f32,
+        ResourceLevel::Remaining(x) => (400 - x) as f32,
+    } / 400.0;
+    let mut missiles_cost = match local.missiles() {
+        ResourceLevel::Consumed(x) => x as f32,
+        ResourceLevel::Remaining(x) => (500 - x) as f32,
+    } / 500.0;
+    let mut supers_cost = match local.supers() {
+        ResourceLevel::Consumed(x) => x as f32,
+        ResourceLevel::Remaining(x) => (100 - x) as f32,
+    } / 100.0;
+    let mut power_bombs_cost = match local.power_bombs() {
+        ResourceLevel::Consumed(x) => x as f32,
+        ResourceLevel::Remaining(x) => (100 - x) as f32,
+    } / 100.0;
     let mut shinecharge_cost = if local.flash_suit {
         // For the purposes of the cost metrics, treat flash suit as equivalent
         // to a large amount of shinecharge frames remaining:
-        -10.0
+        0.0
     } else {
-        -(local.shinecharge_frames_remaining as f32) / 180.0
-    };
+        (180 - local.shinecharge_frames_remaining) as f32
+    } / 180.0;
     if reverse {
         energy_cost = -energy_cost;
         reserve_cost = -reserve_cost;
@@ -702,41 +707,36 @@ pub fn apply_farm_requirement(
         new_local.power_bombs = local.power_bombs;
     }
 
+    if net_energy >= global.pool_inventory.max_energy + global.pool_inventory.max_reserves {
+        new_local.energy = ResourceLevel::full_energy(reverse).into();
+        new_local.reserves = ResourceLevel::full(reverse).into();
+    }
+    if net_missiles >= global.pool_inventory.max_missiles {
+        new_local.missiles = ResourceLevel::full(reverse).into();
+    }
+    if net_supers >= global.pool_inventory.max_supers {
+        new_local.supers = ResourceLevel::full(reverse).into();
+    }
+    if net_pbs >= global.pool_inventory.max_power_bombs {
+        new_local.power_bombs = ResourceLevel::full(reverse).into();
+    }
+
     if new_local.energy_available(&global.inventory, true, reverse)
         == global.inventory.max_energy + global.inventory.max_reserves
     {
-        if reverse {
-            new_local.energy = ResourceLevel::Remaining(1).into();
-            new_local.reserves = ResourceLevel::Remaining(0).into();
-        } else {
-            new_local.energy = ResourceLevel::Consumed(0).into();
-            new_local.reserves = ResourceLevel::Consumed(0).into();
-        }
         new_local.farm_baseline_energy = new_local.energy;
         new_local.farm_baseline_reserves = new_local.reserves;
     }
     if new_local.missiles_available(&global.inventory, reverse) == global.inventory.max_missiles {
-        new_local.farm_baseline_missiles = if reverse {
-            ResourceLevel::Remaining(0).into()
-        } else {
-            ResourceLevel::Consumed(0).into()
-        };
+        new_local.farm_baseline_missiles = new_local.missiles;
     }
     if new_local.supers_available(&global.inventory, reverse) == global.inventory.max_supers {
-        new_local.farm_baseline_supers = if reverse {
-            ResourceLevel::Remaining(0).into()
-        } else {
-            ResourceLevel::Consumed(0).into()
-        };
+        new_local.farm_baseline_supers = new_local.supers;
     }
     if new_local.power_bombs_available(&global.inventory, reverse)
         == global.inventory.max_power_bombs
     {
-        new_local.farm_baseline_power_bombs = if reverse {
-            ResourceLevel::Remaining(0).into()
-        } else {
-            ResourceLevel::Consumed(0).into()
-        };
+        new_local.farm_baseline_power_bombs = new_local.power_bombs;
     }
     Some(new_local)
 }
@@ -762,14 +762,8 @@ impl<T: Copy + Debug> LocalStateReducer<T> {
         }
     }
 
-    fn push(
-        &mut self,
-        local: LocalState,
-        trail_id: T,
-        inventory: &Inventory,
-        reverse: bool,
-    ) -> bool {
-        let cost = compute_cost(&local, inventory, reverse);
+    fn push(&mut self, local: LocalState, trail_id: T, reverse: bool) -> bool {
+        let cost = compute_cost(&local, reverse);
         let n = self.local.len() as u8;
         let mut improved_any: bool = false;
         let mut improved_all: bool = true;
@@ -914,7 +908,7 @@ fn apply_requirement_complex(
             let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
             for r in sub_reqs {
                 for loc in apply_requirement_complex(r, local.clone(), cx) {
-                    reducer.push(loc, (), &cx.global.inventory, cx.reverse);
+                    reducer.push(loc, (), cx.reverse);
                 }
             }
             reducer.local
@@ -925,11 +919,11 @@ fn apply_requirement_complex(
                 match apply_requirement_simple(req, &mut loc, cx) {
                     SimpleResult::Failure => {}
                     SimpleResult::Success => {
-                        reducer.push(loc, (), &cx.global.inventory, cx.reverse);
+                        reducer.push(loc, (), cx.reverse);
                     }
                     SimpleResult::_ExtraState(extra_state) => {
-                        reducer.push(loc, (), &cx.global.inventory, cx.reverse);
-                        reducer.push(extra_state, (), &cx.global.inventory, cx.reverse);
+                        reducer.push(loc, (), cx.reverse);
+                        reducer.push(extra_state, (), cx.reverse);
                     }
                 }
             }
@@ -1367,14 +1361,16 @@ fn apply_requirement_simple(
                     local.farm_baseline_reserves = local.reserves;
                 }
             } else {
-                if limit_energy >= cx.global.inventory.max_energy {
+                if limit >= cx.global.pool_inventory.max_energy {
                     local.energy = ResourceLevel::Consumed(0).into();
                     local.farm_baseline_energy = local.energy;
                 } else if energy_remaining < limit_energy {
                     local.energy = ResourceLevel::Remaining(limit_energy).into();
                     local.farm_baseline_energy = local.energy;
                 }
-                if limit_reserves >= cx.global.inventory.max_reserves {
+                if limit
+                    >= cx.global.pool_inventory.max_energy + cx.global.pool_inventory.max_reserves
+                {
                     local.reserves = ResourceLevel::Consumed(0).into();
                     local.farm_baseline_reserves = local.reserves;
                 } else if reserves_remaining < limit_reserves {
@@ -1386,7 +1382,10 @@ fn apply_requirement_simple(
         }
         &Requirement::RegularEnergyRefill(limit) => {
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
-            if cx.reverse {
+            if limit >= cx.global.pool_inventory.max_energy {
+                local.energy = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_energy = local.energy;
+            } else if cx.reverse {
                 if energy_remaining <= limit {
                     local.energy = ResourceLevel::Remaining(1).into();
                     local.farm_baseline_energy = ResourceLevel::Remaining(1).into();
@@ -1400,7 +1399,10 @@ fn apply_requirement_simple(
         }
         &Requirement::ReserveRefill(limit) => {
             let reserves_remaining = local.reserves_remaining(&cx.global.inventory);
-            if cx.reverse {
+            if limit >= cx.global.pool_inventory.max_reserves {
+                local.reserves = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_reserves = local.reserves;
+            } else if cx.reverse {
                 if reserves_remaining <= limit {
                     local.reserves = ResourceLevel::Remaining(0).into();
                     local.farm_baseline_reserves = ResourceLevel::Remaining(0).into();
@@ -1414,7 +1416,10 @@ fn apply_requirement_simple(
         }
         &Requirement::MissileRefill(limit) => {
             let missiles_remaining = local.missiles_remaining(&cx.global.inventory);
-            if cx.reverse {
+            if limit >= cx.global.pool_inventory.max_missiles {
+                local.missiles = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_missiles = local.missiles;
+            } else if cx.reverse {
                 if missiles_remaining <= limit {
                     local.missiles = ResourceLevel::Remaining(0).into();
                     local.farm_baseline_missiles = ResourceLevel::Remaining(0).into();
@@ -1427,8 +1432,11 @@ fn apply_requirement_simple(
             SimpleResult::Success
         }
         &Requirement::SuperRefill(limit) => {
-            let supers_remaining = local.missiles_remaining(&cx.global.inventory);
-            if cx.reverse {
+            let supers_remaining = local.supers_remaining(&cx.global.inventory);
+            if limit >= cx.global.pool_inventory.max_supers {
+                local.supers = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_supers = local.supers;
+            } else if cx.reverse {
                 if supers_remaining <= limit {
                     local.supers = ResourceLevel::Remaining(0).into();
                     local.farm_baseline_supers = ResourceLevel::Remaining(0).into();
@@ -1442,7 +1450,10 @@ fn apply_requirement_simple(
         }
         &Requirement::PowerBombRefill(limit) => {
             let power_bombs_remaining = local.power_bombs_remaining(&cx.global.inventory);
-            if cx.reverse {
+            if limit >= cx.global.pool_inventory.max_power_bombs {
+                local.power_bombs = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_power_bombs = local.power_bombs;
+            } else if cx.reverse {
                 if power_bombs_remaining <= limit {
                     local.power_bombs = ResourceLevel::Remaining(0).into();
                     local.farm_baseline_power_bombs = ResourceLevel::Remaining(0).into();
@@ -1456,43 +1467,28 @@ fn apply_requirement_simple(
             SimpleResult::Success
         }
         Requirement::AmmoStationRefill => {
-            let full_resource_level = if cx.reverse {
-                ResourceLevel::Remaining(0).into()
-            } else {
-                ResourceLevel::Consumed(0).into()
-            };
-            local.missiles = full_resource_level;
-            local.farm_baseline_missiles = full_resource_level;
+            local.missiles = ResourceLevel::full(cx.reverse).into();
+            local.farm_baseline_missiles = local.missiles;
             if !cx.settings.other_settings.ultra_low_qol {
-                local.supers = full_resource_level;
-                local.farm_baseline_supers = full_resource_level;
-                local.power_bombs = full_resource_level;
-                local.farm_baseline_power_bombs = full_resource_level;
+                local.supers = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_supers = local.supers;
+                local.power_bombs = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_power_bombs = local.power_bombs
             }
             SimpleResult::Success
         }
         Requirement::AmmoStationRefillAll => (!cx.settings.other_settings.ultra_low_qol).into(),
         Requirement::EnergyStationRefill => {
-            if cx.reverse {
-                local.energy = ResourceLevel::Remaining(1).into();
-                local.farm_baseline_energy = local.energy;
-            } else {
-                local.energy = ResourceLevel::Consumed(0).into();
-                local.farm_baseline_energy = local.energy;
-            }
+            local.energy = ResourceLevel::full_energy(cx.reverse).into();
+            local.farm_baseline_energy = local.energy;
             if cx.settings.quality_of_life_settings.energy_station_reserves
                 || cx
                     .settings
                     .quality_of_life_settings
                     .reserve_backward_transfer
             {
-                if cx.reverse {
-                    local.reserves = ResourceLevel::Remaining(0).into();
-                    local.farm_baseline_reserves = local.reserves;
-                } else {
-                    local.reserves = ResourceLevel::Consumed(0).into();
-                    local.farm_baseline_reserves = local.reserves;
-                }
+                local.reserves = ResourceLevel::full(cx.reverse).into();
+                local.farm_baseline_reserves = local.reserves;
             }
             SimpleResult::Success
         }
@@ -1914,7 +1910,7 @@ fn apply_requirement_simple(
                     SimpleResult::Success => {}
                     SimpleResult::_ExtraState(_) => todo!(),
                 }
-                let cost = compute_cost(local, &cx.global.inventory, cx.reverse);
+                let cost = compute_cost(local, cx.reverse);
                 // TODO: Maybe do something better than just using the first cost metric.
                 if cost[0] < best_cost[0] {
                     best_cost = cost;
@@ -2018,6 +2014,7 @@ pub struct TraversalStep {
 #[derive(Clone)]
 pub struct Traverser {
     pub reverse: bool,
+    pub initial_local_state: LocalState,
     pub step_trails: Vec<StepTrail>,
     pub lsr: Vec<LocalStateReducer<StepTrailId>>,
     pub step: TraversalStep,
@@ -2025,9 +2022,15 @@ pub struct Traverser {
 }
 
 impl Traverser {
-    pub fn new(num_vertices: usize, reverse: bool, global_state: &GlobalState) -> Self {
+    pub fn new(
+        num_vertices: usize,
+        reverse: bool,
+        initial_local_state: LocalState,
+        global_state: &GlobalState,
+    ) -> Self {
         Self {
             reverse,
+            initial_local_state,
             step_trails: Vec::with_capacity(num_vertices * 10),
             lsr: vec![LocalStateReducer::new(); num_vertices],
             step: TraversalStep {
@@ -2053,10 +2056,9 @@ impl Traverser {
         &mut self,
         init_local: LocalState,
         start_vertex_id: usize,
-        global: &GlobalState,
     ) {
         let mut lsr = LocalStateReducer::<StepTrailId>::new();
-        lsr.push(init_local, -1, &global.inventory, self.reverse);
+        lsr.push(init_local, -1, self.reverse);
         self.add_trail(start_vertex_id, lsr);
     }
 
@@ -2150,7 +2152,7 @@ impl Traverser {
                     local_arr = apply_link(link, local_arr, &cx);
                     for local in local_arr {
                         let new_trail_id = self.step_trails.len() as StepTrailId;
-                        if new_lsr.push(local, new_trail_id, &cx.global.inventory, cx.reverse) {
+                        if new_lsr.push(local, new_trail_id, cx.reverse) {
                             let new_step_trail = StepTrail {
                                 local_state: local,
                                 link_idx,

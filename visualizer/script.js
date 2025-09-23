@@ -190,12 +190,7 @@ function getTrailIds(endTrailId, traversal, backward) {
 	}
 	out.reverse();
 
-	let finalLocalState = {};
-	if (endTrailId != -1) {
-		for (k of localStateKeyOrder) {
-			finalLocalState[k] = 0;
-		}
-	}
+	let finalLocalState = { ...traversal.initial_local_state};
 	for (trailId of out) {
 		let localState = traversal.local_states[trailId];
 		Object.assign(finalLocalState, localState);
