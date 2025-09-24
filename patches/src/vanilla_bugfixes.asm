@@ -232,40 +232,18 @@ org $b4bda3
 org $828cea
     jsr pause_func                ; pause func
 
-org $82db80
-    jmp fix_reserve               ; health == 0, auto-reserve enabled, reserve health > 0
-
 org !bank_82_free_space_start
 pause_func:
     lda $998
     cmp #$001b                    ; game state already set to reserve on crash frame?
     bne .leave
-    lda #$8000                    ; init death sequence (copied from $82db80)
-    sta $a78
-    lda #$0011
-    jsl $90f084
-    lda #$0013
-    sta $998
-    sep #$20
-    lda #$0f                      ; restore screen brightness
-    sta $51
-    rep #$30
+    lda #$0021
+    jsl bug_dialog
     rts
 
 .leave
     inc $998                      ; replaced code
     rts
-
-fix_reserve:
-    lda $998
-    cmp #$0013                    ; death seq already initiated?
-    bcc .leave_2
-    plp                           ; if so, leave func
-    rts
-
-.leave_2
-    lda #$8000                    ; replaced code
-    jmp $db83
 
 warnpc !bank_82_free_space_end
 
@@ -306,21 +284,200 @@ warnpc !bank_86_free_space_end
 org $80a27a
     lda #$a29b
 
+; Yapping maw shinespark crash
+; Noted by PJBoy: https://patrickjohnston.org/bank/A8#fA68A
+; If bug triggered, show dialog box and then initiate death sequence.
+
+org $90d354
+    jsr yapping_maw_crash
+    
+!bank_90_free_space_start = $90fc10
+!bank_90_free_space_end = $90fc20
+
+org !bank_90_free_space_start
+yapping_maw_crash:
+    cmp #$0003              ; valid table entries are 0-2
+    bcc .skip
+    lda #$0023              ; bug ID
+    jsl bug_dialog
+    rts
+    
+.skip
+    jmp ($d37d,x)           ; valid entry
+    
+warnPC !bank_90_free_space_end
+
 ;;; Spring ball menu crash fix by strotlog.
 ;;; Fix obscure vanilla bug where: turning off spring ball while bouncing, can crash in $91:EA07,
-;;; or exactly the same way as well in $91:F1FC:
-;;; Fix buffer overrun. Overwrite nearby unreachable code at $91:fc4a (due to pose 0x65
-;;; not existing) as our "free space". Translate RAM $0B20 values:
-;;; #$0601 (spring ball specific value) --> #$0001
-;;; #$0602 (spring ball specific value) --> #$0002
-;;; thus loading a valid jump table array index for these two buggy functions.
+;;; or exactly the same way as well in $91:F1FC.
+;;; Adapted for map rando by Stag Shot:
+;;; If bug triggered, show dialog box and then initiate death sequence.
+
 org $91ea07
-    jsr fix_spring_ball_crash
+    jsl spring_ball_crash
+
 org $91f1fc
-    jsr fix_spring_ball_crash
-org $91fc4a
-fix_spring_ball_crash:
-    lda $0B20    ; $0B20: Used for bouncing as a ball when you land
+    jsl spring_ball_crash
+
+!bank_85_free_space_start = $85b000
+!bank_85_free_space_end = $85b3b0
+
+org !bank_85_free_space_start
+spring_ball_crash:
+    lda $0B20               ; morph bounce state
+    cmp #$0600              ; bugged?
+    bcc .skip
+    sep #$20
+    lda #$22                ; bug ID
+    sta $00cf               ; set flag to prevent unpause from resetting gamestate to 8
+    rep #$30
+    jsl bug_dialog
+    lda #$0000
+    stz $0B20
+    rtl
+    
+.skip
+    lda $0B20               ; replaced code
+    asl                     ;
+    rtl
+
+;;; Implementation of custom dialog boxes
+;;; Requires hooking multiple functions to support extended msg IDs (0x20+)
+;;; and additional lookup tables
+
+bug_dialog:                 ; A = msg ID
     and #$00ff
+    pha
+    sep #$20
+    lda #$0f                ; restore screen brightness to full
+    sta $51
+    rep #$30
+    jsl $808338             ; wait for NMI
+
+    pla                     ; dlg box parameter
+    jsl $858080             ; dlg box
+
+    lda #$8000              ; init death sequence (copied from $82db80)
+    sta $a78
+    lda #$0011
+    jsl $90f084
+    
+    lda #$0013              ; set gamestate
+    sta $998
+    rtl
+    
+hook_message_box:
+    rep #$30
+    lda $1c1f
+    cmp #$0020              ; custom boxes >= 0x20
+    bcs .custom
+    jmp $8241               ; original func
+    
+.custom
+    ldx #(new_message_boxes-$869b) ; ptr for extended lookup table
+    jmp $824f
+
+hook_index_lookup:
+    lda $1c1f
+    cmp #$0020
+    bcs .custom
     rts
-warnpc $91fc54 ; ensure we don't write past the point where vanilla-accessible code resumes
+
+.custom
+    sec
+    sbc #$0020
+    rts
+
+hook_message_table:
+    adc $34                         ; replaced code
+    tax                             ;
+    lda $1c1f
+    cmp #$0020
+    bcs .custom
+    rts
+    
+.custom
+    txa
+    clc
+    adc #(new_message_boxes-$869b)  ; adjust ptr for extended table
+    tax
+    rts
+
+hook_button_lookup:
+    lda $1c1f
+    cmp #$0020
+    bcs .custom
+    rts
+    
+.custom
+    lda #$0001                      ; blank button tilemap
+    ldy #(reserve_pause_msg-$8426)  ; blank button letter
+    rts
+
+; custom messages start at 0x21
+new_message_boxes:
+    dw $83c5, $825a, reserve_pause_msg  ; 0x21
+    dw $83c5, $825a, springball_msg     ; 0x22
+    dw $83c5, $825a, yapping_maw_msg    ; 0x23
+    dw $0000, $0000, msg_end
+
+table "tables/dialog_chars.tbl",RTL
+
+reserve_pause_msg:
+    dw $0e00,$0e00,$0e00, "       BUG TRIGGERED      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "   PAUSED ON EXACT FRAME  ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "   AUTO-REFILL STARTED!   ", $0e00,$0e00,$0e00
+
+springball_msg:
+    dw $0e00,$0e00,$0e00, "       BUG TRIGGERED      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "    DISABLED SPRINGBALL   ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "   WHILE STILL BOUNCING!  ", $0e00,$0e00,$0e00
+    
+yapping_maw_msg:
+    dw $0e00,$0e00,$0e00, "       BUG TRIGGERED      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "  SHINESPARKED WHILE IN   ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "  GRASP OF YAPPING MAW!   ", $0e00,$0e00,$0e00
+
+msg_end:
+
+warnPC !bank_85_free_space_end
+
+org $858093
+    jsr hook_message_box
+    
+org $8582e5
+    jsr hook_index_lookup
+
+org $8582ee
+    jsr hook_message_table
+
+org $85840c
+    jsr hook_button_lookup
+
+; hook unpause to prevent resetting gamestate to 8 if crash ID set
+
+org $8293bb
+    jmp check_unpause
+
+!bank_82_free_space2_start = $82f810
+!bank_82_free_space2_end = $82f830
+
+org !bank_82_free_space2_start
+check_unpause:
+    php
+    sep #$20
+    lda $00cf               ; pending crash ID
+    stz $00cf
+    cmp #$22                ; springball?
+    bne .skip
+    plp
+    jmp $93c1               ; skip changing gamestate
+.skip
+    plp
+    lda #$0008              ; replaced code
+    jmp $93be
+
+warnPC !bank_82_free_space2_end
