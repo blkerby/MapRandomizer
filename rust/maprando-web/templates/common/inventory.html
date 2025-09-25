@@ -333,7 +333,7 @@
         inventory.collectible_super_packs = getAmount(ref_supers) / 5;
         inventory.collectible_power_bomb_packs = getAmount(ref_powerbombs) / 5;
         inventory.collectible_reserve_tanks = getAmount(ref_reserves);
-        if (!canManageReserves && inventory.max_reserves > inventory.max_energy) {
+        if (!can_manage_reserves && inventory.max_reserves > inventory.max_energy) {
             inventory.max_reserves = inventory.max_energy;
         }
         return inventory;
