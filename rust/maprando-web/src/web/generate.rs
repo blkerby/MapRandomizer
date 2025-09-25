@@ -151,7 +151,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         objective_groups: get_objective_groups(),
         item_names_multiple,
         item_names_single,
-        item_priorities: ["Early", "Default", "Late", "Never"]
+        item_priorities: ["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
             .collect(),

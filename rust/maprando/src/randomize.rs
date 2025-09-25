@@ -3161,13 +3161,6 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[Item::ETank as usize] += 1;
         }
 
-        for kip in settings.item_progression_settings.key_item_priority.iter() {
-            if kip.priority == KeyItemPriority::Never {
-                // Items set to 'Never' are removed from the pool.
-                initial_items_remaining[kip.item as usize] = 0;
-            }
-        }
-
         let target_initial_items = initial_items_remaining.clone();
         let ammo_shortage_weight: Vec<(Item, f32)> = vec![
             (Item::Missile, 0.12),
@@ -3521,6 +3514,7 @@ impl<'r> Randomizer<'r> {
                 item_types_to_extra_delay.push(item);
             }
         }
+
         let mut items_to_mix: Vec<Item> = Vec::new();
         for &item in &item_types_to_mix {
             let mut cnt = state.items_remaining[item as usize];
@@ -4314,12 +4308,9 @@ impl<'r> Randomizer<'r> {
         }
         match item_priority_strength {
             ItemPriorityStrength::Moderate => {
-                assert!(item_priorities.len() == 4);
+                assert!(item_priorities.len() == 3);
                 let mut items = vec![];
                 for (i, priority_group) in item_priorities.iter().enumerate() {
-                    if priority_group.priority == KeyItemPriority::Never {
-                        continue;
-                    }
                     for item_name in &priority_group.items {
                         items.push(item_name.clone());
                         if i != 1 {
@@ -4351,9 +4342,6 @@ impl<'r> Randomizer<'r> {
             }
             ItemPriorityStrength::Heavy => {
                 for priority_group in item_priorities {
-                    if priority_group.priority == KeyItemPriority::Never {
-                        continue;
-                    }
                     let mut items = priority_group.items.clone();
                     items.shuffle(rng);
                     for item_name in &items {

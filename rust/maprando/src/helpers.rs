@@ -10,7 +10,6 @@ pub fn get_item_priorities(item_priorities: &[KeyItemPrioritySetting]) -> Vec<It
     priorities.add(&KeyItemPriority::Early);
     priorities.add(&KeyItemPriority::Default);
     priorities.add(&KeyItemPriority::Late);
-    priorities.add(&KeyItemPriority::Never);
 
     let mut out: Vec<ItemPriorityGroup> = Vec::new();
     for &priority in &priorities.keys {
