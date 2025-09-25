@@ -191,11 +191,11 @@
                     if (local == null) {
                         return;
                     }
-                    ref_energy_used.textContent = parseInt(local.energy_used);
-                    ref_reserves_used.textContent = parseInt(local.reserves_used);
-                    ref_missiles_used.textContent = parseInt(local.missiles_used);
-                    ref_supers_used.textContent = parseInt(local.supers_used);
-                    ref_power_bombs_used.textContent = parseInt(local.power_bombs_used);
+                    ref_energy_used.textContent = -parseInt(local.energy) - 1;
+                    ref_reserves_used.textContent = -parseInt(local.reserves) - 1;
+                    ref_missiles_used.textContent = -parseInt(local.missiles) - 1;
+                    ref_supers_used.textContent = -parseInt(local.supers) - 1;
+                    ref_power_bombs_used.textContent = -parseInt(local.power_bombs) - 1;
                 }
 
                 function do_boss_check() {
