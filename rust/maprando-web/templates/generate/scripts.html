@@ -1069,6 +1069,30 @@ function showError(e) {
     errorModal.show();
 }
 
+function setButtonConflicted(element) {
+    //element.classList.remove("btn-outline-primary");
+    element.classList.add("btn-outline-conflict");
+}
+
+function setButtonNoConflict(element) {
+    //element.classList.add("btn-outline-primary");
+    element.classList.remove("btn-outline-conflict");
+}
+
+function updateFormConflicts() {
+    if (document.getElementById("startLocationEscape").checked) {
+        document.querySelectorAll(":is(#itemProgressionPreset,#objectives,#doors) label").forEach(setButtonConflicted);
+    } else {
+        document.querySelectorAll(":is(#itemProgressionPreset,#objectives,#doors) label").forEach(setButtonNoConflict);
+    }
+
+    if (document.getElementById("wallJumpVanilla").checked) {
+        document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(setButtonConflicted);
+    } else if (document.getElementById("wallJumpCollectible").checked) {
+        document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(setButtonNoConflict);
+    }
+}
+
 async function loadSettings() {
     let settings = await localforage.getItem("generateSettings");
 
@@ -1109,9 +1133,13 @@ async function loadSettings() {
         }
     }
     checkOtherOptions();
+    
+    updateFormConflicts();
 }
 
 async function saveSettings() {
+    updateFormConflicts();
+
     let settings = buildSettingsObject();
     await localforage.setItem("generateSettings", settings);
 }
@@ -1360,3 +1388,21 @@ window.addEventListener('pageshow', (event) => {
   }
 });
 </script>
+<style>
+.btn-outline-conflict {
+    --bs-btn-color: #6c757d;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6c757d;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-focus-shadow-rgb: 108, 117, 125;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #6c757d;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #6c757d;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: #6c757d;
+    --bs-gradient: none;
+}
+</style>
