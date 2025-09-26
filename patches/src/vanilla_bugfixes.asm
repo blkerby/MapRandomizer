@@ -438,22 +438,22 @@ new_message_boxes:
 table "tables/dialog_chars.tbl",RTL
 
 reserve_pause_msg:
-    dw $0e00,$0e00,$0e00, "       BUG TRIGGERED      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
     dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
     dw $0e00,$0e00,$0e00, "   PAUSED ON EXACT FRAME  ", $0e00,$0e00,$0e00
     dw $0e00,$0e00,$0e00, "   AUTO-REFILL STARTED!   ", $0e00,$0e00,$0e00
 
 springball_msg:
-    dw $0e00,$0e00,$0e00, "       BUG TRIGGERED      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
     dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "    DISABLED SPRINGBALL   ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "   WHILE STILL BOUNCING!  ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "UNEQUIPPED SPRING BALL IN ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "UNDERWATER NEUTRAL BOUNCE!", $0e00,$0e00,$0e00
     
 yapping_maw_msg:
-    dw $0e00,$0e00,$0e00, "       BUG TRIGGERED      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
     dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "  SHINESPARKED WHILE IN   ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "  GRASP OF YAPPING MAW!   ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "  YAPPING MAW SHINESPARK  ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, " END WITH NO INPUTS HELD! ", $0e00,$0e00,$0e00
 
 msg_end:
 
