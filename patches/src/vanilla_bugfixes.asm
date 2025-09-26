@@ -232,6 +232,9 @@ org $b4bda3
 org $828cea
     jsr pause_func                ; pause func
 
+org $82db80
+    jmp fix_reserve               ; health == 0, auto-reserve enabled, reserve health > 0
+
 org !bank_82_free_space_start
 pause_func:
     lda $998
@@ -244,6 +247,17 @@ pause_func:
 .leave
     inc $998                      ; replaced code
     rts
+
+fix_reserve:
+    lda $998
+    cmp #$0013                    ; death seq already initiated?
+    bcc .leave_2
+    plp                           ; if so, leave func
+    rts
+
+.leave_2
+    lda #$8000                    ; replaced code
+    jmp $db83
 
 warnpc !bank_82_free_space_end
 
