@@ -19,9 +19,8 @@ struct GenerateTemplate<'a> {
     qol_presets_json: String,
     objective_presets_json: String,
     item_priorities: Vec<String>,
-    item_pool_multiple: Vec<String>,
-    starting_items_multiple: Vec<String>,
-    starting_items_single: Vec<String>,
+    item_names_multiple: Vec<String>,
+    item_names_single: Vec<String>,
     prioritizable_items: Vec<String>,
     tech_description: &'a HashMap<TechId, String>,
     tech_dependencies_str: &'a HashMap<TechId, String>,
@@ -34,18 +33,13 @@ struct GenerateTemplate<'a> {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
-    let item_pool_multiple: Vec<String> = ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
-        .into_iter()
-        .map(|x| x.to_string())
-        .collect();
-
-    let starting_items_multiple: Vec<String> =
+    let item_names_multiple: Vec<String> =
         ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
             .into_iter()
             .map(|x| x.to_string())
             .collect();
 
-    let starting_items_single: Vec<String> = [
+    let item_names_single: Vec<String> = [
         "Charge",
         "Ice",
         "Wave",
@@ -58,6 +52,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         "HiJump",
         "SpeedBooster",
         "SpringBall",
+        "WallJump",
         "SpaceJump",
         "ScrewAttack",
         "Varia",
@@ -156,10 +151,9 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         progression_rates: vec!["Fast", "Uniform", "Slow"],
         item_placement_styles: vec!["Neutral", "Forced", "Local"],
         objective_groups: get_objective_groups(),
-        item_pool_multiple,
-        starting_items_multiple,
-        starting_items_single,
-        item_priorities: ["Early", "Default", "Late", "Never"]
+        item_names_multiple,
+        item_names_single,
+        item_priorities: ["Early", "Default", "Late"]
             .iter()
             .map(|x| x.to_string())
             .collect(),
