@@ -294,6 +294,7 @@
                                 {% for item in prioritizable_items %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-4 col-form-label text-end" for="item_priority_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div id="itemPriority{{ item }}" class="col-sm-7 btn-group" role="group">
                                             {% for priority in item_priorities %}
                                                 <input type="radio" class="btn-check item-priority-input" name="item_priority_{{+ item }}" value="{{+ priority }}"
@@ -324,6 +325,7 @@
                                 {% for item in prioritizable_items %}
                                     <div id="fillerItems{{ item }}" class="form-group row my-2">
                                         <label class="col-sm-4 col-form-label text-end" for="filler_items_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div class="col-sm-7 btn-group" role="group">
                                             <input type="radio" class="btn-check filler-items-input" name="filler_items_{{+ item }}" value="No"
                                                 id="fillerItems{{+ item }}No" autocomplete="off" 
