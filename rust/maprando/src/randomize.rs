@@ -4178,7 +4178,7 @@ impl<'r> Randomizer<'r> {
         // Include starting items first, as "step 0":
         for x in &settings.item_progression_settings.starting_items {
             if x.count > 0 {
-                // Skip WJB if it appears in the starting items without CWJ
+                // Skip WallJump if it appears in the starting items without Collectible wall jump
                 if x.item == Item::WallJump
                     && settings.other_settings.wall_jump == WallJump::Vanilla
                 {
