@@ -310,7 +310,7 @@ org $90d354
 
 org !bank_90_free_space_start
 yapping_maw_crash:
-    cmp #$0003              ; valid table entries are 0-2
+    cmp #$0005              ; valid table entries are 0-2 * 2
     bcc .skip
     lda #$0023              ; bug ID
     jsl bug_dialog
