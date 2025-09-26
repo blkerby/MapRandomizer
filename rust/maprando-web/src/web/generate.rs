@@ -33,11 +33,12 @@ struct GenerateTemplate<'a> {
 
 #[get("/generate")]
 async fn generate(app_data: web::Data<AppData>) -> impl Responder {
-    let item_names_multiple: Vec<String> = ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
-        .into_iter()
-        .map(|x| x.to_string())
-        .collect();
-        
+    let item_names_multiple: Vec<String> =
+        ["Missile", "ETank", "ReserveTank", "Super", "PowerBomb"]
+            .into_iter()
+            .map(|x| x.to_string())
+            .collect();
+
     let item_names_single: Vec<String> = [
         "Charge",
         "Ice",

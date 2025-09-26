@@ -4179,7 +4179,11 @@ impl<'r> Randomizer<'r> {
         for x in &settings.item_progression_settings.starting_items {
             if x.count > 0 {
                 // Skip WJB if it appears in the starting items without CWJ
-                if x.item == Item::WallJump && settings.other_settings.wall_jump == WallJump::Vanilla { continue }
+                if x.item == Item::WallJump
+                    && settings.other_settings.wall_jump == WallJump::Vanilla
+                {
+                    continue;
+                }
                 item_spoiler_info.push(EssentialItemSpoilerInfo {
                     item: x.item,
                     step: Some(0),
@@ -4621,7 +4625,11 @@ impl<'r> Randomizer<'r> {
         };
         let mut local = LocalState::empty(&global);
         for x in &self.settings.item_progression_settings.starting_items {
-            if x.item == Item::WallJump && self.settings.other_settings.wall_jump == WallJump::Vanilla { continue }
+            if x.item == Item::WallJump
+                && self.settings.other_settings.wall_jump == WallJump::Vanilla
+            {
+                continue;
+            }
             for _ in 0..x.count {
                 global.collect(
                     x.item,

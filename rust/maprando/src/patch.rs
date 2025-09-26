@@ -2105,7 +2105,7 @@ impl Patcher<'_> {
                     ItemCount {
                         item: Item::WallJump,
                         count: 1,
-                    }
+                    },
                 ]
                 .into_iter()
                 .collect()
@@ -2118,7 +2118,11 @@ impl Patcher<'_> {
 
         for x in &starting_items {
             // Skip WJB without CWJ
-            if x.item == Item::WallJump && self.settings.other_settings.wall_jump == WallJump::Vanilla { continue }
+            if x.item == Item::WallJump
+                && self.settings.other_settings.wall_jump == WallJump::Vanilla
+            {
+                continue;
+            }
             if x.count == 0 {
                 continue;
             }
