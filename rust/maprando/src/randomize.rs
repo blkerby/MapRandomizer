@@ -3135,14 +3135,11 @@ impl<'r> Randomizer<'r> {
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
-        initial_items_remaining[Item::WallJump as usize] =
-            if settings.other_settings.wall_jump == WallJump::Collectible {
-                1
-            } else {
-                0
-            };
         for x in &settings.item_progression_settings.item_pool {
             initial_items_remaining[x.item as usize] = x.count;
+        }
+        if settings.other_settings.wall_jump == WallJump::Vanilla {
+            initial_items_remaining[Item::WallJump as usize] = 0;
         }
 
         let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
@@ -4181,6 +4178,8 @@ impl<'r> Randomizer<'r> {
         // Include starting items first, as "step 0":
         for x in &settings.item_progression_settings.starting_items {
             if x.count > 0 {
+                // Skip WJB if it appears in the starting items without CWJ
+                if x.item == Item::WallJump && settings.other_settings.wall_jump == WallJump::Vanilla { continue }
                 item_spoiler_info.push(EssentialItemSpoilerInfo {
                     item: x.item,
                     step: Some(0),
@@ -4622,6 +4621,7 @@ impl<'r> Randomizer<'r> {
         };
         let mut local = LocalState::empty(&global);
         for x in &self.settings.item_progression_settings.starting_items {
+            if x.item == Item::WallJump && self.settings.other_settings.wall_jump == WallJump::Vanilla { continue }
             for _ in 0..x.count {
                 global.collect(
                     x.item,
