@@ -1,4 +1,4 @@
-FROM rust:1.88.0-bullseye AS build
+FROM rust:1.90.0-bookworm AS build
 
 RUN apt-get update && apt-get install -y zstd
 
@@ -43,7 +43,7 @@ WORKDIR /rust
 RUN cargo build --release --bin maprando-web
 
 # Test the correctness of the IPS patches
-FROM debian:bullseye AS ips-test
+FROM debian:bookworm AS ips-test
 RUN apt-get update && apt-get install -y g++ cmake python3
 COPY asar /asar
 WORKDIR /asar
@@ -54,9 +54,9 @@ COPY patches /patches
 RUN python3 scripts/build_ips.py --assembler-path=/asar/asar/bin/asar --verify
 
 # Now restart with a slim base image and just copy over the binary and data needed at runtime.
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y \
-    libssl1.1 ca-certificates \
+    libssl3 ca-certificates \
     && rm -rf /var/lib/apt/lists/*
 COPY maps/vanilla /maps/vanilla
 COPY patches /patches

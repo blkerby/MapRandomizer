@@ -142,7 +142,7 @@
                     <div class="col-lg-3 ml-0 mt-1 mb-1 align-items-center">
                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemPoolModal">
                             <i class="bi bi-question-circle"></i>
-                        </button>                          
+                        </button>
                         <label for="preset">Item pool</label>
                     </div>
                     <div id="itemPoolPreset" class="col-lg-3 btn-group mt-0" role="group">
@@ -189,12 +189,29 @@
                                         {% endfor %}
                                     </div>
                                 </div>
-                                {% for item in item_pool_multiple %}
+                                {% for item in item_names_multiple %}
                                     <div class="form-group row m-2">
                                         <label class="col-lg-3 col-form-label text-end" for="item_pool_min_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div class="col-lg-2">
                                             <input type="text" class="form-control item-pool-input-multiple" name="item_pool_{{+ item }}" id="itemPool{{+ item }}" 
                                             value="0" onchange="itemPoolChanged()">
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                {% for item in item_names_single %}
+                                    <div class="form-group row m-2">
+                                        <label class="col-lg-3 col-form-label text-end" for="item_pool_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
+                                        <div id="itemPool{{ item}}" class="col-lg-2 btn-group" role="group">
+                                            <input type="radio" class="btn-check item-pool-input-single" name="item_pool_{{+ item }}" value="No"
+                                                id="itemPool{{+ item }}No" autocomplete="off" 
+                                                onclick="itemPoolChanged()">
+                                            <label class="btn btn-outline-primary" for="itemPool{{+ item }}No">No</label>
+                                            <input type="radio" class="btn-check item-pool-input-single" name="item_pool_{{+ item }}" value="Yes"
+                                                id="itemPool{{+ item }}Yes" autocomplete="off" 
+                                                onclick="itemPoolChanged()" checked>
+                                            <label class="btn btn-outline-primary" for="itemPool{{+ item }}Yes">Yes</label>
                                         </div>
                                     </div>
                                 {% endfor %}
@@ -231,18 +248,20 @@
                             </h2>
                             <div id="collapseStartingItems" class="accordion-collapse collapse">
                                 <input type="hidden" id="json-starting-items" name="starting_item_json">
-                                {% for item in starting_items_multiple %}
+                                {% for item in item_names_multiple %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-2 col-form-label text-end" for="starting_item_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div class="col-sm-2">
                                             <input type="text" class="form-control starting-item-input-multiple" name="starting_item_{{+ item }}" id="startingItem{{+ item }}" 
                                             value="0" onchange="startingItemsChanged()">
                                         </div>
                                     </div>
                                 {% endfor %}
-                                {% for item in starting_items_single %}
+                                {% for item in item_names_single %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-2 col-form-label text-end" for="starting_item_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div id="startingItem{{ item}}" class="col-sm-3 btn-group" role="group">
                                             <input type="radio" class="btn-check starting-item-input-single" name="starting_item_{{+ item }}" value="No"
                                                 id="startingItem{{+ item }}No" autocomplete="off" 
@@ -275,6 +294,7 @@
                                 {% for item in prioritizable_items %}
                                     <div class="form-group row my-2">
                                         <label class="col-sm-4 col-form-label text-end" for="item_priority_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div id="itemPriority{{ item }}" class="col-sm-7 btn-group" role="group">
                                             {% for priority in item_priorities %}
                                                 <input type="radio" class="btn-check item-priority-input" name="item_priority_{{+ item }}" value="{{+ priority }}"
@@ -305,6 +325,7 @@
                                 {% for item in prioritizable_items %}
                                     <div id="fillerItems{{ item }}" class="form-group row my-2">
                                         <label class="col-sm-4 col-form-label text-end" for="filler_items_{{+ item }}">{{+ item }}</label>
+                                        <span class="itemIcon itemIcon{{+ item }}"></span>
                                         <div class="col-sm-7 btn-group" role="group">
                                             <input type="radio" class="btn-check filler-items-input" name="filler_items_{{+ item }}" value="No"
                                                 id="fillerItems{{+ item }}No" autocomplete="off" 
@@ -338,6 +359,109 @@
         </div>
     </div>
 </div>
+<style>
+    .itemIcon {
+        display: inline-block;
+        position: relative;
+        width: 16px;
+        height: 16px;
+        background-image: url(/static/items.png);
+        image-rendering: pixelated;
+        padding-left: 0;
+        padding-right: 0;
+        margin-top: 12px;
+        transform: scale(1.75);
+    }
+    
+    .itemIconCharge {
+        background-position-x: calc(-8px * 10);
+    }
+
+    .itemIconVaria {
+        background-position-x: calc(-8px * 24);
+    }
+
+    .itemIconMorph {
+        background-position-x: calc(-8px * 38);
+    }
+
+    .itemIconHiJump {
+        background-position-x: calc(-8px * 14);
+    }
+
+    .itemIconMissile {
+        background-position-x: calc(-8px * 2);
+    }
+
+    .itemIconIce {
+        background-position-x: calc(-8px * 12);
+    }
+
+    .itemIconGravity {
+        background-position-x: calc(-8px * 26);
+    }
+
+    .itemIconBombs {
+        background-position-x: calc(-8px * 8);
+    }
+
+    .itemIconSpaceJump {
+        background-position-x: calc(-8px * 34);
+    }
+
+    .itemIconSuper {
+        background-position-x: calc(-8px * 4);
+    }
+
+    .itemIconWave {
+        background-position-x: calc(-8px * 18);
+    }
+
+    .itemIconSpringBall {
+        background-position-x: calc(-8px * 22);
+    }
+
+    .itemIconSpeedBooster {
+        background-position-x: calc(-8px * 16);
+    }
+
+    .itemIconPowerBomb {
+        background-position-x: calc(-8px * 6);
+    }
+
+    .itemIconSpazer {
+        background-position-x: calc(-8px * 20);
+    }
+
+    .itemIconGrapple {
+        background-position-x: calc(-8px * 32);
+    }
+
+    .itemIconScrewAttack {
+        background-position-x: calc(-8px * 36);
+    }
+
+    .itemIconWallJump {
+        background-position-x: calc(-8px * 42);
+    }
+
+    .itemIconETank {
+        background-position-x: calc(-8px * 0);
+    }
+
+    .itemIconPlasma {
+        background-position-x: calc(-8px * 30);
+    }
+
+    .itemIconXRayScope {
+        background-position-x: calc(-8px * 28);
+    }
+
+    .itemIconReserveTank {
+        background-position-x: calc(-8px * 40);
+    }
+
+</style>
 
 {% include "help/progression/rate.html" %}
 {% include "help/progression/item_placement.html" %}

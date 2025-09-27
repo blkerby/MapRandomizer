@@ -1156,6 +1156,13 @@
                 "enabled": true
             },
             {
+                "room_id": 150,
+                "notable_id": 8,
+                "room_name": "Golden Torizo's Room",
+                "notable_name": "Safe Spot Kill (Lenient)",
+                "enabled": true
+            },
+            {
                 "room_id": 146,
                 "notable_id": 1,
                 "room_name": "Lower Norfair Spring Ball Maze",

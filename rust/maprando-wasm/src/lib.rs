@@ -17,16 +17,12 @@ pub fn set_panic_hook() {
 }
 
 #[wasm_bindgen]
-pub fn can_defeat_phantoon(
-    inventory: JsValue,
-    local: JsValue,
-    proficiency: f32,
-    can_manage_reserves: bool,
-) -> JsValue {
+pub fn can_defeat_phantoon(inventory: JsValue, local: JsValue, proficiency: f32) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local =
+        serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full(false));
 
-    if apply_phantoon_requirement(&inventory, &mut local, proficiency, can_manage_reserves) {
+    if apply_phantoon_requirement(&inventory, &mut local, proficiency, false) {
         serde_wasm_bindgen::to_value(&local).unwrap()
     } else {
         JsValue::null()
@@ -38,18 +34,18 @@ pub fn can_defeat_draygon(
     inventory: JsValue,
     local: JsValue,
     proficiency: f32,
-    can_manage_reserves: bool,
     can_be_very_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local =
+        serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full(false));
 
     if apply_draygon_requirement(
         &inventory,
         &mut local,
         proficiency,
-        can_manage_reserves,
         can_be_very_patient,
+        false,
     ) {
         serde_wasm_bindgen::to_value(&local).unwrap()
     } else {
@@ -62,25 +58,25 @@ pub fn can_defeat_ridley(
     inventory: JsValue,
     local: JsValue,
     proficiency: f32,
-    can_manage_reserves: bool,
     can_be_patient: bool,
     can_be_very_patient: bool,
     can_be_extremely_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local =
+        serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full(false));
 
     if apply_ridley_requirement(
         &inventory,
         &mut local,
         proficiency,
-        can_manage_reserves,
         can_be_patient,
         can_be_very_patient,
         can_be_extremely_patient,
         true,
         false,
         RidleyStuck::None,
+        false,
     ) {
         serde_wasm_bindgen::to_value(&local).unwrap()
     } else {
@@ -94,18 +90,12 @@ pub fn can_defeat_botwoon(
     local: JsValue,
     proficiency: f32,
     second_phase: bool,
-    can_manage_reserves: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local =
+        serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full(false));
 
-    if apply_botwoon_requirement(
-        &inventory,
-        &mut local,
-        proficiency,
-        second_phase,
-        can_manage_reserves,
-    ) {
+    if apply_botwoon_requirement(&inventory, &mut local, proficiency, second_phase, false) {
         serde_wasm_bindgen::to_value(&local).unwrap()
     } else {
         JsValue::null()
@@ -118,21 +108,21 @@ pub fn can_defeat_mother_brain_2(
     local: JsValue,
     proficiency: f32,
     supers_double: bool,
-    can_manage_reserves: bool,
     can_be_very_patient: bool,
     r_mode: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
-    let mut local = serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full());
+    let mut local =
+        serde_wasm_bindgen::from_value(local).unwrap_or_else(|_| LocalState::full(false));
 
     if apply_mother_brain_2_requirement(
         &inventory,
         &mut local,
         proficiency,
         supers_double,
-        can_manage_reserves,
         can_be_very_patient,
         r_mode,
+        false,
     ) {
         serde_wasm_bindgen::to_value(&local).unwrap()
     } else {

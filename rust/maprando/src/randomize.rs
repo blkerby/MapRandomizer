@@ -10,8 +10,8 @@ use crate::settings::{
     SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::spoiler_log::{
-    SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation, SpoilerTraversal,
-    get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
+    SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
+    SpoilerTraversal, get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
     LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs, get_spoiler_trail_ids,
@@ -3135,14 +3135,11 @@ impl<'r> Randomizer<'r> {
 
         let mut initial_items_remaining: Vec<usize> = vec![1; game_data.item_isv.keys.len()];
         initial_items_remaining[Item::Nothing as usize] = 0;
-        initial_items_remaining[Item::WallJump as usize] =
-            if settings.other_settings.wall_jump == WallJump::Collectible {
-                1
-            } else {
-                0
-            };
         for x in &settings.item_progression_settings.item_pool {
             initial_items_remaining[x.item as usize] = x.count;
+        }
+        if settings.other_settings.wall_jump == WallJump::Vanilla {
+            initial_items_remaining[Item::WallJump as usize] = 0;
         }
 
         let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
@@ -3159,13 +3156,6 @@ impl<'r> Randomizer<'r> {
             < minimal_tank_count
         {
             initial_items_remaining[Item::ETank as usize] += 1;
-        }
-
-        for kip in settings.item_progression_settings.key_item_priority.iter() {
-            if kip.priority == KeyItemPriority::Never {
-                // Items set to 'Never' are removed from the pool.
-                initial_items_remaining[kip.item as usize] = 0;
-            }
         }
 
         let target_initial_items = initial_items_remaining.clone();
@@ -3521,6 +3511,7 @@ impl<'r> Randomizer<'r> {
                 item_types_to_extra_delay.push(item);
             }
         }
+
         let mut items_to_mix: Vec<Item> = Vec::new();
         for &item in &item_types_to_mix {
             let mut cnt = state.items_remaining[item as usize];
@@ -3856,7 +3847,6 @@ impl<'r> Randomizer<'r> {
                     .item_progression_settings
                     .ammo_collect_fraction,
                 &self.difficulty_tiers[0].tech,
-                &mut state.starting_local_state,
             );
         }
         // Update `items_remaining` for key items only.
@@ -4187,6 +4177,12 @@ impl<'r> Randomizer<'r> {
         // Include starting items first, as "step 0":
         for x in &settings.item_progression_settings.starting_items {
             if x.count > 0 {
+                // Skip WallJump if it appears in the starting items without Collectible wall jump
+                if x.item == Item::WallJump
+                    && settings.other_settings.wall_jump == WallJump::Vanilla
+                {
+                    continue;
+                }
                 item_spoiler_info.push(EssentialItemSpoilerInfo {
                     item: x.item,
                     step: Some(0),
@@ -4314,12 +4310,9 @@ impl<'r> Randomizer<'r> {
         }
         match item_priority_strength {
             ItemPriorityStrength::Moderate => {
-                assert!(item_priorities.len() == 4);
+                assert!(item_priorities.len() == 3);
                 let mut items = vec![];
                 for (i, priority_group) in item_priorities.iter().enumerate() {
-                    if priority_group.priority == KeyItemPriority::Never {
-                        continue;
-                    }
                     for item_name in &priority_group.items {
                         items.push(item_name.clone());
                         if i != 1 {
@@ -4351,9 +4344,6 @@ impl<'r> Randomizer<'r> {
             }
             ItemPriorityStrength::Heavy => {
                 for priority_group in item_priorities {
-                    if priority_group.priority == KeyItemPriority::Never {
-                        continue;
-                    }
                     let mut items = priority_group.items.clone();
                     items.shuffle(rng);
                     for item_name in &items {
@@ -4477,7 +4467,7 @@ impl<'r> Randomizer<'r> {
             let local = apply_requirement(
                 start_loc.requires_parsed.as_ref().unwrap(),
                 &global,
-                LocalState::full(),
+                LocalState::full(false),
                 false,
                 self.settings,
                 &self.difficulty_tiers[0],
@@ -4492,7 +4482,7 @@ impl<'r> Randomizer<'r> {
 
             traverser_pair
                 .forward
-                .add_origin(local, start_vertex_id, &global);
+                .add_origin(local, &global.inventory, start_vertex_id);
             traverser_pair.forward.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4518,9 +4508,11 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
 
-            traverser_pair
-                .reverse
-                .add_origin(LocalState::full(), start_vertex_id, &global);
+            traverser_pair.reverse.add_origin(
+                LocalState::full(true),
+                &global.inventory,
+                start_vertex_id,
+            );
             traverser_pair.reverse.traverse(
                 self.base_links_data,
                 &self.seed_links_data,
@@ -4543,7 +4535,8 @@ impl<'r> Randomizer<'r> {
             // which is in the same room as the start location but is not necessarily exactly the same.
             // Among the valid hubs, we select one with the best energy farm.
             let mut best_hub_vertex_id: VertexId = start_vertex_id;
-            let mut best_hub_cost: Capacity = global.inventory.max_energy - 1;
+            let mut best_hub_cost: Capacity =
+                global.inventory.max_energy - 1 + global.inventory.max_reserves;
             for &(hub_vertex_id, ref hub_req) in [(start_vertex_id, Requirement::Free)]
                 .iter()
                 .chain(self.game_data.hub_farms.iter())
@@ -4555,7 +4548,7 @@ impl<'r> Randomizer<'r> {
                 let new_local = apply_requirement(
                     hub_req,
                     &global,
-                    LocalState::empty(&global),
+                    LocalState::empty(),
                     false,
                     self.settings,
                     &self.difficulty_tiers[0],
@@ -4565,7 +4558,7 @@ impl<'r> Randomizer<'r> {
                     &self.objectives,
                 );
                 let hub_cost = if let Some(loc) = new_local {
-                    loc.energy_used
+                    loc.energy_missing(&global.inventory, true)
                 } else {
                     Capacity::MAX
                 };
@@ -4611,6 +4604,34 @@ impl<'r> Randomizer<'r> {
         bail!("[attempt {attempt_num_rando}] Failed to find start location.")
     }
 
+    fn get_pool_inventory(&self) -> Inventory {
+        let acf = self
+            .settings
+            .item_progression_settings
+            .ammo_collect_fraction;
+        let collectible_missile_packs = self.initial_items_remaining[Item::Missile as usize];
+        let collectible_super_packs = self.initial_items_remaining[Item::Super as usize];
+        let collectible_pb_packs = self.initial_items_remaining[Item::PowerBomb as usize];
+        let collectible_etanks = self.initial_items_remaining[Item::ETank as usize];
+        let collectible_reserve_tanks = self.initial_items_remaining[Item::ReserveTank as usize];
+        Inventory {
+            items: self
+                .initial_items_remaining
+                .iter()
+                .map(|&x| x > 0)
+                .collect(),
+            max_energy: (99 + collectible_etanks * 100) as Capacity,
+            max_reserves: (collectible_reserve_tanks * 100) as Capacity,
+            max_missiles: (acf * collectible_missile_packs as f32).round() as Capacity * 5,
+            max_supers: (acf * collectible_super_packs as f32).round() as Capacity * 5,
+            max_power_bombs: (acf * collectible_pb_packs as f32).round() as Capacity * 5,
+            collectible_missile_packs: collectible_missile_packs as Capacity,
+            collectible_super_packs: collectible_super_packs as Capacity,
+            collectible_power_bomb_packs: collectible_pb_packs as Capacity,
+            collectible_reserve_tanks: collectible_reserve_tanks as Capacity,
+        }
+    }
+
     fn get_initial_states(&self) -> (GlobalState, LocalState) {
         let items = vec![false; self.game_data.item_isv.keys.len()];
         let weapon_mask = self
@@ -4627,13 +4648,19 @@ impl<'r> Randomizer<'r> {
                 collectible_missile_packs: 0,
                 collectible_super_packs: 0,
                 collectible_power_bomb_packs: 0,
+                collectible_reserve_tanks: 0,
             },
+            pool_inventory: self.get_pool_inventory(),
             flags: self.get_initial_flag_vec(),
             doors_unlocked: vec![false; self.locked_door_data.locked_doors.len()],
             weapon_mask,
         };
-        let mut local = LocalState::empty(&global);
         for x in &self.settings.item_progression_settings.starting_items {
+            if x.item == Item::WallJump
+                && self.settings.other_settings.wall_jump == WallJump::Vanilla
+            {
+                continue;
+            }
             for _ in 0..x.count {
                 global.collect(
                     x.item,
@@ -4642,10 +4669,10 @@ impl<'r> Randomizer<'r> {
                         .item_progression_settings
                         .ammo_collect_fraction,
                     &self.difficulty_tiers[0].tech,
-                    &mut local,
                 );
             }
         }
+        let local = LocalState::empty();
         (global, local)
     }
 
@@ -4720,12 +4747,22 @@ impl<'r> Randomizer<'r> {
             all_rooms: spoiler_all_rooms,
             game_data: get_spoiler_game_data(self),
             forward_traversal: SpoilerTraversal {
+                initial_local_state: SpoilerLocalState::new(
+                    LocalState::empty(),
+                    LocalState::empty(),
+                    true,
+                ),
                 steps: vec![],
                 prev_trail_ids: vec![],
                 link_idxs: vec![],
                 local_states: vec![],
             },
             reverse_traversal: SpoilerTraversal {
+                initial_local_state: SpoilerLocalState::new(
+                    LocalState::empty(),
+                    LocalState::empty(),
+                    true,
+                ),
                 steps: vec![],
                 prev_trail_ids: vec![],
                 link_idxs: vec![],
@@ -4805,8 +4842,18 @@ impl<'r> Randomizer<'r> {
         };
         let num_vertices = self.game_data.vertex_isv.keys.len();
         let mut traverser_pair = TraverserPair {
-            forward: Traverser::new(num_vertices, false, &initial_global_state),
-            reverse: Traverser::new(num_vertices, true, &initial_global_state),
+            forward: Traverser::new(
+                num_vertices,
+                false,
+                initial_local_state,
+                &initial_global_state,
+            ),
+            reverse: Traverser::new(
+                num_vertices,
+                true,
+                initial_local_state,
+                &initial_global_state,
+            ),
         };
         let start_location_data = self.determine_start_location(
             attempt_num_rando,
@@ -4853,13 +4900,15 @@ impl<'r> Randomizer<'r> {
         }];
         traverser_pair.forward.add_origin(
             initial_local_state,
+            &state.global_state.inventory,
             start_vertex_id,
-            &state.global_state,
         );
         traverser_pair.forward.finish_step(1);
-        traverser_pair
-            .reverse
-            .add_origin(LocalState::full(), start_vertex_id, &state.global_state);
+        traverser_pair.reverse.add_origin(
+            LocalState::full(true),
+            &state.global_state.inventory,
+            start_vertex_id,
+        );
         traverser_pair.reverse.finish_step(1);
         self.update_reachability(&mut state, &mut traverser_pair);
         if !state

@@ -14,14 +14,17 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release120">Version 120 (2025-09-17)</a>:
+<p><a id="release120">Version 120 (2025-09-26)</a>:
 <ul>
 <li>New quality-of-life options are added for persisting flash/blue suits across saves.
     <ul>
     <li>"Flash suit persists across save/load" is enabled in High quality-of-life.
     <li>"Blue suit persists across save/load" is enabled in Max quality-of-life.
     </ul>
-<li>New item progression option "Never" to force certain items to never be placed.
+<li>"Item pool" settings allow any item to be disabled from being placed.
+    <ul>
+    <li>The randomizer will time out if it fails to generate a logically beatable game.
+    </ul>
 <li>New Samus sprite: "Metroid Suit Samus" by Mattroid.
 <li>Spoiler map improvements:
     <ul>
@@ -30,6 +33,7 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>Clicking on a door lock shows a logical route for unlocking the door.
     </ul>
 <li>Fix bugged loading on Small maps that could occur when a wall is in the same room as a save.
+<li>When certain game crashes occur, a message box is shown before triggering death.
 <li>Logic updates:
     <ul>
     <li>New tech:
@@ -38,6 +42,10 @@ document.getElementById("navigation-releases").classList.add("active");
         <li><a href="/logic/tech/207">canCarryFlashSuit</a> (Extreme).
         <li><a href="/logic/tech/208">canComplexCarryFlashSuit</a> (Extreme).
         <li><a href="/logic/tech/142">canTrickyCarryFlashSuit</a> (Insane).
+        </ul>
+    <li>New notable strat:
+        <ul>
+        <li><a href="/logic/notable/150/8">Golden Torizo's Room: Safe Spot Kill (Lenient)</a> (Hard).
         </ul>
     </ul>
 </ul>
