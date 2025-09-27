@@ -1070,20 +1070,18 @@ function showError(e) {
 }
 
 function setButtonConflicted(element) {
-    //element.classList.remove("btn-outline-primary");
     element.classList.add("btn-outline-conflict");
 }
 
 function setButtonNoConflict(element) {
-    //element.classList.add("btn-outline-primary");
     element.classList.remove("btn-outline-conflict");
 }
 
 function updateFormConflicts() {
     if (document.getElementById("startLocationEscape").checked) {
-        document.querySelectorAll(":is(#itemProgressionPreset,#objectives,#doors) label").forEach(setButtonConflicted);
+        document.querySelectorAll("#itemProgressionPreset label").forEach(setButtonConflicted);
     } else {
-        document.querySelectorAll(":is(#itemProgressionPreset,#objectives,#doors) label").forEach(setButtonNoConflict);
+        document.querySelectorAll("#itemProgressionPreset label").forEach(setButtonNoConflict);
     }
 
     if (document.getElementById("wallJumpVanilla").checked) {
