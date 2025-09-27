@@ -253,15 +253,22 @@ pub async fn save_seed(
     ));
 
     // Write the spoiler maps
+    let mut door_settings = settings.clone();
+    door_settings.other_settings.door_locks_size = DoorLocksSize::Large;
     let spoiler_maps =
-        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, settings, false).unwrap();
+        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, &door_settings, false)
+            .unwrap();
+    door_settings.other_settings.door_locks_size = DoorLocksSize::Small;
+    let spoiler_maps_small =
+        spoiler_map::get_spoiler_map(randomization, &app_data.game_data, &door_settings, false)
+            .unwrap();
     files.push(SeedFile::new(
         &format!("{prefix}/map-explored.png"),
         spoiler_maps.explored,
     ));
     files.push(SeedFile::new(
         &format!("{prefix}/map-explored-small.png"),
-        spoiler_maps.explored_small,
+        spoiler_maps_small.explored,
     ));
     files.push(SeedFile::new(
         &format!("{prefix}/map-outline.png"),

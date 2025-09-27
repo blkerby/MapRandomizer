@@ -12,8 +12,8 @@ use maprando::randomize::{
     randomize_doors, randomize_map_areas,
 };
 use maprando::settings::{
-    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
-    SkillAssumptionSettings, StartLocationMode,
+    AreaAssignment, DoorLocksSize, ItemProgressionSettings, QualityOfLifeSettings,
+    RandomizerSettings, SkillAssumptionSettings, StartLocationMode,
 };
 use maprando::spoiler_log::SpoilerLog;
 use maprando::spoiler_map;
@@ -277,7 +277,14 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
     let spoiler_str = serde_json::to_string_pretty(&spoiler_log)?;
     std::fs::write(output_spoiler_log_path, spoiler_str)?;
 
+    let mut doorsettings = settings.clone();
+    doorsettings.other_settings.door_locks_size = DoorLocksSize::Large;
     let spoiler_maps =
+        spoiler_map::get_spoiler_map(&randomization, &app.game_data, &settings, true)?;
+    doorsettings = settings.clone();
+    doorsettings.other_settings.door_locks_size = DoorLocksSize::Small;
+
+    let spoiler_maps_small =
         spoiler_map::get_spoiler_map(&randomization, &app.game_data, &settings, true)?;
 
     let output_spoiler_map_explored_path = Path::join(
@@ -303,7 +310,7 @@ fn perform_test_cycle(app: &TestAppData, cycle_count: usize) -> Result<()> {
         output_spoiler_map_explored_small_path.display()
     );
 
-    let spoiler_map_explored_small = spoiler_maps.explored_small.clone();
+    let spoiler_map_explored_small = spoiler_maps_small.explored.clone();
     std::fs::write(
         output_spoiler_map_explored_small_path,
         spoiler_map_explored_small,
