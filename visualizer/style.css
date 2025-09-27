@@ -11,7 +11,7 @@ a {
 #zoom {
 	touch-action: none;
 }
-#map {
+#map, #map_explored {
 	position: absolute;
 	width: 1776px;
 	image-rendering: pixelated;

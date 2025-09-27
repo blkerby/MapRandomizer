@@ -9,7 +9,7 @@ use maprando::preset::PresetData;
 use maprando::randomize::{
     Randomization, Randomizer, get_difficulty_tiers, get_objectives, randomize_doors,
 };
-use maprando::settings::{RandomizerSettings, StartLocationMode};
+use maprando::settings::{DoorLocksSize, RandomizerSettings, StartLocationMode};
 use maprando::spoiler_log::SpoilerLog;
 use maprando::spoiler_map;
 use maprando_game::{GameData, Map};
@@ -285,7 +285,13 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
+    let mut doorsettings = settings.clone();
+    doorsettings.other_settings.door_locks_size = DoorLocksSize::Large;
     let spoiler_maps = spoiler_map::get_spoiler_map(&randomization, &game_data, &settings, true)?;
+    doorsettings = settings.clone();
+    doorsettings.other_settings.door_locks_size = DoorLocksSize::Small;
+    let spoiler_maps_small =
+        spoiler_map::get_spoiler_map(&randomization, &game_data, &settings, true)?;
 
     if let Some(output_spoiler_map_explored_path) = &args.output_spoiler_map_explored {
         println!(
@@ -294,6 +300,8 @@ fn main() -> Result<()> {
         );
         let spoiler_map_explored = spoiler_maps.explored.clone();
         std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored)?;
+        let spoiler_map_explored_small = spoiler_maps_small.explored.clone();
+        std::fs::write(output_spoiler_map_explored_path, spoiler_map_explored_small)?;
     }
 
     if let Some(output_spoiler_map_outline_path) = &args.output_spoiler_map_outline {

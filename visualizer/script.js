@@ -53,6 +53,7 @@ document.getElementById("smalldoors").onchange = ev => {
 	for (e of document.getElementsByClassName("map-door-icon")) {
 		e.style.backgroundImage = ev.target.checked ? "url('map_doors_small.png')" : "url('map_doors.png')";
 	}
+	document.getElementById("map").src = ev.target.checked ? "../map-explored-small.png" : "../map-explored.png";
 }
 document.getElementById("sidebar-info").onmousemove = ev => {
 	let el = document.getElementById("room-info");
@@ -395,6 +396,9 @@ loadForm(document.getElementById("helpForm"));
 setDebugDataVisibility();
 if (!document.getElementById("showonce").checked)
 	document.getElementById("msg-wrap").style.display = "flex";
+if (document.getElementById("smalldoors").checked){
+	document.getElementById("map").src = "../map-explored-small.png"
+}
 
 let ctx = document.getElementById("spoiler-overlay").getContext("2d");
 let grid = document.getElementById("grid");
