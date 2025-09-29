@@ -20009,6 +20009,30 @@
   },
   {
     "room_id": 121,
+    "strat_id": 46,
+    "video_id": 7915,
+    "created_user": "Sam",
+    "note": "Walljumpless, Speedy Hi-Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 46,
+    "video_id": 7916,
+    "created_user": "Sam",
+    "note": "Hi-Jump, Walljump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 46,
+    "video_id": 7918,
+    "created_user": "Sam",
+    "note": "Space Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
     "strat_id": 47,
     "video_id": 7911,
     "created_user": "Sam",
@@ -20021,6 +20045,14 @@
     "video_id": 7912,
     "created_user": "Sam",
     "note": "Spring Ball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 47,
+    "video_id": 7914,
+    "created_user": "Sam",
+    "note": "Morph",
     "dev_note": ""
   },
   {
@@ -20083,6 +20115,14 @@
     "room_id": 121,
     "strat_id": 48,
     "video_id": 5170,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 48,
+    "video_id": 7917,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -21677,6 +21717,22 @@
     "video_id": 1969,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 35,
+    "video_id": 8049,
+    "created_user": "Sam",
+    "note": "Springball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 106,
+    "strat_id": 35,
+    "video_id": 8050,
+    "created_user": "Sam",
+    "note": "Bombs",
     "dev_note": ""
   },
   {
@@ -39449,6 +39505,14 @@
   },
   {
     "room_id": 183,
+    "strat_id": 179,
+    "video_id": 8002,
+    "created_user": "Sam",
+    "note": "Hi-Jump, Touch Sand to Overload PLMs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 183,
     "strat_id": 45,
     "video_id": 3704,
     "created_user": "Sam",
@@ -39812,6 +39876,14 @@
     "strat_id": 100,
     "video_id": 4343,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 186,
+    "strat_id": 114,
+    "video_id": 8035,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -40747,6 +40819,14 @@
     "room_id": 189,
     "strat_id": 104,
     "video_id": 2923,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 189,
+    "strat_id": 106,
+    "video_id": 8033,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -42249,6 +42329,14 @@
   },
   {
     "room_id": 196,
+    "strat_id": 75,
+    "video_id": 2628,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "FIXME: There is an error with this strat - it needs to have a way to kill the left Cac"
+  },
+  {
+    "room_id": 196,
     "strat_id": 17,
     "video_id": 6984,
     "created_user": "maddo",
@@ -42805,6 +42893,14 @@
     "video_id": 2620,
     "created_user": "Sam",
     "note": "G-Mode Morph with Gravity Springball jump.",
+    "dev_note": ""
+  },
+  {
+    "room_id": 208,
+    "strat_id": 21,
+    "video_id": 8032,
+    "created_user": "Sam",
+    "note": "Suitless Double Springball Jump",
     "dev_note": ""
   },
   {
@@ -50280,6 +50376,14 @@
     "dev_note": ""
   },
   {
+    "room_id": 227,
+    "strat_id": 58,
+    "video_id": 8028,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
     "room_id": 228,
     "strat_id": 2,
     "video_id": 7890,
@@ -50595,6 +50699,14 @@
     "room_id": 229,
     "strat_id": 6,
     "video_id": 2749,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 229,
+    "strat_id": 31,
+    "video_id": 8030,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
