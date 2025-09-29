@@ -514,6 +514,11 @@
             "enabled": true
         },
         {
+            "id": 188,
+            "name": "canPreciseReserveRefill",
+            "enabled": true
+        },
+        {
             "id": 34,
             "name": "can3HighWallMidAirMorph",
             "enabled": true
@@ -706,11 +711,6 @@
         {
             "id": 20,
             "name": "canReserveDoubleDamageBoost",
-            "enabled": true
-        },
-        {
-            "id": 188,
-            "name": "canPreciseReserveRefill",
             "enabled": true
         },
         {
@@ -3809,7 +3809,7 @@
             "room_id": 198,
             "notable_id": 2,
             "room_name": "Oasis",
-            "notable_name": "Cross Room Jump Through Top Door",
+            "notable_name": "Cross Room Jump Boomerang To Top",
             "enabled": true
         },
         {
