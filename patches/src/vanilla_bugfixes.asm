@@ -441,28 +441,28 @@ new_message_boxes:
 table "tables/dialog_chars.tbl",RTL
 
 reserve_pause_msg:
-    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "   PAUSED ON EXACT FRAME  ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "   AUTO-REFILL STARTED!   ", $0e00,$0e00,$0e00
+    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "   PAUSED ON EXACT FRAME  ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "   AUTO-REFILL STARTED!   ", $000e,$000e,$000e
 
 springball_msg:
-    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "UNEQUIPPED SPRING BALL IN ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "UNDERWATER NEUTRAL BOUNCE!", $0e00,$0e00,$0e00
+    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "UNEQUIPPED SPRING BALL IN ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "UNDERWATER NEUTRAL BOUNCE!", $000e,$000e,$000e
     
 yapping_maw_msg:
-    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "  YAPPING MAW SHINESPARK  ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, " END WITH NO INPUTS HELD! ", $0e00,$0e00,$0e00
+    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "  YAPPING MAW SHINESPARK  ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, " END WITH NO INPUTS HELD! ", $000e,$000e,$000e
 
 oob_msg:
-    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "       OUT-OF-BOUNDS      ", $0e00,$0e00,$0e00
-    dw $0e00,$0e00,$0e00, "    POSITION DETECTED!    ", $0e00,$0e00,$0e00
+    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "       OUT-OF-BOUNDS      ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "    POSITION DETECTED!    ", $000e,$000e,$000e
     
 msg_end:
 
