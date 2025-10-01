@@ -927,8 +927,8 @@ function processStartingItemsPreset() {
     }
 }
 function validateStartingItems() {
-    if (parseInt(document.getElementById("startingItemMissile").value) > 46) {
-        document.getElementById("startingItemMissile").value = "46";
+    if (parseInt(document.getElementById("startingItemMissile").value) > 199) {
+        document.getElementById("startingItemMissile").value = "199";
     }
     if (parseInt(document.getElementById("startingItemETank").value) > 14) {
         document.getElementById("startingItemETank").value = "14";
@@ -936,11 +936,26 @@ function validateStartingItems() {
     if (parseInt(document.getElementById("startingItemReserveTank").value) > 4) {
         document.getElementById("startingItemReserveTank").value = "4";
     }
-    if (parseInt(document.getElementById("startingItemSuper").value) > 10) {
-        document.getElementById("startingItemSuper").value = "10";
+    if (parseInt(document.getElementById("startingItemSuper").value) > 19) {
+        document.getElementById("startingItemSuper").value = "19";
     }
-    if (parseInt(document.getElementById("startingItemPowerBomb").value) > 10) {
+    if (parseInt(document.getElementById("startingItemPowerBomb").value) > 19) {
         document.getElementById("startingItemPowerBomb").value = "10";
+    }
+    if (parseInt(document.getElementById("startingItemMissile").value) < 0) {
+        document.getElementById("startingItemMissile").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemETank").value) < 0) {
+        document.getElementById("startingItemETank").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemReserveTank").value) < 0) {
+        document.getElementById("startingItemReserveTank").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemSuper").value) < 0) {
+        document.getElementById("startingItemSuper").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemPowerBomb").value) < 0) {
+        document.getElementById("startingItemPowerBomb").value = "0";
     }
 }
 function startingItemsPresetChanged() {
