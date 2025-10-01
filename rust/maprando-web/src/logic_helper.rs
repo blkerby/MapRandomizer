@@ -15,8 +15,8 @@ use maprando::{
 use maprando_game::{
     DoorOrientation, ExitCondition, GameData, Item, Link, MainEntranceCondition, Map, NodeId,
     NotableId, NotableIdx, Requirement, RoomId, SparkPosition, StartLocation, StratId, StratVideo,
-    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_DISABLE_EQUIPMENT,
-    TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_CARRY_FLASH_SUIT,
+    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
     TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
     TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEAT_RUN,
     TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
@@ -24,7 +24,7 @@ use maprando_game::{
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
     TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SHINESPARK,
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
-    TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
     TECH_ID_CAN_WALLJUMP, TechId, VertexAction, VertexKey,
 };
@@ -956,9 +956,8 @@ fn get_strat_difficulty(
         }
         let difficulty_idx = preset_data.difficulty_levels.index_by_key[&difficulty.name];
 
-        let flash_suit_obtainable = [TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH]
-            .iter()
-            .any(|&tech_id| difficulty.tech[game_data.tech_isv.index_by_key[&tech_id]]);
+        let flash_suit_obtainable =
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_FLASH_SUIT]];
 
         let local = LocalState {
             shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
