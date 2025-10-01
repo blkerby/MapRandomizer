@@ -1113,6 +1113,10 @@ function updateFormConflicts() {
     if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 1) {
         document.querySelectorAll("#itemPriorities .itemIconPowerBomb ~ div>label").forEach(Set.prototype.add.bind(toAdd));
     }
+    
+    if (document.getElementById("itemPoolSpazerNo").checked || document.getElementById("itemPoolPlasmaNo").checked) {
+        document.querySelectorAll("#spazerBeforePlasma label").forEach(Set.prototype.add.bind(toAdd));
+    }
 
     {% for item in item_names_single %}
     if (document.getElementById("itemPool{{+ item }}No").checked) {
