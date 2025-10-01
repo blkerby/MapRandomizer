@@ -1117,6 +1117,10 @@ function updateFormConflicts() {
     if (document.getElementById("itemPoolSpazerNo").checked || document.getElementById("itemPoolPlasmaNo").checked) {
         document.querySelectorAll("#spazerBeforePlasma label").forEach(Set.prototype.add.bind(toAdd));
     }
+    
+    if (document.getElementById("stopItemPlacementEarlyYes").checked) {
+        document.querySelectorAll("#escapeMovementItems label").forEach(Set.prototype.add.bind(toAdd));
+    }
 
     {% for item in item_names_single %}
     if (document.getElementById("itemPool{{+ item }}No").checked) {
