@@ -3328,6 +3328,7 @@ impl GameData {
                     "name": "Base (Unlock Door)",
                     "requires": [],
                     "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
+                    "flashSuitChecked": true,
                 });
             }
             if (node_type == "door" || node_type == "entrance")
@@ -3340,7 +3341,8 @@ impl GameData {
                     "entranceCondition": {
                         "comeInNormally": {}
                     },
-                    "requires": []
+                    "requires": [],
+                    "flashSuitChecked": true,
                 });
             }
 
@@ -3366,7 +3368,8 @@ impl GameData {
                             "speedBooster": "any"
                         }
                     },
-                    "requires": req
+                    "requires": req,
+                    "flashSuitChecked": true,
                 });
             }
 
@@ -3383,7 +3386,8 @@ impl GameData {
                             "position": "any"
                         }
                     },
-                    "requires": []
+                    "requires": [],
+                    "flashSuitChecked": true
                 });
             }
 
