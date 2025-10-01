@@ -1783,6 +1783,9 @@ fn apply_requirement_simple(
                 return SimpleResult::Failure;
             }
             if cx.reverse {
+                if local.flash_suit {
+                    return SimpleResult::Failure;
+                }
                 local.flash_suit = true;
                 SimpleResult::Success
             } else if !local.flash_suit {
