@@ -1069,26 +1069,47 @@ function showError(e) {
     errorModal.show();
 }
 
-function setButtonConflicted(element) {
-    element.classList.add("btn-outline-conflict");
-}
-
-function setButtonNoConflict(element) {
-    element.classList.remove("btn-outline-conflict");
-}
-
 function updateFormConflicts() {
+    const current = new Set();
+    document.querySelectorAll(".btn-outline-conflict").forEach(Set.prototype.add.bind(current));
+    
+    const toAdd = new Set();
+
     if (document.getElementById("startLocationEscape").checked) {
-        document.querySelectorAll("#itemProgressionPreset label").forEach(setButtonConflicted);
-    } else {
-        document.querySelectorAll("#itemProgressionPreset label").forEach(setButtonNoConflict);
+        document.querySelectorAll("#itemProgressionPreset label").forEach(Set.prototype.add.bind(toAdd));
     }
 
     if (document.getElementById("wallJumpVanilla").checked) {
-        document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(setButtonConflicted);
-    } else if (document.getElementById("wallJumpCollectible").checked) {
-        document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(setButtonNoConflict);
+        document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(Set.prototype.add.bind(toAdd));
     }
+    
+    if (parseInt(document.getElementById("itemPoolMissile").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconMissile ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolETank").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconETank ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolReserveTank").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconReserveTank ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolSuper").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconSuper ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconPowerBomb ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+
+    {% for item in item_names_single %}
+    if (document.getElementById("itemPool{{+ item }}No").checked) {
+        document.querySelectorAll("#itemPriorities .itemIcon{{+ item }} ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    {% endfor %}
+    
+    let toRemove = current.difference(toAdd);
+    
+    toAdd.forEach(element => { element.classList.add("btn-outline-conflict"); });
+    toRemove.forEach(element => { element.classList.remove("btn-outline-conflict"); });
+
 }
 
 async function loadSettings() {
