@@ -459,10 +459,10 @@ yapping_maw_msg:
     dw $000e,$000e,$000e, " END WITH NO INPUTS HELD! ", $000e,$000e,$000e
 
 oob_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "       OUT-OF-BOUNDS      ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "    POSITION DETECTED!    ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "   SAMUS OUT-OF-BOUNDS!   ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     
 msg_end:
 
