@@ -927,8 +927,8 @@ function processStartingItemsPreset() {
     }
 }
 function validateStartingItems() {
-    if (parseInt(document.getElementById("startingItemMissile").value) > 46) {
-        document.getElementById("startingItemMissile").value = "46";
+    if (parseInt(document.getElementById("startingItemMissile").value) > 199) {
+        document.getElementById("startingItemMissile").value = "199";
     }
     if (parseInt(document.getElementById("startingItemETank").value) > 14) {
         document.getElementById("startingItemETank").value = "14";
@@ -936,11 +936,26 @@ function validateStartingItems() {
     if (parseInt(document.getElementById("startingItemReserveTank").value) > 4) {
         document.getElementById("startingItemReserveTank").value = "4";
     }
-    if (parseInt(document.getElementById("startingItemSuper").value) > 10) {
-        document.getElementById("startingItemSuper").value = "10";
+    if (parseInt(document.getElementById("startingItemSuper").value) > 19) {
+        document.getElementById("startingItemSuper").value = "19";
     }
-    if (parseInt(document.getElementById("startingItemPowerBomb").value) > 10) {
+    if (parseInt(document.getElementById("startingItemPowerBomb").value) > 19) {
         document.getElementById("startingItemPowerBomb").value = "10";
+    }
+    if (parseInt(document.getElementById("startingItemMissile").value) < 0) {
+        document.getElementById("startingItemMissile").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemETank").value) < 0) {
+        document.getElementById("startingItemETank").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemReserveTank").value) < 0) {
+        document.getElementById("startingItemReserveTank").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemSuper").value) < 0) {
+        document.getElementById("startingItemSuper").value = "0";
+    }
+    if (parseInt(document.getElementById("startingItemPowerBomb").value) < 0) {
+        document.getElementById("startingItemPowerBomb").value = "0";
     }
 }
 function startingItemsPresetChanged() {
@@ -979,8 +994,8 @@ function processItemPoolPreset() {
     }
 }
 function validateItemPool() {
-    if (parseInt(document.getElementById("itemPoolMissile").value) > 100) {
-        document.getElementById("itemPoolMissile").value = "100";
+    if (parseInt(document.getElementById("itemPoolMissile").value) > 199) {
+        document.getElementById("itemPoolMissile").value = "199";
     }
     if (parseInt(document.getElementById("itemPoolETank").value) > 14) {
         document.getElementById("itemPoolETank").value = "14";
@@ -1069,6 +1084,57 @@ function showError(e) {
     errorModal.show();
 }
 
+function updateFormConflicts() {
+    const current = new Set();
+    document.querySelectorAll(".btn-outline-conflict").forEach(Set.prototype.add.bind(current));
+    
+    const toAdd = new Set();
+
+    if (document.getElementById("startLocationEscape").checked) {
+        document.querySelectorAll("#itemProgressionPreset label").forEach(Set.prototype.add.bind(toAdd));
+    }
+
+    if (document.getElementById("wallJumpVanilla").checked) {
+        document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    
+    if (parseInt(document.getElementById("itemPoolMissile").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconMissile ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolETank").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconETank ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolReserveTank").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconReserveTank ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolSuper").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconSuper ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    if (parseInt(document.getElementById("itemPoolPowerBomb").value) < 1) {
+        document.querySelectorAll("#itemPriorities .itemIconPowerBomb ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    
+    if (document.getElementById("itemPoolSpazerNo").checked || document.getElementById("itemPoolPlasmaNo").checked) {
+        document.querySelectorAll("#spazerBeforePlasma label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    
+    if (document.getElementById("stopItemPlacementEarlyYes").checked) {
+        document.querySelectorAll("#escapeMovementItems label").forEach(Set.prototype.add.bind(toAdd));
+    }
+
+    {% for item in item_names_single %}
+    if (document.getElementById("itemPool{{+ item }}No").checked) {
+        document.querySelectorAll("#itemPriorities .itemIcon{{+ item }} ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+    {% endfor %}
+    
+    let toRemove = current.difference(toAdd);
+    
+    toAdd.forEach(element => { element.classList.add("btn-outline-conflict"); });
+    toRemove.forEach(element => { element.classList.remove("btn-outline-conflict"); });
+
+}
+
 async function loadSettings() {
     let settings = await localforage.getItem("generateSettings");
 
@@ -1109,9 +1175,13 @@ async function loadSettings() {
         }
     }
     checkOtherOptions();
+    
+    updateFormConflicts();
 }
 
 async function saveSettings() {
+    updateFormConflicts();
+
     let settings = buildSettingsObject();
     await localforage.setItem("generateSettings", settings);
 }
@@ -1360,3 +1430,21 @@ window.addEventListener('pageshow', (event) => {
   }
 });
 </script>
+<style>
+.btn-outline-conflict {
+    --bs-btn-color: #6c757d;
+    --bs-btn-border-color: #6c757d;
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: #6c757d;
+    --bs-btn-hover-border-color: #6c757d;
+    --bs-btn-focus-shadow-rgb: 108, 117, 125;
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #6c757d;
+    --bs-btn-active-border-color: #6c757d;
+    --bs-btn-active-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.125);
+    --bs-btn-disabled-color: #6c757d;
+    --bs-btn-disabled-bg: transparent;
+    --bs-btn-disabled-border-color: #6c757d;
+    --bs-gradient: none;
+}
+</style>
