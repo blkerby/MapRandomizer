@@ -17,4 +17,4 @@ $AAA0 - $AB00: [FREE]
 $AB00 - $ACA0: map_area.asm
 $ACA0 - $AD00: load_flash_suit
 $AD00 - $B000: [FREE]
-$B000 - $B3B0: vanilla_bugfixes.asm
+$B000 - $B4B0: vanilla_bugfixes.asm

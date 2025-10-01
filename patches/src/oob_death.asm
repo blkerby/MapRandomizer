@@ -60,8 +60,9 @@ check_oob:
     cmp #$001A
     beq .skip
 
-    lda #$0013
-    sta $0998    ; set game state = $13 (death sequence start)
+    lda #$0044    ; msg ID
+    jsl $85b000   ; bug dialog
+
 .skip:
     rtl
 warnpc !any_bank_free_space_end

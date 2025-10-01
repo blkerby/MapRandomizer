@@ -240,7 +240,7 @@ pause_func:
     lda $998
     cmp #$001b                    ; game state already set to reserve on crash frame?
     bne .leave
-    lda #$0021
+    lda #$0041
     jsl bug_dialog
     rts
 
@@ -312,7 +312,7 @@ org !bank_90_free_space_start
 yapping_maw_crash:
     cmp #$0005              ; valid table entries are 0-2 * 2
     bcc .skip
-    lda #$0023              ; bug ID
+    lda #$0043              ; bug ID
     jsl bug_dialog
     rts
     
@@ -333,16 +333,18 @@ org $91ea07
 org $91f1fc
     jsl spring_ball_crash
 
-!bank_85_free_space_start = $85b000
-!bank_85_free_space_end = $85b3b0
+!bank_85_free_space_start = $85b000 ; do not change, first jmp used externally
+!bank_85_free_space_end = $85b4b0
 
 org !bank_85_free_space_start
+    jmp bug_dialog          ; for external calls, do not move
+
 spring_ball_crash:
     lda $0B20               ; morph bounce state
     cmp #$0600              ; bugged?
     bcc .skip
     sep #$20
-    lda #$22                ; bug ID
+    lda #$42                ; bug ID
     sta $00cf               ; set flag to prevent unpause from resetting gamestate to 8
     rep #$30
     jsl bug_dialog
@@ -356,7 +358,7 @@ spring_ball_crash:
     rtl
 
 ;;; Implementation of custom dialog boxes
-;;; Requires hooking multiple functions to support extended msg IDs (0x20+)
+;;; Requires hooking multiple functions to support extended msg IDs (0x40+)
 ;;; and additional lookup tables
 
 bug_dialog:                 ; A = msg ID
@@ -383,7 +385,7 @@ bug_dialog:                 ; A = msg ID
 hook_message_box:
     rep #$30
     lda $1c1f
-    cmp #$0020              ; custom boxes >= 0x20
+    cmp #$0040              ; custom boxes >= 0x40
     bcs .custom
     jmp $8241               ; original func
     
@@ -393,20 +395,20 @@ hook_message_box:
 
 hook_index_lookup:
     lda $1c1f
-    cmp #$0020
+    cmp #$0040
     bcs .custom
     rts
 
 .custom
     sec
-    sbc #$0020
+    sbc #$0040
     rts
 
 hook_message_table:
     adc $34                         ; replaced code
     tax                             ;
     lda $1c1f
-    cmp #$0020
+    cmp #$0040
     bcs .custom
     rts
     
@@ -419,7 +421,7 @@ hook_message_table:
 
 hook_button_lookup:
     lda $1c1f
-    cmp #$0020
+    cmp #$0040
     bcs .custom
     rts
     
@@ -428,11 +430,12 @@ hook_button_lookup:
     ldy #(reserve_pause_msg-$8426)  ; blank button letter
     rts
 
-; custom messages start at 0x21
+; custom messages start at 0x41
 new_message_boxes:
-    dw $83c5, $825a, reserve_pause_msg  ; 0x21
-    dw $83c5, $825a, springball_msg     ; 0x22
-    dw $83c5, $825a, yapping_maw_msg    ; 0x23
+    dw $83c5, $825a, reserve_pause_msg  ; 0x41
+    dw $83c5, $825a, springball_msg     ; 0x42
+    dw $83c5, $825a, yapping_maw_msg    ; 0x43
+    dw $83c5, $825a, oob_msg            ; 0x44
     dw $0000, $0000, msg_end
 
 table "tables/dialog_chars.tbl",RTL
@@ -455,6 +458,12 @@ yapping_maw_msg:
     dw $0e00,$0e00,$0e00, "  YAPPING MAW SHINESPARK  ", $0e00,$0e00,$0e00
     dw $0e00,$0e00,$0e00, " END WITH NO INPUTS HELD! ", $0e00,$0e00,$0e00
 
+oob_msg:
+    dw $0e00,$0e00,$0e00, "        GAME CRASH!       ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "                          ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "       OUT-OF-BOUNDS      ", $0e00,$0e00,$0e00
+    dw $0e00,$0e00,$0e00, "    POSITION DETECTED!    ", $0e00,$0e00,$0e00
+    
 msg_end:
 
 warnPC !bank_85_free_space_end
@@ -485,7 +494,7 @@ check_unpause:
     sep #$20
     lda $00cf               ; pending crash ID
     stz $00cf
-    cmp #$22                ; springball?
+    cmp #$42                ; springball?
     bne .skip
     plp
     jmp $93c1               ; skip changing gamestate
