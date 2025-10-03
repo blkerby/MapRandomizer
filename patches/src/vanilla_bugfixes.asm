@@ -224,40 +224,20 @@ org $b4bda3
 ; This patch will initiate the death sequence if pause hit with auto-reserve enabled
 ; on exact frame that leads to crash.
 ;
-; (thanks to Benox50 for his initial patch)
+; (thanks to Benox50 for his initial patch, nn44/aquanight for the light pillar fix)
 
 !bank_82_free_space_start = $82fbf0
 !bank_82_free_space_end = $82fc30
 
-org $828cea
-    jsr pause_func                ; pause func
-
-org $82db80
-    jmp fix_reserve               ; health == 0, auto-reserve enabled, reserve health > 0
-
+org $828b3f
+    jsr pause_func : nop          ; gamestate 1Ch (unused) handler
+    
 org !bank_82_free_space_start
 pause_func:
-    lda $998
-    cmp #$001b                    ; game state already set to reserve on crash frame?
-    bne .leave
-    lda #$0041
+    lda #$0041                    ; msg ID
     jsl bug_dialog
+    stz $9d6                      ; clear reserve health
     rts
-
-.leave
-    inc $998                      ; replaced code
-    rts
-
-fix_reserve:
-    lda $998
-    cmp #$0013                    ; death seq already initiated?
-    bcc .leave_2
-    plp                           ; if so, leave func
-    rts
-
-.leave_2
-    lda #$8000                    ; replaced code
-    jmp $db83
 
 warnpc !bank_82_free_space_end
 
