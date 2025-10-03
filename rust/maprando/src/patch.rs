@@ -490,6 +490,7 @@ impl Patcher<'_> {
                 "fix_transition_bad_tiles",
                 "fix_horiz_doors",
                 "fix_dust_torizo",
+                "fix_choot",
             ]);
         }
 
