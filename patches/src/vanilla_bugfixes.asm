@@ -491,4 +491,4 @@ warnPC !bank_82_free_space2_end
 ; well as infinite horizontal scrolling.
 
 org $829f90
-    adc #$007c
+    adc #$7c
