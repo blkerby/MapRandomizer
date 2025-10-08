@@ -1260,7 +1260,7 @@
     "room_name": "Lava Dive Room",
     "notable_id": 8,
     "name": "HiJumpless Dive",
-    "difficulty": "Expert",
+    "difficulty": "Extreme",
     "video_id": 422
   },
   {
@@ -3046,6 +3046,22 @@
     "name": "Door Stuck Flatley Jump",
     "difficulty": "Insane",
     "video_id": 7261
+  },
+  {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 16,
+    "name": "Cross-Room Tricky Spring Ball Bounce (Right to Left)",
+    "difficulty": "Extreme",
+    "video_id": 8133
+  },
+  {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 17,
+    "name": "Cross-Room Tricky Spring Ball Bounce (Left to Right)",
+    "difficulty": "Extreme",
+    "video_id": 8039
   },
   {
     "room_id": 198,

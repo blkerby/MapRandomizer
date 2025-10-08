@@ -959,6 +959,11 @@
             "enabled": false
         },
         {
+            "id": 210,
+            "name": "canSlopeSpark",
+            "enabled": false
+        },
+        {
             "id": 142,
             "name": "canTrickyCarryFlashSuit",
             "enabled": false
@@ -1993,13 +1998,6 @@
             "enabled": true
         },
         {
-            "room_id": 115,
-            "notable_id": 8,
-            "room_name": "Lava Dive Room",
-            "notable_name": "HiJumpless Dive",
-            "enabled": true
-        },
-        {
             "room_id": 112,
             "notable_id": 1,
             "room_name": "Lava Grapple Tunnel",
@@ -2840,6 +2838,13 @@
             "enabled": false
         },
         {
+            "room_id": 115,
+            "notable_id": 8,
+            "room_name": "Lava Dive Room",
+            "notable_name": "HiJumpless Dive",
+            "enabled": false
+        },
+        {
             "room_id": 121,
             "notable_id": 1,
             "room_name": "Crocomire Escape",
@@ -3187,6 +3192,20 @@
             "notable_id": 14,
             "room_name": "East Sand Hall",
             "notable_name": "Suitless Bootless Evir Climb",
+            "enabled": false
+        },
+        {
+            "room_id": 210,
+            "notable_id": 16,
+            "room_name": "East Sand Hall",
+            "notable_name": "Cross-Room Tricky Spring Ball Bounce (Right to Left)",
+            "enabled": false
+        },
+        {
+            "room_id": 210,
+            "notable_id": 17,
+            "room_name": "East Sand Hall",
+            "notable_name": "Cross-Room Tricky Spring Ball Bounce (Left to Right)",
             "enabled": false
         },
         {

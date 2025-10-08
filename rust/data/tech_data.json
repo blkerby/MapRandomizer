@@ -942,6 +942,12 @@
         "video_id": 6495
     },
     {
+        "tech_id": 210,
+        "name": "canSlopeSpark",
+        "difficulty": "Insane",
+        "video_id": 8092
+    },
+    {
         "tech_id": 208,
         "name": "canComplexCarryFlashSuit",
         "difficulty": "Extreme",
