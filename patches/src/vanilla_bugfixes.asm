@@ -484,3 +484,11 @@ check_unpause:
     jmp $93be
 
 warnPC !bank_82_free_space2_end
+
+; Map scrolling bug
+; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
+; the 2nd page of an area. This can lead to shifted map placement as 
+; well as infinite horizontal scrolling.
+
+org $829f90
+    adc #$7c
