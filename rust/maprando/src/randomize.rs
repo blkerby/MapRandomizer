@@ -25,14 +25,15 @@ use maprando_game::{
     GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId,
     Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
     RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment, SparkPosition,
-    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_DISABLE_EQUIPMENT,
-    TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
-    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
-    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
-    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP,
-    TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_FLASH_SUIT,
+    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
+    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
+    TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
+    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
+    TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
+    TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
     TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
     VertexKey,
@@ -1887,6 +1888,10 @@ impl<'a> Preprocessor<'a> {
         ));
         match exit_condition {
             ExitCondition::LeaveShinecharged { .. } => Some(Requirement::Free),
+            ExitCondition::LeaveNormally {} => Some(Requirement::UseFlashSuit {
+                carry_flash_suit_tech_idx: self.game_data.tech_isv.index_by_key
+                    [&TECH_ID_CAN_CARRY_FLASH_SUIT],
+            }),
             ExitCondition::LeaveWithRunway {
                 effective_length,
                 min_extra_run_speed: _,
@@ -1924,6 +1929,10 @@ impl<'a> Preprocessor<'a> {
         exit_condition: &ExitCondition,
     ) -> Option<Requirement> {
         match exit_condition {
+            ExitCondition::LeaveNormally {} => Some(Requirement::UseFlashSuit {
+                carry_flash_suit_tech_idx: self.game_data.tech_isv.index_by_key
+                    [&TECH_ID_CAN_CARRY_FLASH_SUIT],
+            }),
             ExitCondition::LeaveShinecharged { physics } => {
                 if *physics != Some(Physics::Air) {
                     return None;
@@ -2026,6 +2035,10 @@ impl<'a> Preprocessor<'a> {
             ));
         }
         match exit_condition {
+            ExitCondition::LeaveNormally {} => Some(Requirement::UseFlashSuit {
+                carry_flash_suit_tech_idx: self.game_data.tech_isv.index_by_key
+                    [&TECH_ID_CAN_CARRY_FLASH_SUIT],
+            }),
             ExitCondition::LeaveWithSpark { position, .. } => {
                 if *position == come_in_position
                     || *position == SparkPosition::Any

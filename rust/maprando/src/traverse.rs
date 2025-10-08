@@ -1787,11 +1787,15 @@ fn apply_requirement_simple(
                     return SimpleResult::Failure;
                 }
                 local.flash_suit = true;
+                local.shinecharge_frames_remaining = 0;
                 SimpleResult::Success
             } else if !local.flash_suit {
                 SimpleResult::Failure
             } else {
                 local.flash_suit = false;
+                // Set shinecharge frames remaining to 180, to allow `comeInShinecharged`
+                // strats to be satisfied by a flash suit.
+                local.shinecharge_frames_remaining = 180;
                 SimpleResult::Success
             }
         }

@@ -238,6 +238,8 @@ pub struct SpoilerRouteEntry {
     pub supers: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub power_bombs: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub flash_suit: Option<bool>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub relevant_flags: Vec<String>,
 }
@@ -572,6 +574,7 @@ pub fn get_spoiler_route(
             missiles: Some(new_local_state.missiles.0),
             supers: Some(new_local_state.supers.0),
             power_bombs: Some(new_local_state.power_bombs.0),
+            flash_suit: Some(new_local_state.flash_suit),
             relevant_flags,
         };
         route.push(spoiler_entry);
@@ -597,6 +600,9 @@ pub fn get_spoiler_route(
         }
         if route[i + 1].power_bombs == route[i].power_bombs {
             route[i + 1].power_bombs = None;
+        }
+        if route[i + 1].flash_suit == route[i].flash_suit {
+            route[i + 1].flash_suit = None;
         }
     }
     route

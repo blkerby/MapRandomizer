@@ -945,6 +945,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			else
 				out += `PBs consumed: ${-k.power_bombs - 1}<br>`;
 		}
+		if (k.flash_suit !== undefined) {
+			out += `Flash suit: ${k.flash_suit}<br>`;
+		}
 		return out;
 	}
 	
@@ -1069,9 +1072,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 
 			if (k.strat_id !== null) {
-				nodeStr = `<a class="room-link" href="${strat_url}">${k.room}: ${k.node}</a><br>`;
+				nodeStr = `<a class="room-link" href="${strat_url}">${k.node}</a><br>`;
 			} else {
-				nodeStr = `${k.room}: ${k.node}<br>`;
+				nodeStr = `${k.node}<br>`;
 			}
 			if (k.room != lastRoom || k.node != lastNode || k.strat_id !== null) {
 				let node_div = createDiv(nodeStr);
@@ -1087,15 +1090,15 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 						title += `${i} `;
 					}
 					if (k.strat_id !== null) {
-						out += `Strat: <a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+						out += `<a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
 					} else {
-						out += `Strat: <abbr title="${title}">${k.strat_name}</abbr><br>`;
+						out += `<abbr title="${title}">${k.strat_name}</abbr><br>`;
 					}
 				} else {
 					if (k.strat_id !== null) {
-						out += `Strat: <a href=${strat_url}>${k.strat_name}</a><br>`;
+						out += `<a href=${strat_url}>${k.strat_name}</a><br>`;
 					} else {
-						out += `Strat: ${k.strat_name}<br>`;
+						out += `${k.strat_name}<br>`;
 					}
 				}
 			}
@@ -1158,6 +1161,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 	}
 	function flagIcons(p, flags, j=null) {
+		let d = document.createElement("div");
+		d.className = "item-list";
 		for (i in flags) {
 			let x = flags[i]
 			let f = x;
@@ -1183,8 +1188,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			e.onmouseleave = ev => {
 				document.getElementById(f).classList.remove("highlight");
 			}
-			p.appendChild(e);
+			d.appendChild(e);
 		}
+		p.appendChild(d);
 	}
 	function showFlag(details, flagName, mapflag=false) {
 		for (let stepNum in details) {

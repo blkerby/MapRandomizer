@@ -5676,6 +5676,16 @@ impl GameData {
         //     }
         // }
 
+        // List the longest node names:
+        // let mut node_names: Vec<String> = vec![];
+        // for node in game_data.node_json_map.values() {
+        //     node_names.push(node["name"].as_str().unwrap().to_string());
+        // }
+        // node_names.sort_by_key(|x| -(x.len() as isize));
+        // for name in node_names.iter().take(100) {
+        //     println!("{}", name);
+        // }
+
         Ok(game_data)
     }
 }

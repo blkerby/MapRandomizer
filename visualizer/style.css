@@ -74,6 +74,7 @@ a {
 .room-route {
 	display: none;
 	padding: 5px;
+	padding-left: 20px;
 }
 .route-consumables, .route-flags, .route-strat{
 	padding-left: 10px;
@@ -103,7 +104,8 @@ a {
 	margin-top: 12px;
 }
 .item-list {
-	width: 440px;
+	width: 360px;
+	padding-right: 10px;
 }
 .category {
 	font-size: small;
