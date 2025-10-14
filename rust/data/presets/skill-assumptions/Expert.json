@@ -394,13 +394,13 @@
             "enabled": true
         },
         {
-            "id": 84,
-            "name": "canJumpIntoRespawningBlock",
+            "id": 75,
+            "name": "canCWJ",
             "enabled": true
         },
         {
-            "id": 197,
-            "name": "canSidePlatformCrossRoomJump",
+            "id": 84,
+            "name": "canJumpIntoRespawningBlock",
             "enabled": true
         },
         {
@@ -446,6 +446,11 @@
         {
             "id": 131,
             "name": "canAutoCancelWeapon",
+            "enabled": true
+        },
+        {
+            "id": 197,
+            "name": "canSidePlatformCrossRoomJump",
             "enabled": true
         },
         {
@@ -571,11 +576,6 @@
         {
             "id": 73,
             "name": "canTrickyDashJump",
-            "enabled": true
-        },
-        {
-            "id": 75,
-            "name": "canCWJ",
             "enabled": true
         },
         {
@@ -964,8 +964,18 @@
             "enabled": false
         },
         {
+            "id": 213,
+            "name": "canRModeKnockbackSpark",
+            "enabled": false
+        },
+        {
             "id": 142,
             "name": "canTrickyCarryFlashSuit",
+            "enabled": false
+        },
+        {
+            "id": 214,
+            "name": "canFlashSuitDoubleSpark",
             "enabled": false
         },
         {
@@ -1816,6 +1826,13 @@
             "enabled": true
         },
         {
+            "room_id": 7,
+            "notable_id": 4,
+            "room_name": "The Moat",
+            "notable_name": "First-Try CWJ",
+            "enabled": true
+        },
+        {
             "room_id": 32,
             "notable_id": 6,
             "room_name": "West Ocean",
@@ -1987,7 +2004,7 @@
             "room_id": 115,
             "notable_id": 3,
             "room_name": "Lava Dive Room",
-            "notable_name": "Shinespark",
+            "notable_name": "Damage Boost Shinespark",
             "enabled": true
         },
         {
@@ -2134,7 +2151,7 @@
             "room_id": 137,
             "notable_id": 1,
             "room_name": "Red Kihunter Shaft",
-            "notable_name": "KiHunter Dodge",
+            "notable_name": "Kihunter Dodge",
             "enabled": true
         },
         {
@@ -2155,7 +2172,7 @@
             "room_id": 135,
             "notable_id": 2,
             "room_name": "The Worst Room In The Game",
-            "notable_name": "PowerBombs and a Jump Assist",
+            "notable_name": "Power Bombs and a Jump Assist",
             "enabled": true
         },
         {
@@ -2918,7 +2935,7 @@
             "room_id": 144,
             "notable_id": 2,
             "room_name": "Mickey Mouse Room",
-            "notable_name": "Temporary Blue Crumble Jump without SpringBall",
+            "notable_name": "Temporary Blue Crumble Jump without Spring Ball",
             "enabled": false
         },
         {
@@ -3549,6 +3566,13 @@
             "notable_id": 4,
             "room_name": "Screw Attack Room",
             "notable_name": "Doorway CWJ",
+            "enabled": false
+        },
+        {
+            "room_id": 136,
+            "notable_id": 3,
+            "room_name": "Amphitheatre",
+            "notable_name": "Thread the Needle Shinespark",
             "enabled": false
         },
         {

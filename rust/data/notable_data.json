@@ -344,6 +344,14 @@
     "video_id": 7142
   },
   {
+    "room_id": 7,
+    "room_name": "The Moat",
+    "notable_id": 4,
+    "name": "First-Try CWJ",
+    "difficulty": "Expert",
+    "video_id": 721
+  },
+  {
     "room_id": 32,
     "room_name": "West Ocean",
     "notable_id": 1,
@@ -1219,7 +1227,7 @@
     "room_id": 115,
     "room_name": "Lava Dive Room",
     "notable_id": 3,
-    "name": "Shinespark",
+    "name": "Damage Boost Shinespark",
     "difficulty": "Expert",
     "video_id": 427
   },
@@ -1688,6 +1696,14 @@
     "video_id": 374
   },
   {
+    "room_id": 136,
+    "room_name": "Amphitheatre",
+    "notable_id": 3,
+    "name": "Thread the Needle Shinespark",
+    "difficulty": "Insane",
+    "video_id": 8400
+  },
+  {
     "room_id": 145,
     "room_name": "Lower Norfair Fireflea Room",
     "notable_id": 2,
@@ -1739,7 +1755,7 @@
     "room_id": 144,
     "room_name": "Mickey Mouse Room",
     "notable_id": 2,
-    "name": "Temporary Blue Crumble Jump without SpringBall",
+    "name": "Temporary Blue Crumble Jump without Spring Ball",
     "difficulty": "Extreme",
     "video_id": 367
   },
@@ -1771,7 +1787,7 @@
     "room_id": 137,
     "room_name": "Red Kihunter Shaft",
     "notable_id": 1,
-    "name": "KiHunter Dodge",
+    "name": "Kihunter Dodge",
     "difficulty": "Expert",
     "video_id": 520
   },
@@ -1835,7 +1851,7 @@
     "room_id": 135,
     "room_name": "The Worst Room In The Game",
     "notable_id": 2,
-    "name": "PowerBombs and a Jump Assist",
+    "name": "Power Bombs and a Jump Assist",
     "difficulty": "Expert",
     "video_id": 342
   },

@@ -3752,6 +3752,22 @@
     "dev_note": ""
   },
   {
+    "room_id": 20,
+    "strat_id": 21,
+    "video_id": 8465,
+    "created_user": "maddo",
+    "note": "Spark from near the door, holding dash",
+    "dev_note": "Recorded using TAS"
+  },
+  {
+    "room_id": 20,
+    "strat_id": 21,
+    "video_id": 8505,
+    "created_user": "nn",
+    "note": " Spark from near the door, precise positioning",
+    "dev_note": ""
+  },
+  {
     "room_id": 36,
     "strat_id": 1,
     "video_id": 743,
@@ -3781,6 +3797,14 @@
     "video_id": 1005,
     "created_user": "maddo",
     "note": "Version without Morph",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
+    "strat_id": 22,
+    "video_id": 8309,
+    "created_user": "Sam",
+    "note": "With Flash Suit",
     "dev_note": ""
   },
   {
@@ -3854,6 +3878,38 @@
     "created_user": "Sam",
     "note": "Frozen Enemy Platform",
     "dev_note": "Caveat: this uses a crouch jump, which logically isn't expected"
+  },
+  {
+    "room_id": 36,
+    "strat_id": 21,
+    "video_id": 8308,
+    "created_user": "Sam",
+    "note": "Bottom Shortcut, Suitless with Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
+    "strat_id": 21,
+    "video_id": 8305,
+    "created_user": "Sam",
+    "note": "Bottom Shortcut, Suitless with Walljump and Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
+    "strat_id": 21,
+    "video_id": 8306,
+    "created_user": "Sam",
+    "note": "Bottom Shortcut, Gravity Suit & Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
+    "strat_id": 21,
+    "video_id": 8307,
+    "created_user": "Sam",
+    "note": "Bottom Shortcut, Suitless Walljumpless with Hi-Jump & Power Bomb",
+    "dev_note": ""
   },
   {
     "room_id": 24,
@@ -4636,16 +4692,16 @@
     "strat_id": 12,
     "video_id": 721,
     "created_user": "Nito",
-    "note": "I couldn't find a timing that worked with Speed Booster on, only with it turned off.",
+    "note": "",
     "dev_note": ""
   },
   {
     "room_id": 7,
     "strat_id": 13,
-    "video_id": 4736,
+    "video_id": 4739,
     "created_user": "maddo",
-    "note": "Door subpixel normalization (mid-air turnaround)",
-    "dev_note": "This normalization provides a 2-frame window for the wall jump, regardless of which of the two possible subpixel positions Samus starts from."
+    "note": "Overhang subpixel normalization (on-ground turnaround)",
+    "dev_note": "canCWJ\nThis normalization provides a 2-frame window for the wall jump, regardless of which of the two possible subpixel positions Samus starts from."
   },
   {
     "room_id": 7,
@@ -4658,10 +4714,10 @@
   {
     "room_id": 7,
     "strat_id": 13,
-    "video_id": 4739,
+    "video_id": 4736,
     "created_user": "maddo",
-    "note": "Overhang subpixel normalization (on-ground turnaround)",
-    "dev_note": "canCWJ\nThis normalization provides a 2-frame window for the wall jump, regardless of which of the two possible subpixel positions Samus starts from."
+    "note": "Door subpixel normalization (mid-air turnaround)",
+    "dev_note": "This normalization provides a 2-frame window for the wall jump, regardless of which of the two possible subpixel positions Samus starts from."
   },
   {
     "room_id": 7,
@@ -4993,6 +5049,14 @@
   },
   {
     "room_id": 32,
+    "strat_id": 25,
+    "video_id": 8531,
+    "created_user": "Sam",
+    "note": "Aim-down Setup",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
     "strat_id": 145,
     "video_id": 7426,
     "created_user": "Sam",
@@ -5006,6 +5070,14 @@
     "created_user": "Sam",
     "note": "Maintain an angle button after the second Moonfall to land inside the bridge. Respectively, the right door inside the bridge will connect to the bottom right door of West Ocean and the left door will connect to the bottom left door of West Ocean. This allows for Doorlocks skip.",
     "dev_note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 26,
+    "video_id": 8532,
+    "created_user": "Sam",
+    "note": "Aim-down Setup",
+    "dev_note": "Shows a back-up if clipped inside the wall"
   },
   {
     "room_id": 32,
@@ -7705,8 +7777,144 @@
   },
   {
     "room_id": 44,
+    "strat_id": 7,
+    "video_id": 8477,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: logic expects using the full runway and sliding off (landing on the single-tile floating platform)"
+  },
+  {
+    "room_id": 44,
+    "strat_id": 8,
+    "video_id": 8490,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 9,
+    "video_id": 8491,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 10,
+    "video_id": 8482,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 11,
+    "video_id": 8478,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 12,
+    "video_id": 8489,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 13,
+    "video_id": 8483,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 15,
+    "video_id": 8492,
+    "created_user": "Sam",
+    "note": "Moonfall",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 16,
+    "video_id": 8493,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 18,
+    "video_id": 8494,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 19,
+    "video_id": 8484,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 20,
+    "video_id": 8486,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 21,
+    "video_id": 8487,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 23,
     "video_id": 3496,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 24,
+    "video_id": 8457,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: This uses quite a bit less than the expected runway. The logic would instead expect to slide off the edge, landing on the single-tile floating platform."
+  },
+  {
+    "room_id": 44,
+    "strat_id": 25,
+    "video_id": 8455,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 26,
+    "video_id": 8456,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: This uses quite a lot more shinecharge frames than logically expected"
+  },
+  {
+    "room_id": 44,
+    "strat_id": 27,
+    "video_id": 8458,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -7745,8 +7953,104 @@
   },
   {
     "room_id": 44,
+    "strat_id": 32,
+    "video_id": 8460,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: This leaves with fewer frames remaining than logic expects. Logic would expect sliding off the edge while gaining the shinecharge."
+  },
+  {
+    "room_id": 44,
+    "strat_id": 34,
+    "video_id": 8470,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 35,
+    "video_id": 8473,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 37,
+    "video_id": 8474,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 38,
+    "video_id": 8472,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 39,
+    "video_id": 8466,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 40,
+    "video_id": 8475,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 41,
+    "video_id": 8471,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 42,
+    "video_id": 8467,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 43,
+    "video_id": 8468,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 44,
+    "video_id": 8469,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 46,
     "video_id": 3499,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 47,
+    "video_id": 8302,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -7757,6 +8061,254 @@
     "video_id": 2872,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 49,
+    "video_id": 8385,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 50,
+    "video_id": 8384,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 51,
+    "video_id": 8383,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 52,
+    "video_id": 8390,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 53,
+    "video_id": 8389,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 54,
+    "video_id": 8388,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 55,
+    "video_id": 8387,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 56,
+    "video_id": 8395,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 57,
+    "video_id": 8393,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 59,
+    "video_id": 8394,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 60,
+    "video_id": 8396,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 61,
+    "video_id": 8301,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 61,
+    "video_id": 8364,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 62,
+    "video_id": 8299,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 62,
+    "video_id": 8363,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 63,
+    "video_id": 8365,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 64,
+    "video_id": 8293,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 64,
+    "video_id": 8371,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 65,
+    "video_id": 8291,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 65,
+    "video_id": 8370,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 66,
+    "video_id": 8294,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 66,
+    "video_id": 8369,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 67,
+    "video_id": 8297,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 67,
+    "video_id": 8368,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 68,
+    "video_id": 8295,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 68,
+    "video_id": 8366,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 69,
+    "video_id": 8296,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 69,
+    "video_id": 8367,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: uses more shinecharge frames than logically expected"
+  },
+  {
+    "room_id": 44,
+    "strat_id": 70,
+    "video_id": 8373,
+    "created_user": "Sam",
+    "note": "X-Ray",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 70,
+    "video_id": 8298,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 70,
+    "video_id": 8372,
+    "created_user": "Sam",
+    "note": "Hi-Jump",
     "dev_note": ""
   },
   {
@@ -7785,8 +8337,80 @@
   },
   {
     "room_id": 44,
+    "strat_id": 75,
+    "video_id": 8374,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 76,
+    "video_id": 8376,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 77,
+    "video_id": 8378,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 78,
+    "video_id": 8375,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 79,
+    "video_id": 8381,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 80,
+    "video_id": 8380,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 81,
+    "video_id": 8379,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 82,
+    "video_id": 8382,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 86,
     "video_id": 3497,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 87,
+    "video_id": 8429,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -7801,8 +8425,96 @@
   },
   {
     "room_id": 44,
+    "strat_id": 89,
+    "video_id": 8415,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects using the full runway (and it might be required), so it would be better to show that."
+  },
+  {
+    "room_id": 44,
+    "strat_id": 90,
+    "video_id": 8431,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 91,
+    "video_id": 8414,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 92,
     "video_id": 2870,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 95,
+    "video_id": 8432,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 96,
+    "video_id": 8434,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 97,
+    "video_id": 8433,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 98,
+    "video_id": 8426,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 99,
+    "video_id": 8427,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 99,
+    "video_id": 8430,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 100,
+    "video_id": 8428,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 101,
+    "video_id": 8413,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -7819,6 +8531,38 @@
     "room_id": 44,
     "strat_id": 107,
     "video_id": 1842,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 114,
+    "video_id": 8412,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 115,
+    "video_id": 8410,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 115,
+    "video_id": 8451,
+    "created_user": "Sam",
+    "note": "Speedball Entry",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 116,
+    "video_id": 8409,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -7849,6 +8593,22 @@
   },
   {
     "room_id": 44,
+    "strat_id": 121,
+    "video_id": 8436,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 122,
+    "video_id": 8444,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 123,
     "video_id": 2869,
     "created_user": "Sam",
@@ -7857,9 +8617,81 @@
   },
   {
     "room_id": 44,
+    "strat_id": 124,
+    "video_id": 8437,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 125,
+    "video_id": 8445,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 126,
+    "video_id": 8438,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 127,
+    "video_id": 8440,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 128,
+    "video_id": 8439,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 129,
+    "video_id": 8443,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 129,
+    "video_id": 8442,
+    "created_user": "Sam",
+    "note": "Speedy Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 130,
+    "video_id": 8441,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 131,
     "video_id": 3136,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 132,
+    "video_id": 8446,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -7877,6 +8709,38 @@
     "video_id": 2113,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 145,
+    "video_id": 8447,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 146,
+    "video_id": 8448,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 147,
+    "video_id": 8449,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 147,
+    "video_id": 8450,
+    "created_user": "Sam",
+    "note": "Speedball Entry",
     "dev_note": ""
   },
   {
@@ -8001,6 +8865,22 @@
   },
   {
     "room_id": 44,
+    "strat_id": 171,
+    "video_id": 8509,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 172,
+    "video_id": 8511,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 173,
     "video_id": 2875,
     "created_user": "Sam",
@@ -8009,8 +8889,40 @@
   },
   {
     "room_id": 44,
+    "strat_id": 174,
+    "video_id": 8516,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 175,
     "video_id": 2864,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 176,
+    "video_id": 8518,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 177,
+    "video_id": 8517,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 178,
+    "video_id": 8519,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -8089,9 +9001,33 @@
   },
   {
     "room_id": 44,
+    "strat_id": 189,
+    "video_id": 8495,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
     "strat_id": 194,
     "video_id": 204,
     "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 194,
+    "video_id": 8499,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 195,
+    "video_id": 8496,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -8249,6 +9185,14 @@
   },
   {
     "room_id": 44,
+    "strat_id": 231,
+    "video_id": 8303,
+    "created_user": "Sam",
+    "note": "Turnaround Clip",
+    "dev_note": "Recorded at 83% speed"
+  },
+  {
+    "room_id": 44,
     "strat_id": 232,
     "video_id": 292,
     "created_user": "Osse101",
@@ -8309,6 +9253,14 @@
     "video_id": 1029,
     "created_user": "kyleb",
     "note": "canConsecutiveWalljump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 240,
+    "video_id": 8525,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -8545,6 +9497,14 @@
   },
   {
     "room_id": 54,
+    "strat_id": 27,
+    "video_id": 8530,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 54,
     "strat_id": 30,
     "video_id": 2641,
     "created_user": "Sam",
@@ -8582,6 +9542,14 @@
     "created_user": "Nito",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 54,
+    "strat_id": 32,
+    "video_id": 8279,
+    "created_user": "Sam",
+    "note": "Horizontal spark",
+    "dev_note": "Caveat: A diagonal spark is recommended to make this easier."
   },
   {
     "room_id": 54,
@@ -11097,6 +12065,14 @@
   },
   {
     "room_id": 61,
+    "strat_id": 86,
+    "video_id": 8269,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 61,
     "strat_id": 88,
     "video_id": 5024,
     "created_user": "maddo",
@@ -11670,6 +12646,14 @@
     "created_user": "Sam",
     "note": "The Samus eater will chew 7 times before releasing Samus. To maximize the shinecharge time, crouch on the 8th mouth opening.",
     "dev_note": "Caveat: Ideally, the \"Shinespark timer\" Infohud mode would be used, to be able to see the shinecharge frames."
+  },
+  {
+    "room_id": 76,
+    "strat_id": 7,
+    "video_id": 8288,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 76,
@@ -13977,6 +14961,22 @@
   },
   {
     "room_id": 83,
+    "strat_id": 47,
+    "video_id": 8510,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 83,
+    "strat_id": 48,
+    "video_id": 8514,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 83,
     "strat_id": 9,
     "video_id": 8070,
     "created_user": "Sam",
@@ -14096,9 +15096,33 @@
     "dev_note": ""
   },
   {
+    "room_id": 83,
+    "strat_id": 50,
+    "video_id": 8512,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 83,
+    "strat_id": 51,
+    "video_id": 8513,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
     "room_id": 84,
     "strat_id": 2,
     "video_id": 6501,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 84,
+    "strat_id": 7,
+    "video_id": 8271,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -14129,6 +15153,14 @@
   },
   {
     "room_id": 84,
+    "strat_id": 29,
+    "video_id": 8273,
+    "created_user": "Sam",
+    "note": "2 Shots Quick Kill with Plasma and Ice Beam",
+    "dev_note": ""
+  },
+  {
+    "room_id": 84,
     "strat_id": 30,
     "video_id": 3074,
     "created_user": "Sam",
@@ -14137,10 +15169,26 @@
   },
   {
     "room_id": 84,
+    "strat_id": 30,
+    "video_id": 8277,
+    "created_user": "Sam",
+    "note": "Quick Kill with 11 Missiles",
+    "dev_note": ""
+  },
+  {
+    "room_id": 84,
     "strat_id": 31,
     "video_id": 3073,
     "created_user": "Sam",
     "note": "Quick Kill with 4 Supers.",
+    "dev_note": ""
+  },
+  {
+    "room_id": 84,
+    "strat_id": 31,
+    "video_id": 8274,
+    "created_user": "Sam",
+    "note": "Quick Kill with 2 Missiles and 3 Supers",
     "dev_note": ""
   },
   {
@@ -14195,6 +15243,14 @@
     "room_id": 84,
     "strat_id": 17,
     "video_id": 6500,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 84,
+    "strat_id": 22,
+    "video_id": 8272,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -18153,6 +19209,14 @@
   },
   {
     "room_id": 115,
+    "strat_id": 2,
+    "video_id": 8289,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "FIXME: tighten the logical shineChargeFrames"
+  },
+  {
+    "room_id": 115,
     "strat_id": 44,
     "video_id": 819,
     "created_user": "maddo",
@@ -18245,6 +19309,62 @@
     "video_id": 99,
     "created_user": "Osse101",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 56,
+    "video_id": 8422,
+    "created_user": "maddo",
+    "note": "With both suits",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 56,
+    "video_id": 8424,
+    "created_user": "maddo",
+    "note": "Gravity only",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 57,
+    "video_id": 8416,
+    "created_user": "maddo",
+    "note": "Bounceball, With Varia",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 57,
+    "video_id": 8417,
+    "created_user": "maddo",
+    "note": "Bounceball, Suitless",
+    "dev_note": "Made with a save state after the bounce ball entry"
+  },
+  {
+    "room_id": 115,
+    "strat_id": 57,
+    "video_id": 8418,
+    "created_user": "maddo",
+    "note": "Aim-down entry, with Varia",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 57,
+    "video_id": 8419,
+    "created_user": "maddo",
+    "note": "Perfect aim-down entry, with Varia",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 57,
+    "video_id": 8421,
+    "created_user": "maddo",
+    "note": "Aim-down entry, suitless",
     "dev_note": ""
   },
   {
@@ -18350,6 +19470,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": "FIXME: Add info to strat:\nEnter the lava with a good speed and bounce on the middle ledge below the second Namihe then unmorph at the right time to lose minimal speed. Lateral Morph from the leftmost point of the ledge in front of the third Namihe and double Springball Jump."
+  },
+  {
+    "room_id": 115,
+    "strat_id": 48,
+    "video_id": 8290,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 115,
@@ -19897,6 +21025,14 @@
   },
   {
     "room_id": 117,
+    "strat_id": 6,
+    "video_id": 8637,
+    "created_user": "Sam",
+    "note": "With Varia and Wall Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 117,
     "strat_id": 7,
     "video_id": 6467,
     "created_user": "maddo",
@@ -20009,10 +21145,58 @@
   },
   {
     "room_id": 94,
+    "strat_id": 4,
+    "video_id": 8310,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
     "strat_id": 51,
     "video_id": 4582,
     "created_user": "maddo",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 5,
+    "video_id": 8313,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 6,
+    "video_id": 8314,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 8,
+    "video_id": 8312,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 52,
+    "video_id": 8317,
+    "created_user": "Sam",
+    "note": "Speedball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 52,
+    "video_id": 8316,
+    "created_user": "Sam",
+    "note": "Shinecharge and Chain",
     "dev_note": ""
   },
   {
@@ -20073,6 +21257,38 @@
   },
   {
     "room_id": 94,
+    "strat_id": 13,
+    "video_id": 8325,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 14,
+    "video_id": 8326,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 15,
+    "video_id": 8573,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 16,
+    "video_id": 8324,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
     "strat_id": 17,
     "video_id": 7519,
     "created_user": "Sam",
@@ -20081,9 +21297,33 @@
   },
   {
     "room_id": 94,
+    "strat_id": 55,
+    "video_id": 8329,
+    "created_user": "Sam",
+    "note": "Speedball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 55,
+    "video_id": 8328,
+    "created_user": "Sam",
+    "note": "Shinecharge and chain",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
     "strat_id": 21,
     "video_id": 4583,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 22,
+    "video_id": 8311,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -20174,6 +21414,14 @@
     "created_user": "maddo",
     "note": "Suitless",
     "dev_note": ""
+  },
+  {
+    "room_id": 94,
+    "strat_id": 43,
+    "video_id": 8330,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: it would be more ideal to show moonwalking back 2 pixels since that is optimal; other distances have potential for bad subpixels which can make the trick fail"
   },
   {
     "room_id": 94,
@@ -20281,9 +21529,41 @@
   },
   {
     "room_id": 86,
+    "strat_id": 4,
+    "video_id": 8546,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 6,
+    "video_id": 8537,
+    "created_user": "Sam",
+    "note": "Sova Avoid",
+    "dev_note": "FIXME: the logic here probably needs a closer look to account for run speed, both for how it affects the Sova, and tripping on the slope."
+  },
+  {
+    "room_id": 86,
     "strat_id": 162,
     "video_id": 4599,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 7,
+    "video_id": 8538,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 8,
+    "video_id": 8539,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -20305,11 +21585,35 @@
   },
   {
     "room_id": 86,
+    "strat_id": 9,
+    "video_id": 8540,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
     "strat_id": 165,
     "video_id": 4598,
     "created_user": "maddo",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 10,
+    "video_id": 8545,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 11,
+    "video_id": 8541,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: The logic expects using the full runway, sliding off the edge.\nFIXME: This variation would be good to add, since it saves shinecharge frames at the expense of runway for the shortcharge."
   },
   {
     "room_id": 86,
@@ -20339,6 +21643,14 @@
     "room_id": 86,
     "strat_id": 16,
     "video_id": 6454,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 17,
+    "video_id": 8544,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -20505,6 +21817,38 @@
   },
   {
     "room_id": 86,
+    "strat_id": 76,
+    "video_id": 8569,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 77,
+    "video_id": 8570,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 78,
+    "video_id": 8564,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects using the full runway.\nFIXME: this is a good variation to add to logic."
+  },
+  {
+    "room_id": 86,
+    "strat_id": 79,
+    "video_id": 8566,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects using the full runway.\nFIXME: this is a good variation to add to logic."
+  },
+  {
+    "room_id": 86,
     "strat_id": 180,
     "video_id": 4626,
     "created_user": "maddo",
@@ -20534,6 +21878,38 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 83,
+    "video_id": 8571,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 84,
+    "video_id": 8572,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 85,
+    "video_id": 8567,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects using the full runway.\nFIXME: this is a good variation to add to logic."
+  },
+  {
+    "room_id": 86,
+    "strat_id": 86,
+    "video_id": 8568,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects using the full runway.\nFIXME: this is a good variation to add to logic."
   },
   {
     "room_id": 86,
@@ -20633,6 +22009,30 @@
   },
   {
     "room_id": 86,
+    "strat_id": 117,
+    "video_id": 8547,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 119,
+    "video_id": 8553,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects sparking almost immediately after entering the room."
+  },
+  {
+    "room_id": 86,
+    "strat_id": 120,
+    "video_id": 8554,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
     "strat_id": 190,
     "video_id": 4602,
     "created_user": "maddo",
@@ -20641,11 +22041,67 @@
   },
   {
     "room_id": 86,
+    "strat_id": 121,
+    "video_id": 8548,
+    "created_user": "Sam",
+    "note": "Precise Spinjump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 121,
+    "video_id": 8549,
+    "created_user": "Sam",
+    "note": "Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 123,
+    "video_id": 8556,
+    "created_user": "Sam",
+    "note": "Missile",
+    "dev_note": "Caveat: the logic expects using fewer shinecharge frames, by using less runway.\nFIXME: this variant could be added to logic too."
+  },
+  {
+    "room_id": 86,
+    "strat_id": 123,
+    "video_id": 8557,
+    "created_user": "Sam",
+    "note": "Screw Attack",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 123,
+    "video_id": 8558,
+    "created_user": "Sam",
+    "note": "Speed Booster Only",
+    "dev_note": "FIXME: add this variant to logic (similar to the 6->3 strat?)"
+  },
+  {
+    "room_id": 86,
     "strat_id": 191,
     "video_id": 4603,
     "created_user": "maddo",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 126,
+    "video_id": 8559,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 127,
+    "video_id": 8562,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: the logic expects using the full runway, sliding off."
   },
   {
     "room_id": 86,
@@ -20660,6 +22116,14 @@
     "strat_id": 193,
     "video_id": 4608,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 128,
+    "video_id": 8560,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -20697,6 +22161,30 @@
   },
   {
     "room_id": 86,
+    "strat_id": 133,
+    "video_id": 8550,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 134,
+    "video_id": 8551,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 136,
+    "video_id": 8552,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
     "strat_id": 137,
     "video_id": 6459,
     "created_user": "Sam",
@@ -20718,6 +22206,22 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": "Caveat: logic would leave with 45 frames remaining"
+  },
+  {
+    "room_id": 86,
+    "strat_id": 143,
+    "video_id": 8535,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 86,
+    "strat_id": 144,
+    "video_id": 8534,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 121,
@@ -22697,6 +24201,30 @@
   },
   {
     "room_id": 108,
+    "strat_id": 6,
+    "video_id": 8287,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "FIXME: tighten the heatFrames in logic"
+  },
+  {
+    "room_id": 108,
+    "strat_id": 7,
+    "video_id": 8286,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 8,
+    "video_id": 8285,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
     "strat_id": 50,
     "video_id": 4900,
     "created_user": "Sam",
@@ -22787,6 +24315,14 @@
     "room_id": 108,
     "strat_id": 70,
     "video_id": 1991,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 20,
+    "video_id": 8283,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -22897,6 +24433,14 @@
   },
   {
     "room_id": 108,
+    "strat_id": 22,
+    "video_id": 8284,
+    "created_user": "Sam",
+    "note": "Super",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
     "strat_id": 24,
     "video_id": 1962,
     "created_user": "Sam",
@@ -22913,10 +24457,26 @@
   },
   {
     "room_id": 108,
+    "strat_id": 28,
+    "video_id": 8281,
+    "created_user": "Sam",
+    "note": "Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
     "strat_id": 30,
     "video_id": 1041,
     "created_user": "kyleb",
     "note": "canNeutralDamageBoost",
+    "dev_note": ""
+  },
+  {
+    "room_id": 108,
+    "strat_id": 74,
+    "video_id": 8282,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -25529,6 +27089,14 @@
   },
   {
     "room_id": 149,
+    "strat_id": 54,
+    "video_id": 8506,
+    "created_user": "Osse101",
+    "note": "Flash Suit Slope Clip",
+    "dev_note": ""
+  },
+  {
+    "room_id": 149,
     "strat_id": 33,
     "video_id": 4334,
     "created_user": "Sam",
@@ -26977,6 +28545,14 @@
   },
   {
     "room_id": 136,
+    "strat_id": 51,
+    "video_id": 8400,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
     "strat_id": 6,
     "video_id": 2407,
     "created_user": "Sam",
@@ -27001,10 +28577,82 @@
   },
   {
     "room_id": 136,
+    "strat_id": 52,
+    "video_id": 8399,
+    "created_user": "maddo",
+    "note": "Using flash suit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 53,
+    "video_id": 8398,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 54,
+    "video_id": 8397,
+    "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
     "strat_id": 7,
     "video_id": 5521,
     "created_user": "Sam",
     "note": "From Halfie Climb (Top Position)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 55,
+    "video_id": 8401,
+    "created_user": "maddo",
+    "note": "With both suits, breaking spin",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 55,
+    "video_id": 8402,
+    "created_user": "maddo",
+    "note": "Gravity Only, maintaining spin",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 55,
+    "video_id": 8406,
+    "created_user": "maddo",
+    "note": "With both suits, maintaining spin",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 56,
+    "video_id": 8403,
+    "created_user": "maddo",
+    "note": "With Varia, breaking spin",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 56,
+    "video_id": 8404,
+    "created_user": "maddo",
+    "note": "Suitless, breaking spin",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 56,
+    "video_id": 8405,
+    "created_user": "maddo",
+    "note": "Suitless, maintaining spin",
     "dev_note": ""
   },
   {
@@ -27061,6 +28709,14 @@
     "video_id": 2409,
     "created_user": "Sam",
     "note": "Spring Ball Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 136,
+    "strat_id": 23,
+    "video_id": 8278,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -30929,6 +32585,22 @@
   },
   {
     "room_id": 156,
+    "strat_id": 61,
+    "video_id": 8454,
+    "created_user": "nn",
+    "note": "Low or disabled E-tank count",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 61,
+    "video_id": 8533,
+    "created_user": "nn",
+    "note": "Crystal Flash",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
     "strat_id": 14,
     "video_id": 2671,
     "created_user": "Sam",
@@ -31036,6 +32708,14 @@
     "strat_id": 56,
     "video_id": 5648,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 62,
+    "video_id": 8574,
+    "created_user": "nn",
     "note": "",
     "dev_note": ""
   },
@@ -31180,6 +32860,14 @@
     "strat_id": 58,
     "video_id": 6782,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 63,
+    "video_id": 8575,
+    "created_user": "nn",
     "note": "",
     "dev_note": ""
   },
@@ -31665,6 +33353,14 @@
   },
   {
     "room_id": 165,
+    "strat_id": 11,
+    "video_id": 8528,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 165,
     "strat_id": 14,
     "video_id": 4300,
     "created_user": "Sam",
@@ -31699,6 +33395,14 @@
     "room_id": 165,
     "strat_id": 25,
     "video_id": 8121,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 165,
+    "strat_id": 26,
+    "video_id": 8529,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -49645,6 +51349,14 @@
     "video_id": 8263,
     "created_user": "Sam",
     "note": "Gravity Suit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 220,
+    "strat_id": 3,
+    "video_id": 8270,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {

@@ -500,7 +500,7 @@
     {
         "tech_id": 75,
         "name": "canCWJ",
-        "difficulty": "Expert",
+        "difficulty": "Very Hard",
         "video_id": 4739
     },
     {
@@ -568,12 +568,6 @@
         "name": "canJumpIntoRespawningBlock",
         "difficulty": "Very Hard",
         "video_id": 774
-    },
-    {
-        "tech_id": 197,
-        "name": "canSidePlatformCrossRoomJump",
-        "difficulty": "Very Hard",
-        "video_id": 5100
     },
     {
         "tech_id": 85,
@@ -858,6 +852,24 @@
         "video_id": 929
     },
     {
+        "tech_id": 211,
+        "name": "canDash",
+        "difficulty": "Implicit",
+        "video_id": 8681
+    },
+    {
+        "tech_id": 212,
+        "name": "canSpeedyJump",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 197,
+        "name": "canSidePlatformCrossRoomJump",
+        "difficulty": "Very Hard",
+        "video_id": 5100
+    },
+    {
         "tech_id": 132,
         "name": "canShinespark",
         "difficulty": "Basic",
@@ -948,6 +960,12 @@
         "video_id": 8092
     },
     {
+        "tech_id": 213,
+        "name": "canRModeKnockbackSpark",
+        "difficulty": "Insane",
+        "video_id": 8425
+    },
+    {
         "tech_id": 208,
         "name": "canComplexCarryFlashSuit",
         "difficulty": "Extreme",
@@ -957,6 +975,30 @@
         "tech_id": 142,
         "name": "canTrickyCarryFlashSuit",
         "difficulty": "Insane",
+        "video_id": null
+    },
+    {
+        "tech_id": 214,
+        "name": "canFlashSuitDoubleSpark",
+        "difficulty": "Insane",
+        "video_id": 7665
+    },
+    {
+        "tech_id": 215,
+        "name": "canCarryBlueSuit",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 216,
+        "name": "canRModeSparkInterrupt",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 217,
+        "name": "canCrystalSpark",
+        "difficulty": "Ignored",
         "video_id": null
     },
     {
@@ -1144,6 +1186,12 @@
         "name": "canUpwardGModeSetup",
         "difficulty": "Extreme",
         "video_id": 1004
+    },
+    {
+        "tech_id": 218,
+        "name": "canBlueSuitGModeSetup",
+        "difficulty": "Ignored",
+        "video_id": null
     },
     {
         "tech_id": 167,
