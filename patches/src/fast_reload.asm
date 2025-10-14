@@ -163,7 +163,8 @@ hook_main:
     
 .no_reboot
     stz $0727    ; Reset pause menu index
-    stz $0797    ; Reset door transition flag
+    stz $0795    ; Reset door transition flags
+    stz $0797    ;
     lda #$0000
     sta $7EC400  ; clear palette change numerator, in case of reload during fade-in/fade-out
     stz $05F5    ; enable sounds
