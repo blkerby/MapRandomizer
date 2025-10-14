@@ -1348,6 +1348,10 @@ fn get_vanilla_map_data(
                 if room.map[y][x] == 0 {
                     continue;
                 }
+                if room.room_id == 224 && y == 0 {
+                    // Skip the top tile of Tourian First Room since it overlaps with Statues Room.
+                    continue;
+                }
                 let x = x as i32;
                 let y = y as i32;
                 poly_buf.add_poly(vec![(x, y), (x, y + 1), (x + 1, y + 1), (x + 1, y)]);
