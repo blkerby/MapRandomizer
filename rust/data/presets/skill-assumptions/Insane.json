@@ -339,13 +339,13 @@
             "enabled": true
         },
         {
-            "id": 42,
-            "name": "canSpeedball",
+            "id": 43,
+            "name": "canBounceBall",
             "enabled": true
         },
         {
-            "id": 43,
-            "name": "canBounceBall",
+            "id": 42,
+            "name": "canSpeedball",
             "enabled": true
         },
         {
@@ -574,11 +574,6 @@
             "enabled": true
         },
         {
-            "id": 73,
-            "name": "canTrickyDashJump",
-            "enabled": true
-        },
-        {
             "id": 81,
             "name": "canFastWalljumpClimb",
             "enabled": true
@@ -626,6 +621,11 @@
         {
             "id": 120,
             "name": "canEnemyExtendRunway",
+            "enabled": true
+        },
+        {
+            "id": 73,
+            "name": "canTrickyDashJump",
             "enabled": true
         },
         {

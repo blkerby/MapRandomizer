@@ -252,6 +252,18 @@
         "video_id": 945
     },
     {
+        "tech_id": 43,
+        "name": "canBounceBall",
+        "difficulty": "Very Hard",
+        "video_id": 908
+    },
+    {
+        "tech_id": 181,
+        "name": "canMomentumConservingMorph",
+        "difficulty": "Expert",
+        "video_id": 768
+    },
+    {
         "tech_id": 41,
         "name": "canMockball",
         "difficulty": "Hard",
@@ -262,12 +274,6 @@
         "name": "canSpeedball",
         "difficulty": "Very Hard",
         "video_id": 792
-    },
-    {
-        "tech_id": 43,
-        "name": "canBounceBall",
-        "difficulty": "Very Hard",
-        "video_id": 908
     },
     {
         "tech_id": 44,
@@ -298,12 +304,6 @@
         "name": "canQuickDrop",
         "difficulty": "Very Hard",
         "video_id": 946
-    },
-    {
-        "tech_id": 181,
-        "name": "canMomentumConservingMorph",
-        "difficulty": "Expert",
-        "video_id": 768
     },
     {
         "tech_id": 48,
@@ -484,12 +484,6 @@
         "name": "canTrickyJump",
         "difficulty": "Very Hard",
         "video_id": 917
-    },
-    {
-        "tech_id": 73,
-        "name": "canTrickyDashJump",
-        "difficulty": "Expert",
-        "video_id": 433
     },
     {
         "tech_id": 74,
@@ -862,6 +856,12 @@
         "name": "canSpeedyJump",
         "difficulty": "Ignored",
         "video_id": null
+    },
+    {
+        "tech_id": 73,
+        "name": "canTrickyDashJump",
+        "difficulty": "Expert",
+        "video_id": 433
     },
     {
         "tech_id": 197,
