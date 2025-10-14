@@ -967,6 +967,10 @@ impl<'a> Preprocessor<'a> {
                         self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
                     ));
                 }
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key
+                        [&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
+                ));
                 reqs.push(Requirement::Or(vec![
                     Requirement::NoFlashSuit,
                     Requirement::Tech(
@@ -1508,6 +1512,10 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::make_blue_speed(
                     remote_runway_length.get(),
                     *heated,
+                ));
+                reqs.push(Requirement::Tech(
+                    self.game_data.tech_isv.index_by_key
+                        [&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
                 ));
                 reqs.push(Requirement::Or(vec![
                     Requirement::NoFlashSuit,

@@ -2204,6 +2204,7 @@ impl GameData {
     }
 
     // TODO: Find some way to have this not need to be mutable (e.g. resolve the helper dependencies in a first pass)
+    #[allow(clippy::if_same_then_else)]
     fn parse_requirement(
         &mut self,
         req_json: &JsonValue,
@@ -2840,6 +2841,18 @@ impl GameData {
                     carry_flash_suit_tech_idx: self.tech_isv.index_by_key
                         [&TECH_ID_CAN_CARRY_FLASH_SUIT],
                 });
+            } else if key == "gainBlueSuit" {
+                // Not yet implemented.
+                return Ok(Requirement::Never);
+            } else if key == "noBlueSuit" {
+                // Not yet implemented.
+                return Ok(Requirement::Free);
+            } else if key == "haveBlueSuit" {
+                // Not yet implemented.
+                return Ok(Requirement::Never);
+            } else if key == "blueSuitShinecharge" {
+                // Not yet implemented.
+                return Ok(Requirement::Never);
             } else if key == "tech" {
                 return self.get_tech_requirement(value.as_str().unwrap(), false);
             } else if key == "notable" {

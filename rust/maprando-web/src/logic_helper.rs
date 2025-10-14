@@ -677,7 +677,16 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 MainEntranceCondition::ComeInNormally { .. } => {}
                 MainEntranceCondition::ComeInRunning { .. } => {}
                 MainEntranceCondition::ComeInJumping { .. } => {}
-                MainEntranceCondition::ComeInSpaceJumping { .. } => {}
+                MainEntranceCondition::ComeInSpaceJumping { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
+                    ));
+                }
+                MainEntranceCondition::ComeInBlueSpaceJumping { .. } => {
+                    reqs.push(Requirement::Tech(
+                        game_data.tech_isv.index_by_key[&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
+                    ));
+                }
                 MainEntranceCondition::ComeInGettingBlueSpeed { .. } => {}
                 MainEntranceCondition::ComeInShinecharging { .. } => {}
                 MainEntranceCondition::ComeInShinecharged { .. } => {
@@ -759,7 +768,6 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
                 }
                 MainEntranceCondition::ComeInSpinning { .. } => {}
                 MainEntranceCondition::ComeInBlueSpinning { .. } => {}
-                MainEntranceCondition::ComeInBlueSpaceJumping { .. } => {}
                 MainEntranceCondition::ComeInWithStoredFallSpeed {
                     fall_speed_in_tiles,
                 } => {
