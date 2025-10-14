@@ -1,0 +1,226 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug executable 'maprando-web'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=maprando-web",
+                    "--package=maprando-web"
+                ]
+            },
+            "args": ["--seed-repository-url", "file:../seeds", "--static-visualizer", "--debug", "--dev"]
+        },
+        {
+            "name": "Debug unit tests in library 'maprando'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--package=maprando"
+                ]
+            }
+        },
+        {
+            "name": "Debug executable 'build-mosaic'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=build-mosaic",
+                    "--package=maprando"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in executable 'build-mosaic'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--bin=build-mosaic",
+                    "--package=maprando"
+                ]
+            }
+        },
+        {
+            "name": "Debug executable 'debug'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=debug",
+                    "--package=maprando"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in executable 'debug'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--bin=debug",
+                    "--package=maprando"
+                ]
+            }
+        },
+        {
+            "name": "Debug executable 'dummy'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=dummy",
+                    "--package=maprando"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in executable 'dummy'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--bin=dummy",
+                    "--package=maprando"
+                ]
+            }
+        },
+        {
+            "name": "Debug executable 'maprando-cli'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=maprando-cli",
+                    "--package=maprando"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in executable 'maprando-cli'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--bin=maprando-cli",
+                    "--package=maprando"
+                ]
+            }
+        },
+        {
+            "name": "Debug executable 'maprando-test'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=maprando-test",
+                    "--package=maprando"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in executable 'maprando-test'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--bin=maprando-test",
+                    "--package=maprando"
+                ]
+            }
+        },
+        {
+            "name": "Debug unit tests in library 'lznint'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--package=lznint"
+                ]
+            }
+        },
+        {
+            "name": "Debug unit tests in library 'maprando_game'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--package=maprando-game"
+                ]
+            }
+        },
+        {
+            "name": "Debug unit tests in library 'maprando_logic'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--package=maprando-logic"
+                ]
+            }
+        },
+        {
+            "name": "Debug executable 'maprando-web'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "run",
+                    "--bin=maprando-web",
+                    "--package=maprando-web"
+                ]
+            },
+            "args": []
+        },
+        {
+            "name": "Debug unit tests in executable 'maprando-web'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--bin=maprando-web",
+                    "--package=maprando-web"
+                ]
+            }
+        },
+        {
+            "name": "Debug unit tests in library 'maprando_wasm'",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--package=maprando-wasm"
+                ]
+            }
+        }
+    ]
+}

@@ -291,11 +291,12 @@ fn get_enemy_drop_values(
     full_power_bombs: bool,
     buffed_drops: bool,
 ) -> [f32; 4] {
-    let p_nothing = drop.nothing_weight.get();
+    let mut p_nothing = drop.nothing_weight.get();
     let mut p_small = drop.small_energy_weight.get();
     let mut p_large = drop.large_energy_weight.get();
     let mut p_missile = drop.missile_weight.get();
     let p_tier1 = p_nothing + p_small + p_large + p_missile;
+    let rel_nothing = p_nothing / p_tier1;
     let rel_small = p_small / p_tier1;
     let rel_large = p_large / p_tier1;
     let rel_missile = p_missile / p_tier1;
@@ -303,23 +304,27 @@ fn get_enemy_drop_values(
     let mut p_pb = drop.power_bomb_weight.get();
 
     if full_power_bombs {
+        p_nothing += p_pb * rel_nothing;
         p_small += p_pb * rel_small;
         p_large += p_pb * rel_large;
         p_missile += p_pb * rel_missile;
         p_pb = 0.0;
     }
     if full_supers {
+        p_nothing += p_super * rel_nothing;
         p_small += p_super * rel_small;
         p_large += p_super * rel_large;
         p_missile += p_super * rel_missile;
         p_super = 0.0;
     }
     if full_missiles && (p_small + p_large > 0.0) {
-        p_small += p_missile * p_small / (p_small + p_large);
-        p_large += p_missile * p_large / (p_small + p_large);
+        let rel_small = p_small / (p_nothing + p_small + p_large);
+        let rel_large = p_large / (p_nothing + p_small + p_large);
+        p_small += p_missile * rel_small;
+        p_large += p_missile * rel_large;
         p_missile = 0.0;
     } else if full_energy && p_missile > 0.0_ {
-        p_missile += p_small + p_large;
+        p_missile += (p_small + p_large) * p_missile / (p_nothing + p_missile);
         p_small = 0.0;
         p_large = 0.0;
     }
@@ -438,6 +443,13 @@ fn apply_link(link: &Link, mut local: LocalStateArray, cx: &TraversalContext) ->
     } else if link.start_with_shinecharge {
         local.retain(|x| x.shinecharge_frames_remaining > 0);
     }
+    // if link.from_vertex_id == 17615
+    //     && link.strat_id == Some(206)
+    //     && cx.door_map[&(187, 2)] == (89, 1)
+    //     && !cx.reverse
+    // {
+    //     info!("debug");
+    // }
     local = apply_requirement_complex(&link.requirement, local, cx);
     if cx.reverse {
         if !link.start_with_shinecharge {
@@ -601,14 +613,14 @@ pub fn apply_farm_requirement(
         panic!("bad farm: expected cycle_frames >= 100: end_local={end_local:#?},\n req={req:#?}");
     }
     let cycle_frames = (end_local.cycle_frames - 1) as f32;
-    let cycle_energy = (end_local.energy_remaining(&global.inventory, true)
-        - local.energy_remaining(&global.inventory, true)) as f32;
-    let cycle_missiles = (end_local.missiles_remaining(&global.inventory)
-        - local.missiles_remaining(&global.inventory)) as f32;
-    let cycle_supers = (end_local.supers_remaining(&global.inventory)
-        - local.supers_remaining(&global.inventory)) as f32;
-    let cycle_pbs = (end_local.power_bombs_remaining(&global.inventory)
-        - local.power_bombs_remaining(&global.inventory)) as f32;
+    let cycle_energy = (end_local.energy_available(&global.inventory, true, reverse)
+        - local.energy_available(&global.inventory, true, reverse)) as f32;
+    let cycle_missiles = (end_local.missiles_available(&global.inventory, reverse)
+        - local.missiles_available(&global.inventory, reverse)) as f32;
+    let cycle_supers = (end_local.supers_available(&global.inventory, reverse)
+        - local.supers_available(&global.inventory, reverse)) as f32;
+    let cycle_pbs = (end_local.power_bombs_available(&global.inventory, reverse)
+        - local.power_bombs_available(&global.inventory, reverse)) as f32;
     let patience_frames = difficulty.farm_time_limit * 60.0;
     let num_cycles = (patience_frames / cycle_frames).floor() as i32;
 
