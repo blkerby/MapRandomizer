@@ -854,8 +854,8 @@
     {
         "tech_id": 212,
         "name": "canSpeedyJump",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Medium",
+        "video_id": 4752
     },
     {
         "tech_id": 73,
@@ -964,6 +964,12 @@
         "name": "canRModeKnockbackSpark",
         "difficulty": "Insane",
         "video_id": 8425
+    },
+    {
+        "tech_id": 219,
+        "name": "canXModeSpikeSuit",
+        "difficulty": "Insane",
+        "video_id": 8711
     },
     {
         "tech_id": 208,

@@ -109,6 +109,11 @@
             "enabled": true
         },
         {
+            "id": 212,
+            "name": "canSpeedyJump",
+            "enabled": true
+        },
+        {
             "id": 133,
             "name": "canHorizontalShinespark",
             "enabled": true
@@ -969,6 +974,11 @@
             "enabled": true
         },
         {
+            "id": 219,
+            "name": "canXModeSpikeSuit",
+            "enabled": true
+        },
+        {
             "id": 142,
             "name": "canTrickyCarryFlashSuit",
             "enabled": true
@@ -1801,7 +1811,7 @@
             "room_id": 30,
             "notable_id": 1,
             "room_name": "Gauntlet Entrance",
-            "notable_name": "Blue SpaceJump",
+            "notable_name": "Blue Space Jump",
             "enabled": true
         },
         {
@@ -3117,7 +3127,7 @@
             "room_id": 196,
             "notable_id": 4,
             "room_name": "East Cactus Alley",
-            "notable_name": "Springball Spike Boost",
+            "notable_name": "Spring Ball Spike Boost",
             "enabled": true
         },
         {
@@ -3971,7 +3981,7 @@
             "room_id": 196,
             "notable_id": 5,
             "room_name": "East Cactus Alley",
-            "notable_name": "HiJumpless Double SpringBall Jump and Bomb-Grapple-Jump",
+            "notable_name": "HiJumpless Double Spring Ball Jump and Bomb-Grapple-Jump",
             "enabled": false
         }
     ]
