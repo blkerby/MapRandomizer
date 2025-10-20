@@ -251,7 +251,7 @@
     "room_id": 34,
     "room_name": "East Ocean",
     "notable_id": 2,
-    "name": "Springball Bounce to the Door with SpaceJump",
+    "name": "Spring Ball Bounce to the Door with SpaceJump",
     "difficulty": "Extreme",
     "video_id": 332
   },
@@ -259,7 +259,7 @@
     "room_id": 34,
     "room_name": "East Ocean",
     "notable_id": 3,
-    "name": "Speedy Springball Bounce to the Door",
+    "name": "Speedy Spring Ball Bounce to the Door",
     "difficulty": "Insane",
     "video_id": 331
   },
@@ -1147,7 +1147,7 @@
     "room_id": 90,
     "room_name": "Cathedral Entrance",
     "notable_id": 6,
-    "name": "Speedjump (Left to Right)",
+    "name": "Speedy Jump (Left to Right)",
     "difficulty": "Expert",
     "video_id": 401
   },
@@ -1179,7 +1179,7 @@
     "room_id": 104,
     "room_name": "Double Chamber",
     "notable_id": 3,
-    "name": "Hijumpless Spike Speedjump",
+    "name": "Hijumpless Spike Tricky Dash Jump",
     "difficulty": "Expert",
     "video_id": 4447
   },
@@ -1763,7 +1763,7 @@
     "room_id": 144,
     "room_name": "Mickey Mouse Room",
     "notable_id": 3,
-    "name": "Crumble Speedjump",
+    "name": "Crumble Tricky Dash Jump",
     "difficulty": "Extreme",
     "video_id": 529
   },
@@ -2915,7 +2915,7 @@
     "room_id": 211,
     "room_name": "Yoink Room",
     "notable_id": 3,
-    "name": "Speedy Jump Morph",
+    "name": "Cross Room Jump Morph",
     "difficulty": "Very Hard",
     "video_id": 481
   },

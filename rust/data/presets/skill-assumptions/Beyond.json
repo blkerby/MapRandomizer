@@ -1727,7 +1727,7 @@
             "room_id": 211,
             "notable_id": 3,
             "room_name": "Yoink Room",
-            "notable_name": "Speedy Jump Morph",
+            "notable_name": "Cross Room Jump Morph",
             "enabled": true
         },
         {
@@ -2000,14 +2000,14 @@
             "room_id": 90,
             "notable_id": 6,
             "room_name": "Cathedral Entrance",
-            "notable_name": "Speedjump (Left to Right)",
+            "notable_name": "Speedy Jump (Left to Right)",
             "enabled": true
         },
         {
             "room_id": 104,
             "notable_id": 3,
             "room_name": "Double Chamber",
-            "notable_name": "Hijumpless Spike Speedjump",
+            "notable_name": "Hijumpless Spike Tricky Dash Jump",
             "enabled": true
         },
         {
@@ -2588,7 +2588,7 @@
             "room_id": 34,
             "notable_id": 2,
             "room_name": "East Ocean",
-            "notable_name": "Springball Bounce to the Door with SpaceJump",
+            "notable_name": "Spring Ball Bounce to the Door with SpaceJump",
             "enabled": true
         },
         {
@@ -2952,7 +2952,7 @@
             "room_id": 144,
             "notable_id": 3,
             "room_name": "Mickey Mouse Room",
-            "notable_name": "Crumble Speedjump",
+            "notable_name": "Crumble Tricky Dash Jump",
             "enabled": true
         },
         {
@@ -3407,7 +3407,7 @@
             "room_id": 34,
             "notable_id": 3,
             "room_name": "East Ocean",
-            "notable_name": "Speedy Springball Bounce to the Door",
+            "notable_name": "Speedy Spring Ball Bounce to the Door",
             "enabled": true
         },
         {
