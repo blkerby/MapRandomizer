@@ -2374,15 +2374,16 @@ impl Patcher<'_> {
             (Some(0x1AA14), Some(0x1AA20)), // Tourian Blue Hoppers (left)
             (Some(0x18DDE), Some(0x18E6E)), // Big Pink crumble blocks (left),
             (Some(0x19312), Some(0x1934E)), // Ice Beam Gate Room crumbles (top left)
-            (Some(0x1A630), Some(0x1A5C4)), // Bug Sand Hole (left)
-            (Some(0x1A618), Some(0x1A564)), // Bug Sand Hole (right)
+            (Some(0x1992A), Some(0x198EE)), // Mickey Mouse Room (left)
+            (Some(0x1A630), Some(0x1A5C4)), // Yoink Room (left)
+            (Some(0x1A618), Some(0x1A564)), // Yoink Room (right)
             (Some(0x198EE), Some(0x1992A)), // Fast Pillars Setup Room (top right)
+            (Some(0x198BE), Some(0x198CA)), // Ridley's Room top door
             (Some(0x1986A), Some(0x196F6)), // Main Hall (top),
         ];
         if self.settings.other_settings.wall_jump != WallJump::Vanilla {
             door_ptr_pairs.extend(vec![
                 (Some(0x18A06), Some(0x1A300)), // West Ocean Gravity Suit door
-                (Some(0x198BE), Some(0x198CA)), // Ridley's Room top door
                 (Some(0x193EA), Some(0x193D2)), // Crocomire's Room top door
             ]);
         }

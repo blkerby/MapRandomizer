@@ -1,8 +1,17 @@
+v121 or soon-ish?:
+- blue suit logic
+- options for friendlier save/map locations?
+
+
 v120?:
 - Logic difficulty changes:
   - Move canDoorLockSkip to Expert?
   - Move Botwoon ETank right-side sand grapple jump to Expert?
-- Fix issue with enemies moving through floors?
+- implement canSpeedyJump tech uses
+- Handle Phantoon flag better (e.g. for small maps, or non-bosses objectives)
+  - Option: if Phantoon is not an objective, start with WS power on
+  - Or if Phantoon does not exist, remove risk-loss-of-access in power-off strats.
+- DONE: Fix issue with enemies moving through floors?
 - Handle the new wallJumpAvoid property on strats and notables:
   - This identifies strats/notables that are only useful when playing with the "Collectible" wall jump option.
   - So by default we could hide these (on the Generate page as well as in logic pages), to reduce clutter.
