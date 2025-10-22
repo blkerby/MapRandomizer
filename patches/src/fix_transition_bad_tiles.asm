@@ -63,7 +63,7 @@ hook_pre_scrolling:
     ; check if fade-out is complete:
     lda $7EC400
     cmp #$000D
-    bne .skip
+    bcc .skip
 
     ; Fade-out is done. Zero out the "bad" tiles in RAM, to appear black during the transition.
     ldx #!bad_tiles_bytes_size-2
