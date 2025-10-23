@@ -7,6 +7,8 @@ v120?:
 - Logic difficulty changes:
   - Move canDoorLockSkip to Expert?
   - Move Botwoon ETank right-side sand grapple jump to Expert?
+  - ease botwoon proficiency expectation
+- Fix issue with RegularEnergy resourceAvailable (R-mode reduced tanks bugged seed reported by nn)
 - implement canSpeedyJump tech uses
 - Handle Phantoon flag better (e.g. for small maps, or non-bosses objectives)
   - Option: if Phantoon is not an objective, start with WS power on
