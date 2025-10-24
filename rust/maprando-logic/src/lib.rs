@@ -609,9 +609,7 @@ impl LocalState {
             self.refill_energy(amt, can_transfer_reserves, inventory, reverse);
             self.use_energy(amt, can_transfer_reserves, inventory, reverse)
         } else {
-            self.energy_remaining(inventory, can_transfer_reserves)
-                + self.reserves_remaining(inventory)
-                >= amt
+            self.energy_remaining(inventory, can_transfer_reserves) >= amt
         }
     }
 
