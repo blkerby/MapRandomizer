@@ -2070,6 +2070,21 @@
         "y": 10
     },
     {
+        "name": "Statues Room Top",
+        "room_id": 27,
+        "node_id": 1,
+        "x": 13.5,
+        "y": 10
+    },
+    {
+        "name": "Statues Room Bottom",
+        "room_id": 27,
+        "node_id": 2,
+        "x": 8,
+        "y": 21,
+        "camera_offset_y": -4
+    },
+    {
         "name": "Terminator Room",
         "room_id": 20,
         "node_id": 2,
