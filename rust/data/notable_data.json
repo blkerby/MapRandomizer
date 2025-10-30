@@ -162,14 +162,6 @@
   {
     "room_id": 31,
     "room_name": "Gauntlet Energy Tank Room",
-    "notable_id": 1,
-    "name": "R-Mode Blue Suit",
-    "difficulty": "Extreme",
-    "video_id": 207
-  },
-  {
-    "room_id": 31,
-    "room_name": "Gauntlet Energy Tank Room",
     "notable_id": 2,
     "name": "Spark Master",
     "difficulty": "Extreme",
@@ -1244,7 +1236,7 @@
     "room_name": "Lava Dive Room",
     "notable_id": 5,
     "name": "HiJumpless Suitless Double Springball Jump",
-    "difficulty": "Expert",
+    "difficulty": "Extreme",
     "video_id": 426
   },
   {

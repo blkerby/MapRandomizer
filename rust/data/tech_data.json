@@ -1116,6 +1116,12 @@
         "video_id": 1006
     },
     {
+        "tech_id": 220,
+        "name": "canRightSideDashlessDoorStuck",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
         "tech_id": 159,
         "name": "canXMode",
         "difficulty": "Extreme",

@@ -2021,13 +2021,6 @@
                 "enabled": false
             },
             {
-                "room_id": 115,
-                "notable_id": 5,
-                "room_name": "Lava Dive Room",
-                "notable_name": "HiJumpless Suitless Double Springball Jump",
-                "enabled": false
-            },
-            {
                 "room_id": 112,
                 "notable_id": 1,
                 "room_name": "Lava Grapple Tunnel",
@@ -2547,13 +2540,6 @@
             },
             {
                 "room_id": 31,
-                "notable_id": 1,
-                "room_name": "Gauntlet Energy Tank Room",
-                "notable_name": "R-Mode Blue Suit",
-                "enabled": false
-            },
-            {
-                "room_id": 31,
                 "notable_id": 2,
                 "room_name": "Gauntlet Energy Tank Room",
                 "notable_name": "Spark Master",
@@ -2858,6 +2844,13 @@
                 "notable_id": 2,
                 "room_name": "Lava Dive Room",
                 "notable_name": "Thread the Needle Entry",
+                "enabled": false
+            },
+            {
+                "room_id": 115,
+                "notable_id": 5,
+                "room_name": "Lava Dive Room",
+                "notable_name": "HiJumpless Suitless Double Springball Jump",
                 "enabled": false
             },
             {
