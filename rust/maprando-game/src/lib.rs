@@ -3881,8 +3881,9 @@ impl GameData {
         heated: bool,
     ) -> Result<(EntranceCondition, Requirement)> {
         ensure!(entrance_json.is_object());
+        // TODO: implement check on comesInHeated:
+        let _entrance_maybe_heated = entrance_json["comesInHeated"].as_bool().unwrap_or(true);
         let through_toilet = if entrance_json.has_key("comesThroughToilet") {
-            ensure!(entrance_json.len() == 2);
             match entrance_json["comesThroughToilet"].as_str().unwrap() {
                 "no" => ToiletCondition::No,
                 "yes" => ToiletCondition::Yes,
@@ -3893,9 +3894,11 @@ impl GameData {
                 ),
             }
         } else {
-            ensure!(entrance_json.len() == 1);
             ToiletCondition::Any // to cover implicit strats, e.g. "comeInNormally"
         };
+        // FIXME: We rely on the fact that comesInHeated and comesThroughToilet are last in the schema,
+        // ensuring that the first entry will be the main entrance condition. The auto-formatting script
+        // does enforce the correct ordering, but still we should handle this in a more robust way.
         let (key, value) = entrance_json.entries().next().unwrap();
         ensure!(value.is_object());
         let req = Requirement::Free;
