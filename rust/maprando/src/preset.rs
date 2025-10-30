@@ -208,7 +208,16 @@ impl PresetData {
             objective_presets.push(preset);
         }
 
-        let full_preset_names = ["Default", "Community Race Season 4"];
+        let full_preset_names = [
+            "Default",
+            "Community Race Season 4",
+            "Double Suit",
+            "Gravity 9 + 1",
+            "Varia + Movement",
+            "Metroid Objectives",
+            "4 Random Objectives",
+            "No Objectives",
+        ];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
         for name in full_preset_names {
