@@ -918,10 +918,19 @@ fn apply_requirement_complex(
 ) -> ArrayVec<LocalState, NUM_COST_METRICS> {
     match req {
         Requirement::And(sub_reqs) => {
-            for r in sub_reqs {
-                local = apply_requirement_complex(r, local, cx);
-                if local.is_empty() {
-                    break;
+            if cx.reverse {
+                for r in sub_reqs.iter().rev() {
+                    local = apply_requirement_complex(r, local, cx);
+                    if local.is_empty() {
+                        break;
+                    }
+                }
+            } else {
+                for r in sub_reqs {
+                    local = apply_requirement_complex(r, local, cx);
+                    if local.is_empty() {
+                        break;
+                    }
                 }
             }
             local
