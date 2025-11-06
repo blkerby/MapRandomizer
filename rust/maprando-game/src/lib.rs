@@ -2973,7 +2973,8 @@ impl GameData {
                       {
                         "name": "Base",
                         "notable": false,
-                        "requires": ["f_DefeatedSporeSpawn"]
+                        "requires": ["f_DefeatedSporeSpawn"],
+                        "flashSuitChecked": true,
                       }
                     ]
                   }
@@ -3058,7 +3059,8 @@ impl GameData {
                                 {"obstaclesCleared": ["A"]},
                                 "f_ClearedMetalPiratesRoom"
                             ]}
-                        ]
+                        ],
+                        "flashSuitChecked": true,
                       }
                     ],
                     "yields": ["f_ZebesAwake", "f_ClearedMetalPiratesRoom"]
@@ -3171,8 +3173,9 @@ impl GameData {
                     "unlockStrats": [{
                         "name": "Base",
                         "notable": false,
-                        "requires": []
-                    }]
+                        "requires": [],
+                        "flashSuitChecked": true,
+                    }],
                 }];
             }
         }
@@ -3414,6 +3417,7 @@ impl GameData {
                           "name": "Base (Collect Item)",
                           "notable": false,
                           "requires": [],
+                          "flashSuitChecked": true
                         }
                       ]
                     }
@@ -3449,7 +3453,8 @@ impl GameData {
                                         [ "Phantoon" ]
                                     ]
                                 }},
-                            ]
+                            ],
+                            "flashSuitChecked": true
                         }
                     ];
                 }
@@ -4360,8 +4365,14 @@ impl GameData {
                 requires_vec.push(unlock_to_door_req);
             }
 
-            if !strat_json["flashSuitChecked"].as_bool().unwrap_or(false) {
-                requires_vec.push(Requirement::NoFlashSuit);
+            match strat_json["flashSuitChecked"].as_bool() {
+                None => {
+                    error!("Missing flashSuitChecked: {}", strat_json);
+                }
+                Some(false) => {
+                    requires_vec.push(Requirement::NoFlashSuit);
+                }
+                Some(true) => {}
             }
 
             let requirement = Requirement::make_and(requires_vec);
