@@ -77,6 +77,7 @@ fn build_app_data() -> AppData {
         ("GreenBrinstar", "Green Brinstar"),
         ("PinkBrinstar", "Pink Brinstar"),
         ("RedBrinstar", "Red Brinstar"),
+        ("WarehouseBrinstar", "Warehouse Brinstar"),
         ("UpperNorfair", "Upper Norfair"),
         ("LowerNorfair", "Lower Norfair"),
         ("WreckedShip", "Wrecked Ship"),
