@@ -434,10 +434,10 @@ fn remove_some_duplicates<T: Clone + PartialEq + Eq + Hash>(
     out
 }
 
-struct Preprocessor<'a> {
-    game_data: &'a GameData,
-    door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
-    difficulty: &'a DifficultyConfig,
+pub struct Preprocessor<'a> {
+    pub game_data: &'a GameData,
+    pub door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
+    pub difficulty: &'a DifficultyConfig,
 }
 
 fn compute_shinecharge_frames(

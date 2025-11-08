@@ -364,6 +364,19 @@ impl LocalState {
         Self::resource_available(self.power_bombs(), inventory.max_power_bombs, reverse)
     }
 
+    pub fn shinecharge_frames_available(&self, reverse: bool) -> Capacity {
+        Self::resource_available(
+            ResourceLevel::Remaining(self.shinecharge_frames_remaining),
+            180,
+            reverse,
+        )
+    }
+
+    pub fn flash_suit_available(&self, reverse: bool) -> Capacity {
+        let amt = if self.flash_suit { 1 } else { 0 };
+        if reverse { 1 - amt } else { amt }
+    }
+
     pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {
         Self::resource_remaining(self.farm_baseline_energy(), inventory.max_energy)
     }

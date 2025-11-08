@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schema/connections.schema.json",
+  "connections": [
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 1,
+      "toRoomId": 1,
+      "toNodeId": 1,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 2,
+      "toRoomId": 1,
+      "toNodeId": 2,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 3,
+      "toRoomId": 1,
+      "toNodeId": 3,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 4,
+      "toRoomId": 1,
+      "toNodeId": 4,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 5,
+      "toRoomId": 1,
+      "toNodeId": 5,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 6,
+      "toRoomId": 1,
+      "toNodeId": 6,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 7,
+      "toRoomId": 1,
+      "toNodeId": 7,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 8,
+      "toRoomId": 1,
+      "toNodeId": 8,
+      "bidirectional": false
+    },
+    {
+      "fromRoomId": 0,
+      "fromNodeId": 9,
+      "toRoomId": 1,
+      "toNodeId": 9,
+      "bidirectional": false
+    }
+  ]
+}

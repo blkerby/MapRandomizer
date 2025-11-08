@@ -1,0 +1,120 @@
+{
+  "$schema": "../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 1,
+  "roomAddress": "0x0001",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [[1]],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Implicit Entrance Node (1)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 2,
+      "name": "Explicit Entrance Node (1)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitComeInNormally": false
+    },
+    {
+      "id": 3,
+      "name": "Missing Entrance Node (1)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitComeInNormally": false
+    },
+    {
+      "id": 4,
+      "name": "Implicit Entrance Node (2)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 5,
+      "name": "Explicit Entrance Node (2)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitComeInNormally": false
+    },
+    {
+      "id": 6,
+      "name": "Missing Entrance Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitComeInNormally": false
+    },
+    {
+      "id": 7,
+      "name": "Implicit Entrance Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 8,
+      "name": "Explicit Entrance Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitComeInNormally": false
+    },
+    {
+      "id": 9,
+      "name": "Missing Entrance Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitComeInNormally": false
+    }
+  ],
+  "links": [],
+  "strats": [
+    {
+      "link": [2, 2],
+      "name": "Come In Normally",
+      "entranceCondition": {
+        "comeInNormally": {}
+      },
+      "requires": [],
+      "flashSuitChecked": true
+    },
+    {
+      "link": [5, 5],
+      "name": "Come In Normally",
+      "entranceCondition": {
+        "comeInNormally": {}
+      },
+      "requires": [],
+      "flashSuitChecked": true
+    },
+    {
+      "link": [8, 8],
+      "name": "Come In Normally",
+      "entranceCondition": {
+        "comeInNormally": {}
+      },
+      "requires": [],
+      "flashSuitChecked": true
+    }
+  ]
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Implicit Leave Normally, Implicit Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 1
+    },
+    {
+      "name": "Implicit Leave Normally, Explicit Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 2,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Implicit Leave Normally, Missing Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 3,
+      "endRoomId": 1,
+      "endNodeId": 3,
+      "fail": true
+    },
+    {
+      "name": "Explicit Leave Normally, Implicit Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 4,
+      "endRoomId": 1,
+      "endNodeId": 4
+    },
+    {
+      "name": "Explicit Leave Normally, Explicit Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 5,
+      "endRoomId": 1,
+      "endNodeId": 5
+    },
+    {
+      "name": "Explicit Leave Normally, Missing Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 6,
+      "endRoomId": 1,
+      "endNodeId": 6,
+      "fail": true
+    },
+    {
+      "name": "Missing Leave Normally, Implicit Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 7,
+      "endRoomId": 1,
+      "endNodeId": 7,
+      "fail": true
+    },
+    {
+      "name": "Missing Leave Normally, Explicit Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 8,
+      "endRoomId": 1,
+      "endNodeId": 8,
+      "fail": true
+    },
+    {
+      "name": "Missing Leave Normally, Missing Come in Normally",
+      "startRoomId": 0,
+      "startNodeId": 9,
+      "endRoomId": 1,
+      "endNodeId": 9,
+      "fail": true
+    }
+  ]
+}

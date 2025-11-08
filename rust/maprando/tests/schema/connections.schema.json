@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/blkerby/MapRandomizer/master/rust/maprando/tests/schema/connections.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["connections"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "connections": {
+      "type": "array",
+      "items": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["fromRoomId", "fromNodeId", "toRoomId", "toNodeId", "bidirectional"],
+          "properties": {
+            "fromRoomId": {"type": "integer"},
+            "fromNodeId": {"type": "integer"},
+            "toRoomId": {"type": "integer"},
+            "toNodeId": {"type": "integer"},
+            "bidirectional": {"type": "boolean"}
+          }
+      }
+    }
+  }
+}

@@ -1,12 +1,12 @@
 use serde::Deserialize;
 use serde_hex::{CompactPfx, SerHex, SerHexSeq, StrictPfx};
 
-#[derive(Deserialize, Default)]
+#[derive(Deserialize, Default, Clone)]
 pub struct GlowPatch {
     pub sections: Vec<GlowPatchSection>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum GlowPatchSection {
     Direct {

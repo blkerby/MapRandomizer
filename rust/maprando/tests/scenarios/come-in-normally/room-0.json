@@ -1,0 +1,120 @@
+{
+  "$schema": "../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [[1]],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Implicit Exit Node (1)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 2,
+      "name": "Implicit Exit Node (2)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 3,
+      "name": "Implicit Exit Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 4,
+      "name": "Explicit Exit Node (1)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitLeaveNormally": false
+    },
+    {
+      "id": 5,
+      "name": "Explicit Exit Node (2)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitLeaveNormally": false
+    },
+    {
+      "id": 6,
+      "name": "Explicit Exit Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitLeaveNormally": false
+    },
+    {
+      "id": 7,
+      "name": "Missing Exit Node (1)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitLeaveNormally": false
+    },
+    {
+      "id": 8,
+      "name": "Missing Exit Node (2)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitLeaveNormally": false
+    },
+    {
+      "id": 9,
+      "name": "Missing Exit Node (3)",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [[1]],
+      "useImplicitLeaveNormally": false
+    }
+  ],
+  "links": [],
+  "strats": [
+    {
+      "link": [4, 4],
+      "name": "Leave Normally",
+      "requires": [],
+      "exitCondition": {
+        "leaveNormally": {}
+      },
+      "flashSuitChecked": true
+    },
+    {
+      "link": [5, 5],
+      "name": "Leave Normally",
+      "requires": [],
+      "exitCondition": {
+        "leaveNormally": {}
+      },
+      "flashSuitChecked": true
+    },
+    {
+      "link": [6, 6],
+      "name": "Leave Normally",
+      "requires": [],
+      "exitCondition": {
+        "leaveNormally": {}
+      },
+      "flashSuitChecked": true
+    }
+  ]
+}

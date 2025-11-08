@@ -1,0 +1,20 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Base",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Unreachable",
+      "startRoomId": 0,
+      "startNodeId": 2,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "fail": true
+    }
+  ]
+}

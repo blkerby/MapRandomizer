@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/blkerby/MapRandomizer/master/rust/maprando/tests/schema/scenarios.schema.json",
+  "definitions": {
+    "resourceLevel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "remaining": {"type": "integer"},
+        "consumed": {"type": "integer"}
+      },
+      "oneOf": [
+        {"required": ["remaining"]},
+        {"required": ["consumed"]}
+      ]
+    },
+    "state": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "energy": {"$ref": "#/definitions/resourceLevel"},
+        "reserves": {"$ref": "#/definitions/resourceLevel"},
+        "missiles": {"$ref": "#/definitions/resourceLevel"},
+        "supers": {"$ref": "#/definitions/resourceLevel"},
+        "powerBombs": {"$ref": "#/definitions/resourceLevel"},
+        "shinechargeFramesRemaining": {"type": "integer"},
+        "flashSuit": {"type": "boolean"}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["scenarios"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "startRoomId",
+          "startNodeId",
+          "endRoomId",
+          "endNodeId"
+        ],
+        "properties": {
+          "name": {"type": "string"},
+          "globalState": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "disabledTech": {
+                  "type": "array",
+                  "items": {"type": "string"}
+              },
+              "items": {
+                  "type": "array",
+                  "items": {"type": "string"}
+              },
+              "maxEnergy": {"type": "integer"},
+              "maxReserves": {"type": "integer"},
+              "maxMissiles": {"type": "integer"},
+              "maxSupers": {"type": "integer"},
+              "maxPowerBombs": {"type": "integer"}
+            }
+          },
+          "startRoomId": {
+            "type": "integer"
+          },
+          "startNodeId": {
+            "type": "integer"
+          },
+          "startObstaclesCleared": {
+            "type": "array",
+            "items": [{"type": "string"}]
+          },
+          "startState": {
+            "$ref": "#/definitions/state"
+          },
+          "endRoomId": {
+            "type": "integer"
+          },
+          "endNodeId": {
+            "type": "integer"
+          },
+          "endObstaclesCleared": {
+            "type": "array",
+            "items": [{"type": "string"}]
+          },
+          "endState": {
+            "$ref": "#/definitions/state"
+          },
+          "fail": {
+            "type": "boolean",
+            "default": false
+          }    
+        }
+      }         
+    }
+  }
+}
