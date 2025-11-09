@@ -42,6 +42,8 @@ struct ScenariosList {
 struct Scenario {
     #[serde(rename = "name")]
     _name: Option<String>,
+    #[serde(default)]
+    settings: ScenarioSettings,
     global_state: Option<ScenarioGlobalState>,
     start_room_id: usize,
     start_node_id: usize,
@@ -55,6 +57,12 @@ struct Scenario {
     end_state: Option<ScenarioState>,
     #[serde(default)]
     fail: bool,
+}
+
+#[derive(Default, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ScenarioSettings {
+    disableable_etanks: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -86,6 +94,7 @@ struct ScenarioState {
 }
 
 fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
+    let settings = &scenario.settings;
     // Many settings are irrelevant to these tests, e.g. item progression settings.
     // We generally use settings as close to vanilla as possible (e.g. QoL off),
     // to avoid impact to the tests as QoL evolves.
@@ -168,7 +177,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             remove_climb_lava: false,
             etank_refill: maprando::settings::ETankRefill::Vanilla,
             energy_station_reserves: false,
-            disableable_etanks: false,
+            disableable_etanks: settings.disableable_etanks.unwrap_or(false),
             reserve_backward_transfer: false,
             buffed_drops: false,
             early_save: false,

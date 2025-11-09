@@ -2867,9 +2867,13 @@ impl GameData {
                     enemy_drops_buffed,
                 ));
             } else if key == "disableEquipment" {
-                return Ok(Requirement::Tech(
+                let mut reqs = vec![Requirement::Tech(
                     self.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
-                ));
+                )];
+                if value == "ETank" {
+                    reqs.push(Requirement::DisableableETank);
+                }
+                return Ok(Requirement::make_and(reqs));
             }
         }
         bail!("Unable to parse requirement: {}", req_json);

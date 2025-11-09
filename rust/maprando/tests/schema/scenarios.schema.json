@@ -48,6 +48,13 @@
         ],
         "properties": {
           "name": {"type": "string"},
+          "settings": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "disableableEtanks": {"type": "boolean"}
+            }
+          },
           "globalState": {
             "type": "object",
             "additionalProperties": false,

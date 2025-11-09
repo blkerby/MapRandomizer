@@ -1,0 +1,41 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Have Tech",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missing Tech",
+      "globalState": {
+        "disabledTech": ["canDisableEquipment"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Have Disableable Tanks",
+      "settings": {
+        "disableableEtanks": true
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 3
+    },
+    {
+      "name": "Missing Disableable Tanks",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "fail": true      
+    }
+  ]
+}
