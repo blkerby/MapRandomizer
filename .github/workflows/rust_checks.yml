@@ -30,3 +30,4 @@ jobs:
           components: rustfmt, clippy
       - run: cargo fmt --check
       - run: cargo clippy
+      - run: cargo test
