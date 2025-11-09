@@ -1,0 +1,63 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Shinecharge",
+      "settings": {
+        "shinechargeTiles": 15
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missing Speed Booster",
+      "settings": {
+        "shinechargeTiles": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail Shinecharge",
+      "settings": {
+        "shinechargeTiles": 16
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Cannot Carry Flash Suit",
+      "settings": {
+        "shinechargeTiles": 15
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": true
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": true
+      },
+      "fail": true
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Keep Flash Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": true
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": true
+      }
+    }
+  ]
+}

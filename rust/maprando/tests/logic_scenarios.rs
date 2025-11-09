@@ -5,9 +5,9 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, Preprocessor},
     settings::{
-        InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveOption,
-        ObjectiveSetting, ObjectiveSettings, OtherSettings, QualityOfLifeSettings,
-        RandomizerSettings, SkillAssumptionSettings, StartLocationSettings,
+        InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveSettings,
+        OtherSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
+        StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
 };
@@ -40,8 +40,7 @@ struct ScenariosList {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Scenario {
-    #[serde(rename = "name")]
-    _name: Option<String>,
+    name: String,
     #[serde(default)]
     settings: ScenarioSettings,
     global_state: Option<ScenarioGlobalState>,
@@ -57,12 +56,29 @@ struct Scenario {
     end_state: Option<ScenarioState>,
     #[serde(default)]
     fail: bool,
+    #[serde(default)]
+    forward: TraversalCheck,
+    #[serde(default)]
+    reverse: TraversalCheck,
+}
+
+#[derive(Copy, Clone, Default, Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum TraversalCheck {
+    #[default]
+    Default,
+    Disabled,
+    Weak,
+    Exact,
 }
 
 #[derive(Default, Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ScenarioSettings {
+    shinecharge_tiles: Option<f32>,
+    heated_shinecharge_tiles: Option<f32>,
     disableable_etanks: Option<bool>,
+    collectible_wall_jump: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -103,8 +119,8 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
         name: None,
         skill_assumption_settings: SkillAssumptionSettings {
             preset: None,
-            shinespark_tiles: 12.0,
-            heated_shinespark_tiles: 13.0,
+            shinespark_tiles: settings.shinecharge_tiles.unwrap_or(12.0),
+            heated_shinespark_tiles: settings.heated_shinecharge_tiles.unwrap_or(13.0),
             speed_ball_tiles: 14.0,
             shinecharge_leniency_frames: 0,
             resource_multiplier: 1.0,
@@ -201,7 +217,11 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
         },
         save_animals: maprando::settings::SaveAnimals::No,
         other_settings: OtherSettings {
-            wall_jump: maprando::settings::WallJump::Vanilla,
+            wall_jump: if settings.collectible_wall_jump.unwrap_or(false) {
+                maprando::settings::WallJump::Collectible
+            } else {
+                maprando::settings::WallJump::Vanilla
+            },
             area_assignment: maprando::settings::AreaAssignment::Standard,
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             map_station_reveal: maprando::settings::MapStationReveal::Full,
@@ -243,7 +263,7 @@ fn get_preprocessor<'a>(
     let mut door_map = HashMap::new();
     for conn in connections {
         match door_map.entry((conn.from_room_id, conn.from_node_id)) {
-            hashbrown::hash_map::Entry::Occupied(occupied_entry) => {
+            hashbrown::hash_map::Entry::Occupied(_) => {
                 bail!("Conflicting connection: {:?}", conn);
             }
             hashbrown::hash_map::Entry::Vacant(vacant_entry) => {
@@ -252,7 +272,7 @@ fn get_preprocessor<'a>(
         };
         if conn.bidirectional {
             match door_map.entry((conn.to_room_id, conn.to_node_id)) {
-                hashbrown::hash_map::Entry::Occupied(occupied_entry) => {
+                hashbrown::hash_map::Entry::Occupied(_) => {
                     bail!("Conflicting backward connection: {:?}", conn);
                 }
                 hashbrown::hash_map::Entry::Vacant(vacant_entry) => {
@@ -539,25 +559,48 @@ fn test_scenario(
                 exact_success = true;
             }
         }
-        if scenario.fail {
-            if success {
-                bail!(
-                    "Failure expected, but traversal succeeds, with final local state(s): {:?}",
-                    traverser.lsr[final_vertex_id].local
-                );
+
+        let check = match (
+            scenario.fail,
+            if reverse {
+                scenario.reverse
             } else {
-                continue;
+                scenario.forward
+            },
+        ) {
+            (true, TraversalCheck::Default) => TraversalCheck::Weak,
+            (false, TraversalCheck::Default) => TraversalCheck::Exact,
+            (_, x) => x,
+        };
+        if scenario.fail {
+            match check {
+                TraversalCheck::Weak if success => {
+                    bail!(
+                        "Failure expected, but traversal succeeds, with final local state(s): {:?}",
+                        traverser.lsr[final_vertex_id].local
+                    );
+                }
+                TraversalCheck::Exact => {
+                    panic!("'exact' traversal should not be used with 'fail': true")
+                }
+                _ => {}
             }
-        } else if !success {
-            bail!(
-                "Traversal fails. Final local state(s): {:?}",
-                traverser.lsr[final_vertex_id].local
-            );
-        } else if !exact_success {
-            bail!(
-                "Traversal result is not exact. Final local state(s): {:?}",
-                traverser.lsr[final_vertex_id].local
-            );
+        } else {
+            match check {
+                TraversalCheck::Weak | TraversalCheck::Exact if !success => {
+                    bail!(
+                        "Traversal fails. Final local state(s): {:?}",
+                        traverser.lsr[final_vertex_id].local
+                    );
+                }
+                TraversalCheck::Exact if !exact_success => {
+                    bail!(
+                        "Traversal result is not exact. Final local state(s): {:?}",
+                        traverser.lsr[final_vertex_id].local
+                    );
+                }
+                _ => {}
+            }
         }
     }
     Ok(())
@@ -569,7 +612,7 @@ fn test_logic_scenarios() -> Result<()> {
     let base_game_data = GameData::load_minimal()?;
     for entry in std::fs::read_dir("maprando/tests/scenarios")? {
         let entry = entry?;
-        println!("{}", entry.file_name().display());
+        println!("\n***** {} *****", entry.file_name().display());
 
         let room_pattern = entry.path().to_str().unwrap().to_owned() + "/room*.json";
         let mut game_data = base_game_data.clone();
@@ -594,7 +637,7 @@ fn test_logic_scenarios() -> Result<()> {
         let scenarios_list: ScenariosList = serde_json::from_str(&scenarios_str)
             .context(format!("parsing {}", scenarios_path.display()))?;
         for scenario in &scenarios_list.scenarios {
-            println!("Scenario: {:?}", scenario);
+            println!("Scenario: {}", scenario.name);
             test_scenario(&game_data, &connections_list.connections, scenario)?;
         }
     }

@@ -1,0 +1,47 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Wall Jump",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missing Tech",
+      "globalState": {
+        "disabledTech": ["canWalljump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Collectible Wall Jump",
+      "settings": {
+        "collectibleWallJump": true
+      },
+      "globalState": {
+        "items": ["WallJump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missing Wall Jump Item",
+      "settings": {
+        "collectibleWallJump": true
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}
