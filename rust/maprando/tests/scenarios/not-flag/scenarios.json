@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Flag Not Cleared",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Flag Cleared",
+      "globalState": {
+        "flags": ["f_DefeatedPhantoon"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "note": ["This intentionally passes, because unavoidable requirements for a flag to be uncleared are guarded by canRiskPermanentLossOfAccess."]
+    }
+  ]
+}

@@ -1,0 +1,83 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "First Strat, Have Enough Frames",
+      "settings": {
+        "shinechargeLeniencyFrames": 60
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "shinechargeFramesRemaining": 0
+      }
+    },
+    {
+      "name": "First Strat, Not Enough Frames",
+      "settings": {
+        "shinechargeLeniencyFrames": 61
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Second Strat, Have Enough Frames",
+      "startRoomId": 0,
+      "startNodeId": 2,
+      "startState": {
+        "shinechargeFramesRemaining": 40
+      },
+      "endRoomId": 0,
+      "endNodeId": 3
+    },
+    {
+      "name": "Second Strat, Not Enough Frames",
+      "startRoomId": 0,
+      "startNodeId": 2,
+      "startState": {
+        "shinechargeFramesRemaining": 39
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "fail": true
+    },
+    {
+      "name": "Full Traversal, Have Enough Frames",
+      "settings": {
+        "shinechargeLeniencyFrames": 20
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 3
+    },
+    {
+      "name": "Full Traversal, Not Enough Frames",
+      "settings": {
+        "shinechargeLeniencyFrames": 21
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "fail": true
+    }
+  ]
+}

@@ -62,6 +62,7 @@
               "shinechargeTiles": {"type": "number"},
               "heatedShinechargeTiles": {"type": "number"},
               "speedBallTiles": {"type": "number"},
+              "shinechargeLeniencyFrames": {"type": "integer"},
               "disableableEtanks": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"}
             }
@@ -132,7 +133,11 @@
             "default": false
           },
           "forward": {"$ref": "#/definitions/traversalCheck"},
-          "reverse": {"$ref": "#/definitions/traversalCheck"}
+          "reverse": {"$ref": "#/definitions/traversalCheck"},
+          "note": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
         }
       }         
     }

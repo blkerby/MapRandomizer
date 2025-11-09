@@ -79,6 +79,7 @@ struct ScenarioSettings {
     shinecharge_tiles: Option<f32>,
     heated_shinecharge_tiles: Option<f32>,
     speed_ball_tiles: Option<f32>,
+    shinecharge_leniency_frames: Option<i32>,
     disableable_etanks: Option<bool>,
     collectible_wall_jump: Option<bool>,
 }
@@ -133,7 +134,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             shinespark_tiles: settings.shinecharge_tiles.unwrap_or(12.0),
             heated_shinespark_tiles: settings.heated_shinecharge_tiles.unwrap_or(13.0),
             speed_ball_tiles: settings.speed_ball_tiles.unwrap_or(14.0),
-            shinecharge_leniency_frames: 0,
+            shinecharge_leniency_frames: settings.shinecharge_leniency_frames.unwrap_or(0),
             resource_multiplier: 1.0,
             farm_time_limit: 0.0,
             gate_glitch_leniency: 0,
