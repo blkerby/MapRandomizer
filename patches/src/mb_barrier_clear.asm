@@ -59,19 +59,19 @@ normal_objs:
 start_obj_checks:
     jsr check_objective
     beq .skip_1
-    %clear_plm($36)
+    %clear_plm($39)
 .skip_1
     jsr check_objective
     beq .skip_2
-    %clear_plm($37)
+    %clear_plm($38)
 .skip_2
     jsr check_objective
     beq .skip_3
-    %clear_plm($38)
+    %clear_plm($37)
 .skip_3
     jsr check_objective
     beq done
-    %clear_plm($39)
+    %clear_plm($36)
 
 done:
     rts
