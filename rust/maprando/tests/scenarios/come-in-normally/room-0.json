@@ -3,7 +3,7 @@
   "roomEnvironments": [{"heated": false}],
   "id": 0,
   "roomAddress": "0x0000",
-  "name": "Test Room",
+  "name": "Test Room 0",
   "area": "Test Area",
   "subarea": "Test Subarea",
   "mapTileMask": [[1]],

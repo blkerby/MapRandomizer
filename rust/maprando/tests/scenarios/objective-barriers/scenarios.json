@@ -1,0 +1,77 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Barrier 1 Cleared",
+      "globalState": {
+        "flags": ["f_DefeatedKraid"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Barrier 1 Not Cleared",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Barrier 2 Cleared",
+      "globalState": {
+        "flags": ["f_DefeatedPhantoon"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 3
+    },
+    {
+      "name": "Barrier 2 Not Cleared",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "fail": true
+    },
+    {
+      "name": "Barrier 3 Cleared",
+      "globalState": {
+        "flags": ["f_DefeatedDraygon"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 4
+    },
+    {
+      "name": "Barrier 3 Not Cleared",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 4,
+      "fail": true
+    },
+    {
+      "name": "Barrier 4 Cleared",
+      "globalState": {
+        "flags": ["f_DefeatedRidley"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 5
+    },
+    {
+      "name": "Barrier 4 Not Cleared",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 5,
+      "fail": true
+    }
+  ]
+}

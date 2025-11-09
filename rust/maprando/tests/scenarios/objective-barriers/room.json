@@ -1,0 +1,82 @@
+{
+  "$schema": "../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [[1]],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Starting Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 2,
+      "name": "Ending Node (Barrier 1 Cleared)",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 3,
+      "name": "Ending Node (Barrier 2 Cleared)",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 4,
+      "name": "Ending Node (Barrier 3 Cleared)",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    },
+    {
+      "id": 5,
+      "name": "Ending Node (Barrier 4 Cleared)",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    }
+  ],
+  "links": [],
+  "strats": [
+    {
+      "link": [1, 2],
+      "name": "Base",
+      "requires": [
+        "i_MotherBrainBarrier1Clear"
+      ],
+      "flashSuitChecked": true
+    },
+    {
+      "link": [1, 3],
+      "name": "Base",
+      "requires": [
+        "i_MotherBrainBarrier2Clear"
+      ],
+      "flashSuitChecked": true
+    },
+    {
+      "link": [1, 4],
+      "name": "Base",
+      "requires": [
+        "i_MotherBrainBarrier3Clear"
+      ],
+      "flashSuitChecked": true
+    },
+    {
+      "link": [1, 5],
+      "name": "Base",
+      "requires": [
+        "i_MotherBrainBarrier4Clear"
+      ],
+      "flashSuitChecked": true
+    }
+  ]
+}

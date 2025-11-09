@@ -5,8 +5,9 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, Preprocessor},
     settings::{
-        InitialMapRevealSettings, ItemProgressionSettings, ObjectiveSettings, OtherSettings,
-        QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationSettings,
+        InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveOption,
+        ObjectiveSetting, ObjectiveSettings, OtherSettings, QualityOfLifeSettings,
+        RandomizerSettings, SkillAssumptionSettings, StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
 };
@@ -61,6 +62,8 @@ struct Scenario {
 struct ScenarioGlobalState {
     #[serde(default)]
     items: Vec<String>,
+    #[serde(default)]
+    flags: Vec<String>,
     #[serde(default)]
     disabled_tech: Vec<String>,
     max_energy: Option<Capacity>,
@@ -173,6 +176,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             persist_blue_suit: false,
         },
         objective_settings: ObjectiveSettings {
+            // These settings are unused. Bosses are used in `test_scenario``.
             preset: None,
             objective_options: vec![],
             min_objectives: 0,
@@ -260,7 +264,7 @@ fn get_global_state(
     difficulty: &DifficultyConfig,
     scenario: &Scenario,
 ) -> Result<GlobalState> {
-    let flags = vec![false; game_data.flag_isv.keys.len()];
+    let mut flags = vec![false; game_data.flag_isv.keys.len()];
 
     let mut inventory = Inventory {
         items: vec![false; game_data.item_isv.keys.len()],
@@ -283,6 +287,15 @@ fn get_global_state(
                 .get(item_str)
                 .context(format!("Unknown item '{}'", item_str))?;
             inventory.items[item_idx] = true;
+        }
+
+        for flag_str in &scenario_global.flags {
+            let flag_idx = *game_data
+                .flag_isv
+                .index_by_key
+                .get(flag_str)
+                .context(format!("Unknown flag '{}'", flag_str))?;
+            flags[flag_idx] = true;
         }
 
         if let Some(max_energy) = scenario_global.max_energy {
@@ -378,6 +391,12 @@ fn test_scenario(
     let global_state = get_global_state(game_data, &difficulty, scenario)?;
     let start_local_state = get_local_state(&scenario.start_state);
     let end_local_state = get_local_state(&scenario.end_state);
+    let objectives = vec![
+        Objective::Kraid,
+        Objective::Phantoon,
+        Objective::Draygon,
+        Objective::Ridley,
+    ];
 
     let start_vertex_key = VertexKey {
         room_id: scenario.start_room_id,
@@ -421,7 +440,6 @@ fn test_scenario(
 
     for reverse in [false, true] {
         println!("reverse: {}", reverse);
-
         let initial_vertex_id: VertexId;
         let initial_local_state: LocalState;
         let final_vertex_id: VertexId;
@@ -456,7 +474,7 @@ fn test_scenario(
             game_data,
             &preprocessor.door_map,
             &locked_door_data,
-            &[],
+            &objectives,
             0,
         );
 

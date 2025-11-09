@@ -53,12 +53,16 @@
             "additionalProperties": false,
             "properties": {
               "disabledTech": {
-                  "type": "array",
-                  "items": {"type": "string"}
+                "type": "array",
+                "items": {"type": "string"}
               },
               "items": {
-                  "type": "array",
-                  "items": {"type": "string"}
+                "type": "array",
+                "items": {"type": "string"}
+              },
+              "flags": {
+                "type": "array",
+                "items": {"type": "string"}
               },
               "maxEnergy": {"type": "integer"},
               "maxReserves": {"type": "integer"},

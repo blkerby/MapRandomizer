@@ -1,0 +1,23 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Have Flag",
+      "globalState": {
+        "flags": ["f_MaridiaTubeBroken"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missing Flag",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+ ]
+}
