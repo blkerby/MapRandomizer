@@ -27,8 +27,13 @@
   "strats": [
     {
       "link": [1, 2],
-      "name": "Free",
-      "requires": ["free"],
+      "name": "Speedball",
+      "requires": [
+        {"speedBall": {
+          "length": 15,
+          "openEnd": 1
+        }}
+      ],
       "flashSuitChecked": true
     }
   ]

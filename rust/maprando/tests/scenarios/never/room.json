@@ -27,8 +27,8 @@
   "strats": [
     {
       "link": [1, 2],
-      "name": "Free",
-      "requires": ["free"],
+      "name": "Never",
+      "requires": ["never"],
       "flashSuitChecked": true
     }
   ]

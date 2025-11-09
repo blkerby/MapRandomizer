@@ -12,7 +12,8 @@ use maprando::{
     traverse::{LockedDoorData, Traverser},
 };
 use maprando_game::{
-    Capacity, GameData, LinksDataGroup, NodeId, ObstacleMask, RoomId, VertexId, VertexKey,
+    Capacity, GameData, LinksDataGroup, NodeId, NotableId, ObstacleMask, RoomId, VertexId,
+    VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState, ResourceLevel};
 use serde::Deserialize;
@@ -77,6 +78,7 @@ enum TraversalCheck {
 struct ScenarioSettings {
     shinecharge_tiles: Option<f32>,
     heated_shinecharge_tiles: Option<f32>,
+    speed_ball_tiles: Option<f32>,
     disableable_etanks: Option<bool>,
     collectible_wall_jump: Option<bool>,
 }
@@ -90,11 +92,20 @@ struct ScenarioGlobalState {
     flags: Vec<String>,
     #[serde(default)]
     disabled_tech: Vec<String>,
+    #[serde(default)]
+    notables: Vec<ScenarioNotable>,
     max_energy: Option<Capacity>,
     max_reserves: Option<Capacity>,
     max_missiles: Option<Capacity>,
     max_supers: Option<Capacity>,
     max_power_bombs: Option<Capacity>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ScenarioNotable {
+    room_id: RoomId,
+    notable_id: NotableId,
 }
 
 #[derive(Debug, Deserialize)]
@@ -121,7 +132,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             preset: None,
             shinespark_tiles: settings.shinecharge_tiles.unwrap_or(12.0),
             heated_shinespark_tiles: settings.heated_shinecharge_tiles.unwrap_or(13.0),
-            speed_ball_tiles: 14.0,
+            speed_ball_tiles: settings.speed_ball_tiles.unwrap_or(14.0),
             shinecharge_leniency_frames: 0,
             resource_multiplier: 1.0,
             farm_time_limit: 0.0,
@@ -250,6 +261,15 @@ fn get_difficulty(
                 .context(format!("Unknown tech '{}'", tech_str))?;
             let tech_idx = game_data.tech_isv.index_by_key[&tech_id];
             difficulty.tech[tech_idx] = false;
+        }
+
+        for notable in &scenario_global.notables {
+            let notable_idx = *game_data
+                .notable_isv
+                .index_by_key
+                .get(&(notable.room_id, notable.notable_id))
+                .context(format!("Unknown notable {:?}", notable))?;
+            difficulty.notables[notable_idx] = true;
         }
     }
     Ok(difficulty)

@@ -2,12 +2,14 @@
   "$schema": "../../schema/scenarios.schema.json",
   "scenarios": [
     {
-      "name": "Shinecharge",
-      "settings": {
-        "heatedShinechargeTiles": 15
-      },
+      "name": "Have Notable",
       "globalState": {
-        "items": ["SpeedBooster"]
+        "notables": [
+          {
+            "roomId": 0,
+            "notableId": 1
+          }
+        ]
       },
       "startRoomId": 0,
       "startNodeId": 1,
@@ -15,13 +17,7 @@
       "endNodeId": 2
     },
     {
-      "name": "Runway Too Short",
-      "settings": {
-        "heatedShinechargeTiles": 16
-      },
-      "globalState": {
-        "items": ["SpeedBooster"]
-      },
+      "name": "Missing Notable",
       "startRoomId": 0,
       "startNodeId": 1,
       "endRoomId": 0,

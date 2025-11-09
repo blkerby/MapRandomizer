@@ -27,9 +27,18 @@
   "strats": [
     {
       "link": [1, 2],
-      "name": "Free",
-      "requires": ["free"],
+      "name": "Notable",
+      "requires": [
+        {"notable": "Test Notable"}
+      ],
       "flashSuitChecked": true
+    }
+  ],
+  "notables": [
+    {
+      "id": 1,
+      "name": "Test Notable",
+      "note": "Notable Note"
     }
   ]
 }

@@ -4605,6 +4605,16 @@ impl GameData {
             let node_id = node_json["id"].as_usize().unwrap();
             self.node_json_map
                 .insert((room_id, node_id), node_json.clone());
+
+            for obstacle_mask in 0..(1 << num_obstacles) {
+                self.vertex_isv.add(&VertexKey {
+                    room_id,
+                    node_id,
+                    obstacle_mask,
+                    actions: vec![],
+                });
+            }
+
             if node_json.has_key("nodeAddress") {
                 let mut node_ptr =
                     parse_int::parse::<usize>(node_json["nodeAddress"].as_str().unwrap()).unwrap();

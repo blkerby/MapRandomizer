@@ -61,6 +61,7 @@
             "properties": {
               "shinechargeTiles": {"type": "number"},
               "heatedShinechargeTiles": {"type": "number"},
+              "speedBallTiles": {"type": "number"},
               "disableableEtanks": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"}
             }
@@ -72,6 +73,18 @@
               "disabledTech": {
                 "type": "array",
                 "items": {"type": "string"}
+              },
+              "notables": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": ["roomId", "notableId"],
+                  "properties": {
+                    "roomId": {"type": "integer"},
+                    "notableId": {"type": "integer"}
+                  }
+                }
               },
               "items": {
                 "type": "array",

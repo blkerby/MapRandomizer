@@ -2,12 +2,12 @@
   "$schema": "../../schema/scenarios.schema.json",
   "scenarios": [
     {
-      "name": "Shinecharge",
+      "name": "Speedball",
       "settings": {
-        "shinechargeTiles": 15
+        "speedBallTiles": 15
       },
       "globalState": {
-        "items": ["SpeedBooster"]
+        "items": ["Morph", "SpeedBooster"]
       },
       "startRoomId": 0,
       "startNodeId": 1,
@@ -17,7 +17,24 @@
     {
       "name": "Missing Speed Booster",
       "settings": {
-        "shinechargeTiles": 15
+        "speedBallTiles": 15
+      },
+      "globalState": {
+        "items": ["Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Missing Morph",
+      "settings": {
+        "speedBallTiles": 15
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
       },
       "startRoomId": 0,
       "startNodeId": 1,
@@ -28,10 +45,10 @@
     {
       "name": "Runway Too Short",
       "settings": {
-        "shinechargeTiles": 16
+        "speedBallTiles": 16
       },
       "globalState": {
-        "items": ["SpeedBooster"]
+        "items": ["Morph", "SpeedBooster"]
       },
       "startRoomId": 0,
       "startNodeId": 1,
@@ -39,13 +56,13 @@
       "endNodeId": 2,
       "fail": true
     },
-    {
-      "name": "Cannot Carry Flash Suit",
+     {
+      "name": "Carry Flash Suit",
       "settings": {
-        "shinechargeTiles": 15
+        "speedBallTiles": 15
       },
       "globalState": {
-        "items": ["SpeedBooster"]
+        "items": ["Morph", "SpeedBooster"]
       },
       "startRoomId": 0,
       "startNodeId": 1,
@@ -56,28 +73,7 @@
       "endNodeId": 2,
       "endState": {
         "flashSuit": true
-      },
-      "fail": true
-    },
-    {
-      "name": "Lose Flash Suit",
-      "settings": {
-        "shinechargeTiles": 15
-      },
-      "globalState": {
-        "items": ["SpeedBooster"]
-      },
-      "startRoomId": 0,
-      "startNodeId": 1,
-      "startState": {
-        "flashSuit": true
-      },
-      "endRoomId": 0,
-      "endNodeId": 2,
-      "endState": {
-        "flashSuit": false
-      },
-      "reverse": "weak"
+      }
     }
   ]
 }
