@@ -11,8 +11,8 @@ v120?:
   - Move canDoorLockSkip to Expert?
   - Move Botwoon ETank right-side sand grapple jump to Expert?
   - ease botwoon proficiency expectation
-- Fix issue with RegularEnergy resourceAvailable (R-mode reduced tanks bugged seed reported by nn)
-- implement canSpeedyJump tech uses
+- DONE: Fix issue with RegularEnergy resourceAvailable (R-mode reduced tanks bugged seed reported by nn)
+- DONE: implement canSpeedyJump tech uses
 - Handle Phantoon flag better (e.g. for small maps, or non-bosses objectives)
   - Option: if Phantoon is not an objective, start with WS power on
   - Or if Phantoon does not exist, remove risk-loss-of-access in power-off strats.
@@ -27,7 +27,7 @@ v120?:
   - Finish adding cross-room temp blue strats and remote runway setups/applications in Norfair
     - Add missing remote runway strats in pink brinstar hopper room left side
   - Populate wallJumpAvoid throughout the logic (strats and notables)
-  - Finish checking flash suit logic
+  - DONE: Finish checking flash suit logic
   - Gauntlet Entrance: remote runway strats on right side
 - Allow more options to be overridden on the customization step:
   - example: Door locks size on map

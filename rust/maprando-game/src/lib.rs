@@ -1132,21 +1132,6 @@ impl LinksDataGroup {
     }
 }
 
-fn get_ignored_notable_strats() -> HashSet<(RoomId, NotableId)> {
-    [
-        (170, 4), // "Breaking the Maridia Tube Gravity Jump", not usable because of canRiskPermanentLossOfAccess
-        (155, 1), // "Wrecked Ship Main Shaft Partial Covern Ice Clip", not usable because of canRiskPermanentLossOfAccess
-        // (144, 4), // "Mickey Mouse Crumble Jump IBJ", only useful with CF clip strat, or if we change item progression rules
-        (44, 1), // "Green Brinstar Main Shaft Moonfall Spark", does not seem to be viable with the vanilla door connection
-        (65, 1), // "Waterway Grapple Teleport Inside Wall", no way out after getting item
-        (197, 2), // "Plasma Spark X-Ray Climb Into Fake Kassiuz Room", useless, since the misaligned transition will put you OOB
-        (59, 10), // "Big Pink Blind Zeb Ice Clip (Preserve Flash Suit)", flash suit strats not supported yet
-        (51, 5), // "Etecoon E-Tank Beetom Clip (High Pixel, Preserve Flash Suit)", flash suit strats not supported yet
-    ]
-    .into_iter()
-    .collect()
-}
-
 fn get_logical_gray_door_node_ids() -> Vec<(RoomId, NodeId)> {
     // Gray door nodes that will be modeled in logic, i.e. their `locks` requirement must be met to go through them, and
     // and an obstacle will be added to the room to track them staying open when entering through them.
