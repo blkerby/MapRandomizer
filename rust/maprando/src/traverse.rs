@@ -1729,7 +1729,7 @@ fn apply_requirement_simple(
                         local
                             .ensure_energy_available(
                                 29 + min_frames,
-                                can_manage_reserves,
+                                false,
                                 &cx.global.inventory,
                                 cx.reverse,
                             )

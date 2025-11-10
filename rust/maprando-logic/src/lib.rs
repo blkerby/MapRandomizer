@@ -91,6 +91,7 @@ impl GlobalState {
 }
 
 #[derive(Copy, Clone, Debug, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub enum ResourceLevel {
     Consumed(Capacity),
     Remaining(Capacity),
@@ -613,16 +614,19 @@ impl LocalState {
     pub fn ensure_energy_available(
         &mut self,
         amt: Capacity,
-        can_transfer_reserves: bool,
+        include_reserves: bool,
         inventory: &Inventory,
         reverse: bool,
     ) -> bool {
         if reverse {
-            // This is a bit inefficient of a way to implement this, but it's rarely used so it shouldn't matter.
-            self.refill_energy(amt, can_transfer_reserves, inventory, reverse);
-            self.use_energy(amt, can_transfer_reserves, inventory, reverse)
+            let a = if include_reserves {
+                Capacity::max(0, amt - self.reserves_remaining(inventory))
+            } else {
+                amt
+            };
+            Self::ensure_resource_available(a, inventory.max_energy, &mut self.energy, reverse)
         } else {
-            self.energy_remaining(inventory, can_transfer_reserves) >= amt
+            self.energy_remaining(inventory, include_reserves) >= amt
         }
     }
 
@@ -704,9 +708,26 @@ impl LocalState {
         reverse: bool,
     ) -> bool {
         if reverse {
-            // This is a bit inefficient of a way to implement this, but it's rarely used so it shouldn't matter.
-            Self::refill_resource(amt, max_resource, level, reverse);
-            Self::use_resource(amt, max_resource, level, reverse)
+            match level.decode() {
+                ResourceLevel::Consumed(x) => {
+                    let b = Capacity::min(x, max_resource - amt);
+                    if b < 0 {
+                        false
+                    } else {
+                        *level = ResourceLevel::Consumed(b).into();
+                        true
+                    }
+                }
+                ResourceLevel::Remaining(x) => {
+                    let new_amt = Capacity::max(x, amt);
+                    if new_amt > max_resource {
+                        false
+                    } else {
+                        *level = ResourceLevel::Remaining(new_amt).into();
+                        true
+                    }
+                }
+            }
         } else {
             Self::resource_remaining(level.decode(), max_resource) >= amt
         }
