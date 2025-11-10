@@ -424,6 +424,30 @@ fn get_obstacle_mask(
     Ok(obstacle_mask)
 }
 
+fn resource_match(
+    amt: ResourceLevel,
+    target: ResourceLevel,
+    max_resource: Capacity,
+    reverse: bool,
+) -> (bool, bool) {
+    let amt_available = LocalState::resource_available(amt, max_resource, reverse);
+    let target_available = LocalState::resource_available(target, max_resource, reverse);
+    let match_exact = amt == target;
+    let mut match_weak = amt_available >= target_available;
+    if reverse {
+        if let ResourceLevel::Consumed(_) = target
+            && let ResourceLevel::Remaining(_) = amt
+        {
+            match_weak = false;
+        }
+    } else if let ResourceLevel::Consumed(_) = target
+        && let ResourceLevel::Remaining(_) = amt
+    {
+        match_weak = false;
+    }
+    (match_weak, match_exact)
+}
+
 fn test_scenario(
     game_data: &GameData,
     connections: &[Connection],
@@ -488,6 +512,66 @@ fn test_scenario(
     };
     let inventory = &global_state.inventory;
 
+    for (state, name) in [(start_local_state, "start"), (end_local_state, "end")] {
+        let regular_energy_available = state.energy_available(inventory, false, false);
+        if regular_energy_available < 1 || regular_energy_available > inventory.max_energy {
+            bail!(
+                "Invalid {} energy ({:?}), max energy {}",
+                name,
+                state.energy(),
+                inventory.max_energy
+            );
+        }
+
+        let reserves_available = state.reserves_available(inventory, false);
+        if reserves_available < 0 || reserves_available > inventory.max_reserves {
+            bail!(
+                "Invalid {} reserves ({:?}), max reserves {}",
+                name,
+                state.reserves(),
+                inventory.max_reserves
+            );
+        }
+
+        let missiles_available = state.missiles_available(inventory, false);
+        if missiles_available < 0 || missiles_available > inventory.max_missiles {
+            bail!(
+                "Invalid {} missiles ({:?}), max missiles {}",
+                name,
+                state.missiles(),
+                inventory.max_missiles
+            );
+        }
+
+        let supers_available = state.supers_available(inventory, false);
+        if supers_available < 0 || supers_available > inventory.max_supers {
+            bail!(
+                "Invalid {} supers ({:?}), max supers {}",
+                name,
+                state.supers(),
+                inventory.max_supers
+            );
+        }
+
+        let power_bombs_available = state.power_bombs_available(inventory, false);
+        if power_bombs_available < 0 || power_bombs_available > inventory.max_power_bombs {
+            bail!(
+                "Invalid {} power_bombs ({:?}), max power_bombs {}",
+                name,
+                state.power_bombs(),
+                inventory.max_power_bombs
+            );
+        }
+
+        if state.shinecharge_frames_remaining < 0 || state.shinecharge_frames_remaining > 180 {
+            bail!(
+                "Invalid {} shinecharge frames remaining ({})",
+                name,
+                state.shinecharge_frames_remaining
+            );
+        }
+    }
+
     for reverse in [false, true] {
         println!("reverse: {}", reverse);
         let initial_vertex_id: VertexId;
@@ -531,26 +615,56 @@ fn test_scenario(
         let mut exact_success: bool = false;
         let mut success: bool = false;
         for &local in &traverser.lsr[final_vertex_id].local {
-            let energy_pass = local.energy_available(inventory, true, reverse)
+            let mut energy_pass = local.energy_available(inventory, true, reverse)
                 >= final_local_state.energy_available(inventory, true, reverse);
-            let energy_exact = local.energy_available(inventory, true, reverse)
-                == final_local_state.energy_available(inventory, true, reverse);
-            let reserves_pass = local.reserves_available(inventory, reverse)
-                >= final_local_state.reserves_available(inventory, reverse);
-            let reserves_exact = local.reserves_available(inventory, reverse)
-                == final_local_state.reserves_available(inventory, reverse);
-            let missiles_pass = local.missiles_available(inventory, reverse)
-                >= final_local_state.missiles_available(inventory, reverse);
-            let missiles_exact = local.missiles_available(inventory, reverse)
-                == final_local_state.missiles_available(inventory, reverse);
-            let supers_pass = local.supers_available(inventory, reverse)
-                >= final_local_state.supers_available(inventory, reverse);
-            let supers_exact = local.supers_available(inventory, reverse)
-                == final_local_state.supers_available(inventory, reverse);
-            let power_bombs_pass = local.power_bombs_available(inventory, reverse)
-                >= final_local_state.power_bombs_available(inventory, reverse);
-            let power_bombs_exact = local.power_bombs_available(inventory, reverse)
-                == final_local_state.power_bombs_available(inventory, reverse);
+            let energy_exact = local.energy() == final_local_state.energy();
+            if reverse {
+                if let ResourceLevel::Remaining(_) = final_local_state.energy()
+                    && let ResourceLevel::Consumed(_) = local.energy()
+                {
+                    energy_pass = false;
+                }
+                if let ResourceLevel::Remaining(_) = final_local_state.reserves()
+                    && let ResourceLevel::Consumed(_) = local.reserves()
+                {
+                    energy_pass = false;
+                }
+            } else {
+                if let ResourceLevel::Consumed(_) = final_local_state.energy()
+                    && let ResourceLevel::Remaining(_) = local.energy()
+                {
+                    energy_pass = false;
+                }
+                if let ResourceLevel::Consumed(_) = final_local_state.reserves()
+                    && let ResourceLevel::Remaining(_) = local.reserves()
+                {
+                    energy_pass = false;
+                }
+            }
+            let (reserves_pass, reserves_exact) = resource_match(
+                local.reserves(),
+                final_local_state.reserves(),
+                inventory.max_reserves,
+                reverse,
+            );
+            let (missiles_pass, missiles_exact) = resource_match(
+                local.missiles(),
+                final_local_state.missiles(),
+                inventory.max_missiles,
+                reverse,
+            );
+            let (supers_pass, supers_exact) = resource_match(
+                local.supers(),
+                final_local_state.supers(),
+                inventory.max_supers,
+                reverse,
+            );
+            let (power_bombs_pass, power_bombs_exact) = resource_match(
+                local.power_bombs(),
+                final_local_state.power_bombs(),
+                inventory.max_power_bombs,
+                reverse,
+            );
             let shinecharge_frames_pass = local.shinecharge_frames_available(reverse)
                 >= final_local_state.shinecharge_frames_available(reverse);
             let shinecharge_frames_exact = local.shinecharge_frames_available(reverse)

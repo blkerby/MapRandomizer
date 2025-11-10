@@ -1721,7 +1721,9 @@ fn apply_requirement_simple(
                     local.energy_remaining(&cx.global.inventory, can_manage_reserves);
                 let min_frames = frames - excess_frames;
                 if cx.reverse {
-                    if regular_energy_remaining <= 29 {
+                    if regular_energy_remaining <= 29
+                        && let ResourceLevel::Remaining(_) = local.energy()
+                    {
                         if frames == excess_frames {
                             // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
                             return SimpleResult::Success;
@@ -1757,14 +1759,18 @@ fn apply_requirement_simple(
                         return SimpleResult::Failure;
                     }
                     if regular_energy_remaining >= 29 + frames {
-                        local
+                        println!("use_energy: {} {}", regular_energy_remaining, frames);
+                        println!("local0: {:?}", local);
+                        let b = local
                             .use_energy(
                                 frames,
                                 can_manage_reserves,
                                 &cx.global.inventory,
                                 cx.reverse,
                             )
-                            .into()
+                            .into();
+                        println!("local1: {:?}", local);
+                        b
                     } else {
                         let reserves_needed =
                             Capacity::max(0, 29 + min_frames - regular_energy_remaining);

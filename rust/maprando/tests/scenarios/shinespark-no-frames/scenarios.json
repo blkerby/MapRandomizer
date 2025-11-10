@@ -1,0 +1,34 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "No Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Keep Energy",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 10},
+        "reserves": {"remaining": 3}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 10},
+        "reserves": {"remaining": 3}
+      }
+    }
+  ]
+}

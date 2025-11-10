@@ -1,0 +1,150 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "High Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 40}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 30}
+      }
+    },
+    {
+      "name": "Exact Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Low Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 29}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "No Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "High Energy with Reserves",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 40},
+        "reserves": {"remaining": 100}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 30},
+        "reserves": {"remaining": 100}
+      }
+    },
+    {
+      "name": "No Energy with Reserves",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 100}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"remaining": 100}
+      }
+    },
+    {
+      "name": "High Energy, Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 10}
+      }
+    },
+    {
+      "name": "Exact Energy, Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 60}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 70}
+      }
+    },
+    {
+      "name": "Low Energy, Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 61}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    }
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "High Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Low Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 34}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      }
+    },
+    {
+      "name": "Low Energy, Reverse",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 34}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 1}
+      },
+      "forward": "weak"
+    },
+    {
+      "name": "Not Enough Energy",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 33}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Reserves",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 33}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Not Enough Reserves",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 32}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "High Energy, Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 60}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 70}
+      }
+    },
+    {
+      "name": "Too Little Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 9}
+      },
+      "fail": true
+    },
+    {
+      "name": "Exact Energy, Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 65}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Not Enough Energy, Energy Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 66}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Reserves, Reserves Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 67}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"consumed": 100},
+        "energy": {"remaining": 29}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Not Enough Reserves, Reserves Consumed",
+      "globalState": {
+        "items": ["SpeedBooster"],
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 68}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }    
+  ]
+}
