@@ -1234,25 +1234,27 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			e.className = "ui-flag"
 			if (j && j.flag && j.flag == f)
 				e.classList.add("selected");
-			e.onclick = ev => {
-				showFlag(c.details, f);
-			}
 
+			let map_e = document.getElementById(f);
 			if (f == "f_ZebesAwake") {
 				for (let s of c.details) {
 					for (let flag of s.flags) {
 						if (f == flag.flag) {
-							f = zebesawake[flag.location.room];
+							map_e = document.getElementById(zebesawake[flag.location.room]);
 							break;
 						}
 					}
 				}
 			}
+			e.onclick = ev => {
+				showFlag(c.details, f);
+				map_e.classList.remove("highlight");
+			}
 			e.onmouseenter = ev => {
-				document.getElementById(f).classList.add("highlight");
+				map_e.classList.add("highlight");
 			}
 			e.onmouseleave = ev => {
-				document.getElementById(f).classList.remove("highlight");
+				map_e.classList.remove("highlight");
 			}
 			d.appendChild(e);
 		}
