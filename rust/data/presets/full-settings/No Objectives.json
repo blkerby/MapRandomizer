@@ -822,6 +822,11 @@
                 "enabled": false
             },
             {
+                "id": 221,
+                "name": "canRModeCrystalFlashInterrupt",
+                "enabled": false
+            },
+            {
                 "id": 208,
                 "name": "canComplexCarryFlashSuit",
                 "enabled": false
@@ -988,7 +993,7 @@
             },
             {
                 "id": 214,
-                "name": "canFlashSuitDoubleSpark",
+                "name": "canUseFlashSuitInitialSpark",
                 "enabled": false
             },
             {
@@ -3551,6 +3556,13 @@
                 "notable_id": 2,
                 "room_name": "Indiana Jones Room",
                 "notable_name": "G-Mode Morph Long Diagonal Bomb Jump",
+                "enabled": false
+            },
+            {
+                "room_id": 153,
+                "notable_id": 1,
+                "room_name": "Fast Ripper Room",
+                "notable_name": "First-Try Gate Glitch",
                 "enabled": false
             },
             {

@@ -960,6 +960,12 @@
         "video_id": 8092
     },
     {
+        "tech_id": 221,
+        "name": "canRModeCrystalFlashInterrupt",
+        "difficulty": "Extreme",
+        "video_id": 7280
+    },
+    {
         "tech_id": 213,
         "name": "canRModeKnockbackSpark",
         "difficulty": "Insane",
@@ -985,7 +991,7 @@
     },
     {
         "tech_id": 214,
-        "name": "canFlashSuitDoubleSpark",
+        "name": "canUseFlashSuitInitialSpark",
         "difficulty": "Insane",
         "video_id": 7665
     },
@@ -1002,8 +1008,26 @@
         "video_id": null
     },
     {
+        "tech_id": 222,
+        "name": "canRModePauseAbuseSparkInterrupt",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
         "tech_id": 217,
         "name": "canCrystalSpark",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 223,
+        "name": "canXModeBlueSuit",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 224,
+        "name": "canDoubleXModeBlueSuit",
         "difficulty": "Ignored",
         "video_id": null
     },
@@ -1130,6 +1154,12 @@
     {
         "tech_id": 160,
         "name": "canSuperJump",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 225,
+        "name": "canSlopeXMode",
         "difficulty": "Ignored",
         "video_id": null
     },

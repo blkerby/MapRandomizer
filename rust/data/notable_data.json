@@ -1576,6 +1576,14 @@
     "video_id": 543
   },
   {
+    "room_id": 153,
+    "room_name": "Fast Ripper Room",
+    "notable_id": 1,
+    "name": "First-Try Gate Glitch",
+    "difficulty": "Insane",
+    "video_id": 8862
+  },
+  {
     "room_id": 150,
     "room_name": "Golden Torizo's Room",
     "notable_id": 1,

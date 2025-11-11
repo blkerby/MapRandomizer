@@ -11074,17 +11074,17 @@
   {
     "room_id": 59,
     "strat_id": 108,
-    "video_id": 473,
-    "created_user": "Osse101",
-    "note": "",
+    "video_id": 892,
+    "created_user": "maddo",
+    "note": "Normalized setup that doesn't rely on a visual cue: do a full-height jump, press against the wall, and hold angle up and down to lock Samus' position after landing, while continuing to hold left. This works with or without HiJump equipped.",
     "dev_note": ""
   },
   {
     "room_id": 59,
     "strat_id": 108,
-    "video_id": 892,
-    "created_user": "maddo",
-    "note": "Normalized setup that doesn't rely on a visual cue: do a full-height jump, press against the wall, and hold angle up and down to lock Samus' position after landing, while continuing to hold left. This works with or without HiJump equipped.",
+    "video_id": 473,
+    "created_user": "Osse101",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -34473,6 +34473,14 @@
   },
   {
     "room_id": 165,
+    "strat_id": 43,
+    "video_id": 7280,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 165,
     "strat_id": 8,
     "video_id": 8219,
     "created_user": "maddo",
@@ -34573,6 +34581,14 @@
     "video_id": 7734,
     "created_user": "Sam",
     "note": "Power Off",
+    "dev_note": ""
+  },
+  {
+    "room_id": 165,
+    "strat_id": 45,
+    "video_id": 7282,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
