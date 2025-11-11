@@ -60,6 +60,7 @@
     video.pause();
     document.getElementById("videoSource").setAttribute("src", url);
     video.load();
+    document.getElementById("video").volume = 0.5;
     video.play();
   }
   function startVideoByIds(mp4Url, roomId, stratId) {
