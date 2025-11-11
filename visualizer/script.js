@@ -765,6 +765,26 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		}
 		ctx.putImageData(img, 0, 0);
 	}
+	function expand(routeType){
+		let eles = document.getElementsByClassName(routeType+"-room-route");
+		for (e of eles) {
+			e.style.display = "block";
+		}
+		eles = document.getElementsByClassName(routeType+"arrow");
+		for (e of eles) {
+			e.className = routeType+"arrow bi bi-arrow-down"
+		}
+	}
+	function collapse(routeType){
+		let eles = document.getElementsByClassName(routeType+"-room-route");
+		for (e of eles) {
+			e.style.display = "none";
+		}
+		eles = document.getElementsByClassName(routeType+"arrow");
+		for (e of eles) {
+			e.className = routeType+"arrow bi bi-arrow-right"
+		}
+	}
 	let show_item_details = (item_name, loc, i, j, mapitem = false) => {
 		if (j !== null) {
 			document.getElementById("path-overlay").innerHTML = ""
@@ -896,11 +916,43 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		item_info.appendChild(createDiv(`${loc.room}: ${loc.node}<br><small>${loc.area}</small>`));
 		if (j !== null) {
 			let ss = c.details[i].start_state;
-			item_info.appendChild(createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`));
+			let obtain_head = createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`);
+
+			let obtain_expand = document.createElement("i");
+			obtain_expand.className="bi bi-arrow-down";
+			obtain_expand.onclick = ev => {
+				expand("obtain");
+			}
+			obtain_head.appendChild(obtain_expand);
+
+			let obtain_collapse = document.createElement("i");
+			obtain_collapse.className="bi bi-arrow-up";
+			obtain_collapse.onclick = ev => {
+				collapse("obtain");
+			}
+			obtain_head.appendChild(obtain_collapse);
+
+			item_info.appendChild(obtain_head);
 			routeData(item_info, j.obtain_route, ss);
 				
 			if (j.return_route.length !=0){
-				item_info.appendChild(createHtmlElement(`<div class="category">RETURN ROUTE</div>`));
+				let return_head = createHtmlElement(`<div class="category">RETURN ROUTE</div>`);
+
+				let return_expand = document.createElement("i");
+				return_expand.className="bi bi-arrow-down";
+				return_expand.onclick = ev => {
+					expand("return");
+				}
+				return_head.appendChild(return_expand);
+
+				let return_collapse = document.createElement("i");
+				return_collapse.className="bi bi-arrow-up";
+				return_collapse.onclick = ev => {
+					collapse("return");
+				}
+				return_head.appendChild(return_collapse);
+
+				item_info.appendChild(return_head);
 				routeData(item_info, j.return_route);
 			} else {
 				let escText = createDiv("ESCAPE");
@@ -1029,22 +1081,26 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					room_reps.set(k.room_id, room_reps.get(k.room_id)+1);
 				}
 				let rr = document.createElement("div");
-				rr.className = "room-route";
+				let routeType = "obtain";
+				if (ss == null) {
+					routeType = "return"
+				}
+				rr.className = routeType+"-room-route";
 
 				let roomHead = document.createElement("span");
 				roomHead.innerHTML = `${k.room}`;
 				roomHead.className = "room-head";
 
 				let arrow = document.createElement("i");
-				arrow.className="bi bi-arrow-right";
+				arrow.className=routeType+"arrow bi bi-arrow-right";
 				roomHead.appendChild(arrow);
 
 				roomHead.onclick = ev => {
 					if (rr.style.display == "block") {
-						arrow.className="bi bi-arrow-right";
+						arrow.className=routeType+"arrow bi bi-arrow-right";
 						rr.style.display = "none";
 					} else {
-						arrow.className="bi bi-arrow-down";
+						arrow.className=routeType+"arrow bi bi-arrow-down";
 						rr.style.display = "block";
 					}
 				}
