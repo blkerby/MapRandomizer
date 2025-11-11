@@ -71,7 +71,7 @@ a {
 .room-head:hover {
 	text-decoration: underline;
 }
-.room-route {
+.obtain-room-route,.return-room-route {
 	display: none;
 	padding: 5px;
 	padding-left: 20px;
