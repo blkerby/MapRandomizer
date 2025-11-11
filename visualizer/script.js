@@ -1237,10 +1237,20 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			e.onclick = ev => {
 				showFlag(c.details, f);
 			}
+
+			if (f == "f_ZebesAwake") {
+				for (let s of c.details) {
+					for (let flag of s.flags) {
+						if (f == flag.flag) {
+							f = zebesawake[flag.location.room];
+							break;
+						}
+					}
+				}
+			}
 			e.onmouseenter = ev => {
 				document.getElementById(f).classList.add("highlight");
 			}
-			
 			e.onmouseleave = ev => {
 				document.getElementById(f).classList.remove("highlight");
 			}
