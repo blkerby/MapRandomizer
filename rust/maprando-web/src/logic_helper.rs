@@ -986,7 +986,7 @@ fn get_strat_difficulty(
                 global,
                 local,
                 false,
-                &preset_data.default_preset,
+                &preset_data.logic_page_preset,
                 difficulty,
                 game_data,
                 &door_map,

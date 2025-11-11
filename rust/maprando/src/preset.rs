@@ -45,6 +45,7 @@ pub struct PresetData {
     pub difficulty_tiers: Vec<DifficultyConfig>,
     pub full_presets: Vec<RandomizerSettings>,
     pub default_preset: RandomizerSettings,
+    pub logic_page_preset: RandomizerSettings,
 }
 
 fn get_tech_by_difficulty(
@@ -229,6 +230,11 @@ impl PresetData {
             full_presets.push(preset);
         }
 
+        let default_preset = full_presets[0].clone();
+        let mut logic_page_preset = default_preset.clone();
+        // Use Max QoL for logic page, so that strats don't show as Ignored when depending on QoL (such as disableable tanks).
+        logic_page_preset.quality_of_life_settings = quality_of_life_presets.last().cloned().unwrap();
+        println!("disableable tanks: {}", logic_page_preset.quality_of_life_settings.disableable_etanks);
         let preset_data = Self {
             tech_data_map,
             notable_data_map,
@@ -240,7 +246,8 @@ impl PresetData {
             quality_of_life_presets,
             objective_presets,
             difficulty_tiers,
-            default_preset: full_presets[0].clone(),
+            default_preset,
+            logic_page_preset,
             full_presets,
         };
         Ok(preset_data)
