@@ -1759,18 +1759,14 @@ fn apply_requirement_simple(
                         return SimpleResult::Failure;
                     }
                     if regular_energy_remaining >= 29 + frames {
-                        println!("use_energy: {} {}", regular_energy_remaining, frames);
-                        println!("local0: {:?}", local);
-                        let b = local
+                        local
                             .use_energy(
                                 frames,
                                 can_manage_reserves,
                                 &cx.global.inventory,
                                 cx.reverse,
                             )
-                            .into();
-                        println!("local1: {:?}", local);
-                        b
+                            .into()
                     } else {
                         let reserves_needed =
                             Capacity::max(0, 29 + min_frames - regular_energy_remaining);
