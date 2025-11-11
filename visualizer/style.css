@@ -76,6 +76,9 @@ a {
 	padding: 5px;
 	padding-left: 20px;
 }
+.clickable:hover {
+	cursor: pointer;
+}
 .route-consumables, .route-flags, .route-strat{
 	padding-left: 10px;
 }

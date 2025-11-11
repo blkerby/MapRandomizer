@@ -919,14 +919,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let obtain_head = createHtmlElement(`<div class="category">OBTAIN ROUTE</div>`);
 
 			let obtain_expand = document.createElement("i");
-			obtain_expand.className="bi bi-arrow-down";
+			obtain_expand.className="clickable bi bi-arrow-down";
 			obtain_expand.onclick = ev => {
 				expand("obtain");
 			}
 			obtain_head.appendChild(obtain_expand);
 
 			let obtain_collapse = document.createElement("i");
-			obtain_collapse.className="bi bi-arrow-up";
+			obtain_collapse.className="clickable bi bi-arrow-up";
 			obtain_collapse.onclick = ev => {
 				collapse("obtain");
 			}
@@ -939,14 +939,14 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let return_head = createHtmlElement(`<div class="category">RETURN ROUTE</div>`);
 
 				let return_expand = document.createElement("i");
-				return_expand.className="bi bi-arrow-down";
+				return_expand.className="clickable bi bi-arrow-down";
 				return_expand.onclick = ev => {
 					expand("return");
 				}
 				return_head.appendChild(return_expand);
 
 				let return_collapse = document.createElement("i");
-				return_collapse.className="bi bi-arrow-up";
+				return_collapse.className="clickable bi bi-arrow-up";
 				return_collapse.onclick = ev => {
 					collapse("return");
 				}
@@ -1089,7 +1089,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 
 				let roomHead = document.createElement("span");
 				roomHead.innerHTML = `${k.room}`;
-				roomHead.className = "room-head";
+				roomHead.className = "room-head clickable";
 
 				let arrow = document.createElement("i");
 				arrow.className=routeType+"arrow bi bi-arrow-right";
