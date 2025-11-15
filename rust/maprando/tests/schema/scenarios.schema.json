@@ -63,6 +63,7 @@
               "heatedShinechargeTiles": {"type": "number"},
               "speedBallTiles": {"type": "number"},
               "shinechargeLeniencyFrames": {"type": "integer"},
+              "resourceMultiplier": {"type": "number"},
               "disableableEtanks": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"}
             }
