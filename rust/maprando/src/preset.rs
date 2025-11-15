@@ -233,8 +233,8 @@ impl PresetData {
         let default_preset = full_presets[0].clone();
         let mut logic_page_preset = default_preset.clone();
         // Use Max QoL for logic page, so that strats don't show as Ignored when depending on QoL (such as disableable tanks).
-        logic_page_preset.quality_of_life_settings = quality_of_life_presets.last().cloned().unwrap();
-        println!("disableable tanks: {}", logic_page_preset.quality_of_life_settings.disableable_etanks);
+        logic_page_preset.quality_of_life_settings =
+            quality_of_life_presets.last().cloned().unwrap();
         let preset_data = Self {
             tech_data_map,
             notable_data_map,
