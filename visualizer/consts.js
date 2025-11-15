@@ -132,3 +132,9 @@ let flagtypes = {
 		"f_ClearedBabyKraidRoom","f_ClearedPlasmaRoom","f_ClearedMetalPiratesRoom",
 		"f_ZebesAwake"]
 }
+let zebesawake = {
+	"Baby Kraid Room": "f_ClearedBabyKraidRoom",
+	"Plasma Room": "f_ClearedPlasmaRoom",
+	"Metal Pirates Room": "f_ClearedMetalPiratesRoom",
+	"Pit Room": "f_ClearedPitRoom",
+}
