@@ -4,7 +4,6 @@
 !bank_85_free_space_end = $85A180
 
 !bad_tiles_ram_addr = $704000
-!bad_tiles_ram_bank = $0070
 !bad_tiles_vram_addr = $0000
 !bad_tiles_word_size = $0200
 !bad_tiles_bytes_size = (!bad_tiles_word_size*2)
@@ -60,21 +59,19 @@ warnpc !bank_82_free_space_end
 
 org !bank_85_free_space_start
 hook_pre_scrolling:
-    ; check if fade-out is complete:
+    ; check write flag
+    lda $7EF594
+    bne .skip
+    ; check if fade-out is nearly complete:
     lda $7EC400
     cmp #$000D
     bcc .skip
-
-    ; Fade-out is done. Zero out the "bad" tiles in RAM, to appear black during the transition.
-    ldx #!bad_tiles_bytes_size-2
-    lda #$0000
-.clear_loop:
-    sta !bad_tiles_ram_addr,x
-    dex
-    dex
-    bpl .clear_loop
+    ; set write flag
+    lda #$0001
+    sta $7EF594
 
     ; copy blacked-out "bad" tiles to VRAM
+    dec ; null tbl
     jsr transfer_bad_tiles
 
 .skip:
@@ -86,7 +83,10 @@ hook_post_scrolling:
     lda $7EC400
     cmp #$0001
     bne .skip
-
+    ; clear write flag
+    lda #$0000
+    sta $7EF594
+    inc ; saved tbl
     jsr transfer_bad_tiles
 .skip:
     jsl $878064  ; run hi-jacked instruction
@@ -94,16 +94,24 @@ hook_post_scrolling:
 
 transfer_bad_tiles:
     ; queue the bad tiles to be copied to VRAM during NMI:
+    ; A = write address table index
+    PHB
+    PHY
+    PHK
+    PLB
+    ASL
+    ASL
+    TAY          ; y = index * 4
     LDX $0330
     LDA #!bad_tiles_bytes_size
     STA $D0,x
     INX
     INX
-    LDA #!bad_tiles_ram_addr
+    LDA write_tbl,y
     STA $D0,x
     INX
     INX
-    LDA #!bad_tiles_ram_bank
+    LDA write_tbl+2,y
     STA $D0,x
     INX
     LDA #!bad_tiles_vram_addr
@@ -111,6 +119,12 @@ transfer_bad_tiles:
     INX
     INX
     STX $0330
+    PLY
+    PLB
     RTS
 
+write_tbl:
+    dw $CE00, $009A ; null tbl
+    dw $4000, $0070 ; saved tbl
+    
 warnpc !bank_85_free_space_end
