@@ -1,0 +1,89 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Heat Protection",
+      "globalState": {
+        "items": ["Varia"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Not Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 3}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 4}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Enough Energy (Gravity)",
+      "globalState": {
+        "items": ["Gravity"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 4}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "note": [
+        "In the randomizer, Gravity provides no protection."
+      ]
+    },
+    {
+      "name": "Not Enough Energy, Energy Consumed",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 96}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy, Energy Consumed",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 95}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 98}
+      }
+    },
+    {
+      "name": "Multiplier",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "settings": {
+        "resourceMultiplier": 3.0
+      },
+      "startState": {
+        "energy": {"remaining": 8}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+   }
+  ]
+}

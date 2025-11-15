@@ -239,9 +239,10 @@ fn apply_heat_frames(
 
 fn get_enemy_drop_energy_value(
     drop: &EnemyDrop,
-    local: &LocalState,
+    local: &mut LocalState,
     reverse: bool,
     buffed_drops: bool,
+    full_ammo: bool,
 ) -> Capacity {
     let p_nothing = drop.nothing_weight.get();
     let mut p_small = drop.small_energy_weight.get();
@@ -254,29 +255,38 @@ fn get_enemy_drop_energy_value(
     let p_super = drop.super_weight.get();
     let p_pb = drop.power_bomb_weight.get();
 
-    if !reverse {
-        // For the forward traversal, we take into account how ammo drops roll over to energy if full.
-        // This could also be done for the reverse traversal, but it would require branching on multiple
-        // possibilities, which would need additional cost metrics in order to be effective;
-        // we pass on that for now.
-        //
+    if !reverse || full_ammo {
         // In theory, health bomb could also be modeled, except that the "heatFramesWithEnergyDrops" requirement
         // does not identify exactly when the drops are collected. In cases where it significantly matters, this
         // could be handled by having a boolean property in "heatFramesWithEnergyDrops" to indicate that the
         // drops are obtained at the very end of the heat frames? We ignore it for now.
-        if local.power_bombs() == ResourceLevel::Consumed(0) {
+        if local.power_bombs() == ResourceLevel::Consumed(0)
+            || (reverse && full_ammo && p_pb > 0.05)
+        {
             p_small += p_pb * rel_small;
             p_large += p_pb * rel_large;
             p_missile += p_pb * rel_missile;
+            if reverse {
+                local.power_bombs = ResourceLevel::Consumed(0).into();
+            }
         }
-        if local.supers() == ResourceLevel::Consumed(0) {
+        if local.supers() == ResourceLevel::Consumed(0) || (reverse && full_ammo && p_super > 0.05)
+        {
             p_small += p_super * rel_small;
             p_large += p_super * rel_large;
             p_missile += p_super * rel_missile;
+            if reverse {
+                local.supers = ResourceLevel::Consumed(0).into();
+            }
         }
-        if local.missiles() == ResourceLevel::Consumed(0) {
+        if local.missiles() == ResourceLevel::Consumed(0)
+            || (reverse && full_ammo && p_missile > 0.05)
+        {
             p_small += p_missile * p_small / (p_small + p_large);
             p_large += p_missile * p_large / (p_small + p_large);
+            if reverse {
+                local.missiles = ResourceLevel::Consumed(0).into();
+            }
         }
     }
     let expected_energy = p_small * if buffed_drops { 10.0 } else { 5.0 } + p_large * 20.0;
@@ -350,33 +360,60 @@ fn apply_heat_frames_with_energy_drops(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     reverse: bool,
-) -> bool {
+) -> SimpleResult {
     let varia = global.inventory.items[Item::Varia as usize];
     if varia {
-        true
+        true.into()
     } else if !difficulty.tech[game_data.heat_run_tech_idx] {
-        false
+        false.into()
     } else {
-        let mut total_drop_value = 0;
-        for drop in drops {
-            total_drop_value += get_enemy_drop_energy_value(
-                drop,
-                local,
-                reverse,
-                settings.quality_of_life_settings.buffed_drops,
-            )
-        }
-        let heat_energy = (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
-        total_drop_value = Capacity::min(total_drop_value, heat_energy);
-        if reverse {
-            local.refill_energy(total_drop_value, true, &global.inventory, reverse);
-            local.use_energy(heat_energy, true, &global.inventory, reverse)
+        let full_ammo_settings: Vec<bool> = if reverse {
+            vec![false, true]
         } else {
-            if !local.use_energy(heat_energy, true, &global.inventory, reverse) {
-                return false;
+            vec![false]
+        };
+        let mut state_output: Vec<LocalState> = vec![];
+        for full_ammo in full_ammo_settings {
+            let mut new_local = *local;
+            let mut total_drop_value = 0;
+            for drop in drops {
+                total_drop_value += get_enemy_drop_energy_value(
+                    drop,
+                    &mut new_local,
+                    reverse,
+                    settings.quality_of_life_settings.buffed_drops,
+                    full_ammo,
+                )
             }
-            local.refill_energy(total_drop_value, true, &global.inventory, reverse);
-            true
+            let heat_energy =
+                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+            total_drop_value = Capacity::min(total_drop_value, heat_energy);
+            if reverse {
+                new_local.refill_energy(total_drop_value, true, &global.inventory, reverse);
+                if new_local.use_energy(heat_energy, true, &global.inventory, reverse) {
+                    state_output.push(new_local);
+                }
+            } else {
+                if !new_local.use_energy(heat_energy, true, &global.inventory, reverse) {
+                    continue;
+                }
+                new_local.refill_energy(total_drop_value, true, &global.inventory, reverse);
+                state_output.push(new_local);
+            }
+        }
+        match state_output.len() {
+            0 => false.into(),
+            1 => {
+                *local = state_output[0];
+                true.into()
+            }
+            2 => {
+                *local = state_output[0];
+                SimpleResult::ExtraState(state_output[1])
+            }
+            _ => {
+                panic!("internal error");
+            }
         }
     }
 }
@@ -405,6 +442,7 @@ fn apply_lava_frames_with_energy_drops(
                 local,
                 reverse,
                 settings.quality_of_life_settings.buffed_drops,
+                false, // TODO: handle this.
             )
         }
         let lava_energy = if gravity || varia {
@@ -891,14 +929,14 @@ pub fn apply_requirement(
     match apply_requirement_simple(req, &mut local, &cx) {
         SimpleResult::Failure => None,
         SimpleResult::Success => Some(local),
-        SimpleResult::_ExtraState(_) => Some(local),
+        SimpleResult::ExtraState(_) => Some(local),
     }
 }
 
 enum SimpleResult {
     Failure,
     Success,
-    _ExtraState(LocalState),
+    ExtraState(LocalState),
 }
 
 impl From<bool> for SimpleResult {
@@ -952,7 +990,7 @@ fn apply_requirement_complex(
                     SimpleResult::Success => {
                         reducer.push(loc, &cx.global.inventory, (), cx.reverse);
                     }
-                    SimpleResult::_ExtraState(extra_state) => {
+                    SimpleResult::ExtraState(extra_state) => {
                         reducer.push(loc, &cx.global.inventory, (), cx.reverse);
                         reducer.push(extra_state, &cx.global.inventory, (), cx.reverse);
                     }
@@ -1040,7 +1078,6 @@ fn apply_requirement_simple(
                 cx.difficulty,
                 cx.reverse,
             )
-            .into()
         }
         Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
             let drops = if cx.settings.quality_of_life_settings.buffed_drops {
@@ -1929,7 +1966,7 @@ fn apply_requirement_simple(
                     match apply_requirement_simple(req, local, cx) {
                         SimpleResult::Failure => return SimpleResult::Failure,
                         SimpleResult::Success => {}
-                        SimpleResult::_ExtraState(_) => todo!(),
+                        SimpleResult::ExtraState(_) => todo!(),
                     }
                 }
             } else {
@@ -1937,7 +1974,7 @@ fn apply_requirement_simple(
                     match apply_requirement_simple(req, local, cx) {
                         SimpleResult::Failure => return SimpleResult::Failure,
                         SimpleResult::Success => {}
-                        SimpleResult::_ExtraState(_) => todo!(),
+                        SimpleResult::ExtraState(_) => todo!(),
                     }
                 }
             }
@@ -1952,7 +1989,7 @@ fn apply_requirement_simple(
                 match apply_requirement_simple(req, local, cx) {
                     SimpleResult::Failure => continue,
                     SimpleResult::Success => {}
-                    SimpleResult::_ExtraState(_) => todo!(),
+                    SimpleResult::ExtraState(_) => todo!(),
                 }
                 let cost = compute_cost(local, &cx.global.inventory, cx.reverse);
                 // TODO: Maybe do something better than just using the first cost metric.
