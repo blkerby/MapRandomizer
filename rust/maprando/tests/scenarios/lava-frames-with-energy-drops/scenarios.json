@@ -1,0 +1,99 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Full Lava Protection",
+      "globalState": {
+        "items": ["Gravity", "Varia"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 61}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 8}
+      }
+    },
+    {
+      "name": "Enough Energy (Reverse)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 61}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 1}
+      },
+      "forward": "weak"
+    },
+    {
+      "name": "Not Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 60}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy (Buffed Drops)",
+      "settings": {
+        "buffedDrops": true
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 61}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 10}
+      }
+    },
+    {
+      "name": "Enough Energy (Full Missiles)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 61},
+        "missiles": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 12},
+        "missiles": {"consumed": 0}
+      }
+    },
+    {
+      "name": "Enough Energy (Full Missiles, Reverse)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 61},
+        "missiles": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 12}
+      },
+      "forward": "weak"
+    }
+  ]
+}

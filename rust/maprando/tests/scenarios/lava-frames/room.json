@@ -29,17 +29,9 @@
       "link": [1, 2],
       "name": "Base",
       "requires": [
-        {"heatFramesWithEnergyDrops": {
-          "drops": [
-            {"enemy": "Fireflea", "count": 1}
-          ],
-          "frames": 200
-        }}
+        {"lavaFrames": 9}
       ],
       "flashSuitChecked": true
     }
-  ],
-  "devNote": [
-    "Normally the room environment should be set to heated, but the logical requirement heatFramesWithEnergyDrops does not depend on this."
   ]
 }

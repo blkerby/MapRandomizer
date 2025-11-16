@@ -82,6 +82,7 @@ struct ScenarioSettings {
     shinecharge_leniency_frames: Option<i32>,
     resource_multiplier: Option<f32>,
     disableable_etanks: Option<bool>,
+    buffed_drops: Option<bool>,
     collectible_wall_jump: Option<bool>,
 }
 
@@ -208,7 +209,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             energy_station_reserves: false,
             disableable_etanks: settings.disableable_etanks.unwrap_or(false),
             reserve_backward_transfer: false,
-            buffed_drops: false,
+            buffed_drops: settings.buffed_drops.unwrap_or(false),
             early_save: false,
             persist_flash_suit: false,
             persist_blue_suit: false,

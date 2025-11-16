@@ -427,39 +427,64 @@ fn apply_lava_frames_with_energy_drops(
     settings: &RandomizerSettings,
     difficulty: &DifficultyConfig,
     reverse: bool,
-) -> bool {
+) -> SimpleResult {
     let varia = global.inventory.items[Item::Varia as usize];
     let gravity = global.inventory.items[Item::Gravity as usize];
     if gravity && varia {
-        true
+        true.into()
     } else if !difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_SUITLESS_LAVA_DIVE]] {
-        false
+        false.into()
     } else {
-        let mut total_drop_value = 0;
-        for drop in drops {
-            total_drop_value += get_enemy_drop_energy_value(
-                drop,
-                local,
-                reverse,
-                settings.quality_of_life_settings.buffed_drops,
-                false, // TODO: handle this.
-            )
-        }
-        let lava_energy = if gravity || varia {
-            (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity
+        let full_ammo_settings: Vec<bool> = if reverse {
+            vec![false, true]
         } else {
-            (frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity
+            vec![false]
         };
-        total_drop_value = Capacity::min(total_drop_value, lava_energy);
-        if reverse {
-            local.refill_energy(total_drop_value, true, &global.inventory, reverse);
-            local.use_energy(lava_energy, true, &global.inventory, reverse)
-        } else {
-            if !local.use_energy(lava_energy, true, &global.inventory, reverse) {
-                return false;
+        let mut state_output: Vec<LocalState> = vec![];
+        for full_ammo in full_ammo_settings {
+            let mut new_local = *local;
+            let mut total_drop_value = 0;
+            for drop in drops {
+                total_drop_value += get_enemy_drop_energy_value(
+                    drop,
+                    &mut new_local,
+                    reverse,
+                    settings.quality_of_life_settings.buffed_drops,
+                    full_ammo,
+                )
             }
-            local.refill_energy(total_drop_value, true, &global.inventory, reverse);
-            true
+            let lava_energy = if gravity || varia {
+                (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity
+            } else {
+                (frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity
+            };
+            total_drop_value = Capacity::min(total_drop_value, lava_energy);
+            if reverse {
+                new_local.refill_energy(total_drop_value, true, &global.inventory, reverse);
+                if new_local.use_energy(lava_energy, true, &global.inventory, reverse) {
+                    state_output.push(new_local);
+                }
+            } else {
+                if !new_local.use_energy(lava_energy, true, &global.inventory, reverse) {
+                    continue;
+                }
+                new_local.refill_energy(total_drop_value, true, &global.inventory, reverse);
+                state_output.push(new_local);
+            }
+        }
+        match state_output.len() {
+            0 => false.into(),
+            1 => {
+                *local = state_output[0];
+                true.into()
+            }
+            2 => {
+                *local = state_output[0];
+                SimpleResult::ExtraState(state_output[1])
+            }
+            _ => {
+                panic!("internal error");
+            }
         }
     }
 }
@@ -1095,7 +1120,6 @@ fn apply_requirement_simple(
                 cx.difficulty,
                 cx.reverse,
             )
-            .into()
         }
         Requirement::MainHallElevatorFrames => {
             if cx.settings.quality_of_life_settings.fast_elevators {

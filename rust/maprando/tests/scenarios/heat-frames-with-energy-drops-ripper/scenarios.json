@@ -33,46 +33,32 @@
       "fail": true
     },
     {
-      "name": "Enough Energy (Full Power Bombs)",
+      "name": "Enough Energy (Full Supers)",
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {
         "energy": {"remaining": 51},
-        "powerBombs": {"consumed": 0}
+        "supers": {"consumed": 0}
       },
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "energy": {"remaining": 21},
-        "powerBombs": {"consumed": 0}
+        "energy": {"remaining": 51},
+        "supers": {"consumed": 0}
       }
     },
    {
-      "name": "Enough Energy (Full Power Bombs, Reverse)",
+      "name": "Enough Energy (Full Supers, Reverse)",
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {
         "energy": {"remaining": 51},
-        "powerBombs": {"consumed": 0}
+        "supers": {"consumed": 0}
       },
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "energy": {"remaining": 21}
-      },
-      "forward": "weak"
-    },
-    {
-      "name": "Enough Energy (Reverse)",
-      "startRoomId": 0,
-      "startNodeId": 1,
-      "startState": {
-        "energy": {"remaining": 71}
-      },
-      "endRoomId": 0,
-      "endNodeId": 2,
-      "endState": {
-        "energy": {"remaining": 21}
+        "energy": {"remaining": 51}
       },
       "forward": "weak"
     }

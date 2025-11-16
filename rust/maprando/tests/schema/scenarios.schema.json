@@ -65,6 +65,7 @@
               "shinechargeLeniencyFrames": {"type": "integer"},
               "resourceMultiplier": {"type": "number"},
               "disableableEtanks": {"type": "boolean"},
+              "buffedDrops": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"}
             }
           },

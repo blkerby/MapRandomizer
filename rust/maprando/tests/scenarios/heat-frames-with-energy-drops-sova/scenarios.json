@@ -1,0 +1,88 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Heat Protection",
+      "globalState": {
+        "items": ["Varia"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 56}
+      }
+    },
+    {
+      "name": "Not Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 43}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy (Buffed Drops)",
+      "settings": {
+        "buffedDrops": true
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 57}
+      }
+    },
+    {
+      "name": "Enough Energy (Full Missiles and Supers)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "missiles": {"consumed": 0},
+        "supers": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 59},
+        "missiles": {"consumed": 0},
+        "supers": {"consumed": 0}
+      }
+    },
+   {
+      "name": "Enough Energy (Full Missiles and Supers, Reverse)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 91},
+        "missiles": {"consumed": 0},
+        "supers": {"consumed": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 51}
+      },
+      "forward": "weak"
+    }
+  ]
+}
