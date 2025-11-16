@@ -827,6 +827,11 @@
                 "enabled": false
             },
             {
+                "id": 226,
+                "name": "canTrickyRModeCrystalFlashInterrupt",
+                "enabled": false
+            },
+            {
                 "id": 208,
                 "name": "canComplexCarryFlashSuit",
                 "enabled": false
@@ -859,6 +864,11 @@
             {
                 "id": 161,
                 "name": "canRMode",
+                "enabled": false
+            },
+            {
+                "id": 228,
+                "name": "canRModeStandupClip",
                 "enabled": false
             },
             {

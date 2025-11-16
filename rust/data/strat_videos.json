@@ -37617,6 +37617,14 @@
   },
   {
     "room_id": 173,
+    "strat_id": 135,
+    "video_id": 9207,
+    "created_user": "kyleb",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 173,
     "strat_id": 10,
     "video_id": 4473,
     "created_user": "Sam",
@@ -47854,6 +47862,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": "FIXME: Change the name of this strat"
+  },
+  {
+    "room_id": 187,
+    "strat_id": 137,
+    "video_id": 9175,
+    "created_user": "maddo",
+    "note": "Use Oum",
+    "dev_note": ""
   },
   {
     "room_id": 187,

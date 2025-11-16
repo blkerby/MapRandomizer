@@ -966,6 +966,12 @@
         "video_id": 7280
     },
     {
+        "tech_id": 226,
+        "name": "canTrickyRModeCrystalFlashInterrupt",
+        "difficulty": "Extreme",
+        "video_id": 9207
+    },
+    {
         "tech_id": 213,
         "name": "canRModeKnockbackSpark",
         "difficulty": "Insane",
@@ -1016,6 +1022,12 @@
     {
         "tech_id": 217,
         "name": "canCrystalSpark",
+        "difficulty": "Ignored",
+        "video_id": null
+    },
+    {
+        "tech_id": 227,
+        "name": "canUnderwaterCrystalSpark",
         "difficulty": "Ignored",
         "video_id": null
     },
@@ -1168,6 +1180,12 @@
         "name": "canRMode",
         "difficulty": "Extreme",
         "video_id": 265
+    },
+    {
+        "tech_id": 228,
+        "name": "canRModeStandupClip",
+        "difficulty": "Extreme",
+        "video_id": 9148
     },
     {
         "tech_id": 162,
