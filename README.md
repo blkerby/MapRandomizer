@@ -119,7 +119,7 @@ If you want to be able to have full functionality of the site while offline, inc
 sh scripts/download_videos.sh
 ```
 
-This will require at least 10 GB of disk space; running this multiple times will only download files that are new or have been updated. Then run the randomizer using the `--video-storage-path` option to point the randomizer to the local copy of the videos:
+This will require at least 100 GB of disk space; running this multiple times will only download files that are new or have been updated. Then run the randomizer using the `--video-storage-path` option to point the randomizer to the local copy of the videos:
 
 ```sh
 cd rust
