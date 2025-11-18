@@ -44,15 +44,15 @@ env_damage:
 	BIT #$0020
 	BEQ .no_gravity
 	LDA $0A4E        ;\ 
-	LSR A            ;|
-	STA $0A4E        ;|  
-	LDA $0A50        ;|
 	LSR A            ;| Cut damage in half if Gravity is equipped
-	STA $0A50        ;| (We have to handle the upper byte of damage
-	BCC .no_gravity  ;| in order for Acid Chozo to function correctly.
-	LDA #$8000       ;| Ignore the lower byte of subdamage.)
-	CLC              ;|
-	ADC $0A4E        ;/
+	STA $0A4E        ;| (We have to handle the upper byte of damage 
+	LDA $0A50        ;| in order for Acid Chozo to function correctly.
+	LSR A            ;| Ignore the lower byte of subdamage.)
+	STA $0A50        ;| 
+	BCC .no_gravity  ;| 
+	LDA #$7FFF       ;| In case damage is odd, add $8000 to subdamage:
+	ADC $0A4E        ;/ (carry will be set, so this adds $7FFF + 1 = $8000)
+	STA $0A4E
 .no_gravity:
 	LDA $09A2
 	BIT #$0001   
