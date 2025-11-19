@@ -1,0 +1,102 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Gravity and Varia",
+      "globalState": {
+        "items": ["Varia", "Gravity"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 4}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Not Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 5}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 6}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Enough Energy (Gravity)",
+      "globalState": {
+        "items": ["Gravity"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 6}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Enough Energy (Varia)",
+      "globalState": {
+        "items": ["Varia"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 4}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Not Enough Energy, Energy Consumed",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 94}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy, Energy Consumed",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 93}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 98}
+      }
+    },
+    {
+      "name": "Multiplier",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "settings": {
+        "resourceMultiplier": 3.0
+      },
+      "startState": {
+        "energy": {"remaining": 15}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+   }
+  ]
+}

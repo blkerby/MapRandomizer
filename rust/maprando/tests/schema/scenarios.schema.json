@@ -64,6 +64,7 @@
               "speedBallTiles": {"type": "number"},
               "shinechargeLeniencyFrames": {"type": "integer"},
               "resourceMultiplier": {"type": "number"},
+              "farmTimeLimit": {"type": "number"},
               "disableableEtanks": {"type": "boolean"},
               "buffedDrops": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"}
@@ -101,7 +102,12 @@
               "maxReserves": {"type": "integer"},
               "maxMissiles": {"type": "integer"},
               "maxSupers": {"type": "integer"},
-              "maxPowerBombs": {"type": "integer"}
+              "maxPowerBombs": {"type": "integer"},
+              "poolMaxEnergy": {"type": "integer"},
+              "poolMaxReserves": {"type": "integer"},
+              "poolMaxMissiles": {"type": "integer"},
+              "poolMaxSupers": {"type": "integer"},
+              "poolMaxPowerBombs": {"type": "integer"}
             }
           },
           "startRoomId": {

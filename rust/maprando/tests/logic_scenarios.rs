@@ -81,6 +81,7 @@ struct ScenarioSettings {
     speed_ball_tiles: Option<f32>,
     shinecharge_leniency_frames: Option<i32>,
     resource_multiplier: Option<f32>,
+    farm_time_limit: Option<f32>,
     disableable_etanks: Option<bool>,
     buffed_drops: Option<bool>,
     collectible_wall_jump: Option<bool>,
@@ -102,6 +103,11 @@ struct ScenarioGlobalState {
     max_missiles: Option<Capacity>,
     max_supers: Option<Capacity>,
     max_power_bombs: Option<Capacity>,
+    pool_max_energy: Option<Capacity>,
+    pool_max_reserves: Option<Capacity>,
+    pool_max_missiles: Option<Capacity>,
+    pool_max_supers: Option<Capacity>,
+    pool_max_power_bombs: Option<Capacity>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -138,7 +144,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             speed_ball_tiles: settings.speed_ball_tiles.unwrap_or(14.0),
             shinecharge_leniency_frames: settings.shinecharge_leniency_frames.unwrap_or(0),
             resource_multiplier: settings.resource_multiplier.unwrap_or(1.0),
-            farm_time_limit: 0.0,
+            farm_time_limit: settings.farm_time_limit.unwrap_or(0.0),
             gate_glitch_leniency: 0,
             door_stuck_leniency: 0,
             bomb_into_cf_leniency: 0,
@@ -331,6 +337,19 @@ fn get_global_state(
         collectible_reserve_tanks: 0,
     };
 
+    let mut pool_inventory = Inventory {
+        items: vec![false; game_data.item_isv.keys.len()],
+        max_energy: 1499,
+        max_reserves: 400,
+        max_missiles: 230,
+        max_supers: 50,
+        max_power_bombs: 50,
+        collectible_missile_packs: 46,
+        collectible_super_packs: 10,
+        collectible_power_bomb_packs: 10,
+        collectible_reserve_tanks: 4,
+    };
+
     if let Some(ref scenario_global) = scenario.global_state {
         for item_str in &scenario_global.items {
             let item_idx = *game_data
@@ -369,12 +388,32 @@ fn get_global_state(
         if let Some(max_power_bombs) = scenario_global.max_power_bombs {
             inventory.max_power_bombs = max_power_bombs;
         }
+
+        if let Some(pool_max_energy) = scenario_global.pool_max_energy {
+            pool_inventory.max_energy = pool_max_energy;
+        }
+
+        if let Some(pool_max_reserves) = scenario_global.pool_max_reserves {
+            pool_inventory.max_reserves = pool_max_reserves;
+        }
+
+        if let Some(pool_max_missiles) = scenario_global.pool_max_missiles {
+            pool_inventory.max_missiles = pool_max_missiles;
+        }
+
+        if let Some(pool_max_supers) = scenario_global.pool_max_supers {
+            pool_inventory.max_supers = pool_max_supers;
+        }
+
+        if let Some(pool_max_power_bombs) = scenario_global.pool_max_power_bombs {
+            pool_inventory.max_power_bombs = pool_max_power_bombs;
+        }
     }
 
     let weapon_mask = game_data.get_weapon_mask(&inventory.items, &difficulty.tech);
     Ok(GlobalState {
-        inventory: inventory.clone(),
-        pool_inventory: inventory,
+        inventory,
+        pool_inventory,
         flags,
         doors_unlocked: vec![],
         weapon_mask,

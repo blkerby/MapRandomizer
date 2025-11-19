@@ -301,43 +301,40 @@ fn get_enemy_drop_values(
     full_power_bombs: bool,
     buffed_drops: bool,
 ) -> [f32; 4] {
-    let mut p_nothing = drop.nothing_weight.get();
-    let mut p_small = drop.small_energy_weight.get();
-    let mut p_large = drop.large_energy_weight.get();
-    let mut p_missile = drop.missile_weight.get();
-    let p_tier1 = p_nothing + p_small + p_large + p_missile;
-    let rel_nothing = p_nothing / p_tier1;
-    let rel_small = p_small / p_tier1;
-    let rel_large = p_large / p_tier1;
-    let rel_missile = p_missile / p_tier1;
-    let mut p_super = drop.super_weight.get();
-    let mut p_pb = drop.power_bomb_weight.get();
+    let w_nothing = drop.nothing_weight.get();
+    let w_small = if full_energy {
+        0.0
+    } else {
+        drop.small_energy_weight.get()
+    };
+    let w_large = if full_energy {
+        0.0
+    } else {
+        drop.large_energy_weight.get()
+    };
+    let w_missile = if full_missiles {
+        0.0
+    } else {
+        drop.missile_weight.get()
+    };
+    let w_super = if full_supers {
+        0.0
+    } else {
+        drop.super_weight.get()
+    };
+    let w_pb = if full_power_bombs {
+        0.0
+    } else {
+        drop.power_bomb_weight.get()
+    };
+    let w_total = w_nothing + w_small + w_large + w_missile + w_super + w_pb;
 
-    if full_power_bombs {
-        p_nothing += p_pb * rel_nothing;
-        p_small += p_pb * rel_small;
-        p_large += p_pb * rel_large;
-        p_missile += p_pb * rel_missile;
-        p_pb = 0.0;
-    }
-    if full_supers {
-        p_nothing += p_super * rel_nothing;
-        p_small += p_super * rel_small;
-        p_large += p_super * rel_large;
-        p_missile += p_super * rel_missile;
-        p_super = 0.0;
-    }
-    if full_missiles && (p_small + p_large > 0.0) {
-        let rel_small = p_small / (p_nothing + p_small + p_large);
-        let rel_large = p_large / (p_nothing + p_small + p_large);
-        p_small += p_missile * rel_small;
-        p_large += p_missile * rel_large;
-        p_missile = 0.0;
-    } else if full_energy && p_missile > 0.0_ {
-        p_missile += (p_small + p_large) * p_missile / (p_nothing + p_missile);
-        p_small = 0.0;
-        p_large = 0.0;
-    }
+    let p_small = w_small / w_total;
+    let p_large = w_large / w_total;
+    let p_missile = w_missile / w_total;
+    let p_super = w_super;
+    let p_pb = w_pb;
+
     let expected_energy = p_small * if buffed_drops { 10.0 } else { 5.0 } + p_large * 20.0;
     let expected_missiles = p_missile * 2.0;
     let expected_supers = p_super;

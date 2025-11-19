@@ -1,0 +1,38 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "No Farm Time",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1
+    },
+    {
+      "name": "Small Farm Time (From Empty)",
+      "settings": {
+        "farmTimeLimit": 30
+      },
+      "globalState": {
+        "maxEnergy": 399,
+        "maxReserves": 100,
+        "maxMissiles": 50,
+        "maxSupers": 20,
+        "maxPowerBombs": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 216},
+        "missiles": {"remaining": 33},
+        "supers": {"remaining": 4},
+        "powerBombs": {"remaining": 0}
+      },
+      "note": [
+        "It would be 217 energy remaining except for numerical error specific to 32-bit floating point."
+      ]
+    }
+  ]
+}
