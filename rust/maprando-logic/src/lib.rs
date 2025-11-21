@@ -161,7 +161,7 @@ pub struct LocalState {
     pub farm_baseline_missiles: EncodedResourceLevel,
     pub farm_baseline_supers: EncodedResourceLevel,
     pub farm_baseline_power_bombs: EncodedResourceLevel,
-    pub flash_suit: bool,
+    pub flash_suit: u8,
     pub prev_trail_id: StepTrailId,
 }
 
@@ -180,7 +180,7 @@ impl LocalState {
             farm_baseline_missiles: ResourceLevel::Remaining(0).into(),
             farm_baseline_supers: ResourceLevel::Remaining(0).into(),
             farm_baseline_power_bombs: ResourceLevel::Remaining(0).into(),
-            flash_suit: false,
+            flash_suit: 0,
             prev_trail_id: -1,
         }
     }
@@ -212,7 +212,7 @@ impl LocalState {
             farm_baseline_missiles: generic_resource_level,
             farm_baseline_supers: generic_resource_level,
             farm_baseline_power_bombs: generic_resource_level,
-            flash_suit: false,
+            flash_suit: 0,
             prev_trail_id: -1,
         }
     }
@@ -373,9 +373,12 @@ impl LocalState {
         )
     }
 
-    pub fn flash_suit_available(&self, reverse: bool) -> Capacity {
-        let amt = if self.flash_suit { 1 } else { 0 };
-        if reverse { 1 - amt } else { amt }
+    pub fn flash_suit_available(&self, flash_suit_distance: u8, reverse: bool) -> u8 {
+        if reverse {
+            flash_suit_distance - self.flash_suit
+        } else {
+            self.flash_suit
+        }
     }
 
     pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {

@@ -370,6 +370,7 @@ pub enum Requirement {
         node_id: NodeId,
     },
     EscapeMorphLocation,
+    DoorTransition,
     GainFlashSuit,
     UseFlashSuit {
         carry_flash_suit_tech_idx: TechIdx,

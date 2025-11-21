@@ -126,7 +126,7 @@ struct ScenarioState {
     supers: Option<ResourceLevel>,
     power_bombs: Option<ResourceLevel>,
     shinecharge_frames_remaining: Option<Capacity>,
-    flash_suit: Option<bool>,
+    flash_suit: Option<u8>,
 }
 
 fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
@@ -145,6 +145,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             shinecharge_leniency_frames: settings.shinecharge_leniency_frames.unwrap_or(0),
             resource_multiplier: settings.resource_multiplier.unwrap_or(1.0),
             farm_time_limit: settings.farm_time_limit.unwrap_or(0.0),
+            flash_suit_distance: 255,
             gate_glitch_leniency: 0,
             door_stuck_leniency: 0,
             bomb_into_cf_leniency: 0,
@@ -612,6 +613,8 @@ fn test_scenario(
             );
         }
     }
+    let skill = &settings.skill_assumption_settings;
+    let flash_suit_distance = skill.flash_suit_distance;
 
     for reverse in [false, true] {
         println!("reverse: {}", reverse);
@@ -710,10 +713,10 @@ fn test_scenario(
                 >= final_local_state.shinecharge_frames_available(reverse);
             let shinecharge_frames_exact = local.shinecharge_frames_available(reverse)
                 == final_local_state.shinecharge_frames_available(reverse);
-            let flash_suit_pass = local.flash_suit_available(reverse)
-                >= final_local_state.flash_suit_available(reverse);
-            let flash_suit_exact = local.flash_suit_available(reverse)
-                == final_local_state.flash_suit_available(reverse);
+            let flash_suit_pass = local.flash_suit_available(flash_suit_distance, reverse)
+                >= final_local_state.flash_suit_available(flash_suit_distance, reverse);
+            let flash_suit_exact = local.flash_suit_available(flash_suit_distance, reverse)
+                == final_local_state.flash_suit_available(flash_suit_distance, reverse);
             if energy_pass
                 && reserves_pass
                 && missiles_pass

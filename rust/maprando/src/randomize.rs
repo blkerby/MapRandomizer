@@ -530,7 +530,7 @@ impl<'a> Preprocessor<'a> {
                     // The strat requires not passing through the Toilet, but here it does.
                     continue;
                 }
-                let req_opt = self.get_cross_room_reqs(
+                let mut req_opt = self.get_cross_room_reqs(
                     exit_condition,
                     src_room_id,
                     src_node_id,
@@ -539,6 +539,8 @@ impl<'a> Preprocessor<'a> {
                     dst_node_id,
                     is_toilet,
                 );
+                req_opt = req_opt
+                    .map(|req| Requirement::make_and(vec![req, Requirement::DoorTransition]));
                 let exit_with_shinecharge = self.game_data.does_leave_shinecharged(exit_condition);
                 let enter_with_shinecharge =
                     self.game_data.does_come_in_shinecharged(entrance_condition);

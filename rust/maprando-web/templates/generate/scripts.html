@@ -61,6 +61,7 @@ function applySkillPreset(preset) {
     document.getElementById("shinechargeLeniencyFrames").value = preset.shinecharge_leniency_frames;
     document.getElementById("resourceMultiplier").value = preset.resource_multiplier;
     document.getElementById("farmTimeLimit").value = preset.farm_time_limit;
+    document.getElementById("flashSuitDistance").value = preset.flash_suit_distance;
     document.getElementById("gateGlitchLeniency").value = preset.gate_glitch_leniency;
     document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
     document.getElementById("spikeXModeLeniency").value = preset.spike_xmode_leniency;
@@ -223,6 +224,7 @@ function buildSettingsObject() {
             "shinecharge_leniency_frames": parseFloat(formData.get("shinecharge_leniency_frames")),
             "resource_multiplier": parseFloat(formData.get("resource_multiplier")),
             "farm_time_limit": parseFloat(formData.get("farm_time_limit")),
+            "flash_suit_distance": parseFloat(formData.get("flash_suit_distance")),
             "gate_glitch_leniency": parseFloat(formData.get("gate_glitch_leniency")),
             "door_stuck_leniency": parseFloat(formData.get("door_stuck_leniency")),
             "spike_xmode_leniency": parseFloat(formData.get("spike_xmode_leniency")),

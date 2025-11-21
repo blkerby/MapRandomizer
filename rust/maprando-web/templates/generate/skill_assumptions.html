@@ -160,6 +160,15 @@
                     <div class="card-header">Advanced tech leniency </div>
                     <div class="card-body my-0 p-0">
                         <div class="form-group row m-2">
+                            <label for="doorStuckLeniency" class="col-sm-6 col-form-label">Flash suit carrying distance<br>
+                                <small>(Number of rooms to carry flash suit through)</small>
+                            </label>
+                            <div class="col-sm-2 my-2">
+                                <input type="text" class="form-control" name="flash_suit_distance" id="flashSuitDistance"
+                                    value="2" onchange="techChanged()">
+                            </div>
+                        </div>
+                        <div class="form-group row m-2">
                             <label for="doorStuckLeniency" class="col-sm-6 col-form-label">Door stuck leniency<br>
                                 <small>(Expected failed attempts to get door stuck for X-ray climbing)</small>
                             </label>

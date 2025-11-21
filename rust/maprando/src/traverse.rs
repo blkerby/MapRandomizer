@@ -123,13 +123,13 @@ fn compute_cost(
         ResourceLevel::Consumed(x) => x as f32,
         ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as f32 + 0.5,
     } / 100.0;
-    let mut shinecharge_cost = if local.flash_suit {
+    let mut shinecharge_cost = -if local.flash_suit > 0 {
         // For the purposes of the cost metrics, treat flash suit as equivalent
         // to a large amount of shinecharge frames remaining:
-        0.0
+        2.0 * local.flash_suit as f32
     } else {
-        (180 - local.shinecharge_frames_remaining) as f32
-    } / 180.0;
+        local.shinecharge_frames_remaining as f32 / 180.0
+    };
     if reverse {
         energy_cost = -energy_cost;
         reserve_cost = -reserve_cost;
@@ -1740,13 +1740,13 @@ fn apply_requirement_simple(
             if cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
                 if cx.reverse {
                     local.shinecharge_frames_remaining = 0;
-                    if local.flash_suit {
+                    if local.flash_suit > 0 {
                         return SimpleResult::Failure;
                     }
                 } else {
                     local.shinecharge_frames_remaining =
                         180 - cx.difficulty.shinecharge_leniency_frames;
-                    local.flash_suit = false;
+                    local.flash_suit = 0;
                 }
                 SimpleResult::Success
             } else {
@@ -1838,20 +1838,29 @@ fn apply_requirement_simple(
                 SimpleResult::Failure
             }
         }
-        Requirement::GainFlashSuit => {
-            #[allow(clippy::needless_bool_assign)]
+        Requirement::DoorTransition => {
             if cx.reverse {
-                local.flash_suit = false;
+                if local.flash_suit > 0 {
+                    local.flash_suit = local.flash_suit.saturating_add(1);
+                }
             } else {
-                local.flash_suit = true;
+                local.flash_suit = local.flash_suit.saturating_sub(1);
+            }
+            SimpleResult::Success
+        }
+        Requirement::GainFlashSuit => {
+            if cx.reverse {
+                local.flash_suit = 0;
+            } else {
+                local.flash_suit = cx.settings.skill_assumption_settings.flash_suit_distance;
             }
             SimpleResult::Success
         }
         Requirement::NoFlashSuit => {
             if cx.reverse {
-                (!local.flash_suit).into()
+                (local.flash_suit == 0).into()
             } else {
-                local.flash_suit = false;
+                local.flash_suit = 0;
                 SimpleResult::Success
             }
         }
@@ -1864,16 +1873,16 @@ fn apply_requirement_simple(
                 return SimpleResult::Failure;
             }
             if cx.reverse {
-                if local.flash_suit {
+                if local.flash_suit > 0 {
                     return SimpleResult::Failure;
                 }
-                local.flash_suit = true;
+                local.flash_suit = 1;
                 local.shinecharge_frames_remaining = 0;
                 SimpleResult::Success
-            } else if !local.flash_suit {
+            } else if local.flash_suit == 0 {
                 SimpleResult::Failure
             } else {
-                local.flash_suit = false;
+                local.flash_suit = 0;
                 // Set shinecharge frames remaining to 180, to allow `comeInShinecharged`
                 // strats to be satisfied by a flash suit.
                 local.shinecharge_frames_remaining = 180;
@@ -2058,7 +2067,7 @@ pub fn is_bireachable_state(
     if reverse.shinecharge_frames_remaining > forward.shinecharge_frames_remaining {
         return false;
     }
-    if reverse.flash_suit && !forward.flash_suit {
+    if reverse.flash_suit > forward.flash_suit {
         return false;
     }
     true

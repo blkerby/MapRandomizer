@@ -239,7 +239,7 @@ pub struct SpoilerRouteEntry {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub flash_suit: Option<bool>,
+    pub flash_suit: Option<u8>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub relevant_flags: Vec<String>,
 }
@@ -426,7 +426,7 @@ impl SpoilerLocalState {
             flash_suit: if local.flash_suit == ref_local.flash_suit && !include_all {
                 None
             } else {
-                Some(if local.flash_suit { 1 } else { 0 })
+                Some(local.flash_suit as Capacity)
             },
         }
     }

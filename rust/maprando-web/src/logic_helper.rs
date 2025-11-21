@@ -969,7 +969,7 @@ fn get_strat_difficulty(
 
         let local = LocalState {
             shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
-            flash_suit: flash_suit_obtainable,
+            flash_suit: if flash_suit_obtainable { 1 } else { 0 },
             ..LocalState::full(false)
         };
 

@@ -67,12 +67,12 @@
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {
-        "flashSuit": true
+        "flashSuit": 1
       },
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "flashSuit": true
+        "flashSuit": 1
       }
     }
   ]

@@ -35,6 +35,7 @@ pub struct SkillAssumptionSettings {
     pub shinecharge_leniency_frames: i32,
     pub resource_multiplier: f32,
     pub farm_time_limit: f32,
+    pub flash_suit_distance: u8,
     pub gate_glitch_leniency: i32,
     pub door_stuck_leniency: i32,
     pub bomb_into_cf_leniency: i32,
@@ -630,6 +631,9 @@ fn upgrade_other_skill_settings(settings: &mut serde_json::Value) -> Result<()> 
     }
     if !skill_assumption_settings.contains_key("farm_time_limit") {
         skill_assumption_settings.insert("farm_time_limit".to_string(), (60.0).into());
+    }
+    if !skill_assumption_settings.contains_key("flash_suit_distance") {
+        skill_assumption_settings.insert("flash_suit_distance".to_string(), (255).into());
     }
 
     Ok(())

@@ -6,6 +6,7 @@
     "shinecharge_leniency_frames": 5,
     "resource_multiplier": 1.05,
     "farm_time_limit": 120,
+    "flash_suit_distance": 255,
     "gate_glitch_leniency": 1,
     "door_stuck_leniency": 1,
     "bomb_into_cf_leniency": 3,

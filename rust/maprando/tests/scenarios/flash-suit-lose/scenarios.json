@@ -13,12 +13,12 @@
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {
-        "flashSuit": true
+        "flashSuit": 1
       },
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "flashSuit": true
+        "flashSuit": 1
       },
       "fail": true
     },
@@ -27,12 +27,12 @@
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {
-        "flashSuit": true
+        "flashSuit": 1
       },
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "flashSuit": false
+        "flashSuit": 0
       },
       "reverse": "weak"
     }
