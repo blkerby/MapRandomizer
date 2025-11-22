@@ -61,9 +61,10 @@ function applySkillPreset(preset) {
     document.getElementById("shinechargeLeniencyFrames").value = preset.shinecharge_leniency_frames;
     document.getElementById("resourceMultiplier").value = preset.resource_multiplier;
     document.getElementById("farmTimeLimit").value = preset.farm_time_limit;
-    document.getElementById("flashSuitDistance").value = preset.flash_suit_distance;
     document.getElementById("gateGlitchLeniency").value = preset.gate_glitch_leniency;
     document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
+    document.getElementById("spikeSuitLeniency").value = preset.spike_suit_leniency;
+    document.getElementById("flashSuitDistance").value = preset.flash_suit_distance;
     document.getElementById("spikeXModeLeniency").value = preset.spike_xmode_leniency;
     document.getElementById("bombIntoCFLeniency").value = preset.bomb_into_cf_leniency;
     document.getElementById("jumpIntoCFLeniency").value = preset.jump_into_cf_leniency;
@@ -224,9 +225,10 @@ function buildSettingsObject() {
             "shinecharge_leniency_frames": parseFloat(formData.get("shinecharge_leniency_frames")),
             "resource_multiplier": parseFloat(formData.get("resource_multiplier")),
             "farm_time_limit": parseFloat(formData.get("farm_time_limit")),
-            "flash_suit_distance": parseFloat(formData.get("flash_suit_distance")),
             "gate_glitch_leniency": parseFloat(formData.get("gate_glitch_leniency")),
             "door_stuck_leniency": parseFloat(formData.get("door_stuck_leniency")),
+            "spike_suit_leniency": parseFloat(formData.get("spike_suit_leniency")),
+            "flash_suit_distance": parseFloat(formData.get("flash_suit_distance")),
             "spike_xmode_leniency": parseFloat(formData.get("spike_xmode_leniency")),
             "bomb_into_cf_leniency": parseFloat(formData.get("bomb_into_cf_leniency")),
             "jump_into_cf_leniency": parseFloat(formData.get("jump_into_cf_leniency")),

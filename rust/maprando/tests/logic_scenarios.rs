@@ -150,6 +150,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             door_stuck_leniency: 0,
             bomb_into_cf_leniency: 0,
             jump_into_cf_leniency: 0,
+            spike_suit_leniency: 0,
             spike_xmode_leniency: 0,
             phantoon_proficiency: 1.0,
             draygon_proficiency: 1.0,

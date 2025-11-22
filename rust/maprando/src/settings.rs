@@ -40,6 +40,7 @@ pub struct SkillAssumptionSettings {
     pub door_stuck_leniency: i32,
     pub bomb_into_cf_leniency: i32,
     pub jump_into_cf_leniency: i32,
+    pub spike_suit_leniency: i32,
     pub spike_xmode_leniency: i32,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,

@@ -11,6 +11,7 @@
     "door_stuck_leniency": 2,
     "bomb_into_cf_leniency": 5,
     "jump_into_cf_leniency": 9,
+    "spike_suit_leniency": 10,
     "spike_xmode_leniency": 2,
     "phantoon_proficiency": 0.5,
     "draygon_proficiency": 0.5,

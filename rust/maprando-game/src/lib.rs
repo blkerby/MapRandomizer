@@ -316,6 +316,9 @@ pub enum Requirement {
     HeatedDoorStuckLeniency {
         heat_frames: Capacity,
     },
+    SpikeSuitSpikeHitLeniency,
+    SpikeSuitThornHitLeniency,
+    SpikeSuitSamusEaterLeniency,
     XModeSpikeHitLeniency {},
     XModeThornHitLeniency {},
     BombIntoCrystalFlashClipLeniency {},
@@ -2239,6 +2242,12 @@ impl GameData {
                 return Ok(Requirement::BombIntoCrystalFlashClipLeniency {});
             } else if value == "i_jumpIntoCrystalFlashClipLeniency" {
                 return Ok(Requirement::JumpIntoCrystalFlashClipLeniency {});
+            } else if value == "i_spikeSuitSpikeHitLeniency" {
+                return Ok(Requirement::SpikeSuitSpikeHitLeniency {});
+            } else if value == "i_spikeSuitThornHitLeniency" {
+                return Ok(Requirement::SpikeSuitThornHitLeniency {});
+            } else if value == "i_spikeSuitSamusEaterLeniency" {
+                return Ok(Requirement::SpikeSuitSamusEaterLeniency {});
             } else if value == "i_XModeSpikeHitLeniency" {
                 return Ok(Requirement::XModeSpikeHitLeniency {});
             } else if value == "i_XModeThornHitLeniency" {
@@ -5442,6 +5451,27 @@ impl GameData {
             .unwrap() = json::object! {
             "name": "h_jumpIntoCrystalFlashClipLeniency",
             "requires": ["i_jumpIntoCrystalFlashClipLeniency"],
+        };
+        *self
+            .helper_json_map
+            .get_mut("h_spikeSuitSpikeHitLeniency")
+            .unwrap() = json::object! {
+            "name": "h_spikeSuitSpikeHitLeniency",
+            "requires": ["i_spikeSuitSpikeHitLeniency"],
+        };
+        *self
+            .helper_json_map
+            .get_mut("h_spikeSuitThornHitLeniency")
+            .unwrap() = json::object! {
+            "name": "h_spikeSuitThornHitLeniency",
+            "requires": ["i_spikeSuitThornHitLeniency"],
+        };
+        *self
+            .helper_json_map
+            .get_mut("h_spikeSuitSamusEaterLeniency")
+            .unwrap() = json::object! {
+            "name": "h_spikeSuitSamusEaterLeniency",
+            "requires": ["i_spikeSuitSamusEaterLeniency"],
         };
         *self
             .helper_json_map

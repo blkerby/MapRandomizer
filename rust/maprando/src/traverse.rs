@@ -1335,6 +1335,22 @@ fn apply_requirement_simple(
                 cx.reverse,
             )
             .into(),
+        Requirement::SpikeSuitSpikeHitLeniency => {
+            let energy_used = cx.settings.skill_assumption_settings.spike_suit_leniency as Capacity
+                * 60
+                / suit_damage_factor(&cx.global.inventory);
+            local
+                .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::SpikeSuitThornHitLeniency | Requirement::SpikeSuitSamusEaterLeniency => {
+            let energy_used = cx.settings.skill_assumption_settings.spike_suit_leniency as Capacity
+                * 16
+                / suit_damage_factor(&cx.global.inventory);
+            local
+                .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
+                .into()
+        }
         Requirement::XModeSpikeHitLeniency {} => {
             let energy_used =
                 cx.difficulty.spike_xmode_leniency * 60 / suit_damage_factor(&cx.global.inventory);
