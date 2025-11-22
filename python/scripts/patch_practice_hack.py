@@ -5,10 +5,15 @@ import ips_util
 from io import BytesIO
 import io
 import os
+import argparse
 
+parser = argparse.ArgumentParser()
+parser.add_argument('input_rom', type=str, help='Input ROM path')
+parser.add_argument('output_rom', type=str, help='Output ROM path')
+args = parser.parse_args()
 
-input_rom_path = '/home/kerby/Downloads/Super Metroid Practice Hack-v2.7.0-bsnes-ntsc.sfc'
-output_rom_path = '/home/kerby/Downloads/prachack-2.7.0.smc'
+input_rom_path = args.input_rom
+output_rom_path = args.output_rom
 orig_rom = Rom(open(input_rom_path, 'rb'))
 rom = Rom(open(input_rom_path, 'rb'))
 
@@ -325,7 +330,7 @@ for room_obj in rooms:
 
 rom.save(output_rom_path)
 print("Wrote to", output_rom_path)
-os.system(f"rm {output_rom_path[:-4]}.srm")
+# os.system(f"rm {output_rom_path[:-4]}.srm")
 # print("{}/{} free tiles used".format(map_patcher.next_free_tile_idx, len(free_tiles)))
 
 # print(hex(snes2pc(0x838cee)))
