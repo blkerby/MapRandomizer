@@ -5611,10 +5611,10 @@ impl GameData {
         };
     }
 
-    pub fn load_minimal() -> Result<GameData> {
-        let sm_json_data_path = Path::new("../sm-json-data");
+    pub fn load_minimal(base_path: &Path) -> Result<GameData> {
+        let sm_json_data_path = base_path.join("../sm-json-data");
         let mut game_data = GameData {
-            sm_json_data_path: sm_json_data_path.to_owned(),
+            sm_json_data_path,
             ..GameData::default()
         };
 
@@ -5628,20 +5628,20 @@ impl GameData {
         Ok(game_data)
     }
 
-    pub fn load() -> Result<GameData> {
-        let mut game_data = Self::load_minimal()?;
+    pub fn load(base_path: &Path) -> Result<GameData> {
+        let mut game_data = Self::load_minimal(base_path)?;
 
-        let room_geometry_path = Path::new("../room_geometry.json");
-        let escape_timings_path = Path::new("data/escape_timings.json");
-        let start_locations_path = Path::new("data/start_locations.json");
-        let title_screen_path = Path::new("../TitleScreen/Images");
-        let room_name_font_path = Path::new("data/room_name_font.png");
-        let reduced_flashing_path = Path::new("data/reduced_flashing.json");
-        let strat_videos_path = Path::new("data/strat_videos.json");
-        let map_tile_path = Path::new("data/map_tiles.json");
+        let room_geometry_path = base_path.join("../room_geometry.json");
+        let escape_timings_path = base_path.join("data/escape_timings.json");
+        let start_locations_path = base_path.join("data/start_locations.json");
+        let title_screen_path = base_path.join("../TitleScreen/Images");
+        let room_name_font_path = base_path.join("data/room_name_font.png");
+        let reduced_flashing_path = base_path.join("data/reduced_flashing.json");
+        let strat_videos_path = base_path.join("data/strat_videos.json");
+        let map_tile_path = base_path.join("data/map_tiles.json");
 
-        game_data.load_reduced_flashing_patch(reduced_flashing_path)?;
-        game_data.load_strat_videos(strat_videos_path)?;
+        game_data.load_reduced_flashing_patch(&reduced_flashing_path)?;
+        game_data.load_strat_videos(&strat_videos_path)?;
 
         game_data.area_order = vec![
             "Central Crateria",
@@ -5676,12 +5676,12 @@ impl GameData {
         game_data.extract_all_strat_dependencies()?;
 
         game_data
-            .load_room_geometry(room_geometry_path)
+            .load_room_geometry(&room_geometry_path)
             .context("Unable to load room geometry")?;
-        game_data.load_escape_timings(escape_timings_path)?;
-        game_data.load_start_locations(start_locations_path)?;
+        game_data.load_escape_timings(&escape_timings_path)?;
+        game_data.load_start_locations(&start_locations_path)?;
         game_data.load_hub_locations()?;
-        game_data.load_map_tile_data(map_tile_path)?;
+        game_data.load_map_tile_data(&map_tile_path)?;
         game_data.area_names = vec![
             "Crateria",
             "Brinstar",
@@ -5701,8 +5701,8 @@ impl GameData {
             0x1AC000, // Maridia
             0x1AD000, // Tourian
         ];
-        game_data.load_title_screens(title_screen_path)?;
-        game_data.load_room_name_font(room_name_font_path)?;
+        game_data.load_title_screens(&title_screen_path)?;
+        game_data.load_room_name_font(&room_name_font_path)?;
 
         // for link in &game_data.links {
         //     let from_vertex_id = link.from_vertex_id;

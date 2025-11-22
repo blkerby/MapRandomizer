@@ -788,9 +788,8 @@ fn test_scenario(
 
 #[test]
 fn test_logic_scenarios() -> Result<()> {
-    std::env::set_current_dir(Path::new(".."))?;
-    let base_game_data = GameData::load_minimal()?;
-    for entry in std::fs::read_dir("maprando/tests/scenarios")? {
+    let base_game_data = GameData::load_minimal(Path::new(".."))?;
+    for entry in std::fs::read_dir("tests/scenarios")? {
         let entry = entry?;
         println!("\n***** {} *****", entry.file_name().display());
 

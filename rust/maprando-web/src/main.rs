@@ -93,7 +93,7 @@ fn build_app_data() -> AppData {
     })
     .collect();
 
-    let game_data = GameData::load().unwrap();
+    let game_data = GameData::load(Path::new(".")).unwrap();
 
     info!("Loading logic preset data");
     let etank_colors: Vec<Vec<String>> =

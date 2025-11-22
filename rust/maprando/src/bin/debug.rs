@@ -150,7 +150,7 @@ fn main() -> Result<()> {
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
 
-    let game_data = GameData::load()?;
+    let game_data = GameData::load(Path::new("."))?;
 
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
     let mut settings = preset_data.default_preset.clone();

@@ -336,7 +336,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let standard_maps_path = Path::new("../maps/v119-standard-avro");
     let wild_maps_path = Path::new("../maps/v119-wild-avro");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
-    let game_data = GameData::load()?;
+    let game_data = GameData::load(Path::new("."))?;
 
     if !args.output_seeds.is_dir() {
         bail!("{0} is not a directory", args.output_seeds.display());

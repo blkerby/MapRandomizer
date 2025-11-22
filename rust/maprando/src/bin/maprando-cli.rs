@@ -209,7 +209,7 @@ fn main() -> Result<()> {
         .init();
 
     let args = Args::parse();
-    let mut game_data = GameData::load()?;
+    let mut game_data = GameData::load(Path::new("."))?;
 
     if let Some(start_location_name) = &args.start_location {
         game_data
