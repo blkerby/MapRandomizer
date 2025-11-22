@@ -12,7 +12,8 @@ v120?:
 - show more updates in spoiler history
   - Currently it's only showing up to one update per traversal?
 - Improve farm logic interaction between forward and reverse traversal
-- Implement separate leniency for spike suit.
+- DONE: Implement separate leniency for spike suit.
+- on spoiler map: hide forced mode difficulty placements behind toggle?
 - Logic difficulty changes:
   - Move canDoorLockSkip to Expert?
   - Move Botwoon ETank right-side sand grapple jump to Expert?

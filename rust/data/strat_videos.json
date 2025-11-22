@@ -3577,6 +3577,14 @@
   },
   {
     "room_id": 22,
+    "strat_id": 17,
+    "video_id": 7671,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 22,
     "strat_id": 7,
     "video_id": 8233,
     "created_user": "Sam",
@@ -3636,6 +3644,14 @@
     "strat_id": 21,
     "video_id": 7131,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 26,
+    "strat_id": 23,
+    "video_id": 8936,
+    "created_user": "nn",
     "note": "",
     "dev_note": ""
   },
@@ -5468,7 +5484,7 @@
     "strat_id": 86,
     "video_id": 7959,
     "created_user": "Sam",
-    "note": "Springball",
+    "note": "Spring Ball",
     "dev_note": ""
   },
   {
@@ -19930,14 +19946,6 @@
   {
     "room_id": 115,
     "strat_id": 55,
-    "video_id": 5612,
-    "created_user": "Sam",
-    "note": "With Crystal Flash",
-    "dev_note": ""
-  },
-  {
-    "room_id": 115,
-    "strat_id": 55,
     "video_id": 7148,
     "created_user": "maddo",
     "note": "Varia",
@@ -19949,6 +19957,14 @@
     "video_id": 7168,
     "created_user": "maddo",
     "note": "Suitless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 115,
+    "strat_id": 55,
+    "video_id": 5612,
+    "created_user": "Sam",
+    "note": "With Crystal Flash",
     "dev_note": ""
   },
   {
@@ -44057,6 +44073,22 @@
   },
   {
     "room_id": 184,
+    "strat_id": 41,
+    "video_id": 7606,
+    "created_user": "nn",
+    "note": "Morphless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 184,
+    "strat_id": 41,
+    "video_id": 9145,
+    "created_user": "nn",
+    "note": "With Gravity and Morph",
+    "dev_note": ""
+  },
+  {
+    "room_id": 184,
     "strat_id": 13,
     "video_id": 8767,
     "created_user": "Sam",
@@ -44125,6 +44157,22 @@
     "video_id": 4066,
     "created_user": "kyleb",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 184,
+    "strat_id": 42,
+    "video_id": 7612,
+    "created_user": "nn",
+    "note": "Morphless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 184,
+    "strat_id": 42,
+    "video_id": 9148,
+    "created_user": "nn",
+    "note": "With Gravity and Morph",
     "dev_note": ""
   },
   {

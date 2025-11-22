@@ -1855,6 +1855,9 @@ fn apply_requirement_simple(
             }
         }
         Requirement::DoorTransition => {
+            if cx.settings.skill_assumption_settings.flash_suit_distance == 255 {
+                return SimpleResult::Success;
+            }
             if cx.reverse {
                 if local.flash_suit > 0 {
                     local.flash_suit = local.flash_suit.saturating_add(1);

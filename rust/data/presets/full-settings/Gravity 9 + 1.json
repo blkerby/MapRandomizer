@@ -654,6 +654,21 @@
                 "enabled": false
             },
             {
+                "id": 207,
+                "name": "canCarryFlashSuit",
+                "enabled": false
+            },
+            {
+                "id": 141,
+                "name": "canSpikeSuit",
+                "enabled": false
+            },
+            {
+                "id": 221,
+                "name": "canRModeCrystalFlashInterrupt",
+                "enabled": false
+            },
+            {
                 "id": 144,
                 "name": "canPreciseSpaceJump",
                 "enabled": false
@@ -676,6 +691,11 @@
             {
                 "id": 157,
                 "name": "canRightSideDoorStuck",
+                "enabled": false
+            },
+            {
+                "id": 161,
+                "name": "canRMode",
                 "enabled": false
             },
             {
@@ -814,23 +834,8 @@
                 "enabled": false
             },
             {
-                "id": 207,
-                "name": "canCarryFlashSuit",
-                "enabled": false
-            },
-            {
-                "id": 141,
-                "name": "canSpikeSuit",
-                "enabled": false
-            },
-            {
-                "id": 221,
-                "name": "canRModeCrystalFlashInterrupt",
-                "enabled": false
-            },
-            {
                 "id": 226,
-                "name": "canTrickyRModeCrystalFlashInterrupt",
+                "name": "canComplexRModeCrystalFlashInterrupt",
                 "enabled": false
             },
             {
@@ -861,11 +866,6 @@
             {
                 "id": 159,
                 "name": "canXMode",
-                "enabled": false
-            },
-            {
-                "id": 161,
-                "name": "canRMode",
                 "enabled": false
             },
             {
@@ -986,6 +986,11 @@
             {
                 "id": 210,
                 "name": "canSlopeSpark",
+                "enabled": false
+            },
+            {
+                "id": 229,
+                "name": "canTrickyRModeCrystalFlashInterrupt",
                 "enabled": false
             },
             {

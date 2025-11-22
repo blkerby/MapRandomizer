@@ -651,6 +651,21 @@
             "enabled": true
         },
         {
+            "id": 207,
+            "name": "canCarryFlashSuit",
+            "enabled": true
+        },
+        {
+            "id": 141,
+            "name": "canSpikeSuit",
+            "enabled": true
+        },
+        {
+            "id": 221,
+            "name": "canRModeCrystalFlashInterrupt",
+            "enabled": true
+        },
+        {
             "id": 144,
             "name": "canPreciseSpaceJump",
             "enabled": true
@@ -673,6 +688,11 @@
         {
             "id": 157,
             "name": "canRightSideDoorStuck",
+            "enabled": true
+        },
+        {
+            "id": 161,
+            "name": "canRMode",
             "enabled": true
         },
         {
@@ -811,23 +831,8 @@
             "enabled": true
         },
         {
-            "id": 207,
-            "name": "canCarryFlashSuit",
-            "enabled": true
-        },
-        {
-            "id": 141,
-            "name": "canSpikeSuit",
-            "enabled": true
-        },
-        {
-            "id": 221,
-            "name": "canRModeCrystalFlashInterrupt",
-            "enabled": true
-        },
-        {
             "id": 226,
-            "name": "canTrickyRModeCrystalFlashInterrupt",
+            "name": "canComplexRModeCrystalFlashInterrupt",
             "enabled": true
         },
         {
@@ -858,11 +863,6 @@
         {
             "id": 159,
             "name": "canXMode",
-            "enabled": true
-        },
-        {
-            "id": 161,
-            "name": "canRMode",
             "enabled": true
         },
         {
@@ -983,6 +983,11 @@
         {
             "id": 210,
             "name": "canSlopeSpark",
+            "enabled": true
+        },
+        {
+            "id": 229,
+            "name": "canTrickyRModeCrystalFlashInterrupt",
             "enabled": true
         },
         {
