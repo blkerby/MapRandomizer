@@ -2817,6 +2817,13 @@
             "enabled": false
         },
         {
+            "room_id": 66,
+            "notable_id": 10,
+            "room_name": "Red Tower",
+            "notable_name": "Frozen Beetom X-Ray Climb with Morph",
+            "enabled": false
+        },
+        {
             "room_id": 80,
             "notable_id": 1,
             "room_name": "Warehouse Energy Tank Room",

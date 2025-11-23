@@ -1048,6 +1048,14 @@
     "video_id": 244
   },
   {
+    "room_id": 66,
+    "room_name": "Red Tower",
+    "notable_id": 10,
+    "name": "Frozen Beetom X-Ray Climb with Morph",
+    "difficulty": "Extreme",
+    "video_id": 8005
+  },
+  {
     "room_id": 80,
     "room_name": "Warehouse Energy Tank Room",
     "notable_id": 1,

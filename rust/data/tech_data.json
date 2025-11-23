@@ -1117,7 +1117,7 @@
     },
     {
         "tech_id": 230,
-        "name": "canReserverTriggerBufferXRay",
+        "name": "canReserveTriggerBufferXRay",
         "difficulty": "Ignored",
         "video_id": null
     },
