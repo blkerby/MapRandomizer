@@ -40,8 +40,16 @@ COPY rust /rust
 WORKDIR /rust/maprando-wasm
 RUN wasm-pack build --target="web" --release
 WORKDIR /rust
-RUN cargo test
 RUN cargo build --release --bin maprando-web
+
+# Run Rust tests
+# (Most of these dependencies wouldn't be needed if we split up the GameData struct)
+COPY TitleScreen /TitleScreen
+COPY room_geometry.json /
+COPY patches /patches
+COPY sm-json-data /sm-json-data
+WORKDIR /rust
+RUN cargo test --release
 
 # Test the correctness of the IPS patches
 FROM debian:bookworm AS ips-test
