@@ -237,6 +237,27 @@ fn apply_heat_frames(
     }
 }
 
+fn apply_suitless_heat_frames(
+    frames: Capacity,
+    local: &mut LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+    simple: bool,
+    reverse: bool,
+) -> bool {
+    if !difficulty.tech[game_data.heat_run_tech_idx] {
+        false
+    } else {
+        let energy_used = if simple {
+            (frames as f32 / 4.0).ceil() as Capacity
+        } else {
+            (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity
+        };
+        local.use_energy(energy_used, true, &global.inventory, reverse)
+    }
+}
+
 fn get_enemy_drop_energy_value(
     drop: &EnemyDrop,
     local: &mut LocalState,
@@ -1065,6 +1086,16 @@ fn apply_requirement_simple(
             .remove_climb_lava
             .into(),
         Requirement::HeatFrames(frames) => apply_heat_frames(
+            *frames,
+            local,
+            cx.global,
+            cx.game_data,
+            cx.difficulty,
+            false,
+            cx.reverse,
+        )
+        .into(),
+        Requirement::SuitlessHeatFrames(frames) => apply_suitless_heat_frames(
             *frames,
             local,
             cx.global,

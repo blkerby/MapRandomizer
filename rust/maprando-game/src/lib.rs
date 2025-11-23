@@ -248,6 +248,7 @@ pub enum Requirement {
         excess_frames: Capacity,
     },
     HeatFrames(Capacity),
+    SuitlessHeatFrames(Capacity),
     SimpleHeatFrames(Capacity),
     HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
     LavaFrames(Capacity),
@@ -2538,6 +2539,11 @@ impl GameData {
                     .as_i32()
                     .unwrap_or_else(|| panic!("invalid heatFrames in {req_json}"));
                 return Ok(Requirement::HeatFrames(frames as Capacity));
+            } else if key == "suitlessHeatFrames" {
+                let frames = value
+                    .as_i32()
+                    .unwrap_or_else(|| panic!("invalid suitlessHeatFrames in {req_json}"));
+                return Ok(Requirement::SuitlessHeatFrames(frames as Capacity));
             } else if key == "simpleHeatFrames" {
                 let frames = value
                     .as_i32()
