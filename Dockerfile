@@ -40,6 +40,7 @@ COPY rust /rust
 WORKDIR /rust/maprando-wasm
 RUN wasm-pack build --target="web" --release
 WORKDIR /rust
+RUN cargo test
 RUN cargo build --release --bin maprando-web
 
 # Test the correctness of the IPS patches
