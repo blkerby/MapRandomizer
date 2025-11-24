@@ -4,7 +4,7 @@ use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use json::JsonValue;
-use log::{info, warn};
+use log::warn;
 use maprando::{
     preset::PresetData,
     randomize::{EssentialSpoilerData, Randomization},
