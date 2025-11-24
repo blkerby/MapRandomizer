@@ -45,7 +45,7 @@ pub struct PresetData {
     pub difficulty_tiers: Vec<DifficultyConfig>,
     pub full_presets: Vec<RandomizerSettings>,
     pub default_preset: RandomizerSettings,
-    pub logic_page_preset: RandomizerSettings,
+    pub logic_page_presets: Vec<RandomizerSettings>,
 }
 
 fn get_tech_by_difficulty(
@@ -145,7 +145,7 @@ impl PresetData {
         let skill_preset_path = presets_path.join("skill-assumptions");
         let mut skill_presets: Vec<SkillAssumptionSettings> = vec![];
         let mut difficulty_tiers: Vec<DifficultyConfig> = vec![];
-        for name in skill_preset_names {
+        for name in &skill_preset_names {
             let path = skill_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
@@ -231,10 +231,18 @@ impl PresetData {
         }
 
         let default_preset = full_presets[0].clone();
-        let mut logic_page_preset = default_preset.clone();
-        // Use Max QoL for logic page, so that strats don't show as Ignored when depending on QoL (such as disableable tanks).
-        logic_page_preset.quality_of_life_settings =
-            quality_of_life_presets.last().cloned().unwrap();
+        let mut logic_page_presets: Vec<RandomizerSettings> = vec![];
+        for difficulty in &skill_preset_names {
+            let mut preset = default_preset.clone();
+            preset.skill_assumption_settings = skill_presets
+                .iter()
+                .find(|x| x.preset.as_ref().unwrap() == difficulty)
+                .unwrap()
+                .clone();
+            // Use Max QoL for logic page, so that strats don't show as Ignored when depending on QoL (such as disableable tanks).
+            preset.quality_of_life_settings = quality_of_life_presets.last().cloned().unwrap();
+            logic_page_presets.push(preset);
+        }
         let preset_data = Self {
             tech_data_map,
             notable_data_map,
@@ -247,7 +255,7 @@ impl PresetData {
             objective_presets,
             difficulty_tiers,
             default_preset,
-            logic_page_preset,
+            logic_page_presets,
             full_presets,
         };
         Ok(preset_data)

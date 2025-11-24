@@ -4,7 +4,7 @@ use glob::glob;
 use hashbrown::{HashMap, HashSet};
 use itertools::Itertools;
 use json::JsonValue;
-use log::warn;
+use log::{info, warn};
 use maprando::{
     preset::PresetData,
     randomize::{EssentialSpoilerData, Randomization},
@@ -986,7 +986,7 @@ fn get_strat_difficulty(
                 global,
                 local,
                 false,
-                &preset_data.logic_page_preset,
+                &preset_data.logic_page_presets[difficulty_idx],
                 difficulty,
                 game_data,
                 &door_map,
