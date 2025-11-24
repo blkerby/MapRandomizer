@@ -9,6 +9,8 @@ v120?:
   - https://dev.maprando.com/seed/wFDgmdchf/data/visualizer/index.html step 8 West Ocean bottom-left item
 - Investigate osse seed: https://dev.maprando.com/seed/fKpvDHvq6/data/visualizer/index.html
   - what is going on with the step 8 E-Tank?
+- DONE: Investigate osse seed: https://dev.maprando.com/seed/MgjPvGL8C/data/visualizer/index.html
+  - what is going on with reverse traversal for Lava Grapple Tunnel
 - show more updates in spoiler history
   - Currently it's only showing up to one update per traversal?
 - Improve farm logic interaction between forward and reverse traversal

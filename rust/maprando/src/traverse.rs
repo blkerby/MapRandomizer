@@ -1296,17 +1296,10 @@ fn apply_requirement_simple(
         }
         Requirement::Damage(base_energy) => {
             let energy = base_energy / suit_damage_factor(&cx.global.inventory);
-            if energy >= cx.global.inventory.max_energy {
-                if cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx] {
-                    // With canManageReserves, assume low energy is put into reserves,
-                    // in order to survive the damage with an auto-refill while keeping
-                    // almost all the available i-frames.
-                    local
-                        .auto_reserve_trigger(1, 1, &cx.global.inventory, false, cx.reverse)
-                        .into()
-                } else {
-                    SimpleResult::Failure
-                }
+            if energy >= cx.global.inventory.max_energy
+                && !cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx]
+            {
+                SimpleResult::Failure
             } else {
                 local
                     .use_energy(energy, true, &cx.global.inventory, cx.reverse)

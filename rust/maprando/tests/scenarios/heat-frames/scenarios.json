@@ -84,6 +84,20 @@
       },
       "endRoomId": 0,
       "endNodeId": 2
-   }
+    },
+    {
+      "name": "Reserves",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startState": {
+        "reserves": {"remaining": 3}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "reverse": "weak"
+    }
   ]
 }
