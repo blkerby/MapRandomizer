@@ -48,22 +48,20 @@ document.getElementById("navigation-logic").classList.add("active");
         <div class="col-lg-2 my-2 d-flex align-items-center">
             Difficulty filter
         </div>
-        <div class="col-lg-10 my-2 btn-group overflow-auto" role="group">
-        {% for (i, difficulty) in preset_data.difficulty_levels.keys.iter().enumerate() %}
-            {% if difficulty == "Implicit" || difficulty == "Ignored" %}
-              {% continue %}
-            {% endif %}
-            <input type="radio" class="btn-check difficulty-filter" name="preset" value="{{+ i }}"
-                id="preset{{+ i }}" autocomplete="off" onclick="presetChanged()" 
-                {% if i == 8 %}
-                checked
-                {% endif %}
-                >
-            <label class="btn btn-outline-secondary p-2" for="preset{{+ i }}">{{+ difficulty }}</label>
-        {% endfor %}
-            <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#logicSettingsModal">
-                <i class="bi bi-gear"></i>
-            </button>
+        <div class="col-lg-9 my-2 overflow-auto" role="group">
+            <div class="input-group">
+                <select id="difficultyFilterPreset" class="form-select" name="difficulty_filter" onchange="presetChanged()">
+                    {% for difficulty in preset_data.difficulty_levels.keys.iter() %}
+                    {% if difficulty == "Implicit" || difficulty == "Ignored" %}
+                    {% continue %}
+                    {% endif %}
+                        <option value="{{+ loop.index0 }}" {% if difficulty == "Beyond" +%} selected {% endif %}>{{+ difficulty }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#logicSettingsModal">
+                    <i class="bi bi-gear"></i>
+                </button>
+            </div>
         </div>
     </div>
     </form>
@@ -151,13 +149,7 @@ function presetChanged() {
     saveForm(document.getElementById("filterForm"));
 }
 function getDifficultyFilter() {
-    var elems = document.getElementsByClassName("difficulty-filter");
-    for (var i = 0; i < elems.length; i++) {
-        if (elems[i].checked) {
-            return elems[i].value;
-        }
-    }
-    return -1;
+    return document.getElementById("difficultyFilterPreset").value;
 }
 function swapNodes() {
     var fromNode = document.getElementById("fromNode");

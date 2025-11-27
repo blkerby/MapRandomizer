@@ -93,7 +93,7 @@
                             {% continue %}
                             {% endif %}
                             {% let name_no_space = name.replace(" ", "") %}
-                                <option value="{{+ name}}" {% if name == "Basic" %} checked {% endif %}>{{+ name }}</option>
+                                <option value="{{+ name}}" {% if name == "Basic" %} selected {% endif %}>{{+ name }}</option>
                             {% endfor %}
                         </select>
                         <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#skillAssumptionsModal">
