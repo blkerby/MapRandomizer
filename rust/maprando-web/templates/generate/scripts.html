@@ -43,18 +43,9 @@ function applyNotableSetting(roomId, notableId, enabled) {
 }
 
 function applySkillPreset(preset) {
-    for (presetEl of document.getElementsByClassName("skill-preset-button")) {
-        if (presetEl.value == preset.preset) {
-            presetEl.checked = true;
-            let p = skillPresets[presetEl.value];
-            if (p !== undefined) {
-                preset = p;
-            }
-        } else {
-            presetEl.checked = false;
-        }
+    if (preset.preset !== null) {
+        document.getElementById("skillPreset").value = preset.preset;
     }
-
     document.getElementById("shinesparkTiles").value = preset.shinespark_tiles;
     document.getElementById("heatedShinesparkTiles").value = preset.heated_shinespark_tiles;
     document.getElementById("speedBallTiles").value = preset.speed_ball_tiles;
@@ -93,14 +84,10 @@ function fullSettingsChanged() {
 }
 
 function presetChanged() {
-    let preset = null;
-    for (presetEl of document.getElementsByClassName("skill-preset-button")) {
-        if (presetEl.checked) {
-            preset = skillPresets[presetEl.value];
-            applySkillPreset(preset);
-            saveSettings();
-            break;
-        }
+    let presetName = document.getElementById("skillPreset").value;
+    if (presetName != "") {
+        let preset = skillPresets[presetName];
+        applySkillPreset(preset);
     }
     fullSettingsChanged();
 }
@@ -133,14 +120,7 @@ function updateTierPercent() {
     }
 }
 function techChanged() {
-    {% for p in preset_data.skill_presets.iter() %}
-        {% let preset_name = p.preset.as_ref().unwrap() %}
-        {% let name_no_space = preset_name.replace(" ", "") %}
-        {% if name_no_space == "Implicit" || name_no_space == "Beyond" || name_no_space == "Ignored" %}
-            {% continue %}
-        {% endif %}
-        document.getElementById("preset{{+ name_no_space }}").checked = false;
-    {% endfor %}
+    document.getElementById("skillPreset").value = "";
     updateTierPercent();
     fullSettingsChanged();
 }

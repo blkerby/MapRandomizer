@@ -82,24 +82,24 @@
                     {% include "help/skill.html" %}
                     <label for="preset">Skill assumptions</label>
                 </div>
-                <div class="col-lg-9 btn-group overflow-auto" role="group">
-                    {% for p in preset_data.skill_presets.iter() %}
-                    {% let name = p.preset.as_ref().unwrap() %}
-                    {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
-                    {% continue %}
-                    {% endif %}
-                    {% let name_no_space = name.replace(" ", "") %}
-                        <input type="radio" class="btn-check skill-preset-button" name="preset" value="{{+ name }}"
-                            id="preset{{+ name_no_space }}" autocomplete="off" onclick="presetChanged()"
-                            {% if name == "Basic" %}
-                            checked
+                <div class="col-lg-9">
+                    <div class="input-group">
+                        <select id="skillPreset" class="form-select" name="skill_preset" onchange="presetChanged()">
+                            <option value="">Select an option to discard custom skill assumption settings</option>
+                            <hr>
+                            {% for p in preset_data.skill_presets.iter() %}
+                            {% let name = p.preset.as_ref().unwrap() %}
+                            {% if name == "Implicit" || name == "Beyond" || name == "Ignored" %}
+                            {% continue %}
                             {% endif %}
-                            >
-                        <label class="btn btn-outline-primary p-2" for="preset{{+ name_no_space }}">{{+ name }}</label>
-                    {% endfor %}
-                    <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#skillAssumptionsModal">
-                        <i class="bi bi-gear"></i>
-                    </button>    
+                            {% let name_no_space = name.replace(" ", "") %}
+                                <option value="{{+ name}}" {% if name == "Basic" %} checked {% endif %}>{{+ name }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#skillAssumptionsModal">
+                            <i class="bi bi-gear"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
