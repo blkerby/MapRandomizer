@@ -10,6 +10,8 @@ incsrc "constants.asm"
 !bank_8b_free_space_end = $8bf900
 !bank_ce_free_space_start = $ceb240  ; must match address in patch.rs
 !bank_ce_free_space_end = $cee000
+!bank_ce_free_space2_start = $cee000
+!bank_ce_free_space2_end = $cee040
 !bank_df_free_space_start = $dfd4df
 !bank_df_free_space_end = $dfe200
 !credits_script_address = $dfd91b
@@ -169,6 +171,23 @@ copy:
     plx
     pla
     jsl $8b95ce
+
+; add '+' to tileset
+    phx
+    ldx $0330
+    lda #$0020                         : sta $00d0,x ; Number of bytes
+    lda #$ce00                         : sta $00d3,x 
+    lda #tile_plus_top                 : sta $00d2,x ; Source address
+    lda #$45b0                         : sta $00d5,x ; Destination in Vram
+    txa : clc : adc #$0007             : sta $0330   ; Update the stack pointer
+    
+    ldx $0330
+    lda #$0020                         : sta $00d0,x ; Number of bytes
+    lda #$ce00                         : sta $00d3,x 
+    lda #tile_plus_bot                 : sta $00d2,x ; Source address
+    lda #$46b0                         : sta $00d5,x ; Destination in Vram
+    txa : clc : adc #$0007             : sta $0330   ; Update the stack pointer
+    plx
     rtl
 
 ; restore original credits tilemap to vram for final screen
@@ -1184,3 +1203,15 @@ credits:
 
     dw $0000
 warnpc !bank_ce_free_space_end
+
+org !bank_ce_free_space2_start
+; add '+' to big tileset; use is upper +, lower =
+tile_plus_top:
+db $00,$00,$00,$00,$00,$00,$00,$00,$00,$3C,$18,$24,$18,$E7,$7E,$81
+db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+tile_plus_bot:
+db $7E,$81,$18,$E7,$18,$24,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00
+db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+warnpc !bank_ce_free_space2_end
