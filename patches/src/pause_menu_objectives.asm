@@ -692,6 +692,7 @@ func_objective_screen:
 
 func_map2obj_fading_out:
     %callBank82Func($A56D)         ; Updates the flashing buttons when you change pause screens
+    JSL $82B672                    ; Draw map icons
     LDA !fast_pause_menu : AND #$8000
     BNE .fast
     JSL $808924                    ; Handle fading out

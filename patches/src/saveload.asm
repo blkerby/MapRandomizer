@@ -5,6 +5,8 @@ LoRom
 
 !bank_8f_free_space_start = $8ffe40
 !bank_8f_free_space_end = $8ffe80
+!bank_8f_free_space2_start = $8fe99b
+!bank_8f_free_space2_end = $8feb00
 
 !seed_value_0 = $dfff00
 !seed_value_1 = $dfff02
@@ -90,6 +92,8 @@ SaveSeed:
 	LDX $12
 	LDA !seed_value_0 : STA $700000, X
 	LDA !seed_value_1 : STA $700008, X
+SaveAreaMapCoord:
+    JSL save_map_coords
 EndSaveGame: PLY : PLX : PLB : PLP : RTL
 
 LoadGame: PHP : REP #$30 : PHB : PHX : PHY
@@ -142,3 +146,115 @@ fix_tube:
     rts
 
 warnpc !bank_8f_free_space_end
+
+org !bank_8f_free_space2_start
+save_map_coords:
+    LDA #$0000
+    LDX $952                ; current save index
+    BEQ .index_rdy
+    
+.nowrap
+    CLC
+    ADC #$0004
+    DEX
+    BNE .nowrap
+    
+.index_rdy                  ; adjust map coords for spawn point
+    TAX
+    LDA $0AF6
+    AND #$FF00
+    XBA
+    CLC
+    ADC $07A1
+    PHA
+    
+    LDA $0AFA
+    XBA
+    AND #$00FF
+    CLC
+    ADC $07A3
+    PHA
+    
+; possible sprite values:
+; 88 = save, 8D = helmet (high bit set indicates spawn)
+; 08 = yellow, 0E = orange, 0F = pink (save icon)
+    SEP #$20
+    PHX                     ; save index
+    LDA $702602
+    CMP #$FF                ; initial spawn?
+    BNE .save_normal
+    JSL check_save_rooms    ; spawning in save room?
+    BCS .save_icon_spawn
+    LDA $80C4E1             ; spawn room == $91F8 (Landing Site)?
+    CMP #$F8
+    BNE .helmet
+    LDA $80C4E2
+    CMP #$91
+    BNE .helmet
+    LDA $80C4E7             ; offset_x == 0?
+    BNE .helmet
+.save_icon_spawn
+    LDA #$88                ; spawn in save room / ship
+    BRA .write_icon
+.helmet
+    LDA #$8D                ; helmet icon
+    BRA .write_icon
+.save_normal
+    LDA #$08                ; normal save
+.save
+    LDX $952
+    BEQ .write_icon
+    CLC
+    ADC #$06                ; 2nd save = 0Eh
+    DEX
+    BEQ .write_icon
+    INC                     ; 3rd save = 0Fh
+.write_icon
+    PLX                     ; index
+    STA $702603,X           ; icon
+    LDA $1F5B
+    STA $702602,X           ; area
+    PLA
+    STA $702605,X           ; y
+    PLA
+    PLA
+    STA $702604,X           ; x
+    PLA
+
+    REP #$30
+    RTL
+
+; check current room against save stations
+; set carry with result
+check_save_rooms:
+    PHP
+    PHB
+    PHK
+    PLB
+    REP #$30
+    LDX #$0000
+    
+.read_lp
+    LDA save_rooms,X
+    BEQ .no_match
+    CMP $79B
+    BEQ .match
+    INX : INX
+    BRA .read_lp
+.no_match
+    PLB
+    PLP
+    CLC
+    RTL
+.match
+    PLB
+    PLP
+    SEC
+    RTL
+
+save_rooms:
+    dw $A184, $A201, $A22A, $A70B, $A734, $AAB5, $B0DD, $B167
+    dw $B192, $B1BB, $B741, $93D5, $CE8A, $CED2, $D3DF, $D765
+    dw $D81A, $DE23, $DF1B, $0000
+    
+warnpc !bank_8f_free_space2_end
