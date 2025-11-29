@@ -366,6 +366,9 @@ pub fn write_credits_big_char(rom: &mut Rom, c: char, addr: usize) -> Result<()>
         write_credits_big_digit(rom, c as usize - '0' as usize, addr)?;
     } else if c.is_ascii_uppercase() {
         write_credits_big_letter(rom, c, addr)?;
+    } else if c == '+' {
+        rom.write_u16(addr, 0x005b)?;
+        rom.write_u16(addr + 0x40, 0x006b)?;
     }
     Ok(())
 }
@@ -1879,8 +1882,8 @@ impl Patcher<'_> {
         let base_addr = snes2pc(0xceb240 + (row - 128) * 0x40);
         for (i, c) in preset.chars().enumerate() {
             let c = c.to_ascii_uppercase();
-            if c.is_ascii_uppercase() {
-                write_credits_big_letter(self.rom, c, base_addr + 0x3E - preset.len() * 2 + i * 2)?;
+            if c.is_ascii_uppercase() || c == '+' {
+                write_credits_big_char(self.rom, c, base_addr + 0x3E - preset.len() * 2 + i * 2)?;
             }
         }
         Ok(())
