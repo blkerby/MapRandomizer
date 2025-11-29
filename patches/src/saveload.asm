@@ -201,14 +201,6 @@ save_map_coords:
     BRA .write_icon
 .save_normal
     LDA #$08                ; normal save
-.save
-    LDX $952
-    BEQ .write_icon
-    CLC
-    ADC #$06                ; 2nd save = 0Eh
-    DEX
-    BEQ .write_icon
-    INC                     ; 3rd save = 0Fh
 .write_icon
     PLX                     ; index
     STA $702603,X           ; icon

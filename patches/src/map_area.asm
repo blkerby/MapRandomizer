@@ -12,7 +12,7 @@ lorom
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AF00
+!bank_85_freespace3_end  = $85AF10
 !bank_b6_freespace_start = $B6FFC0
 !bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
@@ -1695,8 +1695,53 @@ sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
 hook_map_icons:
     PHP
     LDX #$0000
-    TXA
+    TXY
+
+; set relative colors
+    SEP #$20
+    LDA $952            ; save index
+
+.next_color_lp
+    PHA                 ; index
+    ASL
+    ASL
+    TAX                 ; index*4
+    LDA $702603,X
+    CMP #$8D            ; helmet?
+    BEQ .skip_write
+    LDA #$08            ; color to use (08, 0E, 0F)
+    CPY #$0000
+    BEQ .write
+    CLC
+    ADC #$06
+    CPY #$0001
+    BEQ .write
+    INC
     
+.write
+    PHA                 ; save color
+    LDA $702603,X
+    BIT #$80
+    BEQ .write_color
+    PLA                 ; color
+    ORA #$80            ; save station
+    BRA .write_final
+.write_color
+    PLA                 ; color
+.write_final
+    STA $702603,X
+.skip_write
+    PLA                 ; index
+    BNE .next_index
+    LDA #$03            ; wrap
+.next_index
+    DEC
+    INY
+    CPY #$0003
+    BNE .next_color_lp
+
+; draw save slot markers
+    LDX #$0000
 .load_lp
     SEP #$20
     LDA $702602,X
@@ -1759,8 +1804,7 @@ hook_map_icons:
 .next
     INX #4
     CPX #$000C
-    BEQ .check_ship
-    JMP .load_lp
+    BNE .load_lp
 
 .check_ship
     REP #$30
