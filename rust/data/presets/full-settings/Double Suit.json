@@ -3415,13 +3415,6 @@
                 "enabled": false
             },
             {
-                "room_id": 32,
-                "notable_id": 9,
-                "room_name": "West Ocean",
-                "notable_name": "Enemy Stuck Moonfall Super Block Clip",
-                "enabled": false
-            },
-            {
                 "room_id": 41,
                 "notable_id": 3,
                 "room_name": "Blue Brinstar Energy Tank Room",
@@ -3853,6 +3846,13 @@
                 "notable_id": 1,
                 "room_name": "Crateria Kihunter Room",
                 "notable_name": "Ice Moonfall Door Lock Skip",
+                "enabled": false
+            },
+            {
+                "room_id": 32,
+                "notable_id": 9,
+                "room_name": "West Ocean",
+                "notable_name": "Enemy Stuck Moonfall Super Block Clip",
                 "enabled": false
             },
             {
