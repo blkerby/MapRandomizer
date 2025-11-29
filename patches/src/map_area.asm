@@ -12,7 +12,7 @@ lorom
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AF10
+!bank_85_freespace3_end  = $85AF20
 !bank_b6_freespace_start = $B6FFC0
 !bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
@@ -1918,6 +1918,7 @@ check_partial_reveal:
     AND #$001F
     STA $12
     AND #$0007
+    PHA             ; save bit subindex of tile
     LDA $12
     LSR
     LSR
@@ -1940,7 +1941,9 @@ check_partial_reveal:
     LDA $1F5B
     XBA
     TAX
-    LDA $702700,X
+    LDA $702700,X   ; partial revealed byte
+    PLX             ; bit subindex of ship tile
+    AND $90AC04,X   ; check bit
     BEQ .not_revealed
     PLP
     SEC
