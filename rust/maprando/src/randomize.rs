@@ -18,7 +18,7 @@ use crate::traverse::{
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
-use log::info;
+use log::{debug, info};
 use maprando_game::{
     self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, Float, GModeMobility, GModeMode,
@@ -3902,10 +3902,12 @@ impl<'r> Randomizer<'r> {
         // cases where the player would gain access to very large areas that they cannot return from:
         let one_way_reachable_limit = 20;
 
-        // Check if all items are already bireachable. It isn't necessary for correctness to check this case,
-        // but it speeds up the last step, where no further progress is possible (meaning there is no point
-        // trying a bunch of possible key items to place to try to make more progress.
-        let all_items_bireachable = num_bireachable == new_state.item_location_state.len();
+        // Check if an instance of each item is already collected.
+        let all_items_bireachable = new_state
+            .items_remaining
+            .iter()
+            .zip(self.initial_items_remaining.iter())
+            .all(|(n, i)| n < i || *i == 0);
 
         let gives_expansion = if all_items_bireachable {
             true
@@ -3917,9 +3919,13 @@ impl<'r> Randomizer<'r> {
             .any(|(n, o)| n.bireachable_traversal.is_some() && o.reachable_traversal.is_none())
         };
 
-        let is_beatable = self.is_game_beatable(new_state);
+        let is_done = self
+            .settings
+            .item_progression_settings
+            .stop_item_placement_early
+            && self.is_game_beatable(new_state);
 
-        (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_beatable
+        (num_one_way_reachable < one_way_reachable_limit && gives_expansion) || is_done
     }
 
     fn get_initial_local_state(
@@ -4005,7 +4011,13 @@ impl<'r> Randomizer<'r> {
                 num_unplaced_bireachable,
             );
             self.update_reachability(&mut new_state, traverser_pair);
-            if self.provides_progression(state, &new_state) {
+
+            let provides_progression = self.provides_progression(state, &new_state);
+            debug!(
+                "[attempt {attempt_num_rando}] items {selected_key_items:?}, {selected_filler_items:?}, provides_progression = {}",
+                provides_progression
+            );
+            if provides_progression {
                 let selection = SelectItemsOutput {
                     key_items: selected_key_items,
                     other_items: selected_filler_items,
@@ -4015,6 +4027,7 @@ impl<'r> Randomizer<'r> {
             traverser_pair.forward.pop_step();
             traverser_pair.reverse.pop_step();
 
+            attempt_num += 1;
             if let Some(new_selected_key_items) =
                 self.select_key_items(&new_state_filler, num_key_items_to_select, attempt_num)
             {
@@ -4052,7 +4065,6 @@ impl<'r> Randomizer<'r> {
                 };
                 return Ok((selection, new_state));
             }
-            attempt_num += 1;
         }
     }
 
