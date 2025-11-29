@@ -16,8 +16,11 @@ difficulty_levels = [
     "Hard",
     "Very Hard",
     "Expert",
+    "Expert+",
     "Extreme",
+    "Extreme+",
     "Insane",
+    "Insane+",
     "Beyond",
     "Ignored",
 ]
@@ -34,12 +37,12 @@ for notable in notable_data:
     notable_id_by_difficulty[difficulty].append((notable["room_id"], notable["notable_id"]))
 
 # Update skill-assumption presets:
-for preset_difficulty_idx in range(0, 9):  # skip Ignored difficulty
+for preset_difficulty_idx in range(0, len(difficulty_levels) - 1):  # skip Ignored difficulty
     preset_difficulty = difficulty_levels[preset_difficulty_idx]
     path = skill_presets_path / f'{preset_difficulty}.json'
     preset = json.load(open(path, 'r'))
     notable_settings = []
-    for notable_difficulty_idx in range(1, 9):  # skip Implicit and Ignored difficulties
+    for notable_difficulty_idx in range(1, len(difficulty_levels) - 1):  # skip Implicit and Ignored difficulties
         notable_difficulty = difficulty_levels[notable_difficulty_idx]
         for (room_id, notable_id) in notable_id_by_difficulty[notable_difficulty]:
             notable = notable_dict[(room_id, notable_id)]

@@ -131,11 +131,11 @@ function updateSelect() {
     var cnt = 0;
     for (var i = 0; i < rows.length; i++) {
         var row = rows.item(i);
-        // Include Ignored (9) strats when Beyond (8) is selected:
+        // Include Ignored (12) strats when Beyond (11) is selected:
         if (exactDifficulty) {
-            var validDifficulty = Math.min(8, row.getAttribute("data-difficulty")) == difficultyFilter;
+            var validDifficulty = Math.min(11, row.getAttribute("data-difficulty")) == difficultyFilter;
         } else {
-            var validDifficulty = Math.min(8, row.getAttribute("data-difficulty")) <= difficultyFilter;
+            var validDifficulty = Math.min(11, row.getAttribute("data-difficulty")) <= difficultyFilter;
         }
 
         if (validDifficulty) {

@@ -86,7 +86,7 @@
     {
         "tech_id": 15,
         "name": "canSandfallBounce",
-        "difficulty": "Expert",
+        "difficulty": "Extreme",
         "video_id": 939
     },
     {
@@ -98,7 +98,7 @@
     {
         "tech_id": 17,
         "name": "canSandGrappleBoost",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 763
     },
     {
@@ -116,13 +116,13 @@
     {
         "tech_id": 20,
         "name": "canReserveDoubleDamageBoost",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 991
     },
     {
         "tech_id": 188,
         "name": "canPreciseReserveRefill",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 1302
     },
     {
@@ -164,7 +164,7 @@
     {
         "tech_id": 27,
         "name": "canExtendedMoondance",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": 782
     },
     {
@@ -176,7 +176,7 @@
     {
         "tech_id": 29,
         "name": "canFreeFallClip",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": 7305
     },
     {
@@ -284,7 +284,7 @@
     {
         "tech_id": 45,
         "name": "canCrouchGateClip",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 791
     },
     {
@@ -350,25 +350,25 @@
     {
         "tech_id": 54,
         "name": "canBombGrappleJump",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": 274
     },
     {
         "tech_id": 55,
         "name": "canGrappleTeleport",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 775
     },
     {
         "tech_id": 209,
         "name": "canGrappleTeleportWallEscape",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 144
     },
     {
         "tech_id": 56,
         "name": "canGrappleBombHang",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 31
     },
     {
@@ -386,7 +386,7 @@
     {
         "tech_id": 204,
         "name": "canSuperSink",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": 7316
     },
     {
@@ -458,7 +458,7 @@
     {
         "tech_id": 68,
         "name": "canUnderwaterBombIntoSpringBallJump",
-        "difficulty": "Insane",
+        "difficulty": "Extreme+",
         "video_id": 6789
     },
     {
@@ -554,7 +554,7 @@
     {
         "tech_id": 201,
         "name": "canBootless2WideUWJ",
-        "difficulty": "Beyond",
+        "difficulty": "Insane+",
         "video_id": 2475
     },
     {
@@ -566,7 +566,7 @@
     {
         "tech_id": 85,
         "name": "canUnmorphBombBoost",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 920
     },
     {
@@ -614,7 +614,7 @@
     {
         "tech_id": 92,
         "name": "canCeilingBombJump",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": 1008
     },
     {
@@ -626,19 +626,19 @@
     {
         "tech_id": 94,
         "name": "canDiagonalBombJump",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 998
     },
     {
         "tech_id": 96,
         "name": "canDoubleBombJump",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 958
     },
     {
         "tech_id": 97,
         "name": "canStaggeredIBJ",
-        "difficulty": "Expert",
+        "difficulty": "Extreme",
         "video_id": 434
     },
     {
@@ -776,13 +776,13 @@
     {
         "tech_id": 120,
         "name": "canEnemyExtendRunway",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 962
     },
     {
         "tech_id": 121,
         "name": "canTrickyEnemyExtendRunway",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 777
     },
     {
@@ -920,13 +920,13 @@
     {
         "tech_id": 189,
         "name": "canControlShinesparkEnd",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 2074
     },
     {
         "tech_id": 203,
         "name": "canShinesparkSlopeClip",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 6880
     },
     {
@@ -938,13 +938,13 @@
     {
         "tech_id": 207,
         "name": "canCarryFlashSuit",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": null
     },
     {
         "tech_id": 141,
         "name": "canSpikeSuit",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 5323
     },
     {
@@ -962,13 +962,13 @@
     {
         "tech_id": 221,
         "name": "canRModeCrystalFlashInterrupt",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 7280
     },
     {
         "tech_id": 226,
         "name": "canComplexRModeCrystalFlashInterrupt",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 9207
     },
     {
@@ -980,7 +980,7 @@
     {
         "tech_id": 213,
         "name": "canRModeKnockbackSpark",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": 8425
     },
     {
@@ -1004,7 +1004,7 @@
     {
         "tech_id": 214,
         "name": "canUseFlashSuitInitialSpark",
-        "difficulty": "Insane",
+        "difficulty": "Extreme+",
         "video_id": 7665
     },
     {
@@ -1088,7 +1088,7 @@
     {
         "tech_id": 149,
         "name": "canPauseRemorphTemporaryBlue",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 184
     },
     {
@@ -1130,7 +1130,7 @@
     {
         "tech_id": 154,
         "name": "canXRayCancelShinecharge",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 153
     },
     {
@@ -1148,7 +1148,7 @@
     {
         "tech_id": 202,
         "name": "canLongXRayClimb",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 2212
     },
     {
@@ -1172,7 +1172,7 @@
     {
         "tech_id": 159,
         "name": "canXMode",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 1002
     },
     {
@@ -1202,7 +1202,7 @@
     {
         "tech_id": 162,
         "name": "canGMode",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 982
     },
     {
@@ -1220,7 +1220,7 @@
     {
         "tech_id": 198,
         "name": "canHeatedGMode",
-        "difficulty": "Insane",
+        "difficulty": "Extreme+",
         "video_id": 4719
     },
     {
@@ -1244,7 +1244,7 @@
     {
         "tech_id": 194,
         "name": "canSamusEaterTeleport",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 3809
     },
     {
@@ -1298,7 +1298,7 @@
     {
         "tech_id": 172,
         "name": "canHighPixelCeilingClip",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": 762
     },
     {
@@ -1322,7 +1322,7 @@
     {
         "tech_id": 175,
         "name": "canBombIntoCrystalFlashClip",
-        "difficulty": "Expert",
+        "difficulty": "Expert+",
         "video_id": 970
     },
     {
@@ -1352,13 +1352,13 @@
     {
         "tech_id": 183,
         "name": "canDeepTransition",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 778
     },
     {
         "tech_id": 184,
         "name": "canSkipDoorLock",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 800
     },
     {

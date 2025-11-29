@@ -49,8 +49,11 @@ difficulty_levels = [
     "Hard",
     "Very Hard",
     "Expert",
+    "Expert+",
     "Extreme",
+    "Extreme+",
     "Insane",
+    "Insane+",
     "Beyond",
     "Ignored",
 ]
@@ -66,12 +69,12 @@ for tech_id in tech_id_order:
     tech_id_by_difficulty[difficulty].append(tech_id)
 
 # Update skill-assumption presets:
-for preset_difficulty_idx in range(0, 9):  # skip Ignored difficulty
+for preset_difficulty_idx in range(0, len(difficulty_levels) - 1):  # skip Ignored difficulty
     preset_difficulty = difficulty_levels[preset_difficulty_idx]
     path = skill_presets_path / f'{preset_difficulty}.json'
     preset = json.load(open(path, 'r'))
     tech_settings = []
-    for tech_difficulty_idx in range(1, 9):  # skip Implicit and Ignored difficulties
+    for tech_difficulty_idx in range(1, len(difficulty_levels) - 1):  # skip Implicit and Ignored difficulties
         tech_difficulty = difficulty_levels[tech_difficulty_idx]
         for tech_id in tech_id_by_difficulty[tech_difficulty]:
             tech = tech_dict[tech_id]

@@ -126,8 +126,11 @@ impl PresetData {
             "Hard",
             "Very Hard",
             "Expert",
+            "Expert+",
             "Extreme",
+            "Extreme+",
             "Insane",
+            "Insane+",
             "Beyond",
             "Ignored",
         ] {
@@ -141,7 +144,8 @@ impl PresetData {
         let implicit_tech = &tech_by_difficulty["Implicit"];
         let implicit_notables = &notables_by_difficulty["Implicit"];
 
-        let skill_preset_names = difficulty_levels.keys[..9].to_vec();
+        let skill_preset_names =
+            difficulty_levels.keys[..difficulty_levels.keys.len() - 1].to_vec();
         let skill_preset_path = presets_path.join("skill-assumptions");
         let mut skill_presets: Vec<SkillAssumptionSettings> = vec![];
         let mut difficulty_tiers: Vec<DifficultyConfig> = vec![];

@@ -2377,6 +2377,9 @@ impl GameData {
                         Requirement::DisableableETank,
                         Requirement::RegularEnergyDrain(count as Capacity),
                     ]));
+                } else if resource_type == "Missile" {
+                    // TODO: change this if we add an ability to disable Missiles.
+                    return Ok(Requirement::Never);
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
                 }
