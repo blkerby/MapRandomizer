@@ -2540,7 +2540,7 @@
     "room_name": "Colosseum",
     "notable_id": 5,
     "name": "Bomb Jump Water Escape",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 38
   },
   {
@@ -2708,7 +2708,7 @@
     "room_name": "East Cactus Alley",
     "notable_id": 6,
     "name": "Bomb Jump Water Escape",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 113
   },
   {
@@ -3436,7 +3436,7 @@
     "room_name": "Tourian Escape Room 4",
     "notable_id": 2,
     "name": "Suitless Acid Bath Shinespark",
-    "difficulty": "Extreme+",
+    "difficulty": "Insane",
     "video_id": 252
   },
   {

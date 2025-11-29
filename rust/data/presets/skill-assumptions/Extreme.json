@@ -2201,13 +2201,6 @@
             "enabled": true
         },
         {
-            "room_id": 189,
-            "notable_id": 5,
-            "room_name": "Colosseum",
-            "notable_name": "Bomb Jump Water Escape",
-            "enabled": true
-        },
-        {
             "room_id": 193,
             "notable_id": 1,
             "room_name": "Draygon's Room",
@@ -2219,13 +2212,6 @@
             "notable_id": 2,
             "room_name": "East Cactus Alley",
             "notable_name": "Cross Room Jump with IBJ",
-            "enabled": true
-        },
-        {
-            "room_id": 196,
-            "notable_id": 6,
-            "room_name": "East Cactus Alley",
-            "notable_name": "Bomb Jump Water Escape",
             "enabled": true
         },
         {
@@ -2447,9 +2433,23 @@
         },
         {
             "room_id": 189,
+            "notable_id": 5,
+            "room_name": "Colosseum",
+            "notable_name": "Bomb Jump Water Escape",
+            "enabled": true
+        },
+        {
+            "room_id": 189,
             "notable_id": 6,
             "room_name": "Colosseum",
             "notable_name": "Spike Platforming with Move Assist (Left to Right)",
+            "enabled": true
+        },
+        {
+            "room_id": 196,
+            "notable_id": 6,
+            "room_name": "East Cactus Alley",
+            "notable_name": "Bomb Jump Water Escape",
             "enabled": true
         },
         {
@@ -3343,13 +3343,6 @@
         },
         {
             "room_id": 242,
-            "notable_id": 2,
-            "room_name": "Tourian Escape Room 4",
-            "notable_name": "Suitless Acid Bath Shinespark",
-            "enabled": false
-        },
-        {
-            "room_id": 242,
             "notable_id": 3,
             "room_name": "Tourian Escape Room 4",
             "notable_name": "IBJ and Acid Bath",
@@ -3801,6 +3794,13 @@
             "notable_id": 1,
             "room_name": "Seaweed Room",
             "notable_name": "Temporary Blue Chain",
+            "enabled": false
+        },
+        {
+            "room_id": 242,
+            "notable_id": 2,
+            "room_name": "Tourian Escape Room 4",
+            "notable_name": "Suitless Acid Bath Shinespark",
             "enabled": false
         },
         {
