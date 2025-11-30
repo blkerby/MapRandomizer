@@ -99,6 +99,7 @@ impl SeedHeaderTemplate<'_> {
             .item_progression_settings
             .item_pool
             .iter()
+            .filter(|x| x.count > 0)
             .map(|x| {
                 if x.count > 1 {
                     format!("{:?} ({})", x.item, x.count)
