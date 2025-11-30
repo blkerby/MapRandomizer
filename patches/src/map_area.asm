@@ -11,6 +11,10 @@ lorom
 !bank_85_freespace_end = $85A880
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
+!bank_85_freespace3_start = $85AD00
+!bank_85_freespace3_end  = $85AF20
+!bank_b6_freespace_start = $B6FFC0
+!bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
 !bank_a7_freespace_start = $A7FFC0
@@ -481,6 +485,7 @@ pause_start_hook:
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
     ;inc $0998  ; run hi-jacked instruction
+    jsr write_save_sprites
     stz $05FF  ; run hi-jacked instruction
     rtl
 
@@ -542,6 +547,7 @@ load_map_screen:
 
     ; Load map tile graphics
     jsl $828E75
+    jsr write_save_sprites
     rtl
 
 load_equipment_screen:
@@ -665,6 +671,7 @@ switch_map_area:
     LDA #$0000             ;\
     STA $0723             ;} Screen fade delay = 0
 
+    jsr write_save_sprites
     inc $0727
     rtl
 
@@ -1599,3 +1606,411 @@ sram_to_gfx_dma: ; size in A, src in X (bank hardcoded to $70), dest in Y
     RTL
 
 warnpc !bank_85_freespace2_end
+
+;;; Map icon patch
+;;; Shows save icons as yellow, orange, pink for save slots 1, 2, 3, respectively
+;;; Also shows helmet at spawn location and restores ship
+
+org $82b672
+save_station:
+    jsl hook_map_icons
+    rtl
+
+; ship sprite(right), sprite entry 0Bh
+org $82c39a
+    dw $0001        ; entries
+    dw $0004        ; size bit | x-offset
+    db $06          ; y-offset
+    dw $608c        ; flip/pri | tile
+
+; ship sprite(left), sprite entry 0Ch
+org $82c3af
+    dw $0001
+    dw $0004
+    db $06
+    dw $208c
+
+; helmet sprite, unused sprite entry 0Dh
+org $82c3b6
+    dw $0001
+    dw $0000
+    db $00
+    dw $2089
+
+; 2nd save sprite, unused sprite entry 0Eh
+org $82c3bd
+    dw $0001
+    dw $0001
+    db $00
+    dw $208e
+    
+; 3rd save sprite, unused sprite entry 0Fh
+org $82c3c4
+    dw $0001
+    dw $0001
+    db $00
+    dw $208f
+
+org !bank_b6_freespace_start
+;(orange save)
+db $00,$7E,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$00,$7E
+db $00,$00,$1E,$1E,$30,$30,$38,$38,$1C,$1C,$0C,$0C,$78,$78,$00,$00
+
+;(pink save)
+db $00,$7E,$7E,$E1,$7E,$CF,$7E,$C7,$7E,$E3,$7E,$F3,$7E,$87,$00,$7E
+db $00,$00,$00,$1E,$00,$30,$00,$38,$00,$1C,$00,$0C,$00,$78,$00,$00
+warnpc !bank_b6_freespace_end
+
+org !bank_85_freespace3_start
+write_save_sprites:
+    PHB
+    PHX
+    PHY
+
+    PHK
+    PLB
+    LDY #$0000
+.wrt_lp
+    LDX sprite_table,Y
+    BEQ .done
+    LDA sprite_table+2,Y
+    JSR write_to_vram
+    INY #4
+    BRA .wrt_lp
+
+.done
+    PLY
+    PLX
+    PLB
+    RTS
+
+sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
+    dw $d120, $2890, $d1e0, $28c0, $d1a0, $28d0, $ffc0, $28e0, $ffe0, $28f0, $0000
+
+; Save icon logic:
+;   - helmet represents spawn until 3rd save occur
+;   - if spawn is in save room, use save icon
+;   - if n and n+2 saves are at same location, only most recent is shown
+
+hook_map_icons:
+    PHP
+    LDX #$0000
+    TXY
+
+; set relative colors
+    SEP #$20
+    LDA #$08
+    STA $2E             ; next color
+    LDA $952            ; save index
+
+.next_color_lp
+    PHA                 ; index
+    ASL
+    ASL
+    TAX                 ; index*4
+    LDA $702602,X
+    CMP #$FF            ; empty slot?
+    BEQ .skip_write
+    LDA $702603,X
+    CMP #$8D            ; helmet?
+    BEQ .skip_write
+    LDA $2E             ; color to use (08, 0E, 0F)
+    PHA
+    CMP #$08
+    BNE .check_orange
+    CLC
+    ADC #$06
+    BRA .write
+.check_orange
+    CMP #$0E
+    BNE .write
+    INC
+    
+.write
+    STA $2E             ; next slot color
+    LDA $702603,X
+    BIT #$80
+    BEQ .write_color
+    PLA                 ; color
+    ORA #$80            ; save station
+    BRA .write_final
+.write_color
+    PLA                 ; color
+.write_final
+    STA $702603,X
+.skip_write
+    PLA                 ; index
+    BNE .next_index
+    LDA #$03            ; wrap
+.next_index
+    DEC
+    INY
+    CPY #$0003
+    BNE .next_color_lp
+
+; draw save slot markers
+    LDX #$0000
+.load_lp
+    SEP #$20
+    LDA $702602,X
+    CMP #$06            ; valid area set?
+    BCS .check_ship
+    CMP $1F5B           ; same area?
+    BNE .next
+
+    LDA $702603,X
+    CMP #$8D            ; helmet?
+    BEQ .adj_coords
+    JSR check_dupe
+    BCS .next
+    LDA $702603,X
+    
+.adj_coords
+    REP #$30
+    PHX                 ; save slot index
+    PHA                 ; save sprite ID
+    PHA
+
+; map x-coord
+    LDA $702604,X
+    PHA
+    AND #$00FF
+    ASL
+    ASL
+    ASL
+    SEC
+    SBC $B1
+    TAX
+    
+; map y-coord
+    PLA
+    XBA
+    AND #$00FF
+    ASL
+    ASL
+    ASL
+    SEC
+    SBC $B3
+    CLC
+    ADC #$0008
+    TAY
+
+    PLA
+    CMP #$008D
+    BNE .not_helmet
+    LDA #$0E00          ; helmet palette
+    BRA .write_oam
+.not_helmet
+    LDA #$0400          ; save icon palette
+.write_oam
+    STA $03
+    PLA
+    AND #$007F
+    JSL $81891F         ; add sprite to OAM
+    PLX
+    
+.next
+    INX #4
+    CPX #$000C
+    BNE .load_lp
+
+.check_ship
+    REP #$30
+    LDX #$9213          ; Landing Site header
+    LDA $8F0010,X
+    TAX
+
+    LDA $B80000,X       ; Landing Site area
+    AND #$00FF
+    CMP $1F5B           ; current area?
+    BEQ .ship_area
+    PLP
+    RTL
+
+.ship_area
+    LDA $8F91FA         ; Landing Site X
+    AND #$00FF
+    CLC
+    ADC #$0004
+    TAX
+    LDA $8F91FB         ; Landing Site Y
+    AND #$00FF
+    CLC
+    ADC #$0004
+    TAY
+    JSR check_partial_reveal
+    BCC .exit
+    REP #$30
+; landing site x-coord
+    LDA $8F91FA
+    AND #$00FF
+    CLC
+    ADC #$0003
+    ASL
+    ASL
+    ASL
+    SEC
+    SBC $B1
+    TAX
+
+; landing site y-coord
+    LDA $8F91FB
+    AND #$00FF
+    CLC
+    ADC #$0003
+    ASL
+    ASL
+    ASL
+    SEC
+    SBC $B3
+    CLC
+    ADC #$0008
+    TAY
+
+    LDA #$0E00          ; palette
+    STA $03
+    LDA #$000C          ; left side of ship sprite
+    PHA
+    PHX
+    PHY
+    JSL $81891F
+    PLY
+    PLA
+    CLC
+    ADC #$0008          ; shift right
+    TAX
+    PLA
+    DEC                 ; right side of ship sprite
+    JSL $81891F
+.exit
+    PLP
+    RTL
+
+write_to_vram:
+; constant: size = 0x20, src bank = $b6
+; A = vram addr
+; X = src addr
+    PHA
+    PHX
+    LDX $0330
+    LDA #$0020
+    STA $D0,x
+    INX
+    INX
+    PLA
+    STA $D0,x
+    INX
+    INX
+    LDA #$00B6
+    STA $D0,x
+    INX
+    PLA
+    STA $D0,x
+    INX
+    INX
+    STX $0330
+    RTS
+
+check_partial_reveal:
+; X = x map coord
+; Y = y map coord
+; result in carry flag
+    PHP
+    TXA
+    AND #$00FF
+    PHA
+    AND #$0020
+    STA $22
+    PLA
+    AND #$001F
+    STA $12
+    AND #$0007
+    PHA             ; save bit subindex of tile
+    LDA $12
+    LSR
+    LSR
+    LSR
+    STA $14
+    TYA
+    AND #$00FF
+    INC
+    STA $16
+    CLC
+    ADC $22
+    ASL
+    ASL
+    CLC
+    ADC $14
+    TAX
+    SEP #$20
+    TXA
+    XBA
+    LDA $1F5B
+    XBA
+    TAX
+    LDA $702700,X   ; partial revealed byte
+    PLX             ; bit subindex of ship tile
+    AND $90AC04,X   ; check bit
+    BEQ .not_revealed
+    PLP
+    SEC
+    RTS
+    
+.not_revealed
+    PLP
+    CLC
+    RTS
+
+check_dupe:
+; returns carry if n and n+2 saves are at same location
+; and current slot is older save
+; X = curr slot * 4
+    PHP
+    REP #$30
+; scenario: n, -, n+2
+    LDA $702604
+    CMP $70260C
+    BNE .check_2
+    CPX #$0000      ; ignore n
+    BEQ .match
+    BRA .no_match
+    
+.check_2
+; scenario: n+2, n, -
+    LDA $702604
+    CMP $702608
+    BNE .check_3
+; check for special scenario: spawn, n, - (spawn in save room, reenter/save)
+    LDA $702603
+    AND #$00FF
+    CMP #$0088
+    BCS .check_2b
+; normal scenario
+    CPX #$0000      ; ignore n+2
+    BEQ .match
+    BRA .no_match
+    
+.check_2b
+    CPX #$0000      ; ignore spawn
+    BEQ .match
+    BRA .no_match
+
+.check_3
+; scenario: -, n+2, n
+    LDA $702608
+    CMP $70260C
+    BNE .no_match
+    CPX #$0008      ; ignore n
+    BNE .no_match
+    
+.match
+    PLP
+    SEC
+    RTS
+    
+.no_match
+    PLP
+    CLC
+    RTS
+    
+warnpc !bank_85_freespace3_end

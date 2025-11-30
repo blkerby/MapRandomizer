@@ -1,5 +1,6 @@
 0000-E99B:  Used by vanilla game for Room headers, PLM sets, door & setup ASMs, etc.
-E99B-EDC0:  [FREE]
+E99B-EB00:  saveload.asm
+EB00-EDC0:  [FREE]
 EDC0-EE00:  transition_reveal.asm
 EE00-EE10:  mb_left_entrance.asm
 EE10-F600:  Used for custom door ASMs

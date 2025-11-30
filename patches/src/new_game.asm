@@ -34,6 +34,7 @@ incsrc "constants.asm"
 !initial_max_supers = $B5FE62
 !initial_power_bombs = $B5FE64
 !initial_max_power_bombs = $B5FE66
+!initial_save_map_coords = $702602
 !spin_lock_enabled = $1F70
 
 ;;; Hijack code that runs during initialization
@@ -156,6 +157,14 @@ startup:
     lda !initial_area_explored_mask
     sta !area_explored_mask
 
+    ; Initialize save stations map coords
+    ldx #$000C
+    lda #$FFFF
+.clear_lp
+    sta !initial_save_map_coords-2, x
+    dex : dex
+    bne .clear_lp
+    
     ; Initialize RTA timer & global stats
     lda #$0000
     sta !stat_timer
