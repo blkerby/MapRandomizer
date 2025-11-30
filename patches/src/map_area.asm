@@ -1699,6 +1699,8 @@ hook_map_icons:
 
 ; set relative colors
     SEP #$20
+    LDA #$08
+    STA $2E             ; next color
     LDA $952            ; save index
 
 .next_color_lp
@@ -1706,20 +1708,26 @@ hook_map_icons:
     ASL
     ASL
     TAX                 ; index*4
+    LDA $702602,X
+    CMP #$FF            ; empty slot?
+    BEQ .skip_write
     LDA $702603,X
     CMP #$8D            ; helmet?
     BEQ .skip_write
-    LDA #$08            ; color to use (08, 0E, 0F)
-    CPY #$0000
-    BEQ .write
+    LDA $2E             ; color to use (08, 0E, 0F)
+    PHA
+    CMP #$08
+    BNE .check_orange
     CLC
     ADC #$06
-    CPY #$0001
-    BEQ .write
+    BRA .write
+.check_orange
+    CMP #$0E
+    BNE .write
     INC
     
 .write
-    PHA                 ; save color
+    STA $2E             ; next slot color
     LDA $702603,X
     BIT #$80
     BEQ .write_color
@@ -1908,7 +1916,6 @@ check_partial_reveal:
 ; Y = y map coord
 ; result in carry flag
     PHP
-    STZ $2E
     TXA
     AND #$00FF
     PHA
@@ -1977,13 +1984,14 @@ check_dupe:
     LDA $702603
     AND #$00FF
     CMP #$0088
-    BNE .check_2b
-    CPX #$0000      ; ignore spawn
+    BCS .check_2b
+; normal scenario
+    CPX #$0000      ; ignore n+2
     BEQ .match
     BRA .no_match
     
 .check_2b
-    CPX #$0004      ; ignore n
+    CPX #$0000      ; ignore spawn
     BEQ .match
     BRA .no_match
 
