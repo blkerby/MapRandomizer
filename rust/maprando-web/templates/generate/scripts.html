@@ -188,6 +188,14 @@ function buildInitialMapRevealSettings(formData) {
     }
 }
 
+function emptyToNull(s) {
+    if (s == "") {
+        return null;
+    } else {
+        return s;
+    }
+}
+
 function buildSettingsObject() {
     var formData = new FormData(document.getElementById("main-form"));
     let version = {{ version_info.version }};
@@ -198,7 +206,7 @@ function buildSettingsObject() {
         "version": version,
         "name": formData.get("full_settings_preset"),
         "skill_assumption_settings": {
-            "preset": formData.get("skill_preset"),
+            "preset": emptyToNull(formData.get("skill_preset")),
             "shinespark_tiles": parseFloat(formData.get("shinespark_tiles")),
             "heated_shinespark_tiles": parseFloat(formData.get("heated_shinespark_tiles")),
             "speed_ball_tiles": parseFloat(formData.get("speed_ball_tiles")),
