@@ -880,8 +880,8 @@ pub struct LocalStateReducer<T: Copy + Debug> {
     pub best_cost_idxs: [u8; NUM_COST_METRICS],
 }
 
-impl<T: Copy + Debug> LocalStateReducer<T> {
-    pub fn new() -> Self {
+impl<T: Copy + Debug> Default for LocalStateReducer<T> {
+    fn default() -> Self {
         Self {
             local: ArrayVec::new(),
             trail_ids: ArrayVec::new(),
@@ -889,7 +889,9 @@ impl<T: Copy + Debug> LocalStateReducer<T> {
             best_cost_idxs: [0; NUM_COST_METRICS],
         }
     }
+}
 
+impl<T: Copy + Debug> LocalStateReducer<T> {
     pub fn push(
         &mut self,
         local: LocalState,
@@ -1052,7 +1054,7 @@ fn apply_requirement_complex(
             local
         }
         Requirement::Or(sub_reqs) => {
-            let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
+            let mut reducer: LocalStateReducer<()> = LocalStateReducer::default();
             for r in sub_reqs {
                 for loc in apply_requirement_complex(r, local.clone(), cx) {
                     reducer.push(loc, &cx.global.inventory, (), &cx.cost_config, cx.reverse);
@@ -1061,7 +1063,7 @@ fn apply_requirement_complex(
             reducer.local
         }
         _ => {
-            let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
+            let mut reducer: LocalStateReducer<()> = LocalStateReducer::default();
             for mut loc in local {
                 match apply_requirement_simple(req, &mut loc, cx) {
                     SimpleResult::Failure => {}
@@ -2279,7 +2281,7 @@ impl Traverser {
             reverse,
             initial_local_state,
             step_trails: Vec::with_capacity(num_vertices * 10),
-            lsr: vec![LocalStateReducer::new(); num_vertices],
+            lsr: vec![LocalStateReducer::default(); num_vertices],
             step: TraversalStep {
                 updates: vec![],
                 start_step_trail_idx: 0,
@@ -2306,7 +2308,7 @@ impl Traverser {
         inventory: &Inventory,
         start_vertex_id: usize,
     ) {
-        let mut lsr = LocalStateReducer::<StepTrailId>::new();
+        let mut lsr = LocalStateReducer::<StepTrailId>::default();
         lsr.push(init_local, inventory, -1, &self.cost_config, self.reverse);
         self.add_trail(start_vertex_id, lsr);
     }
@@ -2403,7 +2405,7 @@ impl Traverser {
                     let mut local_arr = src_local_arr.clone();
                     let mut any_improvement: bool = false;
                     let old_lsr = &self.lsr[dst_id];
-                    let mut new_lsr = LocalStateReducer::new();
+                    let mut new_lsr = LocalStateReducer::default();
                     for i in 0..old_lsr.local.len() {
                         // Rebuild the LocalStateReducer in order to update costs, which
                         // may have changed due to new inventory.

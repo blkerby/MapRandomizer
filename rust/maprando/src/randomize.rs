@@ -4293,7 +4293,7 @@ impl<'r> Randomizer<'r> {
                 vertex_id: i,
                 old_lsr: lsr.clone(),
             });
-            *lsr = LocalStateReducer::new();
+            *lsr = LocalStateReducer::default();
         }
 
         let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
