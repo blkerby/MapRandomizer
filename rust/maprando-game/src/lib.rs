@@ -2802,9 +2802,6 @@ impl GameData {
                     return Ok(Requirement::Free);
                 }
             } else if key == "resetRoom" {
-                if ctx.from_obstacles_bitmask != 0 {
-                    return Ok(Requirement::Never);
-                }
                 let mut node_ids: Vec<NodeId> = Vec::new();
                 for from_node in value["nodes"].members() {
                     node_ids.push(from_node.as_usize().unwrap());
@@ -5718,8 +5715,13 @@ impl GameData {
         //     let from_vertex_key = &game_data.vertex_isv.keys[from_vertex_id];
         //     let to_vertex_id = link.to_vertex_id;
         //     let to_vertex_key = &game_data.vertex_isv.keys[to_vertex_id];
-        //     if (to_vertex_key.room_id, to_vertex_key.node_id) == (10, 7) {
-        //         println!("From: {:?}\nTo: {:?}\nLink: {:?}\n", from_vertex_key, to_vertex_key, link);
+        //     if (from_vertex_key.room_id, from_vertex_key.node_id) == (44, 12)
+        //         && (to_vertex_key.room_id, to_vertex_key.node_id) == (44, 12)
+        //     {
+        //         println!(
+        //             "From: {:?}\nTo: {:?}\nLink: {:?}\n",
+        //             from_vertex_key, to_vertex_key, link
+        //         );
         //     }
         // }
 

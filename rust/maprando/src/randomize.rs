@@ -546,19 +546,21 @@ impl<'a> Preprocessor<'a> {
                 let enter_with_shinecharge =
                     self.game_data.does_come_in_shinecharged(entrance_condition);
 
-                // if (dst_room_id, dst_node_id) == (66, 6) {
-                //     println!(
-                //         "({}, {}, {:?}) -> ({}, {}, {:?}): {:?}",
-                //         src_room_id,
-                //         src_node_id,
-                //         exit_condition,
-                //         dst_room_id,
-                //         dst_node_id,
-                //         entrance_condition,
-                //         req_opt
-                //     );
-                // }
                 if let Some(req) = req_opt {
+                    // if (src_room_id, src_node_id) == (44, 4) {
+                    //     println!(
+                    //         "{} ({}, {}, {:?}) -> {} ({}, {}, {:?}): {:?}",
+                    //         src_vertex_id,
+                    //         src_room_id,
+                    //         src_node_id,
+                    //         exit_condition,
+                    //         dst_vertex_id,
+                    //         dst_room_id,
+                    //         dst_node_id,
+                    //         entrance_condition,
+                    //         req
+                    //     );
+                    // }
                     door_links.push(Link {
                         from_vertex_id: src_vertex_id,
                         to_vertex_id: dst_vertex_id,
