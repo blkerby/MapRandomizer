@@ -96,11 +96,17 @@ fn apply_enemy_kill_requirement(
     true
 }
 
+#[derive(Clone)]
+pub struct CostConfig {
+    pub length_cost_factor: f32,
+}
+
 pub const NUM_COST_METRICS: usize = 3;
 
 fn compute_cost(
     local: &LocalState,
     inventory: &Inventory,
+    cost_config: &CostConfig,
     reverse: bool,
 ) -> [f32; NUM_COST_METRICS] {
     let mut energy_cost = match local.energy() {
@@ -141,13 +147,23 @@ fn compute_cost(
     let cycle_frames_cost = (local.cycle_frames as f32) * 0.0001;
     let total_energy_cost = energy_cost + reserve_cost;
     let total_ammo_cost = missiles_cost + supers_cost + power_bombs_cost;
+    let length_cost = local.length as f32 * cost_config.length_cost_factor;
 
-    let energy_sensitive_cost_metric =
-        100.0 * total_energy_cost + total_ammo_cost + shinecharge_cost + cycle_frames_cost;
-    let ammo_sensitive_cost_metric =
-        total_energy_cost + 100.0 * total_ammo_cost + shinecharge_cost + cycle_frames_cost;
-    let shinecharge_sensitive_cost_metric =
-        total_energy_cost + total_ammo_cost + 100.0 * shinecharge_cost + cycle_frames_cost;
+    let energy_sensitive_cost_metric = 100.0 * total_energy_cost
+        + total_ammo_cost
+        + shinecharge_cost
+        + cycle_frames_cost
+        + length_cost;
+    let ammo_sensitive_cost_metric = total_energy_cost
+        + 100.0 * total_ammo_cost
+        + shinecharge_cost
+        + cycle_frames_cost
+        + length_cost;
+    let shinecharge_sensitive_cost_metric = total_energy_cost
+        + total_ammo_cost
+        + 100.0 * shinecharge_cost
+        + cycle_frames_cost
+        + length_cost;
     [
         energy_sensitive_cost_metric,
         ammo_sensitive_cost_metric,
@@ -543,6 +559,9 @@ fn apply_link(link: &Link, mut local: LocalStateArray, cx: &TraversalContext) ->
             loc.shinecharge_frames_remaining = 0;
         }
     }
+    for x in &mut local {
+        x.length += 1;
+    }
     local
 }
 
@@ -573,6 +592,7 @@ pub fn debug_requirement(
     door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
+    cost_config: &CostConfig,
 ) {
     println!(
         "{:?}: {:?}",
@@ -587,7 +607,8 @@ pub fn debug_requirement(
             game_data,
             door_map,
             locked_door_data,
-            objectives
+            objectives,
+            cost_config
         )
     );
     match req {
@@ -604,6 +625,7 @@ pub fn debug_requirement(
                     door_map,
                     locked_door_data,
                     objectives,
+                    cost_config,
                 );
             }
         }
@@ -620,6 +642,7 @@ pub fn debug_requirement(
                     door_map,
                     locked_door_data,
                     objectives,
+                    cost_config,
                 );
             }
         }
@@ -652,6 +675,12 @@ pub fn get_total_enemy_drop_values(
     total_values
 }
 
+pub fn simple_cost_config() -> CostConfig {
+    CostConfig {
+        length_cost_factor: 0.0,
+    }
+}
+
 pub fn apply_farm_requirement(
     req: &Requirement,
     drops: &[EnemyDrop],
@@ -677,6 +706,7 @@ pub fn apply_farm_requirement(
     // An initial cycle_frames of 1 is used to mark this as a farming strat, as this can affect
     // the processing of some requirements (currently just ResetRoom).
     start_local.cycle_frames = 1;
+    let cost_config = simple_cost_config();
     let end_local_result = apply_requirement(
         req,
         global,
@@ -688,6 +718,7 @@ pub fn apply_farm_requirement(
         door_map,
         locked_door_data,
         objectives,
+        &cost_config,
     );
     let end_local = end_local_result?;
     if end_local.cycle_frames < 100 {
@@ -850,7 +881,7 @@ pub struct LocalStateReducer<T: Copy + Debug> {
 }
 
 impl<T: Copy + Debug> LocalStateReducer<T> {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Self {
             local: ArrayVec::new(),
             trail_ids: ArrayVec::new(),
@@ -859,14 +890,15 @@ impl<T: Copy + Debug> LocalStateReducer<T> {
         }
     }
 
-    fn push(
+    pub fn push(
         &mut self,
         local: LocalState,
         inventory: &Inventory,
         trail_id: T,
+        cost_config: &CostConfig,
         reverse: bool,
     ) -> bool {
-        let cost = compute_cost(&local, inventory, reverse);
+        let cost = compute_cost(&local, inventory, cost_config, reverse);
         let n = self.local.len() as u8;
         let mut improved_any: bool = false;
         let mut improved_all: bool = true;
@@ -944,6 +976,7 @@ struct TraversalContext<'a> {
     door_map: &'a HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &'a LockedDoorData,
     objectives: &'a [Objective],
+    cost_config: CostConfig,
 }
 
 // TODO: get rid of this function?
@@ -958,6 +991,7 @@ pub fn apply_requirement(
     door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
     locked_door_data: &LockedDoorData,
     objectives: &[Objective],
+    cost_config: &CostConfig,
 ) -> Option<LocalState> {
     let cx = TraversalContext {
         global,
@@ -968,6 +1002,7 @@ pub fn apply_requirement(
         door_map,
         locked_door_data,
         objectives,
+        cost_config: cost_config.clone(),
     };
     match apply_requirement_simple(req, &mut local, &cx) {
         SimpleResult::Failure => None,
@@ -1020,7 +1055,7 @@ fn apply_requirement_complex(
             let mut reducer: LocalStateReducer<()> = LocalStateReducer::new();
             for r in sub_reqs {
                 for loc in apply_requirement_complex(r, local.clone(), cx) {
-                    reducer.push(loc, &cx.global.inventory, (), cx.reverse);
+                    reducer.push(loc, &cx.global.inventory, (), &cx.cost_config, cx.reverse);
                 }
             }
             reducer.local
@@ -1031,11 +1066,17 @@ fn apply_requirement_complex(
                 match apply_requirement_simple(req, &mut loc, cx) {
                     SimpleResult::Failure => {}
                     SimpleResult::Success => {
-                        reducer.push(loc, &cx.global.inventory, (), cx.reverse);
+                        reducer.push(loc, &cx.global.inventory, (), &cx.cost_config, cx.reverse);
                     }
                     SimpleResult::ExtraState(extra_state) => {
-                        reducer.push(loc, &cx.global.inventory, (), cx.reverse);
-                        reducer.push(extra_state, &cx.global.inventory, (), cx.reverse);
+                        reducer.push(loc, &cx.global.inventory, (), &cx.cost_config, cx.reverse);
+                        reducer.push(
+                            extra_state,
+                            &cx.global.inventory,
+                            (),
+                            &cx.cost_config,
+                            cx.reverse,
+                        );
                     }
                 }
             }
@@ -2064,7 +2105,7 @@ fn apply_requirement_simple(
                     SimpleResult::Success => {}
                     SimpleResult::ExtraState(_) => todo!(),
                 }
-                let cost = compute_cost(local, &cx.global.inventory, cx.reverse);
+                let cost = compute_cost(local, &cx.global.inventory, &cx.cost_config, cx.reverse);
                 // TODO: Maybe do something better than just using the first cost metric.
                 if cost[0] < best_cost[0] {
                     best_cost = cost;
@@ -2136,6 +2177,37 @@ pub fn get_bireachable_idxs(
     None
 }
 
+// If the given vertex is bireachable, returns a pair of trail IDs,
+// indicating which forward route and backward route, respectively, combine to give a successful full route.
+// Otherwise returns None.
+pub fn get_short_bireachable_trails(
+    global: &GlobalState,
+    vertex_id: usize,
+    forward: &Traverser,
+    reverse: &Traverser,
+    forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
+    reverse_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
+) -> Option<(StepTrailId, StepTrailId)> {
+    let mut best_length: u32 = u32::MAX;
+    let mut best_trail_pair: Option<(StepTrailId, StepTrailId)> = None;
+    for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
+        for &reverse_trail_id in &reverse_trails_by_vertex[&vertex_id] {
+            let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
+            let reverse_state = reverse.step_trails[reverse_trail_id as usize].local_state;
+            let combined_length = forward_state.length as u32 + reverse_state.length as u32;
+            if combined_length >= best_length {
+                continue;
+            }
+            if is_bireachable_state(global, forward_state, reverse_state) {
+                // A valid combination of forward & return routes has been found.
+                best_length = combined_length;
+                best_trail_pair = Some((forward_trail_id, reverse_trail_id));
+            }
+        }
+    }
+    best_trail_pair
+}
+
 // If the given vertex is reachable, returns an index (between 0 and NUM_COST_METRICS),
 // indicating a forward route. Otherwise returns None.
 pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &Traverser) -> Option<usize> {
@@ -2143,6 +2215,26 @@ pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &Traverser) -> Optio
         return Some(0);
     }
     None
+}
+
+// If the given vertex is reachable, returns a step trail ID for a shortest length trail
+// for reaching the vertex. Otherwise returns None.
+pub fn get_short_one_way_reachable_trail(
+    vertex_id: usize,
+    forward: &Traverser,
+    forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
+) -> Option<StepTrailId> {
+    let mut best_length: u32 = u32::MAX;
+    let mut best_trail: Option<StepTrailId> = None;
+    for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
+        let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
+        let new_length = forward_state.length as u32;
+        if new_length < best_length {
+            best_length = new_length;
+            best_trail = Some(forward_trail_id);
+        }
+    }
+    best_trail
 }
 
 #[derive(Clone, Serialize, Deserialize)]
@@ -2169,6 +2261,7 @@ pub struct TraversalStep {
 pub struct Traverser {
     pub reverse: bool,
     pub initial_local_state: LocalState,
+    pub cost_config: CostConfig,
     pub step_trails: Vec<StepTrail>,
     pub lsr: Vec<LocalStateReducer<StepTrailId>>,
     pub step: TraversalStep,
@@ -2194,6 +2287,7 @@ impl Traverser {
                 global_state: global_state.clone(),
             },
             past_steps: vec![],
+            cost_config: simple_cost_config(),
         }
     }
 
@@ -2213,7 +2307,7 @@ impl Traverser {
         start_vertex_id: usize,
     ) {
         let mut lsr = LocalStateReducer::<StepTrailId>::new();
-        lsr.push(init_local, inventory, -1, self.reverse);
+        lsr.push(init_local, inventory, -1, &self.cost_config, self.reverse);
         self.add_trail(start_vertex_id, lsr);
     }
 
@@ -2227,6 +2321,10 @@ impl Traverser {
         std::mem::swap(&mut self.step, &mut step);
         step.step_num = step_num;
         self.past_steps.push(step);
+    }
+
+    pub fn unfinish_step(&mut self) {
+        self.step = self.past_steps.pop().unwrap();
     }
 
     pub fn pop_step(&mut self) {
@@ -2280,6 +2378,7 @@ impl Traverser {
             door_map,
             locked_door_data,
             objectives,
+            cost_config: self.cost_config.clone(),
         };
         while !modified_vertices.is_empty() {
             let mut new_modified_vertices: HashSet<usize> = HashSet::new();
@@ -2312,13 +2411,20 @@ impl Traverser {
                             old_lsr.local[i],
                             &cx.global.inventory,
                             old_lsr.trail_ids[i],
+                            &cx.cost_config,
                             cx.reverse,
                         );
                     }
                     local_arr = apply_link(link, local_arr, &cx);
                     for local in local_arr {
                         let new_trail_id = self.step_trails.len() as StepTrailId;
-                        if new_lsr.push(local, &cx.global.inventory, new_trail_id, cx.reverse) {
+                        if new_lsr.push(
+                            local,
+                            &cx.global.inventory,
+                            new_trail_id,
+                            &cx.cost_config,
+                            cx.reverse,
+                        ) {
                             let new_step_trail = StepTrail {
                                 local_state: local,
                                 link_idx,
@@ -2339,12 +2445,7 @@ impl Traverser {
     }
 }
 
-pub fn get_spoiler_trail_ids(
-    traverser: &Traverser,
-    vertex_id: usize,
-    idx: usize,
-) -> Vec<StepTrailId> {
-    let mut trail_id = traverser.lsr[vertex_id].trail_ids[idx];
+pub fn get_spoiler_trail_ids(traverser: &Traverser, mut trail_id: StepTrailId) -> Vec<StepTrailId> {
     let mut steps: Vec<StepTrailId> = Vec::new();
     while trail_id != -1 {
         let step_trail = &traverser.step_trails[trail_id as usize];
@@ -2353,4 +2454,13 @@ pub fn get_spoiler_trail_ids(
     }
     steps.reverse();
     steps
+}
+
+pub fn get_spoiler_trail_ids_by_idx(
+    traverser: &Traverser,
+    vertex_id: usize,
+    idx: usize,
+) -> Vec<StepTrailId> {
+    let trail_id = traverser.lsr[vertex_id].trail_ids[idx];
+    get_spoiler_trail_ids(traverser, trail_id)
 }

@@ -7,7 +7,7 @@ use maprando::{
     preset::PresetData,
     randomize::{DifficultyConfig, get_objectives},
     settings::RandomizerSettings,
-    traverse::{LockedDoorData, apply_requirement},
+    traverse::{LockedDoorData, apply_requirement, simple_cost_config},
 };
 use maprando_game::{
     Capacity, GameData, Item, NodeId, Requirement, RidleyStuck, RoomId,
@@ -111,6 +111,7 @@ fn run_scenario(
     //     &locked_door_data,
     //     &objectives,
     // );
+    let cost_config = simple_cost_config();
     let new_local_state_opt = apply_requirement(
         &Requirement::RidleyFight {
             can_be_patient_tech_idx: game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT],
@@ -131,6 +132,7 @@ fn run_scenario(
         &door_map,
         &locked_door_data,
         &objectives,
+        &cost_config,
     );
 
     let outcome = new_local_state_opt

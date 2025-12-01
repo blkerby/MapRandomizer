@@ -14,7 +14,8 @@ use crate::spoiler_log::{
     SpoilerTraversal, get_spoiler_game_data, get_spoiler_log, get_spoiler_route,
 };
 use crate::traverse::{
-    LockedDoorData, Traverser, apply_requirement, get_bireachable_idxs, get_spoiler_trail_ids,
+    LocalStateReducer, LockedDoorData, TraversalUpdate, Traverser, apply_requirement,
+    get_bireachable_idxs, get_spoiler_trail_ids_by_idx, simple_cost_config,
 };
 use anyhow::{Context, Result, bail};
 use hashbrown::{HashMap, HashSet};
@@ -4281,6 +4282,53 @@ impl<'r> Randomizer<'r> {
         EssentialSpoilerData { item_spoiler_info }
     }
 
+    pub fn rebuild_step(&self, state: &RandomizationState, traverser: &mut Traverser) {
+        let num_reachable0 = traverser.lsr.iter().filter(|x| !x.local.is_empty()).count();
+        traverser.unfinish_step();
+
+        for (i, lsr) in &mut traverser.lsr.iter_mut().enumerate() {
+            traverser.step.updates.push(TraversalUpdate {
+                vertex_id: i,
+                old_lsr: lsr.clone(),
+            });
+            *lsr = LocalStateReducer::new();
+        }
+
+        let start_vertex_id = self.game_data.vertex_isv.index_by_key[&VertexKey {
+            room_id: state.hub_location.room_id,
+            node_id: state.hub_location.node_id,
+            obstacle_mask: 0,
+            actions: vec![],
+        }];
+        let global = traverser.step.global_state.clone();
+        traverser.add_origin(
+            traverser.initial_local_state,
+            &global.inventory,
+            start_vertex_id,
+        );
+        traverser.traverse(
+            self.base_links_data,
+            &self.seed_links_data,
+            &global,
+            self.settings,
+            &self.difficulty_tiers[0],
+            self.game_data,
+            &self.door_map,
+            self.locked_door_data,
+            &self.objectives,
+            traverser.step.step_num,
+        );
+        let num_reachable1 = traverser.lsr.iter().filter(|x| !x.local.is_empty()).count();
+        debug!(
+            "Rebuilt step {}, traversal {} (reverse={}), reachable {} -> {}",
+            traverser.past_steps.last().unwrap().step_num,
+            traverser.past_steps.len() - 1,
+            traverser.reverse,
+            num_reachable0,
+            num_reachable1,
+        );
+    }
+
     pub fn get_randomization<R: Rng>(
         &self,
         state: &RandomizationState,
@@ -4432,6 +4480,8 @@ impl<'r> Randomizer<'r> {
         rng: &mut R,
         traverser_pair: &mut TraverserPair,
     ) -> Result<StartLocationData> {
+        let cost_config = simple_cost_config();
+
         if self.settings.start_location_settings.mode == StartLocationMode::Ship {
             let ship_start = StartLocation {
                 name: "Ship".to_string(),
@@ -4510,6 +4560,7 @@ impl<'r> Randomizer<'r> {
                 &self.door_map,
                 self.locked_door_data,
                 &self.objectives,
+                &cost_config,
             );
             let Some(local) = local else {
                 continue;
@@ -4591,6 +4642,7 @@ impl<'r> Randomizer<'r> {
                     &self.door_map,
                     self.locked_door_data,
                     &self.objectives,
+                    &cost_config,
                 );
                 let hub_cost = if let Some(loc) = new_local {
                     loc.energy_missing(&global.inventory, true)
@@ -4617,9 +4669,9 @@ impl<'r> Randomizer<'r> {
             };
 
             let hub_obtain_trail_ids =
-                get_spoiler_trail_ids(forward, best_hub_vertex_id, forward_cost_idx);
+                get_spoiler_trail_ids_by_idx(forward, best_hub_vertex_id, forward_cost_idx);
             let hub_return_trail_ids =
-                get_spoiler_trail_ids(reverse, best_hub_vertex_id, reverse_cost_idx);
+                get_spoiler_trail_ids_by_idx(reverse, best_hub_vertex_id, reverse_cost_idx);
 
             let hub_obtain_route =
                 get_spoiler_route(self, &global, &hub_obtain_trail_ids, forward, false);

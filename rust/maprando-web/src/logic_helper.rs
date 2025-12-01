@@ -10,7 +10,7 @@ use maprando::{
     randomize::{EssentialSpoilerData, Randomization},
     settings::{Objective, RandomizerSettings},
     spoiler_map::{self, image::RgbaImage},
-    traverse::{LockedDoorData, apply_requirement},
+    traverse::{LockedDoorData, apply_requirement, simple_cost_config},
 };
 use maprando_game::{
     DoorOrientation, ExitCondition, GameData, Item, Link, MainEntranceCondition, Map, NodeId,
@@ -957,6 +957,7 @@ fn get_strat_difficulty(
         locked_door_vertex_ids: vec![],
     };
     let door_map: HashMap<(RoomId, NodeId), (RoomId, NodeId)> = HashMap::new();
+    let cost_config = simple_cost_config();
     for difficulty in preset_data.difficulty_tiers.iter().rev() {
         if difficulty.name == "Implicit" {
             // Skip the "Implicit" difficulty
@@ -992,6 +993,7 @@ fn get_strat_difficulty(
                 &door_map,
                 &locked_door_data,
                 &[],
+                &cost_config,
             );
             if new_local.is_some() {
                 return difficulty_idx;
