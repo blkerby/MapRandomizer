@@ -6,7 +6,7 @@ LoRom
 !bank_8f_free_space_start = $8ffe40
 !bank_8f_free_space_end = $8ffe80
 !bank_8f_free_space2_start = $8fe99b
-!bank_8f_free_space2_end = $8feb00
+!bank_8f_free_space2_end = $8feb30
 
 !seed_value_0 = $dfff00
 !seed_value_1 = $dfff02
@@ -118,7 +118,8 @@ LoadItems: LDA $D7C0,Y : STA $09A2,Y : DEY : DEY : BPL LoadItems		;Loads current
 	LDA $7EFE04 : STA $1F5D     ;Item set before escape
     LDA #$0000
     STA !last_samus_map_y  ; reset Samus map Y coordinate, to trigger minimap to update
-	PLY : PLX : PLB : PLP : CLC : RTL
+    JSL set_marker_colors
+    PLY : PLX : PLB : PLP : CLC : RTL
 SetupClearSRAM: LDX $16 : LDY #$09FE : LDA #$0000
 ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM
     LDA #$0000 : STA $7E078B : STA $7E079F
@@ -149,18 +150,11 @@ warnpc !bank_8f_free_space_end
 
 org !bank_8f_free_space2_start
 save_map_coords:
-    LDA #$0000
-    LDX $952                ; current save index
-    BEQ .index_rdy
-    
-.nowrap
-    CLC
-    ADC #$0004
-    DEX
-    BNE .nowrap
-    
-.index_rdy                  ; adjust map coords for spawn point
-    TAX
+    LDA $952                ; current save index
+    ASL
+    ASL
+    TAX                     ; index*4
+; adjust map coords for spawn point
     LDA $0AF6
     AND #$FF00
     XBA
@@ -176,8 +170,8 @@ save_map_coords:
     PHA
     
 ; possible sprite values:
-; 88 = save, 8D = helmet (high bit set indicates spawn)
-; 08 = yellow, 0E = orange, 0F = pink (save icon)
+; 88 = spawn in save room, 8D = helmet (high bit set indicates spawn)
+; 08 = yellow, 0E = orange, 0F = pink (save icons)
     SEP #$20
     PHX                     ; save index
     LDA $702602
@@ -212,7 +206,7 @@ save_map_coords:
     PLA
     STA $702604,X           ; x
     PLA
-
+    JSL set_marker_colors
     REP #$30
     RTL
 
@@ -248,5 +242,135 @@ save_rooms:
     dw $A184, $A201, $A22A, $A70B, $A734, $AAB5, $B0DD, $B167
     dw $B192, $B1BB, $B741, $93D5, $CE8A, $CED2, $D3DF, $D765
     dw $D81A, $DE23, $DF1B, $0000
+
+; save icon logic:
+;   - helmet represents spawn until 3rd save occur; exception is spawn in save room
+;   - yellow always represents most recent save
+set_marker_colors:
+    PHP
+    LDX #$0000
+    TXY
+; set relative colors
+    SEP #$20
+    LDA #$08            ; yellow color
+    STA $2E
+    LDA $952            ; save index
+
+.next_color_lp
+    PHA                 ; index
+    ASL
+    ASL
+    TAX                 ; index*4
+    LDA $702602,X
+    CMP #$FF            ; empty slot?
+    BEQ .skip_write
+    LDA $2E             ; color to use (08, 0E, 0F)
+    PHA                 ; save current color
+    CMP #$08
+    BNE .is_orange
+    CLC
+    ADC #$06
+    BRA .write
+.is_orange
+    INC
+    
+.write
+    STA $2E             ; next slot color
+    LDA $702603,X
+    CMP #$8D            ; helmet?
+    BEQ .skip_helmet
+    BIT #$80
+    BEQ .write_color
+    PLA                 ; current color
+    ORA #$80            ; save station
+    BRA .write_final
+.write_color
+    PLA                 ; current color
+.write_final
+    STA $702603,X
+    BRA .skip_write
+.skip_helmet
+    PLA                 ; fix stack
+.skip_write
+    PLA                 ; index
+    BNE .next_index
+    LDA #$03            ; wrap
+.next_index
+    DEC
+    INY
+    CPY #$0003
+    BNE .next_color_lp
+
+    REP #$30
+    LDA #$0008
+    STA $2E
+    JSR check_dupe      ; ensure yellow doesn't get overwritten
+    LDA #$000E
+    STA $2E
+    JSR check_dupe      ; ensure orange doesn't get overwritten
+; last check is to replace pink save if no orange save exists
+    SEP #$20
+    LDX #$0000
+.search_lp
+    LDA $702603,X
+    CMP #$0E
+    BEQ .found
+    INX #4
+    CPX #$000C
+    BNE .search_lp
+; no orange, must be yellow x2, pink
+    LDX #$0000
+.search_lp2
+    LDA $702603,X
+    CMP #$0F
+    BEQ .replace_pink
+    INX #4
+    CPX #$000C
+    BNE .search_lp2
+    BRA .found
+
+.replace_pink
+    DEC                 ; orange
+    STA $702603,X
+    
+.found
+    PLP
+    RTL
+
+; find color in $2e and duplicate it for any matching slots with same x,y
+check_dupe:
+    LDX #$0000
+.find_lp
+    LDA $702603,X
+    AND #$00FF
+    CMP $2E
+    BEQ .found
+    INX #4
+    CPX #$0008          ; skip match if at last slot
+    BEQ .done
+    BRA .find_lp
+
+.found
+    LDA $702604,X       ; coords
+    LDX #$0000
+    
+.find_lp_2
+    CMP $702604,X
+    BEQ .match
+.inc_x
+    INX #4
+    CPX #$000C
+    BEQ .done
+    BRA .find_lp_2
+.match
+    PHA
+    SEP #$20
+    LDA $2E
+    STA $702603,X
+    REP #$30
+    PLA
+    BRA .inc_x
+.done
+    RTS
     
 warnpc !bank_8f_free_space2_end
