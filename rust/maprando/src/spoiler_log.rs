@@ -936,6 +936,12 @@ pub fn get_spoiler_game_data(randomizer: &Randomizer) -> SpoilerGameData {
 
 pub fn get_step_trails_by_vertex(traverser: &Traverser) -> HashMap<VertexId, Vec<StepTrailId>> {
     let mut trails_by_vertex: HashMap<VertexId, Vec<StepTrailId>> = HashMap::new();
+    for (vertex_id, lsr) in traverser.lsr.iter().enumerate() {
+        trails_by_vertex
+            .entry(vertex_id)
+            .or_default()
+            .extend(lsr.trail_ids.iter());
+    }
     for update in &traverser.past_steps.last().unwrap().updates {
         trails_by_vertex
             .entry(update.vertex_id)
