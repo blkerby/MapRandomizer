@@ -4308,7 +4308,7 @@ impl<'r> Randomizer<'r> {
             &global.inventory,
             start_vertex_id,
         );
-        traverser.traverse(
+        traverser.traverse_breadth_first(
             self.base_links_data,
             &self.seed_links_data,
             &global,

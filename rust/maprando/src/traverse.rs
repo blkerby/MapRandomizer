@@ -2293,12 +2293,11 @@ impl Traverser {
         }
     }
 
-    fn add_trail(&mut self, vertex_id: VertexId, lsr: LocalStateReducer<StepTrailId>) {
+    fn add_trail(&mut self, vertex_id: VertexId) {
         let u = TraversalUpdate {
             vertex_id,
             old_lsr: self.lsr[vertex_id].clone(),
         };
-        self.lsr[vertex_id] = lsr;
         self.step.updates.push(u);
     }
 
@@ -2310,7 +2309,8 @@ impl Traverser {
     ) {
         let mut lsr = LocalStateReducer::<StepTrailId>::default();
         lsr.push(init_local, inventory, -1, &self.cost_config, self.reverse);
-        self.add_trail(start_vertex_id, lsr);
+        self.add_trail(start_vertex_id);
+        self.lsr[start_vertex_id] = lsr;
     }
 
     pub fn finish_step(&mut self, step_num: usize) {
@@ -2405,6 +2405,10 @@ impl Traverser {
                     let mut local_arr = src_local_arr.clone();
                     let mut any_improvement: bool = false;
                     let old_lsr = &self.lsr[dst_id];
+                    local_arr = apply_link(link, local_arr, &cx);
+                    if local_arr.is_empty() {
+                        continue;
+                    }
                     let mut new_lsr = LocalStateReducer::default();
                     for i in 0..old_lsr.local.len() {
                         // Rebuild the LocalStateReducer in order to update costs, which
@@ -2417,7 +2421,6 @@ impl Traverser {
                             cx.reverse,
                         );
                     }
-                    local_arr = apply_link(link, local_arr, &cx);
                     for local in local_arr {
                         let new_trail_id = self.step_trails.len() as StepTrailId;
                         if new_lsr.push(
@@ -2436,7 +2439,8 @@ impl Traverser {
                         }
                     }
                     if any_improvement {
-                        self.add_trail(dst_id, new_lsr);
+                        self.add_trail(dst_id);
+                        self.lsr[dst_id] = new_lsr;
                         new_modified_vertices.insert(dst_id);
                     }
                 }
@@ -2445,6 +2449,137 @@ impl Traverser {
         }
         self.finish_step(step_num);
     }
+
+    /// A slower but more strictly breadth-first version of `traverse`,
+    /// suitable for giving shorter, cleaner spoiler routes.
+    pub fn traverse_breadth_first(
+        &mut self,
+        base_links_data: &LinksDataGroup,
+        seed_links_data: &LinksDataGroup,
+        global: &GlobalState,
+        settings: &RandomizerSettings,
+        difficulty: &DifficultyConfig,
+        game_data: &GameData,
+        door_map: &HashMap<(RoomId, NodeId), (RoomId, NodeId)>,
+        locked_door_data: &LockedDoorData,
+        objectives: &[Objective],
+        step_num: usize,
+    ) {
+        self.step.global_state = global.clone();
+        let mut modified_vertices: HashSet<usize> = HashSet::new();
+
+        for v in 0..self.lsr.len() {
+            if !self.lsr[v].local.is_empty() {
+                modified_vertices.insert(v);
+            }
+        }
+
+        let base_links_by_src: &Vec<Vec<(StepTrailId, Link)>> = if self.reverse {
+            &base_links_data.links_by_dst
+        } else {
+            &base_links_data.links_by_src
+        };
+        let seed_links_by_src: &Vec<Vec<(StepTrailId, Link)>> = if self.reverse {
+            &seed_links_data.links_by_dst
+        } else {
+            &seed_links_data.links_by_src
+        };
+
+        let cx = TraversalContext {
+            global,
+            reverse: self.reverse,
+            settings,
+            difficulty,
+            game_data,
+            door_map,
+            locked_door_data,
+            objectives,
+            cost_config: self.cost_config.clone(),
+        };
+        while !modified_vertices.is_empty() {
+            let mut new_modified_vertices: HashMap<VertexId, ModificationData> = HashMap::new();
+            let modified_vertices_vec = {
+                // Process the vertices in sorted order, to make the traversal deterministic.
+                // This also improves performance, possibly due to better locality:
+                // neighboring vertices would tend to have their data stored next to each other.
+                let mut m: Vec<usize> = modified_vertices.into_iter().collect();
+                m.sort();
+                m
+            };
+            for &src_id in &modified_vertices_vec {
+                let mut src_local_arr = self.lsr[src_id].local.clone();
+                for (i, local) in src_local_arr.iter_mut().enumerate() {
+                    local.prev_trail_id = self.lsr[src_id].trail_ids[i];
+                }
+                let all_src_links = base_links_by_src[src_id]
+                    .iter()
+                    .chain(seed_links_by_src[src_id].iter());
+                for &(link_idx, ref link) in all_src_links {
+                    let dst_id = link.to_vertex_id;
+                    let mut local_arr = src_local_arr.clone();
+                    let mut any_improvement: bool = false;
+                    let old_lsr = &self.lsr[dst_id];
+                    local_arr = apply_link(link, local_arr, &cx);
+                    if local_arr.is_empty() {
+                        continue;
+                    }
+                    let mod_data = new_modified_vertices.entry(dst_id).or_insert_with(|| {
+                        let mut new_lsr = LocalStateReducer::default();
+                        for i in 0..old_lsr.local.len() {
+                            // Rebuild the LocalStateReducer in order to update costs, which
+                            // may have changed due to new inventory.
+                            new_lsr.push(
+                                old_lsr.local[i],
+                                &cx.global.inventory,
+                                old_lsr.trail_ids[i],
+                                &cx.cost_config,
+                                cx.reverse,
+                            );
+                        }
+                        ModificationData {
+                            lsr: new_lsr,
+                            improved: false,
+                        }
+                    });
+                    for local in local_arr {
+                        let new_trail_id = self.step_trails.len() as StepTrailId;
+                        if mod_data.lsr.push(
+                            local,
+                            &cx.global.inventory,
+                            new_trail_id,
+                            &cx.cost_config,
+                            cx.reverse,
+                        ) {
+                            let new_step_trail = StepTrail {
+                                local_state: local,
+                                link_idx,
+                            };
+                            self.step_trails.push(new_step_trail);
+                            any_improvement = true;
+                        }
+                    }
+                    if any_improvement {
+                        self.add_trail(dst_id);
+                        mod_data.improved = true;
+                    }
+                }
+            }
+            modified_vertices = HashSet::new();
+            for (vertex_id, mod_data) in new_modified_vertices {
+                if !mod_data.improved {
+                    continue;
+                }
+                modified_vertices.insert(vertex_id);
+                self.lsr[vertex_id] = mod_data.lsr;
+            }
+        }
+        self.finish_step(step_num);
+    }
+}
+
+struct ModificationData {
+    lsr: LocalStateReducer<StepTrailId>,
+    improved: bool,
 }
 
 pub fn get_spoiler_trail_ids(traverser: &Traverser, mut trail_id: StepTrailId) -> Vec<StepTrailId> {
