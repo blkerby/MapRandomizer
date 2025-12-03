@@ -8,8 +8,7 @@ use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, get_difficulty_tiers, get_objectives, order_map_areas,
-    randomize_doors, randomize_map_areas,
+    Randomization, Randomizer, get_difficulty_tiers, get_objectives, get_req_difficulty, order_map_areas, randomize_doors, randomize_map_areas
 };
 use maprando::settings::{
     AreaAssignment, DoorLocksSize, ItemProgressionSettings, QualityOfLifeSettings,
@@ -336,7 +335,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let standard_maps_path = Path::new("../maps/v119-standard-avro");
     let wild_maps_path = Path::new("../maps/v119-wild-avro");
     let samus_sprites_path = Path::new("../MapRandoSprites/samus_sprites/manifest.json");
-    let game_data = GameData::load(Path::new("."))?;
+    let mut game_data = GameData::load(Path::new("."))?;
 
     if !args.output_seeds.is_dir() {
         bail!("{0} is not a directory", args.output_seeds.display());
@@ -347,6 +346,10 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
+    game_data.make_links_data(&|req| {
+        let tier = get_req_difficulty(req, &preset_data.difficulty_tiers) as u32;
+        1 << tier
+    });
     let mut base_preset = preset_data.default_preset.clone();
 
     base_preset.start_location_settings.mode = StartLocationMode::Random;
