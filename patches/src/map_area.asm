@@ -12,7 +12,7 @@ lorom
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AF20
+!bank_85_freespace3_end  = $85AE90
 !bank_b6_freespace_start = $B6FFC0
 !bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
@@ -1687,67 +1687,8 @@ write_save_sprites:
 sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
     dw $d120, $2890, $d1e0, $28c0, $d1a0, $28d0, $ffc0, $28e0, $ffe0, $28f0, $0000
 
-; Save icon logic:
-;   - helmet represents spawn until 3rd save occur
-;   - if spawn is in save room, use save icon
-;   - if n and n+2 saves are at same location, only most recent is shown
-
 hook_map_icons:
     PHP
-    LDX #$0000
-    TXY
-
-; set relative colors
-    SEP #$20
-    LDA #$08
-    STA $2E             ; next color
-    LDA $952            ; save index
-
-.next_color_lp
-    PHA                 ; index
-    ASL
-    ASL
-    TAX                 ; index*4
-    LDA $702602,X
-    CMP #$FF            ; empty slot?
-    BEQ .skip_write
-    LDA $702603,X
-    CMP #$8D            ; helmet?
-    BEQ .skip_write
-    LDA $2E             ; color to use (08, 0E, 0F)
-    PHA
-    CMP #$08
-    BNE .check_orange
-    CLC
-    ADC #$06
-    BRA .write
-.check_orange
-    CMP #$0E
-    BNE .write
-    INC
-    
-.write
-    STA $2E             ; next slot color
-    LDA $702603,X
-    BIT #$80
-    BEQ .write_color
-    PLA                 ; color
-    ORA #$80            ; save station
-    BRA .write_final
-.write_color
-    PLA                 ; color
-.write_final
-    STA $702603,X
-.skip_write
-    PLA                 ; index
-    BNE .next_index
-    LDA #$03            ; wrap
-.next_index
-    DEC
-    INY
-    CPY #$0003
-    BNE .next_color_lp
-
 ; draw save slot markers
     LDX #$0000
 .load_lp
@@ -1761,15 +1702,12 @@ hook_map_icons:
     LDA $702603,X
     CMP #$8D            ; helmet?
     BEQ .adj_coords
-    JSR check_dupe
-    BCS .next
     LDA $702603,X
     
 .adj_coords
     REP #$30
     PHX                 ; save slot index
     PHA                 ; save sprite ID
-    PHA
 
 ; map x-coord
     LDA $702604,X
@@ -1796,17 +1734,9 @@ hook_map_icons:
     TAY
 
     PLA
-    CMP #$008D
-    BNE .not_helmet
-    LDA #$0E00          ; helmet palette
-    BRA .write_oam
-.not_helmet
-    LDA #$0400          ; save icon palette
-.write_oam
-    STA $03
-    PLA
-    AND #$007F
-    JSL $81891F         ; add sprite to OAM
+; A=sprite, X/Y=coords
+; draw helmet or save
+    JSR draw_sprite
     PLX
     
 .next
@@ -1866,22 +1796,15 @@ hook_map_icons:
     CLC
     ADC #$0008
     TAY
-
-    LDA #$0E00          ; palette
-    STA $03
+; draw ship
     LDA #$000C          ; left side of ship sprite
-    PHA
-    PHX
-    PHY
-    JSL $81891F
-    PLY
-    PLA
+    JSR draw_sprite
+    TXA
     CLC
     ADC #$0008          ; shift right
     TAX
-    PLA
-    DEC                 ; right side of ship sprite
-    JSL $81891F
+    LDA #$000B          ; right side of ship sprite
+    JSR draw_sprite
 .exit
     PLP
     RTL
@@ -1961,56 +1884,30 @@ check_partial_reveal:
     CLC
     RTS
 
-check_dupe:
-; returns carry if n and n+2 saves are at same location
-; and current slot is older save
-; X = curr slot * 4
-    PHP
-    REP #$30
-; scenario: n, -, n+2
-    LDA $702604
-    CMP $70260C
-    BNE .check_2
-    CPX #$0000      ; ignore n
-    BEQ .match
-    BRA .no_match
-    
-.check_2
-; scenario: n+2, n, -
-    LDA $702604
-    CMP $702608
-    BNE .check_3
-; check for special scenario: spawn, n, - (spawn in save room, reenter/save)
-    LDA $702603
-    AND #$00FF
-    CMP #$0088
-    BCS .check_2b
-; normal scenario
-    CPX #$0000      ; ignore n+2
-    BEQ .match
-    BRA .no_match
-    
-.check_2b
-    CPX #$0000      ; ignore spawn
-    BEQ .match
-    BRA .no_match
-
-.check_3
-; scenario: -, n+2, n
-    LDA $702608
-    CMP $70260C
-    BNE .no_match
-    CPX #$0008      ; ignore n
-    BNE .no_match
-    
-.match
-    PLP
-    SEC
+draw_sprite:
+; A=sprite, X/Y=coords
+; all preserved
+    PHX
+    PHY
+    PHA
+    PHA
+    CMP #$008D
+    BEQ .helm_ship_palette
+    CMP #$000B
+    BEQ .helm_ship_palette
+    CMP #$000C
+    BEQ .helm_ship_palette
+    LDA #$0400          ; save icon palette
+    BRA .write
+.helm_ship_palette    
+    LDA #$0E00          ; helmet/ship palette
+.write
+    STA $03
+    PLA
+    AND #$007F
+    JSL $81891F
+    PLA
+    PLY
+    PLX
     RTS
-    
-.no_match
-    PLP
-    CLC
-    RTS
-    
 warnpc !bank_85_freespace3_end
