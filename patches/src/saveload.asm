@@ -6,7 +6,7 @@ LoRom
 !bank_8f_free_space_start = $8ffe40
 !bank_8f_free_space_end = $8ffe80
 !bank_8f_free_space2_start = $8fe99b
-!bank_8f_free_space2_end = $8feb30
+!bank_8f_free_space2_end = $8feae0
 
 !seed_value_0 = $dfff00
 !seed_value_1 = $dfff02
@@ -148,48 +148,48 @@ fix_tube:
 
 warnpc !bank_8f_free_space_end
 
+;;; Save Marker patch
 org !bank_8f_free_space2_start
 save_map_coords:
     LDA $952                ; current save index
     ASL
     ASL
     TAX                     ; index*4
-; adjust map coords for spawn point
+
+; adjust map coords for spawn point / ship
     LDA $0AF6
     AND #$FF00
     XBA
     CLC
     ADC $07A1
-    PHA
+    PHA                     ; x
     
     LDA $0AFA
     XBA
     AND #$00FF
     CLC
     ADC $07A3
-    PHA
+    PHA                     ; y
     
-; possible sprite values:
-; 88 = spawn in save room, 8D = helmet (high bit set indicates spawn)
-; 08 = yellow, 0E = orange, 0F = pink (save icons)
+.check_save
     SEP #$20
     PHX                     ; save index
     LDA $702602
     CMP #$FF                ; initial spawn?
     BNE .save_normal
     JSL check_save_rooms    ; spawning in save room?
-    BCS .save_icon_spawn
+    BCS .save_normal
     LDA $80C4E1             ; spawn room == $91F8 (Landing Site)?
     CMP #$F8
-    BNE .helmet
+    BNE .save_normal
     LDA $80C4E2
     CMP #$91
-    BNE .helmet
-    LDA $80C4E7             ; offset_x == 0?
-    BNE .helmet
-.save_icon_spawn
-    LDA #$88                ; spawn in save room / ship
-    BRA .write_icon
+    BNE .save_normal
+    LDA $80C4E7
+    BEQ .save_normal        ; offset_x == 0?
+; possible sprite values:
+; 8D = helmet
+; 08 = yellow, 0E = orange, 0F = pink (save icons)
 .helmet
     LDA #$8D                ; helmet icon
     BRA .write_icon
@@ -245,7 +245,7 @@ save_rooms:
 
 ; save icon logic:
 ;   - helmet represents spawn until 3rd save occur; exception is spawn in save room
-;   - yellow always represents most recent save
+;   - yellow always represents most recent save; orange n-1 (next revert), pink n+1 (next overwrite)
 set_marker_colors:
     PHP
     LDX #$0000
@@ -261,9 +261,6 @@ set_marker_colors:
     ASL
     ASL
     TAX                 ; index*4
-    LDA $702602,X
-    CMP #$FF            ; empty slot?
-    BEQ .skip_write
     LDA $2E             ; color to use (08, 0E, 0F)
     PHA                 ; save current color
     CMP #$08
@@ -278,19 +275,12 @@ set_marker_colors:
     STA $2E             ; next slot color
     LDA $702603,X
     CMP #$8D            ; helmet?
-    BEQ .skip_helmet
-    BIT #$80
-    BEQ .write_color
-    PLA                 ; current color
-    ORA #$80            ; save station
-    BRA .write_final
-.write_color
-    PLA                 ; current color
-.write_final
-    STA $702603,X
-    BRA .skip_write
-.skip_helmet
+    BNE .not_helmet
     PLA                 ; fix stack
+    BRA .skip_write
+.not_helmet
+    PLA                 ; current color
+    STA $702603,X
 .skip_write
     PLA                 ; index
     BNE .next_index
@@ -308,32 +298,6 @@ set_marker_colors:
     LDA #$000E
     STA $2E
     JSR check_dupe      ; ensure orange doesn't get overwritten
-; last check is to replace pink save if no orange save exists
-    SEP #$20
-    LDX #$0000
-.search_lp
-    LDA $702603,X
-    CMP #$0E
-    BEQ .found
-    INX #4
-    CPX #$000C
-    BNE .search_lp
-; no orange, must be yellow x2, pink
-    LDX #$0000
-.search_lp2
-    LDA $702603,X
-    CMP #$0F
-    BEQ .replace_pink
-    INX #4
-    CPX #$000C
-    BNE .search_lp2
-    BRA .found
-
-.replace_pink
-    DEC                 ; orange
-    STA $702603,X
-    
-.found
     PLP
     RTL
 
@@ -346,7 +310,7 @@ check_dupe:
     CMP $2E
     BEQ .found
     INX #4
-    CPX #$0008          ; skip match if at last slot
+    CPX #$000C
     BEQ .done
     BRA .find_lp
 
