@@ -1608,7 +1608,7 @@ sram_to_gfx_dma: ; size in A, src in X (bank hardcoded to $70), dest in Y
 warnpc !bank_85_freespace2_end
 
 ;;; Map icon patch
-;;; Shows save icons as yellow, orange, pink for save slots 1, 2, 3, respectively
+;;; Shows save icons as yellow, orange, pink for save slots n, n-1, n+1, respectively
 ;;; Also shows helmet at spawn location and restores ship
 
 org $82b672
@@ -1700,15 +1700,11 @@ hook_map_icons:
     BNE .next
 
     LDA $702603,X
-    CMP #$8D            ; helmet?
-    BEQ .adj_coords
-    LDA $702603,X
-    
-.adj_coords
     REP #$30
     PHX                 ; save slot index
     PHA                 ; save sprite ID
 
+; adjust coords for scroll
 ; map x-coord
     LDA $702604,X
     PHA
@@ -1734,7 +1730,7 @@ hook_map_icons:
     TAY
 
     PLA
-; A=sprite, X/Y=coords
+; A=sprite, X/Y=adjusted coords
 ; draw helmet or save
     JSR draw_sprite
     PLX
@@ -1763,7 +1759,7 @@ hook_map_icons:
     CLC
     ADC #$0004
     TAX
-    LDA $8F91FB         ; Landing Site Y
+    LDA $8F91FB         ; Landing Site X
     AND #$00FF
     CLC
     ADC #$0004
@@ -1782,7 +1778,6 @@ hook_map_icons:
     SEC
     SBC $B1
     TAX
-
 ; landing site y-coord
     LDA $8F91FB
     AND #$00FF
@@ -1887,10 +1882,10 @@ check_partial_reveal:
 draw_sprite:
 ; A=sprite, X/Y=coords
 ; all preserved
-    PHX
+    PHX                 ; save X/Y/A
     PHY
     PHA
-    PHA
+    PHA                 ; sprite
     CMP #$008D
     BEQ .helm_ship_palette
     CMP #$000B
@@ -1903,7 +1898,7 @@ draw_sprite:
     LDA #$0E00          ; helmet/ship palette
 .write
     STA $03
-    PLA
+    PLA                 ; sprite
     AND #$007F
     JSL $81891F
     PLA
