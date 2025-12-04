@@ -1755,13 +1755,11 @@ hook_map_icons:
 
 .ship_area
     LDA $8F91FA         ; Landing Site X
-    PHA
     AND #$00FF
     CLC
     ADC #$0004
     TAX
-    PLA
-    XBA                 ; Landing Site Y
+    LDA $8F91FB         ; Landing Site X
     AND #$00FF
     CLC
     ADC #$0004
@@ -1771,7 +1769,6 @@ hook_map_icons:
     REP #$30
 ; landing site x-coord
     LDA $8F91FA
-    PHA
     AND #$00FF
     CLC
     ADC #$0003
@@ -1782,8 +1779,7 @@ hook_map_icons:
     SBC $B1
     TAX
 ; landing site y-coord
-    PLA
-    XBA
+    LDA $8F91FB
     AND #$00FF
     CLC
     ADC #$0003

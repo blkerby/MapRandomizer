@@ -181,12 +181,12 @@ save_map_coords:
     BCS .save_normal
     LDA $80C4E1             ; spawn room == $91F8 (Landing Site)?
     CMP #$F8
-    BNE .save_normal
+    BNE .helmet
     LDA $80C4E2
     CMP #$91
-    BNE .save_normal
+    BNE .helmet
     LDA $80C4E7
-    BEQ .save_normal        ; offset_x == 0?
+    BEQ .save_normal        ; offset_x == 0 (ship)?
 ; possible sprite values:
 ; 8D = helmet
 ; 08 = yellow, 0E = orange, 0F = pink (save icons)
