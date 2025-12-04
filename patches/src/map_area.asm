@@ -172,6 +172,13 @@ org $82E7C9
 org $82E1F7
     jsr palette_clear_hook
 
+; Skip vanilla Maridia check to extend left map scroll limit
+; Caused wrap artifact on wide Maridia maps
+org $829F01
+    bra skip_maridia
+org $829F13
+skip_maridia:
+
 ;; Don't preserve palette 7 color 1 (used for FX), let it fade to black:
 ;org $82E21E
 ;    nop : nop : nop  ; was: STA $C23A
