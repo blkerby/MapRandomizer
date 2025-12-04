@@ -56,6 +56,7 @@ def create_animated_thumbnails():
         output_filename = sprite_name + '.gif'
         output_file = f"{output_path}/{output_filename}"
         sheet = Image.open(f"{sprite_path}/{sprite_sheet_filename}")
+        sheet = sheet.convert("RGBA")
 
         # Extract walking right animation:
         if sprite_name == 'samus_cannon':
