@@ -2194,6 +2194,9 @@ pub fn get_short_bireachable_trails(
     let mut best_trail_pair: Option<(StepTrailId, StepTrailId)> = None;
     for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
         for &reverse_trail_id in &reverse_trails_by_vertex[&vertex_id] {
+            if forward_trail_id == -1 || reverse_trail_id == -1 {
+                continue;
+            }
             let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
             let reverse_state = reverse.step_trails[reverse_trail_id as usize].local_state;
             let combined_length = forward_state.length as u32 + reverse_state.length as u32;

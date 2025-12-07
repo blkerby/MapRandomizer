@@ -1103,11 +1103,13 @@ pub fn get_spoiler_log(
                 },
             ) in randomizer.game_data.vertex_isv.keys.iter().enumerate()
             {
-                if get_bireachable_idxs(
+                if get_short_bireachable_trails(
                     &forward_step.global_state,
                     v,
                     &traverser_pair.forward,
                     &traverser_pair.reverse,
+                    &forward_trails_by_vertex,
+                    &reverse_trails_by_vertex,
                 )
                 .is_some()
                 {
