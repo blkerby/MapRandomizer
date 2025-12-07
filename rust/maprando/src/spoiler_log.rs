@@ -730,7 +730,8 @@ pub fn get_spoiler_flag_details(
         reverse_trails_by_vertex,
     );
     let last_step = obtain_route.last().unwrap();
-    let flag_vertex_info = get_vertex_info_by_id(randomizer, last_step.room_id, last_step.to_node_id);
+    let flag_vertex_info =
+        get_vertex_info_by_id(randomizer, last_step.room_id, last_step.to_node_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
         .unwrap();
@@ -767,7 +768,8 @@ pub fn get_spoiler_flag_details_one_way(
         forward_trails_by_vertex,
     );
     let last_step = obtain_route.last().unwrap();
-    let flag_vertex_info = get_vertex_info_by_id(randomizer, last_step.room_id, last_step.to_node_id);
+    let flag_vertex_info =
+        get_vertex_info_by_id(randomizer, last_step.room_id, last_step.to_node_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
         .unwrap();
@@ -1033,8 +1035,7 @@ pub fn get_spoiler_log(
                     if flag_state.reachable_traversal != Some(traversal_num) {
                         continue;
                     }
-                    let flag_summary =
-                        get_spoiler_flag_summary(randomizer, state, flag_id);
+                    let flag_summary = get_spoiler_flag_summary(randomizer, state, flag_id);
                     spoiler_flag_summaries.push(flag_summary);
                     let flag_details = get_spoiler_flag_details_one_way(
                         randomizer,
@@ -1049,8 +1050,7 @@ pub fn get_spoiler_log(
                     if flag_state.bireachable_traversal != Some(traversal_num) {
                         continue;
                     }
-                    let flag_summary =
-                        get_spoiler_flag_summary(randomizer, state, flag_id);
+                    let flag_summary = get_spoiler_flag_summary(randomizer, state, flag_id);
                     spoiler_flag_summaries.push(flag_summary);
                     let flag_details = get_spoiler_flag_details(
                         randomizer,

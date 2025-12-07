@@ -18,7 +18,11 @@ use clap::Parser;
 use hashbrown::HashMap;
 use log::info;
 use maprando::{
-    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory}, map_repository::MapRepository, preset::PresetData, randomize::get_req_difficulty, seed_repository::SeedRepository
+    customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
+    map_repository::MapRepository,
+    preset::PresetData,
+    randomize::get_req_difficulty,
+    seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
 use std::{path::Path, time::Instant};
@@ -91,7 +95,7 @@ fn build_app_data() -> AppData {
     .collect();
 
     let mut game_data = GameData::load(Path::new(".")).unwrap();
-    
+
     info!("Loading logic preset data");
     let etank_colors: Vec<Vec<String>> =
         serde_json::from_str(&std::fs::read_to_string(etank_colors_path).unwrap()).unwrap();
@@ -110,7 +114,7 @@ fn build_app_data() -> AppData {
         let tier = get_req_difficulty(req, &preset_data.difficulty_tiers) as u32;
         1 << tier
     });
-    
+
     let map_repositories: HashMap<String, MapRepository> = vec![
         (
             "Vanilla".to_string(),
