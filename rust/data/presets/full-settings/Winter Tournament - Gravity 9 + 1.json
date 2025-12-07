@@ -1,6 +1,6 @@
 {
     "version": 120,
-    "name": "Double Suit",
+    "name": "Winter Tournament - Gravity 9 + 1",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4133,11 +4133,11 @@
             },
             {
                 "item": "ETank",
-                "count": 0
+                "count": 9
             },
             {
                 "item": "ReserveTank",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "Super",
@@ -4209,7 +4209,7 @@
             },
             {
                 "item": "Varia",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "Gravity",

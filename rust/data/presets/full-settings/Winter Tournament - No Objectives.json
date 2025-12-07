@@ -1,6 +1,6 @@
 {
     "version": 120,
-    "name": "Metroid Objectives",
+    "name": "Winter Tournament - No Objectives",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4409,7 +4409,7 @@
         "item_markers": "4-Tiered",
         "room_outline_revealed": true,
         "opposite_area_revealed": true,
-        "mother_brain_fight": "Skip",
+        "mother_brain_fight": "Short",
         "supers_double": true,
         "escape_movement_items": true,
         "escape_refill": true,
@@ -4434,7 +4434,7 @@
         "persist_blue_suit": false
     },
     "objective_settings": {
-        "preset": "Metroids",
+        "preset": "None",
         "objective_options": [
             {
                 "objective": "Kraid",
@@ -4498,23 +4498,23 @@
             },
             {
                 "objective": "MetroidRoom1",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "MetroidRoom2",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "MetroidRoom3",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "MetroidRoom4",
-                "setting": "Yes"
+                "setting": "No"
             }
         ],
-        "min_objectives": 4,
-        "max_objectives": 4,
+        "min_objectives": 0,
+        "max_objectives": 0,
         "objective_screen": "Enabled"
     },
     "map_layout": "Standard",

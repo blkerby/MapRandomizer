@@ -1,6 +1,6 @@
 {
     "version": 120,
-    "name": "Varia + Movement",
+    "name": "Winter Tournament - Metroid Objectives",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4125,7 +4125,7 @@
                 "count": 1
             }
         ],
-        "starting_items_preset": null,
+        "starting_items_preset": "None",
         "starting_items": [
             {
                 "item": "Missile",
@@ -4153,7 +4153,7 @@
             },
             {
                 "item": "Ice",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "Wave",
@@ -4181,11 +4181,11 @@
             },
             {
                 "item": "Grapple",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "HiJump",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "SpeedBooster",
@@ -4193,7 +4193,7 @@
             },
             {
                 "item": "SpringBall",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "WallJump",
@@ -4209,7 +4209,7 @@
             },
             {
                 "item": "Varia",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "Gravity",
@@ -4409,7 +4409,7 @@
         "item_markers": "4-Tiered",
         "room_outline_revealed": true,
         "opposite_area_revealed": true,
-        "mother_brain_fight": "Short",
+        "mother_brain_fight": "Skip",
         "supers_double": true,
         "escape_movement_items": true,
         "escape_refill": true,
@@ -4434,23 +4434,23 @@
         "persist_blue_suit": false
     },
     "objective_settings": {
-        "preset": "Bosses",
+        "preset": "Metroids",
         "objective_options": [
             {
                 "objective": "Kraid",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "Phantoon",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "Draygon",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "Ridley",
-                "setting": "Yes"
+                "setting": "No"
             },
             {
                 "objective": "SporeSpawn",
@@ -4498,19 +4498,19 @@
             },
             {
                 "objective": "MetroidRoom1",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "MetroidRoom2",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "MetroidRoom3",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "MetroidRoom4",
-                "setting": "No"
+                "setting": "Yes"
             }
         ],
         "min_objectives": 4,

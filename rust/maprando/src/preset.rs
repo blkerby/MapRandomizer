@@ -216,12 +216,12 @@ impl PresetData {
         let full_preset_names = [
             "Default",
             "Community Race Season 4",
-            "Double Suit",
-            "Gravity 9 + 1",
-            "Varia + Movement",
-            "Metroid Objectives",
-            "4 Random Objectives",
-            "No Objectives",
+            "Winter Tournament - Double Suit",
+            "Winter Tournament - Gravity 9 + 1",
+            "Winter Tournament - Varia + Movement",
+            "Winter Tournament - Metroid Objectives",
+            "Winter Tournament - 4 Random Objectives",
+            "Winter Tournament - No Objectives",
         ];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];

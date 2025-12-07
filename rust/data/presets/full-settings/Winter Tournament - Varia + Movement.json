@@ -1,6 +1,6 @@
 {
     "version": 120,
-    "name": "Gravity 9 + 1",
+    "name": "Winter Tournament - Varia + Movement",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4133,11 +4133,11 @@
             },
             {
                 "item": "ETank",
-                "count": 9
+                "count": 0
             },
             {
                 "item": "ReserveTank",
-                "count": 1
+                "count": 0
             },
             {
                 "item": "Super",
@@ -4153,7 +4153,7 @@
             },
             {
                 "item": "Ice",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "Wave",
@@ -4181,11 +4181,11 @@
             },
             {
                 "item": "Grapple",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "HiJump",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "SpeedBooster",
@@ -4193,7 +4193,7 @@
             },
             {
                 "item": "SpringBall",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "WallJump",
@@ -4209,11 +4209,11 @@
             },
             {
                 "item": "Varia",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "Gravity",
-                "count": 1
+                "count": 0
             }
         ],
         "key_item_priority": [

@@ -1,6 +1,6 @@
 {
     "version": 120,
-    "name": "No Objectives",
+    "name": "Winter Tournament - Double Suit",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -4125,7 +4125,7 @@
                 "count": 1
             }
         ],
-        "starting_items_preset": "None",
+        "starting_items_preset": null,
         "starting_items": [
             {
                 "item": "Missile",
@@ -4209,11 +4209,11 @@
             },
             {
                 "item": "Varia",
-                "count": 0
+                "count": 1
             },
             {
                 "item": "Gravity",
-                "count": 0
+                "count": 1
             }
         ],
         "key_item_priority": [
@@ -4434,23 +4434,23 @@
         "persist_blue_suit": false
     },
     "objective_settings": {
-        "preset": "None",
+        "preset": "Bosses",
         "objective_options": [
             {
                 "objective": "Kraid",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "Phantoon",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "Draygon",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "Ridley",
-                "setting": "No"
+                "setting": "Yes"
             },
             {
                 "objective": "SporeSpawn",
@@ -4513,8 +4513,8 @@
                 "setting": "No"
             }
         ],
-        "min_objectives": 0,
-        "max_objectives": 0,
+        "min_objectives": 4,
+        "max_objectives": 4,
         "objective_screen": "Enabled"
     },
     "map_layout": "Standard",
