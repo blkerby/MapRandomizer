@@ -567,6 +567,7 @@ impl<'a> Preprocessor<'a> {
                         requirement: Requirement::make_and(vec![req, exit_req.clone()]),
                         start_with_shinecharge: exit_with_shinecharge,
                         end_with_shinecharge: enter_with_shinecharge,
+                        length: 1,
                         strat_id: None,
                         strat_name: "Base (Cross Room)".to_string(),
                         strat_notes: vec![],
@@ -2995,6 +2996,15 @@ pub fn randomize_doors(
         locked_door_node_map,
         locked_door_vertex_ids,
     }
+}
+
+pub fn get_req_difficulty(req: &Requirement, difficulty_tiers: &[DifficultyConfig]) -> usize {
+    for (i, tier) in difficulty_tiers.iter().enumerate() {
+        if is_req_possible(req, &tier.tech, &tier.notables) {
+            return i;
+        }
+    }
+    difficulty_tiers.len()
 }
 
 fn is_req_possible(req: &Requirement, tech_active: &[bool], notables_active: &[bool]) -> bool {

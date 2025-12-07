@@ -560,7 +560,7 @@ fn apply_link(link: &Link, mut local: LocalStateArray, cx: &TraversalContext) ->
         }
     }
     for x in &mut local {
-        x.length += 1;
+        x.length += link.length;
     }
     local
 }

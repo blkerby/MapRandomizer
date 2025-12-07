@@ -797,6 +797,7 @@ fn test_logic_scenarios() -> Result<()> {
         let mut game_data = base_game_data.clone();
         let num_rooms = game_data.room_ptrs.len();
         game_data.load_rooms(&room_pattern)?;
+        game_data.make_links_data(&|_| 1);
 
         let connections_path = entry.path().join("connections.json");
         let connections_list: ConnectionsList = if connections_path.exists() || num_rooms > 1 {

@@ -162,7 +162,7 @@ pub struct LocalState {
     pub farm_baseline_supers: EncodedResourceLevel,
     pub farm_baseline_power_bombs: EncodedResourceLevel,
     pub flash_suit: u8,
-    pub length: u16,
+    pub length: u32,
     pub prev_trail_id: StepTrailId,
 }
 

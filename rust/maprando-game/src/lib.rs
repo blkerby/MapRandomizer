@@ -104,6 +104,7 @@ pub type StratId = usize; // Strat ID from sm-json-data (only unique within a ro
 pub type NotableId = usize; // Notable ID from sm-json-data (only unique within a room)
 pub type VertexId = usize; // Index into GameData.vertex_isv.keys: (room_id, node_id, obstacle_bitmask) combinations
 pub type ItemLocationId = usize; // Index into GameData.item_locations: 100 nodes each containing an item
+pub type LinkLength = u32; // Length of a link (based on difficulty)
 pub type ObstacleMask = usize; // Bitmask where `i`th bit (from least significant) indicates `i`th obstacle cleared within a room
 pub type WeaponMask = usize; // Bitmask where `i`th bit indicates availability of (or vulnerability to) `i`th weapon.
 pub type Capacity = i16; // Data type used to represent quantities of energy, ammo, etc.
@@ -503,6 +504,7 @@ pub struct Link {
     pub requirement: Requirement,
     pub start_with_shinecharge: bool,
     pub end_with_shinecharge: bool,
+    pub length: LinkLength,
     pub strat_id: Option<usize>,
     pub strat_name: String,
     // TODO: Remove this field since this data can be looked up elsewhere:
@@ -2926,8 +2928,6 @@ impl GameData {
         }
 
         self.populate_target_locations()?;
-        self.make_links_data();
-        self.make_reset_room_requirements();
 
         Ok(())
     }
@@ -4407,6 +4407,7 @@ impl GameData {
                 requirement: requirement.clone(),
                 start_with_shinecharge,
                 end_with_shinecharge,
+                length: 1,
                 strat_id,
                 strat_name: strat_name.clone(),
                 strat_notes,
@@ -4514,6 +4515,7 @@ impl GameData {
                     requirement: Requirement::Free,
                     start_with_shinecharge: false,
                     end_with_shinecharge: false,
+                    length: 1,
                     strat_id: None,
                     strat_name: "Base (Action -> Plain)".to_string(),
                     strat_notes: vec![],
@@ -4547,6 +4549,7 @@ impl GameData {
                         requirement: unlock_req,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
+                        length: 1,
                         strat_id: None,
                         strat_name: "Base (Unlock)".to_string(),
                         strat_notes: vec![],
@@ -4557,6 +4560,7 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
+                        length: 1,
                         strat_id: None,
                         strat_name: "Base (Return from Unlock)".to_string(),
                         strat_notes: vec![],
@@ -4729,6 +4733,7 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: false,
                         end_with_shinecharge: false,
+                        length: 1,
                         strat_id: None,
                         strat_name: if morphed {
                             "Carry G-Mode Morph Back Through".to_string()
@@ -5143,9 +5148,13 @@ impl GameData {
         Ok(())
     }
 
-    fn make_links_data(&mut self) {
+    pub fn make_links_data(&mut self, link_length_fn: &dyn Fn(&Requirement) -> LinkLength) {
+        for link in &mut self.links {
+            link.length = link_length_fn(&link.requirement);
+        }
         self.base_links_data =
             LinksDataGroup::new(self.links.clone(), self.vertex_isv.keys.len(), 0);
+        self.make_reset_room_requirements();
     }
 
     fn process_reset_room_req(req: &Requirement, free_unlock_id: (RoomId, NodeId)) -> Requirement {
