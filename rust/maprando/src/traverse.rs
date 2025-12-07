@@ -2200,7 +2200,7 @@ pub fn get_short_bireachable_trails(
                 }
                 let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
                 let reverse_state = reverse.step_trails[reverse_trail_id as usize].local_state;
-                let combined_length = forward_state.length as u32 + reverse_state.length as u32;
+                let combined_length = forward_state.length + reverse_state.length;
                 if combined_length >= best_length {
                     continue;
                 }
@@ -2236,7 +2236,7 @@ pub fn get_short_one_way_reachable_trail(
     for &vertex_id in vertex_ids {
         for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
             let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
-            let new_length = forward_state.length as u32;
+            let new_length = forward_state.length;
             if new_length < best_length {
                 best_length = new_length;
                 best_trail = Some(forward_trail_id);
