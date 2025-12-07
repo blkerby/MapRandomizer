@@ -2184,7 +2184,7 @@ pub fn get_bireachable_idxs(
 // Otherwise returns None.
 pub fn get_short_bireachable_trails(
     global: &GlobalState,
-    vertex_id: usize,
+    vertex_ids: &[VertexId],
     forward: &Traverser,
     reverse: &Traverser,
     forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
@@ -2192,21 +2192,23 @@ pub fn get_short_bireachable_trails(
 ) -> Option<(StepTrailId, StepTrailId)> {
     let mut best_length: u32 = u32::MAX;
     let mut best_trail_pair: Option<(StepTrailId, StepTrailId)> = None;
-    for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
-        for &reverse_trail_id in &reverse_trails_by_vertex[&vertex_id] {
-            if forward_trail_id == -1 || reverse_trail_id == -1 {
-                continue;
-            }
-            let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
-            let reverse_state = reverse.step_trails[reverse_trail_id as usize].local_state;
-            let combined_length = forward_state.length as u32 + reverse_state.length as u32;
-            if combined_length >= best_length {
-                continue;
-            }
-            if is_bireachable_state(global, forward_state, reverse_state) {
-                // A valid combination of forward & return routes has been found.
-                best_length = combined_length;
-                best_trail_pair = Some((forward_trail_id, reverse_trail_id));
+    for &vertex_id in vertex_ids {
+        for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
+            for &reverse_trail_id in &reverse_trails_by_vertex[&vertex_id] {
+                if forward_trail_id == -1 || reverse_trail_id == -1 {
+                    continue;
+                }
+                let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
+                let reverse_state = reverse.step_trails[reverse_trail_id as usize].local_state;
+                let combined_length = forward_state.length as u32 + reverse_state.length as u32;
+                if combined_length >= best_length {
+                    continue;
+                }
+                if is_bireachable_state(global, forward_state, reverse_state) {
+                    // A valid combination of forward & return routes has been found.
+                    best_length = combined_length;
+                    best_trail_pair = Some((forward_trail_id, reverse_trail_id));
+                }
             }
         }
     }
@@ -2225,18 +2227,20 @@ pub fn get_one_way_reachable_idx(vertex_id: usize, forward: &Traverser) -> Optio
 // If the given vertex is reachable, returns a step trail ID for a shortest length trail
 // for reaching the vertex. Otherwise returns None.
 pub fn get_short_one_way_reachable_trail(
-    vertex_id: usize,
+    vertex_ids: &[VertexId],
     forward: &Traverser,
     forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
 ) -> Option<StepTrailId> {
     let mut best_length: u32 = u32::MAX;
     let mut best_trail: Option<StepTrailId> = None;
-    for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
-        let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
-        let new_length = forward_state.length as u32;
-        if new_length < best_length {
-            best_length = new_length;
-            best_trail = Some(forward_trail_id);
+    for &vertex_id in vertex_ids {
+        for &forward_trail_id in &forward_trails_by_vertex[&vertex_id] {
+            let forward_state = forward.step_trails[forward_trail_id as usize].local_state;
+            let new_length = forward_state.length as u32;
+            if new_length < best_length {
+                best_length = new_length;
+                best_trail = Some(forward_trail_id);
+            }
         }
     }
     best_trail

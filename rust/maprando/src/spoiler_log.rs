@@ -611,7 +611,7 @@ pub fn get_spoiler_route(
 fn get_spoiler_route_birectional(
     randomizer: &Randomizer,
     global_state: &GlobalState,
-    vertex_id: usize,
+    vertex_ids: &[VertexId],
     traverser_pair: &TraverserPair,
     forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
     reverse_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
@@ -620,7 +620,7 @@ fn get_spoiler_route_birectional(
     let reverse = &traverser_pair.reverse;
     let (forward_trail_id, reverse_trail_id) = get_short_bireachable_trails(
         global_state,
-        vertex_id,
+        vertex_ids,
         forward,
         reverse,
         forward_trails_by_vertex,
@@ -639,13 +639,13 @@ fn get_spoiler_route_birectional(
 fn get_spoiler_route_one_way(
     randomizer: &Randomizer,
     state: &RandomizationState,
-    vertex_id: usize,
+    vertex_ids: &[VertexId],
     forward: &Traverser,
     forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
 ) -> Vec<SpoilerRouteEntry> {
     let global_state = &state.global_state;
     let forward_trail_id =
-        get_short_one_way_reachable_trail(vertex_id, forward, forward_trails_by_vertex).unwrap();
+        get_short_one_way_reachable_trail(vertex_ids, forward, forward_trails_by_vertex).unwrap();
     let forward_trail_ids: Vec<StepTrailId> = get_spoiler_trail_ids(forward, forward_trail_id);
     get_spoiler_route(randomizer, global_state, &forward_trail_ids, forward, false)
 }
@@ -654,7 +654,6 @@ fn get_spoiler_item_details(
     randomizer: &Randomizer,
     state: &RandomizationState,
     global_state: &GlobalState,
-    item_vertex_id: usize,
     item: Item,
     tier: Option<usize>,
     item_location_idx: usize,
@@ -665,7 +664,7 @@ fn get_spoiler_item_details(
     let (obtain_route, return_route) = get_spoiler_route_birectional(
         randomizer,
         global_state,
-        item_vertex_id,
+        &randomizer.game_data.item_vertex_ids[item_location_idx],
         traverser_pair,
         forward_trails_by_vertex,
         reverse_trails_by_vertex,
@@ -716,7 +715,6 @@ pub fn get_spoiler_flag_details(
     randomizer: &Randomizer,
     state: &RandomizationState,
     global_state: &GlobalState,
-    flag_vertex_id: usize,
     flag_id: FlagId,
     flag_idx: usize,
     traverser_pair: &TraverserPair,
@@ -726,12 +724,13 @@ pub fn get_spoiler_flag_details(
     let (obtain_route, return_route) = get_spoiler_route_birectional(
         randomizer,
         global_state,
-        flag_vertex_id,
+        &randomizer.game_data.flag_vertex_ids[flag_idx],
         traverser_pair,
         forward_trails_by_vertex,
         reverse_trails_by_vertex,
     );
-    let flag_vertex_info = get_vertex_info(randomizer, flag_vertex_id);
+    let last_step = obtain_route.last().unwrap();
+    let flag_vertex_info = get_vertex_info_by_id(randomizer, last_step.room_id, last_step.to_node_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
         .unwrap();
@@ -754,7 +753,6 @@ pub fn get_spoiler_flag_details(
 pub fn get_spoiler_flag_details_one_way(
     randomizer: &Randomizer,
     state: &RandomizationState,
-    flag_vertex_id: usize,
     flag_id: FlagId,
     flag_idx: usize,
     forward: &Traverser,
@@ -764,11 +762,12 @@ pub fn get_spoiler_flag_details_one_way(
     let obtain_route = get_spoiler_route_one_way(
         randomizer,
         state,
-        flag_vertex_id,
+        &randomizer.game_data.flag_vertex_ids[flag_idx],
         forward,
         forward_trails_by_vertex,
     );
-    let flag_vertex_info = get_vertex_info(randomizer, flag_vertex_id);
+    let last_step = obtain_route.last().unwrap();
+    let flag_vertex_info = get_vertex_info_by_id(randomizer, last_step.room_id, last_step.to_node_id);
     let reachable_traversal = state.flag_location_state[flag_idx]
         .reachable_traversal
         .unwrap();
@@ -810,7 +809,6 @@ fn get_door_type_name(door_type: DoorType) -> String {
 pub fn get_spoiler_door_details(
     randomizer: &Randomizer,
     global_state: &GlobalState,
-    unlock_vertex_id: usize,
     locked_door_idx: usize,
     traverser_pair: &TraverserPair,
     forward_trails_by_vertex: &HashMap<VertexId, Vec<StepTrailId>>,
@@ -819,12 +817,12 @@ pub fn get_spoiler_door_details(
     let (obtain_route, return_route) = get_spoiler_route_birectional(
         randomizer,
         global_state,
-        unlock_vertex_id,
+        &randomizer.locked_door_data.locked_door_vertex_ids[locked_door_idx],
         traverser_pair,
         forward_trails_by_vertex,
         reverse_trails_by_vertex,
     );
-    let summary = get_spoiler_door_summary(randomizer, unlock_vertex_id, locked_door_idx);
+    let summary = get_spoiler_door_summary(randomizer, locked_door_idx);
     SpoilerDoorDetails {
         door_type: summary.door_type,
         location: summary.location,
@@ -837,7 +835,6 @@ pub fn get_spoiler_door_details(
 pub fn get_spoiler_flag_summary(
     randomizer: &Randomizer,
     _state: &RandomizationState,
-    _flag_vertex_id: usize,
     flag_id: FlagId,
 ) -> SpoilerFlagSummary {
     SpoilerFlagSummary {
@@ -847,7 +844,6 @@ pub fn get_spoiler_flag_summary(
 
 pub fn get_spoiler_door_summary(
     randomizer: &Randomizer,
-    _unlock_vertex_id: usize,
     locked_door_idx: usize,
 ) -> SpoilerDoorSummary {
     let locked_door = &randomizer.locked_door_data.locked_doors[locked_door_idx];
@@ -1015,14 +1011,12 @@ pub fn get_spoiler_log(
                 if item == Item::Nothing {
                     continue;
                 }
-                let item_vertex_id = item_state.bireachable_vertex_id.unwrap();
                 let item_summary = get_spoiler_item_summary(randomizer, item, i);
                 spoiler_item_summaries.push(item_summary);
                 let item_details = get_spoiler_item_details(
                     randomizer,
                     state,
                     &global_state,
-                    item_vertex_id,
                     item,
                     item_state.placed_tier,
                     i,
@@ -1039,14 +1033,12 @@ pub fn get_spoiler_log(
                     if flag_state.reachable_traversal != Some(traversal_num) {
                         continue;
                     }
-                    let flag_vertex_id = flag_state.reachable_vertex_id.unwrap();
                     let flag_summary =
-                        get_spoiler_flag_summary(randomizer, state, flag_vertex_id, flag_id);
+                        get_spoiler_flag_summary(randomizer, state, flag_id);
                     spoiler_flag_summaries.push(flag_summary);
                     let flag_details = get_spoiler_flag_details_one_way(
                         randomizer,
                         state,
-                        flag_vertex_id,
                         flag_id,
                         i,
                         &traverser_pair.forward,
@@ -1057,15 +1049,13 @@ pub fn get_spoiler_log(
                     if flag_state.bireachable_traversal != Some(traversal_num) {
                         continue;
                     }
-                    let flag_vertex_id = flag_state.bireachable_vertex_id.unwrap();
                     let flag_summary =
-                        get_spoiler_flag_summary(randomizer, state, flag_vertex_id, flag_id);
+                        get_spoiler_flag_summary(randomizer, state, flag_id);
                     spoiler_flag_summaries.push(flag_summary);
                     let flag_details = get_spoiler_flag_details(
                         randomizer,
                         state,
                         &global_state,
-                        flag_vertex_id,
                         flag_id,
                         i,
                         traverser_pair,
@@ -1080,13 +1070,11 @@ pub fn get_spoiler_log(
                 if door_state.bireachable_traversal != Some(traversal_num) {
                     continue;
                 }
-                let unlock_vertex_id = door_state.bireachable_vertex_id.unwrap();
-                let door_summary = get_spoiler_door_summary(randomizer, unlock_vertex_id, i);
+                let door_summary = get_spoiler_door_summary(randomizer, i);
                 spoiler_door_summaries.push(door_summary);
                 let door_details = get_spoiler_door_details(
                     randomizer,
                     &global_state,
-                    unlock_vertex_id,
                     i,
                     traverser_pair,
                     &forward_trails_by_vertex,
@@ -1105,7 +1093,7 @@ pub fn get_spoiler_log(
             {
                 if get_short_bireachable_trails(
                     &forward_step.global_state,
-                    v,
+                    &[v],
                     &traverser_pair.forward,
                     &traverser_pair.reverse,
                     &forward_trails_by_vertex,
