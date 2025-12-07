@@ -93,20 +93,9 @@ enum AttemptError {
 }
 
 fn handle_randomize_request(
-    mut settings: RandomizerSettings,
+    settings: RandomizerSettings,
     app_data: web::Data<AppData>,
 ) -> Result<AttemptOutput, AttemptError> {
-    let mut validated_preset = false;
-    for s in &app_data.preset_data.full_presets {
-        if s == &settings {
-            validated_preset = true;
-            break;
-        }
-    }
-    if !validated_preset {
-        settings.name = Some("Custom".to_string());
-    }
-
     let skill_settings = &settings.skill_assumption_settings;
     let race_mode = settings.other_settings.race_mode;
     let random_seed = if settings.other_settings.random_seed.is_none() || race_mode {
@@ -256,13 +245,24 @@ async fn randomize(
     http_req: HttpRequest,
     app_data: web::Data<AppData>,
 ) -> impl Responder {
-    let settings =
+    let mut settings =
         match try_upgrade_settings(req.settings.0.to_string(), &app_data.preset_data, true) {
             Ok(s) => s.1,
             Err(e) => {
                 return HttpResponse::BadRequest().body(e.to_string());
             }
         };
+
+    let mut validated_preset = false;
+    for s in &app_data.preset_data.full_presets {
+        if s == &settings {
+            validated_preset = true;
+            break;
+        }
+    }
+    if !validated_preset {
+        settings.name = Some("Custom".to_string());
+    }
 
     if settings.other_settings.random_seed == Some(0) {
         return HttpResponse::BadRequest().body("Invalid random seed: 0");
