@@ -30,3 +30,4 @@ source ~/credentials/backblaze-map-rando-artifacts.sh
 aws s3 cp tmp/Mosaic.tar.zstd s3://map-rando-artifacts/Mosaic/Mosaic-${MOSAIC_BUILD_ID}.tar.zstd --endpoint ${AWS_ENDPOINT}
 
 echo -n $MOSAIC_BUILD_ID >MOSAIC_BUILD_ID
+python scripts/build_ips.py --rebuild
