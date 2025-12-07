@@ -16,7 +16,7 @@ use crate::{
     },
     settings::SaveAnimals,
     traverse::{
-        CostConfig, LocalStateReducer, NUM_COST_METRICS, Traverser, get_bireachable_idxs,
+        CostConfig, LocalStateReducer, NUM_COST_METRICS, Traverser,
         get_short_bireachable_trails, get_short_one_way_reachable_trail, get_spoiler_trail_ids,
     },
 };
