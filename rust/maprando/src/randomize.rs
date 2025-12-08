@@ -24,9 +24,9 @@ use maprando_game::{
     self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, Float, GModeMobility, GModeMode,
     GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId,
-    Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
-    RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment, SparkPosition,
-    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_FLASH_SUIT,
+    Link, LinkLength, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics,
+    Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment,
+    SparkPosition, StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_FLASH_SUIT,
     TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
     TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
     TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
@@ -2998,8 +2998,17 @@ pub fn randomize_doors(
     }
 }
 
+pub fn get_link_difficulty(link: &Link, difficulty_tiers: &[DifficultyConfig]) -> LinkLength {
+    let tier = get_req_difficulty(&link.requirement, difficulty_tiers) as u32;
+    let mut difficulty = 1 << tier;
+    if !link.strat_name.starts_with("Base ") && link.strat_name != "Base" {
+        difficulty += 1;
+    }
+    difficulty
+}
+
 pub fn get_req_difficulty(req: &Requirement, difficulty_tiers: &[DifficultyConfig]) -> usize {
-    for (i, tier) in difficulty_tiers.iter().enumerate() {
+    for (i, tier) in difficulty_tiers.iter().rev().enumerate() {
         if is_req_possible(req, &tier.tech, &tier.notables) {
             return i;
         }
@@ -4313,12 +4322,7 @@ impl<'r> Randomizer<'r> {
             actions: vec![],
         }];
         let global = traverser.step.global_state.clone();
-        traverser.add_origin(
-            traverser.initial_local_state,
-            &global.inventory,
-            start_vertex_id,
-        );
-        traverser.traverse_breadth_first(
+        traverser.traverse_dijkstra(
             self.base_links_data,
             &self.seed_links_data,
             &global,
@@ -4328,6 +4332,7 @@ impl<'r> Randomizer<'r> {
             &self.door_map,
             self.locked_door_data,
             &self.objectives,
+            start_vertex_id,
             traverser.step.step_num,
         );
         let num_reachable1 = traverser.lsr.iter().filter(|x| !x.local.is_empty()).count();

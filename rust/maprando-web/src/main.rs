@@ -21,7 +21,7 @@ use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
     map_repository::MapRepository,
     preset::PresetData,
-    randomize::get_req_difficulty,
+    randomize::get_link_difficulty,
     seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
@@ -110,10 +110,8 @@ fn build_app_data() -> AppData {
     };
 
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
-    game_data.make_links_data(&|req| {
-        let tier = get_req_difficulty(req, &preset_data.difficulty_tiers) as u32;
-        1 << tier
-    });
+    let difficulty_tiers = &preset_data.difficulty_tiers;
+    game_data.make_links_data(&|link| get_link_difficulty(link, difficulty_tiers));
 
     let map_repositories: HashMap<String, MapRepository> = vec![
         (

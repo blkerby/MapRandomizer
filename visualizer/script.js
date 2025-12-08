@@ -217,6 +217,7 @@ let localStateKeyOrder = [
 	"farm_baseline_supers",
 	"farm_baseline_power_bombs",
 	"flash_suit",
+	"length",
 ];
 
 function getTrailStarts(traversal, step, vertexId, costMetric) {

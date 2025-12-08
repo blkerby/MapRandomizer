@@ -1,8 +1,8 @@
 use anyhow::Result;
 use hashbrown::HashMap;
 use maprando_game::{
-    BeamType, Capacity, DoorType, FlagId, Item, LinkIdx, NodeId, Requirement, RoomId, StepTrailId,
-    TraversalId, VertexId, VertexKey,
+    BeamType, Capacity, DoorType, FlagId, Item, LinkIdx, LinkLength, NodeId, Requirement, RoomId,
+    StepTrailId, TraversalId, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, LocalState};
 use serde::{Deserialize, Serialize};
@@ -333,6 +333,7 @@ pub struct SpoilerLocalState {
     pub farm_baseline_power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flash_suit: Option<Capacity>,
+    pub length: LinkLength,
 }
 
 struct VertexInfo {
@@ -428,6 +429,7 @@ impl SpoilerLocalState {
             } else {
                 Some(local.flash_suit as Capacity)
             },
+            length: local.length,
         }
     }
 }
@@ -959,9 +961,7 @@ pub fn get_spoiler_log(
     let forward_traversal = get_spoiler_traversal(&traverser_pair.forward);
     let reverse_traversal = get_spoiler_traversal(&traverser_pair.reverse);
 
-    let cost_config = CostConfig {
-        length_cost_factor: 0.0001,
-    };
+    let cost_config = CostConfig {};
     traverser_pair.forward.cost_config = cost_config.clone();
     traverser_pair.reverse.cost_config = cost_config.clone();
 

@@ -5148,9 +5148,9 @@ impl GameData {
         Ok(())
     }
 
-    pub fn make_links_data(&mut self, link_length_fn: &dyn Fn(&Requirement) -> LinkLength) {
+    pub fn make_links_data(&mut self, link_length_fn: &dyn Fn(&Link) -> LinkLength) {
         for link in &mut self.links {
-            link.length = link_length_fn(&link.requirement);
+            link.length = link_length_fn(link);
         }
         self.base_links_data =
             LinksDataGroup::new(self.links.clone(), self.vertex_isv.keys.len(), 0);
