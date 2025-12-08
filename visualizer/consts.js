@@ -138,3 +138,4 @@ let zebesawake = {
 	"Metal Pirates Room": "f_ClearedMetalPiratesRoom",
 	"Pit Room": "f_ClearedPitRoom",
 }
+let diff_colors = ["#00ff00","#ffff00","#ff0000","#ff8000","#00ffff", "#00ffff","#0080ff", "#0080ff","#ff00ff", "#ff00ff", "#ff0080"];
