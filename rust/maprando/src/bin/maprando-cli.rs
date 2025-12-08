@@ -7,7 +7,7 @@ use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, get_difficulty_tiers, get_link_difficulty, get_objectives,
+    Randomization, Randomizer, get_difficulty_tiers, get_link_length, get_objectives,
     randomize_doors,
 };
 use maprando::settings::{DoorLocksSize, RandomizerSettings, StartLocationMode};
@@ -223,7 +223,7 @@ fn main() -> Result<()> {
     let presets_path = Path::new("data/presets");
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
     let difficulty_tiers = &preset_data.difficulty_tiers;
-    game_data.make_links_data(&|link| get_link_difficulty(link, difficulty_tiers));
+    game_data.make_links_data(&|link| get_link_length(link, difficulty_tiers));
     let settings = get_settings(&args, &preset_data)?;
 
     // Perform randomization (map selection & item placement):

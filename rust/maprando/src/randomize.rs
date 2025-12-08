@@ -2999,7 +2999,11 @@ pub fn randomize_doors(
 }
 
 pub fn get_link_difficulty(link: &Link, difficulty_tiers: &[DifficultyConfig]) -> LinkLength {
-    let tier = get_req_difficulty(&link.requirement, difficulty_tiers) as u32;
+    get_req_difficulty(&link.requirement, difficulty_tiers) as LinkLength
+}
+
+pub fn get_link_length(link: &Link, difficulty_tiers: &[DifficultyConfig]) -> LinkLength {
+    let tier = get_link_difficulty(link, difficulty_tiers) as LinkLength;
     let mut difficulty = 1 << tier;
     if !link.strat_name.starts_with("Base ") && link.strat_name != "Base" {
         difficulty += 1;

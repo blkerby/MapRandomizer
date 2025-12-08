@@ -10,8 +10,11 @@ v120?:
 - Investigate osse seed: https://dev.maprando.com/seed/fKpvDHvq6/data/visualizer/index.html
   - what is going on with the step 8 E-Tank?
 - Implement h_spikeSuitPowerBombLeniency
+- Spoiler routes: account for implicit tech in entrance/exit conditions
+- Spoiler: highlight room when hovering over it either on the map or in the spoiler route
+- Spoiler: color-code strat names by difficulty.
+- Finish writing test scenarios to cover all logical requirements and entrance/exit conditions.
 - DONE: Investigate osse seed: https://dev.maprando.com/seed/MgjPvGL8C/data/visualizer/index.html
-  - what is going on with reverse traversal for Lava Grapple Tunnel
 - show more updates in spoiler history
   - Currently it's only showing up to one update per traversal?
 - Improve farm logic interaction between forward and reverse traversal

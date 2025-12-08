@@ -12,7 +12,7 @@ use crate::{
     randomize::{
         RandomizationState, Randomizer, StartLocationData, TraverserPair,
         escape_timer::{self, SpoilerEscape},
-        strip_name,
+        get_link_difficulty, strip_name,
     },
     settings::SaveAnimals,
     traverse::{
@@ -226,6 +226,7 @@ pub struct SpoilerRouteEntry {
     pub coords: Option<(usize, usize)>,
     pub strat_name: String,
     pub strat_id: Option<usize>,
+    pub strat_difficulty: usize,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub strat_notes: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -557,6 +558,7 @@ pub fn get_spoiler_route(
                 relevant_flags.push(flag_name);
             }
         }
+        let strat_difficulty = get_link_difficulty(link, randomizer.difficulty_tiers);
 
         let spoiler_entry = SpoilerRouteEntry {
             area: to_vertex_info.area_name,
@@ -567,6 +569,7 @@ pub fn get_spoiler_route(
             from_node_id: from_vertex_info.node_id,
             to_node_id: to_vertex_info.node_id,
             strat_id: link.strat_id,
+            strat_difficulty: strat_difficulty as usize,
             obstacles_bitmask: to_obstacles_mask,
             coords,
             strat_name: link.strat_name.clone(),
