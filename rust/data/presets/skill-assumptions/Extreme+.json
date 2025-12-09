@@ -746,6 +746,11 @@
             "enabled": true
         },
         {
+            "id": 231,
+            "name": "canBeLucky",
+            "enabled": true
+        },
+        {
             "id": 15,
             "name": "canSandfallBounce",
             "enabled": true
@@ -826,6 +831,11 @@
             "enabled": true
         },
         {
+            "id": 234,
+            "name": "canPatientSpikeSuit",
+            "enabled": true
+        },
+        {
             "id": 208,
             "name": "canComplexCarryFlashSuit",
             "enabled": true
@@ -851,6 +861,11 @@
             "enabled": true
         },
         {
+            "id": 235,
+            "name": "canGModeXRayClimb",
+            "enabled": true
+        },
+        {
             "id": 163,
             "name": "canGModeImmobile",
             "enabled": true
@@ -858,6 +873,11 @@
         {
             "id": 164,
             "name": "canArtificialMorph",
+            "enabled": true
+        },
+        {
+            "id": 236,
+            "name": "canRemoteAcquire",
             "enabled": true
         },
         {
@@ -878,6 +898,11 @@
         {
             "id": 20,
             "name": "canReserveDoubleDamageBoost",
+            "enabled": true
+        },
+        {
+            "id": 26,
+            "name": "canMoondance",
             "enabled": true
         },
         {
@@ -903,6 +928,11 @@
         {
             "id": 121,
             "name": "canTrickyEnemyExtendRunway",
+            "enabled": true
+        },
+        {
+            "id": 233,
+            "name": "canTrickySpikeSuit",
             "enabled": true
         },
         {
@@ -941,8 +971,8 @@
             "enabled": false
         },
         {
-            "id": 26,
-            "name": "canMoondance",
+            "id": 232,
+            "name": "canBeVeryLucky",
             "enabled": false
         },
         {
@@ -998,6 +1028,11 @@
         {
             "id": 165,
             "name": "canDownwardGModeSetup",
+            "enabled": false
+        },
+        {
+            "id": 237,
+            "name": "canCount",
             "enabled": false
         },
         {
@@ -1708,6 +1743,13 @@
             "notable_id": 1,
             "room_name": "Halfie Climb Room",
             "notable_name": "Enter with Shinespark from the Bottom Right",
+            "enabled": true
+        },
+        {
+            "room_id": 209,
+            "notable_id": 3,
+            "room_name": "West Sand Pit",
+            "notable_name": "Right Item Turn Around Collection",
             "enabled": true
         },
         {

@@ -18,6 +18,18 @@
         "video_id": 271
     },
     {
+        "tech_id": 231,
+        "name": "canBeLucky",
+        "difficulty": "Extreme",
+        "video_id": null
+    },
+    {
+        "tech_id": 232,
+        "name": "canBeVeryLucky",
+        "difficulty": "Insane",
+        "video_id": null
+    },
+    {
         "tech_id": 4,
         "name": "canPrepareForNextRoom",
         "difficulty": "Very Hard",
@@ -158,7 +170,7 @@
     {
         "tech_id": 26,
         "name": "canMoondance",
-        "difficulty": "Insane",
+        "difficulty": "Extreme+",
         "video_id": 293
     },
     {
@@ -948,6 +960,18 @@
         "video_id": 5323
     },
     {
+        "tech_id": 233,
+        "name": "canTrickySpikeSuit",
+        "difficulty": "Extreme+",
+        "video_id": null
+    },
+    {
+        "tech_id": 234,
+        "name": "canPatientSpikeSuit",
+        "difficulty": "Extreme",
+        "video_id": null
+    },
+    {
         "tech_id": 178,
         "name": "canElevatorCrystalFlash",
         "difficulty": "Insane",
@@ -1218,6 +1242,12 @@
         "video_id": 5749
     },
     {
+        "tech_id": 235,
+        "name": "canGModeXRayClimb",
+        "difficulty": "Extreme",
+        "video_id": null
+    },
+    {
         "tech_id": 198,
         "name": "canHeatedGMode",
         "difficulty": "Extreme+",
@@ -1234,6 +1264,12 @@
         "name": "canArtificialMorph",
         "difficulty": "Extreme",
         "video_id": 985
+    },
+    {
+        "tech_id": 236,
+        "name": "canRemoteAcquire",
+        "difficulty": "Extreme",
+        "video_id": null
     },
     {
         "tech_id": 206,
@@ -1366,6 +1402,12 @@
         "name": "canUsePowerBombLag",
         "difficulty": "Expert",
         "video_id": 2072
+    },
+    {
+        "tech_id": 237,
+        "name": "canCount",
+        "difficulty": "Insane",
+        "video_id": null
     },
     {
         "tech_id": 10001,
