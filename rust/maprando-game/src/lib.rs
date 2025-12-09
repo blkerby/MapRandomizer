@@ -504,6 +504,7 @@ pub struct Link {
     pub requirement: Requirement,
     pub start_with_shinecharge: bool,
     pub end_with_shinecharge: bool,
+    pub difficulty: u8,
     pub length: LinkLength,
     pub strat_id: Option<usize>,
     pub strat_name: String,
@@ -4407,6 +4408,7 @@ impl GameData {
                 requirement: requirement.clone(),
                 start_with_shinecharge,
                 end_with_shinecharge,
+                difficulty: 0,
                 length: 1,
                 strat_id,
                 strat_name: strat_name.clone(),
@@ -4515,6 +4517,7 @@ impl GameData {
                     requirement: Requirement::Free,
                     start_with_shinecharge: false,
                     end_with_shinecharge: false,
+                    difficulty: 0,
                     length: 1,
                     strat_id: None,
                     strat_name: "Base (Action -> Plain)".to_string(),
@@ -4549,6 +4552,7 @@ impl GameData {
                         requirement: unlock_req,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
+                        difficulty: 0,
                         length: 1,
                         strat_id: None,
                         strat_name: "Base (Unlock)".to_string(),
@@ -4560,6 +4564,7 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: end_with_shinecharge,
                         end_with_shinecharge,
+                        difficulty: 0,
                         length: 1,
                         strat_id: None,
                         strat_name: "Base (Return from Unlock)".to_string(),
@@ -4733,6 +4738,7 @@ impl GameData {
                         requirement: Requirement::Free,
                         start_with_shinecharge: false,
                         end_with_shinecharge: false,
+                        difficulty: 0,
                         length: 1,
                         strat_id: None,
                         strat_name: if morphed {
@@ -5148,12 +5154,20 @@ impl GameData {
         Ok(())
     }
 
-    pub fn make_links_data(&mut self, link_length_fn: &dyn Fn(&Link) -> LinkLength) {
-        for link in &mut self.links {
-            link.length = link_length_fn(link);
+    pub fn make_links_data(
+        &mut self,
+        link_difficulty_length_fn: &dyn Fn(&Link, &GameData) -> (u8, LinkLength),
+    ) {
+        let mut new_links = Vec::new();
+        for link in &self.links {
+            let mut link = link.clone();
+            let (difficulty, length) = link_difficulty_length_fn(&link, self);
+            link.difficulty = difficulty;
+            link.length = length;
+            new_links.push(link);
         }
-        self.base_links_data =
-            LinksDataGroup::new(self.links.clone(), self.vertex_isv.keys.len(), 0);
+        self.links = new_links.clone();
+        self.base_links_data = LinksDataGroup::new(new_links, self.vertex_isv.keys.len(), 0);
         self.make_reset_room_requirements();
     }
 

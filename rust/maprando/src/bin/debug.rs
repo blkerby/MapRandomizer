@@ -153,7 +153,7 @@ fn main() -> Result<()> {
     let presets_path = Path::new("data/presets");
 
     let mut game_data = GameData::load(Path::new("."))?;
-    game_data.make_links_data(&|_| 1);
+    game_data.make_links_data(&|_, _| (0, 1));
 
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
     let mut settings = preset_data.default_preset.clone();

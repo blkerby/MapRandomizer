@@ -3,13 +3,14 @@ use clap::Parser;
 use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
 use maprando::customize::{ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::difficulty::{get_full_global, get_link_difficulty_length};
 use maprando::map_repository::MapRepository;
 use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, get_difficulty_tiers, get_link_length, get_objectives,
-    order_map_areas, randomize_doors, randomize_map_areas,
+    Randomization, Randomizer, get_difficulty_tiers, get_objectives, order_map_areas,
+    randomize_doors, randomize_map_areas,
 };
 use maprando::settings::{
     AreaAssignment, DoorLocksSize, ItemProgressionSettings, QualityOfLifeSettings,
@@ -347,8 +348,10 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
     let notable_path = Path::new("data/notable_data.json");
     let presets_path = Path::new("data/presets");
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data)?;
-    let difficulty_tiers = &preset_data.difficulty_tiers;
-    game_data.make_links_data(&|link| get_link_length(link, difficulty_tiers));
+    let global = get_full_global(&game_data);
+    game_data.make_links_data(&|link, game_data| {
+        get_link_difficulty_length(link, game_data, &preset_data, &global)
+    });
     let mut base_preset = preset_data.default_preset.clone();
 
     base_preset.start_location_settings.mode = StartLocationMode::Random;

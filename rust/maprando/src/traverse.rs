@@ -99,6 +99,7 @@ fn apply_enemy_kill_requirement(
     true
 }
 
+// Ended up abandoning the original purpose of introducing this struct, but keeping it for possible future use.
 #[derive(Clone)]
 pub struct CostConfig {}
 

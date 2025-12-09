@@ -24,9 +24,9 @@ use maprando_game::{
     self, AreaIdx, BeamType, BlueOption, BounceMovementType, Capacity, DoorOrientation,
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, Float, GModeMobility, GModeMode,
     GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId,
-    Link, LinkLength, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics,
-    Requirement, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment,
-    SparkPosition, StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_FLASH_SUIT,
+    Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
+    RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment, SparkPosition,
+    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_FLASH_SUIT,
     TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
     TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
     TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
@@ -567,6 +567,7 @@ impl<'a> Preprocessor<'a> {
                         requirement: Requirement::make_and(vec![req, exit_req.clone()]),
                         start_with_shinecharge: exit_with_shinecharge,
                         end_with_shinecharge: enter_with_shinecharge,
+                        difficulty: 0,
                         length: 1,
                         strat_id: None,
                         strat_name: "Base (Cross Room)".to_string(),
@@ -2998,38 +2999,23 @@ pub fn randomize_doors(
     }
 }
 
-pub fn get_link_difficulty(link: &Link, difficulty_tiers: &[DifficultyConfig]) -> LinkLength {
-    get_req_difficulty(&link.requirement, difficulty_tiers) as LinkLength
-}
-
-pub fn get_link_length(link: &Link, difficulty_tiers: &[DifficultyConfig]) -> LinkLength {
-    let tier = get_link_difficulty(link, difficulty_tiers) as LinkLength;
-    let mut difficulty = 1 << tier;
-    if !link.strat_name.starts_with("Base ") && link.strat_name != "Base" {
-        difficulty += 1;
-    }
-    difficulty
-}
-
-pub fn get_req_difficulty(req: &Requirement, difficulty_tiers: &[DifficultyConfig]) -> usize {
-    for (i, tier) in difficulty_tiers.iter().rev().enumerate() {
-        if is_req_possible(req, &tier.tech, &tier.notables) {
-            return i;
-        }
-    }
-    difficulty_tiers.len()
-}
-
-fn is_req_possible(req: &Requirement, tech_active: &[bool], notables_active: &[bool]) -> bool {
+// An inexpensive way to evaluate whether a requirement may be possible to satisfy,
+// given the tech and notables available. A more precise evaluation is computed
+// by crate::difficulty::is_req_possible.
+fn is_req_maybe_possible(
+    req: &Requirement,
+    tech_active: &[bool],
+    notables_active: &[bool],
+) -> bool {
     match req {
         Requirement::Tech(tech_idx) => tech_active[*tech_idx],
         Requirement::Notable(notable_idx) => notables_active[*notable_idx],
         Requirement::And(reqs) => reqs
             .iter()
-            .all(|x| is_req_possible(x, tech_active, notables_active)),
+            .all(|x| is_req_maybe_possible(x, tech_active, notables_active)),
         Requirement::Or(reqs) => reqs
             .iter()
-            .any(|x| is_req_possible(x, tech_active, notables_active)),
+            .any(|x| is_req_maybe_possible(x, tech_active, notables_active)),
         _ => true,
     }
 }
@@ -3041,7 +3027,7 @@ pub fn filter_links(
 ) -> Vec<Link> {
     let mut out = vec![];
     for link in links {
-        if is_req_possible(&link.requirement, &difficulty.tech, &difficulty.notables) {
+        if is_req_maybe_possible(&link.requirement, &difficulty.tech, &difficulty.notables) {
             out.push(link.clone())
         }
     }

@@ -19,9 +19,9 @@ use hashbrown::HashMap;
 use log::info;
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
+    difficulty::{get_full_global, get_link_difficulty_length},
     map_repository::MapRepository,
     preset::PresetData,
-    randomize::get_link_length,
     seed_repository::SeedRepository,
 };
 use maprando_game::GameData;
@@ -110,8 +110,10 @@ fn build_app_data() -> AppData {
     };
 
     let preset_data = PresetData::load(tech_path, notable_path, presets_path, &game_data).unwrap();
-    let difficulty_tiers = &preset_data.difficulty_tiers;
-    game_data.make_links_data(&|link| get_link_length(link, difficulty_tiers));
+    let global = get_full_global(&game_data);
+    game_data.make_links_data(&|link, game_data| {
+        get_link_difficulty_length(link, game_data, &preset_data, &global)
+    });
 
     let map_repositories: HashMap<String, MapRepository> = vec![
         (
