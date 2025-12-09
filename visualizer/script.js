@@ -1141,19 +1141,24 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			}
 			out = "";
 			if (!k.strat_name.startsWith("Base ") && k.strat_name != "Base" && k.strat_name != "Leave Normally") {
+				let diff = Number(k.strat_difficulty);
+				let color = "#FFFFFF";
+				if (diff < diff_colors.length){
+					color = diff_colors[diff];
+				}
 				if (k.strat_notes) {
 					let title = "";
 					for (let i of k.strat_notes) {
 						title += `${i} `;
 					}
 					if (k.strat_id !== null) {
-						out += `<a href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
+						out += `<a style="color:${color}" href=${strat_url}><abbr title="${title}">${k.strat_name}</abbr></a><br>`;
 					} else {
 						out += `<abbr title="${title}">${k.strat_name}</abbr><br>`;
 					}
 				} else {
 					if (k.strat_id !== null) {
-						out += `<a href=${strat_url}>${k.strat_name}</a><br>`;
+						out += `<a style="color:${color}" href=${strat_url}>${k.strat_name}</a><br>`;
 					} else {
 						out += `${k.strat_name}<br>`;
 					}
