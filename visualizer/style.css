@@ -31,6 +31,15 @@ a {
 	pointer-events: none;
 	z-index: 3;
 }
+#highlight-overlay {
+	position: absolute;
+	margin: 24px;
+	width: 1728px;
+	height: 1728px;
+	image-rendering: pixelated;
+	z-index: 1;
+	pointer-events: none;
+}
 #obscure-overlay {
 	position: absolute;
 	margin: 24px;
