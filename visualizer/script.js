@@ -430,14 +430,18 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		for (let y = 0; y < v.map.length; y++) {
 			for (let x = 0; x < v.map[y].length; x++) {
 				if (v.map[y][x] != 0) {
-					if (v.room == "Toilet") {
+					if (v.room == "Toilet Bowl") {
 						if (toiletbistep < v.map_bireachable_step[y][x])
 							toiletbistep = v.map_bireachable_step[y][x];
 						if (toiletstep < v.map_bireachable_step[y][x])
 							toiletstep = v.map_bireachable_step[y][x];
 						toiletTiles.push((v.coords[1] + y) * 72 + (v.coords[0] + x));
+						//don't overwrite another room with toilet
+						if (map[(v.coords[1] + y) * 72 + (v.coords[0] + x)] == -1)
+							map[(v.coords[1] + y) * 72 + (v.coords[0] + x)] = +i;
+					} else {
+						map[(v.coords[1] + y) * 72 + (v.coords[0] + x)] = +i;
 					}
-					map[(v.coords[1] + y) * 72 + (v.coords[0] + x)] = +i;
 				}
 			}
 		}
@@ -1008,6 +1012,29 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (to == null || to.length == 0)
 			return;
 
+		let ho = document.getElementById("highlight-overlay");
+		let hctx = ho.getContext("2d");
+		let img = hctx.createImageData(72,72);
+		
+		for (let r of c.all_rooms){
+			if (r.room_id != room_id)
+				continue;
+			for (let y = 0; y < r.map.length; y++) {
+				for (let x = 0; x < r.map[y].length; x++) {
+					if (r.map[y][x] == 1) {
+						let addr = (r.coords[1] + y) * 72 + (r.coords[0] + x);
+						img.data[addr * 4 + 0] = 0x00; // r
+						img.data[addr * 4 + 1] = 0xFF; // g
+						img.data[addr * 4 + 2] = 0x00; // b
+						img.data[addr * 4 + 3] = 0x7F; // semiopaque
+					}
+				}
+			}
+			break;
+		}
+		hctx.putImageData(img,0,0);
+		ho.style.visibility = "visible";
+
 		path = "";
 		found = 0;
 		sameroom = false;
@@ -1045,6 +1072,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					dr.classList.add("ui-icon-hoverable");
 					dr.onclick = ev => {
 						show_item_details(d.door_type + " door", d.location, s, d);
+						document.getElementById("highlight-overlay").style.visibility = "hidden";
 						document.getElementById("path-highlight").innerHTML = "";
 					}
 					return dr;
@@ -1113,6 +1141,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					highlightRoute(route,k.room_id, reps);
 				}
 				roomDiv.onmouseleave = ev => {
+					document.getElementById("highlight-overlay").style.visibility = "hidden";
 					document.getElementById("path-highlight").innerHTML = "";
 				}
 				roomDiv.appendChild(roomHead);
@@ -1784,7 +1813,8 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 				let v = c.all_rooms[tile];
 				let i = y -v.coords[1];
 				let j = x -v.coords[0];
-				if (step_limit != null && v.map_reachable_step[i][j] >= step_limit) {
+				
+				if (!document.getElementById("spoilers").checked && step_limit != null && v.map_reachable_step[i][j] >= step_limit) {
 					el.classList.add("hidden");
 					el.innerText = "";
 					return;
