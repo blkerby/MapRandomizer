@@ -12,8 +12,8 @@ lorom
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AE90
-!bank_b6_freespace_start = $B6FFC0
+!bank_85_freespace3_end  = $85AFD0
+!bank_b6_freespace_start = $B6FEE0
 !bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
@@ -492,7 +492,7 @@ pause_start_hook:
     jsl $8085C6  ; save current map explored bits
     ;jsr $8D51  ; run hi-jacked instruction
     ;inc $0998  ; run hi-jacked instruction
-    jsr write_save_sprites
+    jsr write_sprites
     stz $05FF  ; run hi-jacked instruction
     rtl
 
@@ -554,7 +554,7 @@ load_map_screen:
 
     ; Load map tile graphics
     jsl $828E75
-    jsr write_save_sprites
+    jsr write_sprites
     rtl
 
 load_equipment_screen:
@@ -678,7 +678,7 @@ switch_map_area:
     LDA #$0000             ;\
     STA $0723             ;} Screen fade delay = 0
 
-    jsr write_save_sprites
+    jsr write_sprites
     inc $0727
     rtl
 
@@ -1616,12 +1616,19 @@ warnpc !bank_85_freespace2_end
 
 ;;; Map icon patch
 ;;; Shows save icons as yellow, orange, pink for save slots n, n-1, n+1, respectively
-;;; Also shows helmet at spawn location and restores ship
+;;; Also shows: bosses, minibosses, helmet at spawn location (until 3rd save), ship, animals
 
 org $82b672
 save_station:
     jsl hook_map_icons
     rtl
+
+; Boss icon, unused sprite entry 0Ah
+org $82c393
+    dw $0001
+    dw $0000
+    db $00
+    dw $208a
 
 ; ship sprite(right), sprite entry 0Bh
 org $82c39a
@@ -1657,19 +1664,92 @@ org $82c3c4
     dw $0001
     db $00
     dw $208f
+    
+; Miniboss icon(green), unused sprite entry 13h
+org $82c37e
+    dw $0001
+    dw $0000
+    db $00
+    dw $208b
+
+; Dachora icon center, unused sprite entry 18h
+org $82c3cb
+    dw $0001
+    dw $0000
+    db $00
+    dw $2098
+
+; Dachora icon right, unused sprite entry 4Fh
+org $82c411
+    dw $0001
+    dw $0000
+    db $00
+    dw $2099
+
+; Dachora icon top, unused sprite entry 50h
+org $82c418
+    dw $0001
+    dw $0000
+    db $00
+    dw $2088
+
+; Dachora icon left, unused sprite entry 51h
+org $82c41f
+    dw $0001
+    dw $0000
+    db $00
+    dw $2097
+
+; Dachora icon bottom, unused sprite entry 52h
+org $82c426
+    dw $0001
+    dw $0000
+    db $00
+    dw $20a8
 
 org !bank_b6_freespace_start
-;(orange save)
+
+animal_palette:
+db $00,$00,$57,$3F,$4D,$2E,$E2,$00,$60,$00,$7F,$19,$0B,$22,$66,$11
+db $24,$09,$FF,$57,$F7,$42,$10,$26,$8C,$15,$1F,$7C,$18,$60,$0A,$30
+
+dachora_icon:
+db $08,$0D,$05,$05,$0D,$0D,$1F,$53,$4C,$B4,$00,$04,$00,$04,$04,$0C
+db $1D,$02,$35,$0A,$4F,$3C,$B7,$FC,$1C,$FF,$FC,$C3,$BC,$0A,$14,$18
+
+dachora_icon_r:
+db $00,$00,$80,$00,$80,$80,$00,$80,$00,$00,$00,$00,$00,$00,$00,$00
+db $80,$00,$00,$00,$40,$00,$40,$00,$80,$00,$00,$00,$00,$00,$00,$00
+
+dachora_icon_l:
+db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+db $00,$00,$00,$00,$00,$00,$00,$00,$01,$00,$01,$00,$00,$00,$00,$00
+
+dachora_icon_t:
+db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$1A,$1E
+db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$38,$00,$09,$00
+
+dachora_icon_b:
+db $18,$18,$38,$38,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+db $30,$20,$00,$20,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
+
+save_orange:
 db $00,$7E,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$00,$7E
 db $00,$00,$1E,$1E,$30,$30,$38,$38,$1C,$1C,$0C,$0C,$78,$78,$00,$00
 
-;(pink save)
+save_pink:
 db $00,$7E,$7E,$E1,$7E,$CF,$7E,$C7,$7E,$E3,$7E,$F3,$7E,$87,$00,$7E
 db $00,$00,$00,$1E,$00,$30,$00,$38,$00,$1C,$00,$0C,$00,$78,$00,$00
+
+boss_green:
+db $BD,$BD,$F6,$4F,$FB,$87,$F7,$CF,$BD,$B9,$76,$4E,$34,$2C,$18,$18
+db $BD,$BD,$42,$42,$81,$81,$C3,$C3,$BD,$FF,$42,$42,$24,$24,$18,$18
+
 warnpc !bank_b6_freespace_end
 
 org !bank_85_freespace3_start
-write_save_sprites:
+; write map icons and save markers to VRAM
+write_sprites:
     PHB
     PHX
     PHY
@@ -1686,130 +1766,217 @@ write_save_sprites:
     BRA .wrt_lp
 
 .done
+    LDA $a1f000
+    BEQ .no_animals
+    LDX #$0000
+.copy_lp
+    LDA animal_palette,X
+    STA $7EC180,X
+    INX #2
+    CPX #$0020
+    BNE .copy_lp
+    
+.no_animals
     PLY
     PLX
     PLB
     RTS
 
 sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
-    dw $d120, $2890, $d1e0, $28c0, $d1a0, $28d0, $ffc0, $28e0, $ffe0, $28f0, $0000
+    dw $d120, $2890, $d1e0, $28c0, $d1a0, $28d0, save_orange, $28e0
+    dw save_pink, $28f0, $d140, $28a0, boss_green, $28b0, dachora_icon, $2980
+    dw dachora_icon_r, $2990, dachora_icon_t, $2880, dachora_icon_l, $2970, dachora_icon_b, $2a80
+    dw $0000
 
 hook_map_icons:
     PHP
+    PHB
 ; draw save slot markers
     LDX #$0000
 .load_lp
-    SEP #$20
-    LDA $702602,X
-    CMP #$06            ; valid area set?
-    BCS .check_ship
-    CMP $1F5B           ; same area?
+    LDA $702602,X               ; area
+    AND #$00FF
+    CMP #$0006                  ; valid area set?
+    BCS .check_markers
+    CMP $1F5B                   ; current area?
     BNE .next
 
-    LDA $702603,X
-    REP #$30
-    PHX                 ; save slot index
-    PHA                 ; save sprite ID
-
+    LDA $702603,X               ; sprite
+    PHX                         ; save slot index
+    PHA                         ; save sprite ID
 ; adjust coords for scroll
-; map x-coord
-    LDA $702604,X
-    PHA
-    AND #$00FF
-    ASL
-    ASL
-    ASL
-    SEC
-    SBC $B1
-    TAX
-    
-; map y-coord
-    PLA
-    XBA
-    AND #$00FF
-    ASL
-    ASL
-    ASL
-    SEC
-    SBC $B3
+    LDA $702604,X               ; coords
+    JSR convert_coord_to_map
+    TYA
     CLC
-    ADC #$0008
+    ADC #$0008                  ; y+1
     TAY
 
-    PLA
+    PLA                         ; sprite
 ; A=sprite, X/Y=adjusted coords
-; draw helmet or save
     JSR draw_sprite
-    PLX
+    PLX                         ; index
     
 .next
     INX #4
     CPX #$000C
     BNE .load_lp
 
-.check_ship
-    REP #$30
-    LDX #$9213          ; Landing Site header
+; draw ship/bosses/mini-bosses/animals if appropriate
+.check_markers
+    LDX #$0000
+    PHK
+    PLB
+
+.marker_lp
+    LDA marker_table,X          ; boss byte|bit or FFFF to skip check
+    BNE .valid_entry
+    JMP .exit
+    
+; check boss bit
+.valid_entry
+    PHX                         ; index
+    CMP #$FFFF
+    BEQ .boss_alive
+    PHA
+    AND #$FF00
+    XBA
+    TAX
+    PLA
+    AND #$00FF
+    AND $7ED828,X               ; boss bit set?
+    BEQ .boss_alive
+    PLA                         ; index
+    CMP #((marker_table_2-marker_table)*2) ; mother brain?
+    BEQ .check_animals
+    JMP .next_marker_2
+
+.check_animals ; MB dead, skip to dachora table if animals enabled
+    LDA $A1F000                 ; save animals?
+    BEQ .no_dachora
+    LDA $7ED821
+    AND #$0080                  ; already saved?
+    BNE .no_dachora
+    LDX #(marker_table_dachora-marker_table) ; set index to dachora table
+    BRA .marker_lp              ; restart loop with new index
+.no_dachora
+    JMP .exit
+    
+.boss_alive
+    PLX                         ; index
+    PHX
+    LDA marker_table+2,X        ; state header
+    TAX
     LDA $8F0010,X
     TAX
-
-    LDA $B80000,X       ; Landing Site area
+    LDA $B80000,X               ; area
     AND #$00FF
-    CMP $1F5B           ; current area?
-    BEQ .ship_area
+    CMP $1F5B                   ; current area?
+    BNE .next_marker
+    PLX                         ; index
+    PHX
+    LDA marker_table+4,X        ; room header
+    PHX
+    TAX
+    LDA $8F0000,X               ; x/y coords
+    PLX                         ; index
+    PHA
+    AND #$FF00
+    XBA
+    CPX #((marker_table_2-marker_table)*2)
+    BCS .not_ship_1
+    CLC
+    ADC #$0004                  ; landing site map y adjustment
+.not_ship_1
+    TAY
+    PLA
+    AND #$00FF
+    CPX #((marker_table_2-marker_table)*2)
+    BCS .not_ship_2
+    CLC
+    ADC #$0004                  ; landing site map x adjustment
+.not_ship_2
+    TAX
+    JSR check_partial_reveal
+    BCC .next_marker
+    PLX                         ; index
+    PHX
+    PHX
+    LDA marker_table+4,X        ; room coords
+    TAX
+    LDA $8F0000,X
+    JSR convert_coord_to_map
+    TXA
+    PLX                         ; index
+    CLC
+    ADC marker_table+8,X        ; sprite x adjustment
+    PHA
+    TYA
+    CLC
+    ADC marker_table+10,X       ; sprite y adjustment
+    TAY
+    LDA marker_table+6,X        ; sprite id
+    PLX
+    JSR draw_sprite
+.next_marker
+    PLA                         ; index
+.next_marker_2
+    CLC
+    ADC #(marker_table_2-marker_table) ; index++
+    TAX
+    JMP .marker_lp
+
+.exit
+    PLB
     PLP
     RTL
 
-.ship_area
-    LDA $8F91FA         ; Landing Site X
-    AND #$00FF
-    CLC
-    ADC #$0004
+; marker table format
+; boss bit ($7ED828 byte | bit), state header address, room header coords, sprite id, x adjustment, y adjustment
+marker_table:
+    dw $FFFF, $9213, $91FA, $000C, $0018, $0020  ; left ship
+marker_table_2: ; for entry length calc
+    dw $FFFF, $9213, $91FA, $000B, $0020, $0020  ; right ship
+    dw $0502, $DD6E, $DD5A, $000A, $000C, $0007  ; mother brain
+    dw $0401, $DA72, $DA62, $000A, $0004, $000B  ; draygon
+    dw $0201, $B340, $B330, $000A, $0000, $000B  ; ridley
+    dw $0301, $CD25, $CD15, $000A, $0000, $0007  ; phantoon
+    dw $0101, $A5B1, $A5A1, $000A, $0004, $000B  ; kraid
+    dw $0402, $D970, $D960, $0013, $0004, $0007  ; botwoon
+    dw $0204, $B295, $B285, $0013, $0004, $000F  ; GT
+    dw $0102, $9DD9, $9DC9, $0013, $0000, $0013  ; spore spawn
+    dw $0202, $A99F, $A98F, $0013, $0020, $0007  ; crocomire
+    dw $0000
+marker_table_dachora:
+    dw $FFFF, $981B, $9806, $0018, $0000, $0007  ; dachora center
+    dw $FFFF, $981B, $9806, $004F, $0008, $0007  ; dachora right
+    dw $FFFF, $981B, $9806, $0050, $0000, $FFFF  ; dachora top
+    dw $FFFF, $981B, $9806, $0051, $FFF8, $0007  ; dachora left
+    dw $FFFF, $981B, $9806, $0052, $0000, $000F  ; dachora bottom
+    dw $0000
+    
+convert_coord_to_map:
+; A = coords (x,y)
+; returns X,Y
     TAX
-    LDA $8F91FB         ; Landing Site X
     AND #$00FF
-    CLC
-    ADC #$0004
-    TAY
-    JSR check_partial_reveal
-    BCC .exit
-    REP #$30
-; landing site x-coord
-    LDA $8F91FA
-    AND #$00FF
-    CLC
-    ADC #$0003
     ASL
     ASL
     ASL
     SEC
     SBC $B1
-    TAX
-; landing site y-coord
-    LDA $8F91FB
-    AND #$00FF
-    CLC
-    ADC #$0003
+    PHA
+    TXA
+    PLX
+    AND #$FF00
+    XBA
     ASL
     ASL
     ASL
     SEC
     SBC $B3
-    CLC
-    ADC #$0008
     TAY
-; draw ship
-    LDA #$000C          ; left side of ship sprite
-    JSR draw_sprite
-    TXA
-    CLC
-    ADC #$0008          ; shift right
-    TAX
-    LDA #$000B          ; right side of ship sprite
-    JSR draw_sprite
-.exit
-    PLP
-    RTL
+    RTS
 
 write_to_vram:
 ; constant: size = 0x20, src bank = $b6
@@ -1850,7 +2017,7 @@ check_partial_reveal:
     AND #$001F
     STA $12
     AND #$0007
-    PHA             ; save bit subindex of tile
+    PHA                 ; save bit subindex of tile
     LDA $12
     LSR
     LSR
@@ -1873,9 +2040,9 @@ check_partial_reveal:
     LDA $1F5B
     XBA
     TAX
-    LDA $702700,X   ; partial revealed byte
-    PLX             ; bit subindex of ship tile
-    AND $90AC04,X   ; check bit
+    LDA $702700,X       ; partial revealed byte
+    PLX                 ; bit subindex of ship tile
+    AND $90AC04,X       ; check bit
     BEQ .not_revealed
     PLP
     SEC
@@ -1888,28 +2055,33 @@ check_partial_reveal:
 
 draw_sprite:
 ; A=sprite, X/Y=coords
-; all preserved
-    PHX                 ; save X/Y/A
-    PHY
-    PHA
+    AND #$007F
     PHA                 ; sprite
+    CMP #$0008
+    BEQ .save_icon
+    CMP #$000E
+    BEQ .save_icon
+    CMP #$000F
+    BEQ .save_icon
+    CMP #$0018
+    BEQ .dachora
     CMP #$008D
-    BEQ .helm_ship_palette
-    CMP #$000B
-    BEQ .helm_ship_palette
-    CMP #$000C
-    BEQ .helm_ship_palette
-    LDA #$0400          ; save icon palette
+    BEQ .helmet
+    CMP #$004F
+    BCS .dachora
+
+.helmet
+    LDA #$0E00          ; helmet/ship/boss palette
     BRA .write
-.helm_ship_palette    
-    LDA #$0E00          ; helmet/ship palette
+.dachora
+    LDA #$0800          ; dachora palette
+    BRA .write
+.save_icon
+    LDA #$0400          ; save icon palette
+
 .write
     STA $03
     PLA                 ; sprite
-    AND #$007F
     JSL $81891F
-    PLA
-    PLY
-    PLX
     RTS
 warnpc !bank_85_freespace3_end
