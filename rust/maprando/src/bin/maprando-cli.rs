@@ -10,7 +10,7 @@ use maprando::preset::PresetData;
 use maprando::randomize::{
     Randomization, Randomizer, get_difficulty_tiers, get_objectives, randomize_doors,
 };
-use maprando::settings::{DoorLocksSize, RandomizerSettings, StartLocationMode};
+use maprando::settings::{RandomizerSettings, StartLocationMode};
 use maprando::spoiler_log::SpoilerLog;
 use maprando::spoiler_map;
 use maprando_game::{GameData, Map};
@@ -290,11 +290,7 @@ fn main() -> Result<()> {
         std::fs::write(output_spoiler_log_path, spoiler_str)?;
     }
 
-    let mut doorsettings = settings.clone();
-    doorsettings.other_settings.door_locks_size = DoorLocksSize::Large;
     let spoiler_maps = spoiler_map::get_spoiler_map(&randomization, &game_data, &settings, true)?;
-    doorsettings = settings.clone();
-    doorsettings.other_settings.door_locks_size = DoorLocksSize::Small;
     let spoiler_maps_small =
         spoiler_map::get_spoiler_map(&randomization, &game_data, &settings, true)?;
 

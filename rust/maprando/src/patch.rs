@@ -1018,19 +1018,15 @@ impl Patcher<'_> {
             let dst_area = self.map.area[dst_room_idx];
             let cross_area = src_area != dst_area;
 
-            if src_exit_ptr.is_some() && dst_entrance_ptr.is_some() {
-                self.write_one_door_data(
-                    src_exit_ptr.unwrap(),
-                    dst_entrance_ptr.unwrap(),
-                    cross_area,
-                )?;
+            if let Some(src_exit_ptr) = src_exit_ptr
+                && let Some(dst_entrance_ptr) = dst_entrance_ptr
+            {
+                self.write_one_door_data(src_exit_ptr, dst_entrance_ptr, cross_area)?;
             }
-            if dst_exit_ptr.is_some() && src_entrance_ptr.is_some() {
-                self.write_one_door_data(
-                    dst_exit_ptr.unwrap(),
-                    src_entrance_ptr.unwrap(),
-                    cross_area,
-                )?;
+            if let Some(dst_exit_ptr) = dst_exit_ptr
+                && let Some(src_entrance_ptr) = src_entrance_ptr
+            {
+                self.write_one_door_data(dst_exit_ptr, src_entrance_ptr, cross_area)?;
             }
         }
         Ok(())
@@ -1743,11 +1739,8 @@ impl Patcher<'_> {
 
             let mut title_patcher = title::TitlePatcher::new(self.rom);
             let bg_result = title_patcher.patch_title_background(&img);
-            if bg_result.is_err() {
-                info!(
-                    "Failed title screen randomization: {}",
-                    bg_result.unwrap_err()
-                );
+            if let Err(e) = bg_result {
+                info!("Failed title screen randomization: {}", e);
                 continue;
             }
             title_patcher.patch_title_foreground()?;
