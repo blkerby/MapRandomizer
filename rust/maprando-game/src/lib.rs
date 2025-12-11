@@ -5643,7 +5643,7 @@ impl GameData {
             "h_IBJFromSpikes",
             "h_doubleEquipmentScreenCycleFrames",
             "h_extendedMoondanceBeetomLeniency",
-            "h_useMissileRefillAllAmmoCrystalFlash",
+            "h_RefillStationAllAmmo10PowerBombCrystalFlash",
         ];
 
         // Construct the set of helpers that need to be patched, and make sure they all are.
@@ -5666,7 +5666,10 @@ impl GameData {
         }
         for helper_name in skip_helpers {
             if !must_patch_helper_set.remove(helper_name) {
-                panic!("Helper {} already patched or skipped.", helper_name)
+                panic!(
+                    "Helper {} either does not exist or was already patched or skipped.",
+                    helper_name
+                )
             }
         }
         for helper_name in must_patch_helper_set.iter() {

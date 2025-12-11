@@ -511,6 +511,11 @@
                 "enabled": false
             },
             {
+                "id": 238,
+                "name": "canRefillStation10PowerBombCrystalFlash",
+                "enabled": false
+            },
+            {
                 "id": 179,
                 "name": "canTurnaroundAimCancel",
                 "enabled": false
@@ -898,6 +903,11 @@
             {
                 "id": 176,
                 "name": "canJumpIntoCrystalFlashClip",
+                "enabled": false
+            },
+            {
+                "id": 239,
+                "name": "canHeated10PowerBombCrystalFlash",
                 "enabled": false
             },
             {

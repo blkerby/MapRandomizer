@@ -1368,9 +1368,21 @@
         "video_id": 986
     },
     {
+        "tech_id": 238,
+        "name": "canRefillStation10PowerBombCrystalFlash",
+        "difficulty": "Very Hard",
+        "video_id": 9354
+    },
+    {
         "tech_id": 177,
         "name": "can10PowerBombCrystalFlash",
         "difficulty": "Expert",
+        "video_id": 4548
+    },
+    {
+        "tech_id": 239,
+        "name": "canHeated10PowerBombCrystalFlash",
+        "difficulty": "Extreme",
         "video_id": 971
     },
     {
