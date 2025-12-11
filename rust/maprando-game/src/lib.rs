@@ -1471,6 +1471,7 @@ pub struct GameData {
     pub tech_id_by_name: HashMap<String, TechId>,
     pub notable_id_by_name: HashMap<(RoomId, String), NotableId>,
     pub helper_json_map: HashMap<String, JsonValue>,
+    pub helper_category_map: HashMap<String, String>,
     pub tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
@@ -1963,6 +1964,10 @@ impl GameData {
                 }
                 self.helper_json_map
                     .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
+                self.helper_category_map.insert(
+                    helper["name"].as_str().unwrap().to_owned(),
+                    category_json["name"].as_str().unwrap().to_owned(),
+                );
             }
         }
         Ok(())
@@ -5414,230 +5419,158 @@ impl GameData {
     }
 
     pub fn patch_helpers(&mut self) {
-        // Patch the h_heatProof and h_heatResistant to take into account the complementary suit
-        // patch, where only Varia (and not Gravity) provides heat protection:
-        *self.helper_json_map.get_mut("h_heatProof").unwrap() = json::object! {
-            "name": "h_heatProof",
-            "requires": ["Varia"],
-        };
-        *self.helper_json_map.get_mut("h_heatResistant").unwrap() = json::object! {
-            "name": "h_heatResistant",
-            "requires": ["Varia"],
-        };
-        // Both Varia and Gravity are required to provide full lava protection:
-        *self.helper_json_map.get_mut("h_lavaProof").unwrap() = json::object! {
-            "name": "h_lavaProof",
-            "requires": ["Varia", "Gravity"],
-        };
-        // Both Varia and Gravity are required to provide full enemy damage reduction:
-        *self
-            .helper_json_map
-            .get_mut("h_fullEnemyDamageReduction")
-            .unwrap() = json::object! {
-            "name": "h_fullEnemyDamageReduction",
-            "requires": ["Varia", "Gravity"],
-        };
+        let must_patch_categories = ["Randomizer Dependent".to_string(), "Leniency".to_string()];
+        let helper_substitutions: Vec<(&'static str, JsonValue)> = vec![
+            ("h_heatProof", json::array!["Varia"]),
+            ("h_heatResistant", json::array!["Varia"]),
+            ("h_lavaProof", json::array!["Varia", "Gravity"]),
+            (
+                "h_fullEnemyDamageReduction",
+                json::array!["Varia", "Gravity"],
+            ),
+            (
+                "h_blueGateGlitchLeniency",
+                json::array!["i_blueGateGlitchLeniency"],
+            ),
+            (
+                "h_greenGateGlitchLeniency",
+                json::array!["i_greenGateGlitchLeniency"],
+            ),
+            (
+                "h_heatedBlueGateGlitchLeniency",
+                json::array!["i_heatedBlueGateGlitchLeniency"],
+            ),
+            (
+                "h_heatedGreenGateGlitchLeniency",
+                json::array!["i_heatedGreenGateGlitchLeniency"],
+            ),
+            (
+                "h_bombIntoCrystalFlashClipLeniency",
+                json::array!["i_bombIntoCrystalFlashClipLeniency"],
+            ),
+            (
+                "h_jumpIntoCrystalFlashClipLeniency",
+                json::array!["i_jumpIntoCrystalFlashClipLeniency"],
+            ),
+            (
+                "h_spikeSuitSpikeHitLeniency",
+                json::array!["i_spikeSuitSpikeHitLeniency"],
+            ),
+            (
+                "h_spikeSuitThornHitLeniency",
+                json::array!["i_spikeSuitThornHitLeniency"],
+            ),
+            (
+                "h_spikeSuitSamusEaterLeniency",
+                json::array!["i_spikeSuitSamusEaterLeniency"],
+            ),
+            (
+                "h_XModeSpikeHitLeniency",
+                json::array!["i_XModeSpikeHitLeniency"],
+            ),
+            (
+                "h_XModeThornHitLeniency",
+                json::array!["i_XModeThornHitLeniency"],
+            ),
+            ("h_allItemsSpawned", json::array!["f_AllItemsSpawn"]),
+            ("h_EverestMorphTunnelExpanded", json::array![]),
+            ("h_activateBombTorizo", json::array![]),
+            (
+                "h_activateAcidChozo",
+                json::array![{
+                    "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
+                }],
+            ),
+            ("h_ShaktoolVanillaFlag", json::array!["never"]),
+            ("h_ShaktoolCameraFix", json::array![]),
+            ("h_KraidCameraFix", json::array![]),
+            ("h_CrocomireCameraFix", json::array![]),
+            ("h_ClimbWithoutLava", json::array!["i_ClimbWithoutLava"]),
+            (
+                "h_SupersDoubleDamageMotherBrain",
+                json::array!["i_SupersDoubleDamageMotherBrain"],
+            ),
+            ("h_useMissileRefillStation", json::array!["i_ammoRefill"]),
+            (
+                "h_MissileRefillStationAllAmmo",
+                json::array!["i_ammoRefillAll"],
+            ),
+            (
+                "h_useEnergyRefillStation",
+                json::array!["i_energyStationRefill"],
+            ),
+            ("h_openTourianEscape1RightDoor", json::array![]),
+            (
+                "h_LowerNorfairElevatorDownwardFrames",
+                json::array!["i_LowerNorfairElevatorDownwardFrames"],
+            ),
+            (
+                "h_LowerNorfairElevatorUpwardFrames",
+                json::array!["i_LowerNorfairElevatorUpwardFrames"],
+            ),
+            (
+                "h_MainHallElevatorFrames",
+                json::array!["i_MainHallElevatorFrames"],
+            ),
+            (
+                "h_ShinesparksCostEnergy",
+                json::array!["i_ShinesparksCostEnergy"],
+            ),
+        ];
+        // TODO: some of these should probably be overridden:
+        let skip_helpers = vec![
+            "h_SpringwallOverSpikes",
+            "h_acidCrystalFlashRefill",
+            "h_ElevatorCrystalFlashLeniency",
+            "h_heatedCrystalFlashRefill",
+            "h_heatedSpringwall",
+            "h_heatedIBJFromSpikes",
+            "h_equipmentScreenFix",
+            "h_bypassMotherBrainRoom",
+            "h_partialEnemyDamageReduction",
+            "h_spikeSuitPowerBombLeniency",
+            "h_thornDoubleXModeFramePerfectExtraLeniency",
+            "h_speedKeepSpikeHitLeniency",
+            "h_ShaktoolSymmetricFlag",
+            "h_useMissileRefillAllAmmoCrystalFlash",
+            "h_thornXModeFramePerfectExtraLeniency",
+            "h_doorImmediatelyClosedFix",
+            "h_heatedAcidCrystalFlashRefill",
+            "h_openZebetitesLeniency",
+            "h_equipmentScreenCycleFrames",
+            "h_CrystalSparkLeniency",
+            "h_heatedLavaCrystalFlashRefill",
+            "h_IBJFromThorns",
+            "h_IBJFromSpikes",
+            "h_doubleEquipmentScreenCycleFrames",
+            "h_extendedMoondanceBeetomLeniency",
+        ];
 
-        // Gate glitch leniency
-        *self
-            .helper_json_map
-            .get_mut("h_blueGateGlitchLeniency")
-            .unwrap() = json::object! {
-            "name": "h_blueGateGlitchLeniency",
-            "requires": ["i_blueGateGlitchLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_greenGateGlitchLeniency")
-            .unwrap() = json::object! {
-            "name": "h_greenGateGlitchLeniency",
-            "requires": ["i_greenGateGlitchLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_heatedBlueGateGlitchLeniency")
-            .unwrap() = json::object! {
-            "name": "h_heatedBlueGateGlitchLeniency",
-            "requires": ["i_heatedBlueGateGlitchLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_heatedGreenGateGlitchLeniency")
-            .unwrap() = json::object! {
-            "name": "h_heatedGreenGateGlitchLeniency",
-            "requires": ["i_heatedGreenGateGlitchLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_bombIntoCrystalFlashClipLeniency")
-            .unwrap() = json::object! {
-            "name": "h_bombIntoCrystalFlashClipLeniency",
-            "requires": ["i_bombIntoCrystalFlashClipLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_jumpIntoCrystalFlashClipLeniency")
-            .unwrap() = json::object! {
-            "name": "h_jumpIntoCrystalFlashClipLeniency",
-            "requires": ["i_jumpIntoCrystalFlashClipLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_spikeSuitSpikeHitLeniency")
-            .unwrap() = json::object! {
-            "name": "h_spikeSuitSpikeHitLeniency",
-            "requires": ["i_spikeSuitSpikeHitLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_spikeSuitThornHitLeniency")
-            .unwrap() = json::object! {
-            "name": "h_spikeSuitThornHitLeniency",
-            "requires": ["i_spikeSuitThornHitLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_spikeSuitSamusEaterLeniency")
-            .unwrap() = json::object! {
-            "name": "h_spikeSuitSamusEaterLeniency",
-            "requires": ["i_spikeSuitSamusEaterLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_XModeSpikeHitLeniency")
-            .unwrap() = json::object! {
-            "name": "h_XModeSpikeHitLeniency",
-            "requires": ["i_XModeSpikeHitLeniency"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_XModeThornHitLeniency")
-            .unwrap() = json::object! {
-            "name": "h_XModeThornHitLeniency",
-            "requires": ["i_XModeThornHitLeniency"],
-        };
-
-        // Other:
-        *self.helper_json_map.get_mut("h_allItemsSpawned").unwrap() = json::object! {
-            "name": "h_allItemsSpawned",
-            "requires": ["f_AllItemsSpawn"]  // internal flag "f_AllItemsSpawn" gets set at start if QoL option enabled
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_EverestMorphTunnelExpanded")
-            .unwrap() = json::object! {
-            "name": "h_EverestMorphTunnelExpanded",
-            "requires": []  // This morph tunnel is always expanded, so there are no requirements.
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_activateBombTorizo")
-            .unwrap() = json::object! {
-            "name": "h_activateBombTorizo",
-            "requires": [],
-        };
-        *self.helper_json_map.get_mut("h_activateAcidChozo").unwrap() = json::object! {
-            "name": "h_activateAcidChozo",
-            "requires": [{
-                "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
-            }],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_ShaktoolVanillaFlag")
-            .unwrap() = json::object! {
-            "name": "h_ShaktoolVanillaFlag",
-            "requires": ["never"],
-        };
-        *self.helper_json_map.get_mut("h_ShaktoolCameraFix").unwrap() = json::object! {
-            "name": "h_ShaktoolCameraFix",
-            "requires": [],
-        };
-        *self.helper_json_map.get_mut("h_KraidCameraFix").unwrap() = json::object! {
-            "name": "h_KraidCameraFix",
-            "requires": [],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_CrocomireCameraFix")
-            .unwrap() = json::object! {
-            "name": "h_CrocomireCameraFix",
-            "requires": [],
-        };
-        *self.helper_json_map.get_mut("h_ClimbWithoutLava").unwrap() = json::object! {
-            "name": "h_ClimbWithoutLava",
-            "requires": ["i_ClimbWithoutLava"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_SupersDoubleDamageMotherBrain")
-            .unwrap() = json::object! {
-            "name": "h_SupersDoubleDamageMotherBrain",
-            "requires": ["i_SupersDoubleDamageMotherBrain"],
-        };
-        // Ammo station refill
-        *self
-            .helper_json_map
-            .get_mut("h_useMissileRefillStation")
-            .unwrap() = json::object! {
-            "name": "h_useMissileRefillStation",
-            "requires": ["i_ammoRefill"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_MissileRefillStationAllAmmo")
-            .unwrap() = json::object! {
-            "name": "h_MissileRefillStationAllAmmo",
-            "requires": ["i_ammoRefillAll"],
-        };
-        // Energy station refill
-        *self
-            .helper_json_map
-            .get_mut("h_useEnergyRefillStation")
-            .unwrap() = json::object! {
-            "name": "h_useEnergyRefillStation",
-            "requires": ["i_energyStationRefill"],
-        };
-
-        // Wall on right side of Tourian Escape Room 1 does not spawn in the randomizer:
-        *self
-            .helper_json_map
-            .get_mut("h_openTourianEscape1RightDoor")
-            .unwrap() = json::object! {
-            "name": "h_openTourianEscape1RightDoor",
-            "requires": [],
-        };
-
-        // Elevator heat frames depend on if "Fast elevator" quality-of-life option is enabled; tech can also affect
-        // the downward heat frames in Lower Norfair Elevator Room since there is a pause trick to reduce them.
-        *self
-            .helper_json_map
-            .get_mut("h_LowerNorfairElevatorDownwardFrames")
-            .unwrap() = json::object! {
-            "name": "h_LowerNorfairElevatorDownwardFrames",
-            "requires": ["i_LowerNorfairElevatorDownwardFrames"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_LowerNorfairElevatorUpwardFrames")
-            .unwrap() = json::object! {
-            "name": "h_LowerNorfairElevatorUpwardFrames",
-            "requires": ["i_LowerNorfairElevatorUpwardFrames"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_MainHallElevatorFrames")
-            .unwrap() = json::object! {
-            "name": "h_MainHallElevatorFrames",
-            "requires": ["i_MainHallElevatorFrames"],
-        };
-        *self
-            .helper_json_map
-            .get_mut("h_ShinesparksCostEnergy")
-            .unwrap() = json::object! {
-            "name": "i_ShinesparksCostEnergy",
-            "requires": ["i_ShinesparksCostEnergy"],
-        };
+        // Construct the set of helpers that need to be patched, and make sure they all are.
+        let mut must_patch_helper_set: HashSet<String> = HashSet::new();
+        for helper_json in self.helper_json_map.values_mut() {
+            let helper_name = helper_json["name"].as_str().unwrap().to_string();
+            let helper_category = &self.helper_category_map[&helper_name];
+            if must_patch_categories.contains(helper_category) {
+                must_patch_helper_set.insert(helper_name.clone());
+            }
+        }
+        for (helper_name, new_requires) in helper_substitutions {
+            self.helper_json_map
+                .get_mut(helper_name)
+                .with_context(|| format!("Helper {} not found", helper_name))
+                .unwrap()["requires"] = new_requires;
+            must_patch_helper_set.remove(helper_name);
+        }
+        for helper_name in skip_helpers {
+            must_patch_helper_set.remove(helper_name);
+        }
+        for helper_name in must_patch_helper_set.iter() {
+            error!("Randomizer-dependent helper {} is not patched", helper_name);
+        }
+        if !must_patch_helper_set.is_empty() {
+            panic!("Randomizer-dependent helpers are not all patched");
+        }
     }
 
     pub fn load_minimal(base_path: &Path) -> Result<GameData> {
