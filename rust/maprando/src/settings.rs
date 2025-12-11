@@ -641,6 +641,12 @@ fn upgrade_other_skill_settings(settings: &mut serde_json::Value) -> Result<()> 
     if !skill_assumption_settings.contains_key("spike_suit_leniency") {
         skill_assumption_settings.insert("spike_suit_leniency".to_string(), 2.into());
     }
+    if !skill_assumption_settings.contains_key("spike_speed_keep_leniency") {
+        skill_assumption_settings.insert("spike_speed_keep_leniency".to_string(), 4.into());
+    }
+    if !skill_assumption_settings.contains_key("elevator_cf_leniency") {
+        skill_assumption_settings.insert("elevator_cf_leniency".to_string(), 8.into());
+    }
 
     Ok(())
 }
