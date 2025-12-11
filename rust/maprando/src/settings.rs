@@ -42,6 +42,8 @@ pub struct SkillAssumptionSettings {
     pub flash_suit_distance: u8,
     pub spike_suit_leniency: i32,
     pub spike_xmode_leniency: i32,
+    pub spike_speed_keep_leniency: i32,
+    pub elevator_cf_leniency: i32,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,
     pub ridley_proficiency: f32,

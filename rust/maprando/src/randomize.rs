@@ -75,9 +75,11 @@ pub struct DifficultyConfig {
     pub farm_time_limit: f32,
     pub gate_glitch_leniency: Capacity,
     pub door_stuck_leniency: Capacity,
+    pub elevator_cf_leniency: Capacity,
     pub bomb_into_cf_leniency: Capacity,
     pub jump_into_cf_leniency: Capacity,
     pub spike_xmode_leniency: Capacity,
+    pub spike_speed_keep_leniency: Capacity,
     pub escape_timer_multiplier: f32,
     pub phantoon_proficiency: f32,
     pub draygon_proficiency: f32,
@@ -133,6 +135,8 @@ impl DifficultyConfig {
             bomb_into_cf_leniency: skill.bomb_into_cf_leniency as Capacity,
             jump_into_cf_leniency: skill.jump_into_cf_leniency as Capacity,
             spike_xmode_leniency: skill.spike_xmode_leniency as Capacity,
+            spike_speed_keep_leniency: skill.spike_speed_keep_leniency as Capacity,
+            elevator_cf_leniency: skill.elevator_cf_leniency as Capacity,
             door_stuck_leniency: skill.door_stuck_leniency as Capacity,
             escape_timer_multiplier: skill.escape_timer_multiplier,
             phantoon_proficiency: skill.phantoon_proficiency,
@@ -180,6 +184,10 @@ impl DifficultyConfig {
                 self.door_stuck_leniency,
                 other.door_stuck_leniency as Capacity,
             ),
+            elevator_cf_leniency: Capacity::max(
+                self.elevator_cf_leniency,
+                other.elevator_cf_leniency as Capacity,
+            ),
             bomb_into_cf_leniency: Capacity::max(
                 self.bomb_into_cf_leniency,
                 other.bomb_into_cf_leniency as Capacity,
@@ -191,6 +199,10 @@ impl DifficultyConfig {
             spike_xmode_leniency: Capacity::max(
                 self.spike_xmode_leniency,
                 other.spike_xmode_leniency as Capacity,
+            ),
+            spike_speed_keep_leniency: Capacity::max(
+                self.spike_speed_keep_leniency,
+                other.spike_speed_keep_leniency as Capacity,
             ),
             escape_timer_multiplier: f32::max(
                 self.escape_timer_multiplier,

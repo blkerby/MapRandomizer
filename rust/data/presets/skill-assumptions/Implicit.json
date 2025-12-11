@@ -13,6 +13,8 @@
     "flash_suit_distance": 5,
     "spike_suit_leniency": 15,
     "spike_xmode_leniency": 2,
+    "spike_speed_keep_leniency": 4,
+    "elevator_cf_leniency": 8,
     "phantoon_proficiency": 0,
     "draygon_proficiency": 0,
     "ridley_proficiency": 0,
