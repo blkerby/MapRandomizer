@@ -1178,8 +1178,7 @@ impl Patcher<'_> {
         }
 
         for (i, room) in self.game_data.room_geometry.iter().enumerate() {
-            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
-            if !self.map.room_mask[room_idx] {
+            if !self.map.room_mask[i] {
                 continue;
             }
             
