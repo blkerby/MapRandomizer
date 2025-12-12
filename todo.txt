@@ -18,6 +18,8 @@ v121 or soon-ish?:
   - these are all cosmetic changes to how the map is drawn, without affecting the information revealed.
   - options with more substantial effects could maybe be included, but we'd need to define rules for "Race mode" of which changes are allowed
 - maybe have second spoiler JSON file without the debugging data?
+- show more updates in spoiler history?
+  - Currently it's only showing up to one update per traversal?
 - Mosaic:
   - restore morph tunnel continuation behind morph tunnel transition?
 
@@ -28,14 +30,13 @@ v120?:
   - https://dev.maprando.com/seed/wFDgmdchf/data/visualizer/index.html step 8 West Ocean bottom-left item
 - DONE Investigate osse seed: https://dev.maprando.com/seed/fKpvDHvq6/data/visualizer/index.html
   - what is going on with the step 8 E-Tank? (it's the issue with farm interaction between forward/reverse traversal)
-- Implement h_spikeSuitPowerBombLeniency, etc.
+  - similar, paf seed: https://dev.maprando.com/seed/BbMZJgQsF/data/visualizer/index.html (step 9)
+- DONE: Implement h_spikeSuitPowerBombLeniency, etc.
 - DONE: Spoiler routes: account for implicit tech in entrance/exit conditions
-- Spoiler: highlight room when hovering over it either on the map or in the spoiler route
+- DONE: Spoiler: highlight room when hovering over it in the spoiler route
 - DONE: Spoiler: color-code strat names by difficulty.
 - Finish writing test scenarios to cover all logical requirements and entrance/exit conditions.
 - DONE: Investigate osse seed: https://dev.maprando.com/seed/MgjPvGL8C/data/visualizer/index.html
-- show more updates in spoiler history?
-  - Currently it's only showing up to one update per traversal?
 - Improve farm logic interaction between forward and reverse traversal
 - DONE: Implement separate leniency for spike suit.
 - on spoiler map: hide forced mode difficulty placements behind toggle?
