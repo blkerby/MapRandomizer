@@ -697,7 +697,7 @@ pub fn update_farm_baseline(local: &mut LocalState, inventory: &Inventory, rever
     {
         local.farm_baseline_power_bombs = local.power_bombs;
     }
-    }
+}
 
 pub fn apply_farm_requirement(
     req: &Requirement,
@@ -2166,8 +2166,8 @@ pub fn is_bireachable_state(
     mut forward: LocalState,
     mut reverse: LocalState,
 ) -> bool {
-    update_farm_baseline(&mut forward, &global.inventory, true);
-    update_farm_baseline(&mut reverse, &global.inventory, false);
+    update_farm_baseline(&mut forward, &global.inventory, false);
+    update_farm_baseline(&mut reverse, &global.inventory, true);
 
     // At the end, only use a farm in either the forward or reverse direction, not both.
     if forward.farm_baseline_reserves_remaining(&global.inventory)
