@@ -1172,7 +1172,17 @@ impl Patcher<'_> {
     }
 
     fn write_map_areas(&mut self) -> Result<()> {
+        // Init map area to 0xFF in case room is omitted (small maps).
+        for extra in self.extra_room_data.values_mut() {
+                extra.map_area = 0xFF;
+        }
+
         for (i, room) in self.game_data.room_geometry.iter().enumerate() {
+            let room_idx = self.game_data.room_idx_by_ptr[&room_ptr];
+            if !self.map.room_mask[room_idx] {
+                continue;
+            }
+            
             self.extra_room_data
                 .get_mut(&room.rom_address)
                 .unwrap()
