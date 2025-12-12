@@ -384,8 +384,20 @@ impl LocalState {
         }
     }
 
-    pub fn farm_baseline_energy_remaining(&self, inventory: &Inventory) -> Capacity {
-        Self::resource_remaining(self.farm_baseline_energy(), inventory.max_energy)
+    pub fn farm_baseline_energy_remaining(
+        &self,
+        inventory: &Inventory,
+        include_reserves: bool,
+    ) -> Capacity {
+        let energy = match self.farm_baseline_energy() {
+            ResourceLevel::Consumed(x) => inventory.max_energy - x,
+            ResourceLevel::Remaining(x) => x,
+        };
+        if include_reserves {
+            energy + self.farm_baseline_reserves_remaining(inventory)
+        } else {
+            energy
+        }
     }
 
     pub fn farm_baseline_energy_available(&self, inventory: &Inventory, reverse: bool) -> Capacity {

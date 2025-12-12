@@ -671,6 +671,34 @@ pub fn simple_cost_config() -> CostConfig {
     CostConfig {}
 }
 
+pub fn update_farm_baseline(local: &mut LocalState, inventory: &Inventory, reverse: bool) {
+    if local.farm_baseline_energy_available(inventory, reverse)
+        > local.energy_available(inventory, false, reverse)
+    {
+        local.farm_baseline_energy = local.energy;
+    }
+    if local.farm_baseline_reserves_available(inventory, reverse)
+        > local.reserves_available(inventory, reverse)
+    {
+        local.farm_baseline_reserves = local.reserves;
+    }
+    if local.farm_baseline_missiles_available(inventory, reverse)
+        > local.missiles_available(inventory, reverse)
+    {
+        local.farm_baseline_missiles = local.missiles;
+    }
+    if local.farm_baseline_supers_available(inventory, reverse)
+        > local.supers_available(inventory, reverse)
+    {
+        local.farm_baseline_supers = local.supers;
+    }
+    if local.farm_baseline_power_bombs_available(inventory, reverse)
+        > local.power_bombs_available(inventory, reverse)
+    {
+        local.farm_baseline_power_bombs = local.power_bombs;
+    }
+    }
+
 pub fn apply_farm_requirement(
     req: &Requirement,
     drops: &[EnemyDrop],
@@ -727,31 +755,7 @@ pub fn apply_farm_requirement(
     let num_cycles = (patience_frames / cycle_frames).floor() as i32;
 
     let mut new_local = local;
-    if new_local.farm_baseline_energy_available(&global.inventory, reverse)
-        > new_local.energy_available(&global.inventory, false, reverse)
-    {
-        new_local.farm_baseline_energy = new_local.energy;
-    }
-    if new_local.farm_baseline_reserves_available(&global.inventory, reverse)
-        > new_local.reserves_available(&global.inventory, reverse)
-    {
-        new_local.farm_baseline_reserves = new_local.reserves;
-    }
-    if new_local.farm_baseline_missiles_available(&global.inventory, reverse)
-        > new_local.missiles_available(&global.inventory, reverse)
-    {
-        new_local.farm_baseline_missiles = new_local.missiles;
-    }
-    if new_local.farm_baseline_supers_available(&global.inventory, reverse)
-        > new_local.supers_available(&global.inventory, reverse)
-    {
-        new_local.farm_baseline_supers = new_local.supers;
-    }
-    if new_local.farm_baseline_power_bombs_available(&global.inventory, reverse)
-        > new_local.power_bombs_available(&global.inventory, reverse)
-    {
-        new_local.farm_baseline_power_bombs = new_local.power_bombs;
-    }
+    update_farm_baseline(&mut new_local, &global.inventory, reverse);
     new_local.energy = new_local.farm_baseline_energy;
     new_local.reserves = new_local.farm_baseline_reserves;
     new_local.missiles = new_local.farm_baseline_missiles;
@@ -2159,27 +2163,45 @@ fn apply_requirement_simple(
 
 pub fn is_bireachable_state(
     global: &GlobalState,
-    forward: LocalState,
-    reverse: LocalState,
+    mut forward: LocalState,
+    mut reverse: LocalState,
 ) -> bool {
-    if forward.reserves_remaining(&global.inventory) < reverse.reserves_remaining(&global.inventory)
+    update_farm_baseline(&mut forward, &global.inventory, true);
+    update_farm_baseline(&mut reverse, &global.inventory, false);
+
+    // At the end, only use a farm in either the forward or reverse direction, not both.
+    if forward.farm_baseline_reserves_remaining(&global.inventory)
+        < reverse.reserves_remaining(&global.inventory)
+        && forward.reserves_remaining(&global.inventory)
+            < reverse.farm_baseline_reserves_remaining(&global.inventory)
     {
         return false;
     }
-    if forward.energy_remaining(&global.inventory, true)
+    if forward.farm_baseline_energy_remaining(&global.inventory, true)
         < reverse.energy_remaining(&global.inventory, true)
+        && forward.energy_remaining(&global.inventory, true)
+            < reverse.farm_baseline_energy_remaining(&global.inventory, true)
     {
         return false;
     }
-    if forward.missiles_remaining(&global.inventory) < reverse.missiles_remaining(&global.inventory)
+    if forward.farm_baseline_missiles_remaining(&global.inventory)
+        < reverse.missiles_remaining(&global.inventory)
+        && forward.missiles_remaining(&global.inventory)
+            < reverse.farm_baseline_missiles_remaining(&global.inventory)
     {
         return false;
     }
-    if forward.supers_remaining(&global.inventory) < reverse.supers_remaining(&global.inventory) {
+    if forward.farm_baseline_supers_remaining(&global.inventory)
+        < reverse.supers_remaining(&global.inventory)
+        && forward.supers_remaining(&global.inventory)
+            < reverse.farm_baseline_supers_remaining(&global.inventory)
+    {
         return false;
     }
-    if forward.power_bombs_remaining(&global.inventory)
+    if forward.farm_baseline_power_bombs_remaining(&global.inventory)
         < reverse.power_bombs_remaining(&global.inventory)
+        && forward.power_bombs_remaining(&global.inventory)
+            < reverse.farm_baseline_power_bombs_remaining(&global.inventory)
     {
         return false;
     }
