@@ -40,7 +40,7 @@ jobs:
         with:
           components: clippy
       - run: cargo clippy
-  formatting:
+  tests:
     name: Tests
     runs-on: ubuntu-latest
     steps:
