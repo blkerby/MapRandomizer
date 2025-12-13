@@ -1,5 +1,5 @@
-!bank_80_free_space_start = $80E670
-!bank_80_free_space_end = $80E690
+!bank_80_free_space_start = $80E680
+!bank_80_free_space_end = $80E6A0
 
 org $80C467
     JSR check_blue_suit

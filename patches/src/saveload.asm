@@ -55,10 +55,12 @@ SaveGame: PHP : REP #$30 : PHB : PHX : PHY
 	LDA $1F5B : INC A : XBA : TAX
 SaveStoredFlashSuit:
 	LDY #$0000
-	LDA $0ACC  ; check that special Samus palette type is normal (e.g. to ensure we don't have a regular shinecharge)
-	BNE .skip
 	LDA $0A68  ; check that the special Samus palette timer is non-zero (indicating the ability to spark)
 	BEQ .skip
+	LDA $0ACC  ; check that special Samus palette type is not a regular shinecharge
+	CMP #$0001
+	BEQ .skip
+	STA $7EFE92
 	INY        ; Y <- 1
 .skip:
 SaveStoredBlueuit:

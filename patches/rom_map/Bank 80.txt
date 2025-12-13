@@ -18,6 +18,6 @@ E3C0 - E440: disable_etanks.asm
 E440 - E540: load_plms_early.asm
 E540 - E580: hud_expansion_opaque.asm
 E580 - E660: samus_tiles_optim_animated_tiles_fix.asm
-E660 - E670: load_flash_suit.asm
-E670 - E690: load_blue_suit.asm
+E660 - E680: load_flash_suit.asm
+E680 - E6A0: load_blue_suit.asm
 
