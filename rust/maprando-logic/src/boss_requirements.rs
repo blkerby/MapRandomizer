@@ -92,21 +92,26 @@ pub fn apply_draygon_requirement(
     // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
     let accuracy = 0.4 + 0.6 * proficiency;
 
-    // Assume a firing rate of between 60% (on lowest difficulty) to 100% (on highest).
-    let firing_rate = 0.6 + 0.4 * proficiency;
+    // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest).
+    let firing_rate = if inventory.items[Item::Gravity as usize] {
+        0.3 + 0.7 * proficiency
+    } else {
+        0.5 * 0.3 + 0.7 * proficiency
+    };
 
     const GOOP_CYCLES_PER_SECOND: f32 = 1.0 / 15.0;
     const SWOOP_CYCLES_PER_SECOND: f32 = GOOP_CYCLES_PER_SECOND * 2.0;
 
-    // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per swoop.
-    let charge_firing_rate = (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate;
+    let charge_firing_rate = if inventory.items[Item::Plasma as usize] {
+        // Charge+Plasma will not be blocked by goop so assume 3 charge shots per goop , and 1 charge shot per swoop.
+        (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND * 3.0) * firing_rate
+    } else {
+        // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per swoop.
+        (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate
+    };
     let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
 
-    let farm_proficiency = if proficiency <= 0.5 {
-        0.0
-    } else {
-        0.2 + 0.8 * proficiency
-    };
+    let farm_proficiency = 0.2 + 0.8 * proficiency;
     let base_goop_farms_per_cycle = match (
         inventory.items[Item::Plasma as usize],
         inventory.items[Item::Wave as usize],
@@ -125,23 +130,39 @@ pub fn apply_draygon_requirement(
         GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
     let missile_farm_rate = GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (2.0 * 0.44);
 
-    let base_hit_dps = if inventory.items[Item::Gravity as usize] {
-        // With Gravity, assume one Draygon hit per two cycles as the maximum rate of damage to Samus:
-        160.0 * 0.5 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
-    } else {
-        // Without Gravity, assume one Draygon hit per cycle as the maximum rate of damage to Samus:
-        160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+    let base_hit_dps = match (
+        inventory.items[Item::Gravity as usize],
+        inventory.items[Item::Morph as usize],
+    ) {
+        (false, false) => {
+            // Without Gravity or Morph, dodging is a challenge...
+            160.0 * 3.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.5 - proficiency)
+        }
+        (true, false) => {
+            // With Gravity, Swoops are more difficult while Goops are manageable
+            160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+        }
+        (false, true) => {
+            // With Morph, Goops are difficult while Swoops are manageable
+            160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+        }
+        (true, true) => {
+            // With Gravity and Morph, Assume a low hit rate:
+            160.0 * 0.25 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+        }
     };
 
-    // We assume as many Supers are available can be used immediately (e.g. on the first goop cycle):
+    // Start by using all Supers
     let supers_available = local.supers_available(inventory, reverse);
-    boss_hp -= (supers_available as f32) * accuracy * 300.0;
-    if boss_hp < 0.0 {
-        return true;
-    }
+    let supers_needed = boss_hp / 300.0 / accuracy;
+    let supers_used = f32::min(supers_needed, supers_available as f32);
+    boss_hp -= supers_used * accuracy * 300.0;
+
+    let super_firing_rate = 4.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
+    let time_supers_exhausted = supers_used * super_firing_rate;
 
     let missiles_available = local.missiles_available(inventory, reverse);
-    let missile_firing_rate = 20.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
+    let missile_firing_rate = 10.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
     let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
 
     let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
@@ -154,7 +175,8 @@ pub fn apply_draygon_requirement(
     } else {
         f32::INFINITY
     };
-    let mut time = f32::min(time_boss_dead, time_missiles_exhausted);
+    let mut time = time_supers_exhausted + f32::min(time_boss_dead, time_missiles_exhausted);
+
     if time_missiles_exhausted < time_boss_dead {
         // Boss is not dead yet after exhausting all Missiles (if any).
         // Continue the fight using Missiles only at the lower rate at which they can be farmed (if available).
