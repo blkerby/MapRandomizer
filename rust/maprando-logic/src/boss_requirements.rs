@@ -111,7 +111,12 @@ pub fn apply_draygon_requirement(
     };
     let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
 
-    let farm_proficiency = 0.2 + 0.8 * proficiency;
+    // There is a minimum amount of proficiency needed to gain resources from farming
+    let farm_proficiency = if proficiency <= 0.6 {
+        0.1
+    } else {
+        0.2 + 0.8 * proficiency
+    };
     let base_goop_farms_per_cycle = match (
         inventory.items[Item::Plasma as usize],
         inventory.items[Item::Wave as usize],
