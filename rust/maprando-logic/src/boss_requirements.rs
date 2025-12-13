@@ -82,7 +82,12 @@ pub fn apply_draygon_requirement(
     reverse: bool,
 ) -> bool {
     let mut boss_hp: f32 = 6000.0;
-    let charge_damage = get_charge_damage(inventory);
+    // Charge without Plasma is mostly a way to do the fight without missiles.
+    let charge_damage = if proficiency >= 0.8 || inventory.items[Item::Plasma as usize] {
+        get_charge_damage(inventory)
+    } else {
+        0.0
+    };
 
     // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
     let accuracy = 0.4 + 0.6 * proficiency;
@@ -97,20 +102,24 @@ pub fn apply_draygon_requirement(
     let charge_firing_rate = (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate;
     let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
 
-    let farm_proficiency = 0.2 + 0.8 * proficiency;
+    let farm_proficiency = if proficiency <= 0.5 {
+        0.0
+    } else {
+        0.2 + 0.8 * proficiency
+    };
     let base_goop_farms_per_cycle = match (
         inventory.items[Item::Plasma as usize],
         inventory.items[Item::Wave as usize],
     ) {
         (false, _) => 7.0,     // Basic beam
         (true, false) => 10.0, // Plasma can hit multiple goops at once.
-        (true, true) => 13.0,  // Wave+Plasma can hit even more goops at once.
+        (true, true) => 11.0,  // Wave+Plasma can hit even more goops at once.
     };
     let goop_farms_per_cycle = if inventory.items[Item::Gravity as usize] {
         farm_proficiency * base_goop_farms_per_cycle
     } else {
         // Without Gravity you can't farm as many goops since you have to spend more time avoiding Draygon.
-        0.75 * farm_proficiency * base_goop_farms_per_cycle
+        0.6 * farm_proficiency * base_goop_farms_per_cycle
     };
     let energy_farm_rate =
         GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
