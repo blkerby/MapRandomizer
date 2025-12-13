@@ -102,6 +102,7 @@ fn build_app_data() -> AppData {
     let version_info = VersionInfo {
         version: VERSION,
         dev: args.dev,
+        commit_hash: std::env::var("GIT_COMMIT_HASH").unwrap_or_default(),
     };
     let video_storage_url = if args.video_storage_path.is_some() {
         "/videos".to_string()
@@ -163,10 +164,7 @@ fn build_app_data() -> AppData {
         samus_sprite_categories,
         _debug: args.debug,
         port: args.port,
-        version_info: VersionInfo {
-            version: VERSION,
-            dev: args.dev,
-        },
+        version_info,
         static_visualizer: args.static_visualizer,
         etank_colors,
         mosaic_themes,

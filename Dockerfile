@@ -85,5 +85,7 @@ COPY --from=build /rust/static /rust/static
 COPY --from=build /rust/maprando-wasm/pkg /rust/maprando-wasm/pkg
 # Since the bin is the most likely thing to have changed, copy it last to avoid invalidating the rest of the steps
 COPY --from=build /rust/target/release/maprando-web /rust
+ARG GIT_COMMIT_HASH=""
+ENV GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
 WORKDIR /rust
 ENTRYPOINT ["/rust/maprando-web"]

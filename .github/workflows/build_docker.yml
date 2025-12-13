@@ -34,3 +34,5 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=registry,ref=bkerby/map-rando:buildcache
           cache-to: type=registry,ref=bkerby/map-rando:buildcache,mode=max
+          build-args: |
+            GIT_COMMIT_HASH=${{ github.sha }}

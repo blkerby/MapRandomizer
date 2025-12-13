@@ -22,6 +22,7 @@ pub const VERSION: usize = include!("../../VERSION");
 #[derive(Clone)]
 pub struct VersionInfo {
     pub version: usize,
+    pub commit_hash: String,
     pub dev: bool,
 }
 
