@@ -126,13 +126,20 @@ pub fn apply_draygon_requirement(
         // Without Gravity you can't farm as many goops since you have to spend more time avoiding Draygon.
         0.6 * farm_proficiency * base_goop_farms_per_cycle
     };
-    let energy_farm_rate =
-        GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
-    let missle_farms_per_cycle = f32::min(
+    let energy_farm_rate = if 160 / suit_damage_factor(inventory) >= inventory.max_energy {
+        // Damage is represented in DPS but is actually taken in chunks. If not enough energy capacity
+        // is available to survive a single hit, then energy farming is not possible.
+        // Note: this assumes that using low-energy auto-reserves to survive a hit is not realistic enough to model.
+        // TODO: handle pause abuse case.
+        0.0
+    } else {
+        GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12)
+    };
+    let missile_farms_per_cycle = f32::min(
         goop_farms_per_cycle * (2.0 * 0.44),
         inventory.max_missiles as f32,
     );
-    let missile_farm_rate = GOOP_CYCLES_PER_SECOND * missle_farms_per_cycle;
+    let missile_farm_rate = GOOP_CYCLES_PER_SECOND * missile_farms_per_cycle;
 
     let base_hit_dps = match (
         inventory.items[Item::Gravity as usize],
@@ -164,11 +171,6 @@ pub fn apply_draygon_requirement(
                 * f32::powf(1.0 - proficiency, 2.0)
         }
     };
-
-    // Damage is represented in DPS but is actually taken in chunks.  Ensure 1 hit can be survived:
-    if base_hit_dps > 0.0 && 160 / suit_damage_factor(inventory) > inventory.max_energy {
-        return false;
-    }
 
     // Start by using all Supers
     let supers_available = local.supers_available(inventory, reverse);
