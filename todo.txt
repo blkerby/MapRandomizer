@@ -25,7 +25,7 @@ v121 or soon-ish?:
 
 
 v120?:
-- Investigate somerando seed: https://dev.maprando.com/seed/GNnnrHF79/
+- DONE: Investigate somerando seed: https://dev.maprando.com/seed/GNnnrHF79/
   - spoiler thinks more nodes are reachable than item placement did.
   - looks like heated CF option is not being correctly handled during item placement somehow
 - DONE: Implement h_spikeSuitPowerBombLeniency, etc.

@@ -104,39 +104,40 @@ fn apply_enemy_kill_requirement(
 pub struct CostConfig {}
 
 pub const NUM_COST_METRICS: usize = 3;
+type CostValue = i32;
 
 fn compute_cost(
     local: &LocalState,
     inventory: &Inventory,
     _cost_config: &CostConfig,
     reverse: bool,
-) -> [f32; NUM_COST_METRICS] {
+) -> [CostValue; NUM_COST_METRICS] {
     let mut energy_cost = match local.energy() {
-        ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as f32 + 0.5,
-    } / 1500.0;
+        ResourceLevel::Consumed(x) => x as CostValue * 2,
+        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as CostValue + 1,
+    };
     let mut reserve_cost = match local.reserves() {
-        ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as f32 + 0.5,
-    } / 400.0;
+        ResourceLevel::Consumed(x) => x as CostValue * 2,
+        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as CostValue + 1,
+    };
     let mut missiles_cost = match local.missiles() {
-        ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as f32 + 0.5,
-    } / 500.0;
+        ResourceLevel::Consumed(x) => x as CostValue * 2,
+        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as CostValue + 1,
+    };
     let mut supers_cost = match local.supers() {
-        ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as f32 + 0.5,
-    } / 100.0;
+        ResourceLevel::Consumed(x) => x as CostValue * 2,
+        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as CostValue + 1,
+    };
     let mut power_bombs_cost = match local.power_bombs() {
-        ResourceLevel::Consumed(x) => x as f32,
-        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as f32 + 0.5,
-    } / 100.0;
+        ResourceLevel::Consumed(x) => x as CostValue * 2,
+        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as CostValue + 1,
+    };
     let mut shinecharge_cost = -if local.flash_suit > 0 {
         // For the purposes of the cost metrics, treat flash suit as equivalent
         // to a large amount of shinecharge frames remaining:
-        2.0 * local.flash_suit as f32
+        180 + (local.flash_suit as CostValue)
     } else {
-        local.shinecharge_frames_remaining as f32 / 180.0
+        local.shinecharge_frames_remaining as CostValue
     };
     if reverse {
         energy_cost = -energy_cost;
@@ -146,16 +147,19 @@ fn compute_cost(
         power_bombs_cost = -power_bombs_cost;
         shinecharge_cost = -shinecharge_cost;
     }
-    let cycle_frames_cost = (local.cycle_frames as f32) * 0.0001;
+    let cycle_frames_cost = local.cycle_frames as CostValue;
     let total_energy_cost = energy_cost + reserve_cost;
-    let total_ammo_cost = missiles_cost + supers_cost + power_bombs_cost;
+    let total_ammo_cost = missiles_cost + 10 * supers_cost + 20 * power_bombs_cost;
 
-    let energy_sensitive_cost_metric =
-        100.0 * total_energy_cost + total_ammo_cost + shinecharge_cost + cycle_frames_cost;
+    let energy_sensitive_cost_metric = 100000 * total_energy_cost
+        + 100 * reserve_cost
+        + total_ammo_cost
+        + shinecharge_cost
+        + cycle_frames_cost;
     let ammo_sensitive_cost_metric =
-        total_energy_cost + 100.0 * total_ammo_cost + shinecharge_cost + cycle_frames_cost;
+        total_energy_cost + 100000 * total_ammo_cost + shinecharge_cost + cycle_frames_cost;
     let shinecharge_sensitive_cost_metric =
-        total_energy_cost + total_ammo_cost + 100.0 * shinecharge_cost + cycle_frames_cost;
+        total_energy_cost + total_ammo_cost + 100000 * shinecharge_cost + cycle_frames_cost;
     [
         energy_sensitive_cost_metric,
         ammo_sensitive_cost_metric,
@@ -870,7 +874,7 @@ pub fn apply_farm_requirement(
 pub struct LocalStateReducer<T: Copy + Debug> {
     pub local: ArrayVec<LocalState, NUM_COST_METRICS>,
     pub trail_ids: ArrayVec<T, NUM_COST_METRICS>,
-    pub best_cost_values: [f32; NUM_COST_METRICS],
+    pub best_cost_values: [CostValue; NUM_COST_METRICS],
     pub best_cost_idxs: [CostMetricIdx; NUM_COST_METRICS],
 }
 
@@ -879,7 +883,7 @@ impl<T: Copy + Debug> Default for LocalStateReducer<T> {
         Self {
             local: ArrayVec::new(),
             trail_ids: ArrayVec::new(),
-            best_cost_values: [f32::MAX; NUM_COST_METRICS],
+            best_cost_values: [CostValue::MAX; NUM_COST_METRICS],
             best_cost_idxs: [0; NUM_COST_METRICS],
         }
     }
@@ -2135,7 +2139,7 @@ fn apply_requirement_simple(
         }
         Requirement::Or(reqs) => {
             let mut best_local = None;
-            let mut best_cost = [f32::INFINITY; NUM_COST_METRICS];
+            let mut best_cost = [CostValue::MAX; NUM_COST_METRICS];
             let orig_local = *local;
             for req in reqs {
                 *local = orig_local;
