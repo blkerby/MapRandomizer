@@ -78,32 +78,32 @@ pub fn apply_draygon_requirement(
     inventory: &Inventory,
     local: &mut LocalState,
     proficiency: f32,
+    can_be_patient: bool,
     can_be_very_patient: bool,
+    can_be_extremely_patient: bool,
     reverse: bool,
 ) -> bool {
     let mut boss_hp: f32 = 6000.0;
-    // Charge without Plasma is mostly a way to do the fight without missiles.
-    let charge_damage = if proficiency >= 0.8 || inventory.items[Item::Plasma as usize] {
-        get_charge_damage(inventory)
-    } else {
-        0.0
-    };
+    let charge_damage = get_charge_damage(inventory);
 
     // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
     let accuracy = 0.4 + 0.6 * proficiency;
 
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest).
-    let firing_rate = if inventory.items[Item::Gravity as usize] {
-        0.3 + 0.7 * proficiency
-    } else {
-        0.5 * 0.3 + 0.7 * proficiency
+    let firing_skill = 0.3 + 0.7 * proficiency;
+    let mut firing_rate = firing_skill;
+    if !inventory.items[Item::Gravity as usize] {
+        firing_rate *= 0.5;
+    }
+    if !inventory.items[Item::Morph as usize] {
+        firing_rate *= 0.7;
     };
 
     const GOOP_CYCLES_PER_SECOND: f32 = 1.0 / 15.0;
     const SWOOP_CYCLES_PER_SECOND: f32 = GOOP_CYCLES_PER_SECOND * 2.0;
 
     let charge_firing_rate = if inventory.items[Item::Plasma as usize] {
-        // Charge+Plasma will not be blocked by goop so assume 3 charge shots per goop , and 1 charge shot per swoop.
+        // Charge+Plasma will not be blocked by goop so assume 3 charge shots per goop, and 1 charge shot per swoop.
         (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND * 3.0) * firing_rate
     } else {
         // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per swoop.
@@ -111,12 +111,7 @@ pub fn apply_draygon_requirement(
     };
     let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
 
-    // There is a minimum amount of proficiency needed to gain resources from farming
-    let farm_proficiency = if proficiency <= 0.6 {
-        0.1
-    } else {
-        0.2 + 0.8 * proficiency
-    };
+    let farm_proficiency = 0.1 + 0.3 * proficiency + 0.6 * proficiency * proficiency;
     let base_goop_farms_per_cycle = match (
         inventory.items[Item::Plasma as usize],
         inventory.items[Item::Wave as usize],
@@ -141,19 +136,28 @@ pub fn apply_draygon_requirement(
     ) {
         (false, false) => {
             // Without Gravity or Morph, dodging is a challenge...
-            160.0 * 3.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.5 - proficiency)
+            160.0
+                * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND)
+                * f32::powf(1.0 - 0.9 * proficiency, 0.5)
         }
         (true, false) => {
             // With Gravity, Swoops are more difficult while Goops are manageable
-            160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+            160.0
+                * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND)
+                * f32::powf(1.0 - proficiency, 2.0)
         }
         (false, true) => {
             // With Morph, Goops are difficult while Swoops are manageable
-            160.0 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+            160.0
+                * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND)
+                * f32::powf(1.0 - proficiency, 2.0)
         }
         (true, true) => {
             // With Gravity and Morph, Assume a low hit rate:
-            160.0 * 0.25 * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND) * (1.0 - proficiency)
+            160.0
+                * 0.5
+                * (GOOP_CYCLES_PER_SECOND + SWOOP_CYCLES_PER_SECOND)
+                * f32::powf(1.0 - proficiency, 2.0)
         }
     };
 
@@ -163,58 +167,71 @@ pub fn apply_draygon_requirement(
     let supers_used = f32::min(supers_needed, supers_available as f32);
     boss_hp -= supers_used * accuracy * 300.0;
 
-    let super_firing_rate = 4.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
-    let time_supers_exhausted = supers_used * super_firing_rate;
+    let super_firing_rate =
+        (5.0 * GOOP_CYCLES_PER_SECOND + 1.0 * SWOOP_CYCLES_PER_SECOND) * firing_rate;
+    let mut time = supers_used / super_firing_rate;
 
-    let missiles_available = local.missiles_available(inventory, reverse);
-    let missile_firing_rate = 10.0 * GOOP_CYCLES_PER_SECOND * firing_rate;
-    let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
+    if boss_hp > 0.0 {
+        let missiles_available = local.missiles_available(inventory, reverse);
+        let missile_firing_rate =
+            (12.0 * GOOP_CYCLES_PER_SECOND + 3.0 * SWOOP_CYCLES_PER_SECOND) * firing_rate;
+        let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
 
-    let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
-    let overall_damage_rate = initial_missile_damage_rate + charge_damage_rate;
-    let time_boss_dead = f32::ceil(boss_hp / overall_damage_rate);
-    let time_missiles_exhausted = if inventory.max_missiles == 0 {
-        0.0
-    } else if net_missile_use_rate > 0.0 {
-        (missiles_available as f32) / net_missile_use_rate
-    } else {
-        f32::INFINITY
-    };
-    let mut time = time_supers_exhausted + f32::min(time_boss_dead, time_missiles_exhausted);
-
-    if time_missiles_exhausted < time_boss_dead {
-        // Boss is not dead yet after exhausting all Missiles (if any).
-        // Continue the fight using Missiles only at the lower rate at which they can be farmed (if available).
-        boss_hp -= time * overall_damage_rate;
-
-        let farming_missile_damage_rate = if inventory.max_missiles > 0 {
-            100.0 * missile_farm_rate * accuracy
-        } else {
+        let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
+        let time_boss_dead = boss_hp / initial_missile_damage_rate;
+        let time_missiles_exhausted = if inventory.max_missiles == 0 {
             0.0
+        } else if net_missile_use_rate > 0.0 {
+            (missiles_available as f32) / net_missile_use_rate
+        } else {
+            f32::INFINITY
         };
-        let overall_damage_rate = farming_missile_damage_rate + charge_damage_rate;
-        if overall_damage_rate == 0.0 {
-            return false;
+        let time_missiles = f32::min(time_boss_dead, time_missiles_exhausted);
+        time += time_missiles;
+        boss_hp -= time_missiles * initial_missile_damage_rate;
+
+        if time_missiles_exhausted < time_boss_dead {
+            // Boss is not dead yet after exhausting all Missiles (if any).
+            // Continue the fight using Missiles only at the lower rate at which they can be farmed (if available).
+            let farming_missile_damage_rate = if inventory.max_missiles > 0 {
+                100.0 * missile_farm_rate * accuracy
+            } else {
+                0.0
+            };
+            let overall_damage_rate = f32::max(farming_missile_damage_rate, charge_damage_rate);
+            if overall_damage_rate == 0.0 {
+                return false;
+            }
+            time += boss_hp / overall_damage_rate;
         }
-        time += boss_hp / overall_damage_rate;
     }
 
-    if time < 180.0 || can_be_very_patient {
-        let mut net_dps = base_hit_dps / suit_damage_factor(inventory) as f32 - energy_farm_rate;
-        if net_dps < 0.0 {
-            net_dps = 0.0;
-        }
-        // Overflow safeguard - bail here if Samus takes calamitous damage.
-        if net_dps * time > 10000.0 {
-            return false;
-        }
-        // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
-        // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
-        // TODO: do something more reasonable here.
-        local.use_energy((net_dps * time) as Capacity, true, inventory, reverse)
-    } else {
-        false
+    // For determining if patience tech is required:
+    // `good_time` = hypothetical time based on good execution
+    let good_time = time * firing_skill * accuracy;
+    // Without "canBePatient" we tolerate a longer fight compared to other strats
+    // (180 seconds vs. 90 seconds), since the fight likely only has to be done once and is
+    // not as boring as other patience-constrained strats.
+    if good_time >= 180.0 && !can_be_patient
+        || good_time >= 240.0 && !can_be_very_patient
+        || good_time >= 360.0 && !can_be_extremely_patient
+    {
+        // We don't have enough patience to finish the fight:
+        return false;
     }
+
+    let mut net_dps = base_hit_dps / suit_damage_factor(inventory) as f32 - energy_farm_rate;
+    if net_dps < 0.0 {
+        net_dps = 0.0;
+    }
+    // Overflow safeguard - bail here if Samus takes calamitous damage.
+    if net_dps * time > 10000.0 {
+        return false;
+    }
+    // We don't account for resources used, since they can be farmed or picked up after the fight, and we don't
+    // want the fight to go out of logic due to not saving enough Missiles to open some red doors for example.
+    // TODO: do something more reasonable here.
+    local.use_energy((net_dps * time) as Capacity, true, inventory, reverse)
 }
 
 pub fn apply_ridley_requirement(
@@ -335,7 +352,7 @@ pub fn apply_ridley_requirement(
     // `good_time` = hypothetical time based on good but safe execution
     // This is 15% slower than the optimized times which are more applicable for short fights.
     let good_time = time * firing_rate * accuracy * 1.15;
-    // With "canBePatient" (Expert) we tolerate a little longer fight compared to other strats
+    // Without "canBePatient" we tolerate a little longer fight compared to other strats
     // (120 seconds vs. 90 seconds), since the fight likely only has to be done once and is
     // not as boring as other patience-constrained strats.
     if good_time >= 120.0 && !can_be_patient
