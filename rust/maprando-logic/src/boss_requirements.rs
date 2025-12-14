@@ -106,12 +106,12 @@ pub fn apply_draygon_requirement(
         // Charge+Plasma will not be blocked by goop so assume 3 charge shots per goop, and 1 charge shot per swoop.
         (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND * 3.0) * firing_rate
     } else {
-        // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per swoop.
-        (SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate
+        // Assume a maximum of 1 charge shot per goop phase, and 1 charge shot per series of swoops.
+        (0.5 * SWOOP_CYCLES_PER_SECOND + GOOP_CYCLES_PER_SECOND) * firing_rate
     };
     let charge_damage_rate = charge_firing_rate * charge_damage * accuracy;
 
-    let farm_proficiency = 0.1 + 0.3 * proficiency + 0.6 * proficiency * proficiency;
+    let farm_proficiency = 0.1 + 0.2 * proficiency + 0.7 * proficiency * proficiency;
     let base_goop_farms_per_cycle = match (
         inventory.items[Item::Plasma as usize],
         inventory.items[Item::Wave as usize],
@@ -128,7 +128,11 @@ pub fn apply_draygon_requirement(
     };
     let energy_farm_rate =
         GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (5.0 * 0.02 + 20.0 * 0.12);
-    let missile_farm_rate = GOOP_CYCLES_PER_SECOND * goop_farms_per_cycle * (2.0 * 0.44);
+    let missle_farms_per_cycle = f32::min(
+        goop_farms_per_cycle * (2.0 * 0.44),
+        inventory.max_missiles as f32,
+    );
+    let missile_farm_rate = GOOP_CYCLES_PER_SECOND * missle_farms_per_cycle;
 
     let base_hit_dps = match (
         inventory.items[Item::Gravity as usize],
@@ -161,6 +165,11 @@ pub fn apply_draygon_requirement(
         }
     };
 
+    // Damage is represented in DPS but is actually taken in chunks.  Ensure 1 hit can be survived:
+    if base_hit_dps > 0.0 && 160 / suit_damage_factor(inventory) > inventory.max_energy {
+        return false;
+    }
+
     // Start by using all Supers
     let supers_available = local.supers_available(inventory, reverse);
     let supers_needed = boss_hp / 300.0 / accuracy;
@@ -177,7 +186,7 @@ pub fn apply_draygon_requirement(
             (12.0 * GOOP_CYCLES_PER_SECOND + 3.0 * SWOOP_CYCLES_PER_SECOND) * firing_rate;
         let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
 
-        let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
+        let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy * accuracy;
         let time_boss_dead = boss_hp / initial_missile_damage_rate;
         let time_missiles_exhausted = if inventory.max_missiles == 0 {
             0.0
