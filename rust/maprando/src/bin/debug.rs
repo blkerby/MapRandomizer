@@ -10,8 +10,8 @@ use maprando::{
     traverse::{LockedDoorData, apply_requirement, simple_cost_config},
 };
 use maprando_game::{
-    Capacity, GameData, Item, NodeId, Requirement, RidleyStuck, RoomId,
-    TECH_ID_CAN_BE_EXTREMELY_PATIENT, TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT,
+    Capacity, GameData, Item, NodeId, Requirement, RoomId, TECH_ID_CAN_BE_EXTREMELY_PATIENT,
+    TECH_ID_CAN_BE_PATIENT, TECH_ID_CAN_BE_VERY_PATIENT,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -22,7 +22,7 @@ fn run_scenario(
     missile_cnt: Capacity,
     super_cnt: Capacity,
     item_loadout: &[&'static str],
-    patience: bool,
+    patience: i32,
     settings: &RandomizerSettings,
     mut difficulty: DifficultyConfig,
     game_data: &GameData,
@@ -95,33 +95,31 @@ fn run_scenario(
     let objectives = get_objectives(settings, None, game_data, &mut rng);
     difficulty.draygon_proficiency = proficiency;
     difficulty.ridley_proficiency = proficiency;
-    difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] = patience;
-    difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_EXTREMELY_PATIENT]] = patience;
-    // let new_local_state_opt = apply_requirement(
-    //     &Requirement::DraygonFight {
-    //         can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key
-    //             [&TECH_ID_CAN_BE_VERY_PATIENT],
-    //     },
-    //     &global_state,
-    //     local_state,
-    //     false,
-    //     settings,
-    //     &difficulty,
-    //     game_data,
-    //     &locked_door_data,
-    //     &objectives,
-    // );
+    match patience {
+        0 => { /* do nothing */ }
+        1 => {
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT]] = true;
+        }
+        2 => {
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT]] = true;
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] = true;
+        }
+        3 => {
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT]] = true;
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_VERY_PATIENT]] = true;
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_EXTREMELY_PATIENT]] =
+                true;
+        }
+        _ => panic!("unrecognized patience value {}", patience),
+    }
     let cost_config = simple_cost_config();
     let new_local_state_opt = apply_requirement(
-        &Requirement::RidleyFight {
+        &Requirement::DraygonFight {
             can_be_patient_tech_idx: game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT],
             can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key
                 [&TECH_ID_CAN_BE_VERY_PATIENT],
             can_be_extremely_patient_tech_idx: game_data.tech_isv.index_by_key
                 [&TECH_ID_CAN_BE_EXTREMELY_PATIENT],
-            power_bombs: true,
-            g_mode: false,
-            stuck: RidleyStuck::None,
         },
         &global_state,
         local_state,
@@ -134,12 +132,34 @@ fn run_scenario(
         &objectives,
         &cost_config,
     );
+    // let new_local_state_opt = apply_requirement(
+    //     &Requirement::RidleyFight {
+    //         can_be_patient_tech_idx: game_data.tech_isv.index_by_key[&TECH_ID_CAN_BE_PATIENT],
+    //         can_be_very_patient_tech_idx: game_data.tech_isv.index_by_key
+    //             [&TECH_ID_CAN_BE_VERY_PATIENT],
+    //         can_be_extremely_patient_tech_idx: game_data.tech_isv.index_by_key
+    //             [&TECH_ID_CAN_BE_EXTREMELY_PATIENT],
+    //         power_bombs: true,
+    //         g_mode: false,
+    //         stuck: RidleyStuck::None,
+    //     },
+    //     &global_state,
+    //     local_state,
+    //     false,
+    //     settings,
+    //     &difficulty,
+    //     game_data,
+    //     &door_map,
+    //     &locked_door_data,
+    //     &objectives,
+    //     &cost_config,
+    // );
 
     let outcome = new_local_state_opt
         .map(|x| format!("{:?}", x.energy))
         .unwrap_or("n/a".to_string());
     println!(
-        "proficiency={proficiency}, items={item_loadout:?}, missiles={missile_cnt}, patience={patience}: {outcome}"
+        "proficiency={proficiency}, items={item_loadout:?}, missiles={missile_cnt}, supers={super_cnt}, patience={patience}: {outcome}"
     );
 }
 
@@ -160,16 +180,18 @@ fn main() -> Result<()> {
     settings.skill_assumption_settings = preset_data.skill_presets.last().unwrap().clone();
     let difficulty = preset_data.difficulty_tiers.last().unwrap();
 
-    let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
-    let missile_counts = vec![60];
+    // let proficiencies = vec![0.0, 0.3, 0.5, 0.7, 0.8, 0.825, 0.85, 0.9, 0.95, 1.0];
+    let proficiencies = vec![0.85];
+    let missile_counts = vec![5, 10, 20, 30, 40, 50, 60, 70, 80];
     let super_counts = vec![0];
-    let item_loadouts = vec![vec!["M", "V", "C"]];
+    let patience_values = vec![0]; // 0 = no patience tech, 1 = canBePatient, 2 = canBeVeryPatient, 3 = canBeExtremelyPatient
+    let item_loadouts = vec![vec!["M"]];
 
     for &proficiency in &proficiencies {
         for &missile_cnt in &missile_counts {
             for &super_cnt in &super_counts {
                 for beam_loadout in &item_loadouts {
-                    for patience in [true, false] {
+                    for &patience in &patience_values {
                         run_scenario(
                             proficiency,
                             missile_cnt,

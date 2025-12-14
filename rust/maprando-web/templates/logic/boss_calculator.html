@@ -207,7 +207,7 @@
                         local = can_defeat_phantoon(inventory, local, proficiency);
                     }
                     else if (selected_boss == "Draygon") {
-                        local = can_defeat_draygon(inventory, local, proficiency, can_be_very_patient);
+                        local = can_defeat_draygon(inventory, local, proficiency, can_be_patient, can_be_very_patient, can_be_extremely_patient);
                     }
                     else if (selected_boss == "Ridley") {
                         local = can_defeat_ridley(inventory, local, proficiency, can_be_patient, can_be_very_patient, can_be_extremely_patient);

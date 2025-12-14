@@ -1768,12 +1768,16 @@ fn apply_requirement_simple(
         )
         .into(),
         Requirement::DraygonFight {
-            can_be_very_patient_tech_idx: can_be_very_patient_tech_id,
+            can_be_patient_tech_idx,
+            can_be_very_patient_tech_idx,
+            can_be_extremely_patient_tech_idx,
         } => apply_draygon_requirement(
             &cx.global.inventory,
             local,
             cx.difficulty.draygon_proficiency,
-            cx.difficulty.tech[*can_be_very_patient_tech_id],
+            cx.difficulty.tech[*can_be_patient_tech_idx],
+            cx.difficulty.tech[*can_be_very_patient_tech_idx],
+            cx.difficulty.tech[*can_be_extremely_patient_tech_idx],
             cx.reverse,
         )
         .into(),

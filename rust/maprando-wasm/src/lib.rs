@@ -34,7 +34,9 @@ pub fn can_defeat_draygon(
     inventory: JsValue,
     local: JsValue,
     proficiency: f32,
+    can_be_patient: bool,
     can_be_very_patient: bool,
+    can_be_extremely_patient: bool,
 ) -> JsValue {
     let inventory: Inventory = serde_wasm_bindgen::from_value(inventory).unwrap();
     let mut local =
@@ -44,7 +46,9 @@ pub fn can_defeat_draygon(
         &inventory,
         &mut local,
         proficiency,
+        can_be_patient,
         can_be_very_patient,
+        can_be_extremely_patient,
         false,
     ) {
         serde_wasm_bindgen::to_value(&local).unwrap()
