@@ -1,0 +1,105 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Heat Protection",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "items": ["Morph", "Varia"],
+        "disabledTech": ["canHeatedCrystalFlash"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      }
+    },
+    {
+      "name": "Heated",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "items": ["Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 48},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 1435}
+      }
+    },
+    {
+      "name": "Missing Tech",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "items": ["Morph"],
+        "disabledTech": ["canHeatedCrystalFlash"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 48},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 1435}
+      },
+      "fail": true
+    },
+    {
+      "name": "Not Enough Energy",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "items": ["Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 47},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 1435}
+      },
+      "fail": true
+    }
+  ]
+}

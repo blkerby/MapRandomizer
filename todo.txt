@@ -25,19 +25,16 @@ v121 or soon-ish?:
 
 
 v120?:
-- DONE: Fix issue reported by somerando:
-  - https://discord.com/channels/1053421401354285129/1053436236628496454/1435685909990211724
-  - https://dev.maprando.com/seed/wFDgmdchf/data/visualizer/index.html step 8 West Ocean bottom-left item
-- DONE Investigate osse seed: https://dev.maprando.com/seed/fKpvDHvq6/data/visualizer/index.html
-  - what is going on with the step 8 E-Tank? (it's the issue with farm interaction between forward/reverse traversal)
-  - similar, paf seed: https://dev.maprando.com/seed/BbMZJgQsF/data/visualizer/index.html (step 9)
+- Investigate somerando seed: https://dev.maprando.com/seed/GNnnrHF79/
+  - spoiler thinks more nodes are reachable than item placement did.
+  - looks like heated CF option is not being correctly handled during item placement somehow
 - DONE: Implement h_spikeSuitPowerBombLeniency, etc.
 - DONE: Spoiler routes: account for implicit tech in entrance/exit conditions
 - DONE: Spoiler: highlight room when hovering over it in the spoiler route
 - DONE: Spoiler: color-code strat names by difficulty.
 - Finish writing test scenarios to cover all logical requirements and entrance/exit conditions.
 - DONE: Investigate osse seed: https://dev.maprando.com/seed/MgjPvGL8C/data/visualizer/index.html
-- Improve farm logic interaction between forward and reverse traversal
+- DONE: Improve farm logic interaction between forward and reverse traversal
 - DONE: Implement separate leniency for spike suit.
 - on spoiler map: hide forced mode difficulty placements behind toggle?
 - Logic difficulty changes:

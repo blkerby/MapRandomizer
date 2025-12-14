@@ -1,0 +1,175 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Crystal Flash",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "items": ["Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      }
+    },
+    {
+      "name": "Skip Crystal Flash",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "items": ["Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      }
+    },
+     {
+      "name": "Missing Morph",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      },
+      "fail": true
+    },
+    {
+      "name": "Missing Tech",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15,
+        "disabledTech": ["canCrystalFlash"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      },
+      "fail": true
+    },
+    {
+      "name": "Missing Missiles",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 9},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      },
+      "fail": true
+    },
+    {
+      "name": "Missing Supers",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 9},
+        "powerBombs": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      },
+      "fail": true
+    },
+    {
+      "name": "Missing Power Bombs",
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 100,
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 9},
+        "powerBombs": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"remaining": 1}
+      },
+      "fail": true
+    }
+  ]
+}
