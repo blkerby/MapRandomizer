@@ -188,7 +188,7 @@ pub fn apply_draygon_requirement(
             (12.0 * GOOP_CYCLES_PER_SECOND + 3.0 * SWOOP_CYCLES_PER_SECOND) * firing_rate;
         let net_missile_use_rate = missile_firing_rate - missile_farm_rate;
 
-        let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy * accuracy;
+        let initial_missile_damage_rate = 100.0 * missile_firing_rate * accuracy;
         let time_boss_dead = boss_hp / initial_missile_damage_rate;
         let time_missiles_exhausted = if inventory.max_missiles == 0 {
             0.0
@@ -223,7 +223,7 @@ pub fn apply_draygon_requirement(
     // Without "canBePatient" we tolerate a longer fight compared to other strats
     // (180 seconds vs. 90 seconds), since the fight likely only has to be done once and is
     // not as boring as other patience-constrained strats.
-    if good_time >= 180.0 && !can_be_patient
+    if good_time >= 150.0 && !can_be_patient
         || good_time >= 240.0 && !can_be_very_patient
         || good_time >= 360.0 && !can_be_extremely_patient
     {
