@@ -347,6 +347,7 @@ pub struct OtherSettings {
     pub door_locks_size: DoorLocksSize,
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
+    pub disable_spikesuits: bool,
     pub ultra_low_qol: bool,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
