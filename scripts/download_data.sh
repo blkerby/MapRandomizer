@@ -3,7 +3,6 @@ set -e
 
 mkdir -p tmp
 cd tmp
-
 # Download the map pools
 mkdir -p ../maps
 for pool in "v119-small-avro" "v119-standard-avro" "v119-wild-avro"
