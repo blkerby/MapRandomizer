@@ -856,9 +856,11 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 							}
 						}
 					}
-					if (item == null){continue;}
 					let uniq = icon(item_plm[i]);
 					uniq.className = "ui-icon-hoverable";
+					unique_item_list.appendChild(uniq);
+					
+					if (item == null){continue;}
 					let map_icon = document.getElementById(item.location.room +": "+ item.location.node);
 					uniq.onclick = ev => {
 						show_item_details(item.item, item.location, step, item, true);
@@ -870,7 +872,6 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 					uniq.onmouseleave = ev => {
 						map_icon.classList.remove("highlight");
 					}
-					unique_item_list.appendChild(uniq);
 				}
 			}
 			si.appendChild(unique_item_list);
