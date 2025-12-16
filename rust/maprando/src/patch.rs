@@ -578,6 +578,10 @@ impl Patcher<'_> {
         if self.settings.other_settings.energy_free_shinesparks {
             patches.push("energy_free_shinesparks");
         }
+        
+        if self.settings.other_settings.disable_spikesuits {
+            patches.push("remove_spikesuits");
+        }
 
         if self.settings.quality_of_life_settings.respin {
             patches.push("respin");

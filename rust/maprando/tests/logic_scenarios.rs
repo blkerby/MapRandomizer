@@ -250,6 +250,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             map_station_reveal: maprando::settings::MapStationReveal::Full,
             energy_free_shinesparks: false,
+            disable_spikesuits: false,
             ultra_low_qol: false,
             race_mode: false,
             random_seed: None,
