@@ -7,7 +7,7 @@ use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
     DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
     MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings,
-    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump, SpikeSuits,
+    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::spoiler_log::{
     SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
@@ -97,7 +97,7 @@ impl DifficultyConfig {
     ) -> Self {
         let mut tech: Vec<bool> = vec![false; game_data.tech_isv.keys.len()];
         let mut notables: Vec<bool> = vec![false; game_data.notable_isv.keys.len()];
-        
+
         for &tech_id in implicit_tech {
             let tech_idx = game_data.tech_isv.index_by_key[&tech_id];
             tech[tech_idx] = true;
