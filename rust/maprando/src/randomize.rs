@@ -7,7 +7,7 @@ use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
     DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
     MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings,
-    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
+    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump, SpikeSuits,
 };
 use crate::spoiler_log::{
     SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
@@ -36,8 +36,8 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
-    VertexKey,
+    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SLOPE_SPARK, 
+    TECH_ID_CAN_RMODE_KNOCKBACK_SPARK, TechId, TemporaryBlueDirection, TraversalId, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -97,13 +97,18 @@ impl DifficultyConfig {
     ) -> Self {
         let mut tech: Vec<bool> = vec![false; game_data.tech_isv.keys.len()];
         let mut notables: Vec<bool> = vec![false; game_data.notable_isv.keys.len()];
+        
+        //nn_357 - spikesuits removed option set to enabled.
+        if settings.other_settings.remove_spikesuits == SpikeSuits::Enabled {
+           let excluded_techs = [TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SLOPE_SPARK, TECH_ID_CAN_RMODE_KNOCKBACK_SPARK];
+        }
 
         for &tech_id in implicit_tech {
             let tech_idx = game_data.tech_isv.index_by_key[&tech_id];
             tech[tech_idx] = true;
         }
         for tech_setting in &skill.tech_settings {
-            if tech_setting.enabled {
+            if tech_setting.enabled && !excluded_techs.contains(&tech_setting.id.as_str()) {
                 let tech_idx = game_data.tech_isv.index_by_key[&tech_setting.id];
                 tech[tech_idx] = true;
             }

@@ -19,7 +19,7 @@ use crate::{
     randomize::{LockedDoor, Randomization},
     settings::{
         AreaAssignment, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
-        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
+        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump, SpikeSuits,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -555,6 +555,13 @@ impl Patcher<'_> {
             }
         }
 
+        match self.settings.other_settings.remove_spikesuits{
+            SpikeSuits::Disabled => {}
+            SpikeSuits::Enabled => {
+                patches.push("remove_spikesuits");
+            }
+        }
+
         if self
             .settings
             .quality_of_life_settings
@@ -577,10 +584,6 @@ impl Patcher<'_> {
 
         if self.settings.other_settings.energy_free_shinesparks {
             patches.push("energy_free_shinesparks");
-        }
-        
-        if self.settings.other_settings.disable_spikesuits {
-            patches.push("remove_spikesuits");
         }
 
         if self.settings.quality_of_life_settings.respin {

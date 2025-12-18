@@ -347,7 +347,7 @@ pub struct OtherSettings {
     pub door_locks_size: DoorLocksSize,
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
-    pub disable_spikesuits: bool,
+    pub remove_spikesuits: SpikeSuits,
     pub ultra_low_qol: bool,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
@@ -450,6 +450,12 @@ pub enum AreaAssignment {
 pub enum WallJump {
     Vanilla,
     Collectible,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum SpikeSuits {
+    Disabled,
+    Enabled,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
