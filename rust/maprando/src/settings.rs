@@ -460,6 +460,11 @@ pub enum SpikeSuits {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum BlueSuits {
+    Disabled,
+    Enabled,
+}
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum ETankRefill {
     Disabled,
     Vanilla,
