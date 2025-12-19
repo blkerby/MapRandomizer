@@ -236,7 +236,7 @@
     "room_name": "East Ocean",
     "notable_id": 1,
     "name": "Shinespark Water Escape With Lower Choot Alive",
-    "difficulty": "Extreme",
+    "difficulty": "Extreme+",
     "video_id": 329
   },
   {
@@ -260,7 +260,7 @@
     "room_name": "East Ocean",
     "notable_id": 4,
     "name": "Shinespark Water Escape",
-    "difficulty": "Extreme+",
+    "difficulty": "Extreme",
     "video_id": 314
   },
   {
@@ -1020,7 +1020,7 @@
     "room_name": "Red Tower",
     "notable_id": 5,
     "name": "Frozen Beetom Ice Climb",
-    "difficulty": "Extreme",
+    "difficulty": "Extreme+",
     "video_id": 84
   },
   {
@@ -1125,7 +1125,7 @@
     "notable_id": 2,
     "name": "Sova Boost",
     "difficulty": "Expert",
-    "video_id": 400
+    "video_id": 3394
   },
   {
     "room_id": 90,
@@ -1156,7 +1156,7 @@
     "room_name": "Cathedral Entrance",
     "notable_id": 7,
     "name": "Dessgeega Dodge (Right-to-Left)",
-    "difficulty": "Insane",
+    "difficulty": "Extreme+",
     "video_id": 7396
   },
   {
@@ -1252,7 +1252,7 @@
     "room_name": "Lava Dive Room",
     "notable_id": 6,
     "name": "HiJumpless Nahime Morph Kago",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 100
   },
   {
@@ -1284,7 +1284,7 @@
     "room_name": "Lava Grapple Tunnel",
     "notable_id": 1,
     "name": "Frozen Maw Platforms",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 556
   },
   {
@@ -1294,6 +1294,14 @@
     "name": "Suitless Damage Boosts",
     "difficulty": "Expert",
     "video_id": 104
+  },
+  {
+    "room_id": 112,
+    "room_name": "Lava Grapple Tunnel",
+    "notable_id": 3,
+    "name": "Pause Abuse Damage Boosts",
+    "difficulty": "Insane+",
+    "video_id": null
   },
   {
     "room_id": 99,
@@ -1516,7 +1524,7 @@
     "room_name": "Indiana Jones Room",
     "notable_id": 2,
     "name": "G-Mode Morph Long Diagonal Bomb Jump",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 142
   },
   {
@@ -1940,7 +1948,7 @@
     "room_name": "Three Musketeers' Room",
     "notable_id": 2,
     "name": "Dodge Going Up",
-    "difficulty": "Extreme",
+    "difficulty": "Extreme+",
     "video_id": 409
   },
   {
@@ -2028,7 +2036,7 @@
     "room_name": "Wrecked Ship East Super Room",
     "notable_id": 1,
     "name": "Robot Clip Run-In-Place",
-    "difficulty": "Insane",
+    "difficulty": "Extreme+",
     "video_id": 304
   },
   {
@@ -2156,7 +2164,7 @@
     "room_name": "Fish Tank",
     "notable_id": 6,
     "name": "Wall Jump Entry",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 505
   },
   {
@@ -2221,7 +2229,7 @@
     "notable_id": 2,
     "name": "Shoot Down and Grab Right Item",
     "difficulty": "Hard",
-    "video_id": 662
+    "video_id": 978
   },
   {
     "room_id": 170,
@@ -2412,7 +2420,7 @@
     "room_name": "Aqueduct",
     "notable_id": 9,
     "name": "Snail Stuck Moonfall",
-    "difficulty": "Insane",
+    "difficulty": "Extreme+",
     "video_id": 267
   },
   {
@@ -2588,7 +2596,7 @@
     "room_name": "Colosseum",
     "notable_id": 11,
     "name": "Stored Moonfall Grapple Door Lock Skip",
-    "difficulty": "Insane",
+    "difficulty": "Extreme",
     "video_id": 117
   },
   {
@@ -2740,7 +2748,7 @@
     "room_name": "East Sand Pit",
     "notable_id": 3,
     "name": "Insane Walljump Morph",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 1135
   },
   {
@@ -2804,7 +2812,7 @@
     "room_name": "West Sand Pit",
     "notable_id": 3,
     "name": "Right Item Turn Around Collection",
-    "difficulty": "Very Hard",
+    "difficulty": "Hard",
     "video_id": 1278
   },
   {
@@ -3028,7 +3036,7 @@
     "room_name": "East Sand Hall",
     "notable_id": 8,
     "name": "Right Door G-Mode Setup Suitless HiJump",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 202
   },
   {
@@ -3076,7 +3084,7 @@
     "room_name": "East Sand Hall",
     "notable_id": 14,
     "name": "Suitless Bootless Evir Climb",
-    "difficulty": "Extreme",
+    "difficulty": "Extreme+",
     "video_id": 7291
   },
   {
@@ -3180,7 +3188,7 @@
     "room_name": "Shaktool Room",
     "notable_id": 3,
     "name": "Bounce the Snails Around the Room",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert",
     "video_id": 961
   },
   {
@@ -3188,7 +3196,7 @@
     "room_name": "Shaktool Room",
     "notable_id": 4,
     "name": "Suitless Bounce the Snails Around the Room",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 961
   },
   {
@@ -3304,6 +3312,14 @@
     "video_id": 268
   },
   {
+    "room_id": 232,
+    "room_name": "Big Boy Room",
+    "notable_id": 3,
+    "name": "Baby Drain Spark Interrupt",
+    "difficulty": "Ignored",
+    "video_id": null
+  },
+  {
     "room_id": 226,
     "room_name": "Metroid Room 1",
     "notable_id": 1,
@@ -3396,7 +3412,7 @@
     "room_name": "Mother Brain Room",
     "notable_id": 3,
     "name": "R-Mode Light Pillar",
-    "difficulty": "Extreme",
+    "difficulty": "Extreme+",
     "video_id": 139
   },
   {
@@ -3460,7 +3476,7 @@
     "room_name": "Tourian Escape Room 4",
     "notable_id": 4,
     "name": "Bootless Walljumpless Space Jump",
-    "difficulty": "Very Hard",
+    "difficulty": "Expert+",
     "video_id": 1080
   },
   {

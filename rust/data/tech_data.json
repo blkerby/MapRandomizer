@@ -26,7 +26,7 @@
     {
         "tech_id": 232,
         "name": "canBeVeryLucky",
-        "difficulty": "Insane",
+        "difficulty": "Insane+",
         "video_id": null
     },
     {
@@ -306,6 +306,12 @@
         "video_id": 909
     },
     {
+        "tech_id": 240,
+        "name": "canBufferedMomentumConservingTurnaround",
+        "difficulty": "Hard",
+        "video_id": 4398
+    },
+    {
         "tech_id": 180,
         "name": "canMomentumConservingTurnaround",
         "difficulty": "Very Hard",
@@ -417,7 +423,7 @@
         "tech_id": 59,
         "name": "canTurnaroundSpinJump",
         "difficulty": "Implicit",
-        "video_id": null
+        "video_id": 6243
     },
     {
         "tech_id": 60,
@@ -579,7 +585,7 @@
         "tech_id": 85,
         "name": "canUnmorphBombBoost",
         "difficulty": "Expert+",
-        "video_id": 920
+        "video_id": 1659
     },
     {
         "tech_id": 86,
@@ -972,6 +978,12 @@
         "video_id": null
     },
     {
+        "tech_id": 241,
+        "name": "canRiskySpikeSuit",
+        "difficulty": "Insane+",
+        "video_id": 5326
+    },
+    {
         "tech_id": 178,
         "name": "canElevatorCrystalFlash",
         "difficulty": "Insane",
@@ -1317,7 +1329,7 @@
         "tech_id": 169,
         "name": "canCeilingClip",
         "difficulty": "Hard",
-        "video_id": 1064
+        "video_id": 5267
     },
     {
         "tech_id": 170,

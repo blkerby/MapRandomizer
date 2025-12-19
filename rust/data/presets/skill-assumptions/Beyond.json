@@ -188,6 +188,11 @@
             "enabled": true
         },
         {
+            "id": 240,
+            "name": "canBufferedMomentumConservingTurnaround",
+            "enabled": true
+        },
+        {
             "id": 51,
             "name": "canPreciseGrapple",
             "enabled": true
@@ -983,11 +988,6 @@
             "enabled": true
         },
         {
-            "id": 232,
-            "name": "canBeVeryLucky",
-            "enabled": true
-        },
-        {
             "id": 196,
             "name": "canInsaneMidAirMorph",
             "enabled": true
@@ -1048,6 +1048,11 @@
             "enabled": true
         },
         {
+            "id": 232,
+            "name": "canBeVeryLucky",
+            "enabled": true
+        },
+        {
             "id": 27,
             "name": "canExtendedMoondance",
             "enabled": true
@@ -1075,6 +1080,11 @@
         {
             "id": 92,
             "name": "canCeilingBombJump",
+            "enabled": true
+        },
+        {
+            "id": 241,
+            "name": "canRiskySpikeSuit",
             "enabled": true
         },
         {
@@ -1300,6 +1310,13 @@
             "notable_id": 1,
             "room_name": "West Cactus Alley",
             "notable_name": "Suitless HiJump Space Jump",
+            "enabled": true
+        },
+        {
+            "room_id": 209,
+            "notable_id": 3,
+            "room_name": "West Sand Pit",
+            "notable_name": "Right Item Turn Around Collection",
             "enabled": true
         },
         {
@@ -1674,13 +1691,6 @@
             "enabled": true
         },
         {
-            "room_id": 173,
-            "notable_id": 6,
-            "room_name": "Fish Tank",
-            "notable_name": "Wall Jump Entry",
-            "enabled": true
-        },
-        {
             "room_id": 183,
             "notable_id": 1,
             "room_name": "Aqueduct",
@@ -1758,13 +1768,6 @@
             "enabled": true
         },
         {
-            "room_id": 209,
-            "notable_id": 3,
-            "room_name": "West Sand Pit",
-            "notable_name": "Right Item Turn Around Collection",
-            "enabled": true
-        },
-        {
             "room_id": 213,
             "notable_id": 1,
             "room_name": "Butterfly Room",
@@ -1828,13 +1831,6 @@
             "enabled": true
         },
         {
-            "room_id": 222,
-            "notable_id": 3,
-            "room_name": "Shaktool Room",
-            "notable_name": "Bounce the Snails Around the Room",
-            "enabled": true
-        },
-        {
             "room_id": 227,
             "notable_id": 1,
             "room_name": "Metroid Room 2",
@@ -1853,13 +1849,6 @@
             "notable_id": 2,
             "room_name": "Metroid Room 4",
             "notable_name": "Three Power Bomb Kill (Top to Bottom)",
-            "enabled": true
-        },
-        {
-            "room_id": 242,
-            "notable_id": 4,
-            "room_name": "Tourian Escape Room 4",
-            "notable_name": "Bootless Walljumpless Space Jump",
             "enabled": true
         },
         {
@@ -2035,13 +2024,6 @@
             "notable_id": 3,
             "room_name": "Lava Dive Room",
             "notable_name": "Damage Boost Shinespark",
-            "enabled": true
-        },
-        {
-            "room_id": 112,
-            "notable_id": 1,
-            "room_name": "Lava Grapple Tunnel",
-            "notable_name": "Frozen Maw Platforms",
             "enabled": true
         },
         {
@@ -2227,6 +2209,13 @@
             "enabled": true
         },
         {
+            "room_id": 173,
+            "notable_id": 6,
+            "room_name": "Fish Tank",
+            "notable_name": "Wall Jump Entry",
+            "enabled": true
+        },
+        {
             "room_id": 174,
             "notable_id": 7,
             "room_name": "Mt. Everest",
@@ -2312,9 +2301,9 @@
         },
         {
             "room_id": 222,
-            "notable_id": 4,
+            "notable_id": 3,
             "room_name": "Shaktool Room",
-            "notable_name": "Suitless Bounce the Snails Around the Room",
+            "notable_name": "Bounce the Snails Around the Room",
             "enabled": true
         },
         {
@@ -2427,6 +2416,13 @@
             "notable_id": 3,
             "room_name": "Pink Brinstar Wave Gate Room",
             "notable_name": "Hopper X-Ray Climb",
+            "enabled": true
+        },
+        {
+            "room_id": 112,
+            "notable_id": 1,
+            "room_name": "Lava Grapple Tunnel",
+            "notable_name": "Frozen Maw Platforms",
             "enabled": true
         },
         {
@@ -2549,6 +2545,13 @@
             "enabled": true
         },
         {
+            "room_id": 222,
+            "notable_id": 4,
+            "room_name": "Shaktool Room",
+            "notable_name": "Suitless Bounce the Snails Around the Room",
+            "enabled": true
+        },
+        {
             "room_id": 199,
             "notable_id": 10,
             "room_name": "West Sand Hall",
@@ -2567,6 +2570,13 @@
             "notable_id": 1,
             "room_name": "Metroid Room 1",
             "notable_name": "Rinka Damage Boost",
+            "enabled": true
+        },
+        {
+            "room_id": 242,
+            "notable_id": 4,
+            "room_name": "Tourian Escape Room 4",
+            "notable_name": "Bootless Walljumpless Space Jump",
             "enabled": true
         },
         {
@@ -2627,9 +2637,9 @@
         },
         {
             "room_id": 34,
-            "notable_id": 1,
+            "notable_id": 4,
             "room_name": "East Ocean",
-            "notable_name": "Shinespark Water Escape With Lower Choot Alive",
+            "notable_name": "Shinespark Water Escape",
             "enabled": true
         },
         {
@@ -2795,13 +2805,6 @@
         },
         {
             "room_id": 66,
-            "notable_id": 5,
-            "room_name": "Red Tower",
-            "notable_name": "Frozen Beetom Ice Climb",
-            "enabled": true
-        },
-        {
-            "room_id": 66,
             "notable_id": 7,
             "room_name": "Red Tower",
             "notable_name": "Midair HBJ",
@@ -2920,13 +2923,6 @@
             "enabled": true
         },
         {
-            "room_id": 148,
-            "notable_id": 2,
-            "room_name": "Three Musketeers' Room",
-            "notable_name": "Dodge Going Up",
-            "enabled": true
-        },
-        {
             "room_id": 138,
             "notable_id": 2,
             "room_name": "Wasteland",
@@ -3018,6 +3014,13 @@
             "enabled": true
         },
         {
+            "room_id": 189,
+            "notable_id": 11,
+            "room_name": "Colosseum",
+            "notable_name": "Stored Moonfall Grapple Door Lock Skip",
+            "enabled": true
+        },
+        {
             "room_id": 175,
             "notable_id": 3,
             "room_name": "Crab Shaft",
@@ -3088,13 +3091,6 @@
             "enabled": true
         },
         {
-            "room_id": 210,
-            "notable_id": 14,
-            "room_name": "East Sand Hall",
-            "notable_name": "Suitless Bootless Evir Climb",
-            "enabled": true
-        },
-        {
             "room_id": 220,
             "notable_id": 5,
             "room_name": "Pants Room",
@@ -3130,17 +3126,10 @@
             "enabled": true
         },
         {
-            "room_id": 238,
-            "notable_id": 3,
-            "room_name": "Mother Brain Room",
-            "notable_name": "R-Mode Light Pillar",
-            "enabled": true
-        },
-        {
             "room_id": 34,
-            "notable_id": 4,
+            "notable_id": 1,
             "room_name": "East Ocean",
-            "notable_name": "Shinespark Water Escape",
+            "notable_name": "Shinespark Water Escape With Lower Choot Alive",
             "enabled": true
         },
         {
@@ -3201,6 +3190,13 @@
         },
         {
             "room_id": 66,
+            "notable_id": 5,
+            "room_name": "Red Tower",
+            "notable_name": "Frozen Beetom Ice Climb",
+            "enabled": true
+        },
+        {
+            "room_id": 66,
             "notable_id": 10,
             "room_name": "Red Tower",
             "notable_name": "Frozen Beetom X-Ray Climb with Morph",
@@ -3218,6 +3214,13 @@
             "notable_id": 1,
             "room_name": "Cathedral Entrance",
             "notable_name": "10 Power Bomb Crystal Flash",
+            "enabled": true
+        },
+        {
+            "room_id": 90,
+            "notable_id": 7,
+            "room_name": "Cathedral Entrance",
+            "notable_name": "Dessgeega Dodge (Right-to-Left)",
             "enabled": true
         },
         {
@@ -3291,6 +3294,20 @@
             "enabled": true
         },
         {
+            "room_id": 148,
+            "notable_id": 2,
+            "room_name": "Three Musketeers' Room",
+            "notable_name": "Dodge Going Up",
+            "enabled": true
+        },
+        {
+            "room_id": 163,
+            "notable_id": 1,
+            "room_name": "Wrecked Ship East Super Room",
+            "notable_name": "Robot Clip Run-In-Place",
+            "enabled": true
+        },
+        {
             "room_id": 155,
             "notable_id": 2,
             "room_name": "Wrecked Ship Main Shaft",
@@ -3316,6 +3333,13 @@
             "notable_id": 5,
             "room_name": "Mt. Everest",
             "notable_name": "Spring Ball Bounce Right to Left",
+            "enabled": true
+        },
+        {
+            "room_id": 183,
+            "notable_id": 9,
+            "room_name": "Aqueduct",
+            "notable_name": "Snail Stuck Moonfall",
             "enabled": true
         },
         {
@@ -3351,6 +3375,13 @@
             "notable_id": 6,
             "room_name": "East Sand Hall",
             "notable_name": "Cross Room Jump with Ice or Damage Boost",
+            "enabled": true
+        },
+        {
+            "room_id": 210,
+            "notable_id": 14,
+            "room_name": "East Sand Hall",
+            "notable_name": "Suitless Bootless Evir Climb",
             "enabled": true
         },
         {
@@ -3393,6 +3424,13 @@
             "notable_id": 8,
             "room_name": "West Sand Hall",
             "notable_name": "Cross Room Space Jump (Right to Left)",
+            "enabled": true
+        },
+        {
+            "room_id": 238,
+            "notable_id": 3,
+            "room_name": "Mother Brain Room",
+            "notable_name": "R-Mode Light Pillar",
             "enabled": true
         },
         {
@@ -3501,13 +3539,6 @@
             "enabled": true
         },
         {
-            "room_id": 90,
-            "notable_id": 7,
-            "room_name": "Cathedral Entrance",
-            "notable_name": "Dessgeega Dodge (Right-to-Left)",
-            "enabled": true
-        },
-        {
             "room_id": 93,
             "notable_id": 2,
             "room_name": "Frog Speedway",
@@ -3519,13 +3550,6 @@
             "notable_id": 4,
             "room_name": "Lava Dive Room",
             "notable_name": "GT Max Suitless Right Side Climb",
-            "enabled": true
-        },
-        {
-            "room_id": 115,
-            "notable_id": 6,
-            "room_name": "Lava Dive Room",
-            "notable_name": "HiJumpless Nahime Morph Kago",
             "enabled": true
         },
         {
@@ -3554,13 +3578,6 @@
             "notable_id": 5,
             "room_name": "Ice Beam Gate Room",
             "notable_name": "Speedy Crouch Gate Clip",
-            "enabled": true
-        },
-        {
-            "room_id": 127,
-            "notable_id": 2,
-            "room_name": "Indiana Jones Room",
-            "notable_name": "G-Mode Morph Long Diagonal Bomb Jump",
             "enabled": true
         },
         {
@@ -3634,13 +3651,6 @@
             "enabled": true
         },
         {
-            "room_id": 163,
-            "notable_id": 1,
-            "room_name": "Wrecked Ship East Super Room",
-            "notable_name": "Robot Clip Run-In-Place",
-            "enabled": true
-        },
-        {
             "room_id": 173,
             "notable_id": 3,
             "room_name": "Fish Tank",
@@ -3704,13 +3714,6 @@
             "enabled": true
         },
         {
-            "room_id": 183,
-            "notable_id": 9,
-            "room_name": "Aqueduct",
-            "notable_name": "Snail Stuck Moonfall",
-            "enabled": true
-        },
-        {
             "room_id": 186,
             "notable_id": 2,
             "room_name": "Botwoon Energy Tank Room",
@@ -3725,13 +3728,6 @@
             "enabled": true
         },
         {
-            "room_id": 189,
-            "notable_id": 11,
-            "room_name": "Colosseum",
-            "notable_name": "Stored Moonfall Grapple Door Lock Skip",
-            "enabled": true
-        },
-        {
             "room_id": 175,
             "notable_id": 4,
             "room_name": "Crab Shaft",
@@ -3743,13 +3739,6 @@
             "notable_id": 1,
             "room_name": "East Cactus Alley",
             "notable_name": "G-Mode Morph, IBJ, HBJ",
-            "enabled": true
-        },
-        {
-            "room_id": 208,
-            "notable_id": 3,
-            "room_name": "East Sand Pit",
-            "notable_name": "Insane Walljump Morph",
             "enabled": true
         },
         {
@@ -3792,13 +3781,6 @@
             "notable_id": 3,
             "room_name": "Plasma Spark Room",
             "notable_name": "SpringFling into Top Right Door",
-            "enabled": true
-        },
-        {
-            "room_id": 210,
-            "notable_id": 8,
-            "room_name": "East Sand Hall",
-            "notable_name": "Right Door G-Mode Setup Suitless HiJump",
             "enabled": true
         },
         {
@@ -3928,10 +3910,31 @@
             "enabled": true
         },
         {
+            "room_id": 115,
+            "notable_id": 6,
+            "room_name": "Lava Dive Room",
+            "notable_name": "HiJumpless Nahime Morph Kago",
+            "enabled": true
+        },
+        {
+            "room_id": 112,
+            "notable_id": 3,
+            "room_name": "Lava Grapple Tunnel",
+            "notable_name": "Pause Abuse Damage Boosts",
+            "enabled": true
+        },
+        {
             "room_id": 106,
             "notable_id": 6,
             "room_name": "Ice Beam Gate Room",
             "notable_name": "Arm Pump Crouch Gate Clip",
+            "enabled": true
+        },
+        {
+            "room_id": 127,
+            "notable_id": 2,
+            "room_name": "Indiana Jones Room",
+            "notable_name": "G-Mode Morph Long Diagonal Bomb Jump",
             "enabled": true
         },
         {
@@ -3984,10 +3987,24 @@
             "enabled": true
         },
         {
+            "room_id": 208,
+            "notable_id": 3,
+            "room_name": "East Sand Pit",
+            "notable_name": "Insane Walljump Morph",
+            "enabled": true
+        },
+        {
             "room_id": 197,
             "notable_id": 4,
             "room_name": "Plasma Spark Room",
             "notable_name": "Insane Frozen Choot Spring Ball Jump",
+            "enabled": true
+        },
+        {
+            "room_id": 210,
+            "notable_id": 8,
+            "room_name": "East Sand Hall",
+            "notable_name": "Right Door G-Mode Setup Suitless HiJump",
             "enabled": true
         },
         {
