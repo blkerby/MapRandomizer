@@ -19,7 +19,7 @@ use crate::{
     randomize::{LockedDoor, Randomization},
     settings::{
         AreaAssignment, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
-        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump, SpikeSuits,
+        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump, SpikeSuits, BlueSuits,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
