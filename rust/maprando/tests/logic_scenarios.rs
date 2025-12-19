@@ -251,6 +251,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             map_station_reveal: maprando::settings::MapStationReveal::Full,
             energy_free_shinesparks: false,
             remove_spikesuits: maprando::settings::SpikeSuits::Disabled,
+            remove_bluesuits: maprando::settings::BlueSuits::Disabled,
             ultra_low_qol: false,
             race_mode: false,
             random_seed: None,

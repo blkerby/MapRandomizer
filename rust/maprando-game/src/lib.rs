@@ -72,6 +72,12 @@ pub const TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT: TechId = 142;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
 pub const TECH_ID_CAN_SLOPE_SPARK: TechId = 210;
 pub const TECH_ID_CAN_RMODE_KNOCKBACK_SPARK: TechId = 213;
+pub const TECH_ID_CAN_CRYSTAL_SPARK: TechId = 217;
+pub const TECH_ID_CAN_RMODE_SPARK_INTERRUPT: TechId = 216;
+pub const TECH_ID_CAN_RMODE_PAUSE_SPARK_INTERRUPT: TechId = 222;
+pub const TECH_ID_CAN_XMODE_BLUE_SUIT: TechId = 223;
+pub const TECH_ID_CAN_SLOPE_XMODE: TechId = 225;
+
 
 #[allow(clippy::type_complexity)]
 #[derive(Deserialize, Serialize, Clone, Debug)]

@@ -78,6 +78,19 @@
 </div>
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/remove_bluesuits.html" %}
+        <label for="remove_bluesuits">Remove Bluesuits</label>
+    </div>
+    <div id="removespikesuits" class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="remove_bluesuits" id="removebluesuitsNo" value="Disabled"
+            checked>
+        <label class="btn btn-outline-primary" for="removespikesuitsNo">No</label>
+        <input type="radio" class="btn-check" name="remove_bluesuits" id="removebluesuitsYes" value="Enabled">
+        <label class="btn btn-outline-primary" for="removebluesuitsYes">Yes</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/ultra_low_qol.html" %}
         <label for="ultra_low_qol">Ultra-low quality of life</label>
     </div>

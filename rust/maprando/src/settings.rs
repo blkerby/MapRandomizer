@@ -348,6 +348,7 @@ pub struct OtherSettings {
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub remove_spikesuits: SpikeSuits,
+    pub remove_bluesuits: BlueSuits,
     pub ultra_low_qol: bool,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
