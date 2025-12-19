@@ -561,10 +561,10 @@ impl Patcher<'_> {
                 patches.push("remove_spikesuits");
             }
         }
-s
+
         match self.settings.other_settings.remove_bluesuits{
-            SpikeSuits::Disabled => {}
-            SpikeSuits::Enabled => {
+            BlueSuits::Disabled => {}
+            BlueSuits::Enabled => {
                 patches.push("remove_bluesuits");
             }
         }
