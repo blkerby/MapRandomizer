@@ -1267,13 +1267,14 @@ pub fn get_spoiler_log(
         &randomizer.difficulty_tiers[0],
     ).unwrap_or_else(|_| {
         warn!("Failed to compute escape data");
+        let difficulty = &randomizer.difficulty_tiers[0];
         SpoilerEscape {
-            base_igt_frames: 0,
-            base_igt_seconds: 0.0,
+            base_igt_frames: (60.0 * 5995.0 / difficulty.escape_timer_multiplier) as usize,
+            base_igt_seconds: 5995.0 / difficulty.escape_timer_multiplier,
             base_leniency_factor: 1.0,
-            difficulty_multiplier: 1.0,
-            raw_time_seconds: 0.0,
-            final_time_seconds: 0.0,
+            difficulty_multiplier: difficulty.escape_timer_multiplier,
+            raw_time_seconds: 5995.0,
+            final_time_seconds: 5995.0,
             animals_route: None,
             ship_route: Vec::new()
         }
