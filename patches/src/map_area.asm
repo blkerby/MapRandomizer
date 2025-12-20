@@ -1797,7 +1797,7 @@ hook_map_icons:
     LDA $702602,X               ; area
     AND #$00FF
     CMP #$0006                  ; valid area set?
-    BCS .check_markers
+    BCS .next
     CMP $1F5B                   ; current area?
     BNE .next
 
@@ -1823,7 +1823,6 @@ hook_map_icons:
     BNE .load_lp
 
 ; draw ship/bosses/mini-bosses/animals if appropriate
-.check_markers
     LDX #$0000
     PHK
     PLB

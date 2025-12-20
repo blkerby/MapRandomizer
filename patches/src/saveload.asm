@@ -6,7 +6,9 @@ LoRom
 !bank_8f_free_space_start = $8ffe40
 !bank_8f_free_space_end = $8ffe80
 !bank_8f_free_space2_start = $8fe99b
-!bank_8f_free_space2_end = $8feae0
+!bank_8f_free_space2_end = $8feb00
+!bank_81_free_space_start = $81f1c0
+!bank_81_free_space_end = $81f200
 
 !seed_value_0 = $dfff00
 !seed_value_1 = $dfff02
@@ -17,7 +19,13 @@ org $819A47		;Fix File Copy for the new SRAM files
 	LDA.l SRAMAddressTable,X : Skip 7 : LDA.l SRAMAddressTable,X : Skip 11 : CPY #$0A00
 org $819CAE		;Fix File Clear for the new SRAM files
 	LDA.l SRAMAddressTable,X : Skip 12 : CPY #$0A00
-	
+    
+org $819AE8
+    JSR hook_file_copy
+    
+org $819D14
+    JSR hook_file_clear
+    
 org $818000
 	JMP SaveGame
 org $818085
@@ -95,7 +103,7 @@ SaveSeed:
 	LDA !seed_value_0 : STA $700000, X
 	LDA !seed_value_1 : STA $700008, X
 SaveAreaMapCoord:
-    JSL save_map_coords
+    JSL set_save_markers
 EndSaveGame: PLY : PLX : PLB : PLP : RTL
 
 LoadGame: PHP : REP #$30 : PHB : PHX : PHY
@@ -152,7 +160,7 @@ warnpc !bank_8f_free_space_end
 
 ;;; Save Marker patch
 org !bank_8f_free_space2_start
-save_map_coords:
+set_save_markers:
     LDA $952                ; current save index
     ASL
     ASL
@@ -177,7 +185,13 @@ save_map_coords:
     SEP #$20
     PHX                     ; save index
     LDA $702602
-    CMP #$FF                ; initial spawn?
+    CMP #$FF                ; check if all 3 areas are unset (= spawn)
+    BNE .save_normal
+    LDA $702606
+    CMP #$FF
+    BNE .save_normal
+    LDA $70260A
+    CMP #$FF
     BNE .save_normal
     JSL check_save_rooms    ; spawning in save room?
     BCS .save_normal
@@ -246,7 +260,7 @@ save_rooms:
     dw $D81A, $DE23, $DF1B, $0000
 
 ; save icon logic:
-;   - helmet represents spawn until 3rd save occur; exception is spawn in save room
+;   - helmet represents spawn until 3rd save occurs; exception is spawn in save room
 ;   - yellow always represents most recent save; orange n-1 (next revert), pink n+1 (next overwrite)
 set_marker_colors:
     PHP
@@ -257,7 +271,9 @@ set_marker_colors:
     LDA #$08            ; yellow color
     STA $2E
     LDA $952            ; save index
-
+    CMP #$03            ; 0-2 valid; ignore file copy calls
+    BCS .exit
+    
 .next_color_lp
     PHA                 ; index
     ASL
@@ -268,13 +284,14 @@ set_marker_colors:
     CMP #$08
     BNE .is_orange
     CLC
-    ADC #$06
+    ADC #$06            ; orange
     BRA .write
 .is_orange
-    INC
-    
+    INC                 ; pink
 .write
     STA $2E             ; next slot color
+    CPX #$0000
+    BNE .not_helmet     ; helmet only valid in slot 0
     LDA $702603,X
     CMP #$8D            ; helmet?
     BNE .not_helmet
@@ -300,6 +317,7 @@ set_marker_colors:
     LDA #$000E
     STA $2E
     JSR check_dupe      ; ensure orange doesn't get overwritten
+.exit
     PLP
     RTL
 
@@ -338,5 +356,41 @@ check_dupe:
     BRA .inc_x
 .done
     RTS
-    
+
 warnpc !bank_8f_free_space2_end
+
+;;; Copy/clear save markers when doing file copy/clear
+org !bank_81_free_space_start
+hook_file_copy:
+    PHY
+    LDA $19B7           ; src slot
+    ASL
+    ASL
+    TAX                 ; src*4
+    LDA $19B9           ; dst slot
+    ASL
+    ASL
+    TAY                 ; dst*4
+    LDA $702602,X
+    PHA
+    LDA $702604,X
+    TYX
+    STA $702604,X
+    PLA
+    STA $702602,X
+    PLY
+    LDX #$0510          ; replaced code
+    RTS
+
+hook_file_clear:
+    LDA $19B7           ; src slot
+    ASL
+    ASL
+    TAX                 ; slot*4
+    LDA #$FFFF
+    STA $702602,X
+    STA	$702604,X
+    LDX #$0500          ; replaced code
+    RTS
+
+warnpc !bank_81_free_space_end
