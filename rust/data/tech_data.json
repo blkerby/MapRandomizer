@@ -752,7 +752,7 @@
     {
         "tech_id": 113,
         "name": "canCrazyCrabClimb",
-        "difficulty": "Extreme",
+        "difficulty": "Expert+",
         "video_id": 1001
     },
     {
@@ -969,13 +969,13 @@
         "tech_id": 233,
         "name": "canTrickySpikeSuit",
         "difficulty": "Extreme+",
-        "video_id": null
+        "video_id": 9138
     },
     {
         "tech_id": 234,
         "name": "canPatientSpikeSuit",
         "difficulty": "Extreme",
-        "video_id": null
+        "video_id": 8514
     },
     {
         "tech_id": 241,
@@ -1029,7 +1029,7 @@
         "tech_id": 208,
         "name": "canComplexCarryFlashSuit",
         "difficulty": "Extreme",
-        "video_id": null
+        "video_id": 8941
     },
     {
         "tech_id": 142,
@@ -1257,7 +1257,7 @@
         "tech_id": 235,
         "name": "canGModeXRayClimb",
         "difficulty": "Extreme",
-        "video_id": null
+        "video_id": 5662
     },
     {
         "tech_id": 198,
@@ -1281,7 +1281,7 @@
         "tech_id": 236,
         "name": "canRemoteAcquire",
         "difficulty": "Extreme",
-        "video_id": null
+        "video_id": 4198
     },
     {
         "tech_id": 206,

@@ -1073,6 +1073,14 @@
   },
   {
     "room_id": 28,
+    "strat_id": 9,
+    "video_id": 9138,
+    "created_user": "nn",
+    "note": "Missile",
+    "dev_note": "canTrickySpikeSuit"
+  },
+  {
+    "room_id": 28,
     "strat_id": 5,
     "video_id": 1051,
     "created_user": "maddo",
@@ -6940,7 +6948,7 @@
     "strat_id": 33,
     "video_id": 5662,
     "created_user": "Sam",
-    "note": "",
+    "note": "canGModeXRayClimb",
     "dev_note": ""
   },
   {
@@ -41381,7 +41389,7 @@
     "video_id": 4198,
     "created_user": "Sam",
     "note": "Suitless, SpringBall. Note: Can remote acquire by the door if the doorway is expanded",
-    "dev_note": "Caveat: Only need to barely touch items to remote acquire, no need to roll around unless you're needing to overload PLMs\nCaveat: Morph tunnel expansion so you can remote acquire fully"
+    "dev_note": "canRemoteAcquire\nCaveat: Only need to barely touch items to remote acquire, no need to roll around unless you're needing to overload PLMs\nCaveat: Morph tunnel expansion so you can remote acquire fully"
   },
   {
     "room_id": 172,

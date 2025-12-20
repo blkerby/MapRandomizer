@@ -22,9 +22,14 @@ v121 or soon-ish?:
   - Currently it's only showing up to one update per traversal?
 - Mosaic:
   - restore morph tunnel continuation behind morph tunnel transition?
+- spoiler map: add something in side panel for route to hub?
 
 
 v120?:
+- wave gate room: missing 3 -> 1 logic?
+- fix Metroid Room 1 "Ammo Kill" strats
+- restrict flash suit from satisfying comeInShinecharged if strat also has leaveShinecharged
+- DONE: fix "previously collected items" in spoiler
 - DONE: Investigate somerando seed: https://dev.maprando.com/seed/GNnnrHF79/
   - spoiler thinks more nodes are reachable than item placement did.
   - looks like heated CF option is not being correctly handled during item placement somehow

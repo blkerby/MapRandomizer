@@ -2140,7 +2140,7 @@
     "room_name": "Fish Tank",
     "notable_id": 3,
     "name": "Grapple Teleport into Grapple Jump",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 1134
   },
   {
@@ -2244,7 +2244,7 @@
     "room_name": "Maridia Tube",
     "notable_id": 2,
     "name": "Grapple Teleport into Grapple Jump (or Tube Intact)",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 1132
   },
   {
@@ -2267,7 +2267,7 @@
     "room_id": 174,
     "room_name": "Mt. Everest",
     "notable_id": 1,
-    "name": "Right Crab Climb with Only HiJump or Springball",
+    "name": "Right Crab Climb with Only HiJump",
     "difficulty": "Extreme",
     "video_id": 371
   },
@@ -2334,6 +2334,30 @@
     "name": "Double Crab Bomb-Grapple-Jump",
     "difficulty": "Beyond",
     "video_id": 288
+  },
+  {
+    "room_id": 174,
+    "room_name": "Mt. Everest",
+    "notable_id": 11,
+    "name": "Right Crab Climb with Supers and HiJump",
+    "difficulty": "Expert",
+    "video_id": 1001
+  },
+  {
+    "room_id": 174,
+    "room_name": "Mt. Everest",
+    "notable_id": 12,
+    "name": "Right Crab Climb with Supers and Spring Ball",
+    "difficulty": "Expert+",
+    "video_id": 4180
+  },
+  {
+    "room_id": 174,
+    "room_name": "Mt. Everest",
+    "notable_id": 13,
+    "name": "Right Crab Climb with Only Spring Ball",
+    "difficulty": "Extreme+",
+    "video_id": 4172
   },
   {
     "room_id": 177,
@@ -2732,7 +2756,7 @@
     "room_name": "East Sand Pit",
     "notable_id": 1,
     "name": "Suitless HiJump Perfect Bomb Boost",
-    "difficulty": "Insane+",
+    "difficulty": "Insane",
     "video_id": 203
   },
   {
@@ -2902,6 +2926,14 @@
     "name": "Left Shaft Precise Crouch Jump Down Grab",
     "difficulty": "Expert",
     "video_id": 4355
+  },
+  {
+    "room_id": 179,
+    "room_name": "The Beach",
+    "notable_id": 1,
+    "name": "Tricky Grapple Swing",
+    "difficulty": "Expert",
+    "video_id": 3911
   },
   {
     "room_id": 214,

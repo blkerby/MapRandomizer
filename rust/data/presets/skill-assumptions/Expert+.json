@@ -688,6 +688,11 @@
             "enabled": true
         },
         {
+            "id": 113,
+            "name": "canCrazyCrabClimb",
+            "enabled": true
+        },
+        {
             "id": 120,
             "name": "canEnemyExtendRunway",
             "enabled": true
@@ -820,11 +825,6 @@
         {
             "id": 112,
             "name": "canWallIceClip",
-            "enabled": false
-        },
-        {
-            "id": 113,
-            "name": "canCrazyCrabClimb",
             "enabled": false
         },
         {
@@ -2209,6 +2209,13 @@
             "enabled": true
         },
         {
+            "room_id": 174,
+            "notable_id": 11,
+            "room_name": "Mt. Everest",
+            "notable_name": "Right Crab Climb with Supers and HiJump",
+            "enabled": true
+        },
+        {
             "room_id": 177,
             "notable_id": 1,
             "room_name": "Red Fish Room",
@@ -2262,6 +2269,13 @@
             "notable_id": 5,
             "room_name": "Plasma Spark Room",
             "notable_name": "Left Shaft Precise Crouch Jump Down Grab",
+            "enabled": true
+        },
+        {
+            "room_id": 179,
+            "notable_id": 1,
+            "room_name": "The Beach",
+            "notable_name": "Tricky Grapple Swing",
             "enabled": true
         },
         {
@@ -2486,6 +2500,13 @@
             "notable_id": 5,
             "room_name": "Main Street",
             "notable_name": "Climb with Ice and Spring Ball",
+            "enabled": true
+        },
+        {
+            "room_id": 174,
+            "notable_id": 12,
+            "room_name": "Mt. Everest",
+            "notable_name": "Right Crab Climb with Supers and Spring Ball",
             "enabled": true
         },
         {
@@ -2961,7 +2982,7 @@
             "room_id": 174,
             "notable_id": 1,
             "room_name": "Mt. Everest",
-            "notable_name": "Right Crab Climb with Only HiJump or Springball",
+            "notable_name": "Right Crab Climb with Only HiJump",
             "enabled": false
         },
         {
@@ -3336,6 +3357,13 @@
             "enabled": false
         },
         {
+            "room_id": 174,
+            "notable_id": 13,
+            "room_name": "Mt. Everest",
+            "notable_name": "Right Crab Climb with Only Spring Ball",
+            "enabled": false
+        },
+        {
             "room_id": 183,
             "notable_id": 9,
             "room_name": "Aqueduct",
@@ -3645,13 +3673,6 @@
         },
         {
             "room_id": 173,
-            "notable_id": 3,
-            "room_name": "Fish Tank",
-            "notable_name": "Grapple Teleport into Grapple Jump",
-            "enabled": false
-        },
-        {
-            "room_id": 173,
             "notable_id": 8,
             "room_name": "Fish Tank",
             "notable_name": "Artificial Morph, Double Spring Ball Jump onto Frozen Fish",
@@ -3662,13 +3683,6 @@
             "notable_id": 2,
             "room_name": "Main Street",
             "notable_name": "Crab Climb with Only Ice and Supers",
-            "enabled": false
-        },
-        {
-            "room_id": 170,
-            "notable_id": 2,
-            "room_name": "Maridia Tube",
-            "notable_name": "Grapple Teleport into Grapple Jump (or Tube Intact)",
             "enabled": false
         },
         {
@@ -3718,6 +3732,13 @@
             "notable_id": 1,
             "room_name": "East Cactus Alley",
             "notable_name": "G-Mode Morph, IBJ, HBJ",
+            "enabled": false
+        },
+        {
+            "room_id": 208,
+            "notable_id": 1,
+            "room_name": "East Sand Pit",
+            "notable_name": "Suitless HiJump Perfect Bomb Boost",
             "enabled": false
         },
         {
@@ -3938,10 +3959,24 @@
             "enabled": false
         },
         {
+            "room_id": 173,
+            "notable_id": 3,
+            "room_name": "Fish Tank",
+            "notable_name": "Grapple Teleport into Grapple Jump",
+            "enabled": false
+        },
+        {
             "room_id": 172,
             "notable_id": 3,
             "room_name": "Main Street",
             "notable_name": "Crab Climb with Only Ice",
+            "enabled": false
+        },
+        {
+            "room_id": 170,
+            "notable_id": 2,
+            "room_name": "Maridia Tube",
+            "notable_name": "Grapple Teleport into Grapple Jump (or Tube Intact)",
             "enabled": false
         },
         {
@@ -3984,13 +4019,6 @@
             "notable_id": 1,
             "room_name": "Colosseum",
             "notable_name": "Spike Platforming with No Equipment",
-            "enabled": false
-        },
-        {
-            "room_id": 208,
-            "notable_id": 1,
-            "room_name": "East Sand Pit",
-            "notable_name": "Suitless HiJump Perfect Bomb Boost",
             "enabled": false
         },
         {
