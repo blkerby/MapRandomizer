@@ -1,5 +1,6 @@
 use anyhow::Result;
 use hashbrown::HashMap;
+use log::warn;
 use maprando_game::{
     BeamType, Capacity, DoorType, FlagId, Item, LinkIdx, LinkLength, NodeId, Requirement, RoomId,
     StepTrailId, TraversalId, VertexId, VertexKey,
@@ -1264,7 +1265,19 @@ pub fn get_spoiler_log(
         randomizer.settings,
         save_animals != SaveAnimals::No,
         &randomizer.difficulty_tiers[0],
-    )?;
+    ).unwrap_or_else(|_| {
+        warn!("Failed to compute escape data");
+        SpoilerEscape {
+            base_igt_frames: 0,
+            base_igt_seconds: 0.0,
+            base_leniency_factor: 1.0,
+            difficulty_multiplier: 1.0,
+            raw_time_seconds: 0.0,
+            final_time_seconds: 0.0,
+            animals_route: None,
+            ship_route: Vec::new()
+        }
+    });
 
     let spoiler_objectives: Vec<String> = randomizer
         .objectives
