@@ -1275,7 +1275,7 @@ pub fn get_spoiler_log(
             difficulty_multiplier: difficulty.escape_timer_multiplier,
             raw_time_seconds: 5995.0,
             final_time_seconds: 5995.0,
-            animals_route: None,
+            animals_route: if save_animals != SaveAnimals::No { Some(Vec::new()) } else { None },
             ship_route: Vec::new()
         }
     });
