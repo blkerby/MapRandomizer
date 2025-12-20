@@ -2616,11 +2616,11 @@ impl GameData {
                     .as_i32()
                     .unwrap_or_else(|| panic!("invalid draygonElectricityFrames in {req_json}"));
                 return Ok(Requirement::Damage(frames as Capacity));
-            } else if key == "samusEaterFrames" {
+            } else if key == "samusEaterCycles" {
                 let frames = value
                     .as_i32()
-                    .unwrap_or_else(|| panic!("invalid samusEaterFrames in {req_json}"));
-                return Ok(Requirement::Damage(frames as Capacity / 10));
+                    .unwrap_or_else(|| panic!("invalid samusEaterCycles in {req_json}"));
+                return Ok(Requirement::Damage(frames as Capacity * 16));
             } else if key == "cycleFrames" {
                 let frames = value
                     .as_i32()

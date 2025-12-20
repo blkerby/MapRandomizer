@@ -436,7 +436,7 @@
     "room_name": "Blue Brinstar Energy Tank Room",
     "notable_id": 1,
     "name": "G-Mode Flashing Lights",
-    "difficulty": "Extreme",
+    "difficulty": "Expert+",
     "video_id": 272
   },
   {
@@ -708,7 +708,7 @@
     "room_name": "Big Pink",
     "notable_id": 2,
     "name": "Extended Moondance Clip",
-    "difficulty": "Beyond",
+    "difficulty": "Insane+",
     "video_id": 162
   },
   {
@@ -1652,7 +1652,7 @@
     "room_name": "Golden Torizo's Room",
     "notable_id": 7,
     "name": "R-Mode Forced Standup Clip",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 2999
   },
   {
@@ -2108,7 +2108,7 @@
     "room_name": "Crab Hole",
     "notable_id": 2,
     "name": "Suitless Crab Climb No Jump Assist",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 404
   },
   {
@@ -2116,7 +2116,7 @@
     "room_name": "Crab Hole",
     "notable_id": 3,
     "name": "Suitless Crab Climb Superless with Springball",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 405
   },
   {
@@ -2252,7 +2252,7 @@
     "room_name": "Maridia Tube",
     "notable_id": 3,
     "name": "Cross Room Platform Stuck Wiggle to Top Door",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 1133
   },
   {
@@ -2316,7 +2316,7 @@
     "room_name": "Mt. Everest",
     "notable_id": 8,
     "name": "Cross Room Jump through Top Door",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 49
   },
   {
@@ -2363,7 +2363,7 @@
     "room_id": 183,
     "room_name": "Aqueduct",
     "notable_id": 2,
-    "name": "Snail Clip With Gravity and Morph",
+    "name": "Precise Snail Clip With Gravity",
     "difficulty": "Very Hard",
     "video_id": 1079
   },
@@ -2556,7 +2556,7 @@
     "room_name": "Colosseum",
     "notable_id": 6,
     "name": "Spike Platforming with Move Assist (Left to Right)",
-    "difficulty": "Expert+",
+    "difficulty": "Expert",
     "video_id": 403
   },
   {
@@ -2892,7 +2892,7 @@
     "room_name": "Plasma Spark Room",
     "notable_id": 4,
     "name": "Insane Frozen Choot Spring Ball Jump",
-    "difficulty": "Insane+",
+    "difficulty": "Beyond",
     "video_id": 73
   },
   {
@@ -3220,7 +3220,7 @@
     "room_name": "West Sand Hall",
     "notable_id": 2,
     "name": "Tricky Speedy Jump (Left to Right)",
-    "difficulty": "Insane+",
+    "difficulty": "Insane",
     "video_id": 45
   },
   {
@@ -3428,7 +3428,7 @@
     "room_name": "Mother Brain Room",
     "notable_id": 5,
     "name": "Moondance Clip",
-    "difficulty": "Insane",
+    "difficulty": "Insane+",
     "video_id": 6000
   },
   {

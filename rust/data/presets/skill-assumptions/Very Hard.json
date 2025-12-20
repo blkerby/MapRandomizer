@@ -413,11 +413,6 @@
             "enabled": true
         },
         {
-            "id": 84,
-            "name": "canJumpIntoRespawningBlock",
-            "enabled": true
-        },
-        {
             "id": 99,
             "name": "canSpringBallBombJump",
             "enabled": true
@@ -575,6 +570,11 @@
         {
             "id": 81,
             "name": "canFastWalljumpClimb",
+            "enabled": false
+        },
+        {
+            "id": 84,
+            "name": "canJumpIntoRespawningBlock",
             "enabled": false
         },
         {
@@ -758,11 +758,6 @@
             "enabled": false
         },
         {
-            "id": 231,
-            "name": "canBeLucky",
-            "enabled": false
-        },
-        {
             "id": 15,
             "name": "canSandfallBounce",
             "enabled": false
@@ -910,6 +905,11 @@
         {
             "id": 239,
             "name": "canHeated10PowerBombCrystalFlash",
+            "enabled": false
+        },
+        {
+            "id": 231,
+            "name": "canBeLucky",
             "enabled": false
         },
         {
@@ -1701,7 +1701,7 @@
             "room_id": 183,
             "notable_id": 2,
             "room_name": "Aqueduct",
-            "notable_name": "Snail Clip With Gravity and Morph",
+            "notable_name": "Precise Snail Clip With Gravity",
             "enabled": true
         },
         {
@@ -2195,20 +2195,6 @@
             "enabled": false
         },
         {
-            "room_id": 201,
-            "notable_id": 2,
-            "room_name": "Crab Hole",
-            "notable_name": "Suitless Crab Climb No Jump Assist",
-            "enabled": false
-        },
-        {
-            "room_id": 201,
-            "notable_id": 3,
-            "room_name": "Crab Hole",
-            "notable_name": "Suitless Crab Climb Superless with Springball",
-            "enabled": false
-        },
-        {
             "room_id": 173,
             "notable_id": 6,
             "room_name": "Fish Tank",
@@ -2241,6 +2227,13 @@
             "notable_id": 2,
             "room_name": "Colosseum",
             "notable_name": "Mochtroid Suitless, HiJumpless Ice Climb",
+            "enabled": false
+        },
+        {
+            "room_id": 189,
+            "notable_id": 6,
+            "room_name": "Colosseum",
+            "notable_name": "Spike Platforming with Move Assist (Left to Right)",
             "enabled": false
         },
         {
@@ -2384,6 +2377,13 @@
             "enabled": false
         },
         {
+            "room_id": 41,
+            "notable_id": 1,
+            "room_name": "Blue Brinstar Energy Tank Room",
+            "notable_name": "G-Mode Flashing Lights",
+            "enabled": false
+        },
+        {
             "room_id": 50,
             "notable_id": 1,
             "room_name": "Green Brinstar Beetom Room",
@@ -2468,6 +2468,20 @@
             "enabled": false
         },
         {
+            "room_id": 201,
+            "notable_id": 2,
+            "room_name": "Crab Hole",
+            "notable_name": "Suitless Crab Climb No Jump Assist",
+            "enabled": false
+        },
+        {
+            "room_id": 201,
+            "notable_id": 3,
+            "room_name": "Crab Hole",
+            "notable_name": "Suitless Crab Climb Superless with Springball",
+            "enabled": false
+        },
+        {
             "room_id": 172,
             "notable_id": 5,
             "room_name": "Main Street",
@@ -2486,13 +2500,6 @@
             "notable_id": 5,
             "room_name": "Colosseum",
             "notable_name": "Bomb Jump Water Escape",
-            "enabled": false
-        },
-        {
-            "room_id": 189,
-            "notable_id": 6,
-            "room_name": "Colosseum",
-            "notable_name": "Spike Platforming with Move Assist (Left to Right)",
             "enabled": false
         },
         {
@@ -2689,13 +2696,6 @@
             "notable_id": 12,
             "room_name": "West Ocean",
             "notable_name": "G-mode Overload PLMs by Power Bombing Morph Maze Item",
-            "enabled": false
-        },
-        {
-            "room_id": 41,
-            "notable_id": 1,
-            "room_name": "Blue Brinstar Energy Tank Room",
-            "notable_name": "G-Mode Flashing Lights",
             "enabled": false
         },
         {
@@ -3595,13 +3595,6 @@
             "enabled": false
         },
         {
-            "room_id": 150,
-            "notable_id": 7,
-            "room_name": "Golden Torizo's Room",
-            "notable_name": "R-Mode Forced Standup Clip",
-            "enabled": false
-        },
-        {
             "room_id": 151,
             "notable_id": 4,
             "room_name": "Screw Attack Room",
@@ -3679,13 +3672,6 @@
             "enabled": false
         },
         {
-            "room_id": 170,
-            "notable_id": 3,
-            "room_name": "Maridia Tube",
-            "notable_name": "Cross Room Platform Stuck Wiggle to Top Door",
-            "enabled": false
-        },
-        {
             "room_id": 174,
             "notable_id": 2,
             "room_name": "Mt. Everest",
@@ -3697,13 +3683,6 @@
             "notable_id": 6,
             "room_name": "Mt. Everest",
             "notable_name": "Spring Ball Bounce Left to Right",
-            "enabled": false
-        },
-        {
-            "room_id": 174,
-            "notable_id": 8,
-            "room_name": "Mt. Everest",
-            "notable_name": "Cross Room Jump through Top Door",
             "enabled": false
         },
         {
@@ -3805,6 +3784,13 @@
             "enabled": false
         },
         {
+            "room_id": 199,
+            "notable_id": 2,
+            "room_name": "West Sand Hall",
+            "notable_name": "Tricky Speedy Jump (Left to Right)",
+            "enabled": false
+        },
+        {
             "room_id": 232,
             "notable_id": 2,
             "room_name": "Big Boy Room",
@@ -3816,13 +3802,6 @@
             "notable_id": 2,
             "room_name": "Metroid Room 1",
             "notable_name": "Acid Skip CWJ",
-            "enabled": false
-        },
-        {
-            "room_id": 238,
-            "notable_id": 5,
-            "room_name": "Mother Brain Room",
-            "notable_name": "Moondance Clip",
             "enabled": false
         },
         {
@@ -3896,6 +3875,13 @@
             "enabled": false
         },
         {
+            "room_id": 59,
+            "notable_id": 2,
+            "room_name": "Big Pink",
+            "notable_name": "Extended Moondance Clip",
+            "enabled": false
+        },
+        {
             "room_id": 58,
             "notable_id": 1,
             "room_name": "Dachora Room",
@@ -3938,6 +3924,13 @@
             "enabled": false
         },
         {
+            "room_id": 150,
+            "notable_id": 7,
+            "room_name": "Golden Torizo's Room",
+            "notable_name": "R-Mode Forced Standup Clip",
+            "enabled": false
+        },
+        {
             "room_id": 134,
             "notable_id": 2,
             "room_name": "Pillar Room",
@@ -3952,10 +3945,24 @@
             "enabled": false
         },
         {
+            "room_id": 170,
+            "notable_id": 3,
+            "room_name": "Maridia Tube",
+            "notable_name": "Cross Room Platform Stuck Wiggle to Top Door",
+            "enabled": false
+        },
+        {
             "room_id": 174,
             "notable_id": 3,
             "room_name": "Mt. Everest",
             "notable_name": "Right Crab Climb with Only 1 Super",
+            "enabled": false
+        },
+        {
+            "room_id": 174,
+            "notable_id": 8,
+            "room_name": "Mt. Everest",
+            "notable_name": "Cross Room Jump through Top Door",
             "enabled": false
         },
         {
@@ -3994,13 +4001,6 @@
             "enabled": false
         },
         {
-            "room_id": 197,
-            "notable_id": 4,
-            "room_name": "Plasma Spark Room",
-            "notable_name": "Insane Frozen Choot Spring Ball Jump",
-            "enabled": false
-        },
-        {
             "room_id": 210,
             "notable_id": 8,
             "room_name": "East Sand Hall",
@@ -4008,10 +4008,10 @@
             "enabled": false
         },
         {
-            "room_id": 199,
-            "notable_id": 2,
-            "room_name": "West Sand Hall",
-            "notable_name": "Tricky Speedy Jump (Left to Right)",
+            "room_id": 238,
+            "notable_id": 5,
+            "room_name": "Mother Brain Room",
+            "notable_name": "Moondance Clip",
             "enabled": false
         },
         {
@@ -4050,13 +4050,6 @@
             "enabled": false
         },
         {
-            "room_id": 59,
-            "notable_id": 2,
-            "room_name": "Big Pink",
-            "notable_name": "Extended Moondance Clip",
-            "enabled": false
-        },
-        {
             "room_id": 67,
             "notable_id": 1,
             "room_name": "Red Brinstar Fireflea Room",
@@ -4089,6 +4082,13 @@
             "notable_id": 5,
             "room_name": "East Cactus Alley",
             "notable_name": "HiJumpless Double Spring Ball Jump and Bomb-Grapple-Jump",
+            "enabled": false
+        },
+        {
+            "room_id": 197,
+            "notable_id": 4,
+            "room_name": "Plasma Spark Room",
+            "notable_name": "Insane Frozen Choot Spring Ball Jump",
             "enabled": false
         }
     ]

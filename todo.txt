@@ -36,6 +36,7 @@ v120?:
 - DONE: Investigate osse seed: https://dev.maprando.com/seed/MgjPvGL8C/data/visualizer/index.html
 - DONE: Improve farm logic interaction between forward and reverse traversal
 - DONE: Implement separate leniency for spike suit.
+- move blue suit save QoL into High.
 - on spoiler map: hide forced mode difficulty placements behind toggle?
 - Logic difficulty changes:
   - ease botwoon proficiency expectation

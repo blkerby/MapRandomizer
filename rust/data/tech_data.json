@@ -20,7 +20,7 @@
     {
         "tech_id": 231,
         "name": "canBeLucky",
-        "difficulty": "Extreme",
+        "difficulty": "Extreme+",
         "video_id": null
     },
     {
@@ -578,7 +578,7 @@
     {
         "tech_id": 84,
         "name": "canJumpIntoRespawningBlock",
-        "difficulty": "Very Hard",
+        "difficulty": "Expert",
         "video_id": 774
     },
     {
