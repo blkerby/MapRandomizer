@@ -1265,7 +1265,8 @@ pub fn get_spoiler_log(
         randomizer.settings,
         save_animals != SaveAnimals::No,
         &randomizer.difficulty_tiers[0],
-    ).unwrap_or_else(|_| {
+    )
+    .unwrap_or_else(|_| {
         warn!("Failed to compute escape data");
         let difficulty = &randomizer.difficulty_tiers[0];
         SpoilerEscape {
@@ -1275,8 +1276,12 @@ pub fn get_spoiler_log(
             difficulty_multiplier: difficulty.escape_timer_multiplier,
             raw_time_seconds: 5995.0,
             final_time_seconds: 5995.0,
-            animals_route: if save_animals != SaveAnimals::No { Some(Vec::new()) } else { None },
-            ship_route: Vec::new()
+            animals_route: if save_animals != SaveAnimals::No {
+                Some(Vec::new())
+            } else {
+                None
+            },
+            ship_route: Vec::new(),
         }
     });
 
