@@ -1567,7 +1567,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let rf = roomFlags[i];
 			let f = rf[0];
 			let obj = false;
-			if (f == "f_ZebesAwake")
+			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "f_AllItemsSpawn" || f == "f_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
 				continue;
 
 
