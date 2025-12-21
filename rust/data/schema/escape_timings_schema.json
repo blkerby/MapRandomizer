@@ -69,7 +69,7 @@
                         "$ref": "#/definitions/door"
                       },
                       "in_game_time": {
-                        "type": "number",
+                        "type": ["number", "null"],
                         "description": "Time in seconds taken to reach the 'to_door' from the 'from_door'."
                       },
                       "simple_fraction": {
