@@ -102,7 +102,11 @@
                               "type": "number",
                               "description": "Fraction of the time which is spent on simple movement (not scaled by difficulty).",
                               "default": 0
-                            }                                   
+                            },
+                            "note": {
+                              "type": "string",
+                              "description": "Optional note about this timing."
+                            }
                           }
                         },
                         "description": "Optional array of timings that require specific conditions to be met to be valid."
