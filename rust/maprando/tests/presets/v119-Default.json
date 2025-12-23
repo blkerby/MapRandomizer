@@ -4346,6 +4346,8 @@
         "maps_revealed": null,
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,
+        "remove_spikesuits": "Disabled",
+        "remove_bluesuits": "Disabled",
         "ultra_low_qol": false,
         "race_mode": false,
         "random_seed": null

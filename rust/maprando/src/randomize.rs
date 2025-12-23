@@ -36,8 +36,9 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
-    VertexKey,
+    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SLOPE_SPARK, 
+    TECH_ID_CAN_RMODE_KNOCKBACK_SPARK, TECH_ID_CAN_CRYSTAL_SPARK, TECH_ID_CAN_RMODE_SPARK_INTERRUPT, TECH_ID_CAN_RMODE_PAUSE_SPARK_INTERRUPT,
+    TECH_ID_CAN_XMODE_BLUE_SUIT, TECH_ID_CAN_SLOPE_XMODE, TechId, TemporaryBlueDirection, TraversalId, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -98,6 +99,15 @@ impl DifficultyConfig {
         let mut tech: Vec<bool> = vec![false; game_data.tech_isv.keys.len()];
         let mut notables: Vec<bool> = vec![false; game_data.notable_isv.keys.len()];
 
+        // todo alter function to exclude bluesuit / spikesuit tech if disable in game
+
+        let spikesuit_tech_list=[TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SLOPE_SPARK, 
+                                 TECH_ID_CAN_RMODE_KNOCKBACK_SPARK];
+
+        let bluesuit_tech_list=[TECH_ID_CAN_CRYSTAL_SPARK, TECH_ID_CAN_RMODE_SPARK_INTERRUPT,TECH_ID_CAN_RMODE_PAUSE_SPARK_INTERRUPT,
+                                TECH_ID_CAN_XMODE_BLUE_SUIT, TECH_ID_CAN_SLOPE_XMODE];
+
+        //
         for &tech_id in implicit_tech {
             let tech_idx = game_data.tech_isv.index_by_key[&tech_id];
             tech[tech_idx] = true;

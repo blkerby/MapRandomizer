@@ -19,7 +19,7 @@ use crate::{
     randomize::{LockedDoor, Randomization},
     settings::{
         AreaAssignment, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
-        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
+        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump, SpikeSuits, BlueSuits,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -552,6 +552,20 @@ impl Patcher<'_> {
             ETankRefill::Vanilla => {}
             ETankRefill::Full => {
                 patches.push("etank_refill_full");
+            }
+        }
+
+        match self.settings.other_settings.remove_spikesuits{
+            SpikeSuits::Disabled => {}
+            SpikeSuits::Enabled => {
+                patches.push("remove_spikesuits");
+            }
+        }
+
+        match self.settings.other_settings.remove_bluesuits{
+            BlueSuits::Disabled => {}
+            BlueSuits::Enabled => {
+                patches.push("remove_bluesuits");
             }
         }
 

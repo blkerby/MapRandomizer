@@ -79,7 +79,7 @@ check_empty:
 .end:
 	rts
 
-warnpc $a0f830
+assert pc() <= $a0f830
 
 ;;; Fixes for the extra save stations in area rando/random start :
 
@@ -123,7 +123,7 @@ save_station_check:
 	jmp search_loop_found
 
 ;;; end of unused space
-warnpc $8485b2
+assert pc() <= $8485b2
 
 
 ; Use door direction ($0791) to check in Big Boy room if we are coming in from the left vs. right.
@@ -181,7 +181,7 @@ fix_camera_alignment:
 	LDA $B1 : SEC
 	RTS
 
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
 
 
 ; skip loading special x-ray blocks (only used in BT room during escape, and we repurpose the space for other things)
@@ -209,7 +209,7 @@ check_item_plm:
 	clc
 	rts
 
-warnpc $848398
+assert pc() <= $848398
 org $848398
 special_xray_end:
 
@@ -239,7 +239,7 @@ pause_func:
     stz $9d6                      ; clear reserve health
     rts
 
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 ; Fix for powamp projectile bug
 ;
@@ -268,7 +268,7 @@ powamp_fix:
     sta $1a4b,y             ; replaced code
     rts
 
-warnpc !bank_86_free_space_end
+assert pc() <= !bank_86_free_space_end
 
 ; Fix improper clearing of BG2
 ; Noted by PJBoy: https://patrickjohnston.org/bank/80#fA23F
@@ -299,7 +299,7 @@ yapping_maw_crash:
 .skip
     jmp ($d37d,x)           ; valid entry
     
-warnPC !bank_90_free_space_end
+assert pc() <= !bank_90_free_space_end
 
 ;;; Spring ball menu crash fix by strotlog.
 ;;; Fix obscure vanilla bug where: turning off spring ball while bouncing, can crash in $91:EA07,
@@ -314,7 +314,7 @@ org $91f1fc
     jsl spring_ball_crash
 
 !bank_85_free_space_start = $85b000 ; do not change, first jmp used externally
-!bank_85_free_space_end = $85b4b0
+!bank_85_free_space_end = $85d4b0
 
 org !bank_85_free_space_start
     jmp bug_dialog          ; for external calls, do not move
@@ -352,7 +352,8 @@ bug_dialog:                 ; A = msg ID
 
     pla                     ; dlg box parameter
     jsl $858080             ; dlg box
-
+    cmp #$0045              ; spikesuit disabled msg 
+    beq .nokillmsg          ; we don't want to kill samus for spikesuiting so skip the death sequence
     lda #$8000              ; init death sequence (copied from $82db80)
     sta $a78
     lda #$0011
@@ -360,6 +361,7 @@ bug_dialog:                 ; A = msg ID
     
     lda #$0013              ; set gamestate
     sta $998
+    .nokillmsg
     rtl
     
 hook_message_box:
@@ -416,6 +418,7 @@ new_message_boxes:
     dw $83c5, $825a, springball_msg     ; 0x42
     dw $83c5, $825a, yapping_maw_msg    ; 0x43
     dw $83c5, $825a, oob_msg            ; 0x44
+    dw $83c5, $825a, ss_msg             ; 0x45
     dw $0000, $0000, msg_end
 
 table "tables/dialog_chars.tbl",RTL
@@ -443,10 +446,16 @@ oob_msg:
     dw $000e,$000e,$000e, "   SAMUS OUT-OF-BOUNDS!   ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+
+ss_msg:
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "   SPIKE SUIT DISABLED!   ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     
 msg_end:
 
-warnPC !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
 
 org $858093
     jsr hook_message_box
@@ -483,7 +492,7 @@ check_unpause:
     lda #$0008              ; replaced code
     jmp $93be
 
-warnPC !bank_82_free_space2_end
+assert pc() <= !bank_82_free_space2_end
 
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
