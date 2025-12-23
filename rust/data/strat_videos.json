@@ -19233,6 +19233,14 @@
   },
   {
     "room_id": 91,
+    "strat_id": 37,
+    "video_id": 9464,
+    "created_user": "maddo",
+    "note": "Power Bomb",
+    "dev_note": ""
+  },
+  {
+    "room_id": 91,
     "strat_id": 31,
     "video_id": 2030,
     "created_user": "Sam",

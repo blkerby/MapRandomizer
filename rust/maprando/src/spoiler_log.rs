@@ -961,6 +961,7 @@ pub fn get_spoiler_log(
     traverser_pair: &mut TraverserPair,
     save_animals: SaveAnimals,
     start_location_data: &StartLocationData,
+    tolerate_escape_failure: bool,
 ) -> Result<SpoilerLog> {
     let forward_traversal = get_spoiler_traversal(&traverser_pair.forward);
     let reverse_traversal = get_spoiler_traversal(&traverser_pair.reverse);
@@ -1259,31 +1260,36 @@ pub fn get_spoiler_log(
         });
     }
 
-    let spoiler_escape = escape_timer::compute_escape_data(
+    let spoiler_escape = match escape_timer::compute_escape_data(
         randomizer.game_data,
         randomizer.map,
         randomizer.settings,
         save_animals != SaveAnimals::No,
         &randomizer.difficulty_tiers[0],
-    )
-    .unwrap_or_else(|_| {
-        warn!("Failed to compute escape data");
-        let difficulty = &randomizer.difficulty_tiers[0];
-        SpoilerEscape {
-            base_igt_frames: (60.0 * 5995.0 / difficulty.escape_timer_multiplier) as usize,
-            base_igt_seconds: 5995.0 / difficulty.escape_timer_multiplier,
-            base_leniency_factor: 1.0,
-            difficulty_multiplier: difficulty.escape_timer_multiplier,
-            raw_time_seconds: 5995.0,
-            final_time_seconds: 5995.0,
-            animals_route: if save_animals != SaveAnimals::No {
-                Some(Vec::new())
-            } else {
-                None
-            },
-            ship_route: Vec::new(),
+    ) {
+        Ok(escape) => escape,
+        Err(err) => {
+            if !tolerate_escape_failure {
+                return Err(err);
+            }
+            warn!("Failed to compute escape data: {}", err);
+            let difficulty = &randomizer.difficulty_tiers[0];
+            SpoilerEscape {
+                base_igt_frames: (60.0 * 5995.0 / difficulty.escape_timer_multiplier) as usize,
+                base_igt_seconds: 5995.0 / difficulty.escape_timer_multiplier,
+                base_leniency_factor: 1.0,
+                difficulty_multiplier: difficulty.escape_timer_multiplier,
+                raw_time_seconds: 5995.0,
+                final_time_seconds: 5995.0,
+                animals_route: if save_animals != SaveAnimals::No {
+                    Some(Vec::new())
+                } else {
+                    None
+                },
+                ship_route: Vec::new(),
+            }
         }
-    });
+    };
 
     let spoiler_objectives: Vec<String> = randomizer
         .objectives

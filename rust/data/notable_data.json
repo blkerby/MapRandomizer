@@ -3472,6 +3472,14 @@
     "video_id": 7066
   },
   {
+    "room_id": 238,
+    "room_name": "Mother Brain Room",
+    "notable_id": 7,
+    "name": "Mother Brain Pedestal XMode",
+    "difficulty": "Ignored",
+    "video_id": null
+  },
+  {
     "room_id": 233,
     "room_name": "Seaweed Room",
     "notable_id": 1,
