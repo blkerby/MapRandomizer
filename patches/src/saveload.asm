@@ -290,8 +290,6 @@ set_marker_colors:
     INC                 ; pink
 .write
     STA $2E             ; next slot color
-    CPX #$0000
-    BNE .not_helmet     ; helmet only valid in slot 0
     LDA $702603,X
     CMP #$8D            ; helmet?
     BNE .not_helmet
