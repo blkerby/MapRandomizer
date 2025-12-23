@@ -1,1 +1,1 @@
-FFEE - end: free space
+FFEE - end: vanilla_bugfixes.asm
