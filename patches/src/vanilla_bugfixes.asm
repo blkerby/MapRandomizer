@@ -510,7 +510,6 @@ org $91817C         ; hijack original instruction that tries to call the x-ray i
     !bank_91_free_space_end = $91FFF9
     
 org !bank_91_free_space_start
-    JSR $81A9       ; cause samus to stop moving
     LDA #$0045      ; bug msg ID
     JSL $85B000     ; give the player the bad news.
     RTS
