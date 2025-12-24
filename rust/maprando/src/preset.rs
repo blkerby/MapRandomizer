@@ -216,6 +216,7 @@ impl PresetData {
         let full_preset_names = [
             "Default",
             "Community Race Season 4",
+            "Winter Tournament - Item Draft",
             "Winter Tournament - Double Suit",
             "Winter Tournament - Gravity 9 + 1",
             "Winter Tournament - Varia + Movement",
