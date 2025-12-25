@@ -314,7 +314,7 @@ org $91f1fc
     jsl spring_ball_crash
 
 !bank_85_free_space_start = $85b000 ; do not change, first jmp used externally
-!bank_85_free_space_end = $85b4b0
+!bank_85_free_space_end = $85b5b5
 
 org !bank_85_free_space_start
     jmp bug_dialog          ; for external calls, do not move
@@ -416,6 +416,7 @@ new_message_boxes:
     dw $83c5, $825a, springball_msg     ; 0x42
     dw $83c5, $825a, yapping_maw_msg    ; 0x43
     dw $83c5, $825a, oob_msg            ; 0x44
+    dw $83c5, $825a, xm_msg             ; 0x45
     dw $0000, $0000, msg_end
 
 table "tables/dialog_chars.tbl",RTL
@@ -443,6 +444,12 @@ oob_msg:
     dw $000e,$000e,$000e, "   SAMUS OUT-OF-BOUNDS!   ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+
+xm_msg:
+    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "   COLLIDED WITH A SOLID  ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "      TILE IN X-MODE      ", $000e,$000e,$000e
     
 msg_end:
 
@@ -492,3 +499,19 @@ warnPC !bank_82_free_space2_end
 
 org $829f90
     adc #$7c
+
+
+; X-Mode collision fix
+
+org $91817C         ; hijack original instruction that tries to call the x-ray input handler.
+    JSR $FFEE
+    
+    !bank_91_free_space_start = $91FFEE
+    !bank_91_free_space_end = $91FFF9
+    
+org !bank_91_free_space_start
+    LDA #$0045      ; bug msg ID
+    JSL $85B000     ; give the player the bad news.
+    RTS
+    
+assert pc() <= !bank_91_free_space_end
