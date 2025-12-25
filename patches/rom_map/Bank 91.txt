@@ -1,1 +1,1 @@
-FFEE - end: free space
+FFEE - FFFE: mosaic\fake lava.asm
