@@ -314,7 +314,7 @@ org $91f1fc
     jsl spring_ball_crash
 
 !bank_85_free_space_start = $85b000 ; do not change, first jmp used externally
-!bank_85_free_space_end = $85b4b0
+!bank_85_free_space_end = $85b5FF
 
 org !bank_85_free_space_start
     jmp bug_dialog          ; for external calls, do not move
@@ -416,6 +416,7 @@ new_message_boxes:
     dw $83c5, $825a, springball_msg     ; 0x42
     dw $83c5, $825a, yapping_maw_msg    ; 0x43
     dw $83c5, $825a, oob_msg            ; 0x44
+    dw $83c5, $825a, xmode_msg          ; 0x45
     dw $0000, $0000, msg_end
 
 table "tables/dialog_chars.tbl",RTL
@@ -443,6 +444,12 @@ oob_msg:
     dw $000e,$000e,$000e, "   SAMUS OUT-OF-BOUNDS!   ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    
+xmode_msg:
+    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "   X-MODE TILE COLLISION  ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "COLLIDED WITH A SOLID TILE", $000e,$000e,$000e
     
 msg_end:
 
@@ -492,3 +499,43 @@ warnPC !bank_82_free_space2_end
 
 org $829f90
     adc #$7c
+
+; X-Mode collision fix - nn_357
+
+; cannot use original idea due to mosaic/fakelavapatch.asm already using the free space at the end of the bank.
+; included below if end of bank91 is ever free and wish to restore original code but keep bugfix.
+
+;org $91817C         ; hijack original instruction that tries to call the x-ray input handler.
+;    JSR $FFEE
+;    
+;    !bank_91_free_space_start = $91FFEE
+;    !bank_91_free_space_end = $91FFF9
+;    
+;org !bank_91_free_space_start
+;    LDA #$0045      ; bug msg ID
+;    JSL $85B000     ; give the player the bad news.
+;    RTS
+;    
+; assert pc() <= !bank_91_free_space_end
+
+; instead rewrite the input handler for solid object collision to free up enough space to jump to our new crash routine
+; this will fix the crash caused by colliding with a solid tile but also still kill Samus if it occurs. (keep vanilla behaviour just without the hardlock)
+
+org $85b5b6 ; place our code here.. if adding more dialog etc and this need moving also update the code below to reflect.
+    LDA #$0045      ; bug msg ID
+    JSL $85B000     ; give the player the bad news.
+    RTL
+    
+assert pc() <= !bank_85_free_space_end
+
+org $91816f ; rewrite original input handler for solid tile collision to free up space.
+    PHP
+    REP #$30
+    JSR $81A9   ; this fixes regular xmode collision by using the correct pose lookup routine for all collisions
+    LDA $0A78   ; load frozen time variable
+    BEQ $04     ; if time is NOT frozen skip over the next instruction (kill samus)
+    JSL $85b5b6 ; collision with solid tile while time is frozen is only possible in x-mode so jump to code that will kill samus rather than hardlock (retain vanilla behaviour)
+    PLP
+    RTS
+    NOP
+
