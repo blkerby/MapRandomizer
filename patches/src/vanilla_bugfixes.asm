@@ -538,4 +538,4 @@ org $91816f ; rewrite original input handler for solid tile collision to free up
     PLP
     RTS
     NOP
-
+assert pc() <= $918181  ; Make sure we don't overwrite the next routine.
