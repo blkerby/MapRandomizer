@@ -28,7 +28,8 @@ ret:
 
 ;;; skips suits acquisition animation
 org $848717
-	rep 4 : nop
+	;rep 4 : nop
+    JSL $91DEBA ; call the load samus suit palette to update the suit.
 
 ;;; fix to speed echoes bug when hell running
 org $91b629
