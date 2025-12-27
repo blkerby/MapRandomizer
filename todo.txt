@@ -1,5 +1,8 @@
 v121 or soon-ish?:
 - blue suit logic
+  - handle leaveWithRunway heat frames carefully
+    - for runway not at door node, be sure to require canDash or more heat frames, if applicable
+    - probably just require `from_exit_node=true` for more entrance conditions (e.g. comeInWithBombBoost)
 - options for friendlier save/map locations?
 - Handle Phantoon flag better (e.g. for small maps, or non-bosses objectives)?
   - Option: if Phantoon is not an objective, start with WS power on
@@ -23,38 +26,15 @@ v121 or soon-ish?:
 - Mosaic:
   - restore morph tunnel continuation behind morph tunnel transition?
 - spoiler map: add something in side panel for route to hub?
-
-
-v120?:
 - wave gate room: missing 3 -> 1 logic?
 - fix Metroid Room 1 "Ammo Kill" strats
 - restrict flash suit from satisfying comeInShinecharged if strat also has leaveShinecharged
-- DONE: fix "previously collected items" in spoiler
-- DONE: Investigate somerando seed: https://dev.maprando.com/seed/GNnnrHF79/
-  - spoiler thinks more nodes are reachable than item placement did.
-  - looks like heated CF option is not being correctly handled during item placement somehow
-- DONE: Implement h_spikeSuitPowerBombLeniency, etc.
-- DONE: Spoiler routes: account for implicit tech in entrance/exit conditions
-- DONE: Spoiler: highlight room when hovering over it in the spoiler route
-- DONE: Spoiler: color-code strat names by difficulty.
 - Finish writing test scenarios to cover all logical requirements and entrance/exit conditions.
-- DONE: Investigate osse seed: https://dev.maprando.com/seed/MgjPvGL8C/data/visualizer/index.html
-- DONE: Improve farm logic interaction between forward and reverse traversal
-- DONE: Implement separate leniency for spike suit.
 - move blue suit save QoL into High.
 - on spoiler map: hide forced mode difficulty placements behind toggle?
 - Logic difficulty changes:
   - ease botwoon proficiency expectation
-- DONE: Fix issue with RegularEnergy resourceAvailable (R-mode reduced tanks bugged seed reported by nn)
-- DONE: implement canSpeedyJump tech uses
-- DONE: Fix issue with enemies moving through floors?
-- DONE: Model carrying around a flash suit (in LocalState somewhere, and as another cost metric)
-- DONE: save with flash suit QoL
-- DONE: handle all cost metrics in "or"s
 - add more strats from Incomplete videos
-- DONE: wall not showing on minimap when combined with door lock on same tile
-- DONE: acid showing up during fade-in transition of Acid Statue Room when already cleared.
-- DONE: implement useImplicitComeInWithGrappleJump
 
 
 Other future work: --------------------------------------------------------------------
