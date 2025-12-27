@@ -75,6 +75,10 @@ impl GlobalState {
             }
             Item::ETank => {
                 self.inventory.max_energy += 100;
+                if !tech[game_data.manage_reserves_tech_idx] {
+                    self.inventory.max_reserves =
+                        Capacity::min(self.inventory.max_reserves, self.inventory.max_energy);
+                }
             }
             Item::ReserveTank => {
                 self.inventory.collectible_reserve_tanks += 1;
