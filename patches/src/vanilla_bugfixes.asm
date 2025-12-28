@@ -31,6 +31,8 @@ org $848717
 	;rep 4 : nop
     JSL $91DEBA ; call the load samus suit palette to update the suit.
 
+assert pc() <= $84871B ; just to make sure the next instruction isn't overwritten
+
 ;;; fix to speed echoes bug when hell running
 org $91b629
 	db $01
