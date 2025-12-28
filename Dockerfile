@@ -85,6 +85,8 @@ COPY --from=build /rust/static /rust/static
 COPY --from=build /rust/maprando-wasm/pkg /rust/maprando-wasm/pkg
 # Since the bin is the most likely thing to have changed, copy it last to avoid invalidating the rest of the steps
 COPY --from=build /rust/target/release/maprando-web /rust
+# Create a dummy dependence on the ips-test stage to ensure that it runs and succeeds: no files are actually copied here.
+COPY --from=ips-test /tmp/dummy-dependence-* /tmp
 ARG GIT_COMMIT_HASH=""
 ENV GIT_COMMIT_HASH=${GIT_COMMIT_HASH}
 WORKDIR /rust
