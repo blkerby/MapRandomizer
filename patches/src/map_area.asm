@@ -12,7 +12,7 @@ lorom
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AFD0
+!bank_85_freespace3_end  = $85AFEA
 !bank_b6_freespace_start = $B6FEE0
 !bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
@@ -1792,6 +1792,9 @@ hook_map_icons:
     PHP
     PHB
 ; draw save slot markers
+
+    LDA $A1F640                 ; draw saves disabled on generation?
+    BEQ .finished_drawing_saves
     LDX #$0000
 .load_lp
     LDA $702602,X               ; area
@@ -1821,7 +1824,7 @@ hook_map_icons:
     INX #4
     CPX #$000C
     BNE .load_lp
-
+.finished_drawing_saves
 ; draw ship/bosses/mini-bosses/animals if appropriate
     LDX #$0000
     PHK
@@ -1856,6 +1859,8 @@ hook_map_icons:
     LDA $7ED821
     AND #$0080                  ; already saved?
     BNE .no_dachora
+    LDA $A1F642                 ; dachora icon disabled on generation?
+    BEQ .no_dachora
     LDX #(marker_table_dachora-marker_table) ; set index to dachora table
     BRA .marker_lp              ; restart loop with new index
 .no_dachora
@@ -2053,8 +2058,11 @@ check_partial_reveal:
     RTS
 
 draw_sprite:
+
 ; A=sprite, X/Y=coords
     AND #$007F
+    BRA .check_if_disabled
+.sprite_feature_is_enabled
     PHA                 ; sprite
     CMP #$0008
     BEQ .save_icon
@@ -2082,5 +2090,13 @@ draw_sprite:
     STA $03
     PLA                 ; sprite
     JSL $81891F
+.skipdrawingthesprite
     RTS
+
+.check_if_disabled     ; we write the sprite id's to spare locations in rom on generation if user wants to disable them.
+    CMP $A1F644         ; is it a boss sprite
+    beq .skipdrawingthesprite
+    CMP $A1F646         ; is it a miniboss sprite?
+    beq .skipdrawingthesprite
+    bra .sprite_feature_is_enabled
 warnpc !bank_85_freespace3_end

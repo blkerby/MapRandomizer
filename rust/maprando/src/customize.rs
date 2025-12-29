@@ -150,6 +150,10 @@ pub struct CustomizeSettings {
     pub etank_color: Option<(u8, u8, u8)>,
     pub item_dot_change: ItemDotChange,
     pub transition_letters: bool,
+    pub save_icons: bool,
+    pub boss_icons: bool,
+    pub dachora_icons: bool,
+    pub miniboss_icons: bool,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
     pub palette_theme: PaletteTheme,
@@ -170,6 +174,10 @@ impl Default for CustomizeSettings {
             etank_color: None,
             item_dot_change: ItemDotChange::Fade,
             transition_letters: true,
+            save_icons: true,
+            boss_icons: true,
+            dachora_icons: true,
+            miniboss_icons: true,
             reserve_hud_style: true,
             vanilla_screw_attack_animation: true,
             room_names: true,
@@ -383,6 +391,26 @@ pub fn customize_rom(
         DoorTheme::Alternate => {
             apply_ips_patch(rom, Path::new("../patches/ips/alternate_door_colors.ips"))?;
         }
+    }
+
+    match settings.boss_icons {
+        true => {}
+        false => {rom.write_u16(snes2pc(0xA1F644), 0x000A)?;}
+    }
+
+    match settings.save_icons {
+        true => {}
+        false => {rom.write_u16(snes2pc(0xA1F640), 0x0000)?;}
+    }
+
+    match settings.dachora_icons {
+        true => {}
+        false => {rom.write_u16(snes2pc(0xA1F642), 0x0000)?;}
+    }
+
+    match settings.miniboss_icons {
+        true => {}
+        false => {rom.write_u16(snes2pc(0xA1F646), 0x0013)?;}
     }
 
     // Fix Phantoon power-on sequence to not overwrite the first two palettes, since those contain
