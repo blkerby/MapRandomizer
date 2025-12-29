@@ -9515,7 +9515,7 @@
                 "door_idx": 1,
                 "node_id": 6
               },
-              "in_game_time": 4.28
+              "in_game_time": 4.40
             },
             {
               "to_door": {
@@ -9527,7 +9527,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 7.33
+              "in_game_time": 7.00
             },
             {
               "to_door": {
@@ -9539,7 +9539,8 @@
                 "door_idx": 3,
                 "node_id": 2
               },
-              "in_game_time": 4.24
+              "in_game_time": 4.15,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -9551,7 +9552,7 @@
                 "door_idx": 4,
                 "node_id": 3
               },
-              "in_game_time": 6.49
+              "in_game_time": 6.15
             },
             {
               "to_door": {
@@ -9563,7 +9564,7 @@
                 "door_idx": 5,
                 "node_id": 5
               },
-              "in_game_time": 4.39
+              "in_game_time": 4.15
             }
           ]
         },
@@ -9588,7 +9589,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 6.51
+              "in_game_time": 6.05
             },
             {
               "to_door": {
@@ -9600,7 +9601,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 6.36,
+              "in_game_time": 6.45,
               "note": "Shinespark"
             },
             {
@@ -9613,7 +9614,8 @@
                 "door_idx": 3,
                 "node_id": 2
               },
-              "in_game_time": 2.07
+              "in_game_time": 2.20,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -9625,7 +9627,7 @@
                 "door_idx": 4,
                 "node_id": 3
               },
-              "in_game_time": 6.13
+              "in_game_time": 5.40
             },
             {
               "to_door": {
@@ -9637,8 +9639,7 @@
                 "door_idx": 5,
                 "node_id": 5
               },
-              "in_game_time": 8.48,
-              "note": "Shinespark"
+              "in_game_time": 6.10
             }
           ]
         },
@@ -9663,7 +9664,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 6.46
+              "in_game_time": 6.40
             },
             {
               "to_door": {
@@ -9675,7 +9676,7 @@
                 "door_idx": 1,
                 "node_id": 6
               },
-              "in_game_time": 6.53
+              "in_game_time": 6.45
             },
             {
               "to_door": {
@@ -9687,7 +9688,8 @@
                 "door_idx": 3,
                 "node_id": 2
               },
-              "in_game_time": 6.45
+              "in_game_time": 5.55,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -9699,7 +9701,8 @@
                 "door_idx": 4,
                 "node_id": 3
               },
-              "in_game_time": 4.04
+              "in_game_time": 3.55,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -9711,7 +9714,7 @@
                 "door_idx": 5,
                 "node_id": 5
               },
-              "in_game_time": 5.19
+              "in_game_time": 5.20
             }
           ]
         },
@@ -9736,7 +9739,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 5.23
+              "in_game_time": 4.30
             },
             {
               "to_door": {
@@ -9748,7 +9751,7 @@
                 "door_idx": 1,
                 "node_id": 6
               },
-              "in_game_time": 2.27
+              "in_game_time": 2.30
             },
             {
               "to_door": {
@@ -9760,7 +9763,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 4.59,
+              "in_game_time": 4.45,
               "note": "Shinespark"
             },
             {
@@ -9773,7 +9776,7 @@
                 "door_idx": 4,
                 "node_id": 3
               },
-              "in_game_time": 4.06
+              "in_game_time": 4.00
             },
             {
               "to_door": {
@@ -9785,7 +9788,7 @@
                 "door_idx": 5,
                 "node_id": 5
               },
-              "in_game_time": 5.23
+              "in_game_time": 5.05
             }
           ]
         },
@@ -9810,7 +9813,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 5.35
+              "in_game_time": 5.10
             },
             {
               "to_door": {
@@ -9822,7 +9825,7 @@
                 "door_idx": 1,
                 "node_id": 6
               },
-              "in_game_time": 5.40
+              "in_game_time": 5.10
             },
             {
               "to_door": {
@@ -9834,7 +9837,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 5.40
+              "in_game_time": 4.45
             },
             {
               "to_door": {
@@ -9846,7 +9849,7 @@
                 "door_idx": 3,
                 "node_id": 2
               },
-              "in_game_time": 4.35
+              "in_game_time": 4.25
             },
             {
               "to_door": {
@@ -9858,7 +9861,7 @@
                 "door_idx": 5,
                 "node_id": 5
               },
-              "in_game_time": 5.23
+              "in_game_time": 4.30
             }
           ]
         },
@@ -9883,7 +9886,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 4.52,
+              "in_game_time": 4.40,
               "note": "Fall down to get longer runway"
             },
             {
@@ -9896,7 +9899,7 @@
                 "door_idx": 1,
                 "node_id": 6
               },
-              "in_game_time": 4.08
+              "in_game_time": 4.00
             },
             {
               "to_door": {
@@ -9908,7 +9911,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 5.49
+              "in_game_time": 5.50
             },
             {
               "to_door": {
@@ -9920,7 +9923,8 @@
                 "door_idx": 3,
                 "node_id": 2
               },
-              "in_game_time": 3.48
+              "in_game_time": 3.40,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -9932,7 +9936,7 @@
                 "door_idx": 4,
                 "node_id": 3
               },
-              "in_game_time": 4.53
+              "in_game_time": 4.55
             }
           ]
         }
@@ -9963,7 +9967,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 3.06
+              "in_game_time": 3.10
             },
             {
               "to_door": {
@@ -9975,7 +9979,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 3.28
+              "in_game_time": 3.15
             }
           ]
         },
@@ -10000,7 +10004,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 4.21
+              "in_game_time": 3.40
             },
             {
               "to_door": {
@@ -10012,7 +10016,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 7.47
+              "in_game_time": 6.15
             }
           ]
         },
@@ -10037,7 +10041,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.49
+              "in_game_time": 2.20
             },
             {
               "to_door": {
@@ -10049,7 +10053,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 5.38
+              "in_game_time": 5.05
             }
           ]
         }
@@ -10080,7 +10084,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 3.09
+              "in_game_time": 3.05
             }
           ]
         },
@@ -10110,7 +10114,7 @@
                   "requires": [
                     "can_reverse_gate"
                   ],
-                  "in_game_time": 4.26
+                  "in_game_time": 4.10
                 }
               ]
             }
@@ -10143,7 +10147,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 4.06,
+              "in_game_time": 4.00,
               "note": "Mockball"
             }
           ]
@@ -10169,7 +10173,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 6.44
+              "in_game_time": 6.00
             }
           ]
         }
@@ -10218,7 +10222,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.19
+              "in_game_time": 2.20,
+              "simple_fraction": 0.8
             }
           ]
         },
@@ -10243,7 +10248,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.41
+              "in_game_time": 2.15
             }
           ]
         }
@@ -10274,7 +10279,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 6.33
+              "in_game_time": 6.30
             }
           ]
         },
@@ -10299,7 +10304,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 7.23
+              "in_game_time": 6.30
             }
           ]
         }
@@ -10366,7 +10371,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.10
+              "in_game_time": 2.00
             },
             {
               "to_door": {
@@ -10378,7 +10383,7 @@
                 "door_idx": 2,
                 "node_id": 5
               },
-              "in_game_time": 5.46
+              "in_game_time": 5.55
             },
             {
               "to_door": {
@@ -10390,7 +10395,7 @@
                 "door_idx": 5,
                 "node_id": 6
               },
-              "in_game_time": 5.47
+              "in_game_time": 5.20
             },
             {
               "to_door": {
@@ -10402,7 +10407,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 8.13
+              "in_game_time": 8.05
             },
             {
               "to_door": {
@@ -10414,7 +10419,7 @@
                 "door_idx": 4,
                 "node_id": 4
               },
-              "in_game_time": 7.00
+              "in_game_time": 6.55
             }
           ]
         },
@@ -10439,7 +10444,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.44
+              "in_game_time": 2.20
             },
             {
               "to_door": {
@@ -10451,7 +10456,7 @@
                 "door_idx": 2,
                 "node_id": 5
               },
-              "in_game_time": 4.34
+              "in_game_time": 4.40
             },
             {
               "to_door": {
@@ -10463,7 +10468,7 @@
                 "door_idx": 5,
                 "node_id": 6
               },
-              "in_game_time": 4.09
+              "in_game_time": 3.50
             },
             {
               "to_door": {
@@ -10475,7 +10480,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 6.34
+              "in_game_time": 6.30
             },
             {
               "to_door": {
@@ -10512,7 +10517,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 7.00,
+              "in_game_time": 6.50,
               "note": "Destroy the PB blocks using diagonal Hyper Beam shots while running"
             },
             {
@@ -10525,7 +10530,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 5.48
+              "in_game_time": 5.40
             },
             {
               "to_door": {
@@ -10537,7 +10542,8 @@
                 "door_idx": 5,
                 "node_id": 6
               },
-              "in_game_time": 8.03
+              "in_game_time": 6.25,
+              "note": "Use less than full runway to Space Jump across the top of the room."
             },
             {
               "to_door": {
@@ -10549,7 +10555,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 8.59
+              "in_game_time": 8.40
             },
             {
               "to_door": {
@@ -10561,7 +10567,7 @@
                 "door_idx": 4,
                 "node_id": 4
               },
-              "in_game_time": 7.31
+              "in_game_time": 7.25
             }
           ]
         },
@@ -10599,13 +10605,13 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 4.21,
+              "in_game_time": 4.10,
               "conditions": [
                 {
                   "requires": [
                     "can_moonfall"
                   ],
-                  "in_game_time": 4.12
+                  "in_game_time": 4.00
                 }
               ]
             },
@@ -10619,7 +10625,7 @@
                 "door_idx": 2,
                 "node_id": 5
               },
-              "in_game_time": 6.52
+              "in_game_time": 7.00
             },
             {
               "to_door": {
@@ -10631,7 +10637,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 9.18
+              "in_game_time": 9.00
             },
             {
               "to_door": {
@@ -10643,7 +10649,7 @@
                 "door_idx": 4,
                 "node_id": 4
               },
-              "in_game_time": 8.01
+              "in_game_time": 7.45
             }
           ]
         },
@@ -10724,8 +10730,8 @@
                 "door_idx": 1,
                 "node_id": 1
               },
-              "in_game_time": 0.00,
-              "note": "Escape timer is paused during toilet transition"
+              "in_game_time": 0.10,
+              "note": "Escape timer is paused during toilet transition, but add a few frames since it may take longer to land in the next room."
             }
           ]
         }
@@ -10756,7 +10762,7 @@
                 "door_idx": 1,
                 "node_id": 1
               },
-              "in_game_time": 5.38
+              "in_game_time": 5.15
             }
           ]
         },
@@ -10781,7 +10787,7 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 6.53
+              "in_game_time": 6.05
             }
           ]
         }
@@ -10812,7 +10818,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.22
+              "in_game_time": 2.20
             }
           ]
         },
@@ -10837,7 +10843,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.28
+              "in_game_time": 2.35
             }
           ]
         }
