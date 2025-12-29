@@ -395,22 +395,30 @@ pub fn customize_rom(
 
     match settings.boss_icons {
         true => {}
-        false => {rom.write_u16(snes2pc(0xA1F644), 0x000A)?;}
+        false => {
+            rom.write_u16(snes2pc(0xA1F644), 0x000A)?;
+        }
     }
 
     match settings.save_icons {
         true => {}
-        false => {rom.write_u16(snes2pc(0xA1F640), 0x0000)?;}
+        false => {
+            rom.write_u16(snes2pc(0xA1F640), 0x0000)?;
+        }
     }
 
     match settings.dachora_icons {
         true => {}
-        false => {rom.write_u16(snes2pc(0xA1F642), 0x0000)?;}
+        false => {
+            rom.write_u16(snes2pc(0xA1F642), 0x0000)?;
+        }
     }
 
     match settings.miniboss_icons {
         true => {}
-        false => {rom.write_u16(snes2pc(0xA1F646), 0x0013)?;}
+        false => {
+            rom.write_u16(snes2pc(0xA1F646), 0x0013)?;
+        }
     }
 
     // Fix Phantoon power-on sequence to not overwrite the first two palettes, since those contain
