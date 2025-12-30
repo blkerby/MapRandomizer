@@ -150,6 +150,9 @@ pub struct CustomizeSettings {
     pub etank_color: Option<(u8, u8, u8)>,
     pub item_dot_change: ItemDotChange,
     pub transition_letters: bool,
+    pub save_icons: bool,
+    pub boss_icons: bool,
+    pub miniboss_icons: bool,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
     pub palette_theme: PaletteTheme,
@@ -170,6 +173,9 @@ impl Default for CustomizeSettings {
             etank_color: None,
             item_dot_change: ItemDotChange::Fade,
             transition_letters: true,
+            save_icons: true,
+            boss_icons: true,
+            miniboss_icons: true,
             reserve_hud_style: true,
             vanilla_screw_attack_animation: true,
             room_names: true,
@@ -384,6 +390,18 @@ pub fn customize_rom(
             apply_ips_patch(rom, Path::new("../patches/ips/alternate_door_colors.ips"))?;
         }
     }
+
+    let mut map_icon_settings = 0;
+    if !settings.boss_icons {
+        map_icon_settings |= 1;
+    }
+    if !settings.miniboss_icons {
+        map_icon_settings |= 2;
+    }
+    if !settings.save_icons {
+        map_icon_settings |= 4;
+    }
+    rom.write_u16(snes2pc(0x85B600), map_icon_settings)?;
 
     // Fix Phantoon power-on sequence to not overwrite the first two palettes, since those contain
     // customized HUD colors which would get messed up.

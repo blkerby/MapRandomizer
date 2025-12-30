@@ -11,10 +11,11 @@ lorom
 !bank_85_freespace_end = $85A880
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
-!bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AFD0
+!bank_85_freespace3_start = $85B600
+!bank_85_freespace3_end  = $85BA00
 !bank_b6_freespace_start = $B6FEE0
 !bank_b6_freespace_end = $B70000
+!map_icon_settings = $85B600  ; must match reference in customize.rs - bits are set to disable map icons.
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
 !bank_a7_freespace_start = $A7FFC0
@@ -1747,13 +1748,16 @@ db $BD,$BD,$42,$42,$81,$81,$C3,$C3,$BD,$FF,$42,$42,$24,$24,$18,$18
 
 warnpc !bank_b6_freespace_end
 
-org !bank_85_freespace3_start
+org !bank_85_freespace3_start    
+assert pc() == !map_icon_settings
+dw $0000  ; modified by customize.rs for toggling map tiles on / off. set bits high to disable tiles (bosses), (minibosses), (saves) 
+
+
 ; write map icons and save markers to VRAM
 write_sprites:
     PHB
     PHX
     PHY
-
     PHK
     PLB
     LDY #$0000
@@ -1791,7 +1795,12 @@ sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
 hook_map_icons:
     PHP
     PHB
+    
 ; draw save slot markers
+
+    LDA !map_icon_settings ; test if draw saves disabled on generation?
+    BIT #$0004
+    BNE .finished_drawing_saves
     LDX #$0000
 .load_lp
     LDA $702602,X               ; area
@@ -1821,7 +1830,7 @@ hook_map_icons:
     INX #4
     CPX #$000C
     BNE .load_lp
-
+.finished_drawing_saves
 ; draw ship/bosses/mini-bosses/animals if appropriate
     LDX #$0000
     PHK
@@ -1842,6 +1851,7 @@ hook_map_icons:
     XBA
     TAX
     PLA
+
     AND #$00FF
     AND $7ED828,X               ; boss bit set?
     BEQ .boss_alive
@@ -2053,8 +2063,11 @@ check_partial_reveal:
     RTS
 
 draw_sprite:
+
 ; A=sprite, X/Y=coords
     AND #$007F
+    BRA .check_sprites
+.sprite_enabled
     PHA                 ; sprite
     CMP #$0008
     BEQ .save_icon
@@ -2082,5 +2095,37 @@ draw_sprite:
     STA $03
     PLA                 ; sprite
     JSL $81891F
+.sprite_is_disabled
     RTS
+
+.check_sprites
+    PHA
+    CMP #$0013
+    BEQ .test_miniboss
+    CMP #$000A
+    BEQ .test_boss
+    CMP #$000B
+    BEQ .test_ship
+    CMP #$000C
+    BEQ .test_ship
+    BRA .sprite_not_disabled
+.test_boss   
+    LDA !map_icon_settings
+    AND #$0001                  
+    BRA .finished_spritecheck
+.test_miniboss
+    LDA !map_icon_settings
+    AND #$0002
+    BRA .finished_spritecheck
+.test_ship
+    LDA !map_icon_settings
+    AND #$0004              
+.finished_spritecheck
+    BNE .sprite_disabled
+.sprite_not_disabled
+    PLA
+    BRA .sprite_enabled
+.sprite_disabled
+    PLA
+    BRA .sprite_is_disabled
 warnpc !bank_85_freespace3_end
