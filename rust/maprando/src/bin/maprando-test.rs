@@ -215,7 +215,6 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
         room_names: true,
         boss_icons: true,
         save_icons: true,
-        dachora_icons: true,
         miniboss_icons: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,

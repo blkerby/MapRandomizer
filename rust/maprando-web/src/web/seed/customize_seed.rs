@@ -39,7 +39,6 @@ struct CustomizeRequest {
     vanilla_screw_attack_animation: Text<bool>,
     save_icons: Text<bool>,
     boss_icons: Text<bool>,
-    dachora_icons: Text<bool>,
     miniboss_icons: Text<bool>,
     room_names: Text<bool>,
     control_shot: Text<String>,
@@ -206,7 +205,6 @@ async fn customize_seed(
             _ => panic!("Unexpected flashing option: {}", req.flashing.0.as_str()),
         },
         boss_icons: req.boss_icons.0,
-        dachora_icons: req.dachora_icons.0,
         miniboss_icons: req.miniboss_icons.0,
         save_icons: req.save_icons.0,
         controller_config: ControllerConfig {

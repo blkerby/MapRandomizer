@@ -11,8 +11,8 @@ lorom
 !bank_85_freespace_end = $85A880
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
-!bank_85_freespace3_start = $85AD00
-!bank_85_freespace3_end  = $85AFEA
+!bank_85_freespace3_start = $85AD00 ; must match reference in customize.rs - is first word is used to set bits to disable map icons.
+!bank_85_freespace3_end  = $85B000
 !bank_b6_freespace_start = $B6FEE0
 !bank_b6_freespace_end = $B70000
 !etank_color = $82FFFE   ; must match address customize.rs
@@ -1748,12 +1748,14 @@ db $BD,$BD,$42,$42,$81,$81,$C3,$C3,$BD,$FF,$42,$42,$24,$24,$18,$18
 warnpc !bank_b6_freespace_end
 
 org !bank_85_freespace3_start
+dw $0000  ; modified by customize.rs for toggling map tiles on / off. set bits high to disable tiles (bosses), (minibosses), (saves) 
+
+
 ; write map icons and save markers to VRAM
 write_sprites:
     PHB
     PHX
     PHY
-
     PHK
     PLB
     LDY #$0000
@@ -1791,10 +1793,12 @@ sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
 hook_map_icons:
     PHP
     PHB
+    
 ; draw save slot markers
 
-    LDA $A1F640                 ; draw saves disabled on generation?
-    BEQ .finished_drawing_saves
+    LDA !bank_85_freespace3_start ; test if draw saves disabled on generation?
+    BIT #$0004
+    BNE .finished_drawing_saves
     LDX #$0000
 .load_lp
     LDA $702602,X               ; area
@@ -1845,6 +1849,7 @@ hook_map_icons:
     XBA
     TAX
     PLA
+
     AND #$00FF
     AND $7ED828,X               ; boss bit set?
     BEQ .boss_alive
@@ -1859,8 +1864,6 @@ hook_map_icons:
     LDA $7ED821
     AND #$0080                  ; already saved?
     BNE .no_dachora
-    LDA $A1F642                 ; dachora icon disabled on generation?
-    BEQ .no_dachora
     LDX #(marker_table_dachora-marker_table) ; set index to dachora table
     BRA .marker_lp              ; restart loop with new index
 .no_dachora
@@ -2061,8 +2064,8 @@ draw_sprite:
 
 ; A=sprite, X/Y=coords
     AND #$007F
-    BRA .check_if_disabled
-.sprite_feature_is_enabled
+    BRA .check_sprites
+    .sprite_enabled
     PHA                 ; sprite
     CMP #$0008
     BEQ .save_icon
@@ -2090,13 +2093,29 @@ draw_sprite:
     STA $03
     PLA                 ; sprite
     JSL $81891F
-.skipdrawingthesprite
+.sprite_is_disabled
     RTS
 
-.check_if_disabled     ; we write the sprite id's to spare locations in rom on generation if user wants to disable them.
-    CMP $A1F644         ; is it a boss sprite
-    beq .skipdrawingthesprite
-    CMP $A1F646         ; is it a miniboss sprite?
-    beq .skipdrawingthesprite
-    bra .sprite_feature_is_enabled
+.check_sprites
+    PHA
+    CMP #$0013
+    BEQ .test_miniboss
+    CMP #$000A
+    BEQ .test_boss
+    BRA .sprite_not_disabled
+.test_boss   
+    LDA !bank_85_freespace3_start
+    AND #$0001                  
+    BRA .finsihed_spritecheck
+.test_miniboss
+    LDA !bank_85_freespace3_start
+    AND #$0002                  
+.finsihed_spritecheck
+    BNE .sprite_disabled
+.sprite_not_disabled
+    PLA
+    BRA .sprite_enabled
+.sprite_disabled
+    PLA
+    BRA .sprite_is_disabled
 warnpc !bank_85_freespace3_end

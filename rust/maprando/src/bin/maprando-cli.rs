@@ -247,7 +247,6 @@ fn main() -> Result<()> {
         vanilla_screw_attack_animation: true,
         save_icons: true,
         boss_icons: true,
-        dachora_icons: true,
         miniboss_icons: true,
         room_names: true,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,

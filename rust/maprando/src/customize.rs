@@ -152,7 +152,6 @@ pub struct CustomizeSettings {
     pub transition_letters: bool,
     pub save_icons: bool,
     pub boss_icons: bool,
-    pub dachora_icons: bool,
     pub miniboss_icons: bool,
     pub reserve_hud_style: bool,
     pub vanilla_screw_attack_animation: bool,
@@ -176,7 +175,6 @@ impl Default for CustomizeSettings {
             transition_letters: true,
             save_icons: true,
             boss_icons: true,
-            dachora_icons: true,
             miniboss_icons: true,
             reserve_hud_style: true,
             vanilla_screw_attack_animation: true,
@@ -396,28 +394,24 @@ pub fn customize_rom(
     match settings.boss_icons {
         true => {}
         false => {
-            rom.write_u16(snes2pc(0xA1F644), 0x000A)?;
+            let x = rom.read_u16(snes2pc(0x85AD00))?;
+            rom.write_u16(snes2pc(0x85AD00), x + 1)?;
         }
     }
 
     match settings.save_icons {
         true => {}
         false => {
-            rom.write_u16(snes2pc(0xA1F640), 0x0000)?;
-        }
-    }
-
-    match settings.dachora_icons {
-        true => {}
-        false => {
-            rom.write_u16(snes2pc(0xA1F642), 0x0000)?;
+            let x = rom.read_u16(snes2pc(0x85AD00))?;
+            rom.write_u16(snes2pc(0x85AD00), x + 4)?;
         }
     }
 
     match settings.miniboss_icons {
         true => {}
         false => {
-            rom.write_u16(snes2pc(0xA1F646), 0x0013)?;
+            let x = rom.read_u16(snes2pc(0x85AD00))?;
+            rom.write_u16(snes2pc(0x85AD00), x + 2)?;
         }
     }
 

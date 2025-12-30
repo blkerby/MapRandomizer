@@ -2,4 +2,3 @@
 F000 - F400: Used by `escape.asm`
 F400 - F600: Used by `new_game.asm`
 F600 - F640: Used by `escape_autosave.asm`
-F640 - F648: Used by 'map_area.asm'
