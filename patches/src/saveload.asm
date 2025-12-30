@@ -132,7 +132,7 @@ LoadItems: LDA $D7C0,Y : STA $09A2,Y : DEY : DEY : BPL LoadItems		;Loads current
     PLY : PLX : PLB : PLP : CLC : RTL
 SetupClearSRAM: LDX $16 : LDY #$09FE : LDA #$0000
 ClearSRAM: STA $700000,X : INX : INX : DEY : DEY : BPL ClearSRAM
-    LDA #$0000 : STA $7E078B : STA $7E079F
+    LDA #$0000 : STA $7E078B : STA $7E079F : STA $701FEC
 	PLY : PLX : PLB : PLP : SEC : RTL
 
     warnpc $81f100
