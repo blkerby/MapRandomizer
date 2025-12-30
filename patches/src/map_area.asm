@@ -11,10 +11,11 @@ lorom
 !bank_85_freespace_end = $85A880
 !bank_85_freespace2_start = $85AB00
 !bank_85_freespace2_end  = $85ACA0
-!bank_85_freespace3_start = $85AD00 ; must match reference in customize.rs - is first word is used to set bits to disable map icons.
-!bank_85_freespace3_end  = $85B000
+!bank_85_freespace3_start = $85B600
+!bank_85_freespace3_end  = $85BA00
 !bank_b6_freespace_start = $B6FEE0
 !bank_b6_freespace_end = $B70000
+!map_icon_settings = $85B600  ; must match reference in customize.rs - bits are set to disable map icons.
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
 !bank_a7_freespace_start = $A7FFC0
@@ -1747,7 +1748,8 @@ db $BD,$BD,$42,$42,$81,$81,$C3,$C3,$BD,$FF,$42,$42,$24,$24,$18,$18
 
 warnpc !bank_b6_freespace_end
 
-org !bank_85_freespace3_start
+org !bank_85_freespace3_start    
+assert pc() == !map_icon_settings
 dw $0000  ; modified by customize.rs for toggling map tiles on / off. set bits high to disable tiles (bosses), (minibosses), (saves) 
 
 
@@ -1796,7 +1798,7 @@ hook_map_icons:
     
 ; draw save slot markers
 
-    LDA !bank_85_freespace3_start ; test if draw saves disabled on generation?
+    LDA !map_icon_settings ; test if draw saves disabled on generation?
     BIT #$0004
     BNE .finished_drawing_saves
     LDX #$0000
@@ -2065,7 +2067,7 @@ draw_sprite:
 ; A=sprite, X/Y=coords
     AND #$007F
     BRA .check_sprites
-    .sprite_enabled
+.sprite_enabled
     PHA                 ; sprite
     CMP #$0008
     BEQ .save_icon
@@ -2102,15 +2104,23 @@ draw_sprite:
     BEQ .test_miniboss
     CMP #$000A
     BEQ .test_boss
+    CMP #$000B
+    BEQ .test_ship
+    CMP #$000C
+    BEQ .test_ship
     BRA .sprite_not_disabled
 .test_boss   
-    LDA !bank_85_freespace3_start
+    LDA !map_icon_settings
     AND #$0001                  
-    BRA .finsihed_spritecheck
+    BRA .finished_spritecheck
 .test_miniboss
-    LDA !bank_85_freespace3_start
-    AND #$0002                  
-.finsihed_spritecheck
+    LDA !map_icon_settings
+    AND #$0002
+    BRA .finished_spritecheck
+.test_ship
+    LDA !map_icon_settings
+    AND #$0004              
+.finished_spritecheck
     BNE .sprite_disabled
 .sprite_not_disabled
     PLA

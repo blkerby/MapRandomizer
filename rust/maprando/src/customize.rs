@@ -391,29 +391,17 @@ pub fn customize_rom(
         }
     }
 
-    match settings.boss_icons {
-        true => {}
-        false => {
-            let x = rom.read_u16(snes2pc(0x85AD00))?;
-            rom.write_u16(snes2pc(0x85AD00), x + 1)?;
-        }
+    let mut map_icon_settings = 0;
+    if !settings.boss_icons {
+        map_icon_settings |= 1;
     }
-
-    match settings.save_icons {
-        true => {}
-        false => {
-            let x = rom.read_u16(snes2pc(0x85AD00))?;
-            rom.write_u16(snes2pc(0x85AD00), x + 4)?;
-        }
+    if !settings.miniboss_icons {
+        map_icon_settings |= 2;
     }
-
-    match settings.miniboss_icons {
-        true => {}
-        false => {
-            let x = rom.read_u16(snes2pc(0x85AD00))?;
-            rom.write_u16(snes2pc(0x85AD00), x + 2)?;
-        }
+    if !settings.save_icons {
+        map_icon_settings |= 4;
     }
+    rom.write_u16(snes2pc(0x85B600), map_icon_settings)?;
 
     // Fix Phantoon power-on sequence to not overwrite the first two palettes, since those contain
     // customized HUD colors which would get messed up.
