@@ -86,11 +86,11 @@ pub fn apply_draygon_requirement(
     let mut boss_hp: f32 = 6000.0;
     let charge_damage = get_charge_damage(inventory);
 
-    // Assume an accuracy of between 40% (on lowest difficulty) to 100% (on highest).
-    let accuracy = 0.4 + 0.6 * proficiency;
+    // Assume an accuracy of between 50% (on lowest difficulty) to 100% (on highest).
+    let accuracy = 0.5 + 0.5 * proficiency;
 
-    // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest).
-    let firing_skill = 0.3 + 0.7 * proficiency;
+    // Assume a firing rate of between 50% (on lowest difficulty) to 100% (on highest).
+    let firing_skill = 0.5 + 0.5 * proficiency;
     let mut firing_rate = firing_skill;
     if !inventory.items[Item::Gravity as usize] {
         firing_rate *= 0.5;
