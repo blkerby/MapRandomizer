@@ -17192,7 +17192,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 4.30
+              "in_game_time": 3.30,
+              "note": "Mockball, Geruta boost"
             }
           ]
         },
@@ -17217,7 +17218,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 3.36
+              "in_game_time": 3.30
             }
           ]
         }
@@ -17266,7 +17267,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.59
+              "in_game_time": 2.35
             }
           ]
         },
@@ -17291,7 +17292,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 3.25
+              "in_game_time": 2.45
             }
           ]
         }
@@ -17322,7 +17323,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 5.46
+              "in_game_time": 5.50,
+              "simple_fraction": 0.9
             }
           ]
         },
@@ -17347,7 +17349,8 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 5.51
+              "in_game_time": 5.55,
+              "simple_fraction": 0.9
             }
           ]
         }
@@ -17396,7 +17399,8 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 3.28
+              "in_game_time": 3.20,
+              "simple_fraction": 0.7
             },
             {
               "to_door": {
@@ -17408,7 +17412,8 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 6.01
+              "in_game_time": 5.45,
+              "simple_fraction": 0.7
             },
             {
               "to_door": {
@@ -17420,7 +17425,8 @@
                 "door_idx": 4,
                 "node_id": 2
               },
-              "in_game_time": 8.06
+              "in_game_time": 7.40,
+              "simple_fraction": 0.7
             }
           ]
         },
@@ -17445,7 +17451,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 3.02
+              "in_game_time": 2.50
             },
             {
               "to_door": {
@@ -17457,7 +17463,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 3.21
+              "in_game_time": 3.05
             },
             {
               "to_door": {
@@ -17469,7 +17475,7 @@
                 "door_idx": 4,
                 "node_id": 2
               },
-              "in_game_time": 5.37
+              "in_game_time": 5.10
             }
           ]
         },
@@ -17494,7 +17500,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 5.25
+              "in_game_time": 4.40
             },
             {
               "to_door": {
@@ -17506,7 +17512,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 3.06
+              "in_game_time": 2.35
             },
             {
               "to_door": {
@@ -17518,7 +17524,7 @@
                 "door_idx": 4,
                 "node_id": 2
               },
-              "in_game_time": 2.59
+              "in_game_time": 2.50
             }
           ]
         },
@@ -17543,7 +17549,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 6.50
+              "in_game_time": 6.10
             },
             {
               "to_door": {
@@ -17555,7 +17561,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 4.29
+              "in_game_time": 4.10
             },
             {
               "to_door": {
@@ -17567,7 +17573,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 2.26
+              "in_game_time": 2.20
             }
           ]
         },
@@ -17592,7 +17598,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 10.13
+              "in_game_time": 10.00
             },
             {
               "to_door": {
@@ -17604,7 +17610,7 @@
                 "door_idx": 2,
                 "node_id": 4
               },
-              "in_game_time": 10.56
+              "in_game_time": 11.00
             },
             {
               "to_door": {
@@ -17616,7 +17622,7 @@
                 "door_idx": 3,
                 "node_id": 3
               },
-              "in_game_time": 13.21
+              "in_game_time": 13.25
             },
             {
               "to_door": {
@@ -17628,7 +17634,7 @@
                 "door_idx": 4,
                 "node_id": 2
               },
-              "in_game_time": 15.38
+              "in_game_time": 15.40
             }
           ]
         }
@@ -17659,7 +17665,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.05
+              "in_game_time": 2.05,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -17671,7 +17678,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 5.27
+              "in_game_time": 5.05
             }
           ]
         },
@@ -17696,7 +17703,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.42
+              "in_game_time": 1.55
             },
             {
               "to_door": {
@@ -17708,7 +17715,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 6.14
+              "in_game_time": 5.50
             }
           ]
         },
@@ -17733,7 +17740,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 5.06
+              "in_game_time": 4.35
             },
             {
               "to_door": {
@@ -17745,7 +17752,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 5.34
+              "in_game_time": 4.50
             }
           ]
         }
