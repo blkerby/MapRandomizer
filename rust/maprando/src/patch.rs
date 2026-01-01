@@ -1118,12 +1118,10 @@ impl Patcher<'_> {
                         continue;
                     }
 
-                    let (offset, bitmask) = xy_to_explored_bit_ptr(
-                        room_x as isize + x as isize,
-                        room_y as isize + y as isize,
-                    );
+                    let (offset, bitmask) =
+                        xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
 
-                    let bit_addr = addr + (area as usize) * 0x100 + offset as usize;
+                    let bit_addr = addr + area * 0x100 + offset as usize;
                     let mut curr = self.rom.read_u8(snes2pc(bit_addr))?;
                     curr |= bitmask as isize;
                     self.rom.write_u8(snes2pc(bit_addr), curr)?;
