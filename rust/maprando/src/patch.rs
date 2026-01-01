@@ -1103,7 +1103,7 @@ impl Patcher<'_> {
     }
 
     fn write_area_bitmask(&mut self) -> Result<()> {
-	let addr = 0x829727;
+        let addr = 0x829727;
 
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
             let room_x = self.rom.read_u8(room.rom_address + 2)?;
@@ -1112,9 +1112,10 @@ impl Patcher<'_> {
 
             for y in 0..room.map.len() {
                 for x in 0..room.map[y].len() {
-                    if (room.map[y][x] == 0 && room_idx != self.game_data.toilet_room_idx) ||
-                             !self.map.room_mask[room_idx] {
-                                 continue;
+                    if (room.map[y][x] == 0 && room_idx != self.game_data.toilet_room_idx)
+                        || !self.map.room_mask[room_idx]
+                    {
+                        continue;
                     }
 
                     let (offset, bitmask) = xy_to_explored_bit_ptr(
