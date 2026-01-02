@@ -21794,7 +21794,7 @@
                 "door_idx": 1,
                 "node_id": 3
               },
-              "in_game_time": 1.21
+              "in_game_time": 1.20
             },
             {
               "to_door": {
@@ -21806,7 +21806,7 @@
                 "door_idx": 2,
                 "node_id": 1
               },
-              "in_game_time": 2.11
+              "in_game_time": 2.05
             }
           ]
         },
@@ -21831,7 +21831,7 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 1.22
+              "in_game_time": 1.20
             },
             {
               "to_door": {
@@ -21843,7 +21843,7 @@
                 "door_idx": 2,
                 "node_id": 1
               },
-              "in_game_time": 1.49
+              "in_game_time": 1.45
             }
           ]
         },
@@ -21868,7 +21868,7 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 2.37,
+              "in_game_time": 2.30,
               "note": "Downback"
             },
             {
@@ -21881,7 +21881,7 @@
                 "door_idx": 1,
                 "node_id": 3
               },
-              "in_game_time": 2.35,
+              "in_game_time": 2.25,
               "note": "Downback"
             }
           ]
@@ -21956,7 +21956,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 5.02
+              "in_game_time": 5.05
             }
           ]
         }
@@ -21987,7 +21987,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.16
+              "in_game_time": 2.10,
+              "note": "Moonfall"
             }
           ]
         },
@@ -22012,7 +22013,8 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.15
+              "in_game_time": 1.55,
+              "note": "Wiggle"
             }
           ]
         }
@@ -22043,7 +22045,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 4.51
+              "in_game_time": 4.55
             }
           ]
         },
@@ -22068,7 +22070,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 6.33
+              "in_game_time": 6.50
             }
           ]
         }
@@ -22099,7 +22101,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 4.20
+              "in_game_time": 4.10,
+              "simple_fraction": 0.6
             }
           ]
         },
@@ -22124,7 +22127,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 3.54
+              "in_game_time": 3.40
             }
           ]
         }
@@ -22155,7 +22158,7 @@
                 "door_idx": 1,
                 "node_id": 1
               },
-              "in_game_time": 2.08
+              "in_game_time": 2.10
             }
           ]
         },
@@ -22180,7 +22183,13 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 2.20
+              "in_game_time": 2.30,
+              "conditions": [
+                {
+                  "requires": ["enemies_cleared"],
+                  "in_game_time": 2.20
+                }
+              ]
             }
           ]
         }
@@ -22211,7 +22220,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 1.49
+              "in_game_time": 2.05
             }
           ]
         },
@@ -22236,7 +22245,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 1.48
+              "in_game_time": 2.05
             }
           ]
         }
@@ -22267,7 +22276,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 5.01
+              "in_game_time": 4.55
             }
           ]
         },
@@ -22292,14 +22301,14 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 22.13,
+              "in_game_time": 22.15,
               "note": "No baby skip",
               "conditions": [
                 {
                   "requires": [
                     "enemies_cleared"
                   ],
-                  "in_game_time": 4.54
+                  "in_game_time": 4.55
                 }
               ]
             }
@@ -22332,7 +22341,7 @@
                 "door_idx": 1,
                 "node_id": 1
               },
-              "in_game_time": 3.46
+              "in_game_time": 2.50
             },
             {
               "to_door": {
@@ -22344,7 +22353,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 2.02
+              "in_game_time": 1.55
             }
           ]
         },
@@ -22369,7 +22378,7 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 2.27
+              "in_game_time": 2.00
             },
             {
               "to_door": {
@@ -22381,7 +22390,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 2.14
+              "in_game_time": 1.55
             }
           ]
         },
@@ -22406,7 +22415,7 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 2.09
+              "in_game_time": 1.50
             },
             {
               "to_door": {
@@ -22418,7 +22427,7 @@
                 "door_idx": 1,
                 "node_id": 1
               },
-              "in_game_time": 2.16
+              "in_game_time": 2.00
             }
           ]
         }
@@ -22467,7 +22476,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 4.54
+              "in_game_time": 4.55
             }
           ]
         },
@@ -22492,7 +22501,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 6.04
+              "in_game_time": 5.50
             }
           ]
         }
@@ -22523,7 +22532,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 1.25
+              "in_game_time": 1.25,
+              "simple_fraction": 0.8
             },
             {
               "to_door": {
@@ -22535,7 +22545,8 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 2.16
+              "in_game_time": 2.20,
+              "simple_fraction": 0.8
             }
           ]
         },
@@ -22560,7 +22571,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 1.45
+              "in_game_time": 1.30
             },
             {
               "to_door": {
@@ -22572,7 +22583,7 @@
                 "door_idx": 2,
                 "node_id": 3
               },
-              "in_game_time": 1.42
+              "in_game_time": 1.35
             }
           ]
         },
@@ -22597,7 +22608,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 3.31
+              "in_game_time": 2.40
             },
             {
               "to_door": {
@@ -22609,7 +22620,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 1.34
+              "in_game_time": 1.35
             }
           ]
         }
@@ -22688,7 +22699,13 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 2.20
+              "in_game_time": 1.50,
+              "conditions": [
+                {
+                  "requires": ["enemies_cleared"],
+                  "in_game_time": 1.35
+                }
+              ]
             }
           ]
         },
@@ -22713,7 +22730,7 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 2.04
+              "in_game_time": 1.50
             }
           ]
         }
@@ -22744,7 +22761,7 @@
                 "door_idx": 1,
                 "node_id": 1
               },
-              "in_game_time": 1.51
+              "in_game_time": 1.50
             }
           ]
         },
@@ -22769,7 +22786,8 @@
                 "door_idx": 0,
                 "node_id": 2
               },
-              "in_game_time": 1.50
+              "in_game_time": 1.45,
+              "simple_fraction": 0.6
             }
           ]
         }
@@ -22800,7 +22818,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 6.31
+              "in_game_time": 5.45,
+              "note": "Blue bomber"
             }
           ]
         },
@@ -22825,7 +22844,8 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 9.29
+              "in_game_time": 10.15,
+              "simple_fraction": 0.5
             }
           ]
         }
@@ -22856,15 +22876,8 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 19.07,
-              "conditions": [
-                {
-                  "requires": [
-                    "can_moonfall"
-                  ],
-                  "in_game_time": 18.12
-                }
-              ]
+              "in_game_time": 17.30,
+              "note": "Moonfall"
             }
           ]
         },
@@ -22889,15 +22902,8 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 18.06,
-              "conditions": [
-                {
-                  "requires": [
-                    "can_moonfall"
-                  ],
-                  "in_game_time": 17.34
-                }
-              ]
+              "in_game_time": 17.35,
+              "note": "Moonfall"
             }
           ]
         }
