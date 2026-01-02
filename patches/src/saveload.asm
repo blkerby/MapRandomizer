@@ -264,8 +264,10 @@ save_rooms:
 ;   - yellow always represents most recent save; orange n-1 (next revert), pink n+1 (next overwrite)
 set_marker_colors:
     PHP
-    LDX #$0000
-    TXY
+    REP #$30
+    LDA #$0000          ; clear registers
+    TAX
+    TAY
 ; set relative colors
     SEP #$20
     LDA #$08            ; yellow color
