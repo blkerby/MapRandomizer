@@ -1,4 +1,6 @@
 v121 or soon-ish?:
+- new escape timings
+- fix issue with toilet in Pants Room: https://discord.com/channels/1053421401354285129/1053434532973510748/1456503543451095061
 - blue suit logic
   - handle leaveWithRunway heat frames carefully
     - for runway not at door node, be sure to require canDash or more heat frames, if applicable
