@@ -733,7 +733,7 @@ pub fn apply_farm_requirement(
         req,
         global,
         start_local,
-        false,
+        reverse,
         settings,
         difficulty,
         game_data,
@@ -793,10 +793,10 @@ pub fn apply_farm_requirement(
         settings.quality_of_life_settings.buffed_drops,
     );
 
-    let net_energy = ((drop_energy - cycle_energy) * num_cycles as f32) as Capacity;
-    let net_missiles = ((drop_missiles - cycle_missiles) * num_cycles as f32) as Capacity;
-    let net_supers = ((drop_supers - cycle_supers) * num_cycles as f32) as Capacity;
-    let net_pbs = ((drop_pbs - cycle_pbs) * num_cycles as f32) as Capacity;
+    let net_energy = ((drop_energy + cycle_energy) * num_cycles as f32) as Capacity;
+    let net_missiles = ((drop_missiles + cycle_missiles) * num_cycles as f32) as Capacity;
+    let net_supers = ((drop_supers + cycle_supers) * num_cycles as f32) as Capacity;
+    let net_pbs = ((drop_pbs + cycle_pbs) * num_cycles as f32) as Capacity;
 
     if net_energy < 0 || net_missiles < 0 || net_supers < 0 || net_pbs < 0 {
         return None;
