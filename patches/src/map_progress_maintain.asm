@@ -114,6 +114,44 @@ mark_progress:
 activate_map_station_hook:
     LDA #$0001 : STA $0789   ; run hi-jacked instructions (set map flag)
 
+    ; now reveal the current area's map:
+    lda $1F5B
+    xba
+    tax          ; X <- map area * $100
+    ldy $0080    ; Y <- loop counter (number of words to fill with #$FFFF)
+
+    lda !map_station_reveal_type
+    bne .partial_only_loop
+
+.loop:
+    lda $829727, x
+    sta $702000, x
+    sta $702700, x
+    inx
+    inx
+    dey
+    bne .loop
+    bra .leave
+
+.partial_only_loop:
+    lda #$FFFF
+    sta $702700, x
+    ; fully reveal specific tiles that contain area-transition markers,
+    ; since those would not show correctly in the partially-revealed palette:
+    ; TODO: look into removing this. It shouldn't be needed anymore, since we switched
+    ; to using the "cross-area reveal" table to cover these same-area reveal as well.
+    lda $829727, x
+    ora $702000, x
+    sta $702000, x
+    inx
+    inx
+    dey
+    bne .partial_only_loop
+.leave
+    jsr cross_area_reveal
+    rtl
+    
+ cross_area_reveal:
     phb
     pea $9090
     plb
@@ -141,41 +179,7 @@ activate_map_station_hook:
 
 .done_cross_area_reveal:
     plb
-
-    ; now reveal the current area's map:
-    lda $1F5B
-    xba
-    tax          ; X <- map area * $100
-    ldy $0080    ; Y <- loop counter (number of words to fill with #$FFFF)
-
-    lda !map_station_reveal_type
-    bne .partial_only_loop
-
-.loop:
-    lda #$FFFF
-    sta $702000, x
-    sta $702700, x
-    inx
-    inx
-    dey
-    bne .loop
-    rtl
-
-.partial_only_loop:
-    lda #$FFFF
-    sta $702700, x
-    ; fully reveal specific tiles that contain area-transition markers,
-    ; since those would not show correctly in the partially-revealed palette:
-    ; TODO: look into removing this. It shouldn't be needed anymore, since we switched
-    ; to using the "cross-area reveal" table to cover these same-area reveal as well.
-    lda $829727, x
-    ora $702000, x
-    sta $702000, x
-    inx
-    inx
-    dey
-    bne .partial_only_loop
-    rtl
+    rts
 
 hook_mark_tile_above:
     ; run hi-jacked instruction (mark explored tile)

@@ -1102,6 +1102,36 @@ impl Patcher<'_> {
         Ok(())
     }
 
+    fn write_area_bitmask(&mut self) -> Result<()> {
+        let addr = 0x829727;
+
+        for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
+            let room_x = self.rom.read_u8(room.rom_address + 2)?;
+            let room_y = self.rom.read_u8(room.rom_address + 3)?;
+            let area = self.map.area[room_idx];
+
+            for y in 0..room.map.len() {
+                for x in 0..room.map[y].len() {
+                    if (room.map[y][x] == 0 && room_idx != self.game_data.toilet_room_idx)
+                        || !self.map.room_mask[room_idx]
+                    {
+                        continue;
+                    }
+
+                    let (offset, bitmask) =
+                        xy_to_explored_bit_ptr(room_x + x as isize, room_y + y as isize);
+
+                    let bit_addr = addr + area * 0x100 + offset as usize;
+                    let mut curr = self.rom.read_u8(snes2pc(bit_addr))?;
+                    curr |= bitmask as isize;
+                    self.rom.write_u8(snes2pc(bit_addr), curr)?;
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     fn fix_save_stations(&mut self) -> Result<()> {
         let save_station_ptrs = vec![
             0x44C5, 0x44D3, 0x44E1, 0x45CF, 0x45DD, 0x45EB, 0x45F9, 0x4607, 0x46D9, 0x46E7, 0x46F5,
@@ -3357,6 +3387,7 @@ pub fn make_rom(
     patcher.apply_mother_brain_setup_asm()?;
     patcher.apply_extra_setup_asm()?;
     patcher.write_extra_room_data()?;
+    patcher.write_area_bitmask()?;
 
     info!("CustomizeSettings: {customize_settings:?}");
     customize_rom(
