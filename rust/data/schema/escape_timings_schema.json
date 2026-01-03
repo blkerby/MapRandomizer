@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "title": "Escape timings data",
+  "description": "An array of objects, one for each room, containing details about their escape timings",
+  "required": ["$schema", "rooms"],
+  "additionalProperties": false,
+  "definitions": {
+    "door": {
+      "type": "object",
+      "required": ["name", "direction", "x", "y", "part_idx", "door_idx", "node_id"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string"},
+        "direction": {"type": "string"},
+        "x": {"type": "integer"},
+        "y": {"type": "integer"},
+        "part_idx": {"type": "integer"},
+        "door_idx": {"type": "integer"},
+        "node_id": {"type": "integer"}
+      }
+    }
+  },
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "title": "JSON Schema Path",
+      "description": "A path to the definition of this file's JSON schema."
+    },
+    "rooms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "room_id",
+          "room_name",
+          "timings"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "room_id": {
+            "type": "integer",
+            "description": "Room ID from the sm-json-data project"
+          },
+          "room_name": {
+            "type": "string"
+          },
+          "timings": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "from_door",
+                "to"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "from_door": {
+                  "$ref": "#/definitions/door"
+                },
+                "to": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "required": ["to_door", "in_game_time"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "to_door": {
+                        "$ref": "#/definitions/door"
+                      },
+                      "in_game_time": {
+                        "type": ["number", "null"],
+                        "description": "Time in seconds taken to reach the 'to_door' from the 'from_door'."
+                      },
+                      "simple_fraction": {
+                        "type": "number",
+                        "description": "Fraction of the time which is spent on simple movement (not scaled by difficulty).",
+                        "default": 0
+                      },
+                      "note": {
+                        "type": "string",
+                        "description": "Optional note about this timing."
+                      },
+                      "conditions": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "required": ["requires", "in_game_time"],
+                          "additionalProperties": false,
+                          "properties": {
+                            "requires": {
+                              "type": "array",
+                              "items": {
+                                "type": "string"
+                              }
+                            },
+                            "in_game_time": {
+                              "type": "number",
+                              "description": "Time in seconds taken to reach the 'to_door' from the 'from_door' when the specified conditions are met."
+                            },
+                            "simple_fraction": {
+                              "type": "number",
+                              "description": "Fraction of the time which is spent on simple movement (not scaled by difficulty).",
+                              "default": 0
+                            },
+                            "note": {
+                              "type": "string",
+                              "description": "Optional note about this timing."
+                            }
+                          }
+                        },
+                        "description": "Optional array of timings that require specific conditions to be met to be valid."
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }    
+      }
+    }
+  }
+}

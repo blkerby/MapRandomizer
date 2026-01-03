@@ -44,7 +44,7 @@ patches = [
     # "buffed_drops"
     # 'complementary_suits',
     # 'complementary_suits_noheat',
-    # 'escape',
+    'hyper_beam',
     # 'fast_big_boy_cutscene',
     # 'mb_barrier_clear',
     # 'mb_left_entrance',
