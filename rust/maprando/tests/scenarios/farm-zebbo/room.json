@@ -1,0 +1,31 @@
+{
+  "$schema": "../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [[1]],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Starting Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [[1]]
+    }
+  ],
+  "links": [],
+  "strats": [
+    {
+      "link": [1, 1],
+      "name": "Zebbo Farm",
+      "requires": [
+        {"cycleFrames": 100}
+      ],
+      "farmCycleDrops": [{"enemy": "Zebbo", "count": 2}],
+      "flashSuitChecked": true
+    }
+  ]
+}

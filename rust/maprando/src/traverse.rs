@@ -728,12 +728,17 @@ pub fn apply_farm_requirement(
     // An initial cycle_frames of 1 is used to mark this as a farming strat, as this can affect
     // the processing of some requirements (currently just ResetRoom).
     start_local.cycle_frames = 1;
+    start_local.energy = ResourceLevel::full(reverse).into();
+    start_local.reserves = ResourceLevel::full(reverse).into();
+    start_local.missiles = ResourceLevel::full(reverse).into();
+    start_local.supers = ResourceLevel::full(reverse).into();
+    start_local.power_bombs = ResourceLevel::full(reverse).into();
     let cost_config = simple_cost_config();
     let end_local_result = apply_requirement(
         req,
         global,
         start_local,
-        false,
+        reverse,
         settings,
         difficulty,
         game_data,
@@ -746,25 +751,19 @@ pub fn apply_farm_requirement(
     if end_local.cycle_frames < 100 {
         panic!("bad farm: expected cycle_frames >= 100: end_local={end_local:#?},\n req={req:#?}");
     }
-    let cycle_frames = (end_local.cycle_frames - 1) as f32;
+    let cycle_frames = (end_local.cycle_frames - start_local.cycle_frames) as f32;
     let cycle_energy = (end_local.energy_available(&global.inventory, true, reverse)
-        - local.energy_available(&global.inventory, true, reverse)) as f32;
+        - start_local.energy_available(&global.inventory, true, reverse))
+        as f32;
     let cycle_missiles = (end_local.missiles_available(&global.inventory, reverse)
-        - local.missiles_available(&global.inventory, reverse)) as f32;
+        - start_local.missiles_available(&global.inventory, reverse))
+        as f32;
     let cycle_supers = (end_local.supers_available(&global.inventory, reverse)
-        - local.supers_available(&global.inventory, reverse)) as f32;
+        - start_local.supers_available(&global.inventory, reverse)) as f32;
     let cycle_pbs = (end_local.power_bombs_available(&global.inventory, reverse)
-        - local.power_bombs_available(&global.inventory, reverse)) as f32;
+        - start_local.power_bombs_available(&global.inventory, reverse)) as f32;
     let patience_frames = difficulty.farm_time_limit * 60.0;
     let num_cycles = (patience_frames / cycle_frames).floor() as i32;
-
-    let mut new_local = local;
-    update_farm_baseline(&mut new_local, &global.inventory, reverse);
-    new_local.energy = new_local.farm_baseline_energy;
-    new_local.reserves = new_local.farm_baseline_reserves;
-    new_local.missiles = new_local.farm_baseline_missiles;
-    new_local.supers = new_local.farm_baseline_supers;
-    new_local.power_bombs = new_local.farm_baseline_power_bombs;
 
     // We assume, somewhat simplisticly, that the maximum drop rate for each resource can be
     // obtained, by filling up on the other resource types.
@@ -793,19 +792,63 @@ pub fn apply_farm_requirement(
         settings.quality_of_life_settings.buffed_drops,
     );
 
-    let net_energy = ((drop_energy - cycle_energy) * num_cycles as f32) as Capacity;
-    let net_missiles = ((drop_missiles - cycle_missiles) * num_cycles as f32) as Capacity;
-    let net_supers = ((drop_supers - cycle_supers) * num_cycles as f32) as Capacity;
-    let net_pbs = ((drop_pbs - cycle_pbs) * num_cycles as f32) as Capacity;
+    let net_energy = ((drop_energy + cycle_energy) * num_cycles as f32) as Capacity;
+    let net_missiles = ((drop_missiles + cycle_missiles) * num_cycles as f32) as Capacity;
+    let net_supers = ((drop_supers + cycle_supers) * num_cycles as f32) as Capacity;
+    let net_pbs = ((drop_pbs + cycle_pbs) * num_cycles as f32) as Capacity;
 
     if net_energy < 0 || net_missiles < 0 || net_supers < 0 || net_pbs < 0 {
         return None;
     }
 
+    let mut new_local = local;
+    if !reverse {
+        // In forward traversal, we first apply the requirement, then refill the resources gained from farming.
+        new_local = apply_requirement(
+            req,
+            global,
+            new_local,
+            reverse,
+            settings,
+            difficulty,
+            game_data,
+            door_map,
+            locked_door_data,
+            objectives,
+            &cost_config,
+        )?;
+        new_local.cycle_frames = 0;
+    }
+
+    update_farm_baseline(&mut new_local, &global.inventory, reverse);
+    new_local.energy = new_local.farm_baseline_energy;
+    new_local.reserves = new_local.farm_baseline_reserves;
+    new_local.missiles = new_local.farm_baseline_missiles;
+    new_local.supers = new_local.farm_baseline_supers;
+    new_local.power_bombs = new_local.farm_baseline_power_bombs;
+
     new_local.refill_energy(net_energy, true, &global.inventory, reverse);
     new_local.refill_missiles(net_missiles, &global.inventory, reverse);
     new_local.refill_supers(net_supers, &global.inventory, reverse);
     new_local.refill_power_bombs(net_pbs, &global.inventory, reverse);
+
+    if reverse {
+        // In reverse traversal, we first refill the resources gained from farming, then apply the requirement.
+        new_local = apply_requirement(
+            req,
+            global,
+            new_local,
+            reverse,
+            settings,
+            difficulty,
+            game_data,
+            door_map,
+            locked_door_data,
+            objectives,
+            &cost_config,
+        )?;
+        new_local.cycle_frames = 0;
+    }
 
     if local.energy_available(&global.inventory, false, reverse)
         > new_local.energy_available(&global.inventory, false, reverse)
@@ -836,34 +879,22 @@ pub fn apply_farm_requirement(
     if net_energy >= global.pool_inventory.max_energy + global.pool_inventory.max_reserves {
         new_local.energy = ResourceLevel::full_energy(reverse).into();
         new_local.reserves = ResourceLevel::full(reverse).into();
-    }
-    if net_missiles >= global.pool_inventory.max_missiles {
-        new_local.missiles = ResourceLevel::full(reverse).into();
-    }
-    if net_supers >= global.pool_inventory.max_supers {
-        new_local.supers = ResourceLevel::full(reverse).into();
-    }
-    if net_pbs >= global.pool_inventory.max_power_bombs {
-        new_local.power_bombs = ResourceLevel::full(reverse).into();
-    }
-
-    if new_local.energy_available(&global.inventory, true, reverse)
-        == global.inventory.max_energy + global.inventory.max_reserves
-    {
         new_local.farm_baseline_energy = new_local.energy;
         new_local.farm_baseline_reserves = new_local.reserves;
     }
-    if new_local.missiles_available(&global.inventory, reverse) == global.inventory.max_missiles {
+    if net_missiles >= global.pool_inventory.max_missiles {
+        new_local.missiles = ResourceLevel::full(reverse).into();
         new_local.farm_baseline_missiles = new_local.missiles;
     }
-    if new_local.supers_available(&global.inventory, reverse) == global.inventory.max_supers {
+    if net_supers >= global.pool_inventory.max_supers {
+        new_local.supers = ResourceLevel::full(reverse).into();
         new_local.farm_baseline_supers = new_local.supers;
     }
-    if new_local.power_bombs_available(&global.inventory, reverse)
-        == global.inventory.max_power_bombs
-    {
+    if net_pbs >= global.pool_inventory.max_power_bombs {
+        new_local.power_bombs = ResourceLevel::full(reverse).into();
         new_local.farm_baseline_power_bombs = new_local.power_bombs;
     }
+
     Some(new_local)
 }
 

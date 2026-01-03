@@ -1,0 +1,53 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Regular Farm",
+      "settings": {
+        "farmTimeLimit": 30,
+        "resourceMultiplier": 1.0
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 721},
+        "missiles": {"remaining": 72},
+        "supers": {"remaining": 14},
+        "powerBombs": {"remaining": 0}
+      }
+    },
+    {
+      "name": "Lenient Farm",
+      "settings": {
+        "farmTimeLimit": 30,
+        "resourceMultiplier": 2.0
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 361},
+        "missiles": {"remaining": 36},
+        "supers": {"remaining": 7},
+        "powerBombs": {"remaining": 0}
+      }
+    }    
+  ]
+}

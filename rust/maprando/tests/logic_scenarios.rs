@@ -295,6 +295,16 @@ fn get_preprocessor<'a>(
 ) -> Result<Preprocessor<'a>> {
     let mut door_map = HashMap::new();
     for conn in connections {
+        let from_node_json = &game_data.node_json_map[&(conn.from_room_id, conn.from_node_id)];
+        if !["door", "exit"].contains(&from_node_json["nodeType"].as_str().unwrap()) {
+            bail!("From node of connection does not have 'door' or 'exit' nodeType");
+        }
+
+        let to_node_json = &game_data.node_json_map[&(conn.to_room_id, conn.to_node_id)];
+        if !["door", "entrance"].contains(&to_node_json["nodeType"].as_str().unwrap()) {
+            bail!("To node of connection does not have 'door' or 'entrance' nodeType");
+        }
+
         match door_map.entry((conn.from_room_id, conn.from_node_id)) {
             hashbrown::hash_map::Entry::Occupied(_) => {
                 bail!("Conflicting connection: {:?}", conn);
@@ -791,6 +801,7 @@ fn test_scenario(
 #[test]
 fn test_logic_scenarios() -> Result<()> {
     let base_game_data = GameData::load_minimal(Path::new(".."))?;
+    let mut cnt_fail = 0;
     for entry in std::fs::read_dir("tests/scenarios")? {
         let entry = entry?;
         println!("\n***** {} *****", entry.file_name().display());
@@ -820,8 +831,14 @@ fn test_logic_scenarios() -> Result<()> {
             .context(format!("parsing {}", scenarios_path.display()))?;
         for scenario in &scenarios_list.scenarios {
             println!("Scenario: {}", scenario.name);
-            test_scenario(&game_data, &connections_list.connections, scenario)?;
+            if let Err(e) = test_scenario(&game_data, &connections_list.connections, scenario) {
+                cnt_fail += 1;
+                println!("🔴 FAILED: {:?}", e);
+            }
         }
+    }
+    if cnt_fail > 0 {
+        bail!("🔴 {} scenario(s) failed", cnt_fail);
     }
     Ok(())
 }

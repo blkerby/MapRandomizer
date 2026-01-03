@@ -1,0 +1,76 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Energy to Start Farm",
+      "settings": {
+        "farmTimeLimit": 30,
+        "resourceMultiplier": 1.0
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 1},
+        "powerBombs": {"remaining": 0}
+      }
+    },
+    {
+      "name": "Regular Farm",
+      "settings": {
+        "farmTimeLimit": 30,
+        "resourceMultiplier": 1.0
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 31},
+        "powerBombs": {"remaining": 2}
+      }
+    },
+    {
+      "name": "Too Much Heat Damage for Net Gain",
+      "settings": {
+        "farmTimeLimit": 30,
+        "resourceMultiplier": 3.0
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 99}
+      }
+    }
+  ]
+}

@@ -9,16 +9,16 @@
       "endNodeId": 1
     },
     {
-      "name": "Small Farm Time (From Empty)",
+      "name": "Small Farm Time",
       "settings": {
         "farmTimeLimit": 30
       },
       "globalState": {
-        "maxEnergy": 399,
-        "maxReserves": 100,
-        "maxMissiles": 50,
-        "maxSupers": 20,
-        "maxPowerBombs": 20
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
       },
       "startRoomId": 0,
       "startNodeId": 1,
@@ -33,6 +33,78 @@
       "note": [
         "It would be 217 energy remaining except for numerical error specific to 32-bit floating point."
       ]
+    },
+    {
+      "name": "Medium Farm Time",
+      "settings": {
+        "farmTimeLimit": 90
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 648},
+        "missiles": {"remaining": 99},
+        "supers": {"remaining": 12},
+        "powerBombs": {"remaining": 2}
+      }
+    },
+    {
+      "name": "Buffed Drops",
+      "settings": {
+        "farmTimeLimit": 90,
+        "buffedDrops": true
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 953},
+        "missiles": {"remaining": 108},
+        "supers": {"remaining": 25},
+        "powerBombs": {"remaining": 8}
+      }
+    },
+    {
+      "name": "Full Farm",
+      "settings": {
+        "farmTimeLimit": 900,
+        "buffedDrops": true
+      },
+      "globalState": {
+        "maxEnergy": 1499,
+        "maxReserves": 400,
+        "maxMissiles": 230,
+        "maxSupers": 50,
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"consumed": 0},
+        "reserves": {"consumed": 0},
+        "missiles": {"consumed": 0},
+        "supers": {"consumed": 0},
+        "powerBombs": {"consumed": 0}
+      }
     }
   ]
 }
