@@ -1275,9 +1275,6 @@ pub fn get_spoiler_log(
             warn!("Failed to compute escape data: {}", err);
             let difficulty = &randomizer.difficulty_tiers[0];
             SpoilerEscape {
-                base_igt_frames: (60.0 * 5995.0 / difficulty.escape_timer_multiplier) as usize,
-                base_igt_seconds: 5995.0 / difficulty.escape_timer_multiplier,
-                base_leniency_factor: 1.0,
                 difficulty_multiplier: difficulty.escape_timer_multiplier,
                 raw_time_seconds: 5995.0,
                 final_time_seconds: 5995.0,

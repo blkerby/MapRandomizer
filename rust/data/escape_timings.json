@@ -13058,7 +13058,7 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 0.60,
+              "in_game_time": 1.00,
               "conditions": [
                 {
                   "requires": [
@@ -22703,7 +22703,8 @@
               "conditions": [
                 {
                   "requires": ["enemies_cleared"],
-                  "in_game_time": 1.35
+                  "in_game_time": 1.35,
+                  "simple_fraction": 0.7
                 }
               ]
             }
@@ -22730,7 +22731,14 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 1.50
+              "in_game_time": 1.50,
+              "conditions": [
+                {
+                  "requires": ["enemies_cleared"],
+                  "in_game_time": 1.35,
+                  "simple_fraction": 0.7
+                }
+              ]
             }
           ]
         }

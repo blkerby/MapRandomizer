@@ -20,7 +20,7 @@
     "ridley_proficiency": 0.15,
     "botwoon_proficiency": 0.3,
     "mother_brain_proficiency": 0.3,
-    "escape_timer_multiplier": 1.75,
+    "escape_timer_multiplier": 2.0,
     "tech_settings": [
         {
             "id": 6,

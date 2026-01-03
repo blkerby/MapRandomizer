@@ -591,12 +591,14 @@ pub enum EscapeConditionRequirement {
 pub struct EscapeTimingCondition {
     pub requires: Vec<EscapeConditionRequirement>,
     pub in_game_time: f32,
+    pub simple_fraction: Option<f32>,
 }
 
 #[derive(Deserialize, Clone)]
 pub struct EscapeTiming {
     pub to_door: EscapeTimingDoor,
     pub in_game_time: Option<f32>,
+    pub simple_fraction: Option<f32>,
     #[serde(default)]
     pub conditions: Vec<EscapeTimingCondition>,
 }
@@ -612,6 +614,11 @@ pub struct EscapeTimingRoom {
     pub room_id: RoomId,
     pub room_name: String,
     pub timings: Vec<EscapeTimingGroup>,
+}
+
+#[derive(Deserialize, Clone)]
+pub struct EscapeTimingData {
+    pub rooms: Vec<EscapeTimingRoom>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
@@ -5028,7 +5035,8 @@ impl GameData {
     fn load_escape_timings(&mut self, path: &Path) -> Result<()> {
         let escape_timings_str = std::fs::read_to_string(path)
             .with_context(|| format!("Unable to load escape timings at {}", path.display()))?;
-        self.escape_timings = serde_json::from_str(&escape_timings_str)?;
+        let escape_timing_data: EscapeTimingData = serde_json::from_str(&escape_timings_str)?;
+        self.escape_timings = escape_timing_data.rooms;
         assert_eq!(self.escape_timings.len(), self.room_geometry.len());
         Ok(())
     }
