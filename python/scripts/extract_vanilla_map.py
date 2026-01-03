@@ -2,9 +2,13 @@ from logic.rooms.all_rooms import rooms
 from maze_builder.types import Area, SubArea, DoorSubtype, Direction
 from rando.rom import Rom, RomRoom, snes2pc, pc2snes
 import json
+import argparse
 
-input_rom_path = '/home/kerby/Downloads/super_metroid_vanilla.smc'
-rom = Rom(open(input_rom_path, 'rb'))
+parser = argparse.ArgumentParser()
+parser.add_argument('input_rom', type=str, help='Input ROM path')
+args = parser.parse_args()
+
+rom = Rom(open(args.input_rom, 'rb'))
 
 area_offsets = [
     (1, 4),  # Crateria
@@ -37,20 +41,22 @@ subarea_mapping = {
     SubArea.ESCAPE_TOURIAN: 0,
 }
 
+# The subsubareas can't be  vanilla, so that the "Area tiling" mode will
+# give a different result from "Vanilla", for more fun/variety.
 subsubarea_mapping = {
     SubArea.WEST_CRATERIA: 0,
     SubArea.SOUTH_CRATERIA: 0,
     SubArea.CENTRAL_CRATERIA: 0,
-    SubArea.EAST_CRATERIA: 0,
+    SubArea.EAST_CRATERIA: 1,
     SubArea.BLUE_BRINSTAR: 0,
-    SubArea.GREEN_BRINSTAR: 0,
-    SubArea.PINK_BRINSTAR: 1,
-    SubArea.RED_BRINSTAR: 0,
+    SubArea.GREEN_BRINSTAR: 1,
+    SubArea.PINK_BRINSTAR: 0,
+    SubArea.RED_BRINSTAR: 1,
     SubArea.WAREHOUSE_BRINSTAR: 0,
     SubArea.UPPER_NORFAIR: 0,
     SubArea.LOWER_NORFAIR: 0,
-    SubArea.OUTER_MARIDIA: 0,
-    SubArea.GREEN_MARIDIA: 1,
+    SubArea.OUTER_MARIDIA: 1,
+    SubArea.GREEN_MARIDIA: 0,
     SubArea.PINK_MARIDIA: 1,
     SubArea.YELLOW_MARIDIA: 0,
     SubArea.WRECKED_SHIP: 0,
@@ -66,7 +72,6 @@ output_subareas = []
 output_subsubareas = []
 
 for room in rooms:
-    print(room.name)
     addr = room.rom_address
     area = rom.read_u8(addr + 1)
     x0 = rom.read_u8(addr + 2)
@@ -85,7 +90,7 @@ for room in rooms:
             output_doors.append([[exit_ptr, entrance_ptr], [entrance_ptr, exit_ptr], bidirectional])
     output_areas.append(area)
     output_subareas.append(subarea_mapping[room.sub_area])
-    output_subsubareas.append(subarea_mapping[room.sub_area])
+    output_subsubareas.append(subsubarea_mapping[room.sub_area])
 
 
 

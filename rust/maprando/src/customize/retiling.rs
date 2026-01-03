@@ -112,8 +112,9 @@ pub fn apply_retiling(
                     (2, 0, _) => "UpperNorfair",
                     (2, 1, _) => "LowerNorfair",
                     (3, _, _) => "WreckedShip",
-                    (4, 0, _) => "WestMaridia",
-                    (4, 1, _) => "YellowMaridia",
+                    (4, 0, 0) => "WestMaridia",
+                    (4, 0, 1) => "YellowMaridia",
+                    (4, 1, _) => "Bedrock",
                     (5, 0, _) => "MetroidHabitat",
                     (5, 1, _) => "MechaTourian",
                     _ => panic!(
