@@ -1513,9 +1513,15 @@ fn apply_requirement_simple(
         &Requirement::PowerBombsAvailable(count) => local
             .ensure_power_bombs_available(count, &cx.global.inventory, cx.reverse)
             .into(),
-        &Requirement::RegularEnergyAvailable(count) => local
-            .ensure_energy_available(count, false, &cx.global.inventory, cx.reverse)
-            .into(),
+        &Requirement::RegularEnergyAvailable(count) => {
+            // Note: It could make more sense to treat reserve energy satisfying
+            // the requirement for regular energy (by manually transfering it over);
+            // but currently all uses are after an auto-reserve trigger, where no reserves
+            // are available anyway.
+            local
+                .ensure_energy_available(count, false, &cx.global.inventory, cx.reverse)
+                .into()
+        }
         &Requirement::ReserveEnergyAvailable(count) => local
             .ensure_reserves_available(count, &cx.global.inventory, cx.reverse)
             .into(),

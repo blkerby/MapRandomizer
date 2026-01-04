@@ -646,7 +646,21 @@ impl LocalState {
             } else {
                 amt
             };
-            Self::ensure_resource_available(a, inventory.max_energy, &mut self.energy, reverse)
+            if a > inventory.max_energy {
+                Self::ensure_resource_available(
+                    inventory.max_energy,
+                    inventory.max_energy,
+                    &mut self.energy,
+                    reverse,
+                ) && Self::ensure_resource_available(
+                    a - inventory.max_energy,
+                    inventory.max_reserves,
+                    &mut self.reserves,
+                    reverse,
+                )
+            } else {
+                Self::ensure_resource_available(a, inventory.max_energy, &mut self.energy, reverse)
+            }
         } else {
             self.energy_remaining(inventory, include_reserves) >= amt
         }
