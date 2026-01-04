@@ -1,0 +1,101 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Energy",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 29},
+        "reserves": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Energy (Consumed)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 70},
+        "reserves": {"consumed": 80}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 30},
+        "reserves": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 30},
+        "reserves": {"remaining": 20}
+      }
+    },
+    {
+      "name": "Enough Energy (Consumed)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 69},
+        "reserves": {"consumed": 80}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 69},
+        "reserves": {"consumed": 80}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    },
+    {
+      "name": "Reverse (Combination)",
+      "globalState": {
+        "maxEnergy": 30,
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 30},
+        "reserves": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }    
+  ]
+}

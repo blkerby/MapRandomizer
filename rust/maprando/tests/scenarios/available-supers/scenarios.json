@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Supers",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 9}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Supers (Consumed)",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"consumed": 41}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Supers",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"remaining": 10}
+      }
+    },
+    {
+      "name": "Enough Supers (Consumed)",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 40}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"remaining": 40}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}

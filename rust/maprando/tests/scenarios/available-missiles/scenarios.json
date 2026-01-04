@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Missiles",
+      "globalState": {
+        "maxMissiles": 230
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 5}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Missiles (Consumed)",
+      "globalState": {
+        "maxMissiles": 230
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 221}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Missiles",
+      "globalState": {
+        "maxMissiles": 230
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 10}
+      }
+    },
+    {
+      "name": "Enough Missiles (Consumed)",
+      "globalState": {
+        "maxMissiles": 230
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 220}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"consumed": 220}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxMissiles": 230
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}

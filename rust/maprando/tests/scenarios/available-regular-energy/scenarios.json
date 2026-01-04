@@ -1,0 +1,64 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Regular Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 49}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Regular Energy (Consumed)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Regular Energy",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 50}
+      }
+    },
+    {
+      "name": "Enough Regular Energy (Consumed)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"consumed": 49}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"consumed": 49}
+      }
+    },
+    {
+      "name": "Reverse",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}

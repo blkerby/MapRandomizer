@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Reserves",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 49}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Reserves (Consumed)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 51}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Reserves",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"remaining": 50}
+      }
+    },
+    {
+      "name": "Enough Reserves (Consumed)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"consumed": 50}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}

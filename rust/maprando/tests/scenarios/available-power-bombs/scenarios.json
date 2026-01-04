@@ -1,0 +1,79 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Power Bombs",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 9}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Power Bombs (Consumed)",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 41}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Power Bombs",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"remaining": 10}
+      }
+    },
+    {
+      "name": "Enough Power Bombs (Consumed)",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 40}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"consumed": 40}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 10}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}
