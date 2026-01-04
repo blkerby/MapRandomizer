@@ -16142,7 +16142,14 @@
                 "door_idx": 1,
                 "node_id": 2
               },
-              "in_game_time": 7.25
+              "in_game_time": 7.25,
+              "conditions": [
+                {
+                  "requires": ["enemies_cleared"],
+                  "in_game_time": 5.40,
+                  "note": "Mockball"
+                }
+              ]
             }
           ]
         },
@@ -16167,7 +16174,14 @@
                 "door_idx": 0,
                 "node_id": 1
               },
-              "in_game_time": 7.25
+              "in_game_time": 7.25,
+              "conditions": [
+                {
+                  "requires": ["enemies_cleared"],
+                  "in_game_time": 7.05,
+                  "note": "Roll under"
+                }
+              ]
             }
           ]
         }
