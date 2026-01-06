@@ -144,7 +144,10 @@ whitelist_dict = {
     'vanilla_fanfare_stop_sounds': [
         ['itemsounds', 0x858089, 0x85808B],
         ['fast_saves', 0x858089, 0x85808B],
-    ]
+    ],
+    'buffed_drops': [
+        ['no_drops', 0xB4F1F4, 0xB4F4B8]
+    ],
 }
 
 failed = False
