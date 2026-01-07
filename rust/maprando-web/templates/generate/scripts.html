@@ -45,6 +45,8 @@ function applyNotableSetting(roomId, notableId, enabled) {
 function applySkillPreset(preset) {
     if (preset.preset !== null) {
         document.getElementById("skillPreset").value = preset.preset;
+    } else {
+        document.getElementById("skillPreset").value = "";
     }
     document.getElementById("shinesparkTiles").value = preset.shinespark_tiles;
     document.getElementById("heatedShinesparkTiles").value = preset.heated_shinespark_tiles;
