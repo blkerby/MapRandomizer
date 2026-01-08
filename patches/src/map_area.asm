@@ -15,6 +15,8 @@ lorom
 !bank_85_freespace3_end  = $85BA00
 !bank_b6_freespace_start = $B6FEE0
 !bank_b6_freespace_end = $B70000
+!bank_94_freespace_start = $94B1A0
+!bank_94_freespace_end = $94B1B0
 !map_icon_settings = $85B600  ; must match reference in customize.rs - bits are set to disable map icons.
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
@@ -199,6 +201,9 @@ org $90AB4A
 ; Indicate Samus position on HUD by flashing tile palette 0 instead of palette 7
 org $90AB56
     AND #$E3FF     ; was: ORA #$1C00
+    
+org $9493B2
+    JSR fix_pants_room_fx
 
 ; Use palette 3 for full ETanks (instead of palette 2)
 org $809BDC
@@ -2129,3 +2134,14 @@ draw_sprite:
     PLA
     BRA .sprite_is_disabled
 warnpc !bank_85_freespace3_end
+
+; Fixes FX for rare bug when entering right-sided door through East Pants Room
+org !bank_94_freespace_start
+fix_pants_room_fx:
+    CPX #$A7BC          ; East Pants door?
+    BNE .no_fix
+    LDX #$A798          ; Pants Room door ID
+.no_fix
+    STX $78D            ; replaced code
+    RTS
+warnpc !bank_94_freespace_end
