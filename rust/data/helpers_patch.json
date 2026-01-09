@@ -1,0 +1,121 @@
+{
+  "must_patch_categories": ["Randomizer Dependent", "Leniency"],
+  "skip_helpers": [
+    "h_SpringwallOverSpikes",
+    "h_heatedSpringwall",
+    "h_heatedIBJFromSpikes",
+    "h_equipmentScreenFix",
+    "h_bypassMotherBrainRoom",
+    "h_partialEnemyDamageReduction",
+    "h_doorImmediatelyClosedFix",
+    "h_openZebetitesLeniency",
+    "h_CrystalSparkLeniency",
+    "h_IBJFromThorns",
+    "h_IBJFromSpikes",
+    "h_doubleEquipmentScreenCycleFrames",
+    "h_extendedMoondanceBeetomLeniency",
+    "h_RefillStationAllAmmo10PowerBombCrystalFlash"
+  ],
+  "helper_substitutions": {
+    "h_heatProof": ["Varia"],
+    "h_heatResistant": ["Varia"],
+    "h_lavaProof": ["Varia", "Gravity"],
+    "h_fullEnemyDamageReduction": ["Varia", "Gravity"],
+    "h_partialSpikeDamageReduction": [{"or": ["Varia", "Gravity"]}],
+    "h_blueGateGlitchLeniency": ["i_blueGateGlitchLeniency"],
+    "h_greenGateGlitchLeniency": ["i_greenGateGlitchLeniency"],
+    "h_heatedBlueGateGlitchLeniency": ["i_heatedBlueGateGlitchLeniency"],
+    "h_heatedGreenGateGlitchLeniency": ["i_heatedGreenGateGlitchLeniency"],
+    "h_bombIntoCrystalFlashClipLeniency": ["i_bombIntoCrystalFlashClipLeniency"],
+    "h_jumpIntoCrystalFlashClipLeniency": ["i_jumpIntoCrystalFlashClipLeniency"],
+    "h_spikeSuitSpikeHitLeniency": ["i_spikeSuitSpikeHitLeniency"],
+    "h_spikeSuitThornHitLeniency": ["i_spikeSuitThornHitLeniency"],
+    "h_spikeSuitSamusEaterLeniency": ["i_spikeSuitSamusEaterLeniency"],
+    "h_spikeSuitPowerBombLeniency": ["i_spikeSuitPowerBombLeniency"],
+    "h_XModeSpikeHitLeniency": ["i_XModeSpikeHitLeniency"],
+    "h_XModeThornHitLeniency": ["i_XModeThornHitLeniency"],
+    "h_thornXModeFramePerfectExtraLeniency": ["i_FramePerfectXModeThornHitLeniency"],
+    "h_thornDoubleXModeFramePerfectExtraLeniency": ["i_FramePerfectDoubleXModeThornHitLeniency"],
+    "h_speedKeepSpikeHitLeniency": ["i_speedKeepSpikeHitLeniency"],
+    "h_allItemsSpawned": ["f_AllItemsSpawn"],
+    "h_EverestMorphTunnelExpanded": [],
+    "h_activateBombTorizo": [],
+    "h_activateAcidChozo": [{
+      "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
+    }],
+    "h_ShaktoolVanillaFlag": ["never"],
+    "h_ShaktoolCameraFix": [],
+    "h_KraidCameraFix": [],
+    "h_CrocomireCameraFix": [],
+    "h_ShaktoolSymmetricFlag": [],
+    "h_ClimbWithoutLava": ["i_ClimbWithoutLava"],
+    "h_SupersDoubleDamageMotherBrain": ["i_SupersDoubleDamageMotherBrain"],
+    "h_useMissileRefillStation": ["i_ammoRefill"],
+    "h_MissileRefillStationAllAmmo": ["i_ammoRefillAll"],
+    "h_useEnergyRefillStation": ["i_energyStationRefill"],
+    "h_openTourianEscape1RightDoor": [],
+    "h_LowerNorfairElevatorDownwardFrames": ["i_LowerNorfairElevatorDownwardFrames"],
+    "h_LowerNorfairElevatorUpwardFrames": ["i_LowerNorfairElevatorUpwardFrames"],
+    "h_MainHallElevatorFrames": ["i_MainHallElevatorFrames"],
+    "h_equipmentScreenCycleFrames": ["i_equipmentScreenCycleFrames"],
+    "h_ShinesparksCostEnergy": ["i_ShinesparksCostEnergy"],
+    "h_ElevatorCrystalFlashLeniency": ["i_elevatorCrystalFlashLeniency"],
+    "h_heatedCrystalFlashRefill": [
+      {"or": [
+	{"partialRefill": {"type": "Energy", "limit": 1440}},
+	{"and": [
+	  "Varia",
+	  {"partialRefill": {"type": "Energy", "limit": 1500}}
+	]}
+      ]}
+    ],
+    "h_acidCrystalFlashRefill": [
+      {"or": [
+	{"partialRefill": {"type": "Energy", "limit": 1120}},
+	{"and": [
+	  {"or": [
+	    "Varia",
+	    "Gravity"
+	  ]},
+	  {"partialRefill": {"type": "Energy", "limit": 1310}}
+	]},
+	{"and": [
+	  "Varia",
+	  "Gravity",
+	  {"partialRefill": {"type": "Energy", "limit": 1410}}
+	]}
+      ]}
+    ],
+    "h_heatedLavaCrystalFlashRefill": [
+      {"or": [
+	{"partialRefill": {"type": "Energy", "limit": 1330}},
+	{"and": [
+	  "Gravity",
+	  {"partialRefill": {"type": "Energy", "limit": 1385}}
+	]},
+	{"and": [
+	  "Varia",
+	  {"partialRefill": {"type": "Energy", "limit": 1440}}
+	]},
+	{"and": [
+	  "Varia",
+	  "Gravity",
+	  {"partialRefill": {"type": "Energy", "limit": 1500}}
+	]}
+      ]}
+    ],
+    "h_heatedAcidCrystalFlashRefill": [
+      {"or": [
+	{"partialRefill": {"type": "Energy", "limit": 1075}},
+	{"and": [
+	  "Varia",
+	  {"partialRefill": {"type": "Energy", "limit": 1310}}
+	]},
+	{"and": [
+	  "Gravity",
+	  {"partialRefill": {"type": "Energy", "limit": 1365}}
+	]}
+      ]}
+    ]
+  }
+}
