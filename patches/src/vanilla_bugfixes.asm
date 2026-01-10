@@ -82,7 +82,7 @@ check_empty:
 .end:
 	rts
 
-warnpc $a0f830
+assert pc() <= $a0f830
 
 ;;; Fixes for the extra save stations in area rando/random start :
 
@@ -126,7 +126,7 @@ save_station_check:
 	jmp search_loop_found
 
 ;;; end of unused space
-warnpc $8485b2
+assert pc() <= $8485b2
 
 
 ; Use door direction ($0791) to check in Big Boy room if we are coming in from the left vs. right.
@@ -184,7 +184,7 @@ fix_camera_alignment:
 	LDA $B1 : SEC
 	RTS
 
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
 
 
 ; skip loading special x-ray blocks (only used in BT room during escape, and we repurpose the space for other things)
@@ -212,7 +212,7 @@ check_item_plm:
 	clc
 	rts
 
-warnpc $848398
+assert pc() <= $848398
 org $848398
 special_xray_end:
 
@@ -242,7 +242,7 @@ pause_func:
     stz $9d6                      ; clear reserve health
     rts
 
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 ; Fix for powamp projectile bug
 ;
@@ -271,7 +271,7 @@ powamp_fix:
     sta $1a4b,y             ; replaced code
     rts
 
-warnpc !bank_86_free_space_end
+assert pc() <= !bank_86_free_space_end
 
 ; Fix improper clearing of BG2
 ; Noted by PJBoy: https://patrickjohnston.org/bank/80#fA23F
@@ -302,7 +302,7 @@ yapping_maw_crash:
 .skip
     jmp ($d37d,x)           ; valid entry
     
-warnPC !bank_90_free_space_end
+assert pc() <= !bank_90_free_space_end
 
 ;;; Spring ball menu crash fix by strotlog.
 ;;; Fix obscure vanilla bug where: turning off spring ball while bouncing, can crash in $91:EA07,
@@ -456,7 +456,7 @@ xmode_msg:
     
 msg_end:
 
-warnPC !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
 
 org $858093
     jsr hook_message_box
@@ -493,7 +493,7 @@ check_unpause:
     lda #$0008              ; replaced code
     jmp $93be
 
-warnPC !bank_82_free_space2_end
+assert pc() <= !bank_82_free_space2_end
 
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
@@ -517,3 +517,46 @@ org $91816f ; rewrite original input handler for solid tile collision to free up
     RTS
 
 assert pc() <= $918181  ; Make sure we don't overwrite the next routine.
+
+; (Maridia Tube Fix - written by AmoebaOfDoom) 
+;patches horizontal PLM updates to DMA tiles even when the PLM is above the screen if part of it is on the screen
+
+!bank_84_free_space_start = $84EFD7
+!bank_84_free_space_end = $84F000
+
+org $848DA0
+SkipEntry_Inject:
+    JMP SkipEntry
+
+org $848DEA
+    BMI SkipEntry_Inject
+
+org $848E12
+SkipEntry_Inject_2:
+    BEQ SkipEntry_Inject
+SkipEntry_Inject_3:
+    BMI SkipEntry_Inject
+
+org $848E44
+    BEQ SkipEntry_Inject_2
+
+org $848E2D
+    BMI SkipEntry_Inject_3
+    NOP
+
+org $84919A;918E
+    BRANCH_NEXT_DRAW_ENTRY:
+
+org !bank_84_free_space_start 
+SkipEntry:
+    LDA $0000,y
+    ASL
+    STA $14
+    TYA
+    CLC
+    ADC #$0002
+    ADC $14
+    TAY
+    JMP BRANCH_NEXT_DRAW_ENTRY
+
+assert pc() <= !bank_84_free_space_end
