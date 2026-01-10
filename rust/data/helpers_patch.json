@@ -62,59 +62,59 @@
     "h_ElevatorCrystalFlashLeniency": ["i_elevatorCrystalFlashLeniency"],
     "h_heatedCrystalFlashRefill": [
       {"or": [
-	{"partialRefill": {"type": "Energy", "limit": 1440}},
-	{"and": [
-	  "Varia",
-	  {"partialRefill": {"type": "Energy", "limit": 1500}}
-	]}
+        {"partialRefill": {"type": "Energy", "limit": 1440}},
+        {"and": [
+          "Varia",
+          {"partialRefill": {"type": "Energy", "limit": 1500}}
+        ]}
       ]}
     ],
     "h_acidCrystalFlashRefill": [
       {"or": [
-	{"partialRefill": {"type": "Energy", "limit": 1120}},
-	{"and": [
-	  {"or": [
-	    "Varia",
-	    "Gravity"
-	  ]},
-	  {"partialRefill": {"type": "Energy", "limit": 1310}}
-	]},
-	{"and": [
-	  "Varia",
-	  "Gravity",
-	  {"partialRefill": {"type": "Energy", "limit": 1410}}
-	]}
+        {"partialRefill": {"type": "Energy", "limit": 1120}},
+        {"and": [
+          {"or": [
+            "Varia",
+            "Gravity"
+          ]},
+      	  {"partialRefill": {"type": "Energy", "limit": 1310}}
+        ]},
+        {"and": [
+          "Varia",
+          "Gravity",
+          {"partialRefill": {"type": "Energy", "limit": 1410}}
+        ]}
       ]}
     ],
     "h_heatedLavaCrystalFlashRefill": [
       {"or": [
-	{"partialRefill": {"type": "Energy", "limit": 1330}},
-	{"and": [
-	  "Gravity",
-	  {"partialRefill": {"type": "Energy", "limit": 1385}}
-	]},
-	{"and": [
-	  "Varia",
-	  {"partialRefill": {"type": "Energy", "limit": 1440}}
-	]},
-	{"and": [
-	  "Varia",
-	  "Gravity",
-	  {"partialRefill": {"type": "Energy", "limit": 1500}}
-	]}
+        {"partialRefill": {"type": "Energy", "limit": 1330}},
+        {"and": [
+          "Gravity",
+          {"partialRefill": {"type": "Energy", "limit": 1385}}
+        ]},
+        {"and": [
+          "Varia",
+          {"partialRefill": {"type": "Energy", "limit": 1440}}
+        ]},
+        {"and": [
+          "Varia",
+          "Gravity",
+          {"partialRefill": {"type": "Energy", "limit": 1500}}
+        ]}
       ]}
     ],
     "h_heatedAcidCrystalFlashRefill": [
       {"or": [
-	{"partialRefill": {"type": "Energy", "limit": 1075}},
-	{"and": [
-	  "Varia",
-	  {"partialRefill": {"type": "Energy", "limit": 1310}}
-	]},
-	{"and": [
-	  "Gravity",
-	  {"partialRefill": {"type": "Energy", "limit": 1365}}
-	]}
+        {"partialRefill": {"type": "Energy", "limit": 1075}},
+        {"and": [
+          "Varia",
+          {"partialRefill": {"type": "Energy", "limit": 1310}}
+        ]},
+        {"and": [
+          "Gravity",
+          {"partialRefill": {"type": "Energy", "limit": 1365}}
+        ]}
       ]}
     ]
   }

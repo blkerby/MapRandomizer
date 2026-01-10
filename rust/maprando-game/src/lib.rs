@@ -5450,8 +5450,8 @@ impl GameData {
         Ok(())
     }
 
-    pub fn patch_helpers(&mut self) -> Result<()> {
-        let patch = read_json(Path::new("data/helpers_patch.json"))?;
+    pub fn patch_helpers(&mut self, helpers_patch_path: &Path) -> Result<()> {
+        let patch = read_json(helpers_patch_path)?;
         let must_patch_categories: Vec<String> = patch["must_patch_categories"]
             .members()
             .map(|s| s.as_str().unwrap().to_string())
@@ -5500,6 +5500,7 @@ impl GameData {
 
     pub fn load_minimal(base_path: &Path) -> Result<GameData> {
         let sm_json_data_path = base_path.join("../sm-json-data");
+        let helpers_patch_path = base_path.join("data/helpers_patch.json");
         let mut game_data = GameData {
             sm_json_data_path,
             ..GameData::default()
@@ -5508,7 +5509,7 @@ impl GameData {
         game_data.load_items_and_flags()?;
         game_data.load_tech()?;
         game_data.load_helpers()?;
-        game_data.patch_helpers()?;
+        game_data.patch_helpers(&helpers_patch_path)?;
         game_data.load_weapons()?;
         game_data.load_enemies()?;
 
