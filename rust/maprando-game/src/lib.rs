@@ -5450,219 +5450,18 @@ impl GameData {
         Ok(())
     }
 
-    pub fn patch_helpers(&mut self) {
-        let must_patch_categories = ["Randomizer Dependent".to_string(), "Leniency".to_string()];
-        let helper_substitutions: Vec<(&'static str, JsonValue)> = vec![
-            ("h_heatProof", json::array!["Varia"]),
-            ("h_heatResistant", json::array!["Varia"]),
-            ("h_lavaProof", json::array!["Varia", "Gravity"]),
-            (
-                "h_fullEnemyDamageReduction",
-                json::array!["Varia", "Gravity"],
-            ),
-            (
-                "h_partialSpikeDamageReduction",
-                json::array![{"or": ["Varia", "Gravity"]}],
-            ),
-            (
-                "h_blueGateGlitchLeniency",
-                json::array!["i_blueGateGlitchLeniency"],
-            ),
-            (
-                "h_greenGateGlitchLeniency",
-                json::array!["i_greenGateGlitchLeniency"],
-            ),
-            (
-                "h_heatedBlueGateGlitchLeniency",
-                json::array!["i_heatedBlueGateGlitchLeniency"],
-            ),
-            (
-                "h_heatedGreenGateGlitchLeniency",
-                json::array!["i_heatedGreenGateGlitchLeniency"],
-            ),
-            (
-                "h_bombIntoCrystalFlashClipLeniency",
-                json::array!["i_bombIntoCrystalFlashClipLeniency"],
-            ),
-            (
-                "h_jumpIntoCrystalFlashClipLeniency",
-                json::array!["i_jumpIntoCrystalFlashClipLeniency"],
-            ),
-            (
-                "h_spikeSuitSpikeHitLeniency",
-                json::array!["i_spikeSuitSpikeHitLeniency"],
-            ),
-            (
-                "h_spikeSuitThornHitLeniency",
-                json::array!["i_spikeSuitThornHitLeniency"],
-            ),
-            (
-                "h_spikeSuitSamusEaterLeniency",
-                json::array!["i_spikeSuitSamusEaterLeniency"],
-            ),
-            (
-                "h_spikeSuitPowerBombLeniency",
-                json::array!["i_spikeSuitPowerBombLeniency"],
-            ),
-            (
-                "h_XModeSpikeHitLeniency",
-                json::array!["i_XModeSpikeHitLeniency"],
-            ),
-            (
-                "h_XModeThornHitLeniency",
-                json::array!["i_XModeThornHitLeniency"],
-            ),
-            (
-                "h_thornXModeFramePerfectExtraLeniency",
-                json::array!["i_FramePerfectXModeThornHitLeniency"],
-            ),
-            (
-                "h_thornDoubleXModeFramePerfectExtraLeniency",
-                json::array!["i_FramePerfectDoubleXModeThornHitLeniency"],
-            ),
-            (
-                "h_speedKeepSpikeHitLeniency",
-                json::array!["i_speedKeepSpikeHitLeniency"],
-            ),
-            ("h_allItemsSpawned", json::array!["f_AllItemsSpawn"]),
-            ("h_EverestMorphTunnelExpanded", json::array![]),
-            ("h_activateBombTorizo", json::array![]),
-            (
-                "h_activateAcidChozo",
-                json::array![{
-                    "or": ["SpaceJump", "f_AcidChozoWithoutSpaceJump"]
-                }],
-            ),
-            ("h_ShaktoolVanillaFlag", json::array!["never"]),
-            ("h_ShaktoolCameraFix", json::array![]),
-            ("h_KraidCameraFix", json::array![]),
-            ("h_CrocomireCameraFix", json::array![]),
-            ("h_ShaktoolSymmetricFlag", json::array![]),
-            ("h_ClimbWithoutLava", json::array!["i_ClimbWithoutLava"]),
-            (
-                "h_SupersDoubleDamageMotherBrain",
-                json::array!["i_SupersDoubleDamageMotherBrain"],
-            ),
-            ("h_useMissileRefillStation", json::array!["i_ammoRefill"]),
-            (
-                "h_MissileRefillStationAllAmmo",
-                json::array!["i_ammoRefillAll"],
-            ),
-            (
-                "h_useEnergyRefillStation",
-                json::array!["i_energyStationRefill"],
-            ),
-            ("h_openTourianEscape1RightDoor", json::array![]),
-            (
-                "h_LowerNorfairElevatorDownwardFrames",
-                json::array!["i_LowerNorfairElevatorDownwardFrames"],
-            ),
-            (
-                "h_LowerNorfairElevatorUpwardFrames",
-                json::array!["i_LowerNorfairElevatorUpwardFrames"],
-            ),
-            (
-                "h_MainHallElevatorFrames",
-                json::array!["i_MainHallElevatorFrames"],
-            ),
-            (
-                "h_equipmentScreenCycleFrames",
-                json::array!["i_equipmentScreenCycleFrames"],
-            ),
-            (
-                "h_ShinesparksCostEnergy",
-                json::array!["i_ShinesparksCostEnergy"],
-            ),
-            (
-                "h_ElevatorCrystalFlashLeniency",
-                json::array!["i_elevatorCrystalFlashLeniency"],
-            ),
-            (
-                "h_heatedCrystalFlashRefill",
-                json::array![
-                    {"or": [
-                        {"partialRefill": {"type": "Energy", "limit": 1440}},
-                        {"and": [
-                            "Varia",
-                            {"partialRefill": {"type": "Energy", "limit": 1500}}
-                        ]}
-                    ]}
-                ],
-            ),
-            (
-                "h_acidCrystalFlashRefill",
-                json::array![
-                    {"or": [
-                        {"partialRefill": {"type": "Energy", "limit": 1120}},
-                        {"and": [
-                            {"or": [
-                                "Varia",
-                                "Gravity"
-                            ]},
-                            {"partialRefill": {"type": "Energy", "limit": 1310}}
-                        ]},
-                        {"and": [
-                            "Varia",
-                            "Gravity",
-                            {"partialRefill": {"type": "Energy", "limit": 1410}}
-                        ]}
-                    ]}
-                ],
-            ),
-            (
-                "h_heatedLavaCrystalFlashRefill",
-                json::array![
-                    {"or": [
-                        {"partialRefill": {"type": "Energy", "limit": 1330}},
-                        {"and": [
-                            "Gravity",
-                            {"partialRefill": {"type": "Energy", "limit": 1385}}
-                        ]},
-                        {"and": [
-                            "Varia",
-                            {"partialRefill": {"type": "Energy", "limit": 1440}}
-                        ]},
-                        {"and": [
-                            "Varia",
-                            "Gravity",
-                            {"partialRefill": {"type": "Energy", "limit": 1500}}
-                        ]}
-                    ]}
-                ],
-            ),
-            (
-                "h_heatedAcidCrystalFlashRefill",
-                json::array![
-                    {"or": [
-                        {"partialRefill": {"type": "Energy", "limit": 1075}},
-                        {"and": [
-                            "Varia",
-                            {"partialRefill": {"type": "Energy", "limit": 1310}}
-                        ]},
-                        {"and": [
-                            "Gravity",
-                            {"partialRefill": {"type": "Energy", "limit": 1365}}
-                        ]}
-                    ]}
-                ],
-            ),
-        ];
-        let skip_helpers = vec![
-            "h_SpringwallOverSpikes",
-            "h_heatedSpringwall",
-            "h_heatedIBJFromSpikes",
-            "h_equipmentScreenFix",
-            "h_bypassMotherBrainRoom",
-            "h_partialEnemyDamageReduction",
-            "h_doorImmediatelyClosedFix",
-            "h_openZebetitesLeniency",
-            "h_CrystalSparkLeniency",
-            "h_IBJFromThorns",
-            "h_IBJFromSpikes",
-            "h_doubleEquipmentScreenCycleFrames",
-            "h_extendedMoondanceBeetomLeniency",
-            "h_RefillStationAllAmmo10PowerBombCrystalFlash",
-        ];
+    pub fn patch_helpers(&mut self, helpers_patch_path: &Path) -> Result<()> {
+        let patch = read_json(helpers_patch_path)?;
+        let must_patch_categories: Vec<String> = patch["must_patch_categories"]
+            .members()
+            .map(|s| s.as_str().unwrap().to_string())
+            .collect();
+        let helper_substitutions: Vec<(&str, &JsonValue)> =
+            patch["helper_substitutions"].entries().collect();
+        let skip_helpers: Vec<&str> = patch["skip_helpers"]
+            .members()
+            .map(|s| s.as_str().unwrap())
+            .collect();
 
         // Construct the set of helpers that need to be patched, and make sure they all are.
         let mut must_patch_helper_set: HashSet<String> = HashSet::new();
@@ -5677,7 +5476,7 @@ impl GameData {
             self.helper_json_map
                 .get_mut(helper_name)
                 .with_context(|| format!("Helper {} not found", helper_name))
-                .unwrap()["requires"] = new_requires;
+                .unwrap()["requires"] = new_requires.clone();
             if !must_patch_helper_set.remove(helper_name) {
                 panic!("Helper {} already patched.", helper_name)
             }
@@ -5696,10 +5495,12 @@ impl GameData {
         if !must_patch_helper_set.is_empty() {
             panic!("Randomizer-dependent helpers are not all patched");
         }
+        Ok(())
     }
 
     pub fn load_minimal(base_path: &Path) -> Result<GameData> {
         let sm_json_data_path = base_path.join("../sm-json-data");
+        let helpers_patch_path = base_path.join("data/helpers_patch.json");
         let mut game_data = GameData {
             sm_json_data_path,
             ..GameData::default()
@@ -5708,7 +5509,7 @@ impl GameData {
         game_data.load_items_and_flags()?;
         game_data.load_tech()?;
         game_data.load_helpers()?;
-        game_data.patch_helpers();
+        game_data.patch_helpers(&helpers_patch_path)?;
         game_data.load_weapons()?;
         game_data.load_enemies()?;
 
