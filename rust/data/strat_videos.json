@@ -3785,6 +3785,14 @@
   },
   {
     "room_id": 22,
+    "strat_id": 20,
+    "video_id": 9652,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 22,
     "strat_id": 7,
     "video_id": 8233,
     "created_user": "Sam",
@@ -3803,6 +3811,14 @@
     "room_id": 22,
     "strat_id": 11,
     "video_id": 7133,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 22,
+    "strat_id": 21,
+    "video_id": 9653,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -4209,6 +4225,22 @@
   },
   {
     "room_id": 36,
+    "strat_id": 31,
+    "video_id": 9650,
+    "created_user": "Sam",
+    "note": "Suitless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
+    "strat_id": 31,
+    "video_id": 9651,
+    "created_user": "Sam",
+    "note": "Gravity",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
     "strat_id": 19,
     "video_id": 5116,
     "created_user": "Sam",
@@ -4267,6 +4299,14 @@
     "room_id": 24,
     "strat_id": 3,
     "video_id": 1831,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 24,
+    "strat_id": 31,
+    "video_id": 9649,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -4417,6 +4457,14 @@
   },
   {
     "room_id": 34,
+    "strat_id": 73,
+    "video_id": 9648,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
     "strat_id": 8,
     "video_id": 3193,
     "created_user": "Sam",
@@ -4557,6 +4605,14 @@
     "video_id": 7026,
     "created_user": "Sam",
     "note": "2 Bomb into Spring Ball Jump and Spring Flings",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 74,
+    "video_id": 9647,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -5945,6 +6001,14 @@
   },
   {
     "room_id": 32,
+    "strat_id": 153,
+    "video_id": 9646,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
     "strat_id": 98,
     "video_id": 3218,
     "created_user": "Sam",
@@ -6117,6 +6181,14 @@
     "video_id": 8790,
     "created_user": "Sam",
     "note": "Spring Ball",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 155,
+    "video_id": 9645,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -6461,6 +6533,14 @@
     "video_id": 5248,
     "created_user": "Osse101",
     "note": "Momentum conserving turnaround",
+    "dev_note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 72,
+    "video_id": 9644,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -8545,6 +8625,14 @@
   },
   {
     "room_id": 49,
+    "strat_id": 16,
+    "video_id": 9643,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 49,
     "strat_id": 11,
     "video_id": 5323,
     "created_user": "maddo",
@@ -9988,6 +10076,14 @@
     "strat_id": 261,
     "video_id": 6400,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 44,
+    "strat_id": 275,
+    "video_id": 9655,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -13552,6 +13648,14 @@
     "dev_note": ""
   },
   {
+    "room_id": 64,
+    "strat_id": 23,
+    "video_id": 9642,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
     "room_id": 63,
     "strat_id": 3,
     "video_id": 1870,
@@ -13669,6 +13773,22 @@
     "video_id": 6646,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 65,
+    "strat_id": 39,
+    "video_id": 9640,
+    "created_user": "Sam",
+    "note": "Suitless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 65,
+    "strat_id": 39,
+    "video_id": 9641,
+    "created_user": "Sam",
+    "note": "Gravity Suit",
     "dev_note": ""
   },
   {
@@ -14817,6 +14937,14 @@
   },
   {
     "room_id": 75,
+    "strat_id": 112,
+    "video_id": 9639,
+    "created_user": "Sam",
+    "note": "Walljumpless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 75,
     "strat_id": 95,
     "video_id": 4863,
     "created_user": "Sam",
@@ -14885,6 +15013,14 @@
     "video_id": 3820,
     "created_user": "maddo",
     "note": "G-mode immobile",
+    "dev_note": ""
+  },
+  {
+    "room_id": 74,
+    "strat_id": 31,
+    "video_id": 9638,
+    "created_user": "Sam",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -15867,6 +16003,14 @@
     "room_id": 66,
     "strat_id": 90,
     "video_id": 1854,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 66,
+    "strat_id": 149,
+    "video_id": 9654,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
