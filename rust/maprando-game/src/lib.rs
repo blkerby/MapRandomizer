@@ -5461,6 +5461,10 @@ impl GameData {
                 json::array!["Varia", "Gravity"],
             ),
             (
+                "h_partialSpikeDamageReduction",
+                json::array![{"or": ["Varia", "Gravity"]}],
+            ),
+            (
                 "h_blueGateGlitchLeniency",
                 json::array!["i_blueGateGlitchLeniency"],
             ),

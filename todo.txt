@@ -1,5 +1,6 @@
 v121 or soon-ish?:
 - DONE: new escape timings
+- fix issue with G-mode regain mobility strats showing in Basic.
 - fix issue with toilet in Pants Room: https://discord.com/channels/1053421401354285129/1053434532973510748/1456503543451095061
 - DONE: fix issue with door-specific FX in room to right of Pants Room.
 - DONE: investigate/fix issue with farm logic: https://discord.com/channels/1053421401354285129/1053434532973510748/1456854298087395408
