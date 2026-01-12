@@ -85,6 +85,7 @@ fn build_app_data() -> AppData {
         ("WestMaridia", "West Maridia"),
         ("YellowMaridia", "Yellow Maridia"),
         ("Bedrock", "Bedrock"),
+        ("StatuesHallway", "Statues Hallway"),
         ("MechaTourian", "Mecha Tourian"),
         ("MetroidHabitat", "Metroid Habitat"),
     ]

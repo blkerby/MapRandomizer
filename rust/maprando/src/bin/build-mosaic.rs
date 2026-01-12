@@ -20,6 +20,9 @@ use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
+const WAREHOUSE_GFX_SET: usize = 0x07;
+const STATUES_HALLWAY_GFX_SET: usize = 0x1F;
+
 #[derive(Parser)]
 struct Args {
     #[arg(long)]
@@ -437,6 +440,38 @@ impl MosaicPatchBuilder {
         Ok(())
     }
 
+    fn load_room_xml(&self, project: &str, room_name: &str) -> Result<smart_xml::Room> {
+        let mut is_statues_theme: bool = false;
+        let source_project = if project == "StatuesHallway" {
+            is_statues_theme = true;
+            "WarehouseBrinstar"
+        } else {
+            project
+        };
+        let source_room_name = if (project, room_name) == ("TransitTube", "STATUES HALLWAY") {
+            is_statues_theme = true;
+            "WAREHOUSE BRINSTAR"
+        } else {
+            room_name
+        };
+        let project_path = self.mosaic_dir.join("Projects").join(source_project);
+        let room_path = project_path
+            .join("Export/Rooms")
+            .join(format!("{}.xml", source_room_name));
+        let room_str = std::fs::read_to_string(&room_path)
+            .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
+        let mut room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
+            .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+        if is_statues_theme {
+            for state in &mut room.states.state {
+                if state.gfx_set == WAREHOUSE_GFX_SET {
+                    state.gfx_set = STATUES_HALLWAY_GFX_SET;
+                }
+            }
+        }
+        Ok(room)
+    }
+
     fn make_room_patch(&mut self, room_filename: &str, project_names: &[String]) -> Result<()> {
         let room_name = room_filename
             .strip_suffix(".xml")
@@ -472,12 +507,7 @@ impl MosaicPatchBuilder {
             let mut fx_data_vec = vec![];
             let mut state_xml_vec = vec![];
             for project in project_names {
-                let project_path = self.mosaic_dir.join("Projects").join(project);
-                let room_path = project_path.join("Export/Rooms").join(room_filename);
-                let room_str = std::fs::read_to_string(&room_path)
-                    .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
-                let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
-                    .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+                let room: smart_xml::Room = self.load_room_xml(project, room_name)?;
                 let state_xml = &room.states.state[state_idx];
                 let level_data = extract_uncompressed_level_data(state_xml);
                 let compressed_level_data = self.get_compressed_data(&level_data)?;
@@ -632,14 +662,8 @@ impl MosaicPatchBuilder {
         Ok(())
     }
 
-    fn load_room_state(project_path: &Path, room_name: &str) -> Result<RoomState> {
-        let room_path = project_path
-            .join("Export/Rooms")
-            .join(format!("{room_name}.xml"));
-        let room_str = std::fs::read_to_string(&room_path)
-            .with_context(|| format!("Unable to load room at {}", room_path.display()))?;
-        let room: smart_xml::Room = serde_xml_rs::from_str(room_str.as_str())
-            .with_context(|| format!("Unable to parse XML in {}", room_path.display()))?;
+    fn load_room_state(&self, project: &str, room_name: &str) -> Result<RoomState> {
+        let room = self.load_room_xml(project, room_name)?;
         let state_xml = room.states.state.last().unwrap().clone();
         Ok(state_xml)
     }
@@ -855,8 +879,7 @@ impl MosaicPatchBuilder {
             let theme_transit_data_vec: Vec<TransitData> =
                 serde_json::from_str(&theme_transit_data_str)?;
 
-            let transit_project_path = self.mosaic_dir.join("Projects/TransitTube");
-            let theme_project_path = self.mosaic_dir.join("Projects").join(theme_name);
+            let transit_project = "TransitTube";
 
             for transit_data in &theme_transit_data_vec {
                 info!("{} transit room: {}", theme_name, transit_data.name);
@@ -872,28 +895,18 @@ impl MosaicPatchBuilder {
                 let tube_theme_top = transit_data.top.to_ascii_uppercase();
                 let tube_theme_bottom = transit_data.bottom.to_ascii_uppercase();
 
-                let top_state_xml = Self::load_room_state(&transit_project_path, &tube_theme_top)?;
-                let bottom_state_xml =
-                    Self::load_room_state(&transit_project_path, &tube_theme_bottom)?;
-                let middle_state_xml = Self::load_room_state(&theme_project_path, smart_room_name)?;
+                let top_state_xml = self.load_room_state(transit_project, &tube_theme_top)?;
+                let bottom_state_xml = self.load_room_state(transit_project, &tube_theme_bottom)?;
+                let middle_state_xml = self.load_room_state(theme_name, smart_room_name)?;
                 let twin_state_xml = if room_geometry.name == "Pants Room" {
                     let east_pants_room_name = room_name_by_pair[&(4, 37)].as_str();
-                    Some(Self::load_room_state(
-                        &theme_project_path,
-                        east_pants_room_name,
-                    )?)
+                    Some(self.load_room_state(theme_name, east_pants_room_name)?)
                 } else if room_geometry.name == "West Ocean" {
                     let homing_geemer_room_name = room_name_by_pair[&(0, 17)].as_str();
-                    Some(Self::load_room_state(
-                        &theme_project_path,
-                        homing_geemer_room_name,
-                    )?)
+                    Some(self.load_room_state(theme_name, homing_geemer_room_name)?)
                 } else if room_geometry.name == "Aqueduct" {
                     let botwoon_hallway_name = room_name_by_pair[&(4, 35)].as_str();
-                    Some(Self::load_room_state(
-                        &theme_project_path,
-                        botwoon_hallway_name,
-                    )?)
+                    Some(self.load_room_state(theme_name, botwoon_hallway_name)?)
                 } else {
                     None
                 };
@@ -1359,6 +1372,7 @@ fn main() -> Result<()> {
         "WestMaridia",
         "YellowMaridia",
         "Bedrock",
+        "StatuesHallway",
         "MechaTourian",
         "MetroidHabitat",
         "Outline",

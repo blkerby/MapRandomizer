@@ -1406,6 +1406,8 @@ impl Patcher<'_> {
     }
 
     fn use_area_based_music(&mut self) -> Result<()> {
+        let tourian_neighbors = self.game_data.get_tourian_neighbors(self.map);
+
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [
                 0x050C, // Return to Crateria (ASM can replace with intro track or storm track)
@@ -1470,7 +1472,12 @@ impl Patcher<'_> {
                     // We want it to behave like the other Refill rooms and use area-themed music.
                     continue;
                 }
-                let new_song = area_music[area][subarea];
+                let mut new_song = area_music[area][subarea];
+
+                if tourian_neighbors.contains(&room_idx) {
+                    new_song = 0x0400; // Statues Hallway music
+                }
+
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
                 if room.name == "Pants Room" {
                     // Set music for East Pants Room:

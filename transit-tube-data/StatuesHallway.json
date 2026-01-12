@@ -1,0 +1,368 @@
+[
+    {
+        "name": "Amphitheatre", 
+        "x": [0, 1, 2, 3],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Below Spazer",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Beta Power Bomb Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Bowling Alley",
+        "x": [2, 3, 4],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Bubble Mountain",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Bat Cave",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Cathedral Entrance",
+        "x": [1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Cathedral",
+        "x": [0, 1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Construction Zone",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Crab Hole", 
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "The Moat",
+        "x": [0, 1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Crocomire Escape",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Crumble Shaft",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Double Chamber",
+        "x": [0, 1, 2, 3],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "The Precious Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Early Supers Room",
+        "x": [0, 1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "East Ocean", 
+        "x": [0, 1, 2, 3, 4, 5, 6],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Electric Death Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Etecoon Energy Tank Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Fast Pillars Setup Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Fish Tank",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Grapple Beam Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Post Crocomire Jump Room",
+        "x": [0, 1, 2, 3],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Grapple Tutorial Room 2",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Ice Beam Snake Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Kraid Eye Door Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Warehouse Entrance",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Kronic Boost Room",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Landing Site",
+        "x": [3, 5],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Lava Dive Room",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Lower Norfair Spring Ball Maze Room",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Aqueduct",
+        "x": [2, 4, 5],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Metroid Room 2",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Mickey Mouse Room",
+        "x": [3],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Northwest Maridia Bug Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Pants Room",
+        "x": [0, 1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Parlor And Alcatraz",
+        "x": [3],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Pink Brinstar Hopper Room",
+        "x": [0, 1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Pink Brinstar Power Bomb Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Plasma Room",
+        "x": [0, 1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Kassiuz Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Post Crocomire Farming Room",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Pseudo Plasma Spark Room",
+        "x": [1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Mt. Everest",
+        "x": [3, 5],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Red Kihunter Shaft",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Rinka Shaft",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Screw Attack Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Single Chamber",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "The Worst Room In The Game",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Three Musketeers' Room",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Tourian Escape Room 3",
+        "x": [0, 1, 2, 3, 4, 5],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Seaweed Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Tourian Escape Room 4",
+        "x": [0, 1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Mama Turtle Room",
+        "x": [1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Volcano Room",
+        "x": [2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Wasteland",
+        "x": [1],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Watering Hole",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "West Cactus Alley Room",
+        "x": [0],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "West Ocean",
+        "x": [0, 1, 2, 5],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    },
+    {
+        "name": "Wrecked Ship Energy Tank Room",
+        "x": [1, 2],
+        "top": "Statues Hallway",
+        "bottom": "Statues Hallway"
+    }
+]

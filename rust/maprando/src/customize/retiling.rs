@@ -48,6 +48,7 @@ pub fn apply_retiling(
     theme: &TileTheme,
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
+    let tourian_neighbors = game_data.get_tourian_neighbors(map);
     let patch_names = vec![
         "Scrolling Sky v1.6",
         "Area FX",
@@ -101,27 +102,31 @@ pub fn apply_retiling(
                     // For backward compatibility, use subsubarea 0 for old maps that didn't have a subsubarea.
                     0
                 };
-                match (area, sub_area, sub_sub_area) {
-                    (0, 0, _) => "OuterCrateria",
-                    (0, 1, 0) => "InnerCrateria",
-                    (0, 1, 1) => "BlueBrinstar",
-                    (1, 0, 0) => "GreenBrinstar",
-                    (1, 0, 1) => "PinkBrinstar",
-                    (1, 1, 0) => "RedBrinstar",
-                    (1, 1, 1) => "WarehouseBrinstar",
-                    (2, 0, _) => "UpperNorfair",
-                    (2, 1, _) => "LowerNorfair",
-                    (3, _, _) => "WreckedShip",
-                    (4, 0, 0) => "WestMaridia",
-                    (4, 0, 1) => "YellowMaridia",
-                    (4, 1, _) => "Bedrock",
-                    (5, 0, _) => "MetroidHabitat",
-                    (5, 1, _) => "MechaTourian",
-                    _ => panic!(
-                        "unexpected area/subarea/subsubarea combination: ({area}, {sub_area}, {sub_sub_area})"
-                    ),
+                if tourian_neighbors.contains(&room_idx) {
+                    "StatuesHallway".to_string()
+                } else {
+                    match (area, sub_area, sub_sub_area) {
+                        (0, 0, _) => "OuterCrateria",
+                        (0, 1, 0) => "InnerCrateria",
+                        (0, 1, 1) => "BlueBrinstar",
+                        (1, 0, 0) => "GreenBrinstar",
+                        (1, 0, 1) => "PinkBrinstar",
+                        (1, 1, 0) => "RedBrinstar",
+                        (1, 1, 1) => "WarehouseBrinstar",
+                        (2, 0, _) => "UpperNorfair",
+                        (2, 1, _) => "LowerNorfair",
+                        (3, _, _) => "WreckedShip",
+                        (4, 0, 0) => "WestMaridia",
+                        (4, 0, 1) => "YellowMaridia",
+                        (4, 1, _) => "Bedrock",
+                        (5, 0, _) => "MetroidHabitat",
+                        (5, 1, _) => "MechaTourian",
+                        _ => panic!(
+                            "unexpected area/subarea/subsubarea combination: ({area}, {sub_area}, {sub_sub_area})"
+                        ),
+                    }
+                    .to_string()
                 }
-                .to_string()
             }
             TileTheme::Scrambled => {
                 let seed = random_seed ^ (room_ptr as u32);

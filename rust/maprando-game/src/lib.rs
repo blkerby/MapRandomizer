@@ -5498,6 +5498,27 @@ impl GameData {
         Ok(())
     }
 
+    pub fn get_tourian_neighbors(&self, map: &Map) -> HashSet<RoomGeometryRoomIdx> {
+        let mut out: HashSet<RoomGeometryRoomIdx> = HashSet::new();
+        for (src_pair, dst_pair, _) in &map.doors {
+            let (src_room_id, _) = self.door_ptr_pair_map[src_pair];
+            let (dst_room_id, _) = self.door_ptr_pair_map[dst_pair];
+            let src_ptr = self.room_ptr_by_id[&src_room_id];
+            let dst_ptr = self.room_ptr_by_id[&dst_room_id];
+            let src_idx = self.room_idx_by_ptr[&src_ptr];
+            let dst_idx = self.room_idx_by_ptr[&dst_ptr];
+            let src_area = map.area[src_idx];
+            let dst_area = map.area[dst_idx];
+            if src_area == 5 && dst_area != 5 {
+                out.insert(dst_idx);
+            }
+            if dst_area == 5 && src_area != 5 {
+                out.insert(src_idx);
+            }
+        }
+        out
+    }
+
     pub fn load_minimal(base_path: &Path) -> Result<GameData> {
         let sm_json_data_path = base_path.join("../sm-json-data");
         let helpers_patch_path = base_path.join("data/helpers_patch.json");
