@@ -18,10 +18,8 @@ check_ss:
 	LDA $0A68  		; special timer non zero? [can spark]
 	BEQ .skip
 	STZ $0A68 		; goodbye spikesuit
-	LDA #$02D
+	LDA #$0019
 	JSL $8090CB		; play a sound effect
-	;LDA #$0016
-	;JSL $8090A3
 	.skip:
 	LDA #$0002
 	STA $0A32
