@@ -13,7 +13,7 @@ lorom
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85B600
 !bank_85_freespace3_end  = $85BA00
-!bank_b6_freespace_start = $B6FEE0
+!bank_b6_freespace_start = $B6FEC0
 !bank_b6_freespace_end = $B70000
 !bank_94_freespace_start = $94B1A0
 !bank_94_freespace_end = $94B1B0
@@ -1629,6 +1629,13 @@ save_station:
     jsl hook_map_icons
     rtl
 
+; 1st save sprite, sprite entry 08h
+org $82c385
+    dw $0001        ; entries
+    dw $0000        ; size bit | x-offset
+    db $07          ; y-offset
+    dw $208d        ; flip/pri | tile
+
 ; Boss icon, unused sprite entry 0Ah
 org $82c393
     dw $0001
@@ -1638,10 +1645,10 @@ org $82c393
 
 ; ship sprite(right), sprite entry 0Bh
 org $82c39a
-    dw $0001        ; entries
-    dw $0004        ; size bit | x-offset
-    db $06          ; y-offset
-    dw $608c        ; flip/pri | tile
+    dw $0001
+    dw $0004
+    db $06
+    dw $608c
 
 ; ship sprite(left), sprite entry 0Ch
 org $82c3af
@@ -1654,21 +1661,21 @@ org $82c3af
 org $82c3b6
     dw $0001
     dw $0000
-    db $00
+    db $07
     dw $2089
 
 ; 2nd save sprite, unused sprite entry 0Eh
 org $82c3bd
     dw $0001
-    dw $0001
-    db $00
+    dw $0000
+    db $07
     dw $208e
     
 ; 3rd save sprite, unused sprite entry 0Fh
 org $82c3c4
     dw $0001
-    dw $0001
-    db $00
+    dw $0000
+    db $07
     dw $208f
     
 ; Miniboss icon(green), unused sprite entry 13h
@@ -1739,12 +1746,16 @@ dachora_icon_b:
 db $18,$18,$38,$38,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 db $30,$20,$00,$20,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
+save_yellow:
+db $00,$3E,$3E,$7F,$3E,$7F,$3C,$7E,$3C,$7E,$7C,$FE,$7C,$FE,$00,$7C
+db $00,$00,$00,$1E,$00,$30,$00,$38,$00,$1C,$00,$0C,$00,$78,$00,$00
+
 save_orange:
-db $00,$7E,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$7E,$FF,$00,$7E
+db $00,$3E,$3E,$7F,$3E,$7F,$3C,$7E,$3C,$7E,$7C,$FE,$7C,$FE,$00,$7C
 db $00,$00,$1E,$1E,$30,$30,$38,$38,$1C,$1C,$0C,$0C,$78,$78,$00,$00
 
 save_pink:
-db $00,$7E,$7E,$E1,$7E,$CF,$7E,$C7,$7E,$E3,$7E,$F3,$7E,$87,$00,$7E
+db $00,$3E,$3E,$61,$3E,$4F,$3C,$46,$3C,$62,$7C,$F2,$7C,$86,$00,$7C
 db $00,$00,$00,$1E,$00,$30,$00,$38,$00,$1C,$00,$0C,$00,$78,$00,$00
 
 boss_green:
@@ -1792,7 +1803,7 @@ write_sprites:
     RTS
 
 sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
-    dw $d120, $2890, $d1e0, $28c0, $d1a0, $28d0, save_orange, $28e0
+    dw $d120, $2890, $d1e0, $28c0, save_yellow, $28d0, save_orange, $28e0
     dw save_pink, $28f0, $d140, $28a0, boss_green, $28b0, dachora_icon, $2980
     dw dachora_icon_r, $2990, dachora_icon_t, $2880, dachora_icon_l, $2970, dachora_icon_b, $2a80
     dw $0000
@@ -1802,7 +1813,6 @@ hook_map_icons:
     PHB
     
 ; draw save slot markers
-
     LDA !map_icon_settings ; test if draw saves disabled on generation?
     BIT #$0004
     BNE .finished_drawing_saves
@@ -1821,11 +1831,6 @@ hook_map_icons:
 ; adjust coords for scroll
     LDA $702604,X               ; coords
     JSR convert_coord_to_map
-    TYA
-    CLC
-    ADC #$0008                  ; y+1
-    TAY
-
     PLA                         ; sprite
 ; A=sprite, X/Y=adjusted coords
     JSR draw_sprite
@@ -2068,7 +2073,6 @@ check_partial_reveal:
     RTS
 
 draw_sprite:
-
 ; A=sprite, X/Y=coords
     AND #$007F
     BRA .check_sprites
