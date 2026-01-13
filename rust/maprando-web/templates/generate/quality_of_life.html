@@ -494,6 +494,36 @@
                                         <label class="btn btn-outline-primary" for="persistBlueSuitYes">Yes</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#disableSpikeSuitModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="disableSpikeSuit">Disable Spikesuits</label>
+                                    </div>
+                                    <div id="persistBlueSuit" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="disable_spike_suit" id="disableSpikeSuitNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="disableSpikesuitNo">No</label>
+                                        <input type="radio" class="btn-check" name="disable_spike_suit" id="disableSpikeSuitYes" value="true">
+                                        <label class="btn btn-outline-primary" for="disableSpikesuitYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#disableBlueSuitModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="disableBlueSuit">Disable Bluesuits</label>
+                                    </div>
+                                    <div id="persistBlueSuit" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="disable_blue_suit" id="disableBlueSuitNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="disableBlueSuitNo">No</label>
+                                        <input type="radio" class="btn-check" name="disable_blue_suit" id="disableBlueSuitYes" value="true">
+                                        <label class="btn btn-outline-primary" for="disableBlueSuitYes">Yes</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -539,5 +569,7 @@
 {% include "help/quality/early_save.html" %}
 {% include "help/quality/persist_flash_suit.html" %}
 {% include "help/quality/persist_blue_suit.html" %}
+{% include "help/quality/disable_spikesuit.html" %}
+{% include "help/quality/disable_bluesuit.html" %}
 
 {% include "initial_map_reveal.html" %}

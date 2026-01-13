@@ -154,6 +154,8 @@ pub struct QualityOfLifeSettings {
     pub early_save: bool,
     pub persist_flash_suit: bool,
     pub persist_blue_suit: bool,
+    pub disable_spikesuit: bool,
+    pub disable_bluesuit: bool,
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]

@@ -280,6 +280,8 @@ function buildSettingsObject() {
             "early_save": formData.get("early_save") == "true",
             "persist_flash_suit": formData.get("persist_flash_suit") == "true",
             "persist_blue_suit": formData.get("persist_blue_suit") == "true",
+            "disable_spikesuit": formData.get("disable_spikesuit") == "true",
+            "disable_bluesuit": formData.get("disable_bluesuit") == "true",
         },
         "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
@@ -503,6 +505,8 @@ function applyQolPreset(preset) {
     applyRadioValue("earlySave", preset.early_save);
     applyRadioValue("persistFlashSuit", preset.persist_flash_suit);
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);
+    applyRadioValue("disableSpikeSuit", preset.disable_spikesuit);
+    applyRadioValue("disableBluesuit", preset.disable_bluesuit);
 }
 
 function applyStartLocationSettings(preset) {
