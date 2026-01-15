@@ -5,9 +5,9 @@ use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
-    DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength, KeyItemPriority,
-    MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate, RandomizerSettings,
-    SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
+    AreaAssignment, DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength,
+    KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate,
+    RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
 };
 use crate::spoiler_log::{
     SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
@@ -412,6 +412,23 @@ pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
         map.area[i] = area_mapping[map.area[i]];
         map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
         map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
+    }
+}
+
+pub fn assign_map_areas(
+    map: &mut Map,
+    settings: &RandomizerSettings,
+    seed: usize,
+    game_data: &GameData,
+) {
+    match settings.other_settings.area_assignment {
+        AreaAssignment::Ordered => {
+            order_map_areas(map, seed, game_data);
+        }
+        AreaAssignment::Random => {
+            randomize_map_areas(map, seed);
+        }
+        AreaAssignment::Standard => {}
     }
 }
 

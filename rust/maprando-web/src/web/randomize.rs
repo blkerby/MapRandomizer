@@ -7,10 +7,10 @@ use helpers::*;
 use log::info;
 use maprando::{
     randomize::{
-        DifficultyConfig, Randomization, Randomizer, filter_links, get_difficulty_tiers,
-        get_objectives, order_map_areas, randomize_doors, randomize_map_areas,
+        DifficultyConfig, Randomization, Randomizer, assign_map_areas, filter_links,
+        get_difficulty_tiers, get_objectives, randomize_doors,
     },
-    settings::{AreaAssignment, RandomizerSettings, StartLocationMode, try_upgrade_settings},
+    settings::{RandomizerSettings, StartLocationMode, try_upgrade_settings},
     spoiler_log::SpoilerLog,
 };
 use maprando_game::{LinksDataGroup, Map};
@@ -169,15 +169,7 @@ fn handle_randomize_request(
         }
 
         let mut map = map_batch.pop().unwrap();
-        match settings.other_settings.area_assignment {
-            AreaAssignment::Ordered => {
-                order_map_areas(&mut map, map_seed, &app_data.game_data);
-            }
-            AreaAssignment::Random => {
-                randomize_map_areas(&mut map, map_seed);
-            }
-            AreaAssignment::Standard => {}
-        }
+        assign_map_areas(&mut map, &settings, map_seed, &app_data.game_data);
         let objectives = get_objectives(&settings, Some(&map), &app_data.game_data, &mut rng);
         let locked_door_data = randomize_doors(
             &app_data.game_data,

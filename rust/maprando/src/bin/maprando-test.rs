@@ -9,12 +9,12 @@ use maprando::patch::Rom;
 use maprando::patch::make_rom;
 use maprando::preset::PresetData;
 use maprando::randomize::{
-    Randomization, Randomizer, get_difficulty_tiers, get_objectives, order_map_areas,
-    randomize_doors, randomize_map_areas,
+    Randomization, Randomizer, assign_map_areas, get_difficulty_tiers, get_objectives,
+    randomize_doors,
 };
 use maprando::settings::{
-    AreaAssignment, ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings,
-    SkillAssumptionSettings, StartLocationMode,
+    ItemProgressionSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
+    StartLocationMode,
 };
 use maprando::spoiler_log::SpoilerLog;
 use maprando::spoiler_map;
@@ -152,15 +152,7 @@ fn get_randomization(
         }
 
         let mut map = map_batch.pop().unwrap();
-        match settings.other_settings.area_assignment {
-            AreaAssignment::Ordered => {
-                order_map_areas(&mut map, map_seed, game_data);
-            }
-            AreaAssignment::Random => {
-                randomize_map_areas(&mut map, map_seed);
-            }
-            AreaAssignment::Standard => {}
-        }
+        assign_map_areas(&mut map, &settings, map_seed, game_data);
         let objectives = get_objectives(&settings, Some(&map), game_data, &mut rng);
         let locked_door_data = randomize_doors(game_data, &map, &settings, &objectives, door_seed);
         let randomizer = Randomizer::new(
