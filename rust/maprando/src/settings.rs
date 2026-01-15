@@ -154,8 +154,6 @@ pub struct QualityOfLifeSettings {
     pub early_save: bool,
     pub persist_flash_suit: bool,
     pub persist_blue_suit: bool,
-    pub disable_spikesuit: bool,
-    pub disable_bluesuit: bool,
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
@@ -350,6 +348,8 @@ pub struct OtherSettings {
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub ultra_low_qol: bool,
+    pub disable_spikesuit: bool,
+    pub disable_bluesuit: bool,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
 }

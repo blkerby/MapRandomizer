@@ -77,6 +77,30 @@
 </div>
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/disable_spikesuit.html" %}
+        <label for="disable_spike_suit">Disable Spikesuit</label>
+    </div>
+    <div id="disableSpikesuit" class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="disable_spike_suit" id="disableSpikesuitNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="disableSpikesuitNo">No</label>
+        <input type="radio" class="btn-check" name="disable_spike_suit" id="disableSpikesuitYes" value="true">
+        <label class="btn btn-outline-primary" for="disableSpikesuitYes">Yes</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/disable_bluesuit.html" %}
+        <label for="disable_blue_suit">Disable Bluesuit</label>
+    </div>
+    <div id="disableBluesuit" class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="disable_blue_suit" id="disableBlueSuitNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="disableBlueSuitNo">No</label>
+        <input type="radio" class="btn-check" name="disable_blue_suit" id="disableBlueSuitYes" value="true">
+        <label class="btn btn-outline-primary" for="disableBlueSuitYes">Yes</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
         {% include "help/race.html" %}
         <label for="race_mode">Race mode</label>
     </div>

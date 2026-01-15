@@ -4559,6 +4559,8 @@
         "door_locks_size": "Large",
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,
+        "disable_spikesuit": false,
+        "disable_bluesuit": false,
         "ultra_low_qol": false,
         "race_mode": false,
         "random_seed": null

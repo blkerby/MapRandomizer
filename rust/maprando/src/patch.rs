@@ -579,6 +579,14 @@ impl Patcher<'_> {
             patches.push("energy_free_shinesparks");
         }
 
+        if self.settings.other_settings.disable_spikesuit {
+            patches.push("remove_spikesuit")
+        }
+
+        if self.settings.other_settings.disable_bluesuit {
+            patches.push("remove_bluesuit")
+        }
+
         if self.settings.quality_of_life_settings.respin {
             patches.push("respin");
             // patches.push("spinjumprestart");
@@ -638,13 +646,6 @@ impl Patcher<'_> {
             patches.push("load_blue_suit");
         }
 
-        if self.settings.quality_of_life_settings.disable_spikesuit {
-            patches.push("disable_spikesuit")
-        }
-
-        if self.settings.quality_of_life_settings.disable_bluesuit {
-            patches.push("disable_bluesuit")
-        }
 
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");

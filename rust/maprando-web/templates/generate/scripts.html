@@ -280,8 +280,6 @@ function buildSettingsObject() {
             "early_save": formData.get("early_save") == "true",
             "persist_flash_suit": formData.get("persist_flash_suit") == "true",
             "persist_blue_suit": formData.get("persist_blue_suit") == "true",
-            "disable_spikesuit": formData.get("disable_spikesuit") == "true",
-            "disable_bluesuit": formData.get("disable_bluesuit") == "true",
         },
         "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
@@ -298,6 +296,8 @@ function buildSettingsObject() {
             "ultra_low_qol": formData.get("ultra_low_qol") == "true",
             "race_mode": formData.get("race_mode") == "true",
             "random_seed": tryParseInt(formData.get("random_seed")),
+            "disable_spikesuit": formData.get("disable_spike_suit") == "true",
+            "disable_bluesuit": formData.get("disable_blue_suit") == "true",
         }
     };
     return settings;
@@ -505,8 +505,6 @@ function applyQolPreset(preset) {
     applyRadioValue("earlySave", preset.early_save);
     applyRadioValue("persistFlashSuit", preset.persist_flash_suit);
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);
-    applyRadioValue("disableSpikeSuit", preset.disable_spikesuit);
-    applyRadioValue("disableBluesuit", preset.disable_bluesuit);
 }
 
 function applyStartLocationSettings(preset) {
@@ -544,6 +542,8 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
+    applyRadioValue("disableSpikesuit", other.disable_spikesuit);
+    applyRadioValue("disableBluesuit", other.disable_bluesuit);
     applyRadioValue("raceMode", other.race_mode);
     document.getElementById("randomSeed").value = other.random_seed;
 }
