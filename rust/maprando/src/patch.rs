@@ -3366,7 +3366,7 @@ pub fn make_rom(
     override_music(patcher.rom)?;
     if randomizer_settings.map_layout != "Vanilla"
         || randomizer_settings.other_settings.area_assignment.preset
-            == AreaAssignmentPreset::Standard
+            != Some(AreaAssignmentPreset::Standard)
     {
         patcher.use_area_based_music()?;
     }
