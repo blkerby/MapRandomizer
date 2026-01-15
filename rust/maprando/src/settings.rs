@@ -439,10 +439,56 @@ pub enum StartLocationMode {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum AreaAssignment {
-    Ordered,
+pub enum AreaAssignmentPreset {
     Standard,
+    Size,
+    Depth,
     Random,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum AreaAssignmentBaseOrder {
+    Size,
+    Depth,
+    Random,
+}
+
+pub struct AreaAssignment {
+    pub preset: AreaAssignmentPreset,
+    pub base_order: AreaAssignmentBaseOrder,
+    pub ship_in_crateria: bool,
+    pub mother_brain_in_tourian: bool,
+}
+
+impl AreaAssignment {
+    pub fn from_preset(preset: AreaAssignmentPreset) -> Self {
+        match preset {
+            AreaAssignmentPreset::Standard => AreaAssignment {
+                preset,
+                base_order: AreaAssignmentBaseOrder::Size,
+                ship_in_crateria: true,
+                mother_brain_in_tourian: true,
+            },
+            AreaAssignmentPreset::Size => AreaAssignment {
+                preset,
+                base_order: AreaAssignmentBaseOrder::Size,
+                ship_in_crateria: false,
+                mother_brain_in_tourian: false,
+            },
+            AreaAssignmentPreset::Depth => AreaAssignment {
+                preset,
+                base_order: AreaAssignmentBaseOrder::Depth,
+                ship_in_crateria: false,
+                mother_brain_in_tourian: false,
+            },
+            AreaAssignmentPreset::Random => AreaAssignment {
+                preset,
+                base_order: AreaAssignmentBaseOrder::Random,
+                ship_in_crateria: false,
+                mother_brain_in_tourian: false,
+            },
+        }
+    }
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

@@ -5,9 +5,10 @@ use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
-    AreaAssignment, DoorsMode, FillerItemPriority, ItemPlacementStyle, ItemPriorityStrength,
-    KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting, ProgressionRate,
-    RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode, WallJump,
+    AreaAssignmentBaseOrder, DoorsMode, FillerItemPriority, ItemPlacementStyle,
+    ItemPriorityStrength, KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting,
+    ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode,
+    WallJump,
 };
 use crate::spoiler_log::{
     SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
@@ -351,30 +352,12 @@ pub fn randomize_map_areas(map: &mut Map, seed: usize) {
     let mut area_mapping: Vec<usize> = (0..6).collect();
     area_mapping.shuffle(&mut rng);
 
-    let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
-    for i in 0..6 {
-        subarea_mapping[i].shuffle(&mut rng);
-    }
-
-    let mut subsubarea_mapping: Vec<Vec<Vec<usize>>> = vec![vec![(0..2).collect(); 2]; 6];
-    for i in 0..6 {
-        for j in 0..2 {
-            subsubarea_mapping[i][j].shuffle(&mut rng);
-        }
-    }
-
     for i in 0..map.area.len() {
         map.area[i] = area_mapping[map.area[i]];
-        map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
-        map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
     }
 }
 
-pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
-    let mut rng_seed = [0u8; 32];
-    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
-    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-
+fn get_area_sizes(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
     let mut area_tile_cnt: [isize; NUM_AREAS] = [0; NUM_AREAS];
     for (room_idx, area) in map.area.iter().copied().enumerate() {
         for row in &game_data.room_geometry[room_idx].map {
@@ -385,6 +368,51 @@ pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
             }
         }
     }
+    area_tile_cnt
+}
+
+fn get_area_depths(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
+    let mut area_depth: [isize; NUM_AREAS] = [isize::MAX; NUM_AREAS];
+    for (room_idx, area) in map.area.iter().copied().enumerate() {
+        for (row_idx, row) in game_data.room_geometry[room_idx].map.iter().enumerate() {
+            for cell in row {
+                if *cell == 1 {
+                    let depth = (map.rooms[room_idx].1 + row_idx) as isize;
+                    if depth < area_depth[area] {
+                        area_depth[area] = depth;
+                    }
+                }
+            }
+        }
+    }
+    area_depth
+}
+
+fn shuffle_subareas<R: Rng>(map: &mut Map, rng: &mut R) {
+    let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
+    for i in 0..6 {
+        subarea_mapping[i].shuffle(rng);
+    }
+
+    let mut subsubarea_mapping: Vec<Vec<Vec<usize>>> = vec![vec![(0..2).collect(); 2]; 6];
+    for i in 0..6 {
+        for j in 0..2 {
+            subsubarea_mapping[i][j].shuffle(rng);
+        }
+    }
+
+    for i in 0..map.area.len() {
+        map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
+        map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
+    }
+}
+
+pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+    let area_tile_cnt = get_area_sizes(map, game_data);
     let mut area_rank: Vec<AreaIdx> = (0..NUM_AREAS).collect();
     area_rank.sort_by_key(|&i| area_tile_cnt[i]);
 
@@ -396,23 +424,10 @@ pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
     area_mapping[area_rank[1]] = 5; // Tourian
     area_mapping[area_rank[0]] = 3; // Wrecked Ship
 
-    let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
-    for i in 0..6 {
-        subarea_mapping[i].shuffle(&mut rng);
-    }
-
-    let mut subsubarea_mapping: Vec<Vec<Vec<usize>>> = vec![vec![(0..2).collect(); 2]; 6];
-    for i in 0..6 {
-        for j in 0..2 {
-            subsubarea_mapping[i][j].shuffle(&mut rng);
-        }
-    }
-
     for i in 0..map.area.len() {
         map.area[i] = area_mapping[map.area[i]];
-        map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
-        map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
     }
+    shuffle_subareas(map, &mut rng);
 }
 
 pub fn assign_map_areas(
@@ -420,16 +435,84 @@ pub fn assign_map_areas(
     settings: &RandomizerSettings,
     seed: usize,
     game_data: &GameData,
-) {
-    match settings.other_settings.area_assignment {
-        AreaAssignment::Ordered => {
-            order_map_areas(map, seed, game_data);
-        }
-        AreaAssignment::Random => {
-            randomize_map_areas(map, seed);
-        }
-        AreaAssignment::Standard => {}
+) -> bool {
+    let area_assignment = &settings.other_settings.area_assignment;
+    let mut rng_seed = [0u8; 32];
+    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
+    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+
+    let mut area_mapping: Vec<isize> = vec![-1; NUM_AREAS];
+    let mut reverse_area_mapping: Vec<isize> = vec![-1; NUM_AREAS];
+
+    if area_assignment.ship_in_crateria {
+        let ship_area = map.area[game_data.ship_room_idx];
+        area_mapping[ship_area] = 0;
+        reverse_area_mapping[0] = ship_area as isize;
     }
+    if area_assignment.mother_brain_in_tourian {
+        let mb_area = map.area[game_data.mother_brain_room_idx];
+        area_mapping[mb_area] = 5;
+        reverse_area_mapping[5] = mb_area as isize;
+    }
+    if area_assignment.ship_in_crateria
+        && area_assignment.mother_brain_in_tourian
+        && map.area[game_data.ship_room_idx] == map.area[game_data.mother_brain_room_idx]
+    {
+        // Landing Site and Mother Brain Room are in the same area, creating a conflict.
+        return false;
+    }
+
+    let (area_scores, area_priorities) = match area_assignment.base_order {
+        AreaAssignmentBaseOrder::Size => {
+            let area_sizes = get_area_sizes(map, game_data);
+            let area_priority = [
+                3, // Wrecked Ship (smallest area)
+                5, // Tourian
+                0, // Crateria
+                4, // Maridia
+                1, // Brinstar
+                2, // Norfair (largest area)
+            ];
+            (area_sizes, area_priority)
+        }
+        AreaAssignmentBaseOrder::Depth => {
+            let area_depths = get_area_depths(map, game_data);
+            let area_priority = [
+                0, // Crateria (highest area)
+                3, // Wrecked Ship
+                5, // Tourian
+                1, // Brinstar
+                4, // Maridia
+                2, // Norfair (lowest area)
+            ];
+            (area_depths, area_priority)
+        }
+        AreaAssignmentBaseOrder::Random => {
+            let mut area_scores = [0, 1, 2, 3, 4, 5];
+            let mut area_priority = [0, 1, 2, 3, 4, 5];
+            area_scores.shuffle(&mut rng);
+            area_priority.shuffle(&mut rng);
+            (area_scores, area_priority)
+        }
+    };
+
+    let mut area_rank: Vec<AreaIdx> = (0..NUM_AREAS).collect();
+    area_rank.sort_by_key(|&i| area_scores[i]);
+    let mut next_area = 0;
+    for area in area_priorities {
+        if reverse_area_mapping[area] == -1 {
+            while area_mapping[next_area as usize] != -1 {
+                next_area += 1;
+            }
+            reverse_area_mapping[area] = next_area;
+            area_mapping[next_area as usize] = area as isize;
+        }
+    }
+
+    for i in 0..map.area.len() {
+        map.area[i] = area_mapping[map.area[i]] as usize;
+    }
+    true
 }
 
 fn compute_run_frames(tiles: f32) -> Capacity {
