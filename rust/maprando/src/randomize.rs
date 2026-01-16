@@ -37,8 +37,8 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TECH_ID_CAN_CARRY_BLUE_SUIT, TechId, TemporaryBlueDirection,
-    TraversalId, VertexId, VertexKey,
+    TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
+    VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState};
 use rand::SeedableRng;
@@ -110,15 +110,15 @@ impl DifficultyConfig {
             }
         }
 
-//        if other_settings.disable_spikesuit {
-//            let tech_idx = game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_FLASH_SUIT];
-//            tech[tech_idx] = false;
-//        }
+        //        if other_settings.disable_spikesuit {
+        //            let tech_idx = game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_FLASH_SUIT];
+        //            tech[tech_idx] = false; -- can carry flashsuit is probably wrong as you can still elevator CF / cf inteerupt.
+        //        }
 
-//        if other_settings.disable_bluesuit {
-//            let tech_idx = game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_BLUE_SUIT];
-//            tech[tech_idx] = false;
-//        }
+        //        if other_settings.disable_bluesuit {
+        //            let tech_idx = game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_BLUE_SUIT];
+        //            tech[tech_idx] = false;
+        //        }
 
         for &(room_id, notable_id) in implicit_notables {
             let notable_idx = game_data.notable_isv.index_by_key[&(room_id, notable_id)];
