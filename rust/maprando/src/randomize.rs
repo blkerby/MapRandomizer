@@ -430,6 +430,7 @@ pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
     shuffle_subareas(map, &mut rng);
 }
 
+#[must_use]
 pub fn assign_map_areas(
     map: &mut Map,
     settings: &RandomizerSettings,
@@ -498,20 +499,24 @@ pub fn assign_map_areas(
 
     let mut area_rank: Vec<AreaIdx> = (0..NUM_AREAS).collect();
     area_rank.sort_by_key(|&i| area_scores[i]);
-    let mut next_area = 0;
+    let mut next_area_idx = 0;
     for area in area_priorities {
         if reverse_area_mapping[area] == -1 {
-            while area_mapping[next_area as usize] != -1 {
-                next_area += 1;
+            while area_mapping[area_rank[next_area_idx]] != -1 {
+                next_area_idx += 1;
             }
-            reverse_area_mapping[area] = next_area;
-            area_mapping[next_area as usize] = area as isize;
+            reverse_area_mapping[area] = area_rank[next_area_idx] as isize;
+            area_mapping[area_rank[next_area_idx]] = area as isize;
         }
     }
 
     for i in 0..map.area.len() {
         map.area[i] = area_mapping[map.area[i]] as usize;
     }
+
+    let area_depths = get_area_depths(map, game_data);
+    info!("area_depths: {:?}", area_depths);
+
     true
 }
 

@@ -883,6 +883,35 @@ fn upgrade_objective_settings(
     Ok(())
 }
 
+fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
+    let settings_obj = settings
+        .as_object_mut()
+        .context("expected settings to be object")?;
+
+    let other_settings = settings_obj
+        .get_mut("other_settings")
+        .context("missing other_settings")?
+        .as_object_mut()
+        .context("expected other_settings to be object")?;
+
+    let area_assignment = other_settings
+        .get_mut("area_assignment")
+        .context("missing area_assignment")?;
+
+    if area_assignment.is_string() {
+        let preset_str = area_assignment.as_str().unwrap();
+        let preset = match preset_str {
+            "Standard" => AreaAssignmentPreset::Standard,
+            "Ordered" => AreaAssignmentPreset::Size,
+            "Random" => AreaAssignmentPreset::Random,
+            _ => bail!("Unrecognized area assignment preset: {}", preset_str),
+        };
+        *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
+    }
+
+    Ok(())
+}
+
 pub fn try_upgrade_settings(
     settings_str: String,
     preset_data: &PresetData,
@@ -900,6 +929,7 @@ pub fn try_upgrade_settings(
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_qol_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
+    upgrade_other_settings(&mut settings)?;
     upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;
 

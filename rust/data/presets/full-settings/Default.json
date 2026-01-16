@@ -4553,7 +4553,12 @@
     "other_settings": {
         "wall_jump": "Vanilla",
         "etank_refill": "Vanilla",
-        "area_assignment": "Standard",
+        "area_assignment": {
+            "preset": "Standard",
+            "base_order": "Size",
+            "ship_in_crateria": true,
+            "mother_brain_in_tourian": true
+        },
         "item_dot_change": "Fade",
         "transition_letters": true,
         "door_locks_size": "Large",
