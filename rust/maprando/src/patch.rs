@@ -646,7 +646,6 @@ impl Patcher<'_> {
             patches.push("load_blue_suit");
         }
 
-
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
             apply_ips_patch(self.rom, &patch_path)?;
