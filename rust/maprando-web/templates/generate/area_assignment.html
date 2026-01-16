@@ -1,0 +1,46 @@
+<div class="modal" id="areaAssignmentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h1 class="modal-title fs-5">Area assignment</h1>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+        
+            <div class="modal-body px-4 py-2">
+                <div class="form-group row my-2">
+                    <label for="areaAssignmentBaseOrder" class="col-md-6 col-lg-5 col-form-label">Base order</label>
+                    <div id="areaAssignmentBaseOrder" class="col-sm-5 col-lg-4 btn-group">
+                        <input type="radio" class="btn-check" name="area_assignment_base_order" id="areaAssignmentBaseOrderSize" value="Size" checked onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentBaseOrderSize">Size</label>
+                        <input type="radio" class="btn-check" name="area_assignment_base_order" id="areaAssignmentBaseOrderDepth" value="Depth" onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentBaseOrderDepth">Depth</label>
+                        <input type="radio" class="btn-check" name="area_assignment_base_order" id="areaAssignmentBaseOrderRandom" value="Random" onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentBaseOrderRandom">Random</label>
+                    </div>
+                </div>
+                <div class="form-group row my-2">
+                    <label for="areaAssignmentShipInCrateria" class="col-md-6 col-lg-5 col-form-label">Ship in Crateria</label>
+                    <div id="areaAssignmentShipInCrateria" class="col-md-2 btn-group">
+                        <input type="radio" class="btn-check" name="area_assignment_ship_in_crateria" id="areaAssignmentShipInCrateriaNo" value="false" onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentShipInCrateriaNo">No</label>
+                        <input type="radio" class="btn-check" name="area_assignment_ship_in_crateria" id="areaAssignmentShipInCrateriaYes" value="true" checked onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentShipInCrateriaYes">Yes</label>
+                    </div>
+                </div>
+                <div class="form-group row my-2">
+                    <label for="areaAssignmentMotherBrainInTourian" class="col-md-6 col-lg-5 col-form-label">Mother Brain in Tourian</label>
+                    <div id="areaAssignmentMotherBrainInTourian" class="col-md-2 btn-group">
+                        <input type="radio" class="btn-check" name="area_assignment_mother_brain_in_tourian" id="areaAssignmentMotherBrainInTourianNo" value="false" onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentMotherBrainInTourianNo">No</label>
+                        <input type="radio" class="btn-check" name="area_assignment_mother_brain_in_tourian" id="areaAssignmentMotherBrainInTourianYes" value="true" checked onchange="areaAssignmentChanged()">
+                        <label class="btn btn-outline-primary" for="areaAssignmentMotherBrainInTourianYes">Yes</label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+

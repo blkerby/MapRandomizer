@@ -10,8 +10,8 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignment, DoorLocksSize, ETankRefill, FillerItemPriority, RandomizerSettings,
-        WallJump, get_objective_groups,
+        AreaAssignmentBaseOrder, AreaAssignmentPreset, DoorLocksSize, ETankRefill,
+        FillerItemPriority, RandomizerSettings, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -130,31 +130,40 @@ impl SeedHeaderTemplate<'_> {
 
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
-        match self.settings.other_settings.area_assignment {
-            AreaAssignment::Ordered => {
-                game_variations.push("Ordered area assignment");
+        let other_settings = &self.settings.other_settings;
+        if other_settings.area_assignment.preset != Some(AreaAssignmentPreset::Standard) {
+            match other_settings.area_assignment.base_order {
+                AreaAssignmentBaseOrder::Size => {
+                    game_variations.push("Size-based area assignment");
+                }
+                AreaAssignmentBaseOrder::Depth => {
+                    game_variations.push("Depth-based area assignment");
+                }
+                AreaAssignmentBaseOrder::Random => {
+                    game_variations.push("Random area assignment");
+                }
             }
-            AreaAssignment::Random => {
-                game_variations.push("Random area assignment");
+            if other_settings.area_assignment.ship_in_crateria {
+                game_variations.push("Ship in Crateria");
             }
-            AreaAssignment::Standard => {}
+            if other_settings.area_assignment.mother_brain_in_tourian {
+                game_variations.push("Mother Brain in Tourian");
+            }
         }
-        if self.settings.other_settings.door_locks_size == DoorLocksSize::Small {
+        if other_settings.door_locks_size == DoorLocksSize::Small {
             game_variations.push("Door locks drawn smaller on map");
         }
-        if self.settings.other_settings.wall_jump == WallJump::Collectible {
+        if other_settings.wall_jump == WallJump::Collectible {
             game_variations.push("Collectible wall jump");
         }
-        if self.settings.other_settings.map_station_reveal
-            == maprando::settings::MapStationReveal::Partial
-        {
+        if other_settings.map_station_reveal == maprando::settings::MapStationReveal::Partial {
             game_variations.push("Map stations give partial reveal");
         }
 
-        if self.settings.other_settings.energy_free_shinesparks {
+        if other_settings.energy_free_shinesparks {
             game_variations.push("Energy-free shinesparks");
         }
-        if self.settings.other_settings.ultra_low_qol {
+        if other_settings.ultra_low_qol {
             game_variations.push("Ultra-low quality of life");
         }
         game_variations

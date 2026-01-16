@@ -4554,7 +4554,12 @@
     "save_animals": "No",
     "other_settings": {
         "wall_jump": "Vanilla",
-        "area_assignment": "Ordered",
+        "area_assignment": {
+            "preset": "Size",
+            "base_order": "Size",
+            "ship_in_crateria": false,
+            "mother_brain_in_tourian": false
+        },
         "door_locks_size": "Large",
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,

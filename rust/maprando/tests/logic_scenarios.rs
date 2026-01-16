@@ -246,7 +246,9 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             } else {
                 maprando::settings::WallJump::Vanilla
             },
-            area_assignment: maprando::settings::AreaAssignment::Standard,
+            area_assignment: maprando::settings::AreaAssignment::from_preset(
+                maprando::settings::AreaAssignmentPreset::Standard,
+            ),
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             map_station_reveal: maprando::settings::MapStationReveal::Full,
             energy_free_shinesparks: false,

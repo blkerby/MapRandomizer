@@ -1523,6 +1523,8 @@ pub struct GameData {
     pub raw_room_id_by_ptr: HashMap<RoomPtr, RoomId>, // Does not replace twin room pointer with corresponding main room pointer
     pub room_idx_by_ptr: HashMap<RoomPtr, RoomGeometryRoomIdx>,
     pub room_idx_by_id: HashMap<RoomId, RoomGeometryRoomIdx>,
+    pub ship_room_idx: usize,
+    pub mother_brain_room_idx: usize,
     pub toilet_room_idx: usize,
     pub node_tile_coords: HashMap<(RoomId, NodeId), Vec<(usize, usize)>>,
     pub node_coords: HashMap<(RoomId, NodeId), (usize, usize)>,
@@ -5134,6 +5136,12 @@ impl GameData {
         for (room_idx, room) in room_geometry.iter().enumerate() {
             if room.name == "Toilet" {
                 self.toilet_room_idx = room_idx;
+            }
+            if room.name == "Landing Site" {
+                self.ship_room_idx = room_idx;
+            }
+            if room.name == "Mother Brain Room" {
+                self.mother_brain_room_idx = room_idx;
             }
             // Make sure room IDs in room geometry match the sm-json-data (via the room address)
             let room_id = self.room_id_by_ptr[&room.rom_address];

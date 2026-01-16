@@ -18,7 +18,7 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization},
     settings::{
-        AreaAssignment, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
+        AreaAssignmentPreset, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
         ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
     },
 };
@@ -3365,7 +3365,8 @@ pub fn make_rom(
     patcher.remove_non_blue_doors()?;
     override_music(patcher.rom)?;
     if randomizer_settings.map_layout != "Vanilla"
-        || randomizer_settings.other_settings.area_assignment == AreaAssignment::Random
+        || randomizer_settings.other_settings.area_assignment.preset
+            != Some(AreaAssignmentPreset::Standard)
     {
         patcher.use_area_based_music()?;
     }
