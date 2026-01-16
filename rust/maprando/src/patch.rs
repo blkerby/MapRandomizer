@@ -3312,6 +3312,7 @@ fn fix_snes_checksum(rom: &mut Rom) {
     let data = &mut rom.data;
     let mut sum: u32 = 0;
 
+
     data[CHECKSUM_ADDR..CHECKSUM_ADDR + 2].fill(0xFF);      // clear out the checksum
     data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4].fill(0x00);  // and the compliment
   
@@ -3323,16 +3324,13 @@ fn fix_snes_checksum(rom: &mut Rom) {
     let checksum = (sum & 0xFFFF) as u16;
     let complement = checksum ^ 0xFFFF;
 
-    data[CHECKSUM_ADDR..CHECKSUM_ADDR + 2]
-        .copy_from_slice(&complement.to_le_bytes());
+    data[CHECKSUM_ADDR..CHECKSUM_ADDR + 2].copy_from_slice(&complement.to_le_bytes());
 
-    data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4]
-        .copy_from_slice(&checksum.to_le_bytes());
+    data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4].copy_from_slice(&checksum.to_le_bytes());
     
     println!(
         "New checksum data: complement = {:04X}, checksum = {:04X}",
-        complement,
-        checksum
+        complement,checksum
     );
 }
 
@@ -3437,8 +3435,9 @@ pub fn make_rom(
         samus_sprite_categories,
         mosaic_themes,
     )?;
+
     // ROM Checksum FIX: Do not modifiy the rom contents after this point 
-    fix_snes_checksum(&mut patcher.rom);
+    fix_snes_checksum(patcher.rom);
 
     Ok(rom)
 }
