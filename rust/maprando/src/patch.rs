@@ -3306,6 +3306,36 @@ fn get_other_door_ptr_pair_map(map: &Map) -> HashMap<DoorPtrPair, DoorPtrPair> {
     other_door_ptr_pair_map
 }
 
+fn fix_snes_checksum(rom: &mut Rom) {
+    const CHECKSUM_ADDR: usize = 0x7FDC; // LoROM
+
+    let data = &mut rom.data;
+    let mut sum: u32 = 0;
+
+    data[CHECKSUM_ADDR..CHECKSUM_ADDR + 2].fill(0xFF);      // clear out the checksum
+    data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4].fill(0x00);  // and the compliment
+  
+
+    for &b in data.iter() {
+        sum = sum.wrapping_add(b as u32);
+    }
+
+    let checksum = (sum & 0xFFFF) as u16;
+    let complement = checksum ^ 0xFFFF;
+
+    data[CHECKSUM_ADDR..CHECKSUM_ADDR + 2]
+        .copy_from_slice(&complement.to_le_bytes());
+
+    data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4]
+        .copy_from_slice(&checksum.to_le_bytes());
+    
+    println!(
+        "New checksum data: complement = {:04X}, checksum = {:04X}",
+        complement,
+        checksum
+    );
+}
+
 pub fn make_rom(
     base_rom: &Rom,
     randomizer_settings: &RandomizerSettings,
@@ -3407,6 +3437,8 @@ pub fn make_rom(
         samus_sprite_categories,
         mosaic_themes,
     )?;
+    // ROM Checksum FIX: Do not modifiy the rom contents after this point 
+    fix_snes_checksum(&mut patcher.rom);
 
     Ok(rom)
 }
