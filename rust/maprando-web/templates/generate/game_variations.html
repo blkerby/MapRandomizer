@@ -15,15 +15,19 @@
         {% include "help/variations/area_assignment.html" %}
         <label for="area_assignment">Area assignment</label>
     </div>
-    <div id="areaAssignment" class="col-4 btn-group my-2" role="group">
-        <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentOrdered" value="Ordered"
-            checked>
-        <label class="btn btn-outline-primary" for="areaAssignmentOrdered">Ordered</label>
-        <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentStandard" value="Standard"
-            checked>
-        <label class="btn btn-outline-primary" for="areaAssignmentStandard">Standard</label>
-        <input type="radio" class="btn-check" name="area_assignment" id="areaAssignmentRandom" value="Random">
-        <label class="btn btn-outline-primary" for="areaAssignmentRandom">Random</label>
+    <div id="areaAssignment" class="col-6 btn-group my-2" role="group">
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetStandard" value="Standard"
+            checked onchange="areaAssignmentPresetChanged()">
+        <label class="btn btn-outline-primary" for="areaAssignmentPresetStandard">Standard</label>
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetSize" value="Size" onchange="areaAssignmentPresetChanged()">
+        <label class="btn btn-outline-primary" for="areaAssignmentPresetSize">Size</label>
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetDepth" value="Depth" onchange="areaAssignmentPresetChanged()">
+        <label class="btn btn-outline-primary" for="areaAssignmentPresetDepth">Depth</label>
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetRandom" value="Random" onchange="areaAssignmentPresetChanged()">
+        <label class="btn btn-outline-primary" for="areaAssignmentPresetRandom">Random</label>
+        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#areaAssignmentModal">
+            <i class="bi bi-gear"></i>
+        </button>                    
     </div>
 </div>
 <div class="form-group row">
@@ -120,3 +124,4 @@
         <input type="text" class="form-control" name="random_seed" id="randomSeed" value="">
     </div>
 </div>
+{% include "area_assignment.html" %}

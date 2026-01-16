@@ -1,3 +1,3 @@
 F200-F660: pause_menu_objectives.asm
-F660-FEE0: [FREE]
-FEE0-FFFF: map_area.asm
+F660-FEC0: [FREE]
+FEC0-FFFF: map_area.asm

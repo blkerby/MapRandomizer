@@ -1,5 +1,9 @@
 v121 or soon-ish?:
 - DONE: new escape timings
+- Fix room names in start locations JSON.
+- New area assignment modes:
+  - Add "Vertical" area assignment
+  - Add option to put Mother Brain in Tourian.
 - fix issue with G-mode regain mobility strats showing in Basic.
 - validate presets other than top-level
 - fix issue with toilet in Pants Room: https://discord.com/channels/1053421401354285129/1053434532973510748/1456503543451095061

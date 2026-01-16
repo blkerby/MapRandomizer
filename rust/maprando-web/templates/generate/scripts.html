@@ -288,7 +288,12 @@ function buildSettingsObject() {
         "save_animals": formData.get("save_animals"),
         "other_settings": {
             "wall_jump": formData.get("wall_jump"),
-            "area_assignment": formData.get("area_assignment"),
+            "area_assignment": {
+                "preset": formData.get("area_assignment_preset"),
+                "base_order": formData.get("area_assignment_base_order"),
+                "ship_in_crateria": formData.get("area_assignment_ship_in_crateria") == "true",
+                "mother_brain_in_tourian": formData.get("area_assignment_mother_brain_in_tourian") == "true",
+            },
             "door_locks_size": formData.get("door_locks_size"),
             "maps_revealed": formData.get("maps_revealed"),
             "map_station_reveal": formData.get("map_station_reveal"),
@@ -537,7 +542,7 @@ function applyFullSettingsPreset(preset) {
 
     let other = preset.other_settings;
     applyRadioValue("wallJump", other.wall_jump);
-    applyRadioValue("areaAssignment", other.area_assignment);
+    applyAreaAssignment(other.area_assignment);
     applyRadioValue("doorLocksSize", other.door_locks_size);
     applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
@@ -670,6 +675,56 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeHigh").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
+}
+
+function applyAreaAssignmentPreset(preset) {
+    if (preset == "Standard") {
+        document.getElementById("areaAssignmentPresetStandard").checked = true;
+        document.getElementById("areaAssignmentBaseOrderSize").checked = true;
+        document.getElementById("areaAssignmentShipInCrateriaYes").checked = true;
+        document.getElementById("areaAssignmentMotherBrainInTourianYes").checked = true;
+    } else if (preset == "Size") {
+        document.getElementById("areaAssignmentPresetSize").checked = true;
+        document.getElementById("areaAssignmentBaseOrderSize").checked = true;
+        document.getElementById("areaAssignmentShipInCrateriaNo").checked = true;
+        document.getElementById("areaAssignmentMotherBrainInTourianNo").checked = true;
+    } else if (preset == "Depth") {
+        document.getElementById("areaAssignmentPresetDepth").checked = true;
+        document.getElementById("areaAssignmentBaseOrderDepth").checked = true;
+        document.getElementById("areaAssignmentShipInCrateriaNo").checked = true;
+        document.getElementById("areaAssignmentMotherBrainInTourianNo").checked = true;
+    } else if (preset == "Random") {
+        document.getElementById("areaAssignmentPresetRandom").checked = true;
+        document.getElementById("areaAssignmentBaseOrderRandom").checked = true;
+        document.getElementById("areaAssignmentShipInCrateriaNo").checked = true;
+        document.getElementById("areaAssignmentMotherBrainInTourianNo").checked = true;
+    }
+}
+
+function applyAreaAssignment(preset) {
+    applyRadioValue("areaAssignmentBaseOrder", preset.base_order);
+    applyRadioValue("areaAssignmentShipInCrateria", preset.ship_in_crateria);
+    applyRadioValue("areaAssignmentMotherBrainInTourian", preset.mother_brain_in_tourian);
+    applyAreaAssignmentPreset(preset.preset);
+}
+
+function areaAssignmentPresetChanged() {
+    for (var presetEl of document.getElementsByClassName("area-assignment-preset-button")) {
+        console.log("Checking preset: " + presetEl.value);
+        if (presetEl.checked) {
+            let preset = presetEl.value;
+            applyAreaAssignmentPreset(preset);
+            break;
+        }
+    }
+    fullSettingsChanged();
+}
+
+function areaAssignmentChanged() {
+    document.getElementById("areaAssignmentPresetStandard").checked = false;
+    document.getElementById("areaAssignmentPresetSize").checked = false;
+    document.getElementById("areaAssignmentPresetDepth").checked = false;
+    document.getElementById("areaAssignmentPresetRandom").checked = false;
 }
 
 function processInitialMapRevealPreset() {
@@ -1068,7 +1123,7 @@ function checkOtherOptions() {
     }
     if (document.getElementById("wallJumpCollectible").checked ||
         document.getElementById("energyFreeShinesparksYes").checked ||
-        document.getElementById("areaAssignmentRandom").checked ||
+        !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
         document.getElementById("ultraLowQoLYes").checked ||

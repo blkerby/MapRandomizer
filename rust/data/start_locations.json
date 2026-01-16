@@ -51,7 +51,7 @@
         "y": 10
     },
     {
-        "name": "Crateria Super Room Top Left",
+        "name": "Climb Supers Room Top Left",
         "room_id": 29,
         "node_id": 1,
         "door_load_node_id": 1,
@@ -59,7 +59,7 @@
         "y": 10
     },
     {
-        "name": "Crateria Super Room Top Middle",
+        "name": "Climb Supers Room Top Middle",
         "room_id": 29,
         "node_id": 4,
         "door_load_node_id": 1,
@@ -68,7 +68,7 @@
         "spicy": true
     },
     {
-        "name": "Crateria Super Room Bottom Left",
+        "name": "Climb Supers Room Bottom Left",
         "room_id": 29,
         "node_id": 2,
         "door_load_node_id": 2,
@@ -77,7 +77,7 @@
         "camera_offset_x": -4
     },
     {
-        "name": "Crateria Super Room Bottom Right",
+        "name": "Climb Supers Room Bottom Right",
         "room_id": 29,
         "node_id": 5,
         "door_load_node_id": 2,
@@ -221,7 +221,7 @@
         "y": 12
     },
     {
-        "name": "Bowling Alley Path",
+        "name": "Pancakes and Wavers Room",
         "room_id": 33,
         "node_id": 2,
         "x": 27,
@@ -494,14 +494,14 @@
         "y": 108
     },
     {
-        "name": "Pink Brinstar Hopper Room Right",
+        "name": "Pink Brinstar Wave Gate Room",
         "room_id": 61,
         "node_id": 2,
         "x": 25.75,
         "y": 26
     },
     {
-        "name": "Pink Brinstar Power Bomb Room Bottom Right",
+        "name": "Mission Impossible Room",
         "room_id": 60,
         "node_id": 2,
         "x": 28.5,
@@ -536,7 +536,7 @@
         "y": 10
     },
     {
-        "name": "Bat Room",
+        "name": "Skree Boost Room",
         "room_id": 69,
         "node_id": 1,
         "x": 4,
@@ -665,7 +665,7 @@
         "y": 26
     },
     {
-        "name": "Acid Snakes Tunnel Farm",
+        "name": "Lava Farm Tunnel",
         "room_id": 119,
         "node_id": 4,
         "door_load_node_id": 1,
@@ -764,7 +764,7 @@
         "y": 10
     },
     {
-        "name": "Green Bubbles Missile Room Left",
+        "name": "Green Bubbles Tunnel Left",
         "room_id": 98,
         "node_id": 1,
         "x": 3.5,
@@ -772,7 +772,7 @@
         "requires": ["canHeatRun", {"heatFrames": 40}]
     },
     {
-        "name": "Green Bubbles Missile Room Right",
+        "name": "Green Bubbles Tunnel Right",
         "room_id": 98,
         "node_id": 2,
         "x": 29,
@@ -911,7 +911,7 @@
         "requires": ["canHeatRun", {"heatFrames": 100}]
     },
     {
-        "name": "Spiky Acid Snakes Tunnel Left",
+        "name": "Lava Grapple Tunnel Left",
         "room_id": 112,
         "node_id": 1,
         "x": 3.5,
@@ -919,7 +919,7 @@
         "requires": ["canHeatRun", {"heatFrames": 40}]
     },
     {
-        "name": "Spiky Acid Snakes Tunnel Right",
+        "name": "Lava Grapple Tunnel Right",
         "room_id": 112,
         "node_id": 2,
         "x": 60.5,
@@ -1156,21 +1156,21 @@
         "y": 27
     },
     {
-        "name": "Post Crocomire Jump Room Left",
+        "name": "Indiana Jones Room Left",
         "room_id": 127,
         "node_id": 1,
         "x": 6.5,
         "y": 26
     },
     {
-        "name": "Post Crocomire Jump Room Right",
+        "name": "Indiana Jones Room Right",
         "room_id": 127,
         "node_id": 2,
         "x": 124.5,
         "y": 39
     },
     {
-        "name": "Post Crocomire Missile Room",
+        "name": "Cosine Room",
         "room_id": 126,
         "node_id": 1,
         "x": 3.5,
@@ -1263,7 +1263,7 @@
         "requires": ["canHeatRun"]
     },
     {
-        "name": "Lower Norfair Escape Power Bomb Room",
+        "name": "The Jail",
         "room_id": 147,
         "node_id": 3,
         "door_load_node_id": 2,
@@ -1455,14 +1455,14 @@
         "y": 29
     },
     {
-        "name": "Crab Tunnel Left",
+        "name": "Crab Gate Room Left",
         "room_id": 176,
         "node_id": 1,
         "x": 8.5,
         "y": 13
     },
     {
-        "name": "Crab Tunnel Right",
+        "name": "Crab Gate Room Right",
         "room_id": 176,
         "node_id": 2,
         "x": 53,
@@ -1485,14 +1485,14 @@
         "y": 23.5
     },
     {
-        "name": "Glass Tunnel Bottom",
+        "name": "Maridia Tube Bottom",
         "room_id": 170,
         "node_id": 2,
         "x": 8,
         "y": 39.5
     },
     {
-        "name": "Glass Tunnel Top",
+        "name": "Maridia Tube Top",
         "room_id": 170,
         "node_id": 4,
         "door_load_node_id": 2,
@@ -1573,7 +1573,7 @@
         "y": 9
     },
     {
-        "name": "West Glass Tube Tunnel",
+        "name": "West Maridia Tube Tunnel",
         "room_id": 169,
         "node_id": 1,
         "x": 8,
@@ -1703,7 +1703,7 @@
         "y": 26
     },
     {
-        "name": "East Sand Hole",
+        "name": "East Sand Pit",
         "room_id": 208,
         "node_id": 2,
         "door_load_node_id": 1,
@@ -1734,14 +1734,14 @@
         "y": 76
     },
     {
-        "name": "Northwest Maridia Bug Room Left",
+        "name": "Maridia Swiss Cheese Room",
         "room_id": 180,
         "node_id": 1,
         "x": 5.5,
         "y": 10
     },
     {
-        "name": "Northwest Maridia Bug Room Center",
+        "name": "Maridia Swiss Cheese Room",
         "room_id": 180,
         "node_id": 3,
         "door_load_node_id": 1,
@@ -1773,7 +1773,7 @@
         "requires": ["canSuitlessMaridia"]
     },
     {
-        "name": "Pseudo Plasma Spark Room Top",
+        "name": "The Beach Top",
         "room_id": 179,
         "node_id": 1,
         "x": 56.5,
@@ -2056,7 +2056,7 @@
         "y": 10
     },
     {
-        "name": "The Final Missile",
+        "name": "230 Missile Room",
         "room_id": 17,
         "node_id": 1,
         "x": 11.5,
@@ -2184,7 +2184,7 @@
         "y": 10
     },
     {
-        "name": "Hopper Energy Tank Room",
+        "name": "Wave Gate Energy Tank Room",
         "room_id": 62,
         "node_id": 1,
         "x": 6,
@@ -2373,7 +2373,7 @@
         "y": 12
     },
     {
-        "name": "Glass Tunnel Save Room",
+        "name": "Maridia Tube Save Room",
         "room_id": 171,
         "node_id": 1,
         "x": 5.5,
@@ -2415,7 +2415,7 @@
         "y": 13
     },
     {
-        "name": "West Sand Hole",
+        "name": "West Sand Pit",
         "room_id": 209,
         "node_id": 2,
         "door_load_node_id": 1,
@@ -2439,7 +2439,7 @@
         "y": 10
     },
     {
-        "name": "Wrecked Ship East Missile Room",
+        "name": "Robot Assembly Line",
         "room_id": 168,
         "node_id": 1,
         "x": 7,
