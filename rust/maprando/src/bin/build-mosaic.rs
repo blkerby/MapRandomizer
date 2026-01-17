@@ -1210,7 +1210,7 @@ impl MosaicPatchBuilder {
 
                             if let Some(twin_state_xml) = twin_state_xml.as_ref()
                                 && room_geometry.name != "Aqueduct"
-                                && (room_idx != 138 || x == 0)
+                                && (room_idx != 138 || x == 1)
                             {
                                 let twin_room_ptr = if room_idx == 138 { 0x7D69A } else { 0x7968F };
                                 self.write_toilet_intersection_room(
