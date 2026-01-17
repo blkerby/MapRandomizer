@@ -3325,11 +3325,6 @@ fn fix_snes_checksum(rom: &mut Rom) {
     data[CHECKSUM_ADDR..CHECKSUM_ADDR + 2].copy_from_slice(&complement.to_le_bytes());
 
     data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4].copy_from_slice(&checksum.to_le_bytes());
-
-    println!(
-        "New checksum data: complement = {:04X}, checksum = {:04X}",
-        complement, checksum
-    );
 }
 
 pub fn make_rom(
