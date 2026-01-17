@@ -3429,7 +3429,7 @@ pub fn make_rom(
         mosaic_themes,
     )?;
 
-    // ROM Checksum FIX: Do not modifiy the rom contents after this point
+    // ROM Checksum: Do not modify the ROM contents after this point
     fix_snes_checksum(patcher.rom);
 
     Ok(rom)
