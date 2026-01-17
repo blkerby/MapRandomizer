@@ -91,6 +91,8 @@ pub struct DifficultyConfig {
 }
 
 impl DifficultyConfig {
+    // Note: this does not account for overrides dependent on other settings (e.g. disabling spikesuit/bluesuit):
+    // That get applied in `get_difficulty_tiers`.
     pub fn new(
         skill: &SkillAssumptionSettings,
         game_data: &GameData,
