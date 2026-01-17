@@ -582,17 +582,14 @@ script:
     dw !draw, !row*0      ;; SUPER METROID STAFF
     dw !draw, !blank
     dw !draw, !row*4      ;; PRODUCER
-    dw !draw, !blank
     dw !draw, !row*7      ;; MAKOTO KANOH
     dw !draw, !row*8
     dw !draw, !blank
     dw !draw, !row*9      ;; DIRECTOR
-    dw !draw, !blank
     dw !draw, !row*10     ;; YOSHI SAKAMOTO
     dw !draw, !row*11
     dw !draw, !blank
     dw !draw, !row*12     ;; BACK GROUND DESIGNERS
-    dw !draw, !blank
     dw !draw, !row*13     ;; HIROFUMI MATSUOKA
     dw !draw, !row*14
     dw !draw, !row*15     ;; MASAHIKO MASHIMO
@@ -601,84 +598,69 @@ script:
     dw !draw, !row*18
     dw !draw, !blank
     dw !draw, !row*19     ;; OBJECT DESIGNERS
-    dw !draw, !blank
     dw !draw, !row*20     ;; TOHRU OHSAWA
     dw !draw, !row*21
     dw !draw, !row*22     ;; TOMOYOSHI YAMANE
     dw !draw, !row*23
     dw !draw, !blank
     dw !draw, !row*24     ;; SAMUS ORIGINAL DESIGNERS
-    dw !draw, !blank
     dw !draw, !row*25     ;; HIROJI KIYOTAKE
     dw !draw, !row*26
     dw !draw, !blank
     dw !draw, !row*27     ;; SAMUS DESIGNER
-    dw !draw, !blank
     dw !draw, !row*28     ;; TOMOMI YAMANE
     dw !draw, !row*29
     dw !draw, !blank
     dw !draw, !row*83     ;; SOUND PROGRAM
     dw !draw, !row*107    ;; AND SOUND EFFECTS
-    dw !draw, !blank
     dw !draw, !row*84     ;; KENJI YAMAMOTO
     dw !draw, !row*85
     dw !draw, !blank
     dw !draw, !row*86     ;; MUSIC COMPOSERS
-    dw !draw, !blank
     dw !draw, !row*84     ;; KENJI YAMAMOTO
     dw !draw, !row*85
     dw !draw, !row*87     ;; MINAKO HAMANO
     dw !draw, !row*88
     dw !draw, !blank
     dw !draw, !row*30     ;; PROGRAM DIRECTOR
-    dw !draw, !blank
     dw !draw, !row*31     ;; KENJI IMAI
     dw !draw, !row*64
     dw !draw, !blank
     dw !draw, !row*65     ;; SYSTEM COORDINATOR
-    dw !draw, !blank
     dw !draw, !row*66     ;; KENJI NAKAJIMA
     dw !draw, !row*67
     dw !draw, !blank
     dw !draw, !row*68     ;; SYSTEM PROGRAMMER
-    dw !draw, !blank
     dw !draw, !row*69     ;; YOSHIKAZU MORI
     dw !draw, !row*70
     dw !draw, !blank
     dw !draw, !row*71     ;; SAMUS PROGRAMMER
-    dw !draw, !blank
     dw !draw, !row*72     ;; ISAMU KUBOTA
     dw !draw, !row*73
     dw !draw, !blank
     dw !draw, !row*74     ;; EVENT PROGRAMMER
-    dw !draw, !blank
     dw !draw, !row*75     ;; MUTSURU MATSUMOTO
     dw !draw, !row*76
     dw !draw, !blank
     dw !draw, !row*77     ;; ENEMY PROGRAMMER
-    dw !draw, !blank
     dw !draw, !row*78     ;; YASUHIKO FUJI
     dw !draw, !row*79
     dw !draw, !blank
     dw !draw, !row*80     ;; MAP PROGRAMMER
-    dw !draw, !blank
     dw !draw, !row*81     ;; MOTOMU CHIKARAISHI
     dw !draw, !row*82
     dw !draw, !blank
     dw !draw, !row*101    ;; ASSISTANT PROGRAMMER
-    dw !draw, !blank
     dw !draw, !row*102    ;; KOUICHI ABE
     dw !draw, !row*103
     dw !draw, !blank
     dw !draw, !row*104    ;; COORDINATORS
-    dw !draw, !blank
     dw !draw, !row*105    ;; KATSUYA YAMANO
     dw !draw, !row*106
     dw !draw, !row*63     ;; TSUTOMU KANESHIGE
     dw !draw, !row*96
     dw !draw, !blank
     dw !draw, !row*89    ;; PRINTED ART WORK
-    dw !draw, !blank
     dw !draw, !row*90    ;; MASAFUMI SAKASHITA
     dw !draw, !row*91
     dw !draw, !row*92    ;; YASUO INOUE
@@ -693,7 +675,6 @@ script:
     dw !draw, !row*111
     dw !draw, !blank
     dw !draw, !row*32    ;; SPECIAL THANKS TO
-    dw !draw, !blank
     dw !draw, !row*33    ;; DAN OWSEN
     dw !draw, !row*34
     dw !draw, !row*35    ;; GEORGE SINFIELD
@@ -728,7 +709,6 @@ script:
     dw !draw, !row*113
     dw !draw, !blank
     dw !draw, !row*114   ;; GENERAL MANAGER
-    dw !draw, !blank
     dw !draw, !row*5     ;; GUMPEI YOKOI
     dw !draw, !row*6
     dw !draw, !blank
@@ -762,58 +742,56 @@ script:
     dw !draw, !row*135
     dw !draw, !row*136
     dw !draw, !blank
-    dw !draw, !row*254  ; ADDITIONAL DEVELOPERS
-    dw !draw, !blank
-    dw !draw, !row*255
-    dw !draw, !row*256
-    dw !draw, !blank
-    dw !draw, !row*137  ; LOGIC DATA
+    dw !draw, !row*137  ; ADDITIONAL DEVELOPERS
     dw !draw, !blank
     dw !draw, !row*138
     dw !draw, !row*139
     dw !draw, !blank
-    dw !draw, !row*140
+    dw !draw, !row*140  ; LOGIC DATA
+    dw !draw, !blank
     dw !draw, !row*141
-    dw !draw, !blank
     dw !draw, !row*142
-    dw !draw, !row*143
     dw !draw, !blank
-;    dw !draw, !row*144  ; SPOILER MAP
-;    dw !draw, !blank
-;    dw !draw, !row*145
-;    dw !draw, !row*146
-;    dw !draw, !blank
-    dw !draw, !row*156  ; SPECIAL THANKS TO
+    dw !draw, !row*143
+    dw !draw, !row*144
     dw !draw, !blank
     dw !draw, !row*145
     dw !draw, !row*146
     dw !draw, !blank
-    dw !draw, !row*259
-    dw !draw, !row*260
+    dw !draw, !row*147
+    dw !draw, !row*148
     dw !draw, !blank
+    dw !draw, !row*149  ; SPECIAL THANKS TO
+    dw !draw, !blank
+    dw !draw, !row*150
+    dw !draw, !row*151
+    dw !draw, !blank
+    dw !draw, !row*152
+    dw !draw, !row*153
+    dw !draw, !blank
+    dw !draw, !row*154
+    dw !draw, !row*155
+    dw !draw, !blank
+    dw !draw, !row*156
     dw !draw, !row*157
-    dw !draw, !row*158
+    dw !draw, !blank
+    dw !draw, !row*158  ; AND
     dw !draw, !blank
     dw !draw, !row*159
     dw !draw, !row*160
     dw !draw, !blank
-    dw !draw, !row*230  ; AND
-    dw !draw, !blank
     dw !draw, !row*161
     dw !draw, !row*162
     dw !draw, !blank
-    dw !draw, !row*231
-    dw !draw, !row*232
+    dw !draw, !row*254  ; SUPER METROID DISASSEMBLY
     dw !draw, !blank
-    dw !draw, !row*147  ; SUPER METROID DISASSEMBLY
+    dw !draw, !row*255
+    dw !draw, !row*256
     dw !draw, !blank
-    dw !draw, !row*148
-    dw !draw, !row*149
+    dw !draw, !row*257  ; SUPER METROID MOD MANUAL
     dw !draw, !blank
-    dw !draw, !row*150  ; SUPER METROID MOD MANUAL
-    dw !draw, !blank
-    dw !draw, !row*151
-    dw !draw, !row*152
+    dw !draw, !row*258
+    dw !draw, !row*259
     dw !draw, !blank
     dw !draw, !row*233  ; SPRITESOMETHING
     dw !draw, !blank
@@ -827,11 +805,17 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    
-    dw !draw, !row*153  ; PLAY THIS RANDOMIZER AT
     dw !draw, !blank
-    dw !draw, !row*154
-    dw !draw, !row*155
+    dw !draw, !blank
+    dw !draw, !blank
+    
+    dw !draw, !row*230  ; PLAY THIS RANDOMIZER AT
+    dw !draw, !blank
+    dw !draw, !row*231
+    dw !draw, !row*232
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -867,6 +851,37 @@ script:
     dw !draw, !blank
     dw !draw, !row*217  ; RESETS
     dw !draw, !row*218
+    dw !draw, !blank
+    dw !draw, !blank
+
+    dw !draw, !row*239   ; TIME SPENT IN
+    dw !draw, !blank
+    dw !draw, !row*240   ; CRATERIA
+    dw !draw, !row*241
+    dw !draw, !blank
+    ;; Set scroll speed to 4 frames per pixel
+    dw !speed, $0004
+    dw !draw, !row*242   ; BRINSTAR
+    dw !draw, !row*243
+    dw !draw, !blank
+    dw !draw, !row*244   ; NORFAIR
+    dw !draw, !row*245
+    dw !draw, !blank
+    dw !draw, !row*246   ; WRECKED SHIP
+    dw !draw, !row*247
+    dw !draw, !blank
+    dw !draw, !row*248   ; MARIDIA
+    dw !draw, !row*249
+    dw !draw, !blank
+    dw !draw, !row*250   ; TOURIAN
+    dw !draw, !row*251
+    dw !draw, !blank
+    dw !draw, !row*252   ; PAUSE MENU
+    dw !draw, !row*253
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !row*219   ; FINAL TIME
+    dw !draw, !row*220
     dw !draw, !blank
     dw !draw, !blank
 
@@ -939,35 +954,13 @@ script:
     dw !draw, !blank
     dw !draw, !row*206
     dw !draw, !row*207
+    dw !draw, !blank
+    dw !draw, !blank     ; Reserved for split speedbooster item
+    dw !draw, !blank     ; Reserved for split speedbooster item
+    dw !draw, !blank
+    dw !draw, !blank     ; Reserved for future item
+    dw !draw, !blank     ; Reserved for future item
 
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !row*239   ; TIME SPENT IN
-    dw !draw, !blank
-    dw !draw, !row*240   ; CRATERIA
-    dw !draw, !row*241
-    dw !draw, !blank
-    dw !draw, !row*242   ; BRINSTAR
-    dw !draw, !row*243
-    dw !draw, !blank
-    dw !draw, !row*244   ; NORFAIR
-    dw !draw, !row*245
-    dw !draw, !blank
-    dw !draw, !row*246   ; WRECKED SHIP
-    dw !draw, !row*247
-    dw !draw, !blank
-    dw !draw, !row*248   ; MARIDIA
-    dw !draw, !row*249
-    dw !draw, !blank
-    dw !draw, !row*250   ; TOURIAN
-    dw !draw, !row*251
-    dw !draw, !blank
-    dw !draw, !row*252   ; PAUSE MENU
-    dw !draw, !row*253
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !row*219   ; FINAL TIME
-    dw !draw, !row*220
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !row*221   ; THANKS FOR PLAYING
@@ -1047,45 +1040,40 @@ credits:
     dw "      kyleb         osse!}!     " ;; 134
     dw "   AMOEBAOFDOOM    STAG SHOT    " ;; 135
     dw "   amoebaofdoom    stag shot    " ;; 136
-
+    !orange
+    dw "     ADDITIONAL DEVELOPERS      " ;; 137
+    !big
+    dw "     SELICRE         CHANGE     " ;; 138
+    dw "     selicre         change     " ;; 139
     !green
-    dw "    LOGIC DATA MAIN AUTHORS     " ;; 137
+    dw "    LOGIC DATA MAIN AUTHORS     " ;; 140
     !big
-    dw "    KYLEB           OSSE101     " ;; 138
-    dw "    kyleb           osse!}!     " ;; 139
-    dw "    MADDO           RUSHLIGHT   " ;; 140
-    dw "    maddo           rushlight   " ;; 141
-    dw "    MATRETHEWEY     DIPROGAN    " ;; 142
-    dw "    matrethewey     diprogan    " ;; 143
+    dw "    KYLEB           OSSE101     " ;; 141
+    dw "    kyleb           osse!}!     " ;; 142
+    dw "    MADDO           RUSHLIGHT   " ;; 143
+    dw "    maddo           rushlight   " ;; 144
+    dw "    MATRETHEWEY     AQUANIGHT   " ;; 145
+    dw "    matrethewey     aquanight   " ;; 146
+    dw "    NN              DIPROGAN    " ;; 147
+    dw "    nn              diprogan    " ;; 148
     !cyan
-    dw "                                " ;; 144
+    dw "       SPECIAL THANKS TO        " ;; 149
     !big
-    dw "   CHICDEAD26         TUNDAIN   " ;; 145
-    dw "   chicdead@&         tundain   " ;; 146
-    !purple
-    dw "   SUPER METROID DISASSEMBLY    " ;; 147
-    !big
-    dw "      PJBOY      KEJARDON       " ;; 148
-    dw "      pjboy      kejardon       " ;; 149
-    !purple
-    dw "    SUPER METROID MOD MANUAL    " ;; 150
-    !big
-    dw "            BEGRIMED            " ;; 151
-    dw "            begrimed            " ;; 152
-    !green
-    dw "    PLAY THIS RANDOMIZER AT     " ;; 153
-    !big
-    dw "          MAPRANDO COM          " ;; 154
-    dw "          maprando.com          " ;; 155
+    dw "   CHICDEAD26         TUNDAIN   " ;; 150
+    dw "   chicdead@&         tundain   " ;; 151
+    dw "   SAMLITTLEHORNS      KEWLAN   " ;; 152
+    dw "   samlittlehorns      kewlan   " ;; 153
+    dw "   BUGGMANN         SOMERANDO   " ;; 154
+    dw "   buggmann         somerando   " ;; 155
+    dw "   BOBBOB       INSOMNIASPEED   " ;; 156
+    dw "   bobbob       insomniaspeed   " ;; 157
     !cyan
-    dw "       SPECIAL THANKS TO        " ;; 156
+    dw "              AND               " ;; 158
     !big
-    dw "   BUGGMANN         SOMERANDO   " ;; 157
-    dw "   buggmann         somerando   " ;; 158
-    dw "   BOBBOB       INSOMNIASPEED   " ;; 159
-    dw "   bobbob       insomniaspeed   " ;; 160
-    dw "   ALL SUPER METROID HACKERS    " ;; 161
-    dw "   all super metroid hackers    " ;; 162
+    dw "   ALL SUPER METROID HACKERS    " ;; 159
+    dw "   all super metroid hackers    " ;; 160
+    dw "   SM RANDOMIZER COMMUNITIES    " ;; 161
+    dw "   sm randomizer communities    " ;; 162
     !blue
     dw " ITEM LOCATION AND COLLECT TIME " ;; 163
     !big
@@ -1159,11 +1147,11 @@ credits:
     dw " item progression               " ;; 227
     dw " QUALITY OF LIFE                " ;; 228
     dw " quality of life                " ;; 229
-    !cyan
-    dw "              AND               " ;; 230
+    !green
+    dw "    PLAY THIS RANDOMIZER AT     " ;; 230
     !big
-    dw "   SM RANDOMIZER COMMUNITIES    " ;; 231
-    dw "   sm randomizer communities    " ;; 232
+    dw "          MAPRANDO COM          " ;; 231
+    dw "          maprando.com          " ;; 232
     !purple
     dw "        SPRITESOMETHING         " ;; 233
     !yellow
@@ -1191,15 +1179,16 @@ credits:
     dw " tourian            }}.}}.}}.}} " ;; 251
     dw " PAUSE MENU         00.00.00 00 " ;; 252
     dw " pause menu         }}.}}.}}.}} " ;; 253
-    !orange
-    dw "     ADDITIONAL DEVELOPERS      " ;; 254
+    !purple
+    dw "   SUPER METROID DISASSEMBLY    " ;; 254
     !big
-    dw "     SELICRE         CHANGE     " ;; 255
-    dw "     selicre         change     " ;; 256
-    dw "                                " ;; 257
-    dw "                                " ;; 258
-    dw "   SAMLITTLEHORNS      KEWLAN   " ;; 259
-    dw "   samlittlehorns      kewlan   " ;; 260
+    dw "      PJBOY      KEJARDON       " ;; 255
+    dw "      pjboy      kejardon       " ;; 256
+    !purple
+    dw "    SUPER METROID MOD MANUAL    " ;; 257
+    !big
+    dw "            BEGRIMED            " ;; 258
+    dw "            begrimed            " ;; 259
 
     dw $0000
 warnpc !bank_ce_free_space_end
