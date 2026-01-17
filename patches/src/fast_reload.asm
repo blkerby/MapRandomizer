@@ -119,7 +119,6 @@ hook_main:
 
     ; Check spin-lock input combination (to enable spin lock):
     lda $8B
-    and !spin_lock_button_combo
     cmp !spin_lock_button_combo
     bne .no_spin_lock
     lda #$0001
@@ -127,9 +126,8 @@ hook_main:
 .no_spin_lock:
 
     lda $8B      ; Controller 1 input
-    and !reload_button_combo   ; L + R + Select + Start (or customized reset inputs)
-    cmp !reload_button_combo
-    bne .noreset ; If any of the inputs are not currently held, then do not reset.
+    cmp !reload_button_combo  ; L + R + Select + Start (or customized reset inputs)
+    bne .noreset ; If the inputs are not exactly the reset combo, then do not reset.
 
     ; Only check new press with gamestates 7 & 8
     lda $0998
