@@ -348,6 +348,8 @@ pub struct OtherSettings {
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub ultra_low_qol: bool,
+    pub disable_spikesuit: bool,
+    pub disable_bluesuit: bool,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
 }
@@ -907,6 +909,14 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
             _ => bail!("Unrecognized area assignment preset: {}", preset_str),
         };
         *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
+    }
+
+    if other_settings.get("disable_spikesuit").is_none() {
+        other_settings.insert("disable_spikesuit".to_string(), false.into());
+    }
+
+    if other_settings.get("disable_bluesuit").is_none() {
+        other_settings.insert("disable_bluesuit".to_string(), false.into());
     }
 
     Ok(())

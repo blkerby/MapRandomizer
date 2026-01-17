@@ -579,6 +579,14 @@ impl Patcher<'_> {
             patches.push("energy_free_shinesparks");
         }
 
+        if self.settings.other_settings.disable_spikesuit {
+            patches.push("remove_spikesuit")
+        }
+
+        if self.settings.other_settings.disable_bluesuit {
+            patches.push("remove_bluesuit")
+        }
+
         if self.settings.quality_of_life_settings.respin {
             patches.push("respin");
             // patches.push("spinjumprestart");

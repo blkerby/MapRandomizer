@@ -66,10 +66,13 @@ pub const TECH_ID_CAN_EXTENDED_MOONDANCE: TechId = 27;
 pub const TECH_ID_CAN_ENEMY_STUCK_MOONFALL: TechId = 28;
 pub const TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP: TechId = 197;
 pub const TECH_ID_CAN_SPIKE_SUIT: TechId = 141;
+pub const TECH_ID_CAN_SLOPE_SPARK: TechId = 210;
+pub const TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK: TechId = 213;
 pub const TECH_ID_CAN_ELEVATOR_CRYSTAL_FLASH: TechId = 178;
 pub const TECH_ID_CAN_CARRY_FLASH_SUIT: TechId = 207;
 pub const TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT: TechId = 142;
 pub const TECH_ID_CAN_HYPER_GATE_SHOT: TechId = 10001;
+pub const TECH_ID_CAN_CARRY_BLUE_SUIT: TechId = 215;
 
 #[allow(clippy::type_complexity)]
 #[derive(Deserialize, Serialize, Clone, Debug)]

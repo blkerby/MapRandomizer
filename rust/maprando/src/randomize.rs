@@ -27,15 +27,16 @@ use maprando_game::{
     GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId,
     Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
     RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment, SparkPosition,
-    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_FLASH_SUIT,
-    TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE,
-    TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT,
-    TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK,
-    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
+    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_CARRY_BLUE_SUIT,
+    TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_DISABLE_EQUIPMENT, TECH_ID_CAN_ENTER_G_MODE,
+    TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_GRAPPLE_JUMP,
+    TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
+    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL,
+    TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK,
     TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
     TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
-    TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
-    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SLOPE_SPARK, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
     TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
     VertexKey,
@@ -3213,12 +3214,24 @@ pub fn get_difficulty_tiers(
     implicit_tech: &[TechId],
     implicit_notables: &[(RoomId, NotableId)],
 ) -> Vec<DifficultyConfig> {
-    let main_tier = DifficultyConfig::new(
+    let mut main_tier = DifficultyConfig::new(
         &settings.skill_assumption_settings,
         game_data,
         implicit_tech,
         implicit_notables,
     );
+
+    if settings.other_settings.disable_spikesuit {
+        main_tier.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPIKE_SUIT]] = false;
+        main_tier.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_SLOPE_SPARK]] = false;
+        main_tier.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK]] =
+            false;
+    }
+
+    if settings.other_settings.disable_bluesuit {
+        main_tier.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_BLUE_SUIT]] = false;
+    }
+
     let mut difficulty_tiers = vec![];
 
     difficulty_tiers.push(main_tier.clone());
