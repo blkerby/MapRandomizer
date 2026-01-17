@@ -388,7 +388,12 @@ fn get_area_depths(map: &Map, game_data: &GameData) -> [isize; NUM_AREAS] {
     area_depth
 }
 
-fn shuffle_subareas<R: Rng>(map: &mut Map, rng: &mut R) {
+fn shuffle_subareas<R: Rng>(
+    map: &mut Map,
+    settings: &RandomizerSettings,
+    game_data: &GameData,
+    rng: &mut R,
+) {
     let mut subarea_mapping: Vec<Vec<usize>> = vec![(0..2).collect(); 6];
     for i in 0..6 {
         subarea_mapping[i].shuffle(rng);
@@ -401,33 +406,51 @@ fn shuffle_subareas<R: Rng>(map: &mut Map, rng: &mut R) {
         }
     }
 
+    if settings.other_settings.area_assignment.ship_in_crateria {
+        // Ensure that the Ship stays in subarea/subsubarea 0:
+        let ship_room_idx = game_data.ship_room_idx;
+        let ship_area = 0; // Crateria
+        let ship_subarea = map.subarea[ship_room_idx];
+        let ship_subsubarea = map.subsubarea[ship_room_idx];
+        subarea_mapping[ship_area] = if ship_subarea == 0 {
+            vec![0, 1]
+        } else {
+            vec![1, 0]
+        };
+        subsubarea_mapping[ship_area][ship_subarea] = if ship_subsubarea == 0 {
+            vec![0, 1]
+        } else {
+            vec![1, 0]
+        };
+    }
+
+    if settings
+        .other_settings
+        .area_assignment
+        .mother_brain_in_tourian
+    {
+        // Ensure that Mother Brain stays in subarea/subsubarea 0:
+        let mother_brain_room_idx = game_data.mother_brain_room_idx;
+        let mother_brain_area = 5; // Tourian
+        let mother_brain_subarea = map.subarea[mother_brain_room_idx];
+        let mother_brain_subsubarea = map.subsubarea[mother_brain_room_idx];
+        subarea_mapping[mother_brain_area] = if mother_brain_subarea == 0 {
+            vec![0, 1]
+        } else {
+            vec![1, 0]
+        };
+        subsubarea_mapping[mother_brain_area][mother_brain_subarea] =
+            if mother_brain_subsubarea == 0 {
+                vec![0, 1]
+            } else {
+                vec![1, 0]
+            };
+    }
+
     for i in 0..map.area.len() {
         map.subarea[i] = subarea_mapping[map.area[i]][map.subarea[i]];
         map.subsubarea[i] = subsubarea_mapping[map.area[i]][map.subarea[i]][map.subsubarea[i]];
     }
-}
-
-pub fn order_map_areas(map: &mut Map, seed: usize, game_data: &GameData) {
-    let mut rng_seed = [0u8; 32];
-    rng_seed[..8].copy_from_slice(&seed.to_le_bytes());
-    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-
-    let area_tile_cnt = get_area_sizes(map, game_data);
-    let mut area_rank: Vec<AreaIdx> = (0..NUM_AREAS).collect();
-    area_rank.sort_by_key(|&i| area_tile_cnt[i]);
-
-    let mut area_mapping: Vec<usize> = vec![0; NUM_AREAS];
-    area_mapping[area_rank[5]] = 2; // Norfair (largest area)
-    area_mapping[area_rank[4]] = 1; // Brinstar
-    area_mapping[area_rank[3]] = 4; // Maridia
-    area_mapping[area_rank[2]] = 0; // Crateria
-    area_mapping[area_rank[1]] = 5; // Tourian
-    area_mapping[area_rank[0]] = 3; // Wrecked Ship
-
-    for i in 0..map.area.len() {
-        map.area[i] = area_mapping[map.area[i]];
-    }
-    shuffle_subareas(map, &mut rng);
 }
 
 #[must_use]
@@ -514,8 +537,7 @@ pub fn assign_map_areas(
         map.area[i] = area_mapping[map.area[i]] as usize;
     }
 
-    let area_depths = get_area_depths(map, game_data);
-    info!("area_depths: {:?}", area_depths);
+    shuffle_subareas(map, settings, game_data, &mut rng);
 
     true
 }

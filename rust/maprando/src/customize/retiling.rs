@@ -119,8 +119,8 @@ pub fn apply_retiling(
                         (4, 0, 0) => "WestMaridia",
                         (4, 0, 1) => "YellowMaridia",
                         (4, 1, _) => "Bedrock",
-                        (5, 0, _) => "MetroidHabitat",
-                        (5, 1, _) => "MechaTourian",
+                        (5, 0, _) => "MechaTourian",
+                        (5, 1, _) => "MetroidHabitat",
                         _ => panic!(
                             "unexpected area/subarea/subsubarea combination: ({area}, {sub_area}, {sub_sub_area})"
                         ),
