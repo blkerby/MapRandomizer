@@ -911,6 +911,14 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
     }
 
+    if other_settings.get("disable_spikesuit").is_none() {
+        other_settings.insert("disable_spikesuit".to_string(), false.into());
+    }
+
+    if other_settings.get("disable_bluesuit").is_none() {
+        other_settings.insert("disable_bluesuit".to_string(), false.into());
+    }
+
     Ok(())
 }
 

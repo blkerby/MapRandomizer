@@ -95,7 +95,6 @@ fn handle_randomize_request(
     settings: RandomizerSettings,
     app_data: web::Data<AppData>,
 ) -> Result<AttemptOutput, AttemptError> {
-    let skill_settings = &settings.skill_assumption_settings;
     let race_mode = settings.other_settings.race_mode;
     let random_seed = if settings.other_settings.random_seed.is_none() || race_mode {
         get_random_seed()
@@ -111,14 +110,6 @@ fn handle_randomize_request(
     rng_seed[..8].copy_from_slice(&random_seed.to_le_bytes());
     let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
 
-    let implicit_tech = &app_data.preset_data.tech_by_difficulty["Implicit"];
-    let implicit_notables = &app_data.preset_data.notables_by_difficulty["Implicit"];
-    let difficulty = DifficultyConfig::new(
-        skill_settings,
-        &app_data.game_data,
-        implicit_tech,
-        implicit_notables,
-    );
     let difficulty_tiers = get_difficulty_tiers(
         &settings,
         &app_data.preset_data.difficulty_tiers,
@@ -127,8 +118,11 @@ fn handle_randomize_request(
         &app_data.preset_data.notables_by_difficulty["Implicit"],
     );
 
-    let filtered_base_links =
-        filter_links(&app_data.game_data.links, &app_data.game_data, &difficulty);
+    let filtered_base_links = filter_links(
+        &app_data.game_data.links,
+        &app_data.game_data,
+        &difficulty_tiers[0],
+    );
     let filtered_base_links_data = LinksDataGroup::new(
         filtered_base_links,
         app_data.game_data.vertex_isv.keys.len(),

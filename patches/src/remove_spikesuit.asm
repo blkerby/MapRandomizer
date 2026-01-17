@@ -4,12 +4,12 @@ arch snes.cpu
 lorom
 
 !bank_90_free_space_start = $90FC20
-!bank_90_free_space_end = $90FC3F
+!bank_90_free_space_end = $90FC40
 
-org $90D4BC ; hook end of shinespark crash
+org $90D4B9 ; hook end of shinespark crash
     jsl check_ss
-		nop
-		nop
+	nop
+	nop
 
 org !bank_90_free_space_start
 check_ss:
@@ -21,9 +21,10 @@ check_ss:
 	LDA #$0019
 	JSL $8090CB		; play a sound effect
 	.skip:
+
+	; Run hi-jacked instructions:
 	LDA #$0002
 	STA $0A32
-	STZ $0DEC
 	RTL
 	
 assert pc() <= !bank_90_free_space_end
