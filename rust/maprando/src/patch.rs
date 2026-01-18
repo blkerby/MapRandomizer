@@ -1438,8 +1438,8 @@ impl Patcher<'_> {
                 0x051B, // Inner Maridia
             ],
             [
-                0x0609, // Tourian Entrance (Statues Room)
                 0x051E, // Tourian Main
+                0x0609, // Tourian Entrance (Statues Room)
             ],
         ];
 
