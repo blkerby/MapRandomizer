@@ -1,5 +1,4 @@
 use hashbrown::{HashMap, HashSet};
-use indexmap::IndexMap;
 
 use crate::{
     customize::{CustomizeSettings, ItemDotChange},
@@ -12,7 +11,7 @@ use crate::{
 use maprando_game::{
     AreaIdx, BeamType, Direction, DoorLockType, DoorType, GameData, Item, ItemIdx, Map,
     MapLiquidType, MapTile, MapTileEdge, MapTileInterior, MapTileSpecialType, RoomGeometryDoor,
-    RoomGeometryItem, RoomId, RoomPtr,
+    RoomGeometryItem, RoomId, RoomPtr, util::sorted_hashmap_iter,
 };
 
 use super::{Rom, snes2pc, xy_to_explored_bit_ptr, xy_to_map_offset};
@@ -38,7 +37,7 @@ pub struct MapPatcher<'a> {
     pub settings: &'a RandomizerSettings,
     pub customize_settings: &'a CustomizeSettings,
     pub randomization: &'a Randomization,
-    pub map_tile_map: IndexMap<(AreaIdx, isize, isize), MapTile>,
+    pub map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
     pub gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
     pub gfx_tile_reverse_map: HashMap<TilemapWord, [[u8; 8]; 8]>,
     pub free_tiles: Vec<TilemapWord>, // set of free tile indexes
@@ -1544,7 +1543,7 @@ impl<'a> MapPatcher<'a> {
             settings,
             customize_settings,
             randomization,
-            map_tile_map: IndexMap::new(),
+            map_tile_map: HashMap::new(),
             gfx_tile_map: HashMap::new(),
             gfx_tile_reverse_map: HashMap::new(),
             free_tiles,
@@ -1671,7 +1670,7 @@ impl<'a> MapPatcher<'a> {
         }
 
         // Index map graphics and write map tilemap by room:
-        for ((area_idx, x, y), tile) in self.map_tile_map.clone() {
+        for (&(area_idx, x, y), tile) in sorted_hashmap_iter(&self.map_tile_map.clone()) {
             let word = self.index_tile(tile.clone(), None)?;
             let local_x = x - self.area_offset_x[area_idx];
             let local_y = y - self.area_offset_y[area_idx];
@@ -2211,7 +2210,7 @@ impl<'a> MapPatcher<'a> {
         self.rom.write_n(revealed_addr, &vec![0; 0x600])?;
         self.rom.write_n(partially_revealed_addr, &vec![0; 0x600])?;
 
-        for (&(area, x, y), tile) in &self.map_tile_map {
+        for (&(area, x, y), tile) in sorted_hashmap_iter(&self.map_tile_map) {
             let local_x = x - self.area_offset_x[area];
             let local_y = y - self.area_offset_y[area];
             let (offset, bitmask) = xy_to_explored_bit_ptr(local_x, local_y);

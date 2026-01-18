@@ -28,6 +28,7 @@ use ips;
 use log::info;
 use maprando_game::{
     DoorPtr, DoorPtrPair, DoorType, GameData, Item, Map, NodePtr, RoomGeometryDoor, RoomPtr,
+    util::sorted_hashmap_iter,
 };
 use ndarray::Array3;
 use rand::{Rng, SeedableRng};
@@ -994,7 +995,7 @@ impl Patcher<'_> {
 
         let mut door_asm_free_space = 0xEE10; // in bank 0x8F
         let mut extra_door_asm_map: HashMap<DoorPtr, (AsmPtr, AsmPtr)> = HashMap::new();
-        for (&door_ptr, asm) in &extra_door_asm {
+        for (&door_ptr, asm) in sorted_hashmap_iter(&extra_door_asm) {
             extra_door_asm_map.insert(
                 door_ptr,
                 (door_asm_free_space, door_asm_free_space + asm.len()),
@@ -2627,7 +2628,7 @@ impl Patcher<'_> {
     fn apply_extra_setup_asm(&mut self) -> Result<()> {
         let mut next_addr = snes2pc(0xB89000);
 
-        for (&room_ptr, asm) in &self.extra_setup_asm {
+        for (&room_ptr, asm) in sorted_hashmap_iter(&self.extra_setup_asm) {
             let mut asm = asm.clone();
             asm.push(0x60); // RTS
             self.rom.write_n(next_addr, &asm)?;
@@ -2984,7 +2985,7 @@ impl Patcher<'_> {
     fn write_extra_room_data(&mut self) -> Result<()> {
         let mut next_addr = snes2pc(0xB88300);
         let end_addr = snes2pc(0xB89000);
-        for (&room_ptr, data) in &self.extra_room_data {
+        for (&room_ptr, data) in sorted_hashmap_iter(&self.extra_room_data) {
             let addr = next_addr;
             next_addr += 11;
             // Write "extra room data", which is basically an extension of the room header:

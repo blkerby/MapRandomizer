@@ -5,6 +5,7 @@
 
 pub mod glowpatch;
 pub mod smart_xml;
+pub mod util;
 
 use crate::glowpatch::GlowPatch;
 use anyhow::{Context, Result, bail, ensure};
