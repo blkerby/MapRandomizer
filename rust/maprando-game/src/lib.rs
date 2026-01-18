@@ -4188,7 +4188,7 @@ impl GameData {
                         },
                         requirement: if p.has_key("requires") {
                             let reqs_json: Vec<JsonValue> =
-                                value["requires"].members().cloned().collect();
+                                p["requires"].members().cloned().collect();
                             Requirement::make_and(
                                 self.parse_requires_list(
                                     &reqs_json,
