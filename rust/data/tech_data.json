@@ -1050,6 +1050,12 @@
         "video_id": null
     },
     {
+        "tech_id": 242,
+        "name": "canBlueSuitSpikeJump",
+        "difficulty": "Extreme",
+        "video_id": 9707
+    },
+    {
         "tech_id": 216,
         "name": "canRModeSparkInterrupt",
         "difficulty": "Ignored",

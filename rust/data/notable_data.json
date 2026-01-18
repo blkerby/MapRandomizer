@@ -48,6 +48,14 @@
     "video_id": 485
   },
   {
+    "room_id": 11,
+    "room_name": "Climb",
+    "notable_id": 7,
+    "name": "G-Mode Morph Blue Suit IBJ to Top",
+    "difficulty": "Ignored",
+    "video_id": null
+  },
+  {
     "room_id": 29,
     "room_name": "Climb Supers Room",
     "notable_id": 1,
@@ -1302,6 +1310,14 @@
     "name": "Pause Abuse Damage Boosts",
     "difficulty": "Insane+",
     "video_id": null
+  },
+  {
+    "room_id": 112,
+    "room_name": "Lava Grapple Tunnel",
+    "notable_id": 4,
+    "name": "Blue Suit Rapid Suitless Damage Boosts",
+    "difficulty": "Ignored",
+    "video_id": 9701
   },
   {
     "room_id": 99,

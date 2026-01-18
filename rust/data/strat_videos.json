@@ -521,6 +521,22 @@
   },
   {
     "room_id": 11,
+    "strat_id": 90,
+    "video_id": 9676,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 94,
+    "video_id": 9674,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
     "strat_id": 95,
     "video_id": 839,
     "created_user": "maddo",
@@ -564,6 +580,14 @@
     "strat_id": 98,
     "video_id": 485,
     "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 11,
+    "strat_id": 99,
+    "video_id": 9675,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -627,6 +651,22 @@
     "room_id": 29,
     "strat_id": 75,
     "video_id": 7441,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 84,
+    "video_id": 9678,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 29,
+    "strat_id": 85,
+    "video_id": 9677,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -3313,6 +3353,14 @@
   },
   {
     "room_id": 30,
+    "strat_id": 19,
+    "video_id": 9667,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: unnecessary acid damage "
+  },
+  {
+    "room_id": 30,
     "strat_id": 46,
     "video_id": 458,
     "created_user": "maddo",
@@ -3379,6 +3427,14 @@
     "room_id": 30,
     "strat_id": 28,
     "video_id": 2482,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 30,
+    "strat_id": 31,
+    "video_id": 9668,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -6857,30 +6913,6 @@
   },
   {
     "room_id": 41,
-    "strat_id": 56,
-    "video_id": 2824,
-    "created_user": "Sam",
-    "note": "Artificial morph IBJ",
-    "dev_note": "Caveat: the logic here would unmorph after passing through the crumble block, then climb the shaft with either wall jumps or Space Jump."
-  },
-  {
-    "room_id": 41,
-    "strat_id": 56,
-    "video_id": 8114,
-    "created_user": "Sam",
-    "note": "Spring Ball and Wall Jump",
-    "dev_note": ""
-  },
-  {
-    "room_id": 41,
-    "strat_id": 56,
-    "video_id": 8670,
-    "created_user": "Sam",
-    "note": "Spring Ball and Space Jump",
-    "dev_note": ""
-  },
-  {
-    "room_id": 41,
     "strat_id": 64,
     "video_id": 2830,
     "created_user": "maddo",
@@ -6925,6 +6957,30 @@
     "video_id": 9198,
     "created_user": "Sam",
     "note": "With Flashing Lights, Wall Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 56,
+    "video_id": 2824,
+    "created_user": "Sam",
+    "note": "Artificial morph IBJ",
+    "dev_note": "Caveat: the logic here would unmorph after passing through the crumble block, then climb the shaft with either wall jumps or Space Jump."
+  },
+  {
+    "room_id": 41,
+    "strat_id": 56,
+    "video_id": 8114,
+    "created_user": "Sam",
+    "note": "Spring Ball and Wall Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 56,
+    "video_id": 8670,
+    "created_user": "Sam",
+    "note": "Spring Ball and Space Jump",
     "dev_note": ""
   },
   {
@@ -12577,6 +12633,14 @@
   },
   {
     "room_id": 60,
+    "strat_id": 35,
+    "video_id": 9673,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 60,
     "strat_id": 40,
     "video_id": 5327,
     "created_user": "maddo",
@@ -14769,6 +14833,14 @@
   },
   {
     "room_id": 75,
+    "strat_id": 111,
+    "video_id": 9576,
+    "created_user": "Sam",
+    "note": "Damageless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 75,
     "strat_id": 49,
     "video_id": 4862,
     "created_user": "Sam",
@@ -16339,6 +16411,14 @@
     "room_id": 68,
     "strat_id": 11,
     "video_id": 6752,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 68,
+    "strat_id": 12,
+    "video_id": 9657,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -23313,6 +23393,14 @@
   },
   {
     "room_id": 103,
+    "strat_id": 131,
+    "video_id": 9658,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 103,
     "strat_id": 58,
     "video_id": 5126,
     "created_user": "Sam",
@@ -23369,6 +23457,14 @@
   },
   {
     "room_id": 101,
+    "strat_id": 41,
+    "video_id": 9681,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: 2 extra spike hits"
+  },
+  {
+    "room_id": 101,
     "strat_id": 43,
     "video_id": 3031,
     "created_user": "Sam",
@@ -23420,6 +23516,14 @@
     "strat_id": 39,
     "video_id": 7411,
     "created_user": "maddo",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 101,
+    "strat_id": 42,
+    "video_id": 9682,
+    "created_user": "Sam",
     "note": "",
     "dev_note": ""
   },
@@ -27849,6 +27953,14 @@
   },
   {
     "room_id": 122,
+    "strat_id": 49,
+    "video_id": 9684,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 122,
     "strat_id": 24,
     "video_id": 9069,
     "created_user": "Sam",
@@ -28145,6 +28257,14 @@
   },
   {
     "room_id": 128,
+    "strat_id": 26,
+    "video_id": 9672,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 128,
     "strat_id": 28,
     "video_id": 1366,
     "created_user": "maddo",
@@ -28379,6 +28499,14 @@
     "room_id": 130,
     "strat_id": 9,
     "video_id": 2693,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 130,
+    "strat_id": 13,
+    "video_id": 9671,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -29995,6 +30123,14 @@
     "room_id": 125,
     "strat_id": 30,
     "video_id": 1566,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 125,
+    "strat_id": 38,
+    "video_id": 9687,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -31894,6 +32030,14 @@
     "created_user": "maddo",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 151,
+    "strat_id": 154,
+    "video_id": 9670,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: this should start from the item "
   },
   {
     "room_id": 151,
@@ -37769,6 +37913,14 @@
   },
   {
     "room_id": 163,
+    "strat_id": 30,
+    "video_id": 9683,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 163,
     "strat_id": 18,
     "video_id": 896,
     "created_user": "maddo",
@@ -37849,6 +38001,14 @@
   },
   {
     "room_id": 167,
+    "strat_id": 39,
+    "video_id": 9688,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 167,
     "strat_id": 8,
     "video_id": 7751,
     "created_user": "Sam",
@@ -37915,6 +38075,14 @@
     "room_id": 167,
     "strat_id": 18,
     "video_id": 4298,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 167,
+    "strat_id": 19,
+    "video_id": 9666,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -49281,6 +49449,22 @@
   },
   {
     "room_id": 193,
+    "strat_id": 61,
+    "video_id": 9689,
+    "created_user": "Sam",
+    "note": "Draygon Defeated",
+    "dev_note": ""
+  },
+  {
+    "room_id": 193,
+    "strat_id": 61,
+    "video_id": 9690,
+    "created_user": "Sam",
+    "note": "Draygon Alive",
+    "dev_note": ""
+  },
+  {
+    "room_id": 193,
     "strat_id": 13,
     "video_id": 7178,
     "created_user": "Sam",
@@ -56841,6 +57025,14 @@
   },
   {
     "room_id": 220,
+    "strat_id": 36,
+    "video_id": 9669,
+    "created_user": "Sam",
+    "note": "Diagonal Spark",
+    "dev_note": ""
+  },
+  {
+    "room_id": 220,
     "strat_id": 22,
     "video_id": 5853,
     "created_user": "Sam",
@@ -59085,6 +59277,14 @@
     "video_id": 6002,
     "created_user": "maddo",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 238,
+    "strat_id": 8,
+    "video_id": 9709,
+    "created_user": "maddo",
+    "note": "Damageless door stuck setup",
     "dev_note": ""
   },
   {

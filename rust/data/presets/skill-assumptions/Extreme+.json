@@ -848,6 +848,11 @@
             "enabled": true
         },
         {
+            "id": 242,
+            "name": "canBlueSuitSpikeJump",
+            "enabled": true
+        },
+        {
             "id": 143,
             "name": "canSpeedKeep",
             "enabled": true
