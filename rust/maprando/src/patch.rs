@@ -52,8 +52,8 @@ pub fn pc2snes(addr: usize) -> usize {
 #[derive(Clone)]
 pub struct Rom {
     pub data: Vec<u8>,
-    track_touched: bool,
-    touched: HashSet<usize>,
+    pub track_touched: bool,
+    pub touched: HashSet<usize>,
 }
 
 impl Rom {

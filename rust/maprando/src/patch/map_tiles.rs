@@ -1,4 +1,5 @@
 use hashbrown::{HashMap, HashSet};
+use indexmap::IndexMap;
 
 use crate::{
     customize::{CustomizeSettings, ItemDotChange},
@@ -37,7 +38,7 @@ pub struct MapPatcher<'a> {
     pub settings: &'a RandomizerSettings,
     pub customize_settings: &'a CustomizeSettings,
     pub randomization: &'a Randomization,
-    pub map_tile_map: HashMap<(AreaIdx, isize, isize), MapTile>,
+    pub map_tile_map: IndexMap<(AreaIdx, isize, isize), MapTile>,
     pub gfx_tile_map: HashMap<[[u8; 8]; 8], TilemapWord>,
     pub gfx_tile_reverse_map: HashMap<TilemapWord, [[u8; 8]; 8]>,
     pub free_tiles: Vec<TilemapWord>, // set of free tile indexes
@@ -1543,7 +1544,7 @@ impl<'a> MapPatcher<'a> {
             settings,
             customize_settings,
             randomization,
-            map_tile_map: HashMap::new(),
+            map_tile_map: IndexMap::new(),
             gfx_tile_map: HashMap::new(),
             gfx_tile_reverse_map: HashMap::new(),
             free_tiles,
