@@ -17,13 +17,14 @@ org $80FFD8
 ; We just check that the SRAM can remember the incrementing sequence. 
 ; No need to check mirroring behavior since this isn't used in the game and doesn't work with some flash carts such
 ; as Everdrive.
-org $808695 : LDX #$3FFE
-org $8086A7 : LDX #$3FFE
-org $8086B5 : LDX #$3FFE
-org $8086B8 : STA $700000, x
-org $8086C4 : LDX #$3FFE
-org $8086D2 : LDX #$3FFE
-
+;org $808695 : LDX #$3FFE
+;org $8086A7 : LDX #$3FFE
+;org $8086B5 : LDX #$3FFE
+;org $8086B8 : STA $700000, x
+;org $8086C4 : LDX #$3FFE
+;org $8086D2 : LDX #$3FFE
+; this rountine wasn't being called anyway due to sram_check_disable.asm writing the debug header byte to the rom
+; rom checksum verification routine will be placed here instead. 
 
 org $848CA6
     jsl activate_map_station_hook
