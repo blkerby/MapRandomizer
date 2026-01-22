@@ -1,0 +1,121 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Missiles",
+      "globalState": {
+        "maxMissiles": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 19}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Missiles (Consumed)",
+      "globalState": {
+        "maxMissiles": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 31}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Missiles (Forward)",
+      "globalState": {
+        "maxMissiles": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 20}
+      },
+      "reverse": "disabled"
+    },
+    {
+      "name": "Enough Missiles (Consumed)",
+      "globalState": {
+        "maxMissiles": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"consumed": 30}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxMissiles": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    },
+    {
+      "name": "Over Capacity (Consumed)",
+      "globalState": {
+        "maxMissiles": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"consumed": 20}
+      }
+    },
+    {
+      "name": "Over Capacity (Forward)",
+      "globalState": {
+        "maxMissiles": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "reverse": "disabled"
+    },
+    {
+      "name": "Over Capacity (Reverse)",
+      "globalState": {
+        "maxMissiles": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}

@@ -1,0 +1,121 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Power Bombs",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 19}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Power Bombs (Consumed)",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 31}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Power Bombs (Forward)",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"remaining": 20}
+      },
+      "reverse": "disabled"
+    },
+    {
+      "name": "Enough Power Bombs (Consumed)",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"consumed": 30}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxPowerBombs": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    },
+    {
+      "name": "Over Capacity (Consumed)",
+      "globalState": {
+        "maxPowerBombs": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"consumed": 20}
+      }
+    },
+    {
+      "name": "Over Capacity (Forward)",
+      "globalState": {
+        "maxPowerBombs": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "reverse": "disabled"
+    },
+    {
+      "name": "Over Capacity (Reverse)",
+      "globalState": {
+        "maxPowerBombs": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"consumed": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}
