@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{env, path::Path};
 
 use anyhow::{Context, Result, bail};
 use hashbrown::HashMap;
@@ -806,6 +806,7 @@ fn test_scenario(
 fn test_logic_scenarios() -> Result<()> {
     let base_game_data = GameData::load_minimal(Path::new(".."))?;
     let mut cnt_fail = 0;
+    let continue_on_error = env::var("CONTINUE_ON_ERROR") == Ok("1".to_string());
     for entry in std::fs::read_dir("tests/scenarios")? {
         let entry = entry?;
         println!("\n***** {} *****", entry.file_name().display());
@@ -838,10 +839,13 @@ fn test_logic_scenarios() -> Result<()> {
             if let Err(e) = test_scenario(&game_data, &connections_list.connections, scenario) {
                 cnt_fail += 1;
                 println!("🔴 FAILED: {:?}", e);
+                if !continue_on_error {
+                    bail!("Aborting due to failure");
+                }
             }
         }
     }
-    if cnt_fail > 0 {
+    if cnt_fail > 0 && continue_on_error {
         bail!("🔴 {} scenario(s) failed", cnt_fail);
     }
     Ok(())
