@@ -1794,8 +1794,6 @@ write_sprites:
     BRA .wrt_lp
 
 .done
-    LDA $a1f000
-    BEQ .no_animals
     LDX #$0000
 .copy_lp
     LDA animal_palette,X
@@ -1882,8 +1880,6 @@ hook_map_icons:
     JMP .next_marker_2
 
 .check_animals ; MB dead, skip to dachora table if animals enabled
-    LDA $A1F000                 ; save animals?
-    BEQ .no_dachora
     LDA $7ED821
     AND #$0080                  ; already saved?
     BNE .no_dachora
