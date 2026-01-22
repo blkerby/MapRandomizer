@@ -6,37 +6,44 @@
   "name": "Test Room",
   "area": "Test Area",
   "subarea": "Test Subarea",
-  "mapTileMask": [[1]],
+  "mapTileMask": [
+    [1]
+  ],
   "nodes": [
     {
       "id": 1,
       "name": "Starting Node",
       "nodeType": "junction",
       "nodeSubType": "junction",
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     },
     {
       "id": 2,
       "name": "Ending Node (1)",
       "nodeType": "junction",
       "nodeSubType": "junction",
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     },
     {
       "id": 3,
       "name": "Ending Node (2)",
       "nodeType": "junction",
       "nodeSubType": "junction",
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     }
   ],
-  "links": [],
   "strats": [
     {
       "link": [1, 2],
       "name": "Suitless Maridia",
       "requires": [
-          "canSuitlessMaridia"
+        "canSuitlessMaridia"
       ],
       "flashSuitChecked": true
     },
@@ -44,7 +51,7 @@
       "link": [1, 3],
       "name": "Mid-Air Morph",
       "requires": [
-          "canMidAirMorph"
+        "canMidAirMorph"
       ],
       "flashSuitChecked": true
     }

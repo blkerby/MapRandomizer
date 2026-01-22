@@ -6,7 +6,9 @@
   "name": "Test Room",
   "area": "Test Area",
   "subarea": "Test Subarea",
-  "mapTileMask": [[1]],
+  "mapTileMask": [
+    [1]
+  ],
   "nodes": [
     {
       "id": 1,
@@ -14,9 +16,10 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     }
   ],
-  "links": [],
   "strats": []
 }
