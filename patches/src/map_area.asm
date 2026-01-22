@@ -13,7 +13,7 @@ lorom
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85B600
 !bank_85_freespace3_end  = $85BA00
-!bank_b6_freespace_start = $B6FEC0
+!bank_b6_freespace_start = $B6FE80
 !bank_b6_freespace_end = $B70000
 !bank_94_freespace_start = $94B1A0
 !bank_94_freespace_end = $94B1B0
@@ -1726,9 +1726,17 @@ animal_palette:
 db $00,$00,$57,$3F,$4D,$2E,$E2,$00,$60,$00,$7F,$19,$0B,$22,$66,$11
 db $24,$09,$FF,$57,$F7,$42,$10,$26,$8C,$15,$1F,$7C,$18,$60,$0A,$30
 
-dachora_icon:
+dachora_icon_open:
 db $08,$0D,$05,$05,$0D,$0D,$1F,$53,$4C,$B4,$00,$04,$00,$04,$04,$0C
 db $1D,$02,$35,$0A,$4F,$3C,$B7,$FC,$1C,$FF,$FC,$C3,$BC,$0A,$14,$18
+
+dachora_icon_blink:
+db $08,$0D,$05,$05,$0D,$0D,$07,$4B,$4C,$A4,$00,$04,$00,$04,$04,$0C
+db $1D,$02,$35,$0A,$4F,$3C,$AF,$F4,$0C,$FF,$FC,$C3,$BC,$0A,$14,$18
+
+dachora_icon_close:
+db $08,$0D,$05,$05,$0D,$0D,$03,$4B,$40,$A0,$00,$04,$00,$04,$04,$0C
+db $1D,$02,$35,$0A,$4F,$3C,$AB,$F4,$0C,$F3,$FC,$C3,$BC,$0A,$14,$18
 
 dachora_icon_r:
 db $00,$00,$80,$00,$80,$80,$00,$80,$00,$00,$00,$00,$00,$00,$00,$00
@@ -1786,8 +1794,6 @@ write_sprites:
     BRA .wrt_lp
 
 .done
-    LDA $a1f000
-    BEQ .no_animals
     LDX #$0000
 .copy_lp
     LDA animal_palette,X
@@ -1795,7 +1801,10 @@ write_sprites:
     INX #2
     CPX #$0020
     BNE .copy_lp
-    
+
+    LDA #$0060
+    STA $36 ; initialize dachora state/frame count
+
 .no_animals
     PLY
     PLX
@@ -1804,7 +1813,7 @@ write_sprites:
 
 sprite_table: ; [$b6xxxx, vram addr] .. null-terminated
     dw $d120, $2890, $d1e0, $28c0, save_yellow, $28d0, save_orange, $28e0
-    dw save_pink, $28f0, $d140, $28a0, boss_green, $28b0, dachora_icon, $2980
+    dw save_pink, $28f0, $d140, $28a0, boss_green, $28b0, dachora_icon_open, $2980
     dw dachora_icon_r, $2990, dachora_icon_t, $2880, dachora_icon_l, $2970, dachora_icon_b, $2a80
     dw $0000
 
@@ -1871,11 +1880,40 @@ hook_map_icons:
     JMP .next_marker_2
 
 .check_animals ; MB dead, skip to dachora table if animals enabled
-    LDA $A1F000                 ; save animals?
-    BEQ .no_dachora
     LDA $7ED821
     AND #$0080                  ; already saved?
     BNE .no_dachora
+
+; determine which dachora state to show (blink animation)
+; $36: frame count, $37 = state (00-02)
+    DEC $36
+    LDA $36
+    AND #$00FF                  ; frames
+    BNE .no_change
+    LDA $36
+    XBA
+    AND #$00FF                  ; state
+    INC
+    CMP #$0003
+    BNE .no_wrap
+    LDA #$0060                  ; ~1.5s
+    BRA .save_state
+.no_wrap
+    XBA
+    EOR #$0004                  ; 4-frame delay between states
+.save_state
+    STA $36
+    XBA
+    AND #$00FF
+    ASL #5                      ; state*20h
+    CLC
+    ADC #dachora_icon_open      ; A = dachora_icon + state*20h
+; update VRAM based on state
+    TAX
+    LDA #$2980
+    JSR write_to_vram
+
+.no_change
     LDX #(marker_table_dachora-marker_table) ; set index to dachora table
     BRA .marker_lp              ; restart loop with new index
 .no_dachora
