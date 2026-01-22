@@ -5069,19 +5069,22 @@ impl GameData {
             }
 
             start_location_id_map.insert((loc.room_id, loc.node_id), i);
-            if loc.requires.is_none() {
-                loc.requires_parsed = Some(Requirement::Free);
-            } else {
-                let mut req_json_list: Vec<JsonValue> = vec![];
-                for req in loc.requires.as_ref().unwrap() {
-                    let req_str = req.to_string();
-                    let req_json = json::parse(&req_str)
-                        .with_context(|| format!("Error parsing requires in {loc:?}"))?;
-                    req_json_list.push(req_json);
+            match loc.requires.as_ref() {
+                None => {
+                    loc.requires_parsed = Some(Requirement::Free);
                 }
-                let ctx = RequirementContext::default();
-                let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
-                loc.requires_parsed = Some(Requirement::make_and(req_list));
+                Some(requires) => {
+                    let mut req_json_list: Vec<JsonValue> = vec![];
+                    for req in requires {
+                        let req_str = req.to_string();
+                        let req_json = json::parse(&req_str)
+                            .with_context(|| format!("Error parsing requires in {loc:?}"))?;
+                        req_json_list.push(req_json);
+                    }
+                    let ctx = RequirementContext::default();
+                    let req_list = self.parse_requires_list(&req_json_list, &ctx)?;
+                    loc.requires_parsed = Some(Requirement::make_and(req_list));
+                }
             }
             if !self.vertex_isv.index_by_key.contains_key(&VertexKey {
                 room_id: loc.room_id,
