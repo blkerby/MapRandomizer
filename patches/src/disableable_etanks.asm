@@ -4,8 +4,8 @@
 !bank_82_free_space_start = $82F829
 !bank_82_free_space_end = $82F9FF
 
-!bank_85_free_space_start = $859A25
-!bank_85_free_space_end = $85FFFF
+!bank_85_free_space_start = $85AC97
+!bank_85_free_space_end = $85AD81
 
 !current_etank_index = $12
 !count_full_etanks = $14
@@ -16,6 +16,11 @@
 
 incsrc "constants.asm"
 
+org $809698
+    jsr hook_hud_begin
+    nop
+    nop
+
 org $809BEE
     jsr hook_draw_tanks
 
@@ -23,6 +28,25 @@ org $809BFB
     jsr hook_blink_selected_etank
 
 org !bank_80_free_space_start
+hook_hud_begin:
+    php
+    rep #$20
+    lda $0998
+    and #$00ff
+    cmp #$000f
+    bne .no
+
+    plp
+    lda #$14
+    sta $212C
+    rts
+.no
+    ;Hijacked code
+    plp
+    lda #$04
+    sta $212C
+    rts
+
 hook_draw_tanks:
     lda !num_disabled_etanks
     beq .done
@@ -54,27 +78,51 @@ hook_blink_selected_etank:
     bne .done
     
     ; E-Tanks select
-    lda $0755
-    and #$00FF
-    cmp #$0004
-    bne .done
+    ;lda $0755
+    ;and #$00FF
+    ;cmp #$0004
+    ;bne .done
     
-    lda $0755
-    and #$ff00
-    xba
-    asl a
-    
-    tay
-    ldx $9CCE,y
-
-    lda $05B5
-    bit #$0010
-    beq .done
-    
+    ; We need to make the entire energy area of the HUD not be priority so that we can draw the sprite on it
+    ldx #$0012
+-
     lda $7EC608,x
-    and #$E3FF ; Remove the palette bits
-    ora #$1000 ; Set hilight palette
-    sta $7ec608,x
+    and #$DFFF
+    sta $7EC608,x
+    lda $7EC648,x
+    and #$DFFF
+    sta $7EC648,x
+    lda $7EC688,x
+    and #$DFFF
+    sta $7EC688,x
+    
+    ;ldy #$001A
+    
+    ;ldx $9CCE,y
+    ;lda $7EC608,x
+    ;and #$DFFF    ; Remove the priority bit
+    ;sta $7EC608,x
+    dex
+    dex
+    bpl -
+    
+    
+    ;lda $0755
+    ;and #$ff00
+    ;xba
+    ;asl a
+    ;
+    ;tay
+    ;ldx $9CCE,y
+    ;
+    ;;lda $05B5
+    ;;bit #$0010
+    ;;beq .done
+    ;
+    ;lda $7EC608,x
+    ;and #$DFFF ; Remove the priority bit
+    ;;ora #$1000 ; Set hilight palette
+    ;sta $7ec608,x
     
     stz $0A06  ; Force this to redraw each frame
     
@@ -83,6 +131,10 @@ hook_blink_selected_etank:
     rts
 
 warnpc !bank_80_free_space_end
+
+org $818929
+    jsl hook_pause_spritemap
+    nop
 
 org $82AC5A
     jsr (hook_equipment_screen_main_category_jump_table, X)
@@ -106,6 +158,10 @@ org $82B4F5
 
 org $82B26A
     jmp hook_equipment_screen_selector
+
+org $82B56B
+    jsl hook_equipment_button_response_safetynet
+    nop
 
 org !bank_82_free_space_start
 
@@ -131,6 +187,37 @@ hook_beams_dpad_response:
 +
     rts
 
+hook_pause_spritemap:
+    cmp #$0068
+    bne .no
+    ldy #hook_pause_spritemap_smallbox
+    rtl
+.no
+    ;Hijacked code
+    asl a
+    tax
+    ldy $C569,x
+    rtl
+
+hook_pause_spritemap_smallbox:
+    dw $0004
+    
+    dw $0005
+    db $05
+    dw $EEAF
+    
+    dw $01FB
+    db $05
+    dw $AEAF
+    
+    dw $0005
+    db $FB
+    dw $6EAF
+    
+    dw $01FB
+    db $FB
+    dw $2EAF
+
 hook_suits_dpad_response:
     ; Just loaded A from $0755
     and #$ff00 ;Hijacked instruction
@@ -155,29 +242,30 @@ hook_equipment_screen_selector:
     cmp #$0004
     bcc selector_go_back
 
-    ;lda $0755
-    ;xba
-    ;and #$00ff
-    ;asl a
-    ;asl a
-    ;tax
-    ;
-    ;lda positions_etank_selector_sprite_x, X
-    ;sta $12
-    ;lda positions_etank_selector_sprite_y, x
-    ;sta $14
-    ;
-    ;lda $12
-    ;tax
-    ;lda $14
-    ;tay
-    ;
-    ;lda #$3600
-    ;sta $03
-    ;
+    lda $0755
+    xba
+    and #$00ff
+    asl a
+    asl a
+    tax
+    
+    lda positions_etank_selector_sprite_x, X
+    sta $12
+    lda positions_etank_selector_sprite_y, x
+    sta $14
+    
+    lda $12
+    tax
+    lda $14
+    tay
+    
+    lda #$3600
+    sta $03
+    
     ;lda #$0014
-    ;
-    ;jsl $81891F
+    lda #$0068
+    
+    jsl $81891F
 
     jmp $B2A0
 
@@ -187,22 +275,22 @@ selector_go_back:
 
 positions_etank_selector_sprite_x:
     ; X, Y position
-    dw $000C
+    dw $0008
 positions_etank_selector_sprite_y:
-    dw $0012
-    dw $0014, $0042
-    dw $001C, $0042
-    dw $0024, $0042
-    dw $002C, $0042
-    dw $0034, $0042
-    dw $003C, $0042
-    dw $000C, $003A
-    dw $0014, $003A
-    dw $001C, $003A
-    dw $0024, $003A
-    dw $002C, $003A
-    dw $0034, $003A
-    dw $003C, $003A
+    dw $000E
+    dw $0010, $000F
+    dw $0018, $000F
+    dw $0020, $000F
+    dw $0028, $000F
+    dw $0030, $000F
+    dw $0038, $000F
+    dw $0008, $0007
+    dw $0010, $0007
+    dw $0018, $0007
+    dw $0020, $0007
+    dw $0028, $0007
+    dw $0030, $0007
+    dw $0038, $0007
 
 etanks_dpad_right:
     lda !etank_hud_tile_offset ; xxxE -> furthest right tank tile
@@ -531,5 +619,19 @@ tank_swap_done:
     stz $0A06   ; set previous health to invalid value, to trigger it to be redrawn
     dec $0A06
     rtl
+
+hook_equipment_button_response_safetynet:
+    lda $0755
+    and #$00ff
+    cmp #$0004
+    bcc .okay
+    lda #$0000
+    rtl
+.okay
+    ; Hijacked code
+    lda $8F
+    bit #$0080
+    rtl
+
 
 warnpc !bank_85_free_space_end
