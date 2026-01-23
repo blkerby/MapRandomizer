@@ -183,6 +183,19 @@
       "endRoomId": 0,
       "endNodeId": 2,
       "forward": "weak"
+    },
+    {
+      "name": "Skip Missing At Most Requirement (Full Remaining)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 1,
+      "endState": {
+        "energy": {"remaining": 99}
+      }
     }
   ]
 }

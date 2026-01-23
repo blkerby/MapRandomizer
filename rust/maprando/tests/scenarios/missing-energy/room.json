@@ -37,6 +37,12 @@
         {"resourceMissingAtMost": [{"type": "Energy", "count": 30}]}
       ],
       "flashSuitChecked": true
+    },
+    {
+      "link": [2, 1],
+      "name": "Go Back",
+      "requires": [],
+      "flashSuitChecked": true
     }
   ]
 }
