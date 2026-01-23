@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F829
-!bank_82_free_space_end = $82F9F8
+!bank_82_free_space_end = $82F9FE
 
 !bank_85_free_space_start = $85AC97
 !bank_85_free_space_end = $85AD81
@@ -369,10 +369,13 @@ etanks_dpad_up:
 
     lda !current_etank_index
     clc
-    adc #$07
+    adc #$0007
     cmp !count_all_etanks
     bcc +
     lda !count_all_etanks
+    dec a
+    cmp !current_etank_index
+    beq .no
 +
     sep #$20
     sta $0756
