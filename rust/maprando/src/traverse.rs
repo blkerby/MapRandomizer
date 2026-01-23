@@ -114,23 +114,23 @@ fn compute_cost(
 ) -> [CostValue; NUM_COST_METRICS] {
     let mut energy_cost = match local.energy() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as CostValue * 2 + 1,
     };
     let mut reserve_cost = match local.reserves() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as CostValue * 2 + 1,
     };
     let mut missiles_cost = match local.missiles() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as CostValue * 2 + 1,
     };
     let mut supers_cost = match local.supers() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as CostValue * 2 + 1,
     };
     let mut power_bombs_cost = match local.power_bombs() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as CostValue * 2 + 1,
     };
     let mut shinecharge_cost = -if local.flash_suit > 0 {
         // For the purposes of the cost metrics, treat flash suit as equivalent
@@ -2689,4 +2689,81 @@ pub fn get_spoiler_trail_ids_by_idx(
 ) -> Vec<StepTrailId> {
     let trail_id = traverser.lsr[vertex_id].trail_ids[idx];
     get_spoiler_trail_ids(traverser, trail_id)
+}
+
+// This could be mostly covered by logic scenario tests, which require less maintenance,
+// so we don't really want to add too many unit tests like this. These are unique though
+// in how they check all cost metrics comprehensively, which can be helpful.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn default_inventory() -> Inventory {
+        Inventory {
+            items: vec![],
+            max_energy: 99,
+            max_reserves: 0,
+            max_missiles: 0,
+            max_supers: 0,
+            max_power_bombs: 0,
+            collectible_missile_packs: 0,
+            collectible_super_packs: 0,
+            collectible_power_bomb_packs: 0,
+            collectible_reserve_tanks: 0,
+        }
+    }
+
+    #[test]
+    fn compute_cost_consumed_vs_remaining_energy() {
+        let inventory = default_inventory();
+
+        let mut local1 = LocalState::empty();
+        local1.energy = ResourceLevel::Remaining(50).into();
+
+        let mut local2 = LocalState::empty();
+        local2.energy = ResourceLevel::Consumed(50).into();
+
+        // Forward:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), false);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), false);
+        for i in 0..NUM_COST_METRICS {
+            println!("forward: cost metric {}", i);
+            assert!(cost1[i] < cost2[i]);
+        }
+
+        // Reverse:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), true);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), true);
+        for i in 0..NUM_COST_METRICS {
+            println!("reverse: cost metric {}", i);
+            assert!(cost1[i] > cost2[i]);
+        }
+    }
+
+    #[test]
+    fn compute_cost_consumed_vs_remaining_energy_tie_break() {
+        let inventory = default_inventory();
+
+        let mut local1 = LocalState::empty();
+        local1.energy = ResourceLevel::Remaining(50).into();
+
+        let mut local2 = LocalState::empty();
+        local2.energy = ResourceLevel::Consumed(49).into();
+
+        // Forward:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), false);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), false);
+        for i in 0..NUM_COST_METRICS {
+            println!("forward: cost metric {}", i);
+            assert!(cost1[i] > cost2[i]);
+        }
+
+        // Reverse:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), true);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), true);
+        for i in 0..NUM_COST_METRICS {
+            println!("reverse: cost metric {}", i);
+            assert!(cost1[i] < cost2[i]);
+        }
+    }
 }
