@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F829
-!bank_82_free_space_end = $82F9FE
+!bank_82_free_space_end = $82F9EF
 
 !bank_85_free_space_start = $85AC97
 !bank_85_free_space_end = $85AD81
@@ -422,15 +422,10 @@ hook_equipment_screen_category_etanks:
     bcs .hook_etank_done
 
 .hook_etank_down_from_hud
-    ldx #$0000
-    lda #$0000
-    jsr $B43F   ; Move to tanks
-    cmp #$0000
-    bne .hook_etank_down_from_hud_done
-    jsr $B4B7   ; Move to suits/misc
-    cmp #$FFFF
-    bne .hook_etank_down_from_hud_done
-    jsr $B511
+    lda #$0037
+    jsl $809049
+    jmp $ABAD
+
 .hook_etank_down_from_hud_done
     clc
     bra .hook_etank_done
