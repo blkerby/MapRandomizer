@@ -895,12 +895,14 @@ impl LocalState {
     ) -> bool {
         let missing = self.energy_missing(inventory, include_reserves);
         if reverse {
-            self.energy = ResourceLevel::Consumed(Capacity::min(missing, amt)).into();
-            if include_reserves && amt < inventory.max_energy {
+            let regular_energy_amt =
+                Capacity::min(Capacity::min(missing, amt), inventory.max_energy - 1);
+            self.energy = ResourceLevel::Consumed(regular_energy_amt).into();
+            if include_reserves {
                 let missing_reserves = self.reserves_missing(inventory);
                 self.reserves = ResourceLevel::Consumed(Capacity::min(
                     missing_reserves,
-                    amt - inventory.max_energy + 1,
+                    amt - regular_energy_amt,
                 ))
                 .into();
             }
