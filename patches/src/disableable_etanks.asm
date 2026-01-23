@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F829
-!bank_82_free_space_end = $82F9FF
+!bank_82_free_space_end = $82F9F8
 
 !bank_85_free_space_start = $85AC97
 !bank_85_free_space_end = $85AD81
