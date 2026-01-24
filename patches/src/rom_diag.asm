@@ -65,38 +65,7 @@ bg_checksum:
 		CMP #$0080
 		BEQ .alldoneornotstarted
 		
-		CMP #$0000
-		BNE .normal
-		CPX #$FFDC
-		BNE .normal
-		LDA #$FFFF
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		LDA #$FFFF
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		LDA #$0000
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		LDA #$0000
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		BRA .finished_loop
-		
-.normal:
-		
+.normal:		
 		LDA $0000, X
 		AND #$00FF
 		CLC
