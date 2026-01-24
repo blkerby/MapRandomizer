@@ -1,204 +1,183 @@
 ;-- SM ROM DIAGNOSIS (FULL BYTE COUNT CHECKSUM VERIFICATION)
-;-- nn_357
+
 
 arch snes.cpu
 lorom
 
 !bank_80_free_space_start = $8085F6 ; this is where the sram/region check used to live.
 !bank_80_free_space_end = $80875B   ; and this is where it ended.
-!checksum = $7E1F00
-!checksum_hi = $7E1F01
-!checksum_compl = $7E1F04
-!checksum_compl_hi = $7E1F05
-!toggle = $7E1F03
-!NextBank = $7E1F02    ; current bank
-;!NextWord = $7E1F04		 ; next word
-!ROM_BANKS      = #$80       ; 4 MB / 32 KB
-!BANK_HEADER    = #$80
-!BYTES_PER_BANK = #$8000
 
-			; Remove the original call to region/sram check, Maprando bypasses this anyway.
+!checksum = $7E1F31
+!bank = $1F33    ; current bank
+!current_offset = $1F37
+!initialized_checksum = $1F35
+
+
+;!ROM_BANKS      = #$80       ; 4 MB / 32 KB
+;!BYTES_START_ADDR = #$8000
+
+							
 org $80855F		; $80:855F 20 F6 85    JSR $85F6  [$80:85F6]  ; NTSC/PAL and SRAM mapping check
-	NOP
-	NOP
-	NOP
-
-			; Let's not go to the main game loop just yet. Check to see if the diagnostic hot-keys are being held.
-org $80856E		; $80:856E 5C 3D 89 82 JML $82893D[$82:893D]  ; Go to main game loop
-	JML diag		
-	
-	
+		JSR init_chksum
+		
+org $808343
+		JSR bg_checksum
+		NOP
+		NOP
+		
 org !bank_80_free_space_start
-diag:
-	LDA #$0000					;
-	STA !checksum					; THIS LDA and STA x 3 can be removed for space if needed (not 100% safe) as the WRAM is initialized immediatly before.
-	STA !NextBank					;
-	STA !checksum_compl		
-	LDA $4218 					; see what keys are being pressed
-	CMP #$3800 					; is it START + SELECT + UP ?
-	BNE .diag_skip
-	;STZ $4200					; disable NMI
-	;STZ $420C					; disable IRQ / TIMERS etc - test
-	LDY #$0000
-	LDX !BYTES_PER_BANK
-	SEP #$20					; 8 bit accumulator
-	LDA #$00
-	STA !NextBank
-	LDA #$03      					; Music ID (item room / computer sounding thing)
-	STA $2140  
-	JSR screencolors
+bg_checksum:
 		
-.diagloop:
-	LDA !NextBank
-	CMP !ROM_BANKS
-	BCS .finish_bank				; all banks done
-	LDA !NextBank					; map bank to $80+
-	ORA #$80
-	PHA
-	PLB 	
-	LDY #$0000
-	LDX !BYTES_PER_BANK
 	
+		LDA !initialized_checksum
+		CMP #$69
+		BNE .alldoneornotstarted
+		LDA !bank
+		CMP #$80
+		BEQ .alldoneornotstarted
 		
-.loop_words:
-	LDA $8000,Y
-	PHA
-	LDA !NextBank
-	CMP #$00
-	BNE .do_add
-	CPY #$7FDC
-	BEQ .checkbyte
-	CPY #$7FDD
-	BEQ .checkbyte
-	CPY #$7FDE
-	BEQ .complibyte
-	CPY #$7FDF
-	BEQ .complibyte
 		
-.do_add:
-	PLA
-	CLC
-	ADC !checksum
-	STA !checksum
-	BCC .conti
-	LDA !checksum_hi
-	INC
-	STA !checksum_hi
+		
+		ORA #$80						; map bank to $80+
+		PHA
+		REP #$30						; 16 bit EVERYTHING;;
+		LDX !current_offset
+		LDA $0998
+		AND #$00FF
+		CMP #$0007
+		BCS .ingame
+		LDY #$0040
+		BRA .title
+.ingame:
+		LDY #$0002
+.title:
+		PLB 								; set the dbr to whatever bank we are reading
+		BRA .diagloop
+		
+.alldoneornotstarted:
+		SEP #$30
+		LDA $05B4		
+		BNE	.alldoneornotstarted
+		RTS
+		
+.diagloop:				;	 4 bytes at a time x 4 loops (testing)
+		LDA $7E1F33
+		CMP #$0080
+		BEQ .alldoneornotstarted
+		
+		CMP #$0000
+		BNE .normal
+		CPX #$FFDC
+		BNE .normal
+		LDA #$FFFF
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		LDA #$FFFF
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		LDA #$0000
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		LDA #$0000
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		BRA .finished_loop
+		
+.normal:
+		
+		LDA $0000, X
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		LDA $0000, X
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		LDA $0000, X
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		LDA $0000, X
+		AND #$00FF
+		CLC
+		ADC !checksum
+		STA !checksum
+		INX
+		CPX #$0000
+		BEQ .wraparound
+		DEY
+		BNE .normal
+		
+.finished_loop	
+		PHK 
+		PLB
+		LDA $05B4							; hijacked instruction (wait for NMI acknowledge)
+		AND #$00FF
+		BNE	.continiue					; no NMI yet, read more.
+		STX	!current_offset		;	park our current offset.
+		SEP #$30							; put cpu back into 8 bit mode everything.
+		RTS										; return.
+.continiue:
+		
+		LDA $0998
+		AND #$00FF
+		CMP #$0007
+		BCS .ingame2
+		LDY #$0040
+		JMP .notingame
+.ingame2:
+		LDY #$0002
+.notingame:
+		LDA !bank
+		AND #$00FF
+		ORA #$0080
+		XBA
+		PHA 
+		PLB
+		PLB
+		JMP .diagloop
+		
+.wraparound:
+		PHK 
+		PLB
+		LDX #$8000
+		STX !current_offset
+		LDA !bank
+		AND #$00FF
+		INC
+		STA !bank
+		BRA .finished_loop
+		
 
-.conti:
-	INY
-	DEX
-	BNE .loop_words
-	LDA !NextBank
-	INC
-	STA !NextBank
-	JSR toggle_screen
-	BRA .diagloop
-
-.finish_bank:
-	BRA .dochecksumxor
-
-.diag_skip:
-	JML $82893D		;	go to main game loop
-
-.checkbyte:
-	PLA
-	LDA #$FF
-	PHA
-	BRA .do_add
-.complibyte:
-	PLA
-	LDA #$00
-	PHA
-	BRA .do_add
-		
-.dochecksumxor:
-	LDA !checksum
-	EOR #$FF
-	STA !checksum_compl
-	LDA !checksum_hi
-	EOR #$FF
-	STA !checksum_compl_hi
-		
-.final_check:
-	LDA #$80
-	PHA
-	PLB
-	LDA !checksum_compl
-	CMP $FFDC 
-	BNE .chkfail
-	LDA !checksum_compl_hi
-	CMP $FFDD
-	BNE .chkfail
-	LDA !checksum
-	CMP $FFDE
-	BNE .chkfail
-	LDA !checksum_hi
-	CMP $FFDF
-	BNE .chkfail
-	LDA #$02      ; Music ID (fanfare )
-	STA $2140
-	LDA #$80
-	STA $2100
-	STZ $2121
-	LDA #$E0
-	STA $2122
-	LDA #$03
-	STA $2122
-	LDA #$0F
-	STA $2100
-.passloop:
-	REP #$30
-	LDA $4218 		; see what keys are being pressed
-	CMP #$1000		; checking for START
-	BNE .passloop
-	JML $80841C		; reboot game, should already be in correct dbr...
-		
-.chkfail:			; checksum doesnt match whats stored in ROM.. display a red screen and crash.
-	LDA #$80
-	STA $2100
-	STZ $2121
-	LDA #$1F
-	STA $2122
-	LDA #$00
-	STA $2122
-	LDA #$0F
-	STA $2100
-.infi_loop:
-	BRA .infi_loop
-		
-screencolors:		; setup the blue screen
-	LDA #$80
-	STA $2100
-	STZ $212C
-	STZ $212D
-	STZ $2130
-	STZ $2131
-	STZ $2105
-	STZ $2101
-	STZ $2121
-	LDA #$00
-	STA $2122
-	LDA #$7C
-	STA $2122
-	LDA #$0F
-	STA $2100
-	RTS
-		
-toggle_screen:
-.wait_vblank:
-	LDA !toggle
-	EOR #$01
-	STA !toggle
-	BEQ .low
-.high:
-	LDA #$0F
-	STA $802100
-	RTS
-.low:
-	LDA #$08
-	STA $802100
-	RTS
+init_chksum:
+		SEP #$20		      	    ; A 8-bit
+    REP #$10    			      ; X/Y 16-bit
+		LDA #$00
+		STA !bank
+		LDA #$69
+		STA !initialized_checksum
+		LDX #$8000
+		STX !current_offset			; initialize our variable.
+		REP #$30
+		RTS
 		
 print pc
 assert pc() <= !bank_80_free_space_end
