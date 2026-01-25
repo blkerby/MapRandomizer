@@ -1,152 +1,120 @@
-;-- SM ROM DIAGNOSIS (FULL BYTE COUNT CHECKSUM VERIFICATION)
-
-
 arch snes.cpu
 lorom
 
 !bank_80_free_space_start = $8085F6 ; this is where the sram/region check used to live.
 !bank_80_free_space_end = $80875B   ; and this is where it ended.
 
-!checksum = $7E1F31
-!bank = $1F33    ; current bank
-!current_offset = $1F37
-!initialized_checksum = $1F35
+; $1f89: bank
+; $1f8a: offset
+; $1f8c: checksum
 
 
-;!ROM_BANKS      = #$80       ; 4 MB / 32 KB
-;!BYTES_START_ADDR = #$8000
-
+; $80:855F 20 F6 85    JSR $85F6  [$80:85F6]  ; NTSC/PAL and SRAM mapping check
 							
-org $80855F		; $80:855F 20 F6 85    JSR $85F6  [$80:85F6]  ; NTSC/PAL and SRAM mapping check
-		JSR init_chksum
+org $80855F						; original call to the SRAM routine, we can use this to setup our RAM variables.
+		JSR hook_init 
+		
+;$80:8343 AD B4 05    LDA $05B4  [$7E:05B4]  ;\
+;$80:8346 D0 FB       BNE $FB    [$8343]     ;} Wait until NMI request acknowledged
 		
 org $808343
-		JSR bg_checksum
-		NOP
-		NOP
+    jmp calc_checksum : nop : nop
+post_hook:
 		
 org !bank_80_free_space_start
-bg_checksum:
-		
-	
-		LDA !initialized_checksum
-		CMP #$69
-		BNE .alldoneornotstarted
-		LDA !bank
-		CMP #$80
-		BEQ .alldoneornotstarted
-		
-		
-		
-		ORA #$80						; map bank to $80+
-		PHA
-		REP #$30						; 16 bit EVERYTHING;;
-		LDX !current_offset
-		LDA $0998
-		AND #$00FF
-		CMP #$0007
-		BCS .ingame
-		LDY #$0040
-		BRA .title
-.ingame:
-		LDY #$0002
-.title:
-		PLB 								; set the dbr to whatever bank we are reading
-		BRA .diagloop
-		
-.alldoneornotstarted:
-		SEP #$30
-		LDA $05B4		
-		BNE	.alldoneornotstarted
-		RTS
-		
-.diagloop:				;	 4 bytes at a time x 4 loops (testing)
-		LDA $7E1F33
-		CMP #$0080
-		BEQ .alldoneornotstarted
-		
-.normal:		
-		LDA $0000, X
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		LDA $0000, X
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		LDA $0000, X
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		LDA $0000, X
-		AND #$00FF
-		CLC
-		ADC !checksum
-		STA !checksum
-		INX
-		CPX #$0000
-		BEQ .wraparound
-		DEY
-		BNE .normal
-		
-.finished_loop	
-		PHK 
-		PLB
-		LDA $05B4							; hijacked instruction (wait for NMI acknowledge)
-		AND #$00FF
-		BNE	.continiue					; no NMI yet, read more.
-		STX	!current_offset		;	park our current offset.
-		SEP #$30							; put cpu back into 8 bit mode everything.
-		RTS										; return.
-.continiue:
-		
-		LDA $0998
-		AND #$00FF
-		CMP #$0007
-		BCS .ingame2
-		LDY #$0040
-		JMP .notingame
-.ingame2:
-		LDY #$0002
-.notingame:
-		LDA !bank
-		AND #$00FF
-		ORA #$0080
-		XBA
-		PHA 
-		PLB
-		PLB
-		JMP .diagloop
-		
-.wraparound:
-		PHK 
-		PLB
-		LDX #$8000
-		STX !current_offset
-		LDA !bank
-		AND #$00FF
-		INC
-		STA !bank
-		BRA .finished_loop
-		
+hook_init:
+    lda #$0080
+    sta $1f89
+    xba
+    sta $1f8a
+    stz $1f8c
+    rts
 
-init_chksum:
-		SEP #$20		      	    ; A 8-bit
-    REP #$10    			      ; X/Y 16-bit
-		LDA #$00
-		STA !bank
-		LDA #$69
-		STA !initialized_checksum
-		LDX #$8000
-		STX !current_offset			; initialize our variable.
-		REP #$30
-		RTS
+calc_checksum:
+    lda $1f89           ; curr bank
+    bne .do_checksum    ; non-zero = processing
+.nmi_wait
+    lda $5b4
+    bne .nmi_wait
+    jmp post_hook
+    
+.do_checksum
+    php
+    phb
+    rep #$10            ; 16-bit X
+    ldx $1f8a           ; curr offset
+    lda $1f89           ; bank
+    pha
+    plb                 ; set DB to current bank
+    
+.chksum_loop
+    lda $0000,x
+    clc
+    adc $801f8c
+    sta $801f8c
+    bcc .no_carry
+    lda $801f8d
+    inc
+    sta $801f8d
+.no_carry
+    inx
+    bne .same_bank
+    lda $801f89
+    inc
+    beq .done
+    sta $801f89
+    pha
+    plb                     ; DB++
+    lda #$00
+    sta $801f8a
+    lda #$80
+    sta $801f8b
+    ldx #$8000
+    
+.same_bank
+    lda $8005b4
+    bne .chksum_loop
+    rep #$20
+    txa
+    sta $801f8a             ; save offset
+    plb
+    plp
+    jmp post_hook
+
+.done
+    sta $801f89             ; 00 (done)
+		plb
+    plp
+		lda $1f8c
+		cmp $ffde
+		bne .chkfail
+		lda $1f8d
+		cmp $ffdf
+		bne .chkfail
+    bra .nmi_wait
+		
+.chkfail										; checksum doesnt match whats stored in ROM.. display a red screen and crash.
+		stz $2140
+		stz $4200			
+		stz $420C
+		stz $212C
+		stz $212D
+		stz $2130
+		stz $2131
+		stz	$2105
+		stz $2101
+		lda #$80
+		sta $2100
+		stz $2121
+		lda #$1F
+		sta $2122
+		lda #$00
+		sta $2122
+		lda #$0F
+		sta $2100
+.infi_loop:
+		bra .infi_loop
+		
 		
 print pc
 assert pc() <= !bank_80_free_space_end
