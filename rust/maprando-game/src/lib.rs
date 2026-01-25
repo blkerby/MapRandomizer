@@ -278,18 +278,18 @@ pub enum Requirement {
         frames: Capacity,
         excess_frames: Capacity,
     },
-    HeatFrames(Capacity),
-    SuitlessHeatFrames(Capacity),
-    SimpleHeatFrames(Capacity),
-    HeatFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
-    LavaFrames(Capacity),
-    LavaFramesWithEnergyDrops(Capacity, Vec<EnemyDrop>, Vec<EnemyDrop>),
-    GravitylessLavaFrames(Capacity),
-    AcidFrames(Capacity),
-    GravitylessAcidFrames(Capacity),
-    MetroidFrames(Capacity),
-    CycleFrames(Capacity),
-    SimpleCycleFrames(Capacity),
+    HeatFrames(Numeric),
+    SuitlessHeatFrames(Numeric),
+    SimpleHeatFrames(Numeric),
+    HeatFramesWithEnergyDrops(Numeric, Vec<EnemyDrop>, Vec<EnemyDrop>),
+    LavaFrames(Numeric),
+    LavaFramesWithEnergyDrops(Numeric, Vec<EnemyDrop>, Vec<EnemyDrop>),
+    GravitylessLavaFrames(Numeric),
+    AcidFrames(Numeric),
+    GravitylessAcidFrames(Numeric),
+    MetroidFrames(Numeric),
+    CycleFrames(Numeric),
+    SimpleCycleFrames(Numeric),
     Farm {
         requirement: Box<Requirement>,
         enemy_drops: Vec<EnemyDrop>,
@@ -303,42 +303,42 @@ pub enum Requirement {
         unit_energy: Capacity,
         quantity: Numeric,
     },
-    MissilesAvailable(Capacity),
-    SupersAvailable(Capacity),
-    PowerBombsAvailable(Capacity),
-    RegularEnergyAvailable(Capacity),
-    ReserveEnergyAvailable(Capacity),
-    EnergyAvailable(Capacity),
-    MissilesCapacity(Capacity),
-    SupersCapacity(Capacity),
-    PowerBombsCapacity(Capacity),
-    RegularEnergyCapacity(Capacity),
-    ReserveEnergyCapacity(Capacity),
-    MissilesMissingAtMost(Capacity),
-    SupersMissingAtMost(Capacity),
-    PowerBombsMissingAtMost(Capacity),
-    RegularEnergyMissingAtMost(Capacity),
-    ReserveEnergyMissingAtMost(Capacity),
-    EnergyMissingAtMost(Capacity),
-    Energy(Capacity),
-    RegularEnergy(Capacity),
-    ReserveEnergy(Capacity),
-    Missiles(Capacity),
-    Supers(Capacity),
-    PowerBombs(Capacity),
-    EnergyRefill(Capacity),
-    RegularEnergyRefill(Capacity),
-    ReserveRefill(Capacity),
-    MissileRefill(Capacity),
-    SuperRefill(Capacity),
-    PowerBombRefill(Capacity),
+    MissilesAvailable(Numeric),
+    SupersAvailable(Numeric),
+    PowerBombsAvailable(Numeric),
+    RegularEnergyAvailable(Numeric),
+    ReserveEnergyAvailable(Numeric),
+    EnergyAvailable(Numeric),
+    MissilesCapacity(Numeric),
+    SupersCapacity(Numeric),
+    PowerBombsCapacity(Numeric),
+    RegularEnergyCapacity(Numeric),
+    ReserveEnergyCapacity(Numeric),
+    MissilesMissingAtMost(Numeric),
+    SupersMissingAtMost(Numeric),
+    PowerBombsMissingAtMost(Numeric),
+    RegularEnergyMissingAtMost(Numeric),
+    ReserveEnergyMissingAtMost(Numeric),
+    EnergyMissingAtMost(Numeric),
+    Energy(Numeric),
+    RegularEnergy(Numeric),
+    ReserveEnergy(Numeric),
+    Missiles(Numeric),
+    Supers(Numeric),
+    PowerBombs(Numeric),
+    EnergyRefill(Numeric),
+    RegularEnergyRefill(Numeric),
+    ReserveRefill(Numeric),
+    MissileRefill(Numeric),
+    SuperRefill(Numeric),
+    PowerBombRefill(Numeric),
     ClimbWithoutLava,
     AmmoStationRefill,
     AmmoStationRefillAll,
     EnergyStationRefill,
-    RegularEnergyDrain(Capacity),
-    ReserveEnergyDrain(Capacity),
-    MissileDrain(Capacity),
+    RegularEnergyDrain(Numeric),
+    ReserveEnergyDrain(Numeric),
+    MissileDrain(Numeric),
     LowerNorfairElevatorDownFrames,
     LowerNorfairElevatorUpFrames,
     MainHallElevatorFrames,
@@ -364,8 +364,8 @@ pub enum Requirement {
     BombIntoCrystalFlashClipLeniency {},
     JumpIntoCrystalFlashClipLeniency {},
     ReserveTrigger {
-        min_reserve_energy: Capacity,
-        max_reserve_energy: Capacity,
+        min_reserve_energy: Numeric,
+        max_reserve_energy: Numeric,
         heated: bool,
     },
     EnemyKill {
@@ -2080,32 +2080,32 @@ impl GameData {
             DoorType::Red => vec![
                 (
                     vec!["missiles", "ammo"],
-                    Requirement::Missiles(5),
-                    Requirement::HeatFrames(50),
+                    Requirement::Missiles(5.into()),
+                    Requirement::HeatFrames(50.into()),
                 ),
                 (
                     vec!["super", "ammo"],
-                    Requirement::Supers(1),
+                    Requirement::Supers(1.into()),
                     Requirement::Free,
                 ),
             ],
             DoorType::Green => vec![(
                 vec!["super", "ammo"],
-                Requirement::Supers(1),
+                Requirement::Supers(1.into()),
                 Requirement::Free,
             )],
             DoorType::Yellow => vec![(
                 vec!["powerbomb", "ammo"],
                 Requirement::make_and(vec![
                     Requirement::Item(Item::Morph as ItemId),
-                    Requirement::PowerBombs(1),
+                    Requirement::PowerBombs(1.into()),
                 ]),
-                Requirement::HeatFrames(110),
+                Requirement::HeatFrames(110.into()),
             )],
             DoorType::Beam(BeamType::Charge) => vec![(
                 vec!["charge"],
                 Requirement::Item(Item::Charge as ItemId),
-                Requirement::HeatFrames(60),
+                Requirement::HeatFrames(60.into()),
             )],
             DoorType::Gray | DoorType::Beam(_) | DoorType::Wall => {
                 panic!("Unexpected DoorType in get_unlocks_door_type_req: {door_type:?}")
@@ -2442,15 +2442,15 @@ impl GameData {
                 let ammo_type = value["type"]
                     .as_str()
                     .unwrap_or_else(|| panic!("missing/invalid ammo type in {req_json}"));
-                let count = value["count"]
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid ammo count in {req_json}"));
+                let count = self
+                    .parse_numeric(&value["count"])
+                    .unwrap_or_else(|e| panic!("invalid ammo count in {req_json}: {:?}", e));
                 if ammo_type == "Missile" {
-                    return Ok(Requirement::Missiles(count as Capacity));
+                    return Ok(Requirement::Missiles(count));
                 } else if ammo_type == "Super" {
-                    return Ok(Requirement::Supers(count as Capacity));
+                    return Ok(Requirement::Supers(count));
                 } else if ammo_type == "PowerBomb" {
-                    return Ok(Requirement::PowerBombs(count as Capacity));
+                    return Ok(Requirement::PowerBombs(count));
                 } else {
                     bail!("Unexpected ammo type in {}", req_json);
                 }
@@ -2461,21 +2461,21 @@ impl GameData {
                     let resource_type = value0["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = value0["count"]
-                        .as_i32()
-                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
+                    let count = self.parse_numeric(&value0["count"]).unwrap_or_else(|e| {
+                        panic!("missing/invalid resource count in {req_json}: {:?}", e)
+                    });
                     if resource_type == "Missile" {
-                        reqs.push(Requirement::MissilesAvailable(count as Capacity));
+                        reqs.push(Requirement::MissilesAvailable(count));
                     } else if resource_type == "Super" {
-                        reqs.push(Requirement::SupersAvailable(count as Capacity));
+                        reqs.push(Requirement::SupersAvailable(count));
                     } else if resource_type == "PowerBomb" {
-                        reqs.push(Requirement::PowerBombsAvailable(count as Capacity));
+                        reqs.push(Requirement::PowerBombsAvailable(count));
                     } else if resource_type == "RegularEnergy" {
-                        reqs.push(Requirement::RegularEnergyAvailable(count as Capacity));
+                        reqs.push(Requirement::RegularEnergyAvailable(count));
                     } else if resource_type == "ReserveEnergy" {
-                        reqs.push(Requirement::ReserveEnergyAvailable(count as Capacity));
+                        reqs.push(Requirement::ReserveEnergyAvailable(count));
                     } else if resource_type == "Energy" {
-                        reqs.push(Requirement::EnergyAvailable(count as Capacity));
+                        reqs.push(Requirement::EnergyAvailable(count));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
@@ -2487,19 +2487,19 @@ impl GameData {
                 let resource_type = value0["type"]
                     .as_str()
                     .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                let count = value0["count"]
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
+                let count = self.parse_numeric(&value0["count"]).unwrap_or_else(|e| {
+                    panic!("missing/invalid resource count in {req_json}: {:?}", e)
+                });
                 if resource_type == "Missile" {
-                    return Ok(Requirement::MissilesCapacity(count as Capacity));
+                    return Ok(Requirement::MissilesCapacity(count));
                 } else if resource_type == "Super" {
-                    return Ok(Requirement::SupersCapacity(count as Capacity));
+                    return Ok(Requirement::SupersCapacity(count));
                 } else if resource_type == "PowerBomb" {
-                    return Ok(Requirement::PowerBombsCapacity(count as Capacity));
+                    return Ok(Requirement::PowerBombsCapacity(count));
                 } else if resource_type == "RegularEnergy" {
-                    return Ok(Requirement::RegularEnergyCapacity(count as Capacity));
+                    return Ok(Requirement::RegularEnergyCapacity(count));
                 } else if resource_type == "ReserveEnergy" {
-                    return Ok(Requirement::ReserveEnergyCapacity(count as Capacity));
+                    return Ok(Requirement::ReserveEnergyCapacity(count));
                 } else {
                     bail!("Unexpected resource type in {}", req_json);
                 }
@@ -2509,13 +2509,13 @@ impl GameData {
                 let resource_type = value0["type"]
                     .as_str()
                     .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                let count = value0["count"]
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
+                let count = self.parse_numeric(&value0["count"]).unwrap_or_else(|e| {
+                    panic!("missing/invalid resource count in {req_json}: {:?}", e)
+                });
                 if resource_type == "RegularEnergy" {
                     return Ok(Requirement::make_and(vec![
                         Requirement::DisableableETank,
-                        Requirement::RegularEnergyDrain(count as Capacity),
+                        Requirement::RegularEnergyDrain(count),
                     ]));
                 } else if resource_type == "Missile" {
                     // TODO: change this if we add an ability to disable Missiles.
@@ -2529,19 +2529,18 @@ impl GameData {
                     let resource_type = r["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = r["count"]
-                        .as_i32()
-                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
+                    let count = self.parse_numeric(&r["count"]).unwrap_or_else(|e| {
+                        panic!("missing/invalid resource count in {req_json}: {:?}", e)
+                    });
                     if resource_type == "RegularEnergy" {
-                        assert!(count > 0);
-                        reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
+                        reqs.push(Requirement::RegularEnergyDrain(count));
                     } else if resource_type == "Energy" {
                         // TODO: remove this case or handle it properly.
-                        reqs.push(Requirement::RegularEnergyDrain(count as Capacity));
+                        reqs.push(Requirement::RegularEnergyDrain(count));
                     } else if resource_type == "ReserveEnergy" {
-                        reqs.push(Requirement::ReserveEnergyDrain(count as Capacity));
+                        reqs.push(Requirement::ReserveEnergyDrain(count));
                     } else if resource_type == "Missile" {
-                        reqs.push(Requirement::MissileDrain(count as Capacity));
+                        reqs.push(Requirement::MissileDrain(count));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
@@ -2553,21 +2552,21 @@ impl GameData {
                     let resource_type = r["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = r["count"]
-                        .as_i32()
-                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
+                    let count = self.parse_numeric(&r["count"]).unwrap_or_else(|e| {
+                        panic!("missing/invalid resource count in {req_json}: {:?}", e)
+                    });
                     if resource_type == "Missile" {
-                        reqs.push(Requirement::MissilesMissingAtMost(count as Capacity));
+                        reqs.push(Requirement::MissilesMissingAtMost(count));
                     } else if resource_type == "Super" {
-                        reqs.push(Requirement::SupersMissingAtMost(count as Capacity));
+                        reqs.push(Requirement::SupersMissingAtMost(count));
                     } else if resource_type == "PowerBomb" {
-                        reqs.push(Requirement::PowerBombsMissingAtMost(count as Capacity));
+                        reqs.push(Requirement::PowerBombsMissingAtMost(count));
                     } else if resource_type == "RegularEnergy" {
-                        reqs.push(Requirement::RegularEnergyMissingAtMost(count as Capacity));
+                        reqs.push(Requirement::RegularEnergyMissingAtMost(count));
                     } else if resource_type == "ReserveEnergy" {
-                        reqs.push(Requirement::ReserveEnergyMissingAtMost(count as Capacity));
+                        reqs.push(Requirement::ReserveEnergyMissingAtMost(count));
                     } else if resource_type == "Energy" {
-                        reqs.push(Requirement::EnergyMissingAtMost(count as Capacity));
+                        reqs.push(Requirement::EnergyMissingAtMost(count));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
@@ -2580,15 +2579,15 @@ impl GameData {
                     let resource_type = value0["type"]
                         .as_str()
                         .unwrap_or_else(|| panic!("missing/invalid resource type in {req_json}"));
-                    let count = value0["count"]
-                        .as_i32()
-                        .unwrap_or_else(|| panic!("missing/invalid resource count in {req_json}"));
+                    let count = self.parse_numeric(&value0["count"]).unwrap_or_else(|e| {
+                        panic!("missing/invalid resource count in {req_json}: {:?}", e)
+                    });
                     if resource_type == "RegularEnergy" {
-                        reqs.push(Requirement::RegularEnergy(count as Capacity));
+                        reqs.push(Requirement::RegularEnergy(count));
                     } else if resource_type == "ReserveEnergy" {
-                        reqs.push(Requirement::ReserveEnergy(count as Capacity));
+                        reqs.push(Requirement::ReserveEnergy(count));
                     } else if resource_type == "Energy" {
-                        reqs.push(Requirement::Energy(count as Capacity));
+                        reqs.push(Requirement::Energy(count));
                     } else {
                         bail!("Unexpected resource type in {}", req_json);
                     }
@@ -2599,17 +2598,17 @@ impl GameData {
                 for resource_type_json in value.members() {
                     let resource_type = resource_type_json.as_str().unwrap();
                     if resource_type == "Missile" {
-                        req_list_and.push(Requirement::MissileRefill(9999));
+                        req_list_and.push(Requirement::MissileRefill(9999.into()));
                     } else if resource_type == "Super" {
-                        req_list_and.push(Requirement::SuperRefill(9999));
+                        req_list_and.push(Requirement::SuperRefill(9999.into()));
                     } else if resource_type == "PowerBomb" {
-                        req_list_and.push(Requirement::PowerBombRefill(9999));
+                        req_list_and.push(Requirement::PowerBombRefill(9999.into()));
                     } else if resource_type == "RegularEnergy" {
-                        req_list_and.push(Requirement::RegularEnergyRefill(9999));
+                        req_list_and.push(Requirement::RegularEnergyRefill(9999.into()));
                     } else if resource_type == "ReserveEnergy" {
-                        req_list_and.push(Requirement::ReserveRefill(9999));
+                        req_list_and.push(Requirement::ReserveRefill(9999.into()));
                     } else if resource_type == "Energy" {
-                        req_list_and.push(Requirement::EnergyRefill(9999));
+                        req_list_and.push(Requirement::EnergyRefill(9999.into()));
                     } else {
                         bail!("Unrecognized refill resource type: {}", resource_type);
                     }
@@ -2617,19 +2616,21 @@ impl GameData {
                 return Ok(Requirement::make_and(req_list_and));
             } else if key == "partialRefill" {
                 let resource_type = value["type"].as_str().unwrap();
-                let limit = value["limit"].as_i32().unwrap();
+                let limit = self
+                    .parse_numeric(&value["limit"])
+                    .unwrap_or_else(|e| panic!("missing/invalid limit in {req_json}: {:?}", e));
                 let req = if resource_type == "Missile" {
-                    Requirement::MissileRefill(limit as Capacity)
+                    Requirement::MissileRefill(limit)
                 } else if resource_type == "Super" {
-                    Requirement::SuperRefill(limit as Capacity)
+                    Requirement::SuperRefill(limit)
                 } else if resource_type == "PowerBomb" {
-                    Requirement::PowerBombRefill(limit as Capacity)
+                    Requirement::PowerBombRefill(limit)
                 } else if resource_type == "RegularEnergy" {
-                    Requirement::RegularEnergyRefill(limit as Capacity)
+                    Requirement::RegularEnergyRefill(limit)
                 } else if resource_type == "ReserveEnergy" {
-                    Requirement::ReserveRefill(limit as Capacity)
+                    Requirement::ReserveRefill(limit)
                 } else if resource_type == "Energy" {
-                    Requirement::EnergyRefill(limit as Capacity)
+                    Requirement::EnergyRefill(limit)
                 } else {
                     bail!(
                         "Unrecognized partialRefill resource type: {}",
@@ -2678,51 +2679,51 @@ impl GameData {
                     .unwrap_or_else(|e| panic!("invalid shineChargeFrames in {req_json}: {:?}", e));
                 return Ok(Requirement::ShineChargeFrames(frames));
             } else if key == "heatFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid heatFrames in {req_json}"));
-                return Ok(Requirement::HeatFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid heatFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::HeatFrames(frames));
             } else if key == "suitlessHeatFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid suitlessHeatFrames in {req_json}"));
-                return Ok(Requirement::SuitlessHeatFrames(frames as Capacity));
+                let frames = self.parse_numeric(value).unwrap_or_else(|e| {
+                    panic!("invalid suitlessHeatFrames in {req_json}: {:?}", e)
+                });
+                return Ok(Requirement::SuitlessHeatFrames(frames));
             } else if key == "simpleHeatFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid simpleHeatFrames in {req_json}"));
-                return Ok(Requirement::SimpleHeatFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid simpleHeatFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::SimpleHeatFrames(frames));
             } else if key == "gravitylessHeatFrames" {
                 // In Map Rando, Gravity doesn't affect heat frames, so this is treated the same as "heatFrames".
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid gravitylessHeatFrames in {req_json}"));
-                return Ok(Requirement::HeatFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid heatFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::HeatFrames(frames));
             } else if key == "lavaFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid lavaFrames in {req_json}"));
-                return Ok(Requirement::LavaFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid lavaFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::LavaFrames(frames));
             } else if key == "gravitylessLavaFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid gravitylessLavaFrames in {req_json}"));
-                return Ok(Requirement::GravitylessLavaFrames(frames as Capacity));
+                let frames = self.parse_numeric(value).unwrap_or_else(|e| {
+                    panic!("invalid gravitylessLavaFrames in {req_json}: {:?}", e)
+                });
+                return Ok(Requirement::GravitylessLavaFrames(frames));
             } else if key == "gravitylessAcidFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid gravitylessAcidFrames in {req_json}"));
-                return Ok(Requirement::GravitylessAcidFrames(frames as Capacity));
+                let frames = self.parse_numeric(value).unwrap_or_else(|e| {
+                    panic!("invalid gravitylessAcidFrames in {req_json}: {:?}", e)
+                });
+                return Ok(Requirement::GravitylessAcidFrames(frames));
             } else if key == "acidFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid acidFrames in {req_json}"));
-                return Ok(Requirement::AcidFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid acidFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::AcidFrames(frames));
             } else if key == "metroidFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid metroidFrames in {req_json}"));
-                return Ok(Requirement::MetroidFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid metroidFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::MetroidFrames(frames));
             } else if key == "draygonElectricityFrames" {
                 let frames = self.parse_numeric(value).unwrap_or_else(|e| {
                     panic!("invalid draygonElectricityFrames in {req_json}: {:?}", e)
@@ -2740,15 +2741,15 @@ impl GameData {
                     quantity: cycles,
                 });
             } else if key == "cycleFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid cycleFrames in {req_json}"));
-                return Ok(Requirement::CycleFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid cycleFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::CycleFrames(frames));
             } else if key == "simpleCycleFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid simpleCycleFrames in {req_json}"));
-                return Ok(Requirement::SimpleCycleFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid simpleCycleFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::SimpleCycleFrames(frames));
             } else if key == "spikeHits" {
                 let hits = self
                     .parse_numeric(value)
@@ -2994,10 +2995,25 @@ impl GameData {
                 // TODO: implement this
                 return Ok(Requirement::Never);
             } else if key == "autoReserveTrigger" {
+                let min_reserve_energy = if value.has_key("minReserveEnergy") {
+                    self.parse_numeric(&value["minReserveEnergy"])
+                        .unwrap_or_else(|e| {
+                            panic!("invalid minReserveEnergy in {req_json}: {:?}", e)
+                        })
+                } else {
+                    1.into()
+                };
+                let max_reserve_energy = if value.has_key("maxReserveEnergy") {
+                    self.parse_numeric(&value["maxReserveEnergy"])
+                        .unwrap_or_else(|e| {
+                            panic!("invalid maxReserveEnergy in {req_json}: {:?}", e)
+                        })
+                } else {
+                    400.into()
+                };
                 return Ok(Requirement::ReserveTrigger {
-                    min_reserve_energy: value["minReserveEnergy"].as_i32().unwrap_or(1) as Capacity,
-                    max_reserve_energy: value["maxReserveEnergy"].as_i32().unwrap_or(400)
-                        as Capacity,
+                    min_reserve_energy,
+                    max_reserve_energy,
                     heated: ctx.room_heated,
                 });
             } else if key == "gainFlashSuit" {
@@ -3032,7 +3048,12 @@ impl GameData {
                     .context(format!("Undefined notable: {}", &notable_name))?;
                 return Ok(Requirement::Notable(notable_idx));
             } else if key == "heatFramesWithEnergyDrops" {
-                let frames = value["frames"].as_i32().unwrap() as Capacity;
+                let frames = self.parse_numeric(&value["frames"]).unwrap_or_else(|e| {
+                    panic!(
+                        "invalid heatFramesWithEnergyDrops frames in {req_json}: {:?}",
+                        e
+                    )
+                });
                 let enemy_drops = self.parse_enemy_drops(&value["drops"], false);
                 let enemy_drops_buffed = self.parse_enemy_drops(&value["drops"], true);
                 return Ok(Requirement::HeatFramesWithEnergyDrops(
@@ -3041,7 +3062,12 @@ impl GameData {
                     enemy_drops_buffed,
                 ));
             } else if key == "lavaFramesWithEnergyDrops" {
-                let frames = value["frames"].as_i32().unwrap() as Capacity;
+                let frames = self.parse_numeric(&value["frames"]).unwrap_or_else(|e| {
+                    panic!(
+                        "invalid lavaFramesWithEnergyDrops frames in {req_json}: {:?}",
+                        e
+                    )
+                });
                 let enemy_drops = self.parse_enemy_drops(&value["drops"], false);
                 let enemy_drops_buffed = self.parse_enemy_drops(&value["drops"], true);
                 return Ok(Requirement::LavaFramesWithEnergyDrops(
@@ -5443,7 +5469,7 @@ impl GameData {
                 if heated && vertex_key.node_id == node_id {
                     // If the comeInNormally and leaveNormally strats are at the door node,
                     // assume an implicit requirement of 40 heat frames to open the door:
-                    req_and.push(Requirement::HeatFrames(40));
+                    req_and.push(Requirement::HeatFrames(40.into()));
                 }
                 req_or.push(Requirement::make_and(req_and));
             }
