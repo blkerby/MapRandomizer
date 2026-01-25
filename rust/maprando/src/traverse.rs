@@ -1374,7 +1374,12 @@ fn apply_requirement_simple(
             local.cycle_frames += frames;
             SimpleResult::Success
         }
-        Requirement::Damage(base_energy) => {
+        Requirement::Damage {
+            unit_energy,
+            quantity,
+        } => {
+            let quantity = quantity.resolve(&cx.difficulty.numerics);
+            let base_energy = unit_energy * quantity;
             let energy = base_energy / suit_damage_factor(&cx.global.inventory);
             if energy >= cx.global.inventory.max_energy
                 && !cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx]
@@ -1493,13 +1498,6 @@ fn apply_requirement_simple(
             let leniency = cx.difficulty.spike_speed_keep_leniency;
             let hits = (leniency + 1) * (leniency + 1) - 1;
             let energy_used = hits * 16 / suit_damage_factor(&cx.global.inventory);
-            local
-                .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
-                .into()
-        }
-        Requirement::SpeedKeepSpikeHitLeniency => {
-            let energy_used = cx.difficulty.spike_speed_keep_leniency * 60
-                / suit_damage_factor(&cx.global.inventory);
             local
                 .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
                 .into()
@@ -1919,6 +1917,7 @@ fn apply_requirement_simple(
             }
         }
         Requirement::ShineChargeFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             if cx.reverse {
                 local.shinecharge_frames_remaining += frames;
                 (local.shinecharge_frames_remaining

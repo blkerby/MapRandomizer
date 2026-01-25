@@ -69,6 +69,7 @@ pub struct DifficultyConfig {
     pub name: String,
     pub tech: Vec<bool>,
     pub notables: Vec<bool>,
+    pub numerics: Vec<Capacity>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
     pub shinecharge_leniency_frames: Capacity,
@@ -125,10 +126,27 @@ impl DifficultyConfig {
             }
         }
 
+        let mut numerics: Vec<Capacity> = vec![-1; game_data.numeric_isv.keys.len()];
+        let numeric_overrides: Vec<(&'static str, i32)> =
+            vec![("n_speedKeepLenience", skill.spike_speed_keep_leniency)];
+        for (name, value) in numeric_overrides {
+            if let Some(&idx) = game_data.numeric_isv.index_by_key.get(name) {
+                numerics[idx] = value as Capacity;
+            } else {
+                panic!("Numeric '{}' not found", name);
+            }
+        }
+        for i in 0..numerics.len() {
+            if numerics[i] == -1 {
+                numerics[i] = game_data.numeric_values[i].resolve(&numerics)
+            }
+        }
+
         Self {
             name: skill.preset.clone().unwrap_or("Beyond".to_string()),
             tech,
             notables,
+            numerics,
             shine_charge_tiles: skill.shinespark_tiles,
             heated_shine_charge_tiles: skill.heated_shinespark_tiles,
             shinecharge_leniency_frames: skill.shinecharge_leniency_frames as Capacity,
@@ -164,10 +182,19 @@ impl DifficultyConfig {
             .zip(other.notables.iter())
             .map(|(&a, &b)| a && b)
             .collect();
+        // Note: this assumes that lower values for numerics represent higher difficulty
+        // (currently true, but might not always be the case later).
+        let numerics: Vec<Capacity> = self
+            .numerics
+            .iter()
+            .zip(other.numerics.iter())
+            .map(|(&a, &b)| Capacity::max(a, b))
+            .collect();
         DifficultyConfig {
             name: self.name.clone(),
             tech,
             notables,
+            numerics,
             shine_charge_tiles: f32::max(self.shine_charge_tiles, other.shine_charge_tiles),
             heated_shine_charge_tiles: f32::max(
                 self.heated_shine_charge_tiles,
@@ -2059,7 +2086,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
-                reqs.push(Requirement::ShineChargeFrames(10)); // Assume shinecharge is obtained 10 frames before going through door.
+                reqs.push(Requirement::ShineChargeFrames(10.into())); // Assume shinecharge is obtained 10 frames before going through door.
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -2106,7 +2133,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
-                reqs.push(Requirement::ShineChargeFrames(10)); // Assume shinecharge is obtained 10 frames before going through door.
+                reqs.push(Requirement::ShineChargeFrames(10.into())); // Assume shinecharge is obtained 10 frames before going through door.
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }

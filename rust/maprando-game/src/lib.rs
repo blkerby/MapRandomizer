@@ -97,6 +97,7 @@ pub type TechIdx = usize; // Index into GameData.tech_isv.keys: distinct tech na
 pub type NotableIdx = usize; // Index into GameData.notable_strats_isv.keys: distinct pairs (room_id, notable_id) from sm-json-data
 pub type ItemId = usize; // Index into GameData.item_isv.keys: 21 distinct item names
 pub type ItemIdx = usize; // Index into the game's item bit array (in RAM at 7E:D870)
+pub type NumericParameterIdx = u16; // Index into GameData.numeric_isv.keys: distinct numeric parameter names from sm-json-data
 pub type FlagId = usize; // Index into GameData.flag_isv.keys: distinct game flag names from sm-json-data
 pub type RoomId = usize; // Room ID from sm-json-data
 pub type RoomPtr = usize; // Room pointer (PC address of room header)
@@ -223,6 +224,31 @@ pub enum RidleyStuck {
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum Numeric {
+    Constant(Capacity),
+    Parameter(NumericParameterIdx),
+    Add(Box<Numeric>, Box<Numeric>),
+    Mul(Box<Numeric>, Box<Numeric>),
+}
+
+impl Numeric {
+    pub fn resolve(&self, numerics: &[Capacity]) -> Capacity {
+        match self {
+            Numeric::Constant(c) => *c,
+            Numeric::Parameter(idx) => numerics[*idx as usize],
+            Numeric::Add(a, b) => a.resolve(numerics) + b.resolve(numerics),
+            Numeric::Mul(a, b) => a.resolve(numerics) * b.resolve(numerics),
+        }
+    }
+}
+
+impl From<Capacity> for Numeric {
+    fn from(c: Capacity) -> Self {
+        Numeric::Constant(c)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Requirement {
     Free,
     Never,
@@ -246,7 +272,7 @@ pub enum Requirement {
         used_tiles: Float,
         heated: bool,
     },
-    ShineChargeFrames(Capacity),
+    ShineChargeFrames(Numeric),
     Shinespark {
         shinespark_tech_idx: usize,
         frames: Capacity,
@@ -273,7 +299,10 @@ pub enum Requirement {
         full_supers: bool,
         full_power_bombs: bool,
     },
-    Damage(Capacity),
+    Damage {
+        unit_energy: Capacity,
+        quantity: Numeric,
+    },
     MissilesAvailable(Capacity),
     SupersAvailable(Capacity),
     PowerBombsAvailable(Capacity),
@@ -331,7 +360,6 @@ pub enum Requirement {
     XModeThornHitLeniency {},
     FramePerfectXModeThornHitLeniency,
     FramePerfectDoubleXModeThornHitLeniency,
-    SpeedKeepSpikeHitLeniency,
     ElevatorCFLeniency,
     BombIntoCrystalFlashClipLeniency {},
     JumpIntoCrystalFlashClipLeniency {},
@@ -1493,6 +1521,9 @@ pub struct GameData {
     pub helper_category_map: HashMap<String, String>,
     pub tech_requirement: HashMap<(TechId, bool), Option<Requirement>>,
     pub helpers: HashMap<String, Option<Requirement>>,
+    pub numeric_isv: IndexedVec<String>,
+    pub numeric_json: Vec<JsonValue>,
+    pub numeric_values: Vec<Numeric>,
     pub room_json_map: HashMap<RoomId, JsonValue>,
     pub room_obstacle_idx_map: HashMap<RoomId, HashMap<String, usize>>,
     pub room_full_area: HashMap<RoomId, String>,
@@ -1968,6 +1999,32 @@ impl GameData {
         })
     }
 
+    fn load_numerics(&mut self) -> Result<()> {
+        let numerics_json = read_json(&self.sm_json_data_path.join("numerics.json"))?;
+        ensure!(numerics_json["numericCategories"].is_array());
+        for category_json in numerics_json["numericCategories"].members() {
+            ensure!(category_json["numerics"].is_array());
+            for num_json in category_json["numerics"].members() {
+                if self
+                    .numeric_isv
+                    .index_by_key
+                    .contains_key(num_json["name"].as_str().unwrap())
+                {
+                    bail!(
+                        "Duplicate numeric definition: {}",
+                        num_json["name"].as_str().unwrap()
+                    );
+                }
+
+                self.numeric_isv.add(num_json["name"].as_str().unwrap());
+                let numeric = self.parse_numeric(&num_json["value"])?;
+                self.numeric_values.push(numeric.clone());
+                self.numeric_json.push(num_json.clone());
+            }
+        }
+        Ok(())
+    }
+
     fn load_helpers(&mut self) -> Result<()> {
         let helpers_json = read_json(&self.sm_json_data_path.join("helpers.json"))?;
         ensure!(helpers_json["helperCategories"].is_array());
@@ -2144,6 +2201,51 @@ impl GameData {
         })
     }
 
+    pub fn parse_numeric(&self, num_json: &JsonValue) -> Result<Numeric> {
+        if let Some(n) = num_json.as_i16() {
+            Ok(Numeric::Constant(n))
+        } else if num_json.is_string() {
+            let param_name = num_json
+                .as_str()
+                .unwrap_or_else(|| panic!("invalid numeric parameter name in {num_json}"));
+            let param_idx = *self
+                .numeric_isv
+                .index_by_key
+                .get(param_name)
+                .with_context(|| format!("Unable to find numeric parameter '{param_name}'"))?;
+            Ok(Numeric::Parameter(param_idx as NumericParameterIdx))
+        } else if num_json.is_object() {
+            if num_json.len() != 1 {
+                bail!("Unable to parse numeric object: expected exactly one key: {num_json}");
+            }
+            let (key, value) = num_json.entries().next().unwrap();
+            match key {
+                "add" => {
+                    ensure!(
+                        value.is_array() && value.len() == 2,
+                        "Unable to parse numeric add: {value}"
+                    );
+                    let a = self.parse_numeric(&value[0])?;
+                    let b = self.parse_numeric(&value[1])?;
+                    Ok(Numeric::Add(Box::new(a), Box::new(b)))
+                }
+                "mul" => {
+                    ensure!(
+                        value.is_array() && value.len() == 2,
+                        "Unable to parse numeric mul: {value}"
+                    );
+                    let a = self.parse_numeric(&value[0])?;
+                    let b = self.parse_numeric(&value[1])?;
+                    Ok(Numeric::Mul(Box::new(a), Box::new(b)))
+                }
+                _ => bail!("Unable to parse numeric: unrecognized key {key} in {num_json}"),
+            }
+            // let key = num_json.members().next().context("");
+        } else {
+            bail!("Unable to parse numeric: {num_json}");
+        }
+    }
+
     fn parse_requires_list(
         &mut self,
         req_jsons: &[JsonValue],
@@ -2234,7 +2336,6 @@ impl GameData {
             if value == "never" {
                 return Ok(Requirement::Never);
             } else if value == "free" {
-                // Defined for internal use in the randomizer
                 return Ok(Requirement::Free);
             } else if value == "canWalljump" {
                 return Ok(Requirement::Walljump);
@@ -2290,8 +2391,6 @@ impl GameData {
                 return Ok(Requirement::FramePerfectXModeThornHitLeniency);
             } else if value == "i_FramePerfectDoubleXModeThornHitLeniency" {
                 return Ok(Requirement::FramePerfectDoubleXModeThornHitLeniency {});
-            } else if value == "i_speedKeepSpikeHitLeniency" {
-                return Ok(Requirement::SpeedKeepSpikeHitLeniency);
             } else if value == "i_MotherBrainBarrier1Clear" {
                 return Ok(Requirement::MotherBrainBarrierClear(0));
             } else if value == "i_MotherBrainBarrier2Clear" {
@@ -2574,10 +2673,10 @@ impl GameData {
                     ctx.room_heated,
                 ));
             } else if key == "shineChargeFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid shineChargeFrames in {req_json}"));
-                return Ok(Requirement::ShineChargeFrames(frames as Capacity));
+                let frames = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid shineChargeFrames in {req_json}: {:?}", e));
+                return Ok(Requirement::ShineChargeFrames(frames));
             } else if key == "heatFrames" {
                 let frames = value
                     .as_i32()
@@ -2625,15 +2724,21 @@ impl GameData {
                     .unwrap_or_else(|| panic!("invalid metroidFrames in {req_json}"));
                 return Ok(Requirement::MetroidFrames(frames as Capacity));
             } else if key == "draygonElectricityFrames" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid draygonElectricityFrames in {req_json}"));
-                return Ok(Requirement::Damage(frames as Capacity));
+                let frames = self.parse_numeric(value).unwrap_or_else(|e| {
+                    panic!("invalid draygonElectricityFrames in {req_json}: {:?}", e)
+                });
+                return Ok(Requirement::Damage {
+                    unit_energy: 1,
+                    quantity: frames,
+                });
             } else if key == "samusEaterCycles" {
-                let frames = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid samusEaterCycles in {req_json}"));
-                return Ok(Requirement::Damage(frames as Capacity * 16));
+                let cycles = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid samusEaterCycles in {req_json}: {:?}", e));
+                return Ok(Requirement::Damage {
+                    unit_energy: 16,
+                    quantity: cycles,
+                });
             } else if key == "cycleFrames" {
                 let frames = value
                     .as_i32()
@@ -2645,36 +2750,53 @@ impl GameData {
                     .unwrap_or_else(|| panic!("invalid simpleCycleFrames in {req_json}"));
                 return Ok(Requirement::SimpleCycleFrames(frames as Capacity));
             } else if key == "spikeHits" {
-                let hits = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid spikeHits in {req_json}"));
-                return Ok(Requirement::Damage(hits as Capacity * 60));
+                let hits = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid spikeHits in {req_json}: {:?}", e));
+                return Ok(Requirement::Damage {
+                    unit_energy: 60,
+                    quantity: hits,
+                });
             } else if key == "thornHits" {
-                let hits = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid thornHits in {req_json}"));
-                return Ok(Requirement::Damage(hits as Capacity * 16));
+                let hits = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid thornHits in {req_json}: {:?}", e));
+                return Ok(Requirement::Damage {
+                    unit_energy: 16,
+                    quantity: hits,
+                });
             } else if key == "electricityHits" {
-                let hits = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid electricityHits in {req_json}"));
-                return Ok(Requirement::Damage(hits as Capacity * 30));
+                let hits = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid electricityHits in {req_json}: {:?}", e));
+                return Ok(Requirement::Damage {
+                    unit_energy: 30,
+                    quantity: hits,
+                });
             } else if key == "hibashiHits" {
-                let hits = value
-                    .as_i32()
-                    .unwrap_or_else(|| panic!("invalid hibashiHits in {req_json}"));
-                return Ok(Requirement::Damage(hits as Capacity * 30));
+                let hits = self
+                    .parse_numeric(value)
+                    .unwrap_or_else(|e| panic!("invalid hibashiHits in {req_json}: {:?}", e));
+                return Ok(Requirement::Damage {
+                    unit_energy: 30,
+                    quantity: hits,
+                });
             } else if key == "enemyDamage" {
                 let enemy_name = value["enemy"].as_str().unwrap().to_string();
                 let attack_name = value["type"].as_str().unwrap().to_string();
-                let hits = value["hits"].as_i32().unwrap() as Capacity;
-                let base_damage = self
+                let hits = self
+                    .parse_numeric(&value["hits"])
+                    .unwrap_or_else(|e| panic!("invalid enemyDamage hits in {req_json}: {:?}", e));
+                let base_damage = *self
                     .enemy_attack_damage
                     .get(&(enemy_name.clone(), attack_name.clone()))
                     .with_context(|| {
                         format!("Missing enemy attack damage for {enemy_name} - {attack_name}:")
                     })?;
-                return Ok(Requirement::Damage(hits * base_damage));
+                return Ok(Requirement::Damage {
+                    unit_energy: base_damage,
+                    quantity: hits,
+                });
             } else if key == "enemyKill" {
                 // We only consider enemy kill methods that are non-situational and do not require ammo.
                 // TODO: Consider all methods.
@@ -5543,6 +5665,7 @@ impl GameData {
         };
 
         game_data.load_items_and_flags()?;
+        game_data.load_numerics()?;
         game_data.load_tech()?;
         game_data.load_helpers()?;
         game_data.patch_helpers(&helpers_patch_path)?;

@@ -36,7 +36,6 @@
     "h_XModeThornHitLeniency": ["i_XModeThornHitLeniency"],
     "h_thornXModeFramePerfectExtraLeniency": ["i_FramePerfectXModeThornHitLeniency"],
     "h_thornDoubleXModeFramePerfectExtraLeniency": ["i_FramePerfectDoubleXModeThornHitLeniency"],
-    "h_speedKeepSpikeHitLeniency": ["i_speedKeepSpikeHitLeniency"],
     "h_allItemsSpawned": ["f_AllItemsSpawn"],
     "h_EverestMorphTunnelExpanded": [],
     "h_activateBombTorizo": [],
