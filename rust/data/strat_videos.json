@@ -22284,7 +22284,15 @@
     "strat_id": 10,
     "video_id": 9369,
     "created_user": "Sam",
-    "note": "",
+    "note": "Faster but fewer drops, with no Multiviola kill",
+    "dev_note": ""
+  },
+  {
+    "room_id": 114,
+    "strat_id": 10,
+    "video_id": 9726,
+    "created_user": "maddo",
+    "note": "More drops, with Multiviola kill",
     "dev_note": ""
   },
   {

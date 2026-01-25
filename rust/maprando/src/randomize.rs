@@ -69,6 +69,7 @@ pub struct DifficultyConfig {
     pub name: String,
     pub tech: Vec<bool>,
     pub notables: Vec<bool>,
+    pub numerics: Vec<Capacity>,
     pub shine_charge_tiles: f32,
     pub heated_shine_charge_tiles: f32,
     pub shinecharge_leniency_frames: Capacity,
@@ -125,10 +126,32 @@ impl DifficultyConfig {
             }
         }
 
+        let mut numerics: Vec<Capacity> = vec![-1; game_data.numeric_isv.keys.len()];
+        let numeric_overrides: Vec<(&'static str, i32)> =
+            vec![("n_speedKeepLenience", skill.spike_speed_keep_leniency)];
+        for (name, value) in numeric_overrides {
+            if let Some(&idx) = game_data.numeric_isv.index_by_key.get(name) {
+                numerics[idx] = value as Capacity;
+            } else {
+                panic!("Numeric '{}' not found", name);
+            }
+        }
+        for i in 0..numerics.len() {
+            if numerics[i] == -1 {
+                numerics[i] = game_data.numeric_values[i].resolve(&numerics);
+                assert!(
+                    numerics[i] >= 0,
+                    "Numeric value for '{}' negative or not set",
+                    game_data.numeric_isv.keys[i]
+                );
+            }
+        }
+
         Self {
             name: skill.preset.clone().unwrap_or("Beyond".to_string()),
             tech,
             notables,
+            numerics,
             shine_charge_tiles: skill.shinespark_tiles,
             heated_shine_charge_tiles: skill.heated_shinespark_tiles,
             shinecharge_leniency_frames: skill.shinecharge_leniency_frames as Capacity,
@@ -164,10 +187,19 @@ impl DifficultyConfig {
             .zip(other.notables.iter())
             .map(|(&a, &b)| a && b)
             .collect();
+        // Note: this assumes that lower values for numerics represent higher difficulty
+        // (currently true, but might not always be the case later).
+        let numerics: Vec<Capacity> = self
+            .numerics
+            .iter()
+            .zip(other.numerics.iter())
+            .map(|(&a, &b)| Capacity::max(a, b))
+            .collect();
         DifficultyConfig {
             name: self.name.clone(),
             tech,
             notables,
+            numerics,
             shine_charge_tiles: f32::max(self.shine_charge_tiles, other.shine_charge_tiles),
             heated_shine_charge_tiles: f32::max(
                 self.heated_shine_charge_tiles,
@@ -1075,7 +1107,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
+                    reqs.push(Requirement::HeatFrames((heat_frames as Capacity).into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1295,7 +1327,7 @@ impl<'a> Preprocessor<'a> {
                         runway_heated,
                         *heated,
                     );
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1347,7 +1379,7 @@ impl<'a> Preprocessor<'a> {
                         runway_heated,
                         *heated,
                     );
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1419,7 +1451,7 @@ impl<'a> Preprocessor<'a> {
                         runway_heated,
                         *heated,
                     );
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1531,7 +1563,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames as Capacity));
+                    reqs.push(Requirement::HeatFrames((heat_frames as Capacity).into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1613,14 +1645,16 @@ impl<'a> Preprocessor<'a> {
                         let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
                         let (heat_frames_2, _) =
                             compute_shinecharge_frames(other_runway_length, 0.0);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                        reqs.push(Requirement::HeatFrames(
+                            (heat_frames_1 + heat_frames_2 + 5).into(),
+                        ));
                     }
                 } else if *heated {
                     // Runway in the other room starts at a different node and runs toward the door. The full combined
                     // runway is used.
                     let (frames_1, _) = compute_shinecharge_frames(effective_length, 0.0);
                     let heat_frames = frames_1 + 5;
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -1741,7 +1775,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MOCKBALL],
@@ -1864,7 +1898,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 if exit_movement_type == BounceMovementType::Controlled {
                     reqs.push(Requirement::Tech(
@@ -2019,7 +2053,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 if entrance_movement_type == BounceMovementType::Controlled {
                     reqs.push(Requirement::Tech(
@@ -2059,7 +2093,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
-                reqs.push(Requirement::ShineChargeFrames(10)); // Assume shinecharge is obtained 10 frames before going through door.
+                reqs.push(Requirement::ShineChargeFrames(10.into())); // Assume shinecharge is obtained 10 frames before going through door.
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -2069,10 +2103,12 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
+                        reqs.push(Requirement::HeatFrames(
+                            (heat_frames_1 + heat_frames_2 + 15).into(),
+                        ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                        reqs.push(Requirement::HeatFrames((heat_frames + 5).into()));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -2106,7 +2142,7 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
-                reqs.push(Requirement::ShineChargeFrames(10)); // Assume shinecharge is obtained 10 frames before going through door.
+                reqs.push(Requirement::ShineChargeFrames(10.into())); // Assume shinecharge is obtained 10 frames before going through door.
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -2116,10 +2152,12 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 15));
+                        reqs.push(Requirement::HeatFrames(
+                            (heat_frames_1 + heat_frames_2 + 15).into(),
+                        ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                        reqs.push(Requirement::HeatFrames((heat_frames + 5).into()));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -2166,7 +2204,7 @@ impl<'a> Preprocessor<'a> {
                     } else {
                         compute_run_frames(effective_length)
                     };
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -2236,10 +2274,12 @@ impl<'a> Preprocessor<'a> {
                         let run_frames = compute_run_frames(runway_length);
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
-                        reqs.push(Requirement::HeatFrames(heat_frames_1 + heat_frames_2 + 5));
+                        reqs.push(Requirement::HeatFrames(
+                            (heat_frames_1 + heat_frames_2 + 5).into(),
+                        ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
-                        reqs.push(Requirement::HeatFrames(heat_frames + 5));
+                        reqs.push(Requirement::HeatFrames((heat_frames + 5).into()));
                     }
                 }
                 Some(Requirement::make_and(reqs))
@@ -2292,12 +2332,12 @@ impl<'a> Preprocessor<'a> {
                         let heat_frames_1 = run_frames + 20;
                         let heat_frames_2 = Capacity::max(85, run_frames);
                         reqs.push(Requirement::HeatFrames(
-                            heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15,
+                            (heat_frames_1 + heat_frames_2 + heat_frames_temp_blue + 15).into(),
                         ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
                         reqs.push(Requirement::HeatFrames(
-                            heat_frames + heat_frames_temp_blue + 5,
+                            (heat_frames + heat_frames_temp_blue + 5).into(),
                         ));
                     }
                 }
@@ -2328,7 +2368,7 @@ impl<'a> Preprocessor<'a> {
                     Requirement::Item(Item::Morph as ItemId),
                     Requirement::Or(vec![
                         Requirement::Item(Item::Bombs as ItemId),
-                        Requirement::PowerBombs(1),
+                        Requirement::PowerBombs(1.into()),
                     ]),
                 ]));
                 if *heated {
@@ -2336,7 +2376,7 @@ impl<'a> Preprocessor<'a> {
                     if *from_exit_node {
                         heat_frames += compute_run_frames(effective_length);
                     }
-                    reqs.push(Requirement::HeatFrames(heat_frames));
+                    reqs.push(Requirement::HeatFrames(heat_frames.into()));
                 }
                 Some(Requirement::make_and(reqs))
             }
@@ -2386,7 +2426,7 @@ impl<'a> Preprocessor<'a> {
                     heat_frames_per_attempt += 50;
                 }
                 if heat_frames_per_attempt > 0 {
-                    reqs.push(Requirement::HeatFrames(heat_frames_per_attempt));
+                    reqs.push(Requirement::HeatFrames(heat_frames_per_attempt.into()));
                     reqs.push(Requirement::HeatedDoorStuckLeniency {
                         heat_frames: heat_frames_per_attempt,
                     })
@@ -2411,8 +2451,8 @@ impl<'a> Preprocessor<'a> {
                     Requirement::Item(Item::XRayScope as ItemId),
                     Requirement::NoFlashSuit,
                     Requirement::ReserveTrigger {
-                        min_reserve_energy: 1,
-                        max_reserve_energy: 400,
+                        min_reserve_energy: 1.into(),
+                        max_reserve_energy: 400.into(),
                         heated,
                     },
                 ];
@@ -2482,8 +2522,8 @@ impl<'a> Preprocessor<'a> {
 
                 let mobile_req = if *knockback {
                     Requirement::ReserveTrigger {
-                        min_reserve_energy: 1,
-                        max_reserve_energy: 4,
+                        min_reserve_energy: 1.into(),
+                        max_reserve_energy: 4.into(),
                         heated: false,
                     }
                 } else {
@@ -2498,8 +2538,8 @@ impl<'a> Preprocessor<'a> {
                                     [&TECH_ID_CAN_ENTER_G_MODE_IMMOBILE],
                             ),
                             Requirement::ReserveTrigger {
-                                min_reserve_energy: 1,
-                                max_reserve_energy: 400,
+                                min_reserve_energy: 1.into(),
+                                max_reserve_energy: 400.into(),
                                 heated: false,
                             },
                             regain_mobility_link.requirement.clone(),
@@ -2587,7 +2627,7 @@ impl<'a> Preprocessor<'a> {
                     self.game_data.item_isv.index_by_key["SpaceJump"],
                 ));
                 if *heated {
-                    reqs_and_vec.push(Requirement::HeatFrames(30));
+                    reqs_and_vec.push(Requirement::HeatFrames(30.into()));
                 }
                 Some(Requirement::make_and(reqs_and_vec))
             }
