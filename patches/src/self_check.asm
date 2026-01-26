@@ -71,6 +71,20 @@ calc_checksum:
     clc
 .no_carry1:
 
+    adc $0002,x
+    bcc .no_carry2
+    iny
+    clc
+.no_carry2:
+
+    adc $0003,x
+    bcc .no_carry3
+    iny
+    clc
+.no_carry3:
+
+    inx
+    inx
     inx
     inx
     beq .new_bank
