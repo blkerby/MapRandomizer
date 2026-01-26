@@ -1,3 +1,4 @@
+$9B: decompression.asm
 $09EC: number of disabled ETanks (saved to SRAM)
 $0A1A: previous reserve health (reserve_hud.asm)
 $1F5B: map area (like $079F)

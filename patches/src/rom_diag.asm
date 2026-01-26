@@ -5,9 +5,9 @@ lorom
 !bank_80_free_space_end = $80875B   ; and this is where it ended.
 !sram_msg_end = $80BC37
 
-!bank = $1f89
-!offset = $1f8a
-!checksum = $1f8c
+!bank = $9c
+!offset = $9d
+!checksum = $9f
 
 
 ; $80:855F 20 F6 85    JSR $85F6  [$80:85F6]  ; NTSC/PAL and SRAM mapping check
@@ -55,25 +55,25 @@ calc_checksum:
 .chksum_loop
     lda $0000,x
     clc
-    adc $801f8c
-    sta $801f8c
+    adc !checksum
+    sta !checksum
     bcc .no_carry
-    lda $801f8d
+    lda !checksum+1
     inc
-    sta $801f8d
+    sta !checksum+1
 .no_carry
     inx
     bne .same_bank
-    lda $801f89
+    lda !bank
     inc
     beq .done
-    sta $801f89
+    sta !bank
     pha
     plb                     ; DB++
     lda #$00
-    sta $801f8a
+    sta !offset
     lda #$80
-    sta $801f8b
+    sta !offset+1
     ldx #$8000
     
 .same_bank
@@ -81,13 +81,13 @@ calc_checksum:
     bne .chksum_loop
     rep #$20
     txa
-    sta $801f8a             ; save offset
+    sta !offset             ; save offset
     plb
     plp
     jmp nmi_done
 
 .done
-    sta $801f89             ; 00 (done)
+    sta !bank             ; 00 (done)
     plb
     plp
     lda !checksum
