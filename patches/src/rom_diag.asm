@@ -52,7 +52,7 @@ calc_checksum:
     pha
     plb                 ; set DB to current bank
     
-.chksum_loop
+.chksum_loop:
     lda $0000,x
     clc
     adc !checksum
@@ -62,6 +62,18 @@ calc_checksum:
     inc
     sta !checksum+1
 .no_carry:
+
+    lda $0001,x
+    clc
+    adc !checksum
+    sta !checksum
+    bcc .no_carry2
+    lda !checksum+1
+    inc
+    sta !checksum+1
+.no_carry2:
+
+    inx
     inx
     beq .new_bank
 
@@ -82,10 +94,6 @@ calc_checksum:
     sta !bank
     pha
     plb                     ; DB++
-    lda #$00
-    sta !offset
-    lda #$80
-    sta !offset+1
     ldx #$8000
     jmp .same_bank
 
