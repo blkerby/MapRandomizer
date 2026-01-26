@@ -5,46 +5,50 @@ lorom
 !bank_80_free_space_end = $80875B   ; and this is where it ended.
 !sram_msg_end = $80BC37
 
-; $1f89: bank
-; $1f8a: offset
-; $1f8c: checksum
+!bank = $1f89
+!offset = $1f8a
+!checksum = $1f8c
 
 
 ; $80:855F 20 F6 85    JSR $85F6  [$80:85F6]  ; NTSC/PAL and SRAM mapping check
-							
+                            
 org $80855F						; original call to the SRAM routine, we can use this to setup our RAM variables.
-		JSR hook_init 
-		
+    JSR hook_init 
+        
+; Hook the wait-for-NMI idle loop:
+
+;$80:8340 8D B4 05    STA $05B4  [$7E:05B4]  ;} NMI request flag = 1
 ;$80:8343 AD B4 05    LDA $05B4  [$7E:05B4]  ;\
 ;$80:8346 D0 FB       BNE $FB    [$8343]     ;} Wait until NMI request acknowledged
-		
-org $808343
-    jmp calc_checksum : nop : nop
-post_hook:
-		
+
+org $808340
+    jmp calc_checksum  ; hook to use spare CPU to compute checksum, while waiting for NMI
+nmi_wait:
+    lda $05b4          ; regular idle loop to wait for NMI (if already done computing checksum)
+    bne nmi_wait
+nmi_done:
+
 org !bank_80_free_space_start
 hook_init:
     lda #$0080
-    sta $1f89
+    sta !bank
     xba
-    sta $1f8a
-    stz $1f8c
+    sta !offset
+    stz !checksum
     rts
 
 calc_checksum:
-    lda $1f89           ; curr bank
-    bne .do_checksum    ; non-zero = processing
-.nmi_wait
-    lda $5b4
-    bne .nmi_wait
-    jmp post_hook
+    sta $05B4           ; run hi-jacked instruction (NMI request flag = 1)
+    lda !bank
+    bne .do_checksum    ; non-zero = still computing checksum
+    jmp nmi_wait        ; already done, return to vanilla NMI wait loop
     
 .do_checksum
     php
     phb
     rep #$10            ; 16-bit X
-    ldx $1f8a           ; curr offset
-    lda $1f89           ; bank
+    ldx !offset
+    lda !bank
     pha
     plb                 ; set DB to current bank
     
@@ -80,72 +84,72 @@ calc_checksum:
     sta $801f8a             ; save offset
     plb
     plp
-    jmp post_hook
+    jmp nmi_done
 
 .done
     sta $801f89             ; 00 (done)
-		plb
+    plb
     plp
-		lda $1f8c
-		cmp $ffde
-		bne .chkfail
-		lda $1f8d
-		cmp $ffdf
-		bne .chkfail
-    bra .nmi_wait
-		
+    lda !checksum
+    cmp $ffde
+    bne .chkfail
+    lda !checksum+1
+    cmp $ffdf
+    bne .chkfail
+    jmp nmi_wait
+        
 .chkfail										; checksum doesnt match whats stored in ROM.. display a red screen and crash.
-		stz $2140
-		jsr $875d
-		jsr $8792
-		jsl $808b1a
-		jsl $80896e
-		lda #$8f
-		sta $51
-		sta $2100
-		stz $4200
-		stz $2116
-		stz $2117
-		lda #$80
-		sta $2115
-		jsl $8091a9
-		db $01,$01,$18
-		dw $8000
-		db $8e
-		dw $4000
-		lda #$02
-		sta $420b
-		stz $2116
-		lda #$40
-		sta $2117
-		lda #$80
-		sta $2115
-		jsl $8091a9
-		db $01,$01,$18
-		dw $b437
-		db $80
-		dw $1000
-		lda #$02
-		sta $420b
-		stz $2121
-		jsl $8091a9
-		db $01,$00,$22
-		dw $e400
-		db $8e
-		dw $0200
-		lda #$02
-		sta $420b
-		stz $2131
-		stz $212d
-		lda #$01
-		sta $212c
-		lda #$0f
-		sta $2100
-		stz $210b
-		lda #$40
-		sta $2107
+    stz $2140
+    jsr $875d
+    jsr $8792
+    jsl $808b1a
+    jsl $80896e
+    lda #$8f
+    sta $51
+    sta $2100
+    stz $4200
+    stz $2116
+    stz $2117
+    lda #$80
+    sta $2115
+    jsl $8091a9
+    db $01,$01,$18
+    dw $8000
+    db $8e
+    dw $4000
+    lda #$02
+    sta $420b
+    stz $2116
+    lda #$40
+    sta $2117
+    lda #$80
+    sta $2115
+    jsl $8091a9
+    db $01,$01,$18
+    dw $b437
+    db $80
+    dw $1000
+    lda #$02
+    sta $420b
+    stz $2121
+    jsl $8091a9
+    db $01,$00,$22
+    dw $e400
+    db $8e
+    dw $0200
+    lda #$02
+    sta $420b
+    stz $2131
+    stz $212d
+    lda #$01
+    sta $212c
+    lda #$0f
+    sta $2100
+    stz $210b
+    lda #$40
+    sta $2107
 .crash
-		bra .crash
+    bra .crash
 
 print pc
 assert pc() <= !bank_80_free_space_end
