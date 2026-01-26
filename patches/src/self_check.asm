@@ -51,35 +51,38 @@ calc_checksum:
     lda !bank
     pha
     plb                 ; set DB to current bank
+    lda !checksum
+    ldy !checksum+1
+    clc
+    pha
     
 .chksum_loop:
-    lda $0000,x
-    clc
-    adc !checksum
-    sta !checksum
-    bcc .no_carry
-    lda !checksum+1
-    inc
-    sta !checksum+1
-.no_carry:
+    pla
 
-    lda $0001,x
+    adc $0000,x
+    bcc .no_carry0
+    iny
     clc
-    adc !checksum
-    sta !checksum
-    bcc .no_carry2
-    lda !checksum+1
-    inc
-    sta !checksum+1
-.no_carry2:
+.no_carry0:
+
+    adc $0001,x
+    bcc .no_carry1
+    iny
+    clc
+.no_carry1:
 
     inx
     inx
     beq .new_bank
 
 .same_bank:
+    pha
     lda $8005b4
     bne .chksum_loop
+
+    pla
+    sta !checksum
+    sty !checksum+1
     rep #$20
     txa
     sta !offset             ; save offset
@@ -88,23 +91,24 @@ calc_checksum:
     jmp nmi_done
 
 .new_bank:
+    pha
     lda !bank
     inc
-    beq .done
     sta !bank
+    beq .done
     pha
     plb                     ; DB++
+    pla
     ldx #$8000
     jmp .same_bank
 
 .done:
-    sta !bank             ; 00 (done)
+    pla
     plb
     plp
-    lda !checksum
     cmp $ffde
     bne .chkfail
-    lda !checksum+1
+    tya
     cmp $ffdf
     bne .chkfail
     jmp nmi_wait
