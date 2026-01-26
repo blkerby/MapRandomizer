@@ -471,7 +471,7 @@ impl Patcher<'_> {
             "sand_clamp",
             "transition_reveal",
             "wall_doors",
-            "rom_diag",
+            "self_check",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
