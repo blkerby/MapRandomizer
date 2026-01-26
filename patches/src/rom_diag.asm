@@ -61,9 +61,21 @@ calc_checksum:
     lda !checksum+1
     inc
     sta !checksum+1
-.no_carry
+.no_carry:
     inx
-    bne .same_bank
+    beq .new_bank
+
+.same_bank:
+    lda $8005b4
+    bne .chksum_loop
+    rep #$20
+    txa
+    sta !offset             ; save offset
+    plb
+    plp
+    jmp nmi_done
+
+.new_bank:
     lda !bank
     inc
     beq .done
@@ -75,18 +87,9 @@ calc_checksum:
     lda #$80
     sta !offset+1
     ldx #$8000
-    
-.same_bank
-    lda $8005b4
-    bne .chksum_loop
-    rep #$20
-    txa
-    sta !offset             ; save offset
-    plb
-    plp
-    jmp nmi_done
+    jmp .same_bank
 
-.done
+.done:
     sta !bank             ; 00 (done)
     plb
     plp
