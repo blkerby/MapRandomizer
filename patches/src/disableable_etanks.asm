@@ -630,7 +630,7 @@ hook_load_equipment_menu:
 
 warnpc !bank_85_free_space_end
 
-org $B6FE80
+org $B6FE60
 tile_modified_map_cursor:
 	db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
 	db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
