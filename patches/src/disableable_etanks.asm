@@ -5,7 +5,7 @@
 !bank_82_free_space_end = $82F9EF
 
 !bank_85_free_space_start = $85AC97
-!bank_85_free_space_end = $85ADA7
+!bank_85_free_space_end = $85ADAA
 
 !current_etank_index = $12
 !count_full_etanks = $14
@@ -31,12 +31,12 @@ org !bank_80_free_space_start
 hook_hud_begin:
     php
     rep #$20
-    lda $0998
+    lda $0998	; If [game state] = Fh (pause menu)
     and #$00ff
     cmp #$000f
     bne .no
 
-    plp
+    plp		; Enable BG3 + Sprites in the HUD
     lda #$14
     sta $212C
     rts
@@ -77,13 +77,7 @@ hook_blink_selected_etank:
     cmp #$0001
     bne .done
     
-    ; E-Tanks select
-    ;lda $0755
-    ;and #$00FF
-    ;cmp #$0004
-    ;bne .done
-    
-    ; We need to make the entire energy area of the HUD not be priority so that we can draw the sprite on it
+    ; Make the entire energy area of the HUD not be priority so that we can draw sprites on it
     ldx #$0012
 -
     lda $7EC608,x
@@ -96,35 +90,9 @@ hook_blink_selected_etank:
     and #$DFFF
     sta $7EC688,x
     
-    ;ldy #$001A
-    
-    ;ldx $9CCE,y
-    ;lda $7EC608,x
-    ;and #$DFFF    ; Remove the priority bit
-    ;sta $7EC608,x
     dex
     dex
     bpl -
-    
-    
-    ;lda $0755
-    ;and #$ff00
-    ;xba
-    ;asl a
-    ;
-    ;tay
-    ;ldx $9CCE,y
-    ;
-    ;;lda $05B5
-    ;;bit #$0010
-    ;;beq .done
-    ;
-    ;lda $7EC608,x
-    ;and #$DFFF ; Remove the priority bit
-    ;;ora #$1000 ; Set hilight palette
-    ;sta $7ec608,x
-    
-    ;stz $0A06  ; Force this to redraw each frame
     
 .done
     lda #$9DD3   ; Hijacked
@@ -262,13 +230,13 @@ hook_equipment_screen_selector:
     lda $14
     tay
     
-    lda #$3600
+    lda #$3600	; Sprite priority 3, palette 3
     sta $03
     
     ;lda #$0014
     lda #$0068
     
-    jsl $81891F
+    jsl $81891F	; Draw sprite from pause menu spritemap
 
     jmp $B2A0
 
@@ -280,7 +248,7 @@ positions_etank_selector_sprite_x:
     ; X, Y position
     dw $0008
 positions_etank_selector_sprite_y:
-    dw $000E
+    dw $000F
     dw $0010, $000F
     dw $0018, $000F
     dw $0020, $000F
@@ -345,7 +313,7 @@ etanks_dpad_down:
     
     ; Don't move down into full e-tanks
     lda $09C2
-    cmp #$02BC	; 700 hp
+    cmp #$02BC	; [Current energy] >= 700 means all 7 bottom row tanks are full
     bcs .no
 
     lda $0755
@@ -398,7 +366,7 @@ hook_equipment_screen_category_etanks:
     jsl etank_do_some_math
 
     lda $8f
-    bit #$0100
+    bit #$0100	; P1 D-Pad Right
     beq .hook_etank_not_right
     
     jsr etanks_dpad_right
@@ -408,7 +376,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_right
 
     lda $8f
-    bit #$0200
+    bit #$0200	; P1 D-Pad Left
     beq .hook_etank_not_left
     
     jsr etanks_dpad_left
@@ -418,7 +386,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_left
 
     lda $8F
-    bit #$0400
+    bit #$0400	; P1 D-Pad Down
     beq .hook_etank_not_down
     
     jsr etanks_dpad_down
@@ -436,7 +404,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_down
 
     lda $8F
-    bit #$0800
+    bit #$0800	; P1 D-Pad Up
     beq .hook_etank_not_up
     
     jsr etanks_dpad_up
@@ -446,7 +414,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_up
 
     lda $8f
-    bit #$0080
+    bit #$0080	; P1 Button A
     beq .ret
 
 
@@ -484,7 +452,7 @@ etank_do_some_math:
     lda $0755
     xba
     and #$00ff
-    sta !current_etank_index
+    sta !current_etank_index	; current_etank_index from equipment current item
 
     lda $09C2
     sta $4204
@@ -497,7 +465,7 @@ etank_do_some_math:
     pla
     rep #$20
     lda $4214   
-    sta !count_full_etanks
+    sta !count_full_etanks	; count_full_etanks = current_health / 100
 
     lda $09C4
     sta $4204
@@ -510,12 +478,12 @@ etank_do_some_math:
     pla
     rep #$20
     lda $4214
-    sta !count_enabled_etanks
+    sta !count_enabled_etanks	; count_enabled_etanks = maximum_health / 100
     clc
     adc !num_disabled_etanks
-    sta !count_all_etanks
+    sta !count_all_etanks	; count_all_tanks = count_enabled_tanks + num_disabled_tanks
 
-    lda $12
+    lda !current_etank_index
     asl a
     tax
     lda $809CCE,X ; There's a nice table here of E-Tank tile offsets that are convenient for our purposes
@@ -543,7 +511,7 @@ dpad_enter_hud:
     cmp !count_enabled_etanks
     bcs .all_disabled
     
-    ; Select leftmost enabled tank
+    ; Select leftmost enabled tank (A button disables all tanks)
     lda !count_full_etanks
     xba
     and #$ff00
@@ -551,7 +519,7 @@ dpad_enter_hud:
     bra .yes
     
 .all_disabled
-    ; Select rightmost disabled tank
+    ; Select rightmost disabled tank (A button enables all tanks)
     lda !count_all_etanks
     dec a
     xba
@@ -561,8 +529,9 @@ dpad_enter_hud:
 .yes
     sta $0755
     lda #$0037
-    jsl $809049
-    stz $0A06  ; Force the HUD to redraw energy
+    jsl $809049 ; SFX "cursor moved"
+    stz $0A06  ; Force the HUD to redraw energy - this will cause the HUD to update with de-prioritized tiles so the cursor can draw over it
+    dec $0A06
     
     sec
     rtl
@@ -590,7 +559,7 @@ disable_tank:
     
     lda !current_etank_index
     cmp !count_enabled_etanks
-    bcc disable_tank ; Repeat until we've disabled all tanks above the current tank
+    bcc disable_tank ; Repeat until we've disabled all tanks above and including the selected tank
 
     bra tank_swap_good
 
@@ -610,11 +579,11 @@ enable_tank:
     
     lda !current_etank_index
     cmp !count_enabled_etanks
-    bcs enable_tank ; Repeat until we've enabled all tanks above the current tank
+    bcs enable_tank ; Repeat until we've enabled all tanks below and including the current tank
 
-tank_swap_good:    
+tank_swap_good:
     lda #$0038
-    jsl $809049
+    jsl $809049 ; SFX "menu selection"
 
 tank_swap_done:
     stz $0A06   ; set previous health to invalid value, to trigger it to be redrawn
@@ -622,6 +591,7 @@ tank_swap_done:
     rtl
 
 hook_equipment_button_response_safetynet:
+    ; If we moved into the e-tank area, don't allow beams/suits/misc/boots to process an A button press and do possible weird things
     lda $0755
     and #$00ff
     cmp #$0004
@@ -637,6 +607,8 @@ hook_equipment_button_response_safetynet:
 
 hook_load_equipment_menu:
     jsl $82AC22    ;Hijacked code
+    
+    ; Write the modified tile to VRAM at $2AE0
     ldx $0330
     lda #$0020
     sta $d0,x
