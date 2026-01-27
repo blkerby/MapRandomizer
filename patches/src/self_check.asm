@@ -75,11 +75,19 @@ endmacro
     %add_byte(5)
     %add_byte(6)
     %add_byte(7)
+    %add_byte(8)
+    %add_byte(9)
+    %add_byte(10)
+    %add_byte(11)
+    %add_byte(12)
+    %add_byte(13)
+    %add_byte(14)
+    %add_byte(15)
 
     pha
     rep #$20
     txa
-    adc #$0008
+    adc #$0010
     tax
     sep #$20
 
@@ -87,8 +95,10 @@ endmacro
 
 .same_bank:
     lda $8005b4
-    bne .chksum_loop
+    beq .interrupted
+    jmp .chksum_loop
 
+.interrupted:
     pla
     sta !checksum
     sty !checksum+1
