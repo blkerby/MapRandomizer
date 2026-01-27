@@ -44,6 +44,8 @@ calc_checksum:
     jmp nmi_wait        ; already done, return to vanilla NMI wait loop
     
 .do_checksum
+    phx
+    phy
     php
     phb
     rep #$10            ; 16-bit X
@@ -99,6 +101,7 @@ endmacro
     jmp .chksum_loop
 
 .interrupted:
+    ; NMI has finished, so save the current checksum state and return:
     pla
     sta !checksum
     sty !checksum+1
@@ -107,6 +110,8 @@ endmacro
     sta !offset             ; save offset
     plb
     plp
+    ply
+    plx
     jmp nmi_done
 
 .new_bank:
@@ -128,6 +133,8 @@ endmacro
     bne .chkfail
     cpy $ffdf
     bne .chkfail
+    ply
+    plx
     jmp nmi_wait
         
 .chkfail										; checksum doesnt match whats stored in ROM.. display a red screen and crash.
