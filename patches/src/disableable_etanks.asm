@@ -5,7 +5,7 @@
 !bank_82_free_space_end = $82F9EF
 
 !bank_85_free_space_start = $85AC97
-!bank_85_free_space_end = $85AD81
+!bank_85_free_space_end = $85ADA7
 
 !current_etank_index = $12
 !count_full_etanks = $14
@@ -124,7 +124,7 @@ hook_blink_selected_etank:
     ;;ora #$1000 ; Set hilight palette
     ;sta $7ec608,x
     
-    stz $0A06  ; Force this to redraw each frame
+    ;stz $0A06  ; Force this to redraw each frame
     
 .done
     lda #$9DD3   ; Hijacked
@@ -162,6 +162,9 @@ org $82B26A
 org $82B56B
     jsl hook_equipment_button_response_safetynet
     nop
+
+org $8291B4
+    jsl hook_load_equipment_menu
 
 org !bank_82_free_space_start
 
@@ -204,19 +207,19 @@ hook_pause_spritemap_smallbox:
     
     dw $0005
     db $05
-    dw $EEAF
+    dw $EEAE
     
     dw $01FB
     db $05
-    dw $AEAF
+    dw $AEAE
     
     dw $0005
     db $FB
-    dw $6EAF
+    dw $6EAE
     
     dw $01FB
     db $FB
-    dw $2EAF
+    dw $2EAE
 
 hook_suits_dpad_response:
     ; Just loaded A from $0755
@@ -632,4 +635,31 @@ hook_equipment_button_response_safetynet:
     rtl
 
 
+hook_load_equipment_menu:
+    jsl $82AC22    ;Hijacked code
+    ldx $0330
+    lda #$0020
+    sta $d0,x
+    inx
+    inx
+    lda.w #tile_modified_map_cursor
+    sta $d0,x
+    inx
+    inx
+    lda #$00b6
+    sta $d0,x
+    inx
+    lda #$2AE0
+    sta $d0,x
+    inx
+    inx
+    stx $0330
+    rtl
+
 warnpc !bank_85_free_space_end
+
+org $B6FE80
+tile_modified_map_cursor:
+	db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
+	db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
+
