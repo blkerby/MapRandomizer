@@ -1,20 +1,19 @@
 arch snes.cpu
 lorom
 
-!bank_80_free_space_start = $8085F6 ; this is where the sram/region check used to live.
-!bank_80_free_space_end = $80875B   ; and this is where it ended.
+!bank_80_free_space_start = $80BC37
+!bank_80_free_space_end = $80C437
+!bank_8b_free_space_start = $8BF940
+!bank_8b_free_space_end = $8BF960
 !sram_msg_end = $80BC37
 
-!bank = $9c
-!offset = $9d
-!checksum = $9f
+!bank = $7ff800
+!offset = $7ff801
+!checksum = $7ff803
 
+org $8B92E2
+    JSR hook_init
 
-; $80:855F 20 F6 85    JSR $85F6  [$80:85F6]  ; NTSC/PAL and SRAM mapping check
-                            
-org $80855F						; original call to the SRAM routine, we can use this to setup our RAM variables.
-    JSR hook_init 
-        
 ; Hook the wait-for-NMI idle loop:
 
 ;$80:8340 8D B4 05    STA $05B4  [$7E:05B4]  ;} NMI request flag = 1
@@ -29,13 +28,6 @@ nmi_wait:
 nmi_done:
 
 org !bank_80_free_space_start
-hook_init:
-    lda #$0080
-    sta !bank
-    xba
-    sta !offset
-    stz !checksum
-    rts
 
 calc_checksum:
     sta $05B4           ; run hi-jacked instruction (NMI request flag = 1)
@@ -48,13 +40,16 @@ calc_checksum:
     phy
     php
     phb
-    rep #$10            ; 16-bit X
-    ldx !offset
+    rep #$30            ; 16-bit X
+    lda !offset
+    tax
+    sep #$20            ; 8-bit A
     lda !bank
     pha
     plb                 ; set DB to current bank
+    lda !checksum+1
+    tay
     lda !checksum
-    ldy !checksum+1
     clc
     pha
     
@@ -85,11 +80,27 @@ endmacro
     %add_byte(13)
     %add_byte(14)
     %add_byte(15)
+    %add_byte(16)
+    %add_byte(17)
+    %add_byte(18)
+    %add_byte(19)
+    %add_byte(20)
+    %add_byte(21)
+    %add_byte(22)
+    %add_byte(23)
+    %add_byte(24)
+    %add_byte(25)
+    %add_byte(26)
+    %add_byte(27)
+    %add_byte(28)
+    %add_byte(29)
+    %add_byte(30)
+    %add_byte(31)
 
     pha
     rep #$20
     txa
-    adc #$0010
+    adc #$0020
     tax
     sep #$20
 
@@ -104,7 +115,8 @@ endmacro
     ; NMI has finished, so save the current checksum state and return:
     pla
     sta !checksum
-    sty !checksum+1
+    tya
+    sta !checksum+1
     rep #$20
     txa
     sta !offset             ; save offset
@@ -228,5 +240,16 @@ dw "                                "
 dw "                                "
 dw "                                "
 dw "                                "
-
 assert pc() <= !sram_msg_end
+
+org !bank_8b_free_space_start
+hook_init:
+    lda #$0080
+    sta !bank
+    xba
+    sta !offset
+    lda #$0000
+    sta !checksum
+    lda #$0001     ; run hi-jacked instruction
+    rts
+assert pc() <= !bank_8b_free_space_end
