@@ -59,38 +59,33 @@ calc_checksum:
 .chksum_loop:
     pla
 
-    adc $0000,x
-    bcc .no_carry0
+macro add_byte(i)
+    adc $0000+<i>,x
+    bcc .no_carry<i>
     iny
     clc
-.no_carry0:
+.no_carry<i>:
+endmacro
 
-    adc $0001,x
-    bcc .no_carry1
-    iny
-    clc
-.no_carry1:
+    %add_byte(0)
+    %add_byte(1)
+    %add_byte(2)
+    %add_byte(3)
+    %add_byte(4)
+    %add_byte(5)
+    %add_byte(6)
+    %add_byte(7)
 
-    adc $0002,x
-    bcc .no_carry2
-    iny
-    clc
-.no_carry2:
+    pha
+    rep #$20
+    txa
+    adc #$0008
+    tax
+    sep #$20
 
-    adc $0003,x
-    bcc .no_carry3
-    iny
-    clc
-.no_carry3:
-
-    inx
-    inx
-    inx
-    inx
     beq .new_bank
 
 .same_bank:
-    pha
     lda $8005b4
     bne .chksum_loop
 
@@ -105,15 +100,14 @@ calc_checksum:
     jmp nmi_done
 
 .new_bank:
-    pha
     lda !bank
     inc
     sta !bank
     beq .done
     pha
     plb                     ; DB++
-    pla
     ldx #$8000
+    clc
     jmp .same_bank
 
 .done:
@@ -122,8 +116,7 @@ calc_checksum:
     plp
     cmp $ffde
     bne .chkfail
-    tya
-    cmp $ffdf
+    cpy $ffdf
     bne .chkfail
     jmp nmi_wait
         
