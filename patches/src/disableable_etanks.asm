@@ -1,11 +1,11 @@
 !bank_80_free_space_start = $80E3C0
 !bank_80_free_space_end = $80E440
 
-!bank_82_free_space_start = $82F829
-!bank_82_free_space_end = $82F9EF
+!bank_82_free_space_start = $82F830
+!bank_82_free_space_end = $82F9F6
 
-!bank_85_free_space_start = $85AC97
-!bank_85_free_space_end = $85ADAA
+!bank_85_free_space_start = $85AD00
+!bank_85_free_space_end = $85AE13
 
 !current_etank_index = $12
 !count_full_etanks = $14
