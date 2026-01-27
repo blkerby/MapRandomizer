@@ -2,4 +2,3 @@
 F760 - F770: used by `escape_items.asm` for adjusting item percent calculation
 F770 - F900: used by `credits.asm`
 F900 - F940: used by `escape.asm` for adjusting item percent calculation
-F940 - F960: used by `self_check.asm`

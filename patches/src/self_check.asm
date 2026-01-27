@@ -3,16 +3,37 @@ lorom
 
 !bank_80_free_space_start = $80BC37
 !bank_80_free_space_end = $80C437
-!bank_8b_free_space_start = $8BF940
-!bank_8b_free_space_end = $8BF960
 !sram_msg_end = $80BC37
 
 !bank = $7ff800
 !offset = $7ff801
 !checksum = $7ff803
 
-org $8B92E2
-    JSR hook_init
+
+; bootloop burns 4 frames during bootup, our init code fits exactly here and avoids a jump.
+
+;$80:8438 E2 30       SEP #$30
+;$80:843A A2 04       LDX #$04               ;\
+;                                            ;|
+;$80:843C AD 12 42    LDA $4212              ;|
+;$80:843F 10 FB       BPL $FB    [$843C]     ;|
+;                                            ;} Wait the remainder of this frame and 3 more frames
+;$80:8441 AD 12 42    LDA $4212              ;|
+;$80:8444 30 FB       BMI $FB    [$8441]     ;|
+;$80:8446 CA          DEX                    ;|
+;$80:8447 D0 F3       BNE $F3    [$843C]     ;/
+;$80:8449 C2 30       REP #$30
+;$80:844B A2 FE 1F    LDX #$1FFE  
+
+org $808438
+    lda #$0080
+    sta !bank
+    xba
+    sta !offset
+    lda #$0000
+    sta !checksum
+
+assert pc() <= $80844B ; lets not overwrite the next instruction.
 
 ; Hook the wait-for-NMI idle loop:
 
@@ -149,7 +170,7 @@ endmacro
     plx
     jmp nmi_wait
         
-.chkfail										; checksum doesnt match whats stored in ROM.. display a red screen and crash.
+.chkfail										; checksum doesnt match whats stored in ROM.. display error screen.
     stz $2140
     jsr $875d
     jsr $8792
@@ -241,15 +262,3 @@ dw "                                "
 dw "                                "
 dw "                                "
 assert pc() <= !sram_msg_end
-
-org !bank_8b_free_space_start
-hook_init:
-    lda #$0080
-    sta !bank
-    xba
-    sta !offset
-    lda #$0000
-    sta !checksum
-    lda #$0001     ; run hi-jacked instruction
-    rts
-assert pc() <= !bank_8b_free_space_end
