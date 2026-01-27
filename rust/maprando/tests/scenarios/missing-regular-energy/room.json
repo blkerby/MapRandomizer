@@ -1,0 +1,42 @@
+{
+  "$schema": "../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [
+    [1]
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Starting Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [
+        [1]
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Ending Node",
+      "nodeType": "junction",
+      "nodeSubType": "junction",
+      "mapTileMask": [
+        [1]
+      ]
+    }
+  ],
+  "strats": [
+    {
+      "link": [1, 2],
+      "name": "Regular Energy Missing at Most",
+      "requires": [
+        {"resourceMissingAtMost": [{"type": "RegularEnergy", "count": 30}]}
+      ],
+      "flashSuitChecked": true
+    }
+  ]
+}

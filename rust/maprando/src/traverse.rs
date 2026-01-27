@@ -114,23 +114,23 @@ fn compute_cost(
 ) -> [CostValue; NUM_COST_METRICS] {
     let mut energy_cost = match local.energy() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_energy - x) as CostValue * 2 + 1,
     };
     let mut reserve_cost = match local.reserves() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_reserves - x) as CostValue * 2 + 1,
     };
     let mut missiles_cost = match local.missiles() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_missiles - x) as CostValue * 2 + 1,
     };
     let mut supers_cost = match local.supers() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_supers - x) as CostValue * 2 + 1,
     };
     let mut power_bombs_cost = match local.power_bombs() {
         ResourceLevel::Consumed(x) => x as CostValue * 2,
-        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as CostValue + 1,
+        ResourceLevel::Remaining(x) => (inventory.max_power_bombs - x) as CostValue * 2 + 1,
     };
     let mut shinecharge_cost = -if local.flash_suit > 0 {
         // For the purposes of the cost metrics, treat flash suit as equivalent
@@ -1157,44 +1157,54 @@ fn apply_requirement_simple(
             .quality_of_life_settings
             .remove_climb_lava
             .into(),
-        Requirement::HeatFrames(frames) => apply_heat_frames(
-            *frames,
-            local,
-            cx.global,
-            cx.game_data,
-            cx.difficulty,
-            false,
-            cx.reverse,
-        )
-        .into(),
-        Requirement::SuitlessHeatFrames(frames) => apply_suitless_heat_frames(
-            *frames,
-            local,
-            cx.global,
-            cx.game_data,
-            cx.difficulty,
-            false,
-            cx.reverse,
-        )
-        .into(),
-        Requirement::SimpleHeatFrames(frames) => apply_heat_frames(
-            *frames,
-            local,
-            cx.global,
-            cx.game_data,
-            cx.difficulty,
-            true,
-            cx.reverse,
-        )
-        .into(),
+        Requirement::HeatFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
+            apply_heat_frames(
+                frames,
+                local,
+                cx.global,
+                cx.game_data,
+                cx.difficulty,
+                false,
+                cx.reverse,
+            )
+            .into()
+        }
+        Requirement::SuitlessHeatFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
+            apply_suitless_heat_frames(
+                frames,
+                local,
+                cx.global,
+                cx.game_data,
+                cx.difficulty,
+                false,
+                cx.reverse,
+            )
+            .into()
+        }
+        Requirement::SimpleHeatFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
+            apply_heat_frames(
+                frames,
+                local,
+                cx.global,
+                cx.game_data,
+                cx.difficulty,
+                true,
+                cx.reverse,
+            )
+            .into()
+        }
         Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             let drops = if cx.settings.quality_of_life_settings.buffed_drops {
                 enemy_drops_buffed
             } else {
                 enemy_drops
             };
             apply_heat_frames_with_energy_drops(
-                *frames,
+                frames,
                 drops,
                 local,
                 cx.global,
@@ -1205,13 +1215,14 @@ fn apply_requirement_simple(
             )
         }
         Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             let drops = if cx.settings.quality_of_life_settings.buffed_drops {
                 enemy_drops_buffed
             } else {
                 enemy_drops
             };
             apply_lava_frames_with_energy_drops(
-                *frames,
+                frames,
                 drops,
                 local,
                 cx.global,
@@ -1309,37 +1320,40 @@ fn apply_requirement_simple(
             }
         }
         Requirement::LavaFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             let varia = cx.global.inventory.items[Item::Varia as usize];
             let gravity = cx.global.inventory.items[Item::Gravity as usize];
             if gravity && varia {
                 SimpleResult::Success
             } else if gravity || varia {
                 let energy_used =
-                    (*frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity;
+                    (frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity;
                 local
                     .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
                     .into()
             } else {
                 let energy_used =
-                    (*frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity;
+                    (frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity;
                 local
                     .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
                     .into()
             }
         }
         Requirement::GravitylessLavaFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             let varia = cx.global.inventory.items[Item::Varia as usize];
             let energy_used = if varia {
-                (*frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity
+                (frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity
             } else {
-                (*frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity
+                (frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity
             };
             local
                 .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
                 .into()
         }
         Requirement::AcidFrames(frames) => {
-            let energy_used = (*frames as f32 * cx.difficulty.resource_multiplier * 1.5
+            let frames = frames.resolve(&cx.difficulty.numerics);
+            let energy_used = (frames as f32 * cx.difficulty.resource_multiplier * 1.5
                 / suit_damage_factor(&cx.global.inventory) as f32)
                 .ceil() as Capacity;
             local
@@ -1347,18 +1361,20 @@ fn apply_requirement_simple(
                 .into()
         }
         Requirement::GravitylessAcidFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             let varia = cx.global.inventory.items[Item::Varia as usize];
             let energy_used = if varia {
-                (*frames as f32 * cx.difficulty.resource_multiplier * 0.75).ceil() as Capacity
+                (frames as f32 * cx.difficulty.resource_multiplier * 0.75).ceil() as Capacity
             } else {
-                (*frames as f32 * cx.difficulty.resource_multiplier * 1.5).ceil() as Capacity
+                (frames as f32 * cx.difficulty.resource_multiplier * 1.5).ceil() as Capacity
             };
             local
                 .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
                 .into()
         }
         Requirement::MetroidFrames(frames) => {
-            let energy_used = (*frames as f32 * cx.difficulty.resource_multiplier * 0.75
+            let frames = frames.resolve(&cx.difficulty.numerics);
+            let energy_used = (frames as f32 * cx.difficulty.resource_multiplier * 0.75
                 / suit_damage_factor(&cx.global.inventory) as f32)
                 .ceil() as Capacity;
             local
@@ -1366,15 +1382,22 @@ fn apply_requirement_simple(
                 .into()
         }
         Requirement::CycleFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             local.cycle_frames +=
-                (*frames as f32 * cx.difficulty.resource_multiplier).ceil() as Capacity;
+                (frames as f32 * cx.difficulty.resource_multiplier).ceil() as Capacity;
             SimpleResult::Success
         }
         Requirement::SimpleCycleFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             local.cycle_frames += frames;
             SimpleResult::Success
         }
-        Requirement::Damage(base_energy) => {
+        Requirement::Damage {
+            unit_energy,
+            quantity,
+        } => {
+            let quantity = quantity.resolve(&cx.difficulty.numerics);
+            let base_energy = unit_energy * quantity;
             let energy = base_energy / suit_damage_factor(&cx.global.inventory);
             if energy >= cx.global.inventory.max_energy
                 && !cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx]
@@ -1386,28 +1409,44 @@ fn apply_requirement_simple(
                     .into()
             }
         }
-        &Requirement::Energy(count) => local
-            .use_energy(count, true, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::RegularEnergy(count) => {
+        Requirement::Energy(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .use_energy(count, true, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::RegularEnergy(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
             // For now, we assume reserve energy can be converted to regular energy, so this is
             // implemented the same as the Energy requirement above.
             local
                 .use_energy(count, true, &cx.global.inventory, cx.reverse)
                 .into()
         }
-        &Requirement::ReserveEnergy(count) => local
-            .use_reserve_energy(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::Missiles(count) => local
-            .use_missiles(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::Supers(count) => local
-            .use_supers(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::PowerBombs(count) => local
-            .use_power_bombs(count, &cx.global.inventory, cx.reverse)
-            .into(),
+        Requirement::ReserveEnergy(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .use_reserve_energy(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::Missiles(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .use_missiles(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::Supers(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .use_supers(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::PowerBombs(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .use_power_bombs(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
         Requirement::GateGlitchLeniency { green, heated } => {
             apply_gate_glitch_leniency(local, cx.global, *green, *heated, cx.difficulty, cx.reverse)
                 .into()
@@ -1497,23 +1536,26 @@ fn apply_requirement_simple(
                 .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
                 .into()
         }
-        Requirement::SpeedKeepSpikeHitLeniency => {
-            let energy_used = cx.difficulty.spike_speed_keep_leniency * 60
-                / suit_damage_factor(&cx.global.inventory);
+        Requirement::MissilesAvailable(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
             local
-                .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
+                .ensure_missiles_available(count, &cx.global.inventory, cx.reverse)
                 .into()
         }
-        &Requirement::MissilesAvailable(count) => local
-            .ensure_missiles_available(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::SupersAvailable(count) => local
-            .ensure_supers_available(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::PowerBombsAvailable(count) => local
-            .ensure_power_bombs_available(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::RegularEnergyAvailable(count) => {
+        Requirement::SupersAvailable(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_supers_available(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::PowerBombsAvailable(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_power_bombs_available(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::RegularEnergyAvailable(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
             // Note: It could make more sense to treat reserve energy satisfying
             // the requirement for regular energy (by manually transfering it over);
             // but currently all uses are after an auto-reserve trigger, where no reserves
@@ -1522,40 +1564,73 @@ fn apply_requirement_simple(
                 .ensure_energy_available(count, false, &cx.global.inventory, cx.reverse)
                 .into()
         }
-        &Requirement::ReserveEnergyAvailable(count) => local
-            .ensure_reserves_available(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::EnergyAvailable(count) => local
-            .ensure_energy_available(count, true, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::MissilesMissingAtMost(count) => local
-            .ensure_missiles_missing_at_most(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::SupersMissingAtMost(count) => local
-            .ensure_supers_missing_at_most(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::PowerBombsMissingAtMost(count) => local
-            .ensure_power_bombs_missing_at_most(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::RegularEnergyMissingAtMost(count) => local
-            .ensure_energy_missing_at_most(count, false, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::ReserveEnergyMissingAtMost(count) => local
-            .ensure_reserves_missing_at_most(count, &cx.global.inventory, cx.reverse)
-            .into(),
-        &Requirement::EnergyMissingAtMost(count) => local
-            .ensure_energy_missing_at_most(count, true, &cx.global.inventory, cx.reverse)
-            .into(),
-        Requirement::MissilesCapacity(count) => (cx.global.inventory.max_missiles >= *count).into(),
-        Requirement::SupersCapacity(count) => (cx.global.inventory.max_supers >= *count).into(),
+        Requirement::ReserveEnergyAvailable(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_reserves_available(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::EnergyAvailable(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_energy_available(count, true, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::MissilesMissingAtMost(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_missiles_missing_at_most(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::SupersMissingAtMost(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_supers_missing_at_most(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::PowerBombsMissingAtMost(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_power_bombs_missing_at_most(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::RegularEnergyMissingAtMost(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_energy_missing_at_most(count, false, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::ReserveEnergyMissingAtMost(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_reserves_missing_at_most(count, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::EnergyMissingAtMost(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            local
+                .ensure_energy_missing_at_most(count, true, &cx.global.inventory, cx.reverse)
+                .into()
+        }
+        Requirement::MissilesCapacity(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            (cx.global.inventory.max_missiles >= count).into()
+        }
+        Requirement::SupersCapacity(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
+            (cx.global.inventory.max_supers >= count).into()
+        }
         Requirement::PowerBombsCapacity(count) => {
-            (cx.global.inventory.max_power_bombs >= *count).into()
+            let count = count.resolve(&cx.difficulty.numerics);
+            (cx.global.inventory.max_power_bombs >= count).into()
         }
         Requirement::RegularEnergyCapacity(count) => {
-            (cx.global.inventory.max_energy >= *count).into()
+            let count = count.resolve(&cx.difficulty.numerics);
+            (cx.global.inventory.max_energy >= count).into()
         }
         Requirement::ReserveEnergyCapacity(count) => {
-            (cx.global.inventory.max_reserves >= *count).into()
+            let count = count.resolve(&cx.difficulty.numerics);
+            (cx.global.inventory.max_reserves >= count).into()
         }
         Requirement::Farm {
             requirement,
@@ -1594,7 +1669,8 @@ fn apply_requirement_simple(
                 SimpleResult::Failure
             }
         }
-        &Requirement::EnergyRefill(limit) => {
+        Requirement::EnergyRefill(limit) => {
+            let limit = limit.resolve(&cx.difficulty.numerics);
             let limit_energy = min(limit, cx.global.inventory.max_energy);
             let limit_reserves = max(
                 0,
@@ -1634,7 +1710,8 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        &Requirement::RegularEnergyRefill(limit) => {
+        Requirement::RegularEnergyRefill(limit) => {
+            let limit = limit.resolve(&cx.difficulty.numerics);
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
             if limit >= cx.global.pool_inventory.max_energy {
                 local.energy = ResourceLevel::full(cx.reverse).into();
@@ -1651,7 +1728,8 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        &Requirement::ReserveRefill(limit) => {
+        Requirement::ReserveRefill(limit) => {
+            let limit = limit.resolve(&cx.difficulty.numerics);
             let reserves_remaining = local.reserves_remaining(&cx.global.inventory);
             if limit >= cx.global.pool_inventory.max_reserves {
                 local.reserves = ResourceLevel::full(cx.reverse).into();
@@ -1668,7 +1746,8 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        &Requirement::MissileRefill(limit) => {
+        Requirement::MissileRefill(limit) => {
+            let limit = limit.resolve(&cx.difficulty.numerics);
             let missiles_remaining = local.missiles_remaining(&cx.global.inventory);
             if limit >= cx.global.pool_inventory.max_missiles {
                 local.missiles = ResourceLevel::full(cx.reverse).into();
@@ -1685,7 +1764,8 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        &Requirement::SuperRefill(limit) => {
+        Requirement::SuperRefill(limit) => {
+            let limit = limit.resolve(&cx.difficulty.numerics);
             let supers_remaining = local.supers_remaining(&cx.global.inventory);
             if limit >= cx.global.pool_inventory.max_supers {
                 local.supers = ResourceLevel::full(cx.reverse).into();
@@ -1702,7 +1782,8 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        &Requirement::PowerBombRefill(limit) => {
+        Requirement::PowerBombRefill(limit) => {
+            let limit = limit.resolve(&cx.difficulty.numerics);
             let power_bombs_remaining = local.power_bombs_remaining(&cx.global.inventory);
             if limit >= cx.global.pool_inventory.max_power_bombs {
                 local.power_bombs = ResourceLevel::full(cx.reverse).into();
@@ -1752,7 +1833,8 @@ fn apply_requirement_simple(
         Requirement::ShinesparksCostEnergy => {
             cx.settings.other_settings.energy_free_shinesparks.into()
         }
-        &Requirement::RegularEnergyDrain(count) => {
+        Requirement::RegularEnergyDrain(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
             if cx.reverse {
                 let amt = Capacity::max(0, energy_remaining - count);
@@ -1765,7 +1847,8 @@ fn apply_requirement_simple(
                 SimpleResult::Success
             }
         }
-        &Requirement::ReserveEnergyDrain(count) => {
+        Requirement::ReserveEnergyDrain(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
             let reserves_remaining = local.reserves_remaining(&cx.global.inventory);
             if cx.reverse {
                 (reserves_remaining <= count).into()
@@ -1775,7 +1858,8 @@ fn apply_requirement_simple(
                 SimpleResult::Success
             }
         }
-        &Requirement::MissileDrain(count) => {
+        Requirement::MissileDrain(count) => {
+            let count = count.resolve(&cx.difficulty.numerics);
             let missiles_remaining = local.missiles_remaining(&cx.global.inventory);
             if cx.reverse {
                 (missiles_remaining <= count).into()
@@ -1785,19 +1869,23 @@ fn apply_requirement_simple(
                 SimpleResult::Success
             }
         }
-        &Requirement::ReserveTrigger {
+        Requirement::ReserveTrigger {
             min_reserve_energy,
             max_reserve_energy,
             heated,
-        } => local
-            .auto_reserve_trigger(
-                min_reserve_energy,
-                max_reserve_energy,
-                &cx.global.inventory,
-                heated,
-                cx.reverse,
-            )
-            .into(),
+        } => {
+            let min_reserve_energy = min_reserve_energy.resolve(&cx.difficulty.numerics);
+            let max_reserve_energy = max_reserve_energy.resolve(&cx.difficulty.numerics);
+            local
+                .auto_reserve_trigger(
+                    min_reserve_energy,
+                    max_reserve_energy,
+                    &cx.global.inventory,
+                    *heated,
+                    cx.reverse,
+                )
+                .into()
+        }
         Requirement::EnemyKill { count, vul } => {
             apply_enemy_kill_requirement(cx.global, local, *count, vul, cx.reverse).into()
         }
@@ -1919,6 +2007,7 @@ fn apply_requirement_simple(
             }
         }
         Requirement::ShineChargeFrames(frames) => {
+            let frames = frames.resolve(&cx.difficulty.numerics);
             if cx.reverse {
                 local.shinecharge_frames_remaining += frames;
                 (local.shinecharge_frames_remaining
@@ -2689,4 +2778,81 @@ pub fn get_spoiler_trail_ids_by_idx(
 ) -> Vec<StepTrailId> {
     let trail_id = traverser.lsr[vertex_id].trail_ids[idx];
     get_spoiler_trail_ids(traverser, trail_id)
+}
+
+// This could be mostly covered by logic scenario tests, which require less maintenance,
+// so we don't really want to add too many unit tests like this. These are unique though
+// in how they check all cost metrics comprehensively, which can be helpful.
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn default_inventory() -> Inventory {
+        Inventory {
+            items: vec![],
+            max_energy: 99,
+            max_reserves: 0,
+            max_missiles: 0,
+            max_supers: 0,
+            max_power_bombs: 0,
+            collectible_missile_packs: 0,
+            collectible_super_packs: 0,
+            collectible_power_bomb_packs: 0,
+            collectible_reserve_tanks: 0,
+        }
+    }
+
+    #[test]
+    fn compute_cost_consumed_vs_remaining_energy() {
+        let inventory = default_inventory();
+
+        let mut local1 = LocalState::empty();
+        local1.energy = ResourceLevel::Remaining(50).into();
+
+        let mut local2 = LocalState::empty();
+        local2.energy = ResourceLevel::Consumed(50).into();
+
+        // Forward:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), false);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), false);
+        for i in 0..NUM_COST_METRICS {
+            println!("forward: cost metric {}", i);
+            assert!(cost1[i] < cost2[i]);
+        }
+
+        // Reverse:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), true);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), true);
+        for i in 0..NUM_COST_METRICS {
+            println!("reverse: cost metric {}", i);
+            assert!(cost1[i] > cost2[i]);
+        }
+    }
+
+    #[test]
+    fn compute_cost_consumed_vs_remaining_energy_tie_break() {
+        let inventory = default_inventory();
+
+        let mut local1 = LocalState::empty();
+        local1.energy = ResourceLevel::Remaining(50).into();
+
+        let mut local2 = LocalState::empty();
+        local2.energy = ResourceLevel::Consumed(49).into();
+
+        // Forward:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), false);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), false);
+        for i in 0..NUM_COST_METRICS {
+            println!("forward: cost metric {}", i);
+            assert!(cost1[i] > cost2[i]);
+        }
+
+        // Reverse:
+        let cost1 = compute_cost(&local1, &inventory, &simple_cost_config(), true);
+        let cost2 = compute_cost(&local2, &inventory, &simple_cost_config(), true);
+        for i in 0..NUM_COST_METRICS {
+            println!("reverse: cost metric {}", i);
+            assert!(cost1[i] < cost2[i]);
+        }
+    }
 }

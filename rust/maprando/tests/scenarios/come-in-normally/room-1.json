@@ -6,7 +6,9 @@
   "name": "Test Room 1",
   "area": "Test Area",
   "subarea": "Test Subarea",
-  "mapTileMask": [[1]],
+  "mapTileMask": [
+    [1]
+  ],
   "nodes": [
     {
       "id": 1,
@@ -14,7 +16,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     },
     {
       "id": 2,
@@ -22,7 +26,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]],
+      "mapTileMask": [
+        [1]
+      ],
       "useImplicitComeInNormally": false
     },
     {
@@ -31,7 +37,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]],
+      "mapTileMask": [
+        [1]
+      ],
       "useImplicitComeInNormally": false
     },
     {
@@ -40,7 +48,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     },
     {
       "id": 5,
@@ -48,7 +58,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]],
+      "mapTileMask": [
+        [1]
+      ],
       "useImplicitComeInNormally": false
     },
     {
@@ -57,7 +69,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]],
+      "mapTileMask": [
+        [1]
+      ],
       "useImplicitComeInNormally": false
     },
     {
@@ -66,7 +80,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]]
+      "mapTileMask": [
+        [1]
+      ]
     },
     {
       "id": 8,
@@ -74,7 +90,9 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]],
+      "mapTileMask": [
+        [1]
+      ],
       "useImplicitComeInNormally": false
     },
     {
@@ -83,11 +101,12 @@
       "nodeType": "door",
       "nodeSubType": "blue",
       "doorEnvironments": [{"physics": "air"}],
-      "mapTileMask": [[1]],
+      "mapTileMask": [
+        [1]
+      ],
       "useImplicitComeInNormally": false
     }
   ],
-  "links": [],
   "strats": [
     {
       "link": [2, 2],

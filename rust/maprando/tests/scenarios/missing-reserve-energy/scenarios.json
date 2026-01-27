@@ -1,0 +1,121 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Reserve Energy",
+      "globalState": {
+        "maxReserves": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 19}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Not Enough Reserve Energy (Consumed)",
+      "globalState": {
+        "maxReserves": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 31}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Reserve Energy (Forward)",
+      "globalState": {
+        "maxReserves": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"remaining": 20}
+      },
+      "reverse": "disabled"
+    },
+    {
+      "name": "Enough Reserve Energy (Consumed)",
+      "globalState": {
+        "maxReserves": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"consumed": 30}
+      }
+    },
+    {
+      "name": "Reverse",
+      "globalState": {
+        "maxReserves": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    },
+    {
+      "name": "Over Capacity (Consumed)",
+      "globalState": {
+        "maxReserves": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"consumed": 20}
+      }
+    },
+    {
+      "name": "Over Capacity (Forward)",
+      "globalState": {
+        "maxReserves": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "reverse": "disabled"
+    },
+    {
+      "name": "Over Capacity (Reverse)",
+      "globalState": {
+        "maxReserves": 20
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"consumed": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak"
+    }
+  ]
+}

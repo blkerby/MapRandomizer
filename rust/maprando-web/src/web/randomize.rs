@@ -96,10 +96,9 @@ fn handle_randomize_request(
     app_data: web::Data<AppData>,
 ) -> Result<AttemptOutput, AttemptError> {
     let race_mode = settings.other_settings.race_mode;
-    let random_seed = if settings.other_settings.random_seed.is_none() || race_mode {
-        get_random_seed()
-    } else {
-        settings.other_settings.random_seed.unwrap()
+    let random_seed = match (settings.other_settings.random_seed, race_mode) {
+        (_, true) | (None, _) => get_random_seed(),
+        (Some(s), false) => s,
     };
     let display_seed = if race_mode {
         get_random_seed()
