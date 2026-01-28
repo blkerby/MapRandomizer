@@ -100,10 +100,6 @@ hook_blink_selected_etank:
 
 warnpc !bank_80_free_space_end
 
-org $818929
-    jsl hook_pause_spritemap
-    nop
-
 org $82AC5A
     jsr (hook_equipment_screen_main_category_jump_table, X)
 
@@ -134,6 +130,34 @@ org $82B56B
 org $8291B4
     jsl hook_load_equipment_menu
 
+; Pause Menu Spritemap 10h, currently unused
+; Origin size is 0005h
+org $82C262
+hook_pause_spritemap_smallbox:
+    dw $0004
+    
+    dw $0005
+    db $05
+    dw $EEAE
+    
+    dw $01FB
+    db $05
+    dw $AEAE
+    
+    dw $0005
+    db $FB
+    dw $6EAE
+    
+    dw $01FB
+    db $FB
+    dw $2EAE
+    
+    ; 0 out the vanilla data for the un-needed 5th tile
+    dw $0000
+    db $00
+    dw $0000
+
+
 org !bank_82_free_space_start
 
 hook_equipment_screen_main_category_jump_table:
@@ -157,37 +181,6 @@ hook_beams_dpad_response:
     sta $0755
 +
     rts
-
-hook_pause_spritemap:
-    cmp #$0068
-    bne .no
-    ldy #hook_pause_spritemap_smallbox
-    rtl
-.no
-    ;Hijacked code
-    asl a
-    tax
-    ldy $C569,x
-    rtl
-
-hook_pause_spritemap_smallbox:
-    dw $0004
-    
-    dw $0005
-    db $05
-    dw $EEAE
-    
-    dw $01FB
-    db $05
-    dw $AEAE
-    
-    dw $0005
-    db $FB
-    dw $6EAE
-    
-    dw $01FB
-    db $FB
-    dw $2EAE
 
 hook_suits_dpad_response:
     ; Just loaded A from $0755
@@ -234,7 +227,7 @@ hook_equipment_screen_selector:
     sta $03
     
     ;lda #$0014
-    lda #$0068
+    lda #$0010
     
     jsl $81891F	; Draw sprite from pause menu spritemap
 
