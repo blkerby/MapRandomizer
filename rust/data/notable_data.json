@@ -1531,8 +1531,8 @@
     "room_id": 127,
     "room_name": "Indiana Jones Room",
     "notable_id": 1,
-    "name": "Indiana Jones Grapple",
-    "difficulty": "Expert",
+    "name": "Indiana Jones Grapple (First Try)",
+    "difficulty": "Expert+",
     "video_id": 538
   },
   {
@@ -1598,6 +1598,14 @@
     "name": "Spring Ball Unmorph Bomb Boost",
     "difficulty": "Expert+",
     "video_id": 2451
+  },
+  {
+    "room_id": 127,
+    "room_name": "Indiana Jones Room",
+    "notable_id": 10,
+    "name": "Indiana Jones Grapple (With Retries)",
+    "difficulty": "Expert",
+    "video_id": 9742
   },
   {
     "room_id": 123,

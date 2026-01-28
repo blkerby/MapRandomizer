@@ -2075,13 +2075,6 @@
         },
         {
             "room_id": 127,
-            "notable_id": 1,
-            "room_name": "Indiana Jones Room",
-            "notable_name": "Indiana Jones Grapple",
-            "enabled": true
-        },
-        {
-            "room_id": 127,
             "notable_id": 3,
             "room_name": "Indiana Jones Room",
             "notable_name": "Full Room Space Jump Through Speed Blocks",
@@ -2106,6 +2099,13 @@
             "notable_id": 8,
             "room_name": "Indiana Jones Room",
             "notable_name": "Mella Ice Clip",
+            "enabled": true
+        },
+        {
+            "room_id": 127,
+            "notable_id": 10,
+            "room_name": "Indiana Jones Room",
+            "notable_name": "Indiana Jones Grapple (With Retries)",
             "enabled": true
         },
         {
@@ -2463,6 +2463,13 @@
             "notable_id": 4,
             "room_name": "Crocomire Speedway",
             "notable_name": "Reverse Spark With Pause Abuse",
+            "enabled": true
+        },
+        {
+            "room_id": 127,
+            "notable_id": 1,
+            "room_name": "Indiana Jones Room",
+            "notable_name": "Indiana Jones Grapple (First Try)",
             "enabled": true
         },
         {
