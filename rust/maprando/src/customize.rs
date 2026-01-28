@@ -365,8 +365,6 @@ pub fn customize_rom(
     samus_sprite_categories: &[SamusSpriteCategory],
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
-    rom.resize(0x400000);
-
     remove_mother_brain_flashing(rom)?;
     apply_retiling(
         rom,

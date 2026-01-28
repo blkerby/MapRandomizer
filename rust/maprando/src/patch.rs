@@ -71,10 +71,6 @@ impl Rom {
         self.touched.clear();
     }
 
-    pub fn resize(&mut self, new_size: usize) {
-        self.data.resize(new_size, 0xFF);
-    }
-
     pub fn load(path: &Path) -> Result<Self> {
         let data = std::fs::read(path)
             .with_context(|| format!("Unable to load ROM at path {}", path.display()))?;
@@ -471,6 +467,7 @@ impl Patcher<'_> {
             "sand_clamp",
             "transition_reveal",
             "wall_doors",
+            "self_check",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -3336,6 +3333,72 @@ fn fix_snes_checksum(rom: &mut Rom) {
     data[CHECKSUM_ADDR + 2..CHECKSUM_ADDR + 4].copy_from_slice(&checksum.to_le_bytes());
 }
 
+fn clear_free_space(rom: &mut Rom) -> Result<()> {
+    // Clear free space areas to 0x00, for faster checksum computation (self_check.asm).
+    // This ends up only saving like 14 frames in the checksum, so it's not really important.
+    let free_space_areas = vec![
+        (snes2pc(0x80CD8E), snes2pc(0x80FFC0)),
+        (snes2pc(0x81EF1A), snes2pc(0x828000)),
+        (snes2pc(0x82F70F), snes2pc(0x838000)),
+        (snes2pc(0x83AD66), snes2pc(0x848000)),
+        (snes2pc(0x84EFD3), snes2pc(0x858000)),
+        (snes2pc(0x859643), snes2pc(0x868000)),
+        (snes2pc(0x86F4A6), snes2pc(0x878000)),
+        (snes2pc(0x87C964), snes2pc(0x888000)),
+        (snes2pc(0x88EE32), snes2pc(0x898000)),
+        (snes2pc(0x89AEFD), snes2pc(0x8A8000)),
+        (snes2pc(0x8AE980), snes2pc(0x8B8000)),
+        (snes2pc(0x8BF760), snes2pc(0x8C8000)),
+        (snes2pc(0x8CF3E9), snes2pc(0x8D8000)),
+        (snes2pc(0x8DFFF1), snes2pc(0x8E8000)),
+        (snes2pc(0x8EE600), snes2pc(0x8F8000)),
+        (snes2pc(0x8FE99B), snes2pc(0x908000)),
+        (snes2pc(0x90F63A), snes2pc(0x918000)),
+        (snes2pc(0x91FFEE), snes2pc(0x928000)),
+        (snes2pc(0x92EDF4), snes2pc(0x938000)),
+        (snes2pc(0x93F61D), snes2pc(0x948000)),
+        (snes2pc(0x94B19F), snes2pc(0x94C800)),
+        (snes2pc(0x94DC00), snes2pc(0x94E000)),
+        (snes2pc(0x99EE21), snes2pc(0x9A8000)),
+        (snes2pc(0x9AFC20), snes2pc(0x9B8000)),
+        (snes2pc(0x9BFDA0), snes2pc(0x9C8000)),
+        (snes2pc(0x9CFA80), snes2pc(0x9D8000)),
+        (snes2pc(0x9DF780), snes2pc(0x9E8000)),
+        (snes2pc(0x9EF6C0), snes2pc(0x9F8000)),
+        (snes2pc(0x9FF740), snes2pc(0xA08000)),
+        (snes2pc(0xA0F7D3), snes2pc(0xA18000)),
+        (snes2pc(0xA1EBD1), snes2pc(0xA28000)),
+        (snes2pc(0xA2F498), snes2pc(0xA38000)),
+        (snes2pc(0xA3F311), snes2pc(0xA48000)),
+        (snes2pc(0xA4F6C0), snes2pc(0xA58000)),
+        (snes2pc(0xA5F95A), snes2pc(0xA68000)),
+        (snes2pc(0xA6FEBC), snes2pc(0xA78000)),
+        (snes2pc(0xA7FF82), snes2pc(0xA88000)),
+        (snes2pc(0xA8F9BE), snes2pc(0xA98000)),
+        (snes2pc(0xA9FB70), snes2pc(0xAA8000)),
+        (snes2pc(0xAAF7D3), snes2pc(0xAB8000)),
+        (snes2pc(0xABF800), snes2pc(0xAC8000)),
+        (snes2pc(0xACEE00), snes2pc(0xAD8000)),
+        (snes2pc(0xADF444), snes2pc(0xAE8000)),
+        (snes2pc(0xAEFD20), snes2pc(0xAF8000)),
+        (snes2pc(0xAFEC00), snes2pc(0xB08000)),
+        (snes2pc(0xB0EE00), snes2pc(0xB18000)),
+        (snes2pc(0xB2FEAA), snes2pc(0xB38000)),
+        (snes2pc(0xB3ED77), snes2pc(0xB48000)),
+        (snes2pc(0xB4F4B8), snes2pc(0xB58000)),
+        (snes2pc(0xB5F000), snes2pc(0xB68000)),
+        (snes2pc(0xB6F200), snes2pc(0xB78000)),
+        (snes2pc(0xB7FD00), snes2pc(0xB98000)), // entire bank B8 free
+        (snes2pc(0xCEB22E), snes2pc(0xCF8000)),
+        (snes2pc(0xDED1C0), snes2pc(0xDF8000)),
+        (snes2pc(0xDF8000), snes2pc(0xE08000)), // unused music
+    ];
+    for (start, end) in free_space_areas {
+        rom.data[start..end].fill(0x00);
+    }
+    Ok(())
+}
+
 pub fn make_rom(
     base_rom: &Rom,
     randomizer_settings: &RandomizerSettings,
@@ -3346,6 +3409,7 @@ pub fn make_rom(
     mosaic_themes: &[MosaicTheme],
 ) -> Result<Rom> {
     let mut orig_rom = base_rom.clone();
+    clear_free_space(&mut orig_rom)?;
     apply_orig_ips_patches(&mut orig_rom, randomizer_settings)?;
 
     // Remove solid wall that spawns in Tourian Escape Room 1 while coming through right door.

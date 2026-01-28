@@ -1,4 +1,4 @@
-0000 - CD8E: used by vanilla game
+0000 - CD8E: used by vanilla game - [BC37 - C437 Tilemap - failed SRAM mapping check]  (2048 bytes) can be repurposed if needed (never used)
 CDA0 - D02F: max_ammo_display.asm
 D02F - D100: fast_pause_menu.asm
 D100 - D140: fast_doors.asm
