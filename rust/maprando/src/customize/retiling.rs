@@ -24,8 +24,12 @@ fn apply_toilet(rom: &mut Rom, orig_rom: &Rom, theme_name: &str) -> Result<()> {
     let toilet_rel_x_addr = snes2pc(0xB5FE72);
     let toilet_rel_y_addr = snes2pc(0xB5FE73);
 
+    // TODO: Clean this up to not read from the ROM. It's not a good way of doing it
+    // anymore, given that all the ROM patching happens during customization now.
+    // Note that the way this currently works  relies on the vanilla ROM free space
+    // having been replaced from 0xFF bytes to 0x00.
     let room_ptr = rom.read_u16(toilet_intersecting_room_ptr_addr)? + 0x70000;
-    let patch_filename = if room_ptr == 0x7FFFF {
+    let patch_filename = if room_ptr == 0x70000 {
         // Unspecified room means this is vanilla map, so leave the Toilet alone.
         format!("{theme_name}-VanillaMapTransit.bps")
     } else {
