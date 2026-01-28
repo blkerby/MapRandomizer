@@ -2,6 +2,8 @@ v121 or soon-ish?:
 - DONE: new escape timings
 - Update music in unthemed single-door rooms (in case neighboring room has Statues Hallway music)
 - See if it is possible to play Statues Hallway music even when music is otherwise disabled.
+- Consider patching the Speed Booster Hall lava trap behavior to depend on Speed Booster equipped.
+  - in which case, patch the helper "h_SpeedBoosterHallNoRisingLava".
 - DONE: Fix room names in start locations JSON.
 - DONE: New area assignment modes:
   - Add "Vertical" area assignment

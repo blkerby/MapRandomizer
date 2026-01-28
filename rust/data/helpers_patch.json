@@ -14,7 +14,8 @@
     "h_IBJFromSpikes",
     "h_doubleEquipmentScreenCycleFrames",
     "h_extendedMoondanceBeetomLeniency",
-    "h_RefillStationAllAmmo10PowerBombCrystalFlash"
+    "h_RefillStationAllAmmo10PowerBombCrystalFlash",
+    "h_SpeedBoosterHallNoRisingLava"
   ],
   "helper_substitutions": {
     "h_heatProof": ["Varia"],
