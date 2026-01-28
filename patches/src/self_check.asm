@@ -1,3 +1,13 @@
+; Compute the ROM checksum in the background, using idle CPU time while waiting for NMI.
+; If the value doesn't match the SNES header, then display an error screen and crash.
+; This takes around 16 seconds if it finishes in the intro, title screen, or main menu.
+; If the player jumps straight into the game, it can take somewhat longer, as there is
+; less spare CPU available then.
+;
+; This patch is intended to help players notice up front if their ROM has been
+; corrupted, e.g. by a bad SD card. It should help reduce cases of bug reports with
+; strange crashes that we're not able to reproduce.
+;
 arch snes.cpu
 lorom
 
@@ -85,39 +95,11 @@ macro add_byte(i)
 .no_carry<i>:
 endmacro
 
-    %add_byte(0)
-    %add_byte(1)
-    %add_byte(2)
-    %add_byte(3)
-    %add_byte(4)
-    %add_byte(5)
-    %add_byte(6)
-    %add_byte(7)
-    %add_byte(8)
-    %add_byte(9)
-    %add_byte(10)
-    %add_byte(11)
-    %add_byte(12)
-    %add_byte(13)
-    %add_byte(14)
-    %add_byte(15)
-    %add_byte(16)
-    %add_byte(17)
-    %add_byte(18)
-    %add_byte(19)
-    %add_byte(20)
-    %add_byte(21)
-    %add_byte(22)
-    %add_byte(23)
-    %add_byte(24)
-    %add_byte(25)
-    %add_byte(26)
-    %add_byte(27)
-    %add_byte(28)
-    %add_byte(29)
-    %add_byte(30)
-    %add_byte(31)
+for i = 0..32
+    %add_byte(!i)
+endfor
 
+    ; Increase X by 32:
     pha
     rep #$20
     txa
