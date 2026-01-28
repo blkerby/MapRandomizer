@@ -1,12 +1,14 @@
 v121 or soon-ish?:
 - DONE: new escape timings
-- Fix room names in start locations JSON.
-- New area assignment modes:
+- Update music in unthemed single-door rooms (in case neighboring room has Statues Hallway music)
+- See if it is possible to play Statues Hallway music even when music is otherwise disabled.
+- DONE: Fix room names in start locations JSON.
+- DONE: New area assignment modes:
   - Add "Vertical" area assignment
   - Add option to put Mother Brain in Tourian.
 - fix issue with G-mode regain mobility strats showing in Basic.
 - validate presets other than top-level
-- fix issue with toilet in Pants Room: https://discord.com/channels/1053421401354285129/1053434532973510748/1456503543451095061
+- DONE: fix issue with toilet in Pants Room: https://discord.com/channels/1053421401354285129/1053434532973510748/1456503543451095061
 - DONE: fix issue with door-specific FX in room to right of Pants Room.
 - DONE: investigate/fix issue with farm logic: https://discord.com/channels/1053421401354285129/1053434532973510748/1456854298087395408
 - blue suit logic
