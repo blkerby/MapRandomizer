@@ -15,9 +15,9 @@ lorom
 !bank_80_free_space_end = $80C437
 !sram_msg_end = $80BC37
 
-!bank = $7ff800
-!offset = $7ff801
-!checksum = $7ff803
+!bank = $7ffa02
+!offset = $7ffa03
+!checksum = $7ffa05
 
 
 ; bootloop burns 4 frames during bootup, our init code fits exactly here and avoids a jump.
