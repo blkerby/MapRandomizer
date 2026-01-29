@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F830
-!bank_82_free_space_end = $82F9AC
+!bank_82_free_space_end = $82F9B9
 
 !bank_85_free_space_start = $85AD00
 !bank_85_free_space_end = $85AE13
@@ -48,15 +48,12 @@ hook_draw_tanks:
 -
     lda $7EC608,x
     and #$DFFF
-    ora $18
     sta $7EC608,x
     lda $7EC648,x
     and #$DFFF
-    ora $18
     sta $7EC648,x
     lda $7EC688,x
     and #$DFFF
-    ora $18
     sta $7EC688,x
 
     dex
@@ -129,6 +126,9 @@ hook_pause_spritemap_smallbox:
 
 org $828215
     jsr hook_ppu_gameplay_setup
+    
+org $82936D
+    jsr hook_unpause_loading
 
 org $82A32D
     jsr hook_ppu_gameplay_setup
@@ -138,6 +138,13 @@ org $82A0B3
 
 
 org !bank_82_free_space_start
+
+hook_unpause_loading:
+    jsl $809A79 ; Hard re-initialize the HUD after we've messed with it.
+    stz $0A06   ; set previous health to invalid value, to trigger it to be redrawn
+    dec $0A06
+    jmp $A2E3 ;Hijacked
+
 
 hook_ppu_gameplay_setup:
     ; lda #$04 from vanilla
