@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F830
-!bank_82_free_space_end = $82F9F6
+!bank_82_free_space_end = $82F9AC
 
 !bank_85_free_space_start = $85AD00
 !bank_85_free_space_end = $85AE13
@@ -17,35 +17,13 @@
 incsrc "constants.asm"
 
 org $809698
-    jsr hook_hud_begin
-    nop
-    nop
+    lda $9C
+assert pc() == $80969A
 
 org $809BEE
     jsr hook_draw_tanks
 
-org $809BFB
-    jsr hook_blink_selected_etank
-
 org !bank_80_free_space_start
-hook_hud_begin:
-    php
-    rep #$20
-    lda $0998	; If [game state] = Fh (pause menu)
-    and #$00ff
-    cmp #$000f
-    bne .no
-
-    plp		; Enable BG3 + Sprites in the HUD
-    lda #$14
-    sta $212C
-    rts
-.no
-    ;Hijacked code
-    plp
-    lda #$04
-    sta $212C
-    rts
 
 hook_draw_tanks:
     lda !num_disabled_etanks
@@ -61,22 +39,6 @@ hook_draw_tanks:
     bne .loop
 
 .done:
-    ; run hi-jacked instruction
-    lda #$9DBF
-    rts
-
-hook_blink_selected_etank:
-    ; If we are in the pause menu:
-    lda $0998
-    and #$00ff
-    cmp #$000F
-    bne .done
-    
-    ; Equipment screen selected
-    lda $0727
-    cmp #$0001
-    bne .done
-    
     ; Make the entire energy area of the HUD not be priority so that we can draw sprites on it
     ldx #$0012
 -
@@ -94,8 +56,8 @@ hook_blink_selected_etank:
     dex
     bpl -
     
-.done
-    lda #$9DD3   ; Hijacked
+    ; run hi-jacked instruction
+    lda #$9DBF
     rts
 
 warnpc !bank_80_free_space_end
@@ -157,8 +119,29 @@ hook_pause_spritemap_smallbox:
     db $00
     dw $0000
 
+org $828215
+    jsr hook_ppu_gameplay_setup
+
+org $82A32D
+    jsr hook_ppu_gameplay_setup
+
+org $82A0B3
+    jsr hook_ppu_pause_setup
+
 
 org !bank_82_free_space_start
+
+hook_ppu_gameplay_setup:
+    ; lda #$04 from vanilla
+    sta $210C ;hijacked (both 8215 and A32D are this instruction)
+hook_ppu_done:
+    sta $9C
+    rts
+
+hook_ppu_pause_setup:
+    sta $210C
+    lda #$14
+    bra hook_ppu_done
 
 hook_equipment_screen_main_category_jump_table:
     ; 0 - reserve tank, 1 - beams, 2 - suits/misc, 3 - boots - all go to their vanilla entry points
@@ -209,20 +192,24 @@ hook_equipment_screen_selector:
     lda $0755
     xba
     and #$00ff
-    asl a
-    asl a
+    inc
     tax
     
-    lda positions_etank_selector_sprite_x, X
-    sta $12
-    lda positions_etank_selector_sprite_y, x
-    sta $14
-    
-    lda $12
+    and #$0008
+    beq .no_adj
+    ldy #$0007
+    txa
+    sec
+    sbc #$0007
+    bra .no_adj2
+
+.no_adj
+    ldy #$000f
+    txa
+.no_adj2
+    asl #$3
     tax
-    lda $14
-    tay
-    
+
     lda #$3600	; Sprite priority 3, palette 3
     sta $03
     
@@ -236,25 +223,6 @@ hook_equipment_screen_selector:
 selector_go_back:
     lda $09A8   ; Hijacked instruction
     jmp $B26D
-
-positions_etank_selector_sprite_x:
-    ; X, Y position
-    dw $0008
-positions_etank_selector_sprite_y:
-    dw $000F
-    dw $0010, $000F
-    dw $0018, $000F
-    dw $0020, $000F
-    dw $0028, $000F
-    dw $0030, $000F
-    dw $0038, $000F
-    dw $0008, $0007
-    dw $0010, $0007
-    dw $0018, $0007
-    dw $0020, $0007
-    dw $0028, $0007
-    dw $0030, $0007
-    dw $0038, $0007
 
 etanks_dpad_right:
     lda !etank_hud_tile_offset ; xxxE -> furthest right tank tile
