@@ -40,22 +40,30 @@ hook_draw_tanks:
 
 .done:
     ; Make the entire energy area of the HUD not be priority so that we can draw sprites on it
+    lda $0998
+    cmp #$000f    ; Not pause menu?
+    bne .dont
+
     ldx #$0012
 -
     lda $7EC608,x
     and #$DFFF
+    ora $18
     sta $7EC608,x
     lda $7EC648,x
     and #$DFFF
+    ora $18
     sta $7EC648,x
     lda $7EC688,x
     and #$DFFF
+    ora $18
     sta $7EC688,x
-    
+
     dex
     dex
     bpl -
-    
+
+.dont
     ; run hi-jacked instruction
     lda #$9DBF
     rts
@@ -210,13 +218,13 @@ hook_equipment_screen_selector:
     asl #$3
     tax
 
-    lda #$3600	; Sprite priority 3, palette 3
+    lda #$3600    ; Sprite priority 3, palette 3
     sta $03
     
     ;lda #$0014
     lda #$0010
     
-    jsl $81891F	; Draw sprite from pause menu spritemap
+    jsl $81891F   ; Draw sprite from pause menu spritemap
 
     jmp $B2A0
 
@@ -268,13 +276,13 @@ etanks_dpad_left:
     rts
 
 etanks_dpad_down:
-    lda !etank_hud_tile_offset	; xx4x -> bottom row
+    lda !etank_hud_tile_offset    ; xx4x -> bottom row
     and #$00F0
     bne .no
     
     ; Don't move down into full e-tanks
     lda $09C2
-    cmp #$02BC	; [Current energy] >= 700 means all 7 bottom row tanks are full
+    cmp #$02BC     ; [Current energy] >= 700 means all 7 bottom row tanks are full
     bcs .no
 
     lda $0755
@@ -327,7 +335,7 @@ hook_equipment_screen_category_etanks:
     jsl etank_do_some_math
 
     lda $8f
-    bit #$0100	; P1 D-Pad Right
+    bit #$0100    ; P1 D-Pad Right
     beq .hook_etank_not_right
     
     jsr etanks_dpad_right
@@ -337,7 +345,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_right
 
     lda $8f
-    bit #$0200	; P1 D-Pad Left
+    bit #$0200    ; P1 D-Pad Left
     beq .hook_etank_not_left
     
     jsr etanks_dpad_left
@@ -347,7 +355,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_left
 
     lda $8F
-    bit #$0400	; P1 D-Pad Down
+    bit #$0400    ; P1 D-Pad Down
     beq .hook_etank_not_down
     
     jsr etanks_dpad_down
@@ -365,7 +373,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_down
 
     lda $8F
-    bit #$0800	; P1 D-Pad Up
+    bit #$0800    ; P1 D-Pad Up
     beq .hook_etank_not_up
     
     jsr etanks_dpad_up
@@ -375,7 +383,7 @@ hook_equipment_screen_category_etanks:
 .hook_etank_not_up
 
     lda $8f
-    bit #$0080	; P1 Button A
+    bit #$0080    ; P1 Button A
     beq .ret
 
 
@@ -413,7 +421,7 @@ etank_do_some_math:
     lda $0755
     xba
     and #$00ff
-    sta !current_etank_index	; current_etank_index from equipment current item
+    sta !current_etank_index    ; current_etank_index from equipment current item
 
     lda $09C2
     sta $4204
@@ -426,7 +434,7 @@ etank_do_some_math:
     pla
     rep #$20
     lda $4214   
-    sta !count_full_etanks	; count_full_etanks = current_health / 100
+    sta !count_full_etanks      ; count_full_etanks = current_health / 100
 
     lda $09C4
     sta $4204
@@ -439,10 +447,10 @@ etank_do_some_math:
     pla
     rep #$20
     lda $4214
-    sta !count_enabled_etanks	; count_enabled_etanks = maximum_health / 100
+    sta !count_enabled_etanks   ; count_enabled_etanks = maximum_health / 100
     clc
     adc !num_disabled_etanks
-    sta !count_all_etanks	; count_all_tanks = count_enabled_tanks + num_disabled_tanks
+    sta !count_all_etanks       ; count_all_tanks = count_enabled_tanks + num_disabled_tanks
 
     lda !current_etank_index
     asl a
@@ -593,6 +601,6 @@ warnpc !bank_85_free_space_end
 
 org $B6FE60
 tile_modified_map_cursor:
-	db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
-	db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
+    db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
+    db $00, $00, $00, $00, $3F, $00, $20, $00, $2F, $00, $28, $00, $28, $00, $28, $00
 
