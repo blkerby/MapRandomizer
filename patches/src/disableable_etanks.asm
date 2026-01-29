@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F830
-!bank_82_free_space_end = $82F9B9
+!bank_82_free_space_end = $82F9D4
 
 !bank_85_free_space_start = $85AD00
 !bank_85_free_space_end = $85AE13
@@ -140,7 +140,19 @@ org $82A0B3
 org !bank_82_free_space_start
 
 hook_unpause_loading:
-    jsl $809A79 ; Hard re-initialize the HUD after we've messed with it.
+    ;jsl $809A79 ; Hard re-initialize the HUD after we've messed with it.
+    ldx #$0012
+-
+    ; Reinitialize the energy area of the HUD tiles from the base.
+    lda $8098CB,x
+    sta $7EC608,x
+    lda $80990B,x
+    sta $7EC648,x
+    lda $80994B,x
+    sta $7EC688,x
+    dex
+    dex
+    bpl -
     stz $0A06   ; set previous health to invalid value, to trigger it to be redrawn
     dec $0A06
     jmp $A2E3 ;Hijacked
