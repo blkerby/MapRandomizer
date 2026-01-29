@@ -13,6 +13,8 @@ lorom
 !bank_86_free_space_start = $86F4B0
 !bank_86_free_space_end = $86F4D0
 
+!msg_crash_timer_override = $11
+
 incsrc "constants.asm"
 
 ; Fix the crash that occurs when you kill an eye door whilst a eye door projectile is alive
@@ -350,6 +352,7 @@ bug_dialog:                 ; A = msg ID
     sep #$20
     lda #$0f                ; restore screen brightness to full
     sta $51
+    sta !msg_crash_timer_override   ; messagebox timer will check if this is 0 (if its non zero load a longer time)
     rep #$30
     jsl $808338             ; wait for NMI
 
@@ -456,7 +459,22 @@ xmode_msg:
     
 msg_end:
 
+hook_msgbox_delay: 
+    pha
+    lda !msg_crash_timer_override
+    beq .nochange
+    ldx #$005a ; (put 1.5 seconds on the clock) 
+    stz !msg_crash_timer_override ; clear our special variable so then next msgbox will have whatever timer was set on generation
+.nochange
+    pla
+    jsr $8136  ; hi-jacked instruction.
+    rts
+
 assert pc() <= !bank_85_free_space_end
+
+ ;$85:8493 20 36 81    JSR $8136  [$85:8136]  ;\
+org $858493     ; before we do things, lets double check we are not in a crash dialog (if so we want a longer timer)
+    jsr hook_msgbox_delay
 
 org $858093
     jsr hook_message_box
