@@ -3305,23 +3305,17 @@ pub fn get_objectives<R: Rng>(
 
     'obj: for obj_option in &obj_settings.objective_options {
         // Skip objective option if it does not exist on the map.
-        let obj_tiles = get_objective_tiles(&[obj_option.objective]);
+        let mut obj_tiles = get_objective_tiles(&[obj_option.objective]);
         if let Some(map) = map {
+            if obj_option.objective == Objective::BowlingStatue {
+                obj_tiles.push((158, 0, 0));  // Phantoon's Room
+            }
+
             for (room_id, _, _) in obj_tiles {
                 let room_ptr = game_data.room_ptr_by_id[&room_id];
                 let room_idx = game_data.room_idx_by_ptr[&room_ptr];
                 if !map.room_mask[room_idx] {
                     continue 'obj;
-                }
-
-                if obj_option.objective == Objective::BowlingStatue {
-                    let phantoon_room_id = 158;
-                    let room_ptr = game_data.room_ptr_by_id[&phantoon_room_id];
-                    let room_idx = game_data.room_idx_by_ptr[&room_ptr];
-
-                    if !map.room_mask[room_idx] {
-                        continue 'obj;
-                    }
                 }
             }
         }
