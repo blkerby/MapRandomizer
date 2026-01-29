@@ -3308,7 +3308,7 @@ pub fn get_objectives<R: Rng>(
         let mut obj_tiles = get_objective_tiles(&[obj_option.objective]);
         if let Some(map) = map {
             if obj_option.objective == Objective::BowlingStatue {
-                obj_tiles.push((158, 0, 0));  // Phantoon's Room
+                obj_tiles.push((158, 0, 0)); // Phantoon's Room
             }
 
             for (room_id, _, _) in obj_tiles {
