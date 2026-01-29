@@ -3313,6 +3313,16 @@ pub fn get_objectives<R: Rng>(
                 if !map.room_mask[room_idx] {
                     continue 'obj;
                 }
+
+            if obj_option.objective == Objective::BowlingStatue {
+                let phantoon_room_id = 158;
+                let room_ptr = game_data.room_ptr_by_id[&phantoon_room_id];
+                let room_idx = game_data.room_idx_by_ptr[&room_ptr];
+
+                if !map.room_mask[room_idx] {
+                    continue 'obj;
+                }
+            }
             }
         }
 
