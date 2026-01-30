@@ -1,4 +1,5 @@
 $9B: decompression.asm
+$11: vanilla_bugfixes.asm (temporary variable for overriding messagebox delays for crash messages.) Can be used in pause menu / outside of main gameplay so long as it's zero'd after use.
 $09EC: number of disabled ETanks (saved to SRAM)
 $0A1A: previous reserve health (reserve_hud.asm)
 $1F5B: map area (like $079F)
