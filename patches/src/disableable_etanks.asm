@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F830
-!bank_82_free_space_end = $82F9D4
+!bank_82_free_space_end = $82F9CC
 
 !bank_85_free_space_start = $85AD00
 !bank_85_free_space_end = $85AE13
@@ -318,8 +318,13 @@ etanks_dpad_down:
     sec
     rts
 .no
-    clc
-    rts
+; Don't go back to hook_equipment_screen_category_etanks
+    lda #$0037
+    jsl $809049
+    pla ; Remove the JSR - this leaves a "php" on the stack, which $ABAD needs
+    jmp $ABAD
+
+
 
 etanks_dpad_up:
     lda !etank_hud_tile_offset ;xx0x -> top row
@@ -346,66 +351,18 @@ etanks_dpad_up:
     clc
     rts
 
-hook_equipment_screen_category_etanks:
+; Controller input table - zero-terminated
+hook_equipment_screen_category_etanks_controller_table:
+    dw $0100
+hook_equipment_screen_category_etanks_controller_table_func:
+    dw etanks_dpad_right
+    dw $0200, etanks_dpad_left
+    dw $0400, etanks_dpad_down
+    dw $0800, etanks_dpad_up
+    dw $0080, etanks_a_button
+    dw $0000
 
-    php
-    rep #$30
-    
-    jsl etank_do_some_math
-
-    lda $8f
-    bit #$0100    ; P1 D-Pad Right
-    beq .hook_etank_not_right
-    
-    jsr etanks_dpad_right
-
-    bra .hook_etank_done
-
-.hook_etank_not_right
-
-    lda $8f
-    bit #$0200    ; P1 D-Pad Left
-    beq .hook_etank_not_left
-    
-    jsr etanks_dpad_left
-
-    bra .hook_etank_done
-
-.hook_etank_not_left
-
-    lda $8F
-    bit #$0400    ; P1 D-Pad Down
-    beq .hook_etank_not_down
-    
-    jsr etanks_dpad_down
-    bcs .hook_etank_done
-
-.hook_etank_down_from_hud
-    lda #$0037
-    jsl $809049
-    jmp $ABAD
-
-.hook_etank_down_from_hud_done
-    clc
-    bra .hook_etank_done
-
-.hook_etank_not_down
-
-    lda $8F
-    bit #$0800    ; P1 D-Pad Up
-    beq .hook_etank_not_up
-    
-    jsr etanks_dpad_up
-
-    bra .hook_etank_done
-
-.hook_etank_not_up
-
-    lda $8f
-    bit #$0080    ; P1 Button A
-    beq .ret
-
-
+etanks_a_button:
     ; Is this a disabled E-Tank
     lda !current_etank_index
     cmp !count_enabled_etanks
@@ -417,9 +374,36 @@ hook_equipment_screen_category_etanks:
 
 .selected_disabled_tank
     jsl enable_tank
-    bra .ret
 
-.hook_etank_done
+.ret
+    clc
+    rts
+
+hook_equipment_screen_category_etanks:
+
+    php
+    rep #$30
+    
+    jsl etank_do_some_math
+
+    ;for (short* x = hook_equipment_category_etanks_controller_table; *x; x += 2)
+    ldx #$0000
+    bra .start
+-
+    inx #$4
+.start
+    lda hook_equipment_screen_category_etanks_controller_table,x
+    beq .ret
+
+    ; All bits indicated must be newly pressed
+    lda $8f
+    beq .ret
+    and hook_equipment_screen_category_etanks_controller_table,x
+    cmp hook_equipment_screen_category_etanks_controller_table,x
+    bne -
+
+    ; Found a candidate
+    jsr (hook_equipment_screen_category_etanks_controller_table_func, x)
     bcc .ret
     
     lda #$0037
