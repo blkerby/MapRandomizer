@@ -303,6 +303,8 @@ function buildSettingsObject() {
             "random_seed": tryParseInt(formData.get("random_seed")),
             "disable_spikesuit": formData.get("disable_spike_suit") == "true",
             "disable_bluesuit": formData.get("disable_blue_suit") == "true",
+            "enable_major_glitches": formData.get("enable_major_glitches") == "true",
+            "enable_oob": formData.get("enable_out_of_bounds") == "true",
         }
     };
     return settings;
@@ -549,6 +551,8 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
     applyRadioValue("disableBluesuit", other.disable_bluesuit);
+    applyRadioValue("enableMajorGlitches", other.enable_major_glitches);
+    applyRadioValue("enableOOB", other.enable_oob);
     applyRadioValue("raceMode", other.race_mode);
     document.getElementById("randomSeed").value = other.random_seed;
 }

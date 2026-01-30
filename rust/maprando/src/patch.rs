@@ -485,7 +485,6 @@ impl Patcher<'_> {
                 "fix_kraid_hud",
                 "escape_autosave",
                 "boss_exit",
-                "oob_death",
                 "load_plms_early",
                 "spin_lock",
                 "fix_transition_bad_tiles",
@@ -583,6 +582,14 @@ impl Patcher<'_> {
 
         if self.settings.other_settings.disable_bluesuit {
             patches.push("remove_bluesuit")
+        }
+
+        if !self.settings.other_settings.enable_oob {
+            patches.push("oob_death")
+        }
+
+        if !self.settings.other_settings.enable_major_glitches {
+            patches.push("disable_major_glitches")
         }
 
         if self.settings.quality_of_life_settings.respin {

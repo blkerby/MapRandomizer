@@ -37,15 +37,7 @@ assert pc() <= $84871B ; just to make sure the next instruction isn't overwritte
 org $91b629
 	db $01
 
-;;; disable GT code
-org $aac91c
-	bra $3f
-
 ;;; Pause menu fixes :
-
-;;; disable spacetime beam select in pause menu
-org $82b174
-	ldx #$0001
 ;;; fix screw attack select in pause menu
 org $82b4c4
 	cpx #$000c

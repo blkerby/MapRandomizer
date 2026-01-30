@@ -4578,6 +4578,8 @@
         "energy_free_shinesparks": false,
         "disable_spikesuit": false,
         "disable_bluesuit": false,
+        "enable_major_glitches": false,
+        "enable_oob": false,
         "ultra_low_qol": false,
         "race_mode": false,
         "random_seed": null

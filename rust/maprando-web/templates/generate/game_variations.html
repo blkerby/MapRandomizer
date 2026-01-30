@@ -93,6 +93,30 @@
 </div>
 <div class="form-group row">
     <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/enable_glitches.html" %}
+        <label for="enable_major_glitches">Enable major glitches</label>
+    </div>
+    <div id="enableMajorGlitches" class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="enable_major_glitches" id="enableMajorGlitchesNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="enableMajorGlitchesNo">No</label>
+        <input type="radio" class="btn-check" name="enable_major_glitches" id="enableMajorGlitchesYes" value="true">
+        <label class="btn btn-outline-primary" for="enableMajorGlitchesYes">Yes</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/enable_oob.html" %}
+        <label for="enable_out_of_bounds">Enable out of bounds</label>
+    </div>
+    <div id="enableOOB" class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="enable_out_of_bounds" id="enableOOBNo" value="false" checked>
+        <label class="btn btn-outline-primary" for="enableOOBNo">No</label>
+        <input type="radio" class="btn-check" name="enable_out_of_bounds" id="enableOOBYes" value="true">
+        <label class="btn btn-outline-primary" for="enableOOBYes">Yes</label>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/ultra_low_qol.html" %}
         <label for="ultra_low_qol">Ultra-low quality of life</label>
     </div>
