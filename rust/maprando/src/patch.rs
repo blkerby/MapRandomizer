@@ -588,7 +588,9 @@ impl Patcher<'_> {
             patches.push("oob_death")
         }
 
-        if !self.settings.other_settings.enable_major_glitches && !self.settings.other_settings.ultra_low_qol {
+        if !self.settings.other_settings.enable_major_glitches
+            && !self.settings.other_settings.ultra_low_qol
+        {
             patches.push("disable_major_glitches")
         }
 
