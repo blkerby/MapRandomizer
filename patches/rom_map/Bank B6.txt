@@ -1,3 +1,4 @@
 F200-F660: pause_menu_objectives.asm
-F660-FE80: [FREE]
+F660-FE60: [FREE]
+FE60-FE80: disable_etanks.asm
 FE80-FFFF: map_area.asm
