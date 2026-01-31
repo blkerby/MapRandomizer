@@ -351,7 +351,6 @@ pub struct OtherSettings {
     pub disable_spikesuit: bool,
     pub disable_bluesuit: bool,
     pub enable_major_glitches: bool,
-    pub enable_oob: bool,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
 }
@@ -923,10 +922,6 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
 
     if other_settings.get("enable_major_glitches").is_none() {
         other_settings.insert("enable_major_glitches".to_string(), false.into());
-    }
-
-    if other_settings.get("enable_oob").is_none() {
-        other_settings.insert("enable_oob".to_string(), false.into());
     }
 
     Ok(())

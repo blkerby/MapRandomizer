@@ -1,4 +1,4 @@
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/walljump.html" %}
         <label for="wall_jump">Wall jump</label>
@@ -10,7 +10,7 @@
         <label class="btn btn-outline-primary" for="wallJumpCollectible">Collectible</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/area_assignment.html" %}
         <label for="area_assignment">Area assignment</label>
@@ -30,7 +30,7 @@
         </button>                    
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/door_locks_size.html" %}
         <label for="door_locks_size">Door locks size on map</label>
@@ -42,7 +42,7 @@
         <label class="btn btn-outline-primary" for="doorLocksSizeLarge">Large</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/map_station_reveal.html" %}
         <label for="map_station_reveal">Map station activation reveal</label>
@@ -54,7 +54,7 @@
         <label class="btn btn-outline-primary" for="mapStationRevealFull">Full</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/energy_free_shinesparks.html" %}
         <label for="energy_free_shinesparks">Energy-free shinesparks</label>
@@ -67,7 +67,7 @@
         <label class="btn btn-outline-primary" for="energyFreeShinesparksYes">Yes</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/disable_spikesuit.html" %}
         <label for="disable_spike_suit">Disable spikesuits</label>
@@ -79,7 +79,7 @@
         <label class="btn btn-outline-primary" for="disableSpikesuitYes">Yes</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/disable_bluesuit.html" %}
         <label for="disable_blue_suit">Disable blue suits</label>
@@ -91,7 +91,7 @@
         <label class="btn btn-outline-primary" for="disableBlueSuitYes">Yes</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/enable_glitches.html" %}
         <label for="enable_major_glitches">Enable major glitches</label>
@@ -103,19 +103,7 @@
         <label class="btn btn-outline-primary" for="enableMajorGlitchesYes">Yes</label>
     </div>
 </div>
-<div class="form-group row">
-    <div class="col-lg-4 col-md-6 my-2">
-        {% include "help/variations/enable_oob.html" %}
-        <label for="enable_out_of_bounds">Enable out of bounds</label>
-    </div>
-    <div id="enableOOB" class="col-2 btn-group my-2" role="group">
-        <input type="radio" class="btn-check" name="enable_out_of_bounds" id="enableOOBNo" value="false" checked>
-        <label class="btn btn-outline-primary" for="enableOOBNo">No</label>
-        <input type="radio" class="btn-check" name="enable_out_of_bounds" id="enableOOBYes" value="true">
-        <label class="btn btn-outline-primary" for="enableOOBYes">Yes</label>
-    </div>
-</div>
-<div class="form-group row">
+<div class="form-group row" onchange="ultraLowQoLChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/ultra_low_qol.html" %}
         <label for="ultra_low_qol">Ultra-low quality of life</label>
@@ -127,7 +115,7 @@
         <label class="btn btn-outline-primary" for="ultraLowQoLYes">Yes</label>
     </div>
 </div>
-<div class="form-group row">
+<div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
         {% include "help/race.html" %}
         <label for="race_mode">Race mode</label>

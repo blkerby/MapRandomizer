@@ -577,21 +577,18 @@ impl Patcher<'_> {
         }
 
         if self.settings.other_settings.disable_spikesuit {
-            patches.push("remove_spikesuit")
+            patches.push("remove_spikesuit");
         }
 
         if self.settings.other_settings.disable_bluesuit {
-            patches.push("remove_bluesuit")
-        }
-
-        if !self.settings.other_settings.enable_oob && !self.settings.other_settings.ultra_low_qol {
-            patches.push("oob_death")
+            patches.push("remove_bluesuit");
         }
 
         if !self.settings.other_settings.enable_major_glitches
             && !self.settings.other_settings.ultra_low_qol
         {
-            patches.push("disable_major_glitches")
+            patches.push("disable_major_glitches");
+            patches.push("oob_death");
         }
 
         if self.settings.quality_of_life_settings.respin {

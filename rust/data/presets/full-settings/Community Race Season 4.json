@@ -4579,7 +4579,6 @@
         "disable_spikesuit": false,
         "disable_bluesuit": false,
         "enable_major_glitches": false,
-        "enable_oob": false,
         "race_mode": true,
         "random_seed": null
     },

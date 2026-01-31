@@ -304,7 +304,6 @@ function buildSettingsObject() {
             "disable_spikesuit": formData.get("disable_spike_suit") == "true",
             "disable_bluesuit": formData.get("disable_blue_suit") == "true",
             "enable_major_glitches": formData.get("enable_major_glitches") == "true",
-            "enable_oob": formData.get("enable_out_of_bounds") == "true",
         }
     };
     return settings;
@@ -552,7 +551,6 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
     applyRadioValue("disableBluesuit", other.disable_bluesuit);
     applyRadioValue("enableMajorGlitches", other.enable_major_glitches);
-    applyRadioValue("enableOOB", other.enable_oob);
     applyRadioValue("raceMode", other.race_mode);
     document.getElementById("randomSeed").value = other.random_seed;
 }
@@ -1099,12 +1097,22 @@ function itemPoolChanged() {
 }
 
 function gameVariationChanged() {
-    if (document.getElementById("ultraLowQoLYes").checked) {
-        document.getElementById("qualityOfLifeOff").checked = true;
-        qualityOfLifePresetChanged();
+    if (!document.getElementById("enableMajorGlitchesYes").checked)
+    {
+        document.getElementById("ultraLowQoLNo").checked = true;
     }
     fullSettingsChanged();
 }
+
+function ultraLowQoLChanged() {
+    if (!document.getElementById("ultraLowQoLYes").checked) {
+        return;
+    }
+    document.getElementById("qualityOfLifeOff").checked = true;
+    document.getElementById("enableMajorGlitchesYes").checked = true;
+    qualityOfLifePresetChanged();
+}
+
 function initializeSpoilerToken() {
     if (localStorage["spoilerToken"] === undefined) {
         let result = '';

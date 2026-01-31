@@ -255,7 +255,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             disable_bluesuit: false,
             disable_spikesuit: false,
             enable_major_glitches: false,
-            enable_oob: false,
             ultra_low_qol: false,
             race_mode: false,
             random_seed: None,
