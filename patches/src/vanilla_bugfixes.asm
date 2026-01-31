@@ -13,7 +13,7 @@ lorom
 !bank_86_free_space_start = $86F4B0
 !bank_86_free_space_end = $86F4D0
 
-!msg_crash_timer_override = $11
+!msg_crash_timer_override = $7EF596
 
 incsrc "constants.asm"
 
@@ -464,7 +464,8 @@ hook_msgbox_delay:
     lda !msg_crash_timer_override
     beq .nochange
     ldx #$005a ; (put 1.5 seconds on the clock) 
-    stz !msg_crash_timer_override ; clear our special variable so then next msgbox will have whatever timer was set on generation
+    lda #$00
+    sta !msg_crash_timer_override ; clear our special variable so then next msgbox will have whatever timer was set on generation
 .nochange
     pla
     jsr $8136  ; hi-jacked instruction.
