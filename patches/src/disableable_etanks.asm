@@ -2,7 +2,7 @@
 !bank_80_free_space_end = $80E440
 
 !bank_82_free_space_start = $82F830
-!bank_82_free_space_end = $82F9CC
+!bank_82_free_space_end = $82F9D3
 
 !bank_85_free_space_start = $85AD00
 !bank_85_free_space_end = $85AE13
@@ -133,9 +133,11 @@ org $82936D
 org $82A32D
     jsr hook_ppu_gameplay_setup
 
-org $82A0B3
-    jsr hook_ppu_pause_setup
+org $8291CA
+    jsr hook_load_equip_menu
 
+org $8291ED
+    jsr hook_load_map
 
 org !bank_82_free_space_start
 
@@ -161,14 +163,20 @@ hook_unpause_loading:
 hook_ppu_gameplay_setup:
     ; lda #$04 from vanilla
     sta $210C ;hijacked (both 8215 and A32D are this instruction)
-hook_ppu_done:
     sta $9C
     rts
 
-hook_ppu_pause_setup:
-    sta $210C
-    lda #$14
-    bra hook_ppu_done
+hook_load_equip_menu:
+    lda #$0014
+hook_load_done:
+    sta $9C
+    lda #$0001 ;Hijacked
+    rts
+
+hook_load_map:
+    lda #$0004
+    bra hook_load_done
+
 
 hook_equipment_screen_main_category_jump_table:
     ; 0 - reserve tank, 1 - beams, 2 - suits/misc, 3 - boots - all go to their vanilla entry points
