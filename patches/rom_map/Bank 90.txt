@@ -9,3 +9,4 @@ $FA00 - $FC00: map_progress_maintain.asm (list of cross-area tiles to reveal)
 $FC00 - $FC10: Fake Lava.asm
 $FC10 - $FC20: vanilla_bugfixes.asm
 $FC20 - $FC40: remove_spikesuit.asm
+$FC40 - $FCC0: split_speed.asm
