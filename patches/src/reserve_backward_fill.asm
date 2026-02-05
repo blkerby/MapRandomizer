@@ -11,7 +11,6 @@ org $82AC8E
     
 ; Load equipment menu
 org $8291B8
-    lda #$0000
     jsr hook_init_arrow_mode
 
 org $82AD08
@@ -56,11 +55,11 @@ org $82AD0A
     rts
 warnpc $82AD29
 
-
-warnpc $82AF6B
-org $82AF6B
-process_reserve_counter:
-
+org $82ACD6
+    jsl hook_tanks_dpad_move_to_reserve
+    nop
+    nop
+assert pc() == $82ACDC
 
 org $82FF20
 hook_tanks_items:
@@ -74,10 +73,8 @@ warnpc $82FF30
 
 org $82F9F6
 hook_init_arrow_mode:
-    ; A = 0
-    sta !arrow_mode
-    inc a
-    sta $0763 ;Hijacked (pause menu mode = equipment screen)
+    jsl reset_arrow
+    lda #$0001 ;Hijacked
     rts
 warnpc $82FA00
 
@@ -89,6 +86,27 @@ org !bank_85_free_space_start
 !arrow_end_normal_tile = $3D6F ; Vanilla tile (short horizontal end)
 !arrow_top_reversed_tile = $3D5C ; Vanilla tile (vertical line)
 !arrow_end_reversed_tile = $3D4B ; Custom tile (rightward arrowhead)
+
+hook_tanks_dpad_move_to_reserve:
+    sta $0755   ; Part of the hijacked
+    ; Z = Don't move to the reserve tank, NZ = Do
+    lda !arrow_mode
+    beq .vanilla
+    lda $09C2
+    dec a
+    rtl
+.vanilla
+    lda $09D6
+    rtl
+    
+reset_arrow:
+    lda #$0000
+    sta !arrow_mode
+    lda.l arrow_top_tile
+    sta !ram_bg1_tilemap_arrow_top
+    lda.l arrow_end_tile
+    sta !ram_bg1_tilemap_arrow_end
+    rtl
 
 hook_tanks_arrow:
     php
@@ -104,7 +122,23 @@ hook_tanks_arrow:
     sta !ram_bg1_tilemap_arrow_top
     lda.l arrow_end_tile, x
     sta !ram_bg1_tilemap_arrow_end
-    stz $0757
+    lda #$0037
+    jsl $809049 ; Play sound: moved cursor
+    ; Reset the reserve fill sound timer
+    lda $0757
+    beq .no
+    txa
+    beq .resume_normal
+    lda $09C2
+    dec a
+    bra .resume
+.resume_normal
+    lda $09D6
+.resume
+    clc
+    adc #$0007
+    and #$FFF8
+    sta $0757
 .no
     jml fake_rtl
 
@@ -125,6 +159,10 @@ hook_tanks_dpad_response:
     beq .not_left
 
     ; Move to the arrow
+    lda $09C0   ; Reserve = [AUTO] -> don't
+    cmp #$0001
+    beq .not_left
+    
     lda $0755
     and #$00FF
     ora #$0200
@@ -184,6 +222,9 @@ hook_reserve_tank_refilling:
     cmp $09D4
     bpl .stop_dump_etanks
     sta $09D6
+    lda $09C2
+    dec a
+    beq .stop_etanks_empty
     bra .done
     
 .stop_dump_etanks
@@ -193,9 +234,9 @@ hook_reserve_tank_refilling:
     lda #$0001
     sta $09C2
     jsl extern_disable_arrow_glow
-    stz $0755
 
 .stop_etanks_empty
+    stz $0755
     stz $0757
 
 .done
