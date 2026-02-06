@@ -1,5 +1,8 @@
-!bank_85_free_space_start = $85AE13
+!bank_85_free_space_start = $85AE20
 !bank_85_free_space_end = $85B000
+
+!bank_82_free_space_start = $82F9D0
+!bank_82_free_space_end = $82FA00
 
 !arrow_mode = $7EF597
 
@@ -11,7 +14,9 @@ org $82AC8E
     
 ; Load equipment menu
 org $8291B8
-    jsr hook_init_arrow_mode
+    jsl hook_init_arrow_mode
+    nop
+    nop
 
 org $82AD08
     ; There's a PLP / RTS here for when we need to escape hooked $82 routines that had to JML out to $85
@@ -34,26 +39,12 @@ org $82AC87
 hook_tanks_arrow_trampoline:
     jml hook_tanks_arrow
 
-org $82AD0A
-    php
-    rep #$30
-    lda $0755
-    bit #$00FF
-    bne .off
-    xba
-    lsr a
-    bcs .solid
-    jsr $AD29
-    bra .done
-.solid
-    jsr $ADDD
-    bra .done
-.off
-    jsr $ADEF
-.done
-    plp
-    rts
-warnpc $82AD29
+org $82AD1B
+    jsr (hook_tanks_glowing_arrow_jumptable, x)
+
+org $82AD25
+hook_tanks_glowing_arrow_selected_trampoline:
+    jml hook_tanks_glowing_arrow_selected
 
 org $82ACD6
     jsl hook_tanks_dpad_move_to_reserve
@@ -61,22 +52,22 @@ org $82ACD6
     nop
 assert pc() == $82ACDC
 
-org $82FF20
+org $82C18E
+    dw coord_table
+
+org !bank_82_free_space_start
 hook_tanks_items:
     dw $AE8B, $AF4F, hook_tanks_arrow_trampoline
 
-extern_disable_arrow_glow:
-    jsr $AE46
-    rtl
+hook_tanks_glowing_arrow_jumptable:
+    dw $AD29, $ADDD, hook_tanks_glowing_arrow_selected_trampoline
 
-warnpc $82FF30
+coord_table:
+    dw $001B, $0054 ; Tanks - mode
+    dw $001B, $005C ; Tanks - reserve tank
+    dw $1000, $1000 ; Far off-screen
 
-org $82F9F6
-hook_init_arrow_mode:
-    jsl reset_arrow
-    lda #$0001 ;Hijacked
-    rts
-warnpc $82FA00
+warnpc !bank_82_free_space_end
 
 org !bank_85_free_space_start
 
@@ -86,6 +77,21 @@ org !bank_85_free_space_start
 !arrow_end_normal_tile = $3D6F ; Vanilla tile (short horizontal end)
 !arrow_top_reversed_tile = $3D5C ; Vanilla tile (vertical line)
 !arrow_end_reversed_tile = $3D4B ; Custom tile (rightward arrowhead)
+
+hook_init_arrow_mode:
+    jsr reset_arrow
+    lda #$0001  ;Hijacked
+    sta $0763
+    rtl
+
+hook_tanks_glowing_arrow_selected:
+    ; Copy sprite palette 3 color 1
+    lda $7EC162
+    sta $7EC0CC ; Palette 6 slot 6 (arrow hilight))
+    ; Copy sprite palette 3 color 2
+    lda $7EC164
+    sta $7EC0D6 ; Palette 6 slot B (arrow fill)
+    jml $82AE01 ; Enable energy glow
 
 hook_tanks_dpad_move_to_reserve:
     sta $0755   ; Part of the hijacked
@@ -106,7 +112,16 @@ reset_arrow:
     sta !ram_bg1_tilemap_arrow_top
     lda.l arrow_end_tile
     sta !ram_bg1_tilemap_arrow_end
-    rtl
+    ; If this reset because you went to the map need to also reset the reserve timer
+    lda $0757
+    beq .no
+    lda $09D6
+    clc
+    adc #$0007
+    and #$fff8
+    sta $0757
+.no
+    rts
 
 hook_tanks_arrow:
     php
@@ -233,7 +248,7 @@ hook_reserve_tank_refilling:
     sta $09D6
     lda #$0001
     sta $09C2
-    jsl extern_disable_arrow_glow
+    ;jsl extern_disable_arrow_glow
 
 .stop_etanks_empty
     stz $0755
