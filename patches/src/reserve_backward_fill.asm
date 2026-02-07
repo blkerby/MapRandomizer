@@ -96,11 +96,9 @@ hook_init_arrow_mode:
     rtl
 
 hook_tanks_glowing_arrow_selected:
-    ; Copy sprite palette 3 color 1
-    lda $7EC162
+    lda #$318C  ; Hopefully a dark grey color?
     sta $7EC0CC ; Palette 6 slot 6 (arrow hilight))
-    ; Copy sprite palette 3 color 2
-    lda $7EC164
+    lda $7EC16A ; Copy sprite palette 3 color 5
     sta $7EC0D6 ; Palette 6 slot B (arrow fill)
     jml $82AE01 ; Enable energy glow
 
@@ -280,5 +278,5 @@ org $B6A940
     db $00, $00, $00, $00, $00, $00, $10, $18, $10, $18, $10, $18, $10, $18, $10, $18
     db $00, $00, $00, $00, $3C, $00, $2C, $10, $2C, $10, $2C, $10, $2C, $10, $2C, $10
 
-    db $00, $40, $40, $60, $60, $70, $70, $F8, $F8, $F8, $70, $70, $60, $60, $40, $40
-    db $E0, $00, $B0, $40, $98, $60, $8C, $70, $04, $F8, $88, $70, $90, $60, $A0, $40
+    db $00, $80, $80, $C0, $C0, $E0, $E0, $F0, $F0, $F0, $E0, $E0, $C0, $C0, $80, $80
+    db $C0, $00, $60, $80, $30, $C0, $18, $E0, $08, $F0, $10, $E0, $20, $C0, $40, $80
