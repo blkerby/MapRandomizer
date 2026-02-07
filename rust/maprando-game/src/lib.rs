@@ -169,6 +169,8 @@ pub enum Item {
     ReserveTank,  // 20
     WallJump,     // 21
     Nothing,      // 22
+    SparkBooster, // 23
+    BlueBooster,  // 24
 }
 
 impl Item {

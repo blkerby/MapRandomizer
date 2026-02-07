@@ -1973,6 +1973,8 @@ impl Patcher<'_> {
             ("Morph", "Morph Ball"),
             ("ReserveTank", "Reserve Tank"),
             ("WallJump", "WallJump Boots"),
+            ("SparkBooster", "Spark Booster"),
+            ("BlueBooster", "Blue Booster"),
         ]
         .into_iter()
         .map(|(x, y)| (x.to_string(), y.to_string()))
@@ -2060,6 +2062,8 @@ impl Patcher<'_> {
             (Item::SpeedBooster, 0x2000),
             (Item::Grapple, 0x4000),
             (Item::XRayScope, 0x8000),
+            (Item::SparkBooster, 0x0080),
+            (Item::BlueBooster, 0x0040),
         ]
         .into_iter()
         .collect();

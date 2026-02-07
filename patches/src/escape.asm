@@ -647,16 +647,16 @@ dachora_hit_top:
 warnpc !bank_a7_free_space_end
 
 
-; Include walljump boots in item collection count post-credits
+; Include walljump boots and split-speed in item collection count post-credits
 org $8BE65B
-    LDX #$0016
+    LDX #$0018
 
 org $8BE661
     BIT item_bits,x
 
 org !bank_8b_free_space_start
 item_bits:
-    dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400
+    dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400, $0040, $0080
 
 warnpc !bank_8b_free_space_end
 

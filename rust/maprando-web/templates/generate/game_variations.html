@@ -12,6 +12,18 @@
 </div>
 <div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/splitspeed.html" %}
+        <label for="split_speed">Speedbooster</label>
+    </div>
+    <div id="speedBooster" class="col-4 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="split_speed" id="speedBoosterVanilla" value="Vanilla" checked>
+        <label class="btn btn-outline-primary" for="speedBoosterVanilla">Vanilla</label>
+        <input type="radio" class="btn-check" name="split_speed" id="speedBoosterSplit" value="Split">
+        <label class="btn btn-outline-primary" for="speedBoosterSplit">Split</label>
+    </div>
+</div>
+<div class="form-group row" onchange="gameVariationChanged()">
+    <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/area_assignment.html" %}
         <label for="area_assignment">Area assignment</label>
     </div>
