@@ -13,6 +13,11 @@
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
 
+
+; sb_hallway lavatrap on any_booster
+org $84BF72
+    and #!any_booster
+
 ; Accelerate Samus' animation with any booster item:
 org $908502
     bit #!any_booster
