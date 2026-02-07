@@ -149,7 +149,7 @@ whitelist_dict = {
         ['no_drops', 0xB4F1F4, 0xB4F4B8]
     ],
     'reserve_backward_fill': [
-        ['hud_expansion_opaque', 0xB6A960, 0xB6A980]
+        ['hud_expansion_opaque', 0xB6A940, 0xB6A980]
     ],
 }
 

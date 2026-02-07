@@ -52,10 +52,21 @@ org $82ACD6
     nop
 assert pc() == $82ACDC
 
+org $82B292
+    beq escape
+    tax
+    dex
+    lda $0002,y
+assert pc() == $82B299
+
+org $82B2A0
+escape:
+
 org $82C18E
     dw coord_table
 
 org !bank_82_free_space_start
+
 hook_tanks_items:
     dw $AE8B, $AF4F, hook_tanks_arrow_trampoline
 
@@ -65,7 +76,7 @@ hook_tanks_glowing_arrow_jumptable:
 coord_table:
     dw $001B, $0054 ; Tanks - mode
     dw $001B, $005C ; Tanks - reserve tank
-    dw $1000, $1000 ; Far off-screen
+    dw $0000, $0000 ; Far off-screen
 
 warnpc !bank_82_free_space_end
 
@@ -75,7 +86,7 @@ org !bank_85_free_space_start
 !ram_bg1_tilemap_arrow_end = $7E3B04
 !arrow_top_normal_tile = $3D4C ; Vanilla tile (upward arrowhead)
 !arrow_end_normal_tile = $3D6F ; Vanilla tile (short horizontal end)
-!arrow_top_reversed_tile = $3D5C ; Vanilla tile (vertical line)
+!arrow_top_reversed_tile = $3D4A ; Custom tile (short vertical end)
 !arrow_end_reversed_tile = $3D4B ; Custom tile (rightward arrowhead)
 
 hook_init_arrow_mode:
@@ -158,10 +169,10 @@ hook_tanks_arrow:
     jml fake_rtl
 
 arrow_top_tile:
-    dw $3D4C, $3D5C
+    dw !arrow_top_normal_tile, !arrow_top_reversed_tile
 
 arrow_end_tile:
-    dw $3D6F, $3D4B
+    dw !arrow_end_normal_tile, !arrow_end_reversed_tile
 
 hook_tanks_dpad_response:
     ; Arrived here by JML from an $82 JSR - MUST JML back to an $82 PLP/RTS!
@@ -265,6 +276,9 @@ hook_reserve_tank_refilling:
 warnpc !bank_85_free_space_end
 
 ; There's a free spot right here in the vanilla pause BG1 tiles
-org $B6A960
-    db $00, $20, $20, $30, $30, $38, $38, $FC, $FC, $FC, $38, $38, $30, $30, $20, $20
-    db $70, $00, $58, $20, $CC, $30, $C6, $38, $02, $FC, $C4, $38, $48, $30, $50, $20
+org $B6A940
+    db $00, $00, $00, $00, $00, $00, $10, $18, $10, $18, $10, $18, $10, $18, $10, $18
+    db $00, $00, $00, $00, $3C, $00, $2C, $10, $2C, $10, $2C, $10, $2C, $10, $2C, $10
+
+    db $00, $40, $40, $60, $60, $70, $70, $F8, $F8, $F8, $70, $70, $60, $60, $40, $40
+    db $E0, $00, $B0, $40, $98, $60, $8C, $70, $04, $F8, $88, $70, $90, $60, $A0, $40
