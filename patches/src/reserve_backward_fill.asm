@@ -78,6 +78,10 @@ coord_table:
     dw $001B, $005C ; Tanks - reserve tank
     dw $0000, $0000 ; Far off-screen
 
+extern_arrow_glow_off:
+    jsr $ADEF
+    rtl
+
 warnpc !bank_82_free_space_end
 
 org !bank_85_free_space_start
@@ -96,11 +100,22 @@ hook_init_arrow_mode:
     rtl
 
 hook_tanks_glowing_arrow_selected:
-    lda #$318C  ; Hopefully a dark grey color?
+    lda $074F   ; X = Pause palette animation frame * 2
+    asl
+    tax
+
+    lda.l sequence_arrow_shadow_color,x
     sta $7EC0CC ; Palette 6 slot 6 (arrow hilight))
-    lda $7EC16A ; Copy sprite palette 3 color 5
+
+    lda.l sequence_arrow_fill_color,x
     sta $7EC0D6 ; Palette 6 slot B (arrow fill)
     jml $82AE01 ; Enable energy glow
+
+sequence_arrow_fill_color:
+    dw $318C, $35AD, $3DEF, $4A52, $56B5, $6739, $739C, $7FFF, $739C, $6739, $56B5, $4A52, $3DEF, $35AD, $318C
+
+sequence_arrow_shadow_color:
+    dw $2108, $2529, $2D6B, $39CE, $4631, $56B5, $6318, $6F7B, $6318, $56B5, $4631, $39CE, $2D6B, $2108, $2529
 
 hook_tanks_dpad_move_to_reserve:
     sta $0755   ; Part of the hijacked
@@ -121,6 +136,7 @@ reset_arrow:
     sta !ram_bg1_tilemap_arrow_top
     lda.l arrow_end_tile
     sta !ram_bg1_tilemap_arrow_end
+    jsl extern_arrow_glow_off
     ; If this reset because you went to the map need to also reset the reserve timer
     lda $0757
     beq .no
