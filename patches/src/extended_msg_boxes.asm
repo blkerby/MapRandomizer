@@ -2,3 +2,6 @@
 
 lorom
 
+!bank_84_free_space_start = $84F630
+!bank_84_free_space_end = $84F700
+
