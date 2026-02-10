@@ -1828,18 +1828,6 @@ impl GameData {
     }
 
     fn load_enemies(&mut self) -> Result<()> {
-        // Overridden enemy drop rates for buffed drop QoL:
-        // (enemy ID, small energy, big energy, missiles, nothing, supers, power bombs)
-        // Covern buff is ignored, to reduce the loss-of-access issue when power is on.
-        let buffed_drop_overrides = vec![
-            (83, 0x3C, 0x3C, 0x32, 0x05, 0x3C, 0x14), // Gamet
-            (23, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Zeb
-            (30, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Geega
-            (24, 0x00, 0x8C, 0x05, 0x00, 0x64, 0x0A), // Zebbo
-            (75, 0x00, 0x64, 0x3C, 0x05, 0x46, 0x14), // Zoa
-            // (51, 0x32, 0x5F, 0x32, 0x00, 0x14, 0x28), // Covern
-            (8, 0x23, 0x5F, 0x3C, 0x05, 0x28, 0x14), // Kago
-        ];
         for file in ["main.json", "bosses/main.json"] {
             let enemies_json = read_json(&self.sm_json_data_path.join("enemies").join(file))?;
             ensure!(enemies_json["enemies"].is_array());
@@ -1857,24 +1845,6 @@ impl GameData {
                     .insert(enemy_name.to_string(), vul);
                 self.enemy_json
                     .insert(enemy_name.to_string(), enemy_json.clone());
-
-                let mut enemy_json_buffed = enemy_json.clone();
-                for &(enemy_id, small, big, missiles, nothing, supers, pbs) in
-                    &buffed_drop_overrides
-                {
-                    if enemy_id == enemy_json["id"].as_usize().unwrap() {
-                        enemy_json_buffed["drops"] = json::object! {
-                            "noDrop": nothing,
-                            "smallEnergy": small,
-                            "bigEnergy": big,
-                            "missile": missiles,
-                            "super": supers,
-                            "powerBomb": pbs,
-                        };
-                    }
-                }
-                self.enemy_json_buffed
-                    .insert(enemy_name.to_string(), enemy_json_buffed.clone());
             }
         }
         Ok(())
