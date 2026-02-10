@@ -1787,8 +1787,8 @@ impl GameData {
         }
 
         // Add randomizer-specific flags:
-        self.flag_isv.add("f_AllItemsSpawn");
-        self.flag_isv.add("f_AcidChozoWithoutSpaceJump");
+        self.flag_isv.add("i_AllItemsSpawn");
+        self.flag_isv.add("i_AcidChozoWithoutSpaceJump");
 
         Ok(())
     }

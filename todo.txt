@@ -150,7 +150,8 @@ Other:
   - check that if some implicit strats are overridden, then all applicable ones are.
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
 - simplify SeedData. It's not clear if we really even need this anymore.
-- Make f_allItemsSpawn (etc.) not be a flag? Could be "i_allItemsSpawn" instead and handled similar to other logic-impacting settings.
+- Make i_AllItemsSpawn and i_AcidChozoWithoutSpaceJump be handled similar to other logic-impacting settings.
+- Utilize i_KraidCameraFix, i_CrocomireCameraFix as these are not fixed in Ultra Low QoL.
 - embed some logic data in video site? (e.g. show strat note when uploading/editing)
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - model energy usage in the escape.

@@ -1265,7 +1265,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (x.flag != null)
 				f = x.flag;
 
-			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "f_AllItemsSpawn" || f == "f_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
+			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "i_AllItemsSpawn" || f == "i_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
 				continue;
 
 			let e = document.createElement("img");
@@ -1571,7 +1571,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let rf = roomFlags[i];
 			let f = rf[0];
 			let obj = false;
-			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "f_AllItemsSpawn" || f == "f_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
+			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "i_AllItemsSpawn" || f == "i_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
 				continue;
 
 
