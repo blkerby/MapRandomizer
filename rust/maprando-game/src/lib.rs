@@ -1626,7 +1626,8 @@ struct RequirementContext<'a> {
 
 impl GameData {
     fn load_tech(&mut self) -> Result<()> {
-        for tech_category in full_tech_json["techCategories"].members_mut() {
+        let full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
+        for tech_category in full_tech_json["techCategories"].members() {
             ensure!(tech_category["techs"].is_array());
             for tech_json in tech_category["techs"].members() {
                 self.load_tech_rec(tech_json)?;
@@ -1788,11 +1789,6 @@ impl GameData {
         // Add randomizer-specific flags:
         self.flag_isv.add("f_AllItemsSpawn");
         self.flag_isv.add("f_AcidChozoWithoutSpaceJump");
-        self.flag_isv.add("f_UsedBowlingStatue");
-        self.flag_isv.add("f_ClearedPitRoom");
-        self.flag_isv.add("f_ClearedBabyKraidRoom");
-        self.flag_isv.add("f_ClearedPlasmaRoom");
-        self.flag_isv.add("f_ClearedMetalPiratesRoom");
 
         Ok(())
     }
@@ -3263,7 +3259,7 @@ impl GameData {
             {
                 ensure!(node_json["locks"].len() == 1);
                 let lock = node_json["locks"][0].clone();
-                let mut unlock_strats = lock["unlockStrats"].clone();
+                let unlock_strats = lock["unlockStrats"].clone();
                 let yields = if lock["yields"] != JsonValue::Null {
                     lock["yields"].clone()
                 } else {
