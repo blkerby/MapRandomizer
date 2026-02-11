@@ -19,9 +19,9 @@
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
 
-org $828ED3
-    jsl hook_setup_speedbooster_menu_tile
-    nop
+; Fine. Hijack the ENTIRE THING.
+org $8291D0
+    jsr hook_setup_speedbooster_menu_tile_wrapper
 
 org $82B5AE
     jsr hook_equip_enable
@@ -31,6 +31,11 @@ org $82C066
     dw !any_booster
 
 org !bank_82_free_space_start
+
+hook_setup_speedbooster_menu_tile_wrapper:
+    sta $0725
+    jsl hook_setup_speedbooster_menu_tile
+    rts
 
 hook_equip_enable:
     ; X = equipment bitmask
@@ -225,13 +230,9 @@ hook_update_speed_echoes:
 
 hook_setup_speedbooster_menu_tile:
     php
-    ;sep #$30
-    ; Hijacked vanilla code to execute the channel 1 DMA transfer it just set up (populating the pause menu BG1/BG2 tiles)
-    lda #$02    ; Channel 1 (Vanilla just set this up)
-    sta $420B   ; Execute DMA (CPU pauses until complete - consistent with vanilla right now)
     
     rep #$30
-    lda $09A2
+    lda $09A4
     and #!any_booster
     beq .no     ; No boosters
     bit #!speed_booster
