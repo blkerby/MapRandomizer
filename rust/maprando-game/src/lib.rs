@@ -1508,7 +1508,6 @@ pub struct GameData {
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     enemy_json: HashMap<String, JsonValue>,
-    enemy_json_buffed: HashMap<String, JsonValue>,
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
     pub tech_json_map: HashMap<TechId, JsonValue>,
@@ -2202,18 +2201,15 @@ impl GameData {
         assert!(value.is_array());
         for drop in value.members() {
             let enemy_name = drop["enemy"].as_str().unwrap();
-            let enemy_json = if buffed {
-                &self
-                    .enemy_json_buffed
-                    .get(enemy_name)
-                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
+            let enemy_json = &self
+                .enemy_json
+                .get(enemy_name)
+                .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name));
+            let drops_json = if buffed && enemy_json.has_key("buffedDrops") {
+                &enemy_json["buffedDrops"]
             } else {
-                &self
-                    .enemy_json
-                    .get(enemy_name)
-                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
+                &enemy_json["drops"]
             };
-            let drops_json = &enemy_json["drops"];
             let amount_of_drops = enemy_json["amountOfDrops"].as_isize().unwrap() as Capacity;
             let count = drop["count"].as_i32().unwrap() as Capacity;
             let nothing_weight = drops_json["noDrop"]
