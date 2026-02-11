@@ -3461,6 +3461,15 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[Item::WallJump as usize] = 0;
         }
 
+        if settings.other_settings.speed_booster == SpeedBooster::Vanilla {
+            initial_items_remaining[Item::SparkBooster as usize] = 0;
+            initial_items_remaining[Item::BlueBooster as usize] = 0;
+        }
+
+        if settings.other_settings.speed_booster == SpeedBooster::Split {
+            initial_items_remaining[Item::SpeedBooster as usize] = 0;
+        }
+
         let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
         for x in &settings.item_progression_settings.starting_items {
             initial_items_remaining[x.item as usize] -=
