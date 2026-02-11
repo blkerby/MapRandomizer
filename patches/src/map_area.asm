@@ -276,8 +276,7 @@ load_map_screen_wrapper:
 
 load_equipment_screen_wrapper:
     jsl load_equipment_screen
-    jsr $AB47
-    rts
+    jmp $AB47
 
 load_area_wrapper:
     jsl load_area
@@ -565,9 +564,6 @@ load_map_screen:
     rtl
 
 load_equipment_screen:
-    ; run hi-jacked instruction:
-    ;sta $0725
-
     ; Fix color used for pink doors on map screen
     lda #$6E7A
     sta $7EC0CE

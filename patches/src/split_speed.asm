@@ -33,7 +33,7 @@ org $82C066
 org !bank_82_free_space_start
 
 hook_setup_speedbooster_menu_tile_wrapper:
-    sta $0725
+    sta $0725  ; run hi-jacked instruction
     jsl hook_setup_speedbooster_menu_tile
     rts
 
