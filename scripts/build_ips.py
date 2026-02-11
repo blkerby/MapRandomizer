@@ -148,6 +148,9 @@ whitelist_dict = {
     'buffed_drops': [
         ['no_drops', 0xB4F1F4, 0xB4F4B8]
     ],
+    'reserve_backward_fill': [
+        ['hud_expansion_opaque', 0xB6A940, 0xB6A980]
+    ],
 }
 
 failed = False

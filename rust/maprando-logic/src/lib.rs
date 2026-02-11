@@ -166,6 +166,7 @@ pub struct LocalState {
     pub farm_baseline_supers: EncodedResourceLevel,
     pub farm_baseline_power_bombs: EncodedResourceLevel,
     pub flash_suit: u8,
+    pub blue_suit: u8,
     pub length: u32,
     pub prev_trail_id: StepTrailId,
 }
@@ -186,6 +187,7 @@ impl LocalState {
             farm_baseline_supers: ResourceLevel::Remaining(0).into(),
             farm_baseline_power_bombs: ResourceLevel::Remaining(0).into(),
             flash_suit: 0,
+            blue_suit: 0,
             length: 0,
             prev_trail_id: -1,
         }
@@ -219,6 +221,7 @@ impl LocalState {
             farm_baseline_supers: generic_resource_level,
             farm_baseline_power_bombs: generic_resource_level,
             flash_suit: 0,
+            blue_suit: 0,
             length: 0,
             prev_trail_id: -1,
         }
@@ -385,6 +388,14 @@ impl LocalState {
             flash_suit_distance - self.flash_suit
         } else {
             self.flash_suit
+        }
+    }
+
+    pub fn blue_suit_available(&self, blue_suit_distance: u8, reverse: bool) -> u8 {
+        if reverse {
+            blue_suit_distance - self.blue_suit
+        } else {
+            self.blue_suit
         }
     }
 

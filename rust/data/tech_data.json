@@ -864,6 +864,12 @@
         "video_id": 929
     },
     {
+        "tech_id": 10001,
+        "name": "canHyperGateShot",
+        "difficulty": "Hard",
+        "video_id": 3140
+    },
+    {
         "tech_id": 211,
         "name": "canDash",
         "difficulty": "Implicit",
@@ -1046,7 +1052,7 @@
     {
         "tech_id": 215,
         "name": "canCarryBlueSuit",
-        "difficulty": "Ignored",
+        "difficulty": "Expert+",
         "video_id": null
     },
     {
@@ -1058,44 +1064,44 @@
     {
         "tech_id": 216,
         "name": "canRModeSparkInterrupt",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Expert+",
+        "video_id": 9642
     },
     {
         "tech_id": 222,
         "name": "canRModePauseAbuseSparkInterrupt",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme+",
+        "video_id": 9089
     },
     {
         "tech_id": 217,
         "name": "canCrystalSpark",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Expert+",
+        "video_id": 8938
     },
     {
         "tech_id": 227,
         "name": "canUnderwaterCrystalSpark",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme",
+        "video_id": 9781
     },
     {
         "tech_id": 223,
         "name": "canXModeBlueSuit",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme",
+        "video_id": 9452
     },
     {
         "tech_id": 160,
         "name": "canSuperJump",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Insane",
+        "video_id": 9058
     },
     {
         "tech_id": 224,
         "name": "canDoubleXModeBlueSuit",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme+",
+        "video_id": 9420
     },
     {
         "tech_id": 143,
@@ -1166,8 +1172,8 @@
     {
         "tech_id": 230,
         "name": "canReserveTriggerBufferXRay",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme",
+        "video_id": 9246
     },
     {
         "tech_id": 153,
@@ -1214,7 +1220,7 @@
     {
         "tech_id": 220,
         "name": "canRightSideDashlessDoorStuck",
-        "difficulty": "Ignored",
+        "difficulty": "Insane+",
         "video_id": null
     },
     {
@@ -1232,8 +1238,8 @@
     {
         "tech_id": 225,
         "name": "canSlopeXMode",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Insane",
+        "video_id": 9581
     },
     {
         "tech_id": 161,
@@ -1322,8 +1328,8 @@
     {
         "tech_id": 218,
         "name": "canBlueSuitGModeSetup",
-        "difficulty": "Ignored",
-        "video_id": null
+        "difficulty": "Extreme",
+        "video_id": 9777
     },
     {
         "tech_id": 167,

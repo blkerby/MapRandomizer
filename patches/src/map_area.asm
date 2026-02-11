@@ -2112,6 +2112,8 @@ check_partial_reveal:
 
 draw_sprite:
 ; A=sprite, X/Y=coords
+    CPY #$0020          ; check if above top map border
+    BCC .sprite_is_disabled
     AND #$007F
     BRA .check_sprites
 .sprite_enabled

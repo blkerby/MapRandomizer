@@ -242,6 +242,8 @@ pub struct SpoilerRouteEntry {
     pub power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flash_suit: Option<u8>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_suit: Option<u8>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub relevant_flags: Vec<String>,
 }
@@ -335,6 +337,8 @@ pub struct SpoilerLocalState {
     pub farm_baseline_power_bombs: Option<Capacity>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub flash_suit: Option<Capacity>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub blue_suit: Option<Capacity>,
     pub length: LinkLength,
 }
 
@@ -430,6 +434,11 @@ impl SpoilerLocalState {
                 None
             } else {
                 Some(local.flash_suit as Capacity)
+            },
+            blue_suit: if local.blue_suit == ref_local.blue_suit && !include_all {
+                None
+            } else {
+                Some(local.blue_suit as Capacity)
             },
             length: local.length,
         }
@@ -581,6 +590,7 @@ pub fn get_spoiler_route(
             supers: Some(new_local_state.supers.0),
             power_bombs: Some(new_local_state.power_bombs.0),
             flash_suit: Some(new_local_state.flash_suit),
+            blue_suit: Some(new_local_state.blue_suit),
             relevant_flags,
         };
         route.push(spoiler_entry);
@@ -609,6 +619,9 @@ pub fn get_spoiler_route(
         }
         if route[i + 1].flash_suit == route[i].flash_suit {
             route[i + 1].flash_suit = None;
+        }
+        if route[i + 1].blue_suit == route[i].blue_suit {
+            route[i + 1].blue_suit = None;
         }
     }
     route
@@ -962,6 +975,7 @@ pub fn get_spoiler_log(
     save_animals: SaveAnimals,
     start_location_data: &StartLocationData,
     tolerate_escape_failure: bool,
+    rebuild_traversals: bool,
 ) -> Result<SpoilerLog> {
     let forward_traversal = get_spoiler_traversal(&traverser_pair.forward);
     let reverse_traversal = get_spoiler_traversal(&traverser_pair.reverse);
@@ -1002,8 +1016,10 @@ pub fn get_spoiler_log(
                 .clone();
 
             // Rebuild the traversal step to make the spoiler routes cleaner, by using shorter paths.
-            randomizer.rebuild_step(state, &mut traverser_pair.forward);
-            randomizer.rebuild_step(state, &mut traverser_pair.reverse);
+            if rebuild_traversals {
+                randomizer.rebuild_step(state, &mut traverser_pair.forward);
+                randomizer.rebuild_step(state, &mut traverser_pair.reverse);
+            }
 
             let forward_trails_by_vertex = get_step_trails_by_vertex(&traverser_pair.forward);
             let reverse_trails_by_vertex = get_step_trails_by_vertex(&traverser_pair.reverse);

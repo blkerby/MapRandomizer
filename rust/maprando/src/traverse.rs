@@ -103,7 +103,7 @@ fn apply_enemy_kill_requirement(
 #[derive(Clone)]
 pub struct CostConfig {}
 
-pub const NUM_COST_METRICS: usize = 3;
+pub const NUM_COST_METRICS: usize = 5;
 type CostValue = i32;
 
 fn compute_cost(
@@ -139,6 +139,7 @@ fn compute_cost(
     } else {
         local.shinecharge_frames_remaining as CostValue
     };
+    let mut blue_suit_cost = -(local.blue_suit as CostValue);
     if reverse {
         energy_cost = -energy_cost;
         reserve_cost = -reserve_cost;
@@ -146,6 +147,7 @@ fn compute_cost(
         supers_cost = -supers_cost;
         power_bombs_cost = -power_bombs_cost;
         shinecharge_cost = -shinecharge_cost;
+        blue_suit_cost = -blue_suit_cost;
     }
     let cycle_frames_cost = local.cycle_frames as CostValue;
     let total_energy_cost = energy_cost + reserve_cost;
@@ -155,22 +157,40 @@ fn compute_cost(
         + 100 * reserve_cost
         + total_ammo_cost
         + shinecharge_cost
+        + blue_suit_cost
         + cycle_frames_cost;
-    let ammo_sensitive_cost_metric =
-        total_energy_cost + 100000 * total_ammo_cost + shinecharge_cost + cycle_frames_cost;
-    let shinecharge_sensitive_cost_metric =
-        total_energy_cost + total_ammo_cost + 100000 * shinecharge_cost + cycle_frames_cost;
+    let ammo_sensitive_cost_metric = total_energy_cost
+        + 100000 * total_ammo_cost
+        + shinecharge_cost
+        + blue_suit_cost
+        + cycle_frames_cost;
+    let shinecharge_sensitive_cost_metric = total_energy_cost
+        + total_ammo_cost
+        + 100000 * shinecharge_cost
+        + blue_suit_cost
+        + cycle_frames_cost;
+    let blue_suit_energy_sensitive_cost_metric = 2000 * total_energy_cost
+        + total_ammo_cost
+        + shinecharge_cost
+        + 5000000 * blue_suit_cost
+        + cycle_frames_cost;
+    let blue_suit_ammo_sensitive_cost_metric = total_energy_cost
+        + 2000 * total_ammo_cost
+        + shinecharge_cost
+        + 5000000 * blue_suit_cost
+        + cycle_frames_cost;
     [
         energy_sensitive_cost_metric,
         ammo_sensitive_cost_metric,
         shinecharge_sensitive_cost_metric,
+        blue_suit_energy_sensitive_cost_metric,
+        blue_suit_ammo_sensitive_cost_metric,
     ]
 }
 
-fn apply_gate_glitch_leniency(
+fn apply_blue_gate_glitch_leniency(
     local: &mut LocalState,
     global: &GlobalState,
-    green: bool,
     heated: bool,
     difficulty: &DifficultyConfig,
     reverse: bool,
@@ -183,20 +203,16 @@ fn apply_gate_glitch_leniency(
             return false;
         }
     }
-    if green {
-        local.use_supers(difficulty.gate_glitch_leniency, &global.inventory, reverse)
+    let missiles_available = local.missiles_available(&global.inventory, reverse);
+    if missiles_available >= difficulty.gate_glitch_leniency {
+        local.use_missiles(difficulty.gate_glitch_leniency, &global.inventory, reverse)
     } else {
-        let missiles_available = local.missiles_available(&global.inventory, reverse);
-        if missiles_available >= difficulty.gate_glitch_leniency {
-            local.use_missiles(difficulty.gate_glitch_leniency, &global.inventory, reverse)
-        } else {
-            assert!(local.use_missiles(missiles_available, &global.inventory, reverse));
-            local.use_supers(
-                difficulty.gate_glitch_leniency - missiles_available,
-                &global.inventory,
-                reverse,
-            )
-        }
+        assert!(local.use_missiles(missiles_available, &global.inventory, reverse));
+        local.use_supers(
+            difficulty.gate_glitch_leniency - missiles_available,
+            &global.inventory,
+            reverse,
+        )
     }
 }
 
@@ -1447,8 +1463,8 @@ fn apply_requirement_simple(
                 .use_power_bombs(count, &cx.global.inventory, cx.reverse)
                 .into()
         }
-        Requirement::GateGlitchLeniency { green, heated } => {
-            apply_gate_glitch_leniency(local, cx.global, *green, *heated, cx.difficulty, cx.reverse)
+        Requirement::BlueGateGlitchLeniency { heated } => {
+            apply_blue_gate_glitch_leniency(local, cx.global, *heated, cx.difficulty, cx.reverse)
                 .into()
         }
         Requirement::HeatedDoorStuckLeniency { heat_frames } => {
@@ -1464,27 +1480,6 @@ fn apply_requirement_simple(
                 SimpleResult::Success
             }
         }
-        Requirement::ElevatorCFLeniency => local
-            .use_power_bombs(
-                cx.difficulty.elevator_cf_leniency,
-                &cx.global.inventory,
-                cx.reverse,
-            )
-            .into(),
-        Requirement::BombIntoCrystalFlashClipLeniency {} => local
-            .use_power_bombs(
-                cx.difficulty.bomb_into_cf_leniency,
-                &cx.global.inventory,
-                cx.reverse,
-            )
-            .into(),
-        Requirement::JumpIntoCrystalFlashClipLeniency {} => local
-            .use_power_bombs(
-                cx.difficulty.jump_into_cf_leniency,
-                &cx.global.inventory,
-                cx.reverse,
-            )
-            .into(),
         Requirement::MissilesAvailable(count) => {
             let count = count.resolve(&cx.difficulty.numerics);
             local
@@ -1663,7 +1658,7 @@ fn apply_requirement_simple(
             let limit = limit.resolve(&cx.difficulty.numerics);
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
             if limit >= cx.global.pool_inventory.max_energy {
-                local.energy = ResourceLevel::full(cx.reverse).into();
+                local.energy = ResourceLevel::full_energy(cx.reverse).into();
                 local.farm_baseline_energy = local.energy;
             } else if cx.reverse {
                 if energy_remaining <= limit {
@@ -1782,6 +1777,12 @@ fn apply_requirement_simple(
         Requirement::ShinesparksCostEnergy => {
             cx.settings.other_settings.energy_free_shinesparks.into()
         }
+        Requirement::AllItemsSpawn => cx.settings.quality_of_life_settings.all_items_spawn.into(),
+        Requirement::AcidChozoWithoutSpaceJump => {
+            cx.settings.quality_of_life_settings.acid_chozo.into()
+        }
+        Requirement::KraidCameraFix => (!cx.settings.other_settings.ultra_low_qol).into(),
+        Requirement::CrocomireCameraFix => (!cx.settings.other_settings.ultra_low_qol).into(),
         Requirement::RegularEnergyDrain(count) => {
             let count = count.resolve(&cx.difficulty.numerics);
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
@@ -1942,13 +1943,14 @@ fn apply_requirement_simple(
             if cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
                 if cx.reverse {
                     local.shinecharge_frames_remaining = 0;
-                    if local.flash_suit > 0 {
+                    if local.flash_suit > 0 || local.blue_suit > 0 {
                         return SimpleResult::Failure;
                     }
                 } else {
                     local.shinecharge_frames_remaining =
                         180 - cx.difficulty.shinecharge_leniency_frames;
                     local.flash_suit = 0;
+                    local.blue_suit = 0;
                 }
                 SimpleResult::Success
             } else {
@@ -2042,15 +2044,16 @@ fn apply_requirement_simple(
             }
         }
         Requirement::DoorTransition => {
-            if cx.settings.skill_assumption_settings.flash_suit_distance == 255 {
-                return SimpleResult::Success;
-            }
             if cx.reverse {
                 if local.flash_suit > 0 {
                     local.flash_suit = local.flash_suit.saturating_add(1);
                 }
+                if local.blue_suit > 0 {
+                    local.blue_suit = local.blue_suit.saturating_add(1);
+                }
             } else {
                 local.flash_suit = local.flash_suit.saturating_sub(1);
+                local.blue_suit = local.blue_suit.saturating_sub(1);
             }
             SimpleResult::Success
         }
@@ -2091,6 +2094,62 @@ fn apply_requirement_simple(
                 local.flash_suit = 0;
                 // Set shinecharge frames remaining to 180, to allow `comeInShinecharged`
                 // strats to be satisfied by a flash suit.
+                local.shinecharge_frames_remaining = 180;
+                SimpleResult::Success
+            }
+        }
+        Requirement::GainBlueSuit => {
+            if cx.reverse {
+                local.blue_suit = 0;
+            } else {
+                local.blue_suit = cx.settings.skill_assumption_settings.blue_suit_distance;
+            }
+            SimpleResult::Success
+        }
+        Requirement::NoBlueSuit => {
+            if cx.reverse {
+                (local.blue_suit == 0).into()
+            } else {
+                local.blue_suit = 0;
+                SimpleResult::Success
+            }
+        }
+        &Requirement::HaveBlueSuit {
+            carry_blue_suit_tech_idx,
+        } => {
+            if !cx.difficulty.tech[carry_blue_suit_tech_idx] {
+                // It isn't strictly necessary to check the tech here (since it already checked
+                // when obtaining the blue suit), but it could affect Forced item placement.
+                return SimpleResult::Failure;
+            }
+            if cx.reverse {
+                local.blue_suit = 1;
+                SimpleResult::Success
+            } else {
+                (local.blue_suit != 0).into()
+            }
+        }
+        &Requirement::BlueSuitShineCharge {
+            carry_blue_suit_tech_idx,
+        } => {
+            if !cx.difficulty.tech[carry_blue_suit_tech_idx] {
+                // It isn't strictly necessary to check the tech here (since it already checked
+                // when obtaining the blue suit), but it could affect Forced item placement.
+                return SimpleResult::Failure;
+            }
+            if cx.reverse {
+                if local.blue_suit != 0 {
+                    return SimpleResult::Failure;
+                }
+                local.blue_suit = 1;
+                local.shinecharge_frames_remaining = 0;
+                SimpleResult::Success
+            } else if local.blue_suit == 0 {
+                SimpleResult::Failure
+            } else {
+                local.blue_suit = 0;
+                // Set shinecharge frames remaining to 180, to allow `comeInShinecharged`
+                // strats to be satisfied by a blue suit.
                 local.shinecharge_frames_remaining = 180;
                 SimpleResult::Success
             }
@@ -2292,6 +2351,9 @@ pub fn is_bireachable_state(
         return false;
     }
     if reverse.flash_suit > forward.flash_suit {
+        return false;
+    }
+    if reverse.blue_suit > forward.blue_suit {
         return false;
     }
     true

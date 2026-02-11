@@ -1,7 +1,7 @@
 use hashbrown::HashMap;
 use maprando_game::{
     DoorOrientation, ExitCondition, GameData, Link, LinkLength, MainEntranceCondition, NodeId,
-    Requirement, RoomId, SparkPosition, TECH_ID_CAN_BOMB_HORIZONTALLY,
+    Requirement, RoomId, SparkPosition, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_CARRY_BLUE_SUIT,
     TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
     TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
     TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
@@ -68,10 +68,13 @@ pub fn get_link_difficulty(
 
         let flash_suit_obtainable =
             difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_FLASH_SUIT]];
+        let blue_suit_obtainable =
+            difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_BLUE_SUIT]];
 
         let local = LocalState {
             shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
             flash_suit: if flash_suit_obtainable { 1 } else { 0 },
+            blue_suit: if blue_suit_obtainable { 1 } else { 0 },
             ..LocalState::full(false)
         };
 

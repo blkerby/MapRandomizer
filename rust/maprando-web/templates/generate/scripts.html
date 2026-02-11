@@ -58,9 +58,11 @@ function applySkillPreset(preset) {
     document.getElementById("doorStuckLeniency").value = preset.door_stuck_leniency;
     document.getElementById("spikeSuitLeniency").value = preset.spike_suit_leniency;
     document.getElementById("flashSuitDistance").value = preset.flash_suit_distance;
+    document.getElementById("blueSuitDistance").value = preset.blue_suit_distance;
     document.getElementById("spikeXModeLeniency").value = preset.spike_xmode_leniency;
     document.getElementById("spikeSpeedKeepLeniency").value = preset.spike_speed_keep_leniency;
     document.getElementById("elevatorCFLeniency").value = preset.elevator_cf_leniency;
+    document.getElementById("CrystalSparkLeniency").value = preset.crystal_spark_leniency;
     document.getElementById("bombIntoCFLeniency").value = preset.bomb_into_cf_leniency;
     document.getElementById("jumpIntoCFLeniency").value = preset.jump_into_cf_leniency;
     document.getElementById("phantoonProficiency").value = preset.phantoon_proficiency;
@@ -221,11 +223,13 @@ function buildSettingsObject() {
             "door_stuck_leniency": parseFloat(formData.get("door_stuck_leniency")),
             "spike_suit_leniency": parseFloat(formData.get("spike_suit_leniency")),
             "flash_suit_distance": parseFloat(formData.get("flash_suit_distance")),
+            "blue_suit_distance": parseFloat(formData.get("blue_suit_distance")),
             "spike_xmode_leniency": parseFloat(formData.get("spike_xmode_leniency")),
             "spike_speed_keep_leniency": parseFloat(formData.get("spike_speed_keep_leniency")),
             "elevator_cf_leniency": parseFloat(formData.get("elevator_cf_leniency")),
             "bomb_into_cf_leniency": parseFloat(formData.get("bomb_into_cf_leniency")),
             "jump_into_cf_leniency": parseFloat(formData.get("jump_into_cf_leniency")),
+            "crystal_spark_leniency": parseFloat(formData.get("crystal_spark_leniency")),
             "phantoon_proficiency": parseFloat(formData.get("phantoon_proficiency")),
             "draygon_proficiency": parseFloat(formData.get("draygon_proficiency")),
             "ridley_proficiency": parseFloat(formData.get("ridley_proficiency")),

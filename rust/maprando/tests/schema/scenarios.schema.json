@@ -30,7 +30,8 @@
         "supers": {"$ref": "#/definitions/resourceLevel"},
         "powerBombs": {"$ref": "#/definitions/resourceLevel"},
         "shinechargeFramesRemaining": {"type": "integer"},
-        "flashSuit": {"type": "integer"}
+        "flashSuit": {"type": "integer"},
+        "blueSuit": {"type": "integer"}
       }
     }
   },

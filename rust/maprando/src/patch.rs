@@ -651,7 +651,7 @@ impl Patcher<'_> {
         }
 
         // TODO: make this conditional on setting:
-        patches.push("split_speed");
+        // patches.push("split_speed");
 
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");

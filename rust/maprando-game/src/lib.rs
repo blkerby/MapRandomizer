@@ -46,10 +46,12 @@ pub const TECH_ID_CAN_TEMPORARY_BLUE: TechId = 146;
 pub const TECH_ID_CAN_STATIONARY_SPIN_JUMP: TechId = 63;
 pub const TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK: TechId = 157;
 pub const TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER: TechId = 158;
+pub const TECH_ID_CAN_RIGHT_SIDE_DASHLESS_DOOR_STUCK: TechId = 220;
 pub const TECH_ID_CAN_ENTER_R_MODE: TechId = 161;
 pub const TECH_ID_CAN_ENTER_G_MODE: TechId = 162;
 pub const TECH_ID_CAN_ENTER_G_MODE_IMMOBILE: TechId = 163;
 pub const TECH_ID_CAN_ARTIFICIAL_MORPH: TechId = 164;
+pub const TECH_ID_CAN_BLUE_SUIT_G_MODE_SETUP: TechId = 218;
 pub const TECH_ID_CAN_HEATED_G_MODE: TechId = 198;
 pub const TECH_ID_CAN_MOONFALL: TechId = 25;
 pub const TECH_ID_CAN_PRECISE_GRAPPLE: TechId = 51;
@@ -346,17 +348,17 @@ pub enum Requirement {
     MainHallElevatorFrames,
     EquipmentScreenCycleFrames,
     ShinesparksCostEnergy,
+    AllItemsSpawn,
+    AcidChozoWithoutSpaceJump,
+    KraidCameraFix,
+    CrocomireCameraFix,
     SupersDoubleDamageMotherBrain,
-    GateGlitchLeniency {
-        green: bool,
+    BlueGateGlitchLeniency {
         heated: bool,
     },
     HeatedDoorStuckLeniency {
         heat_frames: Capacity,
     },
-    ElevatorCFLeniency,
-    BombIntoCrystalFlashClipLeniency {},
-    JumpIntoCrystalFlashClipLeniency {},
     ReserveTrigger {
         min_reserve_energy: Numeric,
         max_reserve_energy: Numeric,
@@ -415,6 +417,14 @@ pub enum Requirement {
         carry_flash_suit_tech_idx: TechIdx,
     },
     NoFlashSuit,
+    GainBlueSuit,
+    HaveBlueSuit {
+        carry_blue_suit_tech_idx: TechIdx,
+    },
+    BlueSuitShineCharge {
+        carry_blue_suit_tech_idx: TechIdx,
+    },
+    NoBlueSuit,
     And(Vec<Requirement>),
     Or(Vec<Requirement>),
 }
@@ -1504,7 +1514,6 @@ pub struct GameData {
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     enemy_json: HashMap<String, JsonValue>,
-    enemy_json_buffed: HashMap<String, JsonValue>,
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
     pub tech_json_map: HashMap<TechId, JsonValue>,
@@ -1622,22 +1631,8 @@ struct RequirementContext<'a> {
 
 impl GameData {
     fn load_tech(&mut self) -> Result<()> {
-        let mut full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
-        ensure!(full_tech_json["techCategories"].is_array());
-        full_tech_json["techCategories"].members_mut().find(|x| x["name"] == "Shots").unwrap()["techs"].push(json::object!{
-            "id": 10001,
-            "name": "canHyperGateShot",
-            "techRequires": [],
-            "otherRequires": [],
-            "note": [
-                "The ability to shoot blue & green gates from either side using Hyper Beam during the escape.",
-                "This is easy to do; this tech just represents knowing it can be done.",
-                "This is based on a randomizer patch applied on all settings,",
-                "as in the vanilla game it isn't possible to open green gates using Hyper Beam."
-            ]
-        })?;
-        Self::override_can_awaken_zebes_tech_note(&mut full_tech_json)?;
-        for tech_category in full_tech_json["techCategories"].members_mut() {
+        let full_tech_json = read_json(&self.sm_json_data_path.join("tech.json"))?;
+        for tech_category in full_tech_json["techCategories"].members() {
             ensure!(tech_category["techs"].is_array());
             for tech_json in tech_category["techs"].members() {
                 self.load_tech_rec(tech_json)?;
@@ -1669,32 +1664,6 @@ impl GameData {
             .get(&TECH_ID_CAN_PAUSE_ABUSE)
             .unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
-        Ok(())
-    }
-
-    fn override_can_awaken_zebes_tech_note(full_tech_json: &mut JsonValue) -> Result<()> {
-        let tech_category = full_tech_json["techCategories"]
-            .members_mut()
-            .find(|x| x["name"] == "Meta")
-            .unwrap();
-        let tech = tech_category["techs"]
-            .members_mut()
-            .find(|x| x["name"] == "canAwakenZebes")
-            .unwrap();
-        let tech_notes = &mut tech["note"];
-        let notes = vec![
-            "Understanding game behavior related to how the planet is awakened.",
-            "The planet is awakened by unlocking any gray door locked by killing enemies in the room (not including bosses or minibosses).",
-            "Pit Room, Baby Kraid Room, Metal Pirates Room, and Plasma Room are the places where this can be done in the randomizer.",
-            "Awakening the planet causes enemies to spawn in Parlor, Climb, Morph Ball Room, Construction Zone, and Blue Brinstar Energy Tank Room.",
-            "It also causes the item in the left side of Morph Ball Room and in The Final Missile to spawn.",
-            "The item and enemies in Pit Room do not spawn until entering with Morph and Missiles collected, regardless of whether the planet is awake.",
-            "If the quality-of-life option 'All items spawn from start' is enabled, as it is by default, then the items will already be spawned anyway, but awakening the planet can still matter because of its effects on enemies.",
-        ];
-        tech_notes.clear();
-        for note in notes {
-            tech_notes.push(JsonValue::String(note.to_owned()))?;
-        }
         Ok(())
     }
 
@@ -1822,15 +1791,6 @@ impl GameData {
             self.flag_isv.add(flag_name.as_str().unwrap());
         }
 
-        // Add randomizer-specific flags:
-        self.flag_isv.add("f_AllItemsSpawn");
-        self.flag_isv.add("f_AcidChozoWithoutSpaceJump");
-        self.flag_isv.add("f_UsedBowlingStatue");
-        self.flag_isv.add("f_ClearedPitRoom");
-        self.flag_isv.add("f_ClearedBabyKraidRoom");
-        self.flag_isv.add("f_ClearedPlasmaRoom");
-        self.flag_isv.add("f_ClearedMetalPiratesRoom");
-
         Ok(())
     }
 
@@ -1869,18 +1829,6 @@ impl GameData {
     }
 
     fn load_enemies(&mut self) -> Result<()> {
-        // Overridden enemy drop rates for buffed drop QoL:
-        // (enemy ID, small energy, big energy, missiles, nothing, supers, power bombs)
-        // Covern buff is ignored, to reduce the loss-of-access issue when power is on.
-        let buffed_drop_overrides = vec![
-            (83, 0x3C, 0x3C, 0x32, 0x05, 0x3C, 0x14), // Gamet
-            (23, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Zeb
-            (30, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Geega
-            (24, 0x00, 0x8C, 0x05, 0x00, 0x64, 0x0A), // Zebbo
-            (75, 0x00, 0x64, 0x3C, 0x05, 0x46, 0x14), // Zoa
-            // (51, 0x32, 0x5F, 0x32, 0x00, 0x14, 0x28), // Covern
-            (8, 0x23, 0x5F, 0x3C, 0x05, 0x28, 0x14), // Kago
-        ];
         for file in ["main.json", "bosses/main.json"] {
             let enemies_json = read_json(&self.sm_json_data_path.join("enemies").join(file))?;
             ensure!(enemies_json["enemies"].is_array());
@@ -1898,24 +1846,6 @@ impl GameData {
                     .insert(enemy_name.to_string(), vul);
                 self.enemy_json
                     .insert(enemy_name.to_string(), enemy_json.clone());
-
-                let mut enemy_json_buffed = enemy_json.clone();
-                for &(enemy_id, small, big, missiles, nothing, supers, pbs) in
-                    &buffed_drop_overrides
-                {
-                    if enemy_id == enemy_json["id"].as_usize().unwrap() {
-                        enemy_json_buffed["drops"] = json::object! {
-                            "noDrop": nothing,
-                            "smallEnergy": small,
-                            "bigEnergy": big,
-                            "missile": missiles,
-                            "super": supers,
-                            "powerBomb": pbs,
-                        };
-                    }
-                }
-                self.enemy_json_buffed
-                    .insert(enemy_name.to_string(), enemy_json_buffed.clone());
             }
         }
         Ok(())
@@ -1997,6 +1927,7 @@ impl GameData {
         let numerics_json = read_json(&self.sm_json_data_path.join("numerics.json"))?;
         ensure!(numerics_json["numericCategories"].is_array());
         for category_json in numerics_json["numericCategories"].members() {
+            let category = category_json["name"].as_str().unwrap();
             ensure!(category_json["numerics"].is_array());
             for num_json in category_json["numerics"].members() {
                 if self
@@ -2012,7 +1943,19 @@ impl GameData {
 
                 self.numeric_isv.add(num_json["name"].as_str().unwrap());
                 let numeric = self.parse_numeric(&num_json["value"])?;
-                self.numeric_values.push(numeric.clone());
+                match category {
+                    "Base Parameters" => {
+                        // Ignore the default value: this ensures that an error will occur
+                        // if it is not overridden, as all base parameters should be.
+                        self.numeric_values.push(Numeric::Constant(-1));
+                    }
+                    "Derived Parameters" => {
+                        self.numeric_values.push(numeric.clone());
+                    }
+                    _ => {
+                        bail!("Unexpected numeric category: {category}");
+                    }
+                }
                 self.numeric_json.push(num_json.clone());
             }
         }
@@ -2022,7 +1965,13 @@ impl GameData {
     fn load_helpers(&mut self) -> Result<()> {
         let helpers_json = read_json(&self.sm_json_data_path.join("helpers.json"))?;
         ensure!(helpers_json["helperCategories"].is_array());
-        for category_json in helpers_json["helperCategories"].members() {
+
+        for (category_idx, category_json) in helpers_json["helperCategories"].members().enumerate()
+        {
+            let category = category_json["name"].as_str().unwrap().to_owned();
+            if category_idx == 0 && category != "Randomizer Dependent" {
+                bail!("First helper category expected to be 'Randomizer Dependent'");
+            }
             ensure!(category_json["helpers"].is_array());
             for helper in category_json["helpers"].members() {
                 if self
@@ -2036,10 +1985,18 @@ impl GameData {
                 }
                 self.helper_json_map
                     .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
-                self.helper_category_map.insert(
-                    helper["name"].as_str().unwrap().to_owned(),
-                    category_json["name"].as_str().unwrap().to_owned(),
-                );
+                let helper_name = helper["name"].as_str().unwrap().to_owned();
+                if category_idx == 0 && !helper.has_key("mapRandoOverride") {
+                    // We require all helpers in the "Randomizer Dependent" category to have a "mapRandoOverride" field,
+                    // to ensure that the randomizer properly accounts for them (e.g. to make sure a new helper isn't
+                    // just synced from upstream without reviewing how it should be handled in the randomizer).
+                    bail!(
+                        "Helper '{}' in 'Randomizer Dependent' category is missing required 'mapRandoOverride' field",
+                        helper_name
+                    );
+                }
+                self.helper_category_map
+                    .insert(helper_name, category.clone());
             }
         }
         Ok(())
@@ -2260,18 +2217,15 @@ impl GameData {
         assert!(value.is_array());
         for drop in value.members() {
             let enemy_name = drop["enemy"].as_str().unwrap();
-            let enemy_json = if buffed {
-                &self
-                    .enemy_json_buffed
-                    .get(enemy_name)
-                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
+            let enemy_json = &self
+                .enemy_json
+                .get(enemy_name)
+                .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name));
+            let drops_json = if buffed && enemy_json.has_key("buffedDrops") {
+                &enemy_json["buffedDrops"]
             } else {
-                &self
-                    .enemy_json
-                    .get(enemy_name)
-                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
+                &enemy_json["drops"]
             };
-            let drops_json = &enemy_json["drops"];
             let amount_of_drops = enemy_json["amountOfDrops"].as_isize().unwrap() as Capacity;
             let count = drop["count"].as_i32().unwrap() as Capacity;
             let nothing_weight = drops_json["noDrop"]
@@ -2344,31 +2298,9 @@ impl GameData {
             } else if value == "i_SupersDoubleDamageMotherBrain" {
                 return Ok(Requirement::SupersDoubleDamageMotherBrain);
             } else if value == "i_blueGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency {
-                    green: false,
-                    heated: false,
-                });
-            } else if value == "i_greenGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency {
-                    green: true,
-                    heated: false,
-                });
+                return Ok(Requirement::BlueGateGlitchLeniency { heated: false });
             } else if value == "i_heatedBlueGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency {
-                    green: false,
-                    heated: true,
-                });
-            } else if value == "i_heatedGreenGateGlitchLeniency" {
-                return Ok(Requirement::GateGlitchLeniency {
-                    green: true,
-                    heated: true,
-                });
-            } else if value == "i_elevatorCrystalFlashLeniency" {
-                return Ok(Requirement::ElevatorCFLeniency);
-            } else if value == "i_bombIntoCrystalFlashClipLeniency" {
-                return Ok(Requirement::BombIntoCrystalFlashClipLeniency {});
-            } else if value == "i_jumpIntoCrystalFlashClipLeniency" {
-                return Ok(Requirement::JumpIntoCrystalFlashClipLeniency {});
+                return Ok(Requirement::BlueGateGlitchLeniency { heated: true });
             } else if value == "i_MotherBrainBarrier1Clear" {
                 return Ok(Requirement::MotherBrainBarrierClear(0));
             } else if value == "i_MotherBrainBarrier2Clear" {
@@ -2387,6 +2319,14 @@ impl GameData {
                 return Ok(Requirement::EquipmentScreenCycleFrames);
             } else if value == "i_ShinesparksCostEnergy" {
                 return Ok(Requirement::ShinesparksCostEnergy);
+            } else if value == "i_AllItemsSpawn" {
+                return Ok(Requirement::AllItemsSpawn);
+            } else if value == "i_AcidChozoWithoutSpaceJump" {
+                return Ok(Requirement::AcidChozoWithoutSpaceJump);
+            } else if value == "i_KraidCameraFix" {
+                return Ok(Requirement::KraidCameraFix);
+            } else if value == "i_CrocomireCameraFix" {
+                return Ok(Requirement::CrocomireCameraFix);
             } else if value == "i_canEscapeMorphLocation" {
                 return Ok(Requirement::EscapeMorphLocation);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
@@ -3004,17 +2944,19 @@ impl GameData {
                         [&TECH_ID_CAN_CARRY_FLASH_SUIT],
                 });
             } else if key == "gainBlueSuit" {
-                // Not yet implemented.
-                return Ok(Requirement::Never);
+                return Ok(Requirement::GainBlueSuit);
             } else if key == "noBlueSuit" {
-                // Not yet implemented.
-                return Ok(Requirement::Free);
+                return Ok(Requirement::NoBlueSuit);
             } else if key == "haveBlueSuit" {
-                // Not yet implemented.
-                return Ok(Requirement::Never);
+                return Ok(Requirement::HaveBlueSuit {
+                    carry_blue_suit_tech_idx: self.tech_isv.index_by_key
+                        [&TECH_ID_CAN_CARRY_BLUE_SUIT],
+                });
             } else if key == "blueSuitShinecharge" {
-                // Not yet implemented.
-                return Ok(Requirement::Never);
+                return Ok(Requirement::BlueSuitShineCharge {
+                    carry_blue_suit_tech_idx: self.tech_isv.index_by_key
+                        [&TECH_ID_CAN_CARRY_BLUE_SUIT],
+                });
             } else if key == "tech" {
                 return self.get_tech_requirement(value.as_str().unwrap(), false);
             } else if key == "notable" {
@@ -3101,287 +3043,6 @@ impl GameData {
         Ok(())
     }
 
-    fn override_morph_ball_room(&mut self, room_json: &mut JsonValue) {
-        // Override the Careful Jump strat to get out from Morph Ball location:
-        room_json["strats"]
-            .members_mut()
-            .find(|x| {
-                x["link"][0].as_i32().unwrap() == 4
-                    && x["link"][1].as_i32().unwrap() == 2
-                    && x["name"].as_str().unwrap() == "Careful Jump"
-            })
-            .unwrap()
-            .insert(
-                "requires",
-                json::array![{
-                    "or": [
-                        "canCarefulJump",
-                        "i_canEscapeMorphLocation",
-                    ]
-                }],
-            )
-            .unwrap();
-    }
-
-    fn override_spore_spawn_room(&mut self, room_json: &mut JsonValue) {
-        // Add lock on bottom door:
-        let mut found = false;
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 2 {
-                found = true;
-                node_json["nodeSubType"] = "grey".into();
-                node_json["locks"] = json::array![
-                  {
-                    "name": "Spore Spawn Gray Lock",
-                    "lockType": "bossFight",
-                    "unlockStrats": [
-                      {
-                        "name": "Base",
-                        "notable": false,
-                        "requires": ["f_DefeatedSporeSpawn"],
-                        "flashSuitChecked": true,
-                      }
-                    ]
-                  }
-                ];
-            }
-        }
-        assert!(found);
-    }
-
-    fn override_pit_room(&mut self, room_json: &mut JsonValue) {
-        // Add yielded flag "f_ClearedPitRoom" to gray door unlocks:
-        for node_json in room_json["nodes"].members_mut() {
-            if [1, 2].contains(&node_json["id"].as_i32().unwrap()) {
-                node_json["locks"][0]["yields"] = json::array!["f_ZebesAwake", "f_ClearedPitRoom"]
-            }
-        }
-    }
-
-    fn override_baby_kraid_room(&mut self, room_json: &mut JsonValue) {
-        // Add yielded flag "f_ClearedBabyKraidRoom" to gray door unlocks:
-        for node_json in room_json["nodes"].members_mut() {
-            if [1, 2].contains(&node_json["id"].as_i32().unwrap()) {
-                node_json["locks"][0]["yields"] =
-                    json::array!["f_ZebesAwake", "f_ClearedBabyKraidRoom"];
-                node_json["locks"][0]["unlockStrats"][0]["requires"] = json::array![
-                    {"or": [
-                        {"obstaclesCleared": ["A"]},
-                        "f_ClearedBabyKraidRoom"
-                    ]}
-                ];
-            }
-        }
-    }
-
-    fn override_plasma_room(&mut self, room_json: &mut JsonValue) {
-        // Add yielded flag "f_ClearedPlasmaRoom" to gray door unlocks:
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 1 {
-                node_json["locks"][0]["yields"] =
-                    json::array!["f_ZebesAwake", "f_ClearedPlasmaRoom"];
-                node_json["locks"][0]["unlockStrats"][0]["requires"] = json::array![
-                    {"or": [
-                        {"obstaclesCleared": ["A"]},
-                        "f_ClearedPlasmaRoom"
-                    ]}
-                ];
-            }
-        }
-    }
-
-    fn override_metal_pirates_room(&mut self, room_json: &mut JsonValue) {
-        // Add yielded flag "f_ClearedMetalPiratesRoom" to gray door unlock:
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 1 {
-                node_json["locks"][0]["yields"] =
-                    json::array!["f_ZebesAwake", "f_ClearedMetalPiratesRoom"];
-                node_json["locks"][0]["unlockStrats"][0]["requires"] = json::array![
-                    {"or": [
-                        {"obstaclesCleared": ["A"]},
-                        "f_ClearedMetalPiratesRoom"
-                    ]}
-                ];
-            }
-        }
-
-        // Add lock on right door:
-        let mut found = false;
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 2 {
-                found = true;
-                node_json["nodeSubType"] = "grey".into();
-                node_json["locks"] = json::array![
-                  {
-                    "name": "Metal Pirates Grey Lock (to Wasteland)",
-                    "lockType": "killEnemies",
-                    "unlockStrats": [
-                      {
-                        "name": "Base",
-                        "notable": false,
-                        "requires": [
-                            {"or": [
-                                {"obstaclesCleared": ["A"]},
-                                "f_ClearedMetalPiratesRoom"
-                            ]}
-                        ],
-                        "flashSuitChecked": true,
-                      }
-                    ],
-                    "yields": ["f_ZebesAwake", "f_ClearedMetalPiratesRoom"]
-                  }
-                ];
-            }
-        }
-        assert!(found);
-    }
-
-    fn override_tourian_save_room(&mut self, room_json: &mut JsonValue) {
-        // Remove the "save" utility, as we have a map here instead.
-        let mut found = false;
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 2 {
-                node_json.remove("utility");
-                found = true;
-            }
-        }
-        assert!(found);
-    }
-
-    fn override_mother_brain_room(&mut self, room_json: &mut JsonValue) {
-        // Add a requirement for objectives to be completed in order to cross the barriers
-        // or start the MB2 fight.
-        // "id: 38": Destroy First Zebetite
-        // node 2: right door node
-        // node 4: MB2 fight node
-        for x in room_json["strats"].members_mut() {
-            if x["id"] == 38
-                || (x["link"][0].as_i32().unwrap() == 2 && x["link"][1].as_i32().unwrap() != 2)
-                || (x["link"][1].as_i32().unwrap() == 4)
-            {
-                x["requires"].push("i_MotherBrainBarrier1Clear").unwrap();
-                x["requires"].push("i_MotherBrainBarrier2Clear").unwrap();
-                x["requires"].push("i_MotherBrainBarrier3Clear").unwrap();
-                x["requires"].push("i_MotherBrainBarrier4Clear").unwrap();
-            }
-        }
-
-        for x in room_json["strats"].members_mut() {
-            if x["id"].as_i32() == Some(34) {
-                // Mother Brain 2 and 3 Fight: override requirements, removing rainbow beam damage requirement,
-                // since we already handle this inside the enemyKill requirement
-                x["requires"] = json::array![
-                    {"enemyKill": {"enemies": [["Mother Brain 2"]]}}
-                ];
-            }
-        }
-
-        let mut new_strats: Vec<JsonValue> = vec![];
-        for x in room_json["strats"].members_mut() {
-            if x["id"].as_i32() == Some(8) {
-                // Leave With Runway: shorten the runway length slightly: the objective barrier creates a closed end
-                x["exitCondition"]["leaveWithRunway"]["openEnd"] = JsonValue::Number(0.into());
-
-                let obj_conditions = [
-                    "i_MotherBrainBarrier1Clear",
-                    "i_MotherBrainBarrier2Clear",
-                    "i_MotherBrainBarrier3Clear",
-                    "i_MotherBrainBarrier4Clear",
-                ];
-                for num_objectives_complete in 1..=4 {
-                    let mut strat = x.clone();
-                    let runway_length = 5 + num_objectives_complete;
-                    strat["exitCondition"]["leaveWithRunway"]["length"] =
-                        JsonValue::Number(runway_length.into());
-                    if num_objectives_complete == 4 {
-                        strat["exitCondition"]["leaveWithRunway"]["openEnd"] =
-                            JsonValue::Number(1.into());
-                    }
-
-                    strat["id"] = JsonValue::Number((10000 + num_objectives_complete).into());
-                    if num_objectives_complete == 1 {
-                        strat["name"] = JsonValue::String(format!(
-                            "{}, 1 Barrier Cleared",
-                            x["name"].as_str().unwrap()
-                        ));
-                    } else {
-                        strat["name"] = JsonValue::String(format!(
-                            "{}, {} Barriers Cleared",
-                            x["name"].as_str().unwrap(),
-                            num_objectives_complete
-                        ));
-                    }
-                    for cond in obj_conditions.iter().take(num_objectives_complete) {
-                        strat["requires"]
-                            .push(JsonValue::String(cond.to_string()))
-                            .unwrap();
-                    }
-                    new_strats.push(strat);
-                }
-            }
-        }
-        for strat in new_strats {
-            room_json["strats"].push(strat).unwrap();
-        }
-    }
-
-    fn override_bowling_alley(&mut self, room_json: &mut JsonValue) {
-        // Add flag on Bowling Statue node
-        for x in room_json["strats"].members_mut() {
-            let from_id = x["link"][0].as_i32().unwrap();
-            let to_id = x["link"][1].as_i32().unwrap();
-            let strat_name = x["name"].as_str().unwrap();
-            // TODO: This is not very robust.
-            // It would be more ideal if a flag or other marker could be added on the sm-json-data side.
-            let is_bowling = ([(2, 3), (6, 3)].contains(&(from_id, to_id)) || to_id == 7)
-                && strat_name.contains("Bowling");
-            if is_bowling {
-                x.insert("setsFlags", json::array!["f_UsedBowlingStatue"])
-                    .unwrap();
-            }
-        }
-    }
-
-    fn override_metroid_room_1(&mut self, room_json: &mut JsonValue) {
-        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 1 {
-                assert!(node_json["locks"][0]["yields"].is_array());
-                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom1"]
-            }
-        }
-    }
-
-    fn override_metroid_room_2(&mut self, room_json: &mut JsonValue) {
-        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 2 {
-                assert!(node_json["locks"][0]["yields"].is_array());
-                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom2"]
-            }
-        }
-    }
-
-    fn override_metroid_room_3(&mut self, room_json: &mut JsonValue) {
-        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 2 {
-                assert!(node_json["locks"][0]["yields"].is_array());
-                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom3"]
-            }
-        }
-    }
-
-    fn override_metroid_room_4(&mut self, room_json: &mut JsonValue) {
-        // Remove the "f_ZebesAwake" flag from the gray door unlock, since in the randomizer there's not actually a gray door here:
-        for node_json in room_json["nodes"].members_mut() {
-            if node_json["id"].as_i32().unwrap() == 2 {
-                assert!(node_json["locks"][0]["yields"].is_array());
-                node_json["locks"][0]["yields"] = json::array!["f_KilledMetroidRoom4"]
-            }
-        }
-    }
-
     fn get_default_unlocks_door(
         &self,
         room_json: &JsonValue,
@@ -3432,10 +3093,6 @@ impl GameData {
         let mut extra_strats: Vec<JsonValue> = Vec::new();
         let room_id = room_json["id"].as_usize().unwrap();
 
-        if room_json["name"].as_str().unwrap() == "Upper Tourian Save Room" {
-            new_room_json["name"] = JsonValue::String("Tourian Map Room".to_string());
-        }
-
         for strat_json in new_room_json["strats"].members_mut() {
             if strat_json["id"].as_usize().is_none() {
                 let from_node_id = strat_json["link"][0].as_usize().unwrap();
@@ -3452,42 +3109,34 @@ impl GameData {
 
         // Flags for which we want to add an obstacle in the room, to allow progression through (or back out of) the room
         // after setting the flag on the same graph traversal step (which cannot take into account the new flag).
-        let obstacle_flag_map: HashMap<RoomId, String> = vec![
-            (84, "f_DefeatedKraid"),
-            (193, "f_DefeatedDraygon"),
-            (142, "f_DefeatedRidley"),
-            (150, "f_DefeatedGoldenTorizo"),
-            (122, "f_DefeatedCrocomire"),
-            (57, "f_DefeatedSporeSpawn"),
-            (185, "f_DefeatedBotwoon"),
-            (170, "f_MaridiaTubeBroken"),
-            (222, "f_ShaktoolDoneDigging"),
-            (149, "f_UsedAcidChozoStatue"),
-            (226, "f_KilledMetroidRoom1"),
-            (227, "f_KilledMetroidRoom2"),
-            (228, "f_KilledMetroidRoom3"),
-            (229, "f_KilledMetroidRoom4"),
+        let obstacle_flag_map: HashMap<RoomId, Vec<String>> = vec![
+            (84, vec!["f_DefeatedKraid"]),
+            (193, vec!["f_DefeatedDraygon"]),
+            (142, vec!["f_DefeatedRidley"]),
+            (150, vec!["f_DefeatedGoldenTorizo"]),
+            (122, vec!["f_DefeatedCrocomire"]),
+            (57, vec!["f_DefeatedSporeSpawn"]),
+            (185, vec!["f_DefeatedBotwoon"]),
+            (170, vec!["f_MaridiaTubeBroken"]),
+            (222, vec!["f_ShaktoolDoneDigging"]),
+            (149, vec!["f_UsedAcidChozoStatue"]),
+            (226, vec!["f_KilledMetroidRoom1"]),
+            (227, vec!["f_KilledMetroidRoom2"]),
+            (228, vec!["f_KilledMetroidRoom3"]),
+            (229, vec!["f_KilledMetroidRoom4"]),
+            (
+                238,
+                vec![
+                    "f_KilledZebetites1",
+                    "f_KilledZebetites2",
+                    "f_KilledZebetites3",
+                    "f_KilledZebetites4",
+                ],
+            ),
         ]
         .into_iter()
-        .map(|(x, y)| (x, y.to_string()))
+        .map(|(x, y)| (x, y.into_iter().map(|s| s.to_string()).collect()))
         .collect();
-
-        match room_id {
-            38 => self.override_morph_ball_room(&mut new_room_json),
-            225 => self.override_tourian_save_room(&mut new_room_json),
-            238 => self.override_mother_brain_room(&mut new_room_json),
-            161 => self.override_bowling_alley(&mut new_room_json),
-            12 => self.override_pit_room(&mut new_room_json),
-            82 => self.override_baby_kraid_room(&mut new_room_json),
-            139 => self.override_metal_pirates_room(&mut new_room_json),
-            219 => self.override_plasma_room(&mut new_room_json),
-            57 => self.override_spore_spawn_room(&mut new_room_json),
-            226 => self.override_metroid_room_1(&mut new_room_json),
-            227 => self.override_metroid_room_2(&mut new_room_json),
-            228 => self.override_metroid_room_3(&mut new_room_json),
-            229 => self.override_metroid_room_4(&mut new_room_json),
-            _ => {}
-        }
 
         let logical_gray_door_node_ids: Vec<(RoomId, NodeId)> = get_logical_gray_door_node_ids();
         let flagged_gray_door_node_ids: Vec<(RoomId, NodeId)> = get_flagged_gray_door_node_ids();
@@ -3505,6 +3154,7 @@ impl GameData {
                     "requires": [],
                     "unlocksDoors": self.get_default_unlocks_door(room_json, node_id, node_id)?,
                     "flashSuitChecked": true,
+                    "blueSuitChecked": true,
                 });
             }
             if (node_type == "door" || node_type == "entrance")
@@ -3519,6 +3169,7 @@ impl GameData {
                     },
                     "requires": [],
                     "flashSuitChecked": true,
+                    "blueSuitChecked": true,
                 });
             }
 
@@ -3546,6 +3197,7 @@ impl GameData {
                     },
                     "requires": req,
                     "flashSuitChecked": true,
+                    "blueSuitChecked": true,
                 });
             }
 
@@ -3563,7 +3215,8 @@ impl GameData {
                         }
                     },
                     "requires": [],
-                    "flashSuitChecked": true
+                    "flashSuitChecked": true,
+                    "blueSuitChecked": true,
                 });
             }
 
@@ -3577,7 +3230,8 @@ impl GameData {
                           "name": "Base (Collect Item)",
                           "notable": false,
                           "requires": [],
-                          "flashSuitChecked": true
+                          "flashSuitChecked": true,
+                          "blueSuitChecked": true,
                         }
                       ]
                     }
@@ -3595,29 +3249,12 @@ impl GameData {
             {
                 ensure!(node_json["locks"].len() == 1);
                 let lock = node_json["locks"][0].clone();
-                let mut unlock_strats = lock["unlockStrats"].clone();
+                let unlock_strats = lock["unlockStrats"].clone();
                 let yields = if lock["yields"] != JsonValue::Null {
                     lock["yields"].clone()
                 } else {
                     node_json["yields"].clone()
                 };
-
-                if (room_id, node_id) == (158, 2) {
-                    // Override Phantoon fight requirement
-                    unlock_strats = json::array![
-                        {
-                            "name": "Base",
-                            "requires": [
-                                {"enemyKill":{
-                                    "enemies": [
-                                        [ "Phantoon" ]
-                                    ]
-                                }},
-                            ],
-                            "flashSuitChecked": true
-                        }
-                    ];
-                }
 
                 for unlock_strat in unlock_strats.members() {
                     let mut new_strat = unlock_strat.clone();
@@ -3672,36 +3309,41 @@ impl GameData {
             new_room_json["strats"].push(strat).unwrap();
         }
 
-        if let Some(obstacle_flag) = obstacle_flag_map.get(&room_id) {
-            extra_obstacles.push(obstacle_flag.clone());
-            ensure!(new_room_json["strats"].is_array());
+        if let Some(obstacle_flag_vec) = obstacle_flag_map.get(&room_id) {
+            for obstacle_flag in obstacle_flag_vec {
+                extra_obstacles.push(obstacle_flag.clone());
+                ensure!(new_room_json["strats"].is_array());
 
-            // For each strat requiring one of the "obstacle flags" listed above, modify the strat to include
-            // a possibility depending on the obstacle instead:
-            // e.g., "f_DefeatedKraid" becomes {"or": ["f_DefeatedKraid", {"obstaclesCleared": ["f_DefeatedKraid"]}]}
-            for strat in new_room_json["strats"].members_mut() {
-                Self::replace_obstacle_flag(&mut strat["requires"], obstacle_flag);
-                if strat.has_key("unlocksDoors") {
-                    for unlock in strat["unlocksDoors"].members_mut() {
-                        Self::replace_obstacle_flag(&mut unlock["requires"], obstacle_flag);
+                // For each strat requiring one of the "obstacle flags" listed above, modify the strat to include
+                // a possibility depending on the obstacle instead:
+                // e.g., "f_DefeatedKraid" becomes {"or": ["f_DefeatedKraid", {"obstaclesCleared": ["f_DefeatedKraid"]}]}
+                for strat in new_room_json["strats"].members_mut() {
+                    Self::replace_obstacle_flag(&mut strat["requires"], obstacle_flag);
+                    if strat.has_key("unlocksDoors") {
+                        for unlock in strat["unlocksDoors"].members_mut() {
+                            Self::replace_obstacle_flag(&mut unlock["requires"], obstacle_flag);
+                        }
+                    }
+                    let has_flag = strat["setsFlags"]
+                        .members()
+                        .any(|x| x.as_str().unwrap() == obstacle_flag);
+                    if has_flag {
+                        if !strat.has_key("clearsObstacles") {
+                            strat["clearsObstacles"] = json::array![];
+                        }
+                        strat["clearsObstacles"].push(obstacle_flag.clone())?;
                     }
                 }
-                let has_flag = strat["setsFlags"]
-                    .members()
-                    .any(|x| x.as_str().unwrap() == obstacle_flag);
-                if has_flag {
-                    if !strat.has_key("clearsObstacles") {
-                        strat["clearsObstacles"] = json::array![];
-                    }
-                    strat["clearsObstacles"].push(obstacle_flag.clone())?;
-                }
-            }
 
-            for node_json in new_room_json["nodes"].members_mut() {
-                if node_json.has_key("locks") {
-                    for lock_json in node_json["locks"].members_mut() {
-                        for strat_json in lock_json["unlockStrats"].members_mut() {
-                            Self::replace_obstacle_flag(&mut strat_json["requires"], obstacle_flag);
+                for node_json in new_room_json["nodes"].members_mut() {
+                    if node_json.has_key("locks") {
+                        for lock_json in node_json["locks"].members_mut() {
+                            for strat_json in lock_json["unlockStrats"].members_mut() {
+                                Self::replace_obstacle_flag(
+                                    &mut strat_json["requires"],
+                                    obstacle_flag,
+                                );
+                            }
                         }
                     }
                 }
@@ -4531,6 +4173,12 @@ impl GameData {
                 }
                 Some(false) => {
                     requires_vec.push(Requirement::NoFlashSuit);
+                }
+                Some(true) => {}
+            }
+            match strat_json["blueSuitChecked"].as_bool() {
+                None | Some(false) => {
+                    requires_vec.push(Requirement::NoBlueSuit);
                 }
                 Some(true) => {}
             }
@@ -5586,54 +5234,6 @@ impl GameData {
         Ok(())
     }
 
-    pub fn patch_helpers(&mut self, helpers_patch_path: &Path) -> Result<()> {
-        let patch = read_json(helpers_patch_path)?;
-        let must_patch_categories: Vec<String> = patch["must_patch_categories"]
-            .members()
-            .map(|s| s.as_str().unwrap().to_string())
-            .collect();
-        let helper_substitutions: Vec<(&str, &JsonValue)> =
-            patch["helper_substitutions"].entries().collect();
-        let skip_helpers: Vec<&str> = patch["skip_helpers"]
-            .members()
-            .map(|s| s.as_str().unwrap())
-            .collect();
-
-        // Construct the set of helpers that need to be patched, and make sure they all are.
-        let mut must_patch_helper_set: HashSet<String> = HashSet::new();
-        for helper_json in self.helper_json_map.values_mut() {
-            let helper_name = helper_json["name"].as_str().unwrap().to_string();
-            let helper_category = &self.helper_category_map[&helper_name];
-            if must_patch_categories.contains(helper_category) {
-                must_patch_helper_set.insert(helper_name.clone());
-            }
-        }
-        for (helper_name, new_requires) in helper_substitutions {
-            self.helper_json_map
-                .get_mut(helper_name)
-                .with_context(|| format!("Helper {} not found", helper_name))
-                .unwrap()["requires"] = new_requires.clone();
-            if !must_patch_helper_set.remove(helper_name) {
-                panic!("Helper {} already patched.", helper_name)
-            }
-        }
-        for helper_name in skip_helpers {
-            if !must_patch_helper_set.remove(helper_name) {
-                panic!(
-                    "Helper {} either does not exist or was already patched or skipped.",
-                    helper_name
-                )
-            }
-        }
-        for helper_name in must_patch_helper_set.iter() {
-            error!("Randomizer-dependent helper {} is not patched", helper_name);
-        }
-        if !must_patch_helper_set.is_empty() {
-            panic!("Randomizer-dependent helpers are not all patched");
-        }
-        Ok(())
-    }
-
     pub fn get_tourian_neighbors(&self, map: &Map) -> HashSet<RoomGeometryRoomIdx> {
         let mut out: HashSet<RoomGeometryRoomIdx> = HashSet::new();
         for (src_pair, dst_pair, _) in &map.doors {
@@ -5657,7 +5257,6 @@ impl GameData {
 
     pub fn load_minimal(base_path: &Path) -> Result<GameData> {
         let sm_json_data_path = base_path.join("../sm-json-data");
-        let helpers_patch_path = base_path.join("data/helpers_patch.json");
         let mut game_data = GameData {
             sm_json_data_path,
             ..GameData::default()
@@ -5667,7 +5266,6 @@ impl GameData {
         game_data.load_numerics()?;
         game_data.load_tech()?;
         game_data.load_helpers()?;
-        game_data.patch_helpers(&helpers_patch_path)?;
         game_data.load_weapons()?;
         game_data.load_enemies()?;
 

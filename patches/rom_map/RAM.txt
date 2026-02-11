@@ -42,7 +42,8 @@ $7EF502-$7EF594: fix_dust_torizo.asm
 $7EF594-$7EF596: fix_transition_bad_tiles.asm
 $7EF596: vanilla_bugfixes.asm
 $7EF597-$7EF599: split_speed.asm
-$7EF599-$7EFE00: [FREE]
+$7EF59A-$7EF59C: reserve_backward_fill.asm
+$7EF59C-$7EFE00: [FREE]
 $7EFE00: map area (copy of $1F5B to be saved to SRAM)
 $7EFE02: map area explored mask
 $7EFE04: copy of $1F5D (to be saved to SRAM for escape autosave)

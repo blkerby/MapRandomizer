@@ -1,0 +1,56 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "None of the Options",
+      "globalState": {
+        "disabledTech": ["canDodgeWhileShooting"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Tech",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missiles",
+      "globalState": {
+        "maxMissiles": 5,
+        "disabledTech": ["canDodgeWhileShooting"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 5}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 4}
+      }
+    },
+    {
+      "name": "Energy",
+      "globalState": {
+        "disabledTech": ["canDodgeWhileShooting"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 11}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 1}
+      }
+    }
+  ]
+}

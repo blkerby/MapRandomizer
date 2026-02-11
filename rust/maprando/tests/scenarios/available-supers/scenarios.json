@@ -53,12 +53,12 @@
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {
-        "supers": {"remaining": 40}
+        "supers": {"consumed": 40}
       },
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "supers": {"remaining": 40}
+        "supers": {"consumed": 40}
       }
     },
     {
