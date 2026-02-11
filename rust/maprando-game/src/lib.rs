@@ -1512,7 +1512,6 @@ pub struct GameData {
     enemy_attack_damage: HashMap<(String, String), Capacity>,
     enemy_vulnerabilities: HashMap<String, EnemyVulnerabilities>,
     enemy_json: HashMap<String, JsonValue>,
-    enemy_json_buffed: HashMap<String, JsonValue>,
     weapon_json_map: HashMap<String, JsonValue>,
     non_ammo_weapon_mask: WeaponMask,
     pub tech_json_map: HashMap<TechId, JsonValue>,
@@ -1828,18 +1827,6 @@ impl GameData {
     }
 
     fn load_enemies(&mut self) -> Result<()> {
-        // Overridden enemy drop rates for buffed drop QoL:
-        // (enemy ID, small energy, big energy, missiles, nothing, supers, power bombs)
-        // Covern buff is ignored, to reduce the loss-of-access issue when power is on.
-        let buffed_drop_overrides = vec![
-            (83, 0x3C, 0x3C, 0x32, 0x05, 0x3C, 0x14), // Gamet
-            (23, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Zeb
-            (30, 0x14, 0x41, 0x1E, 0x00, 0x78, 0x14), // Geega
-            (24, 0x00, 0x8C, 0x05, 0x00, 0x64, 0x0A), // Zebbo
-            (75, 0x00, 0x64, 0x3C, 0x05, 0x46, 0x14), // Zoa
-            // (51, 0x32, 0x5F, 0x32, 0x00, 0x14, 0x28), // Covern
-            (8, 0x23, 0x5F, 0x3C, 0x05, 0x28, 0x14), // Kago
-        ];
         for file in ["main.json", "bosses/main.json"] {
             let enemies_json = read_json(&self.sm_json_data_path.join("enemies").join(file))?;
             ensure!(enemies_json["enemies"].is_array());
@@ -1857,24 +1844,6 @@ impl GameData {
                     .insert(enemy_name.to_string(), vul);
                 self.enemy_json
                     .insert(enemy_name.to_string(), enemy_json.clone());
-
-                let mut enemy_json_buffed = enemy_json.clone();
-                for &(enemy_id, small, big, missiles, nothing, supers, pbs) in
-                    &buffed_drop_overrides
-                {
-                    if enemy_id == enemy_json["id"].as_usize().unwrap() {
-                        enemy_json_buffed["drops"] = json::object! {
-                            "noDrop": nothing,
-                            "smallEnergy": small,
-                            "bigEnergy": big,
-                            "missile": missiles,
-                            "super": supers,
-                            "powerBomb": pbs,
-                        };
-                    }
-                }
-                self.enemy_json_buffed
-                    .insert(enemy_name.to_string(), enemy_json_buffed.clone());
             }
         }
         Ok(())
@@ -2246,18 +2215,15 @@ impl GameData {
         assert!(value.is_array());
         for drop in value.members() {
             let enemy_name = drop["enemy"].as_str().unwrap();
-            let enemy_json = if buffed {
-                &self
-                    .enemy_json_buffed
-                    .get(enemy_name)
-                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
+            let enemy_json = &self
+                .enemy_json
+                .get(enemy_name)
+                .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name));
+            let drops_json = if buffed && enemy_json.has_key("buffedDrops") {
+                &enemy_json["buffedDrops"]
             } else {
-                &self
-                    .enemy_json
-                    .get(enemy_name)
-                    .unwrap_or_else(|| panic!("Unknown enemy: {}", enemy_name))
+                &enemy_json["drops"]
             };
-            let drops_json = &enemy_json["drops"];
             let amount_of_drops = enemy_json["amountOfDrops"].as_isize().unwrap() as Capacity;
             let count = drop["count"].as_i32().unwrap() as Capacity;
             let nothing_weight = drops_json["noDrop"]
