@@ -261,7 +261,7 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
     // Item container: 0 = none, 1 = chozo orb, 2 = shot block (scenery)
     let item_container = (orig_plm_type - 0xEED7) / 84;
 
-    let plm_table: [[isize; 23]; 3] = [
+    let plm_table: [[isize; 25]; 3] = [
         [
             0xEED7, // Energy tank
             0xEEDB, // Missile tank
@@ -286,6 +286,8 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF27, // Reserve tank
             0xF000, // Wall-jump boots
             0xEEDB, // Missile tank (nothing)
+            0xF0E2, // Spark Booster
+            0xF0EE, // Blue Booster
         ],
         [
             0xEF2B, // Energy tank, chozo orb
@@ -311,6 +313,8 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEF7B, // Reserve tank, chozo orb
             0xF004, // Wall-jump boots, chozo orb
             0xEF2F, // Missile tank (nothing)
+            0xF0E6, // Spark Booster, chozo orb
+            0xF0F2, // Blue Booster, chozo orb
         ],
         [
             0xEF7F, // Energy tank, shot block
@@ -336,6 +340,8 @@ fn item_to_plm_type(item: Item, orig_plm_type: isize) -> isize {
             0xEFCF, // Reserve tank, shot block
             0xF008, // Wall-jump boots, shot block
             0xEF83, // Missile tank (nothing)
+            0xF0EA, // Spark Booster, shot block
+            0xF0F6, // Blue Booster, shot block
         ],
     ];
 
