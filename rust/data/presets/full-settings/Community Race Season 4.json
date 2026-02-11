@@ -4651,6 +4651,7 @@
         "disable_spikesuit": false,
         "disable_bluesuit": false,
         "enable_major_glitches": false,
+        "speed_booster": "Vanilla",
         "race_mode": true,
         "random_seed": null
     },

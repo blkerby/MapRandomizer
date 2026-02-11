@@ -353,6 +353,7 @@ pub struct OtherSettings {
     pub disable_spikesuit: bool,
     pub disable_bluesuit: bool,
     pub enable_major_glitches: bool,
+    pub speed_booster: SpeedBooster,
     pub race_mode: bool,
     pub random_seed: Option<usize>,
 }
@@ -501,6 +502,12 @@ impl AreaAssignment {
 pub enum WallJump {
     Vanilla,
     Collectible,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum SpeedBooster {
+    Vanilla,
+    Split,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]

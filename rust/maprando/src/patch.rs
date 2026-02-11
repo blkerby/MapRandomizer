@@ -19,7 +19,7 @@ use crate::{
     randomize::{LockedDoor, Randomization},
     settings::{
         AreaAssignmentPreset, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
-        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump,
+        ObjectiveScreen, RandomizerSettings, SaveAnimals, StartLocationMode, WallJump, SpeedBooster
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -468,6 +468,7 @@ impl Patcher<'_> {
             "transition_reveal",
             "wall_doors",
             "self_check",
+            "custom_plm_gfx",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -540,6 +541,23 @@ impl Patcher<'_> {
             WallJump::Collectible => {
                 patches.push("walljump_plm");
             }
+        }
+
+        match self.settings.other_settings.speed_booster {
+            SpeedBooster::Vanilla => {}
+            SpeedBooster::Split => {
+                patches.push("split_speed_plm");
+            }
+        }
+
+        if matches!(
+            self.settings.other_settings.wall_jump,
+            WallJump::Collectible
+        ) || matches!(
+            self.settings.other_settings.speed_booster,
+            SpeedBooster::Split
+        ) {
+            patches.push("extended_msg_boxes");
         }
 
         match self.settings.quality_of_life_settings.etank_refill {
@@ -649,9 +667,6 @@ impl Patcher<'_> {
         if self.settings.quality_of_life_settings.persist_blue_suit {
             patches.push("load_blue_suit");
         }
-
-        // TODO: make this conditional on setting:
-        // patches.push("split_speed");
 
         for patch_name in patches {
             let patch_path = patches_dir.join(patch_name.to_string() + ".ips");
