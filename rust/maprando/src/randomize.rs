@@ -3614,15 +3614,6 @@ impl<'r> Randomizer<'r> {
         let mut flag_vec = vec![false; self.game_data.flag_isv.keys.len()];
         let tourian_open_idx = self.game_data.flag_isv.index_by_key["f_TourianOpen"];
         flag_vec[tourian_open_idx] = true;
-        if self.settings.quality_of_life_settings.all_items_spawn {
-            let all_items_spawn_idx = self.game_data.flag_isv.index_by_key["i_AllItemsSpawn"];
-            flag_vec[all_items_spawn_idx] = true;
-        }
-        if self.settings.quality_of_life_settings.acid_chozo {
-            let acid_chozo_without_space_jump_idx =
-                self.game_data.flag_isv.index_by_key["i_AcidChozoWithoutSpaceJump"];
-            flag_vec[acid_chozo_without_space_jump_idx] = true;
-        }
         flag_vec
     }
 

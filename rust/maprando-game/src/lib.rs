@@ -346,6 +346,10 @@ pub enum Requirement {
     MainHallElevatorFrames,
     EquipmentScreenCycleFrames,
     ShinesparksCostEnergy,
+    AllItemsSpawn,
+    AcidChozoWithoutSpaceJump,
+    KraidCameraFix,
+    CrocomireCameraFix,
     SupersDoubleDamageMotherBrain,
     BlueGateGlitchLeniency {
         heated: bool,
@@ -1786,10 +1790,6 @@ impl GameData {
             self.flag_isv.add(flag_name.as_str().unwrap());
         }
 
-        // Add randomizer-specific flags:
-        self.flag_isv.add("i_AllItemsSpawn");
-        self.flag_isv.add("i_AcidChozoWithoutSpaceJump");
-
         Ok(())
     }
 
@@ -1994,7 +1994,13 @@ impl GameData {
     fn load_helpers(&mut self) -> Result<()> {
         let helpers_json = read_json(&self.sm_json_data_path.join("helpers.json"))?;
         ensure!(helpers_json["helperCategories"].is_array());
-        for category_json in helpers_json["helperCategories"].members() {
+
+        for (category_idx, category_json) in helpers_json["helperCategories"].members().enumerate()
+        {
+            let category = category_json["name"].as_str().unwrap().to_owned();
+            if category_idx == 0 && category != "Randomizer Dependent" {
+                bail!("First helper category expected to be 'Randomizer Dependent'");
+            }
             ensure!(category_json["helpers"].is_array());
             for helper in category_json["helpers"].members() {
                 if self
@@ -2008,10 +2014,18 @@ impl GameData {
                 }
                 self.helper_json_map
                     .insert(helper["name"].as_str().unwrap().to_owned(), helper.clone());
-                self.helper_category_map.insert(
-                    helper["name"].as_str().unwrap().to_owned(),
-                    category_json["name"].as_str().unwrap().to_owned(),
-                );
+                let helper_name = helper["name"].as_str().unwrap().to_owned();
+                if category_idx == 0 && !helper.has_key("mapRandoOverride") {
+                    // We require all helpers in the "Randomizer Dependent" category to have a "mapRandoOverride" field,
+                    // to ensure that the randomizer properly accounts for them (e.g. to make sure a new helper isn't
+                    // just synced from upstream without reviewing how it should be handled in the randomizer).
+                    bail!(
+                        "Helper '{}' in 'Randomizer Dependent' category is missing required 'mapRandoOverride' field",
+                        helper_name
+                    );
+                }
+                self.helper_category_map
+                    .insert(helper_name, category.clone());
             }
         }
         Ok(())
@@ -2337,6 +2351,14 @@ impl GameData {
                 return Ok(Requirement::EquipmentScreenCycleFrames);
             } else if value == "i_ShinesparksCostEnergy" {
                 return Ok(Requirement::ShinesparksCostEnergy);
+            } else if value == "i_AllItemsSpawn" {
+                return Ok(Requirement::AllItemsSpawn);
+            } else if value == "i_AcidChozoWithoutSpaceJump" {
+                return Ok(Requirement::AcidChozoWithoutSpaceJump);
+            } else if value == "i_KraidCameraFix" {
+                return Ok(Requirement::KraidCameraFix);
+            } else if value == "i_CrocomireCameraFix" {
+                return Ok(Requirement::CrocomireCameraFix);
             } else if value == "i_canEscapeMorphLocation" {
                 return Ok(Requirement::EscapeMorphLocation);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
@@ -5244,54 +5266,6 @@ impl GameData {
         Ok(())
     }
 
-    pub fn patch_helpers(&mut self, helpers_patch_path: &Path) -> Result<()> {
-        let patch = read_json(helpers_patch_path)?;
-        let must_patch_categories: Vec<String> = patch["must_patch_categories"]
-            .members()
-            .map(|s| s.as_str().unwrap().to_string())
-            .collect();
-        let helper_substitutions: Vec<(&str, &JsonValue)> =
-            patch["helper_substitutions"].entries().collect();
-        let skip_helpers: Vec<&str> = patch["skip_helpers"]
-            .members()
-            .map(|s| s.as_str().unwrap())
-            .collect();
-
-        // Construct the set of helpers that need to be patched, and make sure they all are.
-        let mut must_patch_helper_set: HashSet<String> = HashSet::new();
-        for helper_json in self.helper_json_map.values_mut() {
-            let helper_name = helper_json["name"].as_str().unwrap().to_string();
-            let helper_category = &self.helper_category_map[&helper_name];
-            if must_patch_categories.contains(helper_category) {
-                must_patch_helper_set.insert(helper_name.clone());
-            }
-        }
-        for (helper_name, new_requires) in helper_substitutions {
-            self.helper_json_map
-                .get_mut(helper_name)
-                .with_context(|| format!("Helper {} not found", helper_name))
-                .unwrap()["requires"] = new_requires.clone();
-            if !must_patch_helper_set.remove(helper_name) {
-                panic!("Helper {} already patched.", helper_name)
-            }
-        }
-        for helper_name in skip_helpers {
-            if !must_patch_helper_set.remove(helper_name) {
-                panic!(
-                    "Helper {} either does not exist or was already patched or skipped.",
-                    helper_name
-                )
-            }
-        }
-        for helper_name in must_patch_helper_set.iter() {
-            error!("Randomizer-dependent helper {} is not patched", helper_name);
-        }
-        if !must_patch_helper_set.is_empty() {
-            panic!("Randomizer-dependent helpers are not all patched");
-        }
-        Ok(())
-    }
-
     pub fn get_tourian_neighbors(&self, map: &Map) -> HashSet<RoomGeometryRoomIdx> {
         let mut out: HashSet<RoomGeometryRoomIdx> = HashSet::new();
         for (src_pair, dst_pair, _) in &map.doors {
@@ -5315,7 +5289,6 @@ impl GameData {
 
     pub fn load_minimal(base_path: &Path) -> Result<GameData> {
         let sm_json_data_path = base_path.join("../sm-json-data");
-        let helpers_patch_path = base_path.join("data/helpers_patch.json");
         let mut game_data = GameData {
             sm_json_data_path,
             ..GameData::default()
@@ -5325,7 +5298,6 @@ impl GameData {
         game_data.load_numerics()?;
         game_data.load_tech()?;
         game_data.load_helpers()?;
-        game_data.patch_helpers(&helpers_patch_path)?;
         game_data.load_weapons()?;
         game_data.load_enemies()?;
 

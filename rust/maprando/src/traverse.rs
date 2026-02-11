@@ -1777,6 +1777,12 @@ fn apply_requirement_simple(
         Requirement::ShinesparksCostEnergy => {
             cx.settings.other_settings.energy_free_shinesparks.into()
         }
+        Requirement::AllItemsSpawn => cx.settings.quality_of_life_settings.all_items_spawn.into(),
+        Requirement::AcidChozoWithoutSpaceJump => {
+            cx.settings.quality_of_life_settings.acid_chozo.into()
+        }
+        Requirement::KraidCameraFix => (!cx.settings.other_settings.ultra_low_qol).into(),
+        Requirement::CrocomireCameraFix => (!cx.settings.other_settings.ultra_low_qol).into(),
         Requirement::RegularEnergyDrain(count) => {
             let count = count.resolve(&cx.difficulty.numerics);
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
