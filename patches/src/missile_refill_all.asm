@@ -1,6 +1,9 @@
 arch snes.cpu
 lorom
 
+!bank_84_free_space_start = $84F6D0
+!bank_84_free_space_end = $84F700
+
 ; Hijack code to test for full ammo before activating Missile Refill. Instead of only checking for full missile ammo,
 ; we check for full ammo of all three types.
 org $848CD2
@@ -25,7 +28,7 @@ org $848CE1
     nop : nop : nop    ; overwrite vanilla instruction STA $09C6
 
 ; Free space in bank $84 for our new code:
-org $84F100
+org !bank_84_free_space_start
 
 ; Check if all three ammo types are full (in which case the refill should be skipped):
 check_full:
@@ -49,5 +52,5 @@ fill_ammo:
     lda $09D0
     sta $09CE
     rts
-
-warnpc $84F200
+print pc
+assert pc() <= !bank_84_free_space_end

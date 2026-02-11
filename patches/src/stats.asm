@@ -9,7 +9,7 @@ incsrc "constants.asm"
 !bank_84_free_space_start = $84F730
 !bank_84_free_space_end = $84F800
 
-!bank_85_free_space_start = $859980
+!bank_85_free_space_start = $859980  ; collect item routine is moved to the start of here, this location is used as a fixed jump point for extended plms. becareful changing it.
 !bank_85_free_space_end = $859B00
 
 
@@ -177,7 +177,7 @@ disable_nmi_hook:
     inc !nmi_timeronly
     rtl
 
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
 
 ; NMI hook to check for timer-only mode
 org $809589
@@ -219,11 +219,11 @@ nmi:
     inc $05b6
     rep #$30
     jmp .inc
-warnpc $809602
+assert pc() <= $809602
 org $809602 ; skip lag handling
     rep #$30
     jmp .inc
-warnpc $809616
+assert pc() <= $809616
     ;; handle 32 bit counter :
 org $808FA3 ;; overwrite unused routine
 .inc:
@@ -243,7 +243,7 @@ inc_skipcount:
 .leave_hook
     jmp area_timer
 
-warnpc $808FC1 ;; next used routine start
+assert pc() <= $808FC1 ;; next used routine start
 
 !idx_ETank = #$0000
 !idx_Missile = #$0001
@@ -266,7 +266,9 @@ warnpc $808FC1 ;; next used routine start
 !idx_ScrewAttack = #$0012
 !idx_Morph = #$0013
 !idx_ReserveTank = #$0014
-
+;!idx_walljump = #$0015       - not used here, called in custom plms but included here for reference.
+;!idx_sparkbooster = #$0016
+;!idx_bluebooster = #$0017
 
 ; hook item collection instructions:
 
@@ -463,7 +465,42 @@ org $84EE00  ; Morph, shot block
 org $84EE41  ; ReserveTank, shot block
     dw collect_ReserveTank
 
-org !bank_85_free_space_start
+org !bank_85_free_space_start ; collect item routine is moved to the start of here, this location is used as a fixed jump point for extended plms. becareful changing it.
+collect_item:
+    phx
+
+    ; flush RTA/area timers
+    jsr flush_timers
+
+    asl
+    asl
+    tax
+
+    ; check if we have already collected one of this type of item (do not overwrite the collection time in this case):
+    lda !stat_item_collection_times, x
+    bne .skip
+    lda !stat_item_collection_times+2, x
+    bne .skip
+
+    ; record the collection time
+    lda !stat_timer
+    sta !stat_item_collection_times, x
+    lda !stat_timer+2
+    sta !stat_item_collection_times+2, x
+
+.skip:
+    plx
+    rtl
+
+flush_timers:
+    phx
+    phy
+    pha
+    jsl save_to_sram
+    pla
+    ply
+    plx
+    rts
 
 hook_save_station:
     jsl $868097  ; run hi-jacked Instruction
@@ -527,42 +564,7 @@ hook_samus_enter_ship:
 .end_hook
     rtl
 
-collect_item:
-    phx
-
-    ; flush RTA/area timers
-    jsr flush_timers
-
-    asl
-    asl
-    tax
-
-    ; check if we have already collected one of this type of item (do not overwrite the collection time in this case):
-    lda !stat_item_collection_times, x
-    bne .skip
-    lda !stat_item_collection_times+2, x
-    bne .skip
-
-    ; record the collection time
-    lda !stat_timer
-    sta !stat_item_collection_times, x
-    lda !stat_timer+2
-    sta !stat_item_collection_times+2, x
-
-.skip:
-    plx
-    rtl
-
-flush_timers:
-    phx
-    phy
-    pha
-    jsl save_to_sram
-    pla
-    ply
-    plx
-    rts
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
 
 org !bank_84_free_space_start
 
@@ -675,4 +677,4 @@ collect_ReserveTank:
     jsr collect_item_wrapper
     jmp $8986
 
-warnpc !bank_84_free_space_end
+assert pc() <= !bank_84_free_space_end

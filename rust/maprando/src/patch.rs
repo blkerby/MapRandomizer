@@ -538,7 +538,7 @@ impl Patcher<'_> {
         match self.settings.other_settings.wall_jump {
             WallJump::Vanilla => {}
             WallJump::Collectible => {
-                patches.push("walljump_item");
+                patches.push("walljump_plm");
             }
         }
 

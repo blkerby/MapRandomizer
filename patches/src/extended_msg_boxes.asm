@@ -5,7 +5,7 @@ lorom
 !bank_85_free_space_start = $8596B0
 !bank_85_free_space_end = $859800
 
-;;; repoint message box table references for custom plms:
+;;; extended message box table references for custom plm boxes:
 
 org $858243
     jmp hook_item_id
@@ -66,7 +66,5 @@ bluebooster: ;blue booster
 
 msg_end:
     dw $0000
-
-print pc
     
 assert pc() <= !bank_85_free_space_end

@@ -1,7 +1,7 @@
 arch snes.cpu
 lorom
 
-!bank_84_free_space_start = $84F200
+!bank_84_free_space_start = $84F28B
 !bank_84_free_space_end = $84F300
 
 !bank_b8_free_space_start = $B88100   ; must match address in patch.asm
@@ -124,7 +124,7 @@ mb1_trigger_hook:
     clc
 .done:
     rtl
-warnpc !bank_b8_free_space_end
+assert pc() <= !bank_b8_free_space_end
 
 org !bank_84_free_space_start
 
@@ -177,8 +177,8 @@ pirates_set_flag:
     sta $7ED823
 .not_metal_pirates_room:
     rtl
-
-warnpc !bank_84_free_space_end
+print pc
+assert pc() <= !bank_84_free_space_end
 
 ; bowling chozo hook
 org $84D66B

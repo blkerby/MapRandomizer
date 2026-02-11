@@ -1,8 +1,8 @@
 $EFD3 - $EFD7: load_plms_early.asm
 $EFD7 - $F000: vanilla_bugfixes.asm
-$F000 - $F0FF: walljump_item.asm
-$F100 - $F1FF: missile_refill_all.asm
-$F200 - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)
+$F000 - $F0E2: walljump_plm.asm
+$F0E2 - $F28B: split_speed_plm.asm
+$F28B - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)
 $F300 - $F380: escape_items.asm
 $F380 - $F480: escape.asm
 $F480 - $F490: etank_refill_full.asm
@@ -14,6 +14,7 @@ $F590 - $F5A0: horizontal_door_fix.asm
 $F5A0 - $F5C0: energy_station_reserves.asm
 $F5C0 - $F630: wall_doors.asm
 $F630 - $F700: [FREE]
+$F6D0 - $F700: missile_refill_all.asm
 $F700 - $F730: nothing_item.asm
 $F730 - $F800: stats.asm
 $F800 - $F900: hazard_markers

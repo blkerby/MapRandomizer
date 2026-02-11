@@ -1,3 +1,5 @@
+; custom gfx files for additional plms. these locations are unused vanilla space so it should be safe to just include this as a base patch, it will improve compatibility with multiworlds too where a non collectible walljump / spark booster / blue booster seed has the item placed in it for somebody else. Previously applied in rust but moved to simple binary files to make changing easier.
+
 lorom
 
 org $899100 ; wall jump boots graphics
