@@ -388,7 +388,7 @@ remove_enemies:
     lda $079B  ; room pointer
     cmp enemy_table,y
     beq .load
-    rep 6 : iny
+    iny #6
     bra .loop
 .load:
     iny : iny
