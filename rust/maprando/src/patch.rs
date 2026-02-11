@@ -2669,7 +2669,7 @@ impl Patcher<'_> {
 
         Ok(())
     }
-
+    #[allow(dead_code)]
     fn write_walljump_item_graphics(&mut self) -> Result<()> {
         let b = 0x8;
         let w = 0xc;
@@ -3503,7 +3503,7 @@ pub fn make_rom(
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
-    patcher.write_walljump_item_graphics()?;
+    //patcher.write_walljump_item_graphics()?;
     patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
