@@ -7,8 +7,8 @@ use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
     AreaAssignmentBaseOrder, DoorsMode, FillerItemPriority, ItemPlacementStyle,
     ItemPriorityStrength, KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting,
-    ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, StartLocationMode,
-    WallJump,
+    ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, SpeedBooster,
+    StartLocationMode, WallJump,
 };
 use crate::spoiler_log::{
     SpoilerLocalState, SpoilerLog, SpoilerRoomLoc, SpoilerRouteEntry, SpoilerStartLocation,
@@ -4562,6 +4562,17 @@ impl<'r> Randomizer<'r> {
             }
             if settings.other_settings.wall_jump != WallJump::Collectible && name == "WallJump" {
                 // Don't show "WallJump" item unless using Collectible mode.
+                continue;
+            }
+
+            if settings.other_settings.speed_booster != SpeedBooster::Vanilla
+                && name == "SpeedBooster"
+            {
+                continue;
+            }
+            if settings.other_settings.speed_booster != SpeedBooster::Split
+                && (name == "BlueBooster" || name == "SparkBooster")
+            {
                 continue;
             }
             let item = Item::try_from(name).unwrap();

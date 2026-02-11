@@ -179,6 +179,14 @@
             "priority": "Default"
         },
         {
+            "item": "SparkBooster",
+            "priority": "Default"
+        },
+        {
+            "item": "BlueBooster",
+            "priority": "Default"
+        },
+        {
             "item": "SpringBall",
             "priority": "Default"
         },
@@ -262,6 +270,13 @@
         },
         {
             "item": "SpeedBooster",
+            "priority": "No"
+        },
+        {
+            "item": "SparkBooster",
+            "priority": "No"
+        },        {
+            "item": "BlueBooster",
             "priority": "No"
         },
         {

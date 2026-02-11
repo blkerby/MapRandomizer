@@ -556,6 +556,7 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
     applyRadioValue("disableBluesuit", other.disable_bluesuit);
     applyRadioValue("enableMajorGlitches", other.enable_major_glitches);
+    applyRadioValue("speedBooster", other.speed_booster);
     applyRadioValue("raceMode", other.race_mode);
     document.getElementById("randomSeed").value = other.random_seed;
 }
@@ -1175,6 +1176,10 @@ function updateFormConflicts() {
     if (document.getElementById("speedBoosterVanilla").checked) {
         document.querySelectorAll(".itemIconSparkBooster ~ div>label").forEach(Set.prototype.add.bind(toAdd));
         document.querySelectorAll(".itemIconBlueBooster ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+
+    if (document.getElementById("speedBoosterSplit").checked) {
+        document.querySelectorAll(".itemIconSpeedBooster ~ div>label").forEach(Set.prototype.add.bind(toAdd));
     }
 
     if (parseInt(document.getElementById("itemPoolMissile").value) < 1) {

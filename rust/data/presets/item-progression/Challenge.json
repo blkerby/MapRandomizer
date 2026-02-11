@@ -179,6 +179,14 @@
             "priority": "Early"
         },
         {
+            "item": "SparkBooster",
+            "priority": "Early"
+        },
+        {
+            "item": "BlueBooster",
+            "priority": "Early"
+        },
+        {
             "item": "SpringBall",
             "priority": "Early"
         },
@@ -262,6 +270,14 @@
         },
         {
             "item": "SpeedBooster",
+            "priority": "No"
+        },
+        {
+            "item": "SparkBooster",
+            "priority": "No"
+        },
+        {
+            "item": "BlueBooster",
             "priority": "No"
         },
         {
