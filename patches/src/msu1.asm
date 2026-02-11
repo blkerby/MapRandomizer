@@ -121,7 +121,7 @@ MSU_Main:
 	
 	;; $04 is usually ambience, call original code
 	cmp.b #$04
-	beq OriginalCode
+	beq StopMSUMusic
 	
 	;; Check if the song is already playing
 	cmp.w !CurrentMusic

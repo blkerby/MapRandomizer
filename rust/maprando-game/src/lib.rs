@@ -5236,6 +5236,9 @@ impl GameData {
 
     pub fn get_tourian_neighbors(&self, map: &Map) -> HashSet<RoomGeometryRoomIdx> {
         let mut out: HashSet<RoomGeometryRoomIdx> = HashSet::new();
+
+        // Find all rooms that are directly connected to Tourian (area 5) via a door,
+        // to be assigned Statues Hallway theme (tiling and music).
         for (src_pair, dst_pair, _) in &map.doors {
             let (src_room_id, _) = self.door_ptr_pair_map[src_pair];
             let (dst_room_id, _) = self.door_ptr_pair_map[dst_pair];
@@ -5249,6 +5252,23 @@ impl GameData {
                 out.insert(dst_idx);
             }
             if dst_area == 5 && src_area != 5 {
+                out.insert(src_idx);
+            }
+        }
+
+        // Find all rooms directly connected to a Statues Hallway themed room through
+        // the room's only door, to be assigned Statues Hallway theme as well.
+        for (src_pair, dst_pair, _) in &map.doors {
+            let (src_room_id, _) = self.door_ptr_pair_map[src_pair];
+            let (dst_room_id, _) = self.door_ptr_pair_map[dst_pair];
+            let src_ptr = self.room_ptr_by_id[&src_room_id];
+            let dst_ptr = self.room_ptr_by_id[&dst_room_id];
+            let src_idx = self.room_idx_by_ptr[&src_ptr];
+            let dst_idx = self.room_idx_by_ptr[&dst_ptr];
+            if out.contains(&src_idx) && self.room_geometry[dst_idx].doors.len() == 1 {
+                out.insert(dst_idx);
+            }
+            if out.contains(&dst_idx) && self.room_geometry[src_idx].doors.len() == 1 {
                 out.insert(src_idx);
             }
         }

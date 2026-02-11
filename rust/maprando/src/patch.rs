@@ -1488,14 +1488,13 @@ impl Patcher<'_> {
         ];
 
         let rooms_to_leave_unchanged = [
-            "Mother Brain Room",
-            "Big Boy Room",
-            "Kraid Room",
-            "Phantoon's Room",
-        ]
-        .map(|x| x.to_string());
+            238, // Mother Brain Room,
+            232, // Big Boy Room
+            84,  // Kraid Room
+            158, // Phantoon's Room
+        ];
         for (room_idx, room) in self.game_data.room_geometry.iter().enumerate() {
-            if rooms_to_leave_unchanged.contains(&room.name) {
+            if rooms_to_leave_unchanged.contains(&room.room_id) {
                 continue;
             }
             let area = self.map.area[room_idx];
@@ -1503,7 +1502,7 @@ impl Patcher<'_> {
             let event_state_ptrs = get_room_state_ptrs(self.rom, room.rom_address)?;
             for &(_event_ptr, state_ptr) in &event_state_ptrs {
                 let song = self.rom.read_u16(state_ptr + 4)? as u16;
-                if songs_to_keep.contains(&song) && room.name != "Golden Torizo Energy Recharge" {
+                if songs_to_keep.contains(&song) && room.room_id != 152 {
                     // In vanilla, Golden Torizo Energy Recharge plays the item/elevator music,
                     // but that only seems to be because of it being next to Screw Attack Room.
                     // We want it to behave like the other Refill rooms and use area-themed music.
@@ -1516,12 +1515,12 @@ impl Patcher<'_> {
                 }
 
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
-                if room.name == "Pants Room" {
-                    // Set music for East Pants Room:
+                if room.room_id == 220 {
+                    // Pants Room: Set music for East Pants Room:
                     self.rom
                         .write_u16(snes2pc(0x8FD6A7 + 4), new_song as isize)?;
-                } else if room.name == "West Ocean" {
-                    // Set music for Homing Geemer Room:
+                } else if room.room_id == 32 {
+                    // West Ocean: Set music for Homing Geemer Room:
                     self.rom
                         .write_u16(snes2pc(0x8F969C + 4), new_song as isize)?;
                 }

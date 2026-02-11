@@ -1,8 +1,14 @@
 !bank_90_free_space_start = $90FC40
-!bank_90_free_space_end = $90FCC0
+!bank_90_free_space_end = $90FCE0
 
 !bank_91_free_space_start = $91F7F4
 !bank_91_free_space_end = $91F88C
+
+!bank_82_free_space_start = $82FF20
+!bank_82_free_space_end =   $82FF30
+
+!bank_B6_free_space_start = $B6FC00
+!bank_B6_free_space_end = $B6FE00
 
 !equipped_items = $09A2
 !fake_shinecharge = $7EF597
@@ -12,6 +18,34 @@
 !spark_booster = $0080
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
+
+; Fine. Hijack the ENTIRE THING.
+org $8291D0
+    jsr hook_setup_speedbooster_menu_tile_wrapper
+
+org $82B5AE
+    jsr hook_equip_enable
+
+org $82C066
+; Speedbooster bitset
+    dw !any_booster
+
+org !bank_82_free_space_start
+
+hook_setup_speedbooster_menu_tile_wrapper:
+    sta $0725  ; run hi-jacked instruction
+    jsl hook_setup_speedbooster_menu_tile
+    rts
+
+hook_equip_enable:
+    ; X = equipment bitmask
+    ; Y = equipment bitset
+    ; A = loaded with previously equipped items
+    ora $0000,x ; Hijacked code (sets the bitmask)
+    and $0002,y ; AND with collected items
+    rts
+
+warnpc !bank_82_free_space_end
 
 ; Accelerate Samus' animation with any booster item:
 org $908502
@@ -194,4 +228,92 @@ hook_update_speed_echoes:
     lda $0b3e  ; run hi-jacked instruction
     rts
 
+hook_setup_speedbooster_menu_tile:
+    php
+    
+    rep #$30
+    lda $09A4
+    and #!any_booster
+    beq .no     ; No boosters
+    bit #!speed_booster
+    bne .no     ; Full speedbooster
+    
+    cmp #!blue_booster|!spark_booster
+    beq .no     ; Blue+Spark = Speed
+    
+    ; Prepare VRAM for copy
+    ldx #$1240
+    stx $2116
+    sep #$10    ; X = 8-bit
+    ldx #$80    ; Auto-increment, 1 word
+    stx $2115
+
+    cmp #!blue_booster
+    beq .blue
+    
+    ; Spark booster
+    jsl $8091A9
+    db $01, $01, $18
+    dl menu_tiles_spark_booster
+    dw menu_tiles_spark_booster_end-menu_tiles_spark_booster
+
+    bra .dma
+
+.blue
+    jsl $8091A9
+    db $01, $01, $18
+    dl menu_tiles_blue_booster
+    dw menu_tiles_blue_booster_end-menu_tiles_blue_booster
+
+.dma 
+    sep #$30
+    lda #$02
+    sta $420B   ; DMA execute
+   
+.no
+    plp
+    rtl
+warnpc !bank_90_free_space_end
 assert pc() <= !bank_90_free_space_end
+
+org !bank_B6_free_space_start
+
+menu_tiles_blue_booster:
+    db $FF, $FF, $FF, $FF, $8D, $FF, $B5, $FF, $8D, $FF, $B5, $FF, $8C, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $DA, $FF, $DA, $FF, $DA, $FF, $DA, $FF, $66, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $1C, $FF, $FD, $FF, $3C, $FF, $FD, $FF, $1C, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $73, $FF, $AD, $FF, $6D, $FF, $AD, $FF, $73, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $9C, $FF, $6B, $FF, $68, $FF, $6F, $FF, $98, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $44, $FF, $ED, $FF, $6C, $FF, $6D, $FF, $EC, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $23, $FF, $ED, $FF, $63, $FF, $ED, $FF, $2D, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+.end
+
+menu_tiles_spark_booster:
+    db $FF, $FF, $FF, $FF, $C4, $FF, $BD, $FF, $84, $FF, $F5, $FF, $8D, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $73, $FF, $AD, $FF, $6D, $FF, $E1, $FF, $ED, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $1B, $FF, $6A, $FF, $19, $FF, $6A, $FF, $6B, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $71, $FF, $F6, $FF, $F1, $FF, $F6, $FF, $71, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $CE, $FF, $B5, $FF, $B5, $FF, $B5, $FF, $CE, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $71, $FF, $AF, $FF, $A1, $FF, $BD, $FF, $63, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $10, $FF, $B7, $FF, $B1, $FF, $B7, $FF, $B0, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+    db $FF, $FF, $FF, $FF, $8F, $FF, $B7, $FF, $8F, $FF, $B7, $FF, $B7, $FF, $FF, $FF
+    db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
+.end
+
+warnpc !bank_B6_free_space_end

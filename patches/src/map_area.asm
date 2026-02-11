@@ -258,7 +258,7 @@ dw $3C33, $3C46,
 org $8291F9
     jsr load_map_screen_wrapper
 
-org $8291D0
+org $8291B1
     jsr load_equipment_screen_wrapper
 
 ;;; Put new code in free space at end of bank $82:
@@ -276,7 +276,7 @@ load_map_screen_wrapper:
 
 load_equipment_screen_wrapper:
     jsl load_equipment_screen
-    rts
+    jmp $AB47
 
 load_area_wrapper:
     jsl load_area
@@ -564,9 +564,6 @@ load_map_screen:
     rtl
 
 load_equipment_screen:
-    ; run hi-jacked instruction:
-    sta $0725
-
     ; Fix color used for pink doors on map screen
     lda #$6E7A
     sta $7EC0CE
@@ -617,9 +614,11 @@ load_equipment_screen:
     lda #$6000
     sta $4315 ; transfer size = $6000 bytes
 
+    php
     sep #$30
     lda #$02
     sta $420B  ; perform DMA transfer on channel 1
+    plp
     rtl
 
 load_target_palette_hook:
