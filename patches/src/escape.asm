@@ -160,7 +160,7 @@ clear_ship_inst:
 clear_ship_draw:
     dw $000C, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $00FF, $0000
 
-warnpc $84fa00
+assert pc() <= $84fa00
 
 ;;; Hi-jack escape start
 org $A9B270
@@ -331,7 +331,7 @@ post_kraid_music:
 ;    dw  $B7B7
 ;    rts
 
-warnpc !bank_8f_free_space_end
+assert pc() <= !bank_8f_free_space_end
 
 ; hi-jack post-kraid elevator music (so that it won't play during the escape)
 org $A7C81E
@@ -530,7 +530,7 @@ ws_etank:
     dw $FFFF
     db $00
 
-warnpc !bank_a1_free_space_end
+assert pc() <= !bank_a1_free_space_end
 
 ; Free space in any bank (but the position must agree with what is used in patch.rs)
 org !bank_84_free_space_start
@@ -628,7 +628,7 @@ org !bank_84_free_space_start
     RTL
 
 print pc
-warnpc !bank_84_free_space_end
+assert pc() <= !bank_84_free_space_end
 
 ; hook for when dachora hits block above it
 org $A7F892
@@ -644,7 +644,7 @@ dachora_hit_top:
     LDA #$003C       ; run hi-jacked instruction
     rts
 
-warnpc !bank_a7_free_space_end
+assert pc() <= !bank_a7_free_space_end
 
 
 ; Include walljump boots and split-speed in item collection count post-credits
@@ -658,7 +658,7 @@ org !bank_8b_free_space_start
 item_bits:
     dw $0001, $0020, $0004, $1000, $0002, $0008, $0100, $0200, $2000, $4000, $8000, $0400, $0040, $0080
 
-warnpc !bank_8b_free_space_end
+assert pc() <= !bank_8b_free_space_end
 
 org $82E026
     jsr enemy_gfx_load_hook
@@ -688,4 +688,4 @@ enemy_gfx_load_hook:
     lda #$8000          ; replaced code
     rts
 
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
