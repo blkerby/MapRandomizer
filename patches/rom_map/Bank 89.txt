@@ -1,5 +1,6 @@
 $9100 - $9200: walljump boots plm graphics
-$9200 - $9300: spark booster plms graphics
-$9300 - $9400: blue booster plm graphics
+$9200 - $9600: [mosaic] Item Loading
+$9600 - $9700: spark booster plms graphics
+$9700 - $9800: blue booster plm graphics
 $AF60 - $B0C0: Area FX.asm
 $B0C0 - $B100: decompression.asm

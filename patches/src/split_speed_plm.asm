@@ -2,7 +2,8 @@
 
 lorom
 
-
+!sbooster_plm_addr = $9600
+!bbooster_plm_addr = $9700
 !idx_SparkBooster = #$0016
 !idx_BlueBooster = #$0017
 !collect_item = $859980 ; this is a reference to the collect item routine location in stats.asm, go directly too it instead of replicating some of it here.
@@ -21,7 +22,7 @@ dw $EE8E, blue_boost_sce    ; PLM $F0F6 (BlueBooster, scenery shot block)
 
 ;;; Instruction list - PLM $F0E2 (SparkBooster)
 sprk_boost:
-    dw $8764, $9200                        ; Load item PLM GFX
+    dw $8764, !sbooster_plm_addr           ; Load item PLM GFX
     db $01, $01, $01, $01, $01, $01, $01, $01
     dw $887C, .end                         ; Go to end if the room argument item is set
     dw $8A24, .triggered                   ; Set link instruction for when triggered
@@ -42,7 +43,7 @@ sprk_boost:
 
 ;;; Instruction list - PLM $F0E6 (SparkBooster, chozo orb)
 sprk_boost_orb:
-    dw $8764, $9200                        ; Load item PLM GFX
+    dw $8764, !sbooster_plm_addr           ; Load item PLM GFX
     db $01, $01, $01, $01, $01, $01, $01, $01
     dw $887C, .end                         ; Go to end if the room argument item is set
     dw $8A2E, $DFAF                        ; Call $DFAF (item orb)
@@ -68,7 +69,7 @@ sprk_boost_orb:
 
 ;;; Instruction list - PLM $F0EA (SparkBooster, scenery shot block)
 sprk_boost_sce:
-    dw $8764, $9100                        ; Load item PLM GFX
+    dw $8764, !sbooster_plm_addr           ; Load item PLM GFX
     db $01, $01, $01, $01, $01, $01, $01, $01
 .start:
     dw $8A2E, $E007                        ; Call $E007 (item shot block)
@@ -95,7 +96,7 @@ sprk_boost_sce:
     
 ;;; Instruction list - PLM $F0EE (Bluebooster)
 blue_boost:
-    dw $8764, $9300                        ; Load item PLM GFX
+    dw $8764, !bbooster_plm_addr           ; Load item PLM GFX
     db $03, $03, $00, $00, $03, $03, $00, $00
     dw $887C, .end                         ; Go to end if the room argument item is set
     dw $8A24, .triggered                   ; Set link instruction for when triggered
@@ -116,7 +117,7 @@ blue_boost:
 
 ;;; Instruction list - PLM $F0F2 (Bluebooster, chozo orb)
 blue_boost_orb:
-    dw $8764, $9200                        ; Load item PLM GFX
+    dw $8764, !bbooster_plm_addr           ; Load item PLM GFX
     db $03, $03, $00, $00, $03, $03, $00, $00
     dw $887C, .end                         ; Go to end if the room argument item is set
     dw $8A2E, $DFAF                        ; Call $DFAF (item orb)
@@ -142,7 +143,7 @@ blue_boost_orb:
 
 ;;; Instruction list - PLM $F0F6 (Bluebooster, scenery shot block)
 blue_boost_sce:
-    dw $8764, $9100                        ; Load item PLM GFX
+    dw $8764, !bbooster_plm_addr           ; Load item PLM GFX
     db $03, $03, $00, $00, $03, $03, $00, $00
 .start:
     dw $8A2E, $E007                        ; Call $E007 (item shot block)
