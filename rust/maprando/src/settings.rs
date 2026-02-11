@@ -939,6 +939,10 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         other_settings.insert("enable_major_glitches".to_string(), false.into());
     }
 
+    if other_settings.get("speed_booster").is_none() {
+        other_settings.insert("speed_booster".to_string(), "Vanilla".into());
+    }
+
     Ok(())
 }
 
