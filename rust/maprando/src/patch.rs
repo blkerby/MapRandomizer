@@ -554,6 +554,7 @@ impl Patcher<'_> {
             SpeedBooster::Vanilla => {}
             SpeedBooster::Split => {
                 patches.push("split_speed_plm");
+                patches.push("split_speed");
             }
         }
 
