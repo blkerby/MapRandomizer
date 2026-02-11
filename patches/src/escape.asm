@@ -649,7 +649,7 @@ warnpc !bank_a7_free_space_end
 
 ; Include walljump boots and split-speed in item collection count post-credits
 org $8BE65B
-    LDX #$0018
+    LDX #$0020
 
 org $8BE661
     BIT item_bits,x
