@@ -1172,6 +1172,11 @@ function updateFormConflicts() {
         document.querySelectorAll(".itemIconWallJump ~ div>label").forEach(Set.prototype.add.bind(toAdd));
     }
     
+    if (document.getElementById("speedBoosterVanilla").checked) {
+        document.querySelectorAll(".itemIconSparkBooster ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+        document.querySelectorAll(".itemIconBlueBooster ~ div>label").forEach(Set.prototype.add.bind(toAdd));
+    }
+
     if (parseInt(document.getElementById("itemPoolMissile").value) < 1) {
         document.querySelectorAll("#itemPriorities .itemIconMissile ~ div>label").forEach(Set.prototype.add.bind(toAdd));
     }
