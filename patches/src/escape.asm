@@ -649,7 +649,7 @@ assert pc() <= !bank_a7_free_space_end
 
 ; Include walljump boots and split-speed in item collection count post-credits
 org $8BE65B
-    LDX #$0020
+    LDX #$001A
 
 org $8BE661
     BIT item_bits,x
