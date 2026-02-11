@@ -1,10 +1,10 @@
 !bank_85_free_space_start = $85AE20
 !bank_85_free_space_end = $85B000
 
-!bank_82_free_space_start = $82F9D0
+!bank_82_free_space_start = $82F9E0
 !bank_82_free_space_end = $82FA00
 
-!arrow_mode = $7EF597
+!arrow_mode = $7EF59A
 
 ; Hook runs when the dpad is pressed in the SUPPLY section
 ; (Note: disableable_etanks also hooks at a later point in this routine, at ACEF (BRANCH_UP).)
