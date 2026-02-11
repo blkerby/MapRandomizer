@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Refill Supers",
+      "globalState": {
+        "maxSupers": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"consumed": 0}
+      }
+    }
+  ]
+}

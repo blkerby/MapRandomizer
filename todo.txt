@@ -1,5 +1,7 @@
 v121 or soon-ish?:
 - DONE: new escape timings
+- Fix door lock skips showing in the wrong difficulty on logic pages.
+- Fix MSU handling of statues hallway music?
 - Update music in unthemed single-door rooms (in case neighboring room has Statues Hallway music)
 - See if it is possible to play Statues Hallway music even when music is otherwise disabled.
 - Consider patching the Speed Booster Hall lava trap behavior to depend on Speed Booster equipped.
@@ -149,7 +151,6 @@ Other:
   - check that if some implicit strats are overridden, then all applicable ones are.
 - if strat includes doorUnlockedAtNode at destination node, then skip redundant unlock requirement.
 - simplify SeedData. It's not clear if we really even need this anymore.
-- Make f_allItemsSpawn (etc.) not be a flag? Could be "i_allItemsSpawn" instead and handled similar to other logic-impacting settings.
 - embed some logic data in video site? (e.g. show strat note when uploading/editing)
 - handle steep starting down tile better: only should affect short-charging, not other uses of runways
 - model energy usage in the escape.

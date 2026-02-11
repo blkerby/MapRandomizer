@@ -1,0 +1,35 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "No Missiles",
+      "globalState": {
+        "maxMissiles": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 0}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Missiles",
+      "globalState": {
+        "maxMissiles": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"consumed": 0}
+      }
+    }
+  ]
+}

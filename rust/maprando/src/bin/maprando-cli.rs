@@ -191,7 +191,7 @@ fn get_randomization(
             info!(
                 "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}"
             );
-            match randomizer.randomize(attempt_num, item_seed, 1) {
+            match randomizer.randomize(attempt_num, item_seed, 1, true) {
                 Ok(randomization) => {
                     return Ok(randomization);
                 }

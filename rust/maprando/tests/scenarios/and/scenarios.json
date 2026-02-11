@@ -1,0 +1,24 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Missiles and Supers",
+      "globalState": {
+        "maxMissiles": 5,
+        "maxSupers": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 5},
+        "supers": {"remaining": 5}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 4},
+        "supers": {"remaining": 4}
+      }
+    }
+  ]
+}

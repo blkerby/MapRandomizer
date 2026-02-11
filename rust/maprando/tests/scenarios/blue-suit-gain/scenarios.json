@@ -1,0 +1,18 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Gain Blue Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 0
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 255
+      }
+    }
+  ]
+}

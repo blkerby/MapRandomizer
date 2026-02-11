@@ -3924,7 +3924,15 @@
     "strat_id": 23,
     "video_id": 8936,
     "created_user": "nn",
-    "note": "",
+    "note": "Standing jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 26,
+    "strat_id": 23,
+    "video_id": 8938,
+    "created_user": "nn",
+    "note": "Crouched angle-down jump",
     "dev_note": ""
   },
   {
@@ -4293,6 +4301,14 @@
     "video_id": 9651,
     "created_user": "Sam",
     "note": "Gravity",
+    "dev_note": ""
+  },
+  {
+    "room_id": 36,
+    "strat_id": 39,
+    "video_id": 9581,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -8233,6 +8249,14 @@
   },
   {
     "room_id": 51,
+    "strat_id": 102,
+    "video_id": 9058,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 51,
     "strat_id": 79,
     "video_id": 1845,
     "created_user": "Sam",
@@ -8681,19 +8705,19 @@
   },
   {
     "room_id": 49,
-    "strat_id": 16,
-    "video_id": 9643,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 49,
     "strat_id": 11,
     "video_id": 5323,
     "created_user": "maddo",
     "note": "",
     "dev_note": "canSpikeSuit"
+  },
+  {
+    "room_id": 49,
+    "strat_id": 16,
+    "video_id": 9643,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 44,
@@ -11962,9 +11986,17 @@
   {
     "room_id": 59,
     "strat_id": 110,
+    "video_id": 9771,
+    "created_user": "maddo",
+    "note": "Jump in with upward momentum",
+    "dev_note": ""
+  },
+  {
+    "room_id": 59,
+    "strat_id": 110,
     "video_id": 4676,
     "created_user": "Sam",
-    "note": "",
+    "note": "Speedball",
     "dev_note": ""
   },
   {
@@ -14165,6 +14197,14 @@
     "video_id": 2337,
     "created_user": "Sam",
     "note": "Leave with spark",
+    "dev_note": ""
+  },
+  {
+    "room_id": 70,
+    "strat_id": 54,
+    "video_id": 9420,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -16566,6 +16606,14 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
+  },
+  {
+    "room_id": 83,
+    "strat_id": 4,
+    "video_id": 9777,
+    "created_user": "maddo",
+    "note": "With blue suit",
+    "dev_note": "canBlueSuitGModeSetup"
   },
   {
     "room_id": 83,
@@ -21849,6 +21897,14 @@
   },
   {
     "room_id": 112,
+    "strat_id": 72,
+    "video_id": 9452,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 112,
     "strat_id": 3,
     "video_id": 8166,
     "created_user": "maddo",
@@ -23430,6 +23486,14 @@
     "created_user": "Sam",
     "note": "Suitless",
     "dev_note": ""
+  },
+  {
+    "room_id": 101,
+    "strat_id": 4,
+    "video_id": 9246,
+    "created_user": "aquanight",
+    "note": "",
+    "dev_note": "canReserveTriggerBufferXRay"
   },
   {
     "room_id": 101,
@@ -54962,7 +55026,7 @@
   {
     "room_id": 179,
     "strat_id": 52,
-    "video_id": 8816,
+    "video_id": 8815,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -54970,7 +55034,7 @@
   {
     "room_id": 179,
     "strat_id": 53,
-    "video_id": 8815,
+    "video_id": 8816,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""

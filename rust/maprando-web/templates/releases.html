@@ -14,7 +14,7 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release121">Version 121 (2026-01-30)</a>:
+<p><a id="release121">Version 121 (2026-02-07)</a>:
 <ul>
 <li>Area assignment settings are updated and expanded:
     <ul>
@@ -56,13 +56,32 @@ document.getElementById("navigation-releases").classList.add("active");
 <li>Graphical fix: Samus' suit color is updated immediately after collecting a suit.
 <li>Quick reload and spin lock now require the exact inputs to be pressed (no extra inputs).
 <li>On bootup, the game runs a check in the background to verify the integrity of the ROM.
+<li>"Blue suit persists across save/load" is enabled in High quality-of-life.
 <li>Logic updates:
     <ul>
+    <li>X-mode leniency spike/thorn hits are refined.
     <li>New tech:
         <ul>
-        <li><a href="/logic/tech/240">canXModeMovement</a> (Extreme).
+        <li><a href="/logic/tech/215">canCarryBlueSuit</a> (Expert+).
+        <li><a href="/logic/tech/216">canRModeSparkInterrupt</a> (Expert+).
+        <li><a href="/logic/tech/217">canCrystalSpark</a> (Expert+).
+        <li><a href="/logic/tech/227">canUnderwaterCrystalSpark</a> (Extreme).
+        <li><a href="/logic/tech/218">canBlueSuitGModeSetup</a> (Extreme).
+        <li><a href="/logic/tech/223">canXModeBlueSuit</a> (Extreme).
+        <li><a href="/logic/tech/243">canXModeMovement</a> (Extreme).
+        <li><a href="/logic/tech/230">canReserveTriggerBufferXRay</a> (Extreme).
+        <li><a href="/logic/tech/222">canRModePauseAbuseSparkInterrupt</a> (Extreme+).
+        <li><a href="/logic/tech/224">canDoubleXModeBlueSuit</a> (Extreme+).
+        <li><a href="/logic/tech/160">canSuperJump</a> (Insane).
+        <li><a href="/logic/tech/225">canSlopeXMode</a> (Insane).
+        <li><a href="/logic/tech/220">canRightSideDashlessDoorStuck</a> (Insane+).
+        </ul>
+    <li>Notables moved to a different difficulty level:
+        <ul>
+        <li><a href="/logic/notable/59/1">Break Raised Bomb Blocks with Blue Speed</a> is moved from Expert to Expert+.</li>
         </ul>
     </ul>
+</ul>
 
 <p><a id="release120">Version 120 (2025-12-24)</a>:
 <ul>

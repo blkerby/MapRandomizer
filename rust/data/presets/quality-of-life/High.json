@@ -40,5 +40,5 @@
     "buffed_drops": true,
     "early_save": true,
     "persist_flash_suit": true,
-    "persist_blue_suit": false
+    "persist_blue_suit": true
 }

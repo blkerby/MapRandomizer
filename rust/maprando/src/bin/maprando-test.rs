@@ -47,6 +47,9 @@ struct Args {
 
     #[arg(long)]
     qol_preset: Option<String>,
+
+    #[arg(long)]
+    rebuild_traversals: Option<bool>,
 }
 
 // Reduced version of web::AppData for test tool
@@ -64,6 +67,7 @@ struct TestAppData {
     etank_colors: Vec<(u8, u8, u8)>,
     samus_sprite_categories: Vec<SamusSpriteCategory>,
     samus_sprites: Vec<String>,
+    rebuild_traversals: bool,
 }
 
 fn get_randomization(
@@ -174,7 +178,7 @@ fn get_randomization(
             info!(
                 "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_seed}, item placement seed={item_seed}"
             );
-            match randomizer.randomize(attempt_num, item_seed, 1) {
+            match randomizer.randomize(attempt_num, item_seed, 1, app.rebuild_traversals) {
                 Ok((randomization, spoiler_log)) => {
                     return Ok((settings, randomization, spoiler_log, output_file_prefix));
                 }
@@ -449,6 +453,7 @@ fn build_app_data(args: &Args) -> Result<TestAppData> {
         etank_colors,
         samus_sprite_categories,
         samus_sprites,
+        rebuild_traversals: args.rebuild_traversals.unwrap_or(true),
     };
     Ok(app)
 }

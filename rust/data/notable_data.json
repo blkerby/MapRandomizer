@@ -708,7 +708,7 @@
     "room_name": "Big Pink",
     "notable_id": 1,
     "name": "Break Raised Bomb Blocks with Blue Speed",
-    "difficulty": "Expert",
+    "difficulty": "Expert+",
     "video_id": 391
   },
   {
@@ -907,7 +907,7 @@
     "room_id": 61,
     "room_name": "Pink Brinstar Wave Gate Room",
     "notable_id": 5,
-    "name": "Screw and Kago to Ride the Elevator",
+    "name": "Kago to Ride the Elevator",
     "difficulty": "Very Hard",
     "video_id": 239
   },

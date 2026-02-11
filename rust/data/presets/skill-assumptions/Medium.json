@@ -11,10 +11,12 @@
     "bomb_into_cf_leniency": 5,
     "jump_into_cf_leniency": 9,
     "flash_suit_distance": 5,
+    "blue_suit_distance": 7,
     "spike_suit_leniency": 15,
     "spike_xmode_leniency": 2,
     "spike_speed_keep_leniency": 4,
     "elevator_cf_leniency": 8,
+    "crystal_spark_leniency": 14,
     "phantoon_proficiency": 0.3,
     "draygon_proficiency": 0.3,
     "ridley_proficiency": 0.15,
@@ -275,6 +277,11 @@
         {
             "id": 130,
             "name": "canHeroShot",
+            "enabled": false
+        },
+        {
+            "id": 10001,
+            "name": "canHyperGateShot",
             "enabled": false
         },
         {
@@ -723,6 +730,21 @@
             "enabled": false
         },
         {
+            "id": 215,
+            "name": "canCarryBlueSuit",
+            "enabled": false
+        },
+        {
+            "id": 216,
+            "name": "canRModeSparkInterrupt",
+            "enabled": false
+        },
+        {
+            "id": 217,
+            "name": "canCrystalSpark",
+            "enabled": false
+        },
+        {
             "id": 154,
             "name": "canXRayCancelShinecharge",
             "enabled": false
@@ -853,8 +875,23 @@
             "enabled": false
         },
         {
+            "id": 227,
+            "name": "canUnderwaterCrystalSpark",
+            "enabled": false
+        },
+        {
+            "id": 223,
+            "name": "canXModeBlueSuit",
+            "enabled": false
+        },
+        {
             "id": 143,
             "name": "canSpeedKeep",
+            "enabled": false
+        },
+        {
+            "id": 230,
+            "name": "canReserveTriggerBufferXRay",
             "enabled": false
         },
         {
@@ -905,6 +942,11 @@
         {
             "id": 166,
             "name": "canUpwardGModeSetup",
+            "enabled": false
+        },
+        {
+            "id": 218,
+            "name": "canBlueSuitGModeSetup",
             "enabled": false
         },
         {
@@ -973,6 +1015,16 @@
             "enabled": false
         },
         {
+            "id": 222,
+            "name": "canRModePauseAbuseSparkInterrupt",
+            "enabled": false
+        },
+        {
+            "id": 224,
+            "name": "canDoubleXModeBlueSuit",
+            "enabled": false
+        },
+        {
             "id": 149,
             "name": "canPauseRemorphTemporaryBlue",
             "enabled": false
@@ -1038,8 +1090,18 @@
             "enabled": false
         },
         {
+            "id": 160,
+            "name": "canSuperJump",
+            "enabled": false
+        },
+        {
             "id": 148,
             "name": "canLongChainTemporaryBlue",
+            "enabled": false
+        },
+        {
+            "id": 225,
+            "name": "canSlopeXMode",
             "enabled": false
         },
         {
@@ -1100,6 +1162,11 @@
         {
             "id": 213,
             "name": "canRModeKnockbackSpark",
+            "enabled": false
+        },
+        {
+            "id": 220,
+            "name": "canRightSideDashlessDoorStuck",
             "enabled": false
         },
         {
@@ -1445,7 +1512,7 @@
             "room_id": 61,
             "notable_id": 5,
             "room_name": "Pink Brinstar Wave Gate Room",
-            "notable_name": "Screw and Kago to Ride the Elevator",
+            "notable_name": "Kago to Ride the Elevator",
             "enabled": false
         },
         {
@@ -1940,13 +2007,6 @@
         },
         {
             "room_id": 59,
-            "notable_id": 1,
-            "room_name": "Big Pink",
-            "notable_name": "Break Raised Bomb Blocks with Blue Speed",
-            "enabled": false
-        },
-        {
-            "room_id": 59,
             "notable_id": 3,
             "room_name": "Big Pink",
             "notable_name": "Super Block Speedball",
@@ -2426,6 +2486,13 @@
             "notable_id": 4,
             "room_name": "Green Hill Zone",
             "notable_name": "Grapple Gate Glitch",
+            "enabled": false
+        },
+        {
+            "room_id": 59,
+            "notable_id": 1,
+            "room_name": "Big Pink",
+            "notable_name": "Break Raised Bomb Blocks with Blue Speed",
             "enabled": false
         },
         {

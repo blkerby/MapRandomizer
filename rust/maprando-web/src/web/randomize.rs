@@ -191,7 +191,7 @@ fn handle_randomize_request(
                 "Attempt {attempt_num}/{max_attempts}: Map seed={map_seed}, door randomization seed={door_randomization_seed}, item placement seed={item_placement_seed}"
             );
             let randomization_result =
-                randomizer.randomize(attempt_num, item_placement_seed, display_seed);
+                randomizer.randomize(attempt_num, item_placement_seed, display_seed, true);
             let (randomization, spoiler_log) = match randomization_result {
                 Ok(x) => x,
                 Err(e) => {

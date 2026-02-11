@@ -217,6 +217,7 @@ let localStateKeyOrder = [
 	"farm_baseline_supers",
 	"farm_baseline_power_bombs",
 	"flash_suit",
+	"blue_suit",
 	"length",
 ];
 
@@ -310,7 +311,7 @@ function updateDebugData() {
 	}
 	let costMetric = parseInt(document.getElementById("debugCostMetric").value);
 	let historyIndex = parseInt(document.getElementById("debugHistoryIndex").value);
-	if (costMetric < 0 || costMetric > 2) {
+	if (costMetric < 0 || costMetric > 4) {
 		return;
 	}
 
@@ -1006,6 +1007,9 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 		if (k.flash_suit !== undefined) {
 			out += `Flash suit: ${k.flash_suit}<br>`;
 		}
+		if (k.blue_suit !== undefined) {
+			out += `Blue suit: ${k.blue_suit}<br>`;
+		}
 		return out;
 	}
 	
@@ -1261,7 +1265,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			if (x.flag != null)
 				f = x.flag;
 
-			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "f_AllItemsSpawn" || f == "f_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
+			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f.includes("f_KilledZebetites"))
 				continue;
 
 			let e = document.createElement("img");
@@ -1567,7 +1571,7 @@ fetch(`../spoiler.json`).then(c => c.json()).then(c => {
 			let rf = roomFlags[i];
 			let f = rf[0];
 			let obj = false;
-			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f == "f_AllItemsSpawn" || f == "f_AcidChozoWithoutSpaceJump" || f.includes("f_KilledZebetites"))
+			if (f == "f_TourianOpen" || f == "f_MotherBrainGlassBroken" || f.includes("f_KilledZebetites"))
 				continue;
 
 
