@@ -19,7 +19,6 @@
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
 
-; Fine. Hijack the ENTIRE THING.
 org $8291D0
     jsr hook_setup_speedbooster_menu_tile_wrapper
 
@@ -90,6 +89,16 @@ org $91F7C1
 ; When only Blue Booster is equipped, disable speed echoes when having dash speed:
 org $90EEE7
     jsr hook_update_speed_echoes
+
+; Secondary effects of not having speed items:
+
+org $91E647
+    ; Require Blue Booster or Speed Booster to retain bluesuit when unpausing
+    bit #!blue_booster|!speed_booster
+
+org $84B7F2
+    ; Lavaquake starts if any Speed/Blue/Spark Booster is collected
+    dw #!any_booster
 
 org !bank_91_free_space_start
 
