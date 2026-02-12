@@ -36,17 +36,18 @@ hook_item_id:
 
 
 hook_tilemap:
-    cpx #$00ae      ; wall jump?
+    cpx #$00ae      ; wall-jump boots?
     bcc .orig
-    pha
+    cpx #$00ba      ; blue boster?
+    bcs .orig
     txa
     sec
     sbc #$00ae
     clc
     adc #(message_box_table+4-$869f)
     tax
-    pla
 .orig
+    clc
     lda $869f,x     ; replaced code
     rts
 
