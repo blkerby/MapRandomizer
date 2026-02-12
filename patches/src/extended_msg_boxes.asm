@@ -38,7 +38,7 @@ hook_item_id:
 hook_tilemap:
     cpx #$00ae      ; wall-jump boots?
     bcc .orig
-    cpx #$00ba      ; blue boster?
+    cpx #$00bb      ; higher than blue boster? (crash dialogs)
     bcs .orig
     txa
     sec
