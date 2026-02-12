@@ -135,7 +135,7 @@ blue_boost_orb:
     dw MISCFX                              ; Queue item sound (speedboosting Sound)
     db $03                           
     dw collect_bb, $0040                   ; Pick up equipment $0040 and display message box $20
-    db $1f
+    db $20
 .end
     dw $0001, $A2B5
     dw $86BC                               ; Delete
