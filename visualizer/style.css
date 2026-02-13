@@ -214,7 +214,7 @@ a {
 	background-image: url("items.png");
 	width: 16px;
 	height: 16px;
-	background-size: 384px;
+	background-size: 416px;
 	image-rendering: pixelated;
 	transition: transform 200ms ease;
 }
