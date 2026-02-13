@@ -203,7 +203,7 @@ restore_credits:
     plx
     rts
 
-warnpc !bank_8b_free_space_end
+assert pc() <= !bank_8b_free_space_end
 
 org !bank_df_free_space_start
 ;; Draw full time as HH:mm:ss.hh
@@ -569,7 +569,7 @@ numbers_top:
 numbers_bot:
     dw $2070, $2071, $2072, $2073, $2074, $2075, $2076, $2077, $2078, $2079, $207a, $207b, $207c, $207d, $207e, $207f
 
-warnpc !credits_script_address
+assert pc() <= !credits_script_address
 
 ;; New credits script in free space of bank $DF
 org !credits_script_address
@@ -783,25 +783,36 @@ script:
     dw !draw, !row*161
     dw !draw, !row*162
     dw !draw, !blank
-    dw !draw, !row*254  ; SUPER METROID DISASSEMBLY
+    dw !draw, !row*256  ; SUPER METROID DISASSEMBLY
     dw !draw, !blank
-    dw !draw, !row*255
-    dw !draw, !row*256
-    dw !draw, !blank
-    dw !draw, !row*257  ; SUPER METROID MOD MANUAL
-    dw !draw, !blank
+    dw !draw, !row*257
     dw !draw, !row*258
-    dw !draw, !row*259
     dw !draw, !blank
-    dw !draw, !row*233  ; SPRITESOMETHING
+    dw !draw, !row*259  ; SUPER METROID MOD MANUAL
     dw !draw, !blank
-    dw !draw, !row*237
+    dw !draw, !row*260
+    dw !draw, !row*261
+    dw !draw, !blank
+    dw !draw, !row*235  ; SPRITESOMETHING
+    dw !draw, !blank
+    dw !draw, !row*239
+    dw !draw, !row*240
+    dw !draw, !blank
+    dw !draw, !row*236  ; (Sprite name)
+    dw !draw, !blank
+    dw !draw, !row*237  ; (Sprite author)
     dw !draw, !row*238
     dw !draw, !blank
-    dw !draw, !row*234  ; (Sprite name)
     dw !draw, !blank
-    dw !draw, !row*235  ; (Sprite author)
-    dw !draw, !row*236
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    dw !draw, !blank
+    
+    dw !draw, !row*232  ; PLAY THIS RANDOMIZER AT
+    dw !draw, !blank
+    dw !draw, !row*233
+    dw !draw, !row*234
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -809,79 +820,68 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     
-    dw !draw, !row*230  ; PLAY THIS RANDOMIZER AT
+    dw !draw, !row*225  ; RANDOMIZER SETTINGS
     dw !draw, !blank
-    dw !draw, !row*231
-    dw !draw, !row*232
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
-    
-    dw !draw, !row*223  ; RANDOMIZER SETTINGS
-    dw !draw, !blank
-    dw !draw, !row*224  ; SKILL ASSUMPTIONS
-    dw !draw, !row*225
-    dw !draw, !blank
-    dw !draw, !row*226  ; ITEM PROGRESSION
+    dw !draw, !row*226  ; SKILL ASSUMPTIONS
     dw !draw, !row*227
     dw !draw, !blank
-    dw !draw, !row*228  ; QUALITY OF LIFE
+    dw !draw, !row*228  ; ITEM PROGRESSION
     dw !draw, !row*229
+    dw !draw, !blank
+    dw !draw, !row*230  ; QUALITY OF LIFE
+    dw !draw, !row*231
     dw !draw, !blank
     dw !draw, !blank
 
-    dw !draw, !row*208  ; GAMEPLAY STATISTICS
+    dw !draw, !row*210  ; GAMEPLAY STATISTICS
     dw !draw, !blank
-    dw !draw, !row*209  ; SAVES
-    dw !draw, !row*210
+    dw !draw, !row*211  ; SAVES
+    dw !draw, !row*212
     dw !draw, !blank
     ;; Set scroll speed to 3 frames per pixel
     dw !speed, $0003
-    dw !draw, !row*211  ; DEATHS
-    dw !draw, !row*212
-    dw !draw, !blank
-    dw !draw, !row*213  ; RELOADS
+    dw !draw, !row*213  ; DEATHS
     dw !draw, !row*214
     dw !draw, !blank
-    dw !draw, !row*215  ; LOADBACKS
+    dw !draw, !row*215  ; RELOADS
     dw !draw, !row*216
     dw !draw, !blank
-    dw !draw, !row*217  ; RESETS
+    dw !draw, !row*217  ; LOADBACKS
     dw !draw, !row*218
+    dw !draw, !blank
+    dw !draw, !row*219  ; RESETS
+    dw !draw, !row*220
     dw !draw, !blank
     dw !draw, !blank
 
-    dw !draw, !row*239   ; TIME SPENT IN
+    dw !draw, !row*241   ; TIME SPENT IN
     dw !draw, !blank
-    dw !draw, !row*240   ; CRATERIA
-    dw !draw, !row*241
+    dw !draw, !row*242   ; CRATERIA
+    dw !draw, !row*243
     dw !draw, !blank
     ;; Set scroll speed to 4 frames per pixel
     dw !speed, $0004
-    dw !draw, !row*242   ; BRINSTAR
-    dw !draw, !row*243
-    dw !draw, !blank
-    dw !draw, !row*244   ; NORFAIR
+    dw !draw, !row*244   ; BRINSTAR
     dw !draw, !row*245
     dw !draw, !blank
-    dw !draw, !row*246   ; WRECKED SHIP
+    dw !draw, !row*246   ; NORFAIR
     dw !draw, !row*247
     dw !draw, !blank
-    dw !draw, !row*248   ; MARIDIA
+    dw !draw, !row*248   ; WRECKED SHIP
     dw !draw, !row*249
     dw !draw, !blank
-    dw !draw, !row*250   ; TOURIAN
+    dw !draw, !row*250   ; MARIDIA
     dw !draw, !row*251
     dw !draw, !blank
-    dw !draw, !row*252   ; PAUSE MENU
+    dw !draw, !row*252   ; TOURIAN
     dw !draw, !row*253
     dw !draw, !blank
+    dw !draw, !row*254   ; PAUSE MENU
+    dw !draw, !row*255
     dw !draw, !blank
-    dw !draw, !row*219   ; FINAL TIME
-    dw !draw, !row*220
+    dw !draw, !blank
+    dw !draw, !row*221   ; FINAL TIME
+    dw !draw, !row*222
     dw !draw, !blank
     dw !draw, !blank
 
@@ -955,16 +955,16 @@ script:
     dw !draw, !row*206
     dw !draw, !row*207
     dw !draw, !blank
-    dw !draw, !blank     ; Reserved for split speedbooster item
-    dw !draw, !blank     ; Reserved for split speedbooster item
+    dw !draw, !row*208
+    dw !draw, !row*209
     dw !draw, !blank
     dw !draw, !blank     ; Reserved for future item
     dw !draw, !blank     ; Reserved for future item
 
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !row*221   ; THANKS FOR PLAYING
-    dw !draw, !row*222
+    dw !draw, !row*223   ; THANKS FOR PLAYING
+    dw !draw, !row*224
 
     ;; Blank lines to scroll all text off
     dw !set, $001F
@@ -978,7 +978,7 @@ script:
 
     dw !end
 
-warnpc !stats_table_address
+assert pc() <= !stats_table_address
 
 org !stats_table_address
 stats:
@@ -1006,22 +1006,23 @@ stats:
     dw !stat_item_collection_times, $007E,  !row*202, 3
     dw !stat_item_collection_times, $007E,  !row*204, 3
     dw !stat_item_collection_times, $007E,  !row*206, 3
-    dw !stat_saves,     $0070, !row*209,  1    ;; Saves
-    dw !stat_deaths,    $0070, !row*211,  1    ;; Deaths
-    dw !stat_reloads,   $0070, !row*213,  1    ;; Reloads
-    dw !stat_loadbacks, $0070, !row*215,  1    ;; Loadbacks
-    dw !stat_resets,    $0070, !row*217,  1    ;; Resets
-    dw !stat_area0_time,     $0070, !row*240,  2    ;; Crateria time
-    dw !stat_area1_time,     $0070, !row*242,  2    ;; Brinstar time
-    dw !stat_area2_time,     $0070, !row*244,  2    ;; Norfair time
-    dw !stat_area3_time,     $0070, !row*246,  2    ;; Wrecked Ship time
-    dw !stat_area4_time,     $0070, !row*248,  2    ;; Maridia time
-    dw !stat_area5_time,     $0070, !row*250,  2    ;; Tourian time
-    dw !stat_pause_time,     $0070, !row*252,  2    ;; Pause time
-    dw !stat_final_time,     $0070, !row*219,  2    ;; Final time
+    dw !stat_item_collection_times, $007E,  !row*208, 3
+    dw !stat_saves,     $0070, !row*211,  1    ;; Saves
+    dw !stat_deaths,    $0070, !row*213,  1    ;; Deaths
+    dw !stat_reloads,   $0070, !row*215,  1    ;; Reloads
+    dw !stat_loadbacks, $0070, !row*217,  1    ;; Loadbacks
+    dw !stat_resets,    $0070, !row*219,  1    ;; Resets
+    dw !stat_area0_time,     $0070, !row*242,  2    ;; Crateria time
+    dw !stat_area1_time,     $0070, !row*244,  2    ;; Brinstar time
+    dw !stat_area2_time,     $0070, !row*246,  2    ;; Norfair time
+    dw !stat_area3_time,     $0070, !row*248,  2    ;; Wrecked Ship time
+    dw !stat_area4_time,     $0070, !row*250,  2    ;; Maridia time
+    dw !stat_area5_time,     $0070, !row*252,  2    ;; Tourian time
+    dw !stat_pause_time,     $0070, !row*254,  2    ;; Pause time
+    dw !stat_final_time,     $0070, !row*221,  2    ;; Final time
     dw 0,              0,  0, 0    ;; (End of table)
 
-warnpc !bank_df_free_space_end
+assert pc() <= !bank_df_free_space_end
 
 ;; Relocated credits tilemap to free space in bank CE
 org !bank_ce_free_space_start
@@ -1054,13 +1055,13 @@ credits:
     dw "    maddo           rushlight   " ;; 144
     dw "    MATRETHEWEY     AQUANIGHT   " ;; 145
     dw "    matrethewey     aquanight   " ;; 146
-    dw "    NN              DIPROGAN    " ;; 147
-    dw "    nn              diprogan    " ;; 148
+    dw "    NN357           DIPROGAN    " ;; 147
+    dw "    nn#]/           diprogan    " ;; 148
     !cyan
     dw "       SPECIAL THANKS TO        " ;; 149
     !big
     dw "   CHICDEAD26         TUNDAIN   " ;; 150
-    dw "   chicdead@&         tundain   " ;; 151
+    dw "   chicdead@\         tundain   " ;; 151
     dw "   SAMLITTLEHORNS      KEWLAN   " ;; 152
     dw "   samlittlehorns      kewlan   " ;; 153
     dw "   BUGGMANN         SOMERANDO   " ;; 154
@@ -1121,77 +1122,79 @@ credits:
     dw "                                " ;; 205
     dw "                                " ;; 206
     dw "                                " ;; 207
+    dw "                                " ;; 208
+    dw "                                " ;; 209
     !blue
-    dw "      GAMEPLAY STATISTICS       " ;; 208
+    dw "      GAMEPLAY STATISTICS       " ;; 210
     !big
-    dw " SAVES                        0 " ;; 209
-    dw " saves                        } " ;; 210
-    dw " DEATHS                       0 " ;; 211
-    dw " deaths                       } " ;; 212
-    dw " RELOADS                      0 " ;; 213
-    dw " reloads                      } " ;; 214
-    dw " LOADBACKS                    0 " ;; 215
-    dw " loadbacks                    } " ;; 216
-    dw " RESETS                       0 " ;; 217
-    dw " resets                       } " ;; 218
-    dw " FINAL TIME         00.00.00 00 " ;; 219
-    dw " final time         }}.}}.}}.}} " ;; 220
-    dw "       THANKS FOR PLAYING       " ;; 221
-    dw "       thanks for playing       " ;; 222
+    dw " SAVES                        0 " ;; 211
+    dw " saves                        } " ;; 212
+    dw " DEATHS                       0 " ;; 213
+    dw " deaths                       } " ;; 214
+    dw " RELOADS                      0 " ;; 215
+    dw " reloads                      } " ;; 216
+    dw " LOADBACKS                    0 " ;; 217
+    dw " loadbacks                    } " ;; 218
+    dw " RESETS                       0 " ;; 219
+    dw " resets                       } " ;; 220
+    dw " FINAL TIME         00.00.00 00 " ;; 221
+    dw " final time         }}.}}.}}.}} " ;; 222
+    dw "       THANKS FOR PLAYING       " ;; 223
+    dw "       thanks for playing       " ;; 224
     !blue
-    dw "      RANDOMIZER SETTINGS       " ;; 223
+    dw "      RANDOMIZER SETTINGS       " ;; 225
     !big
-    dw " SKILL ASSUMPTIONS              " ;; 224
-    dw " skill assumptions              " ;; 225
-    dw " ITEM PROGRESSION               " ;; 226
-    dw " item progression               " ;; 227
-    dw " QUALITY OF LIFE                " ;; 228
-    dw " quality of life                " ;; 229
+    dw " SKILL ASSUMPTIONS              " ;; 226
+    dw " skill assumptions              " ;; 227
+    dw " ITEM PROGRESSION               " ;; 228
+    dw " item progression               " ;; 229
+    dw " QUALITY OF LIFE                " ;; 230
+    dw " quality of life                " ;; 231
     !green
-    dw "    PLAY THIS RANDOMIZER AT     " ;; 230
+    dw "    PLAY THIS RANDOMIZER AT     " ;; 232
     !big
-    dw "          MAPRANDO COM          " ;; 231
-    dw "          maprando.com          " ;; 232
+    dw "          MAPRANDO COM          " ;; 233
+    dw "          maprando.com          " ;; 234
     !purple
-    dw "        SPRITESOMETHING         " ;; 233
+    dw "        SPRITESOMETHING         " ;; 235
     !yellow
-    dw "                                " ;; 234 - sprite name (to be filled in by randomizer if custom sprite used)
+    dw "                                " ;; 236 - sprite name (to be filled in by randomizer if custom sprite used)
     !big
-    dw "                                " ;; 235 - sprite author (to be filled in by randomizer if custom sprite used)
-    dw "                                " ;; 236 - sprite author (to be filled in by randomizer if custom sprite used)
+    dw "                                " ;; 237 - sprite author (to be filled in by randomizer if custom sprite used)
+    dw "                                " ;; 238 - sprite author (to be filled in by randomizer if custom sprite used)
     !big
-    dw "     ARTHEAU    MATRETHEWEY     " ;; 237
-    dw "     artheau    matrethewey     " ;; 238
+    dw "     ARTHEAU    MATRETHEWEY     " ;; 239
+    dw "     artheau    matrethewey     " ;; 240
     !blue
-    dw "         TIME SPENT IN          " ;; 239
+    dw "         TIME SPENT IN          " ;; 241
     !big
-    dw " CRATERIA           00.00.00 00 " ;; 240
-    dw " crateria           }}.}}.}}.}} " ;; 241
-    dw " BRINSTAR           00.00.00 00 " ;; 242
-    dw " brinstar           }}.}}.}}.}} " ;; 243
-    dw " NORFAIR            00.00.00 00 " ;; 244
-    dw " norfair            }}.}}.}}.}} " ;; 245
-    dw " WRECKED SHIP       00.00.00 00 " ;; 246
-    dw " wrecked ship       }}.}}.}}.}} " ;; 247
-    dw " MARIDIA            00.00.00 00 " ;; 248
-    dw " maridia            }}.}}.}}.}} " ;; 249
-    dw " TOURIAN            00.00.00 00 " ;; 250
-    dw " tourian            }}.}}.}}.}} " ;; 251
-    dw " PAUSE MENU         00.00.00 00 " ;; 252
-    dw " pause menu         }}.}}.}}.}} " ;; 253
+    dw " CRATERIA           00.00.00 00 " ;; 242
+    dw " crateria           }}.}}.}}.}} " ;; 243
+    dw " BRINSTAR           00.00.00 00 " ;; 244
+    dw " brinstar           }}.}}.}}.}} " ;; 245
+    dw " NORFAIR            00.00.00 00 " ;; 246
+    dw " norfair            }}.}}.}}.}} " ;; 247
+    dw " WRECKED SHIP       00.00.00 00 " ;; 248
+    dw " wrecked ship       }}.}}.}}.}} " ;; 249
+    dw " MARIDIA            00.00.00 00 " ;; 250
+    dw " maridia            }}.}}.}}.}} " ;; 251
+    dw " TOURIAN            00.00.00 00 " ;; 252
+    dw " tourian            }}.}}.}}.}} " ;; 253
+    dw " PAUSE MENU         00.00.00 00 " ;; 254
+    dw " pause menu         }}.}}.}}.}} " ;; 255
     !purple
-    dw "   SUPER METROID DISASSEMBLY    " ;; 254
+    dw "   SUPER METROID DISASSEMBLY    " ;; 256
     !big
-    dw "      PJBOY      KEJARDON       " ;; 255
-    dw "      pjboy      kejardon       " ;; 256
+    dw "      PJBOY      KEJARDON       " ;; 257
+    dw "      pjboy      kejardon       " ;; 258
     !purple
-    dw "    SUPER METROID MOD MANUAL    " ;; 257
+    dw "    SUPER METROID MOD MANUAL    " ;; 259
     !big
-    dw "            BEGRIMED            " ;; 258
-    dw "            begrimed            " ;; 259
+    dw "            BEGRIMED            " ;; 260
+    dw "            begrimed            " ;; 261
 
     dw $0000
-warnpc !bank_ce_free_space_end
+assert pc() <= !bank_ce_free_space_end
 
 org !bank_ce_free_space2_start
 ; add '+' to big tileset; use is upper +, lower =
@@ -1203,4 +1206,4 @@ tile_plus_bot:
 db $7E,$81,$18,$E7,$18,$24,$00,$3C,$00,$00,$00,$00,$00,$00,$00,$00
 db $00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00,$00
 
-warnpc !bank_ce_free_space2_end
+assert pc() <= !bank_ce_free_space2_end

@@ -1967,9 +1967,9 @@ impl Patcher<'_> {
 
     fn apply_credits(&mut self) -> Result<()> {
         // Write randomizer settings to credits tilemap
-        self.write_preset(224, self.settings.skill_assumption_settings.preset.clone())?;
-        self.write_preset(226, self.settings.item_progression_settings.preset.clone())?;
-        self.write_preset(228, self.settings.quality_of_life_settings.preset.clone())?;
+        self.write_preset(226, self.settings.skill_assumption_settings.preset.clone())?;
+        self.write_preset(228, self.settings.item_progression_settings.preset.clone())?;
+        self.write_preset(230, self.settings.quality_of_life_settings.preset.clone())?;
 
         // Write item locations in credits tilemap
         let item_name_pairs: Vec<(String, String)> = [

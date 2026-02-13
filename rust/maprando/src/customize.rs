@@ -240,7 +240,7 @@ fn apply_custom_samus_sprite(
                     }
                     chars.extend(" SPRITE".chars());
                     let mut addr =
-                        snes2pc(0xceb240 + (234 - 128) * 0x40) + 0x20 - chars.len().div_ceil(2) * 2;
+                        snes2pc(0xceb240 + (236 - 128) * 0x40) + 0x20 - chars.len().div_ceil(2) * 2;
                     for c in chars {
                         let color_palette = 0x0400;
                         if c.is_ascii_uppercase() {
@@ -259,7 +259,7 @@ fn apply_custom_samus_sprite(
                         }
                     }
                     let mut addr =
-                        snes2pc(0xceb240 + (235 - 128) * 0x40) + 0x20 - chars.len().div_ceil(2) * 2;
+                        snes2pc(0xceb240 + (237 - 128) * 0x40) + 0x20 - chars.len().div_ceil(2) * 2;
                     for c in chars {
                         write_credits_big_char(rom, c, addr)?;
                         addr += 2;
