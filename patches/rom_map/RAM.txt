@@ -1,4 +1,5 @@
 $9B: decompression.asm
+$95: temprary variable (unused debug location) - used by extended messageboxes, safe to use outside message boxes.
 $09EC: number of disabled ETanks (saved to SRAM)
 $0A1A: previous reserve health (reserve_hud.asm)
 $1F5B: map area (like $079F)
