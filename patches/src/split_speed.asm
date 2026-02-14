@@ -100,8 +100,24 @@ org $84B7F2
     ; Lavaquake starts if any Speed/Blue/Spark Booster is collected
     dw #!any_booster
 
+org $91DB0B
+    jsr hook_reset_special_palette ; Palette reset from shinecharge special palette
+org $91DB6D
+    jsr hook_reset_special_palette ; Palette reset from shinespark
+org $91DBF2
+    jsr hook_reset_special_palette ; Palette reset from Crystal Flash shutdown
+org $91DD23
+    jsr hook_reset_special_palette ; Palette reset from X-Ray setup
+
 org !bank_91_free_space_start
 
+hook_reset_special_palette:
+    ;Hijacked instruction: Special Samus palette type = 0 (screw attack / speedbooster)
+    stz $0ACC
+    ; Clear the fake shinecharge state
+    lda #$0000
+    sta !fake_shinecharge
+    rts
 
 hook_speed_boosting:
     ; If case of any item combination other than exactly Spark Booster, behave like vanilla:
@@ -163,6 +179,7 @@ fake_shinecharge_palette_table:
     dw $9FA0, $9F20, $9F40, $9F60, $9F40, $9F20
 
 hook_normal_jump_spark:
+
     lda !fake_shinecharge
     beq .skip
 
