@@ -180,7 +180,7 @@
         },
         {
             "item": "SparkBooster",
-            "priority": "Early"
+            "priority": "Default"
         },
         {
             "item": "BlueBooster",
