@@ -10,7 +10,8 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, DoorLocksSize, ETankRefill, FillerItemPriority, RandomizerSettings, SpeedBooster, WallJump, get_objective_groups
+        AreaAssignmentBaseOrder, AreaAssignmentPreset, DoorLocksSize, ETankRefill,
+        FillerItemPriority, RandomizerSettings, SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -174,7 +175,7 @@ impl SeedHeaderTemplate<'_> {
         if other_settings.disable_bluesuit {
             game_variations.push("Bluesuit disabled");
         }
-        if other_settings.enable_major_glitches{
+        if other_settings.enable_major_glitches {
             game_variations.push("Major glitches enabled");
         }
         game_variations
