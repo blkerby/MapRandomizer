@@ -2685,7 +2685,8 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    fn write_longbooster_item_graphics(&mut self) -> Result<()> {
+    #[allow(dead_code)]
+    fn write_spark_booster_item_graphics(&mut self) -> Result<()> {
         let w = 0xc;
         let frame_1: [[u8; 16]; 16] = [
             [0, 0, 7, 6, 5, 4, 4, w, 4, 4, 5, 6, 7, 0, 0, 0],
@@ -2742,6 +2743,7 @@ impl Patcher<'_> {
         Ok(())
     }
 
+    #[allow(dead_code)]
     fn write_bluebooster_item_graphics(&mut self) -> Result<()> {
         let w = 0xc;
         let frame_1: [[u8; 16]; 16] = [
