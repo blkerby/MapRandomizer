@@ -1,6 +1,7 @@
 v121 or soon-ish?:
 - DONE: new escape timings
-- Fix door lock skips showing in the wrong difficulty on logic pages.
+- DONE: Fix door lock skips showing in the wrong difficulty on logic pages.
+  - DONE: Also G-mode regain mobility
 - Fix MSU handling of statues hallway music?
 - Update music in unthemed single-door rooms (in case neighboring room has Statues Hallway music)
 - See if it is possible to play Statues Hallway music even when music is otherwise disabled.

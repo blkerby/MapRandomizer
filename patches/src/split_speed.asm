@@ -19,7 +19,6 @@
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
 
-; Fine. Hijack the ENTIRE THING.
 org $8291D0
     jsr hook_setup_speedbooster_menu_tile_wrapper
 
@@ -45,7 +44,7 @@ hook_equip_enable:
     and $0002,y ; AND with collected items
     rts
 
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 ; Accelerate Samus' animation with any booster item:
 org $908502
@@ -91,8 +90,34 @@ org $91F7C1
 org $90EEE7
     jsr hook_update_speed_echoes
 
+; Secondary effects of not having speed items:
+
+org $91E647
+    ; Require Blue Booster or Speed Booster to retain bluesuit when unpausing
+    bit #!blue_booster|!speed_booster
+
+org $84B7F2
+    ; Lavaquake starts if any Speed/Blue/Spark Booster is collected
+    and #!any_booster
+
+org $91DB0B
+    jsr hook_reset_special_palette ; Palette reset from shinecharge special palette
+org $91DB6D
+    jsr hook_reset_special_palette ; Palette reset from shinespark
+org $91DBF2
+    jsr hook_reset_special_palette ; Palette reset from Crystal Flash shutdown
+org $91DD23
+    jsr hook_reset_special_palette ; Palette reset from X-Ray setup
+
 org !bank_91_free_space_start
 
+hook_reset_special_palette:
+    ;Hijacked instruction: Special Samus palette type = 0 (screw attack / speedbooster)
+    stz $0ACC
+    ; Clear the fake shinecharge state
+    lda #$0000
+    sta !fake_shinecharge
+    rts
 
 hook_speed_boosting:
     ; If case of any item combination other than exactly Spark Booster, behave like vanilla:
@@ -154,6 +179,7 @@ fake_shinecharge_palette_table:
     dw $9FA0, $9F20, $9F40, $9F60, $9F40, $9F20
 
 hook_normal_jump_spark:
+
     lda !fake_shinecharge
     beq .skip
 
@@ -273,7 +299,7 @@ hook_setup_speedbooster_menu_tile:
 .no
     plp
     rtl
-warnpc !bank_90_free_space_end
+
 assert pc() <= !bank_90_free_space_end
 
 org !bank_B6_free_space_start
@@ -316,4 +342,4 @@ menu_tiles_spark_booster:
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
 .end
 
-warnpc !bank_B6_free_space_end
+assert pc() <= !bank_B6_free_space_end

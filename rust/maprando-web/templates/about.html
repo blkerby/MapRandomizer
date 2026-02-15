@@ -53,7 +53,7 @@
     It is also possible to play Map Rando without the map randomization, by selecting "Vanilla map" 
     on the <a href="/generate">Generate</a> page.</p>
 
-    <p>To help players learn the tricks which are possible in this game, a library of over 1000 strat demonstration videos is available. These are integrated into the <a href="/logic">Logic</a> pages on each release, or they can be viewed immediately as they are being developed on <a href="https://videos.maprando.com">videos.maprando.com</a>. Others are welcome to join in the effort of creating videos, as this project is still far from complete: anyone interested can reach out in the #development channel of the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>.
+    <p>To help players learn the tricks which are possible in this game, a library of over 7500 strat demonstration videos is available. These are integrated into the <a href="/logic">Logic</a> pages on each release, or they can be viewed immediately as they are being developed on <a href="https://videos.maprando.com">videos.maprando.com</a>. Others are welcome to join in the effort of creating videos, as this project is still far from complete: anyone interested can reach out in the #development channel of the <a href="https://discord.gg/Gc99YV2ZcB">Discord</a>.
     </p>
 
     <hr>
@@ -311,7 +311,7 @@
     <li>The music for each room is based on its area & sub-area on the randomized map.
     <li>Angle up/down can be bound to any button.
     <li>Item fanfares are removed, replaced with short sound effects that do not interrupt gameplay.
-    <li>Most major glitches are patched out:
+    <li>Most major glitches are patched out (optional):
         <ul>
         <li>The pause menu is fixed to prevent equipping glitched beams.
         <li>GT code is disabled.
@@ -329,6 +329,7 @@
         </ul>
     <li>Fix to vanilla bug where heat damage could cause Samus to lose blue speed.
     <li>Heat does not damage Samus during the loading fanfare (applicable to the "Random" start location option).
+    <li>In Speed Booster Hall, the lava trigger is based on Speed Booster being equipped rather than collected.
     <li>Fixes to many graphical glitches, mainly ones that would happen because of modifying the doors and how they connect.<a href="#footnote-graphical-fixes"><sup>2</sup></a></p>
     </ul>
 
@@ -379,7 +380,7 @@
 
     <p>The logic used to determine reachability of item locations is based on the
     <a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a> project.
-    This is a massive repository of Super Metroid strats, currently consisting of over 200,000 lines of manually
+    This is a massive repository of Super Metroid strats, currently consisting of over 330,000 lines of manually
     crafted JSON. For each room, it defines a set of logically meaningful nodes (points or regions within the room)
     and defines tech, item, and resource requirements for strats traversing between nodes. In heated rooms,
     this includes heat damage requirements. It also includes information about runways in front of doors and other

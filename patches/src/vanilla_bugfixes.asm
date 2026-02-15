@@ -571,3 +571,8 @@ SkipEntry:
     JMP BRANCH_NEXT_DRAW_ENTRY
 
 assert pc() <= !bank_84_free_space_end
+
+;change lavatrap behaviour to work on equipped item (09A2) rather than collected item (09a4)
+
+org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]  
+    lda $09A2

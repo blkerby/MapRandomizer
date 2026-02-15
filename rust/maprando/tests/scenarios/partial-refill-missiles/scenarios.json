@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Partial Refill Missiles",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 50}
+      }
+    },
+    {
+      "name": "Ineffective Refill (No Missiles)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Ineffective Refill (Already Above Limit)",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 60}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 60}
+      }
+    },
+    {
+      "name": "Refill to Full Missiles",
+      "globalState": {
+        "maxMissiles": 40
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 40}
+      }
+    },
+    {
+      "name": "Refill to Max Missiles",
+      "globalState": {
+        "poolMaxMissiles": 40,
+        "maxMissiles": 40
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"consumed": 0}
+      }
+    }
+  ]
+}

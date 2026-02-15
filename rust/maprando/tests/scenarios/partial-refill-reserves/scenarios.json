@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Partial Refill Reserves",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"remaining": 50}
+      }
+    },
+    {
+      "name": "Ineffective Refill (No Reserves)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Ineffective Refill (Already Above Limit)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 60}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"remaining": 60}
+      }
+    },
+    {
+      "name": "Refill to Full Reserves",
+      "globalState": {
+        "maxReserves": 40
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"remaining": 40}
+      }
+    },
+    {
+      "name": "Refill to Max Reserves",
+      "globalState": {
+        "poolMaxReserves": 40,
+        "maxReserves": 40
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "reserves": {"consumed": 0}
+      }
+    }
+  ]
+}

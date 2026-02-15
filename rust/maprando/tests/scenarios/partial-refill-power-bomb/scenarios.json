@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Partial Refill Power Bombs",
+      "globalState": {
+        "maxPowerBombs": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"remaining": 20}
+      }
+    },
+    {
+      "name": "Ineffective Refill (No Power Bombs)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Ineffective Refill (Already Above Limit)",
+      "globalState": {
+        "maxPowerBombs": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"remaining": 30}
+      }
+    },
+    {
+      "name": "Refill to Full Power Bombs",
+      "globalState": {
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"remaining": 15}
+      }
+    },
+    {
+      "name": "Refill to Max Power Bombs",
+      "globalState": {
+        "poolMaxPowerBombs": 15,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "powerBombs": {"consumed": 0}
+      }
+    }
+  ]
+}

@@ -4,9 +4,9 @@ use maprando_game::{
     Requirement, RoomId, SparkPosition, TECH_ID_CAN_BOMB_HORIZONTALLY, TECH_ID_CAN_CARRY_BLUE_SUIT,
     TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_ENEMY_STUCK_MOONFALL, TECH_ID_CAN_ENTER_G_MODE,
     TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE, TECH_ID_CAN_EXTENDED_MOONDANCE,
-    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
-    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
-    TECH_ID_CAN_MOONDANCE, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
+    TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
+    TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONDANCE,
+    TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
     TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
@@ -141,17 +141,6 @@ fn get_cross_room_reqs(link: &Link, game_data: &GameData) -> Requirement {
             reqs.push(Requirement::Tech(
                 game_data.tech_isv.index_by_key[&TECH_ID_CAN_ENTER_G_MODE_IMMOBILE],
             ));
-            if game_data
-                .get_room_heated(
-                    &game_data.room_json_map[&from_vertex_key.room_id],
-                    from_vertex_key.node_id,
-                )
-                .unwrap()
-            {
-                reqs.push(Requirement::Tech(
-                    game_data.tech_isv.index_by_key[&TECH_ID_CAN_HEATED_G_MODE],
-                ));
-            }
         }
     }
 

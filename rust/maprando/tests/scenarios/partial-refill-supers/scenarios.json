@@ -1,0 +1,68 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Partial Refill Supers",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"remaining": 20}
+      }
+    },
+    {
+      "name": "Ineffective Refill (No Supers)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Ineffective Refill (Already Above Limit)",
+      "globalState": {
+        "maxSupers": 50
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"remaining": 30}
+      }
+    },
+    {
+      "name": "Refill to Full Supers",
+      "globalState": {
+        "maxSupers": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"remaining": 15}
+      }
+    },
+    {
+      "name": "Refill to Max Supers",
+      "globalState": {
+        "poolMaxSupers": 15,
+        "maxSupers": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"consumed": 0}
+      }
+    }
+  ]
+}

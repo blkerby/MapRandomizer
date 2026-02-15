@@ -6,6 +6,7 @@ use itertools::Itertools;
 use json::JsonValue;
 use log::warn;
 use maprando::{
+    difficulty::get_link_difficulty,
     preset::PresetData,
     randomize::{EssentialSpoilerData, Randomization},
     settings::{Objective, RandomizerSettings},
@@ -24,7 +25,7 @@ use maprando_game::{
     TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SKIP_DOOR_LOCK, TECH_ID_CAN_SPEEDBALL,
     TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
-    TECH_ID_CAN_WALLJUMP, TechId, VertexKey,
+    TECH_ID_CAN_WALLJUMP, TechId, VertexKey, parse_speed_booster,
 };
 use maprando_logic::{GlobalState, Inventory};
 use std::{io::Cursor, path::PathBuf};
@@ -283,7 +284,7 @@ fn make_tech_templates<'a>(
             for req in strat_json["requires"].members() {
                 extract_tech_rec(req, &mut tech_set, game_data);
             }
-            if strat_json["bypassesDoorShell"].as_bool() == Some(true) {
+            if strat_json["bypassesDoorShell"].as_str().unwrap_or("no") == "yes" {
                 tech_set.insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_SKIP_DOOR_LOCK]);
             }
             if strat_json.has_key("gModeRegainMobility") {
@@ -356,8 +357,9 @@ fn make_tech_templates<'a>(
             ];
             for entrance_name in speedbooster_entrance_conditions {
                 if strat_json["entranceCondition"].has_key(entrance_name)
-                    && strat_json["entranceCondition"][entrance_name]["speedBooster"].as_bool()
-                        == Some(false)
+                    && parse_speed_booster(
+                        strat_json["entranceCondition"][entrance_name]["speedBooster"].as_str(),
+                    ) == Some(false)
                 {
                     tech_set
                         .insert(game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT]);
@@ -795,7 +797,7 @@ fn make_room_template<'a>(
             area: full_area.clone(),
             strat_id,
             strat_name: strat_name.clone(),
-            bypasses_door_shell: strat_json["bypassesDoorShell"].as_bool() == Some(true),
+            bypasses_door_shell: strat_json["bypassesDoorShell"].as_str().unwrap_or("no") == "yes",
             from_node_id,
             from_node_name: node_name_map[&from_node_id].clone(),
             to_node_id,
@@ -1095,7 +1097,13 @@ impl LogicData {
         };
 
         let mut links_by_ids: HashMap<(RoomId, NodeId, NodeId, String), Vec<Link>> = HashMap::new();
-        for link in game_data.all_links() {
+        let mut all_links = game_data.all_links();
+        for (i, link) in all_links.iter_mut().enumerate() {
+            if i >= game_data.links.len() {
+                // Hack to set the correct difficulty for G-mode regain mobility strats.
+                // TODO: come up with a cleaner solution for this.
+                link.difficulty = get_link_difficulty(link, game_data, preset_data, &global);
+            }
             let VertexKey {
                 room_id: link_room_id,
                 node_id: link_from_node_id,

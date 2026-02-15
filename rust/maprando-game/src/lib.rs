@@ -1648,6 +1648,15 @@ pub fn get_effective_runway_length(used_tiles: f32, open_end: f32) -> f32 {
     used_tiles + open_end * 0.5
 }
 
+pub fn parse_speed_booster(s: Option<&str>) -> Option<bool> {
+    match s {
+        Some("yes") => Some(true),
+        Some("no") => Some(false),
+        Some("any") => None,
+        _ => panic!("Unexpected speedBooster value: {:?}", s),
+    }
+}
+
 #[derive(Default, Clone)]
 struct RequirementContext<'a> {
     room_id: RoomId,
@@ -3743,7 +3752,7 @@ impl GameData {
         let main = match key {
             "comeInNormally" => MainEntranceCondition::ComeInNormally {},
             "comeInRunning" => MainEntranceCondition::ComeInRunning {
-                speed_booster: value["speedBooster"].as_bool(),
+                speed_booster: parse_speed_booster(value["speedBooster"].as_str()),
                 min_tiles: Float::new(
                     value["minTiles"]
                         .as_f32()
@@ -3752,7 +3761,7 @@ impl GameData {
                 max_tiles: Float::new(value["maxTiles"].as_f32().unwrap_or(255.0)),
             },
             "comeInJumping" => MainEntranceCondition::ComeInJumping {
-                speed_booster: value["speedBooster"].as_bool(),
+                speed_booster: parse_speed_booster(value["speedBooster"].as_str()),
                 min_tiles: Float::new(
                     value["minTiles"]
                         .as_f32()
@@ -3761,7 +3770,7 @@ impl GameData {
                 max_tiles: Float::new(value["maxTiles"].as_f32().unwrap_or(255.0)),
             },
             "comeInSpaceJumping" => MainEntranceCondition::ComeInSpaceJumping {
-                speed_booster: value["speedBooster"].as_bool(),
+                speed_booster: parse_speed_booster(value["speedBooster"].as_str()),
                 min_tiles: Float::new(
                     value["minTiles"]
                         .as_f32()
@@ -3863,7 +3872,7 @@ impl GameData {
                 max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
             },
             "comeInWithMockball" => MainEntranceCondition::ComeInWithMockball {
-                speed_booster: value["speedBooster"].as_bool(),
+                speed_booster: parse_speed_booster(value["speedBooster"].as_str()),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
                 remote_and_landing_min_tiles: value["remoteAndLandingMinTiles"]
                     .members()
@@ -3876,7 +3885,7 @@ impl GameData {
                     .collect(),
             },
             "comeInWithSpringBallBounce" => MainEntranceCondition::ComeInWithSpringBallBounce {
-                speed_booster: value["speedBooster"].as_bool(),
+                speed_booster: parse_speed_booster(value["speedBooster"].as_str()),
                 adjacent_min_tiles: Float::new(value["adjacentMinTiles"].as_f32().unwrap_or(255.0)),
                 remote_and_landing_min_tiles: value["remoteAndLandingMinTiles"]
                     .members()
@@ -3968,7 +3977,7 @@ impl GameData {
                                 .as_f32()
                                 .context("Expecting number 'minHeight'")?,
                         ),
-                        speed_booster: p["speedBooster"].as_bool(),
+                        speed_booster: parse_speed_booster(p["speedBooster"].as_str()),
                         obstructions: p["obstructions"]
                             .members()
                             .map(|x| (x[0].as_u16().unwrap(), x[1].as_u16().unwrap()))
@@ -4095,7 +4104,7 @@ impl GameData {
         } else {
             (None, None)
         };
-        let bypasses_door_shell = strat_json["bypassesDoorShell"].as_bool().unwrap_or(false);
+        let bypasses_door_shell = strat_json["bypassesDoorShell"].as_str().unwrap_or("no") == "yes";
         let (exit_condition, exit_req) = if strat_json.has_key("exitCondition") {
             ensure!(strat_json["exitCondition"].is_object());
             let (e, r) = self.parse_exit_condition(
