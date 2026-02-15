@@ -135,7 +135,7 @@ fn compute_cost(
     let mut shinecharge_cost = -if local.flash_suit > 0 {
         // For the purposes of the cost metrics, treat flash suit as equivalent
         // to a large amount of shinecharge frames remaining:
-        180 + (local.flash_suit as CostValue)
+        181 + (local.flash_suit as CostValue)
     } else {
         local.shinecharge_frames_remaining as CostValue
     };
@@ -1918,9 +1918,15 @@ fn apply_requirement_simple(
                 } else {
                     cx.difficulty.speed_ball_tiles
                 };
-                (cx.global.inventory.items[Item::SpeedBooster as usize]
-                    && used_tiles >= tiles_limit)
-                    .into()
+                if used_tiles < tiles_limit {
+                    return SimpleResult::Failure;
+                }
+                if !cx.global.inventory.items[Item::SpeedBooster as usize]
+                    && !cx.global.inventory.items[Item::BlueBooster as usize]
+                {
+                    return SimpleResult::Failure;
+                }
+                SimpleResult::Success
             }
         }
         Requirement::GetBlueSpeed { used_tiles, heated } => {
@@ -1930,8 +1936,16 @@ fn apply_requirement_simple(
             } else {
                 cx.difficulty.shine_charge_tiles
             };
-            (cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit)
-                .into()
+            if used_tiles < tiles_limit {
+                return SimpleResult::Failure;
+            }
+            if !cx.global.inventory.items[Item::SpeedBooster as usize]
+                && !cx.global.inventory.items[Item::BlueBooster as usize]
+                && !cx.global.inventory.items[Item::SparkBooster as usize]
+            {
+                return SimpleResult::Failure;
+            }
+            SimpleResult::Success
         }
         Requirement::ShineCharge { used_tiles, heated } => {
             let used_tiles = used_tiles.get();
@@ -1940,15 +1954,42 @@ fn apply_requirement_simple(
             } else {
                 cx.difficulty.shine_charge_tiles
             };
-            if cx.global.inventory.items[Item::SpeedBooster as usize] && used_tiles >= tiles_limit {
+            if used_tiles < tiles_limit {
+                return SimpleResult::Failure;
+            }
+            if cx.global.inventory.items[Item::SpeedBooster as usize]
+                || cx.global.inventory.items[Item::SparkBooster as usize]
+            {
                 if cx.reverse {
                     local.shinecharge_frames_remaining = 0;
                     if local.flash_suit > 0 || local.blue_suit > 0 {
                         return SimpleResult::Failure;
                     }
                 } else {
+                    // We measure shinecharge frames starting from 181 (rather than 180) because the
+                    // the sm-json-data is written in a way where 180 shinecharge frames can be consumed
+                    // while being in logic, while 1 frame must still be remaining in order to activate a shinespark.
+                    // Essentially the shineChargeFrames can be understood as including the first frame of the shinespark.
+                    // This is a bit awkward; if this gets changed in the sm-json-data at some point, we could adapt here.
                     local.shinecharge_frames_remaining =
-                        180 - cx.difficulty.shinecharge_leniency_frames;
+                        181 - cx.difficulty.shinecharge_leniency_frames;
+                    local.flash_suit = 0;
+                    local.blue_suit = 0;
+                }
+                SimpleResult::Success
+            } else if cx.global.inventory.items[Item::BlueBooster as usize] {
+                // With Blue Booster, shinecharging is still possible for temporary blue,
+                // but it isn't possible to use it to shinespark. We represent this
+                // by treating it as a shinecharge with zero shinecharge frames remaining.
+                if cx.reverse {
+                    if local.flash_suit > 0
+                        || local.blue_suit > 0
+                        || local.shinecharge_frames_remaining > 0
+                    {
+                        return SimpleResult::Failure;
+                    }
+                } else {
+                    local.shinecharge_frames_remaining = 0;
                     local.flash_suit = 0;
                     local.blue_suit = 0;
                 }
@@ -1962,11 +2003,11 @@ fn apply_requirement_simple(
             if cx.reverse {
                 local.shinecharge_frames_remaining += frames;
                 (local.shinecharge_frames_remaining
-                    <= 180 - cx.difficulty.shinecharge_leniency_frames)
+                    <= 181 - cx.difficulty.shinecharge_leniency_frames)
                     .into()
             } else {
                 local.shinecharge_frames_remaining -= frames;
-                (local.shinecharge_frames_remaining >= 0).into()
+                (local.shinecharge_frames_remaining >= 1).into()
             }
         }
         &Requirement::Shinespark {
@@ -1984,6 +2025,8 @@ fn apply_requirement_simple(
                     local.energy_remaining(&cx.global.inventory, can_manage_reserves);
                 let min_frames = frames - excess_frames;
                 if cx.reverse {
+                    // Require at least 1 shinecharge frame remaining.
+                    local.shinecharge_frames_remaining = 1;
                     if regular_energy_remaining <= 29
                         && let ResourceLevel::Remaining(_) = local.energy()
                     {
@@ -2014,6 +2057,12 @@ fn apply_requirement_simple(
                             .into()
                     }
                 } else {
+                    if local.shinecharge_frames_remaining <= 0 {
+                        // Shinesparking requires at least 1 shinecharge frame remaining.
+                        // Note: we do not reset shinecharge frames here, since the logic may
+                        // have multiple `shinespark` requirements in a row.
+                        return SimpleResult::Failure;
+                    }
                     if frames == excess_frames && regular_energy_remaining <= 29 {
                         // If all frames are excess frames and energy is at 29 or lower, then the spark does not require any energy:
                         return SimpleResult::Success;
@@ -2092,9 +2141,11 @@ fn apply_requirement_simple(
                 SimpleResult::Failure
             } else {
                 local.flash_suit = 0;
-                // Set shinecharge frames remaining to 180, to allow `comeInShinecharged`
+                // Set shinecharge frames remaining to the max, to allow `comeInShinecharged`
                 // strats to be satisfied by a flash suit.
-                local.shinecharge_frames_remaining = 180;
+                // (And at least 1 shinecharge frame is required in order to satisfy a `shinespark` requirement.)
+                local.shinecharge_frames_remaining =
+                    181 - cx.difficulty.shinecharge_leniency_frames;
                 SimpleResult::Success
             }
         }
@@ -2148,9 +2199,10 @@ fn apply_requirement_simple(
                 SimpleResult::Failure
             } else {
                 local.blue_suit = 0;
-                // Set shinecharge frames remaining to 180, to allow `comeInShinecharged`
+                // Set shinecharge frames remaining to the max, to allow `comeInShinecharged`
                 // strats to be satisfied by a blue suit.
-                local.shinecharge_frames_remaining = 180;
+                local.shinecharge_frames_remaining =
+                    181 - cx.difficulty.shinecharge_leniency_frames;
                 SimpleResult::Success
             }
         }

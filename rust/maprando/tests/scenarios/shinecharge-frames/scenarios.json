@@ -14,7 +14,7 @@
       "endRoomId": 0,
       "endNodeId": 2,
       "endState": {
-        "shinechargeFramesRemaining": 0
+        "shinechargeFramesRemaining": 1
       }
     },
     {
@@ -29,6 +29,9 @@
       "startNodeId": 1,
       "endRoomId": 0,
       "endNodeId": 2,
+      "endState": {
+        "shinechargeFramesRemaining": 1
+      },
       "fail": true
     },
     {
@@ -36,7 +39,7 @@
       "startRoomId": 0,
       "startNodeId": 2,
       "startState": {
-        "shinechargeFramesRemaining": 40
+        "shinechargeFramesRemaining": 41
       },
       "endRoomId": 0,
       "endNodeId": 3
@@ -46,7 +49,7 @@
       "startRoomId": 0,
       "startNodeId": 2,
       "startState": {
-        "shinechargeFramesRemaining": 39
+        "shinechargeFramesRemaining": 40
       },
       "endRoomId": 0,
       "endNodeId": 3,

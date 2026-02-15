@@ -32,10 +32,10 @@
   "strats": [
     {
       "link": [1, 2],
-      "name": "Shinecharge",
+      "name": "Temporary Blue",
       "requires": [
         {"canShineCharge": {"usedTiles": 15, "openEnd": 1}},
-        {"shinespark": {"frames": 0}}
+        "canTemporaryBlue"
       ],
       "flashSuitChecked": true
     }

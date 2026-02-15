@@ -2,7 +2,7 @@
   "$schema": "../../schema/scenarios.schema.json",
   "scenarios": [
     {
-      "name": "Speedball",
+      "name": "Speedball (Speed Booster)",
       "settings": {
         "speedBallTiles": 15
       },
@@ -15,7 +15,34 @@
       "endNodeId": 2
     },
     {
-      "name": "Missing Speed Booster",
+      "name": "Speedball (Blue Booster)",
+      "settings": {
+        "speedBallTiles": 15
+      },
+      "globalState": {
+        "items": ["Morph", "BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Spark Booster",
+      "settings": {
+        "speedBallTiles": 15
+      },
+      "globalState": {
+        "items": ["Morph", "SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Booster",
       "settings": {
         "speedBallTiles": 15
       },
@@ -29,7 +56,7 @@
       "fail": true
     },
     {
-      "name": "Missing Morph",
+      "name": "Fail: No Morph",
       "settings": {
         "speedBallTiles": 15
       },
@@ -43,7 +70,7 @@
       "fail": true
     },
     {
-      "name": "Runway Too Short",
+      "name": "Fail: Runway Too Short",
       "settings": {
         "speedBallTiles": 16
       },

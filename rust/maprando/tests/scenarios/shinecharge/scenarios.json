@@ -2,7 +2,7 @@
   "$schema": "../../schema/scenarios.schema.json",
   "scenarios": [
     {
-      "name": "Shinecharge",
+      "name": "Shinecharge (Speed Booster)",
       "settings": {
         "shinechargeTiles": 15
       },
@@ -15,7 +15,34 @@
       "endNodeId": 2
     },
     {
-      "name": "Missing Speed Booster",
+      "name": "Shinecharge (Spark Booster)",
+      "settings": {
+        "shinechargeTiles": 15
+      },
+      "globalState": {
+        "items": ["SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail (Blue Booster)",
+      "settings": {
+        "shinechargeTiles": 15
+      },
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail (No Booster)",
       "settings": {
         "shinechargeTiles": 15
       },

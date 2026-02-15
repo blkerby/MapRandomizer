@@ -504,6 +504,38 @@ impl Requirement {
         }
     }
 
+    pub fn any_booster() -> Requirement {
+        Requirement::make_or(vec![
+            Requirement::Item(Item::BlueBooster as ItemId),
+            Requirement::Item(Item::SparkBooster as ItemId),
+            Requirement::Item(Item::SpeedBooster as ItemId),
+        ])
+    }
+
+    pub fn blue_booster() -> Requirement {
+        Requirement::make_or(vec![
+            Requirement::Item(Item::BlueBooster as ItemId),
+            Requirement::Item(Item::SpeedBooster as ItemId),
+        ])
+    }
+
+    pub fn spark_booster() -> Requirement {
+        Requirement::make_or(vec![
+            Requirement::Item(Item::SparkBooster as ItemId),
+            Requirement::Item(Item::SpeedBooster as ItemId),
+        ])
+    }
+
+    pub fn speed_booster() -> Requirement {
+        Requirement::make_or(vec![
+            Requirement::Item(Item::SpeedBooster as ItemId),
+            Requirement::make_and(vec![
+                Requirement::Item(Item::SparkBooster as ItemId),
+                Requirement::Item(Item::BlueBooster as ItemId),
+            ]),
+        ])
+    }
+
     pub fn print_pretty(&self, indent: usize, game_data: &GameData) {
         let spaces = " ".repeat(indent);
         print!("{spaces}");
@@ -1785,7 +1817,6 @@ impl GameData {
         for item_name in Item::VARIANTS {
             self.item_isv.add(&item_name.to_string());
         }
-        self.item_isv.add("WallJump");
         ensure!(item_json["gameFlags"].is_array());
         for flag_name in item_json["gameFlags"].members() {
             self.flag_isv.add(flag_name.as_str().unwrap());
@@ -4007,17 +4038,23 @@ impl GameData {
     }
 
     pub fn does_come_in_shinecharged(&self, entrance_condition: &EntranceCondition) -> bool {
+        // Note: ComeInWithSpark does not come in shinecharged, but still requires preserving `shinecharge_frames_remaining`
         matches!(
             entrance_condition.main,
             MainEntranceCondition::ComeInShinecharging { .. }
                 | MainEntranceCondition::ComeInShinecharged { .. }
                 | MainEntranceCondition::ComeInShinechargedJumping { .. }
                 | MainEntranceCondition::ComeInStutterShinecharging { .. }
+                | MainEntranceCondition::ComeInWithSpark { .. }
         )
     }
 
     pub fn does_leave_shinecharged(&self, exit_condition: &ExitCondition) -> bool {
-        matches!(exit_condition, ExitCondition::LeaveShinecharged { .. })
+        // Note: LeaveWithSpark does not leave shinecharged, but still requires preserving `shinecharge_frames_remaining`
+        matches!(
+            exit_condition,
+            ExitCondition::LeaveShinecharged { .. } | ExitCondition::LeaveWithSpark { .. }
+        )
     }
 
     fn process_strat(
