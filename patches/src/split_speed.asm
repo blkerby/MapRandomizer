@@ -44,7 +44,7 @@ hook_equip_enable:
     and $0002,y ; AND with collected items
     rts
 
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 ; Accelerate Samus' animation with any booster item:
 org $908502
@@ -98,7 +98,7 @@ org $91E647
 
 org $84B7F2
     ; Lavaquake starts if any Speed/Blue/Spark Booster is collected
-    dw #!any_booster
+    and #!any_booster
 
 org $91DB0B
     jsr hook_reset_special_palette ; Palette reset from shinecharge special palette
@@ -299,7 +299,7 @@ hook_setup_speedbooster_menu_tile:
 .no
     plp
     rtl
-warnpc !bank_90_free_space_end
+
 assert pc() <= !bank_90_free_space_end
 
 org !bank_B6_free_space_start
@@ -342,4 +342,4 @@ menu_tiles_spark_booster:
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
 .end
 
-warnpc !bank_B6_free_space_end
+assert pc() <= !bank_B6_free_space_end
