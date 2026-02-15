@@ -23,7 +23,7 @@ dw $EE8E, blue_boost_sce    ; PLM $F0F6 (BlueBooster, scenery shot block)
 ;;; Instruction list - PLM $F0E2 (SparkBooster)
 sprk_boost:
     dw $8764, !sbooster_plm_addr           ; Load item PLM GFX
-    db $01, $01, $01, $01, $01, $01, $01, $01
+    db $00, $00, $00, $00, $00, $00, $00, $00
     dw $887C, .end                         ; Go to end if the room argument item is set
     dw $8A24, .triggered                   ; Set link instruction for when triggered
     dw $86C1, $DF89                        ; Pre-instruction = go to link instruction if triggered
@@ -44,7 +44,7 @@ sprk_boost:
 ;;; Instruction list - PLM $F0E6 (SparkBooster, chozo orb)
 sprk_boost_orb:
     dw $8764, !sbooster_plm_addr           ; Load item PLM GFX
-    db $01, $01, $01, $01, $01, $01, $01, $01
+    db $00, $00, $00, $00, $00, $00, $00, $00
     dw $887C, .end                         ; Go to end if the room argument item is set
     dw $8A2E, $DFAF                        ; Call $DFAF (item orb)
     dw $8A2E, $DFC7                        ; Call $DFC7 (item orb burst)
@@ -70,7 +70,7 @@ sprk_boost_orb:
 ;;; Instruction list - PLM $F0EA (SparkBooster, scenery shot block)
 sprk_boost_sce:
     dw $8764, !sbooster_plm_addr           ; Load item PLM GFX
-    db $01, $01, $01, $01, $01, $01, $01, $01
+    db $00, $00, $00, $00, $00, $00, $00, $00
 .start:
     dw $8A2E, $E007                        ; Call $E007 (item shot block)
     dw $887C, .end                         ; Go to end if the room argument item is set

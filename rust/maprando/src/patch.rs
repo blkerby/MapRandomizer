@@ -475,7 +475,6 @@ impl Patcher<'_> {
             "transition_reveal",
             "wall_doors",
             "self_check",
-            "custom_plm_gfx",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
@@ -2671,7 +2670,7 @@ impl Patcher<'_> {
 
         Ok(())
     }
-    #[allow(dead_code)]
+
     fn write_walljump_item_graphics(&mut self) -> Result<()> {
         let b = 0x8;
         let w = 0xc;
@@ -2722,7 +2721,6 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    #[allow(dead_code)]
     fn write_spark_booster_item_graphics(&mut self) -> Result<()> {
         let w = 0xc;
         let frame_1: [[u8; 16]; 16] = [
@@ -2762,7 +2760,7 @@ impl Patcher<'_> {
             [0, 0, 7, 6, 7, 7, 5, 4, 5, 7, 7, 6, 7, 0, 0, 0],
         ];
         let frames: [[[u8; 16]; 16]; 2] = [frame_1, frame_2];
-        let mut addr = snes2pc(0x899100);
+        let mut addr = snes2pc(0x899600);
         for f in &frames {
             for tile_y in 0..2 {
                 for tile_x in 0..2 {
@@ -2780,7 +2778,6 @@ impl Patcher<'_> {
         Ok(())
     }
 
-    #[allow(dead_code)]
     fn write_bluebooster_item_graphics(&mut self) -> Result<()> {
         let w = 0xc;
         let frame_1: [[u8; 16]; 16] = [
@@ -2820,7 +2817,7 @@ impl Patcher<'_> {
             [0, 7, 5, 7, 7, 7, 7, 4, 4, 7, 7, 7, 7, 5, 7, 0],
         ];
         let frames: [[[u8; 16]; 16]; 2] = [frame_1, frame_2];
-        let mut addr = snes2pc(0x899100);
+        let mut addr = snes2pc(0x899700);
         for f in &frames {
             for tile_y in 0..2 {
                 for tile_x in 0..2 {
@@ -2835,6 +2832,13 @@ impl Patcher<'_> {
                 }
             }
         }
+        Ok(())
+    }
+
+    fn write_custom_item_graphics(&mut self) -> Result<()> {
+        self.write_walljump_item_graphics()?;
+        self.write_spark_booster_item_graphics()?;
+        self.write_bluebooster_item_graphics()?;
         Ok(())
     }
 
@@ -3621,7 +3625,7 @@ pub fn make_rom(
     patcher.customize_escape_timer()?;
     patcher.apply_miscellaneous_patches()?;
     patcher.apply_mother_brain_fight_patches()?;
-    //patcher.write_walljump_item_graphics()?;
+    patcher.write_custom_item_graphics()?;
     patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
