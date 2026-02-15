@@ -576,3 +576,31 @@ assert pc() <= !bank_84_free_space_end
 
 org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]  
     lda $09A2
+
+
+; vanilla bugfix, ui shows reserve icon when only boots item is equipped.
+;
+
+!bank_83_free_space_start = $83BA00
+!bank_83_free_space_end = $83BA15
+
+org !bank_83_free_space_start
+
+BNE .found
+INX
+INX
+CPX #$0006
+BMI .loop
+JML $82AC15
+
+.found
+JML $82AC0C
+
+.loop
+JML $82AC00
+
+assert pc() <= !bank_83_free_space_end
+
+org $82AC03
+ JML !bank_83_free_space_start
+ nop #5
