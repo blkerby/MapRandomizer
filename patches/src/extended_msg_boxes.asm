@@ -1,4 +1,5 @@
-; message box handler for custom dialog boxes (walljump boots / split speed etc) - this is separate to the crash dialog handler which intercepts the messagebox routiner earlier.
+; Message box handler for custom dialog boxes (walljump boots / split speed etc)
+; This is separate to the crash dialog handler which intercepts the messagebox routine earlier.
 
 lorom
 
@@ -38,7 +39,7 @@ hook_item_id:
 hook_tilemap:
     cpx #$00ae      ; wall-jump boots?
     bcc .orig
-    cpx #$00bb      ; higher than blue boster? (crash dialogs)
+    cpx #$00bb      ; higher than blue booster? (crash dialogs)
     bcs .orig
     txa
     sec
@@ -54,8 +55,8 @@ hook_tilemap:
 ;;; (message box table, relocated from $85869B):
 message_box_table:
     dw $8436, $8289, wjb          ; 1Eh: Wall-jump boots.
-    dw $8436, $8289, sparkbooster ; 1Fh: sparkbooster.
-    dw $8436, $8289, bluebooster  ; 20h: bluebooster.
+    dw $8436, $8289, sparkbooster ; 1Fh: Spark Booster.
+    dw $8436, $8289, bluebooster  ; 20h: Blue Booster.
     dw $8436, $8289, msg_end      ; 21h: Terminator.
 
 wjb: ; walljump boots

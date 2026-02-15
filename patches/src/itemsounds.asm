@@ -282,7 +282,7 @@ org $858089
 	BRA $02
 org $848BF2
 NORMAL:
-	; (note: walljump_item.asm checks this byte to confirm this patch is applied)
+	; (note: split_speed_plm.asm and walljump_plm.asm check this byte to confirm this patch is applied)
 	JSR CLIPSET
 
 org !bank_84_free_space_start

@@ -558,13 +558,9 @@ impl Patcher<'_> {
             }
         }
 
-        if matches!(
-            self.settings.other_settings.wall_jump,
-            WallJump::Collectible
-        ) || matches!(
-            self.settings.other_settings.speed_booster,
-            SpeedBooster::Split
-        ) {
+        if self.settings.other_settings.wall_jump == WallJump::Collectible
+            || self.settings.other_settings.speed_booster == SpeedBooster::Split
+        {
             patches.push("extended_msg_boxes");
         }
 

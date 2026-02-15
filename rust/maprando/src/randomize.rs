@@ -3461,13 +3461,14 @@ impl<'r> Randomizer<'r> {
             initial_items_remaining[Item::WallJump as usize] = 0;
         }
 
-        if settings.other_settings.speed_booster == SpeedBooster::Vanilla {
-            initial_items_remaining[Item::SparkBooster as usize] = 0;
-            initial_items_remaining[Item::BlueBooster as usize] = 0;
-        }
-
-        if settings.other_settings.speed_booster == SpeedBooster::Split {
-            initial_items_remaining[Item::SpeedBooster as usize] = 0;
+        match settings.other_settings.speed_booster {
+            SpeedBooster::Vanilla => {
+                initial_items_remaining[Item::SparkBooster as usize] = 0;
+                initial_items_remaining[Item::BlueBooster as usize] = 0;
+            }
+            SpeedBooster::Split => {
+                initial_items_remaining[Item::SpeedBooster as usize] = 0;
+            }
         }
 
         let mut minimal_tank_count = get_minimal_tank_count(&difficulty_tiers[0]);
@@ -4574,15 +4575,10 @@ impl<'r> Randomizer<'r> {
                 continue;
             }
 
-            if settings.other_settings.speed_booster != SpeedBooster::Vanilla
-                && name == "SpeedBooster"
-            {
-                continue;
-            }
-            if settings.other_settings.speed_booster != SpeedBooster::Split
-                && (name == "BlueBooster" || name == "SparkBooster")
-            {
-                continue;
+            match (settings.other_settings.speed_booster, name) {
+                (SpeedBooster::Vanilla, "BlueBooster" | "SparkBooster") => continue,
+                (SpeedBooster::Split, "SpeedBooster") => continue,
+                _ => {}
             }
             let item = Item::try_from(name).unwrap();
             if !items_set.contains(&item) {

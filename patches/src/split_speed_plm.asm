@@ -6,7 +6,7 @@ lorom
 !bbooster_plm_addr = $9700
 !idx_SparkBooster = #$0016
 !idx_BlueBooster = #$0017
-!collect_item = $859980 ; this is a reference to the collect item routine location in stats.asm, go directly too it instead of replicating some of it here.
+!collect_item = $859980 ; this is a reference to the collect item routine location in stats.asm, go directly to it instead of replicating some of it here.
 
 !bank_84_free_space_start = $84F0E2
 !bank_84_free_space_end = $84F28B

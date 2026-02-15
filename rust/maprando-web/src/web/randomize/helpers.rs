@@ -167,13 +167,13 @@ impl SeedHeaderTemplate<'_> {
             game_variations.push("Ultra-low quality of life");
         }
         if other_settings.speed_booster == SpeedBooster::Split {
-            game_variations.push("Split SpeedBooster");
+            game_variations.push("Split Speed Booster");
         }
         if other_settings.disable_spikesuit {
             game_variations.push("Spikesuit disabled");
         }
         if other_settings.disable_bluesuit {
-            game_variations.push("Bluesuit disabled");
+            game_variations.push("Blue suit disabled");
         }
         if other_settings.enable_major_glitches {
             game_variations.push("Major glitches enabled");

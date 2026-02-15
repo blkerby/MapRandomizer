@@ -9,7 +9,9 @@ incsrc "constants.asm"
 !bank_84_free_space_start = $84F730
 !bank_84_free_space_end = $84F800
 
-!bank_85_free_space_start = $859980  ; collect item routine is moved to the start of here, this location is used as a fixed jump point for extended plms. becareful changing it.
+; Collect item routine is moved to the start of bank 85 free space. This is used as a fixed jump point,
+; called from split_speed_plm.asm. So be careful changing it.
+!bank_85_free_space_start = $859980
 !bank_85_free_space_end = $859B00
 
 
