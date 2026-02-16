@@ -1,1 +1,4 @@
+F7F4 - F88C: {unused vanilla code} - split_speed.asm
+FC42 - FC66: {unsued vanilla code} - split_speed.asm
+
 FFEE - FFFE: mosaic\fake lava.asm

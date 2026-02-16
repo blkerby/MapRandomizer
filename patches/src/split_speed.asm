@@ -4,6 +4,9 @@
 !bank_91_free_space_start = $91F7F4
 !bank_91_free_space_end = $91F88C
 
+!bank_91_free_space_start2 = $91FC42
+!bank_91_free_space_end2 = $91FC66
+
 !bank_82_free_space_start = $82FF20
 !bank_82_free_space_end =   $82FF30
 
@@ -109,6 +112,9 @@ org $91DBF2
     jsr hook_reset_special_palette ; Palette reset from Crystal Flash shutdown
 org $91DD23
     jsr hook_reset_special_palette ; Palette reset from X-Ray setup
+    
+org $91D9B2
+    jmp hook_speed_boosting_palette
 
 org !bank_91_free_space_start
 
@@ -199,8 +205,22 @@ hook_fall:
     jsl spark_booster_lose_speed
     lda $0a1e  ; run hi-jacked instruction
     rts
+    
 
 assert pc() <= !bank_91_free_space_end
+
+org !bank_91_free_space_start2
+hook_speed_boosting_palette:
+    lda !equipped_items
+    and #!any_booster
+    cmp #!blue_booster 
+    bne .nochange
+    jmp $d9da ; skip liquid physics check if we have bluebooster equipped
+.nochange:
+    lda $0a74 ; hi-jacked instruction
+    jmp $D9B5 ; go back to where we came from.
+
+assert pc() <= !bank_91_free_space_end2
 
 org !bank_90_free_space_start
 
@@ -322,7 +342,7 @@ hook_setup_speedbooster_menu_tile:
 .no
     plp
     rtl
-warnpc !bank_90_free_space_end
+
 assert pc() <= !bank_90_free_space_end
 
 org !bank_B6_free_space_start
