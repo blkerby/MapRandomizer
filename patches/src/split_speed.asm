@@ -1,5 +1,5 @@
 !bank_90_free_space_start = $90FC40
-!bank_90_free_space_end = $90FCE0
+!bank_90_free_space_end = $90FD00
 
 !bank_91_free_space_start = $91F7F4
 !bank_91_free_space_end = $91F88C
@@ -94,7 +94,8 @@ org $90EEE7
 
 org $91E647
     ; Require Blue Booster or Speed Booster to retain bluesuit when unpausing
-    bit #!blue_booster|!speed_booster
+    jml hook_blue_unpause
+    nop
 
 org $84B7F2
     ; Lavaquake starts if any Speed/Blue/Spark Booster is collected
@@ -203,6 +204,28 @@ assert pc() <= !bank_91_free_space_end
 
 org !bank_90_free_space_start
 
+hook_blue_unpause:
+    bit #!speed_booster|!blue_booster
+    bne .keep_blue
+    
+    bit #!spark_booster
+    beq .no_blue
+    
+    lda $0B3C ; Running momentum flag
+    beq .no_blue
+
+    lda $0A1F
+    and #$00ff
+    cmp #$0001 ; Samus movement type = running - keep spark booster.
+    beq .keep_blue
+    
+.no_blue
+    jml $91E64C
+
+.keep_blue
+    jml $91E66F
+
+
 spark_booster_lose_speed:
     ; If either Blue Booster or Speed Booster is equipped, skip the speed clamp/loss.
     lda !equipped_items
@@ -299,7 +322,7 @@ hook_setup_speedbooster_menu_tile:
 .no
     plp
     rtl
-
+warnpc !bank_90_free_space_end
 assert pc() <= !bank_90_free_space_end
 
 org !bank_B6_free_space_start
