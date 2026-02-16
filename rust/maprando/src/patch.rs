@@ -2202,14 +2202,6 @@ impl Patcher<'_> {
             {
                 continue;
             }
-
-        for x in &starting_items {
-            // Skip WJB without CWJ
-            if x.item == Item::WallJump
-                && self.settings.other_settings.wall_jump == WallJump::Vanilla
-            {
-                continue;
-            }
             // Skip SpeedBooster / Split SpeedBooster if options dont match.
             if x.item == Item::BlueBooster
                 && self.settings.other_settings.speed_booster == SpeedBooster::Vanilla
@@ -2228,7 +2220,6 @@ impl Patcher<'_> {
             {
                 continue;
             }
-
             if x.count == 0 {
                 continue;
             }
