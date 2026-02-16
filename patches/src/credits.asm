@@ -721,8 +721,6 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
-    dw !draw, !blank
 
     ;; Custom randomizer credits text
     ;; Set scroll speed to 2 frames per pixel
@@ -743,6 +741,9 @@ script:
     dw !draw, !row*136
     dw !draw, !blank
     dw !draw, !row*137  ; ADDITIONAL DEVELOPERS
+    dw !draw, !blank
+    dw !draw, !row*262
+    dw !draw, !row*263
     dw !draw, !blank
     dw !draw, !row*138
     dw !draw, !row*139
@@ -807,13 +808,11 @@ script:
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
-    dw !draw, !blank
     
     dw !draw, !row*232  ; PLAY THIS RANDOMIZER AT
     dw !draw, !blank
     dw !draw, !row*233
     dw !draw, !row*234
-    dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
     dw !draw, !blank
@@ -1044,8 +1043,8 @@ credits:
     !orange
     dw "     ADDITIONAL DEVELOPERS      " ;; 137
     !big
-    dw "     SELICRE         CHANGE     " ;; 138
-    dw "     selicre         change     " ;; 139
+    dw "      CHANGE        SELICRE     " ;; 138
+    dw "      change        selicre     " ;; 139
     !green
     dw "    LOGIC DATA MAIN AUTHORS     " ;; 140
     !big
@@ -1192,6 +1191,9 @@ credits:
     !big
     dw "            BEGRIMED            " ;; 260
     dw "            begrimed            " ;; 261
+    !big
+    dw "      NN357        AQUANIGHT    " ;; 262
+    dw "      nn#]/        aquanight    " ;; 263
 
     dw $0000
 assert pc() <= !bank_ce_free_space_end
