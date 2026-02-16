@@ -1,5 +1,5 @@
 !bank_90_free_space_start = $90FC40
-!bank_90_free_space_end = $90FD00
+!bank_90_free_space_end = $90FD10
 
 !bank_91_free_space_start = $91F7F4
 !bank_91_free_space_end = $91F88C
@@ -271,8 +271,14 @@ hook_update_speed_echoes:
     beq .vanilla
 
 .hide_echoes
-    lda #$0000
+    lda $0a9c   ;
+    and #$00ff  ; if water physics is set we can keep the blue echos while running as the blue palette doesn't show in water suitless.
+    cmp #$0003  ;
+    beq .vanilla
+
+    lda #$0000  ; if we are not in water phsyics then hide echos
     rts
+    
 .vanilla:
     lda $0b3e  ; run hi-jacked instruction
     rts
@@ -322,7 +328,7 @@ hook_setup_speedbooster_menu_tile:
 .no
     plp
     rtl
-warnpc !bank_90_free_space_end
+
 assert pc() <= !bank_90_free_space_end
 
 org !bank_B6_free_space_start

@@ -2202,6 +2202,24 @@ impl Patcher<'_> {
             {
                 continue;
             }
+            // Skip SpeedBooster / Split SpeedBooster if options dont match.
+            if x.item == Item::BlueBooster
+                && self.settings.other_settings.speed_booster == SpeedBooster::Vanilla
+            {
+                continue;
+            }
+
+            if x.item == Item::SparkBooster
+                && self.settings.other_settings.speed_booster == SpeedBooster::Vanilla
+            {
+                continue;
+            }
+
+            if x.item == Item::SpeedBooster
+                && self.settings.other_settings.speed_booster == SpeedBooster::Split
+            {
+                continue;
+            }
             if x.count == 0 {
                 continue;
             }
