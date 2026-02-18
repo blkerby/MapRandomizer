@@ -113,8 +113,12 @@ org $91DBF2
 org $91DD23
     jsr hook_reset_special_palette ; Palette reset from X-Ray setup
     
-org $91D9B2
-    jmp hook_speed_boosting_palette
+org $91D9CD
+    jmp hook_special_palette_fx_liquid_check
+    nop
+
+org $91D9D6
+    jmp hook_special_palette_lavaacid_check
 
 org !bank_91_free_space_start
 
@@ -210,15 +214,27 @@ hook_fall:
 assert pc() <= !bank_91_free_space_end
 
 org !bank_91_free_space_start2
-hook_speed_boosting_palette:
+hook_special_palette_fx_liquid_check:
+    ; Hijacked code
+    bne hook_special_palette_notliquid
+    bra hook_special_palette_bluebooster
+
+hook_special_palette_lavaacid_check:
+    cmp $14
+    bmi hook_special_palette_bluebooster
+hook_special_palette_notliquid:
+    jmp $D9DA
+
+hook_special_palette_bluebooster:
     lda !equipped_items
     and #!any_booster
-    cmp #!blue_booster 
-    bne .nochange
-    jmp $d9da ; skip liquid physics check if we have bluebooster equipped
-.nochange:
-    lda $0a74 ; hi-jacked instruction
-    jmp $D9B5 ; go back to where we came from.
+    cmp #!blue_booster
+    bne .vanilla
+    lda $0B3C   ;running momentum flag
+    beq .vanilla    ; Vanilla bluesuit effect
+    jmp $D9EA ;BRANCH_NOT_SCREW_ATTACKING
+.vanilla
+    jmp $D9F5 ;Return carry set
 
 assert pc() <= !bank_91_free_space_end2
 
