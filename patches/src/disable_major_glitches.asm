@@ -28,7 +28,7 @@ merge_main_item_routines:
 org $82AFC9
     bra do_button_response
 category_tilemap_sizes:
-    dw $0012    ; 0 = tanks - this should only happen due to LEFT+A from suit or UP+A from beams. $12 will replicate mostly whatever vanilla thing would've happened as a result
+    dw $0002    ; 0 = tanks - $02 just copies one word over $00 - over itself no less.
     dw $000A    ; 1 = beams
     dw $0012    ; 2 = suit/misc
     dw $0012    ; 3 = boots
