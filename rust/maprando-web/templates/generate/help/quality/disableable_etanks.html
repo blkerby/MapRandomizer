@@ -6,9 +6,13 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p>If this setting is enabled, the player may disable any unfilled E-Tanks that they have collected, by navigating to the pause equipment screen, and moving the cursor up to the E-Tank area of the HUD.</p>
-          <p>Move the cursor to select an empty E-Tank, then press the A button to toggle it as enabled or disabled. Disabling an E-Tank will also disable the tanks "above" it, and enabling an E-Tank enables all the tanks "below" it.</p>
-          <p>Only empty E-Tanks can be disabled. To disable a full tank, Samus will have to take damage first in order to empty the tank.</p>
+          <p>This option controls the ability to disable E-Tanks during gameplay. When enabled, move the cursor up into the E-Tank area of the HUD, select an E-Tank and press A to toggle it.</p>
+          <p>Disabling an E-Tank will also disable the tanks "above" it, and enabling an E-Tank enables all the tanks "below" it.</p>
+          <ul>
+            <li><b>Off:</b> Disables this feature: Energy Tanks cannot be disabled once collected.</li>
+            <li><b>Standard:</b> Only empty E-Tanks can be disabled. To disable a full tank, Samus will have to take damage first in order to empty the tank.</li>
+            <li><b>Unrestricted:</b> Any E-Tank can be disabled. Disabling full tanks will vent the excess energy, leaving Samus with 99 energy plus the remaining enabled tanks.</li>
+          </ul>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

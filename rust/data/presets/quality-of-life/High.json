@@ -35,7 +35,7 @@
     "remove_climb_lava": true,
     "energy_station_reserves": true,
     "etank_refill": "Full",
-    "disableable_etanks": true,
+    "disableable_etanks": "Standard",
     "reserve_backward_transfer": false,
     "buffed_drops": true,
     "early_save": true,

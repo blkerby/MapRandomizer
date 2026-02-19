@@ -825,7 +825,13 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
         qol_settings.insert("energy_station_reserves".to_string(), false.into());
     }
     if !qol_settings.contains_key("disableable_etanks") {
-        qol_settings.insert("disableable_etanks".to_string(), false.into());
+        qol_settings.insert("disableable_etanks".to_string(), "Off".into());
+    } else {
+        match qol_settings["disableable_etanks"].as_bool() {
+            Some(false) => { qol_settings.insert("disableable_etanks".to_string(), "Off".into()); },
+            Some(true) => { qol_settings.insert("disableable_etanks".to_string(), "Standard".into()); },
+            None => {}
+        };
     }
     if !qol_settings.contains_key("reserve_backward_transfer") {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
