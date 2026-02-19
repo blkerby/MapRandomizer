@@ -4,8 +4,8 @@
 !bank_82_free_space_start = $82F830
 !bank_82_free_space_end = $82F9E0
 
-!bank_85_free_space_start = $85AD00
-!bank_85_free_space_end = $85AE13
+!bank_83_free_space_start = $83BB00
+!bank_83_free_space_end = $83BC40
 
 !current_etank_index = $12
 !count_full_etanks = $14
@@ -141,6 +141,9 @@ org $8291ED
 
 org !bank_82_free_space_start
 
+config_classic:
+    dw $0000
+
 hook_unpause_loading:
     ;jsl $809A79 ; Hard re-initialize the HUD after we've messed with it.
     ldx #$0012
@@ -270,10 +273,9 @@ etanks_dpad_right:
     cmp !count_all_etanks     ; Don't go right past the total number of E-Tanks
     bcs .no
 
-    lda $0755
-    clc
-    adc #$0100
-    sta $0755
+    sep #$20
+    inc $0756
+    rep #$20
     
     sec
     rts
@@ -287,10 +289,15 @@ etanks_dpad_left:
     cmp #$0002
     beq .no
     
+    lda config_classic
+    bne .classic
+    
     lda !current_etank_index
     dec a
     cmp !count_full_etanks     ; Don't go into full e-tanks
     bcc .no
+
+.classic
 
     sep #$20
     dec $0756
@@ -307,24 +314,33 @@ etanks_dpad_down:
     and #$00F0
     bne .no
     
+    lda config_classic
+    bne .classic
+    
     ; Don't move down into full e-tanks
     lda $09C2
     cmp #$02BC     ; [Current energy] >= 700 means all 7 bottom row tanks are full
     bcs .no
+.classic
 
-    lda $0755
-    xba
-    and #$00ff
+    lda !current_etank_index
     sec
     sbc #$0007
-    cmp !count_full_etanks
+    tax
+    lda config_classic
+    bne +
+    cpx !count_full_etanks
     bcs +
-    lda !count_full_etanks
+    ldx !count_full_etanks
 +
-    sta $0756
-    
+    sep #$10
+    stx $0756
+    rep #$10
+
+.done
     sec
     rts
+
 .no
 ; Don't go back to hook_equipment_screen_category_etanks
     lda #$0037
@@ -341,14 +357,14 @@ etanks_dpad_up:
 
     lda !current_etank_index
     clc
-    adc #$0007
-    cmp !count_all_etanks
-    bcc +
-    lda !count_all_etanks
+    adc #$0008
+-
     dec a
+    cmp !count_all_etanks
+    bcs -
     cmp !current_etank_index
     beq .no
-+
+
     sep #$20
     sta $0756
     rep #$20
@@ -423,7 +439,7 @@ hook_equipment_screen_category_etanks:
 
 warnpc !bank_82_free_space_end
 
-org !bank_85_free_space_start
+org !bank_83_free_space_start
 
 etank_do_some_math:
     php
@@ -481,10 +497,15 @@ dpad_enter_hud:
     pla
     sta $12
     
+    lda.l config_classic
+    bne .classic
+    
     ; Can we move up here at all.
     lda !count_all_etanks
     cmp !count_full_etanks
     beq .no
+
+.classic
     
     ; Are any not-full etanks enabled
     lda !count_full_etanks
@@ -493,6 +514,7 @@ dpad_enter_hud:
     
     ; Select leftmost enabled tank (A button disables all tanks)
     lda !count_full_etanks
+    cmp !count_all_etanks
     xba
     and #$ff00
     ora #$0004
@@ -522,11 +544,14 @@ dpad_enter_hud:
 
 disable_tank:
     ; Sanity check: can we actually disable this tank?
+    lda.l config_classic
+    bne .classic
     lda $09C4
     sec
     sbc #$0064
     cmp $09C2
     bcc tank_swap_done ; (max health - 100) < current health = bad times
+.classic
 
     ; Disable 1 e-tank
     lda $09C4
@@ -540,6 +565,16 @@ disable_tank:
     lda !current_etank_index
     cmp !count_enabled_etanks
     bcc disable_tank ; Repeat until we've disabled all tanks above and including the selected tank
+    
+    lda.l config_classic
+    beq .skipclamp
+    
+    lda $09C4
+    cmp $09C2
+    bcs .skipclamp  ; max health < current health = need to clamp
+
+    sta $09C2
+.skipclamp
 
     bra tank_swap_good
 
@@ -608,7 +643,7 @@ hook_load_equipment_menu:
     stx $0330
     rtl
 
-warnpc !bank_85_free_space_end
+warnpc !bank_83_free_space_end
 
 org $B6FE60
 tile_modified_map_cursor:
