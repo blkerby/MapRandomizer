@@ -504,9 +504,14 @@ dpad_enter_hud:
     lda !count_all_etanks
     cmp !count_full_etanks
     beq .no
+    bra .which
 
 .classic
-    
+    ; Have we any tanks at all
+    lda !count_all_etanks
+    beq .no
+
+.which
     ; Are any not-full etanks enabled
     lda !count_full_etanks
     cmp !count_enabled_etanks
