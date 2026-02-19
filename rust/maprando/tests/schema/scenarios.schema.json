@@ -66,7 +66,10 @@
               "shinechargeLeniencyFrames": {"type": "integer"},
               "resourceMultiplier": {"type": "number"},
               "farmTimeLimit": {"type": "number"},
-              "disableableEtanks": {"type": "boolean"},
+              "disableableEtanks": {
+                "type": "string",
+                "enum": ["Off", "Standard", "Unrestricted"]
+              },
               "buffedDrops": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"}
             }
