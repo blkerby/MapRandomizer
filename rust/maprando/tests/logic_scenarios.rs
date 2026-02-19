@@ -5,9 +5,9 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, Preprocessor},
     settings::{
-        InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveSettings,
-        OtherSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
-        StartLocationSettings,
+        DisableETankSetting, InitialMapRevealSettings, ItemProgressionSettings, Objective,
+        ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings,
+        SkillAssumptionSettings, StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
 };
@@ -82,7 +82,7 @@ struct ScenarioSettings {
     shinecharge_leniency_frames: Option<i32>,
     resource_multiplier: Option<f32>,
     farm_time_limit: Option<f32>,
-    disableable_etanks: Option<bool>,
+    disableable_etanks: Option<String>,
     buffed_drops: Option<bool>,
     collectible_wall_jump: Option<bool>,
     split_speed_booster: Option<bool>,
@@ -221,7 +221,17 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             remove_climb_lava: false,
             etank_refill: maprando::settings::ETankRefill::Vanilla,
             energy_station_reserves: false,
-            disableable_etanks: settings.disableable_etanks.unwrap_or(false),
+            disableable_etanks: match settings
+                .disableable_etanks
+                .clone()
+                .unwrap_or("Off".to_string())
+                .as_str()
+            {
+                "Off" => DisableETankSetting::Off,
+                "Standard" => DisableETankSetting::Standard,
+                "Unrestricted" => DisableETankSetting::Unrestricted,
+                _ => DisableETankSetting::Off,
+            },
             reserve_backward_transfer: false,
             buffed_drops: settings.buffed_drops.unwrap_or(false),
             early_save: false,

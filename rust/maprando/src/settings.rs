@@ -124,7 +124,7 @@ pub enum StartingItemsPreset {
 pub enum DisableETankSetting {
     Off,
     Standard,
-    Unrestricted
+    Unrestricted,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -828,8 +828,12 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
         qol_settings.insert("disableable_etanks".to_string(), "Off".into());
     } else {
         match qol_settings["disableable_etanks"].as_bool() {
-            Some(false) => { qol_settings.insert("disableable_etanks".to_string(), "Off".into()); },
-            Some(true) => { qol_settings.insert("disableable_etanks".to_string(), "Standard".into()); },
+            Some(false) => {
+                qol_settings.insert("disableable_etanks".to_string(), "Off".into());
+            }
+            Some(true) => {
+                qol_settings.insert("disableable_etanks".to_string(), "Standard".into());
+            }
             None => {}
         };
     }

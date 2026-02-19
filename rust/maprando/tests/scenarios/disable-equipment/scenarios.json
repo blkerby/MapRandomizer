@@ -22,7 +22,7 @@
     {
       "name": "Have Disableable Tanks",
       "settings": {
-        "disableableEtanks": true
+        "disableableEtanks": "Standard"
       },
       "startRoomId": 0,
       "startNodeId": 1,

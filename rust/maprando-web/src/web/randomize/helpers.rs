@@ -10,9 +10,9 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, DoorLocksSize, ETankRefill,
-        FillerItemPriority, ItemCount, RandomizerSettings, SpeedBooster, WallJump,
-        get_objective_groups, DisableETankSetting
+        AreaAssignmentBaseOrder, AreaAssignmentPreset, DisableETankSetting, DoorLocksSize,
+        ETankRefill, FillerItemPriority, ItemCount, RandomizerSettings, SpeedBooster, WallJump,
+        get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -456,11 +456,16 @@ pub fn render_seed(
             ETankRefill::Full => "Full",
         }
         .to_string(),
-        disableable_etanks: match seed_data.settings.quality_of_life_settings.disableable_etanks {
+        disableable_etanks: match seed_data
+            .settings
+            .quality_of_life_settings
+            .disableable_etanks
+        {
             DisableETankSetting::Off => "Off",
             DisableETankSetting::Standard => "Standard",
-            DisableETankSetting::Unrestricted => "Unrestricted"
-        }.to_string(),
+            DisableETankSetting::Unrestricted => "Unrestricted",
+        }
+        .to_string(),
         doors: seed_data.doors.clone(),
         start_location_mode: seed_data.start_location_mode.clone(),
         map_layout: seed_data.map_layout.clone(),

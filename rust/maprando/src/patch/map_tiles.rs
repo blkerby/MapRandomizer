@@ -4,8 +4,8 @@ use crate::{
     customize::{CustomizeSettings, ItemDotChange},
     randomize::{LockedDoor, Randomization},
     settings::{
-        DoorLocksSize, InitialMapRevealSettings, ItemMarkers, MapRevealLevel, MapStationReveal,
-        Objective, RandomizerSettings, DisableETankSetting
+        DisableETankSetting, DoorLocksSize, InitialMapRevealSettings, ItemMarkers, MapRevealLevel,
+        MapStationReveal, Objective, RandomizerSettings,
     },
 };
 use maprando_game::{
