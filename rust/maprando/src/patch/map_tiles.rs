@@ -5,7 +5,7 @@ use crate::{
     randomize::{LockedDoor, Randomization},
     settings::{
         DoorLocksSize, InitialMapRevealSettings, ItemMarkers, MapRevealLevel, MapStationReveal,
-        Objective, RandomizerSettings,
+        Objective, RandomizerSettings, DisableETankSetting
     },
 };
 use maprando_game::{
@@ -1522,7 +1522,7 @@ impl<'a> MapPatcher<'a> {
         .into_iter()
         .collect();
 
-        if settings.quality_of_life_settings.disableable_etanks {
+        if settings.quality_of_life_settings.disableable_etanks != DisableETankSetting::Off {
             // Reserve tile $2F for disabled ETank
             reserved_tiles.insert(0x2F);
         }
@@ -2940,7 +2940,7 @@ impl<'a> MapPatcher<'a> {
         self.fix_message_boxes()?;
         self.fix_hud_black()?;
         self.darken_hud_grid()?;
-        if self.settings.quality_of_life_settings.disableable_etanks {
+        if self.settings.quality_of_life_settings.disableable_etanks != DisableETankSetting::Off {
             self.write_disabled_etank_tile()?;
         }
         self.apply_room_tiles()?;

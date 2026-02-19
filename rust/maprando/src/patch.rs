@@ -20,7 +20,7 @@ use crate::{
     settings::{
         AreaAssignmentPreset, ETankRefill, Fanfares, ItemCount, MotherBrainFight, Objective,
         ObjectiveScreen, RandomizerSettings, SaveAnimals, SpeedBooster, StartLocationMode,
-        WallJump,
+        WallJump, DisableETankSetting
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -581,8 +581,8 @@ impl Patcher<'_> {
         {
             patches.push("energy_station_reserves");
         }
-
-        if self.settings.quality_of_life_settings.disableable_etanks {
+        
+        if self.settings.quality_of_life_settings.disableable_etanks != DisableETankSetting::Off {
             patches.push("disableable_etanks");
         }
 
@@ -688,6 +688,10 @@ impl Patcher<'_> {
             settings_flag |= 0x0002;
         }
         self.rom.write_u16(snes2pc(0xdfff05), settings_flag)?;
+
+        if self.settings.quality_of_life_settings.disableable_etanks == DisableETankSetting::Unrestricted {
+            self.rom.write_u16(snes2pc(0x82F830), 0x0001)?;
+        }
 
         Ok(())
     }

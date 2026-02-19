@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     randomize::{DifficultyConfig, LockedDoor},
-    settings::{MotherBrainFight, Objective, RandomizerSettings, WallJump},
+    settings::{MotherBrainFight, Objective, RandomizerSettings, WallJump, DisableETankSetting},
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
@@ -1157,10 +1157,10 @@ fn apply_requirement_simple(
             *obj_id,
         )
         .into(),
-        Requirement::DisableableETank => cx
+        Requirement::DisableableETank => (cx
             .settings
             .quality_of_life_settings
-            .disableable_etanks
+            .disableable_etanks != DisableETankSetting::Off)
             .into(),
         Requirement::Walljump => match cx.settings.other_settings.wall_jump {
             WallJump::Vanilla => cx.difficulty.tech[cx.game_data.wall_jump_tech_idx].into(),

@@ -12,7 +12,7 @@ use maprando::{
     settings::{
         AreaAssignmentBaseOrder, AreaAssignmentPreset, DoorLocksSize, ETankRefill,
         FillerItemPriority, ItemCount, RandomizerSettings, SpeedBooster, WallJump,
-        get_objective_groups,
+        get_objective_groups, DisableETankSetting
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -59,6 +59,7 @@ pub struct SeedHeaderTemplate<'a> {
     momentum_conservation: bool,
     fanfares: String,
     etank_refill: String,
+    disableable_etanks: String,
     doors: String,
     start_location_mode: String,
     map_layout: String,
@@ -455,6 +456,11 @@ pub fn render_seed(
             ETankRefill::Full => "Full",
         }
         .to_string(),
+        disableable_etanks: match seed_data.settings.quality_of_life_settings.disableable_etanks {
+            DisableETankSetting::Off => "Off",
+            DisableETankSetting::Standard => "Standard",
+            DisableETankSetting::Unrestricted => "Unrestricted"
+        }.to_string(),
         doors: seed_data.doors.clone(),
         start_location_mode: seed_data.start_location_mode.clone(),
         map_layout: seed_data.map_layout.clone(),

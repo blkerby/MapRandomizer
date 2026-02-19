@@ -119,6 +119,14 @@ pub enum StartingItemsPreset {
     None,
     All,
 }
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub enum DisableETankSetting {
+    Off,
+    Standard,
+    Unrestricted
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
@@ -149,7 +157,7 @@ pub struct QualityOfLifeSettings {
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
-    pub disableable_etanks: bool,
+    pub disableable_etanks: DisableETankSetting,
     pub reserve_backward_transfer: bool,
     // Other:
     pub buffed_drops: bool,
