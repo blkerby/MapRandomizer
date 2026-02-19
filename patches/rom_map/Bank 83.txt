@@ -4,5 +4,7 @@ B000 - B700: items_disappear.asm
 B700 - B800: rng_fix.asm
 B800 - BA00: Mosaic (Area FX.asm)
 BA00 - BA15: vanilla_bugfixes.asm
-BA15 - F000: [free space]
+BA15 - BB00: [free]
+BB00 - BC40: disableable_etanks.asm
+BC40 - F000: [free space]
 F000 - end:  Mosaic (FX data)
