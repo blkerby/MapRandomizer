@@ -945,19 +945,19 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
     }
 
-    if other_settings.get("disable_spikesuit").is_none() {
+    if other_settings["disable_spikesuit"].as_bool().is_none() {
         other_settings.insert("disable_spikesuit".to_string(), false.into());
     }
 
-    if other_settings.get("disable_bluesuit").is_none() {
+    if other_settings["disable_bluesuit"].as_bool().is_none() {
         other_settings.insert("disable_bluesuit".to_string(), false.into());
     }
 
-    if other_settings.get("enable_major_glitches").is_none() {
+    if other_settings["enable_major_glitches"].as_bool().is_none() {
         other_settings.insert("enable_major_glitches".to_string(), false.into());
     }
 
-    if other_settings.get("speed_booster").is_none() {
+    if other_settings["speed_booster"].as_str().is_none() {
         other_settings.insert("speed_booster".to_string(), "Vanilla".into());
     }
 
