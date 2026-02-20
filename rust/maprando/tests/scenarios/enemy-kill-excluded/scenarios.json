@@ -1,0 +1,29 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Missile",
+      "globalState": {
+        "maxMissiles": 5
+      },
+      "startRoomId": 0 ,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 4}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Bombs (Excluded Weapon)",
+      "globalState": {
+        "items": ["Morph", "Bombs"]
+      },
+      "startRoomId": 0 ,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}
