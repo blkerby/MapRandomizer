@@ -311,7 +311,7 @@ function updateDebugData() {
 	}
 	let costMetric = parseInt(document.getElementById("debugCostMetric").value);
 	let historyIndex = parseInt(document.getElementById("debugHistoryIndex").value);
-	if (costMetric < 0 || costMetric > 4) {
+	if (costMetric < 0 || costMetric > 3) {
 		return;
 	}
 
