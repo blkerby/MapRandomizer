@@ -209,10 +209,10 @@ End:
     TYA : SEC : SBC $70 : STA $35;size of data in current bank
     SEP #$20
     LDA #$08 : STA $80420B
-    LDA $70 : STA $35
     LDA #$80 : STA $33 : INC $34
     LDA $34 : PHA : PLB
-    LDA $70 : BEQ start
+    REP #$20
+    LDA $70 : STA $35 : BEQ start
     +
     SEP #$20
     LDA #$08 : STA $80420B
