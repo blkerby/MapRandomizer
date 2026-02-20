@@ -77,9 +77,8 @@ $809668 - reserve_hud.asm
 $8095a1 - samus_tiles_optim_animated_tiles_fix.asm
 $80a0d5 - samus_tiles_optim_animated_tiles_fix.asm
 $809416 - samus_tiles_optim_animated_tiles_fix.asm
-$808438 - self_check.asm
 $808340 - self_check.asm
-$80b437 - self_check.asm
+$808489 - self_check.asm
 $808000 - sram_check_disable.asm
 $808455 - stats.asm
 $809589 - stats.asm
@@ -704,6 +703,7 @@ $8a8000 - hud_expansion_opaque.asm
 $8a8000 - ultra_low_qol_hud_expansion_opaque.asm
 
 [BANK 8B]
+$8b9155 - self_check.asm
 $8b9976 - credits.asm
 $8b999b - credits.asm
 $8b99e5 - credits.asm
