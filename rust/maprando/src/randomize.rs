@@ -1107,7 +1107,11 @@ impl<'a> Preprocessor<'a> {
                     reqs.push(Requirement::NoBlueSuit);
                 }
                 if speed_booster == Some(true) {
-                    reqs.push(Requirement::any_booster());
+                    if jumping {
+                        reqs.push(Requirement::blue_booster());
+                    } else {
+                        reqs.push(Requirement::any_booster());
+                    }
                 }
                 if speed_booster == Some(false) {
                     reqs.push(Requirement::Tech(
