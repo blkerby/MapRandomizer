@@ -1,0 +1,105 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "At Limit",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 30}
+      }
+    },
+    {
+      "name": "Above Limit",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 30}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: Above Limit",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 99}
+      },
+      "fail": true
+    },
+    {
+      "name": "At Limit (Consumed)",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 70}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 30}
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Below Limit",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 29}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 29}
+      }
+    },
+    {
+      "name": "Below Limit (Consumed)",
+      "globalState": {
+        "maxMissiles": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"consumed": 71}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "missiles": {"remaining": 29}
+      },
+      "reverse": "weak"
+    }
+  ]
+}

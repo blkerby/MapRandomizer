@@ -510,18 +510,20 @@ fn resource_match(
 ) -> (bool, bool) {
     let amt_available = LocalState::resource_available(amt, max_resource, reverse);
     let target_available = LocalState::resource_available(target, max_resource, reverse);
-    let match_exact = amt == target;
+    let mut match_exact = amt == target;
     let mut match_weak = amt_available >= target_available;
     if reverse {
-        if let ResourceLevel::Consumed(_) = target
-            && let ResourceLevel::Remaining(_) = amt
+        if let ResourceLevel::Consumed(_) = amt
+            && let ResourceLevel::Remaining(_) = target
         {
             match_weak = false;
+            match_exact = false;
         }
     } else if let ResourceLevel::Consumed(_) = target
         && let ResourceLevel::Remaining(_) = amt
     {
         match_weak = false;
+        match_exact = false;
     }
     (match_weak, match_exact)
 }
@@ -698,28 +700,32 @@ fn test_scenario(
         for &local in &traverser.lsr[final_vertex_id].local {
             let mut energy_pass = local.energy_available(inventory, true, reverse)
                 >= final_local_state.energy_available(inventory, true, reverse);
-            let energy_exact = local.energy() == final_local_state.energy();
+            let mut energy_exact = local.energy() == final_local_state.energy();
             if reverse {
                 if let ResourceLevel::Remaining(_) = final_local_state.energy()
                     && let ResourceLevel::Consumed(_) = local.energy()
                 {
                     energy_pass = false;
+                    energy_exact = false;
                 }
                 if let ResourceLevel::Remaining(_) = final_local_state.reserves()
                     && let ResourceLevel::Consumed(_) = local.reserves()
                 {
                     energy_pass = false;
+                    energy_exact = false;
                 }
             } else {
                 if let ResourceLevel::Consumed(_) = final_local_state.energy()
                     && let ResourceLevel::Remaining(_) = local.energy()
                 {
                     energy_pass = false;
+                    energy_exact = false;
                 }
                 if let ResourceLevel::Consumed(_) = final_local_state.reserves()
                     && let ResourceLevel::Remaining(_) = local.reserves()
                 {
                     energy_pass = false;
+                    energy_exact = false;
                 }
             }
             let (reserves_pass, reserves_exact) = resource_match(
