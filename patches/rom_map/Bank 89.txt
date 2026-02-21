@@ -4,3 +4,4 @@ $9600 - $9700: spark booster plms graphics
 $9700 - $9800: blue booster plm graphics
 $AF60 - $B0C0: Area FX.asm
 $B0C0 - $B100: decompression.asm
+$B100 - $B200: nothing item graphics (zeros, used only for Bomb Torizo Room; nothing_item.asm)

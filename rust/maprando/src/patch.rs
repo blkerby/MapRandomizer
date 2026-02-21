@@ -2740,10 +2740,17 @@ impl Patcher<'_> {
         Ok(())
     }
 
+    fn write_nothing_item_graphics(&mut self) -> Result<()> {
+        // Used in Bomb Torizo Room.
+        self.rom.write_n(snes2pc(0x89B100), &[0; 0x100])?;
+        Ok(())
+    }
+
     fn write_custom_item_graphics(&mut self) -> Result<()> {
         self.write_walljump_item_graphics()?;
         self.write_spark_booster_item_graphics()?;
         self.write_bluebooster_item_graphics()?;
+        self.write_nothing_item_graphics()?;
         Ok(())
     }
 
