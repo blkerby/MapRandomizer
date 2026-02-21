@@ -71,7 +71,8 @@
                 "enum": ["Off", "Standard", "Unrestricted"]
               },
               "buffedDrops": {"type": "boolean"},
-              "collectibleWallJump": {"type": "boolean"}
+              "collectibleWallJump": {"type": "boolean"},
+              "energyFreeShinesparks": {"type": "boolean"}
             }
           },
           "globalState": {

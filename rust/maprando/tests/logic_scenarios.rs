@@ -85,7 +85,7 @@ struct ScenarioSettings {
     disableable_etanks: Option<String>,
     buffed_drops: Option<bool>,
     collectible_wall_jump: Option<bool>,
-    split_speed_booster: Option<bool>,
+    energy_free_shinesparks: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -265,15 +265,11 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             ),
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             map_station_reveal: maprando::settings::MapStationReveal::Full,
-            energy_free_shinesparks: false,
+            energy_free_shinesparks: settings.energy_free_shinesparks.unwrap_or(false),
+            speed_booster: maprando::settings::SpeedBooster::Vanilla,
             disable_bluesuit: false,
             disable_spikesuit: false,
             enable_major_glitches: false,
-            speed_booster: if settings.split_speed_booster.unwrap_or(false) {
-                maprando::settings::SpeedBooster::Split
-            } else {
-                maprando::settings::SpeedBooster::Vanilla
-            },
             ultra_low_qol: false,
             race_mode: false,
             random_seed: None,

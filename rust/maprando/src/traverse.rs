@@ -2010,14 +2010,15 @@ fn apply_requirement_simple(
             }
         }
         &Requirement::Shinespark {
-            frames,
-            excess_frames,
+            mut frames,
+            mut excess_frames,
             shinespark_tech_idx: shinespark_tech_id,
         } => {
+            if cx.settings.other_settings.energy_free_shinesparks {
+                frames = 0;
+                excess_frames = 0;
+            }
             if cx.difficulty.tech[shinespark_tech_id] {
-                if cx.settings.other_settings.energy_free_shinesparks {
-                    return SimpleResult::Success;
-                }
                 let can_manage_reserves = cx.difficulty.tech[cx.game_data.manage_reserves_tech_idx];
                 let regular_energy_remaining = local.energy_remaining(&cx.global.inventory, false);
                 let energy_remaining =

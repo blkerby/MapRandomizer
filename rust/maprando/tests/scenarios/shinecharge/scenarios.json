@@ -28,6 +28,26 @@
       },
       "startRoomId": 0,
       "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail (Blue Booster, Energy-Free Shinesparks)",
+      "settings": {
+        "energyFreeShinesparks": true
+      },
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
       "endRoomId": 0,
       "endNodeId": 2,
       "fail": true
@@ -36,6 +56,9 @@
       "name": "Fail (No Booster)",
       "startRoomId": 0,
       "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
       "endRoomId": 0,
       "endNodeId": 2,
       "fail": true
