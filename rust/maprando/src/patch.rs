@@ -1450,7 +1450,7 @@ impl Patcher<'_> {
     }
 
     fn use_area_based_music(&mut self) -> Result<()> {
-        let tourian_neighbors = self.game_data.get_tourian_neighbors(self.map);
+        let tourian_neighbors = self.game_data.get_tourian_neighbors(self.map, false);
 
         let area_music: [[u16; 2]; NUM_AREAS] = [
             [

@@ -52,7 +52,8 @@ pub fn apply_retiling(
     theme: &TileTheme,
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
-    let tourian_neighbors = game_data.get_tourian_neighbors(map);
+    let tourian_neighbors = game_data.get_tourian_neighbors(map, false);
+    let tourian_neighbors_strict = game_data.get_tourian_neighbors(map, true);
     let patch_names = vec![
         "Scrolling Sky v1.6",
         "Area FX",
@@ -133,12 +134,16 @@ pub fn apply_retiling(
                 }
             }
             TileTheme::Scrambled => {
-                let seed = random_seed ^ (room_ptr as u32);
-                let mut rng_seed = [0u8; 32];
-                rng_seed[..4].copy_from_slice(&seed.to_le_bytes());
-                let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
-                let theme_idx = rng.gen_range(0..mosaic_themes.len());
-                mosaic_themes[theme_idx].name.clone()
+                if tourian_neighbors_strict.contains(&room_idx) {
+                    "StatuesHallway".to_string()
+                } else {
+                    let seed = random_seed ^ (room_ptr as u32);
+                    let mut rng_seed = [0u8; 32];
+                    rng_seed[..4].copy_from_slice(&seed.to_le_bytes());
+                    let mut rng = rand::rngs::StdRng::from_seed(rng_seed);
+                    let theme_idx = rng.gen_range(0..mosaic_themes.len());
+                    mosaic_themes[theme_idx].name.clone()
+                }
             }
         };
         theme_name_map.insert(room_ptr, theme_name);

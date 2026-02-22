@@ -5282,7 +5282,7 @@ impl GameData {
         Ok(())
     }
 
-    pub fn get_tourian_neighbors(&self, map: &Map) -> HashSet<RoomGeometryRoomIdx> {
+    pub fn get_tourian_neighbors(&self, map: &Map, strict: bool) -> HashSet<RoomGeometryRoomIdx> {
         let mut out: HashSet<RoomGeometryRoomIdx> = HashSet::new();
 
         // Find all rooms that are directly connected to Tourian (area 5) via a door,
@@ -5302,6 +5302,11 @@ impl GameData {
             if dst_area == 5 && src_area != 5 {
                 out.insert(src_idx);
             }
+        }
+
+        if strict {
+            // In strict mode, only assign Statues Hallway theme to rooms that are directly connected to Tourian,
+            return out;
         }
 
         // Find all rooms directly connected to a Statues Hallway themed room through

@@ -5,6 +5,7 @@ pub mod samus_sprite;
 pub mod vanilla_music;
 
 use anyhow::{Result, bail};
+use log::info;
 use std::cmp::min;
 use std::path::Path;
 
@@ -356,6 +357,129 @@ fn apply_controller_config(rom: &mut Rom, controller_config: &ControllerConfig) 
     Ok(())
 }
 
+fn disable_songset(
+    rom: &mut Rom,
+    block_spc: usize,
+    block_pc: usize,
+    block_size: usize,
+    songset_idx: usize,
+    songset_size: usize,
+) -> Result<()> {
+    let spc2pc = |x: usize| {
+        assert!(x >= block_spc);
+        assert!(x < block_spc + block_size);
+        x - block_spc + block_pc
+    };
+
+    for i in 0..songset_size {
+        let tracker_ptr = rom.read_u16(spc2pc(0x5828 + 2 * i))? as usize;
+        let mut addr = tracker_ptr;
+        loop {
+            let cmd = rom.read_u16(spc2pc(addr))? as usize;
+            addr += 2;
+            if cmd == 0x0000 {
+                break;
+            }
+            if cmd == 0x00ff {
+                addr += 2;
+                continue;
+            }
+            info!(
+                "songset {} ({}+{}), tracker_ptr {:x}, cmd {:x}",
+                songset_idx, block_spc, block_size, tracker_ptr, cmd
+            );
+            for j in 0..8 {
+                let track_ptr = rom.read_u16(spc2pc(cmd + 2 * j))? as usize;
+                if track_ptr == 0 {
+                    continue;
+                }
+                info!("track_ptr: {:x}", track_ptr);
+                rom.write_n(spc2pc(track_ptr), &[0xc9, 0x00])?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+fn disable_music(rom: &mut Rom) -> Result<()> {
+    // Old way of disabling the music, which didn't allow flexibility
+    // to keep certain tracks enabled:
+    // rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
+
+    // Duplicate the Statues Hallway track across 3 channels, to make it more audible:
+    // (The 3 could be increased to up to 8, to make it even more loud.)
+    for i in 0..3 {
+        rom.write_u16(snes2pc(0xcf8108) + 0x569f - 0x1500 + i * 2, 0x56af)?;
+    }
+
+    // Shared music tracks, defined as part of the SPC engine loaded at bootup:
+    #[rustfmt::skip]
+    let shared_tracks = [
+        // samus appears (keep enabled):
+        // 0x5322, 0x535D, 0x53AF, 0x53C6, 0x53E0, 0x53F5, 0x5431,
+        // item fanfare (keep enabled):
+        // 0x5482, 0x54AA, 0x54BD, 0x54D8, 0x54EB, 0x550B, 0x553B,
+        // elevator music 1:
+        0x5593, 0x55C8, 0x55EE, 0x5630, 
+        // elevator music 2:
+        0x5649, 0x5665, 0x566D, 0x5675, 0x567D, 
+        // 0x56AF  // statues hallways (keep enabled)
+    ];
+
+    for ptr in shared_tracks {
+        let addr = snes2pc(0xcf8108) + ptr - 0x1500;
+        rom.write_n(addr, &[0xc9, 0x00])?;
+    }
+
+    let songset_sizes: Vec<(usize, usize)> = vec![
+        (0, 3),  // $CF:8000: SPC engine
+        (1, 2),  // $D0:E20D: Title sequence
+        (2, 3),  // $D1:B62A: Empty Crateria
+        (3, 2),  // $D2:88CA: Lower Crateria
+        (4, 1),  // $D2:D9B6: Upper Crateria
+        (5, 1),  // $D3:933C: Green Brinstar
+        (6, 1),  // $D3:E812: Red Brinstar
+        (7, 1),  // $D4:B86C: Upper Norfair
+        (8, 1),  // $D4:F420: Lower Norfair
+        (9, 2),  // $D5:C844: Maridia
+        (10, 2), // $D6:98B7: Tourian
+        (11, 1), // $D6:EF9D: Mother Brain
+        (12, 3), // $D7:BF73: Boss fight 1
+        (13, 2), // $D8:99B2: Boss fight 2
+        (14, 1), // $D8:EA8B: Miniboss fight
+        (15, 4), // $D9:B67B: Ceres
+        (16, 2), // $D9:F5DD: Wrecked Ship
+        // (17, 1), // $DA:B650: Zebes boom (keep enabled)
+        (18, 1), // $DA:D63B: Intro
+        // (19, 1), // $DB:A40F: Death (keep enabled)
+        (20, 1), // $DB:DF4F: Credits
+        // (21, 1), // $DC:AF6C: "The last Metroid is in captivity" (unused)
+        // (22, 1), // $DC:FAC7: "The galaxy is at peace" (unused)
+        (23, 3), // $DD:B104: Big Boy (same as boss fight 2)
+        (24, 1), // $DE:81C1: Samus theme (same as upper Crateria)
+    ];
+
+    for (songset_idx, songset_size) in songset_sizes {
+        let songset_ptr = snes2pc(rom.read_u24(snes2pc(0x8fe7e1) + songset_idx * 3)? as usize);
+        let mut addr = songset_ptr;
+        loop {
+            let size = rom.read_u16(addr)? as usize;
+            if size == 0 {
+                break;
+            }
+            let dst = rom.read_u16(addr + 2)? as usize;
+
+            if (dst..(dst + size)).contains(&0x5828) {
+                disable_songset(rom, dst, addr + 4, size, songset_idx, songset_size)?;
+            }
+            addr += 4 + size;
+        }
+    }
+
+    Ok(())
+}
+
 pub fn customize_rom(
     rom: &mut Rom,
     orig_rom: &Rom,
@@ -426,7 +550,7 @@ pub fn customize_rom(
             // We could call `override_music` here to restore the vanilla tracks: this would restore the correct sound effects
             // but at a cost of increasing room load times by almost 1 second per room.
             // override_music(rom)?;
-            rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
+            disable_music(rom)?;
         }
     }
     if settings.disable_beeping {
