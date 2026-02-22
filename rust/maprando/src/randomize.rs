@@ -940,6 +940,7 @@ impl<'a> Preprocessor<'a> {
                 self.get_come_in_with_temporary_blue_reqs(exit_condition, *direction)
             }
             MainEntranceCondition::ComeInSpinning {
+                speed_booster,
                 unusable_tiles,
                 min_extra_run_speed,
                 max_extra_run_speed,
@@ -948,6 +949,7 @@ impl<'a> Preprocessor<'a> {
                 unusable_tiles.get(),
                 min_extra_run_speed.get(),
                 max_extra_run_speed.get(),
+                *speed_booster,
             ),
             MainEntranceCondition::ComeInBlueSpinning {
                 unusable_tiles,
@@ -1528,7 +1530,17 @@ impl<'a> Preprocessor<'a> {
         unusable_tiles: f32,
         entrance_min_extra_run_speed: f32,
         entrance_max_extra_run_speed: f32,
+        speed_booster: Option<bool>,
     ) -> Option<Requirement> {
+        let mut reqs: Vec<Requirement> = vec![];
+        if speed_booster == Some(true) {
+            reqs.push(Requirement::blue_booster());
+        }
+        if speed_booster == Some(false) {
+            reqs.push(Requirement::Tech(
+                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_DISABLE_EQUIPMENT],
+            ));
+        }
         match exit_condition {
             ExitCondition::LeaveSpinning {
                 remote_runway_length,
@@ -1542,7 +1554,6 @@ impl<'a> Preprocessor<'a> {
                 let max_extra_run_speed = max_extra_run_speed.get();
                 let runway_max_speed = get_max_extra_run_speed(remote_runway_length);
 
-                let mut reqs: Vec<Requirement> = vec![];
                 if min_extra_run_speed > 0.0 || entrance_min_extra_run_speed > 0.0 {
                     reqs.push(Requirement::NoBlueSuit);
                 }
@@ -1569,7 +1580,6 @@ impl<'a> Preprocessor<'a> {
                 from_exit_node,
             } => {
                 let effective_length = effective_length.get();
-                let mut reqs: Vec<Requirement> = vec![];
                 if min_extra_run_speed.get() > 0.0 || entrance_min_extra_run_speed > 0.0 {
                     reqs.push(Requirement::NoBlueSuit);
                 }
@@ -1613,6 +1623,8 @@ impl<'a> Preprocessor<'a> {
         entrance_min_extra_run_speed: f32,
         entrance_max_extra_run_speed: f32,
     ) -> Option<Requirement> {
+        let mut reqs: Vec<Requirement> = vec![];
+        reqs.push(Requirement::blue_booster());
         match exit_condition {
             ExitCondition::LeaveSpinning {
                 remote_runway_length,
@@ -1621,8 +1633,6 @@ impl<'a> Preprocessor<'a> {
                 min_extra_run_speed,
                 max_extra_run_speed,
             } => {
-                let mut reqs: Vec<Requirement> = vec![];
-
                 if min_extra_run_speed.get() > 0.0 || entrance_min_extra_run_speed > 0.0 {
                     reqs.push(Requirement::NoBlueSuit);
                 }
@@ -1654,8 +1664,6 @@ impl<'a> Preprocessor<'a> {
                 from_exit_node,
             } => {
                 let effective_length = effective_length.get();
-                let mut reqs: Vec<Requirement> = vec![];
-
                 if min_extra_run_speed.get() > 0.0 || entrance_min_extra_run_speed > 0.0 {
                     reqs.push(Requirement::NoBlueSuit);
                 }
@@ -1738,6 +1746,7 @@ impl<'a> Preprocessor<'a> {
                     remote_runway_length.get(),
                     *heated,
                 ));
+                reqs.push(Requirement::blue_booster());
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key
                         [&TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP],
@@ -1968,6 +1977,8 @@ impl<'a> Preprocessor<'a> {
         min_landing_tiles: f32,
         entrance_movement_type: BounceMovementType,
     ) -> Option<Requirement> {
+        let mut reqs: Vec<Requirement> = vec![];
+        reqs.push(Requirement::blue_booster());
         match exit_condition {
             ExitCondition::LeaveWithMockball {
                 remote_runway_length,
@@ -1988,7 +1999,6 @@ impl<'a> Preprocessor<'a> {
                 if landing_runway_length < min_landing_tiles {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::NoBlueSuit);
 
                 if !self.add_run_speed_reqs(
@@ -2009,7 +2019,6 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
-                reqs.push(Requirement::blue_booster());
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
                 Some(Requirement::make_and(reqs))
@@ -2037,7 +2046,6 @@ impl<'a> Preprocessor<'a> {
                 {
                     return None;
                 }
-                let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::NoBlueSuit);
 
                 if !self.add_run_speed_reqs(
@@ -2062,7 +2070,6 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
-                reqs.push(Requirement::blue_booster());
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
                 Some(Requirement::make_and(reqs))
@@ -2075,7 +2082,6 @@ impl<'a> Preprocessor<'a> {
                 from_exit_node,
             } => {
                 let effective_length = effective_length.get();
-                let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::NoBlueSuit);
 
                 if !self.add_run_speed_reqs(
@@ -2110,7 +2116,6 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SPRING_BALL_BOUNCE],
                 ));
-                reqs.push(Requirement::blue_booster());
                 reqs.push(Requirement::Item(Item::Morph as ItemId));
                 reqs.push(Requirement::Item(Item::SpringBall as ItemId));
                 Some(Requirement::make_and(reqs))
@@ -2364,6 +2369,7 @@ impl<'a> Preprocessor<'a> {
                 Some(Requirement::make_and(vec![
                     Requirement::NoFlashSuit,
                     Requirement::NoBlueSuit,
+                    Requirement::blue_booster(),
                     Requirement::Tech(
                         self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
                     ),
@@ -2381,6 +2387,7 @@ impl<'a> Preprocessor<'a> {
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_TEMPORARY_BLUE],
                 ));
+                reqs.push(Requirement::blue_booster());
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));

@@ -1076,6 +1076,7 @@ pub enum MainEntranceCondition {
         direction: TemporaryBlueDirection,
     },
     ComeInSpinning {
+        speed_booster: Option<bool>,
         unusable_tiles: Float,
         min_extra_run_speed: Float,
         max_extra_run_speed: Float,
@@ -3858,6 +3859,7 @@ impl GameData {
                 direction: parse_temporary_blue_direction(value["direction"].as_str())?,
             },
             "comeInSpinning" => MainEntranceCondition::ComeInSpinning {
+                speed_booster: parse_speed_booster(value["speedBooster"].as_str()),
                 unusable_tiles: Float::new(value["unusableTiles"].as_f32().unwrap_or(0.0)),
                 min_extra_run_speed: Float::new(parse_hex(&value["minExtraRunSpeed"], 0.0)?),
                 max_extra_run_speed: Float::new(parse_hex(&value["maxExtraRunSpeed"], 7.0)?),
