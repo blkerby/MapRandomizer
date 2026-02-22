@@ -407,12 +407,6 @@ fn disable_music(rom: &mut Rom) -> Result<()> {
     // to keep certain tracks enabled:
     // rom.write_u8(snes2pc(0xcf8413), 0x6F)?;
 
-    // Duplicate the Statues Hallway track across 3 channels, to make it more audible:
-    // (The 3 could be increased to up to 8, to make it even more loud.)
-    for i in 0..3 {
-        rom.write_u16(snes2pc(0xcf8108) + 0x569f - 0x1500 + i * 2, 0x56af)?;
-    }
-
     // Shared music tracks, defined as part of the SPC engine loaded at bootup:
     #[rustfmt::skip]
     let shared_tracks = [
@@ -544,6 +538,13 @@ pub fn customize_rom(
     } else {
         rom.write_u16(snes2pc(0x82FFFA), 0)?;
     }
+
+    // Duplicate the Statues Hallway track across multiple channels, to make it more audible:
+    // (This could be increased to up to 8 channels, to make it even more loud.)
+    for i in 0..2 {
+        rom.write_u16(snes2pc(0xcf8108) + 0x569f - 0x1500 + i * 2, 0x56af)?;
+    }
+
     match settings.music {
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {
