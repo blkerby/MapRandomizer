@@ -273,8 +273,9 @@ spark_booster_lose_speed:
     beq .skip_speed_clamp
 
     ; Set speed echoes to merge back into Samus
-    lda #$FFFF
-    sta $0AAE
+    ;lda #$FFFF
+    ;sta $0AAE
+    jsl .remove_echoes
 
     stz $0b3e   ; Clear dash counter
 
@@ -291,6 +292,10 @@ spark_booster_lose_speed:
 .skip_speed_clamp:
     lda $09a2   ; run hi-jacked instruction (relevant only where called by hook_jump)
     rtl
+.remove_echoes
+    php
+    phb
+    jml $91DE8D
 
 hook_jump:
     jsl spark_booster_lose_speed
