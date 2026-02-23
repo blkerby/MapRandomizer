@@ -1509,17 +1509,25 @@ impl Patcher<'_> {
             let event_state_ptrs = get_room_state_ptrs(self.rom, room.rom_address)?;
             for &(_event_ptr, state_ptr) in &event_state_ptrs {
                 let song = self.rom.read_u16(state_ptr + 4)? as u16;
-                if songs_to_keep.contains(&song) && room.room_id != 152 {
-                    // In vanilla, Golden Torizo Energy Recharge plays the item/elevator music,
+                let statues_themed = tourian_neighbors.contains(&room_idx);
+                let is_elevator = (song & 0xFF00) == 0x0300;
+                if songs_to_keep.contains(&song)
+                    && room.room_id != 152
+                    && !(statues_themed && is_elevator)
+                {
+                    // In vanilla, Golden Torizo Energy Recharge (room_id=152) plays the item/elevator music,
                     // but that only seems to be because of it being next to Screw Attack Room.
                     // We want it to behave like the other Refill rooms and use area-themed music.
+                    //
+                    // Rooms with elevator music are normally left alone; but if the room is
+                    // Statues Hallway-themed then we allow it to be overridden with the Statues Hallway track.
                     continue;
                 }
-                let mut new_song = area_music[area][subarea];
-
-                if tourian_neighbors.contains(&room_idx) {
-                    new_song = 0x0400; // Statues Hallway music
-                }
+                let new_song = if statues_themed {
+                    0x0400 // Statues Hallway track
+                } else {
+                    area_music[area][subarea]
+                };
 
                 self.rom.write_u16(state_ptr + 4, new_song as isize)?;
                 if room.room_id == 220 {
