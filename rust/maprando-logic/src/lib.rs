@@ -4,7 +4,7 @@
 pub mod boss_requirements;
 pub mod helpers;
 
-use maprando_game::{Capacity, GameData, Item, StepTrailId, WeaponMask};
+use maprando_game::{Capacity, GameData, Item, ReserveTriggerHeat, StepTrailId, WeaponMask};
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Debug, Deserialize)]
@@ -481,10 +481,12 @@ impl LocalState {
         min_refill: Capacity,
         max_refill: Capacity,
         inventory: &Inventory,
-        heated: bool,
+        heat: ReserveTriggerHeat,
         reverse: bool,
     ) -> bool {
         let reserves_remaining = self.reserves_remaining(inventory);
+        let heated = heat == ReserveTriggerHeat::Suitless
+            || (heat == ReserveTriggerHeat::Yes && !inventory.items[Item::Varia as usize]);
         if reverse {
             let mut reserves_needed = self.energy_remaining(inventory, false);
             if heated {
@@ -502,7 +504,7 @@ impl LocalState {
                 true
             }
         } else {
-            if reserves_remaining <= min_refill {
+            if reserves_remaining < min_refill {
                 return false;
             }
             let mut usable_reserves = Capacity::min(reserves_remaining, inventory.max_energy);

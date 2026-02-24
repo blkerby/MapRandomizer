@@ -26,8 +26,8 @@ use maprando_game::{
     DoorPtrPair, DoorType, EntranceCondition, ExitCondition, Float, GModeMobility, GModeMode,
     GameData, GrappleJumpPosition, GrappleSwingBlock, HubLocation, Item, ItemId, ItemLocationId,
     Link, LinksDataGroup, MainEntranceCondition, Map, NodeId, NotableId, Physics, Requirement,
-    RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment, SparkPosition,
-    StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BLUE_SUIT_G_MODE_SETUP,
+    ReserveTriggerHeat, RoomGeometryRoomIdx, RoomId, SidePlatformEntrance, SidePlatformEnvironment,
+    SparkPosition, StartLocation, TECH_ID_CAN_ARTIFICIAL_MORPH, TECH_ID_CAN_BLUE_SUIT_G_MODE_SETUP,
     TECH_ID_CAN_CARRY_BLUE_SUIT, TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_DISABLE_EQUIPMENT,
     TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
     TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
@@ -1009,8 +1009,8 @@ impl<'a> Preprocessor<'a> {
                 min_landing_tiles.get(),
                 *movement_type,
             ),
-            MainEntranceCondition::ComeInWithRMode { heated } => {
-                self.get_come_in_with_r_mode_reqs(exit_condition, *heated)
+            MainEntranceCondition::ComeInWithRMode {} => {
+                self.get_come_in_with_r_mode_reqs(exit_condition)
             }
             MainEntranceCondition::ComeInWithGMode {
                 mode,
@@ -2524,7 +2524,6 @@ impl<'a> Preprocessor<'a> {
     fn get_come_in_with_r_mode_reqs(
         &self,
         exit_condition: &ExitCondition,
-        heated: bool,
     ) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithGModeSetup { .. } => {
@@ -2544,7 +2543,7 @@ impl<'a> Preprocessor<'a> {
                     Requirement::ReserveTrigger {
                         min_reserve_energy: 1.into(),
                         max_reserve_energy: 400.into(),
-                        heated,
+                        heat: ReserveTriggerHeat::No,
                     },
                 ];
                 Some(Requirement::make_and(reqs))
@@ -2621,7 +2620,7 @@ impl<'a> Preprocessor<'a> {
                     Requirement::ReserveTrigger {
                         min_reserve_energy: 1.into(),
                         max_reserve_energy: 4.into(),
-                        heated: false,
+                        heat: ReserveTriggerHeat::No,
                     }
                 } else {
                     Requirement::Never
@@ -2637,7 +2636,7 @@ impl<'a> Preprocessor<'a> {
                             Requirement::ReserveTrigger {
                                 min_reserve_energy: 1.into(),
                                 max_reserve_energy: 400.into(),
-                                heated: false,
+                                heat: ReserveTriggerHeat::No,
                             },
                             regain_mobility_link.requirement.clone(),
                         ]));

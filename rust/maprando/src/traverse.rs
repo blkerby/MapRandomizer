@@ -1814,7 +1814,7 @@ fn apply_requirement_simple(
         Requirement::ReserveTrigger {
             min_reserve_energy,
             max_reserve_energy,
-            heated,
+            heat,
         } => {
             let min_reserve_energy = min_reserve_energy.resolve(&cx.difficulty.numerics);
             let max_reserve_energy = max_reserve_energy.resolve(&cx.difficulty.numerics);
@@ -1823,7 +1823,7 @@ fn apply_requirement_simple(
                     min_reserve_energy,
                     max_reserve_energy,
                     &cx.global.inventory,
-                    *heated,
+                    *heat,
                     cx.reverse,
                 )
                 .into()

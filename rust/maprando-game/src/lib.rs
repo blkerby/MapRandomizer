@@ -252,6 +252,13 @@ impl From<Capacity> for Numeric {
     }
 }
 
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum ReserveTriggerHeat {
+    No,
+    Yes,
+    Suitless,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Requirement {
     Free,
@@ -362,7 +369,7 @@ pub enum Requirement {
     ReserveTrigger {
         min_reserve_energy: Numeric,
         max_reserve_energy: Numeric,
-        heated: bool,
+        heat: ReserveTriggerHeat,
     },
     EnemyKill {
         count: Capacity,
@@ -1118,9 +1125,7 @@ pub enum MainEntranceCondition {
         heated: bool,
         door_orientation: DoorOrientation,
     },
-    ComeInWithRMode {
-        heated: bool,
-    },
+    ComeInWithRMode {},
     ComeInWithGMode {
         mode: GModeMode,
         morphed: bool,
@@ -2193,6 +2198,15 @@ impl GameData {
         })
     }
 
+    pub fn parse_reserve_trigger_heat(&self, x: &str) -> Result<ReserveTriggerHeat> {
+        Ok(match x {
+            "no" => ReserveTriggerHeat::No,
+            "yes" => ReserveTriggerHeat::Yes,
+            "suitless" => ReserveTriggerHeat::Suitless,
+            _ => bail!("Unexpected reserve trigger heat value: {x}"),
+        })
+    }
+
     pub fn parse_numeric(&self, num_json: &JsonValue) -> Result<Numeric> {
         if let Some(n) = num_json.as_i16() {
             Ok(Numeric::Constant(n))
@@ -2970,10 +2984,17 @@ impl GameData {
                 } else {
                     400.into()
                 };
+                let reserve_trigger_heat = if value.has_key("implicitHeatFrames") {
+                    self.parse_reserve_trigger_heat(value["implicitHeatFrames"].as_str().unwrap())?
+                } else if ctx.room_heated {
+                    ReserveTriggerHeat::Yes
+                } else {
+                    ReserveTriggerHeat::No
+                };
                 return Ok(Requirement::ReserveTrigger {
                     min_reserve_energy,
                     max_reserve_energy,
-                    heated: ctx.room_heated,
+                    heat: reserve_trigger_heat,
                 });
             } else if key == "gainFlashSuit" {
                 return Ok(Requirement::GainFlashSuit);
@@ -3910,7 +3931,7 @@ impl GameData {
                     )?,
                 }
             }
-            "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode { heated },
+            "comeInWithRMode" => MainEntranceCondition::ComeInWithRMode {},
             "comeInWithGMode" => {
                 let mode = match value["mode"].as_str().context("Expected string 'mode'")? {
                     "direct" => GModeMode::Direct,
