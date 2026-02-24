@@ -288,6 +288,11 @@
                 "enabled": false
             },
             {
+                "id": 244,
+                "name": "canHorizontalMidairShinespark",
+                "enabled": false
+            },
+            {
                 "id": 134,
                 "name": "canMidairShinespark",
                 "enabled": false

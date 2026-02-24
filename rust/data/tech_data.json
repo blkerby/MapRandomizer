@@ -906,6 +906,18 @@
         "video_id": 1052
     },
     {
+        "tech_id": 244,
+        "name": "canHorizontalMidairShinespark",
+        "difficulty": "Hard",
+        "video_id": 2274
+    },
+    {
+        "tech_id": 136,
+        "name": "canShinechargeMovement",
+        "difficulty": "Medium",
+        "video_id": 1053
+    },
+    {
         "tech_id": 134,
         "name": "canMidairShinespark",
         "difficulty": "Hard",
@@ -916,12 +928,6 @@
         "name": "canShinesparkDeepStuck",
         "difficulty": "Extreme",
         "video_id": 716
-    },
-    {
-        "tech_id": 136,
-        "name": "canShinechargeMovement",
-        "difficulty": "Medium",
-        "video_id": 1053
     },
     {
         "tech_id": 137,

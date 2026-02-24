@@ -2,7 +2,7 @@
 # Rebase the map-rando branch on top of the latest upstream master (or specified commit),
 # squashing the changes since the previous rebase (marked by the "base" tag).
 #
-# Usage: ./scripts/rebase_sm_json.sh [commit]
+# Usage: ./scripts/rebase_sm_json.sh [upstream ref] [override ref]
 #
 # See https://amboar.github.io/notes/2021/09/16/history-preserving-fork-maintenance-with-git.html
 # for the idea behind this approach.
@@ -20,7 +20,7 @@ git tag new-base
 
 # Squash the changes since the previous rebase into a single commit.
 # Exclude the auto-generated schema files from the commit, to avoid potential unnecessary conflicts.
-git checkout kjbranch/map-rando
+git checkout ${2:-kjbranch/map-rando}
 git reset --soft base
 git add .
 git restore schema/m3-string-requirements.schema.json
