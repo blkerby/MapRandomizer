@@ -3,7 +3,7 @@ use std::{env, path::Path};
 use anyhow::{Context, Result, bail};
 use hashbrown::HashMap;
 use maprando::{
-    randomize::{DifficultyConfig, Preprocessor},
+    randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
     settings::{
         DisableETankSetting, InitialMapRevealSettings, ItemProgressionSettings, Objective,
         ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings,
@@ -12,8 +12,8 @@ use maprando::{
     traverse::{LockedDoorData, Traverser},
 };
 use maprando_game::{
-    Capacity, GameData, LinksDataGroup, NodeId, NotableId, ObstacleMask, RoomId, VertexId,
-    VertexKey,
+    BeamType, Capacity, DoorPtrPair, DoorType, GameData, LinksDataGroup, NodeId, NotableId,
+    ObstacleMask, RoomId, VertexId, VertexKey,
 };
 use maprando_logic::{GlobalState, Inventory, LocalState, ResourceLevel};
 use serde::Deserialize;
@@ -45,6 +45,8 @@ struct Scenario {
     #[serde(default)]
     settings: ScenarioSettings,
     global_state: Option<ScenarioGlobalState>,
+    #[serde(default)]
+    locked_doors: Vec<ScenarioLockedDoor>,
     start_room_id: usize,
     start_node_id: usize,
     #[serde(default)]
@@ -109,6 +111,28 @@ struct ScenarioGlobalState {
     pool_max_missiles: Option<Capacity>,
     pool_max_supers: Option<Capacity>,
     pool_max_power_bombs: Option<Capacity>,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct ScenarioLockedDoor {
+    room_id: RoomId,
+    node_id: NodeId,
+    type_: ScenarioLockedDoorType,
+}
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum ScenarioLockedDoorType {
+    Red,
+    Green,
+    Yellow,
+    Charge,
+    Ice,
+    Spazer,
+    Wave,
+    Plasma,
+    Wall,
 }
 
 #[derive(Debug, Deserialize)]
@@ -355,6 +379,7 @@ fn get_global_state(
     game_data: &GameData,
     difficulty: &DifficultyConfig,
     scenario: &Scenario,
+    locked_door_data: &LockedDoorData,
 ) -> Result<GlobalState> {
     let mut flags = vec![false; game_data.flag_isv.keys.len()];
 
@@ -449,7 +474,7 @@ fn get_global_state(
         inventory,
         pool_inventory,
         flags,
-        doors_unlocked: vec![],
+        doors_unlocked: vec![false; locked_door_data.locked_doors.len()],
         weapon_mask,
     })
 }
@@ -542,7 +567,31 @@ fn test_scenario(
         game_data.vertex_isv.keys.len(),
         game_data.base_links_data.links.len(),
     );
-    let global_state = get_global_state(game_data, &difficulty, scenario)?;
+
+    let mut locked_doors: Vec<LockedDoor> = vec![];
+    for door in scenario.locked_doors.iter() {
+        let door_ptr_pair = get_door_ptr_pair(door.room_id, door.node_id);
+        let door_type = match door.type_ {
+            ScenarioLockedDoorType::Red => DoorType::Red,
+            ScenarioLockedDoorType::Green => DoorType::Green,
+            ScenarioLockedDoorType::Yellow => DoorType::Yellow,
+            ScenarioLockedDoorType::Charge => DoorType::Beam(BeamType::Charge),
+            ScenarioLockedDoorType::Ice => DoorType::Beam(BeamType::Ice),
+            ScenarioLockedDoorType::Spazer => DoorType::Beam(BeamType::Spazer),
+            ScenarioLockedDoorType::Wave => DoorType::Beam(BeamType::Wave),
+            ScenarioLockedDoorType::Plasma => DoorType::Beam(BeamType::Plasma),
+            ScenarioLockedDoorType::Wall => DoorType::Wall,
+        };
+        locked_doors.push(LockedDoor {
+            src_ptr_pair: door_ptr_pair,
+            dst_ptr_pair: (None, None),
+            door_type,
+            bidirectional: false,
+        });
+    }
+    let locked_door_data = make_locked_door_data(locked_doors, game_data);
+
+    let global_state = get_global_state(game_data, &difficulty, scenario, &locked_door_data)?;
     let start_local_state = get_local_state(&scenario.start_state);
     let end_local_state = get_local_state(&scenario.end_state);
     let objectives = vec![
@@ -585,11 +634,6 @@ fn test_scenario(
         .context("End vertex not found")?;
 
     let num_vertices = game_data.vertex_isv.keys.len();
-    let locked_door_data = LockedDoorData {
-        locked_doors: vec![],
-        locked_door_node_map: HashMap::new(),
-        locked_door_vertex_ids: vec![],
-    };
     let inventory = &global_state.inventory;
 
     for (state, name) in [(start_local_state, "start"), (end_local_state, "end")] {
@@ -834,6 +878,11 @@ fn test_scenario(
     Ok(())
 }
 
+fn get_door_ptr_pair(room_id: RoomId, node_id: NodeId) -> DoorPtrPair {
+    let fake_ptr = (room_id << 16) | node_id;
+    (Some(fake_ptr), Some(fake_ptr))
+}
+
 #[test]
 fn test_logic_scenarios() -> Result<()> {
     let base_game_data = GameData::load_minimal(Path::new(".."))?;
@@ -848,6 +897,16 @@ fn test_logic_scenarios() -> Result<()> {
         let num_rooms = game_data.room_ptrs.len();
         game_data.load_rooms(&room_pattern)?;
         game_data.make_links_data(&|_, _| (0, 1));
+
+        for &(room_id, node_id) in game_data.node_json_map.keys().clone() {
+            let node_json = &game_data.node_json_map[&(room_id, node_id)];
+            if node_json["nodeType"] == "door" {
+                let ptr_pair = get_door_ptr_pair(room_id, node_id);
+                game_data
+                    .door_ptr_pair_map
+                    .insert(ptr_pair, (room_id, node_id));
+            }
+        }
 
         let connections_path = entry.path().join("connections.json");
         let connections_list: ConnectionsList = if connections_path.exists() || num_rooms > 1 {

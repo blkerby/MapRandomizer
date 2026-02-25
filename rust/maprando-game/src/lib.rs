@@ -4127,7 +4127,8 @@ impl GameData {
         } else {
             (None, None)
         };
-        let bypasses_door_shell = strat_json["bypassesDoorShell"].as_str().unwrap_or("no") == "yes";
+        let bypasses_door_shell =
+            ["yes", "free"].contains(&strat_json["bypassesDoorShell"].as_str().unwrap_or("no"));
         let (exit_condition, exit_req) = if strat_json.has_key("exitCondition") {
             ensure!(strat_json["exitCondition"].is_object());
             let (e, r) = self.parse_exit_condition(
@@ -4188,7 +4189,7 @@ impl GameData {
             let strat_name = strat_json["name"].as_str().unwrap().to_string();
             let strat_notes = self.parse_note(&strat_json["note"]);
 
-            if bypasses_door_shell {
+            if strat_json["bypassesDoorShell"].as_str().unwrap_or("no") == "yes" {
                 requires_vec.push(Requirement::Tech(
                     self.tech_isv.index_by_key[&TECH_ID_CAN_SKIP_DOOR_LOCK],
                 ));

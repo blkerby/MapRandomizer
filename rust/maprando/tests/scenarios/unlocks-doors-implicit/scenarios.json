@@ -1,0 +1,279 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Blue Door",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Missile Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Missile Door (Missiles)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "maxMissiles": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 5}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missile Door (Super)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "maxSupers": 1
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missile Door (Prefer Missiles over Super)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "maxMissiles": 5,
+        "maxSupers": 1
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 5},
+        "supers": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "supers": {"remaining": 1}
+      }
+    },
+    {
+      "name": "Fail: Super Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "green"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Super Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "green"}
+      ],
+      "globalState": {
+        "maxSupers": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Power Bomb Door (No Ammo)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "yellow"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Power Bomb Door (No Morph)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "yellow"}
+      ],
+      "globalState": {
+        "maxPowerBombs": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Power Bomb Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "yellow"}
+      ],
+      "globalState": {
+        "items": ["Morph"],
+        "maxPowerBombs": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Charge Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "charge"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Charge Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "charge"}
+      ],
+      "globalState": {
+        "items": ["Charge"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Ice Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "ice"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Ice Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "ice"}
+      ],
+      "globalState": {
+        "items": ["Ice"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Wave Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "wave"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Wave Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "wave"}
+      ],
+      "globalState": {
+        "items": ["Wave"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Spazer Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "spazer"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Spazer Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "spazer"}
+      ],
+      "globalState": {
+        "items": ["Spazer"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Plasma Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "plasma"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Plasma Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "plasma"}
+      ],
+      "globalState": {
+        "items": ["Plasma"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Wall Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "wall"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

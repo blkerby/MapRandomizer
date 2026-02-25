@@ -1,0 +1,36 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Blue Door",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 1
+    },
+    {
+      "name": "Missile Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 1
+    },
+    {
+      "name": "Fail: Missing Tech",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "disabledTech": ["canSkipDoorLock"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 1,
+      "fail": true
+    }
+  ]
+}

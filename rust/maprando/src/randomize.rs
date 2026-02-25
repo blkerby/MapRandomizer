@@ -2521,10 +2521,7 @@ impl<'a> Preprocessor<'a> {
         }
     }
 
-    fn get_come_in_with_r_mode_reqs(
-        &self,
-        exit_condition: &ExitCondition,
-    ) -> Option<Requirement> {
+    fn get_come_in_with_r_mode_reqs(&self, exit_condition: &ExitCondition) -> Option<Requirement> {
         match exit_condition {
             ExitCondition::LeaveWithGModeSetup { .. } => {
                 let reqs: Vec<Requirement> = vec![
@@ -3149,6 +3146,49 @@ fn get_walls(map: &Map, game_data: &GameData) -> Vec<DoorPtrPair> {
     out
 }
 
+pub fn make_locked_door_data(
+    locked_doors: Vec<LockedDoor>,
+    game_data: &GameData,
+) -> LockedDoorData {
+    let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
+    for (i, door) in locked_doors.iter().enumerate() {
+        let (src_room_id, src_node_id) = game_data.door_ptr_pair_map[&door.src_ptr_pair];
+        locked_door_node_map.insert((src_room_id, src_node_id), i);
+        if door.bidirectional {
+            let (dst_room_id, dst_node_id) = game_data.door_ptr_pair_map[&door.dst_ptr_pair];
+            locked_door_node_map.insert((dst_room_id, dst_node_id), i);
+        }
+    }
+
+    // Homing Geemer Room left door -> West Ocean Bridge left door
+    if let Some(&idx) = locked_door_node_map.get(&(313, 1)) {
+        locked_door_node_map.insert((32, 7), idx);
+    }
+
+    // Homing Geemer Room right door -> West Ocean Bridge right door
+    if let Some(&idx) = locked_door_node_map.get(&(313, 2)) {
+        locked_door_node_map.insert((32, 8), idx);
+    }
+
+    // Pants Room right door -> East Pants Room right door
+    if let Some(&idx) = locked_door_node_map.get(&(322, 2)) {
+        locked_door_node_map.insert((220, 2), idx);
+    }
+
+    let mut locked_door_vertex_ids = vec![vec![]; locked_doors.len()];
+    for (&(room_id, node_id), vertex_ids) in &game_data.node_door_unlock {
+        if let Some(&locked_door_idx) = locked_door_node_map.get(&(room_id, node_id)) {
+            locked_door_vertex_ids[locked_door_idx].extend(vertex_ids);
+        }
+    }
+
+    LockedDoorData {
+        locked_doors,
+        locked_door_node_map,
+        locked_door_vertex_ids,
+    }
+}
+
 pub fn randomize_doors(
     game_data: &GameData,
     map: &Map,
@@ -3239,43 +3279,7 @@ pub fn randomize_doors(
         });
     }
 
-    let mut locked_door_node_map: HashMap<(RoomId, NodeId), usize> = HashMap::new();
-    for (i, door) in locked_doors.iter().enumerate() {
-        let (src_room_id, src_node_id) = game_data.door_ptr_pair_map[&door.src_ptr_pair];
-        locked_door_node_map.insert((src_room_id, src_node_id), i);
-        if door.bidirectional {
-            let (dst_room_id, dst_node_id) = game_data.door_ptr_pair_map[&door.dst_ptr_pair];
-            locked_door_node_map.insert((dst_room_id, dst_node_id), i);
-        }
-    }
-
-    // Homing Geemer Room left door -> West Ocean Bridge left door
-    if let Some(&idx) = locked_door_node_map.get(&(313, 1)) {
-        locked_door_node_map.insert((32, 7), idx);
-    }
-
-    // Homing Geemer Room right door -> West Ocean Bridge right door
-    if let Some(&idx) = locked_door_node_map.get(&(313, 2)) {
-        locked_door_node_map.insert((32, 8), idx);
-    }
-
-    // Pants Room right door -> East Pants Room right door
-    if let Some(&idx) = locked_door_node_map.get(&(322, 2)) {
-        locked_door_node_map.insert((220, 2), idx);
-    }
-
-    let mut locked_door_vertex_ids = vec![vec![]; locked_doors.len()];
-    for (&(room_id, node_id), vertex_ids) in &game_data.node_door_unlock {
-        if let Some(&locked_door_idx) = locked_door_node_map.get(&(room_id, node_id)) {
-            locked_door_vertex_ids[locked_door_idx].extend(vertex_ids);
-        }
-    }
-
-    LockedDoorData {
-        locked_doors,
-        locked_door_node_map,
-        locked_door_vertex_ids,
-    }
+    make_locked_door_data(locked_doors, game_data)
 }
 
 // An inexpensive way to evaluate whether a requirement may be possible to satisfy,

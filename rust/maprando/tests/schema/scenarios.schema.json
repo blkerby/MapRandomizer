@@ -115,6 +115,31 @@
               "poolMaxPowerBombs": {"type": "integer"}
             }
           },
+          "lockedDoors": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "roomId": {"type": "integer"},
+                "nodeId": {"type": "integer"},
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "red",
+                    "green",
+                    "yellow",
+                    "charge",
+                    "ice",
+                    "spazer",
+                    "wave",
+                    "plasma",
+                    "wall"
+                  ]
+                }
+              }
+            }
+          },
           "startRoomId": {
             "type": "integer"
           },

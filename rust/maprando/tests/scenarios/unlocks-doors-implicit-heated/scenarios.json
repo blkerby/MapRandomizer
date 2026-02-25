@@ -1,0 +1,147 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Blue Door",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missile Door (Missiles)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "maxMissiles": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 14},
+        "missiles": {"remaining": 5}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Missile Door (Super)",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "maxSupers": 1
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Super Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "green"}
+      ],
+      "globalState": {
+        "maxSupers": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Power Bomb Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "yellow"}
+      ],
+      "globalState": {
+        "items": ["Morph"],
+        "maxPowerBombs": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 29},
+        "powerBombs": {"remaining": 1}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Charge Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "charge"}
+      ],
+      "globalState": {
+        "items": ["Charge"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 16}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Ice Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "ice"}
+      ],
+      "globalState": {
+        "items": ["Ice"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Wave Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "wave"}
+      ],
+      "globalState": {
+        "items": ["Wave"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Spazer Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "spazer"}
+      ],
+      "globalState": {
+        "items": ["Spazer"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Plasma Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "plasma"}
+      ],
+      "globalState": {
+        "items": ["Plasma"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    }
+  ]
+}
