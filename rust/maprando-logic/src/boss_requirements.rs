@@ -361,8 +361,13 @@ pub fn apply_ridley_requirement(
 
     // For determining if patience tech is required:
     // `good_time` = hypothetical time based on good but safe execution
-    // This is 15% slower than the optimized times which are more applicable for short fights.
-    let good_time = time * firing_rate * accuracy * 1.15;
+    // This is 15% slower than the optimized times which are more applicable for short fights,
+    // except if Ridley is stuck, in which case the 15% leniency is not needed:
+    let good_time = if stuck != RidleyStuck::None {
+        time * firing_rate * accuracy
+    } else {
+        time * firing_rate * accuracy * 1.15
+    };
     // Without "canBePatient" we tolerate a little longer fight compared to other strats
     // (120 seconds vs. 90 seconds), since the fight likely only has to be done once and is
     // not as boring as other patience-constrained strats.

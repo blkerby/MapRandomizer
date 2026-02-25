@@ -2876,7 +2876,7 @@ impl GameData {
                 }
                 return Ok(Requirement::make_and(reqs));
             } else if key == "ridleyKill" {
-                let power_bombs = value["powerBombs"].as_bool().unwrap_or(false);
+                let power_bombs = value["powerBombs"].as_bool().unwrap_or(true);
                 let g_mode = value["gMode"].as_bool().unwrap_or(false);
                 let stuck = match value["stuck"].as_str() {
                     None => RidleyStuck::None,
@@ -2962,8 +2962,8 @@ impl GameData {
                 let node_id = value.as_usize().unwrap();
                 return self.get_unlocks_doors_req(node_id, ctx);
             } else if key == "itemNotCollectedAtNode" {
-                // TODO: implement this
-                return Ok(Requirement::Free);
+                // This would risk permanent loss of access, so we treat it as impossible.
+                return Ok(Requirement::Never);
             } else if key == "itemCollectedAtNode" {
                 // TODO: implement this
                 return Ok(Requirement::Never);
