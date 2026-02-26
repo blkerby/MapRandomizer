@@ -1128,10 +1128,10 @@ impl<'a> Preprocessor<'a> {
                     let heat_frames = if *from_exit_node {
                         compute_run_frames(min_tiles) * 2 + 20
                     } else if effective_length > max_tiles {
-                        // 10 heat frames to position after stopping on a dime, before resuming running
+                        // 12 heat frames to position after stopping on a dime, before resuming running
                         compute_run_frames(effective_length - max_tiles)
                             + compute_run_frames(max_tiles)
-                            + 10
+                            + 12
                     } else {
                         compute_run_frames(effective_length)
                     };
