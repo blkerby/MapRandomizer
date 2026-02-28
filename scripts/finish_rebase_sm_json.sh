@@ -1,5 +1,6 @@
 #!/bin/bash
 # Usage: ./scripts/finish_rebase_sm_json.sh
+set -eux
 cd sm-json-data
 bash resources/ci/common/sh/test_python.sh
 git commit --amend -a --no-edit

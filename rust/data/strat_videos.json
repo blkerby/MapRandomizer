@@ -1033,6 +1033,14 @@
   },
   {
     "room_id": 29,
+    "strat_id": 96,
+    "video_id": 9869,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 29,
     "strat_id": 51,
     "video_id": 2653,
     "created_user": "Sam",
@@ -2217,6 +2225,14 @@
   },
   {
     "room_id": 10,
+    "strat_id": 165,
+    "video_id": 9876,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 10,
     "strat_id": 49,
     "video_id": 3395,
     "created_user": "Sam",
@@ -2509,6 +2525,22 @@
     "video_id": 237,
     "created_user": "Osse101",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 87,
+    "video_id": 9879,
+    "created_user": "Sam",
+    "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 10,
+    "strat_id": 87,
+    "video_id": 9880,
+    "created_user": "Sam",
+    "note": "Springball",
     "dev_note": ""
   },
   {
@@ -4953,14 +4985,6 @@
   },
   {
     "room_id": 34,
-    "strat_id": 47,
-    "video_id": 5163,
-    "created_user": "Osse101",
-    "note": "HiJump + Springball",
-    "dev_note": ""
-  },
-  {
-    "room_id": 34,
     "strat_id": 48,
     "video_id": 9251,
     "created_user": "Sam",
@@ -5037,6 +5061,14 @@
     "video_id": 1240,
     "created_user": "maddo",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 34,
+    "strat_id": 85,
+    "video_id": 5163,
+    "created_user": "Osse101",
+    "note": "HiJump + Springball",
     "dev_note": ""
   },
   {
@@ -6081,30 +6113,6 @@
   },
   {
     "room_id": 32,
-    "strat_id": 58,
-    "video_id": 5763,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 32,
-    "strat_id": 59,
-    "video_id": 5756,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 32,
-    "strat_id": 59,
-    "video_id": 5758,
-    "created_user": "Sam",
-    "note": "Diagonal spark (Touch Transition)",
-    "dev_note": ""
-  },
-  {
-    "room_id": 32,
     "strat_id": 60,
     "video_id": 5752,
     "created_user": "Sam",
@@ -6462,6 +6470,30 @@
     "created_user": "Sam",
     "note": "Through the Bridge",
     "dev_note": "TODO: investigate whether it is possible to bring a frozen Zeb up without Morph, maybe with a G-mode door stuck X-ray climb with Wave to be able to refreeze"
+  },
+  {
+    "room_id": 32,
+    "strat_id": 58,
+    "video_id": 5763,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 59,
+    "video_id": 5756,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 32,
+    "strat_id": 59,
+    "video_id": 5758,
+    "created_user": "Sam",
+    "note": "Diagonal spark (Touch Transition)",
+    "dev_note": ""
   },
   {
     "room_id": 32,
@@ -6973,6 +7005,14 @@
     "video_id": 6354,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 41,
+    "strat_id": 27,
+    "video_id": 9910,
+    "created_user": "Infinityoverinfinity",
+    "note": "Bad oscillation (false acquisition)",
     "dev_note": ""
   },
   {
@@ -7979,6 +8019,38 @@
     "room_id": 45,
     "strat_id": 43,
     "video_id": 7685,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 56,
+    "video_id": 5205,
+    "created_user": "Sam",
+    "note": "Wall Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 56,
+    "video_id": 5206,
+    "created_user": "Sam",
+    "note": "Hi-Jump, Ice Beam, Walljumpless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 56,
+    "video_id": 5207,
+    "created_user": "Sam",
+    "note": "With Space Jump, Walljumpless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 45,
+    "strat_id": 57,
+    "video_id": 5208,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -19458,6 +19530,14 @@
   {
     "room_id": 97,
     "strat_id": 204,
+    "video_id": 3095,
+    "created_user": "Osse101",
+    "note": "Bombs, Sova hit",
+    "dev_note": ""
+  },
+  {
+    "room_id": 97,
+    "strat_id": 204,
     "video_id": 3100,
     "created_user": "maddo",
     "note": "Damageless, Bombs",
@@ -20749,6 +20829,30 @@
     "video_id": 6281,
     "created_user": "Sam",
     "note": "Hi-Jump Spring Ball jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 166,
+    "video_id": 9389,
+    "created_user": "nn",
+    "note": "With HiJump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 166,
+    "video_id": 9390,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 104,
+    "strat_id": 167,
+    "video_id": 9391,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -24178,6 +24282,14 @@
   {
     "room_id": 117,
     "strat_id": 26,
+    "video_id": 5104,
+    "created_user": "Sam",
+    "note": "Wall jump under shutter",
+    "dev_note": ""
+  },
+  {
+    "room_id": 117,
+    "strat_id": 26,
     "video_id": 6465,
     "created_user": "maddo",
     "note": "",
@@ -24245,6 +24357,14 @@
     "video_id": 5492,
     "created_user": "Sam",
     "note": "Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 117,
+    "strat_id": 27,
+    "video_id": 5105,
+    "created_user": "Sam",
+    "note": "Wall jump under shutter",
     "dev_note": ""
   },
   {
@@ -26005,6 +26125,22 @@
     "video_id": 65,
     "created_user": "Osse101",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 53,
+    "video_id": 9954,
+    "created_user": "Sam",
+    "note": "Hi-Jump",
+    "dev_note": ""
+  },
+  {
+    "room_id": 121,
+    "strat_id": 53,
+    "video_id": 9955,
+    "created_user": "Sam",
+    "note": "With Morph and Springball",
     "dev_note": ""
   },
   {
@@ -37561,6 +37697,14 @@
   },
   {
     "room_id": 156,
+    "strat_id": 55,
+    "video_id": 9911,
+    "created_user": "Cruelbeans",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
     "strat_id": 64,
     "video_id": 9604,
     "created_user": "Sam",
@@ -37597,6 +37741,14 @@
     "video_id": 6861,
     "created_user": "Sam",
     "note": "Immobile G-Mode, Tank a Projectile",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 59,
+    "video_id": 9919,
+    "created_user": "Cruelbeans",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -37673,6 +37825,14 @@
   },
   {
     "room_id": 156,
+    "strat_id": 27,
+    "video_id": 9943,
+    "created_user": "Cruelbeans",
+    "note": "With Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
     "strat_id": 56,
     "video_id": 5648,
     "created_user": "Sam",
@@ -37732,6 +37892,14 @@
     "strat_id": 34,
     "video_id": 4961,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 67,
+    "video_id": 9912,
+    "created_user": "Cruelbeans",
     "note": "",
     "dev_note": ""
   },
@@ -37820,6 +37988,14 @@
     "strat_id": 49,
     "video_id": 9873,
     "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 156,
+    "strat_id": 50,
+    "video_id": 9913,
+    "created_user": "Cruelbeans",
     "note": "",
     "dev_note": ""
   },
@@ -37982,6 +38158,14 @@
     "created_user": "Osse101",
     "note": "",
     "dev_note": "canLongCeilingBombJump"
+  },
+  {
+    "room_id": 161,
+    "strat_id": 74,
+    "video_id": 9906,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
   },
   {
     "room_id": 161,
@@ -38667,6 +38851,14 @@
     "room_id": 164,
     "strat_id": 61,
     "video_id": 4565,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 164,
+    "strat_id": 64,
+    "video_id": 9789,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
@@ -39897,6 +40089,14 @@
   },
   {
     "room_id": 200,
+    "strat_id": 76,
+    "video_id": 9896,
+    "created_user": "nn",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 200,
     "strat_id": 22,
     "video_id": 5523,
     "created_user": "Sam",
@@ -39925,6 +40125,14 @@
     "video_id": 2575,
     "created_user": "Sam",
     "note": "Entering from an always-open adjacent room",
+    "dev_note": ""
+  },
+  {
+    "room_id": 200,
+    "strat_id": 77,
+    "video_id": 9897,
+    "created_user": "nn",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -42162,6 +42370,22 @@
   {
     "room_id": 173,
     "strat_id": 125,
+    "video_id": 4475,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 125,
+    "video_id": 4476,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 173,
+    "strat_id": 126,
     "video_id": 6784,
     "created_user": "maddo",
     "note": "",
@@ -43417,6 +43641,14 @@
   },
   {
     "room_id": 172,
+    "strat_id": 179,
+    "video_id": 9764,
+    "created_user": "Sam",
+    "note": "Gravity & Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
     "strat_id": 225,
     "video_id": 7425,
     "created_user": "Sam",
@@ -43725,6 +43957,22 @@
     "video_id": 2491,
     "created_user": "maddo",
     "note": "Crystal Flash, R-mode forced standup (With Ice)",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 83,
+    "video_id": 9761,
+    "created_user": "Sam",
+    "note": "Hi-Jump, Morph & Bombs",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 83,
+    "video_id": 9763,
+    "created_user": "Sam",
+    "note": "Springball, Morph & Bombs",
     "dev_note": ""
   },
   {
@@ -51209,6 +51457,14 @@
   },
   {
     "room_id": 196,
+    "strat_id": 82,
+    "video_id": 2737,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 196,
     "strat_id": 44,
     "video_id": 5793,
     "created_user": "Sam",
@@ -57986,14 +58242,6 @@
   {
     "room_id": 220,
     "strat_id": 19,
-    "video_id": 372,
-    "created_user": "Osse101",
-    "note": "Wall jumps",
-    "dev_note": "Caveat: takes an unneeded Menu hit"
-  },
-  {
-    "room_id": 220,
-    "strat_id": 19,
     "video_id": 5858,
     "created_user": "Sam",
     "note": "Space Jump",
@@ -58006,6 +58254,14 @@
     "created_user": "Sam",
     "note": "Grapple Jumps only",
     "dev_note": ""
+  },
+  {
+    "room_id": 220,
+    "strat_id": 19,
+    "video_id": 9907,
+    "created_user": "Infinityoverinfinity",
+    "note": "",
+    "dev_note": "With walljump, damageless variant"
   },
   {
     "room_id": 220,
@@ -60225,6 +60481,14 @@
   },
   {
     "room_id": 238,
+    "strat_id": 2,
+    "video_id": 9845,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 238,
     "strat_id": 3,
     "video_id": 2089,
     "created_user": "Sam",
@@ -61001,6 +61265,14 @@
   },
   {
     "room_id": 241,
+    "strat_id": 11,
+    "video_id": 9859,
+    "created_user": "nn",
+    "note": "Slow Morph kill",
+    "dev_note": ""
+  },
+  {
+    "room_id": 241,
     "strat_id": 10,
     "video_id": 5860,
     "created_user": "Sam",
@@ -61165,6 +61437,14 @@
     "video_id": 7434,
     "created_user": "Sam",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 241,
+    "strat_id": 27,
+    "video_id": 9860,
+    "created_user": "nn",
+    "note": "Slow Morph kill",
     "dev_note": ""
   },
   {

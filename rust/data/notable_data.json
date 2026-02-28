@@ -920,14 +920,6 @@
     "video_id": 1822
   },
   {
-    "room_id": 65,
-    "room_name": "Waterway Energy Tank Room",
-    "notable_id": 1,
-    "name": "Grapple Teleport Inside Wall",
-    "difficulty": "Ignored",
-    "video_id": null
-  },
-  {
     "room_id": 70,
     "room_name": "Below Spazer",
     "notable_id": 1,
@@ -1710,14 +1702,6 @@
     "name": "Doorway CWJ",
     "difficulty": "Insane",
     "video_id": 302
-  },
-  {
-    "room_id": 151,
-    "room_name": "Screw Attack Room",
-    "notable_id": 5,
-    "name": "Grapple Teleport Inside Wall",
-    "difficulty": "Extreme+",
-    "video_id": 144
   },
   {
     "room_id": 136,
