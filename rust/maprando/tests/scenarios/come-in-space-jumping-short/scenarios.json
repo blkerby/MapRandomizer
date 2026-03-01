@@ -1,0 +1,16 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Fail: Runway too Short",
+      "globalState": {
+        "items": ["SpaceJump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

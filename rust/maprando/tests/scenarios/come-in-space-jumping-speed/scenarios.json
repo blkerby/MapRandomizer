@@ -1,0 +1,49 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Without Disable Equipment (Speed Booster)",
+      "globalState": {
+        "disabledTech": ["canDisableEquipment"],
+        "items": ["SpaceJump", "SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Without Disable Equipment (Blue Booster)",
+      "globalState": {
+        "disabledTech": ["canDisableEquipment"],
+        "items": ["SpaceJump", "BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Spark Booster",
+      "globalState": {
+        "items": ["SpaceJump", "SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Booster",
+      "globalState": {
+        "items": ["SpaceJump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

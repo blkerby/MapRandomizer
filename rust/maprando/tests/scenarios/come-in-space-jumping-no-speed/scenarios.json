@@ -1,0 +1,27 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Disable Equipment",
+      "globalState": {
+        "items": ["SpaceJump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: No Disable Equipment",
+      "globalState": {
+        "disabledTech": ["canDisableEquipment"],
+        "items": ["SpaceJump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}
