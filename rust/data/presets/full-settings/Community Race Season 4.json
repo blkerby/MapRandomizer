@@ -4638,7 +4638,17 @@
         "objective_screen": "Enabled"
     },
     "map_layout": "Standard",
-    "doors_mode": "Ammo",
+    "doors_settings": {
+        "preset": "Ammo",
+        "red_doors_count": 30,
+        "green_doors_count": 15,
+        "yellow_doors_count": 10,
+        "charge_doors_count": 0,
+        "ice_doors_count": 0,
+        "wave_doors_count": 0,
+        "spazer_doors_count": 0,
+        "plasma_doors_count": 0
+    },
     "start_location_settings": {
         "mode": "Random",
         "room_id": null,

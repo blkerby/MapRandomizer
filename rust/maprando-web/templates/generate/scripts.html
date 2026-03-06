@@ -287,7 +287,17 @@ function buildSettingsObject() {
         },
         "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
-        "doors_mode": formData.get("doors"),
+        "doors_settings": {
+            "preset": formData.get("doors_preset"),
+            "red_doors_count": tryParseInt(formData.get("red_doors_count")),
+            "green_doors_count": tryParseInt(formData.get("green_doors_count")),
+            "yellow_doors_count": tryParseInt(formData.get("yellow_doors_count")),
+            "charge_doors_count": tryParseInt(formData.get("charge_doors_count")),
+            "ice_doors_count": tryParseInt(formData.get("ice_doors_count")),
+            "wave_doors_count": tryParseInt(formData.get("wave_doors_count")),
+            "spazer_doors_count": tryParseInt(formData.get("spazer_doors_count")),
+            "plasma_doors_count": tryParseInt(formData.get("plasma_doors_count")),
+        },
         "start_location_settings": buildStartLocationSettings(formData),
         "save_animals": formData.get("save_animals"),
         "other_settings": {
@@ -518,6 +528,29 @@ function applyQolPreset(preset) {
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);
 }
 
+function applyDoorsPreset(preset) {
+    for (presetEl of document.getElementsByClassName("doors-preset-button")) {
+        if (presetEl.value == preset.preset) {
+            presetEl.checked = true;
+            let p = objectivePresets[presetEl.value];
+            if (p !== undefined) {
+                preset = p;
+            }
+        } else {
+            presetEl.checked = false;
+        }
+    }
+
+    document.getElementById("red_doors_count").value = preset.red_doors_count;
+    document.getElementById("green_doors_count").value = preset.green_doors_count;
+    document.getElementById("yellow_doors_count").value = preset.yellow_doors_count;
+    document.getElementById("charge_doors_count").value = preset.charge_doors_count;
+    document.getElementById("ice_doors_count").value = preset.ice_doors_count;
+    document.getElementById("wave_doors_count").value = preset.wave_doors_count;
+    document.getElementById("spazer_doors_count").value = preset.spazer_doors_count;
+    document.getElementById("plasma_doors_count").value = preset.plasma_doors_count;
+}
+
 function applyStartLocationSettings(preset) {
     applyRadioValue("startLocation", preset.mode);
     if (preset.mode == "Custom") {
@@ -540,9 +573,9 @@ function applyFullSettingsPreset(preset) {
     applyItemProgressionPreset(preset.item_progression_settings);
     applyQolPreset(preset.quality_of_life_settings);
     applyObjectivePreset(preset.objective_settings);
+    applyDoorsPreset(preset.doors_settings);
 
     applyRadioValue("mapLayout", preset.map_layout);
-    applyRadioValue("doors", preset.doors_mode);
     applyStartLocationSettings(preset.start_location_settings);
     applyRadioValue("saveAnimals", preset.save_animals);
 
@@ -683,6 +716,26 @@ function qualityOfLifeSettingChanged() {
     document.getElementById("qualityOfLifeHigh").checked = false;
     document.getElementById("qualityOfLifeMax").checked = false;
     qualityOfLifePresetChanged();
+}
+
+function doorsPresetChanged() {
+    for (presetEl of document.getElementsByClassName("doors-preset-button")) {
+        if (presetEl.checked) {
+            let preset = doorsPresets[presetEl.value];
+            applyDoorsPreset(preset);
+        }
+    }
+    fullSettingsChanged();
+}
+
+function doorsSettingsChanged() {
+    for (let preset of doorsPresetsArr) {
+        document.getElementById(`doors${preset.preset}`).checked = false;
+    }
+    for (var presetEl of document.getElementsByClassName("doors-preset-button")) {
+        presetEl.checked = false;
+    }
+    doorsPresetChanged();
 }
 
 function applyAreaAssignmentPreset(preset) {

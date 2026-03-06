@@ -3209,32 +3209,57 @@ pub fn randomize_doors(
     let mut used_locs: HashSet<(RoomGeometryRoomIdx, usize, usize)> = HashSet::new();
     let mut used_beam_rooms: HashSet<RoomGeometryRoomIdx> = HashSet::new();
     let mut door_types = vec![];
+    
+    if settings.doors_settings.red_doors_count > 0 {
+        door_types.extend(vec![DoorType::Red; settings.doors_settings.red_doors_count as usize]);
+    }
+    if settings.doors_settings.green_doors_count > 0 {
+        door_types.extend(vec![DoorType::Green; settings.doors_settings.green_doors_count as usize]);
+    }
+    if settings.doors_settings.yellow_doors_count > 0 {
+        door_types.extend(vec![DoorType::Yellow; settings.doors_settings.yellow_doors_count as usize]);
+    }
+    if settings.doors_settings.charge_doors_count > 0 {
+        door_types.extend(vec![DoorType::Beam(BeamType::Charge); settings.doors_settings.charge_doors_count as usize]);
+    }
+    if settings.doors_settings.ice_doors_count > 0 {
+        door_types.extend(vec![DoorType::Beam(BeamType::Ice); settings.doors_settings.ice_doors_count as usize]);
+    }
+    if settings.doors_settings.wave_doors_count > 0 {
+        door_types.extend(vec![DoorType::Beam(BeamType::Wave); settings.doors_settings.wave_doors_count as usize]);
+    }
+    if settings.doors_settings.spazer_doors_count > 0 {
+        door_types.extend(vec![DoorType::Beam(BeamType::Spazer); settings.doors_settings.spazer_doors_count as usize]);
+    }
+    if settings.doors_settings.plasma_doors_count > 0 {
+        door_types.extend(vec![DoorType::Beam(BeamType::Plasma); settings.doors_settings.plasma_doors_count as usize]);
+    }
 
-    match settings.doors_mode {
-        DoorsMode::Blue => {}
-        DoorsMode::Ammo => {
-            let red_doors_cnt = 30;
-            let green_doors_cnt = 15;
-            let yellow_doors_cnt = 10;
-            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
-            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
-            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-        }
-        DoorsMode::Beam => {
-            let red_doors_cnt = 18;
-            let green_doors_cnt = 10;
-            let yellow_doors_cnt = 7;
-            let beam_door_each_cnt = 4;
-            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
-            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
-            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Charge); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Ice); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Wave); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Spazer); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
-        }
-    };
+//    match settings.doors_mode {
+//        DoorsMode::Blue => {}
+//        DoorsMode::Ammo => {
+//            let red_doors_cnt = 30;
+//            let green_doors_cnt = 15;
+//            let yellow_doors_cnt = 10;
+//            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
+//            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
+//            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
+//        }
+//        DoorsMode::Beam => {
+//            let red_doors_cnt = 18;
+//            let green_doors_cnt = 10;
+//            let yellow_doors_cnt = 7;
+//            let beam_door_each_cnt = 4;
+//            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
+//            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
+//            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
+//            door_types.extend(vec![DoorType::Beam(BeamType::Charge); beam_door_each_cnt]);
+//            door_types.extend(vec![DoorType::Beam(BeamType::Ice); beam_door_each_cnt]);
+//            door_types.extend(vec![DoorType::Beam(BeamType::Wave); beam_door_each_cnt]);
+//            door_types.extend(vec![DoorType::Beam(BeamType::Spazer); beam_door_each_cnt]);
+//            door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
+//        }
+//    };
     let walls = get_walls(map, game_data);
     let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
     let mut locked_doors: Vec<LockedDoor> = vec![];

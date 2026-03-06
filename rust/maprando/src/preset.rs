@@ -10,7 +10,7 @@ use crate::{
     randomize::DifficultyConfig,
     settings::{
         ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings, RandomizerSettings,
-        SkillAssumptionSettings,
+        SkillAssumptionSettings, DoorsSettings
     },
 };
 
@@ -46,6 +46,7 @@ pub struct PresetData {
     pub full_presets: Vec<RandomizerSettings>,
     pub default_preset: RandomizerSettings,
     pub logic_page_presets: Vec<RandomizerSettings>,
+    pub doors_presets: Vec<DoorsSettings>,
 }
 
 fn get_tech_by_difficulty(
@@ -213,6 +214,22 @@ impl PresetData {
             objective_presets.push(preset);
         }
 
+        let doors_preset_names = [
+            "Blue",
+            "Ammo",
+            "Beam"
+        ];
+        let doors_preset_path = presets_path.join("doors");
+        let mut doors_presets: Vec<DoorsSettings> = vec![];
+        for name in doors_preset_names {
+            let path = doors_preset_path.join(format!("{name}.json"));
+            let preset_str = std::fs::read_to_string(path.clone())
+                .context(format!("reading from {}", path.display()))?;
+            let preset: DoorsSettings = serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
+            assert!(preset.preset == Some(name.to_string()));
+            doors_presets.push(preset);
+        }
+
         let full_preset_names = ["Default", "Community Race Season 4"];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
@@ -252,6 +269,7 @@ impl PresetData {
             default_preset,
             logic_page_presets,
             full_presets,
+            doors_presets
         };
         Ok(preset_data)
     }

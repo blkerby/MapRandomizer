@@ -1,0 +1,11 @@
+{
+    "preset": "Ammo",
+    "red_doors_count": 30,
+    "green_doors_count": 15,
+    "yellow_doors_count": 10,
+    "charge_doors_count": 0,
+    "ice_doors_count": 0,
+    "wave_doors_count": 0,
+    "spazer_doors_count": 0,
+    "plasma_doors_count": 0
+}

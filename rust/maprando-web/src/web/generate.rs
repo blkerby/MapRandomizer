@@ -17,6 +17,7 @@ struct GenerateTemplate<'a> {
     skill_presets_json: String,
     item_presets_json: String,
     qol_presets_json: String,
+    doors_presets_json: String,
     objective_presets_json: String,
     item_priorities: Vec<String>,
     item_names_multiple: Vec<String>,
@@ -117,6 +118,8 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
     let qol_presets_json =
         serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
+    let doors_presets_json =
+        serde_json::to_string(&app_data.preset_data.doors_presets).unwrap();
     let objective_presets_json =
         serde_json::to_string(&app_data.preset_data.objective_presets).unwrap();
 
@@ -167,6 +170,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         skill_presets_json,
         item_presets_json,
         qol_presets_json,
+        doors_presets_json,
         objective_presets_json,
         tech_description: &app_data.game_data.tech_description,
         tech_dependencies_str: &tech_dependencies_strs,

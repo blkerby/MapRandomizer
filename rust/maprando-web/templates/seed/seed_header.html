@@ -61,7 +61,32 @@
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Doors:</div>
-            <div class="col-7 col-sm-8 col-md-9">{{+ doors }}</div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ doors_preset }}
+            {% if red_doors_count > 0 %}
+            <span>Red {{+ red_doors_count }} </span>
+            {% endif %}
+            {% if green_doors_count > 0 %}
+            <span>Green {{+ green_doors_count }} </span>
+            {% endif %}
+            {% if yellow_doors_count > 0 %}
+            <span>Yellow {{+ yellow_doors_count }} </span>
+            {% endif %}
+            {% if charge_doors_count > 0 %}
+            <span>Charge {{+ charge_doors_count }} </span>
+            {% endif %}
+            {% if ice_doors_count > 0 %}
+            <span>Ice {{+ ice_doors_count }} </span>
+            {% endif %}
+            {% if wave_doors_count > 0 %}
+            <span>Wave {{+ wave_doors_count }} </span>
+            {% endif %}
+            {% if spazer_doors_count > 0 %}
+            <span>Spazer {{+ spazer_doors_count }} </span>
+            {% endif %}
+            {% if plasma_doors_count > 0 %}
+            <span>Plasma {{+ plasma_doors_count }} </span>
+            {% endif %}
+            </div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Start location:</div>
