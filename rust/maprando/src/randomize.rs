@@ -3234,32 +3234,16 @@ pub fn randomize_doors(
     if settings.doors_settings.plasma_doors_count > 0 {
         door_types.extend(vec![DoorType::Beam(BeamType::Plasma); settings.doors_settings.plasma_doors_count as usize]);
     }
+    
+    while door_types.len() > 55 {
+        // Randomly remove door locks to get back down to 55
+        let mut remove_doors = rand::seq::index::sample(&mut rng, door_types.len(), door_types.len() - 55).into_vec();
+        remove_doors.sort();
+        while let Some(rd) = remove_doors.pop() {
+            door_types.swap_remove(rd);
+        }
+    }
 
-//    match settings.doors_mode {
-//        DoorsMode::Blue => {}
-//        DoorsMode::Ammo => {
-//            let red_doors_cnt = 30;
-//            let green_doors_cnt = 15;
-//            let yellow_doors_cnt = 10;
-//            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
-//            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
-//            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-//        }
-//        DoorsMode::Beam => {
-//            let red_doors_cnt = 18;
-//            let green_doors_cnt = 10;
-//            let yellow_doors_cnt = 7;
-//            let beam_door_each_cnt = 4;
-//            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
-//            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
-//            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-//            door_types.extend(vec![DoorType::Beam(BeamType::Charge); beam_door_each_cnt]);
-//            door_types.extend(vec![DoorType::Beam(BeamType::Ice); beam_door_each_cnt]);
-//            door_types.extend(vec![DoorType::Beam(BeamType::Wave); beam_door_each_cnt]);
-//            door_types.extend(vec![DoorType::Beam(BeamType::Spazer); beam_door_each_cnt]);
-//            door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
-//        }
-//    };
     let walls = get_walls(map, game_data);
     let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
     let mut locked_doors: Vec<LockedDoor> = vec![];
