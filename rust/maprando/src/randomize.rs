@@ -3259,14 +3259,16 @@ pub fn randomize_doors(
         ]);
     }
 
-    while door_types.len() > 55 {
-        // Randomly remove door locks to get back down to 55
-        let mut remove_doors =
-            rand::seq::index::sample(&mut rng, door_types.len(), door_types.len() - 55).into_vec();
-        remove_doors.sort();
-        while let Some(rd) = remove_doors.pop() {
-            door_types.swap_remove(rd);
+    if door_types.len() > 55 {
+        let mut keep_doors_idx =
+            rand::seq::index::sample(&mut rng, door_types.len(), 55).into_vec();
+        keep_doors_idx.sort();
+        let mut keep_doors = Vec::with_capacity(55);
+        for idx in keep_doors_idx.into_iter() {
+            keep_doors.push(door_types[idx]);
         }
+        door_types.clear();
+        door_types.extend(keep_doors);
     }
 
     let walls = get_walls(map, game_data);
