@@ -5,7 +5,7 @@ use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
-    AreaAssignmentBaseOrder, DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle,
+    AreaAssignmentBaseOrder, FillerItemPriority, ItemCount, ItemPlacementStyle,
     ItemPriorityStrength, KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting,
     ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, SpeedBooster,
     StartLocationMode, WallJump,
@@ -3209,35 +3209,60 @@ pub fn randomize_doors(
     let mut used_locs: HashSet<(RoomGeometryRoomIdx, usize, usize)> = HashSet::new();
     let mut used_beam_rooms: HashSet<RoomGeometryRoomIdx> = HashSet::new();
     let mut door_types = vec![];
-    
+
     if settings.doors_settings.red_doors_count > 0 {
-        door_types.extend(vec![DoorType::Red; settings.doors_settings.red_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Red;
+            settings.doors_settings.red_doors_count as usize
+        ]);
     }
     if settings.doors_settings.green_doors_count > 0 {
-        door_types.extend(vec![DoorType::Green; settings.doors_settings.green_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Green;
+            settings.doors_settings.green_doors_count as usize
+        ]);
     }
     if settings.doors_settings.yellow_doors_count > 0 {
-        door_types.extend(vec![DoorType::Yellow; settings.doors_settings.yellow_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Yellow;
+            settings.doors_settings.yellow_doors_count as usize
+        ]);
     }
     if settings.doors_settings.charge_doors_count > 0 {
-        door_types.extend(vec![DoorType::Beam(BeamType::Charge); settings.doors_settings.charge_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Charge);
+            settings.doors_settings.charge_doors_count as usize
+        ]);
     }
     if settings.doors_settings.ice_doors_count > 0 {
-        door_types.extend(vec![DoorType::Beam(BeamType::Ice); settings.doors_settings.ice_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Ice);
+            settings.doors_settings.ice_doors_count as usize
+        ]);
     }
     if settings.doors_settings.wave_doors_count > 0 {
-        door_types.extend(vec![DoorType::Beam(BeamType::Wave); settings.doors_settings.wave_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Wave);
+            settings.doors_settings.wave_doors_count as usize
+        ]);
     }
     if settings.doors_settings.spazer_doors_count > 0 {
-        door_types.extend(vec![DoorType::Beam(BeamType::Spazer); settings.doors_settings.spazer_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Spazer);
+            settings.doors_settings.spazer_doors_count as usize
+        ]);
     }
     if settings.doors_settings.plasma_doors_count > 0 {
-        door_types.extend(vec![DoorType::Beam(BeamType::Plasma); settings.doors_settings.plasma_doors_count as usize]);
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Plasma);
+            settings.doors_settings.plasma_doors_count as usize
+        ]);
     }
-    
+
     while door_types.len() > 55 {
         // Randomly remove door locks to get back down to 55
-        let mut remove_doors = rand::seq::index::sample(&mut rng, door_types.len(), door_types.len() - 55).into_vec();
+        let mut remove_doors =
+            rand::seq::index::sample(&mut rng, door_types.len(), door_types.len() - 55).into_vec();
         remove_doors.sort();
         while let Some(rd) = remove_doors.pop() {
             door_types.swap_remove(rd);

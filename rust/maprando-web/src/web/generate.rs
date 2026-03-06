@@ -118,8 +118,7 @@ async fn generate(app_data: web::Data<AppData>) -> impl Responder {
         serde_json::to_string(&app_data.preset_data.item_progression_presets).unwrap();
     let qol_presets_json =
         serde_json::to_string(&app_data.preset_data.quality_of_life_presets).unwrap();
-    let doors_presets_json =
-        serde_json::to_string(&app_data.preset_data.doors_presets).unwrap();
+    let doors_presets_json = serde_json::to_string(&app_data.preset_data.doors_presets).unwrap();
     let objective_presets_json =
         serde_json::to_string(&app_data.preset_data.objective_presets).unwrap();
 

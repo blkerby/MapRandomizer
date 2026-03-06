@@ -9,8 +9,8 @@ use serde::{Deserialize, Serialize};
 use crate::{
     randomize::DifficultyConfig,
     settings::{
-        ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings, RandomizerSettings,
-        SkillAssumptionSettings, DoorsSettings
+        DoorsSettings, ItemProgressionSettings, ObjectiveSettings, QualityOfLifeSettings,
+        RandomizerSettings, SkillAssumptionSettings,
     },
 };
 
@@ -214,18 +214,15 @@ impl PresetData {
             objective_presets.push(preset);
         }
 
-        let doors_preset_names = [
-            "Blue",
-            "Ammo",
-            "Beam"
-        ];
+        let doors_preset_names = ["Blue", "Ammo", "Beam"];
         let doors_preset_path = presets_path.join("doors");
         let mut doors_presets: Vec<DoorsSettings> = vec![];
         for name in doors_preset_names {
             let path = doors_preset_path.join(format!("{name}.json"));
             let preset_str = std::fs::read_to_string(path.clone())
                 .context(format!("reading from {}", path.display()))?;
-            let preset: DoorsSettings = serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
+            let preset: DoorsSettings =
+                serde_json::from_str(&preset_str).context(format!("parsing {}", path.display()))?;
             assert!(preset.preset == Some(name.to_string()));
             doors_presets.push(preset);
         }
@@ -269,7 +266,7 @@ impl PresetData {
             default_preset,
             logic_page_presets,
             full_presets,
-            doors_presets
+            doors_presets,
         };
         Ok(preset_data)
     }

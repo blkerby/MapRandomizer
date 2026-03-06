@@ -474,7 +474,10 @@ pub fn render_seed(
             DisableETankSetting::Unrestricted => "Unrestricted",
         }
         .to_string(),
-        doors_preset: seed_data.doors_preset.clone().unwrap_or("Custom".to_string()),
+        doors_preset: seed_data
+            .doors_preset
+            .clone()
+            .unwrap_or("Custom".to_string()),
         red_doors_count: seed_data.red_doors_count,
         green_doors_count: seed_data.green_doors_count,
         yellow_doors_count: seed_data.yellow_doors_count,

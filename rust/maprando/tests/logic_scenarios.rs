@@ -5,8 +5,8 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
     settings::{
-        DisableETankSetting, InitialMapRevealSettings, ItemProgressionSettings, Objective,
-        ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings,
+        DisableETankSetting, DoorsSettings, InitialMapRevealSettings, ItemProgressionSettings,
+        Objective, ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings,
         SkillAssumptionSettings, StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
@@ -271,7 +271,17 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             objective_screen: maprando::settings::ObjectiveScreen::Disabled,
         },
         map_layout: String::new(),
-        doors_mode: maprando::settings::DoorsMode::Blue,
+        doors_settings: DoorsSettings {
+            preset: Some("Blue".to_string()),
+            red_doors_count: 0,
+            green_doors_count: 0,
+            yellow_doors_count: 0,
+            charge_doors_count: 0,
+            ice_doors_count: 0,
+            wave_doors_count: 0,
+            spazer_doors_count: 0,
+            plasma_doors_count: 0,
+        },
         start_location_settings: StartLocationSettings {
             mode: maprando::settings::StartLocationMode::Ship,
             room_id: None,
