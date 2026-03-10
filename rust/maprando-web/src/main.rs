@@ -1,9 +1,9 @@
 // TODO: consider removing this later. It's not a bad lint but I don't want to deal with it now.
 #![allow(clippy::too_many_arguments)]
 
-mod randomize_helpers;
 mod logic;
 mod logic_helper;
+mod randomize_helpers;
 mod seed;
 mod web;
 
@@ -11,6 +11,7 @@ use actix_easy_multipart::{MultipartForm, MultipartFormConfig, text::Text};
 use actix_files::NamedFile;
 use actix_web::{
     App, HttpRequest, HttpResponse, HttpServer, Responder, get,
+    http::header,
     middleware::{Compress, Logger},
     post,
 };
@@ -28,7 +29,6 @@ use crate::{
     logic_helper::LogicData,
     web::{AppData, VERSION, VersionInfo},
 };
-use randomize_helpers::*;
 use maprando::settings::{ObjectiveGroup, get_objective_groups};
 use maprando::{
     customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory},
@@ -46,6 +46,7 @@ use maprando::{
 use maprando_game::GameData;
 use maprando_game::{LinksDataGroup, Map};
 use maprando_game::{NotableId, RoomId, StartLocation, TechId};
+use randomize_helpers::*;
 
 const VISUALIZER_PATH: &str = "../visualizer/";
 
@@ -211,6 +212,17 @@ async fn home(app_data: actix_web::web::Data<AppData>) -> impl Responder {
     HttpResponse::Ok()
         .content_type("text/html; charset=utf-8")
         .body(home_template.render().unwrap())
+}
+
+#[get("/redirect/{tail:.*}")]
+async fn redirect(tail: actix_web::web::Path<String>) -> impl Responder {
+    // Redirect to maprando.com (e.g., from www.maprando.com):
+    HttpResponse::Found()
+        .insert_header((
+            header::LOCATION,
+            format!("https://maprando.com/{}", tail.into_inner()),
+        ))
+        .finish()
 }
 
 #[derive(Template)]
@@ -875,6 +887,7 @@ async fn main() {
             )
             .wrap(Logger::default())
             .service(home)
+            .service(redirect)
             .service(releases)
             .service(generate)
             .service(randomize)
