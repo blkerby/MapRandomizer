@@ -27,6 +27,7 @@ use std::{path::Path, time::Instant};
 
 use crate::{
     logic_helper::LogicData,
+    randomize_helpers::{format_http_headers, get_random_seed, save_seed},
     web::{AppData, VERSION, VersionInfo},
 };
 use maprando::settings::{ObjectiveGroup, get_objective_groups};
@@ -46,7 +47,6 @@ use maprando::{
 use maprando_game::GameData;
 use maprando_game::{LinksDataGroup, Map};
 use maprando_game::{NotableId, RoomId, StartLocation, TechId};
-use randomize_helpers::*;
 
 const VISUALIZER_PATH: &str = "../visualizer/";
 
