@@ -1,12 +1,3 @@
-pub mod about;
-pub mod generate;
-pub mod home;
-pub mod logic;
-pub mod randomize;
-pub mod releases;
-pub mod seed;
-pub mod upgrade;
-
 use crate::logic_helper::LogicData;
 use hashbrown::HashMap;
 use maprando::{

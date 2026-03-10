@@ -1,12 +1,25 @@
-use crate::web::AppData;
+use std::path::Path;
+
+use crate::{
+    VISUALIZER_PATH,
+    web::{AppData, VersionInfo},
+};
 use actix_easy_multipart::{MultipartForm, bytes::Bytes, text::Text};
 use actix_web::{
-    HttpResponse, Responder,
-    http::header::{ContentDisposition, DispositionParam, DispositionType},
+    HttpResponse, Responder, get,
+    http::header::{
+        self, CacheControl, CacheDirective, ContentDisposition, DispositionParam, DispositionType,
+    },
     post, web,
 };
+use anyhow::{Context, Result};
 use askama::Template;
+use log::error;
 use log::info;
+use serde_derive::Deserialize;
+use std::time::SystemTime;
+
+use maprando::customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory};
 use maprando::{
     customize::{
         ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, FlashingSetting,
@@ -16,6 +29,131 @@ use maprando::{
     randomize::Randomization,
     settings::{RandomizerSettings, try_upgrade_settings},
 };
+
+#[derive(Template)]
+#[template(path = "errors/seed_not_found.html")]
+struct SeedNotFoundTemplate {}
+
+#[derive(Template)]
+#[template(path = "seed/customize_seed.html")]
+struct CustomizeSeedTemplate {
+    version_info: VersionInfo,
+    spoiler_token_prefix: String,
+    unlocked_timestamp_str: String,
+    seed_header: String,
+    seed_footer: String,
+    samus_sprite_categories: Vec<SamusSpriteCategory>,
+    etank_colors: Vec<Vec<String>>,
+    mosaic_themes: Vec<MosaicTheme>,
+}
+
+#[get("/{name}")]
+async fn view_seed_redirect(info: web::Path<(String,)>) -> impl Responder {
+    // Redirect to the seed page (with the trailing slash):
+    HttpResponse::Found()
+        .insert_header((header::LOCATION, format!("{}/", info.0)))
+        .finish()
+}
+
+#[get("/{name}/")]
+async fn view_seed(info: web::Path<(String,)>, app_data: web::Data<AppData>) -> impl Responder {
+    let seed_name = &info.0;
+    let (seed_header, seed_footer, unlocked_timestamp_str, spoiler_token) = futures::join!(
+        app_data
+            .seed_repository
+            .get_file(seed_name, "seed_header.html"),
+        app_data
+            .seed_repository
+            .get_file(seed_name, "seed_footer.html"),
+        app_data
+            .seed_repository
+            .get_file(seed_name, "unlocked_timestamp.txt"),
+        app_data
+            .seed_repository
+            .get_file(seed_name, "spoiler_token.txt"),
+    );
+    let spoiler_token = String::from_utf8(spoiler_token.unwrap_or(vec![])).unwrap();
+    let spoiler_token_prefix = if spoiler_token.is_empty() {
+        "".to_string()
+    } else {
+        spoiler_token[0..16].to_string()
+    };
+    match (seed_header, seed_footer) {
+        (Ok(header), Ok(footer)) => {
+            let customize_template = CustomizeSeedTemplate {
+                version_info: app_data.version_info.clone(),
+                unlocked_timestamp_str: String::from_utf8(unlocked_timestamp_str.unwrap_or(vec![]))
+                    .unwrap(),
+                spoiler_token_prefix: spoiler_token_prefix.to_string(),
+                seed_header: String::from_utf8(header.to_vec()).unwrap(),
+                seed_footer: String::from_utf8(footer.to_vec()).unwrap(),
+                samus_sprite_categories: app_data.samus_sprite_categories.clone(),
+                etank_colors: app_data.etank_colors.clone(),
+                mosaic_themes: app_data.mosaic_themes.clone(),
+            };
+            // We use a no-cache directive to prevent problems when we change the JavaScript.
+            // Probably better would be to properly version the JS and control cache that way.
+            HttpResponse::Ok()
+                .content_type("text/html; charset=utf-8")
+                .insert_header(CacheControl(vec![CacheDirective::NoCache]))
+                .body(customize_template.render().unwrap())
+        }
+        (Err(err), _) => {
+            error!("{err}");
+            let template = SeedNotFoundTemplate {};
+            HttpResponse::NotFound().body(template.render().unwrap())
+        }
+        (_, Err(err)) => {
+            error!("{err}");
+            let template = SeedNotFoundTemplate {};
+            HttpResponse::NotFound().body(template.render().unwrap())
+        }
+    }
+}
+
+#[derive(Template)]
+#[template(path = "errors/file_not_found.html")]
+struct FileNotFoundTemplate {}
+
+#[get("/{name}/data/{filename:.*}")]
+async fn get_seed_file(
+    info: web::Path<(String, String)>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let seed_name = &info.0;
+    let filename = &info.1;
+    println!("get_seed_file {filename}");
+
+    let data_result: Result<Vec<u8>> = if filename.starts_with("visualizer/")
+        && app_data.static_visualizer
+    {
+        let path = Path::new(VISUALIZER_PATH).join(filename.strip_prefix("visualizer/").unwrap());
+        std::fs::read(&path)
+            .map_err(anyhow::Error::from)
+            .with_context(|| format!("Error reading static file: {}", path.display()))
+    } else {
+        app_data
+            .seed_repository
+            .get_file(seed_name, &("public/".to_string() + filename))
+            .await
+    };
+
+    match data_result {
+        Ok(data) => {
+            let ext = Path::new(filename)
+                .extension()
+                .map(|x| x.to_str().unwrap())
+                .unwrap_or("bin");
+            let mime = actix_files::file_extension_to_mime(ext);
+            HttpResponse::Ok().content_type(mime).body(data)
+        }
+        // TODO: Use more refined error handling instead of always returning 404:
+        Err(err) => {
+            error!("{err}");
+            HttpResponse::NotFound().body(FileNotFoundTemplate {}.render().unwrap())
+        }
+    }
+}
 
 #[derive(Template)]
 #[template(path = "errors/invalid_rom.html")]
@@ -310,4 +448,78 @@ fn get_quick_reload_buttons(req: &CustomizeRequest) -> Vec<ControllerButton> {
         }
     }
     quick_reload_buttons
+}
+
+#[derive(Template)]
+#[template(path = "errors/invalid_token.html")]
+struct InvalidTokenTemplate {}
+
+#[derive(Template)]
+#[template(path = "errors/already_unlocked.html")]
+struct AlreadyUnlockedTemplate {}
+
+#[derive(Deserialize)]
+struct UnlockRequest {
+    spoiler_token: String,
+}
+
+#[post("/{name}/unlock")]
+async fn unlock_seed(
+    req: web::Form<UnlockRequest>,
+    info: web::Path<(String,)>,
+    app_data: web::Data<AppData>,
+) -> impl Responder {
+    let seed_name = &info.0;
+    let seed_spoiler_token = app_data
+        .seed_repository
+        .get_file(seed_name, "spoiler_token.txt")
+        .await
+        .unwrap();
+
+    if req.spoiler_token.as_bytes() == seed_spoiler_token {
+        let unlocked_timestamp_data = app_data
+            .seed_repository
+            .get_file(seed_name, "unlocked_timestamp.txt")
+            .await;
+        if unlocked_timestamp_data.is_ok() {
+            // TODO: handle other errors that are not 404.
+            let template = AlreadyUnlockedTemplate {};
+            return HttpResponse::UnprocessableEntity().body(template.render().unwrap());
+        }
+
+        app_data
+            .seed_repository
+            .move_prefix(seed_name, "locked", "public")
+            .await
+            .unwrap();
+        let timestamp = match SystemTime::now().duration_since(SystemTime::UNIX_EPOCH) {
+            Ok(n) => n.as_millis() as usize,
+            Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+        };
+        let unlock_time_str = format!("{timestamp}");
+        app_data
+            .seed_repository
+            .put_file(
+                seed_name,
+                "unlocked_timestamp.txt".to_string(),
+                unlock_time_str.into_bytes(),
+            )
+            .await
+            .unwrap();
+    } else {
+        let template = InvalidTokenTemplate {};
+        return HttpResponse::Forbidden().body(template.render().unwrap());
+    }
+    HttpResponse::Found()
+        .insert_header((header::LOCATION, format!("/seed/{}/", info.0)))
+        .finish()
+}
+
+pub fn scope() -> actix_web::Scope {
+    actix_web::web::scope("/seed")
+        .service(view_seed)
+        .service(view_seed_redirect)
+        .service(get_seed_file)
+        .service(customize_seed)
+        .service(unlock_seed)
 }
