@@ -2374,7 +2374,7 @@ impl<'a> MapPatcher<'a> {
         area_data: &[Vec<(ItemIdx, RoomId, MapTile)>],
     ) -> Result<()> {
         // Write per-area item listings, to be used by the patch `item_dots_disappear.asm`.
-        let base_ptr = 0x83B000;
+        let base_ptr = 0x83E000;
         let mut data_ptr = base_ptr + 24;
         for (area_idx, data) in area_data.iter().enumerate() {
             self.rom.write_u16(
@@ -2400,7 +2400,7 @@ impl<'a> MapPatcher<'a> {
             }
             assert_eq!(data_ptr, data_start + 6 * data.len());
         }
-        assert!(data_ptr <= 0x83B600);
+        assert!(data_ptr <= 0x83F000);
         Ok(())
     }
 

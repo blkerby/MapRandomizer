@@ -3258,12 +3258,18 @@ pub fn randomize_doors(
             settings.doors_settings.plasma_doors_count as usize
         ]);
     }
+    let walls = get_walls(map, game_data);
+    let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
 
-    if door_types.len() > 55 {
+    // The ability to support more doors is limited by the space for dynamic tiles in bank E4.
+    // That data could possibly be moved out to another bank to free up more space.
+    // For now we limit the amount of ammo/beam doors to 120.
+    let door_count_limit = door_conns.len().min(120);
+    if door_types.len() > door_count_limit {
         let mut keep_doors_idx =
-            rand::seq::index::sample(&mut rng, door_types.len(), 55).into_vec();
+            rand::seq::index::sample(&mut rng, door_types.len(), door_count_limit).into_vec();
         keep_doors_idx.sort();
-        let mut keep_doors = Vec::with_capacity(55);
+        let mut keep_doors = Vec::with_capacity(door_count_limit);
         for idx in keep_doors_idx.into_iter() {
             keep_doors.push(door_types[idx]);
         }
@@ -3271,8 +3277,6 @@ pub fn randomize_doors(
         door_types.extend(keep_doors);
     }
 
-    let walls = get_walls(map, game_data);
-    let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
     let mut locked_doors: Vec<LockedDoor> = vec![];
     let total_cnt = door_types.len();
     let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);

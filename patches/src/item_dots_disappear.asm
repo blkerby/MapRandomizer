@@ -2,8 +2,8 @@ arch snes.cpu
 lorom
 
 ; Must match locations in patch/map_tiles.rs
-!item_list_ptrs = $83B000
-!item_list_sizes = $83B00C
+!item_list_ptrs = $83E000
+!item_list_sizes = $83E00C
 
 !bank_82_freespace_start = $82FD00
 !bank_82_freespace_end = $82FD80
