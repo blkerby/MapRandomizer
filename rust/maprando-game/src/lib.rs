@@ -2962,8 +2962,9 @@ impl GameData {
                 let node_id = value.as_usize().unwrap();
                 return self.get_unlocks_doors_req(node_id, ctx);
             } else if key == "itemNotCollectedAtNode" {
-                // This would risk permanent loss of access, so we treat it as impossible.
-                return Ok(Requirement::Never);
+                // For now this is treated as free. Currently a separate canRiskPermanentLossAccess
+                // requirement would be included if it would risk permanent loss of access.
+                return Ok(Requirement::Free);
             } else if key == "itemCollectedAtNode" {
                 // TODO: implement this
                 return Ok(Requirement::Never);

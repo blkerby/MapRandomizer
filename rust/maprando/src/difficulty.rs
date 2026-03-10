@@ -72,7 +72,7 @@ pub fn get_link_difficulty(
             difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_CARRY_BLUE_SUIT]];
 
         let local = LocalState {
-            shinecharge_frames_remaining: 180 - difficulty.shinecharge_leniency_frames,
+            shinecharge_frames_remaining: 181 - difficulty.shinecharge_leniency_frames,
             flash_suit: if flash_suit_obtainable { 1 } else { 0 },
             blue_suit: if blue_suit_obtainable { 1 } else { 0 },
             ..LocalState::full(false)

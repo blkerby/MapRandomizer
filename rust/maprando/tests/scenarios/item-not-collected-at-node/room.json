@@ -38,8 +38,8 @@
       ],
       "flashSuitChecked": true,
       "devNote": [
-        "The randomizer treats the itemNotCollectedAtNode requirement as always impossible,",
-        "due to the risk of permanent loss of access."
+        "The randomizer treats the itemNotCollectedAtNode requirement as free,",
+        "as it is assumed to be guarded by canRiskPermanentLossOfAccess if needed."
       ]
     }
   ]
