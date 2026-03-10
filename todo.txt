@@ -1,5 +1,6 @@
 v121 or soon-ish?:
 - Filter item lists on seed page, to exclude inapplicable walljump and booster items.
+- handle blue suit interaction with farms.
 - DONE: new escape timings
 - DONE: Fix door lock skips showing in the wrong difficulty on logic pages.
   - DONE: Also G-mode regain mobility
