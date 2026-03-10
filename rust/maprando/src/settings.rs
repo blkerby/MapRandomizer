@@ -18,12 +18,25 @@ pub struct RandomizerSettings {
     pub quality_of_life_settings: QualityOfLifeSettings,
     pub objective_settings: ObjectiveSettings,
     pub map_layout: String,
-    pub doors_mode: DoorsMode,
+    pub doors_settings: DoorsSettings,
     pub start_location_settings: StartLocationSettings,
     pub save_animals: SaveAnimals,
     pub other_settings: OtherSettings,
     #[serde(default)]
     pub debug: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct DoorsSettings {
+    pub preset: Option<String>,
+    pub red_doors_count: i32,
+    pub green_doors_count: i32,
+    pub yellow_doors_count: i32,
+    pub charge_doors_count: i32,
+    pub ice_doors_count: i32,
+    pub wave_doors_count: i32,
+    pub spazer_doors_count: i32,
+    pub plasma_doors_count: i32,
 }
 
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
@@ -919,6 +932,31 @@ fn upgrade_objective_settings(
     Ok(())
 }
 
+fn upgrade_doors_settings(
+    settings: &mut serde_json::Value,
+    preset_data: &PresetData,
+) -> Result<()> {
+    let settings_obj = settings
+        .as_object_mut()
+        .context("expected settings to be object")?;
+
+    if !settings_obj.contains_key("doors_settings") {
+        settings_obj.insert(
+            "doors_settings".to_string(),
+            serde_json::to_value(preset_data.doors_presets[0].clone()).unwrap(),
+        );
+    }
+
+    if settings_obj.contains_key("doors_mode") {
+        *settings_obj
+            .get_mut("doors_settings")
+            .unwrap()
+            .get_mut("preset")
+            .unwrap() = settings_obj["doors_mode"].as_str().unwrap().into();
+    }
+    Ok(())
+}
+
 fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
     let settings_obj = settings
         .as_object_mut()
@@ -989,6 +1027,7 @@ pub fn try_upgrade_settings(
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_qol_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
+    upgrade_doors_settings(&mut settings, preset_data)?;
     upgrade_other_settings(&mut settings)?;
     upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;

@@ -54,7 +54,15 @@ struct SeedData {
     momentum_conservation: bool,
     fanfares: String,
     objectives: Vec<String>,
-    doors: String,
+    doors_preset: Option<String>,
+    red_doors_count: i32,
+    green_doors_count: i32,
+    yellow_doors_count: i32,
+    charge_doors_count: i32,
+    ice_doors_count: i32,
+    wave_doors_count: i32,
+    spazer_doors_count: i32,
+    plasma_doors_count: i32,
     start_location_mode: String,
     map_layout: String,
     save_animals: String,
@@ -333,7 +341,15 @@ async fn randomize(
             .iter()
             .map(|x| to_variant_name(x).unwrap().to_string())
             .collect(),
-        doors: to_variant_name(&settings.doors_mode).unwrap().to_string(),
+        doors_preset: settings.doors_settings.preset.clone(),
+        red_doors_count: settings.doors_settings.red_doors_count,
+        green_doors_count: settings.doors_settings.green_doors_count,
+        yellow_doors_count: settings.doors_settings.yellow_doors_count,
+        charge_doors_count: settings.doors_settings.charge_doors_count,
+        ice_doors_count: settings.doors_settings.ice_doors_count,
+        wave_doors_count: settings.doors_settings.wave_doors_count,
+        spazer_doors_count: settings.doors_settings.spazer_doors_count,
+        plasma_doors_count: settings.doors_settings.plasma_doors_count,
         start_location_mode: if settings.start_location_settings.mode == StartLocationMode::Custom {
             output.randomization.start_location.name.clone()
         } else {

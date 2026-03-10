@@ -51,6 +51,12 @@
     for (p of qolPresetsArr) {
         qolPresets[p.preset] = p;
     }
+    
+    let doorsPresetsArr = {{ doors_presets_json|safe }};
+    let doorsPresets = {};
+    for (p of doorsPresetsArr) {
+        doorsPresets[p.preset] = p;
+    }
 
     let objectivePresetsArr = {{ objective_presets_json|safe }};
     let objectivePresets = {};
@@ -213,12 +219,20 @@
                     <label for="doors">Doors</label>
                 </div>
                 <div id="doors" class="col-lg-4 btn-group" role="group">
-                    <input type="radio" class="btn-check" name="doors" id="doorsBlue" value="Blue" onchange="fullSettingsChanged()">
-                    <label class="btn btn-outline-primary" for="doorsBlue">Blue</label>
-                    <input type="radio" class="btn-check" name="doors" id="doorsAmmo" value="Ammo" onchange="fullSettingsChanged()" checked=true>
-                    <label class="btn btn-outline-primary" for="doorsAmmo">Ammo</label>
-                    <input type="radio" class="btn-check" name="doors" id="doorsBeam" value="Beam" onchange="fullSettingsChanged()">
-                    <label class="btn btn-outline-primary" for="doorsBeam">Beam</label>
+                {% for preset in preset_data.doors_presets.iter() %}
+                {% let name = preset.preset.as_ref().unwrap() %}
+                    <input type="radio" class="btn-check doors-preset-button" name="doors_preset" value="{{+ name}}"
+                        id="doors{{+ name }}" autocomplete="off"
+                        onchange="doorsPresetChanged()"
+                        {% if loop.index0 == 1 %}
+                        checked
+                        {% endif %}
+                        >
+                    <label class="btn btn-outline-primary p-2" for="doors{{+ name }}">{{+ name }}</label>
+                {% endfor %}
+                <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#doorsModal">
+                    <i class="bi bi-gear"></i>
+                </button>    
                 </div>
             </div>
 
@@ -289,6 +303,7 @@
             {% include "item_progression.html" %}
             {% include "quality_of_life.html" %}
             {% include "objectives.html" %}
+            {% include "doors.html" %}
             {% include "start_location.html" %}
         </form>
     </div>

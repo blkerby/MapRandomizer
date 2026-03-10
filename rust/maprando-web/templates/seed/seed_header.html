@@ -61,7 +61,7 @@
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Doors:</div>
-            <div class="col-7 col-sm-8 col-md-9">{{+ doors }}</div>
+            <div class="col-7 col-sm-8 col-md-9">{{+ doors_preset }}</div>
         </div>
         <div class="row">
             <div class="col-5 col-sm-4 col-md-3">Start location:</div>
@@ -125,6 +125,15 @@
                     </div>
                     <div class="card-body">
                         {% include "quality_of_life_details.html" %}
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        Doors details
+                    </div>
+                    <div class="card-body">
+                        {% include "doors_details.html" %}
                     </div>
                 </div>
 

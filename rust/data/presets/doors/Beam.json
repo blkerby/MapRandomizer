@@ -1,0 +1,11 @@
+{
+    "preset": "Beam",
+    "red_doors_count": 18,
+    "green_doors_count": 10,
+    "yellow_doors_count": 7,
+    "charge_doors_count": 4,
+    "ice_doors_count": 4,
+    "wave_doors_count": 4,
+    "spazer_doors_count": 4,
+    "plasma_doors_count": 4
+}

@@ -5,7 +5,7 @@ use crate::helpers::get_item_priorities;
 use crate::patch::NUM_AREAS;
 use crate::patch::map_tiles::get_objective_tiles;
 use crate::settings::{
-    AreaAssignmentBaseOrder, DoorsMode, FillerItemPriority, ItemCount, ItemPlacementStyle,
+    AreaAssignmentBaseOrder, FillerItemPriority, ItemCount, ItemPlacementStyle,
     ItemPriorityStrength, KeyItemPriority, MotherBrainFight, Objective, ObjectiveSetting,
     ProgressionRate, RandomizerSettings, SaveAnimals, SkillAssumptionSettings, SpeedBooster,
     StartLocationMode, WallJump,
@@ -3210,33 +3210,73 @@ pub fn randomize_doors(
     let mut used_beam_rooms: HashSet<RoomGeometryRoomIdx> = HashSet::new();
     let mut door_types = vec![];
 
-    match settings.doors_mode {
-        DoorsMode::Blue => {}
-        DoorsMode::Ammo => {
-            let red_doors_cnt = 30;
-            let green_doors_cnt = 15;
-            let yellow_doors_cnt = 10;
-            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
-            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
-            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-        }
-        DoorsMode::Beam => {
-            let red_doors_cnt = 18;
-            let green_doors_cnt = 10;
-            let yellow_doors_cnt = 7;
-            let beam_door_each_cnt = 4;
-            door_types.extend(vec![DoorType::Red; red_doors_cnt]);
-            door_types.extend(vec![DoorType::Green; green_doors_cnt]);
-            door_types.extend(vec![DoorType::Yellow; yellow_doors_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Charge); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Ice); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Wave); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Spazer); beam_door_each_cnt]);
-            door_types.extend(vec![DoorType::Beam(BeamType::Plasma); beam_door_each_cnt]);
-        }
-    };
+    if settings.doors_settings.red_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Red;
+            settings.doors_settings.red_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.green_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Green;
+            settings.doors_settings.green_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.yellow_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Yellow;
+            settings.doors_settings.yellow_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.charge_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Charge);
+            settings.doors_settings.charge_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.ice_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Ice);
+            settings.doors_settings.ice_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.wave_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Wave);
+            settings.doors_settings.wave_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.spazer_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Spazer);
+            settings.doors_settings.spazer_doors_count as usize
+        ]);
+    }
+    if settings.doors_settings.plasma_doors_count > 0 {
+        door_types.extend(vec![
+            DoorType::Beam(BeamType::Plasma);
+            settings.doors_settings.plasma_doors_count as usize
+        ]);
+    }
     let walls = get_walls(map, game_data);
     let door_conns = get_randomizable_door_connections(game_data, map, &walls, objectives);
+
+    // The ability to support more doors is limited by the space for dynamic tiles in bank E4.
+    // That data could possibly be moved out to another bank to free up more space.
+    // For now we limit the amount of ammo/beam doors to 120.
+    let door_count_limit = door_conns.len().min(120);
+    if door_types.len() > door_count_limit {
+        let mut keep_doors_idx =
+            rand::seq::index::sample(&mut rng, door_types.len(), door_count_limit).into_vec();
+        keep_doors_idx.sort();
+        let mut keep_doors = Vec::with_capacity(door_count_limit);
+        for idx in keep_doors_idx.into_iter() {
+            keep_doors.push(door_types[idx]);
+        }
+        door_types.clear();
+        door_types.extend(keep_doors);
+    }
+
     let mut locked_doors: Vec<LockedDoor> = vec![];
     let total_cnt = door_types.len();
     let idxs = rand::seq::index::sample(&mut rng, door_conns.len(), total_cnt);
