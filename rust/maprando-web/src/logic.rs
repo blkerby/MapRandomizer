@@ -16,7 +16,6 @@ async fn logic_main(app_data: web::Data<AppData>) -> impl Responder {
         .body(app_data.logic_data.index_html.clone())
 }
 
-
 #[get("/room/{name}")]
 async fn logic_room(info: web::Path<(usize,)>, app_data: web::Data<AppData>) -> impl Responder {
     let room_id = &info.0;
@@ -29,7 +28,6 @@ async fn logic_room(info: web::Path<(usize,)>, app_data: web::Data<AppData>) -> 
         HttpResponse::NotFound().body(template.render().unwrap())
     }
 }
-
 
 #[get("/room/{room_id}/{from_node}/{to_node}/{strat_name}")]
 async fn logic_strat(
@@ -54,7 +52,6 @@ async fn logic_strat(
     }
 }
 
-
 #[get("/tech/{tech_id}")]
 async fn logic_tech(info: web::Path<(TechId,)>, app_data: web::Data<AppData>) -> impl Responder {
     let tech_id = info.0;
@@ -67,7 +64,6 @@ async fn logic_tech(info: web::Path<(TechId,)>, app_data: web::Data<AppData>) ->
         HttpResponse::NotFound().body(template.render().unwrap())
     }
 }
-
 
 #[get("/notable/{room_id}/{notable_id}")]
 async fn logic_notable(
@@ -85,7 +81,6 @@ async fn logic_notable(
         HttpResponse::NotFound().body(template.render().unwrap())
     }
 }
-
 
 #[derive(Template)]
 #[template(path = "logic/boss_calculator.html")]
@@ -116,14 +111,12 @@ async fn logic_boss_calculator(app_data: web::Data<AppData>) -> impl Responder {
         .body(template.render().unwrap())
 }
 
-
 #[get("/vanilla_map.png")]
 async fn logic_vanilla_map(app_data: web::Data<AppData>) -> impl Responder {
     HttpResponse::Ok()
         .content_type("image/png")
         .body(app_data.logic_data.vanilla_map_png.clone())
 }
-
 
 pub fn scope() -> actix_web::Scope {
     actix_web::web::scope("/logic")
