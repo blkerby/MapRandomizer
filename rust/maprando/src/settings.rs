@@ -598,6 +598,14 @@ fn assign_presets(settings: &mut serde_json::Value, preset_data: &PresetData) ->
             }
         }
     }
+    if let Some(preset) = settings["doors_settings"]["preset"].as_str() {
+        let preset = preset.to_owned();
+        for p in &preset_data.doors_presets {
+            if p.preset.as_ref() == Some(&preset) {
+                *settings.get_mut("doors_settings").unwrap() = serde_json::to_value(p)?;
+            }
+        }
+    }
     if let Some(preset) = settings["name"].as_str() {
         let preset = preset.to_owned();
         for p in &preset_data.full_presets {
@@ -1018,6 +1026,7 @@ pub fn try_upgrade_settings(
     let mut settings: serde_json::Value = serde_json::from_str(&settings_str)?;
 
     upgrade_objective_settings(&mut settings, preset_data)?;
+    upgrade_doors_settings(&mut settings, preset_data)?;
     if apply_presets {
         assign_presets(&mut settings, preset_data)?;
     }
@@ -1027,7 +1036,6 @@ pub fn try_upgrade_settings(
     upgrade_item_progression_settings(&mut settings)?;
     upgrade_qol_settings(&mut settings)?;
     upgrade_map_setting(&mut settings)?;
-    upgrade_doors_settings(&mut settings, preset_data)?;
     upgrade_other_settings(&mut settings)?;
     upgrade_start_location_setings(&mut settings)?;
     upgrade_animals_setting(&mut settings)?;
