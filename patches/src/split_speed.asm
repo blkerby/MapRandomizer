@@ -57,12 +57,16 @@ org $908502
 org $90855B
     bit #!any_booster
 
-; Raise dash speed cap from $2.0 to $7.0 with any booster item:
+; Initialize speed booster running with any booster item:
 org $90978C
     bit #!any_booster
 
+; Clamp dash speed to $2.0 when only Spark Booster is equipped
+org $9097A9
+    jmp hook_speed_clamp
+
 ; When only Spark Booster is equipped, lose speed when jumping or falling:
-; This caps Samus' dash speed to $2.0, resets dash counter to zero, and remove echoes.
+; This resets dash counter to zero and remove echoes.
 org $909919 : jsr hook_jump
 org $91E901 : jsr hook_fall
 
@@ -206,7 +210,7 @@ hook_normal_jump_spark:
 
 
 hook_fall:
-    jsl spark_booster_lose_speed
+    jsl spark_booster_lose_blue
     lda $0a1e  ; run hi-jacked instruction
     rts
     
@@ -262,15 +266,15 @@ hook_blue_unpause:
     jml $91E66F
 
 
-spark_booster_lose_speed:
+spark_booster_lose_blue:
     ; If either Blue Booster or Speed Booster is equipped, skip the speed clamp/loss.
     lda !equipped_items
     bit #!blue_booster|!speed_booster
-    bne .skip_speed_clamp
+    bne .skip_lose_blue
 
     ; If Samus does not have running momentum, skip the speed clamp/loss (to avoid interfering with blue suit).
     lda $0B3C  ; Samus running momentum flag
-    beq .skip_speed_clamp
+    beq .skip_lose_blue
 
     ; Set speed echoes to merge back into Samus
     ;lda #$FFFF
@@ -279,17 +283,9 @@ spark_booster_lose_speed:
 
     stz $0b3e   ; Clear dash counter
 
-    ; Clamp extra run speed to $2.0:
-    lda $0b42
-    cmp #$0002
-    bcc .skip_speed_clamp
-    lda #$0002
-    sta $0b42
-    stz $0b44
-
     lda #$0000
     rtl
-.skip_speed_clamp:
+.skip_lose_blue:
     lda $09a2   ; run hi-jacked instruction (relevant only where called by hook_jump)
     rtl
 .remove_echoes
@@ -298,7 +294,7 @@ spark_booster_lose_speed:
     jml $91DE8D
 
 hook_jump:
-    jsl spark_booster_lose_speed
+    jsl spark_booster_lose_blue
     rts
 
 hook_update_speed_echoes:
@@ -363,6 +359,17 @@ hook_setup_speedbooster_menu_tile:
 .no
     plp
     rtl
+
+hook_speed_clamp:
+    lda !equipped_items
+    and #!any_booster
+    cmp #!spark_booster
+    beq .spark_booster
+
+    lda $0B42  ; run hi-jacked instruction
+    jmp $97AC  ; jump to vanilla code to clamp dash speed to $7.0
+.spark_booster
+    jmp $97D5  ; jump to vanilla code to clamp dash speed to $2.0
 
 assert pc() <= !bank_90_free_space_end
 
