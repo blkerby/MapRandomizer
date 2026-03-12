@@ -105,8 +105,8 @@ org $91E647
     nop
 
 org $84B7F2
-    ; Lavaquake starts if any Speed/Blue/Spark Booster is collected
-    and #!any_booster
+    ; Lavaquake starts if any Speed Booster or Blue Booster is collected
+    and #!blue_booster|!speed_booster
 
 org $91DB0B
     jsr hook_reset_special_palette ; Palette reset from shinecharge special palette
