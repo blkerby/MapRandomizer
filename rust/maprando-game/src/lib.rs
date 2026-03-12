@@ -736,7 +736,7 @@ pub struct RunwayGeometry {
     pub gentle_down_tiles: f32,
     pub steep_up_tiles: f32,
     pub steep_down_tiles: f32,
-    pub starting_down_tiles: f32,
+    pub starting_steep_down_tiles: f32,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -1172,7 +1172,7 @@ fn parse_runway_geometry(runway: &JsonValue) -> Result<RunwayGeometry> {
         gentle_down_tiles: runway["gentleDownTiles"].as_f32().unwrap_or(0.0),
         steep_up_tiles: runway["steepUpTiles"].as_f32().unwrap_or(0.0),
         steep_down_tiles: runway["steepDownTiles"].as_f32().unwrap_or(0.0),
-        starting_down_tiles: runway["startingDownTiles"].as_f32().unwrap_or(0.0),
+        starting_steep_down_tiles: runway["startingSteepDownTiles"].as_f32().unwrap_or(0.0),
     })
 }
 
@@ -1187,12 +1187,12 @@ fn parse_runway_geometry_shinecharge(runway: &JsonValue) -> Result<RunwayGeometr
         gentle_down_tiles: runway["gentleDownTiles"].as_f32().unwrap_or(0.0),
         steep_up_tiles: runway["steepUpTiles"].as_f32().unwrap_or(0.0),
         steep_down_tiles: runway["steepDownTiles"].as_f32().unwrap_or(0.0),
-        starting_down_tiles: runway["startingDownTiles"].as_f32().unwrap_or(0.0),
+        starting_steep_down_tiles: runway["startingSteepDownTiles"].as_f32().unwrap_or(0.0),
     })
 }
 
 fn compute_runway_effective_length(geom: &RunwayGeometry) -> f32 {
-    geom.length - geom.starting_down_tiles - 9.0 / 16.0 * (1.0 - geom.open_end)
+    geom.length - geom.starting_steep_down_tiles - 9.0 / 16.0 * (1.0 - geom.open_end)
         + 1.0 / 3.0 * geom.steep_up_tiles
         + 1.0 / 7.0 * geom.steep_down_tiles
         + 5.0 / 27.0 * geom.gentle_up_tiles
