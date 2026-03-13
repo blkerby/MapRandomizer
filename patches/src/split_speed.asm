@@ -7,8 +7,11 @@
 !bank_91_free_space_start2 = $91FC42
 !bank_91_free_space_end2 = $91FC66
 
-!bank_82_free_space_start = $82FF20
-!bank_82_free_space_end =   $82FF30
+!bank_82_free_space_start = $82C42D
+!bank_82_free_space_end =   $82C465
+
+!bank_82_freespace2_start = $82FF20
+!bank_82_freespace2_end   = $82FF30
 
 !bank_B6_free_space_start = $B6FC00
 !bank_B6_free_space_end = $B6FE00
@@ -22,32 +25,81 @@
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
 
-org $8291D0
-    jsr hook_setup_speedbooster_menu_tile_wrapper
+org $82A22F
+    lda #list_boots_ram_tilemaps
 
-org $82B5AE
-    jsr hook_equip_enable
+org $82A23D
+    lda list_boots_equip_bitmasks, y
 
-org $82C066
-; Speedbooster bitset
-    dw !any_booster
+org $82A257
+    ldx list_boots_equip_tilemaps, y
+
+org $82A25D
+    lda list_boots_equip_bitmasks, y
+
+org $82B1C6
+    cmp #$0303
+
+org $82B517
+    bit list_boots_equip_bitmasks, x
+
+org $82B545
+    bit list_boots_equip_bitmasks, x
+
+org $82B51E
+    cpx #$0008
+
+org $82C194
+    dw boots_item_selector_positions
+
+org $82A278
+    cpy #$0008
+
+org $82C032
+    dw list_boots_ram_tilemaps
+
+org $82C03A
+    dw list_boots_equip_bitmasks
+
+org $82C04A
+    dw list_boots_equip_tilemaps
+    
+org $82C2A6
+list_boots_equip_tilemaps:
+    dw $BFD2, $BFE4, tilemap_blue_booster, tilemap_spark_booster
+warnpc $82C2B7
 
 org !bank_82_free_space_start
 
-hook_setup_speedbooster_menu_tile_wrapper:
-    sta $0725  ; run hi-jacked instruction
-    jsl hook_setup_speedbooster_menu_tile
-    rts
+;Tilemaps
+;oBLUE BOOSTER
+tilemap_blue_booster:
+    dw $12FF, $1270, $1271, $1272, $1273, $1274, $1275, $1276, $1277
 
-hook_equip_enable:
-    ; X = equipment bitmask
-    ; Y = equipment bitset
-    ; A = loaded with previously equipped items
-    ora $0000,x ; Hijacked code (sets the bitmask)
-    and $0002,y ; AND with collected items
-    rts
+;oSPARK BOOSTER
+tilemap_spark_booster:
+    dw $12FF, $1278, $1279, $127A, $127B, $127C, $127D, $127E, $127F
 
+; Replacement boots table
+list_boots_equip_bitmasks:
+    dw $0100, $0200, !blue_booster, !spark_booster
+
+list_boots_ram_tilemaps:
+    dw $3CEA, $3D2A, $3D6A, $3DAA
+
+warnpc !bank_82_free_space_end
 assert pc() <= !bank_82_free_space_end
+
+org !bank_82_freespace2_start
+
+boots_item_selector_positions:
+    dw $00CC, $009C
+    dw $00CC, $00A4
+    dw $00CC, $00AC
+    dw $00CC, $00B4
+
+warnpc !bank_82_freespace2_end
+assert pc() <= !bank_82_freespace2_end
 
 ; Accelerate Samus' animation with any booster item:
 org $908502
@@ -314,52 +366,6 @@ hook_update_speed_echoes:
     lda $0b3e  ; run hi-jacked instruction
     rts
 
-hook_setup_speedbooster_menu_tile:
-    php
-    
-    rep #$30
-    lda $09A4
-    and #!any_booster
-    beq .no     ; No boosters
-    bit #!speed_booster
-    bne .no     ; Full speedbooster
-    
-    cmp #!blue_booster|!spark_booster
-    beq .no     ; Blue+Spark = Speed
-    
-    ; Prepare VRAM for copy
-    ldx #$1240
-    stx $2116
-    sep #$10    ; X = 8-bit
-    ldx #$80    ; Auto-increment, 1 word
-    stx $2115
-
-    cmp #!blue_booster
-    beq .blue
-    
-    ; Spark booster
-    jsl $8091A9
-    db $01, $01, $18
-    dl menu_tiles_spark_booster
-    dw menu_tiles_spark_booster_end-menu_tiles_spark_booster
-
-    bra .dma
-
-.blue
-    jsl $8091A9
-    db $01, $01, $18
-    dl menu_tiles_blue_booster
-    dw menu_tiles_blue_booster_end-menu_tiles_blue_booster
-
-.dma 
-    sep #$30
-    lda #$02
-    sta $420B   ; DMA execute
-   
-.no
-    plp
-    rtl
-
 hook_speed_clamp:
     lda !equipped_items
     and #!any_booster
@@ -375,6 +381,7 @@ assert pc() <= !bank_90_free_space_end
 
 org !bank_B6_free_space_start
 
+org $B6CE00
 menu_tiles_blue_booster:
     db $FF, $FF, $FF, $FF, $8D, $FF, $B5, $FF, $8D, $FF, $B5, $FF, $8C, $FF, $FF, $FF
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
@@ -413,4 +420,4 @@ menu_tiles_spark_booster:
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
 .end
 
-assert pc() <= !bank_B6_free_space_end
+;assert pc() <= !bank_B6_free_space_end

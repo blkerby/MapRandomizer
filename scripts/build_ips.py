@@ -151,6 +151,9 @@ whitelist_dict = {
     'reserve_backward_fill': [
         ['hud_expansion_opaque', 0xB6A940, 0xB6A980]
     ],
+    'split_speed': [
+        ['hud_expansion_opaque', 0xB6CE00, 0xB6D000]
+    ],
 }
 
 failed = False
