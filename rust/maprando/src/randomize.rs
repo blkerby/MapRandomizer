@@ -3991,7 +3991,11 @@ impl<'r> Randomizer<'r> {
             {
                 continue;
             }
-            let filler_type = self.filler_priority_map[&item];
+            let filler_type = self
+                .filler_priority_map
+                .get(&item)
+                .copied()
+                .unwrap_or(FillerItemPriority::No);
             if filler_type == FillerItemPriority::Early
                 && !state.global_state.inventory.items[item as usize]
                 && early_filler_slots_remaining > 0

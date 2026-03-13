@@ -136,6 +136,7 @@ Major new features (not clear yet which of these will ever happen):
   - would be a lot of work. we could invite others to help implement the logic
 
 Other:
+- settings upgrade: fill out "filler_items" that may be missing items.
 - maybe blank out missing areas in credits area times
 - maybe run customization on client (with Rust WebAssembly)
   - then the ROM wouldn't need to be passed to the server.
