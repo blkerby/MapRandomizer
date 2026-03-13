@@ -1,5 +1,7 @@
 $95: temporary variable (unused debug location) - used by extended messageboxes, safe to use outside message boxes.
 $9B: decompression.asm
+$0336 - $033A - self_check.asm [rom checksum calucation]
+$033B - $033F - free
 $09EC: number of disabled ETanks (saved to SRAM)
 $0A1A: previous reserve health (reserve_hud.asm)
 $1F5B: map area (like $079F)
@@ -56,5 +58,4 @@ $7EFE90-$7EFE92:
 $7EFE92-$7EFE94: Saved special Samus palette type (applicable if flash suit is stored)
 $7EFE94-7EFF00: [FREE] (save slot-specific data to be copied to SRAM)
 $7EFF00-7F0000: [FREE]
-$7ff800-7ff805: self_check.asm
 $7fffe8: scroll speed (credits.asm)

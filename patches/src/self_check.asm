@@ -11,40 +11,30 @@
 arch snes.cpu
 lorom
 
+!bank_8b_free_space_start = $8bf940
+!bank_8b_free_space_end = $8bf960
+
 !bank_80_free_space_start = $80BC37
 !bank_80_free_space_end = $80C437
-!sram_msg_end = $80BC37
 
-!bank = $7ffa02
-!offset = $7ffa03
-!checksum = $7ffa05
+!chksum_fail_msg_start = $80B437
+!chksum_fail_msg_end = $80BC37
+
+!bank = $7e0336
+!offset = $7e0337
+!checksum = $7e0339
+
+; hook the common boot section clear bank $7e routine and replace with one that won't clobber our checksum variables (already in use by this time)
+;$80:8489 C2 30       REP #$30 <- starting here
+;$80:84B1 E2 30       SEP #$30
+;$80:84B3 9C 00 42    STZ $4200 <-- jumping back to here (the new clear sram routine calls sep #$30 so it leaves the routine in that state negating 
+;                     the need for it again at 84b1.. it 84b3 is overwritten by nop in stats.asm but code returns to the vanilla location incase stats.asm ever changes.
 
 
-; bootloop burns 4 frames during bootup, our init code fits exactly here and avoids a jump.
-
-;$80:8438 E2 30       SEP #$30
-;$80:843A A2 04       LDX #$04               ;\
-;                                            ;|
-;$80:843C AD 12 42    LDA $4212              ;|
-;$80:843F 10 FB       BPL $FB    [$843C]     ;|
-;                                            ;} Wait the remainder of this frame and 3 more frames
-;$80:8441 AD 12 42    LDA $4212              ;|
-;$80:8444 30 FB       BMI $FB    [$8441]     ;|
-;$80:8446 CA          DEX                    ;|
-;$80:8447 D0 F3       BNE $F3    [$843C]     ;/
-;$80:8449 C2 30       REP #$30
-;$80:844B A2 FE 1F    LDX #$1FFE  
-
-org $808438
-    lda #$0080
-    sta !bank
-    xba
-    sta !offset
-    lda #$0000
-    sta !checksum
-
-assert pc() <= $80844B ; lets not overwrite the next instruction.
-
+org $808489
+  jmp clear_7e_safe
+  nop #39
+  
 ; Hook the wait-for-NMI idle loop:
 
 ;$80:8340 8D B4 05    STA $05B4  [$7E:05B4]  ;} NMI request flag = 1
@@ -205,11 +195,45 @@ endfor
 .crash
     bra .crash
 
-print pc
+clear_7e_safe: ;replaces the stock clear bank 7e unrolled stz routine on boot but does not clear the checksum locations.
+;               dma clear (relies on rom header 80:0002 being vanilla 0000)
+    sep #$30
+    lda #$08
+    sta $4300 
+    lda #$80
+    sta $4301 
+    lda #$02  
+    sta $4302   
+    lda #$80
+    sta $4303   
+    lda #$80
+    sta $4304
+    stz $2181               
+    stz $2182               
+    stz $2183 
+    lda #$35
+    sta $4305
+    lda #$03
+    sta $4306
+    lda #$01
+    sta $420B
+    lda #$40
+    sta $2181               
+    lda #$03
+    sta $2182               
+    stz $2183
+    lda #$C0
+    sta $4305 
+    lda #$FC
+    sta $4306             
+    lda #$01
+    sta $420B
+    jmp $84B3 ; return to next instruction in common boot sequence.
+
 assert pc() <= !bank_80_free_space_end
 
 table "tables/menu.tbl",RTL
-org $80B437 ; replace the stock SRAM error with our own .
+org !chksum_fail_msg_start ; replace the stock SRAM error with our own .
 
 dw "                                "
 dw "                                "
@@ -236,7 +260,7 @@ dw "                                "
 dw " - 3RD PARTY ROM PATCHING TOOLS "
 dw "   NOT FIXING ROM CHECKSUM      "
 dw "                                "
-dw " - SD2SNES (FXPAK) INGAME HOOKS "
+dw " - SD2SNES:FXPAK IN-GAME HOOKS  "
 dw "                                "
 dw "                                "
 dw "                                "
@@ -244,4 +268,20 @@ dw "                                "
 dw "                                "
 dw "                                "
 
-assert pc() <= !sram_msg_end
+assert pc() <= !chksum_fail_msg_end
+
+org $8b9155 ;$8B:9155 9C 90 05    STZ $0590  [$7E:0590]  ; OAM stack pointer = 0
+  jsr init_chksum_variables
+
+org !bank_8b_free_space_start
+init_chksum_variables:
+  stz $0590   ; hijacked instruction
+  lda #$0080
+  sta !bank
+  xba
+  sta !offset
+  lda #$0000
+  sta !checksum
+  rts
+
+assert pc() <= !bank_8b_free_space_end
