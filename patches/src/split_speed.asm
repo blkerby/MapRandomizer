@@ -52,6 +52,14 @@ org $82B51E
 org $82C194
     dw boots_item_selector_positions
 
+org $82C1B2
+    dw $00CC, $0044
+    dw $00CC, $004C
+    dw $00CC, $0064
+    dw $00CC, $006C
+    dw $00CC, $0074
+    dw $00CC, $007C
+
 org $82A278
     cpy #$0008
 
@@ -60,6 +68,9 @@ org $82C032
 
 org $82C03A
     dw list_boots_equip_bitmasks
+
+org $82C076
+    dw $3A2A, $3A6A, $3B2A, $3B6A, $3BAA, $3BEA
 
 org $82C04A
     dw list_boots_equip_tilemaps
@@ -85,7 +96,7 @@ list_boots_equip_bitmasks:
     dw $0100, $0200, !blue_booster, !spark_booster
 
 list_boots_ram_tilemaps:
-    dw $3CEA, $3D2A, $3D6A, $3DAA
+    dw $3CAA, $3CEA, $3D2A, $3D6A
 
 warnpc !bank_82_free_space_end
 assert pc() <= !bank_82_free_space_end
@@ -93,10 +104,10 @@ assert pc() <= !bank_82_free_space_end
 org !bank_82_freespace2_start
 
 boots_item_selector_positions:
+    dw $00CC, $0094
     dw $00CC, $009C
     dw $00CC, $00A4
     dw $00CC, $00AC
-    dw $00CC, $00B4
 
 warnpc !bank_82_freespace2_end
 assert pc() <= !bank_82_freespace2_end
@@ -418,11 +429,80 @@ menu_tiles_spark_booster:
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
 .end
 
-org $B6
-; Replace the SPEED BOOSTER row with BLUE/SPARK BOOSTER and move the bottom of the box down one row.
+; Power Suit Shoulder with line tile (1CF)
+org $B6B9E0
+    db $0B, $00, $09, $00, $08, $00, $05, $00, $85, $80, $41, $40, $22, $20, $12, $10
+    db $00, $00, $00, $00, $00, $00, $00, $00, $80, $80, $40, $40, $20, $20, $10, $10
+
+; Power Suit inside line tile (17E) doesn't change
+
+; Power Suit outside line tile (17F)
+org $B6AFE0
+    db $10, $10, $20, $20, $40, $40, $80, $80, $00, $00, $00, $00, $80, $00, $C0, $00
+    db $10, $10, $20, $20, $40, $40, $80, $80, $00, $00, $00, $00, $00, $00, $00, $00
+
+; Varia Suit Shoulder with line tile (1D8)
+org $B6BB00
+    db $14, $00, $25, $00, $29, $00, $2A, $00, $8A, $80, $4B, $40, $20, $20, $10, $10
+    db $00, $00, $00, $00, $00, $00, $00, $00, $80, $80, $40, $40, $20, $20, $10, $10
+
+;Varia Suit inside line tile (1E6)
+org $B6BCC0
+    db $0F, $00, $F0, $00, $06, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $FF, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $00, $00
+
+;Varia Suit outside line tile (1E7)
+org $B6BCE0
+    db $90, $10, $20, $20, $48, $40, $80, $80, $30, $00, $40, $00, $80, $00, $C0, $00
+    db $10, $10, $20, $20, $40, $40, $80, $80, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $B6EA66
+    dw $65CF
+
+org $82D54F
+    dw $65CF
+
+org $82D65F
+    dw $65CF
+
+org $82D76F
+    dw $65D8
+
+org $82D87F
+    dw $65D8
+
+org $B6E9E8
+    dw $3941, $3942, $3942, $3943, $2AF6, $2AF7, $2AF8, $7943, $3942, $3942, $7941
+org $B6EA28
+    dw $3940, $0CFF, $0D00, $0D01, $0D02, $0D03, $0D04, $0D05, $0CD4, $0CD4, $7940
+org $B6EA68
+    dw $7954, $0CFF, $0CD0, $0CD1, $0CD2, $0CD3, $0D03, $0D04, $0D05, $0CD4, $7940
+org $B6EAA8
+    dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941
+
+org $B6EAE8
+    dw $3941, $3942, $3942, $3943, $29B0, $29B1, $29B2, $7943, $3942, $3942, $7941
+org $B6EB28
+    dw $3940, $08FF, $0920, $0921, $0922, $0923, $0917, $0918, $090F, $091F, $7940
+org $B6EB68
+    dw $3940, $08FF, $08D5, $08D6, $08D7, $08D4, $08D4, $08D4, $08D4, $08D4, $7940
+org $B6EBA8
+    dw $7954, $08FF, $0910, $0911, $0912, $0913, $0914, $0915, $0916, $08D4, $7940
+org $B6EBE8
+    dw $3940, $08FF, $08E0, $08E1, $08E2, $08E3, $08E4, $08E5, $08E6, $08D4, $7940
+org $B6EC28
+    dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941
+
+;FIXME: Uses hud_expansion_opaque relocated tiles
+org $B6EC68
+    dw $3941, $3942, $3942, $3943, $2EB9, $2EBA, $2EBB, $7943, $3942, $3942, $7941
+org $B6ECA8
+    dw $3940, $0CFF, $0D30, $0D31, $0D32, $0D33, $0D34, $0D35, $0D36, $0CD4, $7940
+org $B6ECE8
+    dw $3940, $0CFF, $0CF0, $0CF1, $0CF2, $0CF3, $0CF4, $0CF5, $0CD4, $0CD4, $7940
+org $B6ED28
+    dw $3940, $0CFF, $0D70, $0D71, $0D72, $0D73, $0D74, $0D75, $0D76, $0D77, $7940
 org $B6ED68
-    dw $F954, $0CFF, $0D70, $0D71, $0D72, $0D73, $0D74, $0D75, $0D76, $0D77, $7940
+    dw $F954, $0CFF, $0D78, $0D79, $0D7A, $0D7B, $0D7C, $0D7D, $0D7E, $0D7F, $7940
 org $B6EDA8
-    dw $3940, $0CFF, $0D78, $0D79, $0D7A, $0D7B, $0D7C, $0D7D, $0D7E, $0D7F, $7940
-org $B6EDE8
     dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941
