@@ -379,8 +379,6 @@ hook_speed_clamp:
 
 assert pc() <= !bank_90_free_space_end
 
-org !bank_B6_free_space_start
-
 org $B6CE00
 menu_tiles_blue_booster:
     db $FF, $FF, $FF, $FF, $8D, $FF, $B5, $FF, $8D, $FF, $B5, $FF, $8C, $FF, $FF, $FF
@@ -420,4 +418,11 @@ menu_tiles_spark_booster:
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
 .end
 
-;assert pc() <= !bank_B6_free_space_end
+org $B6
+; Replace the SPEED BOOSTER row with BLUE/SPARK BOOSTER and move the bottom of the box down one row.
+org $B6ED68
+    dw $F954, $0CFF, $0D70, $0D71, $0D72, $0D73, $0D74, $0D75, $0D76, $0D77, $7940
+org $B6EDA8
+    dw $3940, $0CFF, $0D78, $0D79, $0D7A, $0D7B, $0D7C, $0D7D, $0D7E, $0D7F, $7940
+org $B6EDE8
+    dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941

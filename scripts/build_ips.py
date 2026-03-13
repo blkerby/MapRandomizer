@@ -152,7 +152,8 @@ whitelist_dict = {
         ['hud_expansion_opaque', 0xB6A940, 0xB6A980]
     ],
     'split_speed': [
-        ['hud_expansion_opaque', 0xB6CE00, 0xB6D000]
+        ['hud_expansion_opaque', 0xB6CE00, 0xB6D000],
+        ['hud_expansion_opaque', 0xB6E800, 0xB6F000]
     ],
 }
 
