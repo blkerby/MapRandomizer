@@ -507,8 +507,8 @@ impl Patcher<'_> {
         if self.settings.quality_of_life_settings.all_items_spawn {
             patches.push("all_items_spawn");
         }
-        
-        let mut escape_itembits : Option<isize> = None;
+
+        let mut escape_itembits: Option<isize> = None;
 
         if self.settings.quality_of_life_settings.escape_movement_items
             || self
@@ -700,7 +700,7 @@ impl Patcher<'_> {
         {
             self.rom.write_u16(snes2pc(0x82F830), 0x0001)?;
         }
-        
+
         if let Some(escape_items) = escape_itembits {
             self.rom.write_u16(snes2pc(0xA9FB7B), escape_items)?;
         }
