@@ -507,6 +507,8 @@ impl Patcher<'_> {
         if self.settings.quality_of_life_settings.all_items_spawn {
             patches.push("all_items_spawn");
         }
+        
+        let mut escape_itembits : Option<isize> = None;
 
         if self.settings.quality_of_life_settings.escape_movement_items
             || self
@@ -515,6 +517,7 @@ impl Patcher<'_> {
                 .stop_item_placement_early
         {
             patches.push("escape_items");
+            escape_itembits = Some(0xF72F);
         }
 
         if self.settings.quality_of_life_settings.fast_elevators {
@@ -555,6 +558,9 @@ impl Patcher<'_> {
             SpeedBooster::Split => {
                 patches.push("split_speed_plm");
                 patches.push("split_speed");
+                if escape_itembits.is_some() {
+                    escape_itembits = Some((escape_itembits.unwrap() & !0x2000) | 0x00C0);
+                }
             }
         }
 
@@ -693,6 +699,10 @@ impl Patcher<'_> {
             == DisableETankSetting::Unrestricted
         {
             self.rom.write_u16(snes2pc(0x82F830), 0x0001)?;
+        }
+        
+        if let Some(escape_items) = escape_itembits {
+            self.rom.write_u16(snes2pc(0xA9FB7B), escape_items)?;
         }
 
         Ok(())
