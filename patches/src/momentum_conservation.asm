@@ -5,6 +5,12 @@ lorom
 !bank_90_free_space_start = $90F800
 !bank_90_free_space_end = $90F880
 
+!equipped_items = $09A2
+!blue_booster = $0040
+!spark_booster = $0080
+!speed_booster = $2000
+!any_booster = !blue_booster|!spark_booster|!speed_booster
+
 lorom
 
 ; ASM to keep running speed while landing. This is more effective than simply changing the pose table,
@@ -58,8 +64,19 @@ SLOW: ; reset X speed
 SPEEDKEEP:
 	LDA $0B40 : BEQ + : LDA #$0003 : JSL $80914D ; resume speed booster sfx if needed
 +	; next two lines of code are mostly only needed because of a dumb vanilla bug with $91DA74
+
+    lda !equipped_items
+    bit #!blue_booster|!speed_booster
+    bne .skip
+    sep #$20
+    lda #$01
+    sta $0b3e
+    rep #$20
+    
+.skip:
 	LDA #$0001 : STA $0AD0 ; update samus palette next frame
 	LDA #$0004 : STA $0ACE ; reset samus speed booster/screw attack palette index
 	PLP : RTS
 
-warnpc !bank_90_free_space_end
+
+assert pc() <= !bank_90_free_space_end
