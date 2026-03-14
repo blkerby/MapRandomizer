@@ -151,6 +151,15 @@ whitelist_dict = {
     'reserve_backward_fill': [
         ['hud_expansion_opaque', 0xB6A940, 0xB6A980]
     ],
+    'split_speed': [
+        ['hud_expansion_opaque', 0x82D521, 0x82D961],
+        ['hud_expansion_opaque', 0xB6AFE0, 0xB6B000],
+        ['hud_expansion_opaque', 0xB6B9E0, 0xB6BA00],
+        ['hud_expansion_opaque', 0xB6BB00, 0xB6BB20],
+        ['hud_expansion_opaque', 0xB6BCC0, 0xB6BD00],
+        ['hud_expansion_opaque', 0xB6CE00, 0xB6D000],
+        ['hud_expansion_opaque', 0xB6E800, 0xB6F000]
+    ],
 }
 
 failed = False

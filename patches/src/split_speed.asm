@@ -7,8 +7,11 @@
 !bank_91_free_space_start2 = $91FC42
 !bank_91_free_space_end2 = $91FC66
 
-!bank_82_free_space_start = $82FF20
-!bank_82_free_space_end =   $82FF30
+!bank_82_free_space_start = $82C42D
+!bank_82_free_space_end =   $82C465
+
+!bank_82_freespace2_start = $82FF20
+!bank_82_freespace2_end   = $82FF30
 
 !bank_B6_free_space_start = $B6FC00
 !bank_B6_free_space_end = $B6FE00
@@ -22,32 +25,92 @@
 !speed_booster = $2000
 !any_booster = !blue_booster|!spark_booster|!speed_booster
 
-org $8291D0
-    jsr hook_setup_speedbooster_menu_tile_wrapper
+org $82A22F
+    lda #list_boots_ram_tilemaps
 
-org $82B5AE
-    jsr hook_equip_enable
+org $82A23D
+    lda list_boots_equip_bitmasks, y
 
-org $82C066
-; Speedbooster bitset
-    dw !any_booster
+org $82A257
+    ldx list_boots_equip_tilemaps, y
+
+org $82A25D
+    lda list_boots_equip_bitmasks, y
+
+org $82B1C6
+    cmp #$0303
+
+org $82B517
+    bit list_boots_equip_bitmasks, x
+
+org $82B545
+    bit list_boots_equip_bitmasks, x
+
+org $82B51E
+    cpx #$0008
+
+org $82C194
+    dw boots_item_selector_positions
+
+org $82C1B2
+    dw $00CC, $0044
+    dw $00CC, $004C
+    dw $00CC, $0064
+    dw $00CC, $006C
+    dw $00CC, $0074
+    dw $00CC, $007C
+
+org $82A278
+    cpy #$0008
+
+org $82C032
+    dw list_boots_ram_tilemaps
+
+org $82C03A
+    dw list_boots_equip_bitmasks
+
+org $82C076
+    dw $3A2A, $3A6A, $3B2A, $3B6A, $3BAA, $3BEA
+
+org $82C04A
+    dw list_boots_equip_tilemaps
+    
+org $82C2A6
+list_boots_equip_tilemaps:
+    dw $BFD2, $BFE4, tilemap_blue_booster, tilemap_spark_booster
+warnpc $82C2B7
 
 org !bank_82_free_space_start
 
-hook_setup_speedbooster_menu_tile_wrapper:
-    sta $0725  ; run hi-jacked instruction
-    jsl hook_setup_speedbooster_menu_tile
-    rts
+;Tilemaps
+;oBLUE BOOSTER
+tilemap_blue_booster:
+    dw $12FF, $1270, $1271, $1272, $1273, $1274, $1275, $1276, $1277
 
-hook_equip_enable:
-    ; X = equipment bitmask
-    ; Y = equipment bitset
-    ; A = loaded with previously equipped items
-    ora $0000,x ; Hijacked code (sets the bitmask)
-    and $0002,y ; AND with collected items
-    rts
+;oSPARK BOOSTER
+tilemap_spark_booster:
+    dw $12FF, $1278, $1279, $127A, $127B, $127C, $127D, $127E, $127F
 
+; Replacement boots table
+list_boots_equip_bitmasks:
+    dw $0100, $0200, !blue_booster, !spark_booster
+
+list_boots_ram_tilemaps:
+    dw $3CAA, $3CEA, $3D2A, $3D6A
+
+warnpc !bank_82_free_space_end
 assert pc() <= !bank_82_free_space_end
+
+org !bank_82_freespace2_start
+
+boots_item_selector_positions:
+    dw $00CC, $0094
+    dw $00CC, $009C
+    dw $00CC, $00A4
+    dw $00CC, $00AC
+
+warnpc !bank_82_freespace2_end
+assert pc() <= !bank_82_freespace2_end
 
 ; Accelerate Samus' animation with any booster item:
 org $908502
@@ -314,52 +377,6 @@ hook_update_speed_echoes:
     lda $0b3e  ; run hi-jacked instruction
     rts
 
-hook_setup_speedbooster_menu_tile:
-    php
-    
-    rep #$30
-    lda $09A4
-    and #!any_booster
-    beq .no     ; No boosters
-    bit #!speed_booster
-    bne .no     ; Full speedbooster
-    
-    cmp #!blue_booster|!spark_booster
-    beq .no     ; Blue+Spark = Speed
-    
-    ; Prepare VRAM for copy
-    ldx #$1240
-    stx $2116
-    sep #$10    ; X = 8-bit
-    ldx #$80    ; Auto-increment, 1 word
-    stx $2115
-
-    cmp #!blue_booster
-    beq .blue
-    
-    ; Spark booster
-    jsl $8091A9
-    db $01, $01, $18
-    dl menu_tiles_spark_booster
-    dw menu_tiles_spark_booster_end-menu_tiles_spark_booster
-
-    bra .dma
-
-.blue
-    jsl $8091A9
-    db $01, $01, $18
-    dl menu_tiles_blue_booster
-    dw menu_tiles_blue_booster_end-menu_tiles_blue_booster
-
-.dma 
-    sep #$30
-    lda #$02
-    sta $420B   ; DMA execute
-   
-.no
-    plp
-    rtl
-
 hook_speed_clamp:
     lda !equipped_items
     and #!any_booster
@@ -373,8 +390,7 @@ hook_speed_clamp:
 
 assert pc() <= !bank_90_free_space_end
 
-org !bank_B6_free_space_start
-
+org $B6CE00
 menu_tiles_blue_booster:
     db $FF, $FF, $FF, $FF, $8D, $FF, $B5, $FF, $8D, $FF, $B5, $FF, $8C, $FF, $FF, $FF
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
@@ -413,4 +429,80 @@ menu_tiles_spark_booster:
     db $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF, $00, $FF
 .end
 
-assert pc() <= !bank_B6_free_space_end
+; Power Suit Shoulder with line tile (1CF)
+org $B6B9E0
+    db $0B, $00, $09, $00, $08, $00, $05, $00, $85, $80, $41, $40, $22, $20, $12, $10
+    db $00, $00, $00, $00, $00, $00, $00, $00, $80, $80, $40, $40, $20, $20, $10, $10
+
+; Power Suit inside line tile (17E) doesn't change
+
+; Power Suit outside line tile (17F)
+org $B6AFE0
+    db $10, $10, $20, $20, $40, $40, $80, $80, $00, $00, $00, $00, $80, $00, $C0, $00
+    db $10, $10, $20, $20, $40, $40, $80, $80, $00, $00, $00, $00, $00, $00, $00, $00
+
+; Varia Suit Shoulder with line tile (1D8)
+org $B6BB00
+    db $14, $00, $25, $00, $29, $00, $2A, $00, $8A, $80, $4B, $40, $20, $20, $10, $10
+    db $00, $00, $00, $00, $00, $00, $00, $00, $80, $80, $40, $40, $20, $20, $10, $10
+
+;Varia Suit inside line tile (1E6)
+org $B6BCC0
+    db $0F, $00, $F0, $00, $06, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $FF, $00
+    db $00, $00, $00, $00, $00, $00, $00, $00, $FF, $FF, $00, $00, $00, $00, $00, $00
+
+;Varia Suit outside line tile (1E7)
+org $B6BCE0
+    db $90, $10, $20, $20, $48, $40, $80, $80, $30, $00, $40, $00, $80, $00, $C0, $00
+    db $10, $10, $20, $20, $40, $40, $80, $80, $00, $00, $00, $00, $00, $00, $00, $00
+
+org $B6EA66
+    dw $65CF
+
+org $82D54F
+    dw $65CF
+
+org $82D65F
+    dw $65CF
+
+org $82D76F
+    dw $65D8
+
+org $82D87F
+    dw $65D8
+
+org $B6E9E8
+    dw $3941, $3942, $3942, $3943, $2AF6, $2AF7, $2AF8, $7943, $3942, $3942, $7941
+org $B6EA28
+    dw $3940, $0CFF, $0D00, $0D01, $0D02, $0D03, $0D04, $0D05, $0CD4, $0CD4, $7940
+org $B6EA68
+    dw $7954, $0CFF, $0CD0, $0CD1, $0CD2, $0CD3, $0D03, $0D04, $0D05, $0CD4, $7940
+org $B6EAA8
+    dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941
+
+org $B6EAE8
+    dw $3941, $3942, $3942, $3943, $29B0, $29B1, $29B2, $7943, $3942, $3942, $7941
+org $B6EB28
+    dw $3940, $08FF, $0920, $0921, $0922, $0923, $0917, $0918, $090F, $091F, $7940
+org $B6EB68
+    dw $3940, $08FF, $08D5, $08D6, $08D7, $08D4, $08D4, $08D4, $08D4, $08D4, $7940
+org $B6EBA8
+    dw $7954, $08FF, $0910, $0911, $0912, $0913, $0914, $0915, $0916, $08D4, $7940
+org $B6EBE8
+    dw $3940, $08FF, $08E0, $08E1, $08E2, $08E3, $08E4, $08E5, $08E6, $08D4, $7940
+org $B6EC28
+    dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941
+
+;FIXME: Uses hud_expansion_opaque relocated tiles
+org $B6EC68
+    dw $3941, $3942, $3942, $3943, $2EB9, $2EBA, $2EBB, $7943, $3942, $3942, $7941
+org $B6ECA8
+    dw $3940, $0CFF, $0D30, $0D31, $0D32, $0D33, $0D34, $0D35, $0D36, $0CD4, $7940
+org $B6ECE8
+    dw $3940, $0CFF, $0CF0, $0CF1, $0CF2, $0CF3, $0CF4, $0CF5, $0CD4, $0CD4, $7940
+org $B6ED28
+    dw $3940, $0CFF, $0D70, $0D71, $0D72, $0D73, $0D74, $0D75, $0D76, $0D77, $7940
+org $B6ED68
+    dw $F954, $0CFF, $0D78, $0D79, $0D7A, $0D7B, $0D7C, $0D7D, $0D7E, $0D7F, $7940
+org $B6EDA8
+    dw $B941, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $B942, $F941
