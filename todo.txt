@@ -1,6 +1,8 @@
 v121 or soon-ish?:
 - Filter item lists on seed page, to exclude inapplicable walljump and booster items.
 - handle blue suit interaction with farms.
+- fix flash suit carry in return route (add logic scenario test).
+- handle spark booster logic for low-speed shinecharges.
 - DONE: new escape timings
 - DONE: Fix door lock skips showing in the wrong difficulty on logic pages.
   - DONE: Also G-mode regain mobility
