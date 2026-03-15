@@ -88,6 +88,8 @@ struct ScenarioSettings {
     buffed_drops: Option<bool>,
     collectible_wall_jump: Option<bool>,
     energy_free_shinesparks: Option<bool>,
+    flash_suit_distance: Option<u8>,
+    blue_suit_distance: Option<u8>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -171,8 +173,8 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             shinecharge_leniency_frames: settings.shinecharge_leniency_frames.unwrap_or(0),
             resource_multiplier: settings.resource_multiplier.unwrap_or(1.0),
             farm_time_limit: settings.farm_time_limit.unwrap_or(0.0),
-            flash_suit_distance: 255,
-            blue_suit_distance: 255,
+            flash_suit_distance: settings.flash_suit_distance.unwrap_or(255),
+            blue_suit_distance: settings.blue_suit_distance.unwrap_or(255),
             gate_glitch_leniency: 0,
             door_stuck_leniency: 0,
             bomb_into_cf_leniency: 0,

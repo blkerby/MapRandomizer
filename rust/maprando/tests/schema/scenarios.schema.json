@@ -72,7 +72,9 @@
               },
               "buffedDrops": {"type": "boolean"},
               "collectibleWallJump": {"type": "boolean"},
-              "energyFreeShinesparks": {"type": "boolean"}
+              "energyFreeShinesparks": {"type": "boolean"},
+              "flashSuitDistance": {"type": "integer"},
+              "blueSuitDistance": {"type": "integer"}
             }
           },
           "globalState": {

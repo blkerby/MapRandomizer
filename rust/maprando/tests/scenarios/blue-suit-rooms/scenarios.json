@@ -1,0 +1,33 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Carry Blue Suit Across Rooms (Unlimited Distance)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Carry Blue Suit Across Rooms (Distance 2)",
+      "settings": {
+        "blueSuitDistance": 2
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Carry Blue Suit Across Rooms (Distance 1)",
+      "settings": {
+        "blueSuitDistance": 1
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

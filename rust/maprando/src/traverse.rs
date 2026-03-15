@@ -2096,9 +2096,16 @@ fn apply_requirement_simple(
             if cx.reverse {
                 if local.flash_suit > 0 {
                     local.flash_suit = local.flash_suit.saturating_add(1);
+                    if local.flash_suit > cx.settings.skill_assumption_settings.flash_suit_distance
+                    {
+                        return SimpleResult::Failure;
+                    }
                 }
                 if local.blue_suit > 0 {
                     local.blue_suit = local.blue_suit.saturating_add(1);
+                    if local.blue_suit > cx.settings.skill_assumption_settings.blue_suit_distance {
+                        return SimpleResult::Failure;
+                    }
                 }
             } else {
                 local.flash_suit = local.flash_suit.saturating_sub(1);
