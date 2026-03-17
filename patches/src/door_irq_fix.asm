@@ -5,21 +5,21 @@
 lorom
 
 org $8483fc ; ldy #$0002
-jsr disable_irq
+jmp disable_irq
 
 org $848419 ; $84:8419 ; sta $1c87,x
-jsr enable_irq
+jmp enable_irq
 
 
 org $84F4A0
 disable_irq:
   sei
   ldy #$0002
-  rts
+  jmp $83FF
 
 enable_irq:
   cli
   sta $1c87,x
-  rts
+  jmp $841C
 
 assert pc() <= $84F500 ; 84F4AA
