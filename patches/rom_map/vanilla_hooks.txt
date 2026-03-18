@@ -389,8 +389,6 @@ $83aae3 - mb_left_entrance.asm
 
 [BANK 84]
 $84fcd8 - beam_doors.asm
-$8483fc - door_irq_fix.asm
-$848419 - door_irq_fix.asm
 $848cb4 - energy_station_reserves.asm
 $84ae38 - energy_station_reserves.asm
 $84b285 - energy_station_reserves.asm
