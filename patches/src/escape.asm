@@ -574,6 +574,7 @@ org !bank_84_free_space_start
     PLB                    ;/
     TYX                    ;\
     LDY #$0002             ;|
+    sei                    ; (Disable interrupts)
     LDA ($06,s),y          ;|
     STA $4202              ;|
     LDA $07A5              ;|
@@ -585,6 +586,7 @@ org !bank_84_free_space_start
     CLC                    ;|
     ADC $4216              ;|
     ASL A                  ;|
+    cli                    ; (Enable interrupts)
     STA $1C87,x            ;/
 
     LDY #$0005             ; 

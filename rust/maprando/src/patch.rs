@@ -476,6 +476,7 @@ impl Patcher<'_> {
             "transition_reveal",
             "wall_doors",
             "self_check",
+            "door_irq_fix",
         ];
 
         if self.settings.other_settings.ultra_low_qol {
