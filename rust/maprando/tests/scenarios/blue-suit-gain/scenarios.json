@@ -2,7 +2,37 @@
   "$schema": "../../schema/scenarios.schema.json",
   "scenarios": [
     {
-      "name": "Gain Blue Suit",
+      "name": "Fail: Gain Blue Suit (Missing Speed Item)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 0
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Gain Blue Suit (Speed Booster)",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 0
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 255
+      }
+    },
+    {
+      "name": "Gain Blue Suit (Blue Booster)",
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
       "startRoomId": 0,
       "startNodeId": 1,
       "startState": {

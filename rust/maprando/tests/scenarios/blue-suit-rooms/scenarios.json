@@ -3,6 +3,9 @@
   "scenarios": [
     {
       "name": "Carry Blue Suit Across Rooms (Unlimited Distance)",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
       "startRoomId": 0,
       "startNodeId": 1,
       "endRoomId": 1,
@@ -13,6 +16,9 @@
       "settings": {
         "blueSuitDistance": 2
       },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
       "startRoomId": 0,
       "startNodeId": 1,
       "endRoomId": 1,
@@ -22,6 +28,9 @@
       "name": "Fail: Carry Blue Suit Across Rooms (Distance 1)",
       "settings": {
         "blueSuitDistance": 1
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
       },
       "startRoomId": 0,
       "startNodeId": 1,
