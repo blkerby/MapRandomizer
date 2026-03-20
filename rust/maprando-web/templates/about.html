@@ -105,7 +105,7 @@
 
     <h5 id="doors">Doors</h5>
     <ul>
-    <li>Pink, green, and yellow doors are randomized (if using the default "Ammo" doors option):
+    <li>Missile, Super, and Power Bomb doors are randomized (if using the default "Ammo" doors option):
         <ul>
         <li>To limit the risk of softlocks due to doors, the two sides of the door always have the same color, 
         and unlocking one side automatically unlocks the other side as well.
@@ -131,7 +131,7 @@
         <li>Note that this differs from Pit Room and Baby Kraid Room, where if the player shoots open one gray door and
         leaves the room, the other door will still be gray when re-entering the room.
         </ul>
-    <li>The green door at the bottom of Spore Spawn Room is replaced with a gray door.
+    <li>The Super door at the bottom of Spore Spawn Room is replaced with a gray door.
     <li>The solid wall PLM on the right side of Tourian Escape Room 1 is removed. Instead, during the escape, a gray door
     spawns on the right side of whichever room connects to Mother Brain Room.
     <li>Hazard markers (yellow & black stripes) are shown on doors leading into the following locations, either directly or via the Toilet:
@@ -238,7 +238,7 @@
         Speed Booster, Grapple, X-Ray.
         </ul>
     <li>Hyper Beam destroys Super, Bomb, and Power Bomb blocks, opens blue & green gates from either side, and
-    opens pink, green, and yellow doors (and "Beam" doors, if applicable). Note that Hyper Beam does <i>not</i> destroy Speed, Grapple, or crumble blocks.
+    opens Missile, Super, and Power Bomb doors (and "Beam" doors, if applicable). Note that Hyper Beam does <i>not</i> destroy Speed, Grapple, or crumble blocks.
     <li>An auto-save is made after Mother Brain is defeated, immediately before the escape begins.
     <li>Enemies are cleared during the escape (optional).
     <li>The escape timer is adapted based on the estimated time required to return to the Ship.
@@ -305,12 +305,13 @@
     <li>Enemy drops are buffed (optional):
       <ul>
       <li>Small energy drops give 10 energy.
+      <li>Power Bomb drops give 2 Power Bombs.
       <li>Respawning enemies drop Power Bombs at double the normal rate.
       </ul>        
     <li>The Acid Chozo statue can be activated without Space Jump (optional).
     <li>The music for each room is based on its area & sub-area on the randomized map.
     <li>Angle up/down can be bound to any button.
-    <li>Item fanfares are removed, replaced with short sound effects that do not interrupt gameplay.
+    <li>Item fanfares are removed, replaced with short sound effects that do not interrupt gameplay (optional).
     <li>Most major glitches are patched out (optional):
         <ul>
         <li>The pause menu is fixed to prevent equipping glitched beams.
@@ -443,9 +444,9 @@
     <li>Game design: <i>Maddo</i>, <i>kyleb</i>
     <li>Map generation, randomizer frontend & backend, escape timings, and video site: <i>Maddo</i>
     <li>Spoiler map: <i>Selicre</i>, <i>Maddo</i>, <i>Change</i>
-    <li>Title screens and various other art (hazard doors, walljump boots, beam doors): <i>kyleb</i>
+    <li>Title screens and various other art (hazard doors, new items, beam doors): <i>kyleb</i>
     <li>Logic data (<a href="https://github.com/miketrethewey/sm-json-data">sm-json-data</a>):
-        <i>Osse101</i>, <i>kyleb</i>, <i>Maddo</i>, <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>DIProgan</i>,
+        <i>kyleb</i>, <i>Osse101</i>, <i>Maddo</i>, <i>Rushlight</i>, <i>Minnie Trethewey</i>, <i>aquanight</i>, <i>nn357</i>, <i>DIProgan</i>,
         <i>Bokyubi</i>, <i>Sinth</i>
     <li>Tech and strat videos & animations: {{+ self.video_creators()|safe }}
     <li>Area-themed palettes: <i>kyleb</i>, <i>Maddo</i>, <i>AmoebaOfDoom</i>
@@ -586,13 +587,12 @@
     <li>Fix to CRE tiles when leaving Kraid's room (into non-vanilla destination rooms).
     <li>Fix to remove "Kraid vomit" when entering Kraid's room (from a non-vanilla transition).
     <li>Graphical fix to Crateria scrolling sky when entering from non-vanilla door connections.
-    <li>Fix to door cap closing animation when going through bottom right door of Green Brinstar Main Shaft (toward Etecoons).
     <li>Remove fake gray door that would be drawn during the Phantoon fight.
     <li>Fix to Bomb Torizo statue crumble animation (which otherwise could appear messed up, e.g. when encountering
     Bomb Torizo after Botwoon).
     <li>Fix to camera alignment in door transitions, so graphics don't get permanently messed up after doing certain
     strats (or with "Randomized start location" option, where the camera sometimes starts unaligned to a screen boundary).
-    <li>Fix to graphical bug where red and green door PLMs are not intially drawn when entering Red Brinstar Elevator Room 
+    <li>Fix to graphical bug where Missile and Super door PLMs are not intially drawn when entering Red Brinstar Elevator Room 
     or Forgotten Highway Elevator.
     </ul>
     </small></p>
