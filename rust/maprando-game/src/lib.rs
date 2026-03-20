@@ -1618,6 +1618,8 @@ pub struct GameData {
     pub wall_jump_tech_idx: TechIdx,
     pub manage_reserves_tech_idx: TechIdx,
     pub pause_abuse_tech_idx: TechIdx,
+    pub carry_flash_suit_tech_idx: TechIdx,
+    pub carry_blue_suit_tech_idx: TechIdx,
     pub mother_brain_defeated_flag_id: usize,
     pub title_screen_data: TitleScreenData,
     pub room_name_font: VariableWidthFont,
@@ -1709,6 +1711,16 @@ impl GameData {
             .tech_isv
             .index_by_key
             .get(&TECH_ID_CAN_PAUSE_ABUSE)
+            .unwrap();
+        self.carry_flash_suit_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_CARRY_FLASH_SUIT)
+            .unwrap();
+        self.carry_blue_suit_tech_idx = *self
+            .tech_isv
+            .index_by_key
+            .get(&TECH_ID_CAN_CARRY_BLUE_SUIT)
             .unwrap();
         self.mother_brain_defeated_flag_id = self.flag_isv.index_by_key["f_DefeatedMotherBrain"];
         Ok(())

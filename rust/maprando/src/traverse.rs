@@ -2114,6 +2114,9 @@ fn apply_requirement_simple(
             SimpleResult::Success
         }
         Requirement::GainFlashSuit => {
+            if !cx.difficulty.tech[cx.game_data.carry_flash_suit_tech_idx] {
+                return SimpleResult::Failure;
+            }
             if cx.reverse {
                 local.flash_suit = 0;
             } else {
@@ -2134,7 +2137,8 @@ fn apply_requirement_simple(
         } => {
             if !cx.difficulty.tech[carry_flash_suit_tech_idx] {
                 // It isn't strictly necessary to check the tech here (since it already checked
-                // when obtaining the flash suit), but it could affect Forced item placement.
+                // when obtaining the flash suit), but it could affect Forced item placement,
+                // and speed up reverse traversals.
                 return SimpleResult::Failure;
             }
             if cx.reverse {
@@ -2157,6 +2161,18 @@ fn apply_requirement_simple(
             }
         }
         Requirement::GainBlueSuit => {
+            if !cx.difficulty.tech[cx.game_data.carry_blue_suit_tech_idx] {
+                return SimpleResult::Failure;
+            }
+            if !cx.global.inventory.items[Item::BlueBooster as usize]
+                && !cx.global.inventory.items[Item::SpeedBooster as usize]
+            {
+                // Currently, Blue Booster or Speed Booster is required in order to carry a blue suit,
+                // since otherwise blue suit would be losted whenever pausing, which is not yet modeled.
+                // This should be removed later, after the pause logic is modeled.
+                return SimpleResult::Failure;
+            }
+
             if cx.reverse {
                 local.blue_suit = 0;
             } else {
@@ -2177,7 +2193,8 @@ fn apply_requirement_simple(
         } => {
             if !cx.difficulty.tech[carry_blue_suit_tech_idx] {
                 // It isn't strictly necessary to check the tech here (since it already checked
-                // when obtaining the blue suit), but it could affect Forced item placement.
+                // when obtaining the blue suit), but it could affect Forced item placement,
+                // and speed up reverse traversals.
                 return SimpleResult::Failure;
             }
             if cx.reverse {
