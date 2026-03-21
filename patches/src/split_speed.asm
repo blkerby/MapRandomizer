@@ -78,7 +78,7 @@ org $82C04A
 org $82C2A6
 list_boots_equip_tilemaps:
     dw $BFD2, $BFE4, tilemap_blue_booster, tilemap_spark_booster
-warnpc $82C2B7
+assert pc() <= $82C2B7
 
 org !bank_82_free_space_start
 
@@ -97,8 +97,6 @@ list_boots_equip_bitmasks:
 
 list_boots_ram_tilemaps:
     dw $3CAA, $3CEA, $3D2A, $3D6A
-
-warnpc !bank_82_free_space_end
 assert pc() <= !bank_82_free_space_end
 
 org !bank_82_freespace2_start
@@ -109,7 +107,6 @@ boots_item_selector_positions:
     dw $00CC, $00A4
     dw $00CC, $00AC
 
-warnpc !bank_82_freespace2_end
 assert pc() <= !bank_82_freespace2_end
 
 ; Accelerate Samus' animation with any booster item:
@@ -344,8 +341,10 @@ spark_booster_lose_blue:
     ;sta $0AAE
     jsl .remove_echoes
 
-    stz $0b3e   ; Clear dash counter
-
+    ;stz $0b3e   ; Clear dash counter
+    lda #$0001   ; reset speed booster timer to 1 (should fix xmode and momenutm conservation),  $90857D automatically decrements this, if its at 0 it underflows causing animation issues with xmode/mc
+    sta $0b3e
+    
     lda #$0000
     rtl
 .skip_lose_blue:
