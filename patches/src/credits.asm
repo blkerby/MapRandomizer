@@ -208,7 +208,6 @@ assert pc() <= !bank_8b_free_space_end
 org !bank_df_free_space_start
 ;; Draw full time as HH:mm:ss.hh
 draw_full_time:
-    sei         ; disable interrupts
     phx
     phb
     pea $7f7f : plb : plb
@@ -223,7 +222,6 @@ draw_full_time:
     bne .non_zero
     plb
     plx
-    cli         ; enable interrupts
     rtl
 .non_zero:
     jsr adjust_time_fps
@@ -281,7 +279,6 @@ draw_full_time:
 
     plb
     plx
-    cli         ; enable interrupts
     rtl
 
 adjust_time_fps:
@@ -381,7 +378,6 @@ inner_loop:
 ;; Draw 5-digit value to credits tilemap
 ;; A = number to draw, Y = row address
 draw_value:
-    sei         ; disable interrupts
     phx
     phb
     pea $7f7f : plb : plb
@@ -401,7 +397,6 @@ draw_value:
 .end:
     plb
     plx
-    cli         ; enable interrupts
     rtl
 
 draw_three:
