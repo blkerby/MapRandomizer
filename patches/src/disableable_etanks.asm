@@ -443,6 +443,7 @@ org !bank_83_free_space_start
 
 etank_do_some_math:
     php
+    sei                         ; disable interrupts
     rep #$30
     
     lda $0755
@@ -485,6 +486,7 @@ etank_do_some_math:
     lda $809CCE,X ; There's a nice table here of E-Tank tile offsets that are convenient for our purposes
     sta !etank_hud_tile_offset
     
+    cli                         ; enable interrupts
     plp
     rtl
 

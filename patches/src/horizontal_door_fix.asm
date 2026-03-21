@@ -14,22 +14,24 @@ lorom
 !bank_84_free_space_end = $84f5a0
 
 org $848488
-    jsr clr_ints
+    jmp clr_ints
+clr_ret:
 
 org $8484e0
     jmp set_ints
+set_ret:
 
 org !bank_84_free_space_start
 clr_ints:
     sei           ; disable IRQ
     sta $4202     ; replaced code
-    rts
+    jmp clr_ret
 
 set_ints:
     cli           ; enable IRQ
     plx           ; replaced code
     ply
     plb
-    jmp $84e3
+    jmp set_ret
 
 warnpc !bank_84_free_space_end
