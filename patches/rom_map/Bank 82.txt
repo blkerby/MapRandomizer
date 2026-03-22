@@ -6,7 +6,7 @@ C37E - C385:
 C3B6 - C3BD: map_area.asm
 C3C4 - C3D9: map_area.asm
 C411 - C42D: map_area.asm
-C42D - C465: 
+C42D - C465: split_speed.asm
 F70F - F810: map_area.asm
 F810 - F830: vanilla_bugfixes.asm
 F830 - F9E0: disable_etanks.asm
