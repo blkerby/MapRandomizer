@@ -4238,10 +4238,14 @@ impl GameData {
                 && to_node_json["useImplicitLeaveNormally"].as_bool() != Some(false)
                 && let Ok(unlock_to_door_req) = self.get_unlocks_doors_req(to_node_id, &ctx)
             {
-                let maybe_exit_req = Some(unlock_to_door_req);
+                let maybe_exit_req = if to_node_json["nodeSubType"].as_str() == Some("sandpit") {
+                    Requirement::make_and(vec![Requirement::NoBlueSuit, unlock_to_door_req])
+                } else {
+                    unlock_to_door_req
+                };
                 to_actions.push(VertexAction::MaybeExit(
                     ExitCondition::LeaveNormally {},
-                    maybe_exit_req.clone().unwrap(),
+                    maybe_exit_req,
                 ));
             }
 
