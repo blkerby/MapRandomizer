@@ -348,7 +348,6 @@ spring_ball_crash:
     lda $0B20               ; morph bounce state
     cmp #$0600              ; bugged?
     bcc .skip
-    
     lda !bank_85_free_space2_start
     and #$000F
     beq .default
