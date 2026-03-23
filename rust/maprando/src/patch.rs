@@ -18,7 +18,7 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization, get_starting_items},
     settings::{
-        AreaAssignmentPreset, DisableETankSetting, ETankRefill, Fanfares, ItemCount,
+        AreaAssignmentPreset, CrashFixes, DisableETankSetting, ETankRefill, Fanfares, ItemCount,
         MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals,
         SpeedBooster, StartLocationMode, WallJump,
     },
@@ -972,6 +972,17 @@ impl Patcher<'_> {
             self.add_map_reveal_tile(src_pair, src_x, src_y)?;
             self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
         }
+        Ok(())
+    }
+
+    pub fn write_crash_handler(&mut self, crash_fixes: &CrashFixes) -> Result<()> {
+        let crash_handler = 0x85AD00;
+
+        let word = crash_fixes.to_word();
+        let bytes = word.to_le_bytes();
+
+        self.rom.write_n(snes2pc(crash_handler), &bytes)?;
+
         Ok(())
     }
 
@@ -3543,6 +3554,7 @@ pub fn make_rom(
     patcher.write_room_name_font()?;
     patcher.write_room_name_data()?;
     patcher.remove_non_blue_doors()?;
+    patcher.write_crash_handler(&patcher.settings.other_settings.crash_fixes)?;
     override_music(patcher.rom)?;
     if randomizer_settings.map_layout != "Vanilla"
         || randomizer_settings.other_settings.area_assignment.preset

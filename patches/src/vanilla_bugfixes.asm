@@ -25,7 +25,7 @@ incsrc "constants.asm"
 !bank_84_free_space_start = $84EFD7 ; maridia tube fix
 !bank_84_free_space_end = $84F000
 
-!bank_85_free_space2_start = $85AD00 ; customizable crash dialogs
+!bank_85_free_space2_start = $85AD00 ; customizable crash dialogs (used in patch.rs)
 !bank_85_free_space2_end = $85AE20
 
 !bank_85_free_space_start = $85b000 ; do not change, first jmp used externally (crash dialog boxes)
@@ -543,7 +543,7 @@ check_unpause:
 assert pc() <= !bank_82_free_space2_end
 
 org !bank_85_free_space2_start
-  dw $1111 ; to be set by patch.rs 0 = default (msg+kill), 1 = warn (msg only), 2 = silent (fix only).
+  dw $0000 ; to be set by patch.rs 0 = default (msg+kill), 1 = warn (msg only), 2 = silent (fix only).
             ; xmode / yappingmaw crash / reserve pause / springball
 kill_samus:
     lda #$8000            ; init death sequence (copied from $82db80)

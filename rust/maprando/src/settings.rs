@@ -369,6 +369,7 @@ pub struct OtherSettings {
     pub area_assignment: AreaAssignment,
     pub door_locks_size: DoorLocksSize,
     pub map_station_reveal: MapStationReveal,
+    pub crash_fixes: CrashFixes,
     pub energy_free_shinesparks: bool,
     pub ultra_low_qol: bool,
     pub disable_spikesuit: bool,
@@ -516,6 +517,82 @@ impl AreaAssignment {
                 mother_brain_in_tourian: false,
             },
         }
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum CrashFixesPreset {
+    Default,
+    Warn,
+    Silent,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum CrashFixesSpringball {
+    Default,
+    Warn,
+    Silent,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum CrashFixesYappingmaw {
+    Default,
+    Warn,
+    Silent,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum CrashFixesAutoreserve {
+    Default,
+    Warn,
+    Silent,
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum CrashFixesXmode {
+    Default,
+    Warn,
+    Silent,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[repr(u16)]
+pub enum FixMode {
+    Default = 0,
+    Warn = 1,
+    Silent = 2,
+}
+#[derive(Clone, Copy,  Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CrashFixes {
+    pub preset: Option<CrashFixesPreset>,
+    pub spring_ball: FixMode,
+    pub yapping_maw: FixMode,
+    pub auto_reserve: FixMode,
+    pub x_mode: FixMode,
+}
+
+impl CrashFixes {
+    pub fn from_preset(preset: CrashFixesPreset) -> Self {
+        let mode = match preset {
+            CrashFixesPreset::Default => FixMode::Default,
+            CrashFixesPreset::Warn => FixMode::Warn,
+            CrashFixesPreset::Silent => FixMode::Silent,
+        };
+
+        CrashFixes {
+            preset: Some(preset),
+            spring_ball: mode,
+            yapping_maw: mode,
+            auto_reserve: mode,
+            x_mode: mode,
+        }
+    }
+
+    pub fn to_word(&self) -> u16 {
+        ((self.x_mode as u16)       << 12) |
+        ((self.yapping_maw as u16)  << 8)  |
+        ((self.auto_reserve as u16) << 4)  |
+        (self.spring_ball as u16)
     }
 }
 

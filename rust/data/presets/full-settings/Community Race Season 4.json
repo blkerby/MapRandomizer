@@ -4670,7 +4670,7 @@
             "spring_ball": "Default",
             "yapping_maw": "Default",
             "auto_reserve": "Default",
-            "x-mode": "Default"
+            "x_mode": "Default"
         },
         "energy_free_shinesparks": false,
         "ultra_low_qol": false,
