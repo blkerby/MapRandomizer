@@ -302,7 +302,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             map_station_reveal: maprando::settings::MapStationReveal::Full,
             crash_fixes: maprando::settings::CrashFixes::from_preset(
-                maprando::settings::CrashFixesPreset::Default,
+                maprando::settings::CrashFixesPreset::Death,
             ),
             energy_free_shinesparks: settings.energy_free_shinesparks.unwrap_or(false),
             speed_booster: maprando::settings::SpeedBooster::Vanilla,
