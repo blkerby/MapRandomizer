@@ -4665,6 +4665,13 @@
         },
         "door_locks_size": "Large",
         "map_station_reveal": "Full",
+        "crash_fixes": {
+            "preset": "Default",
+            "spring_ball": "Default",
+            "yapping_maw": "Default",
+            "auto_reserve": "Default",
+            "x-mode": "Default"
+        },
         "energy_free_shinesparks": false,
         "ultra_low_qol": false,
         "disable_spikesuit": false,

@@ -312,6 +312,13 @@ function buildSettingsObject() {
             "door_locks_size": formData.get("door_locks_size"),
             "maps_revealed": formData.get("maps_revealed"),
             "map_station_reveal": formData.get("map_station_reveal"),
+            "crash_fixes": {
+                "preset": formData.get("crash_fixes_preset"),
+                "spring_ball": formData.get("crash_fixes_springball"),
+                "yapping_maw": formData.get("crash_fixes_yappingmaw"),
+                "auto_reserve": formData.get("crash_fixes_autoreserve"),
+                "x_mode": formData.get("crash_fixes_xmode"),
+            },
             "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
             "ultra_low_qol": formData.get("ultra_low_qol") == "true",
             "race_mode": formData.get("race_mode") == "true",
@@ -584,6 +591,7 @@ function applyFullSettingsPreset(preset) {
     applyAreaAssignment(other.area_assignment);
     applyRadioValue("doorLocksSize", other.door_locks_size);
     applyRadioValue("mapStationReveal", other.map_station_reveal);
+    applyCrashFixes(other.crash_fixes);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
@@ -786,6 +794,54 @@ function areaAssignmentChanged() {
     document.getElementById("areaAssignmentPresetSize").checked = false;
     document.getElementById("areaAssignmentPresetDepth").checked = false;
     document.getElementById("areaAssignmentPresetRandom").checked = false;
+}
+
+function applyCrashFixesPreset(preset) {
+    if (preset == "Default") {
+        document.getElementById("crashFixesPresetDefault").checked = true;
+        document.getElementById("crashFixesSpringballDefault").checked = true;
+        document.getElementById("crashFixesYappingmawDefault").checked = true;
+        document.getElementById("crashFixesAutoreserveDefault").checked = true;
+        document.getElementById("crashFixesXmodeDefault").checked = true;
+    } else if (preset == "Warn") {
+        document.getElementById("crashFixesPresetWarn").checked = true;
+        document.getElementById("crashFixesSpringballWarn").checked = true;
+        document.getElementById("crashFixesYappingmawWarn").checked = true;
+        document.getElementById("crashFixesAutoreserveWarn").checked = true;
+        document.getElementById("crashFixesXmodeWarn").checked = true;
+    } else if (preset == "Silent") {
+        document.getElementById("crashFixesPresetSilent").checked = true;
+        document.getElementById("crashFixesSpringballSilent").checked = true;
+        document.getElementById("crashFixesYappingmawSilent").checked = true;
+        document.getElementById("crashFixesAutoreserveSilent").checked = true;
+        document.getElementById("crashFixesXmodeSilent").checked = true;
+    } 
+}
+
+function applyCrashFixes(preset) {
+    applyRadioValue("crashFixesSpringball", preset.spring_ball);
+    applyRadioValue("crashFixesYappingmaw", preset.yapping_maw);
+    applyRadioValue("crashFixesAutoreserve", preset.auto_reserve);
+    applyRadioValue("crashFixesXmode", preset.x_mode);
+    applyCrashFixesPreset(preset.preset);
+}
+
+function crashFixesPresetChanged() {
+    for (var presetEl of document.getElementsByClassName("crash-fixes-preset-button")) {
+        console.log("Checking preset: " + presetEl.value);
+        if (presetEl.checked) {
+            let preset = presetEl.value;
+            applyCrashFixesPreset(preset);
+            break;
+        }
+    }
+    fullSettingsChanged();
+}
+
+function crashFixesChanged() {
+    document.getElementById("crashFixesPresetDefault").checked = false;
+    document.getElementById("crashFixesPresetWarn").checked = false;
+    document.getElementById("crashFixesPresetSilent").checked = false;
 }
 
 function processInitialMapRevealPreset() {
@@ -1198,6 +1254,7 @@ function checkOtherOptions() {
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
+        !document.getElementById("crashFixPresetDefault").checked ||
         document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {
