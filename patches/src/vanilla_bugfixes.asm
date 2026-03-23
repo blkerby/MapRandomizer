@@ -348,13 +348,19 @@ spring_ball_crash:
     lda $0B20               ; morph bounce state
     cmp #$0600              ; bugged?
     bcc .skip
+    
     lda !bank_85_free_space2_start
     and #$000F
     beq .default
-    cmp #$0001
-    beq .warn
     cmp #$0002
     beq .fix
+.warn
+    lda #$0042
+    jsl bug_dialog
+.fix
+    lda #$0000
+    stz $0b20
+    rtl
 .default
     sep #$20
     lda #$42                ; bug ID
@@ -368,13 +374,6 @@ spring_ball_crash:
 .skip
     lda $0B20               ; replaced code
     asl                     ;
-    rtl
-.warn
-    lda #$0042
-    jsl bug_dialog
-.fix
-    lda #$0000
-    stz $0b20
     rtl
 
     
@@ -395,10 +394,9 @@ bug_dialog:                 ; A = msg ID
     pla                     ; dlg box parameter
     jsl $858080             ; dlg box
     cmp #$0044
-    bcs .xoob_crash
-    rtl
-.xoob_crash                 ;if this crash dialog is ever called it is safe to assume oob death is on so also kill samus.
+    bne .skipkill           ; oob death (dlg 44) is removable via major glitches patch, if its thrown here then the intent is to kill as it isn't toggleable.
     jsr kill_samus
+.skipkill
     rtl
     
 hook_message_box:
@@ -545,64 +543,46 @@ check_unpause:
 assert pc() <= !bank_82_free_space2_end
 
 org !bank_85_free_space2_start
-  dw $0000 ; to be set by patch.rs 0 = default (msg+kill), 1 = warn (msg only), 2 = silent (fix only).
-            ; unused / yappingmaw crash / reserve pause / springball
+  dw $1111 ; to be set by patch.rs 0 = default (msg+kill), 1 = warn (msg only), 2 = silent (fix only).
+            ; xmode / yappingmaw crash / reserve pause / springball
 kill_samus:
     lda #$8000            ; init death sequence (copied from $82db80)
     sta $a78
     lda #$0011
     jsl $90f084
-    
     lda #$0013              ; set gamestate
     sta $998
     rts
-   
    
 fp_pause:
     lda !bank_85_free_space2_start
     and #$00F0
     beq .default
-    cmp #$0010
-    beq .warn
     cmp #$0020
     beq .fix
-.default
-    lda #$0041                    ; msg ID
-    jsl bug_dialog
-    phk
-    plb
-    jsr kill_samus
-    stz $9d6                      ; clear reserve health
-    rtl
 .warn
-    lda #$0041                    ; "fix" leave the screen black, "warning" will relight the screen due to showing the dialog
+    lda #$0041                    ; "fix" leave the screen black  warning will relight the screen due to showing the dialog
     jsl bug_dialog
- 
 .fix
     lda #$0008
     sta $0998
+    rtl
+.default
+    lda #$0041                    ; msg ID
+    jsl bug_dialog
+    jsr kill_samus
+    stz $9d6                      ; clear reserve health
     rtl
     
 ym_crash:
     lda !bank_85_free_space2_start
     and #$0F00
     beq .default
-    cmp #$0100
-    beq .warn
     cmp #$0200
     beq .fix
-
-.default
-    lda #$0043              ; bug ID
-    jsl bug_dialog
-    phk
-    plb
-    jsr kill_samus
-    rtl
 .warn
     lda #$0043              ; bug ID
     jsl bug_dialog
-
 .fix
     lda #$d3f3
     sta $0a58
@@ -614,8 +594,31 @@ ym_crash:
     ldx #$0000
     ldy #$0004
     rtl
+.default
+    lda #$0043              ; bug ID
+    jsl bug_dialog
+    jsr kill_samus
+    rtl
 
-assert pc() <= !bank_85_free_space2_end
+xmode:
+    lda !bank_85_free_space2_start
+    and #$F000
+    beq .default
+    ;cmp #$0200
+    ;beq .fix
+.warn
+    ;lda #$0045       ; crash dialog (warning) removed until better solution found, it will re-trigger many times until samus is out of collission so annoying.
+    ;jsl bug_dialog
+.fix
+    rtl
+.default
+    lda #$0045
+    jsl bug_dialog
+    jsr kill_samus
+    rtl
+
+
+assert pc() <= !bank_85_free_space2_end ;ad9d
 
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
@@ -634,7 +637,7 @@ org $91816f ; rewrite original input handler for solid tile collision to free up
     LDA $0A78   ; load frozen time variable
     BEQ $07     ; if time is NOT frozen skip over the next instruction (kill samus)
     LDA #$0045  ; load the msg bug id for X-Mode Collision
-    JSL $85B000 ; collision with solid tile while time is frozen is only possible in x-mode so jump to code that will kill samus rather than hardlock (retain vanilla behaviour)
+    JSL xmode ; collision with solid tile while time is frozen is only possible in x-mode so jump to code that will kill samus rather than hardlock (retain vanilla behaviour)
     PLP
     RTS
 
