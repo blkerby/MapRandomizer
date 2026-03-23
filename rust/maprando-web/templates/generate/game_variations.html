@@ -28,18 +28,22 @@
         <label for="area_assignment">Area assignment</label>
     </div>
     <div id="areaAssignment" class="col-6 btn-group my-2" role="group">
-        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetStandard" value="Standard"
-            checked onchange="areaAssignmentPresetChanged()">
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset"
+            id="areaAssignmentPresetStandard" value="Standard" checked onchange="areaAssignmentPresetChanged()">
         <label class="btn btn-outline-primary" for="areaAssignmentPresetStandard">Standard</label>
-        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetSize" value="Size" onchange="areaAssignmentPresetChanged()">
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset"
+            id="areaAssignmentPresetSize" value="Size" onchange="areaAssignmentPresetChanged()">
         <label class="btn btn-outline-primary" for="areaAssignmentPresetSize">Size</label>
-        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetDepth" value="Depth" onchange="areaAssignmentPresetChanged()">
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset"
+            id="areaAssignmentPresetDepth" value="Depth" onchange="areaAssignmentPresetChanged()">
         <label class="btn btn-outline-primary" for="areaAssignmentPresetDepth">Depth</label>
-        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset" id="areaAssignmentPresetRandom" value="Random" onchange="areaAssignmentPresetChanged()">
+        <input type="radio" class="btn-check area-assignment-preset-button" name="area_assignment_preset"
+            id="areaAssignmentPresetRandom" value="Random" onchange="areaAssignmentPresetChanged()">
         <label class="btn btn-outline-primary" for="areaAssignmentPresetRandom">Random</label>
-        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#areaAssignmentModal">
+        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
+            data-bs-target="#areaAssignmentModal">
             <i class="bi bi-gear"></i>
-        </button>                    
+        </button>
     </div>
 </div>
 <div class="form-group row" onchange="gameVariationChanged()">
@@ -64,6 +68,27 @@
         <label class="btn btn-outline-primary" for="mapStationRevealPartial">Partial</label>
         <input type="radio" class="btn-check" name="map_station_reveal" id="mapStationRevealFull" value="Full" checked>
         <label class="btn btn-outline-primary" for="mapStationRevealFull">Full</label>
+    </div>
+</div>
+<div class="form-group row" onchange="gameVariationChanged()">
+    <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/crash_fixes.html" %}
+        <label for="crash_fixes">Crash fixes</label>
+    </div>
+    <div id="crashFixes" class="col-6 btn-group my-2" role="group">
+        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+            id="crashFixesPresetDefault" value="Default" checked onchange="crashFixesPresetChanged()">
+        <label class="btn btn-outline-primary" for="crashFixesDefault">Default</label>
+        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+            id="crashFixesPresetWarn" value="Warn" onchange="crashFixesPresetChanged()">
+        <label class="btn btn-outline-primary" for="crashFixesWarn">Warn</label>
+        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+            id="crashFixesPresetSilent" value="Silent" onchange="crashFixesPresetChanged()">
+        <label class="btn btn-outline-primary" for="crashFixesSilent">Silent</label>
+        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
+            data-bs-target="#crashFixesModal">
+            <i class="bi bi-gear"></i>
+        </button>
     </div>
 </div>
 <div class="form-group row" onchange="gameVariationChanged()">
@@ -109,7 +134,8 @@
         <label for="enable_major_glitches">Enable major glitches</label>
     </div>
     <div id="enableMajorGlitches" class="col-2 btn-group my-2" role="group">
-        <input type="radio" class="btn-check" name="enable_major_glitches" id="enableMajorGlitchesNo" value="false" checked>
+        <input type="radio" class="btn-check" name="enable_major_glitches" id="enableMajorGlitchesNo" value="false"
+            checked>
         <label class="btn btn-outline-primary" for="enableMajorGlitchesNo">No</label>
         <input type="radio" class="btn-check" name="enable_major_glitches" id="enableMajorGlitchesYes" value="true">
         <label class="btn btn-outline-primary" for="enableMajorGlitchesYes">Yes</label>
@@ -149,3 +175,4 @@
     </div>
 </div>
 {% include "area_assignment.html" %}
+{% include "crash_fixes.html" %}
