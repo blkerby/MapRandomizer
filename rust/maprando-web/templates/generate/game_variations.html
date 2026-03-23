@@ -77,14 +77,17 @@
     </div>
     <div id="crashFixes" class="col-6 btn-group my-2" role="group">
         <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-            id="crashFixesPresetDefault" value="Default" checked onchange="crashFixesPresetChanged()">
-        <label class="btn btn-outline-primary" for="crashFixesPresetDefault">Default</label>
+            id="crashFixesPresetDeath" value="Death" checked onchange="crashFixesPresetChanged()">
+        <label class="btn btn-outline-primary" for="crashFixesPresetDeath">Death</label>
         <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
             id="crashFixesPresetWarn" value="Warn" onchange="crashFixesPresetChanged()">
         <label class="btn btn-outline-primary" for="crashFixesPresetWarn">Warn</label>
         <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
             id="crashFixesPresetSilent" value="Silent" onchange="crashFixesPresetChanged()">
         <label class="btn btn-outline-primary" for="crashFixesPresetSilent">Silent</label>
+        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+            id="crashFixesPresetCrash" value="Crash" onchange="crashFixesPresetChanged()">
+        <label class="btn btn-outline-primary" for="crashFixesPresetCrash">Crash</label>
         <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
             data-bs-target="#crashFixesModal">
             <i class="bi bi-gear"></i>

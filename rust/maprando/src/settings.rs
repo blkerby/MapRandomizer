@@ -522,45 +522,51 @@ impl AreaAssignment {
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum CrashFixesPreset {
-    Default,
+    Death,
     Warn,
     Silent,
+    Crash,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum CrashFixesSpringball {
-    Default,
+    Death,
     Warn,
     Silent,
+    Crash,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum CrashFixesYappingmaw {
-    Default,
+    Death,
     Warn,
     Silent,
+    Crash,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum CrashFixesAutoreserve {
-    Default,
+    Death,
     Warn,
     Silent,
+    Crash,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum CrashFixesXmode {
-    Default,
+    Death,
     Warn,
     Silent,
+    Crash,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[repr(u16)]
 pub enum FixMode {
-    Default = 0,
+    Death = 0,
     Warn = 1,
     Silent = 2,
+    Crash = 3,
 }
 #[derive(Clone, Copy,  Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct CrashFixes {
@@ -574,9 +580,10 @@ pub struct CrashFixes {
 impl CrashFixes {
     pub fn from_preset(preset: CrashFixesPreset) -> Self {
         let mode = match preset {
-            CrashFixesPreset::Default => FixMode::Default,
+            CrashFixesPreset::Death => FixMode::Death,
             CrashFixesPreset::Warn => FixMode::Warn,
             CrashFixesPreset::Silent => FixMode::Silent,
+            CrashFixesPreset::Crash => FixMode::Crash,
         };
 
         CrashFixes {

@@ -4666,11 +4666,11 @@
         "door_locks_size": "Large",
         "map_station_reveal": "Full",
         "crash_fixes": {
-            "preset": "Default",
-            "spring_ball": "Default",
-            "yapping_maw": "Default",
-            "auto_reserve": "Default",
-            "x_mode": "Default"
+            "preset": "Death",
+            "spring_ball": "Death",
+            "yapping_maw": "Death",
+            "auto_reserve": "Death",
+            "x_mode": "Death"
         },
         "energy_free_shinesparks": false,
         "ultra_low_qol": false,

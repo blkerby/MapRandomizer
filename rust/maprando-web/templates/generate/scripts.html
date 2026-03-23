@@ -797,12 +797,12 @@ function areaAssignmentChanged() {
 }
 
 function applyCrashFixesPreset(preset) {
-    if (preset == "Default") {
-        document.getElementById("crashFixesPresetDefault").checked = true;
-        document.getElementById("crashFixesSpringballDefault").checked = true;
-        document.getElementById("crashFixesYappingmawDefault").checked = true;
-        document.getElementById("crashFixesAutoreserveDefault").checked = true;
-        document.getElementById("crashFixesXmodeDefault").checked = true;
+    if (preset == "Death") {
+        document.getElementById("crashFixesPresetDeath").checked = true;
+        document.getElementById("crashFixesSpringballDeath").checked = true;
+        document.getElementById("crashFixesYappingmawDeath").checked = true;
+        document.getElementById("crashFixesAutoreserveDeath").checked = true;
+        document.getElementById("crashFixesXmodeDeath").checked = true;
     } else if (preset == "Warn") {
         document.getElementById("crashFixesPresetWarn").checked = true;
         document.getElementById("crashFixesSpringballWarn").checked = true;
@@ -815,7 +815,14 @@ function applyCrashFixesPreset(preset) {
         document.getElementById("crashFixesYappingmawSilent").checked = true;
         document.getElementById("crashFixesAutoreserveSilent").checked = true;
         document.getElementById("crashFixesXmodeSilent").checked = true;
+    } else if (preset == "Crash") {
+        document.getElementById("crashFixesPresetCrash").checked = true;
+        document.getElementById("crashFixesSpringballCrash").checked = true;
+        document.getElementById("crashFixesYappingmawCrash").checked = true;
+        document.getElementById("crashFixesAutoreserveCrash").checked = true;
+        document.getElementById("crashFixesXmodeCrash").checked = true;
     } 
+    
 }
 
 function applyCrashFixes(preset) {
@@ -839,9 +846,10 @@ function crashFixesPresetChanged() {
 }
 
 function crashFixesChanged() {
-    document.getElementById("crashFixesPresetDefault").checked = false;
+    document.getElementById("crashFixesPresetDeath").checked = false;
     document.getElementById("crashFixesPresetWarn").checked = false;
     document.getElementById("crashFixesPresetSilent").checked = false;
+    document.getElementById("crashFixesPresetCrash").checked = false;
 }
 
 function processInitialMapRevealPreset() {

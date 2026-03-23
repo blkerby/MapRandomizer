@@ -11,7 +11,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>Change the behaviour of the crash handler. This feature prevents a hardlock if any of the following bugs are
+        <p>Change the behaviour of how game crashes are handled. This feature can prevent a hardlock if any of the following bugs are
           triggered:
         <ul>
           <li>
@@ -32,14 +32,16 @@
         <p>
         <ul>
           <li>
-            <p><strong>Default</strong>: When triggered, a dialog box will appear explaining the crash followed by
-              triggering a game-over, preventing the vanilla hardlock.</p>
+            <p><strong>Death</strong>: When triggered, a dialog box will appear explaining the crash followed by
+              triggering a death sequence / game-over, preventing the vanilla hardlock.</p>
           <li>
             <p><strong>Warn</strong>: When triggered, a dialog box will appear explaining the crash but game play will
               continiue after the dialog box is closed.</p>
           <li>
             <p><strong>Silent</strong>: When triggered, no dialog box will appear and the game will continue as if the
               crash hadn't been triggered.</p>
+          <li>
+            <p><strong>Crash</strong>: When triggered, only the vanilla code will run. This WILL cause a hardlock of the game.</p>
           </li>
         </ul>
         </p>
