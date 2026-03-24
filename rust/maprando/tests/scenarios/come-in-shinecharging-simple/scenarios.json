@@ -1,0 +1,91 @@
+{
+  "$schema": "../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Speed Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      }
+    },
+    {
+      "name": "Spark Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      }
+    },
+    {
+      "name": "Fail: Too Short of Shortcharge",
+      "settings": {
+        "shinechargeTiles": 13.76
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Blue Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

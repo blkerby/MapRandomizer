@@ -543,26 +543,23 @@ fn apply_link(link: &Link, mut local: LocalStateArray, cx: &TraversalContext) ->
         if !link.end_with_shinecharge {
             local.retain(|x| x.shinecharge_frames_remaining == 0);
         }
-    } else if link.start_with_shinecharge {
-        local.retain(|x| x.shinecharge_frames_remaining > 0);
-    }
-    // if link.from_vertex_id == 17615
-    //     && link.strat_id == Some(206)
-    //     && cx.door_map[&(187, 2)] == (89, 1)
-    //     && !cx.reverse
-    // {
-    //     info!("debug");
-    // }
-    local = apply_requirement_complex(&link.requirement, local, cx);
-    if cx.reverse {
+    } else {
         if !link.start_with_shinecharge {
             for loc in &mut local {
                 loc.shinecharge_frames_remaining = 0;
             }
         }
-    } else if !link.end_with_shinecharge {
-        for loc in &mut local {
-            loc.shinecharge_frames_remaining = 0;
+    }
+    local = apply_requirement_complex(&link.requirement, local, cx);
+    if cx.reverse {
+        if !link.start_with_shinecharge {
+            local.retain(|x| x.shinecharge_frames_remaining == 0);
+        }
+    } else {
+        if !link.end_with_shinecharge {
+            for loc in &mut local {
+                loc.shinecharge_frames_remaining = 0;
+            }
         }
     }
     for x in &mut local {
