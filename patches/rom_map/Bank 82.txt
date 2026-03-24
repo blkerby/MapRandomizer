@@ -1,6 +1,6 @@
 C262 - C27D: disableable_etanks.asm
-C27D - C298:
-C2A6 - C2B7:
+C27D - C298: vanilla_bugfixes.asm
+C2A6 - C2B7: split_speed.asm
 C362 - C369:
 C37E - C385:
 C3B6 - C3BD: map_area.asm

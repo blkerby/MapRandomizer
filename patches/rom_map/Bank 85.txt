@@ -16,7 +16,9 @@ $AA00 - $AAA0: pause_menu_objectives.asm
 $AAA0 - $AB00: [FREE]
 $AB00 - $ACA0: map_area.asm
 $ACA0 - $AD00: load_flash_suit
-$AD00 - $AE20: vanilla_bugfixes.asm
+$AD00 - $AD02: crash_handle_base.asm (crash toggles referenced by patch.rs )
+$AD02 - $AE20: [FREE]
 $AE20 - $B000: reserve_backward_fill.asm
-$B000 - $B600: vanilla_bugfixes.asm
+$B000 - $B5B3: crash_handle_base.asm
+$B5B3 - $B600: [FREE]
 $B600 - $BA00: map_area.asm
