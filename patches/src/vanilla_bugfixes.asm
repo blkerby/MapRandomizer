@@ -13,31 +13,14 @@ incsrc "constants.asm"
 !bank_80_free_space_start = $80D200 ; camera alignment fix.
 !bank_80_free_space_end = $80D240
 
-!bank_82_free_space2_start = $82f810 ; hook unpause (crash dialog boxes)
-!bank_82_free_space2_end = $82f830
-
-!bank_82_free_space_start = $82fbf0 ; pause / reserve bug
-!bank_82_free_space_end = $82fc30
-
-!bank_83_free_space_start = $83BA00 ; reserve icon ui fix.
-!bank_83_free_space_end = $83BA15
+!bank_82_free_space_start = $82C27D ; reserve icon ui fix.
+!bank_82_free_space_end = $82C298
 
 !bank_84_free_space_start = $84EFD7 ; maridia tube fix
 !bank_84_free_space_end = $84F000
 
-!bank_85_free_space2_start = $85AD00 ; customizable crash dialogs (used in patch.rs)
-!bank_85_free_space2_end = $85AE20
-
-!bank_85_free_space_start = $85b000 ; do not change, first jmp used externally (crash dialog boxes)
-!bank_85_free_space_end = $85b5FF
-
 !bank_86_free_space_start = $86F4B0 ; powamp projectile fix
 !bank_86_free_space_end = $86F4D0
-
-
-
-!msg_crash_timer_override = $7EF596 ; temporary variable used for overriding messagebox close delay times during crash box.
-
 
 
 ; Fix the crash that occurs when you kill an eye door whilst a eye door projectile is alive
@@ -247,27 +230,6 @@ org $b4bda3
     bpl $f8 ; was bne $f8
 
 
-; Fix auto-reserve / pause bug
-;
-; This patch will initiate the death sequence if pause hit with auto-reserve enabled
-; on exact frame that leads to crash.
-;
-; (thanks to Benox50 for his initial patch, nn44/aquanight for the light pillar fix)
-
-
-
-org $828b3f
-    jsr pause_func : nop          ; gamestate 1Ch (unused) handler
-    
-org !bank_82_free_space_start
-pause_func:
-    jsl fp_pause
-    phk
-    plb
-    rts
-
-assert pc() <= !bank_82_free_space_end
-
 ; Fix for powamp projectile bug
 ;
 ; Rare hardlock can occur if powamp killed using contact damage and errant projectiles are spawned 
@@ -305,320 +267,6 @@ assert pc() <= !bank_86_free_space_end
 org $80a27a
     lda #$a29b
 
-; Yapping maw shinespark crash
-; Noted by PJBoy: https://patrickjohnston.org/bank/A8#fA68A
-; If bug triggered, show dialog box and then initiate death sequence.
-
-org $90d354
-    jsr yapping_maw_crash
-    
-!bank_90_free_space_start = $90fc10
-!bank_90_free_space_end = $90fc20
-
-org !bank_90_free_space_start
-yapping_maw_crash:
-    cmp #$0005              ; valid table entries are 0-2 * 2
-    bcc .skip
-    jsl ym_crash
-    phk
-    plb
-    rts
-    
-.skip
-    jmp ($d37d,x)           ; valid entry
-    
-assert pc() <= !bank_90_free_space_end
-
-;;; Spring ball menu crash fix by strotlog.
-;;; Fix obscure vanilla bug where: turning off spring ball while bouncing, can crash in $91:EA07,
-;;; or exactly the same way as well in $91:F1FC.
-;;; Adapted for map rando by Stag Shot:
-;;; If bug triggered, show dialog box and then initiate death sequence.
-
-org $91ea07
-    jsl spring_ball_crash
-
-org $91f1fc
-    jsl spring_ball_crash
-
-org !bank_85_free_space_start
-    jmp bug_dialog          ; for external calls, do not move
-
-spring_ball_crash:
-    lda $0B20               ; morph bounce state
-    cmp #$0600              ; bugged?
-    bcc .skip
-    
-    lda !bank_85_free_space2_start
-    and #$000F
-    beq .default
-    cmp #$0002
-    beq .fix
-.warn
-    lda #$0042
-    jsl bug_dialog
-.fix
-    lda #$0000
-    stz $0b20
-    rtl
-.default
-    sep #$20
-    lda #$42                ; bug ID
-    sta $00cf               ; set flag to prevent unpause from resetting gamestate to 8
-    rep #$30
-    jsl bug_dialog
-    jsr kill_samus
-    lda #$0000
-    stz $0B20
-    rtl
-.skip
-    lda $0B20               ; replaced code
-    asl                     ;
-    rtl
-
-    
-;;; Implementation of custom dialog boxes
-;;; Requires hooking multiple functions to support extended msg IDs (0x40+)
-;;; and additional lookup tables
-
-bug_dialog:                 ; A = msg ID
-    and #$00ff
-    pha
-    sep #$20
-    lda #$0f                ; restore screen brightness to full
-    sta $51
-    sta !msg_crash_timer_override   ; messagebox timer will check if this is 0 (if its non zero load a longer time)
-    rep #$30
-    jsl $808338             ; wait for NMI
-
-    pla                     ; dlg box parameter
-    jsl $858080             ; dlg box
-    cmp #$0044
-    bne .skipkill           ; oob death (dlg 44) is removable via major glitches patch, if its thrown here then the intent is to kill as it isn't toggleable.
-    jsr kill_samus
-.skipkill
-    rtl
-    
-hook_message_box:
-    rep #$30
-    lda $1c1f
-    cmp #$0040              ; custom boxes >= 0x40
-    bcs .custom
-    jmp $8241               ; original func
-    
-.custom
-    ldx #(new_message_boxes-$869b) ; ptr for extended lookup table
-    jmp $824f
-
-hook_index_lookup:
-    lda $1c1f
-    cmp #$0040
-    bcs .custom
-    rts
-
-.custom
-    sec
-    sbc #$0040
-    rts
-
-hook_message_table:
-    adc $34                         ; replaced code
-    tax                             ;
-    lda $1c1f
-    cmp #$0040
-    bcs .custom
-    rts
-    
-.custom
-    txa
-    clc
-    adc #(new_message_boxes-$869b)  ; adjust ptr for extended table
-    tax
-    rts
-
-hook_button_lookup:
-    lda $1c1f
-    cmp #$0040
-    bcs .custom
-    rts
-    
-.custom
-    lda #$0001                      ; blank button tilemap
-    ldy #(reserve_pause_msg-$8426)  ; blank button letter
-    rts
-
-; custom messages start at 0x41
-new_message_boxes:
-    dw $83c5, $825a, reserve_pause_msg  ; 0x41
-    dw $83c5, $825a, springball_msg     ; 0x42
-    dw $83c5, $825a, yapping_maw_msg    ; 0x43
-    dw $83c5, $825a, oob_msg            ; 0x44
-    dw $83c5, $825a, xmode_msg          ; 0x45
-    dw $0000, $0000, msg_end
-
-table "tables/dialog_chars.tbl",RTL
-
-reserve_pause_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   PAUSED ON EXACT FRAME  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   AUTO-REFILL STARTED!   ", $000e,$000e,$000e
-
-springball_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "  UNEQUIPPED SPRING BALL  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   IN NEUTRAL BOUNCE!     ", $000e,$000e,$000e
-    
-yapping_maw_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "  YAPPING MAW SHINESPARK  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, " END WITH NO INPUTS HELD! ", $000e,$000e,$000e
-
-oob_msg:
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   SAMUS OUT-OF-BOUNDS!   ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    
-xmode_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   X-MODE TILE COLLISION  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "COLLIDED WITH A SOLID TILE", $000e,$000e,$000e
-    
-msg_end:
-
-hook_msgbox_delay: 
-    pha
-    lda !msg_crash_timer_override
-    beq .nochange
-    ldx #$005a ; (put 1.5 seconds on the clock) 
-    lda #$00
-    sta !msg_crash_timer_override ; clear our special variable so then next msgbox will have whatever timer was set on generation
-.nochange
-    pla
-    jsr $8136  ; hi-jacked instruction.
-    rts
-
-assert pc() <= !bank_85_free_space_end
-
- ;$85:8493 20 36 81    JSR $8136  [$85:8136]  ;\
-org $858493     ; before we do things, lets double check we are not in a crash dialog (if so we want a longer timer)
-    jsr hook_msgbox_delay
-
-org $858093
-    jsr hook_message_box
-    
-org $8582e5
-    jsr hook_index_lookup
-
-org $8582ee
-    jsr hook_message_table
-
-org $85840c
-    jsr hook_button_lookup
-
-; hook unpause to prevent resetting gamestate to 8 if crash ID set
-
-org $8293bb
-    jmp check_unpause
-
-org !bank_82_free_space2_start
-check_unpause:
-    php
-    sep #$20
-    lda $00cf               ; pending crash ID
-    stz $00cf
-    cmp #$42                ; springball?
-    bne .skip
-    plp
-    jmp $93c1               ; skip changing gamestate
-.skip
-    plp
-    lda #$0008              ; replaced code
-    jmp $93be
-
-assert pc() <= !bank_82_free_space2_end
-
-org !bank_85_free_space2_start
-  dw $0000 ; to be set by patch.rs 0 = default (msg+kill), 1 = warn (msg only), 2 = silent (fix only).
-            ; xmode / yappingmaw crash / reserve pause / springball
-kill_samus:
-    lda #$8000            ; init death sequence (copied from $82db80)
-    sta $a78
-    lda #$0011
-    jsl $90f084
-    lda #$0013              ; set gamestate
-    sta $998
-    rts
-   
-fp_pause:
-    lda !bank_85_free_space2_start
-    and #$00F0
-    beq .default
-    cmp #$0020
-    beq .fix
-.warn
-    lda #$0041                    ; "fix" leave the screen black  warning will relight the screen due to showing the dialog
-    jsl bug_dialog
-.fix
-    lda #$0008
-    sta $0998
-    rtl
-.default
-    lda #$0041                    ; msg ID
-    jsl bug_dialog
-    jsr kill_samus
-    stz $9d6                      ; clear reserve health
-    rtl
-    
-ym_crash:
-    lda !bank_85_free_space2_start
-    and #$0F00
-    beq .default
-    cmp #$0200
-    beq .fix
-.warn
-    lda #$0043              ; bug ID
-    jsl bug_dialog
-.fix
-    lda #$d3f3
-    sta $0a58
-    lda #$001e
-    sta $0aa2
-    sta $0ac0
-    sta $0ac2
-    lda #$0000
-    ldx #$0000
-    ldy #$0004
-    rtl
-.default
-    lda #$0043              ; bug ID
-    jsl bug_dialog
-    jsr kill_samus
-    rtl
-
-xmode:
-    lda !bank_85_free_space2_start
-    and #$F000
-    beq .default
-    ;cmp #$0200
-    ;beq .fix
-.warn
-    ;lda #$0045       ; crash dialog (warning) removed until better solution found, it will re-trigger many times until samus is out of collission so annoying.
-    ;jsl bug_dialog
-.fix
-    rtl
-.default
-    lda #$0045
-    jsl bug_dialog
-    jsr kill_samus
-    rtl
-
-
-assert pc() <= !bank_85_free_space2_end ;ad9d
 
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
@@ -627,21 +275,6 @@ assert pc() <= !bank_85_free_space2_end ;ad9d
 
 org $829f90
     adc #$7c
-
-; X-Mode collision fix - nn_357
-
-org $91816f ; rewrite original input handler for solid tile collision to free up space. -- thanks to StagShot for noticing the rep$30 isn't needed here, it's already initialized by the single caller to this function.
-            ; whole fix can now fit in the original function.
-    PHP
-    JSR $81A9   ; this fixes regular xmode collision by using the correct pose lookup routine for all collisions
-    LDA $0A78   ; load frozen time variable
-    BEQ $07     ; if time is NOT frozen skip over the next instruction (kill samus)
-    LDA #$0045  ; load the msg bug id for X-Mode Collision
-    JSL xmode ; collision with solid tile while time is frozen is only possible in x-mode so jump to code that will kill samus rather than hardlock (retain vanilla behaviour)
-    PLP
-    RTS
-
-assert pc() <= $918181  ; Make sure we don't overwrite the next routine.
 
 ; (Maridia Tube Fix - written by AmoebaOfDoom) 
 ;patches horizontal PLM updates to DMA tiles even when the PLM is above the screen if part of it is on the screen
@@ -690,25 +323,19 @@ org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]
 
 
 ; vanilla bugfix, ui shows reserve icon when only boots item is equipped.
-;
-
-org !bank_83_free_space_start
-
-BNE .found
-INX
-INX
-CPX #$0006
-BMI .loop
-JML $82AC15
-
-.found
-JML $82AC0C
-
-.loop
-JML $82AC00
-
-assert pc() <= !bank_83_free_space_end
+; this is due to a missing conditional branch instruction. 
 
 org $82AC03
- JML !bank_83_free_space_start
- nop #5
+  jmp $c27d ; !bank_82_free_space_start  [bankless form of this]
+  nop #2
+
+org !bank_82_free_space_start 
+  bne .found
+  inx
+  inx
+  cpx #$0006
+  jmp $AC08
+.found
+  jmp $AC0C
+
+assert pc() <= !bank_82_free_space_end

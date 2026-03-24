@@ -3,8 +3,7 @@ AD66 - AD72: escape_autosave.asm
 B000 - B700: [FREE]
 B700 - B800: rng_fix.asm
 B800 - BA00: Mosaic (Area FX.asm)
-BA00 - BA15: vanilla_bugfixes.asm
-BA15 - BB00: [FREE]
+BA00 - BB00: [FREE]
 BB00 - BC40: disableable_etanks.asm
 BC40 - E000: [FREE]
 E000 - F000: item_dots_disappear.asm
