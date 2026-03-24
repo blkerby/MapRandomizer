@@ -19,6 +19,7 @@ $ACA0 - $AD00: load_flash_suit
 $AD00 - $AD02: crash_handle_base.asm (crash toggles referenced by patch.rs )
 $AD02 - $AE20: [FREE]
 $AE20 - $B000: reserve_backward_fill.asm
-$B000 - $B5B3: crash_handle_base.asm
-$B5B3 - $B600: [FREE]
+$B000 - $B5B4: crash_handle_base.asm
+$B5B4 - $B5F1: crash_handle_yapping.asm
+$B5F1 - $B600: [free]
 $B600 - $BA00: map_area.asm

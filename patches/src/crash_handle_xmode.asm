@@ -3,6 +3,8 @@
 ;;; thanks to StagShot for noticing the rep$30 isn't needed here, it's already initialized by the single caller to this function.
 ;;; whole fix can now fit in the original function.
 
+arch snes.cpu
+lorom
 
 ;;; these variable are defined by the crash_handle_base.asm patch and patch.rs
 
@@ -12,9 +14,6 @@
 
 !bank_91_free_space_start = $9195bc 
 !bank_91_free_space_end =  $91965a 
-
-arch snes.cpu
-lorom
 
 org $91816f 
 xmodefix:
@@ -31,8 +30,8 @@ xmodefix:
 assert pc() <= $918181  ; Make sure we don't overwrite the next routine.
 
 ;;;
-;;; Currently only using upto {9195D2} {approx 130bytes free, reserved for more future xmode warn fix.}
-
+;;; custom code - currently only using upto {9195D2} {approx 130bytes free, reserved for more future xmode warn fix.}
+;;; 
 org !bank_91_free_space_start
 xmode:
     lda !crash_toggles
