@@ -568,7 +568,7 @@ pub enum FixMode {
     Silent = 2,
     Crash = 3,
 }
-#[derive(Clone, Copy,  Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct CrashFixes {
     pub preset: Option<CrashFixesPreset>,
     pub spring_ball: FixMode,
@@ -596,10 +596,10 @@ impl CrashFixes {
     }
 
     pub fn to_word(&self) -> u16 {
-        ((self.x_mode as u16)       << 12) |
-        ((self.yapping_maw as u16)  << 8)  |
-        ((self.auto_reserve as u16) << 4)  |
-        (self.spring_ball as u16)
+        ((self.x_mode as u16) << 12)
+            | ((self.yapping_maw as u16) << 8)
+            | ((self.auto_reserve as u16) << 4)
+            | (self.spring_ball as u16)
     }
 }
 
