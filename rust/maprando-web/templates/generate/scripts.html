@@ -796,34 +796,34 @@ function areaAssignmentChanged() {
     document.getElementById("areaAssignmentPresetRandom").checked = false;
 }
 
-function applyCrashFixesPreset(preset) {
-    if (preset == "Death") {
-        document.getElementById("crashFixesPresetDeath").checked = true;
-        document.getElementById("crashFixesSpringballDeath").checked = true;
-        document.getElementById("crashFixesYappingmawDeath").checked = true;
-        document.getElementById("crashFixesAutoreserveDeath").checked = true;
-        document.getElementById("crashFixesXmodeDeath").checked = true;
-    } else if (preset == "Warn") {
-        document.getElementById("crashFixesPresetWarn").checked = true;
-        document.getElementById("crashFixesSpringballWarn").checked = true;
-        document.getElementById("crashFixesYappingmawWarn").checked = true;
-        document.getElementById("crashFixesAutoreserveWarn").checked = true;
-        document.getElementById("crashFixesXmodeWarn").checked = true;
-    } else if (preset == "Silent") {
-        document.getElementById("crashFixesPresetSilent").checked = true;
-        document.getElementById("crashFixesSpringballSilent").checked = true;
-        document.getElementById("crashFixesYappingmawSilent").checked = true;
-        document.getElementById("crashFixesAutoreserveSilent").checked = true;
-        document.getElementById("crashFixesXmodeSilent").checked = true;
-    } else if (preset == "Crash") {
-        document.getElementById("crashFixesPresetCrash").checked = true;
-        document.getElementById("crashFixesSpringballCrash").checked = true;
-        document.getElementById("crashFixesYappingmawCrash").checked = true;
-        document.getElementById("crashFixesAutoreserveCrash").checked = true;
-        document.getElementById("crashFixesXmodeCrash").checked = true;
-    } 
-    
-}
+    function applyCrashFixesPreset(preset) {
+        if (preset == "Crash") {
+            document.getElementById("crashFixesPresetCrash").checked = true;
+            document.getElementById("crashFixesSpringballCrash").checked = true;
+            document.getElementById("crashFixesYappingmawCrash").checked = true;
+            document.getElementById("crashFixesAutoreserveCrash").checked = true;
+            document.getElementById("crashFixesXmodeCrash").checked = true;
+        } else if (preset == "Death") {
+            document.getElementById("crashFixesPresetDeath").checked = true;
+            document.getElementById("crashFixesSpringballDeath").checked = true;
+            document.getElementById("crashFixesYappingmawDeath").checked = true;
+            document.getElementById("crashFixesAutoreserveDeath").checked = true;
+            document.getElementById("crashFixesXmodeDeath").checked = true;
+        } else if (preset == "Warn") {
+            document.getElementById("crashFixesPresetWarn").checked = true;
+            document.getElementById("crashFixesSpringballWarn").checked = true;
+            document.getElementById("crashFixesYappingmawWarn").checked = true;
+            document.getElementById("crashFixesAutoreserveWarn").checked = true;
+            document.getElementById("crashFixesXmodeWarn").checked = true;
+        } else if (preset == "Silent") {
+            document.getElementById("crashFixesPresetSilent").checked = true;
+            document.getElementById("crashFixesSpringballSilent").checked = true;
+            document.getElementById("crashFixesYappingmawSilent").checked = true;
+            document.getElementById("crashFixesAutoreserveSilent").checked = true;
+            document.getElementById("crashFixesXmodeSilent").checked = true;
+        }
+
+    }
 
 function applyCrashFixes(preset) {
     applyRadioValue("crashFixesSpringball", preset.spring_ball);
@@ -1262,7 +1262,7 @@ function checkOtherOptions() {
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
-        !document.getElementById("crashFixPresetDefault").checked ||
+        !document.getElementById("crashFixPresetDeath").checked ||
         document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {
