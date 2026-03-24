@@ -1059,22 +1059,39 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         .context("missing other_settings")?
         .as_object_mut()
         .context("expected other_settings to be object")?;
+    {
+        let area_assignment = other_settings
+            .get_mut("area_assignment")
+            .context("missing area_assignment")?;
 
-    let area_assignment = other_settings
-        .get_mut("area_assignment")
-        .context("missing area_assignment")?;
-
-    if area_assignment.is_string() {
-        let preset_str = area_assignment.as_str().unwrap();
-        let preset = match preset_str {
-            "Standard" => AreaAssignmentPreset::Standard,
-            "Ordered" => AreaAssignmentPreset::Size,
-            "Random" => AreaAssignmentPreset::Random,
-            _ => bail!("Unrecognized area assignment preset: {}", preset_str),
-        };
-        *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
+        if area_assignment.is_string() {
+            let preset_str = area_assignment.as_str().unwrap();
+            let preset = match preset_str {
+                "Standard" => AreaAssignmentPreset::Standard,
+                "Ordered" => AreaAssignmentPreset::Size,
+                "Random" => AreaAssignmentPreset::Random,
+                _ => bail!("Unrecognized area assignment preset: {}", preset_str),
+            };
+            *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
+        }
     }
+    {
+        let crash_fixes = other_settings
+            .get_mut("crash_fixes")
+            .context("missing crash fixes")?;
 
+        if crash_fixes.is_string() {
+            let preset_str = crash_fixes.as_str().unwrap();
+            let preset = match preset_str {
+                "Crash" => CrashFixesPreset::Crash,
+                "Death" => CrashFixesPreset::Death,
+                "Warn" => CrashFixesPreset::Warn,
+                "Silent" => CrashFixesPreset::Silent,
+                _ => bail!("Unrecognized area assignment preset: {}", preset_str),
+            };
+            *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
+        }
+    }
     if other_settings.get("disable_spikesuit").is_none()
         || other_settings["disable_spikesuit"].as_bool().is_none()
     {
