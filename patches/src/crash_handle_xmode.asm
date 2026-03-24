@@ -44,7 +44,7 @@ xmode:
     ;lda #$0045       ; crash dialog (warning) removed until better solution found, it will re-trigger many times until samus is out of collission so annoying.
     ;jsl !bug_dialog  ; there is space available here for additional code.
 .fix
-    rtl
+    rts
 .default
     lda #$0045
     jsl !bug_dialog
