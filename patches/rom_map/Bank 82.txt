@@ -15,7 +15,7 @@ FA00 - FA80: alternate_door_colors.asm
 FA80 - FA90: fix_water_fx_bug.asm
 FA90 - FBB0: seed_hash_display.asm
 FBB0 - FBF0: fix_kraid_hud.asm
-FBF0 - FC30: vanilla_bugfixes.asm
+FBF0 - FC30: crash_handle_autoreserve.asm
 FC30 - FC50: fix_transition_bad_tiles.asm
 FC50 - FCD0: map_area.asm
 FCD0 - FD00: escape.asm
