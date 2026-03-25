@@ -10,9 +10,9 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset,
-        DisableETankSetting, DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount,
-        RandomizerSettings, SpeedBooster, WallJump, get_objective_groups,
+        AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset, DisableETankSetting,
+        DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount, RandomizerSettings,
+        SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
