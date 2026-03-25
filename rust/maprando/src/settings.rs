@@ -528,38 +528,6 @@ pub enum CrashFixesPreset {
     Crash,
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum CrashFixesSpringball {
-    Death,
-    Warn,
-    Silent,
-    Crash,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum CrashFixesYappingmaw {
-    Death,
-    Warn,
-    Silent,
-    Crash,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum CrashFixesAutoreserve {
-    Death,
-    Warn,
-    Silent,
-    Crash,
-}
-
-#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
-pub enum CrashFixesXmode {
-    Death,
-    Warn,
-    Silent,
-    Crash,
-}
-
 #[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 #[repr(u16)]
 pub enum FixMode {
@@ -568,6 +536,7 @@ pub enum FixMode {
     Silent = 2,
     Crash = 3,
 }
+
 #[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct CrashFixes {
     pub preset: Option<CrashFixesPreset>,
@@ -1075,23 +1044,28 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
             *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
         }
     }
-    {
-        let crash_fixes = other_settings
-            .get_mut("crash_fixes")
-            .context("missing crash fixes")?;
 
-        if crash_fixes.is_string() {
-            let preset_str = crash_fixes.as_str().unwrap();
-            let preset = match preset_str {
-                "Crash" => CrashFixesPreset::Crash,
-                "Death" => CrashFixesPreset::Death,
-                "Warn" => CrashFixesPreset::Warn,
-                "Silent" => CrashFixesPreset::Silent,
-                _ => bail!("Unrecognized preset: {}", preset_str),
-            };
-            *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
+    match other_settings.get_mut("crash_fixes") {
+        None => {
+            other_settings.insert(
+                "crash_fixes".to_string(),
+                serde_json::to_value(CrashFixes::from_preset(CrashFixesPreset::Death))?,
+            );
+        }
+        Some(crash_fixes) => {
+            if let Some(preset_str) = crash_fixes["preset"].as_str() {
+                let preset = match preset_str {
+                    "Crash" => CrashFixesPreset::Crash,
+                    "Death" => CrashFixesPreset::Death,
+                    "Warn" => CrashFixesPreset::Warn,
+                    "Silent" => CrashFixesPreset::Silent,
+                    _ => bail!("Unrecognized preset: {}", preset_str),
+                };
+                *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
+            }
         }
     }
+
     if other_settings.get("disable_spikesuit").is_none()
         || other_settings["disable_spikesuit"].as_bool().is_none()
     {
