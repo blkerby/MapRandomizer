@@ -10,9 +10,9 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, DisableETankSetting, DoorLocksSize,
-        ETankRefill, FillerItemPriority, ItemCount, RandomizerSettings, SpeedBooster, WallJump,
-        get_objective_groups,
+        AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset,
+        DisableETankSetting, DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount,
+        RandomizerSettings, SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -188,6 +188,24 @@ impl SeedHeaderTemplate<'_> {
         }
         if other_settings.enable_major_glitches {
             game_variations.push("Major glitches enabled");
+        }
+        if other_settings.crash_fixes.preset != Some(CrashFixesPreset::Death) {
+            match other_settings.crash_fixes.preset {
+                Some(CrashFixesPreset::Crash) => {
+                    game_variations.push("Hardlock crashes unpatched");
+                }
+                Some(CrashFixesPreset::Warn) => {
+                    game_variations.push("Hardlock crashes will display a warning (no death)");
+                }
+                Some(CrashFixesPreset::Silent) => {
+                    game_variations
+                        .push("Hardlock crashes will be fixed silently (no warning / no death)");
+                }
+                Some(CrashFixesPreset::Death) => {}
+                None => {
+                    game_variations.push("Custom crash handler settings");
+                }
+            }
         }
         game_variations
     }
