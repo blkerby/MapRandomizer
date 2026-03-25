@@ -14,6 +14,8 @@ incsrc "constants.asm"
 !bank_91_free_space_start = $9195bc 
 !bank_91_free_space_end =  $91965a 
 
+!shown_warning = $7EF59C  ; whether a warning has already been shown since X-Ray initialized
+
 org $91816f 
 xmodefix:
     php
@@ -28,8 +30,12 @@ xmodefix:
 
 assert pc() <= $918181  ; Make sure we don't overwrite the next routine.
 
+org $91cafe
+    jmp hook_setup_xray
+return_setup_xray:
+
 ;;;
-;;; custom code - currently only using upto {9195D2} {approx 130bytes free, reserved for more future xmode warn fix.}
+;;; custom code - currently only using up to {9195D2} {approx 130bytes free, reserved for more future xmode warn fix.}
 ;;; 
 org !bank_91_free_space_start
 xmode:
@@ -39,8 +45,12 @@ xmode:
     ;cmp #$0200
     ;beq .fix
 .warn
-    ;lda #$0045       ; crash dialog (warning) removed until better solution found, it will re-trigger many times until samus is out of collission so annoying.
-    ;jsl !bug_dialog  ; there is space available here for additional code.
+    lda !shown_warning
+    bne .fix
+    inc
+    sta !shown_warning  ; set !shown_warning to 1
+    lda #$0045
+    jsl !bug_dialog
 .fix
     rts
 .default
@@ -48,5 +58,12 @@ xmode:
     jsl !bug_dialog
     jsl !kill_samus
     rts
+
+; initialize shown_warning to 0 when starting to use x-ray
+hook_setup_xray:
+    sta $0a78  ; run hi-jacked instruction: time-is-frozen flag = 1
+    lda #$00
+    sta !shown_warning
+    jmp return_setup_xray
 
 assert pc() <= !bank_91_free_space_end

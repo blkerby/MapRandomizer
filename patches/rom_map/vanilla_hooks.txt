@@ -990,6 +990,7 @@ $909e88 - walljump_plm.asm
 
 [BANK 91]
 $9181f4 - aim_anything.asm
+$91cafe - crash_handle_xmode.asm
 $91e164 - fast_reload.asm
 $91e604 - fix_hyper_slowlock.asm
 $91deba - gravity_palette.asm
