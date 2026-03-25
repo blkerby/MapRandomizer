@@ -6,11 +6,10 @@
 arch snes.cpu
 lorom
 
+incsrc "constants.asm"
+
 ;;; these variable are defined by the crash_handle_base.asm patch and patch.rs
 
-!crash_toggles = $85AD00 
-!kill_samus = $85b5a0
-!bug_dialog = $85b000
 
 !bank_91_free_space_start = $9195bc 
 !bank_91_free_space_end =  $91965a 

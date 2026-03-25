@@ -1087,7 +1087,7 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
                 "Death" => CrashFixesPreset::Death,
                 "Warn" => CrashFixesPreset::Warn,
                 "Silent" => CrashFixesPreset::Silent,
-                _ => bail!("Unrecognized area assignment preset: {}", preset_str),
+                _ => bail!("Unrecognized preset: {}", preset_str),
             };
             *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
         }

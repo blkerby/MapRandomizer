@@ -7,16 +7,13 @@
 arch snes.cpu
 lorom
 
-;;; these variable are defined by the crash_handle_base.asm patch and patch.rs
+incsrc "constants.asm"
 
-!crash_toggles = $85AD00 
-!kill_samus = $85b5a0
-!bug_dialog = $85b000
 
-!bank_82_free_space2_start = $82f810 ; hook unpause (springball crash)
-!bank_82_free_space2_end = $82f830
+!bank_82_free_space_start = $82f810 ; hook unpause (springball crash)
+!bank_82_free_space_end = $82f830
 
-!bank_85_free_space_start = $85ad04
+!bank_85_free_space_start = $85ad00
 !bank_85_free_space_end = $85ad45
 
 ;;; vanilla hooks
@@ -33,7 +30,7 @@ org $91f1fc
 ;;; custom code
 
 
-org !bank_82_free_space2_start
+org !bank_82_free_space_start
 check_unpause:
     php
     sep #$20
@@ -48,7 +45,7 @@ check_unpause:
     lda #$0008              ; replaced code
     jmp $93be
 
-assert pc() <= !bank_82_free_space2_end
+assert pc() <= !bank_82_free_space_end
 
 
 org !bank_85_free_space_start

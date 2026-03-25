@@ -998,7 +998,7 @@ impl Patcher<'_> {
     }
 
     pub fn write_crash_handler(&mut self, crash_fixes: &CrashFixes) -> Result<()> {
-        let crash_handler = 0x85AD00;
+        let crash_handler = 0x80D330;
 
         let word = crash_fixes.to_word();
         if word == 0x3333 {

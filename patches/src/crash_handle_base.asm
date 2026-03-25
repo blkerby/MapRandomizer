@@ -11,17 +11,27 @@
 arch snes.cpu
 lorom
 
-!bank_85_free_space_start = $85b000 ; be careful if moving this, the subpatches that use this code assume this location (xmode/oob/yappingmaw/autoreserve/springball)
-!bank_85_free_space_end = $85b5a0
+incsrc "constants.asm"
 
-!bank_85_free_space2_start = $85b5a0 ; kill samus routine, location called by sub patches, as above, be careful if ever moving this code and update subpatches.
-!bank_85_free_space2_end = $85b5b4
+!bank_80_free_space_start = $80D332 ; springboard for the sub patches.. They all point here for the crash loader / kill samus
+!bank_80_free_space_end = $80D340   ; if moving the crash handler base patch then this needs to be changed too.
+
+!bank_85_free_space_start = $85b000 ; 
+!bank_85_free_space_end = $85b5b4
 
 !msg_crash_timer_override = $7EF596 ; temporary variable used for overriding messagebox close delay times during crash box.
-!crash_toggles = $85ad00  ; this location is looked at by the subpatches to decide if to call the handler etc.
 
-org !crash_toggles
-    dw $0000    ; overwritten by patch.rs if any values are changed, subpatches reference this. default is gameover / death (pre-toggleable setting)
+;;; global code. 
+org !crash_toggles  ; default at 80d330, srpringboard follows.
+    dw $0000    ; overwritten by patch.rs 
+
+org !bank_80_free_space_start
+    jsl bug_dialog
+    rtl
+    jsl kill_samus
+    rtl
+
+assert pc() <= !bank_80_free_space_end
 
 ;;; hooks into vanilla code
 
@@ -164,9 +174,6 @@ xmode_msg:
     
 msg_end:
 
-assert pc() <= !bank_85_free_space_end
-
-org !bank_85_free_space2_start
 kill_samus:
     lda #$8000            ; init death sequence (copied from $82db80)
     sta $a78
@@ -176,4 +183,4 @@ kill_samus:
     sta $998
     rtl
 
-assert pc() <= !bank_85_free_space2_end
+assert pc() <= !bank_85_free_space_end

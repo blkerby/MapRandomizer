@@ -7,11 +7,7 @@
 ;;; 
 
 
-;;; these variable are defined by the crash_handle_base.asm patch and patch.rs
-
-!crash_toggles = $85AD00 
-!kill_samus = $85b5a0
-!bug_dialog = $85b000
+incsrc "constants.asm"
 
 !bank_82_free_space_start = $82fbf0 ; pause / reserve bug
 !bank_82_free_space_end = $82fc30
@@ -33,7 +29,7 @@ pause_func:
     cmp #$0020
     beq .fix
 .warn
-    lda #$0041                    ; "fix" leaves the screen black like any pause close to fadeout, warning will relight the screen due to showing the dialog
+    lda #$0041                    ; "fix" leaves the screen black like any pause close to fadeout, warning will relight the screen due to showing the dialog, could be changed to darken the screen again but it might be confusing.
     jsl !bug_dialog
 .fix
     lda #$0008
