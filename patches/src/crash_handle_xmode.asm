@@ -42,8 +42,8 @@ xmode:
     lda !crash_toggles
     and #$F000
     beq .default
-    ;cmp #$0200
-    ;beq .fix
+    cmp #$2000
+    beq .fix
 .warn
     lda !shown_warning
     bne .fix
