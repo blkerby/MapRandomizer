@@ -2139,7 +2139,7 @@ fn apply_requirement_simple(
                 return SimpleResult::Failure;
             }
             if cx.reverse {
-                if local.flash_suit > 0 {
+                if local.flash_suit > 0 || local.blue_suit > 0 {
                     return SimpleResult::Failure;
                 }
                 local.flash_suit = 1;
@@ -2149,6 +2149,7 @@ fn apply_requirement_simple(
                 SimpleResult::Failure
             } else {
                 local.flash_suit = 0;
+                local.blue_suit = 0;
                 // Set shinecharge frames remaining to the max, to allow `comeInShinecharged`
                 // strats to be satisfied by a flash suit.
                 // (And at least 1 shinecharge frame is required in order to satisfy a `shinespark` requirement.)
@@ -2210,7 +2211,7 @@ fn apply_requirement_simple(
                 return SimpleResult::Failure;
             }
             if cx.reverse {
-                if local.blue_suit != 0 {
+                if local.blue_suit > 0 || local.flash_suit > 0 {
                     return SimpleResult::Failure;
                 }
                 local.blue_suit = 1;
@@ -2220,6 +2221,7 @@ fn apply_requirement_simple(
                 SimpleResult::Failure
             } else {
                 local.blue_suit = 0;
+                local.flash_suit = 0;
                 // Set shinecharge frames remaining to the max, to allow `comeInShinecharged`
                 // strats to be satisfied by a blue suit.
                 local.shinecharge_frames_remaining =
