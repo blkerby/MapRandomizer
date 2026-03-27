@@ -8,30 +8,36 @@
 arch snes.cpu
 lorom
 
-!bank_80_free_space_start = $80D200
+incsrc "constants.asm"
+
+!bank_80_free_space_start = $80D200 ; camera alignment fix.
 !bank_80_free_space_end = $80D240
-!bank_86_free_space_start = $86F4B0
+
+!bank_82_free_space_start = $82C27D ; reserve icon ui fix.
+!bank_82_free_space_end = $82C298
+
+!bank_84_free_space_start = $84EFD7 ; maridia tube fix
+!bank_84_free_space_end = $84F000
+
+!bank_86_free_space_start = $86F4B0 ; powamp projectile fix
 !bank_86_free_space_end = $86F4D0
 
-!msg_crash_timer_override = $7EF596
-
-incsrc "constants.asm"
 
 ; Fix the crash that occurs when you kill an eye door whilst a eye door projectile is alive
 ; See the comments in the bank logs for $86:B6B9 for details on the bug
 ; The fix here is setting the X register to the enemy projectile index,
 ; which can be done without free space due to an unnecessary RTS in the original code
 org $86B704
-BEQ ret
-TYX
+  BEQ ret
+  TYX
 
 org $86B713
-ret:
+  ret:
 
 ;;; skips suits acquisition animation
 org $848717
 	;rep 4 : nop
-    JSL $91DEBA ; call the load samus suit palette to update the suit.
+  JSL $91DEBA ; call the load samus suit palette to update the suit.
 
 assert pc() <= $84871B ; just to make sure the next instruction isn't overwritten
 
@@ -43,21 +49,24 @@ org $91b629
 ;;; fix screw attack select in pause menu
 org $82b4c4
 	cpx #$000c
+  
 ;;; In inventory menu, when having only a beam and a suit you have
 ;;; to press right+up to go from beam to suit.
 ;;; It's not natural, so fix it to only require right.
+
 org $82b000
+	bcc $64
 	;; test of return of $B4B7 compare A and #$0000,
 	;; when no item found A==#$ffff, which sets the carry,
 	;; so when carry is clear it means that an item was found in misc.
 	;; if no item was found in misc, we check in boots then in suits,
 	;; so if an item is found in both boots and suits, as suits is
 	;; tested last the selection will be set on suits.
-	bcc $64
 
 ;;; fix morph ball in hidden chozo PLM
 org $84e8ce
 	db $04
+  
 org $84ee02
 	db $04
 
@@ -83,6 +92,7 @@ assert pc() <= $a0f830
 ;;; allow all possible save slots (needed for area rando extra stations)
 org $848d0c
 	and #$001f
+  
 ;;; For an unknown reason, the save station we put in main street
 ;;; sometimes (circumstances unclear) spawn two detection PLMs
 ;;; instead of one. These PLMs are supposed to precisely detect
@@ -96,14 +106,18 @@ org $848d0c
 
 ;;; hijack in detection block PLM code when samus is
 ;;; positioned correctly
+
 org $84b5d4
 search_loop_start:
 	jmp save_station_check
+  
 org $84b5d9
 search_loop_cont:
+
 org $84b5df
 search_loop_found:
-;;; some unused bank 84 space
+
+;;; some unused bank 84 space 
 org $84858c
 save_station_check:
 	cmp $1c87,x		; original block coord check
@@ -119,7 +133,6 @@ save_station_check:
 	pla
 	jmp search_loop_found
 
-;;; end of unused space
 assert pc() <= $8485b2
 
 
@@ -141,7 +154,6 @@ fix_big_boy:
 	NOP
 org $A9EF80 
 .done
-
 
 ; Fix Bomb Torizo crumbling animation (which can be very messed up if the player earlier visited a room
 ; that maxed out enemy projectiles)
@@ -207,6 +219,7 @@ check_item_plm:
 	rts
 
 assert pc() <= $848398
+
 org $848398
 special_xray_end:
 
@@ -216,27 +229,6 @@ special_xray_end:
 org $b4bda3
     bpl $f8 ; was bne $f8
 
-; Fix auto-reserve / pause bug
-;
-; This patch will initiate the death sequence if pause hit with auto-reserve enabled
-; on exact frame that leads to crash.
-;
-; (thanks to Benox50 for his initial patch, nn44/aquanight for the light pillar fix)
-
-!bank_82_free_space_start = $82fbf0
-!bank_82_free_space_end = $82fc30
-
-org $828b3f
-    jsr pause_func : nop          ; gamestate 1Ch (unused) handler
-    
-org !bank_82_free_space_start
-pause_func:
-    lda #$0041                    ; msg ID
-    jsl bug_dialog
-    stz $9d6                      ; clear reserve health
-    rts
-
-assert pc() <= !bank_82_free_space_end
 
 ; Fix for powamp projectile bug
 ;
@@ -275,236 +267,6 @@ assert pc() <= !bank_86_free_space_end
 org $80a27a
     lda #$a29b
 
-; Yapping maw shinespark crash
-; Noted by PJBoy: https://patrickjohnston.org/bank/A8#fA68A
-; If bug triggered, show dialog box and then initiate death sequence.
-
-org $90d354
-    jsr yapping_maw_crash
-    
-!bank_90_free_space_start = $90fc10
-!bank_90_free_space_end = $90fc20
-
-org !bank_90_free_space_start
-yapping_maw_crash:
-    cmp #$0005              ; valid table entries are 0-2 * 2
-    bcc .skip
-    lda #$0043              ; bug ID
-    jsl bug_dialog
-    rts
-    
-.skip
-    jmp ($d37d,x)           ; valid entry
-    
-assert pc() <= !bank_90_free_space_end
-
-;;; Spring ball menu crash fix by strotlog.
-;;; Fix obscure vanilla bug where: turning off spring ball while bouncing, can crash in $91:EA07,
-;;; or exactly the same way as well in $91:F1FC.
-;;; Adapted for map rando by Stag Shot:
-;;; If bug triggered, show dialog box and then initiate death sequence.
-
-org $91ea07
-    jsl spring_ball_crash
-
-org $91f1fc
-    jsl spring_ball_crash
-
-!bank_85_free_space_start = $85b000 ; do not change, first jmp used externally
-!bank_85_free_space_end = $85b5FF
-
-org !bank_85_free_space_start
-    jmp bug_dialog          ; for external calls, do not move
-
-spring_ball_crash:
-    lda $0B20               ; morph bounce state
-    cmp #$0600              ; bugged?
-    bcc .skip
-    sep #$20
-    lda #$42                ; bug ID
-    sta $00cf               ; set flag to prevent unpause from resetting gamestate to 8
-    rep #$30
-    jsl bug_dialog
-    lda #$0000
-    stz $0B20
-    rtl
-    
-.skip
-    lda $0B20               ; replaced code
-    asl                     ;
-    rtl
-
-;;; Implementation of custom dialog boxes
-;;; Requires hooking multiple functions to support extended msg IDs (0x40+)
-;;; and additional lookup tables
-
-bug_dialog:                 ; A = msg ID
-    and #$00ff
-    pha
-    sep #$20
-    lda #$0f                ; restore screen brightness to full
-    sta $51
-    sta !msg_crash_timer_override   ; messagebox timer will check if this is 0 (if its non zero load a longer time)
-    rep #$30
-    jsl $808338             ; wait for NMI
-
-    pla                     ; dlg box parameter
-    jsl $858080             ; dlg box
-
-    lda #$8000              ; init death sequence (copied from $82db80)
-    sta $a78
-    lda #$0011
-    jsl $90f084
-    
-    lda #$0013              ; set gamestate
-    sta $998
-    rtl
-    
-hook_message_box:
-    rep #$30
-    lda $1c1f
-    cmp #$0040              ; custom boxes >= 0x40
-    bcs .custom
-    jmp $8241               ; original func
-    
-.custom
-    ldx #(new_message_boxes-$869b) ; ptr for extended lookup table
-    jmp $824f
-
-hook_index_lookup:
-    lda $1c1f
-    cmp #$0040
-    bcs .custom
-    rts
-
-.custom
-    sec
-    sbc #$0040
-    rts
-
-hook_message_table:
-    adc $34                         ; replaced code
-    tax                             ;
-    lda $1c1f
-    cmp #$0040
-    bcs .custom
-    rts
-    
-.custom
-    txa
-    clc
-    adc #(new_message_boxes-$869b)  ; adjust ptr for extended table
-    tax
-    rts
-
-hook_button_lookup:
-    lda $1c1f
-    cmp #$0040
-    bcs .custom
-    rts
-    
-.custom
-    lda #$0001                      ; blank button tilemap
-    ldy #(reserve_pause_msg-$8426)  ; blank button letter
-    rts
-
-; custom messages start at 0x41
-new_message_boxes:
-    dw $83c5, $825a, reserve_pause_msg  ; 0x41
-    dw $83c5, $825a, springball_msg     ; 0x42
-    dw $83c5, $825a, yapping_maw_msg    ; 0x43
-    dw $83c5, $825a, oob_msg            ; 0x44
-    dw $83c5, $825a, xmode_msg          ; 0x45
-    dw $0000, $0000, msg_end
-
-table "tables/dialog_chars.tbl",RTL
-
-reserve_pause_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   PAUSED ON EXACT FRAME  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   AUTO-REFILL STARTED!   ", $000e,$000e,$000e
-
-springball_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "UNEQUIPPED SPRING BALL IN ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "UNDERWATER NEUTRAL BOUNCE!", $000e,$000e,$000e
-    
-yapping_maw_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "  YAPPING MAW SHINESPARK  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, " END WITH NO INPUTS HELD! ", $000e,$000e,$000e
-
-oob_msg:
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   SAMUS OUT-OF-BOUNDS!   ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    
-xmode_msg:
-    dw $000e,$000e,$000e, "        GAME CRASH!       ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "   X-MODE TILE COLLISION  ", $000e,$000e,$000e
-    dw $000e,$000e,$000e, "COLLIDED WITH A SOLID TILE", $000e,$000e,$000e
-    
-msg_end:
-
-hook_msgbox_delay: 
-    pha
-    lda !msg_crash_timer_override
-    beq .nochange
-    ldx #$005a ; (put 1.5 seconds on the clock) 
-    lda #$00
-    sta !msg_crash_timer_override ; clear our special variable so then next msgbox will have whatever timer was set on generation
-.nochange
-    pla
-    jsr $8136  ; hi-jacked instruction.
-    rts
-
-assert pc() <= !bank_85_free_space_end
-
- ;$85:8493 20 36 81    JSR $8136  [$85:8136]  ;\
-org $858493     ; before we do things, lets double check we are not in a crash dialog (if so we want a longer timer)
-    jsr hook_msgbox_delay
-
-org $858093
-    jsr hook_message_box
-    
-org $8582e5
-    jsr hook_index_lookup
-
-org $8582ee
-    jsr hook_message_table
-
-org $85840c
-    jsr hook_button_lookup
-
-; hook unpause to prevent resetting gamestate to 8 if crash ID set
-
-org $8293bb
-    jmp check_unpause
-
-!bank_82_free_space2_start = $82f810
-!bank_82_free_space2_end = $82f830
-
-org !bank_82_free_space2_start
-check_unpause:
-    php
-    sep #$20
-    lda $00cf               ; pending crash ID
-    stz $00cf
-    cmp #$42                ; springball?
-    bne .skip
-    plp
-    jmp $93c1               ; skip changing gamestate
-.skip
-    plp
-    lda #$0008              ; replaced code
-    jmp $93be
-
-assert pc() <= !bank_82_free_space2_end
 
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
@@ -514,26 +276,8 @@ assert pc() <= !bank_82_free_space2_end
 org $829f90
     adc #$7c
 
-; X-Mode collision fix - nn_357
-
-org $91816f ; rewrite original input handler for solid tile collision to free up space. -- thanks to StagShot for noticing the rep$30 isn't needed here, it's already initialized by the single caller to this function.
-            ; whole fix can now fit in the original function.
-    PHP
-    JSR $81A9   ; this fixes regular xmode collision by using the correct pose lookup routine for all collisions
-    LDA $0A78   ; load frozen time variable
-    BEQ $07     ; if time is NOT frozen skip over the next instruction (kill samus)
-    LDA #$0045  ; load the msg bug id for X-Mode Collision
-    JSL $85B000 ; collision with solid tile while time is frozen is only possible in x-mode so jump to code that will kill samus rather than hardlock (retain vanilla behaviour)
-    PLP
-    RTS
-
-assert pc() <= $918181  ; Make sure we don't overwrite the next routine.
-
 ; (Maridia Tube Fix - written by AmoebaOfDoom) 
 ;patches horizontal PLM updates to DMA tiles even when the PLM is above the screen if part of it is on the screen
-
-!bank_84_free_space_start = $84EFD7
-!bank_84_free_space_end = $84F000
 
 org $848DA0
 SkipEntry_Inject:
@@ -579,28 +323,19 @@ org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]
 
 
 ; vanilla bugfix, ui shows reserve icon when only boots item is equipped.
-;
-
-!bank_83_free_space_start = $83BA00
-!bank_83_free_space_end = $83BA15
-
-org !bank_83_free_space_start
-
-BNE .found
-INX
-INX
-CPX #$0006
-BMI .loop
-JML $82AC15
-
-.found
-JML $82AC0C
-
-.loop
-JML $82AC00
-
-assert pc() <= !bank_83_free_space_end
+; this is due to a missing conditional branch instruction. 
 
 org $82AC03
- JML !bank_83_free_space_start
- nop #5
+  jmp $c27d ; !bank_82_free_space_start  [bankless form of this]
+  nop #2
+
+org !bank_82_free_space_start 
+  bne .found
+  inx
+  inx
+  cpx #$0006
+  jmp $AC08
+.found
+  jmp $AC0C
+
+assert pc() <= !bank_82_free_space_end

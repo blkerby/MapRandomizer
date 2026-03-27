@@ -245,6 +245,9 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             all_items_spawn: false,
             acid_chozo: false,
             remove_climb_lava: false,
+            crash_fixes: maprando::settings::CrashFixes::from_preset(
+                maprando::settings::CrashFixesPreset::Death,
+            ),
             etank_refill: maprando::settings::ETankRefill::Vanilla,
             energy_station_reserves: false,
             disableable_etanks: match settings

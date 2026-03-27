@@ -276,6 +276,13 @@ function buildSettingsObject() {
             "all_items_spawn": formData.get("all_items_spawn") == "true",
             "acid_chozo": formData.get("acid_chozo") == "true",
             "remove_climb_lava": formData.get("remove_climb_lava") == "true",
+            "crash_fixes": {
+                "preset": formData.get("crash_fixes_preset"),
+                "spring_ball": formData.get("crash_fixes_springball"),
+                "yapping_maw": formData.get("crash_fixes_yappingmaw"),
+                "auto_reserve": formData.get("crash_fixes_autoreserve"),
+                "x_mode": formData.get("crash_fixes_xmode"),
+            },
             "etank_refill": formData.get("etank_refill"),
             "energy_station_reserves": formData.get("energy_station_reserves") == "true",
             "disableable_etanks": formData.get("disableable_etanks"),
@@ -518,6 +525,7 @@ function applyQolPreset(preset) {
     applyRadioValue("allItemsSpawn", preset.all_items_spawn);
     applyRadioValue("acidChozo", preset.acid_chozo);
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
+    applyCrashFixes(preset.crash_fixes);
     applyRadioValue("etankRefill", preset.etank_refill);
     applyRadioValue("energyStationReserves", preset.energy_station_reserves);
     applyRadioValue("disableableETanks", preset.disableable_etanks);
@@ -771,7 +779,6 @@ function applyAreaAssignment(preset) {
 
 function areaAssignmentPresetChanged() {
     for (var presetEl of document.getElementsByClassName("area-assignment-preset-button")) {
-        console.log("Checking preset: " + presetEl.value);
         if (presetEl.checked) {
             let preset = presetEl.value;
             applyAreaAssignmentPreset(preset);
@@ -786,6 +793,62 @@ function areaAssignmentChanged() {
     document.getElementById("areaAssignmentPresetSize").checked = false;
     document.getElementById("areaAssignmentPresetDepth").checked = false;
     document.getElementById("areaAssignmentPresetRandom").checked = false;
+}
+
+    function applyCrashFixesPreset(preset) {
+        if (preset == "Crash") {
+            document.getElementById("crashFixesPresetCrash").checked = true;
+            document.getElementById("crashFixesSpringballCrash").checked = true;
+            document.getElementById("crashFixesYappingmawCrash").checked = true;
+            document.getElementById("crashFixesAutoreserveCrash").checked = true;
+            document.getElementById("crashFixesXmodeCrash").checked = true;
+        } else if (preset == "Death") {
+            document.getElementById("crashFixesPresetDeath").checked = true;
+            document.getElementById("crashFixesSpringballDeath").checked = true;
+            document.getElementById("crashFixesYappingmawDeath").checked = true;
+            document.getElementById("crashFixesAutoreserveDeath").checked = true;
+            document.getElementById("crashFixesXmodeDeath").checked = true;
+        } else if (preset == "Warn") {
+            document.getElementById("crashFixesPresetWarn").checked = true;
+            document.getElementById("crashFixesSpringballWarn").checked = true;
+            document.getElementById("crashFixesYappingmawWarn").checked = true;
+            document.getElementById("crashFixesAutoreserveWarn").checked = true;
+            document.getElementById("crashFixesXmodeWarn").checked = true;
+        } else if (preset == "Silent") {
+            document.getElementById("crashFixesPresetSilent").checked = true;
+            document.getElementById("crashFixesSpringballSilent").checked = true;
+            document.getElementById("crashFixesYappingmawSilent").checked = true;
+            document.getElementById("crashFixesAutoreserveSilent").checked = true;
+            document.getElementById("crashFixesXmodeSilent").checked = true;
+        }
+
+    }
+
+function applyCrashFixes(preset) {
+    applyRadioValue("crashFixesSpringball", preset.spring_ball);
+    applyRadioValue("crashFixesYappingmaw", preset.yapping_maw);
+    applyRadioValue("crashFixesAutoreserve", preset.auto_reserve);
+    applyRadioValue("crashFixesXmode", preset.x_mode);
+    applyCrashFixesPreset(preset.preset);
+}
+
+function crashFixesPresetChanged() {
+    for (var presetEl of document.getElementsByClassName("crash-fixes-preset-button")) {
+        if (presetEl.checked) {
+            let preset = presetEl.value;
+            applyCrashFixesPreset(preset);
+            break;
+        }
+    }
+    qualityOfLifeSettingChanged();
+}
+
+function crashFixesChanged() {
+    document.getElementById("crashFixesPresetDeath").checked = false;
+    document.getElementById("crashFixesPresetWarn").checked = false;
+    document.getElementById("crashFixesPresetSilent").checked = false;
+    document.getElementById("crashFixesPresetCrash").checked = false;
+    qualityOfLifeSettingChanged();
 }
 
 function processInitialMapRevealPreset() {

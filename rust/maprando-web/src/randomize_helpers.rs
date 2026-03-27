@@ -10,9 +10,9 @@ use maprando::{
     randomize::{DifficultyConfig, ItemPriorityGroup, Randomization, get_starting_items},
     seed_repository::{Seed, SeedFile},
     settings::{
-        AreaAssignmentBaseOrder, AreaAssignmentPreset, DisableETankSetting, DoorLocksSize,
-        ETankRefill, FillerItemPriority, ItemCount, RandomizerSettings, SpeedBooster, WallJump,
-        get_objective_groups,
+        AreaAssignmentBaseOrder, AreaAssignmentPreset, CrashFixesPreset, DisableETankSetting,
+        DoorLocksSize, ETankRefill, FillerItemPriority, ItemCount, RandomizerSettings,
+        SpeedBooster, WallJump, get_objective_groups,
     },
     spoiler_log::SpoilerLog,
     spoiler_map,
@@ -137,6 +137,16 @@ impl SeedHeaderTemplate<'_> {
             })
             .collect::<Vec<String>>()
             .join(", ")
+    }
+
+    fn crash_fix_preset(&self) -> &'static str {
+        match self.settings.quality_of_life_settings.crash_fixes.preset {
+            Some(CrashFixesPreset::Crash) => "Crash",
+            Some(CrashFixesPreset::Death) => "Death",
+            Some(CrashFixesPreset::Warn) => "Warn",
+            Some(CrashFixesPreset::Silent) => "Silent",
+            None => "Custom",
+        }
     }
 
     fn game_variations(&self) -> Vec<&str> {

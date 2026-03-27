@@ -1,0 +1,55 @@
+<div class="modal" id="crashFixesHelpModal" tabindex="-1" data-parent-modal="qualityOfLifeModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Crash Fixes</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Change the behaviour of how game crashes are handled. This feature can prevent a hardlock if any of the following bugs are
+          triggered:
+        <ul>
+          <li>
+            <p><strong>Spring Ball bounce</strong>: Triggered by pausing and unequipping Spring Ball at certain points
+              in the middle of a neutral bounce.</p>
+          <li>
+            <p><strong>Yapping Maw shinespark</strong>: If a Yapping Maw tries to grab Samus during a shinespark, followed by
+              having no inputs held during the shinespark end.</p>
+          <li>
+            <p><strong>Frame perfect pause, autoreserve</strong>: Having autoreserves trigger on the exact frame the
+              screen finishes fading out while pausing.</p>
+          <li>
+            <p><strong>X-Mode tile collision</strong>: Colliding with a solid tile during X-Mode.</p>
+          </li>
+        </ul>
+        Individual customization options are available by clicking the gear button on the right.
+        </p>
+        <p>
+        <ul>
+          <li>
+            <p><strong>Crash</strong>: When triggered, only the vanilla code will run. This will cause a hardlock of the game.</p>
+          <li>
+            <p><strong>Death</strong>: When triggered, a dialog box will appear explaining the crash followed by
+              triggering a death sequence / game-over, preventing the vanilla hardlock.</p>
+          <li>
+            <p><strong>Warn</strong>: When triggered, a dialog box will appear explaining the crash but game play will
+              continue after the dialog box is closed.</p>
+          <li>
+            <p><strong>Silent</strong>: When triggered, no dialog box will appear and the game will continue as if the
+              crash hadn't been triggered.</p>
+          </li>
+        </ul>
+        </p>
+        <h5>Details</h5>
+        <p>
+        In underwater physics, the Spring Ball bounce crash is triggered when Spring Ball is unequipped at any point 
+        while Samus is moving upward from the neutral bounce. In air physics, it happens when Spring Ball is unequipped
+        on an exact frame when landing from the neutral bounce.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -167,6 +167,7 @@ pub struct QualityOfLifeSettings {
     pub all_items_spawn: bool,
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
+    pub crash_fixes: CrashFixes,
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
@@ -520,6 +521,64 @@ impl AreaAssignment {
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
+pub enum CrashFixesPreset {
+    Death,
+    Warn,
+    Silent,
+    Crash,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+#[repr(u16)]
+pub enum FixMode {
+    Death = 0,
+    Warn = 1,
+    Silent = 2,
+    Crash = 3,
+}
+
+impl std::fmt::Display for FixMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct CrashFixes {
+    pub preset: Option<CrashFixesPreset>,
+    pub spring_ball: FixMode,
+    pub yapping_maw: FixMode,
+    pub auto_reserve: FixMode,
+    pub x_mode: FixMode,
+}
+
+impl CrashFixes {
+    pub fn from_preset(preset: CrashFixesPreset) -> Self {
+        let mode = match preset {
+            CrashFixesPreset::Death => FixMode::Death,
+            CrashFixesPreset::Warn => FixMode::Warn,
+            CrashFixesPreset::Silent => FixMode::Silent,
+            CrashFixesPreset::Crash => FixMode::Crash,
+        };
+
+        CrashFixes {
+            preset: Some(preset),
+            spring_ball: mode,
+            yapping_maw: mode,
+            auto_reserve: mode,
+            x_mode: mode,
+        }
+    }
+
+    pub fn to_word(&self) -> u16 {
+        ((self.x_mode as u16) << 12)
+            | ((self.yapping_maw as u16) << 8)
+            | ((self.auto_reserve as u16) << 4)
+            | (self.spring_ball as u16)
+    }
+}
+
+#[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq)]
 pub enum WallJump {
     Vanilla,
     Collectible,
@@ -867,6 +926,28 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("persist_blue_suit") {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
     }
+
+    match qol_settings.get_mut("crash_fixes") {
+        None => {
+            qol_settings.insert(
+                "crash_fixes".to_string(),
+                serde_json::to_value(CrashFixes::from_preset(CrashFixesPreset::Death))?,
+            );
+        }
+        Some(crash_fixes) => {
+            if let Some(preset_str) = crash_fixes["preset"].as_str() {
+                let preset = match preset_str {
+                    "Crash" => CrashFixesPreset::Crash,
+                    "Death" => CrashFixesPreset::Death,
+                    "Warn" => CrashFixesPreset::Warn,
+                    "Silent" => CrashFixesPreset::Silent,
+                    _ => bail!("Unrecognized preset: {}", preset_str),
+                };
+                *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
+            }
+        }
+    }
+
     upgrade_initial_map_reveal_settings(settings)?;
     Ok(())
 }
@@ -975,20 +1056,21 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
         .context("missing other_settings")?
         .as_object_mut()
         .context("expected other_settings to be object")?;
+    {
+        let area_assignment = other_settings
+            .get_mut("area_assignment")
+            .context("missing area_assignment")?;
 
-    let area_assignment = other_settings
-        .get_mut("area_assignment")
-        .context("missing area_assignment")?;
-
-    if area_assignment.is_string() {
-        let preset_str = area_assignment.as_str().unwrap();
-        let preset = match preset_str {
-            "Standard" => AreaAssignmentPreset::Standard,
-            "Ordered" => AreaAssignmentPreset::Size,
-            "Random" => AreaAssignmentPreset::Random,
-            _ => bail!("Unrecognized area assignment preset: {}", preset_str),
-        };
-        *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
+        if area_assignment.is_string() {
+            let preset_str = area_assignment.as_str().unwrap();
+            let preset = match preset_str {
+                "Standard" => AreaAssignmentPreset::Standard,
+                "Ordered" => AreaAssignmentPreset::Size,
+                "Random" => AreaAssignmentPreset::Random,
+                _ => bail!("Unrecognized area assignment preset: {}", preset_str),
+            };
+            *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
+        }
     }
 
     if other_settings.get("disable_spikesuit").is_none()

@@ -1,5 +1,6 @@
 $95: temporary variable (unused debug location) - used by extended messageboxes, safe to use outside message boxes.
 $9B: decompression.asm
+$CF: vanilla_bugfixes.asm (used by crash dialogues to prevent unpause from resetting gamestate.)
 $09EC: number of disabled ETanks (saved to SRAM)
 $0A1A: previous reserve health (reserve_hud.asm)
 $1F5B: map area (like $079F)
@@ -44,7 +45,8 @@ $7EF594-$7EF596: fix_transition_bad_tiles.asm
 $7EF596: vanilla_bugfixes.asm
 $7EF597-$7EF599: split_speed.asm
 $7EF59A-$7EF59C: reserve_backward_fill.asm
-$7EF59C-$7EFE00: [FREE]
+$7EF59C-$7EF59E: crash_handle_xmode.asm
+$7EF59E-$7EFE00: [FREE]
 $7EFE00: map area (copy of $1F5B to be saved to SRAM)
 $7EFE02: map area explored mask
 $7EFE04: copy of $1F5D (to be saved to SRAM for escape autosave)

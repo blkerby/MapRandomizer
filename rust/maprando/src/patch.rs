@@ -18,9 +18,9 @@ use crate::{
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization, get_starting_items},
     settings::{
-        AreaAssignmentPreset, DisableETankSetting, ETankRefill, Fanfares, ItemCount,
-        MotherBrainFight, Objective, ObjectiveScreen, RandomizerSettings, SaveAnimals,
-        SpeedBooster, StartLocationMode, WallJump,
+        AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
+        Fanfares, FixMode, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
+        RandomizerSettings, SaveAnimals, SpeedBooster, StartLocationMode, WallJump,
     },
 };
 use anyhow::{Context, Result, bail, ensure};
@@ -547,6 +547,30 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0xdfff07), 40)?;
         }
 
+        if self.settings.quality_of_life_settings.crash_fixes.preset
+            != Some(CrashFixesPreset::Crash)
+        {
+            patches.push("crash_handle_base");
+        }
+
+        let fixes = &self.settings.quality_of_life_settings.crash_fixes;
+
+        if fixes.spring_ball != FixMode::Crash {
+            patches.push("crash_handle_springball");
+        }
+
+        if fixes.yapping_maw != FixMode::Crash {
+            patches.push("crash_handle_yapping");
+        }
+
+        if fixes.auto_reserve != FixMode::Crash {
+            patches.push("crash_handle_autoreserves");
+        }
+
+        if fixes.x_mode != FixMode::Crash {
+            patches.push("crash_handle_xmode");
+        }
+
         match self.settings.other_settings.wall_jump {
             WallJump::Vanilla => {}
             WallJump::Collectible => {
@@ -972,6 +996,19 @@ impl Patcher<'_> {
             self.add_map_reveal_tile(src_pair, src_x, src_y)?;
             self.add_map_reveal_tile(dst_pair, dst_x, dst_y)?;
         }
+        Ok(())
+    }
+
+    pub fn write_crash_handler(&mut self, crash_fixes: &CrashFixes) -> Result<()> {
+        let crash_handler = 0x80D330;
+
+        let word = crash_fixes.to_word();
+        if word == 0x3333 {
+            return Ok(()); // no need to patch the rom if the crash handler isn't applied at all
+        }
+        let bytes = word.to_le_bytes();
+        self.rom.write_n(snes2pc(crash_handler), &bytes)?;
+
         Ok(())
     }
 
@@ -3543,6 +3580,7 @@ pub fn make_rom(
     patcher.write_room_name_font()?;
     patcher.write_room_name_data()?;
     patcher.remove_non_blue_doors()?;
+    patcher.write_crash_handler(&patcher.settings.quality_of_life_settings.crash_fixes)?;
     override_music(patcher.rom)?;
     if randomizer_settings.map_layout != "Vanilla"
         || randomizer_settings.other_settings.area_assignment.preset
