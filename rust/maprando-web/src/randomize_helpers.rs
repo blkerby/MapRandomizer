@@ -139,6 +139,16 @@ impl SeedHeaderTemplate<'_> {
             .join(", ")
     }
 
+    fn crash_fix_preset(&self) -> &'static str {
+        match self.settings.quality_of_life_settings.crash_fixes.preset {
+            Some(CrashFixesPreset::Crash) => "Crash",
+            Some(CrashFixesPreset::Death) => "Death",
+            Some(CrashFixesPreset::Warn) => "Warn",
+            Some(CrashFixesPreset::Silent) => "Silent",
+            None => "Custom",
+        }
+    }
+
     fn game_variations(&self) -> Vec<&str> {
         let mut game_variations = vec![];
         let other_settings = &self.settings.other_settings;
@@ -188,24 +198,6 @@ impl SeedHeaderTemplate<'_> {
         }
         if other_settings.enable_major_glitches {
             game_variations.push("Major glitches enabled");
-        }
-        if other_settings.crash_fixes.preset != Some(CrashFixesPreset::Death) {
-            match other_settings.crash_fixes.preset {
-                Some(CrashFixesPreset::Crash) => {
-                    game_variations.push("Hardlock crashes unpatched");
-                }
-                Some(CrashFixesPreset::Warn) => {
-                    game_variations.push("Hardlock crashes will display a warning (no death)");
-                }
-                Some(CrashFixesPreset::Silent) => {
-                    game_variations
-                        .push("Hardlock crashes will be fixed silently (no warning / no death)");
-                }
-                Some(CrashFixesPreset::Death) => {}
-                None => {
-                    game_variations.push("Custom crash handler settings");
-                }
-            }
         }
         game_variations
     }

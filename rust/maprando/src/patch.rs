@@ -547,11 +547,13 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0xdfff07), 40)?;
         }
 
-        if self.settings.other_settings.crash_fixes.preset != Some(CrashFixesPreset::Crash) {
+        if self.settings.quality_of_life_settings.crash_fixes.preset
+            != Some(CrashFixesPreset::Crash)
+        {
             patches.push("crash_handle_base");
         }
 
-        let fixes = &self.settings.other_settings.crash_fixes;
+        let fixes = &self.settings.quality_of_life_settings.crash_fixes;
 
         if fixes.spring_ball != FixMode::Crash {
             patches.push("crash_handle_springball");
@@ -3578,7 +3580,7 @@ pub fn make_rom(
     patcher.write_room_name_font()?;
     patcher.write_room_name_data()?;
     patcher.remove_non_blue_doors()?;
-    patcher.write_crash_handler(&patcher.settings.other_settings.crash_fixes)?;
+    patcher.write_crash_handler(&patcher.settings.quality_of_life_settings.crash_fixes)?;
     override_music(patcher.rom)?;
     if randomizer_settings.map_layout != "Vanilla"
         || randomizer_settings.other_settings.area_assignment.preset

@@ -72,30 +72,6 @@
 </div>
 <div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
-        {% include "help/variations/crash_fixes.html" %}
-        <label for="crash_fixes">Crash fixes</label>
-    </div>
-    <div id="crashFixes" class="col-6 btn-group my-2" role="group">
-        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-            id="crashFixesPresetCrash" value="Crash" onchange="crashFixesPresetChanged()">
-        <label class="btn btn-outline-primary" for="crashFixesPresetCrash">Crash</label>
-        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-            id="crashFixesPresetDeath" value="Death" checked onchange="crashFixesPresetChanged()">
-        <label class="btn btn-outline-primary" for="crashFixesPresetDeath">Death</label>
-        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-            id="crashFixesPresetWarn" value="Warn" onchange="crashFixesPresetChanged()">
-        <label class="btn btn-outline-primary" for="crashFixesPresetWarn">Warn</label>
-        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-            id="crashFixesPresetSilent" value="Silent" onchange="crashFixesPresetChanged()">
-        <label class="btn btn-outline-primary" for="crashFixesPresetSilent">Silent</label>
-        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
-            data-bs-target="#crashFixesModal">
-            <i class="bi bi-gear"></i>
-        </button>
-    </div>
-</div>
-<div class="form-group row" onchange="gameVariationChanged()">
-    <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/energy_free_shinesparks.html" %}
         <label for="energy_free_shinesparks">Energy-free shinesparks</label>
     </div>
@@ -178,4 +154,3 @@
     </div>
 </div>
 {% include "area_assignment.html" %}
-{% include "crash_fixes.html" %}

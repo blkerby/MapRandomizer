@@ -245,6 +245,9 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             all_items_spawn: false,
             acid_chozo: false,
             remove_climb_lava: false,
+            crash_fixes: maprando::settings::CrashFixes::from_preset(
+                maprando::settings::CrashFixesPreset::Death,
+            ),
             etank_refill: maprando::settings::ETankRefill::Vanilla,
             energy_station_reserves: false,
             disableable_etanks: match settings
@@ -301,9 +304,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             ),
             door_locks_size: maprando::settings::DoorLocksSize::Large,
             map_station_reveal: maprando::settings::MapStationReveal::Full,
-            crash_fixes: maprando::settings::CrashFixes::from_preset(
-                maprando::settings::CrashFixesPreset::Death,
-            ),
             energy_free_shinesparks: settings.energy_free_shinesparks.unwrap_or(false),
             speed_booster: maprando::settings::SpeedBooster::Vanilla,
             disable_bluesuit: false,

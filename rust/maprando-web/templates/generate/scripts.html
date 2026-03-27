@@ -276,6 +276,13 @@ function buildSettingsObject() {
             "all_items_spawn": formData.get("all_items_spawn") == "true",
             "acid_chozo": formData.get("acid_chozo") == "true",
             "remove_climb_lava": formData.get("remove_climb_lava") == "true",
+            "crash_fixes": {
+                "preset": formData.get("crash_fixes_preset"),
+                "spring_ball": formData.get("crash_fixes_springball"),
+                "yapping_maw": formData.get("crash_fixes_yappingmaw"),
+                "auto_reserve": formData.get("crash_fixes_autoreserve"),
+                "x_mode": formData.get("crash_fixes_xmode"),
+            },
             "etank_refill": formData.get("etank_refill"),
             "energy_station_reserves": formData.get("energy_station_reserves") == "true",
             "disableable_etanks": formData.get("disableable_etanks"),
@@ -312,13 +319,6 @@ function buildSettingsObject() {
             "door_locks_size": formData.get("door_locks_size"),
             "maps_revealed": formData.get("maps_revealed"),
             "map_station_reveal": formData.get("map_station_reveal"),
-            "crash_fixes": {
-                "preset": formData.get("crash_fixes_preset"),
-                "spring_ball": formData.get("crash_fixes_springball"),
-                "yapping_maw": formData.get("crash_fixes_yappingmaw"),
-                "auto_reserve": formData.get("crash_fixes_autoreserve"),
-                "x_mode": formData.get("crash_fixes_xmode"),
-            },
             "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
             "ultra_low_qol": formData.get("ultra_low_qol") == "true",
             "race_mode": formData.get("race_mode") == "true",
@@ -525,6 +525,7 @@ function applyQolPreset(preset) {
     applyRadioValue("allItemsSpawn", preset.all_items_spawn);
     applyRadioValue("acidChozo", preset.acid_chozo);
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
+    applyCrashFixes(preset.crash_fixes);
     applyRadioValue("etankRefill", preset.etank_refill);
     applyRadioValue("energyStationReserves", preset.energy_station_reserves);
     applyRadioValue("disableableETanks", preset.disableable_etanks);
@@ -591,7 +592,6 @@ function applyFullSettingsPreset(preset) {
     applyAreaAssignment(other.area_assignment);
     applyRadioValue("doorLocksSize", other.door_locks_size);
     applyRadioValue("mapStationReveal", other.map_station_reveal);
-    applyCrashFixes(other.crash_fixes);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
@@ -779,7 +779,6 @@ function applyAreaAssignment(preset) {
 
 function areaAssignmentPresetChanged() {
     for (var presetEl of document.getElementsByClassName("area-assignment-preset-button")) {
-        console.log("Checking preset: " + presetEl.value);
         if (presetEl.checked) {
             let preset = presetEl.value;
             applyAreaAssignmentPreset(preset);
@@ -835,14 +834,13 @@ function applyCrashFixes(preset) {
 
 function crashFixesPresetChanged() {
     for (var presetEl of document.getElementsByClassName("crash-fixes-preset-button")) {
-        console.log("Checking preset: " + presetEl.value);
         if (presetEl.checked) {
             let preset = presetEl.value;
             applyCrashFixesPreset(preset);
             break;
         }
     }
-    fullSettingsChanged();
+    qualityOfLifeSettingChanged();
 }
 
 function crashFixesChanged() {
@@ -850,6 +848,7 @@ function crashFixesChanged() {
     document.getElementById("crashFixesPresetWarn").checked = false;
     document.getElementById("crashFixesPresetSilent").checked = false;
     document.getElementById("crashFixesPresetCrash").checked = false;
+    qualityOfLifeSettingChanged();
 }
 
 function processInitialMapRevealPreset() {
@@ -1262,7 +1261,6 @@ function checkOtherOptions() {
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
-        !document.getElementById("crashFixesPresetDeath").checked ||
         document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {

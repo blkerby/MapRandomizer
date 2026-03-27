@@ -33,6 +33,13 @@
     "all_items_spawn": false,
     "acid_chozo": false,
     "remove_climb_lava": false,
+    "crash_fixes": {
+        "preset": "Death",
+        "spring_ball": "Death",
+        "yapping_maw": "Death",
+        "auto_reserve": "Death",
+        "x_mode": "Death"
+    },
     "energy_station_reserves": false,
     "etank_refill": "Vanilla",
     "disableable_etanks": "Standard",

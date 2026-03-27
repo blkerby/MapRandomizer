@@ -33,6 +33,13 @@
     "all_items_spawn": true,
     "acid_chozo": true,
     "remove_climb_lava": true,
+    "crash_fixes": {
+        "preset": "Silent",
+        "spring_ball": "Silent",
+        "yapping_maw": "Silent",
+        "auto_reserve": "Silent",
+        "x_mode": "Silent"
+    },
     "energy_station_reserves": true,
     "etank_refill": "Full",
     "disableable_etanks": "Standard",

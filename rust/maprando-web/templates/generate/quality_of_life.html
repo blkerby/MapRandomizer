@@ -354,6 +354,33 @@
                                         <label class="btn btn-outline-primary" for="removeClimbLavaYes">Yes</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#crashFixesHelpModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="crash_fixes">Crash fixes</label>
+                                    </div>
+                                    <div id="crashFixes" class="col-lg-6 btn-group" role="group">
+                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+                                            id="crashFixesPresetCrash" value="Crash" onchange="crashFixesPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="crashFixesPresetCrash">Crash</label>
+                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+                                            id="crashFixesPresetDeath" value="Death" checked onchange="crashFixesPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="crashFixesPresetDeath">Death</label>
+                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+                                            id="crashFixesPresetWarn" value="Warn" onchange="crashFixesPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="crashFixesPresetWarn">Warn</label>
+                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
+                                            id="crashFixesPresetSilent" value="Silent" onchange="crashFixesPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="crashFixesPresetSilent">Silent</label>
+                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
+                                            data-bs-target="#crashFixesModal">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -531,6 +558,7 @@
 {% include "help/quality/items_spawn.html" %}
 {% include "help/quality/acid_chozo.html" %}
 {% include "help/quality/remove_climb_lava.html" %}
+{% include "help/quality/crash_fixes.html" %}
 
 {% include "help/quality/energy_station_reserves.html" %}
 {% include "help/quality/etank_refill.html" %}
@@ -543,3 +571,4 @@
 {% include "help/quality/persist_blue_suit.html" %}
 
 {% include "initial_map_reveal.html" %}
+{% include "crash_fixes.html" %}

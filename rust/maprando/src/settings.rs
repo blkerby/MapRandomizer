@@ -167,6 +167,7 @@ pub struct QualityOfLifeSettings {
     pub all_items_spawn: bool,
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
+    pub crash_fixes: CrashFixes,
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
@@ -369,7 +370,6 @@ pub struct OtherSettings {
     pub area_assignment: AreaAssignment,
     pub door_locks_size: DoorLocksSize,
     pub map_station_reveal: MapStationReveal,
-    pub crash_fixes: CrashFixes,
     pub energy_free_shinesparks: bool,
     pub ultra_low_qol: bool,
     pub disable_spikesuit: bool,
@@ -535,6 +535,12 @@ pub enum FixMode {
     Warn = 1,
     Silent = 2,
     Crash = 3,
+}
+
+impl std::fmt::Display for FixMode {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, serde::Serialize, serde::Deserialize)]
@@ -920,6 +926,28 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("persist_blue_suit") {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
     }
+
+    match qol_settings.get_mut("crash_fixes") {
+        None => {
+            qol_settings.insert(
+                "crash_fixes".to_string(),
+                serde_json::to_value(CrashFixes::from_preset(CrashFixesPreset::Death))?,
+            );
+        }
+        Some(crash_fixes) => {
+            if let Some(preset_str) = crash_fixes["preset"].as_str() {
+                let preset = match preset_str {
+                    "Crash" => CrashFixesPreset::Crash,
+                    "Death" => CrashFixesPreset::Death,
+                    "Warn" => CrashFixesPreset::Warn,
+                    "Silent" => CrashFixesPreset::Silent,
+                    _ => bail!("Unrecognized preset: {}", preset_str),
+                };
+                *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
+            }
+        }
+    }
+
     upgrade_initial_map_reveal_settings(settings)?;
     Ok(())
 }
@@ -1042,27 +1070,6 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
                 _ => bail!("Unrecognized area assignment preset: {}", preset_str),
             };
             *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
-        }
-    }
-
-    match other_settings.get_mut("crash_fixes") {
-        None => {
-            other_settings.insert(
-                "crash_fixes".to_string(),
-                serde_json::to_value(CrashFixes::from_preset(CrashFixesPreset::Death))?,
-            );
-        }
-        Some(crash_fixes) => {
-            if let Some(preset_str) = crash_fixes["preset"].as_str() {
-                let preset = match preset_str {
-                    "Crash" => CrashFixesPreset::Crash,
-                    "Death" => CrashFixesPreset::Death,
-                    "Warn" => CrashFixesPreset::Warn,
-                    "Silent" => CrashFixesPreset::Silent,
-                    _ => bail!("Unrecognized preset: {}", preset_str),
-                };
-                *crash_fixes = serde_json::to_value(CrashFixes::from_preset(preset))?;
-            }
         }
     }
 

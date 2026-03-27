@@ -1,14 +1,14 @@
-<div class="modal" id="crashFixesModal" tabindex="-1">
+<div class="modal" id="crashFixesModal" tabindex="-1" data-parent-modal="qualityOfLifeModal">
     <div class="modal-dialog modal-lg modal-fullscreen-sm-down modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5">Crash Fixes</h1>
+                <h1 class="modal-title fs-5">Crash fixes</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
             <div class="modal-body px-4 py-2">
                 <div class="form-group row my-2">
-                    <label for="crashFixesSpringball" class="col-md-6 col-lg-5 col-form-label">Unequip spring ball
+                    <label for="crashFixesSpringball" class="col-md-6 col-lg-5 col-form-label">Unequip Spring Ball
                         bounce</label>
                     <div id="crashFixesSpringball" class="col-md-2 btn-group">
                         <input type="radio" class="btn-check" name="crash_fixes_springball"
@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <div class="form-group row my-2">
-                    <label for="crashFixesYappingmaw" class="col-md-6 col-lg-5 col-form-label">Yapping maw
+                    <label for="crashFixesYappingmaw" class="col-md-6 col-lg-5 col-form-label">Yapping Maw
                         shinespark</label>
                     <div id="crashFixesYappingmaw" class="col-md-2 btn-group">
                         <input type="radio" class="btn-check" name="crash_fixes_yappingmaw"
@@ -44,8 +44,8 @@
                     </div>
                 </div>
                 <div class="form-group row my-2">
-                    <label for="crashFixesAutoreserve" class="col-md-6 col-lg-5 col-form-label">Frame perfect pause,
-                        autoreserve</label>
+                    <label for="crashFixesAutoreserve" class="col-md-6 col-lg-5 col-form-label">Frame-perfect pause
+                        auto-reserve</label>
                     <div id="crashFixesAutoreserve" class="col-md-2 btn-group">
                         <input type="radio" class="btn-check" name="crash_fixes_autoreserve"
                             id="crashFixesAutoreserveCrash" value="Crash" onchange="crashFixesChanged()">
