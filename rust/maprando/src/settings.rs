@@ -140,6 +140,19 @@ pub enum DisableETankSetting {
     Unrestricted,
 }
 
+#[derive(Copy, Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub enum EnemyDrops {
+    Off,
+    Vanilla,
+    Buffed,
+}
+
+impl Display for EnemyDrops {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
@@ -174,7 +187,7 @@ pub struct QualityOfLifeSettings {
     pub disableable_etanks: DisableETankSetting,
     pub reserve_backward_transfer: bool,
     // Other:
-    pub buffed_drops: bool,
+    pub enemy_drops: EnemyDrops,
     pub early_save: bool,
     pub persist_flash_suit: bool,
     pub persist_blue_suit: bool,
@@ -926,7 +939,13 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("persist_blue_suit") {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
     }
-
+    if !qol_settings.contains_key("enemy_drops") {
+        if qol_settings.get("buffed_drops").and_then(|x| x.as_bool()) == Some(false) {
+            qol_settings.insert("enemy_drops".to_string(), "Vanilla".into());
+        } else {
+            qol_settings.insert("enemy_drops".to_string(), "Buffed".into());
+        }
+    }
     match qol_settings.get_mut("crash_fixes") {
         None => {
             qol_settings.insert(

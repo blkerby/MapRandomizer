@@ -70,7 +70,10 @@
                 "type": "string",
                 "enum": ["Off", "Standard", "Unrestricted"]
               },
-              "buffedDrops": {"type": "boolean"},
+              "enemyDrops": {
+                "type": "string",
+                "enum": ["Off", "Vanilla", "Buffed"]
+              },
               "collectibleWallJump": {"type": "boolean"},
               "energyFreeShinesparks": {"type": "boolean"},
               "flashSuitDistance": {"type": "integer"},

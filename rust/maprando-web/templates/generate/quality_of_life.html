@@ -466,16 +466,18 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#buffedDropsModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#enemyDropsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
-                                        <label for="preset">Enemy drops are buffed</label>
+                                        <label for="preset">Enemy drops</label>
                                     </div>
-                                    <div id="buffedDrops" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsNo" value="false">
-                                        <label class="btn btn-outline-primary" for="buffedDropsNo">No</label>
-                                        <input type="radio" class="btn-check" name="buffed_drops" id="buffedDropsYes" value="true" checked>
-                                        <label class="btn btn-outline-primary" for="buffedDropsYes">Yes</label>
+                                    <div id="enemyDrops" class="col-4 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsOff" value="Off">
+                                        <label class="btn btn-outline-danger" for="enemyDropsOff"><i class="bi bi-exclamation-triangle"></i> Off</label>
+                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsVanilla" value="Vanilla">
+                                        <label class="btn btn-outline-primary" for="enemyDropsVanilla">Vanilla</label>
+                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsBuffed" value="Buffed" checked>
+                                        <label class="btn btn-outline-primary" for="enemyDropsBuffed">Buffed</label>
                                     </div>
                                 </div> 
 
@@ -565,7 +567,7 @@
 {% include "help/quality/disableable_etanks.html" %}
 {% include "help/quality/reserve_backward_transfer.html" %}
 
-{% include "help/quality/buffed_drops.html" %}
+{% include "help/quality/enemy_drops.html" %}
 {% include "help/quality/early_save.html" %}
 {% include "help/quality/persist_flash_suit.html" %}
 {% include "help/quality/persist_blue_suit.html" %}

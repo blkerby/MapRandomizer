@@ -10,7 +10,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     randomize::{DifficultyConfig, LockedDoor},
-    settings::{DisableETankSetting, MotherBrainFight, Objective, RandomizerSettings, WallJump},
+    settings::{
+        DisableETankSetting, EnemyDrops, MotherBrainFight, Objective, RandomizerSettings, WallJump,
+    },
 };
 use maprando_game::{
     BeamType, Capacity, DoorType, EnemyDrop, EnemyVulnerabilities, GameData, Item, Link, LinkIdx,
@@ -259,6 +261,30 @@ fn apply_heat_frames(
     }
 }
 
+fn apply_lava_frames(
+    frames: Capacity,
+    local: &mut LocalState,
+    global: &GlobalState,
+    game_data: &GameData,
+    difficulty: &DifficultyConfig,
+    reverse: bool,
+) -> bool {
+    let gravity = global.inventory.items[Item::Gravity as usize];
+    let varia = global.inventory.items[Item::Varia as usize];
+    if gravity && varia {
+        true
+    } else if !difficulty.tech[game_data.tech_isv.index_by_key[&TECH_ID_CAN_SUITLESS_LAVA_DIVE]] {
+        false
+    } else {
+        let energy_used = if gravity || varia {
+            (frames as f32 * difficulty.resource_multiplier / 4.0).ceil() as Capacity
+        } else {
+            (frames as f32 * difficulty.resource_multiplier / 2.0).ceil() as Capacity
+        };
+        local.use_energy(energy_used, true, &global.inventory, reverse)
+    }
+}
+
 fn apply_suitless_heat_frames(
     frames: Capacity,
     local: &mut LocalState,
@@ -284,9 +310,13 @@ fn get_enemy_drop_energy_value(
     drop: &EnemyDrop,
     local: &mut LocalState,
     reverse: bool,
-    buffed_drops: bool,
+    enemy_drops: EnemyDrops,
     full_ammo: bool,
 ) -> Capacity {
+    if enemy_drops == EnemyDrops::Off {
+        return 0;
+    }
+    let buffed_drops = enemy_drops == EnemyDrops::Buffed;
     let p_nothing = drop.nothing_weight.get();
     let mut p_small = drop.small_energy_weight.get();
     let mut p_large = drop.large_energy_weight.get();
@@ -342,8 +372,12 @@ fn get_enemy_drop_values(
     full_missiles: bool,
     full_supers: bool,
     full_power_bombs: bool,
-    buffed_drops: bool,
+    enemy_drops: EnemyDrops,
 ) -> [f32; 4] {
+    if enemy_drops == EnemyDrops::Off {
+        return [0.0; 4];
+    }
+    let buffed_drops = enemy_drops == EnemyDrops::Buffed;
     let w_nothing = drop.nothing_weight.get();
     let w_small = if full_energy {
         0.0
@@ -421,7 +455,7 @@ fn apply_heat_frames_with_energy_drops(
                     drop,
                     &mut new_local,
                     reverse,
-                    settings.quality_of_life_settings.buffed_drops,
+                    settings.quality_of_life_settings.enemy_drops,
                     full_ammo,
                 )
             }
@@ -489,7 +523,7 @@ fn apply_lava_frames_with_energy_drops(
                     drop,
                     &mut new_local,
                     reverse,
-                    settings.quality_of_life_settings.buffed_drops,
+                    settings.quality_of_life_settings.enemy_drops,
                     full_ammo,
                 )
             }
@@ -659,7 +693,7 @@ pub fn get_total_enemy_drop_values(
     full_missiles: bool,
     full_supers: bool,
     full_power_bombs: bool,
-    buffed_drops: bool,
+    enemy_drops: EnemyDrops,
 ) -> [f32; 4] {
     let mut total_values = [0.0; 4];
     for drop in drops {
@@ -669,7 +703,7 @@ pub fn get_total_enemy_drop_values(
             full_missiles,
             full_supers,
             full_power_bombs,
-            buffed_drops,
+            enemy_drops,
         );
         for i in 0..4 {
             total_values[i] += drop_values[i];
@@ -780,7 +814,7 @@ pub fn apply_farm_requirement(
         true,
         true,
         true,
-        settings.quality_of_life_settings.buffed_drops,
+        settings.quality_of_life_settings.enemy_drops,
     )[0];
     let drop_missiles: f32 = get_total_enemy_drop_values(
         drops,
@@ -788,7 +822,7 @@ pub fn apply_farm_requirement(
         false,
         true,
         true,
-        settings.quality_of_life_settings.buffed_drops,
+        settings.quality_of_life_settings.enemy_drops,
     )[1];
     let [_, _, drop_supers, drop_pbs] = get_total_enemy_drop_values(
         drops,
@@ -796,7 +830,7 @@ pub fn apply_farm_requirement(
         false,
         false,
         false,
-        settings.quality_of_life_settings.buffed_drops,
+        settings.quality_of_life_settings.enemy_drops,
     );
 
     let net_energy = ((drop_energy + cycle_energy) * num_cycles as f32) as Capacity;
@@ -1203,10 +1237,21 @@ fn apply_requirement_simple(
         }
         Requirement::HeatFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
             let frames = frames.resolve(&cx.difficulty.numerics);
-            let drops = if cx.settings.quality_of_life_settings.buffed_drops {
-                enemy_drops_buffed
-            } else {
-                enemy_drops
+            let drops = match cx.settings.quality_of_life_settings.enemy_drops {
+                EnemyDrops::Off => {
+                    return apply_heat_frames(
+                        frames,
+                        local,
+                        cx.global,
+                        cx.game_data,
+                        cx.difficulty,
+                        false,
+                        cx.reverse,
+                    )
+                    .into();
+                }
+                EnemyDrops::Vanilla => enemy_drops,
+                EnemyDrops::Buffed => enemy_drops_buffed,
             };
             apply_heat_frames_with_energy_drops(
                 frames,
@@ -1221,10 +1266,20 @@ fn apply_requirement_simple(
         }
         Requirement::LavaFramesWithEnergyDrops(frames, enemy_drops, enemy_drops_buffed) => {
             let frames = frames.resolve(&cx.difficulty.numerics);
-            let drops = if cx.settings.quality_of_life_settings.buffed_drops {
-                enemy_drops_buffed
-            } else {
-                enemy_drops
+            let drops = match cx.settings.quality_of_life_settings.enemy_drops {
+                EnemyDrops::Off => {
+                    return apply_lava_frames(
+                        frames,
+                        local,
+                        cx.global,
+                        cx.game_data,
+                        cx.difficulty,
+                        cx.reverse,
+                    )
+                    .into();
+                }
+                EnemyDrops::Vanilla => enemy_drops,
+                EnemyDrops::Buffed => enemy_drops_buffed,
             };
             apply_lava_frames_with_energy_drops(
                 frames,
@@ -1326,23 +1381,15 @@ fn apply_requirement_simple(
         }
         Requirement::LavaFrames(frames) => {
             let frames = frames.resolve(&cx.difficulty.numerics);
-            let varia = cx.global.inventory.items[Item::Varia as usize];
-            let gravity = cx.global.inventory.items[Item::Gravity as usize];
-            if gravity && varia {
-                SimpleResult::Success
-            } else if gravity || varia {
-                let energy_used =
-                    (frames as f32 * cx.difficulty.resource_multiplier / 4.0).ceil() as Capacity;
-                local
-                    .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
-                    .into()
-            } else {
-                let energy_used =
-                    (frames as f32 * cx.difficulty.resource_multiplier / 2.0).ceil() as Capacity;
-                local
-                    .use_energy(energy_used, true, &cx.global.inventory, cx.reverse)
-                    .into()
-            }
+            apply_lava_frames(
+                frames,
+                local,
+                cx.global,
+                cx.game_data,
+                cx.difficulty,
+                cx.reverse,
+            )
+            .into()
         }
         Requirement::GravitylessLavaFrames(frames) => {
             let frames = frames.resolve(&cx.difficulty.numerics);
@@ -1574,10 +1621,12 @@ fn apply_requirement_simple(
             full_power_bombs,
             full_supers,
         } => {
-            let drops = if cx.settings.quality_of_life_settings.buffed_drops {
-                enemy_drops_buffed
-            } else {
-                enemy_drops
+            let drops = match cx.settings.quality_of_life_settings.enemy_drops {
+                EnemyDrops::Off => {
+                    return SimpleResult::Failure;
+                }
+                EnemyDrops::Vanilla => enemy_drops,
+                EnemyDrops::Buffed => enemy_drops_buffed,
             };
             if let Some(new_local) = apply_farm_requirement(
                 requirement,

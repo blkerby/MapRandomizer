@@ -5,9 +5,9 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
     settings::{
-        DisableETankSetting, DoorsSettings, InitialMapRevealSettings, ItemProgressionSettings,
-        Objective, ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings,
-        SkillAssumptionSettings, StartLocationSettings,
+        DisableETankSetting, DoorsSettings, EnemyDrops, InitialMapRevealSettings,
+        ItemProgressionSettings, Objective, ObjectiveSettings, OtherSettings,
+        QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
 };
@@ -85,7 +85,7 @@ struct ScenarioSettings {
     resource_multiplier: Option<f32>,
     farm_time_limit: Option<f32>,
     disableable_etanks: Option<String>,
-    buffed_drops: Option<bool>,
+    enemy_drops: Option<EnemyDrops>,
     collectible_wall_jump: Option<bool>,
     energy_free_shinesparks: Option<bool>,
     flash_suit_distance: Option<u8>,
@@ -262,7 +262,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
                 _ => DisableETankSetting::Off,
             },
             reserve_backward_transfer: false,
-            buffed_drops: settings.buffed_drops.unwrap_or(false),
+            enemy_drops: settings.enemy_drops.unwrap_or(EnemyDrops::Vanilla),
             early_save: false,
             persist_flash_suit: false,
             persist_blue_suit: false,

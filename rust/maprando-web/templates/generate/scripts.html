@@ -287,7 +287,7 @@ function buildSettingsObject() {
             "energy_station_reserves": formData.get("energy_station_reserves") == "true",
             "disableable_etanks": formData.get("disableable_etanks"),
             "reserve_backward_transfer": formData.get("reserve_backward_transfer") == "true",
-            "buffed_drops": formData.get("buffed_drops") == "true",
+            "enemy_drops": formData.get("enemy_drops"),
             "early_save": formData.get("early_save") == "true",
             "persist_flash_suit": formData.get("persist_flash_suit") == "true",
             "persist_blue_suit": formData.get("persist_blue_suit") == "true",
@@ -530,7 +530,7 @@ function applyQolPreset(preset) {
     applyRadioValue("energyStationReserves", preset.energy_station_reserves);
     applyRadioValue("disableableETanks", preset.disableable_etanks);
     applyRadioValue("reserveBackwardTransfer", preset.reserve_backward_transfer);
-    applyRadioValue("buffedDrops", preset.buffed_drops);
+    applyRadioValue("enemyDrops", preset.enemy_drops);
     applyRadioValue("earlySave", preset.early_save);
     applyRadioValue("persistFlashSuit", preset.persist_flash_suit);
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);

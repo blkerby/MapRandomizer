@@ -19,7 +19,7 @@ use crate::{
     randomize::{LockedDoor, Randomization, get_starting_items},
     settings::{
         AreaAssignmentPreset, CrashFixes, CrashFixesPreset, DisableETankSetting, ETankRefill,
-        Fanfares, FixMode, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
+        EnemyDrops, Fanfares, FixMode, ItemCount, MotherBrainFight, Objective, ObjectiveScreen,
         RandomizerSettings, SaveAnimals, SpeedBooster, StartLocationMode, WallJump,
     },
 };
@@ -671,8 +671,14 @@ impl Patcher<'_> {
             }
         }
 
-        if self.settings.quality_of_life_settings.buffed_drops {
-            patches.push("buffed_drops");
+        match self.settings.quality_of_life_settings.enemy_drops {
+            EnemyDrops::Off => {
+                patches.push("no_drops");
+            }
+            EnemyDrops::Vanilla => {}
+            EnemyDrops::Buffed => {
+                patches.push("buffed_drops");
+            }
         }
 
         if self.settings.map_layout != "Vanilla" {

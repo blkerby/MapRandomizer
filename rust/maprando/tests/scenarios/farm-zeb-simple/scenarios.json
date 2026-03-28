@@ -9,6 +9,17 @@
       "endNodeId": 1
     },
     {
+      "name": "No Drops",
+      "settings": {
+        "farmTimeLimit": 90,
+        "enemyDrops": "Off"
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 1
+    },
+    {
       "name": "Small Farm Time",
       "settings": {
         "farmTimeLimit": 30
@@ -61,7 +72,7 @@
       "name": "Buffed Drops",
       "settings": {
         "farmTimeLimit": 90,
-        "buffedDrops": true
+        "enemyDrops": "Buffed"
       },
       "globalState": {
         "maxEnergy": 1499,
@@ -85,7 +96,7 @@
       "name": "Full Farm",
       "settings": {
         "farmTimeLimit": 900,
-        "buffedDrops": true
+        "enemyDrops": "Buffed"
       },
       "globalState": {
         "maxEnergy": 1499,

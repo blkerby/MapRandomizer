@@ -36,9 +36,25 @@
       "fail": true
     },
     {
+      "name": "Enough Energy (No Drops)",
+      "settings": {
+        "enemyDrops": "Off"
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 49}
+      }
+    },
+    {
       "name": "Enough Energy (Buffed Drops)",
       "settings": {
-        "buffedDrops": true
+        "enemyDrops": "Buffed"
       },
       "startRoomId": 0,
       "startNodeId": 1,

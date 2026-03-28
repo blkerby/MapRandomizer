@@ -1,12 +1,20 @@
-<div class="modal" id="buffedDropsModal" tabindex="-1" data-parent-modal="qualityOfLifeModal">
+<div class="modal" id="enemyDropsModal" tabindex="-1" data-parent-modal="qualityOfLifeModal">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <div class="modal-header">
-        <h1 class="modal-title fs-5">Enemy drops are buffed</h1>
+        <h1 class="modal-title fs-5">Enemy drops</h1>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <p>If enabled, then certain enemy drops are improved:
+        <p>This option affects the drops spawned by enemies:
+        <ul>
+          <li><b>Off</b>: Enemies do not spawn drops.
+            <div class="alert alert-danger mb-0">This is not fully implemented in the logic: it may result in unbeatable seeds.</div>
+          <li><b>Vanilla</b>: Enemies spawn drops as in the vanilla game.
+          <li><b>Buffed</b>: Enemies spawn drops with improved probabilities and values, as described below.
+        </ul>
+        
+        <p>If buffed drops are enabled, then the following improvements are made to enemy drops:
         <ul>
           <li>Small energy drops give 10 energy.</li>
           <li>Power Bomb drops give 2 Power Bombs.</li>

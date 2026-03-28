@@ -44,7 +44,7 @@
     "etank_refill": "Vanilla",
     "disableable_etanks": "Standard",
     "reserve_backward_transfer": false,
-    "buffed_drops": false,
+    "enemy_drops": "Vanilla",
     "early_save": false,
     "persist_flash_suit": false,
     "persist_blue_suit": false
