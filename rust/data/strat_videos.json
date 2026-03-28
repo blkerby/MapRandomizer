@@ -15234,14 +15234,6 @@
   {
     "room_id": 77,
     "strat_id": 28,
-    "video_id": 3821,
-    "created_user": "maddo",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 77,
-    "strat_id": 28,
     "video_id": 3868,
     "created_user": "maddo",
     "note": "Bombs",
@@ -36001,6 +35993,14 @@
   },
   {
     "room_id": 144,
+    "strat_id": 79,
+    "video_id": 10084,
+    "created_user": "Infinityoverinfinity",
+    "note": "",
+    "dev_note": "Damageless"
+  },
+  {
+    "room_id": 144,
     "strat_id": 80,
     "video_id": 3845,
     "created_user": "Nito",
@@ -44657,6 +44657,22 @@
   },
   {
     "room_id": 172,
+    "strat_id": 93,
+    "video_id": 10087,
+    "created_user": "Infinityoverinfinity",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 93,
+    "video_id": 10088,
+    "created_user": "Infinityoverinfinity",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
     "strat_id": 102,
     "video_id": 7776,
     "created_user": "Sam",
@@ -44850,9 +44866,9 @@
   {
     "room_id": 172,
     "strat_id": 132,
-    "video_id": 297,
-    "created_user": "Osse101",
-    "note": "This video shows the full room strat.",
+    "video_id": 10086,
+    "created_user": "Infinityoverinfinity",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -44978,9 +44994,17 @@
   {
     "room_id": 172,
     "strat_id": 145,
+    "video_id": 297,
+    "created_user": "Osse101",
+    "note": "From the bottom of the room",
+    "dev_note": ""
+  },
+  {
+    "room_id": 172,
+    "strat_id": 145,
     "video_id": 3290,
     "created_user": "Sam",
-    "note": "",
+    "note": "Shinespark entry",
     "dev_note": ""
   },
   {
@@ -54993,6 +55017,14 @@
   },
   {
     "room_id": 195,
+    "strat_id": 52,
+    "video_id": 10082,
+    "created_user": "Sam",
+    "note": "Hitless",
+    "dev_note": ""
+  },
+  {
+    "room_id": 195,
     "strat_id": 53,
     "video_id": 4792,
     "created_user": "maddo",
@@ -61597,6 +61629,14 @@
     "video_id": 339,
     "created_user": "Osse101",
     "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 229,
+    "strat_id": 14,
+    "video_id": 10085,
+    "created_user": "Sam",
+    "note": "Alternative Method",
     "dev_note": ""
   },
   {
