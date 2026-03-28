@@ -320,6 +320,7 @@ function buildSettingsObject() {
             "maps_revealed": formData.get("maps_revealed"),
             "map_station_reveal": formData.get("map_station_reveal"),
             "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
+            "all_enemies_respawn": formData.get("all_enemies_respawn") == "true",
             "ultra_low_qol": formData.get("ultra_low_qol") == "true",
             "race_mode": formData.get("race_mode") == "true",
             "random_seed": tryParseInt(formData.get("random_seed")),
@@ -593,6 +594,7 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("doorLocksSize", other.door_locks_size);
     applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
+    applyRadioValue("allEnemiesRespawn", other.all_enemies_respawn);
     applyRadioValue("ultraLowQoL", other.ultra_low_qol);
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
     applyRadioValue("disableBluesuit", other.disable_bluesuit);
@@ -1257,6 +1259,7 @@ function checkOtherOptions() {
     }
     if (document.getElementById("wallJumpCollectible").checked ||
         document.getElementById("energyFreeShinesparksYes").checked ||
+        document.getElementById("allEnemiesRespawnYes").checked ||
         document.getElementById("speedBoosterSplit").checked ||
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||

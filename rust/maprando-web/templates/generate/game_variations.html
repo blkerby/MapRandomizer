@@ -85,6 +85,19 @@
 </div>
 <div class="form-group row" onchange="gameVariationChanged()">
     <div class="col-lg-4 col-md-6 my-2">
+        {% include "help/variations/all_enemies_respawn.html" %}
+        <label for="all_enemies_respawn">All enemies respawn</label>
+    </div>
+    <div id="allEnemiesRespawn" class="col-2 btn-group my-2" role="group">
+        <input type="radio" class="btn-check" name="all_enemies_respawn" id="allEnemiesRespawnNo" value="false"
+            checked>
+        <label class="btn btn-outline-primary" for="allEnemiesRespawnNo">No</label>
+        <input type="radio" class="btn-check" name="all_enemies_respawn" id="allEnemiesRespawnYes" value="true">
+        <label class="btn btn-outline-danger" for="allEnemiesRespawnYes"><i class="bi bi-exclamation-triangle"></i> Yes</label>
+    </div>
+</div>
+<div class="form-group row" onchange="gameVariationChanged()">
+    <div class="col-lg-4 col-md-6 my-2">
         {% include "help/variations/disable_spikesuit.html" %}
         <label for="disable_spike_suit">Disable spikesuits</label>
     </div>

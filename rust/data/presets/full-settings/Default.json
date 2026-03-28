@@ -4674,6 +4674,7 @@
         "door_locks_size": "Large",
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,
+        "all_enemies_respawn": false,
         "disable_spikesuit": false,
         "disable_bluesuit": false,
         "enable_major_glitches": false,

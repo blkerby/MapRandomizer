@@ -384,6 +384,7 @@ pub struct OtherSettings {
     pub door_locks_size: DoorLocksSize,
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
+    pub all_enemies_respawn: bool,
     pub ultra_low_qol: bool,
     pub disable_spikesuit: bool,
     pub disable_bluesuit: bool,
@@ -1090,6 +1091,12 @@ fn upgrade_other_settings(settings: &mut serde_json::Value) -> Result<()> {
             };
             *area_assignment = serde_json::to_value(AreaAssignment::from_preset(preset))?;
         }
+    }
+
+    if other_settings.get("all_enemies_respawn").is_none()
+        || other_settings["all_enemies_respawn"].as_bool().is_none()
+    {
+        other_settings.insert("all_enemies_respawn".to_string(), false.into());
     }
 
     if other_settings.get("disable_spikesuit").is_none()

@@ -629,6 +629,10 @@ impl Patcher<'_> {
             patches.push("energy_free_shinesparks");
         }
 
+        if self.settings.other_settings.all_enemies_respawn {
+            patches.push("everything_respawns");
+        }
+
         if self.settings.other_settings.disable_spikesuit {
             patches.push("remove_spikesuit");
         }
