@@ -19,7 +19,10 @@ use log::info;
 use serde_derive::Deserialize;
 use std::time::SystemTime;
 
-use maprando::customize::{mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory};
+use maprando::customize::{
+    StatuesHallwayAudio, StatuesHallwayTiling, mosaic::MosaicTheme,
+    samus_sprite::SamusSpriteCategory,
+};
 use maprando::{
     customize::{
         ControllerButton, ControllerConfig, CustomizeSettings, DoorTheme, FlashingSetting,
@@ -179,6 +182,8 @@ struct CustomizeRequest {
     boss_icons: Text<bool>,
     miniboss_icons: Text<bool>,
     room_names: Text<bool>,
+    statues_hallway_tiling: Text<String>,
+    statues_hallway_audio: Text<String>,
     control_shot: Text<String>,
     control_jump: Text<String>,
     control_dash: Text<String>,
@@ -345,6 +350,24 @@ async fn customize_seed(
         boss_icons: req.boss_icons.0,
         miniboss_icons: req.miniboss_icons.0,
         save_icons: req.save_icons.0,
+        statues_hallway_tiling: match req.statues_hallway_tiling.0.as_str() {
+            "Disabled" => StatuesHallwayTiling::Disabled,
+            "Default" => StatuesHallwayTiling::Default,
+            "Enabled" => StatuesHallwayTiling::Enabled,
+            _ => panic!(
+                "Unexpected statues_hallway_tiling option: {}",
+                req.statues_hallway_tiling.0.as_str()
+            ),
+        },
+        statues_hallway_audio: match req.statues_hallway_audio.0.as_str() {
+            "Disabled" => StatuesHallwayAudio::Disabled,
+            "Enabled" => StatuesHallwayAudio::Enabled,
+            "Louder" => StatuesHallwayAudio::Louder,
+            _ => panic!(
+                "Unexpected statues_hallway_audio option: {}",
+                req.statues_hallway_audio.0.as_str()
+            ),
+        },
         controller_config: ControllerConfig {
             shot: parse_controller_button(&req.control_shot.0).unwrap(),
             jump: parse_controller_button(&req.control_jump.0).unwrap(),

@@ -1,7 +1,10 @@
 use std::path::Path;
 
 use super::mosaic::MosaicTheme;
-use crate::patch::{Rom, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc};
+use crate::{
+    customize::StatuesHallwayTiling,
+    patch::{Rom, apply_ips_patch, bps::BPSPatch, get_room_state_ptrs, snes2pc},
+};
 use anyhow::{Context, Result};
 use hashbrown::HashMap;
 use maprando_game::{DoorPtr, GameData, Map, RoomPtr, RoomStateIdx};
@@ -50,8 +53,17 @@ pub fn apply_retiling(
     map: &Map,
     game_data: &GameData,
     theme: &TileTheme,
+    statues_hallway_tiling: StatuesHallwayTiling,
     mosaic_themes: &[MosaicTheme],
 ) -> Result<()> {
+    let statues_hallway_tiling = match (statues_hallway_tiling, theme) {
+        (StatuesHallwayTiling::Disabled, _) => false,
+        (StatuesHallwayTiling::Default, TileTheme::AreaThemed) => true,
+        (StatuesHallwayTiling::Default, TileTheme::Scrambled) => true,
+        (StatuesHallwayTiling::Default, _) => false,
+        (StatuesHallwayTiling::Enabled, _) => true,
+    };
+
     let tourian_neighbors = game_data.get_tourian_neighbors(map, false);
     let tourian_neighbors_strict = game_data.get_tourian_neighbors(map, true);
     let patch_names = vec![
@@ -96,8 +108,20 @@ pub fn apply_retiling(
     for (room_idx, room) in game_data.room_geometry.iter().enumerate() {
         let room_ptr = room.rom_address;
         let theme_name = match theme {
-            TileTheme::Vanilla => "Base".to_string(),
-            TileTheme::Constant(s) => s.clone(),
+            TileTheme::Vanilla => {
+                if statues_hallway_tiling && tourian_neighbors_strict.contains(&room_idx) {
+                    "StatuesHallway".to_string()
+                } else {
+                    "Base".to_string()
+                }
+            }
+            TileTheme::Constant(s) => {
+                if statues_hallway_tiling && tourian_neighbors_strict.contains(&room_idx) {
+                    "StatuesHallway".to_string()
+                } else {
+                    s.clone()
+                }
+            }
             TileTheme::AreaThemed => {
                 let area = map.area[room_idx];
                 let sub_area = map.subarea[room_idx];
@@ -107,7 +131,7 @@ pub fn apply_retiling(
                     // For backward compatibility, use subsubarea 0 for old maps that didn't have a subsubarea.
                     0
                 };
-                if tourian_neighbors.contains(&room_idx) {
+                if statues_hallway_tiling && tourian_neighbors.contains(&room_idx) {
                     "StatuesHallway".to_string()
                 } else {
                     match (area, sub_area, sub_sub_area) {
@@ -134,7 +158,7 @@ pub fn apply_retiling(
                 }
             }
             TileTheme::Scrambled => {
-                if tourian_neighbors_strict.contains(&room_idx) {
+                if statues_hallway_tiling && tourian_neighbors_strict.contains(&room_idx) {
                     "StatuesHallway".to_string()
                 } else {
                     let seed = random_seed ^ (room_ptr as u32);

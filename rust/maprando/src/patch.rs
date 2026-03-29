@@ -12,8 +12,8 @@ use std::path::Path;
 
 use crate::{
     customize::{
-        CustomizeSettings, customize_rom, mosaic::MosaicTheme, samus_sprite::SamusSpriteCategory,
-        vanilla_music::override_music,
+        CustomizeSettings, StatuesHallwayAudio, customize_rom, mosaic::MosaicTheme,
+        samus_sprite::SamusSpriteCategory, vanilla_music::override_music,
     },
     patch::map_tiles::diagonal_flip_tile,
     randomize::{LockedDoor, Randomization, get_starting_items},
@@ -1571,7 +1571,10 @@ impl Patcher<'_> {
                 let is_elevator = (song & 0xFF00) == 0x0300;
                 if songs_to_keep.contains(&song)
                     && room.room_id != 152
-                    && !(statues_themed && is_elevator)
+                    && !(self.customize_settings.statues_hallway_audio
+                        != StatuesHallwayAudio::Disabled
+                        && statues_themed
+                        && is_elevator)
                 {
                     // In vanilla, Golden Torizo Energy Recharge (room_id=152) plays the item/elevator music,
                     // but that only seems to be because of it being next to Screw Attack Room.
@@ -1581,7 +1584,10 @@ impl Patcher<'_> {
                     // Statues Hallway-themed then we allow it to be overridden with the Statues Hallway track.
                     continue;
                 }
-                let new_song = if statues_themed {
+                let new_song = if statues_themed
+                    && self.customize_settings.statues_hallway_audio
+                        != StatuesHallwayAudio::Disabled
+                {
                     0x0400 // Statues Hallway track
                 } else {
                     area_music[area][subarea]

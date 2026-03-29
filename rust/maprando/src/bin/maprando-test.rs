@@ -2,7 +2,9 @@ use anyhow::{Context, Result, bail};
 use clap::Parser;
 use log::{error, info};
 use maprando::customize::samus_sprite::SamusSpriteCategory;
-use maprando::customize::{ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::customize::{
+    ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
+};
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
 use maprando::map_repository::MapRepository;
 use maprando::patch::Rom;
@@ -222,6 +224,8 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
             true => MusicSettings::Disabled,
             false => MusicSettings::AreaThemed,
         },
+        statues_hallway_tiling: StatuesHallwayTiling::Default,
+        statues_hallway_audio: StatuesHallwayAudio::Enabled,
         disable_beeping: bits & 0x10 != 0,
         shaking: match (bits & 0x20 != 0, bits & 0x40 != 0) {
             (true, true) => maprando::customize::ShakingSetting::Reduced,

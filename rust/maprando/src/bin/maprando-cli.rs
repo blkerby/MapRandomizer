@@ -2,7 +2,9 @@ use anyhow::{Context, Result, bail};
 use clap::Parser;
 use log::info;
 use maprando::customize::samus_sprite::{SamusSpriteCategory, SamusSpriteInfo};
-use maprando::customize::{ControllerConfig, CustomizeSettings, MusicSettings};
+use maprando::customize::{
+    ControllerConfig, CustomizeSettings, MusicSettings, StatuesHallwayAudio, StatuesHallwayTiling,
+};
 use maprando::difficulty::{get_full_global, get_link_difficulty_length};
 use maprando::patch::Rom;
 use maprando::patch::make_rom;
@@ -254,6 +256,8 @@ fn main() -> Result<()> {
         door_theme: maprando::customize::DoorTheme::Vanilla,
         music: MusicSettings::AreaThemed,
         // music: MusicSettings::Vanilla,
+        statues_hallway_tiling: StatuesHallwayTiling::Default,
+        statues_hallway_audio: StatuesHallwayAudio::Enabled,
         disable_beeping: false,
         shaking: maprando::customize::ShakingSetting::Vanilla,
         flashing: maprando::customize::FlashingSetting::Vanilla,

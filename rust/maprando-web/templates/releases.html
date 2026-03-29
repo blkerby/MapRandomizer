@@ -14,36 +14,13 @@ document.getElementById("navigation-releases").classList.add("active");
 
 <h3 class="my-3">Release History</h3>
 
-<p><a id="release121">Version 121 (2026-03-27)</a>:
+<p><a id="release121">Version 121 (2026-03-29)</a>:
 <ul>
 <li>New tile themes "Bedrock" and "Statues Hallway" are available.
+<li>Rooms directly connected to Tourian use Statues Hallway theme (tiling and background sound).
     <ul>
-    <li>Rooms directly connected to Tourian use Statues Hallway theme (tiling and background sound).
-    <li>Single-doored rooms directly connected to such rooms also use Statues Hallway theme.
-    </ul>
-<li>New settings are available to control the amount of locked doors by type.
-<li>New quality-of-life settings "Crash fixes" are added.
-    <ul>
-    <li>These allow control over how specific types of game crashes should be patched, to trigger either death or a warning,
-        or silently fixing the crash.
-    </ul>
-<li>A new "Enemy drops" quality-of-life option "Off" is added:
-    <ul>
-    <li>This option is not fully supported in logic and may result in unbeatable seeds.
-    </ul>
-<li>A new option Split Speed Booster is available (in "Other options"):
-    <ul>
-    <li>When enabled, two items Blue Booster and Spark Booster are added in place of Speed Booster.
-    <li>Blue Booster allows Samus to run, gain blue, and jump at high speeds, but not to shinespark.
-    <li>Spark Booster allows Samus to shinespark, but not to jump with blue or high speed.
-    <li>Either item allows Samus to run through enemies, Speed blocks, and bomb blocks.
-    </ul>
-<li>More new options are added in "Other options":
-    <ul>
-    <li>"Disable spikesuits": this affects spikesuits, slopesparks, and R-mode knockback sparks.
-    <li>"Disable blue suits": this affects all methods of gaining a blue suit.
-    <li>"Enable major glitches": this affects GT code, glitched beams, and out-of-bounds.
-    <li>"All enemies respawn": when enabled, defeated enemies will respawn (ignored by logic).
+    <li>Single-doored rooms directly connected to such rooms also use Statues Hallway theming.
+    <li>This can be adjusted by "Tourian proximity theming" (under "Other customization options").
     </ul>
 <li>Area assignment settings are updated and expanded:
     <ul>
@@ -51,9 +28,26 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>The "Ordered" option is renamed to "Size".
     <li>A new option "Depth" is added, which assigns areas based on their highest map tile.
     </ul>
-<li>When music is turned off, certain tracks continue to play, namely ones that function as sound effects:
+<li>New customization options are added for disabling boss icons, miniboss icons, and save icons.
     <ul>
-    <li>This consists of the "Samus appears" fanfare, item fanfares, death sound, Zebes explosion, and Statues Hallway sound.
+    <li>Save icons are now slightly smaller, to avoid obstructing neighboring map tiles.
+    </ul>
+<li>New Samus sprites:
+    <ul>
+    <li>"Green M&M", "Ripley", "Spider-Man", and "SpongeBob" by FudgeFiddle.
+    <li>"Bart Simpson" by Raumball.
+    <li>"Bastion" by Lunix.
+    <li>"V1" by Tundain.
+    <li>"Elista" by WillowPunch.
+    <li>"Prime Series Samus" by Mattroid.
+    <li>"Magic Pants" (Practice Sprites).
+    </ul>
+<li>A new option Split Speed Booster is available (in "Other options"):
+    <ul>
+    <li>When enabled, two items Blue Booster and Spark Booster are added in place of Speed Booster.
+    <li>Blue Booster allows Samus to run, gain blue, and jump at high speeds, but not to shinespark.
+    <li>Spark Booster allows Samus to shinespark, but not to jump with blue or high speed.
+    <li>Either item allows Samus to run through enemies, Speed blocks, and bomb blocks.
     </ul>
 <li>Escape timings are refined:
     <ul>
@@ -69,23 +63,30 @@ document.getElementById("navigation-releases").classList.add("active");
     <li>By default, only empty E-Tanks can be disabled.
     <li>With the "Unrestricted" setting, any E-Tank can be disabled, discarding any excess energy.
     </ul>
-<li>The "Reserve energy backward transfer" option has an improved interface.
+<li>The "Reserve energy backward transfer" option has a more intuitive interface.
     <ul>
     <li>Press left to select the reserve transfer arrow, then press A to toggle the direction of transfer.
     </ul>
-<li>New customization options are added for disabling boss icons, miniboss icons, and save icons.
+<li>New settings are available to control the amount of locked doors by type.
+<li>New quality-of-life settings "Crash fixes" are added.
     <ul>
-    <li>Save icons are now slightly smaller, to avoid obstructing neighboring map tiles.
+    <li>These allow control over how specific types of game crashes should be patched, to trigger either death or a warning,
+        or silently fixing the crash.
     </ul>
-<li>New Samus sprites:
+<li>New options are added in "Other options":
     <ul>
-    <li>"Green M&M", "Ripley", "Spider-Man", and "SpongeBob" by FudgeFiddle.
-    <li>"Bart Simpson" by Raumball.
-    <li>"Bastion" by Lunix.
-    <li>"V1" by Tundain.
-    <li>"Elista" by WillowPunch.
-    <li>"Prime Series Samus" by Mattroid.
-    <li>"Magic Pants" (Practice Sprites).
+    <li>"Disable spikesuits": this affects spikesuits, slopesparks, and R-mode knockback sparks.
+    <li>"Disable blue suits": this affects all methods of gaining a blue suit.
+    <li>"Enable major glitches": this affects GT code, glitched beams, and out-of-bounds.
+    <li>"All enemies respawn": when enabled, defeated enemies will respawn (ignored by logic).
+    </ul>
+<li>A new "Enemy drops" quality-of-life option "Off" is added:
+    <ul>
+    <li>This option is not fully supported in logic and may result in unbeatable seeds.
+    </ul>
+<li>When music is disabled, certain tracks continue to play, namely ones that function as sound effects:
+    <ul>
+    <li>This consists of the "Samus appears" fanfare, item fanfares, death sound, Zebes explosion, and Statues Hallway sound.
     </ul>
 <li>In Speed Booster Hall, the lava trigger is based on Speed Booster being equipped rather than collected.
 <li>In the escape, the Dachora icon blinks, helping indicate the location of the animals.

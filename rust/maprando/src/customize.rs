@@ -145,6 +145,20 @@ pub enum ItemDotChange {
     Disappear,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum StatuesHallwayTiling {
+    Disabled,
+    Default,
+    Enabled,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum StatuesHallwayAudio {
+    Disabled,
+    Enabled,
+    Louder,
+}
+
 #[derive(Debug)]
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
@@ -164,6 +178,8 @@ pub struct CustomizeSettings {
     pub shaking: ShakingSetting,
     pub flashing: FlashingSetting,
     pub room_names: bool,
+    pub statues_hallway_tiling: StatuesHallwayTiling,
+    pub statues_hallway_audio: StatuesHallwayAudio,
     pub controller_config: ControllerConfig,
 }
 
@@ -187,6 +203,8 @@ impl Default for CustomizeSettings {
             disable_beeping: false,
             shaking: ShakingSetting::Vanilla,
             flashing: FlashingSetting::Vanilla,
+            statues_hallway_tiling: StatuesHallwayTiling::Default,
+            statues_hallway_audio: StatuesHallwayAudio::Enabled,
             controller_config: ControllerConfig::default(),
         }
     }
@@ -490,6 +508,7 @@ pub fn customize_rom(
         map,
         game_data,
         &settings.tile_theme,
+        settings.statues_hallway_tiling,
         mosaic_themes,
     )?;
 
@@ -539,10 +558,12 @@ pub fn customize_rom(
         rom.write_u16(snes2pc(0x82FFFA), 0)?;
     }
 
-    // Duplicate the Statues Hallway track across multiple channels, to make it more audible:
-    // (This could be increased to up to 8 channels, to make it even more loud.)
-    for i in 0..2 {
-        rom.write_u16(snes2pc(0xcf8108) + 0x569f - 0x1500 + i * 2, 0x56af)?;
+    if settings.statues_hallway_audio == StatuesHallwayAudio::Louder {
+        // Duplicate the Statues Hallway track across multiple channels, to make it more audible:
+        // (This could be increased to up to 8 channels, to make it even more loud.)
+        for i in 0..4 {
+            rom.write_u16(snes2pc(0xcf8108) + 0x569f - 0x1500 + i * 2, 0x56af)?;
+        }
     }
 
     match settings.music {

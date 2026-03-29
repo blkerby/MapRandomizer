@@ -1,0 +1,33 @@
+<div class="form-group row my-3">
+    <div class="col-md-4">
+        <label class="col-form-label" for="statues_hallway_tiling">
+            {% include "help/statues_hallway_tiling.html" %}
+            Statues Hallway tiling
+        </label>
+    </div>
+    <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+        <input type="radio" class="btn-check" name="statues_hallway_tiling" id="statuesHallwayTilingDisabled" value="Disabled">
+        <label class="btn btn-outline-primary" for="statuesHallwayTilingDisabled">Disabled</label>
+        <input type="radio" class="btn-check" name="statues_hallway_tiling" id="statuesHallwayTilingDefault" value="Default" checked>
+        <label class="btn btn-outline-primary" for="statuesHallwayTilingDefault">Default</label>
+        <input type="radio" class="btn-check" name="statues_hallway_tiling" id="statuesHallwayTilingEnabled" value="Enabled">
+        <label class="btn btn-outline-primary" for="statuesHallwayTilingEnabled">Enabled</label>
+    </div>
+</div>
+
+<div class="form-group row my-3">
+    <div class="col-md-4">
+        <label class="col-form-label" for="statues_hallway_audio">
+            {% include "help/statues_hallway_audio.html" %}
+            Statues Hallway audio
+        </label>
+    </div>
+    <div class="col-md-6 col-lg-4 btn-group p-0" role="group">
+        <input type="radio" class="btn-check" name="statues_hallway_audio" id="statuesHallwayAudioDisabled" value="Disabled">
+        <label class="btn btn-outline-primary" for="statuesHallwayAudioDisabled">Disabled</label>
+        <input type="radio" class="btn-check" name="statues_hallway_audio" id="statuesHallwayAudioEnabled" value="Enabled" checked>
+        <label class="btn btn-outline-primary" for="statuesHallwayAudioEnabled">Enabled</label>
+        <input type="radio" class="btn-check" name="statues_hallway_audio" id="statuesHallwayAudioLouder" value="Louder">
+        <label class="btn btn-outline-primary" for="statuesHallwayAudioLouder">Louder</label>
+    </div>
+</div>
