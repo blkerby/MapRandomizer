@@ -1,4 +1,5 @@
 v121 or soon-ish?:
+- Fix references to the "Ship" on seed page, with non-Ship start location.
 - Filter item lists on seed page, to exclude inapplicable walljump and booster items.
 - handle blue suit interaction with farms.
 - fix flash suit carry in return route (add logic scenario test).
