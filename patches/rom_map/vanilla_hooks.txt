@@ -1096,6 +1096,7 @@ $a6b2ba - gray_doors.asm
 $a6b297 - gray_doors.asm
 
 [BANK A7]
+$a7b0fb - fix_kraid_door.asm
 $a7c81e - escape.asm
 $a7f892 - escape.asm
 $a7dd7f - flashing_placebo.asm
