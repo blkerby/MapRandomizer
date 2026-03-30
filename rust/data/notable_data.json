@@ -524,7 +524,7 @@
     "room_name": "Early Supers Room",
     "notable_id": 3,
     "name": "Crouch Gate Clip Damage Boost",
-    "difficulty": "Extreme+",
+    "difficulty": "Insane+",
     "video_id": 351
   },
   {
@@ -678,6 +678,14 @@
     "name": "Grapple Teleport into Grapple Jump (from Red Brinstar Firefleas)",
     "difficulty": "Insane+",
     "video_id": 1124
+  },
+  {
+    "room_id": 55,
+    "room_name": "Noob Bridge",
+    "notable_id": 1,
+    "name": "Dashless Quick Drops",
+    "difficulty": "Extreme",
+    "video_id": 8896
   },
   {
     "room_id": 56,
@@ -2123,7 +2131,7 @@
     "room_id": 201,
     "room_name": "Crab Hole",
     "notable_id": 3,
-    "name": "Suitless Crab Climb Superless with Springball",
+    "name": "Suitless Crab Climb Superless with Spring Ball",
     "difficulty": "Expert+",
     "video_id": 405
   },
@@ -2435,7 +2443,7 @@
     "room_id": 183,
     "room_name": "Aqueduct",
     "notable_id": 7,
-    "name": "High Pixel Suitless Bootless Snail Clip, Use Flash Suit",
+    "name": "High Pixel Suitless Bootless Snail Clip, Use Stored Spark",
     "difficulty": "Ignored",
     "video_id": 698
   },
@@ -2491,7 +2499,7 @@
     "room_id": 184,
     "room_name": "Botwoon Hallway",
     "notable_id": 2,
-    "name": "Reverse Shinespark",
+    "name": "Right-to-Left Shinespark",
     "difficulty": "Very Hard",
     "video_id": 168
   },
@@ -2595,7 +2603,7 @@
     "room_id": 189,
     "room_name": "Colosseum",
     "notable_id": 7,
-    "name": "Spike Platforming with SpringBall (Left to Right)",
+    "name": "Spike Platforming with Spring Ball (Left to Right)",
     "difficulty": "Extreme+",
     "video_id": 189
   },
@@ -2630,6 +2638,14 @@
     "name": "Stored Moonfall Grapple Door Lock Skip",
     "difficulty": "Extreme",
     "video_id": 117
+  },
+  {
+    "room_id": 189,
+    "room_name": "Colosseum",
+    "notable_id": 12,
+    "name": "Blue Suit Sand Traversal",
+    "difficulty": "Extreme",
+    "video_id": 10126
   },
   {
     "room_id": 175,
@@ -2712,6 +2728,14 @@
     "video_id": 496
   },
   {
+    "room_id": 193,
+    "room_name": "Draygon's Room",
+    "notable_id": 7,
+    "name": "Suitless Morphless Fight",
+    "difficulty": "Extreme",
+    "video_id": null
+  },
+  {
     "room_id": 196,
     "room_name": "East Cactus Alley",
     "notable_id": 1,
@@ -2771,7 +2795,7 @@
     "room_id": 208,
     "room_name": "East Sand Pit",
     "notable_id": 2,
-    "name": "Underwater Walljump",
+    "name": "Underwater Wall Jump",
     "difficulty": "Extreme",
     "video_id": 355
   },
@@ -2795,7 +2819,7 @@
     "room_id": 187,
     "room_name": "Halfie Climb Room",
     "notable_id": 1,
-    "name": "Enter with Shinespark from the Bottom Right",
+    "name": "Come in Shinecharged, Shinespark from the Bottom Right",
     "difficulty": "Very Hard",
     "video_id": 518
   },

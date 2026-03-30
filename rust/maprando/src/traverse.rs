@@ -2379,6 +2379,9 @@ fn apply_requirement_simple(
             apply_requirement_simple(reset_req, local, cx)
         }
         Requirement::EscapeMorphLocation => (cx.settings.map_layout == "Vanilla").into(),
+        Requirement::EnemyDrops => {
+            (cx.settings.quality_of_life_settings.enemy_drops != EnemyDrops::Off).into()
+        }
         Requirement::And(reqs) => {
             if cx.reverse {
                 for req in reqs.iter().rev() {

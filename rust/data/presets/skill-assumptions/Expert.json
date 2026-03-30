@@ -1785,7 +1785,7 @@
             "room_id": 184,
             "notable_id": 2,
             "room_name": "Botwoon Hallway",
-            "notable_name": "Reverse Shinespark",
+            "notable_name": "Right-to-Left Shinespark",
             "enabled": true
         },
         {
@@ -1841,7 +1841,7 @@
             "room_id": 187,
             "notable_id": 1,
             "room_name": "Halfie Climb Room",
-            "notable_name": "Enter with Shinespark from the Bottom Right",
+            "notable_name": "Come in Shinecharged, Shinespark from the Bottom Right",
             "enabled": true
         },
         {
@@ -2576,7 +2576,7 @@
             "room_id": 201,
             "notable_id": 3,
             "room_name": "Crab Hole",
-            "notable_name": "Suitless Crab Climb Superless with Springball",
+            "notable_name": "Suitless Crab Climb Superless with Spring Ball",
             "enabled": false
         },
         {
@@ -2843,6 +2843,13 @@
             "notable_id": 1,
             "room_name": "Green Hill Zone",
             "notable_name": "Tunnel Crawl",
+            "enabled": false
+        },
+        {
+            "room_id": 55,
+            "notable_id": 1,
+            "room_name": "Noob Bridge",
+            "notable_name": "Dashless Quick Drops",
             "enabled": false
         },
         {
@@ -3126,10 +3133,24 @@
             "enabled": false
         },
         {
+            "room_id": 189,
+            "notable_id": 12,
+            "room_name": "Colosseum",
+            "notable_name": "Blue Suit Sand Traversal",
+            "enabled": false
+        },
+        {
             "room_id": 175,
             "notable_id": 3,
             "room_name": "Crab Shaft",
             "notable_name": "Crab Ice Clip Door Lock Skip",
+            "enabled": false
+        },
+        {
+            "room_id": 193,
+            "notable_id": 7,
+            "room_name": "Draygon's Room",
+            "notable_name": "Suitless Morphless Fight",
             "enabled": false
         },
         {
@@ -3143,7 +3164,7 @@
             "room_id": 208,
             "notable_id": 2,
             "room_name": "East Sand Pit",
-            "notable_name": "Underwater Walljump",
+            "notable_name": "Underwater Wall Jump",
             "enabled": false
         },
         {
@@ -3249,13 +3270,6 @@
             "notable_id": 2,
             "room_name": "Construction Zone",
             "notable_name": "Ice Moonfall Clip",
-            "enabled": false
-        },
-        {
-            "room_id": 45,
-            "notable_id": 3,
-            "room_name": "Early Supers Room",
-            "notable_name": "Crouch Gate Clip Damage Boost",
             "enabled": false
         },
         {
@@ -3451,7 +3465,7 @@
             "room_id": 189,
             "notable_id": 7,
             "room_name": "Colosseum",
-            "notable_name": "Spike Platforming with SpringBall (Left to Right)",
+            "notable_name": "Spike Platforming with Spring Ball (Left to Right)",
             "enabled": false
         },
         {
@@ -3963,6 +3977,13 @@
             "notable_id": 9,
             "room_name": "West Ocean",
             "notable_name": "Enemy Stuck Moonfall Super Block Clip",
+            "enabled": false
+        },
+        {
+            "room_id": 45,
+            "notable_id": 3,
+            "room_name": "Early Supers Room",
+            "notable_name": "Crouch Gate Clip Damage Boost",
             "enabled": false
         },
         {

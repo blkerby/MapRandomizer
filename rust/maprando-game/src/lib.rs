@@ -418,6 +418,7 @@ pub enum Requirement {
         node_id: NodeId,
     },
     EscapeMorphLocation,
+    EnemyDrops,
     DoorTransition,
     GainFlashSuit,
     UseFlashSuit {
@@ -2396,6 +2397,8 @@ impl GameData {
                 return Ok(Requirement::CrocomireCameraFix);
             } else if value == "i_canEscapeMorphLocation" {
                 return Ok(Requirement::EscapeMorphLocation);
+            } else if value == "i_enemyDrops" {
+                return Ok(Requirement::EnemyDrops);
             } else if let Some(&item_id) = self.item_isv.index_by_key.get(value) {
                 return Ok(Requirement::Item(item_id as ItemId));
             } else if let Some(&flag_id) = self.flag_isv.index_by_key.get(value) {

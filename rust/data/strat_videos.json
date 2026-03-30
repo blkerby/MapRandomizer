@@ -32241,6 +32241,14 @@
   },
   {
     "room_id": 150,
+    "strat_id": 82,
+    "video_id": 9619,
+    "created_user": "Sam",
+    "note": "Fight with Charge and Plasma",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
     "strat_id": 3,
     "video_id": 509,
     "created_user": "Osse101",
@@ -32302,14 +32310,6 @@
     "created_user": "Sam",
     "note": "",
     "dev_note": "FIXME: handle various lengths of runway"
-  },
-  {
-    "room_id": 150,
-    "strat_id": 82,
-    "video_id": 9619,
-    "created_user": "Sam",
-    "note": "Fight with Charge and Plasma",
-    "dev_note": ""
   },
   {
     "room_id": 150,
@@ -32401,6 +32401,78 @@
   },
   {
     "room_id": 150,
+    "strat_id": 46,
+    "video_id": 9492,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": "Caveat: It would be nice to show this with some super farming"
+  },
+  {
+    "room_id": 150,
+    "strat_id": 47,
+    "video_id": 2998,
+    "created_user": "Sam",
+    "note": "It takes 225 charged shots.",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 48,
+    "video_id": 3052,
+    "created_user": "Sam",
+    "note": "With 29 Supers and 4 Tanks",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 49,
+    "video_id": 9493,
+    "created_user": "Sam",
+    "note": "With 15 Supers and 6 Energy Tanks",
+    "dev_note": "Shows a Drops grab with Pause Abuse"
+  },
+  {
+    "room_id": 150,
+    "strat_id": 51,
+    "video_id": 72,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 52,
+    "video_id": 513,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 54,
+    "video_id": 3053,
+    "created_user": "Sam",
+    "note": "Takes double hits when shot from a standing on ground position or jumping up. Takes a single hit if falling down.",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 55,
+    "video_id": 3054,
+    "created_user": "Sam",
+    "note": "Suitless with 10 Tanks",
+    "dev_note": "Caveat: One missed charged shot"
+  },
+  {
+    "room_id": 150,
+    "strat_id": 58,
+    "video_id": 291,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
     "strat_id": 69,
     "video_id": 6025,
     "created_user": "Sam",
@@ -32413,6 +32485,54 @@
     "video_id": 9620,
     "created_user": "Sam",
     "note": "Keep the Door open",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 33,
+    "video_id": 3057,
+    "created_user": "Sam",
+    "note": "Golden Torizo defeated",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 34,
+    "video_id": 910,
+    "created_user": "maddo",
+    "note": "canMidAirWiggle",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 35,
+    "video_id": 3055,
+    "created_user": "Sam",
+    "note": "Golden Torizo defeated",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 36,
+    "video_id": 514,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 38,
+    "video_id": 3056,
+    "created_user": "Sam",
+    "note": "Golden Torizo defeated",
+    "dev_note": ""
+  },
+  {
+    "room_id": 150,
+    "strat_id": 39,
+    "video_id": 517,
+    "created_user": "Osse101",
+    "note": "",
     "dev_note": ""
   },
   {
@@ -32515,126 +32635,6 @@
     "room_id": 150,
     "strat_id": 22,
     "video_id": 511,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 33,
-    "video_id": 3057,
-    "created_user": "Sam",
-    "note": "Golden Torizo defeated",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 34,
-    "video_id": 910,
-    "created_user": "maddo",
-    "note": "canMidAirWiggle",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 35,
-    "video_id": 3055,
-    "created_user": "Sam",
-    "note": "Golden Torizo defeated",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 36,
-    "video_id": 514,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 38,
-    "video_id": 3056,
-    "created_user": "Sam",
-    "note": "Golden Torizo defeated",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 39,
-    "video_id": 517,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 46,
-    "video_id": 9492,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": "Caveat: It would be nice to show this with some super farming"
-  },
-  {
-    "room_id": 150,
-    "strat_id": 47,
-    "video_id": 2998,
-    "created_user": "Sam",
-    "note": "It takes 225 charged shots.",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 48,
-    "video_id": 3052,
-    "created_user": "Sam",
-    "note": "With 29 Supers and 4 Tanks",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 49,
-    "video_id": 9493,
-    "created_user": "Sam",
-    "note": "With 15 Supers and 6 Energy Tanks",
-    "dev_note": "Shows a Drops grab with Pause Abuse"
-  },
-  {
-    "room_id": 150,
-    "strat_id": 51,
-    "video_id": 72,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 52,
-    "video_id": 513,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 54,
-    "video_id": 3053,
-    "created_user": "Sam",
-    "note": "Takes double hits when shot from a standing on ground position or jumping up. Takes a single hit if falling down.",
-    "dev_note": ""
-  },
-  {
-    "room_id": 150,
-    "strat_id": 55,
-    "video_id": 3054,
-    "created_user": "Sam",
-    "note": "Suitless with 10 Tanks",
-    "dev_note": "Caveat: One missed charged shot"
-  },
-  {
-    "room_id": 150,
-    "strat_id": 58,
-    "video_id": 291,
     "created_user": "Osse101",
     "note": "",
     "dev_note": ""
@@ -37201,6 +37201,30 @@
   },
   {
     "room_id": 142,
+    "strat_id": 17,
+    "video_id": 548,
+    "created_user": "Osse101",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 142,
+    "strat_id": 17,
+    "video_id": 8852,
+    "created_user": "Sam",
+    "note": "Walljumpless with Morph, 180 Missiles and 14 Tanks",
+    "dev_note": "Caveat: 2 Ridley Body Hits"
+  },
+  {
+    "room_id": 142,
+    "strat_id": 17,
+    "video_id": 8858,
+    "created_user": "Sam",
+    "note": "Walljumpless with Full Beam Combo, Morph and 7 Tanks",
+    "dev_note": "Caveat: 2 Shots Missed"
+  },
+  {
+    "room_id": 142,
     "strat_id": 29,
     "video_id": 2488,
     "created_user": "Sam",
@@ -37286,30 +37310,6 @@
     "created_user": "Sam",
     "note": "Old RBO strat with Power Bomb manipulations. Placing Power Bombs under the ledge of the top doorway locks Ridley into the bottom-left corner of the room. This strat can help to either get a damageless fight or a safer suitless fight.",
     "dev_note": ""
-  },
-  {
-    "room_id": 142,
-    "strat_id": 17,
-    "video_id": 548,
-    "created_user": "Osse101",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 142,
-    "strat_id": 17,
-    "video_id": 8852,
-    "created_user": "Sam",
-    "note": "Walljumpless with Morph, 180 Missiles and 14 Tanks",
-    "dev_note": "Caveat: 2 Ridley Body Hits"
-  },
-  {
-    "room_id": 142,
-    "strat_id": 17,
-    "video_id": 8858,
-    "created_user": "Sam",
-    "note": "Walljumpless with Full Beam Combo, Morph and 7 Tanks",
-    "dev_note": "Caveat: 2 Shots Missed"
   },
   {
     "room_id": 143,
@@ -57153,14 +57153,6 @@
   },
   {
     "room_id": 179,
-    "strat_id": 16,
-    "video_id": 5630,
-    "created_user": "Sam",
-    "note": "",
-    "dev_note": ""
-  },
-  {
-    "room_id": 179,
     "strat_id": 17,
     "video_id": 3782,
     "created_user": "maddo",
@@ -57227,6 +57219,14 @@
     "room_id": 179,
     "strat_id": 76,
     "video_id": 3020,
+    "created_user": "Sam",
+    "note": "",
+    "dev_note": ""
+  },
+  {
+    "room_id": 179,
+    "strat_id": 16,
+    "video_id": 5630,
     "created_user": "Sam",
     "note": "",
     "dev_note": ""
