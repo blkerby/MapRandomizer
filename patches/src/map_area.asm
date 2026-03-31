@@ -20,8 +20,6 @@ lorom
 !map_icon_settings = $85B600  ; must match reference in customize.rs - bits are set to disable map icons.
 !etank_color = $82FFFE   ; must match address customize.rs
 !room_name_option = $82FFFA   ; must match address customize.rs
-!bank_a7_freespace_start = $A7FFC0
-!bank_a7_freespace_end = $A7FFE0
 
 incsrc "constants.asm"
 
@@ -1321,8 +1319,6 @@ org $90A7F1
 org $90AAFD
     AND #$83FE   ; was: AND #$01FF
     CMP #$0010
-
-warnpc !bank_a7_freespace_end
 
 ; game state 0e hook (fade-in to pause)
 org !bank_82_freespace2_start
