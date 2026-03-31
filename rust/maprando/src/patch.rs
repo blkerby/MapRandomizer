@@ -492,6 +492,7 @@ impl Patcher<'_> {
                 "fast_big_boy_cutscene",
                 "fix_kraid_vomit",
                 "fix_kraid_hud",
+                "fix_kraid_door",
                 "escape_autosave",
                 "boss_exit",
                 "load_plms_early",
