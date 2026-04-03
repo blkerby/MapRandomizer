@@ -107,6 +107,10 @@
     <div class="col-4 col-sm-3">{{+ settings.quality_of_life_settings.enemy_drops.to_string() }}</div>
 </div>
 <div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">All Enemy respawn:</div>
+    <div class="col-4 col-sm-3">{% if settings.other_settings.all_enemies_respawn %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Guaranteed early save station:</div>
     <div class="col-4 col-sm-3">{% if early_save %}Yes{% else %}No{% endif %}</div>
 </div>
