@@ -1,3 +1,4 @@
+; Author: AmoebaOfDoom
 lorom
 
 org $A0A3E0

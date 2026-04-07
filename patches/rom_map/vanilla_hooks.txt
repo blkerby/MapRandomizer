@@ -117,8 +117,6 @@ $81b14b - hud_expansion_opaque.asm
 $818e34 - hud_expansion_opaque.asm
 $81a7ae - hud_expansion_opaque.asm
 $81911a - map_area.asm
-$81911e - no_map_select.asm
-$81f100 - no_map_select.asm
 $819a47 - saveload.asm
 $819cae - saveload.asm
 $819ae8 - saveload.asm
@@ -1076,8 +1074,6 @@ $a39581 - elevators_speed.asm
 $a395d2 - elevators_speed.asm
 $a395ec - elevators_speed.asm
 $a395b0 - elevators_speed.asm
-$a3ab5d - tourian_blue_hopper.asm
-$a3f360 - tourian_blue_hopper.asm
 
 [BANK A4]
 $a48cdd - flashing_placebo.asm

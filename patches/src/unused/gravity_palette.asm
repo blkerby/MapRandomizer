@@ -1,3 +1,6 @@
+; Author: Selicre
+; Proof-of-concept of a distinct palette for Gravity-only vs. Gravity+Varia
+
 org $90ECB6
 set_suit_index:
     PHX

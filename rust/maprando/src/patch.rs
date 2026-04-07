@@ -416,7 +416,6 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 fn apply_orig_ips_patches(rom: &mut Rom, settings: &RandomizerSettings) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
     let mut patches: Vec<&'static str> = vec![
-        "mb_barrier",
         "mb_barrier_clear",
         "mb_left_entrance",
         "gray_doors",
@@ -447,8 +446,8 @@ impl Patcher<'_> {
             "complementary_suits",
             "disable_map_icons",
             "escape",
-            "tourian_map",
-            "no_explosions_before_escape",
+            "tourian_map",  // TODO: check if this is still needed?
+            "no_explosions_before_escape",  // TODO: check if this is still needed?
             "sound_effect_disables",
             "title_map_animation",
             "shaktool",
@@ -1645,7 +1644,7 @@ impl Patcher<'_> {
 
         match self.settings.quality_of_life_settings.mother_brain_fight {
             MotherBrainFight::Vanilla => {
-                // See fast_mother_brain_fight.asm patch for baseline changes to speed up cutscenes.
+                // See fast_mother_brain_cutscene.asm patch for baseline changes to speed up cutscenes.
             }
             MotherBrainFight::Short => {
                 // Make Mother Brain 1 finish faster:
