@@ -171,6 +171,9 @@ pub struct QualityOfLifeSettings {
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,
+    pub fast_saves: bool,
+    pub fast_baby_cutscene: bool,
+    pub fast_mother_brain_cutscene: bool,
     pub fanfares: Fanfares,
     // Samus control
     pub respin: bool,

@@ -269,6 +269,9 @@ function buildSettingsObject() {
             "fast_elevators": formData.get("fast_elevators") == "true",
             "fast_doors": formData.get("fast_doors") == "true",
             "fast_pause_menu": formData.get("fast_pause_menu") == "true",
+            "fast_saves": formData.get("fast_saves") == "true",
+            "fast_baby_cutscene": formData.get("fast_baby_cutscene") == "true",
+            "fast_mother_brain_cutscene": formData.get("fast_mother_brain_cutscene") == "true",
             "respin": formData.get("respin") == "true",
             "infinite_space_jump": formData.get("infinite_space_jump") == "true",
             "momentum_conservation": formData.get("momentum_conservation") == "true",
@@ -519,6 +522,9 @@ function applyQolPreset(preset) {
     applyRadioValue("fastElevators", preset.fast_elevators);
     applyRadioValue("fastDoors", preset.fast_doors);
     applyRadioValue("fastPauseMenu", preset.fast_pause_menu);
+    applyRadioValue("fastSaves", preset.fast_saves);
+    applyRadioValue("fastBabyCutscene", preset.fast_baby_cutscene);
+    applyRadioValue("fastMotherBrainCutscene", preset.fast_mother_brain_cutscene);
     applyRadioValue("fanfares", preset.fanfares);
     applyRadioValue("respin", preset.respin);
     applyRadioValue("infiniteSpaceJump", preset.infinite_space_jump);

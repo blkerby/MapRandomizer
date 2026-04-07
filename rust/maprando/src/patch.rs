@@ -486,9 +486,6 @@ impl Patcher<'_> {
                 "missile_refill_all",
                 "decompression",
                 "aim_anything",
-                "fast_saves",
-                "fast_mother_brain_cutscene",
-                "fast_big_boy_cutscene",
                 "fix_kraid_vomit",
                 "fix_kraid_hud",
                 "fix_kraid_door",
@@ -545,6 +542,18 @@ impl Patcher<'_> {
             // align with vanilla, compensating for the optimized decompression which would otherwise
             // make it faster.
             self.rom.write_u16(snes2pc(0xdfff07), 40)?;
+        }
+
+        if self.settings.quality_of_life_settings.fast_saves {
+            patches.push("fast_saves");
+        }
+
+        if self.settings.quality_of_life_settings.fast_baby_cutscene {
+            patches.push("fast_big_boy_cutscene");
+        }
+
+        if self.settings.quality_of_life_settings.fast_mother_brain_cutscene {
+            patches.push("fast_mother_brain_cutscene");
         }
 
         if self.settings.quality_of_life_settings.crash_fixes.preset

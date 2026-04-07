@@ -227,6 +227,51 @@
                                         <label class="btn btn-outline-primary" for="fastPauseMenuYes">Yes</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastSavesModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Fast saves</label>
+                                    </div>
+                                    <div id="fastSaves" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fast_saves" id="fastSavesNo" value="false">
+                                        <label class="btn btn-outline-primary" for="fastSavesNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_saves" id="fastSavesYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fastSavesYes">Yes</label>
+                                    </div>
+                                </div>
+                                
+                               <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastBabyCutsceneModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Fast Baby cutscene</label>
+                                    </div>
+                                    <div id="fastBabyCutscene" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fast_baby_cutscene" id="fastBabyCutsceneNo" value="false">
+                                        <label class="btn btn-outline-primary" for="fastBabyCutsceneNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_baby_cutscene" id="fastBabyCutsceneYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fastBabyCutsceneYes">Yes</label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastMotherBrainCutsceneModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Fast Mother Brain cutscenes</label>
+                                    </div>
+                                    <div id="fastMotherBrainCutscene" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fast_mother_brain_cutscene" id="fastMotherBrainCutsceneNo" value="false">
+                                        <label class="btn btn-outline-primary" for="fastMotherBrainCutsceneNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_mother_brain_cutscene" id="fastMotherBrainCutsceneYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fastMotherBrainCutsceneYes">Yes</label>
+                                    </div>
+                                </div>
                                 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
@@ -551,6 +596,9 @@
 {% include "help/quality/fast_elevators.html" %}
 {% include "help/quality/fast_doors.html" %}
 {% include "help/quality/fast_pause_menu.html" %}
+{% include "help/quality/fast_baby_cutscene.html" %}
+{% include "help/quality/fast_mother_brain_cutscene.html" %}
+{% include "help/quality/fast_saves.html" %}
 {% include "help/quality/fanfares.html" %}
 
 {% include "help/quality/respin.html" %}
