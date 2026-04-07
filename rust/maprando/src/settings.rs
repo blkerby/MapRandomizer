@@ -943,6 +943,15 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("persist_blue_suit") {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
     }
+    if !qol_settings.contains_key("fast_saves") {
+        qol_settings.insert("fast_saves".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("fast_baby_cutscene") {
+        qol_settings.insert("fast_baby_cutscene".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("fast_mother_brain_cutscene") {
+        qol_settings.insert("fast_mother_brain_cutscene".to_string(), false.into());
+    }
     if !qol_settings.contains_key("enemy_drops") {
         if qol_settings.get("buffed_drops").and_then(|x| x.as_bool()) == Some(false) {
             qol_settings.insert("enemy_drops".to_string(), "Vanilla".into());
