@@ -186,6 +186,7 @@ pub struct QualityOfLifeSettings {
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
     pub crash_fixes: CrashFixes,
+    pub fix_blue_echos: bool,
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
@@ -955,6 +956,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("fast_saves") {
         qol_settings.insert("fast_saves".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("fix_blue_echos") {
+        qol_settings.insert("fix_blue_echos".to_string(), false.into());
     }
     if !qol_settings.contains_key("fast_baby_cutscene") {
         qol_settings.insert("fast_baby_cutscene".to_string(), false.into());

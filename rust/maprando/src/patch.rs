@@ -549,6 +549,10 @@ impl Patcher<'_> {
             patches.push("vanilla_camerafixes");
         }
 
+        if self.settings.quality_of_life_settings.fix_blue_echos {
+            patches.push("fix_blue_echos")
+        }
+        
         if self.settings.quality_of_life_settings.fast_saves {
             patches.push("fast_saves");
         }

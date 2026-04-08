@@ -45,6 +45,7 @@
         "auto_reserve": "Silent",
         "x_mode": "Silent"
     },
+    "fix_blue_echos": true,
     "energy_station_reserves": true,
     "etank_refill": "Full",
     "disableable_etanks": "Standard",

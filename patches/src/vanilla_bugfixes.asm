@@ -35,9 +35,6 @@ org $848717
 
 assert pc() <= $84871B ; just to make sure the next instruction isn't overwritten
 
-;;; fix to speed echoes bug when hell running
-org $91b629
-	db $01
 
 ;;; Pause menu fixes :
 ;;; fix screw attack select in pause menu
@@ -216,9 +213,6 @@ powamp_fix:
 
 assert pc() <= !bank_86_free_space_end
 
-
-
-
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
 ; the 2nd page of an area. This can lead to shifted map placement as 
@@ -227,12 +221,10 @@ assert pc() <= !bank_86_free_space_end
 org $829f90
     adc #$7c
 
-
 ;change lavatrap behaviour to work on equipped item (09A2) rather than collected item (09a4)
 
 org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]  
     lda $09A2
-
 
 ; vanilla bugfix, ui shows reserve icon when only boots item is equipped.
 ; this is due to a missing conditional branch instruction. 

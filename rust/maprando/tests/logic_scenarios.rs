@@ -253,6 +253,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             crash_fixes: maprando::settings::CrashFixes::from_preset(
                 maprando::settings::CrashFixesPreset::Death,
             ),
+            fix_blue_echos: false,
             etank_refill: maprando::settings::ETankRefill::Vanilla,
             energy_station_reserves: false,
             disableable_etanks: match settings

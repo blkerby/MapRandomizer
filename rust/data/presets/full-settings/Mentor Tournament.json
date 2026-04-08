@@ -4633,6 +4633,7 @@
             "auto_reserve": "Death",
             "x_mode": "Death"
         },
+        "fix_blue_echos": true,
         "etank_refill": "Full",
         "energy_station_reserves": true,
         "disableable_etanks": "Standard",
