@@ -1,4 +1,3 @@
-0000 - EBD0: Used by vanilla game
-F000 - F400: Used by `escape.asm`
-F400 - F600: Used by `new_game.asm`
-F600 - F640: Used by `escape_autosave.asm`
+F000 - F391: ; escape.asm
+F400 - F587: ; new_game.asm
+F600 - F622: ; escape_autosave.asm

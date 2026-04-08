@@ -1,1 +1,2 @@
-b240-e040: credits.asm
+B240 - D441: ; credits.asm
+E000 - E03F: ; credits.asm

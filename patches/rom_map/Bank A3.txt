@@ -1,2 +1,1 @@
-0000 - F311: vanilla
-F320 - F360: elevators_speed
+F320 - F34A: ; elevators_speed.asm

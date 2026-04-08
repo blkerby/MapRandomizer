@@ -1,4 +1,4 @@
-EF20 - F100: saveload.asm
-F100 - F140: map_area.asm
-F140 - F1C0: mosaic_fx_fix.asm
-F1C0 - F200: saveload.asm
+EF20 - F0E8: ; saveload.asm
+F100 - F10F: ; no_map_select.asm
+F140 - F167: ; mosaic_fx_fix.asm
+F1C0 - F1F9: ; saveload.asm

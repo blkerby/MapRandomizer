@@ -15,7 +15,7 @@
 	url = https://github.com/amoebaOfDoom/Mosaic
 [submodule "asar"]
 	path = asar
-	url = https://github.com/RPGHacker/asar.git
+	url = https://github.com/blkerby/asar.git
 [submodule "rust/lznint"]
 	path = rust/lznint
 	url = https://github.com/blkerby/lznint.git

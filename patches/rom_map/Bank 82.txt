@@ -1,33 +1,24 @@
-C262 - C27D: disableable_etanks.asm
-C27D - C298: vanilla_bugfixes.asm
-C2A6 - C2B7: split_speed.asm
-C362 - C369:
-C37E - C385:
-C3B6 - C3BD: map_area.asm
-C3C4 - C3D9: map_area.asm
-C411 - C42D: map_area.asm
-C42D - C465: split_speed.asm
-F70F - F810: map_area.asm
-F810 - F830: crash_handle_springball.asm
-F830 - F9E0: disable_etanks.asm
-F9E0 - FA00: reserve_backward_fill.asm
-FA00 - FA80: alternate_door_colors.asm
-FA80 - FA90: fix_water_fx_bug.asm
-FA90 - FBB0: seed_hash_display.asm
-FBB0 - FBF0: fix_kraid_hud.asm
-FBF0 - FC30: crash_handle_autoreserve.asm
-FC30 - FC50: fix_transition_bad_tiles.asm
-FC50 - FCD0: map_area.asm
-FCD0 - FD00: escape.asm
-FD00 - FD80: item_dots_disappear.asm
-FD80 - FE00: fast_doors.asm
-FE00 - FE70: load_plms_early.asm
-FE70 - FE80: fast_reload.asm
-FE80 - FF00: zebes_asleep_music.asm
-FF00 - FF20: reserve_hud.asm
-FF20 - FF30: split_speed.asm
-FF30 - FF80: reserve_hud.asm
-FF80 - FFFA: pause_menu_objectives.asm
-FFFA - FFFC: room name/map_area
-FFFC - FFFE: objectives/fast_pause_menu
-FFFE - end: custom etank color
+F70F - F808: ; map_area.asm
+F810 - F827: ; crash_handle_springball.asm
+F830 - F9DE: ; disableable_etanks.asm
+F9E0 - F9FB: ; reserve_backward_fill.asm
+FA00 - FA6B: ; alternate_door_colors.asm
+FA80 - FA87: ; fix_water_fx_bug.asm
+FA90 - FBAE: ; seed_hash_display.asm
+FBB0 - FBED: ; fix_kraid_hud.asm
+FBF0 - FC1A: ; crash_handle_autoreserves.asm
+FC30 - FC42: ; fix_transition_bad_tiles.asm
+FC50 - FC91: ; map_area.asm
+FCD0 - FCFD: ; escape.asm
+FD00 - FD1B: ; item_dots_disappear.asm
+FD80 - FDB0: ; fast_doors.asm
+FE00 - FE1E: ; load_plms_early.asm
+FE7C - FE7F: ; fast_reload.asm
+FE80 - FEF7: ; zebes_asleep_music.asm
+FF00 - FF07: ; reserve_hud.asm
+FF20 - FF2F: ; split_speed.asm
+FF30 - FF7B: ; reserve_hud.asm
+FF80 - FFE3: ; pause_menu_objectives.asm
+FFFA - FFFB: room name/map_area
+FFFC - FFFD: objectives/fast_pause_menu
+FFFE - FFFF: ; map_area.asm

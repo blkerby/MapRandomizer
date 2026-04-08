@@ -1,2 +1,2 @@
-B1A0 - B1B0: map_area.asm
-B1B0 - C800: [FREE]
+B1A0 - B1AB: ; map_area.asm
+B1B0 - C7FF: [FREE]

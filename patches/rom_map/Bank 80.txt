@@ -1,23 +1,21 @@
-0000 - CD8E: used by vanilla game - [BC37 - C437 Tilemap - failed SRAM mapping check]  (2048 bytes) can be repurposed if needed (never used)
-CDA0 - D02F: max_ammo_display.asm
-D02F - D100: fast_pause_menu.asm
-D100 - D140: fast_doors.asm
-D140 - D200: oob_death.asm
-D200 - D240: vanilla_camerafixes.asm
-D240 - D310: stats.asm
-D310 - D330: fast_reload.asm
-D330 - D340: crash_handle_base.asm [also referenced in patch.rs]
-D340 - DA00: reserve_hud.asm
-DA00 - DD00: msu1.asm
-DD00 - E100: Palette pointer table for Mosaic
-E100 - E180: area_palette.asm
-E180 - E1B0: fix_horiz_doors.asm
-E1B0 - E2A0: [FREE]
-E2A0 - E3C0: decompression.asm
-E3C0 - E440: disable_etanks.asm
-E440 - E540: load_plms_early.asm
-E540 - E580: hud_expansion_opaque.asm
-E580 - E660: samus_tiles_optim_animated_tiles_fix.asm
-E660 - E680: load_flash_suit.asm
-E680 - E6A0: load_blue_suit.asm
-
+CDA0 - CF86: ; max_ammo_display_fast.asm
+D02F - D058: ; fast_pause_menu.asm
+D100 - D10A: ; fast_doors.asm
+D140 - D198: ; oob_death.asm
+D200 - D215: ; vanilla_camerafixes.asm
+D240 - D301: ; stats.asm
+D310 - D32D: ; fast_reload.asm
+D330 - D33D: ; crash_handle_base.asm
+D340 - D71F: ; reserve_hud.asm
+DA00 - DB80: ; msu1.asm
+DD00 - E0FF: Palette pointer table for Mosaic
+E100 - E136: ; area_palettes.asm
+E180 - E1A7: ; fix_horiz_doors.asm
+E1B0 - E29F: [FREE]
+E2A0 - E396: ; decompression.asm
+E3C0 - E40A: ; disableable_etanks.asm
+E440 - E50D: ; load_plms_early.asm
+E540 - E54F: ; hud_expansion_opaque.asm
+E580 - E643: ; samus_tiles_optim_animated_tiles_fix.asm
+E660 - E676: ; load_flash_suit.asm
+E680 - E692: ; load_blue_suit.asm
