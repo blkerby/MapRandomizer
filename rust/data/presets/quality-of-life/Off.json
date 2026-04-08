@@ -53,5 +53,6 @@
     "early_save": false,
     "ammo_refill_all": false,
     "persist_flash_suit": false,
-    "persist_blue_suit": false
+    "persist_blue_suit": false,
+    "camera_fixes": true
 }

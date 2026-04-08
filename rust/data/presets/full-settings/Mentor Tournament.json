@@ -4641,7 +4641,8 @@
         "early_save": true,
         "ammo_refill_all": true,
         "persist_flash_suit": false,
-        "persist_blue_suit": false
+        "persist_blue_suit": false,
+        "camera_fixes": true
     },
     "objective_settings": {
         "preset": "Bosses",

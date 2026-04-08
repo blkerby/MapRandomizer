@@ -272,6 +272,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             ammo_refill_all: false,
             persist_flash_suit: false,
             persist_blue_suit: false,
+            camera_fixes: false,
         },
         objective_settings: ObjectiveSettings {
             // These settings are unused. Bosses are used in `test_scenario``.

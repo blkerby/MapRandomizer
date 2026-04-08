@@ -545,6 +545,10 @@ impl Patcher<'_> {
             patches.push("escape_autosave");
         }
 
+        if self.settings.quality_of_life_settings.camera_fixes {
+            patches.push("vanilla_camerafixes");
+        }
+
         if self.settings.quality_of_life_settings.fast_saves {
             patches.push("fast_saves");
         }
@@ -1748,9 +1752,11 @@ impl Patcher<'_> {
 
         // Disable demo (by overwriting the branch on the timer reaching zero):
         self.rom.write_n(snes2pc(0x8B9F2C), &[0x80, 0x0A])?; // BRA $0A
-
+        
+        if self.settings.quality_of_life_settings.camera_fixes {
         // In Kraid's room, no longer restrict Samus X position to left screen:
         self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS
+        }
 
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
         self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
@@ -1789,7 +1795,7 @@ impl Patcher<'_> {
             self.rom.write_n(snes2pc(0x90A4AF), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
-        if !self.settings.other_settings.ultra_low_qol {
+        if self.settings.quality_of_life_settings.camera_fixes {
             // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
             // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
             // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they

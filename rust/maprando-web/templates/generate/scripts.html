@@ -297,6 +297,7 @@ function buildSettingsObject() {
             "ammo_refill_all": formData.get("ammo_refill_all") == "true",
             "persist_flash_suit": formData.get("persist_flash_suit") == "true",
             "persist_blue_suit": formData.get("persist_blue_suit") == "true",
+            "camera_fixes": formData.get("camera_fixes") == "true",
         },
         "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
@@ -547,6 +548,7 @@ function applyQolPreset(preset) {
     applyRadioValue("ammoRefillAll", preset.ammo_refill_all);
     applyRadioValue("persistFlashSuit", preset.persist_flash_suit);
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);
+    applyRadioValue("cameraFixes", preset.camera_fixes);
 }
 
 function applyDoorsPreset(preset) {

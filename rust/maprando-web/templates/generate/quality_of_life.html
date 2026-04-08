@@ -615,6 +615,21 @@
                                         <label class="btn btn-outline-primary" for="persistBlueSuitYes">Yes</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#cameraFixesModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="cameraFixes">Camera fixes</label>
+                                    </div>
+                                    <div id="cameraFixes" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="camera_fixes" id="cameraFixesNo" value="false">
+                                        <label class="btn btn-outline-primary" for="cameraFixesNo">No</label>
+                                        <input type="radio" class="btn-check" name="camera_fixes" id="cameraFixesYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="cameraFixesYes">Yes</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -667,6 +682,7 @@
 {% include "help/quality/ammo_refill.html" %}
 {% include "help/quality/persist_flash_suit.html" %}
 {% include "help/quality/persist_blue_suit.html" %}
+{% include "help/quality/camera_fixes.html" %}
 
 {% include "initial_map_reveal.html" %}
 {% include "crash_fixes.html" %}

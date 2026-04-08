@@ -197,6 +197,7 @@ pub struct QualityOfLifeSettings {
     pub ammo_refill_all: bool,
     pub persist_flash_suit: bool,
     pub persist_blue_suit: bool,
+    pub camera_fixes: bool,
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
@@ -961,6 +962,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("fast_mother_brain_cutscene") {
         qol_settings.insert("fast_mother_brain_cutscene".to_string(), false.into());
     }
+    if !qol_settings.contains_key("camera_fixes") {
+        qol_settings.insert("camera_fixes".to_string(), false.into());
+    }
     if !qol_settings.contains_key("ammo_refill_all") {
         qol_settings.insert("ammo_refill_all".to_string(), false.into());
     }
@@ -971,6 +975,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
             qol_settings.insert("enemy_drops".to_string(), "Buffed".into());
         }
     }
+    
     match qol_settings.get_mut("crash_fixes") {
         None => {
             qol_settings.insert(
