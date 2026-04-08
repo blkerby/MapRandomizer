@@ -18,6 +18,7 @@
     "item_markers": "Simple",
     "room_outline_revealed": false,
     "opposite_area_revealed": false,
+    "hazard_markers": false,
     "mother_brain_fight": "Vanilla",
     "supers_double": false,
     "escape_movement_items": false,

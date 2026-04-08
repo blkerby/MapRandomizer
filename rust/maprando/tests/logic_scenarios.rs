@@ -230,6 +230,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             item_markers: maprando::settings::ItemMarkers::Simple,
             room_outline_revealed: false,
             opposite_area_revealed: false,
+            hazard_markers: false,
             mother_brain_fight: maprando::settings::MotherBrainFight::Vanilla,
             supers_double: false,
             escape_movement_items: false,

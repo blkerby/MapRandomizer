@@ -439,6 +439,7 @@ struct SeedData {
     quality_of_life_preset: Option<String>,
     supers_double: bool,
     mother_brain_fight: String,
+    hazard_markers: bool,
     escape_enemies_cleared: bool,
     escape_refill: bool,
     escape_movement_items: bool,
@@ -726,6 +727,7 @@ async fn randomize(
         item_markers: to_variant_name(&settings.quality_of_life_settings.item_markers)
             .unwrap()
             .to_string(),
+        hazard_markers: settings.quality_of_life_settings.hazard_markers,
         all_items_spawn: settings.quality_of_life_settings.all_items_spawn,
         acid_chozo: settings.quality_of_life_settings.acid_chozo,
         remove_climb_lava: settings.quality_of_life_settings.remove_climb_lava,

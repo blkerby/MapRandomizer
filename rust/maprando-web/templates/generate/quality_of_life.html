@@ -86,6 +86,21 @@
                                         <label class="btn btn-outline-primary" for="oppositeAreaRevealedYes">Yes</label>
                                     </div>
                                 </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#hazardMarkersModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Hazard markers</label>
+                                    </div>
+                                    <div id="hazardMarkers" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="hazard_markers" id="hazardMarkersNo" value="false" checked>
+                                        <label class="btn btn-outline-primary" for="hazardMarkersNo">No</label>
+                                        <input type="radio" class="btn-check" name="hazard_markers" id="hazardMarkersYes" value="true">
+                                        <label class="btn btn-outline-primary" for="hazardMarkersYes">Yes</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -601,6 +616,7 @@
 {% include "help/quality/item_markers.html" %}
 {% include "help/quality/room_outline.html" %}
 {% include "help/quality/opposite_area_revealed.html" %}
+{% include "help/quality/hazard_markers.html" %}
 
 {% include "help/quality/mother_brain_fight.html" %}
 {% include "help/quality/supers_double.html" %}

@@ -2448,7 +2448,7 @@ impl<'a> MapPatcher<'a> {
                     tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
                     tile.faded = true;
                     self.set_room_tile(room_id, x, y, tile.clone());
-                } 
+                }
                 if self.customize_settings.item_dot_change == ItemDotChange::Disappear {
                     tile.interior = MapTileInterior::Empty;
                     self.set_room_tile(room_id, x, y, tile.clone());
@@ -2971,7 +2971,9 @@ impl<'a> MapPatcher<'a> {
         self.sort_dynamic_tile_data()?;
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
         self.create_room_map_tilemaps()?;
-        self.write_hazard_tiles()?;
+        if self.settings.quality_of_life_settings.hazard_markers {
+            self.write_hazard_tiles()?;
+        }
         self.fix_kraid()?;
         self.fix_item_colors()?;
 

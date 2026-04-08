@@ -161,6 +161,7 @@ pub struct QualityOfLifeSettings {
     pub item_markers: ItemMarkers,
     pub room_outline_revealed: bool,
     pub opposite_area_revealed: bool,
+    pub hazard_markers: bool,
     // End game:
     pub mother_brain_fight: MotherBrainFight,
     pub supers_double: bool,
@@ -937,6 +938,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("reserve_backward_transfer") {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("hazard_markers") {
+        qol_settings.insert("hazard_markers".to_string(), false.into());
     }
     if !qol_settings.contains_key("persist_flash_suit") {
         qol_settings.insert("persist_flash_suit".to_string(), false.into());

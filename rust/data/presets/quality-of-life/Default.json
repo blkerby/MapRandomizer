@@ -18,6 +18,7 @@
     "item_markers": "3-Tiered",
     "room_outline_revealed": true,
     "opposite_area_revealed": false,
+    "hazard_markers": true,
     "mother_brain_fight": "Short",
     "supers_double": true,
     "escape_movement_items": true,

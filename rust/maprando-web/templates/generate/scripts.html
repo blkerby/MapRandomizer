@@ -261,6 +261,7 @@ function buildSettingsObject() {
             "item_markers": formData.get("item_markers"),
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
             "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
+            "hazard_markers": formData.get("hazard_markers") == "true",
             "mother_brain_fight": formData.get("mother_brain_fight"),
             "supers_double": formData.get("supers_double") == "true",
             "escape_movement_items": formData.get("escape_movement_items") == "true",
@@ -515,6 +516,7 @@ function applyQolPreset(preset) {
     applyRadioValue("itemMarkers", preset.item_markers);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
+    applyRadioValue("hazardMarkers", preset.hazard_markers);
     applyRadioValue("motherBrainFight", preset.mother_brain_fight);
     applyRadioValue("supersDouble", preset.supers_double);
     applyRadioValue("escapeMovementItems", preset.escape_movement_items);

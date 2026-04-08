@@ -462,7 +462,6 @@ impl Patcher<'_> {
             "item_dots_disappear",
             "fast_reload",
             "saveload",
-            "hazard_markers",
             "rng_fix",
             "intro_song",
             "msu1",
@@ -658,6 +657,10 @@ impl Patcher<'_> {
         {
             patches.push("disable_major_glitches");
             patches.push("oob_death");
+        }
+
+        if self.settings.quality_of_life_settings.hazard_markers {
+            patches.push("hazard_markers");
         }
 
         if self.settings.quality_of_life_settings.respin {
@@ -3628,7 +3631,7 @@ pub fn make_rom(
     patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
-    if !randomizer_settings.other_settings.ultra_low_qol {
+    if randomizer_settings.quality_of_life_settings.hazard_markers {
         patcher.apply_hazard_markers()?;
     }
     if randomizer_settings
