@@ -1,11 +1,12 @@
 <div class="modal" id="qualityOfLifeModal" tabindex="-1">
-    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered" style="max-width:max(min(90vw, 992px), 576px)">
+    <div class="modal-dialog modal-fullscreen-sm-down modal-dialog-centered"
+        style="max-width:max(min(90vw, 992px), 576px)">
         <div class="modal-content">
             <div class="modal-header">
-            <h1 class="modal-title fs-5">Quality-of-life options</h1>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h1 class="modal-title fs-5">Quality-of-life options</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        
+
             <div class="modal-body p-1" onchange="qualityOfLifeSettingChanged()">
                 <div class="row">
                     <div class="col-sm-12">
@@ -14,90 +15,123 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#initialMapRevealHelpModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#initialMapRevealHelpModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="initial_map_reveal">Initial map reveal</label>
                                     </div>
                                     <div id="initialMapRevealPreset" class="col-lg-6 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetNo" value="No" onchange="initialMapRevealPresetChanged()">
+                                        <input type="radio" class="btn-check" name="initial_map_reveal"
+                                            id="initialMapRevealPresetNo" value="No"
+                                            onchange="initialMapRevealPresetChanged()">
                                         <label class="btn btn-outline-primary" for="initialMapRevealPresetNo">No</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetMaps" value="Maps" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetMaps">Maps</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetPartial" value="Partial" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetPartial">Partial</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetFull" value="Full" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetFull">Full</label>
-                                        <input type="radio" class="btn-check" name="initial_map_reveal" id="initialMapRevealPresetGlobal" value="Global" onchange="initialMapRevealPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="initialMapRevealPresetGlobal">Global</label>
-                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal" data-bs-target="#initialMapRevealModal">
+                                        <input type="radio" class="btn-check" name="initial_map_reveal"
+                                            id="initialMapRevealPresetMaps" value="Maps"
+                                            onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary"
+                                            for="initialMapRevealPresetMaps">Maps</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal"
+                                            id="initialMapRevealPresetPartial" value="Partial"
+                                            onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary"
+                                            for="initialMapRevealPresetPartial">Partial</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal"
+                                            id="initialMapRevealPresetFull" value="Full"
+                                            onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary"
+                                            for="initialMapRevealPresetFull">Full</label>
+                                        <input type="radio" class="btn-check" name="initial_map_reveal"
+                                            id="initialMapRevealPresetGlobal" value="Global"
+                                            onchange="initialMapRevealPresetChanged()">
+                                        <label class="btn btn-outline-primary"
+                                            for="initialMapRevealPresetGlobal">Global</label>
+                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2"
+                                            data-bs-toggle="modal" data-bs-target="#initialMapRevealModal">
                                             <i class="bi bi-gear"></i>
-                                        </button>                    
-                                    </div>
-                                </div>
-                                
-                                <div class="form-group row my-3">
-                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemMarkersModal">
-                                            <i class="bi bi-question-circle"></i>
                                         </button>
-                                        <label for="preset">Item markers</label>
-                                    </div>
-                                    <div id="itemMarkers" class="col-lg-6 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersSimple" value="Simple">
-                                        <label class="btn btn-outline-primary" for="itemMarkersSimple">Simple</label>
-                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors" value="Majors">
-                                        <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
-                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersUniques" value="Uniques">
-                                        <label class="btn btn-outline-primary" for="itemMarkersUniques">Uniques</label>
-                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersThreeTiered" value="3-Tiered" checked>
-                                        <label class="btn btn-outline-primary" for="itemMarkersThreeTiered">3-Tiered</label>
-                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersFourTiered" value="4-Tiered">
-                                        <label class="btn btn-outline-primary" for="itemMarkersFourTiered">4-Tiered</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#roomOutlineModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#itemMarkersModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Item markers</label>
+                                    </div>
+                                    <div id="itemMarkers" class="col-lg-6 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersSimple"
+                                            value="Simple">
+                                        <label class="btn btn-outline-primary" for="itemMarkersSimple">Simple</label>
+                                        <input type="radio" class="btn-check" name="item_markers" id="itemMarkersMajors"
+                                            value="Majors">
+                                        <label class="btn btn-outline-primary" for="itemMarkersMajors">Majors</label>
+                                        <input type="radio" class="btn-check" name="item_markers"
+                                            id="itemMarkersUniques" value="Uniques">
+                                        <label class="btn btn-outline-primary" for="itemMarkersUniques">Uniques</label>
+                                        <input type="radio" class="btn-check" name="item_markers"
+                                            id="itemMarkersThreeTiered" value="3-Tiered" checked>
+                                        <label class="btn btn-outline-primary"
+                                            for="itemMarkersThreeTiered">3-Tiered</label>
+                                        <input type="radio" class="btn-check" name="item_markers"
+                                            id="itemMarkersFourTiered" value="4-Tiered">
+                                        <label class="btn btn-outline-primary"
+                                            for="itemMarkersFourTiered">4-Tiered</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#roomOutlineModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Room outline revealed on entry</label>
                                     </div>
                                     <div id="roomOutlineRevealed" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedNo" value="false">
+                                        <input type="radio" class="btn-check" name="room_outline_revealed"
+                                            id="roomOutlineRevealedNo" value="false">
                                         <label class="btn btn-outline-primary" for="roomOutlineRevealedNo">No</label>
-                                        <input type="radio" class="btn-check" name="room_outline_revealed" id="roomOutlineRevealedYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="room_outline_revealed"
+                                            id="roomOutlineRevealedYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="roomOutlineRevealedYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#oppositeAreaModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#oppositeAreaModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Opposite area transitions revealed by map</label>
                                     </div>
                                     <div id="oppositeAreaRevealed" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="opposite_area_revealed"
+                                            id="oppositeAreaRevealedNo" value="false" checked>
                                         <label class="btn btn-outline-primary" for="oppositeAreaRevealedNo">No</label>
-                                        <input type="radio" class="btn-check" name="opposite_area_revealed" id="oppositeAreaRevealedYes" value="true">
+                                        <input type="radio" class="btn-check" name="opposite_area_revealed"
+                                            id="oppositeAreaRevealedYes" value="true">
                                         <label class="btn btn-outline-primary" for="oppositeAreaRevealedYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#hazardMarkersModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#hazardMarkersModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Hazard markers</label>
                                     </div>
                                     <div id="hazardMarkers" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="hazard_markers" id="hazardMarkersNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="hazard_markers" id="hazardMarkersNo"
+                                            value="false" checked>
                                         <label class="btn btn-outline-primary" for="hazardMarkersNo">No</label>
-                                        <input type="radio" class="btn-check" name="hazard_markers" id="hazardMarkersYes" value="true">
+                                        <input type="radio" class="btn-check" name="hazard_markers"
+                                            id="hazardMarkersYes" value="true">
                                         <label class="btn btn-outline-primary" for="hazardMarkersYes">Yes</label>
                                     </div>
                                 </div>
@@ -113,92 +147,112 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#shortMotherBrainModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#shortMotherBrainModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Mother Brain fight (phases 2 and 3)</label>
                                     </div>
                                     <div id="motherBrainFight" class="col-4 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightVanilla" value="Vanilla">
-                                        <label class="btn btn-outline-primary" for="motherBrainFightVanilla">Vanilla</label>
-                                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightShort" value="Short" checked>
+                                        <input type="radio" class="btn-check" name="mother_brain_fight"
+                                            id="motherBrainFightVanilla" value="Vanilla">
+                                        <label class="btn btn-outline-primary"
+                                            for="motherBrainFightVanilla">Vanilla</label>
+                                        <input type="radio" class="btn-check" name="mother_brain_fight"
+                                            id="motherBrainFightShort" value="Short" checked>
                                         <label class="btn btn-outline-primary" for="motherBrainFightShort">Short</label>
-                                        <input type="radio" class="btn-check" name="mother_brain_fight" id="motherBrainFightSkip" value="Skip">
+                                        <input type="radio" class="btn-check" name="mother_brain_fight"
+                                            id="motherBrainFightSkip" value="Skip">
                                         <label class="btn btn-outline-primary" for="motherBrainFightSkip">Skip</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#supersDoubleModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#supersDoubleModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Supers do double damage to Mother Brain</label>
                                     </div>
                                     <div id="supersDouble" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo" value="false">
+                                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="supersDoubleNo">No</label>
-                                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="supers_double" id="supersDoubleYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="supersDoubleYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#escapeAutosaveModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#escapeAutosaveModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Escape auto save</label>
                                     </div>
                                     <div id="escapeAutosave" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="escape_autosave" id="escapeAutosaveNo" value="false">
+                                        <input type="radio" class="btn-check" name="escape_autosave"
+                                            id="escapeAutosaveNo" value="false">
                                         <label class="btn btn-outline-primary" for="escapeAutosaveNo">No</label>
-                                        <input type="radio" class="btn-check" name="escape_autosave" id="escapeAutosaveYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="escape_autosave"
+                                            id="escapeAutosaveYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="escapeAutosaveYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#movementItemsModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#movementItemsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Hyper Beam gives all movement items</label>
                                     </div>
                                     <div id="escapeMovementItems" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsNo" value="false">
+                                        <input type="radio" class="btn-check" name="escape_movement_items"
+                                            id="escapeMovementItemsNo" value="false">
                                         <label class="btn btn-outline-primary" for="escapeMovementItemsNo">No</label>
-                                        <input type="radio" class="btn-check" name="escape_movement_items" id="escapeMovementItemsYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="escape_movement_items"
+                                            id="escapeMovementItemsYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="escapeMovementItemsYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#escapeRefillModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#escapeRefillModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Refill energy for escape</label>
                                     </div>
                                     <div id="escapeRefill" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillNo" value="false">
+                                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="escapeRefillNo">No</label>
-                                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="escape_refill" id="escapeRefillYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="escapeRefillYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#enemiesClearedModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#enemiesClearedModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Enemies cleared during escape</label>
                                     </div>
                                     <div id="escapeEnemiesCleared" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedNo" value="false">
+                                        <input type="radio" class="btn-check" name="escape_enemies_cleared"
+                                            id="escapeEnemiesClearedNo" value="false">
                                         <label class="btn btn-outline-primary" for="escapeEnemiesClearedNo">No</label>
-                                        <input type="radio" class="btn-check" name="escape_enemies_cleared" id="escapeEnemiesClearedYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="escape_enemies_cleared"
+                                            id="escapeEnemiesClearedYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="escapeEnemiesClearedYes">Yes</label>
                                     </div>
                                 </div>
@@ -215,109 +269,133 @@
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastElevatorsModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fastElevatorsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fast elevators</label>
                                     </div>
                                     <div id="fastElevators" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsNo" value="false">
+                                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="fastElevatorsNo">No</label>
-                                        <input type="radio" class="btn-check" name="fast_elevators" id="fastElevatorsYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="fast_elevators"
+                                            id="fastElevatorsYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="fastElevatorsYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastDoorsModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fastDoorsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fast doors</label>
                                     </div>
                                     <div id="fastDoors" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsNo" value="false">
+                                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="fastDoorsNo">No</label>
-                                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="fast_doors" id="fastDoorsYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="fastDoorsYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastPauseMenuModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fastPauseMenuModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fast pause menu</label>
                                     </div>
                                     <div id="fastPauseMenu" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fast_pause_menu" id="fastPauseMenuNo" value="false">
+                                        <input type="radio" class="btn-check" name="fast_pause_menu"
+                                            id="fastPauseMenuNo" value="false">
                                         <label class="btn btn-outline-primary" for="fastPauseMenuNo">No</label>
-                                        <input type="radio" class="btn-check" name="fast_pause_menu" id="fastPauseMenuYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="fast_pause_menu"
+                                            id="fastPauseMenuYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="fastPauseMenuYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastSavesModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fastSavesModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fast saves</label>
                                     </div>
                                     <div id="fastSaves" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fast_saves" id="fastSavesNo" value="false">
+                                        <input type="radio" class="btn-check" name="fast_saves" id="fastSavesNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="fastSavesNo">No</label>
-                                        <input type="radio" class="btn-check" name="fast_saves" id="fastSavesYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="fast_saves" id="fastSavesYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="fastSavesYes">Yes</label>
                                     </div>
                                 </div>
-                                
-                               <div class="form-group row my-3">
+
+                                <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastBabyCutsceneModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fastBabyCutsceneModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fast Baby cutscene</label>
                                     </div>
                                     <div id="fastBabyCutscene" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fast_baby_cutscene" id="fastBabyCutsceneNo" value="false">
+                                        <input type="radio" class="btn-check" name="fast_baby_cutscene"
+                                            id="fastBabyCutsceneNo" value="false">
                                         <label class="btn btn-outline-primary" for="fastBabyCutsceneNo">No</label>
-                                        <input type="radio" class="btn-check" name="fast_baby_cutscene" id="fastBabyCutsceneYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="fast_baby_cutscene"
+                                            id="fastBabyCutsceneYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="fastBabyCutsceneYes">Yes</label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fastMotherBrainCutsceneModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fastMotherBrainCutsceneModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fast Mother Brain cutscenes</label>
                                     </div>
                                     <div id="fastMotherBrainCutscene" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fast_mother_brain_cutscene" id="fastMotherBrainCutsceneNo" value="false">
-                                        <label class="btn btn-outline-primary" for="fastMotherBrainCutsceneNo">No</label>
-                                        <input type="radio" class="btn-check" name="fast_mother_brain_cutscene" id="fastMotherBrainCutsceneYes" value="true" checked>
-                                        <label class="btn btn-outline-primary" for="fastMotherBrainCutsceneYes">Yes</label>
+                                        <input type="radio" class="btn-check" name="fast_mother_brain_cutscene"
+                                            id="fastMotherBrainCutsceneNo" value="false">
+                                        <label class="btn btn-outline-primary"
+                                            for="fastMotherBrainCutsceneNo">No</label>
+                                        <input type="radio" class="btn-check" name="fast_mother_brain_cutscene"
+                                            id="fastMotherBrainCutsceneYes" value="true" checked>
+                                        <label class="btn btn-outline-primary"
+                                            for="fastMotherBrainCutsceneYes">Yes</label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fanfaresModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fanfaresModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Item fanfares</label>
                                     </div>
                                     <div id="fanfares" class="col-4 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fanfares" id="fanfaresVanilla" value="Vanilla" checked>
+                                        <input type="radio" class="btn-check" name="fanfares" id="fanfaresVanilla"
+                                            value="Vanilla" checked>
                                         <label class="btn btn-outline-primary" for="fanfaresVanilla">Vanilla</label>
-                                        
-                                        <input type="radio" class="btn-check" name="fanfares" id="fanfaresTrimmed" value="Trimmed">
+
+                                        <input type="radio" class="btn-check" name="fanfares" id="fanfaresTrimmed"
+                                            value="Trimmed">
                                         <label class="btn btn-outline-primary" for="fanfaresTrimmed">Trimmed</label>
-                                        
-                                        <input type="radio" class="btn-check" name="fanfares" id="fanfaresOff" value="Off">
+
+                                        <input type="radio" class="btn-check" name="fanfares" id="fanfaresOff"
+                                            value="Off">
                                         <label class="btn btn-outline-primary" for="fanfaresOff">Off</label>
                                     </div>
                                 </div>
@@ -333,13 +411,15 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#respinModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#respinModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="respin">Respin</label>
                                     </div>
                                     <div id="respin" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="respin" id="respinNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="respin" id="respinNo" value="false"
+                                            checked>
                                         <label class="btn btn-outline-primary" for="respinNo">No</label>
                                         <input type="radio" class="btn-check" name="respin" id="respinYes" value="true">
                                         <label class="btn btn-outline-primary" for="respinYes">Yes</label>
@@ -348,30 +428,36 @@
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#infiniteSpaceJumpModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#infiniteSpaceJumpModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="infinite_space_jump">Lenient Space Jump</label>
                                     </div>
                                     <div id="infiniteSpaceJump" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="infinite_space_jump"
+                                            id="infiniteSpaceJumpNo" value="false" checked>
                                         <label class="btn btn-outline-primary" for="infiniteSpaceJumpNo">No</label>
-                                        <input type="radio" class="btn-check" name="infinite_space_jump" id="infiniteSpaceJumpYes" value="true">
+                                        <input type="radio" class="btn-check" name="infinite_space_jump"
+                                            id="infiniteSpaceJumpYes" value="true">
                                         <label class="btn btn-outline-primary" for="infiniteSpaceJumpYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#momentumConservationModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#momentumConservationModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="momentum_conservation">Momentum conservation</label>
                                     </div>
                                     <div id="momentumConservation" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="momentum_conservation"
+                                            id="momentumConservationNo" value="false" checked>
                                         <label class="btn btn-outline-primary" for="momentumConservationNo">No</label>
-                                        <input type="radio" class="btn-check" name="momentum_conservation" id="momentumConservationYes" value="true">
+                                        <input type="radio" class="btn-check" name="momentum_conservation"
+                                            id="momentumConservationYes" value="true">
                                         <label class="btn btn-outline-primary" for="momentumConservationYes">Yes</label>
                                     </div>
                                 </div>
@@ -387,87 +473,106 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#itemsSpawnModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#itemsSpawnModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">All items spawn at start of game</label>
                                     </div>
                                     <div id="allItemsSpawn" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnNo" value="false">
+                                        <input type="radio" class="btn-check" name="all_items_spawn"
+                                            id="allItemsSpawnNo" value="false">
                                         <label class="btn btn-outline-primary" for="allItemsSpawnNo">No</label>
-                                        <input type="radio" class="btn-check" name="all_items_spawn" id="allItemsSpawnYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="all_items_spawn"
+                                            id="allItemsSpawnYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="allItemsSpawnYes">Yes</label>
                                     </div>
-                                </div>    
+                                </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#acidChozoModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#acidChozoModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Acid Chozo usable without Space Jump</label>
                                     </div>
                                     <div id="acidChozo" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoNo" value="false">
+                                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="acidChozoNo">No</label>
-                                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="acid_chozo" id="acidChozoYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="acidChozoYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#removeClimbLavaModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#removeClimbLavaModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Lava removed from Climb</label>
                                     </div>
                                     <div id="removeClimbLava" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="remove_climb_lava" id="removeClimbLavaNo" value="false">
+                                        <input type="radio" class="btn-check" name="remove_climb_lava"
+                                            id="removeClimbLavaNo" value="false">
                                         <label class="btn btn-outline-primary" for="removeClimbLavaNo">No</label>
-                                        <input type="radio" class="btn-check" name="remove_climb_lava" id="removeClimbLavaYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="remove_climb_lava"
+                                            id="removeClimbLavaYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="removeClimbLavaYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#crashFixesHelpModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#crashFixesHelpModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="crash_fixes">Crash fixes</label>
                                     </div>
                                     <div id="crashFixes" class="col-lg-6 btn-group" role="group">
-                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-                                            id="crashFixesPresetCrash" value="Crash" onchange="crashFixesPresetChanged()">
+                                        <input type="radio" class="btn-check crash-fixes-preset-button"
+                                            name="crash_fixes_preset" id="crashFixesPresetCrash" value="Crash"
+                                            onchange="crashFixesPresetChanged()">
                                         <label class="btn btn-outline-primary" for="crashFixesPresetCrash">Crash</label>
-                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-                                            id="crashFixesPresetDeath" value="Death" checked onchange="crashFixesPresetChanged()">
+                                        <input type="radio" class="btn-check crash-fixes-preset-button"
+                                            name="crash_fixes_preset" id="crashFixesPresetDeath" value="Death" checked
+                                            onchange="crashFixesPresetChanged()">
                                         <label class="btn btn-outline-primary" for="crashFixesPresetDeath">Death</label>
-                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-                                            id="crashFixesPresetWarn" value="Warn" onchange="crashFixesPresetChanged()">
+                                        <input type="radio" class="btn-check crash-fixes-preset-button"
+                                            name="crash_fixes_preset" id="crashFixesPresetWarn" value="Warn"
+                                            onchange="crashFixesPresetChanged()">
                                         <label class="btn btn-outline-primary" for="crashFixesPresetWarn">Warn</label>
-                                        <input type="radio" class="btn-check crash-fixes-preset-button" name="crash_fixes_preset"
-                                            id="crashFixesPresetSilent" value="Silent" onchange="crashFixesPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="crashFixesPresetSilent">Silent</label>
-                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2" data-bs-toggle="modal"
-                                            data-bs-target="#crashFixesModal">
+                                        <input type="radio" class="btn-check crash-fixes-preset-button"
+                                            name="crash_fixes_preset" id="crashFixesPresetSilent" value="Silent"
+                                            onchange="crashFixesPresetChanged()">
+                                        <label class="btn btn-outline-primary"
+                                            for="crashFixesPresetSilent">Silent</label>
+                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2"
+                                            data-bs-toggle="modal" data-bs-target="#crashFixesModal">
                                             <i class="bi bi-gear"></i>
                                         </button>
                                     </div>
                                 </div>
-                               
+
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#fixBlueEchosModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#fixBlueEchosModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Fix blue speed echos</label>
                                     </div>
                                     <div id="fixBlueEchos" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="hazard_markers" id="fixBlueEchosNo" value="false" checked>
-                                        <label class="btn btn-outline-danger" for="fixBlueEchosNo"><i class="bi bi-exclamation-triangle"></i> No</label>
-                                        <input type="radio" class="btn-check" name="hazard_markers" id="fixBlueEchosYes" value="true">
+                                        <input type="radio" class="btn-check" name="hazard_markers" id="fixBlueEchosNo"
+                                            value="false" checked>
+                                        <label class="btn btn-outline-danger" for="fixBlueEchosNo"><i
+                                                class="bi bi-exclamation-triangle"></i> No</label>
+                                        <input type="radio" class="btn-check" name="hazard_markers" id="fixBlueEchosYes"
+                                            value="true">
                                         <label class="btn btn-outline-primary" for="fixBlueEchosYes">Yes</label>
                                     </div>
                                 </div>
@@ -483,65 +588,85 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#etankRefillModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#etankRefillModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">E-Tank energy refill</label>
                                     </div>
                                     <div id="etankRefill" class="col-4 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillDisabled" value="Disabled">
-                                        <label class="btn btn-outline-primary" for="etankRefillDisabled">Disabled</label>
-                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillVanilla" value="Vanilla" checked>
+                                        <input type="radio" class="btn-check" name="etank_refill"
+                                            id="etankRefillDisabled" value="Disabled">
+                                        <label class="btn btn-outline-primary"
+                                            for="etankRefillDisabled">Disabled</label>
+                                        <input type="radio" class="btn-check" name="etank_refill"
+                                            id="etankRefillVanilla" value="Vanilla" checked>
                                         <label class="btn btn-outline-primary" for="etankRefillVanilla">Vanilla</label>
-                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillFull" value="Full">
+                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillFull"
+                                            value="Full">
                                         <label class="btn btn-outline-primary" for="etankRefillFull">Full</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#energyStationReservesModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#energyStationReservesModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Energy stations refill reserves</label>
                                     </div>
                                     <div id="energyStationReserves" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="energy_station_reserves" id="energyStationReservesNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="energy_station_reserves"
+                                            id="energyStationReservesNo" value="false" checked>
                                         <label class="btn btn-outline-primary" for="energyStationReservesNo">No</label>
-                                        <input type="radio" class="btn-check" name="energy_station_reserves" id="energyStationReservesYes" value="true">
-                                        <label class="btn btn-outline-primary" for="energyStationReservesYes">Yes</label>
+                                        <input type="radio" class="btn-check" name="energy_station_reserves"
+                                            id="energyStationReservesYes" value="true">
+                                        <label class="btn btn-outline-primary"
+                                            for="energyStationReservesYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#disableableETanksModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#disableableETanksModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Disableable E-Tanks</label>
                                     </div>
                                     <div id="disableableETanks" class="col-4 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="disableable_etanks" id="disableableETanksOff" value="Off" checked>
+                                        <input type="radio" class="btn-check" name="disableable_etanks"
+                                            id="disableableETanksOff" value="Off" checked>
                                         <label class="btn btn-outline-primary" for="disableableETanksOff">Off</label>
-                                        <input type="radio" class="btn-check" name="disableable_etanks" id="disableableETanksStandard" value="Standard">
-                                        <label class="btn btn-outline-primary" for="disableableETanksStandard">Standard</label>
-                                        <input type="radio" class="btn-check" name="disableable_etanks" id="disableableETanksUnrestricted" value="Unrestricted">
-                                        <label class="btn btn-outline-primary" for="disableableETanksUnrestricted">Unrestricted</label>
+                                        <input type="radio" class="btn-check" name="disableable_etanks"
+                                            id="disableableETanksStandard" value="Standard">
+                                        <label class="btn btn-outline-primary"
+                                            for="disableableETanksStandard">Standard</label>
+                                        <input type="radio" class="btn-check" name="disableable_etanks"
+                                            id="disableableETanksUnrestricted" value="Unrestricted">
+                                        <label class="btn btn-outline-primary"
+                                            for="disableableETanksUnrestricted">Unrestricted</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#reserveBackwardTransferModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#reserveBackwardTransferModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Reserve energy backward transfer</label>
                                     </div>
                                     <div id="reserveBackwardTransfer" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="reserve_backward_transfer" id="reserveBackwardTransferNo" value="false" checked>
-                                        <label class="btn btn-outline-primary" for="reserveBackwardTransferNo">No</label>
-                                        <input type="radio" class="btn-check" name="reserve_backward_transfer" id="reserveBackwardTransferYes" value="true">
-                                        <label class="btn btn-outline-primary" for="reserveBackwardTransferYes">Yes</label>
+                                        <input type="radio" class="btn-check" name="reserve_backward_transfer"
+                                            id="reserveBackwardTransferNo" value="false" checked>
+                                        <label class="btn btn-outline-primary"
+                                            for="reserveBackwardTransferNo">No</label>
+                                        <input type="radio" class="btn-check" name="reserve_backward_transfer"
+                                            id="reserveBackwardTransferYes" value="true">
+                                        <label class="btn btn-outline-primary"
+                                            for="reserveBackwardTransferYes">Yes</label>
                                     </div>
                                 </div>
                             </div>
@@ -556,92 +681,112 @@
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#enemyDropsModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#enemyDropsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Enemy drops</label>
                                     </div>
                                     <div id="enemyDrops" class="col-4 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsOff" value="Off">
-                                        <label class="btn btn-outline-danger" for="enemyDropsOff"><i class="bi bi-exclamation-triangle"></i> Off</label>
-                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsVanilla" value="Vanilla">
+                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsOff"
+                                            value="Off">
+                                        <label class="btn btn-outline-danger" for="enemyDropsOff"><i
+                                                class="bi bi-exclamation-triangle"></i> Off</label>
+                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsVanilla"
+                                            value="Vanilla">
                                         <label class="btn btn-outline-primary" for="enemyDropsVanilla">Vanilla</label>
-                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsBuffed" value="Buffed" checked>
+                                        <input type="radio" class="btn-check" name="enemy_drops" id="enemyDropsBuffed"
+                                            value="Buffed" checked>
                                         <label class="btn btn-outline-primary" for="enemyDropsBuffed">Buffed</label>
                                     </div>
-                                </div> 
+                                </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#earlySaveModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#earlySaveModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Guaranteed early save station</label>
                                     </div>
                                     <div id="earlySave" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo" value="false">
+                                        <input type="radio" class="btn-check" name="early_save" id="earlySaveNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="earlySaveNo">No</label>
-                                        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="early_save" id="earlySaveYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="earlySaveYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#ammoRefillAllModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#ammoRefillAllModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="preset">Ammo stations refill all ammo types</label>
                                     </div>
                                     <div id="ammoRefillAll" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="ammo_refill_all" id="ammoRefillAllNo" value="false">
+                                        <input type="radio" class="btn-check" name="ammo_refill_all"
+                                            id="ammoRefillAllNo" value="false">
                                         <label class="btn btn-outline-primary" for="ammoRefillAllNo">No</label>
-                                        <input type="radio" class="btn-check" name="ammo_refill_all" id="ammoRefillAllYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="ammo_refill_all"
+                                            id="ammoRefillAllYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="ammoRefillAllYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#persistFlashSuitModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#persistFlashSuitModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="persistFlashSuit">Flash suit persists across save/load</label>
                                     </div>
                                     <div id="persistFlashSuit" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="persist_flash_suit" id="persistFlashSuitNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="persist_flash_suit"
+                                            id="persistFlashSuitNo" value="false" checked>
                                         <label class="btn btn-outline-primary" for="persistFlashSuitNo">No</label>
-                                        <input type="radio" class="btn-check" name="persist_flash_suit" id="persistFlashSuitYes" value="true">
+                                        <input type="radio" class="btn-check" name="persist_flash_suit"
+                                            id="persistFlashSuitYes" value="true">
                                         <label class="btn btn-outline-primary" for="persistFlashSuitYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#persistBlueSuitModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#persistBlueSuitModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="persistBlueSuit">Blue suit persists across save/load</label>
                                     </div>
                                     <div id="persistBlueSuit" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="persist_blue_suit" id="persistBlueSuitNo" value="false" checked>
+                                        <input type="radio" class="btn-check" name="persist_blue_suit"
+                                            id="persistBlueSuitNo" value="false" checked>
                                         <label class="btn btn-outline-primary" for="persistBlueSuitNo">No</label>
-                                        <input type="radio" class="btn-check" name="persist_blue_suit" id="persistBlueSuitYes" value="true">
+                                        <input type="radio" class="btn-check" name="persist_blue_suit"
+                                            id="persistBlueSuitYes" value="true">
                                         <label class="btn btn-outline-primary" for="persistBlueSuitYes">Yes</label>
                                     </div>
                                 </div>
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#cameraFixesModal">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#cameraFixesModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
                                         <label for="cameraFixes">Camera fixes</label>
                                     </div>
                                     <div id="cameraFixes" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="camera_fixes" id="cameraFixesNo" value="false">
+                                        <input type="radio" class="btn-check" name="camera_fixes" id="cameraFixesNo"
+                                            value="false">
                                         <label class="btn btn-outline-primary" for="cameraFixesNo">No</label>
-                                        <input type="radio" class="btn-check" name="camera_fixes" id="cameraFixesYes" value="true" checked>
+                                        <input type="radio" class="btn-check" name="camera_fixes" id="cameraFixesYes"
+                                            value="true" checked>
                                         <label class="btn btn-outline-primary" for="cameraFixesYes">Yes</label>
                                     </div>
                                 </div>
@@ -656,7 +801,7 @@
         </div>
     </div>
 </div>
-                                          
+
 {% include "help/quality/initial_map_reveal.html" %}
 {% include "help/quality/item_markers.html" %}
 {% include "help/quality/room_outline.html" %}
