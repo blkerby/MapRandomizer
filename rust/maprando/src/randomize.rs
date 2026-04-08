@@ -1727,6 +1727,7 @@ impl<'a> Preprocessor<'a> {
                 max_extra_run_speed,
             } => {
                 let mut reqs: Vec<Requirement> = vec![];
+                reqs.push(Requirement::Item(Item::SpaceJump as ItemId));
                 reqs.push(Requirement::NoBlueSuit);
                 if !self.add_run_speed_reqs(
                     remote_runway_length.get(),

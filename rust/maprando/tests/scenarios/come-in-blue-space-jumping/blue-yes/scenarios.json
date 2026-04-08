@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Success",
+      "globalState": {
+        "items": ["SpaceJump", "SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: No Space Jump",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Speed Booster",
+      "globalState": {
+        "items": ["SpaceJump"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}
