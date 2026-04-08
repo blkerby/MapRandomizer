@@ -300,6 +300,7 @@ async fn customize_seed(
             u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
         )),
         item_dot_change: match req.item_dot_change.0.as_str() {
+            "Disabled" => maprando::customize::ItemDotChange::Disabled,
             "Fade" => maprando::customize::ItemDotChange::Fade,
             "Disappear" => maprando::customize::ItemDotChange::Disappear,
             _ => panic!("Unexpected item_dot_change"),
