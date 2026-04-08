@@ -1,0 +1,141 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Speed Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SpeedBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Blue Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["BlueBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Lose Flash Suit",
+      "globalState": {
+        "items": ["SpeedBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 0
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Lose Blue Suit",
+      "globalState": {
+        "items": ["SpeedBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 0
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: No Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Spark Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SparkBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Morph",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Cannot Keep Flash Suit",
+      "globalState": {
+        "items": ["SpeedBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 1
+      },
+      "fail": true
+    },
+    {
+      "name": "Fail: Cannot Keep Blue Suit",
+      "globalState": {
+        "items": ["SpeedBooster", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 1
+      },
+      "fail": true
+    }
+  ]
+}

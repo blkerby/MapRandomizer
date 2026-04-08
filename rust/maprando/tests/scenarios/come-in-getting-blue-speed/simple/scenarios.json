@@ -1,0 +1,119 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Speed Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Keep Flash Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 1
+      }
+    },
+    {
+      "name": "Lose Blue Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 0
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Blue Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Spark Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Too Short of Shortcharge",
+      "settings": {
+        "shinechargeTiles": 13.76
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Cannot Keep Blue Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 1
+      },
+      "fail": true
+    }
+  ]
+}
