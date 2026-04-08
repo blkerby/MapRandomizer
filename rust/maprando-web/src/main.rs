@@ -719,6 +719,7 @@ async fn randomize(
         difficulty: output.difficulty_tiers[0].clone(),
         quality_of_life_preset: settings.quality_of_life_settings.preset.clone(),
         supers_double: settings.quality_of_life_settings.supers_double,
+        escape_autosave: settings.quality_of_life_settings.escape_autosave,
         mother_brain_fight: to_variant_name(&settings.quality_of_life_settings.mother_brain_fight)
             .unwrap()
             .to_string(),
