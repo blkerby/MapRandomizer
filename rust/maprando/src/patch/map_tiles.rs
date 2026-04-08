@@ -2434,6 +2434,10 @@ impl<'a> MapPatcher<'a> {
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
                 tile.interior = MapTileInterior::Item;
             }
+            // the ultralow qol setting can be removed when its finally removed from the frontend.
+            // there is also the potential to have "non disappearing dots option" by using the ultralow QOL
+            // setting when using 2/3/4 tier items if its desired. This would replace a Major / Hollow / X with
+            // a non faded dot.
             if self.settings.other_settings.ultra_low_qol {
                 tile.interior = MapTileInterior::Item;
                 self.set_room_tile(room_id, x, y, tile.clone());
