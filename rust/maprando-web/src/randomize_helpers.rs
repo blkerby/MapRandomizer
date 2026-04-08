@@ -43,6 +43,7 @@ pub struct SeedHeaderTemplate<'a> {
     difficulty: &'a DifficultyConfig,
     quality_of_life_preset: String,
     supers_double: bool,
+    escape_autosave: bool,
     mother_brain_fight: String,
     hazard_markers: bool,
     escape_enemies_cleared: bool,
@@ -457,6 +458,7 @@ pub fn render_seed(
             .clone()
             .unwrap_or("Custom".to_string()),
         supers_double: seed_data.supers_double,
+        escape_autosave: seed_data.escape_autosave,
         mother_brain_fight: seed_data.mother_brain_fight.clone(),
         hazard_markers: seed_data.hazard_markers,
         escape_enemies_cleared: seed_data.escape_enemies_cleared,

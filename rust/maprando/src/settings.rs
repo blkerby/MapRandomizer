@@ -165,6 +165,7 @@ pub struct QualityOfLifeSettings {
     // End game:
     pub mother_brain_fight: MotherBrainFight,
     pub supers_double: bool,
+    pub escape_autosave: bool,
     pub escape_movement_items: bool,
     pub escape_refill: bool,
     pub escape_enemies_cleared: bool,
@@ -947,6 +948,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("persist_blue_suit") {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("escape_autosave") {
+        qol_settings.insert("escape_autosave".to_string(), false.into());
     }
     if !qol_settings.contains_key("fast_saves") {
         qol_settings.insert("fast_saves".to_string(), false.into());

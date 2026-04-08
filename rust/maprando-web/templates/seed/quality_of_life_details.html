@@ -30,6 +30,10 @@
     <div class="col-4 col-sm-3">{% if supers_double %}Yes{% else %}No{% endif %}</div>
 </div>
 <div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Escape auto save:</div>
+    <div class="col-4 col-sm-3">{% if escape_autosave %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Hyper Beam gives all movement items:</div>
     <div class="col-4 col-sm-3">{% if escape_movement_items || settings.item_progression_settings.stop_item_placement_early %}Yes{% else %}No{% endif %}</div>
 </div>

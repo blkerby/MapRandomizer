@@ -487,7 +487,6 @@ impl Patcher<'_> {
                 "fix_kraid_vomit",
                 "fix_kraid_hud",
                 "fix_kraid_door",
-                "escape_autosave",
                 "boss_exit",
                 "load_plms_early",
                 "spin_lock",
@@ -540,6 +539,10 @@ impl Patcher<'_> {
             // align with vanilla, compensating for the optimized decompression which would otherwise
             // make it faster.
             self.rom.write_u16(snes2pc(0xdfff07), 40)?;
+        }
+
+        if self.settings.quality_of_life_settings.escape_autosave {
+            patches.push("escape_autosave");
         }
 
         if self.settings.quality_of_life_settings.fast_saves {

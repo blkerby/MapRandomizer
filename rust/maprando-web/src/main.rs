@@ -438,6 +438,7 @@ struct SeedData {
     difficulty: DifficultyConfig,
     quality_of_life_preset: Option<String>,
     supers_double: bool,
+    escape_autosave: bool,
     mother_brain_fight: String,
     hazard_markers: bool,
     escape_enemies_cleared: bool,

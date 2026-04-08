@@ -21,6 +21,7 @@
     "hazard_markers": true,
     "mother_brain_fight": "Short",
     "supers_double": true,
+    "escape_autosave": true,
     "escape_movement_items": false,
     "escape_refill": false,
     "escape_enemies_cleared": false,

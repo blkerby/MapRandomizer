@@ -233,6 +233,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             hazard_markers: false,
             mother_brain_fight: maprando::settings::MotherBrainFight::Vanilla,
             supers_double: false,
+            escape_autosave: false,
             escape_movement_items: false,
             escape_refill: false,
             escape_enemies_cleared: false,

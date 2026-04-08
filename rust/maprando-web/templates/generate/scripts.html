@@ -264,6 +264,7 @@ function buildSettingsObject() {
             "hazard_markers": formData.get("hazard_markers") == "true",
             "mother_brain_fight": formData.get("mother_brain_fight"),
             "supers_double": formData.get("supers_double") == "true",
+            "escape_autosave": formData.get("escape_autosave") == "true",
             "escape_movement_items": formData.get("escape_movement_items") == "true",
             "escape_refill": formData.get("escape_refill") == "true",
             "escape_enemies_cleared": formData.get("escape_enemies_cleared") == "true",
@@ -519,6 +520,7 @@ function applyQolPreset(preset) {
     applyRadioValue("hazardMarkers", preset.hazard_markers);
     applyRadioValue("motherBrainFight", preset.mother_brain_fight);
     applyRadioValue("supersDouble", preset.supers_double);
+    applyRadioValue("escapeAutosave", preset.escape_autosave);
     applyRadioValue("escapeMovementItems", preset.escape_movement_items);
     applyRadioValue("escapeRefill", preset.escape_refill);
     applyRadioValue("escapeEnemiesCleared", preset.escape_enemies_cleared);

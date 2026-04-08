@@ -145,6 +145,21 @@
 
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#escapeAutosaveModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">Escape auto save</label>
+                                    </div>
+                                    <div id="escapeAutosave" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="escape_autosave" id="escapeAutosaveNo" value="false">
+                                        <label class="btn btn-outline-primary" for="escapeAutosaveNo">No</label>
+                                        <input type="radio" class="btn-check" name="escape_autosave" id="escapeAutosaveYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="escapeAutosaveYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal" data-bs-target="#movementItemsModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -620,6 +635,7 @@
 
 {% include "help/quality/mother_brain_fight.html" %}
 {% include "help/quality/supers_double.html" %}
+{% include "help/quality/escape_autosave.html" %}
 {% include "help/quality/movement_items.html" %}
 {% include "help/quality/escape_refill.html" %}
 {% include "help/quality/enemies_cleared.html" %}
