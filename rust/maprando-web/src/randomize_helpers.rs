@@ -198,6 +198,9 @@ impl SeedHeaderTemplate<'_> {
         if other_settings.enable_major_glitches {
             game_variations.push("Major glitches enabled");
         }
+        if other_settings.all_enemies_respawn {
+            game_variations.push("All enemies respawn");
+        }
         game_variations
     }
 }
