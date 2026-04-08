@@ -49,6 +49,7 @@
     "reserve_backward_transfer": false,
     "enemy_drops": "Vanilla",
     "early_save": false,
+    "ammo_refill_all": false,
     "persist_flash_suit": false,
     "persist_blue_suit": false
 }

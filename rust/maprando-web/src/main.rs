@@ -470,6 +470,7 @@ struct SeedData {
     map_layout: String,
     save_animals: String,
     early_save: bool,
+    ammo_refill_all: bool,
     wall_jump: String,
     vanilla_map: bool,
     ultra_low_qol: bool,
@@ -765,6 +766,7 @@ async fn randomize(
         map_layout: settings.map_layout.clone(),
         save_animals: to_variant_name(&settings.save_animals).unwrap().to_string(),
         early_save: settings.quality_of_life_settings.early_save,
+        ammo_refill_all: settings.quality_of_life_settings.ammo_refill_all,
         wall_jump: to_variant_name(&settings.other_settings.wall_jump)
             .unwrap()
             .to_string(),

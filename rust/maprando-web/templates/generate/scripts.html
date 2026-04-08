@@ -292,6 +292,7 @@ function buildSettingsObject() {
             "reserve_backward_transfer": formData.get("reserve_backward_transfer") == "true",
             "enemy_drops": formData.get("enemy_drops"),
             "early_save": formData.get("early_save") == "true",
+            "ammo_refill_all": formData.get("ammo_refill_all") == "true",
             "persist_flash_suit": formData.get("persist_flash_suit") == "true",
             "persist_blue_suit": formData.get("persist_blue_suit") == "true",
         },
@@ -539,6 +540,7 @@ function applyQolPreset(preset) {
     applyRadioValue("reserveBackwardTransfer", preset.reserve_backward_transfer);
     applyRadioValue("enemyDrops", preset.enemy_drops);
     applyRadioValue("earlySave", preset.early_save);
+    applyRadioValue("ammoRefillAll", preset.ammo_refill_all);
     applyRadioValue("persistFlashSuit", preset.persist_flash_suit);
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);
 }

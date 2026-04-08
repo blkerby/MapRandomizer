@@ -192,6 +192,7 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub enemy_drops: EnemyDrops,
     pub early_save: bool,
+    pub ammo_refill_all: bool,
     pub persist_flash_suit: bool,
     pub persist_blue_suit: bool,
 }
@@ -951,6 +952,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("fast_mother_brain_cutscene") {
         qol_settings.insert("fast_mother_brain_cutscene".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("ammo_refill_all") {
+        qol_settings.insert("ammo_refill_all".to_string(), false.into());
     }
     if !qol_settings.contains_key("enemy_drops") {
         if qol_settings.get("buffed_drops").and_then(|x| x.as_bool()) == Some(false) {

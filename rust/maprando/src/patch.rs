@@ -483,7 +483,6 @@ impl Patcher<'_> {
         } else {
             patches.extend([
                 "vanilla_bugfixes",
-                "missile_refill_all",
                 "decompression",
                 "aim_anything",
                 "fix_kraid_vomit",
@@ -554,6 +553,10 @@ impl Patcher<'_> {
 
         if self.settings.quality_of_life_settings.fast_mother_brain_cutscene {
             patches.push("fast_mother_brain_cutscene");
+        }
+
+        if self.settings.quality_of_life_settings.ammo_refill_all{
+            patches.push("missile_refill_all");
         }
 
         if self.settings.quality_of_life_settings.crash_fixes.preset

@@ -267,6 +267,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             reserve_backward_transfer: false,
             enemy_drops: settings.enemy_drops.unwrap_or(EnemyDrops::Vanilla),
             early_save: false,
+            ammo_refill_all: false,
             persist_flash_suit: false,
             persist_blue_suit: false,
         },
