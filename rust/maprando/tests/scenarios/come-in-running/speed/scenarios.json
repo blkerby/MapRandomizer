@@ -1,0 +1,43 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Come In Running (Speed Booster)",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Come In Running (Blue Booster)",
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Come In Running (Spark Booster)",
+      "globalState": {
+        "items": ["SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Come In Running (No Booster)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

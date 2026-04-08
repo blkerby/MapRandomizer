@@ -1,0 +1,25 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Come In Jumping (Heat Proof)",
+      "globalState": {
+        "items": ["Varia"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Come In Jumping (Heat Run)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 17}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Use Flash Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 0
+      }
+    },
+    {
+      "name": "Fail: Missing Flash Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Cannot Keep Flash Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 1
+      },
+      "fail": true
+    },
+    {
+      "name": "Lose Blue Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 0,
+        "blueSuit": 0
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: Cannot Keep Blue Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 0,
+        "blueSuit": 1
+      },
+      "fail": true
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Not Enough Energy",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 30},
+        "reserves": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Enough Energy (Regular)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 51}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Enough Energy (Reserves)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "reserves": {"remaining": 50}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "reverse": "weak"
+    },
+    {
+      "name": "Enough Energy (Mix)",
+      "globalState": {
+        "maxReserves": 100
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 31},
+        "reserves": {"remaining": 20}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "reverse": "weak"
+    }
+  ]
+}

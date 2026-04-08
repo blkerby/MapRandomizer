@@ -904,11 +904,12 @@ fn test_logic_scenarios() -> Result<()> {
     let base_game_data = GameData::load_minimal(Path::new(".."))?;
     let mut cnt_fail = 0;
     let continue_on_error = env::var("CONTINUE_ON_ERROR") == Ok("1".to_string());
-    for entry in std::fs::read_dir("tests/scenarios")? {
-        let entry = entry?;
-        println!("\n***** {} *****", entry.file_name().display());
+    for entry in glob::glob("tests/scenarios/**/scenarios.json")? {
+        let scenarios_path = entry?;
+        let parent_path = scenarios_path.parent().unwrap();
+        println!("\n***** {} *****", parent_path.display());
 
-        let room_pattern = entry.path().to_str().unwrap().to_owned() + "/room*.json";
+        let room_pattern = parent_path.to_str().unwrap().to_owned() + "/room*.json";
         let mut game_data = base_game_data.clone();
         let num_rooms = game_data.room_ptrs.len();
         game_data.load_rooms(&room_pattern)?;
@@ -924,7 +925,7 @@ fn test_logic_scenarios() -> Result<()> {
             }
         }
 
-        let connections_path = entry.path().join("connections.json");
+        let connections_path = parent_path.join("connections.json");
         let connections_list: ConnectionsList = if connections_path.exists() || num_rooms > 1 {
             let connections_str = std::fs::read_to_string(connections_path.clone())
                 .context(format!("loading {}", connections_path.display()))?;
@@ -936,7 +937,6 @@ fn test_logic_scenarios() -> Result<()> {
             }
         };
 
-        let scenarios_path = entry.path().join("scenarios.json");
         let scenarios_str = std::fs::read_to_string(scenarios_path.clone())
             .context(format!("loading {}", scenarios_path.display()))?;
         let scenarios_list: ScenariosList = serde_json::from_str(&scenarios_str)

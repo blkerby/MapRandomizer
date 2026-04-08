@@ -1,0 +1,246 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Fail: No Heat Protection",
+      "globalState": {
+        "items": ["Morph", "Charge"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Morph",
+      "globalState": {
+        "items": ["Varia", "Charge"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: No Weapons",
+      "globalState": {
+        "items": ["Varia", "Morph"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Minimal Heat-Proof Loadout (Morph)",
+      "globalState": {
+        "items": ["Varia", "Morph", "Charge"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Patience (Charge Only)",
+      "globalState": {
+        "items": ["Varia", "Morph", "Charge"],
+        "disabledTech": ["canBeExtremelyPatient"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Heat-Proof Charge Ice",
+      "globalState": {
+        "items": ["Varia", "Morph", "Charge", "Ice"],
+        "disabledTech": ["canBeExtremelyPatient"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Patience (Heat-Proof Charge Ice)",
+      "globalState": {
+        "items": ["Varia", "Morph", "Charge", "Ice"],
+        "disabledTech": ["canBeVeryPatient"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Minimal Heat-Proof Loadout (Screw)",
+      "globalState": {
+        "items": ["Varia", "ScrewAttack", "Charge"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Minimal Heat-Proof Loadout (Supers)",
+      "globalState": {
+        "items": ["Varia", "Morph"],
+        "maxSupers": 30
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Supers",
+      "globalState": {
+        "items": ["Varia", "Morph"],
+        "maxSupers": 30
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "supers": {"remaining": 29}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Minimal Heat-Proof Loadout (Missiles)",
+      "globalState": {
+        "items": ["Varia", "Morph"],
+        "maxMissiles": 180
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 180}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Missiles",
+      "globalState": {
+        "items": ["Varia", "Morph"],
+        "maxMissiles": 180
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "missiles": {"remaining": 179}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Minimal Heat-Proof Loadout (Power Bombs)",
+      "globalState": {
+        "items": ["Varia", "Morph"],
+        "maxPowerBombs": 45
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 45}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail: Not Enough Power Bombs",
+      "globalState": {
+        "items": ["Varia", "Morph"],
+        "maxPowerBombs": 45
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "powerBombs": {"remaining": 44}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Suitless with Supers",
+      "globalState": {
+        "items": ["Morph"],
+        "maxSupers": 30,
+        "maxEnergy": 499
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 499},
+        "supers": {"remaining": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak",
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: Not Enough Energy (With Supers)",
+      "globalState": {
+        "items": ["Morph"],
+        "maxSupers": 30,
+        "maxEnergy": 399
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 399},
+        "supers": {"remaining": 30}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Suitless with Full Beam",
+      "globalState": {
+        "items": ["Morph", "Charge", "Plasma", "Ice", "Wave"],
+        "maxEnergy": 699
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 699}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "forward": "weak",
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: Not Enough Energy (Suitless with Full Beam)",
+      "globalState": {
+        "items": ["Morph", "Charge", "Plasma", "Ice", "Wave"],
+        "maxEnergy": 599
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 599}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

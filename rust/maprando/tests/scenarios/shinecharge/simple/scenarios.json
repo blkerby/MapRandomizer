@@ -1,0 +1,149 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Shinecharge (Speed Booster)",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Shinecharge (Spark Booster)",
+      "globalState": {
+        "items": ["SparkBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2
+    },
+    {
+      "name": "Fail (Blue Booster)",
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail (Blue Booster, Energy-Free Shinesparks)",
+      "settings": {
+        "energyFreeShinesparks": true
+      },
+      "globalState": {
+        "items": ["BlueBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail (No Booster)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99}
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Runway Too Short",
+      "settings": {
+        "shinechargeTiles": 16
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    },
+    {
+      "name": "Fail: Cannot Carry Flash Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 1
+      },
+      "fail": true
+    },
+    {
+      "name": "Lose Flash Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 0
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: Cannot Carry Blue Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 1
+      },
+      "fail": true
+    },
+    {
+      "name": "Lose Blue Suit",
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 0
+      },
+      "reverse": "weak"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Blue Door",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 1
+    },
+    {
+      "name": "Missile Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "red"}
+      ],
+      "globalState": {
+        "maxMissiles": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 21},
+        "missiles": {"remaining": 5}
+      },
+      "endRoomId": 1,
+      "endNodeId": 1
+    },
+    {
+      "name": "Super Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "green"}
+      ],
+      "globalState": {
+        "maxSupers": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 11},
+        "supers": {"remaining": 1}
+      },
+      "endRoomId": 1,
+      "endNodeId": 1
+    },
+    {
+      "name": "Power Bomb Door",
+      "lockedDoors": [
+        {"roomId": 0, "nodeId": 1, "type": "yellow"}
+      ],
+      "globalState": {
+        "items": ["Morph"],
+        "maxPowerBombs": 5
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 31},
+        "powerBombs": {"remaining": 1}
+      },
+      "endRoomId": 1,
+      "endNodeId": 1
+    }
+  ]
+}

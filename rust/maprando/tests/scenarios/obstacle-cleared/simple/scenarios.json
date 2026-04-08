@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Obstacle Cleared (End with Obstacle Cleared)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "endObstaclesCleared": ["A"]
+    },
+    {
+      "name": "Fail: Obstacle Cleared (End without Obstacle Cleared)",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 0,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

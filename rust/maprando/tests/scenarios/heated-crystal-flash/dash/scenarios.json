@@ -1,0 +1,150 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Dashless",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {
+        "energy": {"remaining": 29},
+        "flashSuit": 1,
+        "blueSuit": 1
+      }
+    },
+    {
+      "name": "Dash",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "flashSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {
+        "energy": {"remaining": 64},
+        "flashSuit": 1
+      }
+    },
+    {
+      "name": "Skip Crystal Flash: Dashless",
+      "globalState": {
+        "items": ["Morph"],
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11},
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {
+        "energy": {"remaining": 29},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11},
+        "flashSuit": 1,
+        "blueSuit": 1
+      }
+    },
+    {
+      "name": "Skip Crystal Flash: Dash",
+      "globalState": {
+        "items": ["Morph"],
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11},
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {
+        "energy": {"remaining": 64},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11},
+        "flashSuit": 1,
+        "blueSuit": 0
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Crystal Flash: Dashless",
+      "globalState": {
+        "items": ["Morph"],
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11},
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {
+        "energy": {"remaining": 74},
+        "flashSuit": 0,
+        "blueSuit": 1
+      },
+      "reverse": "weak"
+    },
+    {
+      "name": "Crystal Flash: Dash",
+      "globalState": {
+        "items": ["Morph"],
+        "maxMissiles": 10,
+        "maxSupers": 10,
+        "maxPowerBombs": 15
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 99},
+        "missiles": {"remaining": 10},
+        "supers": {"remaining": 10},
+        "powerBombs": {"remaining": 11},
+        "flashSuit": 1,
+        "blueSuit": 1
+      },
+      "endRoomId": 0,
+      "endNodeId": 3,
+      "endState": {
+        "energy": {"remaining": 84},
+        "flashSuit": 0,
+        "blueSuit": 0
+      },
+      "reverse": "weak"
+    }
+  ]
+}

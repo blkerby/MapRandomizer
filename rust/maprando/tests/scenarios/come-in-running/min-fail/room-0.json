@@ -1,0 +1,40 @@
+{
+  "$schema": "../../../../../../sm-json-data/schema/m3-room.schema.json",
+  "roomEnvironments": [{"heated": false}],
+  "id": 0,
+  "roomAddress": "0x0000",
+  "name": "Test Room 0",
+  "area": "Test Area",
+  "subarea": "Test Subarea",
+  "mapTileMask": [
+    [1]
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "name": "Exit Node",
+      "nodeType": "door",
+      "nodeSubType": "blue",
+      "doorEnvironments": [{"physics": "air"}],
+      "mapTileMask": [
+        [1]
+      ]
+    }
+  ],
+  "strats": [
+    {
+      "link": [1, 1],
+      "name": "Leave With Runway",
+      "requires": [],
+      "exitCondition": {
+        "leaveWithRunway": {
+          "length": 45,
+          "openEnd": 1,
+          "minExtraRunSpeed": "$5.9"
+        }
+      },
+      "flashSuitChecked": true,
+      "blueSuitChecked": true
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Come In Running",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "Lose Blue Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "reverse": "weak"
+    },
+    {
+      "name": "Fail: Cannot Maintain Blue Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "blueSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "blueSuit": 1
+      },
+      "fail": true
+    },
+    {
+      "name": "Maintain Flash Suit",
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "flashSuit": 2
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "flashSuit": 1
+      }
+    }
+  ]
+}
