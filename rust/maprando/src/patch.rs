@@ -415,11 +415,7 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 
 fn apply_orig_ips_patches(rom: &mut Rom, settings: &RandomizerSettings) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
-    let mut patches: Vec<&'static str> = vec![
-        "mb_barrier_clear",
-        "mb_left_entrance",
-        "gray_doors",
-    ];
+    let mut patches: Vec<&'static str> = vec!["mb_barrier_clear", "mb_left_entrance", "gray_doors"];
     patches.push("hud_expansion_opaque");
 
     match settings.objective_settings.objective_screen {
@@ -446,8 +442,8 @@ impl Patcher<'_> {
             "complementary_suits",
             "disable_map_icons",
             "escape",
-            "tourian_map",  // TODO: check if this is still needed?
-            "no_explosions_before_escape",  // TODO: check if this is still needed?
+            "tourian_map",                 // TODO: check if this is still needed?
+            "no_explosions_before_escape", // TODO: check if this is still needed?
             "sound_effect_disables",
             "title_map_animation",
             "shaktool",
