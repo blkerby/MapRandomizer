@@ -13,7 +13,7 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_80_free_space_start = $80D332 ; springboard for the sub patches.. They all point here for the crash loader / kill samus
+!bank_80_free_space_start = $80D334 ; springboard for the sub patches.. They all point here for the crash loader / kill samus
 !bank_80_free_space_end = $80D340   ; if moving the crash handler base patch then this needs to be changed too.
 
 !bank_85_free_space_start = $85b000 ; 
@@ -23,7 +23,8 @@ incsrc "constants.asm"
 
 ;;; global code. 
 org !crash_toggles  ; default at 80d330, srpringboard follows.
-    dw $0000    ; overwritten by patch.rs 
+    dw $0000    ; overwritten by patch.rs (xmode / yapping_maw / springball / reserve pause)
+    dw $0000    ; too many sprites / future use x 3.
 
 org !bank_80_free_space_start
     jsl bug_dialog
