@@ -1,0 +1,3 @@
+8000 - F4B8 : vanilla game
+F4B8 - F540 : crash_handle_32sprite.asm
+F540 - FFFF : [free]

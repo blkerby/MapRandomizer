@@ -1,5 +1,5 @@
-!bank_85_free_space_start = $85AE20
-!bank_85_free_space_end = $85B000
+!bank_85_free_space_start = $85AD43
+!bank_85_free_space_end = $85AEE0
 
 !bank_82_free_space_start = $82F9E0
 !bank_82_free_space_end = $82FA00
@@ -50,14 +50,14 @@ org $82ACD6
     jsl hook_tanks_dpad_move_to_reserve
     nop
     nop
-assert pc() == $82ACDC
+assert pc() <= $82ACDC
 
 org $82B292
     beq escape
     tax
     dex
     lda $0002,y
-assert pc() == $82B299
+assert pc() <= $82B299
 
 org $82B2A0
 escape:
@@ -82,7 +82,7 @@ extern_arrow_glow_off:
     jsr $ADEF
     rtl
 
-warnpc !bank_82_free_space_end
+assert pc() <= !bank_82_free_space_end
 
 org !bank_85_free_space_start
 
@@ -287,7 +287,7 @@ hook_reserve_tank_refilling:
     clc
     jml $82AF85 ; Return to vanilla function
 
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
 
 ; There's a free spot right here in the vanilla pause BG1 tiles
 org $B6A940

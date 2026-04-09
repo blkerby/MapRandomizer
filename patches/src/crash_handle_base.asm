@@ -16,8 +16,8 @@ incsrc "constants.asm"
 !bank_80_free_space_start = $80D334 ; springboard for the sub patches.. They all point here for the crash loader / kill samus
 !bank_80_free_space_end = $80D340   ; if moving the crash handler base patch then this needs to be changed too.
 
-!bank_85_free_space_start = $85b000 ; 
-!bank_85_free_space_end = $85b5b4
+!bank_85_free_space_start = $85AEE0 ; 
+!bank_85_free_space_end = $85b600
 
 !msg_crash_timer_override = $7EF596 ; temporary variable used for overriding messagebox close delay times during crash box.
 
@@ -139,6 +139,7 @@ new_message_boxes:
     dw $83c5, $825a, yapping_maw_msg    ; 0x43
     dw $83c5, $825a, oob_msg            ; 0x44
     dw $83c5, $825a, xmode_msg          ; 0x45
+    dw $83c5, $825a, reserved_msg       ; 0x46
     dw $0000, $0000, msg_end
 
 table "tables/dialog_chars.tbl",RTL
@@ -172,6 +173,12 @@ xmode_msg:
     dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "   X-MODE TILE COLLISION  ", $000e,$000e,$000e
     dw $000e,$000e,$000e, "COLLIDED WITH A SOLID TILE", $000e,$000e,$000e
+    
+reserved_msg:
+    dw $000e,$000e,$000e, "         FUTURE USE       ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "     -RESERVED MESSAGE-   ", $000e,$000e,$000e
+    dw $000e,$000e,$000e, "                          ", $000e,$000e,$000e
     
 msg_end:
 

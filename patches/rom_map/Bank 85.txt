@@ -13,13 +13,10 @@ $A280 - $A880: map_area.asm
 $A8B0 - $A9B0: hud_expansion_opaque.asm
 $A9B0 - $AA00: sand_clamp.asm
 $AA00 - $AAA0: pause_menu_objectives.asm
-$AAA0 - $AB00: [FREE]
+$AAA0 - $AB00: crash_handle_yapping.asm
 $AB00 - $ACA0: map_area.asm
 $ACA0 - $AD00: load_flash_suit
 $AD00 - $AD43: crash_handle_springball.asm
-$AD43 - $AE20: [FREE]
-$AE20 - $B000: reserve_backward_fill.asm
-$B000 - $B5B4: crash_handle_base.asm
-$B5B4 - $B5F1: crash_handle_yapping.asm
-$B5F1 - $B600: [free]
+$AD43 - $AEE0: reserve_backward_fill.asm
+$AEE0 - $B600: crash_handle_base.asm
 $B600 - $BA00: map_area.asm
