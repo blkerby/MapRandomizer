@@ -1,0 +1,41 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Enough Frames",
+      "settings": {
+        "shinechargeLeniencyFrames": 30
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "endState": {
+        "energy": {"remaining": 29}
+      }
+    },
+    {
+      "name": "Fail: Not Enough Frames",
+      "settings": {
+        "shinechargeLeniencyFrames": 31
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 39}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2,
+      "fail": true
+    }
+  ]
+}

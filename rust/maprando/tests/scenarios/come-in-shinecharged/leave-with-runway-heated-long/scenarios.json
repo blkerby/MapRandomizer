@@ -1,0 +1,37 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Full Length Shinecharge (No Shortcharge)",
+      "settings": {
+        "shinechargeTiles": 32
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 57}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2
+    },
+    {
+      "name": "15-tile Shortcharge",
+      "settings": {
+        "shinechargeTiles": 15
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 45}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2
+    }
+  ]
+}

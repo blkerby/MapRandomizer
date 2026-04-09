@@ -59,6 +59,12 @@ use strum::VariantNames;
 // difficulty settings where some item locations may never be accessible (e.g. Main Street Missile).
 const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
 
+// Amount of frames needed to turn around at the end of a runway and moonwalk into position at the edge.
+const TURNAROUND_MOONWALK_FRAMES: Capacity = 20;
+
+// Amount of frames needed to reach a transition after shinecharging (without sliding through while crouching).
+const SHINECHARGE_TRANSITION_FRAMES: Capacity = 10;
+
 #[derive(Clone, Serialize, Deserialize, Debug, PartialEq)]
 pub struct ItemPriorityGroup {
     pub priority: KeyItemPriority,
@@ -2152,18 +2158,18 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
-                reqs.push(Requirement::ShineChargeFrames(10.into())); // Assume shinecharge is obtained 10 frames before going through door.
+                reqs.push(Requirement::ShineChargeFrames(SHINECHARGE_TRANSITION_FRAMES.into()));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
                 if *heated {
                     if *from_exit_node {
-                        let runway_length = f32::min(33.0, effective_length);
-                        let run_frames = compute_run_frames(runway_length);
-                        let heat_frames_1 = run_frames + 20;
-                        let heat_frames_2 = Capacity::max(85, run_frames);
+                        // In the other room, we are start at the door, move away from it, then double back while shortcharging.
+                        // So use the minimal amount of runway based on shortcharge skill.
+                        let heat_frames_1 = compute_run_frames(self.difficulty.shine_charge_tiles);
+                        let heat_frames_2 = Capacity::max(85, heat_frames_1);
                         reqs.push(Requirement::HeatFrames(
-                            (heat_frames_1 + heat_frames_2 + 15).into(),
+                            (heat_frames_1 + TURNAROUND_MOONWALK_FRAMES + heat_frames_2 + SHINECHARGE_TRANSITION_FRAMES).into(),
                         ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
