@@ -28,17 +28,17 @@ sprite_crash:
     bne sprite_crash
     lda $7eef78
     beq .skip
+    txa
+    sta $7eef78
     lda !crash_toggles2
     and #$000f
     beq .default
-    cmp #$0002
-    beq .fix
+    ;cmp #$0002
+    ;beq .fix
 .warn
     ;lda #$0046          ; bug ID [cannot display messagebox in door transition and it would be messy to implement otherwise] - id46 reserved for other uses
     ;jsl !bug_dialog
 .fix
-    txa
-    sta $7eef78
 .skip    
     rtl
 .default
