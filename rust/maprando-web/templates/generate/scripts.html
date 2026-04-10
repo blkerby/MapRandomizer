@@ -274,6 +274,7 @@ function buildSettingsObject() {
             "fast_saves": formData.get("fast_saves") == "true",
             "fast_baby_cutscene": formData.get("fast_baby_cutscene") == "true",
             "fast_mother_brain_cutscene": formData.get("fast_mother_brain_cutscene") == "true",
+            "fast_decompression": formData.get("fast_decompression") == "true",
             "respin": formData.get("respin") == "true",
             "infinite_space_jump": formData.get("infinite_space_jump") == "true",
             "momentum_conservation": formData.get("momentum_conservation") == "true",
@@ -533,6 +534,7 @@ function applyQolPreset(preset) {
     applyRadioValue("fastSaves", preset.fast_saves);
     applyRadioValue("fastBabyCutscene", preset.fast_baby_cutscene);
     applyRadioValue("fastMotherBrainCutscene", preset.fast_mother_brain_cutscene);
+    applyRadioValue("fastDecompression", preset.fast_decompression);
     applyRadioValue("fanfares", preset.fanfares);
     applyRadioValue("respin", preset.respin);
     applyRadioValue("infiniteSpaceJump", preset.infinite_space_jump);

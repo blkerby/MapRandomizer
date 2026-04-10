@@ -31,6 +31,7 @@
     "fast_saves": false,
     "fast_baby_cutscene": false,
     "fast_mother_brain_cutscene": false,
+    "fast_decompression": false,
     "respin": false,
     "infinite_space_jump": false,
     "fanfares": "Vanilla",

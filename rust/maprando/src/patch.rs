@@ -482,7 +482,6 @@ impl Patcher<'_> {
         } else {
             patches.extend([
                 "vanilla_bugfixes",
-                "decompression",
                 "aim_anything",
                 "fix_kraid_vomit",
                 "fix_kraid_hud",
@@ -555,6 +554,10 @@ impl Patcher<'_> {
         
         if self.settings.quality_of_life_settings.fast_saves {
             patches.push("fast_saves");
+        }
+
+        if self.settings.quality_of_life_settings.fast_decompression {
+            patches.push("decompression")
         }
 
         if self.settings.quality_of_life_settings.fast_baby_cutscene {

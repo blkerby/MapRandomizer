@@ -31,6 +31,7 @@
     "fast_saves": true,
     "fast_baby_cutscene": true,
     "fast_mother_brain_cutscene": true,
+    "fast_decompression": true,
     "respin": true,
     "infinite_space_jump": true,
     "momentum_conservation": true,

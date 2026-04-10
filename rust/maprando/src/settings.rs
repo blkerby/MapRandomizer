@@ -176,6 +176,7 @@ pub struct QualityOfLifeSettings {
     pub fast_saves: bool,
     pub fast_baby_cutscene: bool,
     pub fast_mother_brain_cutscene: bool,
+    pub fast_decompression: bool,
     pub fanfares: Fanfares,
     // Samus control
     pub respin: bool,
@@ -980,6 +981,9 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
     if !qol_settings.contains_key("fast_mother_brain_cutscene") {
         qol_settings.insert("fast_mother_brain_cutscene".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("fast_decompression") {
+        qol_settings.insert("fast_decompression".to_string(), false.into());
     }
     if !qol_settings.contains_key("camera_fixes") {
         qol_settings.insert("camera_fixes".to_string(), false.into());

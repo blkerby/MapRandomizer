@@ -243,6 +243,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             fast_saves: false,
             fast_baby_cutscene: false,
             fast_mother_brain_cutscene: false,
+            fast_decompression: false,
             fanfares: maprando::settings::Fanfares::Vanilla,
             respin: false,
             infinite_space_jump: false,
