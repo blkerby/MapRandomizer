@@ -4631,7 +4631,8 @@
             "spring_ball": "Death",
             "yapping_maw": "Death",
             "auto_reserve": "Death",
-            "x_mode": "Death"
+            "x_mode": "Death",
+            "sprite_overflow": "Silent"
         },
         "fix_blue_echos": true,
         "etank_refill": "Full",

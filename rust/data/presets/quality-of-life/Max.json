@@ -43,7 +43,8 @@
         "spring_ball": "Silent",
         "yapping_maw": "Silent",
         "auto_reserve": "Silent",
-        "x_mode": "Silent"
+        "x_mode": "Silent",
+        "sprite_overflow": "Silent"
     },
     "fix_blue_echos": true,
     "energy_station_reserves": true,

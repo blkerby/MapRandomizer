@@ -593,6 +593,10 @@ impl Patcher<'_> {
             patches.push("crash_handle_xmode");
         }
 
+        if fixes.sprite_overflow != FixMode::Crash {
+            patches.push("crash_handle_32sprite")
+        }
+
         match self.settings.other_settings.wall_jump {
             WallJump::Vanilla => {}
             WallJump::Collectible => {
@@ -1037,14 +1041,20 @@ impl Patcher<'_> {
 
     pub fn write_crash_handler(&mut self, crash_fixes: &CrashFixes) -> Result<()> {
         let crash_handler = 0x80D330;
-
+        let crash_handler2 = 0x80D332;
         let word = crash_fixes.to_word();
+        let word2 = crash_fixes.to_secondword();
         if word == 0x3333 {
             return Ok(()); // no need to patch the rom if the crash handler isn't applied at all
         }
         let bytes = word.to_le_bytes();
         self.rom.write_n(snes2pc(crash_handler), &bytes)?;
 
+        if word2 == 0x3333 {
+            return Ok(()); // no need to patch the rom if the crash handler isn't applied at all
+        }
+        let bytes2 = word2.to_le_bytes();
+        self.rom.write_n(snes2pc(crash_handler2), &bytes2)?;
         Ok(())
     }
 

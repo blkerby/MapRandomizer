@@ -572,6 +572,7 @@ pub struct CrashFixes {
     pub yapping_maw: FixMode,
     pub auto_reserve: FixMode,
     pub x_mode: FixMode,
+    pub sprite_overflow: FixMode,
 }
 
 impl CrashFixes {
@@ -583,12 +584,19 @@ impl CrashFixes {
             CrashFixesPreset::Crash => FixMode::Crash,
         };
 
+        let sprite_overflow = match preset {
+            CrashFixesPreset::Death => FixMode::Silent,
+            CrashFixesPreset::Warn => FixMode::Silent,
+            CrashFixesPreset::Silent => FixMode::Silent,
+            CrashFixesPreset::Crash => FixMode::Crash,
+        };
         CrashFixes {
             preset: Some(preset),
             spring_ball: mode,
             yapping_maw: mode,
             auto_reserve: mode,
             x_mode: mode,
+            sprite_overflow,
         }
     }
 
@@ -597,6 +605,13 @@ impl CrashFixes {
             | ((self.yapping_maw as u16) << 8)
             | ((self.auto_reserve as u16) << 4)
             | (self.spring_ball as u16)
+    }
+
+    pub fn to_secondword(&self) -> u16 {
+        (3 << 12)   //reserved
+        | (3 << 8)  //reserved
+        | (3 << 4)  //reserved
+        | (self.sprite_overflow as u16)
     }
 }
 
@@ -979,7 +994,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
             qol_settings.insert("enemy_drops".to_string(), "Buffed".into());
         }
     }
-    
+
     match qol_settings.get_mut("crash_fixes") {
         None => {
             qol_settings.insert(

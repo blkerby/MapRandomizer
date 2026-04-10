@@ -287,6 +287,7 @@ function buildSettingsObject() {
                 "yapping_maw": formData.get("crash_fixes_yappingmaw"),
                 "auto_reserve": formData.get("crash_fixes_autoreserve"),
                 "x_mode": formData.get("crash_fixes_xmode"),
+                "sprite_overflow": formData.get("crash_fixes_spriteoverflow"),
             },
             "fix_blue_echos": formData.get("fix_blue_echos") == "true",
             "etank_refill": formData.get("etank_refill"),
@@ -820,24 +821,28 @@ function areaAssignmentChanged() {
             document.getElementById("crashFixesYappingmawCrash").checked = true;
             document.getElementById("crashFixesAutoreserveCrash").checked = true;
             document.getElementById("crashFixesXmodeCrash").checked = true;
+            document.getElementById("crashFixesSpriteOverflowCrash").checked = true;
         } else if (preset == "Death") {
             document.getElementById("crashFixesPresetDeath").checked = true;
             document.getElementById("crashFixesSpringballDeath").checked = true;
             document.getElementById("crashFixesYappingmawDeath").checked = true;
             document.getElementById("crashFixesAutoreserveDeath").checked = true;
             document.getElementById("crashFixesXmodeDeath").checked = true;
+            document.getElementById("crashFixesSpriteOverflowSilent").checked = true;
         } else if (preset == "Warn") {
             document.getElementById("crashFixesPresetWarn").checked = true;
             document.getElementById("crashFixesSpringballWarn").checked = true;
             document.getElementById("crashFixesYappingmawWarn").checked = true;
             document.getElementById("crashFixesAutoreserveWarn").checked = true;
             document.getElementById("crashFixesXmodeWarn").checked = true;
+            document.getElementById("crashFixesSpriteOverflowSilent").checked = true;
         } else if (preset == "Silent") {
             document.getElementById("crashFixesPresetSilent").checked = true;
             document.getElementById("crashFixesSpringballSilent").checked = true;
             document.getElementById("crashFixesYappingmawSilent").checked = true;
             document.getElementById("crashFixesAutoreserveSilent").checked = true;
             document.getElementById("crashFixesXmodeSilent").checked = true;
+            document.getElementById("crashFixesSpriteOverflowSilent").checked = true;
         }
 
     }
@@ -847,6 +852,7 @@ function applyCrashFixes(preset) {
     applyRadioValue("crashFixesYappingmaw", preset.yapping_maw);
     applyRadioValue("crashFixesAutoreserve", preset.auto_reserve);
     applyRadioValue("crashFixesXmode", preset.x_mode);
+    applyRadioValue("crashFixesSpriteOverflow", preset.sprite_overflow);
     applyCrashFixesPreset(preset.preset);
 }
 
