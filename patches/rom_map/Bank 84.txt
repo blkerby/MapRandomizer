@@ -1,6 +1,6 @@
 $858C - $85B2: vanilla_bugfixes.asm (unused vanilla code, repurposed for main street save station plm check.)
 $EFD3 - $EFD7: load_plms_early.asm
-$EFD7 - $F000: vanilla_bugfixes.asm
+$EFD7 - $F000: vanilla_camerafixes.asm
 $F000 - $F0E2: walljump_plm.asm
 $F0E2 - $F28B: split_speed_plm.asm
 $F28B - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)
