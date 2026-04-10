@@ -415,11 +415,7 @@ pub fn apply_ips_patch(rom: &mut Rom, patch_path: &Path) -> Result<()> {
 
 fn apply_orig_ips_patches(rom: &mut Rom, settings: &RandomizerSettings) -> Result<()> {
     let patches_dir = Path::new("../patches/ips/");
-    let mut patches: Vec<&'static str> = vec![
-        "mb_barrier_clear",
-        "mb_left_entrance",
-        "gray_doors",
-    ];
+    let mut patches: Vec<&'static str> = vec!["mb_barrier_clear", "mb_left_entrance", "gray_doors"];
     patches.push("hud_expansion_opaque");
 
     match settings.objective_settings.objective_screen {
@@ -446,8 +442,8 @@ impl Patcher<'_> {
             "complementary_suits",
             "disable_map_icons",
             "escape",
-            "tourian_map",  // TODO: check if this is still needed?
-            "no_explosions_before_escape",  // TODO: check if this is still needed?
+            "tourian_map",                 // TODO: check if this is still needed?
+            "no_explosions_before_escape", // TODO: check if this is still needed?
             "sound_effect_disables",
             "title_map_animation",
             "shaktool",
@@ -551,7 +547,7 @@ impl Patcher<'_> {
         if self.settings.quality_of_life_settings.fix_blue_echos {
             patches.push("fix_blue_echos")
         }
-        
+
         if self.settings.quality_of_life_settings.fast_saves {
             patches.push("fast_saves");
         }
@@ -564,11 +560,15 @@ impl Patcher<'_> {
             patches.push("fast_big_boy_cutscene");
         }
 
-        if self.settings.quality_of_life_settings.fast_mother_brain_cutscene {
+        if self
+            .settings
+            .quality_of_life_settings
+            .fast_mother_brain_cutscene
+        {
             patches.push("fast_mother_brain_cutscene");
         }
 
-        if self.settings.quality_of_life_settings.ammo_refill_all{
+        if self.settings.quality_of_life_settings.ammo_refill_all {
             patches.push("missile_refill_all");
         }
 
@@ -1769,10 +1769,10 @@ impl Patcher<'_> {
 
         // Disable demo (by overwriting the branch on the timer reaching zero):
         self.rom.write_n(snes2pc(0x8B9F2C), &[0x80, 0x0A])?; // BRA $0A
-        
+
         if self.settings.quality_of_life_settings.camera_fixes {
-        // In Kraid's room, no longer restrict Samus X position to left screen:
-        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS
+            // In Kraid's room, no longer restrict Samus X position to left screen:
+            self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS
         }
 
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):

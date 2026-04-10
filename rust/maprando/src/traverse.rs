@@ -1794,7 +1794,9 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        Requirement::AmmoStationRefillAll => (cx.settings.quality_of_life_settings.ammo_refill_all).into(),
+        Requirement::AmmoStationRefillAll => {
+            (cx.settings.quality_of_life_settings.ammo_refill_all).into()
+        }
         Requirement::EnergyStationRefill => {
             local.energy = ResourceLevel::full_energy(cx.reverse).into();
             local.farm_baseline_energy = local.energy;
