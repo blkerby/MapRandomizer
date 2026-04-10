@@ -187,7 +187,7 @@ org $80B0FF
     LDA [$44], Y
     STA $4D
 
-warnpc $80B119
+assert pc() <= $80B119
 
 org $80B119; : Later JSL start if 4C (target address) is specified
 {;regular decompression
@@ -389,9 +389,12 @@ print "vram: $",pc
 
 }
 
-; We don't care if we overwrite some of the "failed NTSC/PAL check" tilemap.
+; xxxx We don't care if we overwrite some of the "failed NTSC/PAL check" tilemap. xxxxx
+; the failed NTSC/PAL check is now used by the ROM integrity check. The tilemap for the SRAM mapping is unused so if this needs more space, move the tilemap for the ROM
+; check higher up to create space.
+
 print PC
-warnpc $80BC37
+assert pc() <= $80B437
 
 org !bank_80_free_space_start
 
@@ -530,4 +533,4 @@ unpause_hook:
 .done:
     rts
 
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
