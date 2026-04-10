@@ -45,6 +45,7 @@ sprite_crash:
     ;lda #$0046          ; bug ID [cannot display messagebox in door transition and it would be messy to implement otherwise] - id46 reserved for other uses
     ;jsl !bug_dialog
     jsl !kill_samus
+    stz $05f5 ; enable sounds
     rtl
 
 assert pc() <= !bank_b4_free_space_end
