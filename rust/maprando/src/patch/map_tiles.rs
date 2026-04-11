@@ -2444,19 +2444,21 @@ impl<'a> MapPatcher<'a> {
             } else {
                 tile.interior = get_item_interior(item, self.settings);
                 self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                if self.customize_settings.item_dot_change == ItemDotChange::Fade {
-                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = true;
-                    self.set_room_tile(room_id, x, y, tile.clone());
-                }
-                if self.customize_settings.item_dot_change == ItemDotChange::Disappear {
-                    tile.interior = MapTileInterior::Empty;
-                    self.set_room_tile(room_id, x, y, tile.clone());
-                }
-                if self.customize_settings.item_dot_change == ItemDotChange::Disabled {
-                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                    tile.faded = false;
-                    self.set_room_tile(room_id, x, y, tile.clone());
+                match self.customize_settings.item_dot_change {
+                    ItemDotChange::Fade => {
+                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                        tile.faded = true;
+                        self.set_room_tile(room_id, x, y, tile.clone());
+                    }
+                    ItemDotChange::Disappear => {
+                        tile.interior = MapTileInterior::Empty;
+                        self.set_room_tile(room_id, x, y, tile.clone());
+                    }
+                    ItemDotChange::Stay => {
+                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                        tile.faded = false;
+                        self.set_room_tile(room_id, x, y, tile.clone());
+                    }
                 }
             }
         }

@@ -47,7 +47,7 @@
         "x_mode": "Death",
         "sprite_overflow": "Silent"
     },
-    "fix_blue_echos": true,
+    "fix_blue_echoes": true,
     "energy_station_reserves": true,
     "etank_refill": "Full",
     "disableable_etanks": "Standard",

@@ -187,7 +187,7 @@ pub struct QualityOfLifeSettings {
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
     pub crash_fixes: CrashFixes,
-    pub fix_blue_echos: bool,
+    pub fix_blue_echoes: bool,
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
@@ -959,7 +959,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
     }
     if !qol_settings.contains_key("hazard_markers") {
-        qol_settings.insert("hazard_markers".to_string(), false.into());
+        qol_settings.insert("hazard_markers".to_string(), true.into());
     }
     if !qol_settings.contains_key("persist_flash_suit") {
         qol_settings.insert("persist_flash_suit".to_string(), false.into());
@@ -968,28 +968,28 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
     }
     if !qol_settings.contains_key("escape_autosave") {
-        qol_settings.insert("escape_autosave".to_string(), false.into());
+        qol_settings.insert("escape_autosave".to_string(), true.into());
     }
     if !qol_settings.contains_key("fast_saves") {
-        qol_settings.insert("fast_saves".to_string(), false.into());
+        qol_settings.insert("fast_saves".to_string(), true.into());
     }
-    if !qol_settings.contains_key("fix_blue_echos") {
-        qol_settings.insert("fix_blue_echos".to_string(), false.into());
+    if !qol_settings.contains_key("fix_blue_echoes") {
+        qol_settings.insert("fix_blue_echoes".to_string(), true.into());
     }
     if !qol_settings.contains_key("fast_baby_cutscene") {
-        qol_settings.insert("fast_baby_cutscene".to_string(), false.into());
+        qol_settings.insert("fast_baby_cutscene".to_string(), true.into());
     }
     if !qol_settings.contains_key("fast_mother_brain_cutscene") {
-        qol_settings.insert("fast_mother_brain_cutscene".to_string(), false.into());
+        qol_settings.insert("fast_mother_brain_cutscene".to_string(), true.into());
     }
     if !qol_settings.contains_key("fast_decompression") {
-        qol_settings.insert("fast_decompression".to_string(), false.into());
+        qol_settings.insert("fast_decompression".to_string(), true.into());
     }
     if !qol_settings.contains_key("camera_fixes") {
-        qol_settings.insert("camera_fixes".to_string(), false.into());
+        qol_settings.insert("camera_fixes".to_string(), true.into());
     }
     if !qol_settings.contains_key("ammo_refill_all") {
-        qol_settings.insert("ammo_refill_all".to_string(), false.into());
+        qol_settings.insert("ammo_refill_all".to_string(), true.into());
     }
     if !qol_settings.contains_key("enemy_drops") {
         if qol_settings.get("buffed_drops").and_then(|x| x.as_bool()) == Some(false) {

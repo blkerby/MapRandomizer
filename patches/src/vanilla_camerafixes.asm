@@ -5,7 +5,7 @@
 ;;; Some vanilla bugfixes
 ;;; compile with asar
 
-;;; Vanilla Camera fixes (formally part of vanilla_bugfixes.asm)
+;;; Vanilla Camera fixes (formerly part of vanilla_bugfixes.asm)
 
 arch snes.cpu
 lorom
@@ -57,9 +57,9 @@ assert pc() <= !bank_80_free_space_end
 
 org $80a27a
     lda #$a29b
-    
 
-; (Maridia Tube Fix - written by AmoebaOfDoom) 
+
+; (Maridia Tube Fix - written by AmoebaOfDoom)
 ;patches horizontal PLM updates to DMA tiles even when the PLM is above the screen if part of it is on the screen
 
 org $848DA0
@@ -85,7 +85,7 @@ org $848E2D
 org $84919A;918E
     BRANCH_NEXT_DRAW_ENTRY:
 
-org !bank_84_free_space_start 
+org !bank_84_free_space_start
 SkipEntry:
     LDA $0000,y
     ASL

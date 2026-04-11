@@ -581,19 +581,19 @@
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
-                                            data-bs-target="#fixBlueEchosModal">
+                                            data-bs-target="#fixBlueEchoesModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
-                                        <label for="preset">Fix blue speed echos</label>
+                                        <label for="preset">Fix blue speed echoes</label>
                                     </div>
-                                    <div id="fixBlueEchos" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fix_blue_echos" id="fixBlueEchosNo"
-                                            value="false" checked>
-                                        <label class="btn btn-outline-danger" for="fixBlueEchosNo"><i
+                                    <div id="fixBlueEchoes" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="fix_blue_echoes" id="fixBlueEchoesNo"
+                                            value="false">
+                                        <label class="btn btn-outline-danger" for="fixBlueEchoesNo"><i
                                                 class="bi bi-exclamation-triangle"></i> No</label>
-                                        <input type="radio" class="btn-check" name="fix_blue_echos" id="fixBlueEchosYes"
-                                            value="true">
-                                        <label class="btn btn-outline-primary" for="fixBlueEchosYes">Yes</label>
+                                        <input type="radio" class="btn-check" name="fix_blue_echoes" id="fixBlueEchoesYes"
+                                            value="true" checked>
+                                        <label class="btn btn-outline-primary" for="fixBlueEchoesYes">Yes</label>
                                     </div>
                                 </div>
                             </div>
@@ -604,27 +604,23 @@
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card m-2">
-                            <div class="card-header">Energy and reserves</div>
+                            <div class="card-header">Ammo, energy, and reserves</div>
                             <div class="card-body ps-1 pe-3 py-0">
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
-                                            data-bs-target="#etankRefillModal">
+                                            data-bs-target="#ammoRefillAllModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
-                                        <label for="preset">E-Tank energy refill</label>
+                                        <label for="preset">Ammo stations refill all ammo types</label>
                                     </div>
-                                    <div id="etankRefill" class="col-4 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="etank_refill"
-                                            id="etankRefillDisabled" value="Disabled">
-                                        <label class="btn btn-outline-primary"
-                                            for="etankRefillDisabled">Disabled</label>
-                                        <input type="radio" class="btn-check" name="etank_refill"
-                                            id="etankRefillVanilla" value="Vanilla" checked>
-                                        <label class="btn btn-outline-primary" for="etankRefillVanilla">Vanilla</label>
-                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillFull"
-                                            value="Full">
-                                        <label class="btn btn-outline-primary" for="etankRefillFull">Full</label>
+                                    <div id="ammoRefillAll" class="col-2 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="ammo_refill_all"
+                                            id="ammoRefillAllNo" value="false">
+                                        <label class="btn btn-outline-primary" for="ammoRefillAllNo">No</label>
+                                        <input type="radio" class="btn-check" name="ammo_refill_all"
+                                            id="ammoRefillAllYes" value="true" checked>
+                                        <label class="btn btn-outline-primary" for="ammoRefillAllYes">Yes</label>
                                     </div>
                                 </div>
 
@@ -644,6 +640,28 @@
                                             id="energyStationReservesYes" value="true">
                                         <label class="btn btn-outline-primary"
                                             for="energyStationReservesYes">Yes</label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#etankRefillModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="preset">E-Tank energy refill</label>
+                                    </div>
+                                    <div id="etankRefill" class="col-4 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="etank_refill"
+                                            id="etankRefillDisabled" value="Disabled">
+                                        <label class="btn btn-outline-primary"
+                                            for="etankRefillDisabled">Disabled</label>
+                                        <input type="radio" class="btn-check" name="etank_refill"
+                                            id="etankRefillVanilla" value="Vanilla" checked>
+                                        <label class="btn btn-outline-primary" for="etankRefillVanilla">Vanilla</label>
+                                        <input type="radio" class="btn-check" name="etank_refill" id="etankRefillFull"
+                                            value="Full">
+                                        <label class="btn btn-outline-primary" for="etankRefillFull">Full</label>
                                     </div>
                                 </div>
 
@@ -742,24 +760,6 @@
                                 <div class="form-group row my-3">
                                     <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
-                                            data-bs-target="#ammoRefillAllModal">
-                                            <i class="bi bi-question-circle"></i>
-                                        </button>
-                                        <label for="preset">Ammo stations refill all ammo types</label>
-                                    </div>
-                                    <div id="ammoRefillAll" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="ammo_refill_all"
-                                            id="ammoRefillAllNo" value="false">
-                                        <label class="btn btn-outline-primary" for="ammoRefillAllNo">No</label>
-                                        <input type="radio" class="btn-check" name="ammo_refill_all"
-                                            id="ammoRefillAllYes" value="true" checked>
-                                        <label class="btn btn-outline-primary" for="ammoRefillAllYes">Yes</label>
-                                    </div>
-                                </div>
-
-                                <div class="form-group row my-3">
-                                    <div class="col-lg-6 col-xl-5 ml-0 my-1 align-items-center">
-                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
                                             data-bs-target="#persistFlashSuitModal">
                                             <i class="bi bi-question-circle"></i>
                                         </button>
@@ -852,7 +852,7 @@
 {% include "help/quality/acid_chozo.html" %}
 {% include "help/quality/remove_climb_lava.html" %}
 {% include "help/quality/crash_fixes.html" %}
-{% include "help/quality/fix_blue_echos.html" %}
+{% include "help/quality/fix_blue_echoes.html" %}
 
 {% include "help/quality/energy_station_reserves.html" %}
 {% include "help/quality/etank_refill.html" %}

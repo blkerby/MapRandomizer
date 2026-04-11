@@ -544,8 +544,8 @@ impl Patcher<'_> {
             patches.push("vanilla_camerafixes");
         }
 
-        if self.settings.quality_of_life_settings.fix_blue_echos {
-            patches.push("fix_blue_echos")
+        if self.settings.quality_of_life_settings.fix_blue_echoes {
+            patches.push("fix_blue_echoes")
         }
 
         if self.settings.quality_of_life_settings.fast_saves {
@@ -1047,15 +1047,8 @@ impl Patcher<'_> {
         let crash_handler2 = 0x80D332;
         let word = crash_fixes.to_word();
         let word2 = crash_fixes.to_secondword();
-        if word == 0x3333 {
-            return Ok(()); // no need to patch the rom if the crash handler isn't applied at all
-        }
         let bytes = word.to_le_bytes();
         self.rom.write_n(snes2pc(crash_handler), &bytes)?;
-
-        if word2 == 0x3333 {
-            return Ok(()); // no need to patch the rom if the crash handler isn't applied at all
-        }
         let bytes2 = word2.to_le_bytes();
         self.rom.write_n(snes2pc(crash_handler2), &bytes2)?;
         Ok(())

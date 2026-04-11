@@ -290,7 +290,7 @@ function buildSettingsObject() {
                 "x_mode": formData.get("crash_fixes_xmode"),
                 "sprite_overflow": formData.get("crash_fixes_spriteoverflow"),
             },
-            "fix_blue_echos": formData.get("fix_blue_echos") == "true",
+            "fix_blue_echoes": formData.get("fix_blue_echoes") == "true",
             "etank_refill": formData.get("etank_refill"),
             "energy_station_reserves": formData.get("energy_station_reserves") == "true",
             "disableable_etanks": formData.get("disableable_etanks"),
@@ -543,7 +543,7 @@ function applyQolPreset(preset) {
     applyRadioValue("acidChozo", preset.acid_chozo);
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
     applyCrashFixes(preset.crash_fixes);
-    applyRadioValue("fixBlueEchos", preset.fix_blue_echos);
+    applyRadioValue("fixBlueEchoes", preset.fix_blue_echoes);
     applyRadioValue("etankRefill", preset.etank_refill);
     applyRadioValue("energyStationReserves", preset.energy_station_reserves);
     applyRadioValue("disableableETanks", preset.disableable_etanks);
