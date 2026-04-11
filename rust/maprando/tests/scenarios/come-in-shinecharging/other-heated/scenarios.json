@@ -1,0 +1,21 @@
+{
+  "$schema": "../../../schema/scenarios.schema.json",
+  "scenarios": [
+    {
+      "name": "Speed Booster",
+      "settings": {
+        "shinechargeTiles": 13.75
+      },
+      "globalState": {
+        "items": ["SpeedBooster"]
+      },
+      "startRoomId": 0,
+      "startNodeId": 1,
+      "startState": {
+        "energy": {"remaining": 19}
+      },
+      "endRoomId": 1,
+      "endNodeId": 2
+    }
+  ]
+}

@@ -62,6 +62,9 @@ const KEY_ITEM_FINISH_THRESHOLD: usize = 20;
 // Amount of frames needed to turn around at the end of a runway and moonwalk into position at the edge.
 const TURNAROUND_MOONWALK_FRAMES: Capacity = 20;
 
+// Amount of frames needed to stop on a dime and position before resuming moving on a runway.
+const STOP_POSITION_FRAMES: Capacity = 12;
+
 // Amount of frames needed to reach a transition after shinecharging (without sliding through while crouching).
 const SHINECHARGE_TRANSITION_FRAMES: Capacity = 10;
 
@@ -658,7 +661,9 @@ fn compute_shinecharge_frames(
             - initial_speed)
             / acceleration;
     let other_time = other_time.ceil() as Capacity;
-    (other_time, total_time as Capacity - other_time)
+    // Add 10 frames of lenience to other_time, to account for inexactness in our calculations,
+    // in particular how stutters can cause more time to be spent in the other room.
+    (other_time + 10, total_time as Capacity - other_time)
 }
 
 impl<'a> Preprocessor<'a> {
@@ -1132,12 +1137,11 @@ impl<'a> Preprocessor<'a> {
                 }
                 if *heated {
                     let heat_frames = if *from_exit_node {
-                        compute_run_frames(min_tiles) * 2 + 20
+                        compute_run_frames(min_tiles) * 2 + TURNAROUND_MOONWALK_FRAMES
                     } else if effective_length > max_tiles {
-                        // 12 heat frames to position after stopping on a dime, before resuming running
                         compute_run_frames(effective_length - max_tiles)
                             + compute_run_frames(max_tiles)
-                            + 12
+                            + STOP_POSITION_FRAMES
                     } else {
                         compute_run_frames(effective_length)
                     };
@@ -1213,28 +1217,26 @@ impl<'a> Preprocessor<'a> {
             // Runway in the exiting room starts and ends at the door so we need to run both directions:
             if entrance_heated && exit_heated {
                 // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room.
-                // But since the shortcharge difficulty is not known here, we conservatively assume up to 33 tiles
-                // of the combined runway may need to be used. (TODO: Instead add a Requirement enum case to handle this more accurately.)
                 let other_runway_length =
-                    f32::max(0.0, f32::min(exit_length, 33.0 - entrance_length));
-                let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                    f32::max(0.0, f32::min(exit_length, self.difficulty.heated_shine_charge_tiles - entrance_length));
+                let heat_frames_1 = compute_run_frames(other_runway_length) + TURNAROUND_MOONWALK_FRAMES;
                 let heat_frames_2 = Capacity::max(
                     85,
                     compute_run_frames(other_runway_length + entrance_length),
                 );
                 // Add 5 lenience frames (partly to account for the possibility of some inexactness in our calculations)
                 total_heat_frames += heat_frames_1 + heat_frames_2 + 5;
-            } else if !entrance_heated && exit_heated {
+            } else if entrance_heated && !exit_heated {
                 // Only the destination room is heated. Heat frames are optimized by using the full runway in
                 // the source room.
                 let (_, heat_frames) = compute_shinecharge_frames(exit_length, entrance_length);
                 total_heat_frames += heat_frames + 5;
-            } else if entrance_heated && !exit_heated {
+            } else if !entrance_heated && exit_heated {
                 // Only the source room is heated. As in the first case above, heat frames are optimized by
-                // minimizing runway usage in the source room. (TODO: Use new Requirement enum case.)
+                // minimizing runway usage in the source room.
                 let other_runway_length =
-                    f32::max(0.0, f32::min(exit_length, 33.0 - entrance_length));
-                let heat_frames_1 = compute_run_frames(other_runway_length) + 20;
+                    f32::max(0.0, f32::min(exit_length, self.difficulty.heated_shine_charge_tiles - entrance_length));
+                let heat_frames_1 = compute_run_frames(other_runway_length) + TURNAROUND_MOONWALK_FRAMES;
                 let (heat_frames_2, _) =
                     compute_shinecharge_frames(other_runway_length, entrance_length);
                 total_heat_frames += heat_frames_1 + heat_frames_2 + 5;
@@ -2166,7 +2168,7 @@ impl<'a> Preprocessor<'a> {
                     if *from_exit_node {
                         // In the other room, we are start at the door, move away from it, then double back while shortcharging.
                         // So use the minimal amount of runway based on shortcharge skill.
-                        let heat_frames_1 = compute_run_frames(self.difficulty.shine_charge_tiles);
+                        let heat_frames_1 = compute_run_frames(self.difficulty.heated_shine_charge_tiles);
                         let heat_frames_2 = Capacity::max(85, heat_frames_1);
                         reqs.push(Requirement::HeatFrames(
                             (heat_frames_1 + TURNAROUND_MOONWALK_FRAMES + heat_frames_2 + SHINECHARGE_TRANSITION_FRAMES).into(),

@@ -4,7 +4,7 @@
     {
       "name": "Full Length Shinecharge (No Shortcharge)",
       "settings": {
-        "shinechargeTiles": 32
+        "heatedShinechargeTiles": 32
       },
       "globalState": {
         "items": ["SpeedBooster"]
@@ -20,7 +20,7 @@
     {
       "name": "15-tile Shortcharge",
       "settings": {
-        "shinechargeTiles": 15
+        "heatedShinechargeTiles": 15
       },
       "globalState": {
         "items": ["SpeedBooster"]
