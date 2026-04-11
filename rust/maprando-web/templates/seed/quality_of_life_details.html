@@ -1,7 +1,7 @@
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Initial map reveal:</div>
-    <div class="col-4 col-sm-3">{{+ 
-        settings.quality_of_life_settings.initial_map_reveal_settings.preset.as_ref().unwrap_or(&"Custom".to_string()) 
+    <div class="col-4 col-sm-3">{{+
+        settings.quality_of_life_settings.initial_map_reveal_settings.preset.as_ref().unwrap_or(&"Custom".to_string())
     }}</div>
 </div>
 <div class="row">
@@ -16,6 +16,10 @@
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Opposite area connections revealed by map:</div>
     <div class="col-4 col-sm-3">{% if settings.quality_of_life_settings.opposite_area_revealed %}Yes{% else %}No{% endif %}</div>
 </div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Hazard markers:</div>
+    <div class="col-4 col-sm-3">{% if hazard_markers %}Yes{% else %}No{% endif %}</div>
+</div>
 <hr>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Mother Brain fight (phases 2 and 3):</div>
@@ -24,6 +28,10 @@
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Supers do double damage to Mother Brain:</div>
     <div class="col-4 col-sm-3">{% if supers_double %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Escape auto save:</div>
+    <div class="col-4 col-sm-3">{% if escape_autosave %}Yes{% else %}No{% endif %}</div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Hyper Beam gives all movement items:</div>
@@ -49,6 +57,22 @@
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast pause menu:</div>
     <div class="col-4 col-sm-3">{% if fast_pause_menu %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast saves:</div>
+    <div class="col-4 col-sm-3">{% if fast_saves %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast baby cutscene:</div>
+    <div class="col-4 col-sm-3">{% if fast_baby_cutscene %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast Mother Brain cutscene:</div>
+    <div class="col-4 col-sm-3">{% if fast_mother_brain_cutscene %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fast decompression:</div>
+    <div class="col-4 col-sm-3">{% if fast_decompression %}Yes{% else %}No{% endif %}</div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Item fanfares:</div>
@@ -84,14 +108,22 @@
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Crash fixes:</div>
     <div class="col-4 col-sm-3">{{+ self.crash_fix_preset() }}</div>
 </div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Fix blue speed echoes:</div>
+    <div class="col-4 col-sm-3">{% if fix_blue_echoes %}Yes{% else %}No{% endif %}</div>
+</div>
 <hr>
 <div class="row">
-    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">E-Tank energy refill:</div>
-    <div class="col-4 col-sm-3">{{+ etank_refill }}</div>
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Ammo stations refill all ammo types:</div>
+    <div class="col-4 col-sm-3">{% if ammo_refill_all %}Yes{% else %}No{% endif %}</div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Energy stations refill reserves:</div>
     <div class="col-4 col-sm-3">{% if settings.quality_of_life_settings.energy_station_reserves %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">E-Tank energy refill:</div>
+    <div class="col-4 col-sm-3">{{+ etank_refill }}</div>
 </div>
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Disableable E-Tanks:</div>
@@ -117,4 +149,8 @@
 <div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Blue suit persists across save/load:</div>
     <div class="col-4 col-sm-3">{% if settings.quality_of_life_settings.persist_blue_suit %}Yes{% else %}No{% endif %}</div>
+</div>
+<div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Camera fixes:</div>
+    <div class="col-4 col-sm-3">{% if camera_fixes %}Yes{% else %}No{% endif %}</div>
 </div>

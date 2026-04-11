@@ -141,6 +141,7 @@ pub enum FlashingSetting {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum ItemDotChange {
+    Stay,
     Fade,
     Disappear,
 }

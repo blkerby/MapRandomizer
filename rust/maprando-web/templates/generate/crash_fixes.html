@@ -78,6 +78,20 @@
                         <label class="btn btn-outline-primary" for="crashFixesXmodeSilent">Silent</label>
                     </div>
                 </div>
+                 <div class="form-group row my-2">
+                    <label for="crashFixesSpriteOverflow" class="col-md-6 col-lg-5 col-form-label">Sprite overflow bug</label>
+                    <div id="crashFixesSpriteOverflow" class="col-md-2 btn-group">
+                        <input type="radio" class="btn-check" name="crash_fixes_spriteoverflow" id="crashFixesSpriteOverflowCrash"
+                            value="Crash" onchange="crashFixesChanged()">
+                        <label class="btn btn-outline-primary" for="crashFixesSpriteOverflowCrash">Crash</label>
+                        <input type="radio" class="btn-check" name="crash_fixes_spriteoverflow" id="crashFixesSpriteOverflowDeath"
+                            value="Death" checked onchange="crashFixesChanged()">
+                        <label class="btn btn-outline-primary" for="crashFixesSpriteOverflowDeath">Death</label>
+                        <input type="radio" class="btn-check" name="crash_fixes_spriteoverflow" id="crashFixesSpriteOverflowSilent"
+                            value="Silent" onchange="crashFixesChanged()">
+                        <label class="btn btn-outline-primary" for="crashFixesSpriteOverflowSilent">Silent</label>
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary ms-auto" data-bs-dismiss="modal">Close</button>

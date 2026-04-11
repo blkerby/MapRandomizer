@@ -2434,19 +2434,31 @@ impl<'a> MapPatcher<'a> {
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
                 tile.interior = MapTileInterior::Item;
             }
+            // the ultralow qol setting can be removed when its finally removed from the frontend.
+            // there is also the potential to have "non disappearing dots option" by using the ultralow QOL
+            // setting when using 2/3/4 tier items if its desired. This would replace a Major / Hollow / X with
+            // a non faded dot.
             if self.settings.other_settings.ultra_low_qol {
                 tile.interior = MapTileInterior::Item;
                 self.set_room_tile(room_id, x, y, tile.clone());
             } else {
                 tile.interior = get_item_interior(item, self.settings);
                 self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                if self.customize_settings.item_dot_change == ItemDotChange::Fade {
-                    tile.interior = apply_item_interior(orig_tile, item, self.settings);
-                    tile.faded = true;
-                    self.set_room_tile(room_id, x, y, tile.clone());
-                } else {
-                    tile.interior = MapTileInterior::Empty;
-                    self.set_room_tile(room_id, x, y, tile.clone());
+                match self.customize_settings.item_dot_change {
+                    ItemDotChange::Fade => {
+                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                        tile.faded = true;
+                        self.set_room_tile(room_id, x, y, tile.clone());
+                    }
+                    ItemDotChange::Disappear => {
+                        tile.interior = MapTileInterior::Empty;
+                        self.set_room_tile(room_id, x, y, tile.clone());
+                    }
+                    ItemDotChange::Stay => {
+                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                        tile.faded = false;
+                        self.set_room_tile(room_id, x, y, tile.clone());
+                    }
                 }
             }
         }
@@ -2961,7 +2973,9 @@ impl<'a> MapPatcher<'a> {
         self.sort_dynamic_tile_data()?;
         self.write_dynamic_tile_data(&self.dynamic_tile_data.clone())?;
         self.create_room_map_tilemaps()?;
-        self.write_hazard_tiles()?;
+        if self.settings.quality_of_life_settings.hazard_markers {
+            self.write_hazard_tiles()?;
+        }
         self.fix_kraid()?;
         self.fix_item_colors()?;
 

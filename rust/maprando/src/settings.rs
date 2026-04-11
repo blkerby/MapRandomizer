@@ -161,9 +161,11 @@ pub struct QualityOfLifeSettings {
     pub item_markers: ItemMarkers,
     pub room_outline_revealed: bool,
     pub opposite_area_revealed: bool,
+    pub hazard_markers: bool,
     // End game:
     pub mother_brain_fight: MotherBrainFight,
     pub supers_double: bool,
+    pub escape_autosave: bool,
     pub escape_movement_items: bool,
     pub escape_refill: bool,
     pub escape_enemies_cleared: bool,
@@ -171,6 +173,10 @@ pub struct QualityOfLifeSettings {
     pub fast_elevators: bool,
     pub fast_doors: bool,
     pub fast_pause_menu: bool,
+    pub fast_saves: bool,
+    pub fast_baby_cutscene: bool,
+    pub fast_mother_brain_cutscene: bool,
+    pub fast_decompression: bool,
     pub fanfares: Fanfares,
     // Samus control
     pub respin: bool,
@@ -181,6 +187,7 @@ pub struct QualityOfLifeSettings {
     pub acid_chozo: bool,
     pub remove_climb_lava: bool,
     pub crash_fixes: CrashFixes,
+    pub fix_blue_echoes: bool,
     // Energy and reserves
     pub etank_refill: ETankRefill,
     pub energy_station_reserves: bool,
@@ -189,8 +196,10 @@ pub struct QualityOfLifeSettings {
     // Other:
     pub enemy_drops: EnemyDrops,
     pub early_save: bool,
+    pub ammo_refill_all: bool,
     pub persist_flash_suit: bool,
     pub persist_blue_suit: bool,
+    pub camera_fixes: bool,
 }
 
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
@@ -564,6 +573,7 @@ pub struct CrashFixes {
     pub yapping_maw: FixMode,
     pub auto_reserve: FixMode,
     pub x_mode: FixMode,
+    pub sprite_overflow: FixMode,
 }
 
 impl CrashFixes {
@@ -575,12 +585,19 @@ impl CrashFixes {
             CrashFixesPreset::Crash => FixMode::Crash,
         };
 
+        let sprite_overflow = match preset {
+            CrashFixesPreset::Death => FixMode::Silent,
+            CrashFixesPreset::Warn => FixMode::Silent,
+            CrashFixesPreset::Silent => FixMode::Silent,
+            CrashFixesPreset::Crash => FixMode::Crash,
+        };
         CrashFixes {
             preset: Some(preset),
             spring_ball: mode,
             yapping_maw: mode,
             auto_reserve: mode,
             x_mode: mode,
+            sprite_overflow,
         }
     }
 
@@ -589,6 +606,13 @@ impl CrashFixes {
             | ((self.yapping_maw as u16) << 8)
             | ((self.auto_reserve as u16) << 4)
             | (self.spring_ball as u16)
+    }
+
+    pub fn to_secondword(&self) -> u16 {
+        (3 << 12)   //reserved
+        | (3 << 8)  //reserved
+        | (3 << 4)  //reserved
+        | (self.sprite_overflow as u16)
     }
 }
 
@@ -934,11 +958,38 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     if !qol_settings.contains_key("reserve_backward_transfer") {
         qol_settings.insert("reserve_backward_transfer".to_string(), false.into());
     }
+    if !qol_settings.contains_key("hazard_markers") {
+        qol_settings.insert("hazard_markers".to_string(), true.into());
+    }
     if !qol_settings.contains_key("persist_flash_suit") {
         qol_settings.insert("persist_flash_suit".to_string(), false.into());
     }
     if !qol_settings.contains_key("persist_blue_suit") {
         qol_settings.insert("persist_blue_suit".to_string(), false.into());
+    }
+    if !qol_settings.contains_key("escape_autosave") {
+        qol_settings.insert("escape_autosave".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("fast_saves") {
+        qol_settings.insert("fast_saves".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("fix_blue_echoes") {
+        qol_settings.insert("fix_blue_echoes".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("fast_baby_cutscene") {
+        qol_settings.insert("fast_baby_cutscene".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("fast_mother_brain_cutscene") {
+        qol_settings.insert("fast_mother_brain_cutscene".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("fast_decompression") {
+        qol_settings.insert("fast_decompression".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("camera_fixes") {
+        qol_settings.insert("camera_fixes".to_string(), true.into());
+    }
+    if !qol_settings.contains_key("ammo_refill_all") {
+        qol_settings.insert("ammo_refill_all".to_string(), true.into());
     }
     if !qol_settings.contains_key("enemy_drops") {
         if qol_settings.get("buffed_drops").and_then(|x| x.as_bool()) == Some(false) {
@@ -947,6 +998,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
             qol_settings.insert("enemy_drops".to_string(), "Buffed".into());
         }
     }
+
     match qol_settings.get_mut("crash_fixes") {
         None => {
             qol_settings.insert(

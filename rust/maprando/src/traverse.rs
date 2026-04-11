@@ -1786,7 +1786,7 @@ fn apply_requirement_simple(
         Requirement::AmmoStationRefill => {
             local.missiles = ResourceLevel::full(cx.reverse).into();
             local.farm_baseline_missiles = local.missiles;
-            if !cx.settings.other_settings.ultra_low_qol {
+            if cx.settings.quality_of_life_settings.ammo_refill_all {
                 local.supers = ResourceLevel::full(cx.reverse).into();
                 local.farm_baseline_supers = local.supers;
                 local.power_bombs = ResourceLevel::full(cx.reverse).into();
@@ -1794,7 +1794,9 @@ fn apply_requirement_simple(
             }
             SimpleResult::Success
         }
-        Requirement::AmmoStationRefillAll => (!cx.settings.other_settings.ultra_low_qol).into(),
+        Requirement::AmmoStationRefillAll => {
+            (cx.settings.quality_of_life_settings.ammo_refill_all).into()
+        }
         Requirement::EnergyStationRefill => {
             local.energy = ResourceLevel::full_energy(cx.reverse).into();
             local.farm_baseline_energy = local.energy;

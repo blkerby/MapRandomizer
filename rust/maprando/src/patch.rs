@@ -458,7 +458,6 @@ impl Patcher<'_> {
             "item_dots_disappear",
             "fast_reload",
             "saveload",
-            "hazard_markers",
             "rng_fix",
             "intro_song",
             "msu1",
@@ -479,16 +478,10 @@ impl Patcher<'_> {
         } else {
             patches.extend([
                 "vanilla_bugfixes",
-                "missile_refill_all",
-                "decompression",
                 "aim_anything",
-                "fast_saves",
-                "fast_mother_brain_cutscene",
-                "fast_big_boy_cutscene",
                 "fix_kraid_vomit",
                 "fix_kraid_hud",
                 "fix_kraid_door",
-                "escape_autosave",
                 "boss_exit",
                 "load_plms_early",
                 "spin_lock",
@@ -543,6 +536,42 @@ impl Patcher<'_> {
             self.rom.write_u16(snes2pc(0xdfff07), 40)?;
         }
 
+        if self.settings.quality_of_life_settings.escape_autosave {
+            patches.push("escape_autosave");
+        }
+
+        if self.settings.quality_of_life_settings.camera_fixes {
+            patches.push("vanilla_camerafixes");
+        }
+
+        if self.settings.quality_of_life_settings.fix_blue_echoes {
+            patches.push("fix_blue_echoes")
+        }
+
+        if self.settings.quality_of_life_settings.fast_saves {
+            patches.push("fast_saves");
+        }
+
+        if self.settings.quality_of_life_settings.fast_decompression {
+            patches.push("decompression")
+        }
+
+        if self.settings.quality_of_life_settings.fast_baby_cutscene {
+            patches.push("fast_big_boy_cutscene");
+        }
+
+        if self
+            .settings
+            .quality_of_life_settings
+            .fast_mother_brain_cutscene
+        {
+            patches.push("fast_mother_brain_cutscene");
+        }
+
+        if self.settings.quality_of_life_settings.ammo_refill_all {
+            patches.push("missile_refill_all");
+        }
+
         if self.settings.quality_of_life_settings.crash_fixes.preset
             != Some(CrashFixesPreset::Crash)
         {
@@ -565,6 +594,10 @@ impl Patcher<'_> {
 
         if fixes.x_mode != FixMode::Crash {
             patches.push("crash_handle_xmode");
+        }
+
+        if fixes.sprite_overflow != FixMode::Crash {
+            patches.push("crash_handle_32sprite")
         }
 
         match self.settings.other_settings.wall_jump {
@@ -642,6 +675,10 @@ impl Patcher<'_> {
         {
             patches.push("disable_major_glitches");
             patches.push("oob_death");
+        }
+
+        if self.settings.quality_of_life_settings.hazard_markers {
+            patches.push("hazard_markers");
         }
 
         if self.settings.quality_of_life_settings.respin {
@@ -1007,14 +1044,13 @@ impl Patcher<'_> {
 
     pub fn write_crash_handler(&mut self, crash_fixes: &CrashFixes) -> Result<()> {
         let crash_handler = 0x80D330;
-
+        let crash_handler2 = 0x80D332;
         let word = crash_fixes.to_word();
-        if word == 0x3333 {
-            return Ok(()); // no need to patch the rom if the crash handler isn't applied at all
-        }
+        let word2 = crash_fixes.to_secondword();
         let bytes = word.to_le_bytes();
         self.rom.write_n(snes2pc(crash_handler), &bytes)?;
-
+        let bytes2 = word2.to_le_bytes();
+        self.rom.write_n(snes2pc(crash_handler2), &bytes2)?;
         Ok(())
     }
 
@@ -1727,8 +1763,10 @@ impl Patcher<'_> {
         // Disable demo (by overwriting the branch on the timer reaching zero):
         self.rom.write_n(snes2pc(0x8B9F2C), &[0x80, 0x0A])?; // BRA $0A
 
-        // In Kraid's room, no longer restrict Samus X position to left screen:
-        self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS
+        if self.settings.quality_of_life_settings.camera_fixes {
+            // In Kraid's room, no longer restrict Samus X position to left screen:
+            self.rom.write_u8(snes2pc(0xA7C9EE), 0x60)?; // RTS
+        }
 
         // In Shaktool room, skip setting screens to red scroll (so that it won't glitch out when entering from the right):
         self.rom.write_u8(snes2pc(0x84B8DC), 0x60)?; // RTS
@@ -1767,7 +1805,7 @@ impl Patcher<'_> {
             self.rom.write_n(snes2pc(0x90A4AF), &[0xEA, 0xEA])?; // NOP : NOP
         }
 
-        if !self.settings.other_settings.ultra_low_qol {
+        if self.settings.quality_of_life_settings.camera_fixes {
             // In Crocomire's initialization, skip setting the leftmost screens to red scroll. Even in the vanilla game there
             // is no purpose to this, as they are already red. But it important to skip here in the rando, because when entering
             // from the left door with Crocomire still alive, these scrolls are set to blue by the door ASM, and if they
@@ -3612,7 +3650,7 @@ pub fn make_rom(
     patcher.write_objective_data()?;
     patcher.apply_seed_identifiers()?;
     patcher.apply_credits()?;
-    if !randomizer_settings.other_settings.ultra_low_qol {
+    if randomizer_settings.quality_of_life_settings.hazard_markers {
         patcher.apply_hazard_markers()?;
     }
     if randomizer_settings

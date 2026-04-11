@@ -60,6 +60,7 @@
 ; crash handler / sub patches variables
 
 !crash_toggles = $80D330 ; overwritten by patch.rs , defined in crash_handle_base.asm
+!crash_toggles2 = $80D332 ; overwritten by patch.rs, defined in crash_handle_base.asm
 
-!kill_samus = $80D337 ; defined in crash_handle_base.asm
-!bug_dialog = $80D332 ; defined in crash_handle_base.asm
+!kill_samus = $80D339 ; defined in crash_handle_base.asm
+!bug_dialog = $80D334 ; defined in crash_handle_base.asm

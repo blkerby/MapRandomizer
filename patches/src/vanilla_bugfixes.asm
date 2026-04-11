@@ -10,14 +10,8 @@ lorom
 
 incsrc "constants.asm"
 
-!bank_80_free_space_start = $80D200 ; camera alignment fix.
-!bank_80_free_space_end = $80D240
-
 !bank_82_free_space_start = $82C27D ; reserve icon ui fix.
 !bank_82_free_space_end = $82C298
-
-!bank_84_free_space_start = $84EFD7 ; maridia tube fix
-!bank_84_free_space_end = $84F000
 
 !bank_86_free_space_start = $86F4B0 ; powamp projectile fix
 !bank_86_free_space_end = $86F4D0
@@ -41,9 +35,6 @@ org $848717
 
 assert pc() <= $84871B ; just to make sure the next instruction isn't overwritten
 
-;;; fix to speed echoes bug when hell running
-org $91b629
-	db $01
 
 ;;; Pause menu fixes :
 ;;; fix screw attack select in pause menu
@@ -155,43 +146,6 @@ fix_big_boy:
 org $A9EF80 
 .done
 
-; Fix Bomb Torizo crumbling animation (which can be very messed up if the player earlier visited a room
-; that maxed out enemy projectiles)
-org $86A8FD
-	ADC $1B23, x   ; was: ADC $1B23
-
-
-; Graphical fix for loading to start location with camera not aligned to screen boundary, by strotlog:
-; (See discussion in Metconst: https://discord.com/channels/127475613073145858/371734116955193354/1010003248981225572)
-org $80C473
-	stz $091d
-
-org $80C47C
-	stz $091f
-
-; Graphical fix for going through door transition with camera not aligned to screen boundary, by PJBoy
-!layer1PositionX = $0911
-!layer1PositionY = $0915
-!bg1ScrollX = $B1
-!bg1ScrollY = $B3
-!bg2ScrollX = $B5
-!bg2ScrollY = $B7
-
-org $80AE29
-	jsr fix_camera_alignment
-
-org !bank_80_free_space_start
-fix_camera_alignment:
-	SEP #$20
-	LDA !layer1PositionX : STA !bg1ScrollX : STA !bg2ScrollX
-	LDA !layer1PositionY : STA !bg1ScrollY : STA !bg2ScrollY
-	REP #$20
-
-	LDA $B1 : SEC
-	RTS
-
-assert pc() <= !bank_80_free_space_end
-
 
 ; skip loading special x-ray blocks (only used in BT room during escape, and we repurpose the space for other things)
 ; and patch the check for item PLMs, so that it won't treat custom PLMs (e.g. beam doors) like item PLMs
@@ -223,11 +177,6 @@ assert pc() <= $848398
 org $848398
 special_xray_end:
 
-; Fix 32 sprite bug/crash that can occur during door transition
-; Possible when leaving Kraid mid-fight, killing Shaktool with wave-plasma, etc.
-; Documented by PJBoy: https://patrickjohnston.org/bank/B4#fBD97
-org $b4bda3
-    bpl $f8 ; was bne $f8
 
 
 ; Fix for powamp projectile bug
@@ -259,15 +208,6 @@ powamp_fix:
 
 assert pc() <= !bank_86_free_space_end
 
-; Fix improper clearing of BG2
-; Noted by PJBoy: https://patrickjohnston.org/bank/80#fA23F
-; Normally not an issue, but with custom spawn points if the initial camera offset is not
-; a multiple of 4, it can cause scroll clipping which would expose unintended tiles.
-
-org $80a27a
-    lda #$a29b
-
-
 ; Map scrolling bug
 ; Leftmost edge function @ $829f4a has an off-by-one bug when scanning
 ; the 2nd page of an area. This can lead to shifted map placement as 
@@ -276,51 +216,10 @@ org $80a27a
 org $829f90
     adc #$7c
 
-; (Maridia Tube Fix - written by AmoebaOfDoom) 
-;patches horizontal PLM updates to DMA tiles even when the PLM is above the screen if part of it is on the screen
-
-org $848DA0
-SkipEntry_Inject:
-    JMP SkipEntry
-
-org $848DEA
-    BMI SkipEntry_Inject
-
-org $848E12
-SkipEntry_Inject_2:
-    BEQ SkipEntry_Inject
-SkipEntry_Inject_3:
-    BMI SkipEntry_Inject
-
-org $848E44
-    BEQ SkipEntry_Inject_2
-
-org $848E2D
-    BMI SkipEntry_Inject_3
-    NOP
-
-org $84919A;918E
-    BRANCH_NEXT_DRAW_ENTRY:
-
-org !bank_84_free_space_start 
-SkipEntry:
-    LDA $0000,y
-    ASL
-    STA $14
-    TYA
-    CLC
-    ADC #$0002
-    ADC $14
-    TAY
-    JMP BRANCH_NEXT_DRAW_ENTRY
-
-assert pc() <= !bank_84_free_space_end
-
 ;change lavatrap behaviour to work on equipped item (09A2) rather than collected item (09a4)
 
 org $84B7EF ; PLM $B8AC (speed booster escape) LDA $09A4  [$7E:09A4]  
     lda $09A2
-
 
 ; vanilla bugfix, ui shows reserve icon when only boots item is equipped.
 ; this is due to a missing conditional branch instruction. 

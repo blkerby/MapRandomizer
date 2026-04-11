@@ -261,14 +261,20 @@ function buildSettingsObject() {
             "item_markers": formData.get("item_markers"),
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
             "opposite_area_revealed": formData.get("opposite_area_revealed") == "true",
+            "hazard_markers": formData.get("hazard_markers") == "true",
             "mother_brain_fight": formData.get("mother_brain_fight"),
             "supers_double": formData.get("supers_double") == "true",
+            "escape_autosave": formData.get("escape_autosave") == "true",
             "escape_movement_items": formData.get("escape_movement_items") == "true",
             "escape_refill": formData.get("escape_refill") == "true",
             "escape_enemies_cleared": formData.get("escape_enemies_cleared") == "true",
             "fast_elevators": formData.get("fast_elevators") == "true",
             "fast_doors": formData.get("fast_doors") == "true",
             "fast_pause_menu": formData.get("fast_pause_menu") == "true",
+            "fast_saves": formData.get("fast_saves") == "true",
+            "fast_baby_cutscene": formData.get("fast_baby_cutscene") == "true",
+            "fast_mother_brain_cutscene": formData.get("fast_mother_brain_cutscene") == "true",
+            "fast_decompression": formData.get("fast_decompression") == "true",
             "respin": formData.get("respin") == "true",
             "infinite_space_jump": formData.get("infinite_space_jump") == "true",
             "momentum_conservation": formData.get("momentum_conservation") == "true",
@@ -282,15 +288,19 @@ function buildSettingsObject() {
                 "yapping_maw": formData.get("crash_fixes_yappingmaw"),
                 "auto_reserve": formData.get("crash_fixes_autoreserve"),
                 "x_mode": formData.get("crash_fixes_xmode"),
+                "sprite_overflow": formData.get("crash_fixes_spriteoverflow"),
             },
+            "fix_blue_echoes": formData.get("fix_blue_echoes") == "true",
             "etank_refill": formData.get("etank_refill"),
             "energy_station_reserves": formData.get("energy_station_reserves") == "true",
             "disableable_etanks": formData.get("disableable_etanks"),
             "reserve_backward_transfer": formData.get("reserve_backward_transfer") == "true",
             "enemy_drops": formData.get("enemy_drops"),
             "early_save": formData.get("early_save") == "true",
+            "ammo_refill_all": formData.get("ammo_refill_all") == "true",
             "persist_flash_suit": formData.get("persist_flash_suit") == "true",
             "persist_blue_suit": formData.get("persist_blue_suit") == "true",
+            "camera_fixes": formData.get("camera_fixes") == "true",
         },
         "objective_settings": buildObjectiveSettings(formData),
         "map_layout": formData.get("map_layout"),
@@ -511,14 +521,20 @@ function applyQolPreset(preset) {
     applyRadioValue("itemMarkers", preset.item_markers);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
+    applyRadioValue("hazardMarkers", preset.hazard_markers);
     applyRadioValue("motherBrainFight", preset.mother_brain_fight);
     applyRadioValue("supersDouble", preset.supers_double);
+    applyRadioValue("escapeAutosave", preset.escape_autosave);
     applyRadioValue("escapeMovementItems", preset.escape_movement_items);
     applyRadioValue("escapeRefill", preset.escape_refill);
     applyRadioValue("escapeEnemiesCleared", preset.escape_enemies_cleared);
     applyRadioValue("fastElevators", preset.fast_elevators);
     applyRadioValue("fastDoors", preset.fast_doors);
     applyRadioValue("fastPauseMenu", preset.fast_pause_menu);
+    applyRadioValue("fastSaves", preset.fast_saves);
+    applyRadioValue("fastBabyCutscene", preset.fast_baby_cutscene);
+    applyRadioValue("fastMotherBrainCutscene", preset.fast_mother_brain_cutscene);
+    applyRadioValue("fastDecompression", preset.fast_decompression);
     applyRadioValue("fanfares", preset.fanfares);
     applyRadioValue("respin", preset.respin);
     applyRadioValue("infiniteSpaceJump", preset.infinite_space_jump);
@@ -527,14 +543,17 @@ function applyQolPreset(preset) {
     applyRadioValue("acidChozo", preset.acid_chozo);
     applyRadioValue("removeClimbLava", preset.remove_climb_lava);
     applyCrashFixes(preset.crash_fixes);
+    applyRadioValue("fixBlueEchoes", preset.fix_blue_echoes);
     applyRadioValue("etankRefill", preset.etank_refill);
     applyRadioValue("energyStationReserves", preset.energy_station_reserves);
     applyRadioValue("disableableETanks", preset.disableable_etanks);
     applyRadioValue("reserveBackwardTransfer", preset.reserve_backward_transfer);
     applyRadioValue("enemyDrops", preset.enemy_drops);
     applyRadioValue("earlySave", preset.early_save);
+    applyRadioValue("ammoRefillAll", preset.ammo_refill_all);
     applyRadioValue("persistFlashSuit", preset.persist_flash_suit);
     applyRadioValue("persistBlueSuit", preset.persist_blue_suit);
+    applyRadioValue("cameraFixes", preset.camera_fixes);
 }
 
 function applyDoorsPreset(preset) {
@@ -804,24 +823,28 @@ function areaAssignmentChanged() {
             document.getElementById("crashFixesYappingmawCrash").checked = true;
             document.getElementById("crashFixesAutoreserveCrash").checked = true;
             document.getElementById("crashFixesXmodeCrash").checked = true;
+            document.getElementById("crashFixesSpriteOverflowCrash").checked = true;
         } else if (preset == "Death") {
             document.getElementById("crashFixesPresetDeath").checked = true;
             document.getElementById("crashFixesSpringballDeath").checked = true;
             document.getElementById("crashFixesYappingmawDeath").checked = true;
             document.getElementById("crashFixesAutoreserveDeath").checked = true;
             document.getElementById("crashFixesXmodeDeath").checked = true;
+            document.getElementById("crashFixesSpriteOverflowSilent").checked = true;
         } else if (preset == "Warn") {
             document.getElementById("crashFixesPresetWarn").checked = true;
             document.getElementById("crashFixesSpringballWarn").checked = true;
             document.getElementById("crashFixesYappingmawWarn").checked = true;
             document.getElementById("crashFixesAutoreserveWarn").checked = true;
             document.getElementById("crashFixesXmodeWarn").checked = true;
+            document.getElementById("crashFixesSpriteOverflowSilent").checked = true;
         } else if (preset == "Silent") {
             document.getElementById("crashFixesPresetSilent").checked = true;
             document.getElementById("crashFixesSpringballSilent").checked = true;
             document.getElementById("crashFixesYappingmawSilent").checked = true;
             document.getElementById("crashFixesAutoreserveSilent").checked = true;
             document.getElementById("crashFixesXmodeSilent").checked = true;
+            document.getElementById("crashFixesSpriteOverflowSilent").checked = true;
         }
 
     }
@@ -831,6 +854,7 @@ function applyCrashFixes(preset) {
     applyRadioValue("crashFixesYappingmaw", preset.yapping_maw);
     applyRadioValue("crashFixesAutoreserve", preset.auto_reserve);
     applyRadioValue("crashFixesXmode", preset.x_mode);
+    applyRadioValue("crashFixesSpriteOverflow", preset.sprite_overflow);
     applyCrashFixesPreset(preset.preset);
 }
 

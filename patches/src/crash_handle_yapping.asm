@@ -10,8 +10,8 @@ incsrc "constants.asm"
 ;;; these variable are defined by the crash_handle_base.asm patch and patch.rs
 
 
-!bank_85_free_space_start = $85b5b4
-!bank_85_free_space_end = $85b5f1
+!bank_85_free_space_start = $85aaa0
+!bank_85_free_space_end = $85ab00
 
 !bank_90_free_space_start = $90fc10
 !bank_90_free_space_end = $90fc20
