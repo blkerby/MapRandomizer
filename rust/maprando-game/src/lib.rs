@@ -35,6 +35,7 @@ pub const TECH_ID_CAN_SHINECHARGE_MOVEMENT: TechId = 136;
 pub const TECH_ID_CAN_SHINESPARK: TechId = 132;
 pub const TECH_ID_CAN_HORIZONTAL_SHINESPARK: TechId = 133;
 pub const TECH_ID_CAN_MIDAIR_SHINESPARK: TechId = 134;
+pub const TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK: TechId = 244;
 pub const TECH_ID_CAN_BE_PATIENT: TechId = 1;
 pub const TECH_ID_CAN_BE_VERY_PATIENT: TechId = 2;
 pub const TECH_ID_CAN_BE_EXTREMELY_PATIENT: TechId = 3;
@@ -865,6 +866,7 @@ pub enum ExitCondition {
     LeaveWithSpark {
         position: SparkPosition,
         door_orientation: DoorOrientation,
+        grounded: Option<bool>,
     },
     LeaveSpinning {
         remote_runway_length: Float,
@@ -3596,9 +3598,11 @@ impl GameData {
                 let node_json = &self.node_json_map[&(room_id, to_node_id)];
                 let door_orientation =
                     parse_door_orientation(node_json["doorOrientation"].as_str().unwrap())?;
+                let grounded = node_json["grounded"].as_bool();
                 ExitCondition::LeaveWithSpark {
                     position: parse_spark_position(value["position"].as_str())?,
                     door_orientation,
+                    grounded,
                 }
             }
             "leaveSpinning" => {

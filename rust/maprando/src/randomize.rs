@@ -31,13 +31,13 @@ use maprando_game::{
     TECH_ID_CAN_CARRY_BLUE_SUIT, TECH_ID_CAN_CARRY_FLASH_SUIT, TECH_ID_CAN_DISABLE_EQUIPMENT,
     TECH_ID_CAN_ENTER_G_MODE, TECH_ID_CAN_ENTER_G_MODE_IMMOBILE, TECH_ID_CAN_ENTER_R_MODE,
     TECH_ID_CAN_GRAPPLE_JUMP, TECH_ID_CAN_GRAPPLE_TELEPORT, TECH_ID_CAN_HEATED_G_MODE,
-    TECH_ID_CAN_HORIZONTAL_SHINESPARK, TECH_ID_CAN_MIDAIR_SHINESPARK, TECH_ID_CAN_MOCKBALL,
-    TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE, TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK,
-    TECH_ID_CAN_RIGHT_SIDE_DASHLESS_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK,
-    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER, TECH_ID_CAN_SAMUS_EATER_TELEPORT,
-    TECH_ID_CAN_SHINECHARGE_MOVEMENT, TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP,
-    TECH_ID_CAN_SLOPE_SPARK, TECH_ID_CAN_SPEEDBALL, TECH_ID_CAN_SPIKE_SUIT,
-    TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
+    TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK, TECH_ID_CAN_HORIZONTAL_SHINESPARK,
+    TECH_ID_CAN_MOCKBALL, TECH_ID_CAN_MOONFALL, TECH_ID_CAN_PRECISE_GRAPPLE,
+    TECH_ID_CAN_R_MODE_KNOCKBACK_SPARK, TECH_ID_CAN_RIGHT_SIDE_DASHLESS_DOOR_STUCK,
+    TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK, TECH_ID_CAN_RIGHT_SIDE_DOOR_STUCK_FROM_WATER,
+    TECH_ID_CAN_SAMUS_EATER_TELEPORT, TECH_ID_CAN_SHINECHARGE_MOVEMENT,
+    TECH_ID_CAN_SIDE_PLATFORM_CROSS_ROOM_JUMP, TECH_ID_CAN_SLOPE_SPARK, TECH_ID_CAN_SPEEDBALL,
+    TECH_ID_CAN_SPIKE_SUIT, TECH_ID_CAN_SPRING_BALL_BOUNCE, TECH_ID_CAN_STATIONARY_SPIN_JUMP,
     TECH_ID_CAN_STUTTER_WATER_SHINECHARGE, TECH_ID_CAN_SUPER_SINK, TECH_ID_CAN_TEMPORARY_BLUE,
     TECH_ID_CAN_TRICKY_CARRY_FLASH_SUIT, TechId, TemporaryBlueDirection, TraversalId, VertexId,
     VertexKey,
@@ -1217,9 +1217,15 @@ impl<'a> Preprocessor<'a> {
             // Runway in the exiting room starts and ends at the door so we need to run both directions:
             if entrance_heated && exit_heated {
                 // Both rooms are heated. Heat frames are optimized by minimizing runway usage in the source room.
-                let other_runway_length =
-                    f32::max(0.0, f32::min(exit_length, self.difficulty.heated_shine_charge_tiles - entrance_length));
-                let heat_frames_1 = compute_run_frames(other_runway_length) + TURNAROUND_MOONWALK_FRAMES;
+                let other_runway_length = f32::max(
+                    0.0,
+                    f32::min(
+                        exit_length,
+                        self.difficulty.heated_shine_charge_tiles - entrance_length,
+                    ),
+                );
+                let heat_frames_1 =
+                    compute_run_frames(other_runway_length) + TURNAROUND_MOONWALK_FRAMES;
                 let heat_frames_2 = Capacity::max(
                     85,
                     compute_run_frames(other_runway_length + entrance_length),
@@ -1234,9 +1240,15 @@ impl<'a> Preprocessor<'a> {
             } else if !entrance_heated && exit_heated {
                 // Only the source room is heated. As in the first case above, heat frames are optimized by
                 // minimizing runway usage in the source room.
-                let other_runway_length =
-                    f32::max(0.0, f32::min(exit_length, self.difficulty.heated_shine_charge_tiles - entrance_length));
-                let heat_frames_1 = compute_run_frames(other_runway_length) + TURNAROUND_MOONWALK_FRAMES;
+                let other_runway_length = f32::max(
+                    0.0,
+                    f32::min(
+                        exit_length,
+                        self.difficulty.heated_shine_charge_tiles - entrance_length,
+                    ),
+                );
+                let heat_frames_1 =
+                    compute_run_frames(other_runway_length) + TURNAROUND_MOONWALK_FRAMES;
                 let (heat_frames_2, _) =
                     compute_shinecharge_frames(other_runway_length, entrance_length);
                 total_heat_frames += heat_frames_1 + heat_frames_2 + 5;
@@ -2160,7 +2172,9 @@ impl<'a> Preprocessor<'a> {
                 let effective_length = effective_length.get();
                 let mut reqs: Vec<Requirement> = vec![];
                 reqs.push(Requirement::make_shinecharge(effective_length, *heated));
-                reqs.push(Requirement::ShineChargeFrames(SHINECHARGE_TRANSITION_FRAMES.into()));
+                reqs.push(Requirement::ShineChargeFrames(
+                    SHINECHARGE_TRANSITION_FRAMES.into(),
+                ));
                 if *physics != Some(Physics::Air) {
                     reqs.push(Requirement::Item(Item::Gravity as ItemId));
                 }
@@ -2168,10 +2182,15 @@ impl<'a> Preprocessor<'a> {
                     if *from_exit_node {
                         // In the other room, we are start at the door, move away from it, then double back while shortcharging.
                         // So use the minimal amount of runway based on shortcharge skill.
-                        let heat_frames_1 = compute_run_frames(self.difficulty.heated_shine_charge_tiles);
+                        let heat_frames_1 =
+                            compute_run_frames(self.difficulty.heated_shine_charge_tiles);
                         let heat_frames_2 = Capacity::max(85, heat_frames_1);
                         reqs.push(Requirement::HeatFrames(
-                            (heat_frames_1 + TURNAROUND_MOONWALK_FRAMES + heat_frames_2 + SHINECHARGE_TRANSITION_FRAMES).into(),
+                            (heat_frames_1
+                                + TURNAROUND_MOONWALK_FRAMES
+                                + heat_frames_2
+                                + SHINECHARGE_TRANSITION_FRAMES)
+                                .into(),
                         ));
                     } else {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
@@ -2298,36 +2317,45 @@ impl<'a> Preprocessor<'a> {
                 self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_HORIZONTAL_SHINESPARK],
             ));
         }
-        if come_in_position == SparkPosition::Top {
-            reqs.push(Requirement::Tech(
-                self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK],
-            ));
-        }
         match exit_condition {
             ExitCondition::LeaveNormally {} => Some(Requirement::UseFlashSuit {
                 carry_flash_suit_tech_idx: self.game_data.tech_isv.index_by_key
                     [&TECH_ID_CAN_CARRY_FLASH_SUIT],
             }),
-            ExitCondition::LeaveWithSpark { position, .. } => {
-                if *position == come_in_position
-                    || *position == SparkPosition::Any
-                    || come_in_position == SparkPosition::Any
-                {
-                    if *position == SparkPosition::Top && come_in_position == SparkPosition::Any {
+            ExitCondition::LeaveWithSpark {
+                position, grounded, ..
+            } => {
+                match (*position, come_in_position, grounded) {
+                    (SparkPosition::Top, SparkPosition::Bottom, _) => {
+                        return None;
+                    }
+                    (SparkPosition::Bottom, SparkPosition::Top, _) => {
+                        return None;
+                    }
+                    (_, _, Some(true)) => {}
+                    (_, _, Some(false))
+                    | (SparkPosition::Top, _, _)
+                    | (_, SparkPosition::Top, _) => {
                         reqs.push(Requirement::Tech(
-                            self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_MIDAIR_SHINESPARK],
+                            self.game_data.tech_isv.index_by_key
+                                [&TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK],
                         ));
                     }
-                    Some(Requirement::make_and(reqs))
-                } else {
-                    None
+                    _ => {}
                 }
+                Some(Requirement::make_and(reqs))
             }
             ExitCondition::LeaveShinecharged { .. } => {
                 // Shinecharge frames are handled through Requirement::ShineChargeFrames
                 reqs.push(Requirement::Tech(
                     self.game_data.tech_isv.index_by_key[&TECH_ID_CAN_SHINECHARGE_MOVEMENT],
                 ));
+                if come_in_position == SparkPosition::Top {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key
+                            [&TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK],
+                    ));
+                }
                 Some(Requirement::make_and(reqs))
             }
             ExitCondition::LeaveWithRunway {
@@ -2355,6 +2383,12 @@ impl<'a> Preprocessor<'a> {
                         let heat_frames = Capacity::max(85, compute_run_frames(effective_length));
                         reqs.push(Requirement::HeatFrames((heat_frames + 5).into()));
                     }
+                }
+                if come_in_position == SparkPosition::Top {
+                    reqs.push(Requirement::Tech(
+                        self.game_data.tech_isv.index_by_key
+                            [&TECH_ID_CAN_HORIZONTAL_MIDAIR_SHINESPARK],
+                    ));
                 }
                 Some(Requirement::make_and(reqs))
             }
