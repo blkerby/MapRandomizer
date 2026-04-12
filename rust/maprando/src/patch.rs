@@ -483,6 +483,7 @@ impl Patcher<'_> {
                 "fix_kraid_hud",
                 "fix_kraid_door",
                 "boss_exit",
+                "extra_setup",
                 "load_plms_early",
                 "spin_lock",
                 "fix_transition_bad_tiles",
