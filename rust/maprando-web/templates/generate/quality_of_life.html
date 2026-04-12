@@ -7,12 +7,35 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="modal-body p-1" onchange="qualityOfLifeSettingChanged()">
+            <div class="modal-body px-4 py-2" onchange="qualityOfLifeSettingChanged()">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card m-2">
                             <div class="card-header">Map</div>
                             <div class="card-body ps-1 pe-3 py-0">
+                                <div class="form-group row my-3">
+                                    <div class="col-lg-5 ml-0 my-1 align-items-center">
+                                        <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
+                                            data-bs-target="#enhancedMapHelpModal">
+                                            <i class="bi bi-question-circle"></i>
+                                        </button>
+                                        <label for="enhanced_map">Enhanced map</label>
+                                    </div>
+                                    <div id="enhancedMapPreset" class="col-lg-6 btn-group" role="group">
+                                        <input type="radio" class="btn-check" name="enhanced_map"
+                                            id="enhancedMapPresetNo" value="No" onchange="enhancedMapPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="enhancedMapPresetNo">No</label>
+                                        <input type="radio" class="btn-check" name="enhanced_map"
+                                            id="enhancedMapPresetYes" value="Yes" onchange="enhancedMapPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="enhancedMapPresetYes">Yes</label>
+                                        <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2"
+                                            data-bs-toggle="modal" data-bs-target="#enhancedMapModal">
+                                            <i class="bi bi-gear"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+
                                 <div class="form-group row my-3">
                                     <div class="col-lg-5 ml-0 my-1 align-items-center">
                                         <button type="button" class="btn mr-1 px-2 py-1" data-bs-toggle="modal"
@@ -388,12 +411,10 @@
                                     <div id="fastDecompression" class="col-2 btn-group" role="group">
                                         <input type="radio" class="btn-check" name="fast_decompression"
                                             id="fastDecompressionNo" value="false">
-                                        <label class="btn btn-outline-primary"
-                                            for="fastDecompressionNo">No</label>
+                                        <label class="btn btn-outline-primary" for="fastDecompressionNo">No</label>
                                         <input type="radio" class="btn-check" name="fast_decompression"
                                             id="fastDecompressionYes" value="true" checked>
-                                        <label class="btn btn-outline-primary"
-                                            for="fastDecompressionYes">Yes</label>
+                                        <label class="btn btn-outline-primary" for="fastDecompressionYes">Yes</label>
                                     </div>
                                 </div>
 
@@ -587,12 +608,12 @@
                                         <label for="preset">Fix blue speed echoes</label>
                                     </div>
                                     <div id="fixBlueEchoes" class="col-2 btn-group" role="group">
-                                        <input type="radio" class="btn-check" name="fix_blue_echoes" id="fixBlueEchoesNo"
-                                            value="false">
+                                        <input type="radio" class="btn-check" name="fix_blue_echoes"
+                                            id="fixBlueEchoesNo" value="false">
                                         <label class="btn btn-outline-danger" for="fixBlueEchoesNo"><i
                                                 class="bi bi-exclamation-triangle"></i> No</label>
-                                        <input type="radio" class="btn-check" name="fix_blue_echoes" id="fixBlueEchoesYes"
-                                            value="true" checked>
+                                        <input type="radio" class="btn-check" name="fix_blue_echoes"
+                                            id="fixBlueEchoesYes" value="true" checked>
                                         <label class="btn btn-outline-primary" for="fixBlueEchoesYes">Yes</label>
                                     </div>
                                 </div>
@@ -867,4 +888,5 @@
 {% include "help/quality/camera_fixes.html" %}
 
 {% include "initial_map_reveal.html" %}
+{% include "enhanced_map.html" %}
 {% include "crash_fixes.html" %}
