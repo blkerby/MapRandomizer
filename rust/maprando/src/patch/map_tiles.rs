@@ -4,8 +4,8 @@ use crate::{
     customize::{CustomizeSettings, ItemDotChange},
     randomize::{LockedDoor, Randomization},
     settings::{
-        DisableETankSetting, DoorLocksSize, InitialMapRevealSettings, ItemMarkers, MapRevealLevel,
-        MapStationReveal, Objective, RandomizerSettings,
+        DisableETankSetting, DoorLocksSize, EnhancedMapLevel, InitialMapRevealSettings,
+        ItemMarkers, MapRevealLevel, MapStationReveal, Objective, RandomizerSettings,
     },
 };
 use maprando_game::{
@@ -322,10 +322,17 @@ fn draw_edge(
             }
         }
         MapTileEdge::Door | MapTileEdge::QolDoor => {
+            let hidden = matches!(
+                settings
+                    .quality_of_life_settings
+                    .enhanced_map_settings
+                    .locked_doors,
+                EnhancedMapLevel::Hidden
+            );
             set_wall_pixel(tile, 0, 3);
             set_wall_pixel(tile, 1, 3);
             set_wall_pixel(tile, 2, 3);
-            if settings.other_settings.ultra_low_qol {
+            if hidden {
                 set_wall_pixel(tile, 3, 3);
                 set_wall_pixel(tile, 4, 3);
             }
@@ -480,7 +487,9 @@ pub fn render_tile(
     settings: &RandomizerSettings,
     customize_settings: &CustomizeSettings,
 ) -> Result<[[u8; 8]; 8]> {
-    let bg_color = if tile.heated && !settings.other_settings.ultra_low_qol {
+    let bg_color = if tile.heated
+        && settings.quality_of_life_settings.enhanced_map_settings.heat == EnhancedMapLevel::Visible
+    {
         2
     } else {
         1
@@ -495,33 +504,43 @@ pub fn render_tile(
         (MapLiquidType::Acid, true) => (2, 1),
         _ => panic!("unexpected liquid type"),
     };
-    if let Some(liquid_level) = tile.liquid_level
-        && !settings.other_settings.ultra_low_qol
-    {
-        let level = (liquid_level * 8.0).floor() as isize;
-        for y in level..8 {
-            for x in 0..8 {
-                match tile.liquid_type {
-                    MapLiquidType::Water => {
-                        if (x + y) % 2 == 0 {
-                            data[y as usize][x as usize] = liquid_colors.0;
-                        } else {
+    if let Some(liquid_level) = tile.liquid_level {
+        let visible = match tile.liquid_type {
+            MapLiquidType::Water => {
+                settings
+                    .quality_of_life_settings
+                    .enhanced_map_settings
+                    .water
+            }
+            MapLiquidType::Lava => settings.quality_of_life_settings.enhanced_map_settings.lava,
+            MapLiquidType::Acid => settings.quality_of_life_settings.enhanced_map_settings.acid,
+            MapLiquidType::None => EnhancedMapLevel::Hidden,
+        };
+        if matches!(visible, EnhancedMapLevel::Visible) {
+            let level = (liquid_level * 8.0).floor() as isize;
+            for y in level..8 {
+                for x in 0..8 {
+                    match tile.liquid_type {
+                        MapLiquidType::Water => {
+                            if (x + y) % 2 == 0 {
+                                data[y as usize][x as usize] = liquid_colors.0;
+                            } else {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            }
+                        }
+                        MapLiquidType::Lava => {
                             data[y as usize][x as usize] = liquid_colors.1;
                         }
-                    }
-                    MapLiquidType::Lava => {
-                        data[y as usize][x as usize] = liquid_colors.1;
-                    }
-                    MapLiquidType::Acid => {
-                        if (x + y) % 2 == 0 {
-                            data[y as usize][x as usize] = liquid_colors.1;
+                        MapLiquidType::Acid => {
+                            if (x + y) % 2 == 0 {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            }
                         }
+                        MapLiquidType::None => bail!("unexpected liquid type None"),
                     }
-                    MapLiquidType::None => bail!("unexpected liquid type None"),
                 }
             }
         }
-
         if tile.faded
             && tile.interior.is_item()
             && (tile.liquid_type == MapLiquidType::Lava
