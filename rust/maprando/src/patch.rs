@@ -442,7 +442,7 @@ impl Patcher<'_> {
             "complementary_suits",
             "disable_map_icons",
             "escape",
-            "no source/tourian_map",                 // TODO: check if this is still needed?
+            "no source/tourian_map", // TODO: check if this is still needed?
             "no source/no_explosions_before_escape", // TODO: check if this is still needed?
             "sound_effect_disables",
             "title_map_animation",
