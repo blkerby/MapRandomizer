@@ -1,5 +1,18 @@
 {
     "preset": "Default",
+    "enhanced_map_settings": {
+        "preset": "Enabled",
+        "gray_doors": "Visible",
+        "locked_doors": "Visible",
+        "beam_doors": "Visible",
+        "heat": "Visible",
+        "water": "Visible",
+        "lava": "Visible",
+        "acid": "Visible",
+        "walls": "White",
+        "map_station": "Icon",
+        "refill_station": "Icon"
+    },
     "initial_map_reveal_settings": {
         "preset": "Maps",
         "map_stations": "Full",

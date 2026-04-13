@@ -194,6 +194,22 @@ function buildInitialMapRevealSettings(formData) {
     }
 }
 
+function buildInitialEnhancedMapSettings(formData) {
+    return {
+        "preset": formData.get("enhanced_map"),
+        "gray_doors": formData.get("enhanced_map_gray_doors"),
+        "locked_doors": formData.get("enhanced_map_locked_doors"),
+        "beam_doors": formData.get("enhanced_map_beam_doors"),
+        "heat": formData.get("enhanced_map_heat"),
+        "water": formData.get("enhanced_map_water"),
+        "lava": formData.get("enhanced_map_lava"),
+        "acid": formData.get("enhanced_map_acid"),
+        "walls": formData.get("enhanced_map_walls"),
+        "map_station": formData.get("enhanced_map_station"),
+        "refill_station": formData.get("enhanced_map_refill"),
+    }
+}
+
 function emptyToNull(s) {
     if (s == "") {
         return null;
@@ -257,6 +273,7 @@ function buildSettingsObject() {
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
+            "enhanced_map_settings": buildInitialEnhancedMapSettings(formData),
             "initial_map_reveal_settings": buildInitialMapRevealSettings(formData),
             "item_markers": formData.get("item_markers"),
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
@@ -504,6 +521,19 @@ function applyInitialMapRevealSettings(imrSettings) {
     processInitialMapRevealPreset();
 }
 
+function applyInitialEnhancedMapSettings(emSettings) {
+    applyRadioValue("enhancedMapGrayDoors", emSettings.gray_doors);
+    applyRadioValue("enhancedMapLockedDoors", emSettings.locked_doors);
+    applyRadioValue("enhancedMapBeamDoors", emSettings.beam_doors);
+    applyRadioValue("enhancedMapHeat", emSettings.heat);
+    applyRadioValue("enhancedMapWater", emSettings.water);
+    applyRadioValue("enhancedMapLava", emSettings.lava);
+    applyRadioValue("enhancedMapAcid", emSettings.acid);
+    applyRadioValue("enhancedMapWalls", emSettings.walls);
+    applyRadioValue("enhancedMapStation", emSettings.map_station);
+    applyRadioValue("enhancedMapRefill", emSettings.refill_station);
+    processEnhancedMapPreset();
+}
 function applyQolPreset(preset) {
     for (var presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.value == preset.preset) {
@@ -932,6 +962,44 @@ function initialMapRevealSettingChanged() {
     document.getElementById("initialMapRevealPresetFull").checked = false;
     document.getElementById("initialMapRevealPresetGlobal").checked = false;
     initialMapRevealPresetChanged();
+}
+
+function processEnhancedMapPreset() {
+    let mapTypes = [
+        "GrayDoors",
+        "LockedDoors",
+        "BeamDoors",
+        "Heat",
+        "Water",
+        "Lava",
+        "Acid"
+    ]
+    if (document.getElementById("enhancedMapPresetDisabled").checked) {
+        for (t of mapTypes) {
+            document.getElementById(`enhancedMap${t}Hidden`).checked = true;
+        }
+        document.getElementById("enhancedMapWallsVanilla").checked = true;
+        document.getElementById("enhancedMapStationVanilla").checked = true;
+        document.getElementById("enhancedMapRefillVanilla").checked = true;
+    } else if (document.getElementById("enhancedMapPresetEnabled").checked) { 
+        for (t of mapTypes) {
+            document.getElementById(`enhancedMap${t}Visible`).checked = true;
+        }
+        document.getElementById("enhancedMapWallsWhite").checked = true;
+        document.getElementById("enhancedMapStationIcon").checked = true;
+        document.getElementById("enhancedMapRefillIcon").checked = true;
+}
+}
+
+function enhancedMapPresetChanged() {
+    processEnhancedMapPreset();
+    qualityOfLifeSettingChanged();
+}
+
+function enhancedMapSettingChanged() {
+    document.getElementById("enhancedMapPresetDisabled").checked = false;
+    document.getElementById("enhancedMapPresetEnabled").checked = false;
+    enhancedMapPresetChanged();
 }
 
 function objectivePresetChanged() {

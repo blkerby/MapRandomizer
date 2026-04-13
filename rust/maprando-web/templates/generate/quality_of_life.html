@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <div class="modal-body px-4 py-2" onchange="qualityOfLifeSettingChanged()">
+            <div class="modal-body p-1" onchange="qualityOfLifeSettingChanged()">
                 <div class="row">
                     <div class="col-sm-12">
                         <div class="card m-2">
@@ -23,11 +23,11 @@
                                     </div>
                                     <div id="enhancedMapPreset" class="col-lg-6 btn-group" role="group">
                                         <input type="radio" class="btn-check" name="enhanced_map"
-                                            id="enhancedMapPresetNo" value="No" onchange="enhancedMapPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="enhancedMapPresetNo">No</label>
+                                            id="enhancedMapPresetDisabled" value="Disabled" onchange="enhancedMapPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="enhancedMapPresetDisabled">Disabled</label>
                                         <input type="radio" class="btn-check" name="enhanced_map"
-                                            id="enhancedMapPresetYes" value="Yes" onchange="enhancedMapPresetChanged()">
-                                        <label class="btn btn-outline-primary" for="enhancedMapPresetYes">Yes</label>
+                                            id="enhancedMapPresetEnabled" value="Enabled" onchange="enhancedMapPresetChanged()">
+                                        <label class="btn btn-outline-primary" for="enhancedMapPresetEnabled">Enabled</label>
                                         <button type="button" style="flex:none" class="btn btn-secondary ms-1 me-0 p-2"
                                             data-bs-toggle="modal" data-bs-target="#enhancedMapModal">
                                             <i class="bi bi-gear"></i>
@@ -843,6 +843,7 @@
     </div>
 </div>
 
+{% include "help/quality/enhanced_map.html" %}
 {% include "help/quality/initial_map_reveal.html" %}
 {% include "help/quality/item_markers.html" %}
 {% include "help/quality/room_outline.html" %}

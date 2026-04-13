@@ -5,9 +5,7 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
     settings::{
-        DisableETankSetting, DoorsSettings, EnemyDrops, InitialMapRevealSettings,
-        ItemProgressionSettings, Objective, ObjectiveSettings, OtherSettings,
-        QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationSettings,
+        DisableETankSetting, DoorsSettings, EnemyDrops, EnhancedMapSettings, InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationSettings
     },
     traverse::{LockedDoorData, Traverser},
 };
@@ -212,6 +210,19 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
         },
         quality_of_life_settings: QualityOfLifeSettings {
             preset: None,
+            enhanced_map_settings: EnhancedMapSettings {
+                preset: None,
+                gray_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                locked_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                beam_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                heat: maprando::settings::EnhancedMapLevel::Hidden,
+                water: maprando::settings::EnhancedMapLevel::Hidden,
+                lava: maprando::settings::EnhancedMapLevel::Hidden,
+                acid: maprando::settings::EnhancedMapLevel::Hidden,
+                walls: maprando::settings::EnhancedMapWalls::Vanilla,
+                map_station: maprando::settings::EnhancedMapOther::Vanilla,
+                refill_station: maprando::settings::EnhancedMapOther::Vanilla,
+            },
             initial_map_reveal_settings: InitialMapRevealSettings {
                 preset: None,
                 map_stations: maprando::settings::MapRevealLevel::No,
