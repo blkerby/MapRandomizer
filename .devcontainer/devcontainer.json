@@ -1,0 +1,15 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
+{
+	"name": "Existing Dockerfile",
+	"build": {
+		"context": "..",
+		"dockerfile": "../Dockerfile",
+		"target": "development"
+	},
+	"forwardPorts": [8080],
+	// Inside the container, git would complain about the user (root) not being the owner of the
+	// repository, since it is owned by the user on the host. Set "safe.directory" in the git
+	// config to indicate it is safe. We use a wildcard in order to cover all the submodules.
+	"postCreateCommand": "git config --global --add safe.directory '*'"
+}

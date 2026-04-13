@@ -1,6 +1,17 @@
-FROM rust:1.93.0-bookworm AS build
+FROM rust:1.93.0-bookworm AS development
 
 RUN apt-get update && apt-get install -y zstd
+
+# Download the map datasets and Mosaic patches
+WORKDIR /
+COPY /scripts /scripts
+COPY /MOSAIC_BUILD_ID /MOSAIC_BUILD_ID
+RUN bash /scripts/download_data.sh
+
+# Stopping at this point gives us an image suitable for local development, e.g. using Dev Containers.
+# The rest of the Dockerfile is for building the production image.
+
+FROM development AS build
 
 # First get Cargo to download the crates.io index (which takes a long time) via `cargo install lazy_static`
 # Both `cargo update` and `crater search` no longer update the crates.io index, see: https://github.com/rust-lang/cargo/issues/3377
@@ -27,12 +38,6 @@ COPY rust/maprando/src/bin/dummy.rs /rust/lznint/src/bin/dummy-lznint.rs
 RUN mkdir -p /rust/maprando-wasm/src && touch /rust/maprando-wasm/src/lib.rs
 RUN cargo build --release
 RUN rm /rust/src/*.rs
-
-# Download the map datasets and Mosaic patches
-WORKDIR /
-COPY /scripts /scripts
-COPY /MOSAIC_BUILD_ID /MOSAIC_BUILD_ID
-RUN bash /scripts/download_data.sh
 
 # Now copy over the source code and build the real binary
 RUN cargo install wasm-pack
