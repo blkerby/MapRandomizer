@@ -1,4 +1,4 @@
-import dataclasses, glob, io, pathlib, re
+import dataclasses, glob, io, os, pathlib, re
 
 hex2snes = lambda address: address << 1 & 0xFF0000 | address & 0xFFFF | 0x808000
 
@@ -49,6 +49,16 @@ class BankedChanges:
         mergedIntervals += [Interval(begin, intervals[-1].end)]
         return mergedIntervals
     
+    def _addNote(self, bank : int, interval : Interval, label : str):
+        if interval is not None:
+            if bank not in self.changesMap:
+                self.changesMap[bank] = {}
+            
+            if interval in self.changesMap[bank]:
+                raise RuntimeError(f'Found comment with the same address interval as a patch change: ${bank:X}:{interval.begin:X}-{interval.end:X}')
+                
+            self.changesMap[bank][interval] = label.rstrip()
+    
     def addFromPatch(self, filename : str, patch : io.BufferedReader):
         patchIntervals = self._getIntervalsFromPatch(patch)
         if not patchIntervals:
@@ -95,38 +105,13 @@ class BankedChanges:
                 label += f'\n{line.rstrip()}'
                 continue
                 
-            if interval is not None:
-                if bank not in self.changesMap:
-                    self.changesMap[bank] = {}
-                
-                if interval in self.changesMap[bank]:
-                    raise RuntimeError(f'Found comment with the same address interval as a patch change: ${bank:X}:{interval.begin:X}-{interval.end:X}')
-                    
-                self.changesMap[bank][interval] = label
-            
+            self._addNote(bank, interval, label)
             interval = Interval(int(match[1], 0x10), int(match[2], 0x10))
             label = match[3]
         
-        if interval is not None:
-            if bank not in self.changesMap:
-                self.changesMap[bank] = {}
-            
-            if interval in self.changesMap[bank]:
-                raise RuntimeError(f'Found comment with the same address interval as a patch change: ${bank:X}:{interval.begin:X}-{interval.end:X}')
-                
-            self.changesMap[bank][interval] = label
+        self._addNote(bank, interval, label)
     
     def addFromVanillaHooks(self, file : io.TextIOWrapper):
-        def addNote(bank, interval, label):
-            if interval is not None:
-                if bank not in self.changesMap:
-                    self.changesMap[bank] = {}
-                
-                if interval in self.changesMap[bank]:
-                    raise RuntimeError(f'Found comment with the same address interval as a patch change: ${bank:X}:{interval.begin:X}-{interval.end:X}')
-                    
-                self.changesMap[bank][interval] = label
-        
         label = ''
         interval = None
         bank = None
@@ -136,7 +121,7 @@ class BankedChanges:
             
             match = re.match(r'\[BANK ([\dA-F]+)\]', line, re.IGNORECASE)
             if match:
-                addNote(bank, interval, label)
+                self._addNote(bank, interval, label)
                 label = ''
                 interval = None
                 bank = int(match[1], 0x10)
@@ -147,11 +132,11 @@ class BankedChanges:
                 label += f'\n{line.rstrip()}'
                 continue
                 
-            addNote(bank, interval, label)
+            self._addNote(bank, interval, label)
             interval = Interval(int(match[1], 0x10), int(match[2], 0x10))
             label = match[3]
         
-        addNote(bank, interval, label)
+        self._addNote(bank, interval, label)
 
 freespaceMap = {
     0x80: [Interval(0xCD8E, 0xFFBF)],
@@ -266,5 +251,7 @@ def writeBankFiles(bankedChanges : BankedChanges):
                 hooksFile.write(hooksText)
                 hooksFile.write('\n')
 
-collectBankedChanges()
-writeBankFiles(collectBankedChanges())
+if __name__ == '__main__':
+    os.chdir(pathlib.Path(__file__).parent)
+    collectBankedChanges()
+    writeBankFiles(collectBankedChanges())

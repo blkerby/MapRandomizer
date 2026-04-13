@@ -1,6 +1,5 @@
 [BANK 80]
 8000 - 8001: ; sram_check_disable.asm
-8000 - CD8D: used by vanilla game - [BC37 - C437 Tilemap - failed SRAM mapping check]  (2048 bytes) can be repurposed if needed (never used)
 81B1 - 81B4: ; map_progress_maintain.asm
 81C0 - 81D3: ; Area Palettes.asm
 8340 - 8347: ; self_check.asm
@@ -312,7 +311,6 @@ EEDA - EEDA: ; new_game.asm
 F5CA - F5CA: ; aim_anything.asm
 
 [BANK 83]
-8000 - AD65: Used by vanilla game
 AAD2 - AAD3: ; mb_left_entrance.asm
 AAE3 - AAE3: ; mb_left_entrance.asm
 AAEA - AAEB: ; mb_left_entrance.asm
@@ -627,7 +625,6 @@ C002 - CD28: ; Area Palettes.asm
 D000 - D7FF: ; Area FX.asm
 
 [BANK 8B]
-8000 - F75F: used by vanilla game
 916B - 916C: ; stats.asm
 9976 - 9979: ; credits.asm
 999B - 999E: ; credits.asm
@@ -644,7 +641,6 @@ E661 - E663: ; escape.asm
 F600 - F602: ; credits.asm
 
 [BANK 8C]
-8000 - F3E8: Used by vanilla
 F3E9 - ????: Used for updated spritemap on title screen
 
 [BANK 8D]
@@ -668,7 +664,6 @@ FFCD - FFEC: ; Area Palette Glows.asm
 8000 - DBFF: ; hud_expansion_opaque.asm
 
 [BANK 8F]
-8000 - E99A: Used by vanilla game for Room headers, PLM sets, door & setup ASMs, etc.
 8642 - 8643: ; gray_doors.asm
 8647 - 8647: ; gray_doors.asm
 91C9 - 91D2: ; Scrolling Sky v1.6.asm
@@ -1018,7 +1013,6 @@ A3E0 - A3E2: ; everything_respawns.asm
 A463 - A473: ; complementary_suits.asm
 
 [BANK A1]
-8000 - EBD0: Used by vanilla game
 E790 - E790: ; tourian_map.asm
 
 [BANK A2]
@@ -1038,7 +1032,6 @@ DFCF - DFD1: ; fix_choot.asm
 DFE2 - DFE4: ; fix_choot.asm
 
 [BANK A3]
-8000 - F310: vanilla
 8AA8 - 8AAC: ; everything_respawns.asm
 9581 - 9599: ; elevators_speed.asm
 95B0 - 95B0: ; elevators_speed.asm
@@ -1049,7 +1042,6 @@ C7CB - C7CF: ; everything_respawns.asm
 EED8 - EEF0: ; complementary_suits.asm
 
 [BANK A4]
-8000 - F6BF: used by vanilla game
 868A - 868D: ; gray_doors.asm
 8A7A - 8A7C: ; everything_respawns.asm
 8CDD - 8CEA: ; flashing_placebo.asm
@@ -1076,7 +1068,6 @@ FC8D - FC90: ; everything_respawns.asm
 FCA2 - FCA5: ; everything_respawns.asm
 
 [BANK A7]
-8000 - FF81: used by vanilla game
 A934 - A936: ; everything_respawns.asm
 B0FB - B0FD: ; fix_kraid_door.asm
 B374 - B377: ; gray_doors.asm
@@ -1090,7 +1081,6 @@ DD7F - DD81: ; flashing_placebo.asm
 F892 - F894: ; escape.asm
 
 [BANK A9]
-8000 - FB6F: used by vanilla game
 86EE - 86F1: ; escape_autosave.asm
 873A - 873C: ; escape_autosave.asm
 87E4 - 87E7: ; mb_barrier_clear.asm
@@ -1145,9 +1135,6 @@ A024 - A027: ; gray_doors.asm
 BD9D - BDA5: ; crash_handle_32sprite.asm
 F1F4 - F4B1: ; no_drops.asm
 F248 - F271: ; buffed_drops.asm
-
-[BANK B5]
-8000 - EFFF: Used by vanilla game
 
 [BANK B6]
 8000 - EFFF: ; hud_expansion_opaque.asm
