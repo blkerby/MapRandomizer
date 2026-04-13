@@ -532,6 +532,7 @@ function applyInitialEnhancedMapSettings(emSettings) {
     applyRadioValue("enhancedMapWalls", emSettings.walls);
     applyRadioValue("enhancedMapStation", emSettings.map_station);
     applyRadioValue("enhancedMapRefill", emSettings.refill_station);
+    applyRadioValue("enhancedMapPreset", emSettings.preset);
     processEnhancedMapPreset();
 }
 function applyQolPreset(preset) {
@@ -548,6 +549,7 @@ function applyQolPreset(preset) {
     }
 
     applyInitialMapRevealSettings(preset.initial_map_reveal_settings);
+    applyInitialEnhancedMapSettings(preset.enhanced_map_settings);
     applyRadioValue("itemMarkers", preset.item_markers);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
