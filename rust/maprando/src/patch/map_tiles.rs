@@ -4,8 +4,9 @@ use crate::{
     customize::{CustomizeSettings, ItemDotChange},
     randomize::{LockedDoor, Randomization},
     settings::{
-        DisableETankSetting, DoorLocksSize, EnhancedMapLevel, EnhancedMapOther, EnhancedMapWalls, InitialMapRevealSettings,
-        ItemMarkers, MapRevealLevel, MapStationReveal, Objective, RandomizerSettings,
+        DisableETankSetting, DoorLocksSize, EnhancedMapLevel, EnhancedMapOther, EnhancedMapWalls,
+        InitialMapRevealSettings, ItemMarkers, MapRevealLevel, MapStationReveal, Objective,
+        RandomizerSettings,
     },
 };
 use maprando_game::{
@@ -290,7 +291,12 @@ fn draw_edge(
     match edge {
         MapTileEdge::Empty => {}
         MapTileEdge::QolEmpty => {
-            if settings.quality_of_life_settings.enhanced_map_settings.walls == EnhancedMapWalls::Vanilla {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .walls
+                == EnhancedMapWalls::Vanilla
+            {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 2, 3);
@@ -304,7 +310,12 @@ fn draw_edge(
         MapTileEdge::Passage => {
             set_wall_pixel(tile, 0, 3);
             set_wall_pixel(tile, 1, 3);
-            if settings.quality_of_life_settings.enhanced_map_settings.walls == EnhancedMapWalls::Vanilla {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .walls
+                == EnhancedMapWalls::Vanilla
+            {
                 set_wall_pixel(tile, 2, 3);
                 set_wall_pixel(tile, 3, 3);
                 set_wall_pixel(tile, 4, 3);
@@ -314,7 +325,12 @@ fn draw_edge(
             set_wall_pixel(tile, 7, 3);
         }
         MapTileEdge::QolPassage => {
-            if settings.quality_of_life_settings.enhanced_map_settings.walls == EnhancedMapWalls::White {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .walls
+                == EnhancedMapWalls::White
+            {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 6, 3);
@@ -351,7 +367,8 @@ fn draw_edge(
             set_wall_pixel(tile, 7, 3);
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
-            if settings.other_settings.ultra_low_qol { //nn note - what is this?
+            if settings.other_settings.ultra_low_qol {
+                //nn note - what is this?
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 2, 3);
@@ -690,7 +707,12 @@ pub fn render_tile(
             );
         }
         MapTileInterior::EnergyRefill => {
-            if settings.quality_of_life_settings.enhanced_map_settings.refill_station == EnhancedMapOther::Vanilla {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .refill_station
+                == EnhancedMapOther::Vanilla
+            {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -749,7 +771,12 @@ pub fn render_tile(
             }
         }
         MapTileInterior::AmmoRefill => {
-            if settings.quality_of_life_settings.enhanced_map_settings.refill_station == EnhancedMapOther::Vanilla {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .refill_station
+                == EnhancedMapOther::Vanilla
+            {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -806,7 +833,12 @@ pub fn render_tile(
             }
         }
         MapTileInterior::DoubleRefill | MapTileInterior::Ship => {
-            if settings.quality_of_life_settings.enhanced_map_settings.refill_station == EnhancedMapOther::Vanilla {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .refill_station
+                == EnhancedMapOther::Vanilla
+            {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -905,7 +937,12 @@ pub fn render_tile(
             );
         }
         MapTileInterior::MapStation => {
-            if settings.quality_of_life_settings.enhanced_map_settings.map_station == EnhancedMapOther::Vanilla {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .map_station
+                == EnhancedMapOther::Vanilla
+            {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -962,7 +999,10 @@ pub fn render_tile(
     }
 
     let apply_heat = |d: [[u8; 8]; 8]| {
-        if tile.heated && settings.quality_of_life_settings.enhanced_map_settings.heat == EnhancedMapLevel::Visible {
+        if tile.heated
+            && settings.quality_of_life_settings.enhanced_map_settings.heat
+                == EnhancedMapLevel::Visible
+        {
             d.map(|row| row.map(|c| if c == 1 { 2 } else { c }))
         } else {
             d
@@ -1245,7 +1285,8 @@ pub fn render_tile(
                 MapTileInterior::MapStation,
                 MapTileInterior::Objective,
             ]
-            .contains(&tile.interior)//)
+            .contains(&tile.interior)
+    //)
     {
         // Skip drawing door & wall edges in special tiles
     } else {
@@ -2453,27 +2494,27 @@ impl<'a> MapPatcher<'a> {
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
                 tile.interior = MapTileInterior::Item;
             }
-            
-                tile.interior = get_item_interior(item, self.settings);
-                self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                match self.customize_settings.item_dot_change {
-                    ItemDotChange::Fade => {
-                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                        tile.faded = true;
-                        self.set_room_tile(room_id, x, y, tile.clone());
-                    }
-                    ItemDotChange::Disappear => {
-                        tile.interior = MapTileInterior::Empty;
-                        self.set_room_tile(room_id, x, y, tile.clone());
-                    }
-                    ItemDotChange::Stay => {
-                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                        tile.faded = false;
-                        self.set_room_tile(room_id, x, y, tile.clone());
-                    }
+
+            tile.interior = get_item_interior(item, self.settings);
+            self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
+            match self.customize_settings.item_dot_change {
+                ItemDotChange::Fade => {
+                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                    tile.faded = true;
+                    self.set_room_tile(room_id, x, y, tile.clone());
+                }
+                ItemDotChange::Disappear => {
+                    tile.interior = MapTileInterior::Empty;
+                    self.set_room_tile(room_id, x, y, tile.clone());
+                }
+                ItemDotChange::Stay => {
+                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                    tile.faded = false;
+                    self.set_room_tile(room_id, x, y, tile.clone());
                 }
             }
-        
+        }
+
         Ok(())
     }
 
@@ -2969,10 +3010,22 @@ impl<'a> MapPatcher<'a> {
         }
         self.apply_room_tiles()?;
         self.indicate_objective_tiles()?;
-        if self.settings.quality_of_life_settings.enhanced_map_settings.gray_doors == EnhancedMapLevel::Visible {
+        if self
+            .settings
+            .quality_of_life_settings
+            .enhanced_map_settings
+            .gray_doors
+            == EnhancedMapLevel::Visible
+        {
             self.indicate_gray_doors()?;
         }
-        if self.settings.quality_of_life_settings.enhanced_map_settings.locked_doors == EnhancedMapLevel::Visible {
+        if self
+            .settings
+            .quality_of_life_settings
+            .enhanced_map_settings
+            .locked_doors
+            == EnhancedMapLevel::Visible
+        {
             self.indicate_locked_doors()?;
         }
         self.add_cross_area_arrows()?;

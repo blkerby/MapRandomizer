@@ -473,15 +473,15 @@ impl Patcher<'_> {
             "door_irq_fix",
             "extra_setup",
             "vanilla_bugfixes", // from here to the end were moved from ultra_low_qol... these don't have a toggle but can be switched to one or moved into the other group toggles
-            "aim_anything", // i thought about having "ui fixes" toggle, group this with the menu fixes etc 
-            "fix_kraid_vomit", 
-            "fix_kraid_hud",  // these 3 maybe camera fixes? or something else
+            "aim_anything", // i thought about having "ui fixes" toggle, group this with the menu fixes etc
+            "fix_kraid_vomit",
+            "fix_kraid_hud", // these 3 maybe camera fixes? or something else
             "fix_kraid_door",
             "boss_exit",
-            "load_plms_early", 
-            "spin_lock", 
+            "load_plms_early",
+            "spin_lock",
             "fix_transition_bad_tiles", // maybe this can be moved to be applied with camera fixes?
-            "fix_horiz_doors", // this too?
+            "fix_horiz_doors",          // this too?
             "fix_dust_torizo",
             "fix_choot",
         ];
@@ -1097,7 +1097,8 @@ impl Patcher<'_> {
         let mut extra_door_asm: HashMap<DoorPtr, Vec<u8>> = HashMap::new();
         extra_door_asm.insert(0x1A600, toilet_exit_asm.clone()); // Aqueduct toilet door down
         extra_door_asm.insert(0x1A60C, toilet_exit_asm.clone()); // Aqueduct toilet door up
-        if self.settings.quality_of_life_settings.camera_fixes {  // nn note - is this becuase of camera fixes (guess) or something else... check this.
+        if self.settings.quality_of_life_settings.camera_fixes {
+            // nn note - is this becuase of camera fixes (guess) or something else... check this.
             extra_door_asm.insert(0x191CE, boss_exit_asm.clone()); // Kraid left exit
             extra_door_asm.insert(0x191DA, boss_exit_asm.clone()); // Kraid right exit
             extra_door_asm.insert(0x1A96C, boss_exit_asm.clone()); // Draygon left exit
@@ -3631,7 +3632,8 @@ pub fn make_rom(
         patcher.use_area_based_music()?;
     }
     patcher.setup_door_specific_fx()?;
-    if randomizer_settings.quality_of_life_settings.camera_fixes { //nn note - the cre wasn't applied in ultralow qol, is this also camera fixes or some other reason - check this too!
+    if randomizer_settings.quality_of_life_settings.camera_fixes {
+        //nn note - the cre wasn't applied in ultralow qol, is this also camera fixes or some other reason - check this too!
         patcher.setup_reload_cre()?;
     }
     patcher.apply_title_screen_patches()?;
