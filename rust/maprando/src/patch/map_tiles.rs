@@ -367,7 +367,12 @@ fn draw_edge(
             set_wall_pixel(tile, 7, 3);
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
-            if settings.other_settings.ultra_low_qol {
+            if settings
+                .quality_of_life_settings
+                .enhanced_map_settings
+                .water
+                == EnhancedMapLevel::Hidden
+            {
                 //nn note - what is this?
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
