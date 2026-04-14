@@ -110,11 +110,6 @@
             "enabled": true
         },
         {
-            "id": 123,
-            "name": "canPseudoScrew",
-            "enabled": true
-        },
-        {
             "id": 212,
             "name": "canSpeedyJump",
             "enabled": true
@@ -127,6 +122,11 @@
         {
             "id": 136,
             "name": "canShinechargeMovement",
+            "enabled": true
+        },
+        {
+            "id": 134,
+            "name": "canMidairShinespark",
             "enabled": true
         },
         {
@@ -265,6 +265,11 @@
             "enabled": true
         },
         {
+            "id": 123,
+            "name": "canPseudoScrew",
+            "enabled": true
+        },
+        {
             "id": 126,
             "name": "canOffScreenSuperShot",
             "enabled": true
@@ -287,11 +292,6 @@
         {
             "id": 244,
             "name": "canHorizontalMidairShinespark",
-            "enabled": true
-        },
-        {
-            "id": 134,
-            "name": "canMidairShinespark",
             "enabled": true
         },
         {
@@ -1579,13 +1579,6 @@
             "enabled": true
         },
         {
-            "room_id": 104,
-            "notable_id": 2,
-            "room_name": "Double Chamber",
-            "notable_name": "Shinespark through Wave Beam Door",
-            "enabled": true
-        },
-        {
             "room_id": 93,
             "notable_id": 1,
             "room_name": "Frog Speedway",
@@ -2860,6 +2853,13 @@
             "enabled": false
         },
         {
+            "room_id": 57,
+            "notable_id": 3,
+            "room_name": "Spore Spawn Room",
+            "notable_name": "Wave SBA Kill from Above",
+            "enabled": false
+        },
+        {
             "room_id": 59,
             "notable_id": 6,
             "room_name": "Big Pink",
@@ -3217,10 +3217,24 @@
             "enabled": false
         },
         {
+            "room_id": 210,
+            "notable_id": 18,
+            "room_name": "East Sand Hall",
+            "notable_name": "Blue Suit Sand Walk",
+            "enabled": false
+        },
+        {
             "room_id": 220,
             "notable_id": 5,
             "room_name": "Pants Room",
             "notable_name": "Bomb Jump Water Escape",
+            "enabled": false
+        },
+        {
+            "room_id": 220,
+            "notable_id": 6,
+            "room_name": "Pants Room",
+            "notable_name": "Keep Blue Suit in Sand",
             "enabled": false
         },
         {
@@ -3242,6 +3256,13 @@
             "notable_id": 11,
             "room_name": "West Sand Hall",
             "notable_name": "Suitless Damage Boost (Center to Left)",
+            "enabled": false
+        },
+        {
+            "room_id": 199,
+            "notable_id": 12,
+            "room_name": "West Sand Hall",
+            "notable_name": "Blue Suit Sand Walk",
             "enabled": false
         },
         {
@@ -3871,7 +3892,7 @@
             "room_id": 197,
             "notable_id": 3,
             "room_name": "Plasma Spark Room",
-            "notable_name": "SpringFling into Top Right Door",
+            "notable_name": "Spring Fling into Top Right Door",
             "enabled": false
         },
         {
@@ -4124,6 +4145,13 @@
             "notable_id": 3,
             "room_name": "East Sand Pit",
             "notable_name": "Insane Walljump Morph",
+            "enabled": false
+        },
+        {
+            "room_id": 181,
+            "notable_id": 3,
+            "room_name": "Watering Hole",
+            "notable_name": "Double Frozen Zeb Item Collect Shinespark Escape",
             "enabled": false
         },
         {

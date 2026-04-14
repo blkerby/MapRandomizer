@@ -812,7 +812,7 @@
     {
         "tech_id": 123,
         "name": "canPseudoScrew",
-        "difficulty": "Medium",
+        "difficulty": "Hard",
         "video_id": 1055
     },
     {
@@ -920,7 +920,7 @@
     {
         "tech_id": 134,
         "name": "canMidairShinespark",
-        "difficulty": "Hard",
+        "difficulty": "Medium",
         "video_id": 453
     },
     {

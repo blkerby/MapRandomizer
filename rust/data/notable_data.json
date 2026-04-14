@@ -712,6 +712,14 @@
     "video_id": 4261
   },
   {
+    "room_id": 57,
+    "room_name": "Spore Spawn Room",
+    "notable_id": 3,
+    "name": "Wave SBA Kill from Above",
+    "difficulty": "Extreme",
+    "video_id": 10108
+  },
+  {
     "room_id": 59,
     "room_name": "Big Pink",
     "notable_id": 1,
@@ -1174,14 +1182,6 @@
     "name": "Walljump Climb Using the Kamer",
     "difficulty": "Medium",
     "video_id": 1087
-  },
-  {
-    "room_id": 104,
-    "room_name": "Double Chamber",
-    "notable_id": 2,
-    "name": "Shinespark through Wave Beam Door",
-    "difficulty": "Very Hard",
-    "video_id": 494
   },
   {
     "room_id": 104,
@@ -2939,7 +2939,7 @@
     "room_id": 197,
     "room_name": "Plasma Spark Room",
     "notable_id": 3,
-    "name": "SpringFling into Top Right Door",
+    "name": "Spring Fling into Top Right Door",
     "difficulty": "Insane",
     "video_id": 242
   },
@@ -2990,6 +2990,14 @@
     "name": "Precise Crouch Jump Down Grab",
     "difficulty": "Expert",
     "video_id": 3153
+  },
+  {
+    "room_id": 181,
+    "room_name": "Watering Hole",
+    "notable_id": 3,
+    "name": "Double Frozen Zeb Item Collect Shinespark Escape",
+    "difficulty": "Insane+",
+    "video_id": null
   },
   {
     "room_id": 211,
@@ -3176,6 +3184,14 @@
     "video_id": 8039
   },
   {
+    "room_id": 210,
+    "room_name": "East Sand Hall",
+    "notable_id": 18,
+    "name": "Blue Suit Sand Walk",
+    "difficulty": "Extreme",
+    "video_id": null
+  },
+  {
     "room_id": 198,
     "room_name": "Oasis",
     "notable_id": 1,
@@ -3230,6 +3246,14 @@
     "name": "Bomb Jump Water Escape",
     "difficulty": "Extreme",
     "video_id": 141
+  },
+  {
+    "room_id": 220,
+    "room_name": "Pants Room",
+    "notable_id": 6,
+    "name": "Keep Blue Suit in Sand",
+    "difficulty": "Extreme",
+    "video_id": null
   },
   {
     "room_id": 222,
@@ -3358,6 +3382,14 @@
     "name": "Suitless Damage Boost (Center to Left)",
     "difficulty": "Extreme",
     "video_id": 340
+  },
+  {
+    "room_id": 199,
+    "room_name": "West Sand Hall",
+    "notable_id": 12,
+    "name": "Blue Suit Sand Walk",
+    "difficulty": "Extreme",
+    "video_id": null
   },
   {
     "room_id": 232,
