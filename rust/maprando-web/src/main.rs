@@ -478,7 +478,6 @@ struct SeedData {
     ammo_refill_all: bool,
     wall_jump: String,
     vanilla_map: bool,
-    ultra_low_qol: bool,
 }
 
 #[derive(MultipartForm)]
@@ -781,7 +780,6 @@ async fn randomize(
             .unwrap()
             .to_string(),
         vanilla_map: settings.map_layout == "Vanilla",
-        ultra_low_qol: settings.other_settings.ultra_low_qol,
     };
 
     let seed_name = &output.randomization.seed_name;

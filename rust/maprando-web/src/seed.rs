@@ -277,8 +277,7 @@ async fn customize_seed(
         Some(serde_json::from_slice(&randomization_bytes).unwrap())
     };
 
-    let ultra_low_qol = seed_data["ultra_low_qol"].as_bool().unwrap_or(false);
-
+    
     let rom_digest = crypto_hash::hex_digest(crypto_hash::Algorithm::SHA256, &rom.data);
     info!("Rom digest: {rom_digest}");
     if rom_digest != "12b77c4bc9c1832cee8881244659065ee1d84c70c3d29e6eaf92e6798cc2ca72" {
@@ -286,14 +285,8 @@ async fn customize_seed(
     }
 
     let customize_settings = CustomizeSettings {
-        samus_sprite: if ultra_low_qol
-            && req.samus_sprite.0 == "samus_vanilla"
-            && req.vanilla_screw_attack_animation.0
-        {
-            None
-        } else {
-            Some(req.samus_sprite.0.clone())
-        },
+        samus_sprite: Some(req.samus_sprite.0.clone()),
+        
         etank_color: Some((
             u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
             u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,

@@ -4723,7 +4723,6 @@
         "disable_bluesuit": false,
         "enable_major_glitches": false,
         "speed_booster": "Vanilla",
-        "ultra_low_qol": false,
         "race_mode": false,
         "random_seed": null
     }

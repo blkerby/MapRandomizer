@@ -448,7 +448,6 @@ pub struct OtherSettings {
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub all_enemies_respawn: bool,
-    pub ultra_low_qol: bool,
     pub disable_spikesuit: bool,
     pub disable_bluesuit: bool,
     pub enable_major_glitches: bool,
