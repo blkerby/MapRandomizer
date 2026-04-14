@@ -1822,7 +1822,9 @@ fn apply_requirement_simple(
             cx.settings.quality_of_life_settings.acid_chozo.into()
         }
         Requirement::KraidCameraFix => (cx.settings.quality_of_life_settings.camera_fixes).into(),
-        Requirement::CrocomireCameraFix => (cx.settings.quality_of_life_settings.camera_fixes).into(),
+        Requirement::CrocomireCameraFix => {
+            (cx.settings.quality_of_life_settings.camera_fixes).into()
+        }
         Requirement::RegularEnergyDrain(count) => {
             let count = count.resolve(&cx.difficulty.numerics);
             let energy_remaining = local.energy_remaining(&cx.global.inventory, false);
