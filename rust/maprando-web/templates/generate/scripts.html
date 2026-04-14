@@ -762,9 +762,6 @@ function qualityOfLifePresetChanged() {
             applyQolPreset(preset);
         }
     }
-    if (!isOff) {
-        document.getElementById("ultraLowQoLNo").checked = true;
-    }
     fullSettingsChanged();
 }
 
@@ -1313,20 +1310,7 @@ function itemPoolChanged() {
 }
 
 function gameVariationChanged() {
-    if (!document.getElementById("enableMajorGlitchesYes").checked)
-    {
-        document.getElementById("ultraLowQoLNo").checked = true;
-    }
     fullSettingsChanged();
-}
-
-function ultraLowQoLChanged() {
-    if (!document.getElementById("ultraLowQoLYes").checked) {
-        return;
-    }
-    document.getElementById("qualityOfLifeOff").checked = true;
-    document.getElementById("enableMajorGlitchesYes").checked = true;
-    qualityOfLifePresetChanged();
 }
 
 function initializeSpoilerToken() {
@@ -1356,7 +1340,6 @@ function checkOtherOptions() {
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
-        document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {
         document.getElementById("collapseGameVariations").classList.remove("collapse");

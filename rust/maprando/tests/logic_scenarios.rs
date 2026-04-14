@@ -5,7 +5,10 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
     settings::{
-        DisableETankSetting, DoorsSettings, EnemyDrops, EnhancedMapSettings, InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveSettings, OtherSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationSettings
+        DisableETankSetting, DoorsSettings, EnemyDrops, EnhancedMapSettings,
+        InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveSettings,
+        OtherSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
+        StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
 };

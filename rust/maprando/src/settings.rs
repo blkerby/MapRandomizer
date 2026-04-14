@@ -253,7 +253,6 @@ impl Display for EnhancedMapWalls {
     }
 }
 
-
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct InitialMapRevealSettings {
     pub preset: Option<String>,
