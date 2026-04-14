@@ -216,6 +216,7 @@ impl SeedHeaderTemplate<'_> {
 pub struct SeedFooterTemplate {
     race_mode: bool,
     all_items_spawn: bool,
+    ammo_refill_all: bool,
     supers_double: bool,
     settings: RandomizerSettings,
 }
@@ -525,6 +526,7 @@ pub fn render_seed(
     let seed_footer_template = SeedFooterTemplate {
         race_mode: seed_data.race_mode,
         all_items_spawn: seed_data.all_items_spawn,
+        ammo_refill_all: seed_data.ammo_refill_all,
         supers_double: seed_data.supers_double,
         settings: seed_data.settings.clone(),
     };
