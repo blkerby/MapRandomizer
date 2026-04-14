@@ -236,16 +236,6 @@ async fn customize_seed(
     let orig_rom = Rom::new(req.rom.data.to_vec());
     let mut rom = orig_rom.clone();
 
-    let seed_data_str: String = String::from_utf8(
-        app_data
-            .seed_repository
-            .get_file(seed_name, "seed_data.json")
-            .await
-            .unwrap(),
-    )
-    .unwrap();
-    let seed_data = json::parse(&seed_data_str).unwrap();
-
     let settings_bytes = app_data
         .seed_repository
         .get_file(seed_name, "public/settings.json")
