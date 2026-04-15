@@ -275,7 +275,6 @@ async fn customize_seed(
 
     let customize_settings = CustomizeSettings {
         samus_sprite: Some(req.samus_sprite.0.clone()),
-
         etank_color: Some((
             u8::from_str_radix(&req.etank_color.0[0..2], 16).unwrap() / 8,
             u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
