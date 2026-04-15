@@ -971,14 +971,14 @@ function processEnhancedMapPreset() {
         "Lava",
         "Acid"
     ]
-    if (document.getElementById("enhancedMapPresetDisabled").checked) {
+    if (document.getElementById("enhancedMapPresetNo").checked) {
         for (t of mapTypes) {
             document.getElementById(`enhancedMap${t}Hidden`).checked = true;
         }
         document.getElementById("enhancedMapWallsVanilla").checked = true;
         document.getElementById("enhancedMapStationVanilla").checked = true;
         document.getElementById("enhancedMapRefillVanilla").checked = true;
-    } else if (document.getElementById("enhancedMapPresetEnabled").checked) { 
+    } else if (document.getElementById("enhancedMapPresetYes").checked) { 
         for (t of mapTypes) {
             document.getElementById(`enhancedMap${t}Visible`).checked = true;
         }
@@ -994,8 +994,8 @@ function enhancedMapPresetChanged() {
 }
 
 function enhancedMapSettingChanged() {
-    document.getElementById("enhancedMapPresetDisabled").checked = false;
-    document.getElementById("enhancedMapPresetEnabled").checked = false;
+    document.getElementById("enhancedMapPresetNo").checked = false;
+    document.getElementById("enhancedMapPresetYes").checked = false;
     enhancedMapPresetChanged();
 }
 
