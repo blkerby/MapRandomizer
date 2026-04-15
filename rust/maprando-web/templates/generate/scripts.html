@@ -194,7 +194,7 @@ function buildInitialMapRevealSettings(formData) {
     }
 }
 
-function buildInitialEnhancedMapSettings(formData) {
+function buildEnhancedMapSettings(formData) {
     return {
         "preset": formData.get("enhanced_map"),
         "gray_doors": formData.get("enhanced_map_gray_doors"),
@@ -273,7 +273,7 @@ function buildSettingsObject() {
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
-            "enhanced_map_settings": buildInitialEnhancedMapSettings(formData),
+            "enhanced_map_settings": buildEnhancedMapSettings(formData),
             "initial_map_reveal_settings": buildInitialMapRevealSettings(formData),
             "item_markers": formData.get("item_markers"),
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
@@ -520,7 +520,7 @@ function applyInitialMapRevealSettings(imrSettings) {
     processInitialMapRevealPreset();
 }
 
-function applyInitialEnhancedMapSettings(emSettings) {
+function applyEnhancedMapSettings(emSettings) {
     applyRadioValue("enhancedMapGrayDoors", emSettings.gray_doors);
     applyRadioValue("enhancedMapAmmoDoors", emSettings.ammo_doors);
     applyRadioValue("enhancedMapBeamDoors", emSettings.beam_doors);
@@ -548,7 +548,7 @@ function applyQolPreset(preset) {
     }
 
     applyInitialMapRevealSettings(preset.initial_map_reveal_settings);
-    applyInitialEnhancedMapSettings(preset.enhanced_map_settings);
+    applyEnhancedMapSettings(preset.enhanced_map_settings);
     applyRadioValue("itemMarkers", preset.item_markers);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
