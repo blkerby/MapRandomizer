@@ -1,8 +1,9 @@
-d4df-e200: credits.asm
-e200-fef0: [FREE]
-fef0-ff00: seed name (null-terminated ASCII string)
-ff00-ff04: seed_hash_display.asm
-ff04: [FREE]
-ff05-ff07: randomizer settings:
+D4DF - D761: ; credits.asm
+D91B - DF0A: ; credits.asm
+E000 - E127: ; credits.asm
+E200 - FEEF: [FREE]
+FEF0 - FEFF: seed name (null-terminated ASCII string)
+FF04 - FF04: [FREE]
+FF05 - FF06: randomizer settings:
   - bitmask $0001: walljump-boots item enabled
-ff07-ff09: number of frames of artificial lag to add to the unpause black screen
+FF07 - FF08: number of frames of artificial lag to add to the unpause black screen

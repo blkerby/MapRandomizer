@@ -1,22 +1,23 @@
-$9643 - $96B0: [FREE]
-$96B0 - $9800: extended_msg_boxes.asm
-$9800 - $9880: spin_lock.asm
-$9880 - $9980: fast_reload.asm
-$9980 - $9B00: stats.asm
-$9B00 - $9B20: fix_hyper_slowlock.asm
-$9B20 - $9FF0: pause_menu_objectives.asm
-$9FF0 - $A050: vanilla_fanfare_stop_sounds
-$A050 - $A100: [FREE]
-$A100 - $A180: fix_transition_bad_tiles.asm
-$A180 - $A280: special_door_reveal.asm
-$A280 - $A880: map_area.asm
-$A8B0 - $A9B0: hud_expansion_opaque.asm
-$A9B0 - $AA00: sand_clamp.asm
-$AA00 - $AAA0: pause_menu_objectives.asm
-$AAA0 - $AB00: crash_handle_yapping.asm
-$AB00 - $ACA0: map_area.asm
-$ACA0 - $AD00: load_flash_suit
-$AD00 - $AD43: crash_handle_springball.asm
-$AD43 - $AEE0: reserve_backward_fill.asm
-$AEE0 - $B600: crash_handle_base.asm
-$B600 - $BA00: map_area.asm
+9643 - 96AF: [FREE]
+96B0 - 97C1: ; extended_msg_boxes.asm
+9800 - 9827: ; spin_lock.asm
+9880 - 993A: ; fast_reload.asm
+9980 - 9A23: ; stats.asm
+9B00 - 9B1B: ; fix_hyper_slowlock.asm
+9B20 - 9FEF: ; pause_menu_objectives.asm
+9FF0 - A012: ; vanilla_fanfare_stop_sounds.asm
+A050 - A0FF: [FREE]
+A100 - A16A: ; fix_transition_bad_tiles.asm
+A1D6 - A23C: ; special_door_reveal.asm
+A280 - A283: ; map_area.asm
+A290 - A826: ; map_area.asm
+A8B0 - A934: ; hud_expansion_opaque.asm
+A9B0 - A9D9: ; sand_clamp.asm
+AA00 - AA95: ; pause_menu_objectives.asm
+AAA0 - AADC: ; crash_handle_yapping.asm
+AB00 - AC95: ; map_area.asm
+ACA0 - ACFF: load_flash_suit
+AD00 - AD40: ; crash_handle_springball.asm
+AD43 - AEDB: ; reserve_backward_fill.asm
+AEE0 - B599: ; crash_handle_base.asm
+B600 - B93E: ; map_area.asm

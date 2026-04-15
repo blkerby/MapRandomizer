@@ -1,0 +1,25 @@
+F000 - F5FF: Initial revealed tile bitmask, copied to SRAM at $702000
+F600 - F601: Initial area explored bitmask, copied to SRAM at $702600
+F800 - FDFF: Initial partially revealed tile bitmask, copied to SRAM at $702700
+FE00 - FE01: Initial area
+FE02 - FE03: Initial load station
+FE04 - FE05: Initial items collected (to be copied to $09A4)
+FE06 - FE07: Initial items equipped (to be copied to $09A2)
+FE08 - FE09: Initial beams collected (to be copied to $09A8)
+FE0A - FE0B: Initial beams equipped (to be copied to $09A6)
+FE0C - FE11: Initial boss bits (to be copied to $7ED828-2E)
+FE12 - FE51: Initial item bits (to be copied to $7ED870-B0)
+FE52 - FE53: Initial energy (to be copied to $09C2)
+FE54 - FE55: Initial max energy (to be copied to $09C4)
+FE56 - FE57: Initial reserves (to be copied to $09D6)
+FE58 - FE59: Initial max reserves (to be copied to $09D4)
+FE5A - FE5B: Initial reserve mode (to be copied to $09C0)
+FE5C - FE5D: Initial missiles (to be copied to $09C6)
+FE5E - FE5F: Initial max missiles (to be copied to $09C8)
+FE60 - FE61: Initial super missiles (to be copied to $09CA)
+FE62 - FE63: Initial max super missiles (to be copied to $09CC)
+FE64 - FE65: Initial power bombs (to be copied to $09CE)
+FE66 - FE67: Initial max power bombs (to be copied to $09D0)
+FE70 - FE71: Toilet intersecting room pointer
+FE72 - FE73: Toilet X position relative to intersecting room
+FE73 - FE74: Toilet X position relative to intersecting room

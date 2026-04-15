@@ -1,2 +1,1 @@
-0000 - F3E8: Used by vanilla
 F3E9 - ????: Used for updated spritemap on title screen
