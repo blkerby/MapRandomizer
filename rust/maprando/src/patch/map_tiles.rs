@@ -151,6 +151,7 @@ fn draw_edge(
     tile: &mut [[u8; 8]; 8],
     settings: &RandomizerSettings,
 ) {
+    let em = &settings.quality_of_life_settings.enhanced_map_settings;
     let wall_coords = match tile_side {
         TileSide::Top => [
             (0, 0),
@@ -291,12 +292,7 @@ fn draw_edge(
     match edge {
         MapTileEdge::Empty => {}
         MapTileEdge::QolEmpty => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .walls
-                == EnhancedMapWalls::Vanilla
-            {
+            if em.walls == EnhancedMapWalls::Vanilla {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 2, 3);
@@ -310,12 +306,7 @@ fn draw_edge(
         MapTileEdge::Passage => {
             set_wall_pixel(tile, 0, 3);
             set_wall_pixel(tile, 1, 3);
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .walls
-                == EnhancedMapWalls::Vanilla
-            {
+            if em.walls == EnhancedMapWalls::Vanilla {
                 set_wall_pixel(tile, 2, 3);
                 set_wall_pixel(tile, 3, 3);
                 set_wall_pixel(tile, 4, 3);
@@ -325,12 +316,7 @@ fn draw_edge(
             set_wall_pixel(tile, 7, 3);
         }
         MapTileEdge::QolPassage => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .walls
-                == EnhancedMapWalls::White
-            {
+            if em.walls == EnhancedMapWalls::White {
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
                 set_wall_pixel(tile, 6, 3);
@@ -338,13 +324,7 @@ fn draw_edge(
             }
         }
         MapTileEdge::Door | MapTileEdge::QolDoor => {
-            let hidden = matches!(
-                settings
-                    .quality_of_life_settings
-                    .enhanced_map_settings
-                    .ammo_doors,
-                EnhancedMapLevel::Hidden
-            );
+            let hidden = matches!(em.ammo_doors, EnhancedMapLevel::Hidden);
             set_wall_pixel(tile, 0, 3);
             set_wall_pixel(tile, 1, 3);
             set_wall_pixel(tile, 2, 3);
@@ -367,12 +347,7 @@ fn draw_edge(
             set_wall_pixel(tile, 7, 3);
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .water
-                == EnhancedMapLevel::Hidden
-            {
+            if em.water == EnhancedMapLevel::Hidden {
                 //nn note - what is this?
                 set_wall_pixel(tile, 0, 3);
                 set_wall_pixel(tile, 1, 3);
@@ -509,9 +484,8 @@ pub fn render_tile(
     settings: &RandomizerSettings,
     customize_settings: &CustomizeSettings,
 ) -> Result<[[u8; 8]; 8]> {
-    let bg_color = if tile.heated
-        && settings.quality_of_life_settings.enhanced_map_settings.heat == EnhancedMapLevel::Visible
-    {
+    let em = &settings.quality_of_life_settings.enhanced_map_settings;
+    let bg_color = if tile.heated && em.heat == EnhancedMapLevel::Visible {
         2
     } else {
         1
@@ -528,14 +502,9 @@ pub fn render_tile(
     };
     if let Some(liquid_level) = tile.liquid_level {
         let visible = match tile.liquid_type {
-            MapLiquidType::Water => {
-                settings
-                    .quality_of_life_settings
-                    .enhanced_map_settings
-                    .water
-            }
-            MapLiquidType::Lava => settings.quality_of_life_settings.enhanced_map_settings.lava,
-            MapLiquidType::Acid => settings.quality_of_life_settings.enhanced_map_settings.acid,
+            MapLiquidType::Water => em.water,
+            MapLiquidType::Lava => em.lava,
+            MapLiquidType::Acid => em.acid,
             MapLiquidType::None => EnhancedMapLevel::Hidden,
         };
         if matches!(visible, EnhancedMapLevel::Visible) {
@@ -712,12 +681,7 @@ pub fn render_tile(
             );
         }
         MapTileInterior::EnergyRefill => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .refill_station
-                == EnhancedMapOther::Vanilla
-            {
+            if em.refill_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -776,12 +740,7 @@ pub fn render_tile(
             }
         }
         MapTileInterior::AmmoRefill => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .refill_station
-                == EnhancedMapOther::Vanilla
-            {
+            if em.refill_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -838,12 +797,7 @@ pub fn render_tile(
             }
         }
         MapTileInterior::DoubleRefill | MapTileInterior::Ship => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .refill_station
-                == EnhancedMapOther::Vanilla
-            {
+            if em.refill_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -898,56 +852,53 @@ pub fn render_tile(
             }
         }
         MapTileInterior::Objective => {
-            update_tile(
-                &mut data,
-                3,
-                &vec![
-                    (0, 0),
-                    (1, 0),
-                    (2, 0),
-                    (3, 0),
-                    (4, 0),
-                    (5, 0),
-                    (6, 0),
-                    (7, 0),
-                    (0, 1),
-                    (3, 1),
-                    (4, 1),
-                    (7, 1),
-                    (0, 2),
-                    (7, 2),
-                    (0, 3),
-                    (1, 3),
-                    (6, 3),
-                    (7, 3),
-                    (0, 4),
-                    (1, 4),
-                    (6, 4),
-                    (7, 4),
-                    (0, 5),
-                    (7, 5),
-                    (0, 6),
-                    (3, 6),
-                    (4, 6),
-                    (7, 6),
-                    (0, 7),
-                    (1, 7),
-                    (2, 7),
-                    (3, 7),
-                    (4, 7),
-                    (5, 7),
-                    (6, 7),
-                    (7, 7),
-                ],
-            );
+            if em.objectives == EnhancedMapOther::Icon {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (3, 1),
+                        (4, 1),
+                        (7, 1),
+                        (0, 2),
+                        (7, 2),
+                        (0, 3),
+                        (1, 3),
+                        (6, 3),
+                        (7, 3),
+                        (0, 4),
+                        (1, 4),
+                        (6, 4),
+                        (7, 4),
+                        (0, 5),
+                        (7, 5),
+                        (0, 6),
+                        (3, 6),
+                        (4, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
         }
         MapTileInterior::MapStation => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .map_station
-                == EnhancedMapOther::Vanilla
-            {
+            if em.map_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
@@ -1004,10 +955,7 @@ pub fn render_tile(
     }
 
     let apply_heat = |d: [[u8; 8]; 8]| {
-        if tile.heated
-            && settings.quality_of_life_settings.enhanced_map_settings.heat
-                == EnhancedMapLevel::Visible
-        {
+        if tile.heated && em.heat == EnhancedMapLevel::Visible {
             d.map(|row| row.map(|c| if c == 1 { 2 } else { c }))
         } else {
             d
@@ -1279,7 +1227,6 @@ pub fn render_tile(
         None => {}
     }
 
-    let em = &settings.quality_of_life_settings.enhanced_map_settings;
     match tile.interior {
         MapTileInterior::AmmoRefill if em.refill_station == EnhancedMapOther::Icon => {}
         MapTileInterior::EnergyRefill if em.refill_station == EnhancedMapOther::Icon => {}
