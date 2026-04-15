@@ -152,6 +152,11 @@ fn draw_edge(
     settings: &RandomizerSettings,
 ) {
     let em = &settings.quality_of_life_settings.enhanced_map_settings;
+    let wall_color = if em.walls == EnhancedMapWalls::Black {
+        4
+    } else {
+        3
+    };
     let wall_coords = match tile_side {
         TileSide::Top => [
             (0, 0),
@@ -293,91 +298,91 @@ fn draw_edge(
         MapTileEdge::Empty => {}
         MapTileEdge::QolEmpty => {
             if em.walls == EnhancedMapWalls::Vanilla {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         }
         MapTileEdge::Passage => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
             if em.walls == EnhancedMapWalls::Vanilla {
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
-                set_wall_pixel(tile, 5, 3);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
             }
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::QolPassage => {
             if em.walls == EnhancedMapWalls::White {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         }
         MapTileEdge::Door | MapTileEdge::QolDoor => {
             let hidden = matches!(em.ammo_doors, EnhancedMapLevel::Hidden);
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            set_wall_pixel(tile, 2, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            set_wall_pixel(tile, 2, wall_color);
             if hidden {
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
             }
-            set_wall_pixel(tile, 5, 3);
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 5, wall_color);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::Wall | MapTileEdge::QolWall => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            set_wall_pixel(tile, 2, 3);
-            set_wall_pixel(tile, 3, 3);
-            set_wall_pixel(tile, 4, 3);
-            set_wall_pixel(tile, 5, 3);
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            set_wall_pixel(tile, 2, wall_color);
+            set_wall_pixel(tile, 3, wall_color);
+            set_wall_pixel(tile, 4, wall_color);
+            set_wall_pixel(tile, 5, wall_color);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
             if em.water == EnhancedMapLevel::Hidden {
                 //nn note - what is this?
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             } else if tile_side == TileSide::Bottom {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             } else {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         }
         MapTileEdge::ElevatorEntrance => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
-            set_air_pixel(tile, 0, 3);
-            set_air_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
+            set_air_pixel(tile, 0, wall_color);
+            set_air_pixel(tile, 7, wall_color);
         }
         MapTileEdge::LockedDoor(lock_type) => match lock_type {
             Gray | Red | Green | Yellow => {
@@ -390,26 +395,26 @@ fn draw_edge(
                 };
                 match settings.other_settings.door_locks_size {
                     DoorLocksSize::Small => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
                         set_wall_pixel(tile, 2, 12);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
                         set_wall_pixel(tile, 5, 12);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
                         set_air_pixel(tile, 3, 4);
                         set_air_pixel(tile, 4, 4);
                     }
                     DoorLocksSize::Large => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
                         set_wall_pixel(tile, 2, 12);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
                         set_wall_pixel(tile, 5, 12);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
                         set_air_pixel(tile, 1, 4);
                         set_air_pixel(tile, 2, color);
                         set_air_pixel(tile, 3, color);
@@ -434,28 +439,28 @@ fn draw_edge(
                 };
                 match settings.other_settings.door_locks_size {
                     DoorLocksSize::Small => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
                         set_wall_pixel(tile, 2, 12);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
                         set_wall_pixel(tile, 5, 12);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
                         set_air_pixel(tile, 2, 13);
                         set_air_pixel(tile, 3, 4);
                         set_air_pixel(tile, 4, 4);
                         set_air_pixel(tile, 5, 13);
                     }
                     DoorLocksSize::Large => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
-                        set_wall_pixel(tile, 2, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
+                        set_wall_pixel(tile, 2, wall_color);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
-                        set_wall_pixel(tile, 5, 3);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
+                        set_wall_pixel(tile, 5, wall_color);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
                         set_air_pixel(tile, 2, 13);
                         set_air_pixel(tile, 3, color);
                         set_air_pixel(tile, 4, color);
@@ -466,14 +471,14 @@ fn draw_edge(
                 }
             }
             Wall => {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
                 set_wall_pixel(tile, 3, 13);
                 set_wall_pixel(tile, 4, 13);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         },
     }
