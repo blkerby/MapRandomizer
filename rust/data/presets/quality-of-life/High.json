@@ -10,6 +10,7 @@
         "lava": "Visible",
         "acid": "Visible",
         "walls": "White",
+        "objectives": "Icon",
         "map_station": "Icon",
         "refill_station": "Icon"
     },

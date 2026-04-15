@@ -223,6 +223,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
                 lava: maprando::settings::EnhancedMapLevel::Hidden,
                 acid: maprando::settings::EnhancedMapLevel::Hidden,
                 walls: maprando::settings::EnhancedMapWalls::Vanilla,
+                objectives: maprando::settings::EnhancedMapOther::Vanilla,
                 map_station: maprando::settings::EnhancedMapOther::Vanilla,
                 refill_station: maprando::settings::EnhancedMapOther::Vanilla,
             },

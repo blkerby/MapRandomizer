@@ -205,6 +205,7 @@ function buildEnhancedMapSettings(formData) {
         "lava": formData.get("enhanced_map_lava"),
         "acid": formData.get("enhanced_map_acid"),
         "walls": formData.get("enhanced_map_walls"),
+        "objectives": formData.get("enhanced_map_objectives"),
         "map_station": formData.get("enhanced_map_station"),
         "refill_station": formData.get("enhanced_map_refill"),
     }
@@ -529,6 +530,7 @@ function applyEnhancedMapSettings(emSettings) {
     applyRadioValue("enhancedMapLava", emSettings.lava);
     applyRadioValue("enhancedMapAcid", emSettings.acid);
     applyRadioValue("enhancedMapWalls", emSettings.walls);
+    applyRadioValue("enhancedMapObjectives", emSettings.objectives);
     applyRadioValue("enhancedMapStation", emSettings.map_station);
     applyRadioValue("enhancedMapRefill", emSettings.refill_station);
     applyRadioValue("enhancedMapPreset", emSettings.preset);
@@ -976,6 +978,7 @@ function processEnhancedMapPreset() {
             document.getElementById(`enhancedMap${t}Hidden`).checked = true;
         }
         document.getElementById("enhancedMapWallsVanilla").checked = true;
+        document.getElementById("enhancedMapObjectivesVanilla").checked = true;
         document.getElementById("enhancedMapStationVanilla").checked = true;
         document.getElementById("enhancedMapRefillVanilla").checked = true;
     } else if (document.getElementById("enhancedMapPresetYes").checked) { 
@@ -983,6 +986,7 @@ function processEnhancedMapPreset() {
             document.getElementById(`enhancedMap${t}Visible`).checked = true;
         }
         document.getElementById("enhancedMapWallsWhite").checked = true;
+        document.getElementById("enhancedMapObjectivesIcon").checked = true;
         document.getElementById("enhancedMapStationIcon").checked = true;
         document.getElementById("enhancedMapRefillIcon").checked = true;
 }

@@ -10,6 +10,7 @@
         "lava": "Hidden",
         "acid": "Hidden",
         "walls": "Vanilla",
+        "objectives": "Vanilla",
         "map_station": "Vanilla",
         "refill_station": "Vanilla"
     },

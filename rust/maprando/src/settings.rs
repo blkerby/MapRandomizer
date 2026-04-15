@@ -281,6 +281,7 @@ pub struct EnhancedMapSettings {
     pub lava: EnhancedMapLevel,
     pub acid: EnhancedMapLevel,
     pub walls: EnhancedMapWalls,
+    pub objectives: EnhancedMapOther,
     pub map_station: EnhancedMapOther,
     pub refill_station: EnhancedMapOther,
 }
@@ -1006,7 +1007,8 @@ fn upgrade_enhanced_map_settings(settings: &mut serde_json::Value) -> Result<()>
         // Map structure
         walls: EnhancedMapWalls::White,
 
-        // Stations
+        // Special tiles
+        objectives: EnhancedMapOther::Icon,
         map_station: EnhancedMapOther::Icon,
         refill_station: EnhancedMapOther::Icon,
     };
