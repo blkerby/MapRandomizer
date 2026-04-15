@@ -1976,11 +1976,15 @@ impl<'a> MapPatcher<'a> {
         for pass in [0, 1] {
             for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
                 // Process wall doors on a first pass, all other door types on second pass.
+                let locksettings = &self.settings.quality_of_life_settings.enhanced_map_settings;
                 let valid = match (pass, locked_door.door_type) {
                     (0, DoorType::Wall) => true,
                     (0, _) => false,
                     (1, DoorType::Wall) => false,
-                    (1, _) => true,
+                    (1, DoorType::Beam(_)) => locksettings.beam_doors == EnhancedMapLevel::Visible,
+                    (1, DoorType::Red | DoorType::Green | DoorType::Yellow) => {
+                        locksettings.ammo_doors == EnhancedMapLevel::Visible
+                    }
                     _ => panic!("internal error"),
                 };
                 if !valid {
@@ -2971,15 +2975,7 @@ impl<'a> MapPatcher<'a> {
         {
             self.indicate_gray_doors()?;
         }
-        if self
-            .settings
-            .quality_of_life_settings
-            .enhanced_map_settings
-            .ammo_doors
-            == EnhancedMapLevel::Visible
-        {
-            self.indicate_locked_doors()?;
-        }
+        self.indicate_locked_doors()?;
         self.add_cross_area_arrows()?;
         self.set_map_activation_behavior()?;
         self.indicate_items()?;
