@@ -274,7 +274,7 @@ pub struct InitialMapRevealSettings {
 pub struct EnhancedMapSettings {
     pub preset: Option<String>,
     pub gray_doors: EnhancedMapLevel,
-    pub locked_doors: EnhancedMapLevel,
+    pub ammo_doors: EnhancedMapLevel,
     pub beam_doors: EnhancedMapLevel,
     pub heat: EnhancedMapLevel,
     pub water: EnhancedMapLevel,
@@ -994,7 +994,7 @@ fn upgrade_enhanced_map_settings(settings: &mut serde_json::Value) -> Result<()>
 
         // Doors
         gray_doors: EnhancedMapLevel::Visible,
-        locked_doors: EnhancedMapLevel::Visible,
+        ammo_doors: EnhancedMapLevel::Visible,
         beam_doors: EnhancedMapLevel::Visible,
 
         // Environment hazards

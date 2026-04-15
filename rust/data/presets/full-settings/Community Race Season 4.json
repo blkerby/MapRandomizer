@@ -4535,7 +4535,7 @@
         "enhanced_map_settings": {
             "preset": "Enabled",
             "gray_doors": "Visible",
-            "locked_doors": "Visible",
+            "ammo_doors": "Visible",
             "beam_doors": "Visible",
             "heat": "Visible",
             "water": "Visible",

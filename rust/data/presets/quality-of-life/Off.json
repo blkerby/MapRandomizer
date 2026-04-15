@@ -3,7 +3,7 @@
     "enhanced_map_settings": {
         "preset": "Disabled",
         "gray_doors": "Hidden",
-        "locked_doors": "Hidden",
+        "ammo_doors": "Hidden",
         "beam_doors": "Hidden",
         "heat": "Hidden",
         "water": "Hidden",

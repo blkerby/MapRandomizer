@@ -342,7 +342,7 @@ fn draw_edge(
                 settings
                     .quality_of_life_settings
                     .enhanced_map_settings
-                    .locked_doors,
+                    .ammo_doors,
                 EnhancedMapLevel::Hidden
             );
             set_wall_pixel(tile, 0, 3);
@@ -3028,7 +3028,7 @@ impl<'a> MapPatcher<'a> {
             .settings
             .quality_of_life_settings
             .enhanced_map_settings
-            .locked_doors
+            .ammo_doors
             == EnhancedMapLevel::Visible
         {
             self.indicate_locked_doors()?;

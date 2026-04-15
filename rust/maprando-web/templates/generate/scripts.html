@@ -198,7 +198,7 @@ function buildInitialEnhancedMapSettings(formData) {
     return {
         "preset": formData.get("enhanced_map"),
         "gray_doors": formData.get("enhanced_map_gray_doors"),
-        "locked_doors": formData.get("enhanced_map_locked_doors"),
+        "ammo_doors": formData.get("enhanced_map_ammo_doors"),
         "beam_doors": formData.get("enhanced_map_beam_doors"),
         "heat": formData.get("enhanced_map_heat"),
         "water": formData.get("enhanced_map_water"),
@@ -522,7 +522,7 @@ function applyInitialMapRevealSettings(imrSettings) {
 
 function applyInitialEnhancedMapSettings(emSettings) {
     applyRadioValue("enhancedMapGrayDoors", emSettings.gray_doors);
-    applyRadioValue("enhancedMapLockedDoors", emSettings.locked_doors);
+    applyRadioValue("enhancedMapAmmoDoors", emSettings.ammo_doors);
     applyRadioValue("enhancedMapBeamDoors", emSettings.beam_doors);
     applyRadioValue("enhancedMapHeat", emSettings.heat);
     applyRadioValue("enhancedMapWater", emSettings.water);
@@ -964,7 +964,7 @@ function initialMapRevealSettingChanged() {
 function processEnhancedMapPreset() {
     let mapTypes = [
         "GrayDoors",
-        "LockedDoors",
+        "AmmoDoors",
         "BeamDoors",
         "Heat",
         "Water",
