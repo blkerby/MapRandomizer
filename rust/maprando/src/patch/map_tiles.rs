@@ -329,7 +329,7 @@ fn draw_edge(
             }
         }
         MapTileEdge::Door | MapTileEdge::QolDoor => {
-            let hidden = matches!(em.ammo_doors, EnhancedMapLevel::Hidden);
+            let hidden = matches!(em.blue_doors, EnhancedMapLevel::Hidden);
             set_wall_pixel(tile, 0, wall_color);
             set_wall_pixel(tile, 1, wall_color);
             set_wall_pixel(tile, 2, wall_color);

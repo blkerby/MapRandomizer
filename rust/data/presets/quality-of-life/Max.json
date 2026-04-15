@@ -1,7 +1,8 @@
 {
     "preset": "Max",
     "enhanced_map_settings": {
-        "preset": "Enabled",
+        "preset": "Yes",
+        "blue_doors": "Visible",
         "gray_doors": "Visible",
         "ammo_doors": "Visible",
         "beam_doors": "Visible",

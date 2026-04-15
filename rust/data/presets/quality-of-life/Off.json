@@ -1,7 +1,8 @@
 {
     "preset": "Off",
     "enhanced_map_settings": {
-        "preset": "Disabled",
+        "preset": "No",
+        "blue_doors": "Hidden",
         "gray_doors": "Hidden",
         "ammo_doors": "Hidden",
         "beam_doors": "Hidden",

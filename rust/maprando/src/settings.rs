@@ -273,6 +273,7 @@ pub struct InitialMapRevealSettings {
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct EnhancedMapSettings {
     pub preset: Option<String>,
+    pub blue_doors: EnhancedMapLevel,
     pub gray_doors: EnhancedMapLevel,
     pub ammo_doors: EnhancedMapLevel,
     pub beam_doors: EnhancedMapLevel,
@@ -991,9 +992,10 @@ fn upgrade_enhanced_map_settings(settings: &mut serde_json::Value) -> Result<()>
         .context("missing 'quality_of_life_settings'")?;
 
     let enhanced = EnhancedMapSettings {
-        preset: Some("Enabled".to_string()),
+        preset: Some("Yes".to_string()),
 
         // Doors
+        blue_doors: EnhancedMapLevel::Visible,
         gray_doors: EnhancedMapLevel::Visible,
         ammo_doors: EnhancedMapLevel::Visible,
         beam_doors: EnhancedMapLevel::Visible,
