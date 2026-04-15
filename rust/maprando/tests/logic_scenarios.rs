@@ -216,7 +216,7 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             enhanced_map_settings: EnhancedMapSettings {
                 preset: None,
                 gray_doors: maprando::settings::EnhancedMapLevel::Hidden,
-                locked_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                ammo_doors: maprando::settings::EnhancedMapLevel::Hidden,
                 beam_doors: maprando::settings::EnhancedMapLevel::Hidden,
                 heat: maprando::settings::EnhancedMapLevel::Hidden,
                 water: maprando::settings::EnhancedMapLevel::Hidden,
