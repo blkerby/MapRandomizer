@@ -988,44 +988,43 @@ pub fn render_tile(
             }
         }
         MapTileInterior::Objective => {
-            if em.objectives == EnhancedMapOther::Icon {
-                if em.walls == EnhancedMapWalls::Black {
-                    update_tile(
-                        &mut data,
-                        0,
-                        &vec![
-                            (1, 1),
-                            (2, 1),
-                            (5, 1),
-                            (6, 1),
-                            (1, 2),
-                            (2, 2),
-                            (3, 2),
-                            (4, 2),
-                            (5, 2),
-                            (6, 2),
-                            (2, 3),
-                            (3, 3),
-                            (4, 3),
-                            (5, 3),
-                            (2, 4),
-                            (3, 4),
-                            (4, 4),
-                            (5, 4),
-                            (1, 5),
-                            (2, 5),
-                            (3, 5),
-                            (4, 5),
-                            (5, 5),
-                            (6, 5),
-                            (1, 6),
-                            (2, 6),
-                            (5, 6),
-                            (6, 6),
-                        ],
-                    );
-                }
-            } else {
+            if em.objectives == EnhancedMapOther::Icon && em.walls == EnhancedMapWalls::Black {
+                update_tile(
+                    &mut data,
+                    0,
+                    &vec![
+                        (1, 1),
+                        (2, 1),
+                        (5, 1),
+                        (6, 1),
+                        (1, 2),
+                        (2, 2),
+                        (3, 2),
+                        (4, 2),
+                        (5, 2),
+                        (6, 2),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (1, 5),
+                        (2, 5),
+                        (3, 5),
+                        (4, 5),
+                        (5, 5),
+                        (6, 5),
+                        (1, 6),
+                        (2, 6),
+                        (5, 6),
+                        (6, 6),
+                    ],
+                );
+            } else if em.objectives == EnhancedMapOther::Icon && em.walls == EnhancedMapWalls::White
+            {
                 update_tile(
                     &mut data,
                     3,
