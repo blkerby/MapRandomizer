@@ -731,6 +731,35 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.refill_station == EnhancedMapOther::Icon
+                && em.walls == EnhancedMapWalls::Black
+            {
+                update_tile(
+                    &mut data,
+                    0,
+                    &vec![
+                        (3, 1),
+                        (4, 1),
+                        (3, 2),
+                        (4, 2),
+                        (1, 3),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (6, 3),
+                        (1, 4),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (6, 4),
+                        (3, 5),
+                        (4, 5),
+                        (3, 6),
+                        (4, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -790,6 +819,35 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.refill_station == EnhancedMapOther::Icon
+                && em.walls == EnhancedMapWalls::Black
+            {
+                update_tile(
+                    &mut data,
+                    0,
+                    &vec![
+                        (2, 2),
+                        (3, 2),
+                        (4, 2),
+                        (5, 2),
+                        (2, 3),
+                        (5, 3),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (1, 5),
+                        (2, 5),
+                        (3, 5),
+                        (4, 5),
+                        (5, 5),
+                        (6, 5),
+                        (1, 6),
+                        (3, 6),
+                        (4, 6),
+                        (6, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -847,6 +905,39 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.refill_station == EnhancedMapOther::Icon
+                && em.walls == EnhancedMapWalls::Black
+            {
+                update_tile(
+                    &mut data,
+                    0,
+                    &vec![
+                        (1, 1),
+                        (3, 1),
+                        (4, 1),
+                        (6, 1),
+                        (3, 2),
+                        (4, 2),
+                        (1, 3),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (6, 3),
+                        (1, 4),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (6, 4),
+                        (3, 5),
+                        (4, 5),
+                        (1, 6),
+                        (3, 6),
+                        (4, 6),
+                        (6, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -898,6 +989,43 @@ pub fn render_tile(
         }
         MapTileInterior::Objective => {
             if em.objectives == EnhancedMapOther::Icon {
+                if em.walls == EnhancedMapWalls::Black {
+                    update_tile(
+                        &mut data,
+                        0,
+                        &vec![
+                            (1, 1),
+                            (2, 1),
+                            (5, 1),
+                            (6, 1),
+                            (1, 2),
+                            (2, 2),
+                            (3, 2),
+                            (4, 2),
+                            (5, 2),
+                            (6, 2),
+                            (2, 3),
+                            (3, 3),
+                            (4, 3),
+                            (5, 3),
+                            (2, 4),
+                            (3, 4),
+                            (4, 4),
+                            (5, 4),
+                            (1, 5),
+                            (2, 5),
+                            (3, 5),
+                            (4, 5),
+                            (5, 5),
+                            (6, 5),
+                            (1, 6),
+                            (2, 6),
+                            (5, 6),
+                            (6, 6),
+                        ],
+                    );
+                }
+            } else {
                 update_tile(
                     &mut data,
                     3,
@@ -948,6 +1076,38 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.map_station == EnhancedMapOther::Icon
+                && em.walls == EnhancedMapWalls::Black
+            {
+                update_tile(
+                    &mut data,
+                    0,
+                    &vec![
+                        (1, 1),
+                        (2, 1),
+                        (3, 1),
+                        (4, 1),
+                        (5, 1),
+                        (6, 1),
+                        (1, 2),
+                        (6, 2),
+                        (1, 3),
+                        (3, 3),
+                        (4, 3),
+                        (6, 3),
+                        (1, 4),
+                        (3, 4),
+                        (4, 4),
+                        (6, 4),
+                        (1, 5),
+                        (6, 5),
+                        (1, 6),
+                        (2, 6),
+                        (3, 6),
+                        (4, 6),
+                        (5, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
