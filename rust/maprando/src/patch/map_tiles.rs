@@ -353,7 +353,7 @@ fn draw_edge(
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
             if em.water == EnhancedMapLevel::Hidden {
-                //nn note - what is this?
+                //nn note - xxxwhat is this?xxx this is the sand pits right? maybe should be blue doors not water....?
                 set_wall_pixel(tile, 0, wall_color);
                 set_wall_pixel(tile, 1, wall_color);
                 set_wall_pixel(tile, 2, wall_color);
@@ -1158,12 +1158,16 @@ pub fn render_tile(
         }
     }
 
-    let apply_heat = |d: [[u8; 8]; 8]| {
+    let apply_heat = |mut d: [[u8; 8]; 8]| {
         if tile.heated && em.heat == EnhancedMapLevel::Visible {
-            d.map(|row| row.map(|c| if c == 1 { 2 } else { c }))
-        } else {
-            d
+            d = d.map(|row| row.map(|c| if c == 1 { 2 } else { c }));
         }
+
+        if em.walls == EnhancedMapWalls::Black {
+            d = d.map(|row| row.map(|c| if c == 3 { 4 } else { c }));
+        }
+
+        d
     };
     match tile.special_type {
         Some(MapTileSpecialType::AreaTransition(area_idx, dir)) => {
