@@ -648,7 +648,7 @@ pub fn render_tile(
             {
                 update_tile(
                     &mut data,
-                    3,
+                    0,
                     &vec![
                         (2, 1),
                         (3, 1),
@@ -681,7 +681,7 @@ pub fn render_tile(
             } else {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (0, 0),
                         (1, 0),
