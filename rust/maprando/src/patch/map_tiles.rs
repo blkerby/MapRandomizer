@@ -352,8 +352,7 @@ fn draw_edge(
             set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
-            if em.water == EnhancedMapLevel::Hidden {
-                //nn note - xxxwhat is this?xxx this is the sand pits right? maybe should be blue doors not water....?
+            if em.blue_doors == EnhancedMapLevel::Hidden {
                 set_wall_pixel(tile, 0, wall_color);
                 set_wall_pixel(tile, 1, wall_color);
                 set_wall_pixel(tile, 2, wall_color);
