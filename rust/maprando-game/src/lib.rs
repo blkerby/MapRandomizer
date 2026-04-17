@@ -3344,13 +3344,10 @@ impl GameData {
                         node_json["nodeType"].as_str().unwrap(),
                         node_json["nodeSubType"].as_str().unwrap(),
                     ) {
-                        ("door", _) => {
-                            if flagged_gray_door_node_ids.contains(&(room_id, node_id)) {
-                                new_strat["setsFlags"] = lock["yields"].clone();
-                            } else {
-                                continue;
-                            }
+                        ("door", _) if flagged_gray_door_node_ids.contains(&(room_id, node_id)) => {
+                            new_strat["setsFlags"] = lock["yields"].clone();
                         }
+
                         ("event", "flag" | "boss") | ("junction", _) => {
                             new_strat["setsFlags"] = yields.clone();
                         }
