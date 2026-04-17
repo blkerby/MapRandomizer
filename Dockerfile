@@ -1,4 +1,4 @@
-FROM rust:1.93.0-bookworm AS development
+FROM rust:1.94.1-bookworm AS development
 
 RUN apt-get update && apt-get install -y zstd
 
