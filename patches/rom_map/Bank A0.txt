@@ -1,3 +1,3 @@
-F820 - F830: vanilla_bugfixes.asm
-F900 - FA00: gray_doors.asm
-FE00 - FFFF: fast_reload.asm
+F820 - F82B: ; vanilla_bugfixes.asm
+F900 - F972: ; gray_doors.asm
+FE00 - FF1F: ; fast_reload.asm

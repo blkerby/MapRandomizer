@@ -1,26 +1,26 @@
-$858C - $85B2: vanilla_bugfixes.asm (unused vanilla code, repurposed for main street save station plm check.)
-$EFD3 - $EFD7: load_plms_early.asm
-$EFD7 - $F000: vanilla_camerafixes.asm
-$F000 - $F0E2: walljump_plm.asm
-$F0E2 - $F28B: split_speed_plm.asm
-$F28B - $F300: mb_barrier_clear.asm (to remove invisible spikes after Mother Brain defeaed)
-$F300 - $F380: escape_items.asm
-$F380 - $F480: escape.asm
-$F480 - $F490: etank_refill_full.asm
-$F490 - $F4A0: reserve_hud.asm
-$F4A0 - $F500: [FREE]
-$F500 - $F580: itemsounds.asm
-$F580 - $F590: mb_left_entrance.asm
-$F590 - $F5A0: horizontal_door_fix.asm
-$F5A0 - $F5C0: energy_station_reserves.asm
-$F5C0 - $F630: wall_doors.asm
-$F630 - $F6D0: [FREE]
-$F6D0 - $F700: missile_refill_all.asm
-$F700 - $F730: nothing_item.asm
-$F730 - $F800: stats.asm
-$F800 - $F900: hazard_markers
-$F900 - $FA00: escape.asm
-$FA00 - $FC00: gray_doors.asm
-$FC00 - $FC40: fix_kraid_vomit.asm
-$FC40 - $FCC0: escape_autosave.asm
-$FCC0 - end: beam_doors.asm
+EFD3 - EFD6: ; load_plms_early.asm
+EFD7 - EFE7: ; vanilla_camerafixes.asm
+F000 - F0E1: ; walljump_plm.asm
+F0E2 - F27F: ; split_speed_plm.asm
+F28B - F2FF: ; mb_barrier_clear.asm
+F300 - F30C: ; escape_items.asm
+F380 - F418: ; escape.asm
+F480 - F489: ; etank_refill_full.asm
+F490 - F499: ; reserve_hud.asm
+F4A0 - F4FF: [FREE]
+F500 - F550: ; itemsounds.asm
+F580 - F58D: ; mb_left_entrance.asm
+F590 - F59D: ; horizontal_door_fix.asm
+F5A0 - F5B5: ; energy_station_reserves.asm
+F5C0 - F62F: ; wall_doors.asm
+F630 - F6CF: [FREE]
+F6D0 - F6F9: ; missile_refill_all.asm
+F700 - F721: ; nothing_item.asm
+F730 - F7F1: ; stats.asm
+F800 - F8C2: ; hazard_markers.asm
+F900 - F955: ; hyper_beam.asm
+F900 - F98D: ; escape.asm
+FA00 - FB46: ; gray_doors.asm
+FC00 - FC0E: ; fix_kraid_vomit.asm
+FC40 - FC9D: ; escape_autosave.asm
+FCC0 - FFEE: ; beam_doors.asm

@@ -1,12 +1,10 @@
-$F63A - $F680: unexplore.asm
-$F680 - $F700: complementary_suits.asm
-$F700 - $F800: map_progress_maintain.asm
-$F800 - $F880: momentum_conservation.asm
-$F880 - $F900: walljump_item.asm
-$F900 - $F910: escape_timer.asm
-$F980 - $FA00: respin.asm
-$FA00 - $FC00: map_progress_maintain.asm (list of cross-area tiles to reveal)
-$FC00 - $FC10: Fake Lava.asm
-$FC10 - $FC20: crash_handle_yapping.asm
-$FC20 - $FC40: remove_spikesuit.asm
-$FC40 - $FD00: split_speed.asm
+F63A - F65D: ; unexplore.asm
+F680 - F6B2: ; complementary_suits.asm
+F700 - F7FC: ; map_progress_maintain.asm
+F800 - F84D: ; momentum_conservation.asm
+F900 - F90C: ; escape_timer.asm
+F980 - F99E: ; respin.asm
+FC00 - FC0F: ; Fake Lava.asm
+FC10 - FC1C: ; crash_handle_yapping.asm
+FC20 - FC3A: ; remove_spikesuit.asm
+FC40 - FCB7: ; split_speed.asm

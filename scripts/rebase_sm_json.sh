@@ -29,7 +29,7 @@ git commit -am "Map Rando overrides"
 
 # Rebase onto the new base, run the tests, and amend the commit to update auto-generated schema files:
 git rebase --onto new-base base HEAD
-bash resources/ci/common/sh/test_python.sh
+source resources/ci/common/sh/test_python.sh
 git commit --amend -a --no-edit
 
 # Move the "base" tag forward to the new base, and push the rebased branch.

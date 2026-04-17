@@ -1,2 +1,2 @@
-8000-ADF0: beam door tilemaps and graphics
-ADF0-FFFF: [FREE]
+8000 - ADEF: beam door tilemaps and graphics
+ADF0 - FFFF: [FREE]

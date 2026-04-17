@@ -1,1206 +1,1191 @@
 [BANK 80]
-$8095a7 - decompression.asm
-$8096cf - decompression.asm
-$809713 - decompression.asm
-$809754 - decompression.asm
-$8097b4 - decompression.asm
-$80981d - decompression.asm
-$8096a5 - decompression.asm
-$8096ed - decompression.asm
-$80972f - decompression.asm
-$80976d - decompression.asm
-$8097d6 - decompression.asm
-$809876 - decompression.asm
-$809883 - decompression.asm
-$80a15b - decompression.asm
-$80b0ff - decompression.asm
-$80b119 - decompression.asm
-$809698 - disableable_etanks.asm
-$809bee - disableable_etanks.asm
-$809e20 - escape.asm
-$80ca4b - escape_autosave.asm
-$80ae5c - fast_doors.asm
-$80d02f - fast_pause_menu.asm
-$80a088 - fast_reload.asm
-$80a095 - fast_reload.asm
-$80a0ce - fast_reload.asm
-$80a113 - fast_reload.asm
-$80c45e - fast_reload.asm
-$80ad4e - fix_horiz_doors.asm
-$80ad78 - fix_horiz_doors.asm
-$80aea2 - fix_horiz_doors.asm
-$80aee6 - fix_horiz_doors.asm
-$809632 - hud_expansion_opaque.asm
-$809661 - hud_expansion_opaque.asm
-$80978e - hud_expansion_opaque.asm
-$80980a - hud_expansion_opaque.asm
-$809aa3 - hud_expansion_opaque.asm
-$809cad - hud_expansion_opaque.asm
-$809cc1 - hud_expansion_opaque.asm
-$80a0ed - hud_expansion_opaque.asm
-$80a29c - hud_expansion_opaque.asm
-$80a214 - hud_expansion_opaque.asm
-$809dbf - hud_expansion_opaque.asm
-$80c467 - load_blue_suit.asm
-$80c461 - load_flash_suit.asm
-$80ad61 - load_plms_early.asm
-$80ad8b - load_plms_early.asm
-$80adb5 - load_plms_early.asm
-$80ade8 - load_plms_early.asm
-$8085a7 - map_area.asm
-$80858f - map_area.asm
-$8085c9 - map_area.asm
-$8085e6 - map_area.asm
-$80a15f - map_area.asm
-$809bdc - map_area.asm
-$80988b - map_area.asm
-$809dbf - map_area.asm
-$809dd3 - map_area.asm
-$80a214 - map_area.asm
-$80a2f7 - map_area.asm
-$80998b - map_area.asm
-$809997 - map_area.asm
-$80ffd8 - map_progress_maintain.asm
-$8081b1 - map_progress_maintain.asm
-$8099e1 - max_ammo_display_fast.asm
-$809ac9 - max_ammo_display_fast.asm
-$809af0 - max_ammo_display_fast.asm
-$809b1a - max_ammo_display_fast.asm
-$809b28 - max_ammo_display_fast.asm
-$809c00 - max_ammo_display_fast.asm
-$808f27 - msu1.asm
-$80c4e1 - new_game.asm
-$809af0 - reserve_hud.asm
-$809b4e - reserve_hud.asm
-$80d340 - reserve_hud.asm
-$809668 - reserve_hud.asm
-$8095a1 - samus_tiles_optim_animated_tiles_fix.asm
-$80a0d5 - samus_tiles_optim_animated_tiles_fix.asm
-$809416 - samus_tiles_optim_animated_tiles_fix.asm
-$808438 - self_check.asm
-$808340 - self_check.asm
-$80b437 - self_check.asm
-$808000 - sram_check_disable.asm
-$808455 - stats.asm
-$809589 - stats.asm
-$80835d - stats.asm
-$80834b - stats.asm
-$80875d - stats.asm
-$8084b3 - stats.asm
-$8095e5 - stats.asm
-$809602 - stats.asm
-$808fa3 - stats.asm
-$809632 - ultra_low_qol_hud_expansion_opaque.asm
-$809661 - ultra_low_qol_hud_expansion_opaque.asm
-$80978e - ultra_low_qol_hud_expansion_opaque.asm
-$80980a - ultra_low_qol_hud_expansion_opaque.asm
-$809aa3 - ultra_low_qol_hud_expansion_opaque.asm
-$809cad - ultra_low_qol_hud_expansion_opaque.asm
-$809cc1 - ultra_low_qol_hud_expansion_opaque.asm
-$80a0ed - ultra_low_qol_hud_expansion_opaque.asm
-$80a29c - ultra_low_qol_hud_expansion_opaque.asm
-$80a214 - ultra_low_qol_hud_expansion_opaque.asm
-$809dbf - ultra_low_qol_hud_expansion_opaque.asm
-$8085a7 - ultra_low_qol_map_area.asm
-$80858f - ultra_low_qol_map_area.asm
-$8085c9 - ultra_low_qol_map_area.asm
-$8085e6 - ultra_low_qol_map_area.asm
-$80c4e1 - ultra_low_qol_new_game.asm
-$80c473 - vanilla_bugfixes.asm
-$80c47c - vanilla_bugfixes.asm
-$80ae29 - vanilla_bugfixes.asm
-$80a27a - vanilla_bugfixes.asm
+8000 - 8001: ; sram_check_disable.asm
+81B1 - 81B4: ; map_progress_maintain.asm
+81C0 - 81D3: ; Area Palettes.asm
+8340 - 8347: ; self_check.asm
+834B - 834D: ; stats.asm
+835D - 835F: ; stats.asm
+8438 - 844A: ; self_check.asm
+8455 - 8458: ; stats.asm
+84B3 - 84B7: ; stats.asm
+858F - 8591: ; map_area.asm
+85A7 - 85A9: ; map_area.asm
+85C9 - 85CB: ; map_area.asm
+85E6 - 85E8: ; map_area.asm
+875D - 875E: ; stats.asm
+8F27 - 8F29: ; msu1.asm
+8FA3 - 8FBE: ; stats.asm
+9416 - 944D: ; samus_tiles_optim_animated_tiles_fix.asm
+9589 - 958B: ; stats.asm
+95A1 - 95A3: ; samus_tiles_optim_animated_tiles_fix.asm
+95A7 - 95A9: ; decompression.asm
+95E5 - 95F8: ; stats.asm
+9602 - 9606: ; stats.asm
+9632 - 9638: ; hud_expansion_opaque.asm
+9661 - 9665: ; hud_expansion_opaque.asm
+9668 - 966A: ; reserve_hud.asm
+9698 - 9699: ; disableable_etanks.asm
+96A5 - 96A7: ; decompression.asm
+96CF - 96D1: ; decompression.asm
+96ED - 96EF: ; decompression.asm
+9713 - 9715: ; decompression.asm
+972F - 9731: ; decompression.asm
+9754 - 9756: ; decompression.asm
+976D - 976F: ; decompression.asm
+978E - 9790: ; hud_expansion_opaque.asm
+97B4 - 97B6: ; decompression.asm
+97D6 - 97D8: ; decompression.asm
+980A - 980C: ; hud_expansion_opaque.asm
+981D - 981F: ; decompression.asm
+9876 - 9878: ; decompression.asm
+9883 - 9885: ; decompression.asm
+988B - 99A2: ; map_area.asm
+99E1 - 99F5: ; max_ammo_display_fast.asm
+9AA3 - 9AAE: ; hud_expansion_opaque.asm
+9AC9 - 9AD6: ; max_ammo_display_fast.asm
+9AF0 - 9AF2: ; reserve_hud.asm
+9B1A - 9B1C: ; max_ammo_display_fast.asm
+9B28 - 9B2A: ; max_ammo_display_fast.asm
+9B4E - 9B53: ; reserve_hud.asm
+9BDC - 9BDE: ; map_area.asm
+9BEE - 9BF0: ; disableable_etanks.asm
+9C00 - 9C02: ; max_ammo_display_fast.asm
+9CAD - 9CB6: ; hud_expansion_opaque.asm
+9CC1 - 9CC3: ; hud_expansion_opaque.asm
+9DBF - 9DE6: ; hud_expansion_opaque.asm, map_area.asm
+9E20 - 9E22: ; escape.asm
+A088 - A08D: ; fast_reload.asm
+A095 - A098: ; fast_reload.asm
+A0CE - A0D1: ; fast_reload.asm
+A0D5 - A0D8: ; samus_tiles_optim_animated_tiles_fix.asm
+A0ED - A0EF: ; hud_expansion_opaque.asm
+A113 - A116: ; fast_reload.asm
+A15B - A15E: ; decompression.asm
+A15F - A162: ; map_area.asm
+A214 - A216: ; hud_expansion_opaque.asm
+A27A - A27C: ; vanilla_camerafixes.asm
+A29C - A2DF: ; Area Palettes.asm
+AD4E - AD50: ; fix_horiz_doors.asm
+AD61 - AD63: ; load_plms_early.asm
+AD78 - AD7A: ; fix_horiz_doors.asm
+AD8B - AD8D: ; load_plms_early.asm
+ADB5 - ADB7: ; load_plms_early.asm
+ADE8 - ADEA: ; load_plms_early.asm
+AE29 - AE2B: ; vanilla_camerafixes.asm
+AE5C - AE5E: ; fast_doors.asm
+AEA2 - AEA4: ; fix_horiz_doors.asm
+AEE6 - AEE8: ; fix_horiz_doors.asm
+B0FF - B394: ; decompression.asm
+B437 - BE17: ; self_check.asm
+C45E - C460: ; fast_reload.asm
+C461 - C463: ; load_flash_suit.asm
+C467 - C469: ; load_blue_suit.asm
+C473 - C475: ; vanilla_camerafixes.asm
+C47C - C47E: ; vanilla_camerafixes.asm
+C4E1 - C4EE: ; new_game.asm
+CA4B - CA58: ; escape_autosave.asm
+FFD8 - FFD8: ; map_progress_maintain.asm
 
 [BANK 81]
-$81b35d - enable_moonwalk.asm
-$81b14b - hud_expansion_opaque.asm
-$818e34 - hud_expansion_opaque.asm
-$81a7ae - hud_expansion_opaque.asm
-$81911a - map_area.asm
-$819a47 - saveload.asm
-$819cae - saveload.asm
-$819ae8 - saveload.asm
-$819d14 - saveload.asm
-$818000 - saveload.asm
-$818085 - saveload.asm
-$81ef20 - saveload.asm
-$81b14b - ultra_low_qol_hud_expansion_opaque.asm
-$818e34 - ultra_low_qol_hud_expansion_opaque.asm
-$81a7ae - ultra_low_qol_hud_expansion_opaque.asm
-$819a47 - ultra_low_qol_saveload.asm
-$819cae - ultra_low_qol_saveload.asm
-$818000 - ultra_low_qol_saveload.asm
-$818085 - ultra_low_qol_saveload.asm
-$81ef20 - ultra_low_qol_saveload.asm
+8000 - 8002: ; saveload.asm
+8085 - 8087: ; saveload.asm
+8E34 - 8E36: ; hud_expansion_opaque.asm
+911E - 9120: ; no_map_select.asm
+9A47 - 9A4A: ; saveload.asm
+9A52 - 9A55: ; saveload.asm
+9A61 - 9A63: ; saveload.asm
+9AE8 - 9AEA: ; saveload.asm
+9CAE - 9CB1: ; saveload.asm
+9CBE - 9CC0: ; saveload.asm
+9D14 - 9D16: ; saveload.asm
+A7AE - A7B0: ; hud_expansion_opaque.asm
+B14B - B2CA: ; hud_expansion_opaque.asm
+B35D - B365: ; enable_moonwalk.asm
 
 [BANK 82]
-$82f5ca - aim_anything.asm
-$82e7d0 - alternate_door_colors.asm
-$82e4a5 - alternate_door_colors.asm
-$828d2c - alternate_door_colors.asm
-$82e7bf - beam_doors.asm
-$82e7a8 - decompression.asm
-$82e7bb - decompression.asm
-$82ac5a - disableable_etanks.asm
-$82acef - disableable_etanks.asm
-$82b03f - disableable_etanks.asm
-$82b136 - disableable_etanks.asm
-$82b4f5 - disableable_etanks.asm
-$82b26a - disableable_etanks.asm
-$82b56b - disableable_etanks.asm
-$8291b4 - disableable_etanks.asm
-$82c262 - disableable_etanks.asm
-$828215 - disableable_etanks.asm
-$82936d - disableable_etanks.asm
-$82a32d - disableable_etanks.asm
-$8291ca - disableable_etanks.asm
-$8291ed - disableable_etanks.asm
-$82b174 - disable_major_glitches.asm
-$82bb30 - disable_map_icons.asm
-$82df4a - escape.asm
-$82df5c - escape.asm
-$82e026 - escape.asm
-$82e325 - fast_doors.asm
-$82e339 - fast_doors.asm
-$82e2db - fast_doors.asm
-$828d32 - fast_pause_menu.asm
-$82a5cc - fast_pause_menu.asm
-$8291cd - fast_pause_menu.asm
-$8291f0 - fast_pause_menu.asm
-$82a50f - fast_pause_menu.asm
-$82a5ba - fast_pause_menu.asm
-$8290cf - fast_pause_menu.asm
-$82932e - fast_pause_menu.asm
-$82916a - fast_pause_menu.asm
-$82923d - fast_pause_menu.asm
-$82918f - fast_pause_menu.asm
-$829211 - fast_pause_menu.asm
-$8292e4 - fast_pause_menu.asm
-$829304 - fast_pause_menu.asm
-$82b9a0 - fast_pause_menu.asm
-$82b9aa - fast_pause_menu.asm
-$82b9b4 - fast_pause_menu.asm
-$82b9be - fast_pause_menu.asm
-$82b924 - fast_pause_menu.asm
-$829268 - fast_pause_menu.asm
-$82925d - fast_pause_menu.asm
-$82897a - fast_reload.asm
-$82e309 - fast_reload.asm
-$82de1d - fix_kraid_hud.asm
-$82e2e0 - fix_transition_bad_tiles.asm
-$82e446 - fix_transition_bad_tiles.asm
-$82e52e - fix_transition_bad_tiles.asm
-$82e737 - fix_transition_bad_tiles.asm
-$82e659 - fix_water_fx_bug.asm
-$82fa80 - fix_water_fx_bug.asm
-$82e664 - gray_doors.asm
-$82e845 - hazard_markers.asm
-$82eb20 - hazard_markers.asm
-$82966f - hud_expansion_opaque.asm
-$82d521 - hud_expansion_opaque.asm
-$82bf06 - hud_expansion_opaque.asm
-$828ed1 - hud_expansion_opaque.asm
-$829580 - hud_expansion_opaque.asm
-$82e569 - hud_expansion_opaque.asm
-$828fb6 - hud_expansion_opaque.asm
-$828fc1 - hud_expansion_opaque.asm
-$828fcb - hud_expansion_opaque.asm
-$82b3bb - hud_expansion_opaque.asm
-$82b3c6 - hud_expansion_opaque.asm
-$82b3d0 - hud_expansion_opaque.asm
-$82ea78 - in_place_level_data.asm
-$82ea92 - in_place_level_data.asm
-$82eaa3 - in_place_level_data.asm
-$82eadb - in_place_level_data.asm
-$82e7dc - in_place_level_data.asm
-$82e7ea - in_place_level_data.asm
-$82e7fb - in_place_level_data.asm
-$82e833 - in_place_level_data.asm
-$82e126 - itemsounds.asm
-$82945c - item_dots_disappear.asm
-$828078 - item_dots_disappear.asm
-$829370 - item_dots_disappear.asm
-$82e498 - item_dots_disappear.asm
-$82e4b1 - load_plms_early.asm
-$82e4c5 - load_plms_early.asm
-$82e4c9 - load_plms_early.asm
-$82e53c - load_plms_early.asm
-$82e47e - load_plms_early.asm
-$8290c8 - map_area.asm
-$82941b - map_area.asm
-$829440 - map_area.asm
-$829475 - map_area.asm
-$82952d - map_area.asm
-$829562 - map_area.asm
-$82962b - map_area.asm
-$829ed5 - map_area.asm
-$829f01 - map_area.asm
-$82e488 - map_area.asm
-$82e492 - map_area.asm
-$82def7 - map_area.asm
-$828d08 - map_area.asm
-$828d4b - map_area.asm
-$828d44 - map_area.asm
-$82936a - map_area.asm
-$82e63e - map_area.asm
-$829130 - map_area.asm
-$82915a - map_area.asm
-$829200 - map_area.asm
-$82935b - map_area.asm
-$82910a - map_area.asm
-$829125 - map_area.asm
-$829e27 - map_area.asm
-$82903b - map_area.asm
-$829e38 - map_area.asm
-$82e7c9 - map_area.asm
-$82e1f7 - map_area.asm
-$829f01 - map_area.asm
-$829f13 - map_area.asm
-$82e21e - map_area.asm
-$82e464 - map_area.asm
-$82e55f - map_area.asm
-$82e780 - map_area.asm
-$82e764 - map_area.asm
-$82e4a2 - map_area.asm
-$82e569 - map_area.asm
-$8291f9 - map_area.asm
-$8291b1 - map_area.asm
-$82dfc2 - map_area.asm
-$82806e - map_area.asm
-$82e46a - map_area.asm
-$82e472 - map_area.asm
-$82e492 - map_area.asm
-$828e75 - map_area.asm
-$82a63a - map_area.asm
-$82a658 - map_area.asm
-$82a676 - map_area.asm
-$82a694 - map_area.asm
-$82a7a8 - map_area.asm
-$82a7c6 - map_area.asm
-$82a7e4 - map_area.asm
-$82a802 - map_area.asm
-$81911a - map_area.asm
-$82b672 - map_area.asm
-$82c385 - map_area.asm
-$82c393 - map_area.asm
-$82c39a - map_area.asm
-$82c3af - map_area.asm
-$82c3b6 - map_area.asm
-$82c3bd - map_area.asm
-$82c3c4 - map_area.asm
-$82c37e - map_area.asm
-$82c3cb - map_area.asm
-$82c411 - map_area.asm
-$82c418 - map_area.asm
-$82c41f - map_area.asm
-$82c426 - map_area.asm
-$82943d - map_progress_maintain.asm
-$82945c - map_progress_maintain.asm
-$829ec6 - map_progress_maintain.asm
-$82801d - new_game.asm
-$828067 - new_game.asm
-$82eeda - new_game.asm
-$82edd3 - new_game.asm
-$828bb3 - oob_death.asm
-$828baf - oob_death.asm
-$82910a - pause_menu_objectives.asm
-$8291d3 - pause_menu_objectives.asm
-$8291a1 - pause_menu_objectives.asm
-$82932b - pause_menu_objectives.asm
-$82a62d - pause_menu_objectives.asm
-$82a79b - pause_menu_objectives.asm
-$82a820 - pause_menu_objectives.asm
-$82a83e - pause_menu_objectives.asm
-$82c1e6 - pause_menu_objectives.asm
-$82a505 - pause_menu_objectives.asm
-$82a61d - pause_menu_objectives.asm
-$82ac8e - reserve_backward_fill.asm
-$8291b8 - reserve_backward_fill.asm
-$82ad08 - reserve_backward_fill.asm
-$82af5e - reserve_backward_fill.asm
-$82af81 - reserve_backward_fill.asm
-$82ac7c - reserve_backward_fill.asm
-$82ac87 - reserve_backward_fill.asm
-$82ad1b - reserve_backward_fill.asm
-$82ad25 - reserve_backward_fill.asm
-$82acd6 - reserve_backward_fill.asm
-$82b292 - reserve_backward_fill.asm
-$82b2a0 - reserve_backward_fill.asm
-$82c18e - reserve_backward_fill.asm
-$82aed9 - reserve_hud.asm
-$82af36 - reserve_hud.asm
-$828d4b - reserve_hud.asm
-$82939c - reserve_hud.asm
-$82ff00 - reserve_hud.asm
-$82e603 - reserve_hud.asm
-$82e66a - rng_fix.asm
-$82895a - samus_tiles_optim_animated_tiles_fix.asm
-$829392 - samus_tiles_optim_animated_tiles_fix.asm
-$82936a - samus_tiles_optim_animated_tiles_fix.asm
-$82a2be - samus_tiles_optim_animated_tiles_fix.asm
-$82ecbb - seed_hash_display.asm
-$8293e5 - special_door_reveal.asm
-$8291d0 - split_speed.asm
-$82b5ae - split_speed.asm
-$82c066 - split_speed.asm
-$82dc95 - stats.asm
-$8281a7 - stats.asm
-$82966f - ultra_low_qol_hud_expansion_opaque.asm
-$82d521 - ultra_low_qol_hud_expansion_opaque.asm
-$82bf06 - ultra_low_qol_hud_expansion_opaque.asm
-$828ed1 - ultra_low_qol_hud_expansion_opaque.asm
-$829580 - ultra_low_qol_hud_expansion_opaque.asm
-$82e569 - ultra_low_qol_hud_expansion_opaque.asm
-$828fb6 - ultra_low_qol_hud_expansion_opaque.asm
-$828fc1 - ultra_low_qol_hud_expansion_opaque.asm
-$828fcb - ultra_low_qol_hud_expansion_opaque.asm
-$82b3bb - ultra_low_qol_hud_expansion_opaque.asm
-$82b3c6 - ultra_low_qol_hud_expansion_opaque.asm
-$82b3d0 - ultra_low_qol_hud_expansion_opaque.asm
-$82941b - ultra_low_qol_map_area.asm
-$829440 - ultra_low_qol_map_area.asm
-$829475 - ultra_low_qol_map_area.asm
-$82952d - ultra_low_qol_map_area.asm
-$829562 - ultra_low_qol_map_area.asm
-$82962b - ultra_low_qol_map_area.asm
-$829ed5 - ultra_low_qol_map_area.asm
-$829f01 - ultra_low_qol_map_area.asm
-$82de80 - ultra_low_qol_map_area.asm
-$82f70f - ultra_low_qol_map_area.asm
-$82801d - ultra_low_qol_new_game.asm
-$828067 - ultra_low_qol_new_game.asm
-$82eeda - ultra_low_qol_new_game.asm
-$82b4c4 - vanilla_bugfixes.asm
-$82b000 - vanilla_bugfixes.asm
-$828b3f - vanilla_bugfixes.asm
-$8293bb - vanilla_bugfixes.asm
-$829f90 - vanilla_bugfixes.asm
-$82ac03 - vanilla_bugfixes.asm
-$82df4a - zebes_asleep_music.asm
+801D - 8020: ; new_game.asm
+8067 - 806A: ; new_game.asm
+806E - 8073: ; map_area.asm
+8078 - 807B: ; item_dots_disappear.asm
+81A7 - 81A8: ; stats.asm
+8215 - 8217: ; disableable_etanks.asm
+895A - 8962: ; samus_tiles_optim_animated_tiles_fix.asm
+897A - 897D: ; fast_reload.asm
+8B3F - 8B42: ; crash_handle_autoreserves.asm
+8BAF - 8BB2: ; oob_death.asm
+8D2C - 8D2E: ; alternate_door_colors.asm
+8D32 - 8D34: ; fast_pause_menu.asm
+8D44 - 8D46: ; map_area.asm
+8D4B - 8D4D: ; reserve_hud.asm
+8E75 - 8ECF: ; map_area.asm
+8ED1 - 8ED2: ; hud_expansion_opaque.asm
+8FB6 - 8FB8: ; hud_expansion_opaque.asm
+8FC1 - 8FC3: ; hud_expansion_opaque.asm
+8FCB - 8FCD: ; hud_expansion_opaque.asm
+903B - 903D: ; map_area.asm
+90C8 - 90CA: ; map_area.asm
+90CF - 90D2: ; fast_pause_menu.asm
+910A - 910C: ; map_area.asm, pause_menu_objectives.asm
+9125 - 9127: ; map_area.asm
+9130 - 9132: ; map_area.asm
+915A - 915C: ; map_area.asm
+916A - 916D: ; fast_pause_menu.asm
+918F - 9192: ; fast_pause_menu.asm
+91A1 - 91A6: ; pause_menu_objectives.asm
+91B1 - 91B3: ; map_area.asm
+91B4 - 91B7: ; disableable_etanks.asm
+91B8 - 91BD: ; reserve_backward_fill.asm
+91CA - 91CC: ; disableable_etanks.asm
+91CD - 91CF: ; fast_pause_menu.asm
+91D3 - 91D6: ; pause_menu_objectives.asm
+91ED - 91EF: ; disableable_etanks.asm
+91F0 - 91F2: ; fast_pause_menu.asm
+91F9 - 91FB: ; map_area.asm
+9200 - 9202: ; map_area.asm
+9211 - 9214: ; fast_pause_menu.asm
+923D - 9240: ; fast_pause_menu.asm
+925D - 92C9: ; fast_pause_menu.asm
+932B - 9331: ; pause_menu_objectives.asm
+932E - 9331: ; fast_pause_menu.asm
+935B - 935D: ; map_area.asm
+936D - 936F: ; disableable_etanks.asm
+9370 - 9373: ; item_dots_disappear.asm
+9392 - 9395: ; samus_tiles_optim_animated_tiles_fix.asm
+939C - 939E: ; reserve_hud.asm
+93BB - 93BD: ; crash_handle_springball.asm
+93E5 - 93F0: ; special_door_reveal.asm
+941B - 941D: ; map_area.asm
+943D - 9459: ; map_progress_maintain.asm
+9440 - 9442: ; map_area.asm
+945C - 945E: ; item_dots_disappear.asm
+945C - 94E8: ; map_progress_maintain.asm
+9475 - 9477: ; map_area.asm
+952D - 952F: ; map_area.asm
+9562 - 9564: ; map_area.asm
+9580 - 9582: ; hud_expansion_opaque.asm
+962B - 962D: ; map_area.asm
+966F - 9716: ; hud_expansion_opaque.asm
+9E27 - 9E2B: ; map_area.asm
+9E38 - 9E3A: ; map_area.asm
+9EC6 - 9ED7: ; map_progress_maintain.asm
+9ED5 - 9ED7: ; map_area.asm
+9F01 - 9F03: ; map_area.asm
+9F90 - 9F91: ; vanilla_bugfixes.asm
+A22F - A231: ; split_speed.asm
+A23D - A23F: ; split_speed.asm
+A257 - A259: ; split_speed.asm
+A25D - A25F: ; split_speed.asm
+A278 - A27A: ; split_speed.asm
+A2BE - A2BE: ; samus_tiles_optim_animated_tiles_fix.asm
+A32D - A32F: ; disableable_etanks.asm
+A505 - A50A: ; pause_menu_objectives.asm
+A50F - A511: ; fast_pause_menu.asm
+A5BA - A5BC: ; fast_pause_menu.asm
+A5CC - A5CE: ; fast_pause_menu.asm
+A61D - A61F: ; pause_menu_objectives.asm
+A62D - A632: ; pause_menu_objectives.asm
+A63A - A63C: ; map_area.asm
+A658 - A65A: ; map_area.asm
+A676 - A678: ; map_area.asm
+A694 - A696: ; map_area.asm
+A79B - A7A0: ; pause_menu_objectives.asm
+A7A8 - A7AA: ; map_area.asm
+A7C6 - A7C8: ; map_area.asm
+A7E4 - A7E6: ; map_area.asm
+A802 - A804: ; map_area.asm
+A820 - A822: ; pause_menu_objectives.asm
+A83E - A840: ; pause_menu_objectives.asm
+AC03 - AC07: ; vanilla_bugfixes.asm
+AC5A - AC5C: ; disableable_etanks.asm
+AC7C - AC7E: ; reserve_backward_fill.asm
+AC87 - AC8A: ; reserve_backward_fill.asm
+AC8E - AC92: ; reserve_backward_fill.asm
+ACD6 - ACDB: ; reserve_backward_fill.asm
+ACEF - ACF1: ; disableable_etanks.asm
+AD1B - AD1D: ; reserve_backward_fill.asm
+AD25 - AD28: ; reserve_backward_fill.asm
+AED9 - AEDB: ; reserve_hud.asm
+AF36 - AF45: ; reserve_hud.asm
+AF5E - AF61: ; reserve_backward_fill.asm
+AF81 - AF84: ; reserve_backward_fill.asm
+AFC9 - AFD2: ; disable_major_glitches.asm
+B000 - B001: ; vanilla_bugfixes.asm
+B03F - B043: ; disableable_etanks.asm
+B0C8 - B0D0: ; disable_major_glitches.asm
+B136 - B138: ; disableable_etanks.asm
+B156 - B15E: ; disable_major_glitches.asm
+B1C6 - B1C8: ; split_speed.asm
+B26A - B26C: ; disableable_etanks.asm
+B292 - B298: ; reserve_backward_fill.asm
+B3BB - B3BD: ; hud_expansion_opaque.asm
+B3C6 - B3C8: ; hud_expansion_opaque.asm
+B3D0 - B3D2: ; hud_expansion_opaque.asm
+B4C4 - B4C6: ; vanilla_bugfixes.asm
+B4F5 - B4F9: ; disableable_etanks.asm
+B517 - B519: ; split_speed.asm
+B51E - B520: ; split_speed.asm
+B545 - B547: ; split_speed.asm
+B56B - B56F: ; disableable_etanks.asm
+B585 - B587: ; disable_major_glitches.asm
+B672 - B676: ; map_area.asm
+B924 - B92F: ; fast_pause_menu.asm
+B9A0 - B9C7: ; fast_pause_menu.asm
+BB30 - BB30: ; disable_map_icons.asm
+BEA3 - BEBF: ; Area Map Debug.asm
+BF06 - C02B: ; hud_expansion_opaque.asm
+C032 - C033: ; split_speed.asm
+C03A - C03B: ; split_speed.asm
+C04A - C04B: ; split_speed.asm
+C076 - C081: ; split_speed.asm
+C18E - C18F: ; reserve_backward_fill.asm
+C194 - C195: ; split_speed.asm
+C1B2 - C1C9: ; split_speed.asm
+C1E6 - C1E7: ; pause_menu_objectives.asm
+C262 - C27C: ; disableable_etanks.asm
+C27D - C289: ; vanilla_bugfixes.asm
+C2A6 - C2AD: ; split_speed.asm
+C37E - C38B: ; map_area.asm
+C393 - C3A0: ; map_area.asm
+C3AF - C3D1: ; map_area.asm
+C411 - C42C: ; map_area.asm
+C42D - C460: ; split_speed.asm
+D521 - D960: ; hud_expansion_opaque.asm
+D54F - D550: ; split_speed.asm
+D65F - D660: ; split_speed.asm
+D76F - D770: ; split_speed.asm
+D87F - D880: ; split_speed.asm
+DC95 - DC9A: ; stats.asm
+DDC7 - DDE9: ; fast_reload.asm
+DE1D - DE1F: ; fix_kraid_hud.asm
+DEF7 - DEF9: ; Area Map Debug.asm, map_area.asm
+DEFD - DF00: ; Area FX.asm
+DF1D - DF28: ; Area Palettes.asm
+DF23 - DF28: ; area_palettes.asm
+DF4A - DF4C: ; zebes_asleep_music.asm
+DF5C - DF5F: ; escape.asm
+DFC2 - DFC5: ; map_area.asm
+E026 - E028: ; escape.asm
+E126 - E12B: ; itemsounds.asm
+E1F7 - E1F9: ; map_area.asm
+E2E0 - E2E3: ; fix_transition_bad_tiles.asm
+E309 - E30E: ; fast_reload.asm
+E325 - E32E: ; fast_doors.asm
+E339 - E342: ; fast_doors.asm
+E446 - E466: ; fix_transition_bad_tiles.asm
+E46A - E46B: ; map_area.asm
+E472 - E473: ; map_area.asm
+E47E - E487: ; load_plms_early.asm
+E488 - E489: ; map_area.asm
+E492 - E497: ; map_area.asm
+E498 - E49A: ; item_dots_disappear.asm
+E4A2 - E4A4: ; map_area.asm
+E4A5 - E4A7: ; alternate_door_colors.asm
+E4B1 - E4BB: ; load_plms_early.asm
+E4C9 - E4CB: ; load_plms_early.asm
+E53C - E53F: ; load_plms_early.asm
+E569 - E56B: ; Area Palettes.asm, hud_expansion_opaque.asm
+E603 - E605: ; reserve_hud.asm
+E63E - E642: ; map_area.asm
+E659 - E65C: ; fix_water_fx_bug.asm
+E664 - E667: ; gray_doors.asm
+E66A - E673: ; rng_fix.asm
+E675 - E684: ; Area Palettes.asm
+E737 - E73A: ; fix_transition_bad_tiles.asm
+E764 - E766: ; map_area.asm
+E7A8 - E7AB: ; decompression.asm
+E7BB - E7BE: ; decompression.asm
+E7BF - E7C3: ; beam_doors.asm
+E7C9 - E7CF: ; map_area.asm
+E7D0 - E7D2: ; alternate_door_colors.asm
+E7DC - E7DD: ; in_place_level_data.asm
+E7FB - E7FC: ; in_place_level_data.asm
+E833 - E83A: ; Ceres Enable.asm
+E845 - E84B: ; hazard_markers.asm
+EA78 - EA79: ; in_place_level_data.asm
+EAA3 - EAA4: ; in_place_level_data.asm
+EADB - EAE2: ; Ceres Enable.asm
+EB20 - EB25: ; hazard_markers.asm
+ECBB - ECBD: ; seed_hash_display.asm
+EDD3 - EDD8: ; new_game.asm
+EEDA - EEDA: ; new_game.asm
+F5CA - F5CA: ; aim_anything.asm
 
 [BANK 83]
-$83ad66 - escape_autosave.asm
-$83b600 - item_dots_disappear.asm
-$83aad2 - mb_left_entrance.asm
-$83aaea - mb_left_entrance.asm
-$83aae3 - mb_left_entrance.asm
+AAD2 - AAD3: ; mb_left_entrance.asm
+AAE3 - AAE3: ; mb_left_entrance.asm
+AAEA - AAEB: ; mb_left_entrance.asm
 
 [BANK 84]
-$84fcd8 - beam_doors.asm
-$848cb4 - energy_station_reserves.asm
-$84ae38 - energy_station_reserves.asm
-$84b285 - energy_station_reserves.asm
-$84b2b8 - energy_station_reserves.asm
-$848cc3 - energy_station_reserves.asm
-$848cf3 - escape.asm
-$84bd58 - escape.asm
-$84bd90 - escape.asm
-$84bd2e - escape.asm
-$84cee8 - escape.asm
-$84cf3c - escape.asm
-$84c556 - escape.asm
-$84c575 - escape.asm
-$84cf75 - escape.asm
-$84f900 - escape.asm
-$848902 - escape_items.asm
-$848929 - escape_items.asm
-$848950 - escape_items.asm
-$84f300 - escape_items.asm
-$848972 - etank_refill_disabled.asm
-$848972 - etank_refill_full.asm
-$848d16 - fast_reload.asm
-$848cf6 - fast_saves.asm
-$84afe8 - fast_saves.asm
-$86e685 - fast_saves.asm
-$84ad86 - fast_saves.asm
-$84ada4 - fast_saves.asm
-$84adf1 - fast_saves.asm
-$84ae13 - fast_saves.asm
-$84ae7b - fast_saves.asm
-$84ae9d - fast_saves.asm
-$84fc00 - fix_kraid_vomit.asm
-$84861a - fix_kraid_vomit.asm
-$848b50 - fix_kraid_vomit.asm
-$84e094 - fix_kraid_vomit.asm
-$8488a7 - gray_doors.asm
-$84ba4c - gray_doors.asm
-$84fa00 - gray_doors.asm
-$84d33b - gray_doors.asm
-$848488 - horizontal_door_fix.asm
-$8484e0 - horizontal_door_fix.asm
-$84bd58 - hyper_beam.asm
-$84bd90 - hyper_beam.asm
-$84bd2e - hyper_beam.asm
-$84cee8 - hyper_beam.asm
-$84cf3c - hyper_beam.asm
-$84c556 - hyper_beam.asm
-$84c575 - hyper_beam.asm
-$84cf75 - hyper_beam.asm
-$84f900 - hyper_beam.asm
-$84e0b3 - itemsounds.asm
-$84e0d8 - itemsounds.asm
-$84e0fd - itemsounds.asm
-$84e122 - itemsounds.asm
-$84e14f - itemsounds.asm
-$84e17d - itemsounds.asm
-$84e1ab - itemsounds.asm
-$84e1d9 - itemsounds.asm
-$84e207 - itemsounds.asm
-$84e235 - itemsounds.asm
-$84e263 - itemsounds.asm
-$84e291 - itemsounds.asm
-$84e2c3 - itemsounds.asm
-$84e2f8 - itemsounds.asm
-$84e32d - itemsounds.asm
-$84e35a - itemsounds.asm
-$84e388 - itemsounds.asm
-$84e3b5 - itemsounds.asm
-$84e3e3 - itemsounds.asm
-$84e411 - itemsounds.asm
-$84e43f - itemsounds.asm
-$84e46f - itemsounds.asm
-$84e4a1 - itemsounds.asm
-$84e4d3 - itemsounds.asm
-$84e505 - itemsounds.asm
-$84e53f - itemsounds.asm
-$84e57a - itemsounds.asm
-$84e5b5 - itemsounds.asm
-$84e5f0 - itemsounds.asm
-$84e62b - itemsounds.asm
-$84e66f - itemsounds.asm
-$84e6aa - itemsounds.asm
-$84e6e5 - itemsounds.asm
-$84e720 - itemsounds.asm
-$84e762 - itemsounds.asm
-$84e7a4 - itemsounds.asm
-$84e7de - itemsounds.asm
-$84e819 - itemsounds.asm
-$84e853 - itemsounds.asm
-$84e88e - itemsounds.asm
-$84e8c9 - itemsounds.asm
-$84e904 - itemsounds.asm
-$84e93a - itemsounds.asm
-$84e972 - itemsounds.asm
-$84e9aa - itemsounds.asm
-$84e9e2 - itemsounds.asm
-$84ea22 - itemsounds.asm
-$84ea63 - itemsounds.asm
-$84eaa4 - itemsounds.asm
-$84eae5 - itemsounds.asm
-$84eb26 - itemsounds.asm
-$84eb67 - itemsounds.asm
-$84eba8 - itemsounds.asm
-$84ebe9 - itemsounds.asm
-$84ec2a - itemsounds.asm
-$84ec72 - itemsounds.asm
-$84ecba - itemsounds.asm
-$84ecfa - itemsounds.asm
-$84ed3b - itemsounds.asm
-$84ed7b - itemsounds.asm
-$84edbc - itemsounds.asm
-$84edfd - itemsounds.asm
-$84ee3e - itemsounds.asm
-$858491 - itemsounds.asm
-$858089 - itemsounds.asm
-$848ab8 - item_dots_disappear.asm
-$848c91 - map_area.asm
-$84b19c - map_area.asm
-$848ca6 - map_progress_maintain.asm
-$84d66b - mb_barrier_clear.asm
-$84be0e - mb_barrier_clear.asm
-$8494c9 - mb_left_entrance.asm
-$84ac01 - mb_left_entrance.asm
-$84b66f - mb_left_entrance.asm
-$848cd2 - missile_refill_all.asm
-$84aebf - missile_refill_all.asm
-$84b2e8 - missile_refill_all.asm
-$84b31b - missile_refill_all.asm
-$848ce1 - missile_refill_all.asm
-$848986 - reserve_hud.asm
-$84b8b0 - shaktool.asm
-$84b7f2 - split_speed.asm
-$848d05 - stats.asm
-$84e0b6 - stats.asm
-$84e0db - stats.asm
-$84e100 - stats.asm
-$84e125 - stats.asm
-$84e152 - stats.asm
-$84e180 - stats.asm
-$84e1ae - stats.asm
-$84e1dc - stats.asm
-$84e20a - stats.asm
-$84e238 - stats.asm
-$84e266 - stats.asm
-$84e294 - stats.asm
-$84e2c8 - stats.asm
-$84e2fd - stats.asm
-$84e330 - stats.asm
-$84e35d - stats.asm
-$84e38b - stats.asm
-$84e3b8 - stats.asm
-$84e3e6 - stats.asm
-$84e414 - stats.asm
-$84e442 - stats.asm
-$84e472 - stats.asm
-$84e4a4 - stats.asm
-$84e4d6 - stats.asm
-$84e508 - stats.asm
-$84e542 - stats.asm
-$84e57d - stats.asm
-$84e5b8 - stats.asm
-$84e5f3 - stats.asm
-$84e62e - stats.asm
-$84e672 - stats.asm
-$84e6ad - stats.asm
-$84e6e8 - stats.asm
-$84e725 - stats.asm
-$84e767 - stats.asm
-$84e7a7 - stats.asm
-$84e7e1 - stats.asm
-$84e81c - stats.asm
-$84e856 - stats.asm
-$84e891 - stats.asm
-$84e8cc - stats.asm
-$84e907 - stats.asm
-$84e93d - stats.asm
-$84e975 - stats.asm
-$84e9ad - stats.asm
-$84e9e5 - stats.asm
-$84ea25 - stats.asm
-$84ea66 - stats.asm
-$84eaa7 - stats.asm
-$84eae8 - stats.asm
-$84eb29 - stats.asm
-$84eb6a - stats.asm
-$84ebab - stats.asm
-$84ebec - stats.asm
-$84ec2f - stats.asm
-$84ec77 - stats.asm
-$84ecbd - stats.asm
-$84ecfd - stats.asm
-$84ed3e - stats.asm
-$84ed7e - stats.asm
-$84edbf - stats.asm
-$84ee00 - stats.asm
-$84ee41 - stats.asm
-$848c91 - ultra_low_qol_map_area.asm
-$84b19c - ultra_low_qol_map_area.asm
-$848717 - ultra_low_qol_vanilla_bugfixes.asm
-$84e8ce - ultra_low_qol_vanilla_bugfixes.asm
-$84ee02 - ultra_low_qol_vanilla_bugfixes.asm
-$84836a - ultra_low_qol_vanilla_bugfixes.asm
-$848717 - vanilla_bugfixes.asm
-$84e8ce - vanilla_bugfixes.asm
-$84ee02 - vanilla_bugfixes.asm
-$848d0c - vanilla_bugfixes.asm
-$84b5d4 - vanilla_bugfixes.asm
-$84b5d9 - vanilla_bugfixes.asm
-$84b5df - vanilla_bugfixes.asm
-$84858c - vanilla_bugfixes.asm
-$848328 - vanilla_bugfixes.asm
-$848363 - vanilla_bugfixes.asm
-$848365 - vanilla_bugfixes.asm
-$848398 - vanilla_bugfixes.asm
-$848da0 - vanilla_bugfixes.asm
-$848dea - vanilla_bugfixes.asm
-$848e12 - vanilla_bugfixes.asm
-$848e44 - vanilla_bugfixes.asm
-$848e2d - vanilla_bugfixes.asm
-$84919a - vanilla_bugfixes.asm
-$84b7ef - vanilla_bugfixes.asm
+8328 - 832A: ; vanilla_bugfixes.asm
+8363 - 8372: ; vanilla_bugfixes.asm
+836A - 836B: ; ultra_low_qol_vanilla_bugfixes.asm
+83D7 - 8468: ; door_irq_fix.asm
+8488 - 848A: ; horizontal_door_fix.asm
+84E0 - 84E2: ; horizontal_door_fix.asm
+858C - 85A4: ; vanilla_bugfixes.asm
+861A - 861C: ; fix_kraid_vomit.asm
+86D1 - 8704: ; Item Loading.asm
+8717 - 871A: ; ultra_low_qol_vanilla_bugfixes.asm, vanilla_bugfixes.asm
+88A7 - 88A9: ; gray_doors.asm
+8902 - 8904: ; escape_items.asm
+8929 - 892B: ; escape_items.asm
+8950 - 8952: ; escape_items.asm
+8972 - 8974: ; etank_refill_disabled.asm, etank_refill_full.asm
+8986 - 8988: ; reserve_hud.asm
+8AB8 - 8ABB: ; item_dots_disappear.asm
+8BF2 - 8BF4: ; itemsounds.asm
+8C91 - 8C93: ; map_area.asm
+8CA6 - 8CAB: ; map_progress_maintain.asm
+8CB4 - 8CB6: ; energy_station_reserves.asm
+8CC3 - 8CC5: ; energy_station_reserves.asm
+8CD2 - 8CD7: ; missile_refill_all.asm
+8CE1 - 8CE6: ; missile_refill_all.asm
+8CF3 - 8CF5: ; escape.asm
+8CF6 - 8CFE: ; fast_saves.asm
+8D05 - 8D08: ; stats.asm
+8D0C - 8D0E: ; vanilla_bugfixes.asm
+8D16 - 8D19: ; fast_reload.asm
+8DA0 - 8DA2: ; vanilla_camerafixes.asm
+8DEA - 8DEB: ; vanilla_camerafixes.asm
+8E12 - 8E15: ; vanilla_camerafixes.asm
+8E2D - 8E2F: ; vanilla_camerafixes.asm
+8E44 - 8E45: ; vanilla_camerafixes.asm
+94C9 - 94E0: ; mb_left_entrance.asm
+98D1 - 9A3E: ; Area FX.asm
+9CC5 - 9CCE: ; Bowling.asm
+9E0D - 9E28: ; Area FX.asm
+9E45 - 9EB4: ; Area FX.asm
+9ED1 - 9F24: ; Area FX.asm
+AC01 - AC02: ; mb_left_entrance.asm
+AD86 - ADC1: ; fast_saves.asm
+ADF1 - AE34: ; fast_saves.asm
+AE38 - AE3A: ; energy_station_reserves.asm
+AE7B - AEBE: ; fast_saves.asm
+AEBF - AEC4: ; missile_refill_all.asm
+AFE8 - B00D: ; fast_saves.asm
+B19C - B19E: ; map_area.asm
+B285 - B28A: ; energy_station_reserves.asm
+B2B8 - B2BD: ; energy_station_reserves.asm
+B2E8 - B2ED: ; missile_refill_all.asm
+B31B - B320: ; missile_refill_all.asm
+B5D4 - B5D6: ; vanilla_bugfixes.asm
+B66F - B672: ; mb_left_entrance.asm
+B7EF - B7F1: ; vanilla_bugfixes.asm
+B7F2 - B7F4: ; split_speed.asm
+B8B0 - B8D0: ; shaktool.asm
+BA4C - BA7C: ; gray_doors.asm
+BD2E - BD32: ; escape.asm, hyper_beam.asm
+BD58 - BD5C: ; escape.asm, hyper_beam.asm
+BD90 - BD94: ; escape.asm, hyper_beam.asm
+BE0E - BE11: ; mb_barrier_clear.asm
+C556 - C558: ; escape.asm, hyper_beam.asm
+C575 - C577: ; escape.asm, hyper_beam.asm
+CEE8 - CEEA: ; escape.asm, hyper_beam.asm
+CF3C - CF3E: ; escape.asm, hyper_beam.asm
+CF75 - CF77: ; escape.asm, hyper_beam.asm
+D33B - D342: ; gray_doors.asm
+D3CF - D3D4: ; Bowling.asm
+D3EC - D3F1: ; Bowling.asm
+D60D - D60E: ; everything_respawns.asm
+D66B - D66E: ; mb_barrier_clear.asm
+E094 - E096: ; fix_kraid_vomit.asm
+E099 - E0B0: ; Item Loading.asm
+E0B3 - E0B5: ; itemsounds.asm
+E0B6 - E0B7: ; stats.asm
+E0BE - E0D5: ; Item Loading.asm
+E0D8 - E0DA: ; itemsounds.asm
+E0DB - E0DC: ; stats.asm
+E0E3 - E0FA: ; Item Loading.asm
+E0FD - E0FF: ; itemsounds.asm
+E100 - E101: ; stats.asm
+E108 - E11F: ; Item Loading.asm
+E122 - E124: ; itemsounds.asm
+E125 - E126: ; stats.asm
+E14F - E151: ; itemsounds.asm
+E152 - E153: ; stats.asm
+E17D - E17F: ; itemsounds.asm
+E180 - E181: ; stats.asm
+E1AB - E1AD: ; itemsounds.asm
+E1AE - E1AF: ; stats.asm
+E1D9 - E1DB: ; itemsounds.asm
+E1DC - E1DD: ; stats.asm
+E207 - E209: ; itemsounds.asm
+E20A - E20B: ; stats.asm
+E235 - E237: ; itemsounds.asm
+E238 - E239: ; stats.asm
+E263 - E265: ; itemsounds.asm
+E266 - E267: ; stats.asm
+E291 - E293: ; itemsounds.asm
+E294 - E295: ; stats.asm
+E2C3 - E2C5: ; itemsounds.asm
+E2C8 - E2C9: ; stats.asm
+E2F8 - E2FA: ; itemsounds.asm
+E2FD - E2FE: ; stats.asm
+E32D - E32F: ; itemsounds.asm
+E330 - E331: ; stats.asm
+E35A - E35C: ; itemsounds.asm
+E35D - E35E: ; stats.asm
+E388 - E38A: ; itemsounds.asm
+E38B - E38C: ; stats.asm
+E3B5 - E3B7: ; itemsounds.asm
+E3B8 - E3B9: ; stats.asm
+E3E3 - E3E5: ; itemsounds.asm
+E3E6 - E3E7: ; stats.asm
+E411 - E413: ; itemsounds.asm
+E414 - E415: ; stats.asm
+E43F - E441: ; itemsounds.asm
+E442 - E443: ; stats.asm
+E44A - E46C: ; Item Loading.asm
+E46F - E471: ; itemsounds.asm
+E472 - E473: ; stats.asm
+E47C - E49E: ; Item Loading.asm
+E4A1 - E4A3: ; itemsounds.asm
+E4A4 - E4A5: ; stats.asm
+E4AE - E4D0: ; Item Loading.asm
+E4D3 - E4D5: ; itemsounds.asm
+E4D6 - E4D7: ; stats.asm
+E4E0 - E502: ; Item Loading.asm
+E505 - E507: ; itemsounds.asm
+E508 - E509: ; stats.asm
+E53F - E541: ; itemsounds.asm
+E542 - E543: ; stats.asm
+E57A - E57C: ; itemsounds.asm
+E57D - E57E: ; stats.asm
+E5B5 - E5B7: ; itemsounds.asm
+E5B8 - E5B9: ; stats.asm
+E5F0 - E5F2: ; itemsounds.asm
+E5F3 - E5F4: ; stats.asm
+E62B - E62D: ; itemsounds.asm
+E62E - E62F: ; stats.asm
+E66F - E671: ; itemsounds.asm
+E672 - E673: ; stats.asm
+E6AA - E6AC: ; itemsounds.asm
+E6AD - E6AE: ; stats.asm
+E6E5 - E6E7: ; itemsounds.asm
+E6E8 - E6E9: ; stats.asm
+E720 - E722: ; itemsounds.asm
+E725 - E726: ; stats.asm
+E762 - E764: ; itemsounds.asm
+E767 - E768: ; stats.asm
+E7A4 - E7A6: ; itemsounds.asm
+E7A7 - E7A8: ; stats.asm
+E7DE - E7E0: ; itemsounds.asm
+E7E1 - E7E2: ; stats.asm
+E819 - E81B: ; itemsounds.asm
+E81C - E81D: ; stats.asm
+E853 - E855: ; itemsounds.asm
+E856 - E857: ; stats.asm
+E88E - E890: ; itemsounds.asm
+E891 - E892: ; stats.asm
+E8C9 - E8CB: ; itemsounds.asm
+E8CC - E8CD: ; stats.asm
+E8CE - E8CE: ; ultra_low_qol_vanilla_bugfixes.asm, vanilla_bugfixes.asm
+E904 - E906: ; itemsounds.asm
+E907 - E908: ; stats.asm
+E911 - E937: ; Item Loading.asm
+E93A - E93C: ; itemsounds.asm
+E93D - E93E: ; stats.asm
+E945 - E96F: ; Item Loading.asm
+E972 - E974: ; itemsounds.asm
+E975 - E976: ; stats.asm
+E97D - E9A7: ; Item Loading.asm
+E9AA - E9AC: ; itemsounds.asm
+E9AD - E9AE: ; stats.asm
+E9B5 - E9DF: ; Item Loading.asm
+E9E2 - E9E4: ; itemsounds.asm
+E9E5 - E9E6: ; stats.asm
+E9ED - E9F0: ; Item Loading.asm
+EA22 - EA24: ; itemsounds.asm
+EA25 - EA26: ; stats.asm
+EA63 - EA65: ; itemsounds.asm
+EA66 - EA67: ; stats.asm
+EAA4 - EAA6: ; itemsounds.asm
+EAA7 - EAA8: ; stats.asm
+EAE5 - EAE7: ; itemsounds.asm
+EAE8 - EAE9: ; stats.asm
+EB26 - EB28: ; itemsounds.asm
+EB29 - EB2A: ; stats.asm
+EB67 - EB69: ; itemsounds.asm
+EB6A - EB6B: ; stats.asm
+EBA8 - EBAA: ; itemsounds.asm
+EBAB - EBAC: ; stats.asm
+EBE9 - EBEB: ; itemsounds.asm
+EBEC - EBED: ; stats.asm
+EC2A - EC2C: ; itemsounds.asm
+EC2F - EC30: ; stats.asm
+EC72 - EC74: ; itemsounds.asm
+EC77 - EC78: ; stats.asm
+ECBA - ECBC: ; itemsounds.asm
+ECBD - ECBE: ; stats.asm
+ECFA - ECFC: ; itemsounds.asm
+ECFD - ECFE: ; stats.asm
+ED3B - ED3D: ; itemsounds.asm
+ED3E - ED3F: ; stats.asm
+ED7B - ED7D: ; itemsounds.asm
+ED7E - ED7F: ; stats.asm
+EDBC - EDBE: ; itemsounds.asm
+EDBF - EDC0: ; stats.asm
+EDFD - EDFF: ; itemsounds.asm
+EE00 - EE01: ; stats.asm
+EE02 - EE02: ; ultra_low_qol_vanilla_bugfixes.asm, vanilla_bugfixes.asm
+EE3E - EE40: ; itemsounds.asm
+EE41 - EE42: ; stats.asm
 
 [BANK 85]
-$858243 - extended_msg_boxes.asm
-$8582f1 - extended_msg_boxes.asm
-$85811e - fast_reload.asm
-$858089 - fast_saves.asm
-$858122 - fast_saves.asm
-$8580ba - fast_saves.asm
-$8580bf - fast_saves.asm
-$858458 - fast_saves.asm
-$858592 - fast_saves.asm
-$85877f - hud_expansion_opaque.asm
-$858090 - hud_expansion_opaque.asm
-$8580aa - hud_expansion_opaque.asm
-$8580e8 - hud_expansion_opaque.asm
-$858426 - hud_expansion_opaque.asm
-$858000 - hud_expansion_opaque.asm
-$858491 - itemsounds.asm
-$858089 - itemsounds.asm
-$85846d - item_dots_disappear.asm
-$858150 - map_area.asm
-$85a290 - map_area.asm
-$858426 - map_area.asm
-$858851 - max_ammo_display_fast.asm
-$858891 - max_ammo_display_fast.asm
-$858951 - max_ammo_display_fast.asm
-$858993 - max_ammo_display_fast.asm
-$858a4f - max_ammo_display_fast.asm
-$858a8f - max_ammo_display_fast.asm
-$85877f - ultra_low_qol_hud_expansion_opaque.asm
-$858090 - ultra_low_qol_hud_expansion_opaque.asm
-$8580aa - ultra_low_qol_hud_expansion_opaque.asm
-$8580e8 - ultra_low_qol_hud_expansion_opaque.asm
-$859650 - ultra_low_qol_hud_expansion_opaque.asm
-$858426 - ultra_low_qol_hud_expansion_opaque.asm
-$858000 - ultra_low_qol_hud_expansion_opaque.asm
-$858493 - vanilla_bugfixes.asm
-$858093 - vanilla_bugfixes.asm
-$8582e5 - vanilla_bugfixes.asm
-$8582ee - vanilla_bugfixes.asm
-$85840c - vanilla_bugfixes.asm
-$858089 - vanilla_fanfare_stop_sounds.asm
+8000 - 807F: ; hud_expansion_opaque.asm
+8089 - 808A: ; fast_saves.asm, itemsounds.asm
+8089 - 808C: ; vanilla_fanfare_stop_sounds.asm
+8090 - 8092: ; hud_expansion_opaque.asm
+8093 - 8095: ; crash_handle_base.asm
+80AA - 80AC: ; hud_expansion_opaque.asm
+80E8 - 80EA: ; hud_expansion_opaque.asm
+811E - 8121: ; fast_reload.asm
+8122 - 8124: ; fast_saves.asm
+8150 - 8168: ; map_area.asm
+8243 - 8245: ; extended_msg_boxes.asm
+82E5 - 82E7: ; crash_handle_base.asm
+82EE - 82F0: ; crash_handle_base.asm
+82F1 - 82F3: ; extended_msg_boxes.asm
+840C - 840E: ; crash_handle_base.asm
+8426 - 8435: ; map_area.asm
+846D - 8471: ; item_dots_disappear.asm
+8491 - 8492: ; itemsounds.asm
+8493 - 8495: ; crash_handle_base.asm
+877F - 9642: ; hud_expansion_opaque.asm
+8851 - 8856: ; max_ammo_display_fast.asm
+8891 - 8896: ; max_ammo_display_fast.asm
+8951 - 8956: ; max_ammo_display_fast.asm
+8993 - 8996: ; max_ammo_display_fast.asm
+8A4F - 8A52: ; max_ammo_display_fast.asm
+8A8F - 8A92: ; max_ammo_display_fast.asm
 
 [BANK 86]
-$86f0bb - buffed_drops.asm
-$86f0d9 - buffed_drops.asm
-$86f0f7 - buffed_drops.asm
-$86e685 - fast_saves.asm
-$86b704 - vanilla_bugfixes.asm
-$86b713 - vanilla_bugfixes.asm
-$86a8fd - vanilla_bugfixes.asm
-$86d252 - vanilla_bugfixes.asm
+A8FD - A8FF: ; vanilla_camerafixes.asm
+B704 - B706: ; vanilla_bugfixes.asm
+D252 - D254: ; vanilla_bugfixes.asm
+E685 - E686: ; fast_saves.asm
+EFA5 - EFA7: ; everything_respawns.asm
+F0BB - F0BD: ; buffed_drops.asm
+F0D9 - F0DB: ; buffed_drops.asm
 
 [BANK 87]
-$8782af - hud_expansion_opaque.asm
-$8782cd - hud_expansion_opaque.asm
-$8782eb - hud_expansion_opaque.asm
-$878301 - hud_expansion_opaque.asm
-$8782af - ultra_low_qol_hud_expansion_opaque.asm
-$8782cd - ultra_low_qol_hud_expansion_opaque.asm
-$8782eb - ultra_low_qol_hud_expansion_opaque.asm
-$878301 - ultra_low_qol_hud_expansion_opaque.asm
+81BA - 81C0: ; Area FX.asm
+8279 - 827A: ; Area FX.asm
+827F - 8280: ; Area FX.asm
+8285 - 8286: ; Area FX.asm
+828B - 828C: ; Area FX.asm
+8291 - 8292: ; Area FX.asm
+82AF - 82B0: ; hud_expansion_opaque.asm
+82CD - 82CE: ; hud_expansion_opaque.asm
+82EB - 82EC: ; hud_expansion_opaque.asm
+8301 - 8302: ; hud_expansion_opaque.asm
 
 [BANK 88]
-$888b18 - hud_expansion_opaque.asm
-$88a2e8 - hud_expansion_opaque.asm
-$8883dc - reserve_hud.asm
-$88b446 - sound_effect_disables.asm
-$888b18 - ultra_low_qol_hud_expansion_opaque.asm
-$88a2e8 - ultra_low_qol_hud_expansion_opaque.asm
+83DC - 83DF: ; reserve_hud.asm
+8B18 - 8B21: ; hud_expansion_opaque.asm
+A2E8 - A2F1: ; hud_expansion_opaque.asm
+A7D8 - A815: ; Scrolling Sky v1.6.asm
+AD76 - AF32: ; Scrolling Sky v1.6.asm
+B0A3 - B0A6: ; Area FX.asm
+B102 - B109: ; Area FX.asm
+B28D - B294: ; Fake Lava.asm
+B2B5 - B2BC: ; Fake Lava.asm
+B446 - B449: ; sound_effect_disables.asm
+B4E4 - B4E6: ; Fake Lava.asm
 
 [BANK 89]
-$899800 - hud_expansion_opaque.asm
-$89ac31 - hud_expansion_opaque.asm
-$89af00 - hud_expansion_opaque.asm
-$89ab62 - map_area.asm
-$89ab6a - map_area.asm
-$89ab72 - map_area.asm
-$89ab72 - map_area.asm
-$89ab7b - map_area.asm
-$89ac05 - map_area.asm
-$89ac0d - map_area.asm
-$89ac15 - map_area.asm
-$89ac15 - map_area.asm
-$89ac1e - map_area.asm
-$899800 - ultra_low_qol_hud_expansion_opaque.asm
-$89ac31 - ultra_low_qol_hud_expansion_opaque.asm
-$89af00 - ultra_low_qol_hud_expansion_opaque.asm
+9100 - 91FF: walljump boots plm graphics
+9200 - 95FF: ; Item Loading.asm
+9600 - 96FF: spark booster plms graphics
+9700 - 97FF: blue booster plm graphics
+9800 - AA01: ; hud_expansion_opaque.asm
+AA02 - AA06: ; Area Palettes.asm
+AB5B - AB5D: ; Area Palettes.asm
+AB90 - AB92: ; Area FX.asm
+ABA3 - ABA5: ; Area FX.asm
+ABF8 - ABFA: ; Area FX.asm
+ABFB - ABFD: ; Area Palettes.asm
+AC01 - AC04: ; Area Palettes.asm
+AC09 - AC0C: ; Area Palettes.asm
+AC11 - AC14: ; Area Palettes.asm
+AC25 - AC27: ; Area FX.asm
+AC31 - AC33: ; hud_expansion_opaque.asm
+AC3A - AC3C: ; Area FX.asm
+AC57 - AC59: ; Area FX.asm
+AC62 - AC69: ; Area FX.asm
+AC98 - AC9F: ; Area FX.asm
 
 [BANK 8A]
-$8a8000 - hud_expansion_opaque.asm
-$8a8000 - ultra_low_qol_hud_expansion_opaque.asm
+8000 - B17F: ; hud_expansion_opaque.asm
+8840 - 907F: ; Acid Tilemap.asm
+B180 - B4F0: ; Scrolling Sky v1.6.asm
+B502 - B5AE: ; Bowling.asm
+B5B0 - B744: ; Area FX.asm
+C002 - CD28: ; Area Palettes.asm
+D000 - D7FF: ; Area FX.asm
 
 [BANK 8B]
-$8b9976 - credits.asm
-$8b999b - credits.asm
-$8b99e5 - credits.asm
-$8b9a08 - credits.asm
-$8b9a19 - credits.asm
-$8be0d1 - credits.asm
-$8bf600 - credits.asm
-$8be65b - escape.asm
-$8be661 - escape.asm
-$8be62f - escape_items.asm
-$8bf760 - escape_items.asm
-$8b916b - stats.asm
+916B - 916C: ; stats.asm
+9976 - 9979: ; credits.asm
+999B - 999E: ; credits.asm
+99E5 - 99E8: ; credits.asm
+9A08 - 9A0B: ; credits.asm
+9A19 - 9A1C: ; credits.asm
+A131 - A140: ; title_map_animation.asm
+A337 - A354: ; title_map_animation.asm
+A359 - A35A: ; title_map_animation.asm
+E0D1 - E0D4: ; credits.asm
+E62F - E631: ; escape_items.asm
+E65B - E65D: ; escape.asm
+E661 - E663: ; escape.asm
+F600 - F602: ; credits.asm
+
+[BANK 8C]
+F3E9 - ????: Used for updated spritemap on title screen
 
 [BANK 8D]
-$8de379 - complementary_suits.asm
-$8de381 - complementary_suits.asm
+C4FF - C520: ; Area Palette Glows.asm
+C527 - C54A: ; Area Palette Glows.asm
+C686 - C694: ; Area FX.asm
+E379 - E387: ; complementary_suits.asm
+E45A - E45C: ; Area Palette Glows.asm
+EC59 - EC5E: ; Area FX.asm
+F765 - F768: ; Area Palette Glows.asm
+F76D - F770: ; Area Palette Glows.asm
+F771 - F774: ; Area FX.asm
+F775 - F794: ; Area Palette Glows.asm
+F795 - F79C: ; Area FX.asm
+F79D - F7A4: ; Area Palette Glows.asm
+F891 - F93D: ; Area Palette Glows.asm
+FFC9 - FFCC: ; Area FX.asm
+FFCD - FFEC: ; Area Palette Glows.asm
 
 [BANK 8E]
-$8e8000 - hud_expansion_opaque.asm
-$8e8000 - ultra_low_qol_hud_expansion_opaque.asm
+8000 - DBFF: ; hud_expansion_opaque.asm
 
 [BANK 8F]
-$8f9ec5 - all_items_spawn.asm
-$8f9ab6 - all_items_spawn.asm
-$8fcdce - all_items_spawn.asm
-$8fce17 - all_items_spawn.asm
-$8fcc4d - all_items_spawn.asm
-$8fcad4 - all_items_spawn.asm
-$8fc9b4 - all_items_spawn.asm
-$8fce66 - all_items_spawn.asm
-$8ff7f0 - boss_exit.asm
-$8fe896 - escape.asm
-$8fe8bd - escape.asm
-$8fa5c9 - escape.asm
-$8fddb4 - escape_autosave.asm
-$8fddaa - escape_autosave.asm
-$8fdda6 - escape_autosave.asm
-$8ff800 - escape_autosave.asm
-$8f8642 - gray_doors.asm
-$8f8647 - gray_doors.asm
-$8fb64c - gray_doors.asm
-$8ff700 - gray_doors.asm
-$8fe893 - hazard_markers.asm
-$8fe89d - load_plms_early.asm
-$8fc90c - map_area.asm
-$8f92c9 - music.asm
-$8f9318 - music.asm
-$8f93bb - music.asm
-$8f9472 - music.asm
-$8f949d - music.asm
-$8f9563 - music.asm
-$8f958e - music.asm
-$8f95b9 - music.asm
-$8f95e5 - music.asm
-$8f9610 - music.asm
-$8f966c - music.asm
-$8f96d5 - music.asm
-$8f9771 - music.asm
-$8f98f3 - music.asm
-$8f991e - music.asm
-$8f997a - music.asm
-$8f99a5 - music.asm
-$8f99ce - music.asm
-$8f9a0a - music.asm
-$8f9a5a - music.asm
-$8f9a74 - music.asm
-$8f9aa6 - music.asm
-$8f9ac0 - music.asm
-$8f9bae - music.asm
-$8f9bd9 - music.asm
-$8f9c46 - music.asm
-$8f9c6f - music.asm
-$8f9c9a - music.asm
-$8f9cc4 - music.asm
-$8f9e22 - music.asm
-$8f9f27 - music.asm
-$8f9f41 - music.asm
-$8f9f7a - music.asm
-$8f9f94 - music.asm
-$8f9ff6 - music.asm
-$8fa022 - music.asm
-$8fa062 - music.asm
-$8fa08c - music.asm
-$8fa0e3 - music.asm
-$8fa118 - music.asm
-$8fa141 - music.asm
-$8fa16c - music.asm
-$8fa1be - music.asm
-$8fa1e9 - music.asm
-$8fa2a4 - music.asm
-$8fa308 - music.asm
-$8fa38d - music.asm
-$8fa3ee - music.asm
-$8fa419 - music.asm
-$8fa458 - music.asm
-$8fa482 - music.asm
-$8fa4c2 - music.asm
-$8fa57c - music.asm
-$8fa5cf - music.asm
-$8fa629 - music.asm
-$8fa652 - music.asm
-$8fa76e - music.asm
-$8fa799 - music.asm
-$8fa7c4 - music.asm
-$8fa826 - music.asm
-$8fa876 - music.asm
-$8fa8ca - music.asm
-$8fa909 - music.asm
-$8faa1f - music.asm
-$8faa52 - music.asm
-$8faaef - music.asm
-$8fab18 - music.asm
-$8fab4c - music.asm
-$8fab75 - music.asm
-$8faba0 - music.asm
-$8fabe3 - music.asm
-$8fac11 - music.asm
-$8fac6b - music.asm
-$8fac94 - music.asm
-$8facc4 - music.asm
-$8fad01 - music.asm
-$8fadbe - music.asm
-$8fae18 - music.asm
-$8fae43 - music.asm
-$8fae85 - music.asm
-$8faec5 - music.asm
-$8faef0 - music.asm
-$8faf25 - music.asm
-$8faf83 - music.asm
-$8fafb4 - music.asm
-$8fafdf - music.asm
-$8fb00c - music.asm
-$8fb037 - music.asm
-$8fb062 - music.asm
-$8fb08b - music.asm
-$8fb0c5 - music.asm
-$8fb117 - music.asm
-$8fb14a - music.asm
-$8fb3b6 - music.asm
-$8fb41b - music.asm
-$8fb468 - music.asm
-$8fb493 - music.asm
-$8fb4be - music.asm
-$8fb4f6 - music.asm
-$8fb521 - music.asm
-$8fb56b - music.asm
-$8fb596 - music.asm
-$8fb5e6 - music.asm
-$8fb63c - music.asm
-$8fb6a9 - music.asm
-$8fcac4 - music.asm
-$8fcade - music.asm
-$8fcba1 - music.asm
-$8fcbbb - music.asm
-$8fcce1 - music.asm
-$8fccfb - music.asm
-$8fcd72 - music.asm
-$8fcd8c - music.asm
-$8fcdbe - music.asm
-$8fcdd8 - music.asm
-$8fce07 - music.asm
-$8fce21 - music.asm
-$8fce56 - music.asm
-$8fce70 - music.asm
-$8fcf65 - music.asm
-$8fd028 - music.asm
-$8fd066 - music.asm
-$8fd0ca - music.asm
-$8fd14c - music.asm
-$8fd17e - music.asm
-$8fd1ee - music.asm
-$8fd263 - music.asm
-$8fd28f - music.asm
-$8fd2bb - music.asm
-$8fd2ea - music.asm
-$8fd351 - music.asm
-$8fd398 - music.asm
-$8fd3c7 - music.asm
-$8fd419 - music.asm
-$8fd444 - music.asm
-$8fd472 - music.asm
-$8fd49f - music.asm
-$8fd4d3 - music.asm
-$8fd500 - music.asm
-$8fd52f - music.asm
-$8fd55e - music.asm
-$8fd58b - music.asm
-$8fd5fd - music.asm
-$8fd657 - music.asm
-$8fd6ab - music.asm
-$8fd6e1 - music.asm
-$8fd70e - music.asm
-$8fd73b - music.asm
-$8fd7a5 - music.asm
-$8fd856 - music.asm
-$8fd87f - music.asm
-$8fd8a9 - music.asm
-$8fd8db - music.asm
-$8fd8f5 - music.asm
-$8fd924 - music.asm
-$8fd9e5 - music.asm
-$8fda0f - music.asm
-$8fda3c - music.asm
-$8fdaf7 - music.asm
-$8fdb11 - music.asm
-$8fdb47 - music.asm
-$8fdb61 - music.asm
-$8fdb93 - music.asm
-$8fdbad - music.asm
-$8fdcc7 - music.asm
-$8fdce1 - music.asm
-$8fdd3f - music.asm
-$8fdd72 - music.asm
-$8fdd8c - music.asm
-$8fddd5 - music.asm
-$8fde5e - music.asm
-$8fde8b - music.asm
-$8fdeb8 - music.asm
-$8fdeef - music.asm
-$8fe301 - saveload.asm
-$8fe310 - saveload.asm
-$8fc90c - ultra_low_qol_map_area.asm
+8642 - 8643: ; gray_doors.asm
+8647 - 8647: ; gray_doors.asm
+91C9 - 91D2: ; Scrolling Sky v1.6.asm
+92C9 - 92CA: ; music.asm
+9318 - 9319: ; music.asm
+93BB - 93BC: ; music.asm
+9472 - 9473: ; music.asm
+949D - 949E: ; music.asm
+9563 - 9564: ; music.asm
+958E - 958F: ; music.asm
+95B9 - 95BA: ; music.asm
+95E5 - 95E6: ; music.asm
+9610 - 9611: ; music.asm
+966C - 966D: ; music.asm
+96D5 - 96D6: ; music.asm
+9771 - 9772: ; music.asm
+98F3 - 98F4: ; music.asm
+991E - 991F: ; music.asm
+997A - 997B: ; music.asm
+99A5 - 99A6: ; music.asm
+99CE - 99CF: ; music.asm
+9A0A - 9A0B: ; music.asm
+9A5A - 9A5B: ; music.asm
+9A74 - 9A75: ; music.asm
+9AA6 - 9AA7: ; music.asm
+9AB6 - 9AB7: ; all_items_spawn.asm
+9AC0 - 9AC1: ; music.asm
+9BAE - 9BAF: ; music.asm
+9BD9 - 9BDA: ; music.asm
+9C46 - 9C47: ; music.asm
+9C6F - 9C70: ; music.asm
+9C9A - 9C9B: ; music.asm
+9CC4 - 9CC5: ; music.asm
+9E22 - 9E23: ; music.asm
+9EC5 - 9EC6: ; all_items_spawn.asm
+9F27 - 9F28: ; music.asm
+9F41 - 9F42: ; music.asm
+9F7A - 9F7B: ; music.asm
+9F94 - 9F95: ; music.asm
+9FF6 - 9FF7: ; music.asm
+A022 - A023: ; music.asm
+A062 - A063: ; music.asm
+A08C - A08D: ; music.asm
+A0E3 - A0E4: ; music.asm
+A118 - A119: ; music.asm
+A141 - A142: ; music.asm
+A16C - A16D: ; music.asm
+A1BE - A1BF: ; music.asm
+A1E9 - A1EA: ; music.asm
+A2A4 - A2A5: ; music.asm
+A308 - A309: ; music.asm
+A38D - A38E: ; music.asm
+A3EE - A3EF: ; music.asm
+A419 - A41A: ; music.asm
+A482 - A483: ; music.asm
+A4C2 - A4C3: ; music.asm
+A57C - A57D: ; music.asm
+A5CF - A5D0: ; music.asm
+A629 - A62A: ; music.asm
+A652 - A653: ; music.asm
+A76E - A76F: ; music.asm
+A799 - A79A: ; music.asm
+A7C4 - A7C5: ; music.asm
+A826 - A827: ; music.asm
+A876 - A877: ; music.asm
+A8CA - A8CB: ; music.asm
+A909 - A90A: ; music.asm
+AA1F - AA20: ; music.asm
+AA52 - AA53: ; music.asm
+AAEF - AAF0: ; music.asm
+AB18 - AB19: ; music.asm
+AB4C - AB4D: ; music.asm
+AB75 - AB76: ; music.asm
+ABA0 - ABA1: ; music.asm
+ABE3 - ABE4: ; music.asm
+AC11 - AC12: ; music.asm
+AC6B - AC6C: ; music.asm
+AC94 - AC95: ; music.asm
+ACC4 - ACC5: ; music.asm
+AD01 - AD02: ; music.asm
+ADBE - ADBF: ; music.asm
+AE18 - AE19: ; music.asm
+AE43 - AE44: ; music.asm
+AE85 - AE86: ; music.asm
+AEC5 - AEC6: ; music.asm
+AEF0 - AEF1: ; music.asm
+AF25 - AF26: ; music.asm
+AF83 - AF84: ; music.asm
+AFB4 - AFB5: ; music.asm
+AFDF - AFE0: ; music.asm
+B00C - B00D: ; music.asm
+B037 - B038: ; music.asm
+B062 - B063: ; music.asm
+B08B - B08C: ; music.asm
+B0C5 - B0C6: ; music.asm
+B117 - B118: ; music.asm
+B14A - B14B: ; music.asm
+B3B6 - B3B7: ; music.asm
+B41B - B41C: ; music.asm
+B468 - B469: ; music.asm
+B493 - B494: ; music.asm
+B4BE - B4BF: ; music.asm
+B4F6 - B4F7: ; music.asm
+B521 - B522: ; music.asm
+B56B - B56C: ; music.asm
+B596 - B597: ; music.asm
+B5E6 - B5E7: ; music.asm
+B63C - B63D: ; music.asm
+B64C - B64D: ; gray_doors.asm
+B6A9 - B6AA: ; music.asm
+C116 - C11A: ; Scrolling Sky v1.6.asm
+C11B - C11F: ; Area FX.asm
+C120 - C123: ; Scrolling Sky v1.6.asm
+C8B3 - C8B6: ; tourian_map.asm
+C90C - C90E: ; map_area.asm
+C9B4 - C9B5: ; all_items_spawn.asm
+CAC4 - CAC5: ; music.asm
+CAD4 - CAD5: ; all_items_spawn.asm
+CADE - CADF: ; music.asm
+CBA1 - CBA2: ; music.asm
+CBBB - CBBC: ; music.asm
+CC4D - CC4E: ; all_items_spawn.asm
+CCE1 - CCE2: ; music.asm
+CCFB - CCFC: ; music.asm
+CD72 - CD73: ; music.asm
+CD8C - CD8D: ; music.asm
+CDBE - CDBF: ; music.asm
+CDCE - CDCF: ; all_items_spawn.asm
+CDD8 - CDD9: ; music.asm
+CE07 - CE08: ; music.asm
+CE17 - CE18: ; all_items_spawn.asm
+CE21 - CE22: ; music.asm
+CE56 - CE57: ; music.asm
+CE66 - CE67: ; all_items_spawn.asm
+CE70 - CE71: ; music.asm
+CF65 - CF66: ; music.asm
+D028 - D029: ; music.asm
+D066 - D067: ; music.asm
+D0CA - D0CB: ; music.asm
+D14C - D14D: ; music.asm
+D17E - D17F: ; music.asm
+D1EE - D1EF: ; music.asm
+D263 - D264: ; music.asm
+D28F - D290: ; music.asm
+D2BB - D2BC: ; music.asm
+D2EA - D2EB: ; music.asm
+D351 - D352: ; music.asm
+D398 - D399: ; music.asm
+D3C7 - D3C8: ; music.asm
+D419 - D41A: ; music.asm
+D444 - D445: ; music.asm
+D472 - D473: ; music.asm
+D49F - D4A0: ; music.asm
+D4D3 - D4D4: ; music.asm
+D500 - D501: ; music.asm
+D52F - D530: ; music.asm
+D55E - D55F: ; music.asm
+D58B - D58C: ; music.asm
+D5FD - D5FE: ; music.asm
+D657 - D658: ; music.asm
+D6AB - D6AC: ; music.asm
+D6E1 - D6E2: ; music.asm
+D70E - D70F: ; music.asm
+D73B - D73C: ; music.asm
+D7A5 - D7A6: ; music.asm
+D856 - D857: ; music.asm
+D87F - D880: ; music.asm
+D8A9 - D8AA: ; music.asm
+D8DB - D8DC: ; music.asm
+D8F5 - D8F6: ; music.asm
+D924 - D925: ; music.asm
+D9E5 - D9E6: ; music.asm
+DA0F - DA10: ; music.asm
+DA3C - DA3D: ; music.asm
+DAD3 - DAD4: ; tourian_map.asm
+DAEE - DAEE: ; everything_respawns.asm
+DAF7 - DAF8: ; music.asm
+DB11 - DB12: ; music.asm
+DB3E - DB3E: ; everything_respawns.asm
+DB47 - DB48: ; music.asm
+DB61 - DB62: ; music.asm
+DB8A - DB8A: ; everything_respawns.asm
+DB93 - DB94: ; music.asm
+DBAD - DBAE: ; music.asm
+DBDA - DBDA: ; everything_respawns.asm
+DCC7 - DCC8: ; music.asm
+DCE1 - DCE2: ; music.asm
+DD3F - DD40: ; music.asm
+DD72 - DD73: ; music.asm
+DD8C - DD8D: ; music.asm
+DDA6 - DDA7: ; escape_autosave.asm
+DDAA - DDAD: ; escape_autosave.asm
+DDB4 - DDB5: ; escape_autosave.asm
+DDD5 - DDD6: ; music.asm
+DE5E - DE5F: ; music.asm
+DE6C - DE73: ; no_explosions_before_escape.asm
+DE8B - DE8C: ; music.asm
+DE99 - DEA0: ; no_explosions_before_escape.asm
+DEB8 - DEB9: ; music.asm
+DEC6 - DECD: ; no_explosions_before_escape.asm
+DEEF - DEF0: ; music.asm
+DEFD - DF04: ; no_explosions_before_escape.asm
+DF28 - DF29: ; tourian_map.asm
+E301 - E303: ; saveload.asm
+E310 - E312: ; saveload.asm
+E606 - E607: ; everything_respawns.asm
+E633 - E634: ; everything_respawns.asm
+E817 - E819: ; intro_song.asm
+E893 - E895: ; extra_setup.asm
+E896 - E898: ; escape.asm
+E89D - E89F: ; load_plms_early.asm
+E8BD - E8BF: ; escape.asm
 
 [BANK 90]
-$90e9ce - complementary_suits.asm
-$9081db - complementary_suits.asm
-$90f680 - complementary_suits.asm
-$909e0a - disable_walljump.asm
-$909e14 - disable_walljump.asm
-$909e40 - disable_walljump.asm
-$909e49 - disable_walljump.asm
-$90d2bd - energy_free_shinesparks.asm
-$90d0ce - energy_free_shinesparks.asm
-$90d0fd - energy_free_shinesparks.asm
-$90d129 - energy_free_shinesparks.asm
-$90d336 - energy_free_shinesparks.asm
-$90e908 - escape_timer.asm
-$90f900 - escape_timer.asm
-$90ecb6 - gravity_palette.asm
-$90aa73 - item_dots_disappear.asm
-$90aa8a - item_dots_disappear.asm
-$90a9be - map_area.asm
-$90aa73 - map_area.asm
-$90aa78 - map_area.asm
-$90ab4a - map_area.asm
-$90ab56 - map_area.asm
-$90a7f1 - map_area.asm
-$90aafd - map_area.asm
-$90a923 - map_progress_maintain.asm
-$90ab6d - map_progress_maintain.asm
-$90a98b - map_progress_maintain.asm
-$90a9c1 - map_progress_maintain.asm
-$90aab4 - map_progress_maintain.asm
-$90aadb - map_progress_maintain.asm
-$90ab18 - map_progress_maintain.asm
-$90aaac - map_progress_maintain.asm
-$90aad3 - map_progress_maintain.asm
-$90ab10 - map_progress_maintain.asm
-$90a3ca - momentum_conservation.asm
-$90edec - mosaic_fx_fix.asm
-$90ea92 - no_beeping.asm
-$90eaa0 - no_beeping.asm
-$90f33c - no_beeping.asm
-$90d4b9 - remove_spikesuit.asm
-$908502 - split_speed.asm
-$90855b - split_speed.asm
-$90978c - split_speed.asm
-$909919 - split_speed.asm
-$90991c - split_speed.asm
-$9099a9 - split_speed.asm
-$90eee7 - split_speed.asm
-$90e0f2 - stats.asm
-$90a9be - ultra_low_qol_map_area.asm
-$90aa73 - ultra_low_qol_map_area.asm
-$90aa78 - ultra_low_qol_map_area.asm
-$90a97c - unexplore.asm
-$90f63a - unexplore.asm
-$90d354 - vanilla_bugfixes.asm
-$909e4b - walljump_plm.asm
-$909e57 - walljump_plm.asm
-$909e6c - walljump_plm.asm
-$909e78 - walljump_plm.asm
-$909e88 - walljump_plm.asm
+81C0 - 81C2: ; Fake Lava.asm
+81DB - 81DF: ; complementary_suits.asm
+8219 - 821B: ; Fake Lava.asm
+843C - 843E: ; Fake Lava.asm
+8502 - 8504: ; split_speed.asm
+855B - 855D: ; split_speed.asm
+8E3A - 8E3C: ; Fake Lava.asm
+9758 - 975A: ; Fake Lava.asm
+978C - 978E: ; split_speed.asm
+97A9 - 97AB: ; split_speed.asm
+98D9 - 98DB: ; Fake Lava.asm
+9919 - 991E: ; split_speed.asm
+9966 - 9968: ; Fake Lava.asm
+99A9 - 99AB: ; split_speed.asm
+99F3 - 99F5: ; Fake Lava.asm
+9A46 - 9A48: ; Fake Lava.asm
+9BEB - 9BED: ; Fake Lava.asm
+9C3B - 9C3D: ; Fake Lava.asm
+9C72 - 9C74: ; Fake Lava.asm
+9E4B - 9E54: ; walljump_plm.asm
+9E6C - 9E75: ; walljump_plm.asm
+A3CA - A3CC: ; momentum_conservation.asm
+A458 - A45A: ; Fake Lava.asm
+A7F1 - A7F3: ; map_area.asm
+A923 - A924: ; map_progress_maintain.asm
+A97C - A97E: ; unexplore.asm
+A98B - A98D: ; map_progress_maintain.asm
+A9BE - A9C0: ; map_area.asm
+A9C1 - A9CF: ; map_progress_maintain.asm
+AA73 - AA75: ; map_area.asm
+AA73 - AA80: ; item_dots_disappear.asm
+AA78 - AA7A: ; map_area.asm
+AAAC - AAAD: ; map_progress_maintain.asm
+AAB4 - AAB6: ; map_progress_maintain.asm
+AAD3 - AAD4: ; map_progress_maintain.asm
+AADB - AADD: ; map_progress_maintain.asm
+AAFD - AB02: ; map_area.asm
+AB10 - AB11: ; map_progress_maintain.asm
+AB18 - AB1A: ; map_progress_maintain.asm
+AB4A - AB4F: ; map_area.asm
+AB56 - AB58: ; map_area.asm
+AB6D - AB6F: ; map_progress_maintain.asm
+D0CE - D0D0: ; energy_free_shinesparks.asm
+D0FD - D0FF: ; energy_free_shinesparks.asm
+D129 - D12B: ; energy_free_shinesparks.asm
+D2BD - D2BF: ; energy_free_shinesparks.asm
+D336 - D337: ; energy_free_shinesparks.asm
+D354 - D356: ; crash_handle_yapping.asm
+D4B9 - D4BE: ; remove_spikesuit.asm
+E0F2 - E0F7: ; stats.asm
+E908 - E90A: ; escape_timer.asm
+E9CE - EA22: ; complementary_suits.asm
+EA57 - EA5E: ; Ceres Enable.asm
+EA92 - EA95: ; no_beeping.asm
+EAA0 - EAA3: ; no_beeping.asm
+ECB6 - ECD1: ; gravity_palette.asm
+EDEC - EDEF: ; mosaic_fx_fix.asm
+EE03 - EE05: ; Fake Lava.asm
+EE86 - EE88: ; Fake Lava.asm
+EEE7 - EEE9: ; split_speed.asm
+F33C - F33F: ; no_beeping.asm
 
 [BANK 91]
-$9181f4 - aim_anything.asm
-$91cafe - crash_handle_xmode.asm
-$91e164 - fast_reload.asm
-$91e604 - fix_hyper_slowlock.asm
-$91deba - gravity_palette.asm
-$91dee6 - gravity_palette.asm
-$91de6a - gravity_palette.asm
-$91de8d - gravity_palette.asm
-$91d71b - gravity_palette.asm
-$91f116 - mosaic_fx_fix.asm
-$91f166 - mosaic_fx_fix.asm
-$91e6da - no_beeping.asm
-$91de59 - remove_bluesuit.asm
-$91de8d - remove_bluesuit.asm
-$91fc99 - respin.asm
-$919ee2 - respin.asm
-$91a834 - respin.asm
-$91a874 - respin.asm
-$91a8fc - respin.asm
-$918464 - respin.asm
-$9181b0 - spin_lock.asm
-$91e901 - split_speed.asm
-$91d9ea - split_speed.asm
-$91dae3 - split_speed.asm
-$91f564 - split_speed.asm
-$91f571 - split_speed.asm
-$91f7c1 - split_speed.asm
-$91e647 - split_speed.asm
-$91db0b - split_speed.asm
-$91db6d - split_speed.asm
-$91dbf2 - split_speed.asm
-$91dd23 - split_speed.asm
-$91d9b2 - split_speed.asm
-$91b629 - vanilla_bugfixes.asm
-$91ea07 - vanilla_bugfixes.asm
-$91f1fc - vanilla_bugfixes.asm
-$91816f - vanilla_bugfixes.asm
+816F - 817F: ; crash_handle_xmode.asm
+81B0 - 81B3: ; spin_lock.asm
+81F4 - 8297: ; aim_anything.asm
+8464 - 84AD: ; respin.asm
+95BC - 95F4: ; crash_handle_xmode.asm
+95BC - 965A: {unused vanilla code - demo instructions} - crash_handle_xmode.asm
+9EE2 - A80D: ; respin.asm
+A834 - A835: ; respin.asm
+A874 - A8F3: ; respin.asm
+A8FC - B00D: ; respin.asm
+B629 - B629: ; fix_blue_echoes.asm
+CAFE - CB00: ; crash_handle_xmode.asm
+D71B - D71C: ; gravity_palette.asm
+D9CD - D9D0: ; split_speed.asm
+D9D1 - D9D3: ; Fake Lava.asm
+D9D6 - D9D8: ; split_speed.asm
+D9EA - D9EC: ; split_speed.asm
+DAE3 - DAE5: ; split_speed.asm
+DB0B - DB0D: ; split_speed.asm
+DB6D - DB6F: ; split_speed.asm
+DBF2 - DBF4: ; split_speed.asm
+DD23 - DD25: ; split_speed.asm
+DE59 - DE63: ; remove_bluesuit.asm
+DE6A - DE6F: ; gravity_palette.asm
+DEBA - DF09: ; gravity_palette.asm
+E164 - E169: ; fast_reload.asm
+E604 - E609: ; fix_hyper_slowlock.asm
+E647 - E64B: ; split_speed.asm
+E6DA - E6DD: ; no_beeping.asm
+E901 - E903: ; split_speed.asm
+EA07 - EA0A: ; crash_handle_springball.asm
+F116 - F119: ; mosaic_fx_fix.asm
+F12D - F12F: ; Fake Lava.asm
+F166 - F169: ; mosaic_fx_fix.asm
+F17D - F17F: ; Fake Lava.asm
+F1FC - F1FF: ; crash_handle_springball.asm
+F564 - F566: ; split_speed.asm
+F571 - F573: ; split_speed.asm
+F6A9 - F6AB: ; Fake Lava.asm
+F70A - F70C: ; Fake Lava.asm
+F7C1 - F7C3: ; split_speed.asm
+F7F4 - F887: ; split_speed.asm
+F7F4 - F88C: {unused vanilla code} - split_speed.asm
+FA8D - FA8F: ; Fake Lava.asm
+FB36 - FB38: ; Fake Lava.asm
+FC42 - FC62: ; split_speed.asm
+FC42 - FC66: {unsued vanilla code} - split_speed.asm
+FC99 - FC9D: ; respin.asm
 
 [BANK 92]
-$928040 - samus_tiles_optim_animated_tiles_fix.asm
-$92807e - samus_tiles_optim_animated_tiles_fix.asm
+8040 - 804B: ; samus_tiles_optim_animated_tiles_fix.asm
+807E - 8089: ; samus_tiles_optim_animated_tiles_fix.asm
 
 [BANK 94]
-$9493b2 - map_area.asm
+93B2 - 93B4: ; map_area.asm
+
+[BANK 95]
+A5E1 - A82E: ; title_map_animation.asm
 
 [BANK 9A]
-$9ab200 - hud_expansion_opaque.asm
-$9ab542 - max_ammo_display_fast.asm
-$9ab5c0 - max_ammo_display_fast.asm
-$9ab691 - max_ammo_display_fast.asm
-$9ab200 - ultra_low_qol_hud_expansion_opaque.asm
+B200 - D1FF: ; hud_expansion_opaque.asm
+B542 - B57F: ; max_ammo_display_fast.asm
+B5C0 - B65E: ; max_ammo_display_fast.asm
+B691 - B6BF: ; max_ammo_display_fast.asm
 
 [BANK A0]
-$a0a463 - complementary_suits.asm
-$a0f900 - gray_doors.asm
-$a08ae5 - vanilla_bugfixes.asm
-$a0f820 - vanilla_bugfixes.asm
+8AE5 - 8AE7: ; vanilla_bugfixes.asm
+95F1 - 96B9: ; everything_respawns.asm
+A3E0 - A3E2: ; everything_respawns.asm
+A463 - A473: ; complementary_suits.asm
 
 [BANK A1]
-$a1f000 - escape.asm
-$a1f002 - escape.asm
-$a1f004 - escape.asm
-$a1f210 - ultra_low_qol_new_game.asm
+E790 - E790: ; tourian_map.asm
 
 [BANK A2]
-$a2abc7 - escape_timer.asm
-$a2ac95 - escape_timer.asm
-$a2a5be - fast_saves.asm
-$a2a5ee - fast_saves.asm
-$a2a60e - fast_saves.asm
-$a2aa41 - fast_saves.asm
-$a2aa86 - fast_saves.asm
-$a2ab52 - fast_saves.asm
-$a2ab97 - fast_saves.asm
-$a2aaab - fast_saves.asm
-$a2aab2 - fast_saves.asm
-$a2dfcf - fix_choot.asm
-$a2dfe2 - fix_choot.asm
-$a2ab3c - stats.asm
-$a2aa24 - stats.asm
+8751 - 8753: ; everything_respawns.asm
+A5BE - A615: ; fast_saves.asm
+AA24 - AA2A: ; stats.asm
+AA41 - AA43: ; fast_saves.asm
+AA86 - AA88: ; fast_saves.asm
+AAAB - AAAD: ; fast_saves.asm
+AAB2 - AAB4: ; fast_saves.asm
+AB3C - AB3F: ; stats.asm
+AB52 - AB54: ; fast_saves.asm
+AB97 - AB99: ; fast_saves.asm
+ABC7 - ABC9: ; escape_timer.asm
+AC95 - AC95: ; escape_timer.asm
+DFCF - DFD1: ; fix_choot.asm
+DFE2 - DFE4: ; fix_choot.asm
 
 [BANK A3]
-$a3eed8 - complementary_suits.asm
-$a39581 - elevators_speed.asm
-$a395d2 - elevators_speed.asm
-$a395ec - elevators_speed.asm
-$a395b0 - elevators_speed.asm
+8AA8 - 8AAC: ; everything_respawns.asm
+9581 - 9599: ; elevators_speed.asm
+95B0 - 95B0: ; elevators_speed.asm
+95D2 - 95D2: ; elevators_speed.asm
+95EC - 95EC: ; elevators_speed.asm
+A789 - A78B: ; everything_respawns.asm
+C7CB - C7CF: ; everything_respawns.asm
+EED8 - EEF0: ; complementary_suits.asm
 
 [BANK A4]
-$a48cdd - flashing_placebo.asm
-$a4f6c0 - flashing_placebo.asm
-$a4868a - gray_doors.asm
-$a490c4 - map_progress_maintain.asm
+868A - 868D: ; gray_doors.asm
+8A7A - 8A7C: ; everything_respawns.asm
+8CDD - 8CEA: ; flashing_placebo.asm
+90C4 - 90C6: ; map_progress_maintain.asm
+986D - 9873: ; Area Palettes.asm
 
 [BANK A5]
-$a5954d - gray_doors.asm
-$a5edf3 - gray_doors.asm
-$a592d7 - map_progress_maintain.asm
+92D7 - 92DA: ; map_progress_maintain.asm
+954D - 9552: ; gray_doors.asm
+E87C - E881: ; Area Palettes.asm
+E8E5 - E916: ; Area Palettes.asm
+E91C - E965: ; Area Palettes.asm
+EA96 - EA98: ; everything_respawns.asm
+EDF3 - EDF8: ; gray_doors.asm
 
 [BANK A6]
-$a6b291 - gray_doors.asm
-$a6b2ba - gray_doors.asm
-$a6b297 - gray_doors.asm
+88B8 - 88D7: ; everything_respawns.asm
+8989 - 89B5: ; everything_respawns.asm
+A0FC - A0FE: ; everything_respawns.asm
+A4D6 - A4E2: ; Area Palettes.asm
+B291 - B29C: ; gray_doors.asm
+C90E - C911: ; everything_respawns.asm
+FC8D - FC90: ; everything_respawns.asm
+FCA2 - FCA5: ; everything_respawns.asm
 
 [BANK A7]
-$a7b0fb - fix_kraid_door.asm
-$a7c81e - escape.asm
-$a7f892 - escape.asm
-$a7dd7f - flashing_placebo.asm
-$a7ffe0 - flashing_placebo.asm
-$a7dd42 - gray_doors.asm
-$a7b374 - gray_doors.asm
-$a7ca77 - map_area.asm
-$a7ca7b - map_area.asm
-$a7ca7b - map_area.asm
-$a7ca97 - map_area.asm
-$a7c825 - map_progress_maintain.asm
-$a7db7e - map_progress_maintain.asm
+A934 - A936: ; everything_respawns.asm
+B0FB - B0FD: ; fix_kraid_door.asm
+B374 - B377: ; gray_doors.asm
+C81E - C821: ; escape.asm
+C825 - C828: ; map_progress_maintain.asm
+CA7B - CA7C: ; map_area.asm
+DB7E - DB81: ; map_progress_maintain.asm
+DC71 - DC74: ; Area Palettes.asm
+DD42 - DD47: ; gray_doors.asm
+DD7F - DD81: ; flashing_placebo.asm
+F892 - F894: ; escape.asm
 
 [BANK A9]
-$a9b270 - escape.asm
-$a9fc00 - escape.asm
-$a9b216 - escape_autosave.asm
-$a9b1f7 - escape_autosave.asm
-$a986ee - escape_autosave.asm
-$a9873a - escape_autosave.asm
-$a9cd12 - escape_items.asm
-$a9fb70 - escape_items.asm
-$a9f031 - fast_big_boy_cutscene.asm
-$a9d951 - fast_big_boy_cutscene.asm
-$a9d916 - fast_big_boy_cutscene.asm
-$a9f049 - fast_big_boy_cutscene.asm
-$a9f2a8 - fast_big_boy_cutscene.asm
-$a9f2ba - fast_big_boy_cutscene.asm
-$a9f2e6 - fast_big_boy_cutscene.asm
-$a9f31e - fast_big_boy_cutscene.asm
-$a9f34a - fast_big_boy_cutscene.asm
-$a9c560 - fast_big_boy_cutscene.asm
-$a9c569 - fast_big_boy_cutscene.asm
-$a98d73 - fast_mother_brain_cutscene.asm
-$a98d85 - fast_mother_brain_cutscene.asm
-$a98dae - fast_mother_brain_cutscene.asm
-$a9becd - fast_mother_brain_cutscene.asm
-$a9bf1e - fast_mother_brain_cutscene.asm
-$a9c049 - fast_mother_brain_cutscene.asm
-$a9af07 - fast_mother_brain_cutscene.asm
-$a9af4e - fast_mother_brain_cutscene.asm
-$a9afc3 - fast_mother_brain_cutscene.asm
-$a9b00d - fast_mother_brain_cutscene.asm
-$a9b19e - fast_mother_brain_cutscene.asm
-$a99d2d - fast_mother_brain_cutscene.asm
-$a99d31 - fast_mother_brain_cutscene.asm
-$a9b1b2 - fast_mother_brain_cutscene.asm
-$a9bb06 - fast_mother_brain_cutscene.asm
-$a9bb1a - fast_mother_brain_cutscene.asm
-$a9fd00 - fast_mother_brain_cutscene.asm
-$a9d364 - fix_dust_torizo.asm
-$a9d396 - fix_dust_torizo.asm
-$a9d4db - fix_dust_torizo.asm
-$a9b275 - map_progress_maintain.asm
-$a987e4 - mb_barrier_clear.asm
-$a9c544 - mother_brain_no_drain.asm
-$a98810 - sound_effect_disables.asm
-$a9ef6c - ultra_low_qol_vanilla_bugfixes.asm
-$a9ef80 - ultra_low_qol_vanilla_bugfixes.asm
-$a9ef6c - vanilla_bugfixes.asm
-$a9ef80 - vanilla_bugfixes.asm
+86EE - 86F1: ; escape_autosave.asm
+873A - 873C: ; escape_autosave.asm
+87E4 - 87E7: ; mb_barrier_clear.asm
+8D73 - 8D75: ; fast_mother_brain_cutscene.asm
+8D85 - 8D87: ; fast_mother_brain_cutscene.asm
+8DAE - 8DB0: ; fast_mother_brain_cutscene.asm
+9D2D - 9D2E: ; fast_mother_brain_cutscene.asm
+9D31 - 9D32: ; fast_mother_brain_cutscene.asm
+AF07 - AF08: ; fast_mother_brain_cutscene.asm
+AF4E - AF4F: ; fast_mother_brain_cutscene.asm
+AFC3 - AFC4: ; fast_mother_brain_cutscene.asm
+B00D - B00E: ; fast_mother_brain_cutscene.asm
+B19E - B1A0: ; fast_mother_brain_cutscene.asm
+B1B2 - B1B3: ; fast_mother_brain_cutscene.asm
+B1F7 - B1F9: ; escape_autosave.asm
+B270 - B272: ; escape.asm
+B275 - B27A: ; map_progress_maintain.asm
+BB06 - BB19: ; fast_mother_brain_cutscene.asm
+BECD - BECF: ; fast_mother_brain_cutscene.asm
+BF1E - BF20: ; fast_mother_brain_cutscene.asm
+C049 - C052: ; fast_mother_brain_cutscene.asm
+C544 - C545: ; mother_brain_no_drain.asm
+CD12 - CD15: ; escape_items.asm
+D364 - D366: ; fix_dust_torizo.asm
+D396 - D398: ; fix_dust_torizo.asm
+D4DB - D546: ; fix_dust_torizo.asm
+D916 - D918: ; fast_big_boy_cutscene.asm
+D951 - D960: ; fast_big_boy_cutscene.asm
+EF6C - EF7F: ; ultra_low_qol_vanilla_bugfixes.asm, vanilla_bugfixes.asm
+F031 - F033: ; fast_big_boy_cutscene.asm
+F049 - F04B: ; fast_big_boy_cutscene.asm
+F2A8 - F2AA: ; fast_big_boy_cutscene.asm
+F2BA - F2BC: ; fast_big_boy_cutscene.asm
+F2E6 - F2E8: ; fast_big_boy_cutscene.asm
+F31E - F320: ; fast_big_boy_cutscene.asm
+F34A - F34C: ; fast_big_boy_cutscene.asm
 
 [BANK AA]
-$aac91c - disable_major_glitches.asm
-$aac917 - disable_major_glitches.asm
-$aad3ba - gray_doors.asm
-$aaf7d3 - gray_doors.asm
+C886 - C887: ; everything_respawns.asm
+C917 - C917: ; disable_major_glitches.asm
+D3BA - D3BF: ; gray_doors.asm
 
 [BANK AD]
-$ade3d1 - mb_left_entrance.asm
+E3D1 - E3D4: ; mb_left_entrance.asm
+F24B - F257: ; Area Palettes.asm
 
 [BANK B3]
-$b3a024 - gray_doors.asm
+9587 - 9589: ; everything_respawns.asm
+A024 - A027: ; gray_doors.asm
 
 [BANK B4]
-$b4f25a - buffed_drops.asm
-$b4f248 - buffed_drops.asm
-$b4f24e - buffed_drops.asm
-$b4f254 - buffed_drops.asm
-$b4f260 - buffed_drops.asm
-$b4f266 - buffed_drops.asm
-$b4f26c - buffed_drops.asm
-$b4f1f4 - no_drops.asm
-$b4bda3 - vanilla_bugfixes.asm
+BD9D - BDA5: ; crash_handle_32sprite.asm
+F1F4 - F4B1: ; no_drops.asm
+F248 - F271: ; buffed_drops.asm
 
 [BANK B6]
-$b6fe60 - disableable_etanks.asm
-$b68000 - hud_expansion_opaque.asm
-$b6e000 - hud_expansion_opaque.asm
-$b6f03a - map_area.asm
-$b6f0e2 - map_area.asm
-$b6f03c - map_area.asm
-$b6f0e4 - map_area.asm
-$b6f03e - map_area.asm
-$b6f0e6 - map_area.asm
-$b69a00 - pause_menu_objectives.asm
-$b69b60 - pause_menu_objectives.asm
-$b69b80 - pause_menu_objectives.asm
-$b69be0 - pause_menu_objectives.asm
-$b6a0c0 - pause_menu_objectives.asm
-$b6a160 - pause_menu_objectives.asm
-$b6a180 - pause_menu_objectives.asm
-$b6a380 - pause_menu_objectives.asm
-$b6ac00 - pause_menu_objectives.asm
-$b6a940 - reserve_backward_fill.asm
-$b68000 - ultra_low_qol_hud_expansion_opaque.asm
-$b6e000 - ultra_low_qol_hud_expansion_opaque.asm
+8000 - EFFF: ; hud_expansion_opaque.asm
+9A00 - 9A1F: ; pause_menu_objectives.asm
+9B60 - 9B9F: ; pause_menu_objectives.asm
+9BE0 - 9BFF: ; pause_menu_objectives.asm
+A0C0 - A0DF: ; pause_menu_objectives.asm
+A160 - A1DF: ; pause_menu_objectives.asm
+A380 - A3DF: ; pause_menu_objectives.asm
+A940 - A97F: ; reserve_backward_fill.asm
+AC00 - AD3F: ; pause_menu_objectives.asm
+AFE0 - AFFF: ; split_speed.asm
+B9E0 - B9FF: ; split_speed.asm
+BB00 - BB1F: ; split_speed.asm
+BCC0 - BCFF: ; split_speed.asm
+CE00 - CFFF: ; split_speed.asm
+E9E8 - E9FD: ; split_speed.asm
+EA28 - EA3D: ; split_speed.asm
+EA66 - EA7D: ; split_speed.asm
+EAA8 - EABD: ; split_speed.asm
+EAE8 - EAFD: ; split_speed.asm
+EB28 - EB3D: ; split_speed.asm
+EB68 - EB7D: ; split_speed.asm
+EBA8 - EBBD: ; split_speed.asm
+EBE8 - EBFD: ; split_speed.asm
+EC28 - EC3D: ; split_speed.asm
+EC68 - EC7D: ; split_speed.asm
+ECA8 - ECBD: ; split_speed.asm
+ECE8 - ECFD: ; split_speed.asm
+ED28 - ED3D: ; split_speed.asm
+ED68 - ED7D: ; split_speed.asm
+EDA8 - EDBD: ; split_speed.asm
+F03A - F03F: ; map_area.asm
+F0E2 - F0E7: ; map_area.asm
 
-[BANK B8]
-$b8e000 - hud_expansion_opaque.asm
-$b8e000 - ultra_low_qol_hud_expansion_opaque.asm
+[BANK BB]
+8000 - FE96: ; Area Palette Glows.asm
+
+[BANK C0]
+8000 - F197: ; Area Palettes.asm
+
+[BANK C1]
+8000 - D0BA: ; Area Palettes.asm
+
+[BANK CE]
+86CA - 86CF: ; tourian_map.asm
+86DF - 89B4: ; tourian_map.asm
+
+[BANK DA]
+D63B - FFFF: ; intro_song.asm
+
+[BANK DB]
+8000 - A40E: ; intro_song.asm
+

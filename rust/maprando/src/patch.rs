@@ -442,8 +442,8 @@ impl Patcher<'_> {
             "complementary_suits",
             "disable_map_icons",
             "escape",
-            "tourian_map",                 // TODO: check if this is still needed?
-            "no_explosions_before_escape", // TODO: check if this is still needed?
+            "no source/tourian_map", // TODO: check if this is still needed?
+            "no source/no_explosions_before_escape", // TODO: check if this is still needed?
             "sound_effect_disables",
             "title_map_animation",
             "shaktool",
@@ -459,7 +459,7 @@ impl Patcher<'_> {
             "fast_reload",
             "saveload",
             "rng_fix",
-            "intro_song",
+            "no source/intro_song",
             "msu1",
             "escape_timer",
             "nothing_item",

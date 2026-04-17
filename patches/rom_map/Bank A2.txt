@@ -1,2 +1,3 @@
-F4A0 - F4B0: fix_choot.asm
+F4A0 - F4AB: ; fix_choot.asm
+F4B0 - F4D0: ; everything_respawns.asm
 F4B0 - FFFF: [FREE]

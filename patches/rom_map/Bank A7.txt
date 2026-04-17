@@ -1,5 +1,4 @@
-0000 - FF82: used by vanilla game
-FF82 - FFC0: escape.asm (for dachora)
-FFC0 - FFD0: fix_kraid_door.asm
-FFD0 - FFE0: [FREE]
-FFE0 - FFFF: flashing_placebo (for phantoon)
+FF82 - FF90: ; escape.asm
+FFC0 - FFCC: ; fix_kraid_door.asm
+FFD0 - FFDF: [FREE]
+FFE0 - FFFF: ; flashing_placebo.asm
