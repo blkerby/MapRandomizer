@@ -217,6 +217,7 @@ fn make_random_customization(app: &TestAppData) -> CustomizeSettings {
         boss_icons: true,
         save_icons: true,
         miniboss_icons: true,
+        map_theme: maprando::customize::MapTheme::Light,
         palette_theme: maprando::customize::PaletteTheme::AreaThemed,
         tile_theme: maprando::customize::TileTheme::Vanilla,
         door_theme: maprando::customize::DoorTheme::Vanilla,

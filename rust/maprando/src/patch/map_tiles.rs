@@ -154,11 +154,7 @@ fn draw_edge(
 ) {
     let theme = &customize_settings.map_theme;
     let em = &settings.quality_of_life_settings.enhanced_map_settings;
-    let wall_color = if *theme == MapTheme::Dark {
-        4
-    } else {
-        3
-    };
+    let wall_color = if *theme == MapTheme::Dark { 4 } else { 3 };
     let wall_coords = match tile_side {
         TileSide::Top => [
             (0, 0),
@@ -497,11 +493,7 @@ pub fn render_tile(
     } else {
         1
     };
-    let wall_color = if *theme == MapTheme::Dark {
-        4
-    } else {
-        3
-    };
+    let wall_color = if *theme == MapTheme::Dark { 4 } else { 3 };
     let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
     let liquid_colors = match (tile.liquid_type, tile.heated) {
@@ -647,8 +639,7 @@ pub fn render_tile(
             data[2][4] = wall_color;
         }
         MapTileInterior::SaveStation => {
-            if *theme == MapTheme::Dark
-            {
+            if *theme == MapTheme::Dark {
                 update_tile(
                     &mut data,
                     3,
@@ -734,9 +725,7 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
-            } else if em.refill_station == EnhancedMapOther::Icon
-                && *theme == MapTheme::Dark
-            {
+            } else if em.refill_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
                 update_tile(
                     &mut data,
                     3,
@@ -822,9 +811,7 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
-            } else if em.refill_station == EnhancedMapOther::Icon
-                && *theme == MapTheme::Dark
-            {
+            } else if em.refill_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
                 update_tile(
                     &mut data,
                     3,
@@ -908,9 +895,7 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
-            } else if em.refill_station == EnhancedMapOther::Icon
-                && *theme == MapTheme::Dark
-            {
+            } else if em.refill_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
                 update_tile(
                     &mut data,
                     3,
@@ -1026,8 +1011,7 @@ pub fn render_tile(
                         (6, 6),
                     ],
                 );
-            } else if em.objectives == EnhancedMapOther::Icon && *theme == MapTheme::Light
-            {
+            } else if em.objectives == EnhancedMapOther::Icon && *theme == MapTheme::Light {
                 update_tile(
                     &mut data,
                     3,
@@ -1078,9 +1062,7 @@ pub fn render_tile(
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
-            } else if em.map_station == EnhancedMapOther::Icon
-                && *theme == MapTheme::Dark
-            {
+            } else if em.map_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
                 update_tile(
                     &mut data,
                     3,
@@ -1439,10 +1421,34 @@ pub fn render_tile(
         None => {}
     }
 
-    draw_edge(TileSide::Top, tile.top, &mut data, settings, customize_settings);
-    draw_edge(TileSide::Bottom, tile.bottom, &mut data, settings, customize_settings);
-    draw_edge(TileSide::Left, tile.left, &mut data, settings, customize_settings);
-    draw_edge(TileSide::Right, tile.right, &mut data, settings, customize_settings);
+    draw_edge(
+        TileSide::Top,
+        tile.top,
+        &mut data,
+        settings,
+        customize_settings,
+    );
+    draw_edge(
+        TileSide::Bottom,
+        tile.bottom,
+        &mut data,
+        settings,
+        customize_settings,
+    );
+    draw_edge(
+        TileSide::Left,
+        tile.left,
+        &mut data,
+        settings,
+        customize_settings,
+    );
+    draw_edge(
+        TileSide::Right,
+        tile.right,
+        &mut data,
+        settings,
+        customize_settings,
+    );
     Ok(data)
 }
 
