@@ -167,6 +167,7 @@ struct CustomizeRequest {
     rom: Bytes,
     samus_sprite: Text<String>,
     etank_color: Text<String>,
+    map_theme: Text<String>,
     item_dot_change: Text<String>,
     transition_letters: Text<bool>,
     reserve_hud_style: Text<bool>,
@@ -280,6 +281,11 @@ async fn customize_seed(
             u8::from_str_radix(&req.etank_color.0[2..4], 16).unwrap() / 8,
             u8::from_str_radix(&req.etank_color.0[4..6], 16).unwrap() / 8,
         )),
+        map_theme: match req.map_theme.0.as_str(){
+            "Light" => maprando::customize::MapTheme::Light,
+            "Dark" => maprando::customize::MapTheme::Dark,
+            _ => panic!("Unexpected map_theme"),
+        },
         item_dot_change: match req.item_dot_change.0.as_str() {
             "Stay" => maprando::customize::ItemDotChange::Stay,
             "Fade" => maprando::customize::ItemDotChange::Fade,

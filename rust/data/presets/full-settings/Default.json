@@ -4570,7 +4570,7 @@
             "water": "Visible",
             "lava": "Visible",
             "acid": "Visible",
-            "walls": "White",
+            "walls": "Enhanced",
             "objectives": "Icon",
             "map_station": "Icon",
             "refill_station": "Icon"

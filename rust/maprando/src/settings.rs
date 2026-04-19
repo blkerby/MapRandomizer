@@ -243,8 +243,7 @@ impl Display for EnhancedMapOther {
 #[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
 pub enum EnhancedMapWalls {
     Vanilla,
-    White,
-    Black,
+    Enhanced,
 }
 
 impl Display for EnhancedMapWalls {
@@ -1007,7 +1006,7 @@ fn upgrade_enhanced_map_settings(settings: &mut serde_json::Value) -> Result<()>
         acid: EnhancedMapLevel::Visible,
 
         // Map structure
-        walls: EnhancedMapWalls::White,
+        walls: EnhancedMapWalls::Enhanced,
 
         // Special tiles
         objectives: EnhancedMapOther::Icon,

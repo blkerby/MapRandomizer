@@ -1,7 +1,7 @@
 use hashbrown::{HashMap, HashSet};
 
 use crate::{
-    customize::{CustomizeSettings, ItemDotChange},
+    customize::{CustomizeSettings, ItemDotChange, MapTheme},
     randomize::{LockedDoor, Randomization},
     settings::{
         DisableETankSetting, DoorLocksSize, EnhancedMapLevel, EnhancedMapOther, EnhancedMapWalls,
@@ -150,9 +150,11 @@ fn draw_edge(
     edge: MapTileEdge,
     tile: &mut [[u8; 8]; 8],
     settings: &RandomizerSettings,
+    customize_settings: &CustomizeSettings,
 ) {
+    let theme = &customize_settings.map_theme;
     let em = &settings.quality_of_life_settings.enhanced_map_settings;
-    let wall_color = if em.walls == EnhancedMapWalls::Black {
+    let wall_color = if *theme == MapTheme::Dark {
         4
     } else {
         3
@@ -321,7 +323,7 @@ fn draw_edge(
             set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::QolPassage => {
-            if em.walls == EnhancedMapWalls::White {
+            if em.walls == EnhancedMapWalls::Enhanced {
                 set_wall_pixel(tile, 0, wall_color);
                 set_wall_pixel(tile, 1, wall_color);
                 set_wall_pixel(tile, 6, wall_color);
@@ -488,13 +490,14 @@ pub fn render_tile(
     settings: &RandomizerSettings,
     customize_settings: &CustomizeSettings,
 ) -> Result<[[u8; 8]; 8]> {
+    let theme = &customize_settings.map_theme;
     let em = &settings.quality_of_life_settings.enhanced_map_settings;
     let bg_color = if tile.heated && em.heat == EnhancedMapLevel::Visible {
         2
     } else {
         1
     };
-    let wall_color = if em.walls == EnhancedMapWalls::Black {
+    let wall_color = if *theme == MapTheme::Dark {
         4
     } else {
         3
@@ -644,11 +647,7 @@ pub fn render_tile(
             data[2][4] = wall_color;
         }
         MapTileInterior::SaveStation => {
-            if settings
-                .quality_of_life_settings
-                .enhanced_map_settings
-                .walls
-                == EnhancedMapWalls::Black
+            if *theme == MapTheme::Dark
             {
                 update_tile(
                     &mut data,
@@ -736,7 +735,7 @@ pub fn render_tile(
                 data[4][3] = item_color;
                 data[4][4] = item_color;
             } else if em.refill_station == EnhancedMapOther::Icon
-                && em.walls == EnhancedMapWalls::Black
+                && *theme == MapTheme::Dark
             {
                 update_tile(
                     &mut data,
@@ -824,7 +823,7 @@ pub fn render_tile(
                 data[4][3] = item_color;
                 data[4][4] = item_color;
             } else if em.refill_station == EnhancedMapOther::Icon
-                && em.walls == EnhancedMapWalls::Black
+                && *theme == MapTheme::Dark
             {
                 update_tile(
                     &mut data,
@@ -910,7 +909,7 @@ pub fn render_tile(
                 data[4][3] = item_color;
                 data[4][4] = item_color;
             } else if em.refill_station == EnhancedMapOther::Icon
-                && em.walls == EnhancedMapWalls::Black
+                && *theme == MapTheme::Dark
             {
                 update_tile(
                     &mut data,
@@ -992,7 +991,7 @@ pub fn render_tile(
             }
         }
         MapTileInterior::Objective => {
-            if em.objectives == EnhancedMapOther::Icon && em.walls == EnhancedMapWalls::Black {
+            if em.objectives == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
                 update_tile(
                     &mut data,
                     3,
@@ -1027,7 +1026,7 @@ pub fn render_tile(
                         (6, 6),
                     ],
                 );
-            } else if em.objectives == EnhancedMapOther::Icon && em.walls == EnhancedMapWalls::White
+            } else if em.objectives == EnhancedMapOther::Icon && *theme == MapTheme::Light
             {
                 update_tile(
                     &mut data,
@@ -1080,7 +1079,7 @@ pub fn render_tile(
                 data[4][3] = item_color;
                 data[4][4] = item_color;
             } else if em.map_station == EnhancedMapOther::Icon
-                && em.walls == EnhancedMapWalls::Black
+                && *theme == MapTheme::Dark
             {
                 update_tile(
                     &mut data,
@@ -1168,7 +1167,7 @@ pub fn render_tile(
             d = d.map(|row| row.map(|c| if c == 1 { 2 } else { c }));
         }
 
-        if em.walls == EnhancedMapWalls::Black {
+        if *theme == MapTheme::Dark {
             d = d.map(|row| row.map(|c| if c == 3 { 4 } else { c }));
         }
 
@@ -1440,10 +1439,10 @@ pub fn render_tile(
         None => {}
     }
 
-    draw_edge(TileSide::Top, tile.top, &mut data, settings);
-    draw_edge(TileSide::Bottom, tile.bottom, &mut data, settings);
-    draw_edge(TileSide::Left, tile.left, &mut data, settings);
-    draw_edge(TileSide::Right, tile.right, &mut data, settings);
+    draw_edge(TileSide::Top, tile.top, &mut data, settings, customize_settings);
+    draw_edge(TileSide::Bottom, tile.bottom, &mut data, settings, customize_settings);
+    draw_edge(TileSide::Left, tile.left, &mut data, settings, customize_settings);
+    draw_edge(TileSide::Right, tile.right, &mut data, settings, customize_settings);
     Ok(data)
 }
 
@@ -2257,12 +2256,7 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn add_cross_area_arrows(&mut self) -> Result<()> {
-        let dark_mode = self
-            .settings
-            .quality_of_life_settings
-            .enhanced_map_settings
-            .walls
-            == EnhancedMapWalls::Black;
+        let dark_mode = self.customize_settings.map_theme == MapTheme::Dark;
 
         // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking
         // cross-area connections:
