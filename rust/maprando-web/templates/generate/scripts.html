@@ -205,7 +205,6 @@ function buildEnhancedMapSettings(formData) {
         "water": formData.get("enhanced_map_water"),
         "lava": formData.get("enhanced_map_lava"),
         "acid": formData.get("enhanced_map_acid"),
-        "walls": formData.get("enhanced_map_walls"),
         "objectives": formData.get("enhanced_map_objectives"),
         "map_station": formData.get("enhanced_map_station"),
         "refill_station": formData.get("enhanced_map_refill"),
@@ -531,7 +530,6 @@ function applyEnhancedMapSettings(emSettings) {
     applyRadioValue("enhancedMapWater", emSettings.water);
     applyRadioValue("enhancedMapLava", emSettings.lava);
     applyRadioValue("enhancedMapAcid", emSettings.acid);
-    applyRadioValue("enhancedMapWalls", emSettings.walls);
     applyRadioValue("enhancedMapObjectives", emSettings.objectives);
     applyRadioValue("enhancedMapStation", emSettings.map_station);
     applyRadioValue("enhancedMapRefill", emSettings.refill_station);
@@ -988,7 +986,6 @@ function processEnhancedMapPreset() {
         for (t of mapTypes) {
             document.getElementById(`enhancedMap${t}Visible`).checked = true;
         }
-        document.getElementById("enhancedMapWallsWhite").checked = true;
         document.getElementById("enhancedMapObjectivesIcon").checked = true;
         document.getElementById("enhancedMapStationIcon").checked = true;
         document.getElementById("enhancedMapRefillIcon").checked = true;
