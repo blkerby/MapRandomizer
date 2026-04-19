@@ -327,6 +327,10 @@ hook_blue_unpause:
 
 
 spark_booster_lose_blue:
+    ; check if spark booster is equipped first.. otherwise momentum will be removed with regular jump too.
+    lda !equipped_items
+    bit #!spark_booster
+    beq .skip_lose_blue
     ; If either Blue Booster or Speed Booster is equipped, skip the speed clamp/loss.
     lda !equipped_items
     bit #!blue_booster|!speed_booster
