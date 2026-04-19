@@ -7,4 +7,4 @@ F980 - F99E: ; respin.asm
 FC00 - FC0F: ; Fake Lava.asm
 FC10 - FC1C: ; crash_handle_yapping.asm
 FC20 - FC3A: ; remove_spikesuit.asm
-FC40 - FCB7: ; split_speed.asm
+FC40 - FCBA: ; split_speed.asm

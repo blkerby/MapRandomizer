@@ -6,3 +6,6 @@
     - 2 bytes: extra setup ASM (in bank B8)
 9000 - DFFF: extra setup ASM
 E000 - FFFF: ; hud_expansion_opaque.asm
+F900 - F91F: SpriteSomething - if hud_expansion_opaque applied
+F980 - F99F: SpriteSomething - if hud_expansion_opaque applied
+FA00 - FFFF: SpriteSomething - if hud_expansion_opaque applied
