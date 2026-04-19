@@ -1440,21 +1440,10 @@ pub fn render_tile(
         None => {}
     }
 
-    match tile.interior {
-        MapTileInterior::AmmoRefill if em.refill_station == EnhancedMapOther::Icon => {}
-        MapTileInterior::EnergyRefill if em.refill_station == EnhancedMapOther::Icon => {}
-        MapTileInterior::DoubleRefill if em.refill_station == EnhancedMapOther::Icon => {}
-        MapTileInterior::Ship if em.refill_station == EnhancedMapOther::Icon => {}
-        MapTileInterior::SaveStation => {}
-        MapTileInterior::MapStation if em.map_station == EnhancedMapOther::Icon => {}
-        MapTileInterior::Objective if em.objectives == EnhancedMapOther::Icon => {}
-        _ => {
-            draw_edge(TileSide::Top, tile.top, &mut data, settings);
-            draw_edge(TileSide::Bottom, tile.bottom, &mut data, settings);
-            draw_edge(TileSide::Left, tile.left, &mut data, settings);
-            draw_edge(TileSide::Right, tile.right, &mut data, settings);
-        }
-    }
+    draw_edge(TileSide::Top, tile.top, &mut data, settings);
+    draw_edge(TileSide::Bottom, tile.bottom, &mut data, settings);
+    draw_edge(TileSide::Left, tile.left, &mut data, settings);
+    draw_edge(TileSide::Right, tile.right, &mut data, settings);
     Ok(data)
 }
 
