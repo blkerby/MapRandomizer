@@ -402,8 +402,8 @@ fn draw_edge(
                         set_wall_pixel(tile, 5, 12);
                         set_wall_pixel(tile, 6, wall_color);
                         set_wall_pixel(tile, 7, wall_color);
-                        set_air_pixel(tile, 3, 4);
-                        set_air_pixel(tile, 4, 4);
+                        set_air_pixel(tile, 3, 5);
+                        set_air_pixel(tile, 4, 5);
                     }
                     DoorLocksSize::Large => {
                         set_wall_pixel(tile, 0, wall_color);
@@ -414,16 +414,16 @@ fn draw_edge(
                         set_wall_pixel(tile, 5, 12);
                         set_wall_pixel(tile, 6, wall_color);
                         set_wall_pixel(tile, 7, wall_color);
-                        set_air_pixel(tile, 1, 4);
+                        set_air_pixel(tile, 1, 5);
                         set_air_pixel(tile, 2, color);
                         set_air_pixel(tile, 3, color);
                         set_air_pixel(tile, 4, color);
                         set_air_pixel(tile, 5, color);
-                        set_air_pixel(tile, 6, 4);
-                        set_deep_pixel(tile, 2, 4);
-                        set_deep_pixel(tile, 3, 4);
-                        set_deep_pixel(tile, 4, 4);
-                        set_deep_pixel(tile, 5, 4);
+                        set_air_pixel(tile, 6, 5);
+                        set_deep_pixel(tile, 2, 5);
+                        set_deep_pixel(tile, 3, 5);
+                        set_deep_pixel(tile, 4, 5);
+                        set_deep_pixel(tile, 5, 5);
                     }
                 }
             }
@@ -494,11 +494,16 @@ pub fn render_tile(
     } else {
         1
     };
+    let wall_color = if em.walls == EnhancedMapWalls::Black {
+        4
+    } else {
+        3
+    };
     let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
     let liquid_colors = match (tile.liquid_type, tile.heated) {
         (MapLiquidType::None, _) => (bg_color, bg_color),
-        (MapLiquidType::Water, false) => (4, 1),
+        (MapLiquidType::Water, false) => (5, 1),
         (MapLiquidType::Lava, true) => (2, 1),
         (MapLiquidType::Acid, false) => (1, 2),
         (MapLiquidType::Acid, true) => (2, 1),
@@ -631,12 +636,12 @@ pub fn render_tile(
         }
         MapTileInterior::ElevatorPlatformLow => {
             // Use white instead of red for elevator platform:
-            data[5][3] = 3;
-            data[5][4] = 3;
+            data[5][3] = wall_color;
+            data[5][4] = wall_color;
         }
         MapTileInterior::ElevatorPlatformHigh => {
-            data[2][3] = 3;
-            data[2][4] = 3;
+            data[2][3] = wall_color;
+            data[2][4] = wall_color;
         }
         MapTileInterior::SaveStation => {
             if settings
@@ -647,7 +652,7 @@ pub fn render_tile(
             {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (2, 1),
                         (3, 1),
@@ -735,7 +740,7 @@ pub fn render_tile(
             {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (3, 1),
                         (4, 1),
@@ -823,7 +828,7 @@ pub fn render_tile(
             {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (2, 2),
                         (3, 2),
@@ -909,7 +914,7 @@ pub fn render_tile(
             {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (1, 1),
                         (3, 1),
@@ -990,7 +995,7 @@ pub fn render_tile(
             if em.objectives == EnhancedMapOther::Icon && em.walls == EnhancedMapWalls::Black {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (1, 1),
                         (2, 1),
@@ -1079,7 +1084,7 @@ pub fn render_tile(
             {
                 update_tile(
                     &mut data,
-                    0,
+                    3,
                     &vec![
                         (1, 1),
                         (2, 1),
@@ -1104,6 +1109,7 @@ pub fn render_tile(
                         (3, 6),
                         (4, 6),
                         (5, 6),
+                        (6, 6),
                     ],
                 );
             } else {
@@ -2090,7 +2096,7 @@ impl<'a> MapPatcher<'a> {
     ) -> Result<()> {
         for y in 0..8 {
             for x in 0..8 {
-                if data[y][x] == 4 || data[y][x] == 12 {
+                if data[y][x] == 4 || data[y][x] == 5 || data[y][x] == 12 {
                     data[y][x] = 0;
                 } else if data[y][x] > 4 {
                     data[y][x] = 3;
@@ -2262,6 +2268,13 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn add_cross_area_arrows(&mut self) -> Result<()> {
+        let dark_mode = self
+            .settings
+            .quality_of_life_settings
+            .enhanced_map_settings
+            .walls
+            == EnhancedMapWalls::Black;
+
         // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking
         // cross-area connections:
         fn rgb(r: u16, g: u16, b: u16) -> u16 {
@@ -2278,11 +2291,16 @@ impl<'a> MapPatcher<'a> {
             (15, rgb(18, 12, 14)), // Gray door
             (7, rgb(27, 2, 27)),   // Red (pink) door
             (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)
+            (5, rgb(0, 0, 0)),     // Black (door lock shadows covering air)
             (13, rgb(31, 31, 31)), // White (item dots)
         ];
         // Dotted grid lines
         let i = 12;
-        let color = rgb(8, 8, 8);
+        let color = if dark_mode {
+            rgb(3, 3, 3)
+        } else {
+            rgb(8, 8, 8)
+        };
         self.rom
             .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i), color as isize)?;
 
@@ -2294,18 +2312,26 @@ impl<'a> MapPatcher<'a> {
         }
 
         // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
-        for i in [1, 2, 4, 6, 7, 8, 13, 14, 15] {
-            self.rom.write_u16(
-                snes2pc(0xB6F000) + 2 * (0x30 + i as usize),
-                rgb(0, 0, 0) as isize,
-            )?;
+        for i in [1, 2, 4, 5, 6, 7, 8, 13, 14, 15] {
+            let color = if dark_mode && i != 4 {
+                // Except in dark mode, set them to a non-black dark gray, to match the room's fill color.
+                rgb(5, 5, 5)
+            } else {
+                rgb(0, 0, 0)
+            };
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
         // In partially revealed palette, show walls/passages (as gray), and eliminate the door lock shadows covering walls:
         for i in [3, 12] {
-            self.rom.write_u16(
-                snes2pc(0xB6F000) + 2 * (0x30 + i as usize),
-                rgb(16, 16, 16) as isize,
-            )?;
+            let color = if dark_mode {
+                // Except in dark mode, show them as black
+                rgb(0, 0, 0)
+            } else {
+                rgb(16, 16, 16)
+            };
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
 
         for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
