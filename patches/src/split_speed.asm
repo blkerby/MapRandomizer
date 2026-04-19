@@ -327,9 +327,10 @@ hook_blue_unpause:
 
 
 spark_booster_lose_blue:
-    ; If either Blue Booster or Speed Booster is equipped, skip the speed clamp/loss.
+    ; If any combination other than exactly Spark Booster equipped, skip the speed clamp/loss.
     lda !equipped_items
-    bit #!blue_booster|!speed_booster
+    and #!any_booster
+    cmp #!spark_booster
     bne .skip_lose_blue
 
     ; If Samus does not have running momentum, skip the speed clamp/loss (to avoid interfering with blue suit).
