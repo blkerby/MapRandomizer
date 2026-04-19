@@ -15,6 +15,14 @@
 875D - 875E: ; stats.asm
 8F27 - 8F29: ; msu1.asm
 8FA3 - 8FBE: ; stats.asm
+9382 - 9384: SpriteSomething
+9389 - 938B: SpriteSomething
+938E - 9390: SpriteSomething
+93B6 - 93B8: SpriteSomething
+93CB - 93CD: SpriteSomething
+93D2 - 93D4: SpriteSomething
+93D7 - 93D9: SpriteSomething
+93FF - 9401: SpriteSomething
 9416 - 944D: ; samus_tiles_optim_animated_tiles_fix.asm
 9589 - 958B: ; stats.asm
 95A1 - 95A3: ; samus_tiles_optim_animated_tiles_fix.asm
@@ -101,6 +109,7 @@ FFD8 - FFD8: ; map_progress_maintain.asm
 A7AE - A7B0: ; hud_expansion_opaque.asm
 B14B - B2CA: ; hud_expansion_opaque.asm
 B35D - B365: ; enable_moonwalk.asm
+E52C - E52D: SpriteSomething
 
 [BANK 82]
 801D - 8020: ; new_game.asm
@@ -641,14 +650,121 @@ E661 - E663: ; escape.asm
 F600 - F602: ; credits.asm
 
 [BANK 8C]
+E56B - E588: SpriteSomething
+E68B - E6A8: SpriteSomething
 F3E9 - ????: Used for updated spritemap on title screen
 
 [BANK 8D]
 C4FF - C520: ; Area Palette Glows.asm
 C527 - C54A: ; Area Palette Glows.asm
 C686 - C694: ; Area FX.asm
+CA54 - CA55: SpriteSomething
+CA5A - CA5B: SpriteSomething
+CA60 - CA61: SpriteSomething
+CA66 - CA67: SpriteSomething
+CA6C - CA6D: SpriteSomething
+CA72 - CA73: SpriteSomething
+CA78 - CA79: SpriteSomething
+CA7E - CA7F: SpriteSomething
+CA84 - CA85: SpriteSomething
+CA8A - CA8B: SpriteSomething
+CA90 - CA91: SpriteSomething
+CA96 - CA97: SpriteSomething
+CA9C - CA9D: SpriteSomething
+CAA2 - CAA3: SpriteSomething
+D6C2 - D6DF: SpriteSomething
+D6E6 - D703: SpriteSomething
+D70A - D727: SpriteSomething
+D72E - D74B: SpriteSomething
+D752 - D76F: SpriteSomething
+D776 - D793: SpriteSomething
+D79A - D7B7: SpriteSomething
+D7BE - D7DB: SpriteSomething
+D7E2 - D7FF: SpriteSomething
+D806 - D823: SpriteSomething
+D82A - D847: SpriteSomething
+D84E - D86B: SpriteSomething
+D872 - D88F: SpriteSomething
+D896 - D8B3: SpriteSomething
+D8BA - D8D7: SpriteSomething
+D8DE - D8FB: SpriteSomething
+DB6D - DB8A: SpriteSomething
+DB91 - DBAE: SpriteSomething
+DBBC - DBD9: SpriteSomething
+DBE0 - DBFD: SpriteSomething
+DC0B - DC28: SpriteSomething
+DC2F - DC4C: SpriteSomething
+DC5A - DC77: SpriteSomething
+DC7E - DC9B: SpriteSomething
+DCA6 - DCC3: SpriteSomething
+DCD3 - DCF0: SpriteSomething
+DCF7 - DD14: SpriteSomething
+DD22 - DD3F: SpriteSomething
+DD46 - DD63: SpriteSomething
+DD71 - DD8E: SpriteSomething
+DD95 - DDB2: SpriteSomething
+DDC0 - DDDD: SpriteSomething
+DDE4 - DE01: SpriteSomething
+DE0C - DE29: SpriteSomething
+DE39 - DE56: SpriteSomething
+DE5D - DE7A: SpriteSomething
+DE88 - DEA5: SpriteSomething
+DEAC - DEC9: SpriteSomething
+DED7 - DEF4: SpriteSomething
+DEFB - DF18: SpriteSomething
+DF26 - DF43: SpriteSomething
+DF4A - DF67: SpriteSomething
+DF72 - DF8F: SpriteSomething
 E379 - E387: ; complementary_suits.asm
 E45A - E45C: ; Area Palette Glows.asm
+E468 - E485: SpriteSomething
+E48A - E4A7: SpriteSomething
+E4AC - E4C9: SpriteSomething
+E4CE - E4EB: SpriteSomething
+E4F0 - E50D: SpriteSomething
+E512 - E52F: SpriteSomething
+E534 - E551: SpriteSomething
+E556 - E573: SpriteSomething
+E578 - E595: SpriteSomething
+E59A - E5B7: SpriteSomething
+E5BC - E5D9: SpriteSomething
+E5DE - E5FB: SpriteSomething
+E600 - E61D: SpriteSomething
+E622 - E63F: SpriteSomething
+E644 - E661: SpriteSomething
+E666 - E683: SpriteSomething
+E694 - E6B1: SpriteSomething
+E6B6 - E6D3: SpriteSomething
+E6D8 - E6F5: SpriteSomething
+E6FA - E717: SpriteSomething
+E71C - E739: SpriteSomething
+E73E - E75B: SpriteSomething
+E760 - E77D: SpriteSomething
+E782 - E79F: SpriteSomething
+E7A4 - E7C1: SpriteSomething
+E7C6 - E7E3: SpriteSomething
+E7E8 - E805: SpriteSomething
+E80A - E827: SpriteSomething
+E82C - E849: SpriteSomething
+E84E - E86B: SpriteSomething
+E870 - E88D: SpriteSomething
+E892 - E8AF: SpriteSomething
+E8C0 - E8DD: SpriteSomething
+E8E2 - E8FF: SpriteSomething
+E904 - E921: SpriteSomething
+E926 - E943: SpriteSomething
+E948 - E965: SpriteSomething
+E96A - E987: SpriteSomething
+E98C - E9A9: SpriteSomething
+E9AE - E9CB: SpriteSomething
+E9D0 - E9ED: SpriteSomething
+E9F2 - EA0F: SpriteSomething
+EA14 - EA31: SpriteSomething
+EA36 - EA53: SpriteSomething
+EA58 - EA75: SpriteSomething
+EA7A - EA97: SpriteSomething
+EA9C - EAB9: SpriteSomething
+EABE - EADB: SpriteSomething
 EC59 - EC5E: ; Area FX.asm
 F765 - F768: ; Area Palette Glows.asm
 F76D - F770: ; Area Palette Glows.asm
@@ -662,6 +778,7 @@ FFCD - FFEC: ; Area Palette Glows.asm
 
 [BANK 8E]
 8000 - DBFF: ; hud_expansion_opaque.asm
+E5E2 - E5FF: SpriteSomething
 
 [BANK 8F]
 8642 - 8643: ; gray_doors.asm
@@ -881,9 +998,13 @@ E8BD - E8BF: ; escape.asm
 81C0 - 81C2: ; Fake Lava.asm
 81DB - 81DF: ; complementary_suits.asm
 8219 - 821B: ; Fake Lava.asm
+832E - 832F: SpriteSomething
 843C - 843E: ; Fake Lava.asm
+8482 - 848A: SpriteSomething
 8502 - 8504: ; split_speed.asm
 855B - 855D: ; split_speed.asm
+864E - 8685: SpriteSomething
+8688 - 86FE: SpriteSomething
 8E3A - 8E3C: ; Fake Lava.asm
 9758 - 975A: ; Fake Lava.asm
 978C - 978E: ; split_speed.asm
@@ -897,6 +1018,8 @@ E8BD - E8BF: ; escape.asm
 9BEB - 9BED: ; Fake Lava.asm
 9C3B - 9C3D: ; Fake Lava.asm
 9C72 - 9C74: ; Fake Lava.asm
+9D63 - 9D65: SpriteSomething
+9DD4 - 9DD6: SpriteSomething
 9E4B - 9E54: ; walljump_plm.asm
 9E6C - 9E75: ; walljump_plm.asm
 A3CA - A3CC: ; momentum_conservation.asm
@@ -920,6 +1043,17 @@ AB18 - AB1A: ; map_progress_maintain.asm
 AB4A - AB4F: ; map_area.asm
 AB56 - AB58: ; map_area.asm
 AB6D - AB6F: ; map_progress_maintain.asm
+C786 - C787: SpriteSomething
+C791 - C7B8: SpriteSomething
+C80F - C810: SpriteSomething
+C839 - C83C: SpriteSomething
+C9DB - C9DC: SpriteSomething
+CAC5 - CACC: SpriteSomething
+CAD1 - CAD2: SpriteSomething
+CB31 - CB38: SpriteSomething
+CBA5 - CBC0: SpriteSomething
+CBF9 - CBFA: SpriteSomething
+CC05 - CC06: SpriteSomething
 D0CE - D0D0: ; energy_free_shinesparks.asm
 D0FD - D0FF: ; energy_free_shinesparks.asm
 D129 - D12B: ; energy_free_shinesparks.asm
@@ -941,6 +1075,9 @@ EEE7 - EEE9: ; split_speed.asm
 F33C - F33F: ; no_beeping.asm
 
 [BANK 91]
+8014 - 804B: SpriteSomething
+80BE - 8108: SpriteSomething
+812D - 8164: SpriteSomething
 816F - 817F: ; crash_handle_xmode.asm
 81B0 - 81B3: ; spin_lock.asm
 81F4 - 8297: ; aim_anything.asm
@@ -951,6 +1088,8 @@ F33C - F33F: ; no_beeping.asm
 A834 - A835: ; respin.asm
 A874 - A8F3: ; respin.asm
 A8FC - B00D: ; respin.asm
+B112 - B119: SpriteSomething
+B361 - B365: SpriteSomething
 B629 - B629: ; fix_blue_echoes.asm
 CAFE - CB00: ; crash_handle_xmode.asm
 D71B - D71C: ; gravity_palette.asm
@@ -958,6 +1097,7 @@ D9CD - D9D0: ; split_speed.asm
 D9D1 - D9D3: ; Fake Lava.asm
 D9D6 - D9D8: ; split_speed.asm
 D9EA - D9EC: ; split_speed.asm
+DA04 - DA06: SpriteSomething
 DAE3 - DAE5: ; split_speed.asm
 DB0B - DB0D: ; split_speed.asm
 DB6D - DB6F: ; split_speed.asm
@@ -979,6 +1119,7 @@ F17D - F17F: ; Fake Lava.asm
 F1FC - F1FF: ; crash_handle_springball.asm
 F564 - F566: ; split_speed.asm
 F571 - F573: ; split_speed.asm
+F634 - F639: SpriteSomething
 F6A9 - F6AB: ; Fake Lava.asm
 F70A - F70C: ; Fake Lava.asm
 F7C1 - F7C3: ; split_speed.asm
@@ -993,6 +1134,25 @@ FC99 - FC9D: ; respin.asm
 [BANK 92]
 8040 - 804B: ; samus_tiles_optim_animated_tiles_fix.asm
 807E - 8089: ; samus_tiles_optim_animated_tiles_fix.asm
+8091 - 838F: SpriteSomething
+83C1 - 83E3: SpriteSomething
+83E7 - 8A03: SpriteSomething
+8A0D - 90C3: SpriteSomething
+9263 - 945C: SpriteSomething
+92C7 - 92C8: SpriteSomething
+945D - 9656: SpriteSomething
+94C1 - 94C2: SpriteSomething
+9663 - AFFF: SpriteSomething
+B001 - C4FF: SpriteSomething
+BC7C - BC80: SpriteSomething
+BEC1 - BEC5: SpriteSomething
+C500 - C50F: SpriteSomething
+C580 - D7D1: SpriteSomething
+D91E - D94D: SpriteSomething
+D9B2 - D9B3: SpriteSomething
+DB48 - ED24: SpriteSomething
+EDD0 - EDD1: SpriteSomething
+EDDB - EDDC: SpriteSomething
 
 [BANK 94]
 93B2 - 93B4: ; map_area.asm
@@ -1001,10 +1161,124 @@ FC99 - FC9D: ; respin.asm
 A5E1 - A82E: ; title_map_animation.asm
 
 [BANK 9A]
+9A00 - 9DBF: SpriteSomething
 B200 - D1FF: ; hud_expansion_opaque.asm
 B542 - B57F: ; max_ammo_display_fast.asm
 B5C0 - B65E: ; max_ammo_display_fast.asm
 B691 - B6BF: ; max_ammo_display_fast.asm
+D620 - D63F: SpriteSomething
+
+[BANK 9B]
+8000 - 805A: SpriteSomething
+93FE - 93FF: SpriteSomething
+9402 - 941F: SpriteSomething
+9522 - 953F: SpriteSomething
+96C2 - 96DF: SpriteSomething
+96E2 - 96FF: SpriteSomething
+9702 - 971F: SpriteSomething
+9722 - 973F: SpriteSomething
+9742 - 975F: SpriteSomething
+9762 - 977F: SpriteSomething
+9802 - 981F: SpriteSomething
+9822 - 983F: SpriteSomething
+9842 - 985F: SpriteSomething
+9862 - 987F: SpriteSomething
+9882 - 989F: SpriteSomething
+98A2 - 98BF: SpriteSomething
+98C2 - 98DF: SpriteSomething
+98E2 - 98FF: SpriteSomething
+9902 - 991F: SpriteSomething
+9922 - 993F: SpriteSomething
+9942 - 995F: SpriteSomething
+9962 - 997F: SpriteSomething
+9982 - 999F: SpriteSomething
+99A2 - 99BF: SpriteSomething
+99C2 - 99DF: SpriteSomething
+99E2 - 99FF: SpriteSomething
+9A02 - 9A1F: SpriteSomething
+9A22 - 9A3F: SpriteSomething
+9A42 - 9A5F: SpriteSomething
+9A62 - 9A7F: SpriteSomething
+9A82 - 9A9F: SpriteSomething
+9AA2 - 9ABF: SpriteSomething
+9AC2 - 9ADF: SpriteSomething
+9AE2 - 9AFF: SpriteSomething
+9B02 - 9B1F: SpriteSomething
+9B22 - 9B3F: SpriteSomething
+9B42 - 9B5F: SpriteSomething
+9B62 - 9B7F: SpriteSomething
+9B82 - 9B9F: SpriteSomething
+9BA2 - 9BBF: SpriteSomething
+9BC2 - 9BDF: SpriteSomething
+9BE2 - 9BFF: SpriteSomething
+9C02 - 9C1F: SpriteSomething
+9C22 - 9C3F: SpriteSomething
+9C42 - 9C5F: SpriteSomething
+9C62 - 9C7F: SpriteSomething
+9C82 - 9C9F: SpriteSomething
+9CA2 - 9CBF: SpriteSomething
+9CC2 - 9CDF: SpriteSomething
+9CE2 - 9CFF: SpriteSomething
+9D02 - 9D1F: SpriteSomething
+9D22 - 9D3F: SpriteSomething
+9D42 - 9D5F: SpriteSomething
+9D62 - 9D7F: SpriteSomething
+9D82 - 9D9F: SpriteSomething
+9DA2 - 9DBF: SpriteSomething
+9DC2 - 9DDF: SpriteSomething
+9DE2 - 9DFF: SpriteSomething
+9E02 - 9E1F: SpriteSomething
+9E22 - 9E3F: SpriteSomething
+9E42 - 9E5F: SpriteSomething
+9E62 - 9E7F: SpriteSomething
+9E82 - 9E9F: SpriteSomething
+9EA2 - 9EBF: SpriteSomething
+9EC2 - 9EDF: SpriteSomething
+9EE2 - 9EFF: SpriteSomething
+9F02 - 9F1F: SpriteSomething
+9F22 - 9F3F: SpriteSomething
+9F42 - 9F5F: SpriteSomething
+9F62 - 9F7F: SpriteSomething
+9F82 - 9F9F: SpriteSomething
+9FA2 - 9FBF: SpriteSomething
+9FC2 - 9FDF: SpriteSomething
+9FE2 - 9FFF: SpriteSomething
+A002 - A01F: SpriteSomething
+A022 - A03F: SpriteSomething
+A042 - A05F: SpriteSomething
+A062 - A07F: SpriteSomething
+A082 - A09F: SpriteSomething
+A0A2 - A0BF: SpriteSomething
+A0C2 - A0DF: SpriteSomething
+A0E2 - A0FF: SpriteSomething
+A102 - A11F: SpriteSomething
+A122 - A13F: SpriteSomething
+A142 - A15F: SpriteSomething
+A162 - A17F: SpriteSomething
+A182 - A19F: SpriteSomething
+A1A2 - A1BF: SpriteSomething
+A1C2 - A1DF: SpriteSomething
+A1E2 - A1FF: SpriteSomething
+A202 - A21F: SpriteSomething
+A222 - A23F: SpriteSomething
+A242 - A25F: SpriteSomething
+A262 - A27F: SpriteSomething
+A282 - A29F: SpriteSomething
+A2A2 - A2BF: SpriteSomething
+A2C2 - A2DF: SpriteSomething
+A2E2 - A2FF: SpriteSomething
+A302 - A31F: SpriteSomething
+A322 - A33F: SpriteSomething
+A342 - A35F: SpriteSomething
+A362 - A37F: SpriteSomething
+A382 - A39F: SpriteSomething
+A3A2 - A3C5: SpriteSomething
+A3C6 - A3CB: SpriteSomething
+B44A - B44C: SpriteSomething
+B5AE - B5B0: SpriteSomething
+B6E5 - B6E7: SpriteSomething
+B6EE - B6EF: SpriteSomething
+B6F5 - B6F7: SpriteSomething
 
 [BANK A0]
 8AE5 - 8AE7: ; vanilla_bugfixes.asm
@@ -1017,6 +1291,7 @@ E790 - E790: ; tourian_map.asm
 
 [BANK A2]
 8751 - 8753: ; everything_respawns.asm
+A5A0 - A5BB: SpriteSomething
 A5BE - A615: ; fast_saves.asm
 AA24 - AA2A: ; stats.asm
 AA41 - AA43: ; fast_saves.asm
@@ -1151,6 +1426,9 @@ B9E0 - B9FF: ; split_speed.asm
 BB00 - BB1F: ; split_speed.asm
 BCC0 - BCFF: ; split_speed.asm
 CE00 - CFFF: ; split_speed.asm
+D900 - D91F: SpriteSomething - if hud_expansion_opaque not applied
+D980 - D99F: SpriteSomething - if hud_expansion_opaque not applied
+DA00 - DFFF: SpriteSomething - if hud_expansion_opaque not applied
 E9E8 - E9FD: ; split_speed.asm
 EA28 - EA3D: ; split_speed.asm
 EA66 - EA7D: ; split_speed.asm
