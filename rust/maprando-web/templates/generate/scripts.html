@@ -1001,16 +1001,10 @@ function enhancedMapPresetChanged() {
 }
 
 function enhancedMapSettingChanged() {
-        document.getElementById("enhancedMapPresetNo").checked = false;
-        document.getElementById("enhancedMapPresetYes").checked = false;
-        if (document.getElementById("enhancedMapWallsVanilla").checked) {
-            document.getElementById("enhancedMapBlueDoorsHidden").checked = true;
-            document.getElementById("enhancedMapGrayDoorsHidden").checked = true;
-            document.getElementById("enhancedMapAmmoDoorsHidden").checked = true;
-            document.getElementById("enhancedMapBeamDoorsHidden").checked = true;
-        }
-        enhancedMapPresetChanged();
-    }
+    document.getElementById("enhancedMapPresetNo").checked = false;
+    document.getElementById("enhancedMapPresetYes").checked = false;
+    enhancedMapPresetChanged();
+}
 
 function objectivePresetChanged() {
     for (presetEl of document.getElementsByClassName("objective-preset-button")) {
