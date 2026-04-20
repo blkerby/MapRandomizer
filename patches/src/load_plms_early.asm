@@ -174,6 +174,8 @@ is_delayed_plm:
     BEQ .done
     CMP #$D6D6      ; Acid Statue Room chozo (overwrites FX)
     BEQ .done
+    CMP #$D6FC      ; Bowling (close stairs)
+    BEQ .done
 
     ; Beam door PLMS are delayed, because their graphics could be overwritten if CRE is reloaded,
     ; or if neighboring rooms have different beam doors.
