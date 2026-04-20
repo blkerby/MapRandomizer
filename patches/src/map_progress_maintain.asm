@@ -128,9 +128,9 @@ activate_map_station_hook:
     ; since those would not show correctly in the partially-revealed palette:
     ; TODO: look into removing this. It shouldn't be needed anymore, since we switched
     ; to using the "cross-area reveal" table to cover these same-area reveal as well.
-    lda $829727, x
-    ora $702000, x
-    sta $702000, x
+    ;lda $829727, x
+    ;ora $702000, x
+    ;sta $702000, x
     inx
     inx
     dey
@@ -188,7 +188,7 @@ hook_mark_tile_above:
 
     rts
 
-warnpc !bank_90_freespace_end
+assert pc() <= !bank_90_freespace_end
 
 ;;;; $943D: Load pause menu map tilemap ;;;
 org $82943D
@@ -210,7 +210,7 @@ load_pause_map_tilemap:
     STA $02                ;/
     BRA .set_dst
 
-warnpc $82945C
+assert pc() <= $82945C
 org $82945C      ; We keep this instruction in the same place so that item_dots_disappear can hook into it
 .set_dst
     LDA #$4000             ;\
@@ -299,7 +299,7 @@ org $82945C      ; We keep this instruction in the same place so that item_dots_
     BRA .BRANCH_NEXT     ; Go to BRANCH_NEXT
 
 
-warnpc $829628
+assert pc() <= $829628
 
 ; For HUD mini-map drawing, load map revealed bits (persisted across deaths/reloads) 
 ; in place of map data bits (which are irrelevant since whole map is revealed):
@@ -405,4 +405,4 @@ fix_mb:
     ldx #$0122
     rtl
 
-warnpc !bank_a4_free_space_end
+assert pc() <= !bank_a4_free_space_end
