@@ -192,9 +192,6 @@ impl SeedHeaderTemplate<'_> {
         if other_settings.energy_free_shinesparks {
             game_variations.push("Energy-free shinesparks");
         }
-        if other_settings.ultra_low_qol {
-            game_variations.push("Ultra-low quality of life");
-        }
         if other_settings.speed_booster == SpeedBooster::Split {
             game_variations.push("Split Speed Booster");
         }
@@ -219,8 +216,8 @@ impl SeedHeaderTemplate<'_> {
 pub struct SeedFooterTemplate {
     race_mode: bool,
     all_items_spawn: bool,
+    ammo_refill_all: bool,
     supers_double: bool,
-    ultra_low_qol: bool,
     settings: RandomizerSettings,
 }
 
@@ -529,8 +526,8 @@ pub fn render_seed(
     let seed_footer_template = SeedFooterTemplate {
         race_mode: seed_data.race_mode,
         all_items_spawn: seed_data.all_items_spawn,
+        ammo_refill_all: seed_data.ammo_refill_all,
         supers_double: seed_data.supers_double,
-        ultra_low_qol: seed_data.ultra_low_qol,
         settings: seed_data.settings.clone(),
     };
     let seed_footer_html = seed_footer_template.render()?;

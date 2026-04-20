@@ -5,9 +5,10 @@ use hashbrown::HashMap;
 use maprando::{
     randomize::{DifficultyConfig, LockedDoor, Preprocessor, make_locked_door_data},
     settings::{
-        DisableETankSetting, DoorsSettings, EnemyDrops, InitialMapRevealSettings,
-        ItemProgressionSettings, Objective, ObjectiveSettings, OtherSettings,
-        QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings, StartLocationSettings,
+        DisableETankSetting, DoorsSettings, EnemyDrops, EnhancedMapSettings,
+        InitialMapRevealSettings, ItemProgressionSettings, Objective, ObjectiveSettings,
+        OtherSettings, QualityOfLifeSettings, RandomizerSettings, SkillAssumptionSettings,
+        StartLocationSettings,
     },
     traverse::{LockedDoorData, Traverser},
 };
@@ -212,6 +213,21 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
         },
         quality_of_life_settings: QualityOfLifeSettings {
             preset: None,
+            enhanced_map_settings: EnhancedMapSettings {
+                preset: None,
+                blue_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                gray_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                ammo_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                beam_doors: maprando::settings::EnhancedMapLevel::Hidden,
+                heat: maprando::settings::EnhancedMapLevel::Hidden,
+                water: maprando::settings::EnhancedMapLevel::Hidden,
+                lava: maprando::settings::EnhancedMapLevel::Hidden,
+                acid: maprando::settings::EnhancedMapLevel::Hidden,
+                walls: maprando::settings::EnhancedMapWalls::Vanilla,
+                objectives: maprando::settings::EnhancedMapOther::Vanilla,
+                map_station: maprando::settings::EnhancedMapOther::Vanilla,
+                refill_station: maprando::settings::EnhancedMapOther::Vanilla,
+            },
             initial_map_reveal_settings: InitialMapRevealSettings {
                 preset: None,
                 map_stations: maprando::settings::MapRevealLevel::No,
@@ -319,7 +335,6 @@ fn get_settings(scenario: &Scenario) -> Result<RandomizerSettings> {
             disable_bluesuit: false,
             disable_spikesuit: false,
             enable_major_glitches: false,
-            ultra_low_qol: false,
             race_mode: false,
             random_seed: None,
         },

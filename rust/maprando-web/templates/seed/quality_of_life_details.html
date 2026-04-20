@@ -1,4 +1,10 @@
 <div class="row">
+    <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Enhanced map:</div>
+    <div class="col-4 col-sm-3">{{+
+        settings.quality_of_life_settings.enhanced_map_settings.preset.as_ref().unwrap_or(&"Custom".to_string())
+    }}</div>
+</div>
+<div class="row">
     <div class="col-8 col-sm-9 col-md-8 col-lg-7 col-xl-6">Initial map reveal:</div>
     <div class="col-4 col-sm-3">{{+
         settings.quality_of_life_settings.initial_map_reveal_settings.preset.as_ref().unwrap_or(&"Custom".to_string())

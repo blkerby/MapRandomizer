@@ -147,6 +147,12 @@ pub enum ItemDotChange {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub enum MapTheme {
+    Light,
+    Dark,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum StatuesHallwayTiling {
     Disabled,
     Default,
@@ -164,6 +170,7 @@ pub enum StatuesHallwayAudio {
 pub struct CustomizeSettings {
     pub samus_sprite: Option<String>,
     pub etank_color: Option<(u8, u8, u8)>,
+    pub map_theme: MapTheme,
     pub item_dot_change: ItemDotChange,
     pub transition_letters: bool,
     pub save_icons: bool,
@@ -189,6 +196,7 @@ impl Default for CustomizeSettings {
         Self {
             samus_sprite: Some("samus_vanilla".to_string()),
             etank_color: None,
+            map_theme: MapTheme::Light,
             item_dot_change: ItemDotChange::Fade,
             transition_letters: true,
             save_icons: true,

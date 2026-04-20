@@ -242,6 +242,7 @@ fn main() -> Result<()> {
     let customize_settings = CustomizeSettings {
         samus_sprite: Some("samus_vanilla".to_string()),
         // samus_sprite: None,
+        map_theme: maprando::customize::MapTheme::Light,
         etank_color: None,
         item_dot_change: maprando::customize::ItemDotChange::Fade,
         transition_letters: true,

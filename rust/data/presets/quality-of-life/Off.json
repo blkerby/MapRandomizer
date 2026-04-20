@@ -1,5 +1,20 @@
 {
     "preset": "Off",
+    "enhanced_map_settings": {
+        "preset": "No",
+        "blue_doors": "Hidden",
+        "gray_doors": "Hidden",
+        "ammo_doors": "Hidden",
+        "beam_doors": "Hidden",
+        "heat": "Hidden",
+        "water": "Hidden",
+        "lava": "Hidden",
+        "acid": "Hidden",
+        "walls": "Vanilla",
+        "objectives": "Vanilla",
+        "map_station": "Vanilla",
+        "refill_station": "Vanilla"
+    },
     "initial_map_reveal_settings": {
         "preset": "No",
         "map_stations": "No",

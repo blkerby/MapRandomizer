@@ -157,6 +157,7 @@ impl Display for EnemyDrops {
 pub struct QualityOfLifeSettings {
     pub preset: Option<String>,
     // Map:
+    pub enhanced_map_settings: EnhancedMapSettings,
     pub initial_map_reveal_settings: InitialMapRevealSettings,
     pub item_markers: ItemMarkers,
     pub room_outline_revealed: bool,
@@ -215,6 +216,42 @@ impl Display for MapRevealLevel {
     }
 }
 
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
+pub enum EnhancedMapLevel {
+    Hidden,
+    Visible,
+}
+
+impl Display for EnhancedMapLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
+pub enum EnhancedMapOther {
+    Vanilla,
+    Icon,
+}
+
+impl Display for EnhancedMapOther {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
+#[derive(Debug, Copy, Clone, Serialize, Deserialize, PartialEq)]
+pub enum EnhancedMapWalls {
+    Vanilla,
+    Enhanced,
+}
+
+impl Display for EnhancedMapWalls {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self:?}")
+    }
+}
+
 #[derive(Serialize, Deserialize, Clone, PartialEq)]
 pub struct InitialMapRevealSettings {
     pub preset: Option<String>,
@@ -230,6 +267,23 @@ pub struct InitialMapRevealSettings {
     pub items4: MapRevealLevel,
     pub other: MapRevealLevel,
     pub all_areas: bool,
+}
+
+#[derive(Serialize, Deserialize, Clone, PartialEq)]
+pub struct EnhancedMapSettings {
+    pub preset: Option<String>,
+    pub blue_doors: EnhancedMapLevel,
+    pub gray_doors: EnhancedMapLevel,
+    pub ammo_doors: EnhancedMapLevel,
+    pub beam_doors: EnhancedMapLevel,
+    pub heat: EnhancedMapLevel,
+    pub water: EnhancedMapLevel,
+    pub lava: EnhancedMapLevel,
+    pub acid: EnhancedMapLevel,
+    pub walls: EnhancedMapWalls,
+    pub objectives: EnhancedMapOther,
+    pub map_station: EnhancedMapOther,
+    pub refill_station: EnhancedMapOther,
 }
 
 #[derive(Clone, Copy, Serialize, Deserialize, Debug, PartialEq, Eq, Hash)]
@@ -394,7 +448,6 @@ pub struct OtherSettings {
     pub map_station_reveal: MapStationReveal,
     pub energy_free_shinesparks: bool,
     pub all_enemies_respawn: bool,
-    pub ultra_low_qol: bool,
     pub disable_spikesuit: bool,
     pub disable_bluesuit: bool,
     pub enable_major_glitches: bool,
@@ -923,6 +976,52 @@ fn upgrade_initial_map_reveal_settings(settings: &mut serde_json::Value) -> Resu
     Ok(())
 }
 
+fn upgrade_enhanced_map_settings(settings: &mut serde_json::Value) -> Result<()> {
+    // Skip if already present
+    if settings["quality_of_life_settings"]
+        .as_object()
+        .unwrap()
+        .contains_key("enhanced_map_settings")
+    {
+        return Ok(());
+    }
+
+    let qol_settings = settings["quality_of_life_settings"]
+        .as_object_mut()
+        .context("missing 'quality_of_life_settings'")?;
+
+    let enhanced = EnhancedMapSettings {
+        preset: Some("Yes".to_string()),
+
+        // Doors
+        blue_doors: EnhancedMapLevel::Visible,
+        gray_doors: EnhancedMapLevel::Visible,
+        ammo_doors: EnhancedMapLevel::Visible,
+        beam_doors: EnhancedMapLevel::Visible,
+
+        // Environment hazards
+        heat: EnhancedMapLevel::Visible,
+        water: EnhancedMapLevel::Visible,
+        lava: EnhancedMapLevel::Visible,
+        acid: EnhancedMapLevel::Visible,
+
+        // Map structure
+        walls: EnhancedMapWalls::Enhanced,
+
+        // Special tiles
+        objectives: EnhancedMapOther::Icon,
+        map_station: EnhancedMapOther::Icon,
+        refill_station: EnhancedMapOther::Icon,
+    };
+
+    qol_settings.insert(
+        "enhanced_map_settings".to_string(),
+        serde_json::to_value(enhanced)?,
+    );
+
+    Ok(())
+}
+
 fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     let etank_refill = settings["other_settings"]["etank_refill"]
         .as_str()
@@ -1021,6 +1120,7 @@ fn upgrade_qol_settings(settings: &mut serde_json::Value) -> Result<()> {
     }
 
     upgrade_initial_map_reveal_settings(settings)?;
+    upgrade_enhanced_map_settings(settings)?;
     Ok(())
 }
 

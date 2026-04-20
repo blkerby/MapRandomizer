@@ -1,11 +1,12 @@
 use hashbrown::{HashMap, HashSet};
 
 use crate::{
-    customize::{CustomizeSettings, ItemDotChange},
+    customize::{CustomizeSettings, ItemDotChange, MapTheme},
     randomize::{LockedDoor, Randomization},
     settings::{
-        DisableETankSetting, DoorLocksSize, InitialMapRevealSettings, ItemMarkers, MapRevealLevel,
-        MapStationReveal, Objective, RandomizerSettings,
+        DisableETankSetting, DoorLocksSize, EnhancedMapLevel, EnhancedMapOther, EnhancedMapWalls,
+        InitialMapRevealSettings, ItemMarkers, MapRevealLevel, MapStationReveal, Objective,
+        RandomizerSettings,
     },
 };
 use maprando_game::{
@@ -149,7 +150,11 @@ fn draw_edge(
     edge: MapTileEdge,
     tile: &mut [[u8; 8]; 8],
     settings: &RandomizerSettings,
+    customize_settings: &CustomizeSettings,
 ) {
+    let theme = &customize_settings.map_theme;
+    let em = &settings.quality_of_life_settings.enhanced_map_settings;
+    let wall_color = if *theme == MapTheme::Dark { 4 } else { 3 };
     let wall_coords = match tile_side {
         TileSide::Top => [
             (0, 0),
@@ -290,90 +295,91 @@ fn draw_edge(
     match edge {
         MapTileEdge::Empty => {}
         MapTileEdge::QolEmpty => {
-            if settings.other_settings.ultra_low_qol {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+            if em.walls == EnhancedMapWalls::Vanilla {
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         }
         MapTileEdge::Passage => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            if settings.other_settings.ultra_low_qol {
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
-                set_wall_pixel(tile, 5, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            if em.walls == EnhancedMapWalls::Vanilla {
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
             }
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::QolPassage => {
-            if !settings.other_settings.ultra_low_qol {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+            if em.walls == EnhancedMapWalls::Enhanced {
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         }
         MapTileEdge::Door | MapTileEdge::QolDoor => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            set_wall_pixel(tile, 2, 3);
-            if settings.other_settings.ultra_low_qol {
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
+            let hidden = matches!(em.blue_doors, EnhancedMapLevel::Hidden);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            set_wall_pixel(tile, 2, wall_color);
+            if hidden {
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
             }
-            set_wall_pixel(tile, 5, 3);
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 5, wall_color);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::Wall | MapTileEdge::QolWall => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            set_wall_pixel(tile, 2, 3);
-            set_wall_pixel(tile, 3, 3);
-            set_wall_pixel(tile, 4, 3);
-            set_wall_pixel(tile, 5, 3);
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            set_wall_pixel(tile, 2, wall_color);
+            set_wall_pixel(tile, 3, wall_color);
+            set_wall_pixel(tile, 4, wall_color);
+            set_wall_pixel(tile, 5, wall_color);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
         }
         MapTileEdge::Sand | MapTileEdge::QolSand => {
-            if settings.other_settings.ultra_low_qol {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 3, 3);
-                set_wall_pixel(tile, 4, 3);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+            if em.blue_doors == EnhancedMapLevel::Hidden {
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 3, wall_color);
+                set_wall_pixel(tile, 4, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             } else if tile_side == TileSide::Bottom {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             } else {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         }
         MapTileEdge::ElevatorEntrance => {
-            set_wall_pixel(tile, 0, 3);
-            set_wall_pixel(tile, 1, 3);
-            set_wall_pixel(tile, 6, 3);
-            set_wall_pixel(tile, 7, 3);
-            set_air_pixel(tile, 0, 3);
-            set_air_pixel(tile, 7, 3);
+            set_wall_pixel(tile, 0, wall_color);
+            set_wall_pixel(tile, 1, wall_color);
+            set_wall_pixel(tile, 6, wall_color);
+            set_wall_pixel(tile, 7, wall_color);
+            set_air_pixel(tile, 0, wall_color);
+            set_air_pixel(tile, 7, wall_color);
         }
         MapTileEdge::LockedDoor(lock_type) => match lock_type {
             Gray | Red | Green | Yellow => {
@@ -386,36 +392,36 @@ fn draw_edge(
                 };
                 match settings.other_settings.door_locks_size {
                     DoorLocksSize::Small => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
                         set_wall_pixel(tile, 2, 12);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
                         set_wall_pixel(tile, 5, 12);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
-                        set_air_pixel(tile, 3, 4);
-                        set_air_pixel(tile, 4, 4);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
+                        set_air_pixel(tile, 3, 5);
+                        set_air_pixel(tile, 4, 5);
                     }
                     DoorLocksSize::Large => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
                         set_wall_pixel(tile, 2, 12);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
                         set_wall_pixel(tile, 5, 12);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
-                        set_air_pixel(tile, 1, 4);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
+                        set_air_pixel(tile, 1, 5);
                         set_air_pixel(tile, 2, color);
                         set_air_pixel(tile, 3, color);
                         set_air_pixel(tile, 4, color);
                         set_air_pixel(tile, 5, color);
-                        set_air_pixel(tile, 6, 4);
-                        set_deep_pixel(tile, 2, 4);
-                        set_deep_pixel(tile, 3, 4);
-                        set_deep_pixel(tile, 4, 4);
-                        set_deep_pixel(tile, 5, 4);
+                        set_air_pixel(tile, 6, 5);
+                        set_deep_pixel(tile, 2, 5);
+                        set_deep_pixel(tile, 3, 5);
+                        set_deep_pixel(tile, 4, 5);
+                        set_deep_pixel(tile, 5, 5);
                     }
                 }
             }
@@ -430,28 +436,28 @@ fn draw_edge(
                 };
                 match settings.other_settings.door_locks_size {
                     DoorLocksSize::Small => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
                         set_wall_pixel(tile, 2, 12);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
                         set_wall_pixel(tile, 5, 12);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
                         set_air_pixel(tile, 2, 13);
                         set_air_pixel(tile, 3, 4);
                         set_air_pixel(tile, 4, 4);
                         set_air_pixel(tile, 5, 13);
                     }
                     DoorLocksSize::Large => {
-                        set_wall_pixel(tile, 0, 3);
-                        set_wall_pixel(tile, 1, 3);
-                        set_wall_pixel(tile, 2, 3);
+                        set_wall_pixel(tile, 0, wall_color);
+                        set_wall_pixel(tile, 1, wall_color);
+                        set_wall_pixel(tile, 2, wall_color);
                         set_wall_pixel(tile, 3, color);
                         set_wall_pixel(tile, 4, color);
-                        set_wall_pixel(tile, 5, 3);
-                        set_wall_pixel(tile, 6, 3);
-                        set_wall_pixel(tile, 7, 3);
+                        set_wall_pixel(tile, 5, wall_color);
+                        set_wall_pixel(tile, 6, wall_color);
+                        set_wall_pixel(tile, 7, wall_color);
                         set_air_pixel(tile, 2, 13);
                         set_air_pixel(tile, 3, color);
                         set_air_pixel(tile, 4, color);
@@ -462,14 +468,14 @@ fn draw_edge(
                 }
             }
             Wall => {
-                set_wall_pixel(tile, 0, 3);
-                set_wall_pixel(tile, 1, 3);
-                set_wall_pixel(tile, 2, 3);
+                set_wall_pixel(tile, 0, wall_color);
+                set_wall_pixel(tile, 1, wall_color);
+                set_wall_pixel(tile, 2, wall_color);
                 set_wall_pixel(tile, 3, 13);
                 set_wall_pixel(tile, 4, 13);
-                set_wall_pixel(tile, 5, 3);
-                set_wall_pixel(tile, 6, 3);
-                set_wall_pixel(tile, 7, 3);
+                set_wall_pixel(tile, 5, wall_color);
+                set_wall_pixel(tile, 6, wall_color);
+                set_wall_pixel(tile, 7, wall_color);
             }
         },
     }
@@ -480,48 +486,56 @@ pub fn render_tile(
     settings: &RandomizerSettings,
     customize_settings: &CustomizeSettings,
 ) -> Result<[[u8; 8]; 8]> {
-    let bg_color = if tile.heated && !settings.other_settings.ultra_low_qol {
+    let theme = &customize_settings.map_theme;
+    let em = &settings.quality_of_life_settings.enhanced_map_settings;
+    let bg_color = if tile.heated && em.heat == EnhancedMapLevel::Visible {
         2
     } else {
         1
     };
+    let wall_color = if *theme == MapTheme::Dark { 4 } else { 3 };
     let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
     let liquid_colors = match (tile.liquid_type, tile.heated) {
         (MapLiquidType::None, _) => (bg_color, bg_color),
-        (MapLiquidType::Water, false) => (4, 1),
+        (MapLiquidType::Water, false) => (5, 1),
         (MapLiquidType::Lava, true) => (2, 1),
         (MapLiquidType::Acid, false) => (1, 2),
         (MapLiquidType::Acid, true) => (2, 1),
         _ => panic!("unexpected liquid type"),
     };
-    if let Some(liquid_level) = tile.liquid_level
-        && !settings.other_settings.ultra_low_qol
-    {
-        let level = (liquid_level * 8.0).floor() as isize;
-        for y in level..8 {
-            for x in 0..8 {
-                match tile.liquid_type {
-                    MapLiquidType::Water => {
-                        if (x + y) % 2 == 0 {
-                            data[y as usize][x as usize] = liquid_colors.0;
-                        } else {
+    if let Some(liquid_level) = tile.liquid_level {
+        let visible = match tile.liquid_type {
+            MapLiquidType::Water => em.water,
+            MapLiquidType::Lava => em.lava,
+            MapLiquidType::Acid => em.acid,
+            MapLiquidType::None => EnhancedMapLevel::Hidden,
+        };
+        if matches!(visible, EnhancedMapLevel::Visible) {
+            let level = (liquid_level * 8.0).floor() as isize;
+            for y in level..8 {
+                for x in 0..8 {
+                    match tile.liquid_type {
+                        MapLiquidType::Water => {
+                            if (x + y) % 2 == 0 {
+                                data[y as usize][x as usize] = liquid_colors.0;
+                            } else {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            }
+                        }
+                        MapLiquidType::Lava => {
                             data[y as usize][x as usize] = liquid_colors.1;
                         }
-                    }
-                    MapLiquidType::Lava => {
-                        data[y as usize][x as usize] = liquid_colors.1;
-                    }
-                    MapLiquidType::Acid => {
-                        if (x + y) % 2 == 0 {
-                            data[y as usize][x as usize] = liquid_colors.1;
+                        MapLiquidType::Acid => {
+                            if (x + y) % 2 == 0 {
+                                data[y as usize][x as usize] = liquid_colors.1;
+                            }
                         }
+                        MapLiquidType::None => bail!("unexpected liquid type None"),
                     }
-                    MapLiquidType::None => bail!("unexpected liquid type None"),
                 }
             }
         }
-
         if tile.faded
             && tile.interior.is_item()
             && (tile.liquid_type == MapLiquidType::Lava
@@ -617,65 +631,127 @@ pub fn render_tile(
         }
         MapTileInterior::ElevatorPlatformLow => {
             // Use white instead of red for elevator platform:
-            data[5][3] = 3;
-            data[5][4] = 3;
+            data[5][3] = wall_color;
+            data[5][4] = wall_color;
         }
         MapTileInterior::ElevatorPlatformHigh => {
-            data[2][3] = 3;
-            data[2][4] = 3;
+            data[2][3] = wall_color;
+            data[2][4] = wall_color;
         }
         MapTileInterior::SaveStation => {
-            update_tile(
-                &mut data,
-                3,
-                &vec![
-                    (0, 0),
-                    (1, 0),
-                    (2, 0),
-                    (3, 0),
-                    (4, 0),
-                    (5, 0),
-                    (6, 0),
-                    (7, 0),
-                    (0, 1),
-                    (1, 1),
-                    (7, 1),
-                    (0, 2),
-                    (4, 2),
-                    (5, 2),
-                    (6, 2),
-                    (7, 2),
-                    (0, 3),
-                    (6, 3),
-                    (7, 3),
-                    (0, 4),
-                    (1, 4),
-                    (7, 4),
-                    (0, 5),
-                    (1, 5),
-                    (2, 5),
-                    (3, 5),
-                    (7, 5),
-                    (0, 6),
-                    (6, 6),
-                    (7, 6),
-                    (0, 7),
-                    (1, 7),
-                    (2, 7),
-                    (3, 7),
-                    (4, 7),
-                    (5, 7),
-                    (6, 7),
-                    (7, 7),
-                ],
-            );
+            if *theme == MapTheme::Dark {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (2, 1),
+                        (3, 1),
+                        (4, 1),
+                        (5, 1),
+                        (6, 1),
+                        (1, 2),
+                        (2, 2),
+                        (3, 2),
+                        (1, 3),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (6, 4),
+                        (4, 5),
+                        (5, 5),
+                        (6, 5),
+                        (1, 6),
+                        (2, 6),
+                        (3, 6),
+                        (4, 6),
+                        (5, 6),
+                    ],
+                );
+            } else {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (1, 1),
+                        (7, 1),
+                        (0, 2),
+                        (4, 2),
+                        (5, 2),
+                        (6, 2),
+                        (7, 2),
+                        (0, 3),
+                        (6, 3),
+                        (7, 3),
+                        (0, 4),
+                        (1, 4),
+                        (7, 4),
+                        (0, 5),
+                        (1, 5),
+                        (2, 5),
+                        (3, 5),
+                        (7, 5),
+                        (0, 6),
+                        (6, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
         }
         MapTileInterior::EnergyRefill => {
-            if settings.other_settings.ultra_low_qol {
+            if em.refill_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.refill_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (3, 1),
+                        (4, 1),
+                        (3, 2),
+                        (4, 2),
+                        (1, 3),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (6, 3),
+                        (1, 4),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (6, 4),
+                        (3, 5),
+                        (4, 5),
+                        (3, 6),
+                        (4, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -730,11 +806,38 @@ pub fn render_tile(
             }
         }
         MapTileInterior::AmmoRefill => {
-            if settings.other_settings.ultra_low_qol {
+            if em.refill_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.refill_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (2, 2),
+                        (3, 2),
+                        (4, 2),
+                        (5, 2),
+                        (2, 3),
+                        (5, 3),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (1, 5),
+                        (2, 5),
+                        (3, 5),
+                        (4, 5),
+                        (5, 5),
+                        (6, 5),
+                        (1, 6),
+                        (3, 6),
+                        (4, 6),
+                        (6, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -787,11 +890,42 @@ pub fn render_tile(
             }
         }
         MapTileInterior::DoubleRefill | MapTileInterior::Ship => {
-            if settings.other_settings.ultra_low_qol {
+            if em.refill_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.refill_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (1, 1),
+                        (3, 1),
+                        (4, 1),
+                        (6, 1),
+                        (3, 2),
+                        (4, 2),
+                        (1, 3),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (6, 3),
+                        (1, 4),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (6, 4),
+                        (3, 5),
+                        (4, 5),
+                        (1, 6),
+                        (3, 6),
+                        (4, 6),
+                        (6, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -842,55 +976,123 @@ pub fn render_tile(
             }
         }
         MapTileInterior::Objective => {
-            update_tile(
-                &mut data,
-                3,
-                &vec![
-                    (0, 0),
-                    (1, 0),
-                    (2, 0),
-                    (3, 0),
-                    (4, 0),
-                    (5, 0),
-                    (6, 0),
-                    (7, 0),
-                    (0, 1),
-                    (3, 1),
-                    (4, 1),
-                    (7, 1),
-                    (0, 2),
-                    (7, 2),
-                    (0, 3),
-                    (1, 3),
-                    (6, 3),
-                    (7, 3),
-                    (0, 4),
-                    (1, 4),
-                    (6, 4),
-                    (7, 4),
-                    (0, 5),
-                    (7, 5),
-                    (0, 6),
-                    (3, 6),
-                    (4, 6),
-                    (7, 6),
-                    (0, 7),
-                    (1, 7),
-                    (2, 7),
-                    (3, 7),
-                    (4, 7),
-                    (5, 7),
-                    (6, 7),
-                    (7, 7),
-                ],
-            );
+            if em.objectives == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (1, 1),
+                        (2, 1),
+                        (5, 1),
+                        (6, 1),
+                        (1, 2),
+                        (2, 2),
+                        (3, 2),
+                        (4, 2),
+                        (5, 2),
+                        (6, 2),
+                        (2, 3),
+                        (3, 3),
+                        (4, 3),
+                        (5, 3),
+                        (2, 4),
+                        (3, 4),
+                        (4, 4),
+                        (5, 4),
+                        (1, 5),
+                        (2, 5),
+                        (3, 5),
+                        (4, 5),
+                        (5, 5),
+                        (6, 5),
+                        (1, 6),
+                        (2, 6),
+                        (5, 6),
+                        (6, 6),
+                    ],
+                );
+            } else if em.objectives == EnhancedMapOther::Icon && *theme == MapTheme::Light {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (0, 0),
+                        (1, 0),
+                        (2, 0),
+                        (3, 0),
+                        (4, 0),
+                        (5, 0),
+                        (6, 0),
+                        (7, 0),
+                        (0, 1),
+                        (3, 1),
+                        (4, 1),
+                        (7, 1),
+                        (0, 2),
+                        (7, 2),
+                        (0, 3),
+                        (1, 3),
+                        (6, 3),
+                        (7, 3),
+                        (0, 4),
+                        (1, 4),
+                        (6, 4),
+                        (7, 4),
+                        (0, 5),
+                        (7, 5),
+                        (0, 6),
+                        (3, 6),
+                        (4, 6),
+                        (7, 6),
+                        (0, 7),
+                        (1, 7),
+                        (2, 7),
+                        (3, 7),
+                        (4, 7),
+                        (5, 7),
+                        (6, 7),
+                        (7, 7),
+                    ],
+                );
+            }
         }
         MapTileInterior::MapStation => {
-            if settings.other_settings.ultra_low_qol {
+            if em.map_station == EnhancedMapOther::Vanilla {
                 data[3][3] = item_color;
                 data[3][4] = item_color;
                 data[4][3] = item_color;
                 data[4][4] = item_color;
+            } else if em.map_station == EnhancedMapOther::Icon && *theme == MapTheme::Dark {
+                update_tile(
+                    &mut data,
+                    3,
+                    &vec![
+                        (1, 1),
+                        (2, 1),
+                        (3, 1),
+                        (4, 1),
+                        (5, 1),
+                        (6, 1),
+                        (1, 2),
+                        (6, 2),
+                        (1, 3),
+                        (3, 3),
+                        (4, 3),
+                        (6, 3),
+                        (1, 4),
+                        (3, 4),
+                        (4, 4),
+                        (6, 4),
+                        (1, 5),
+                        (6, 5),
+                        (1, 6),
+                        (2, 6),
+                        (3, 6),
+                        (4, 6),
+                        (5, 6),
+                        (6, 6),
+                    ],
+                );
             } else {
                 update_tile(
                     &mut data,
@@ -942,12 +1144,16 @@ pub fn render_tile(
         }
     }
 
-    let apply_heat = |d: [[u8; 8]; 8]| {
-        if tile.heated && !settings.other_settings.ultra_low_qol {
-            d.map(|row| row.map(|c| if c == 1 { 2 } else { c }))
-        } else {
-            d
+    let apply_heat = |mut d: [[u8; 8]; 8]| {
+        if tile.heated && em.heat == EnhancedMapLevel::Visible {
+            d = d.map(|row| row.map(|c| if c == 1 { 2 } else { c }));
         }
+
+        if *theme == MapTheme::Dark {
+            d = d.map(|row| row.map(|c| if c == 3 { 4 } else { c }));
+        }
+
+        d
     };
     match tile.special_type {
         Some(MapTileSpecialType::AreaTransition(area_idx, dir)) => {
@@ -1215,26 +1421,34 @@ pub fn render_tile(
         None => {}
     }
 
-    if tile.special_type.is_some()
-        || (!settings.other_settings.ultra_low_qol
-            && [
-                MapTileInterior::AmmoRefill,
-                MapTileInterior::EnergyRefill,
-                MapTileInterior::DoubleRefill,
-                MapTileInterior::Ship,
-                MapTileInterior::SaveStation,
-                MapTileInterior::MapStation,
-                MapTileInterior::Objective,
-            ]
-            .contains(&tile.interior))
-    {
-        // Skip drawing door & wall edges in special tiles
-    } else {
-        draw_edge(TileSide::Top, tile.top, &mut data, settings);
-        draw_edge(TileSide::Bottom, tile.bottom, &mut data, settings);
-        draw_edge(TileSide::Left, tile.left, &mut data, settings);
-        draw_edge(TileSide::Right, tile.right, &mut data, settings);
-    }
+    draw_edge(
+        TileSide::Top,
+        tile.top,
+        &mut data,
+        settings,
+        customize_settings,
+    );
+    draw_edge(
+        TileSide::Bottom,
+        tile.bottom,
+        &mut data,
+        settings,
+        customize_settings,
+    );
+    draw_edge(
+        TileSide::Left,
+        tile.left,
+        &mut data,
+        settings,
+        customize_settings,
+    );
+    draw_edge(
+        TileSide::Right,
+        tile.right,
+        &mut data,
+        settings,
+        customize_settings,
+    );
     Ok(data)
 }
 
@@ -1876,7 +2090,7 @@ impl<'a> MapPatcher<'a> {
     ) -> Result<()> {
         for y in 0..8 {
             for x in 0..8 {
-                if data[y][x] == 4 || data[y][x] == 12 {
+                if data[y][x] == 4 || data[y][x] == 5 || data[y][x] == 12 {
                     data[y][x] = 0;
                 } else if data[y][x] > 4 {
                     data[y][x] = 3;
@@ -1964,11 +2178,15 @@ impl<'a> MapPatcher<'a> {
         for pass in [0, 1] {
             for (i, locked_door) in self.randomization.locked_doors.iter().enumerate() {
                 // Process wall doors on a first pass, all other door types on second pass.
+                let locksettings = &self.settings.quality_of_life_settings.enhanced_map_settings;
                 let valid = match (pass, locked_door.door_type) {
                     (0, DoorType::Wall) => true,
                     (0, _) => false,
                     (1, DoorType::Wall) => false,
-                    (1, _) => true,
+                    (1, DoorType::Beam(_)) => locksettings.beam_doors == EnhancedMapLevel::Visible,
+                    (1, DoorType::Red | DoorType::Green | DoorType::Yellow) => {
+                        locksettings.ammo_doors == EnhancedMapLevel::Visible
+                    }
                     _ => panic!("internal error"),
                 };
                 if !valid {
@@ -2044,6 +2262,8 @@ impl<'a> MapPatcher<'a> {
     }
 
     fn add_cross_area_arrows(&mut self) -> Result<()> {
+        let dark_mode = self.customize_settings.map_theme == MapTheme::Dark;
+
         // Replace colors to palette used for map tiles in the pause menu, for drawing arrows marking
         // cross-area connections:
         fn rgb(r: u16, g: u16, b: u16) -> u16 {
@@ -2060,11 +2280,16 @@ impl<'a> MapPatcher<'a> {
             (15, rgb(18, 12, 14)), // Gray door
             (7, rgb(27, 2, 27)),   // Red (pink) door
             (12, rgb(0, 0, 0)),    // Black (door lock shadows covering wall)
+            (5, rgb(0, 0, 0)),     // Black (door lock shadows covering air)
             (13, rgb(31, 31, 31)), // White (item dots)
         ];
         // Dotted grid lines
         let i = 12;
-        let color = rgb(8, 8, 8);
+        let color = if dark_mode {
+            rgb(3, 3, 3)
+        } else {
+            rgb(8, 8, 8)
+        };
         self.rom
             .write_u16(snes2pc(0xB6F000) + 2 * (0x40 + i), color as isize)?;
 
@@ -2076,18 +2301,26 @@ impl<'a> MapPatcher<'a> {
         }
 
         // In partially revealed palette, hide room interior, item dots, and door locks setting them all to black:
-        for i in [1, 2, 4, 6, 7, 8, 13, 14, 15] {
-            self.rom.write_u16(
-                snes2pc(0xB6F000) + 2 * (0x30 + i as usize),
-                rgb(0, 0, 0) as isize,
-            )?;
+        for i in [1, 2, 4, 5, 6, 7, 8, 13, 14, 15] {
+            let color = if dark_mode && i != 4 {
+                // Except in dark mode, set them to a non-black dark gray, to match the room's fill color.
+                rgb(5, 5, 5)
+            } else {
+                rgb(0, 0, 0)
+            };
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
         // In partially revealed palette, show walls/passages (as gray), and eliminate the door lock shadows covering walls:
         for i in [3, 12] {
-            self.rom.write_u16(
-                snes2pc(0xB6F000) + 2 * (0x30 + i as usize),
-                rgb(16, 16, 16) as isize,
-            )?;
+            let color = if dark_mode {
+                // Except in dark mode, show them as black
+                rgb(0, 0, 0)
+            } else {
+                rgb(16, 16, 16)
+            };
+            self.rom
+                .write_u16(snes2pc(0xB6F000) + 2 * (0x30 + i as usize), color as isize)?;
         }
 
         for (src_ptr_pair, dst_ptr_pair, _) in &self.map.doors {
@@ -2434,34 +2667,27 @@ impl<'a> MapPatcher<'a> {
             if [MapTileInterior::HiddenItem, MapTileInterior::DoubleItem].contains(&tile.interior) {
                 tile.interior = MapTileInterior::Item;
             }
-            // the ultralow qol setting can be removed when its finally removed from the frontend.
-            // there is also the potential to have "non disappearing dots option" by using the ultralow QOL
-            // setting when using 2/3/4 tier items if its desired. This would replace a Major / Hollow / X with
-            // a non faded dot.
-            if self.settings.other_settings.ultra_low_qol {
-                tile.interior = MapTileInterior::Item;
-                self.set_room_tile(room_id, x, y, tile.clone());
-            } else {
-                tile.interior = get_item_interior(item, self.settings);
-                self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
-                match self.customize_settings.item_dot_change {
-                    ItemDotChange::Fade => {
-                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                        tile.faded = true;
-                        self.set_room_tile(room_id, x, y, tile.clone());
-                    }
-                    ItemDotChange::Disappear => {
-                        tile.interior = MapTileInterior::Empty;
-                        self.set_room_tile(room_id, x, y, tile.clone());
-                    }
-                    ItemDotChange::Stay => {
-                        tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
-                        tile.faded = false;
-                        self.set_room_tile(room_id, x, y, tile.clone());
-                    }
+
+            tile.interior = get_item_interior(item, self.settings);
+            self.dynamic_tile_data[area].push((item_idx, room_id, tile.clone()));
+            match self.customize_settings.item_dot_change {
+                ItemDotChange::Fade => {
+                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                    tile.faded = true;
+                    self.set_room_tile(room_id, x, y, tile.clone());
+                }
+                ItemDotChange::Disappear => {
+                    tile.interior = MapTileInterior::Empty;
+                    self.set_room_tile(room_id, x, y, tile.clone());
+                }
+                ItemDotChange::Stay => {
+                    tile.interior = apply_item_interior(orig_tile.clone(), item, self.settings);
+                    tile.faded = false;
+                    self.set_room_tile(room_id, x, y, tile.clone());
                 }
             }
         }
+
         Ok(())
     }
 
@@ -2957,10 +3183,16 @@ impl<'a> MapPatcher<'a> {
         }
         self.apply_room_tiles()?;
         self.indicate_objective_tiles()?;
-        if !self.settings.other_settings.ultra_low_qol {
+        if self
+            .settings
+            .quality_of_life_settings
+            .enhanced_map_settings
+            .gray_doors
+            == EnhancedMapLevel::Visible
+        {
             self.indicate_gray_doors()?;
-            self.indicate_locked_doors()?;
         }
+        self.indicate_locked_doors()?;
         self.add_cross_area_arrows()?;
         self.set_map_activation_behavior()?;
         self.indicate_items()?;

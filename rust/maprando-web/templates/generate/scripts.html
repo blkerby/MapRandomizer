@@ -194,6 +194,24 @@ function buildInitialMapRevealSettings(formData) {
     }
 }
 
+function buildEnhancedMapSettings(formData) {
+    return {
+        "preset": formData.get("enhanced_map"),
+        "blue_doors": formData.get("enhanced_map_blue_doors"),
+        "gray_doors": formData.get("enhanced_map_gray_doors"),
+        "ammo_doors": formData.get("enhanced_map_ammo_doors"),
+        "beam_doors": formData.get("enhanced_map_beam_doors"),
+        "heat": formData.get("enhanced_map_heat"),
+        "water": formData.get("enhanced_map_water"),
+        "lava": formData.get("enhanced_map_lava"),
+        "acid": formData.get("enhanced_map_acid"),
+        "walls": formData.get("enhanced_map_walls"),
+        "objectives": formData.get("enhanced_map_objectives"),
+        "map_station": formData.get("enhanced_map_station"),
+        "refill_station": formData.get("enhanced_map_refill"),
+    }
+}
+
 function emptyToNull(s) {
     if (s == "") {
         return null;
@@ -257,6 +275,7 @@ function buildSettingsObject() {
         },
         "quality_of_life_settings": {
             "preset": formData.get("quality_of_life_preset"),
+            "enhanced_map_settings": buildEnhancedMapSettings(formData),
             "initial_map_reveal_settings": buildInitialMapRevealSettings(formData),
             "item_markers": formData.get("item_markers"),
             "room_outline_revealed": formData.get("room_outline_revealed") == "true",
@@ -331,7 +350,6 @@ function buildSettingsObject() {
             "map_station_reveal": formData.get("map_station_reveal"),
             "energy_free_shinesparks": formData.get("energy_free_shinesparks") == "true",
             "all_enemies_respawn": formData.get("all_enemies_respawn") == "true",
-            "ultra_low_qol": formData.get("ultra_low_qol") == "true",
             "race_mode": formData.get("race_mode") == "true",
             "random_seed": tryParseInt(formData.get("random_seed")),
             "disable_spikesuit": formData.get("disable_spike_suit") == "true",
@@ -504,6 +522,22 @@ function applyInitialMapRevealSettings(imrSettings) {
     processInitialMapRevealPreset();
 }
 
+function applyEnhancedMapSettings(emSettings) {
+    applyRadioValue("enhancedMapBlueDoors", emSettings.blue_doors);
+    applyRadioValue("enhancedMapGrayDoors", emSettings.gray_doors);
+    applyRadioValue("enhancedMapAmmoDoors", emSettings.ammo_doors);
+    applyRadioValue("enhancedMapBeamDoors", emSettings.beam_doors);
+    applyRadioValue("enhancedMapHeat", emSettings.heat);
+    applyRadioValue("enhancedMapWater", emSettings.water);
+    applyRadioValue("enhancedMapLava", emSettings.lava);
+    applyRadioValue("enhancedMapAcid", emSettings.acid);
+    applyRadioValue("enhancedMapWalls", emSettings.walls);
+    applyRadioValue("enhancedMapObjectives", emSettings.objectives);
+    applyRadioValue("enhancedMapStation", emSettings.map_station);
+    applyRadioValue("enhancedMapRefill", emSettings.refill_station);
+    applyRadioValue("enhancedMapPreset", emSettings.preset);
+    processEnhancedMapPreset();
+}
 function applyQolPreset(preset) {
     for (var presetEl of document.getElementsByClassName("qol-preset-button")) {
         if (presetEl.value == preset.preset) {
@@ -518,6 +552,7 @@ function applyQolPreset(preset) {
     }
 
     applyInitialMapRevealSettings(preset.initial_map_reveal_settings);
+    applyEnhancedMapSettings(preset.enhanced_map_settings);
     applyRadioValue("itemMarkers", preset.item_markers);
     applyRadioValue("roomOutlineRevealed", preset.room_outline_revealed);
     applyRadioValue("oppositeAreaRevealed", preset.opposite_area_revealed);
@@ -614,7 +649,6 @@ function applyFullSettingsPreset(preset) {
     applyRadioValue("mapStationReveal", other.map_station_reveal);
     applyRadioValue("energyFreeShinesparks", other.energy_free_shinesparks);
     applyRadioValue("allEnemiesRespawn", other.all_enemies_respawn);
-    applyRadioValue("ultraLowQoL", other.ultra_low_qol);
     applyRadioValue("disableSpikesuit", other.disable_spikesuit);
     applyRadioValue("disableBluesuit", other.disable_bluesuit);
     applyRadioValue("enableMajorGlitches", other.enable_major_glitches);
@@ -731,9 +765,6 @@ function qualityOfLifePresetChanged() {
             }
             applyQolPreset(preset);
         }
-    }
-    if (!isOff) {
-        document.getElementById("ultraLowQoLNo").checked = true;
     }
     fullSettingsChanged();
 }
@@ -932,6 +963,47 @@ function initialMapRevealSettingChanged() {
     document.getElementById("initialMapRevealPresetFull").checked = false;
     document.getElementById("initialMapRevealPresetGlobal").checked = false;
     initialMapRevealPresetChanged();
+}
+
+function processEnhancedMapPreset() {
+    let mapTypes = [
+        "BlueDoors",
+        "GrayDoors",
+        "AmmoDoors",
+        "BeamDoors",
+        "Heat",
+        "Water",
+        "Lava",
+        "Acid"
+    ]
+    if (document.getElementById("enhancedMapPresetNo").checked) {
+        for (t of mapTypes) {
+            document.getElementById(`enhancedMap${t}Hidden`).checked = true;
+        }
+        document.getElementById("enhancedMapWallsVanilla").checked = true;
+        document.getElementById("enhancedMapObjectivesVanilla").checked = true;
+        document.getElementById("enhancedMapStationVanilla").checked = true;
+        document.getElementById("enhancedMapRefillVanilla").checked = true;
+    } else if (document.getElementById("enhancedMapPresetYes").checked) { 
+        for (t of mapTypes) {
+            document.getElementById(`enhancedMap${t}Visible`).checked = true;
+        }
+        document.getElementById("enhancedMapWallsEnhanced").checked = true;
+        document.getElementById("enhancedMapObjectivesIcon").checked = true;
+        document.getElementById("enhancedMapStationIcon").checked = true;
+        document.getElementById("enhancedMapRefillIcon").checked = true;
+}
+}
+
+function enhancedMapPresetChanged() {
+    processEnhancedMapPreset();
+    qualityOfLifeSettingChanged();
+}
+
+function enhancedMapSettingChanged() {
+    document.getElementById("enhancedMapPresetNo").checked = false;
+    document.getElementById("enhancedMapPresetYes").checked = false;
+    enhancedMapPresetChanged();
 }
 
 function objectivePresetChanged() {
@@ -1245,20 +1317,7 @@ function itemPoolChanged() {
 }
 
 function gameVariationChanged() {
-    if (!document.getElementById("enableMajorGlitchesYes").checked)
-    {
-        document.getElementById("ultraLowQoLNo").checked = true;
-    }
     fullSettingsChanged();
-}
-
-function ultraLowQoLChanged() {
-    if (!document.getElementById("ultraLowQoLYes").checked) {
-        return;
-    }
-    document.getElementById("qualityOfLifeOff").checked = true;
-    document.getElementById("enableMajorGlitchesYes").checked = true;
-    qualityOfLifePresetChanged();
 }
 
 function initializeSpoilerToken() {
@@ -1288,7 +1347,6 @@ function checkOtherOptions() {
         !document.getElementById("areaAssignmentPresetStandard").checked ||
         document.getElementById("doorLocksSizeSmall").checked ||
         document.getElementById("mapStationRevealPartial").checked ||
-        document.getElementById("ultraLowQoLYes").checked ||
         document.getElementById("raceModeYes").checked) 
     {
         document.getElementById("collapseGameVariations").classList.remove("collapse");

@@ -54,6 +54,7 @@ fn get_explored_color(value: u8, area: usize) -> Rgba<u8> {
         2 => hot_area_color,
         3 => get_rgb(31, 31, 31),  // Wall/passage (white)
         4 => get_rgb(0, 0, 0), // Opaque black (used in elevators, covers up dotted grid background)
+        5 => get_rgb(0, 0, 0), // Door lock shadow covering air (black)
         6 => get_rgb(29, 15, 0), // Yellow (orange) door (Power Bomb, Spazer)
         7 => get_rgb(27, 2, 27), // Red (pink) door (Missile, Wave)
         8 => get_rgb(4, 13, 31), // Blue door (Ice)
@@ -72,6 +73,7 @@ fn get_outline_color(value: u8) -> Rgba<u8> {
         2 => get_rgb(0, 0, 0),
         3 => get_rgb(16, 16, 16), // Wall/passage (grey)
         4 => get_rgb(0, 0, 0),
+        5 => get_rgb(0, 0, 0),
         6 => get_rgb(0, 0, 0),
         7 => get_rgb(0, 0, 0),
         8 => get_rgb(0, 0, 0),
