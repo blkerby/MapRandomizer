@@ -405,6 +405,7 @@ pub fn render_seed(
                 .settings
                 .item_progression_settings
                 .key_item_priority,
+            &seed_data.settings.other_settings,
         ),
         objective_names,
         race_mode: seed_data.race_mode,
