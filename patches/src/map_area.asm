@@ -226,7 +226,8 @@ org $809DD3 : dw $3C00, $3C01, $3C02, $3C03, $3C04, $3C05, $3C06, $3C07, $3C08, 
 ;;org $80A2F7 : dw $1C0F   ; was: dw $184E  (not doing this, since it's overwritten in hud_expansion_opaque.asm instead)
 
 ; For message boxes, skip modifying palette 6:
-org $858150 : rep $19 : nop
+org $858150
+  nop #25
 
 ; Use palette 0 for full auto reserve
 org $80998B             
@@ -408,8 +409,7 @@ determine_map_scroll_wrapper:
     jsr $9EC4    ; Determine map scroll limits
     rtl
 
-print pc
-warnpc !bank_82_freespace_end
+assert pc() <= !bank_82_freespace_end
 
 org !bank_85_freespace_start
 
@@ -418,7 +418,7 @@ load_bg3_map_tilemap_wrapper:
     jsr load_bg3_map_tilemap
     rtl
 
-warnpc $85A290
+assert pc() <= $85A290
 org $85A290
 ; must match the reference in fix_kraid_hud.asm
 load_bg3_map_tiles_wrapper:
@@ -572,6 +572,9 @@ load_equipment_screen:
     lda #$318C
     sta $7EC0DE
     sta $7EC05E
+    ;fix color used for dark map theme 
+    lda #$7FFF
+    sta $7EC04A
 
     ; Fix colors used for partially revealed tiles on map screen
     lda #$7FFF
@@ -1180,7 +1183,7 @@ kraid_room_load_hook:
     sep #$20
     rtl
 
-warnpc !bank_85_freespace_end
+assert pc() <= !bank_85_freespace_end
 
 org $82DFC2
     jsl area_cross_hook
@@ -1213,7 +1216,7 @@ org $858426
 ;org $A7CA77 : dw #$48FB            ; 2bpp palette 2, color 3: pink color for E-tanks (instead of black)
 ;org $A7CA7B : dw !unexplored_gray   ; 2bpp palette 3, color 1: gray color for HUD dotted grid lines
 
-org $A7CA7B : dw #$48FB            ; 2bpp palette 3, color 1: pink color for E-tanks
+org $A7CA7B : dw $48FB            ; 2bpp palette 3, color 1: pink color for E-tanks
 ;org $A7CA97 : dw #$7FFF            ; 2bpp palette 6, color 3: white color for HUD text/digits
 
 ; hook start of game to load correct BG3 tiles based on room:
@@ -1278,7 +1281,7 @@ org $828E75
 .skip_load_bg3
     plp
     rtl
-warnpc $828EDA
+assert pc() <= $828EDA
 
 ; Use palette 4 instead of palette 2 or non-map pause menu content
 ; (to free up more colors in palette 2 for use in map tiles).
@@ -1344,7 +1347,7 @@ write_room_name_tiles:
 .skip_write
     jmp $90cb
 
-warnpc !bank_82_freespace2_end
+assert pc() <= !bank_82_freespace2_end
 
 org !bank_85_freespace2_start
 
@@ -1613,7 +1616,7 @@ sram_to_gfx_dma: ; size in A, src in X (bank hardcoded to $70), dest in Y
     STX $0330
     RTL
 
-warnpc !bank_85_freespace2_end
+assert pc() <= !bank_85_freespace2_end
 
 ;;; Map icon patch
 ;;; Shows save icons as yellow, orange, pink for save slots n, n-1, n+1, respectively
@@ -1765,7 +1768,7 @@ boss_green:
 db $BD,$BD,$F6,$4F,$FB,$87,$F7,$CF,$BD,$B9,$76,$4E,$34,$2C,$18,$18
 db $BD,$BD,$42,$42,$81,$81,$C3,$C3,$BD,$FF,$42,$42,$24,$24,$18,$18
 
-warnpc !bank_b6_freespace_end
+assert pc() <= !bank_b6_freespace_end
 
 org !bank_85_freespace3_start    
 assert pc() == !map_icon_settings
@@ -2172,7 +2175,7 @@ draw_sprite:
 .sprite_disabled
     PLA
     BRA .sprite_is_disabled
-warnpc !bank_85_freespace3_end
+assert pc() <= !bank_85_freespace3_end
 
 ; Fixes FX for rare bug when entering right-sided door through East Pants Room
 org !bank_94_freespace_start
@@ -2183,4 +2186,4 @@ fix_pants_room_fx:
 .no_fix
     STX $78D            ; replaced code
     RTS
-warnpc !bank_94_freespace_end
+assert pc() <= !bank_94_freespace_end
