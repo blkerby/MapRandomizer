@@ -528,6 +528,11 @@ pub fn assign_map_areas(
     let mut area_mapping: Vec<isize> = vec![-1; NUM_AREAS];
     let mut reverse_area_mapping: Vec<isize> = vec![-1; NUM_AREAS];
 
+    if settings.map_layout == "Vanilla"
+        && area_assignment.base_order != AreaAssignmentBaseOrder::Random
+    {
+        return true;
+    }
     if area_assignment.ship_in_crateria {
         let ship_area = map.area[game_data.ship_room_idx];
         area_mapping[ship_area] = 0;
