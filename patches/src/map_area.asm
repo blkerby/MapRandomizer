@@ -518,6 +518,9 @@ load_map_screen:
     sta $7EC05C
     lda $B6F05E
     sta $7EC05E
+    ;fix color used for dark map theme
+    lda #$0000
+    sta $7EC04A
 
     ; palette 3:
     lda $B6F06E
@@ -575,7 +578,7 @@ load_equipment_screen:
     ;fix color used for dark map theme 
     lda #$7FFF
     sta $7EC04A
-
+    
     ; Fix colors used for partially revealed tiles on map screen
     lda #$7FFF
     sta $7EC07A
