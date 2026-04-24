@@ -3789,6 +3789,7 @@ impl<'r> Randomizer<'r> {
             filler_priority_map,
             item_priority_groups: get_item_priorities(
                 &settings.item_progression_settings.key_item_priority,
+                &settings.other_settings,
             ),
             base_links_data,
             seed_links_data: LinksDataGroup::new(
