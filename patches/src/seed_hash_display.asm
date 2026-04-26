@@ -113,6 +113,7 @@ CharTable:
         db $79, $7a, $7b, $7c, $7d, $7e, $7f, $80, $81, $82, $83, $0f, $0f, $0f, $0f, $0f
 endif
 
+;; This must match the enemy name list in get_seed_hash in maprando_web.
 ;; ASCII values, A: 41 -> Z: 5A, ' ': 20
 WordTable:
     db "GEEMER", $00

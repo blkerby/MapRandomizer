@@ -489,6 +489,7 @@ struct RandomizeRequest {
 #[derive(Serialize)]
 struct RandomizeResponse {
     seed_url: String,
+    seed_hash: String,
 }
 
 struct AttemptOutput {
@@ -798,7 +799,24 @@ async fn randomize(
 
     HttpResponse::Ok().json(RandomizeResponse {
         seed_url: format!("/seed/{seed_name}/"),
+        seed_hash: get_seed_hash(output.randomization.display_seed),
     })
+}
+
+fn get_seed_hash(display_seed: usize) -> String {
+    // This must match the enemy name list in seed_hash_display.asm.
+    let enemies = vec![
+        "GEEMER", "RIPPER", "ATOMIC", "POWAMP", "SCISER", "NAMIHE", "PUROMI", "ALCOON", "BEETOM",
+        "OWTCH", "ZEBBO", "ZEELA", "HOLTZ", "VIOLA", "WAVER", "RINKA", "BOYON", "CHOOT", "KAGO",
+        "SKREE", "COVERN", "EVIR", "TATORI", "OUM", "PUYO", "YARD", "ZOA", "FUNE", "GAMET",
+        "GERUTA", "SOVA", "BULL",
+    ];
+    (display_seed as u32)
+        .to_le_bytes()
+        .into_iter()
+        .map(|i| enemies[i as usize % 32].to_string())
+        .collect::<Vec<String>>()
+        .join(" ")
 }
 
 #[derive(Template)]
