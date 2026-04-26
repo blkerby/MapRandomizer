@@ -493,7 +493,6 @@ pub fn render_tile(
     } else {
         1
     };
-    let wall_color = if *theme == MapTheme::Dark { 4 } else { 3 };
     let mut data: [[u8; 8]; 8] = [[bg_color; 8]; 8];
 
     let liquid_colors = match (tile.liquid_type, tile.heated) {
