@@ -631,12 +631,12 @@ pub fn render_tile(
         }
         MapTileInterior::ElevatorPlatformLow => {
             // Use white instead of red for elevator platform:
-            data[5][3] = wall_color;
-            data[5][4] = wall_color;
+            data[5][3] = 3;
+            data[5][4] = 3;
         }
         MapTileInterior::ElevatorPlatformHigh => {
-            data[2][3] = wall_color;
-            data[2][4] = wall_color;
+            data[2][3] = 3;
+            data[2][4] = 3;
         }
         MapTileInterior::SaveStation => {
             if *theme == MapTheme::Dark {
