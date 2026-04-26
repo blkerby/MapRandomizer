@@ -282,7 +282,7 @@ org !bank_85_free_space_start
 ;;; load objective screen title from ROM to RAM
 load_obj_tilemap:
     %loadRamDMA(obj_bg1_tilemap, !BG1_tilemap+20, 24)
-    RTL
+    RTS
 
 ;;; update RAM tilemap with objectives text, line by line
 !tmp_tile_offset = $12
@@ -364,12 +364,10 @@ check_objs:
     PLX                            ; X <- objective number
     INX
     CPX !tmp_tile_offset
-    BEQ .exit
-    BRA .obj_check_lp
-
+    BNE .obj_check_lp
 .exit
     PLB
-    RTL
+    RTS
 
 check_objective: ; X = index
     PHX
@@ -399,7 +397,7 @@ find_next_check:
 ;;; direct DMA of BG1 tilemap to VRAM
 blit_objs:
     %gfxDMA(!BG1_tilemap, $30a0, !BG1_tilemap_size)
-    RTL
+    RTS
 
 ;;; DMA tilemap each frame
 queue_obj_tilemap:
@@ -732,12 +730,13 @@ func_map2obj_load_obj:
     STZ $B3                        ; BG1 Y scroll = 0
 
     STZ !obj_index
-    JSL load_obj_tilemap
-    JSL update_objs
-    JSL blit_objs
+    JSR load_obj_tilemap
+    JSR update_objs
+    JSR blit_objs
     LDA !pause_screen_mode_obj
     STA !pause_screen_mode         ; Pause screen mode = objective screen
     %callBank82Func($A615)         ; Set pause screen button label palettes
+    JSR fix_palette                ; Fix color used for dark map theme
     STZ $073F
     LDA $C10C
     STA $072B                      ; $072B = Fh
@@ -921,6 +920,11 @@ sram_to_gfx_dma: ; size in A, src in X (bank hardcoded to $70), dest in Y
     STX $0330
     RTS
 
+fix_palette:
+    LDA #$7FFF
+    STA $7EC04A
+    RTS
+    
 warnpc !bank_85_free_space2_end
 
 org !bank_B6_free_space_start
