@@ -436,7 +436,7 @@ pub fn apply_botwoon_requirement(
 
     // Assume a Charge shot accuracy rate of between 25% (on lowest difficulty) to 90% (on highest):
     let charge_accuracy = 0.25 + 0.65 * proficiency;
-    
+
     // Assume a Super accuracy rate of between 30% (on lowest difficulty) to 100% (on highest):
     let super_accuracy = 0.3 + 0.7 * proficiency;
 
