@@ -434,8 +434,14 @@ pub fn apply_botwoon_requirement(
     let mut time: f32 = 0.0; // Cumulative time in seconds for the phase
     let charge_damage = get_charge_damage(inventory);
 
-    // Assume an ammo accuracy rate of between 25% (on lowest difficulty) to 90% (on highest):
-    let accuracy = 0.25 + 0.65 * proficiency;
+    // Assume a Charge shot accuracy rate of between 25% (on lowest difficulty) to 90% (on highest):
+    let charge_accuracy = 0.25 + 0.65 * proficiency;
+    
+    // Assume a Super accuracy rate of between 30% (on lowest difficulty) to 100% (on highest):
+    let super_accuracy = 0.3 + 0.7 * proficiency;
+
+    // Assume a Missile accuracy rate of between 20% (on lowest difficulty) to 90% (on highest):
+    let missile_accuracy = 0.2 + 0.7 * proficiency;
 
     // Assume a firing rate of between 30% (on lowest difficulty) to 100% (on highest),
     let firing_rate = 0.3 + 0.7 * proficiency;
@@ -446,10 +452,10 @@ pub fn apply_botwoon_requirement(
         let supers_available = local.supers_available(inventory, reverse);
         let supers_to_use = min(
             supers_available,
-            f32::ceil(*boss_hp / (300.0 * accuracy)) as Capacity,
+            f32::ceil(*boss_hp / (300.0 * super_accuracy)) as Capacity,
         );
         assert!(local.use_supers(supers_to_use, inventory, reverse));
-        *boss_hp -= supers_to_use as f32 * 300.0 * accuracy;
+        *boss_hp -= supers_to_use as f32 * 300.0 * super_accuracy;
         // Assume a max average rate of one super shot per 2.0 second:
         *time += supers_to_use as f32 * 2.0 / firing_rate;
     };
@@ -460,11 +466,11 @@ pub fn apply_botwoon_requirement(
             0,
             min(
                 missiles_available,
-                f32::ceil(*boss_hp / (100.0 * accuracy)) as Capacity,
+                f32::ceil(*boss_hp / (100.0 * missile_accuracy)) as Capacity,
             ),
         );
         assert!(local.use_missiles(missiles_to_use, inventory, reverse));
-        *boss_hp -= missiles_to_use as f32 * 100.0 * accuracy;
+        *boss_hp -= missiles_to_use as f32 * 100.0 * missile_accuracy;
         // Assume a max average rate of one missile shot per 1.0 seconds:
         *time += missiles_to_use as f32 * 1.0 / firing_rate;
     };
@@ -475,7 +481,7 @@ pub fn apply_botwoon_requirement(
         }
         let charge_shots_to_use = max(
             0,
-            f32::ceil(*boss_hp / (charge_damage * accuracy)) as Capacity,
+            f32::ceil(*boss_hp / (charge_damage * charge_accuracy)) as Capacity,
         );
         *boss_hp = 0.0;
         // Assume max average rate of one charge shot per 3.0 seconds
