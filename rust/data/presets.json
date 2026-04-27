@@ -128,7 +128,7 @@
     "phantoon_proficiency": 0.3,
     "draygon_proficiency": 0.3,
     "ridley_proficiency": 0.15,
-    "botwoon_proficiency": 0.3,
+    "botwoon_proficiency": 0.15,
     "mother_brain_proficiency": 0.3,
     "tech": [
       {
@@ -275,7 +275,7 @@
     "phantoon_proficiency": 0.5,
     "draygon_proficiency": 0.5,
     "ridley_proficiency": 0.3,
-    "botwoon_proficiency": 0.5,
+    "botwoon_proficiency": 0.3,
     "mother_brain_proficiency": 0.5,
     "tech": [
       {
@@ -646,7 +646,7 @@
     "phantoon_proficiency": 0.7,
     "draygon_proficiency": 0.7,
     "ridley_proficiency": 0.5,
-    "botwoon_proficiency": 0.7,
+    "botwoon_proficiency": 0.5,
     "mother_brain_proficiency": 0.7,
     "tech": [
       {
@@ -1455,7 +1455,7 @@
     "phantoon_proficiency": 1.0,
     "draygon_proficiency": 0.9,
     "ridley_proficiency": 0.825,
-    "botwoon_proficiency": 1.0,
+    "botwoon_proficiency": 0.85,
     "mother_brain_proficiency": 1.0,
     "tech": [
       {
