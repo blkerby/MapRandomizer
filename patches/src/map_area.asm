@@ -9,7 +9,7 @@ lorom
 !bank_82_freespace2_end = $82FCD0
 !bank_85_freespace_start = $85A280  ; must match reference in item_dots_disappear.asm and fix_kraid_hud.asm
 !bank_85_freespace_end = $85A880
-!bank_85_freespace2_start = $85AB00
+!bank_85_freespace2_start = $85AB00 ; this is referenced in customize.rs (modified from 0000 if using dark-map theme).
 !bank_85_freespace2_end  = $85ACA0
 !bank_85_freespace3_start = $85B600
 !bank_85_freespace3_end  = $85BA00
@@ -555,7 +555,7 @@ load_map_screen:
     sta $7EC0FC
 
     ; Partially revealed tiles: black color for item dots, door locks
-    lda #$0000
+    lda !bank_85_freespace2_start ; this is tied to an address referenced in customize.rs
     sta $7EC07A
     sta $7EC06E
 
@@ -1353,6 +1353,7 @@ write_room_name_tiles:
 assert pc() <= !bank_82_freespace2_end
 
 org !bank_85_freespace2_start
+dw $0000  ; Partially revealed tiles palette value: overwrote by customize.rs if using dark theme
 
 !bit_offset = $3a
 !bit_offset_round = $3e

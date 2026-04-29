@@ -575,6 +575,10 @@ pub fn customize_rom(
         }
     }
 
+    if settings.map_theme == MapTheme::Dark {
+        rom.write_u16(snes2pc(0x85ab00), 0x14a5)?;
+    }
+
     match settings.music {
         MusicSettings::AreaThemed => {}
         MusicSettings::Disabled => {
