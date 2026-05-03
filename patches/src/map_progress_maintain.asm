@@ -106,7 +106,7 @@ activate_map_station_hook:
     lda $1F5B
     xba
     tax          ; X <- map area * $100
-    ldy $0080    ; Y <- loop counter (number of words to fill with #$FFFF)
+    ldy #$0080    ; Y <- loop counter (number of words to fill with #$FFFF)
 
     lda !map_station_reveal_type
     bne .partial_only_loop
@@ -122,15 +122,7 @@ activate_map_station_hook:
     bra .leave
 
 .partial_only_loop:
-    lda #$FFFF
     sta $702700, x
-    ; fully reveal specific tiles that contain area-transition markers,
-    ; since those would not show correctly in the partially-revealed palette:
-    ; TODO: look into removing this. It shouldn't be needed anymore, since we switched
-    ; to using the "cross-area reveal" table to cover these same-area reveal as well.
-    ;lda $829727, x
-    ;ora $702000, x
-    ;sta $702000, x
     inx
     inx
     dey
