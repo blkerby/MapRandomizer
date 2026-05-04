@@ -116,6 +116,12 @@ org $85877F
 ;    incbin !this_dir/Data/Opaque/messages.ttb
     incbin !this_dir/Data/Opaque/messages_ammo.ttb
 
+org $8592FF
+
+; change AMMO back to MISSILE
+    dw $000E, $000E, $000E, $000E, $000E, $000E, $2C0F, $2C0F, $2C0F, $2CCC, $2CC8, $2CD2, $2CD2, $2CC8, $2CCB, $2CC4, $2C0F, $2CD1, $2CC4, $2CCB, $2CCE, $2CC0, $2CC3, $2C0F, $2C0F, $000E, $000E, $000E, $000E, $000E, $000E, $000E
+assert pc() <= $8593BF
+
 ; FX tilemap
 org $8A8000
     incbin !this_dir/Data/FX_lava.ttb
