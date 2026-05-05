@@ -1,6 +1,6 @@
 {
     "version": 121,
-    "name": "Community Race Season 4",
+    "name": "Community Race Season 5",
     "skill_assumption_settings": {
         "preset": "Hard",
         "shinespark_tiles": 20,
@@ -11,19 +11,19 @@
         "farm_time_limit": 90,
         "gate_glitch_leniency": 14,
         "door_stuck_leniency": 2,
-        "bomb_into_cf_leniency": 5,
-        "jump_into_cf_leniency": 9,
+        "spike_suit_leniency": 15,
         "flash_suit_distance": 5,
         "blue_suit_distance": 7,
-        "spike_suit_leniency": 15,
         "spike_xmode_leniency": 2,
         "spike_speed_keep_leniency": 4,
         "elevator_cf_leniency": 8,
+        "bomb_into_cf_leniency": 5,
+        "jump_into_cf_leniency": 9,
         "crystal_spark_leniency": 14,
         "phantoon_proficiency": 0.5,
         "draygon_proficiency": 0.5,
         "ridley_proficiency": 0.3,
-        "botwoon_proficiency": 0.5,
+        "botwoon_proficiency": 0.3,
         "mother_brain_proficiency": 0.5,
         "escape_timer_multiplier": 1.6,
         "tech_settings": [
@@ -4270,7 +4270,7 @@
         "item_pool": [
             {
                 "item": "Missile",
-                "count": 42
+                "count": 45
             },
             {
                 "item": "ETank",
@@ -4282,11 +4282,87 @@
             },
             {
                 "item": "Super",
-                "count": 14
+                "count": 12
             },
             {
                 "item": "PowerBomb",
-                "count": 10
+                "count": 9
+            },
+            {
+                "item": "Charge",
+                "count": 1
+            },
+            {
+                "item": "Ice",
+                "count": 1
+            },
+            {
+                "item": "Wave",
+                "count": 1
+            },
+            {
+                "item": "Spazer",
+                "count": 1
+            },
+            {
+                "item": "Plasma",
+                "count": 1
+            },
+            {
+                "item": "XRayScope",
+                "count": 1
+            },
+            {
+                "item": "Morph",
+                "count": 1
+            },
+            {
+                "item": "Bombs",
+                "count": 1
+            },
+            {
+                "item": "Grapple",
+                "count": 1
+            },
+            {
+                "item": "HiJump",
+                "count": 1
+            },
+            {
+                "item": "SpeedBooster",
+                "count": 1
+            },
+            {
+                "item": "SparkBooster",
+                "count": 1
+            },
+            {
+                "item": "BlueBooster",
+                "count": 1
+            },
+            {
+                "item": "SpringBall",
+                "count": 1
+            },
+            {
+                "item": "WallJump",
+                "count": 1
+            },
+            {
+                "item": "SpaceJump",
+                "count": 1
+            },
+            {
+                "item": "ScrewAttack",
+                "count": 1
+            },
+            {
+                "item": "Varia",
+                "count": 1
+            },
+            {
+                "item": "Gravity",
+                "count": 1
             }
         ],
         "starting_items_preset": "None",
@@ -4356,7 +4432,19 @@
                 "count": 0
             },
             {
+                "item": "SparkBooster",
+                "count": 0
+            },
+            {
+                "item": "BlueBooster",
+                "count": 0
+            },
+            {
                 "item": "SpringBall",
+                "count": 0
+            },
+            {
+                "item": "WallJump",
                 "count": 0
             },
             {
@@ -4614,10 +4702,10 @@
         "fast_baby_cutscene": true,
         "fast_mother_brain_cutscene": true,
         "fast_decompression": true,
-        "fanfares": "Off",
         "respin": false,
         "infinite_space_jump": false,
         "momentum_conservation": false,
+        "fanfares": "Off",
         "all_items_spawn": true,
         "acid_chozo": true,
         "remove_climb_lava": true,
@@ -4745,22 +4833,22 @@
     "save_animals": "No",
     "other_settings": {
         "wall_jump": "Vanilla",
+        "speed_booster": "Vanilla",
         "area_assignment": {
-            "preset": "Size",
-            "base_order": "Size",
+            "preset": "Depth",
+            "base_order": "Depth",
             "ship_in_crateria": false,
             "mother_brain_in_tourian": false
         },
         "door_locks_size": "Large",
+        "maps_revealed": null,
         "map_station_reveal": "Full",
         "energy_free_shinesparks": false,
         "all_enemies_respawn": false,
+        "race_mode": true,
+        "random_seed": null,
         "disable_spikesuit": false,
         "disable_bluesuit": false,
-        "enable_major_glitches": false,
-        "speed_booster": "Vanilla",
-        "race_mode": true,
-        "random_seed": null
-    },
-    "debug": false
+        "enable_major_glitches": false
+    }
 }
