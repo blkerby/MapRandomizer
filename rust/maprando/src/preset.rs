@@ -227,7 +227,12 @@ impl PresetData {
             doors_presets.push(preset);
         }
 
-        let full_preset_names = ["Default", "Community Race Season 4", "Mentor Tournament"];
+        let full_preset_names = [
+            "Default",
+            "Community Race Season 5",
+            "Mentor Tournament",
+            "Summer Series Expert Challenge",
+        ];
         let full_preset_path = presets_path.join("full-settings");
         let mut full_presets: Vec<RandomizerSettings> = vec![];
         for name in full_preset_names {
