@@ -75,7 +75,9 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           push: true
-          tags: blkerby/map-rando:${{ env.DOCKER_TAG }}
+          tags: |
+            bkerby/map-rando:${{ env.DOCKER_TAG }}
+            bkerby/map-rando:${{ github.sha }}
           cache-from: type=registry,ref=bkerby/map-rando:buildcache
           cache-to: type=registry,ref=bkerby/map-rando:buildcache,mode=max
           build-args: |
