@@ -11,14 +11,14 @@
         "farm_time_limit": 120,
         "gate_glitch_leniency": 3,
         "door_stuck_leniency": 3,
-        "spike_suit_leniency": 15,
+        "bomb_into_cf_leniency": 5,
+        "jump_into_cf_leniency": 9,
         "flash_suit_distance": 5,
         "blue_suit_distance": 7,
+        "spike_suit_leniency": 15,
         "spike_xmode_leniency": 2,
         "spike_speed_keep_leniency": 4,
         "elevator_cf_leniency": 8,
-        "bomb_into_cf_leniency": 5,
-        "jump_into_cf_leniency": 9,
         "crystal_spark_leniency": 14,
         "phantoon_proficiency": 1,
         "draygon_proficiency": 0.8,
@@ -2304,13 +2304,6 @@
             },
             {
                 "room_id": 189,
-                "notable_id": 2,
-                "room_name": "Colosseum",
-                "notable_name": "Mochtroid Suitless, HiJumpless Ice Climb",
-                "enabled": true
-            },
-            {
-                "room_id": 189,
                 "notable_id": 6,
                 "room_name": "Colosseum",
                 "notable_name": "Spike Platforming with Move Assist (Left to Right)",
@@ -2601,6 +2594,13 @@
                 "notable_id": 8,
                 "room_name": "Aqueduct",
                 "notable_name": "Blue Space Jump",
+                "enabled": false
+            },
+            {
+                "room_id": 189,
+                "notable_id": 2,
+                "room_name": "Colosseum",
+                "notable_name": "Mochtroid Suitless, HiJumpless Ice Climb",
                 "enabled": false
             },
             {
@@ -4266,11 +4266,11 @@
         "spazer_before_plasma": true,
         "item_pool_preset": "Full",
         "stop_item_placement_early": false,
-        "ammo_collect_fraction": 1,
+        "ammo_collect_fraction": 1.0,
         "item_pool": [
             {
                 "item": "Missile",
-                "count": 45
+                "count": 46
             },
             {
                 "item": "ETank",
@@ -4282,87 +4282,11 @@
             },
             {
                 "item": "Super",
-                "count": 12
+                "count": 10
             },
             {
                 "item": "PowerBomb",
-                "count": 9
-            },
-            {
-                "item": "Charge",
-                "count": 1
-            },
-            {
-                "item": "Ice",
-                "count": 1
-            },
-            {
-                "item": "Wave",
-                "count": 1
-            },
-            {
-                "item": "Spazer",
-                "count": 1
-            },
-            {
-                "item": "Plasma",
-                "count": 1
-            },
-            {
-                "item": "XRayScope",
-                "count": 1
-            },
-            {
-                "item": "Morph",
-                "count": 1
-            },
-            {
-                "item": "Bombs",
-                "count": 1
-            },
-            {
-                "item": "Grapple",
-                "count": 1
-            },
-            {
-                "item": "HiJump",
-                "count": 1
-            },
-            {
-                "item": "SpeedBooster",
-                "count": 1
-            },
-            {
-                "item": "SparkBooster",
-                "count": 1
-            },
-            {
-                "item": "BlueBooster",
-                "count": 1
-            },
-            {
-                "item": "SpringBall",
-                "count": 1
-            },
-            {
-                "item": "WallJump",
-                "count": 1
-            },
-            {
-                "item": "SpaceJump",
-                "count": 1
-            },
-            {
-                "item": "ScrewAttack",
-                "count": 1
-            },
-            {
-                "item": "Varia",
-                "count": 1
-            },
-            {
-                "item": "Gravity",
-                "count": 1
+                "count": 10
             }
         ],
         "starting_items_preset": "None",
@@ -4432,19 +4356,7 @@
                 "count": 0
             },
             {
-                "item": "SparkBooster",
-                "count": 0
-            },
-            {
-                "item": "BlueBooster",
-                "count": 0
-            },
-            {
                 "item": "SpringBall",
-                "count": 0
-            },
-            {
-                "item": "WallJump",
                 "count": 0
             },
             {

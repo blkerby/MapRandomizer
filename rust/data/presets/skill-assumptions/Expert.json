@@ -2301,13 +2301,6 @@
         },
         {
             "room_id": 189,
-            "notable_id": 2,
-            "room_name": "Colosseum",
-            "notable_name": "Mochtroid Suitless, HiJumpless Ice Climb",
-            "enabled": true
-        },
-        {
-            "room_id": 189,
             "notable_id": 6,
             "room_name": "Colosseum",
             "notable_name": "Spike Platforming with Move Assist (Left to Right)",
@@ -2598,6 +2591,13 @@
             "notable_id": 8,
             "room_name": "Aqueduct",
             "notable_name": "Blue Space Jump",
+            "enabled": false
+        },
+        {
+            "room_id": 189,
+            "notable_id": 2,
+            "room_name": "Colosseum",
+            "notable_name": "Mochtroid Suitless, HiJumpless Ice Climb",
             "enabled": false
         },
         {
