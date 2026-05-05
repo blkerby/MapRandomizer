@@ -12,10 +12,6 @@ on:
 env:
   RUST_TOOLCHAIN: "1.94.1"
 
-defaults:
-  run:
-    working-directory: ./rust
-
 jobs:
   formatting:
     name: Formatting
@@ -29,6 +25,7 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           components: rustfmt
       - run: cargo fmt --check
+        working-directory: ./rust
   clippy:
     name: Clippy Lints
     env:
@@ -43,6 +40,7 @@ jobs:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
           components: clippy
       - run: cargo clippy --all-targets
+        working-directory: ./rust
   tests:
     name: Tests
     runs-on: ubuntu-latest
@@ -54,6 +52,7 @@ jobs:
         with:
           toolchain: ${{ env.RUST_TOOLCHAIN }}
       - run: cargo test
+        working-directory: ./rust
   build-docker:
     name: Build Docker image
     runs-on: ubuntu-latest
