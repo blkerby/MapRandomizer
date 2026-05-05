@@ -46,7 +46,7 @@ deathhook:
     plp
     rts
     
-warnpc $82DDF1
+assert pc() <= $82DDF1
 
 ; Hook main game loop
 org $82897A
@@ -169,7 +169,7 @@ hook_main:
     pea $f70d    ; $82f70e = rtl
     jml !deathhook82
 
-warnpc !bank_85_free_space_end
+assert pc() <= !bank_85_free_space_end
 
 org !spin_lock_button_combo
     dw $0870
@@ -351,7 +351,7 @@ hook_ship_save:
     jsl $809049
     rtl
 
-warnpc $A18000
+assert pc() <= $A18000
 
 ; load game room pointer hook
 org $80c45e
@@ -377,4 +377,20 @@ hook_room:
     sta $079B  ; replaced code
     rts
 
-warnpc !bank_80_free_space_end
+assert pc() <= !bank_80_free_space_end
+
+
+; quick reload music fix - nn_357
+; ;;; $E09B: Update music track index ;;;
+; Called only by $80:A07B (start gameplay) to set the music track to play when Samus fanfare finishes
+; noted in PJ's bank logs... E0AC..CB can be omitted >_<;
+; could be refined further.. since we currently have no demos I just replace the check if in demo to check if we are in quick reload.
+; it updates the music tracks so the fast reload setup_game_3 doesn't trigger to update the area music.
+
+org $82e09f
+update_music:
+  lda !QUICK_RELOAD
+  bne .return
+  nop #3
+org $82e0d2  
+.return
